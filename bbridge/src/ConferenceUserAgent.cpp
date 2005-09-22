@@ -14,11 +14,54 @@ Participant::Participant(DialogUsageManager& dum, const SipMessage& msg) : AppDi
    
 }
 
+Participant::~Participant()
+{
+   if (mConference)
+   {
+      mConference->stopRtpReceive(mConnId);
+      mConference->stopRtpSend(mConnId);
+      mConference->deleteConnection(connectionId);
+   }
+}
+
+void
+Participant::assign(Conference* conf, int connId)
+{
+   mConference = conf;
+   mConnId = connId;
+}
+
+int 
+Participant::id() const
+{
+   return mId;
+}
+
+Conference::Conference(const ConferenceUserAgent& ua, const Data& aor) : 
+   CpMediaInterface(ua.mMediaFactory.createMediaInterface(DnsUtil::getLocalIpAddress().c_str(), // public 
+                                                          DnsUtil::getLocalIpAddress().c_str(), // local
+                                                          ua.mNumCodecs, 
+                                                          ua.mSdpCodecArray, 
+                                                          "",  // locale
+                                                          QOS_LAYER3_LOW_DELAY_IP_TOS,
+                                                          "", // stun server
+                                                          0, // stun options
+                                                          25)) // stun keep alive
+   mAor(aor)
+{
+}
+
+Conference::~Conference()
+{
+   
+}
+
 AppDialogSet* 
 ParticipantFactory::createAppDialogSet(DialogUsageManager& dum, const SipMessage& msg)
 {
    return new Participant(dum);
 }
+
 
 ConferenceUserAgent::ConferenceUserAgent(const NameAddr& myAor) :
    mProfile(new MasterProfile),
@@ -78,17 +121,10 @@ ConferenceUserAgent::~ConferenceUserAgent()
 }
 
 void
-ConferenceUserAgent::onNewSession(ClientInviteSessionHandle h, InviteSession::OfferAnswerType oat, const SipMessage& msg)
-{
-   assert(0);
-}
-
-void
 ConferenceUserAgent::onNewSession(ServerInviteSessionHandle h, InviteSession::OfferAnswerType oat, const SipMessage& msg)
 {
    InfoLog(<< h->myAddr().uri().user() << " INVITE from  " << h->peerAddr().uri().user());
 
-   InfoLog(<< h->myAddr().uri().user() << " 180 from  " << h->peerAddr().uri().user());
    const Data& aor = msg.header(h_RequestLine).uri().getAor();
    Participant* part = dynamic_cast<Participant*>(getAppDialogSet().get());
    assert(part);
@@ -97,10 +133,6 @@ ConferenceUserAgent::onNewSession(ServerInviteSessionHandle h, InviteSession::Of
       mConferences[aor] = new Conference(aor);
    }
    part->assign(mConferences[aor]);
-         
-   SdpContents* sdp = dynamic_cast<SdpContents*>(msg.getContents());
-   h->provideAnswer(*sdp);
-   h->accept();
 }
 
 void
@@ -121,14 +153,31 @@ ConferenceUserAgent::onTerminated(InviteSessionHandle h, InviteSessionHandler::T
 }
 
 void
-ConferenceUserAgent::onAnswer(InviteSessionHandle, const SipMessage& msg, const SdpContents&)
+ConferenceUserAgent::onOffer(InviteSessionHandle handle, const SipMessage& msg, const SdpContents& offer)
+{         
+   const Data& aor = msg.header(h_RequestLine).uri().getAor();
+   Participant* part = dynamic_cast<Participant*>(getAppDialogSet().get());
+   assert(mConferences.count(aor));
+   assert(part);
+
+   SdpContents* sdp = dynamic_cast<SdpContents*>(msg.getContents());
+   h->provideAnswer(*sdp);
+   h->accept();
+   
+   // createConnection
+}
+
+void
+ConferenceUserAgent::onNewSession(ClientInviteSessionHandle h, InviteSession::OfferAnswerType oat, const SipMessage& msg)
 {
    assert(0);
 }
 
+
 void
-ConferenceUserAgent::onOffer(InviteSessionHandle handle, const SipMessage& msg, const SdpContents& offer)
-{         
+ConferenceUserAgent::onAnswer(InviteSessionHandle, const SipMessage& msg, const SdpContents&)
+{
+   assert(0);
 }
 
 void

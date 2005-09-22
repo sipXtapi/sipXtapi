@@ -36,7 +36,7 @@ class Participant : public AppDialogSet
       ~Participant();
 
       void assign(Conference* conf, int connId);
-      int id() const { return mConnId; }
+      int id() const;
       
    private:
       Conference* mConference;
@@ -106,6 +106,8 @@ class ConferenceUserAgent : public InviteSessionHandler
       int mNumCodecs;
       
       HashMap<Data, Conference*> mConferences;
+      
+      friend class Conference;
 };
  
 }
