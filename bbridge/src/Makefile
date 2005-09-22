@@ -48,6 +48,7 @@ Makefile.config:
 	@echo "SIPXPATH  := ../.." > Makefile.config
 	@echo "RESIPPATH := ../../../resiprocate" >> Makefile.config
 	@echo "RESIPOBJ  := obj.debug.$(UNAME_OS).$(UNAME_P)" >> Makefile.config
+	@echo ""
 	@echo "*****************************************************"
 	@echo "*****************************************************"
 	@echo "*** NOTE: A Makefile.config file has been created ***"
@@ -56,6 +57,7 @@ Makefile.config:
 	@echo "*** configuration                                 ***"
 	@echo "*****************************************************"
 	@echo "*****************************************************"
+	@echo ""
 
 .%.d: %.cpp
 	@echo Generating dependencies for $*.o
