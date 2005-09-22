@@ -4,14 +4,11 @@ CPPFLAGS += -Wall
 CPPFLAGS += -g
 CPPFLAGS += -I../include
 
-SRC := $(wildcard *.cpp)
+SRC  := $(wildcard *.cpp)
 DEPS := $(patsubst %.cpp, .%.d, $(SRC))
 OBJS := $(patsubst %.cpp, %.o, $(SRC))
 
 include Makefile.config
-
-UNAME_OS := `uname`
-UNAME_P  := `uname -p`
 
 ######################################################################
 # Add the sipX includes, libraries, and defines
@@ -42,12 +39,14 @@ CPPFLAGS += -I$(RESIPPATH)
 bbridge: $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $^
 
--include $(DEPS)
+ifneq ($(MAKECMDGOALS),clean)
+  -include $(DEPS)
+endif
 
 Makefile.config:
 	@echo "SIPXPATH  := ../.." > Makefile.config
 	@echo "RESIPPATH := ../../../resiprocate" >> Makefile.config
-	@echo "RESIPOBJ  := obj.debug.$(UNAME_OS).$(UNAME_P)" >> Makefile.config
+	@echo "RESIPOBJ  := obj.debug.`uname`.`uname -p`" >> Makefile.config
 	@echo ""
 	@echo "*****************************************************"
 	@echo "*****************************************************"
@@ -79,4 +78,3 @@ clean:
 # This is useful for debugging; e.g. try "make show.CXX"
 show.%:
 	@echo $*=$($*)
-

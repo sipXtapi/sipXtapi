@@ -1,11 +1,22 @@
 #if !defined(DUM_ConferenceUserAgent_hxx)
 #define DUM_ConferenceUserAgent_hxx
 
+// repro includes
+#include "resip/dum/AppDialogSetFactory.hxx"
+#include "resip/dum/AppDialogSet.hxx"
 #include "resip/dum/DialogUsageManager.hxx"
 #include "resip/dum/DumThread.hxx"
 #include "resip/dum/InviteSessionHandler.hxx"
 #include "resip/dum/MasterProfile.hxx"
 #include "resip/stack/StackThread.hxx"
+
+// sipX includes
+#include "os/OsTask.h"
+#include "os/OsConfigDb.h"
+#include "sipXmediaFactoryImpl.h"
+#include "net/QoS.h"
+#include "net/SdpCodecFactory.h"
+#include "mi/CpMediaInterface.h"
 
 namespace resip
 {
@@ -16,6 +27,7 @@ class ParticipantFactory : public AppDialogSetFactory
       AppDialogSet* createAppDialogSet(DialogUsageManager&, const SipMessage&);      
 };
 
+class Conference;
 
 class Participant : public AppDialogSet
 {
@@ -46,8 +58,8 @@ class Conference : public CpMediaInterface
 class ConferenceUserAgent : public InviteSessionHandler
 {
    public:
-      UserAgent();
-      virtual ~UserAgent();
+      ConferenceUserAgent();
+      virtual ~ConferenceUserAgent();
 
       void process();
       
