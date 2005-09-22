@@ -8,9 +8,13 @@ SRC := $(wildcard *.cpp)
 DEPS := $(patsubst %.cpp, .%.d, $(SRC))
 OBJS := $(patsubst %.cpp, %.o, $(SRC))
 
+include Makefile.config
+
+UNAME_OS := `uname`
+UNAME_P  := `uname -p`
+
 ######################################################################
 # Add the sipX includes, libraries, and defines
-SIPXPATH := ../..
 LDFLAGS += -L$(SIPXPATH)/sipXmediaAdapterLib/sipXmediaMediaProcessing/src/.libs
 LDFLAGS += -lsipXmediaProcessing
 CPPFLAGS += -I $(SIPXPATH)/sipXmediaAdapterLib/sipXmediaMediaProcessing/include
@@ -26,10 +30,32 @@ SIPXSO := $(wildcard $(patsubst %, $(SIPXPATH)/%Lib/src/.libs/*.so*, $(SIPXLIBS)
 SIPXSO += $(wildcard $(SIPXPATH)/sipXmediaAdapterLib/sipXmediaMediaProcessing/src/.libs/*.so*)
 ######################################################################
 
+######################################################################
+# Add the resip includes, libraries, and defines
+LDFLAGS += -L$(RESIPPATH)/resip/dum/$(RESIPOBJ)/ -ldum
+LDFLAGS += -L$(RESIPPATH)/resip/stack/$(RESIPOBJ)/ -lresip
+LDFLAGS += -L$(RESIPPATH)/rutil/$(RESIPOBJ)/ -lrutil
+LDFLAGS += -L$(RESIPPATH)/contrib/ares -lares
+CPPFLAGS += -I$(RESIPPATH)
+######################################################################
+
 bbridge: $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $^
 
 -include $(DEPS)
+
+Makefile.config:
+	@echo "SIPXPATH  := ../.." > Makefile.config
+	@echo "RESIPPATH := ../../../resiprocate" >> Makefile.config
+	@echo "RESIPOBJ  := obj.debug.$(UNAME_OS).$(UNAME_P)" >> Makefile.config
+	@echo "*****************************************************"
+	@echo "*****************************************************"
+	@echo "*** NOTE: A Makefile.config file has been created ***"
+	@echo "*** for you. Check the settings in that file and  ***"
+	@echo "*** verify that they make sense for your          ***"
+	@echo "*** configuration                                 ***"
+	@echo "*****************************************************"
+	@echo "*****************************************************"
 
 .%.d: %.cpp
 	@echo Generating dependencies for $*.o
