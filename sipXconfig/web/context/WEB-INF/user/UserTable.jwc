@@ -10,11 +10,6 @@
     <!--
       - P A R A M E T E R S
       -->    
-    <parameter name="users" 
-        type="java.util.List"
-        required="no" 
-        direction="in">
-    </parameter>
     <parameter name="userListener" 
         type="org.apache.tapestry.IActionListener"
         required="no" 
@@ -36,7 +31,6 @@
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="userTableModel" class="org.sipfoundry.sipxconfig.site.user.UserTableModel">
-        <set-property name="users" expression="users"/>
         <set-property name="coreContext" expression="page.global.coreContext"/>
         <set-property name="pageSize" expression="20"/>
     </bean>

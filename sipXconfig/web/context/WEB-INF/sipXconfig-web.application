@@ -115,6 +115,7 @@
     <component-type type="UserRingTable" specification-path="admin/UserRingTable.jwc"/>
     <component-type type="UserSearch" specification-path="user/UserSearch.jwc"/>
     <component-type type="UserTable" specification-path="user/UserTable.jwc"/>
+    <component-type type="UserSearchResults" specification-path="user/UserSearchResults.jwc"/>
     
     
     <!-- Services -->
