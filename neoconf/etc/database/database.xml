@@ -99,7 +99,8 @@
       relax_group_name_uniqueness,
       phone_description,
 	  dialing_rule_name_uniqueness,
-	  phone_serial_number_uniqueness
+	  phone_serial_number_uniqueness,
+  	  emergency_routing
 	  "/>
   <target name="schema" unless="schema">
     <sipx-sql>
@@ -287,6 +288,9 @@
 	</sipx-sql>
   	<mark-patch-applied patch="phone_serial_number_uniqueness"/>
   </target>
+  <target name="emergency_routing" unless="emergency_routing">
+	    <db-patch patch="emergency_routing"/>
+  </target>  
 	
   <!--
     - SUPPORT UTILITIES

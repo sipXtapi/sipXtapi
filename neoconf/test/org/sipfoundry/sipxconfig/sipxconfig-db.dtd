@@ -96,15 +96,33 @@
     use_media_server CDATA #IMPLIED
 >
 
+<!ELEMENT emergency_routing EMPTY>
+<!ATTLIST emergency_routing
+    emergency_routing_id CDATA #REQUIRED
+    gateway_id CDATA #IMPLIED
+    external_number CDATA #IMPLIED
+>
+
+<!ELEMENT extension_pool EMPTY>
+<!ATTLIST extension_pool
+    extension_pool_id CDATA #REQUIRED
+    enabled CDATA #REQUIRED
+    name CDATA #REQUIRED
+    first_extension CDATA #IMPLIED
+    last_extension CDATA #IMPLIED
+    next_extension CDATA #IMPLIED
+>
+
 <!ELEMENT gateway EMPTY>
 <!ATTLIST gateway
     gateway_id CDATA #REQUIRED
-    factory_id CDATA #REQUIRED
+    bean_id CDATA #REQUIRED
     name CDATA #IMPLIED
     address CDATA #IMPLIED
     description CDATA #IMPLIED
     serial_number CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
+    model_id CDATA #IMPLIED
 >
 
 <!ELEMENT group_storage EMPTY>
@@ -235,11 +253,11 @@
 <!ELEMENT phone EMPTY>
 <!ATTLIST phone
     phone_id CDATA #REQUIRED
-    name CDATA #IMPLIED
-    serial_number CDATA #IMPLIED
+    serial_number CDATA #REQUIRED
     bean_id CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
     model_id CDATA #IMPLIED
+    description CDATA #IMPLIED
 >
 
 <!ELEMENT phone_group EMPTY>
@@ -258,11 +276,26 @@
     user_id CDATA #REQUIRED
 >
 
+<!ELEMENT routing_exception EMPTY>
+<!ATTLIST routing_exception
+    routing_exception_id CDATA #REQUIRED
+    gateway_id CDATA #IMPLIED
+    external_number CDATA #IMPLIED
+    callers CDATA #IMPLIED
+    emergency_routing_id CDATA #IMPLIED
+>
+
 <!ELEMENT setting_value EMPTY>
 <!ATTLIST setting_value
     value_storage_id CDATA #REQUIRED
     value CDATA #REQUIRED
     path CDATA #REQUIRED
+>
+
+<!ELEMENT user_alias EMPTY>
+<!ATTLIST user_alias
+    user_id CDATA #REQUIRED
+    alias CDATA #REQUIRED
 >
 
 <!ELEMENT user_group EMPTY>
@@ -288,8 +321,7 @@
     pintoken CDATA #IMPLIED
     sip_password CDATA #IMPLIED
     last_name CDATA #IMPLIED
-    user_name CDATA #IMPLIED
-    extension CDATA #IMPLIED
+    user_name CDATA #REQUIRED
     value_storage_id CDATA #IMPLIED
 >
 
