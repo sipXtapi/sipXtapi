@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -29,36 +28,17 @@ public class UserTableModel extends AbstractTableModel {
     
     private CoreContext m_coreContext;
 
-    // FIXME: will go away when m_user collection goes away
-    private Collection m_users;
-
-    // FIXME: will go away when m_user collection goes away
-    public void setUsers(Collection users) {
-        m_users = users;
-    }
-
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
     
     public int getRowCount() {
-
-        // FIXME: will go away when m_user collection goes away
-        if (m_users != null) {
-            return m_users.size();
-        }
-
         int count = m_coreContext.getUserCount();
         return count;
     }
 
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
             boolean orderAscending) {
-        
-        // FIXME: will go away when m_user collection goes away
-        if (m_users != null) {
-            return m_users.iterator();
-        }
         
         OrderByTableColumn userCol = (OrderByTableColumn) objSortColumn;
         String orderBy = userCol != null ? userCol.getOrderBy() : USER_NAME_PROPERTY;
