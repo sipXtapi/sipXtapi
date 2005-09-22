@@ -1,6 +1,7 @@
 #include "rutil/Log.hxx"
 #include "rutil/Logger.hxx"
 #include "resip/dum/ServerInviteSession.hxx"
+#include "rutil/DnsUtil.hxx"
 #include "ConferenceUserAgent.h"
 
 using namespace resip;
@@ -20,7 +21,7 @@ Participant::~Participant()
    {
       mConference->stopRtpReceive(mConnId);
       mConference->stopRtpSend(mConnId);
-      mConference->deleteConnection(connectionId);
+      mConference->deleteConnection(mConnId);
    }
 }
 
@@ -37,7 +38,7 @@ Participant::id() const
    return mId;
 }
 
-Conference::Conference(const ConferenceUserAgent& ua, const Data& aor) : 
+Conference::Conference(ConferenceUserAgent& ua, const Data& aor) : 
    CpMediaInterface(ua.mMediaFactory.createMediaInterface(DnsUtil::getLocalIpAddress().c_str(), // public 
                                                           DnsUtil::getLocalIpAddress().c_str(), // local
                                                           ua.mNumCodecs, 
@@ -46,7 +47,7 @@ Conference::Conference(const ConferenceUserAgent& ua, const Data& aor) :
                                                           QOS_LAYER3_LOW_DELAY_IP_TOS,
                                                           "", // stun server
                                                           0, // stun options
-                                                          25)) // stun keep alive
+                                                          25)), // stun keep alive
    mAor(aor)
 {
 }

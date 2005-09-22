@@ -32,7 +32,7 @@ class Conference;
 class Participant : public AppDialogSet
 {
    public:
-      Participant(DialogUsageManager& dum);
+      Participant(DialogUsageManager& dum, const SipMessage &msg);
       ~Participant();
 
       void assign(Conference* conf, int connId);
@@ -43,10 +43,12 @@ class Participant : public AppDialogSet
       int mConnId;
 };
 
+class ConferenceUserAgent;
+
 class Conference : public CpMediaInterface
 {
    public:
-      Conference(const Data& aor);
+      Conference(ConferenceUserAgent &ua, const Data& aor);
       ~Conference();
 
    private:
