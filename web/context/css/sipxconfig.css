@@ -1,15 +1,10 @@
+/* Edited with EditCSS */
+/**** LINK-tag style sheet sipxconfig.css ****/
+
 body
 {
 	font-family:Verdana, Arial, Helvetica, sans-serif;
 	font-size:12px;
-	scrollbar-base-#color:#FFFFCC;
-	scrollbar-track-color:#FFFFCC;
-	scrollbar-face-color:#3D3D3D;
-	scrollbar-highlight-color:#FFFFCC;
-	scrollbar-3dlight-color:#669999;
-	scrollbar-darkshadow-color:#964E2E;
-	scrollbar-shadow-color:#669999;
-	scrollbar-arrow-color:#FFF;
 	margin:0;
 	padding:0;
 	background:#FFFFCC;
@@ -17,21 +12,16 @@ body
 
 a:link
 {
-	font-weight:bold;
-	text-decoration:none;
 	color:#3D3D3D;
 }
 
 a:visited
 {
-	font-weight:bold;
-	text-decoration:none;
 	color:#3D3D3D;
 }
 
 a:hover,a:active
 {
-	text-decoration:underline;
 	color:#3D3D3D;
 }
 
@@ -142,8 +132,6 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 	height:0;
 	color:#fff;
 	border-bottom:thick solid #669999;
-	font-weight:bold;
-	font-style:italic;
 	padding:55px 0 20px 120px;
 	background:url(/sipxconfig/images/sipxconfig-logo.png) no-repeat left #669999;
 }
@@ -151,13 +139,11 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 #banner-links
 {
 	float:right;
-	font-style:normal;
 	padding:0 50px 0 0;
 }
 
 #banner-links a
 {
-	font-weight:bold;
 	text-decoration:none;
 	color:#fff;
 	padding:0 5px;
@@ -165,7 +151,6 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 
 #banner-links a:hover,a:active
 {
-	text-decoration:underline;
 	color:#3D3D3D;
 }
 
@@ -187,6 +172,8 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 }
 
 #navigation a {
+        text-decoration:none;
+	font-style:normal;
         color: #FFFFFF;
 }
 
@@ -197,7 +184,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 .navHeading
 {
 	font-family:Arial, Helvetica, sans-serif;
-	font-size:16px;
+	font-size:14px;
 	font-weight:bold;
         color: #FFFFFF;
 }
@@ -336,9 +323,11 @@ table.component thead th
 	padding:3px;
 }
 
-table.component th a
+table.component th a, th
 {
+        text-decoration:none;
 	color:#fff;
+        font-weight:normal;
 }
 
 table.component td
@@ -428,6 +417,92 @@ label
 {
 	font-size:120%;
 	padding-right:1em;
+}
+
+form.with-sections fieldset
+{
+	border-top-width:2em;
+	border-color:#FFFFCC;
+	border-style:solid !important;
+	background:#FFFFCC;
+}
+
+fieldset td
+{
+	padding:3px;
+}
+
+form.with-sections legend
+{
+	background:#F0E68C;
+}
+
+.page-label
+{
+	font-weight:bold;
+	margin:2px;
+	padding:2px;
+}
+
+ul.form-actions
+{
+	list-style-type:none;
+	text-align:left;
+}
+
+ul.form-actions li
+{
+	display:inline;
+}
+
+.banner-logo
+{
+	display:none;
+}
+
+.hide
+{
+	display:none;
+}
+
+.user-error
+{
+	font-weight:bold;
+	color:#3D3D3D;
+}
+
+#comments
+{
+	border-top:solid;
+	color:#3D3D3D;
+}
+
+#col1
+{
+	float:left;
+	width:25em;
+}
+
+#col2
+{
+	float:left;
+	width:25em;
+}
+
+text-align: left; }
+ul.form-actions li
+{
+	display:inline;
+}
+
+
+s li
+{
+	display:inline;
+}
+
+
+ing-right:1em;
 }
 
 form.with-sections fieldset
