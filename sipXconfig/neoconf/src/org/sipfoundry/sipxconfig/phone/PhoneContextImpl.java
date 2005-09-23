@@ -19,6 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Order;
 import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -160,9 +163,17 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return count.intValue();        
     }
     
-    public List loadPhonesByPage(int firstRow, int pageSize, String orderBy, boolean orderAscending) {
-        List phones = DaoUtils.loadByPage(getSession(), QUERY_PHONE, firstRow, 
-                pageSize, orderBy, orderAscending);
+    public List loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String orderBy, boolean orderAscending) {
+        Criteria c = getSession().createCriteria(Phone.class);
+        if (groupId != null) {
+            c.createCriteria("groups", "g");
+            c.add(Expression.eq("g.id", groupId));
+        }
+        c.setFirstResult(firstRow);
+        c.setMaxResults(pageSize);
+        Order order = orderAscending ? Order.asc(orderBy) : Order.desc(orderBy);
+        c.addOrder(order);
+        List phones = c.list();
         return phones;
     }
     

@@ -39,7 +39,7 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
     
     public int getUserCount();
         
-    public List loadUsersByPage(int page, int pageSize, String orderBy, boolean orderAscending);
+    public List loadUsersByPage(Integer groupId, int page, int pageSize, String orderBy, boolean orderAscending);
 
     public List loadUserByTemplateUser(User template);
 

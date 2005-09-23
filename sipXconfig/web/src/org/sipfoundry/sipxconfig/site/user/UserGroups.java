@@ -58,6 +58,13 @@ public abstract class UserGroups extends BasePage  implements PageRenderListener
         cycle.activate(page);
     }
     
+    public void showGroupMembers(IRequestCycle cycle) {
+        ManageUsers page = (ManageUsers) cycle.getPage(ManageUsers.PAGE);
+        Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getServiceParameters(), 0);
+        page.setGroupId(groupId);
+        cycle.activate(page);
+    }
+    
     public void pageBeginRender(PageEvent event_) {
         CoreContext context = getCoreContext();
         setGroups(context.getUserGroups());

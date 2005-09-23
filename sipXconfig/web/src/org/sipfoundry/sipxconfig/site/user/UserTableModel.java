@@ -27,6 +27,7 @@ public class UserTableModel extends AbstractTableModel {
     static final String LAST_NAME_PROPERTY = "lastName";
     
     private CoreContext m_coreContext;
+    private Integer m_groupId;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -36,13 +37,17 @@ public class UserTableModel extends AbstractTableModel {
         int count = m_coreContext.getUserCount();
         return count;
     }
+    
+    public void setGroupId(Integer groupId) {
+        m_groupId = groupId;
+    }
 
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
             boolean orderAscending) {
         
         OrderByTableColumn userCol = (OrderByTableColumn) objSortColumn;
         String orderBy = userCol != null ? userCol.getOrderBy() : USER_NAME_PROPERTY;
-        List page = m_coreContext.loadUsersByPage(firstRow, pageSize, orderBy, orderAscending);
+        List page = m_coreContext.loadUsersByPage(m_groupId, firstRow, pageSize, orderBy, orderAscending);
         return page.iterator();
     }
     

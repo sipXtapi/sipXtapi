@@ -59,4 +59,11 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
         PhoneContext context = getPhoneContext();
         setGroups(context.getGroups());
     }
+
+    public void showGroupMembers(IRequestCycle cycle) {
+        ManagePhones page = (ManagePhones) cycle.getPage(ManagePhones.PAGE);
+        Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getServiceParameters(), 0);
+        page.setGroupId(groupId);
+        cycle.activate(page);
+    }
 }

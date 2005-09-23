@@ -21,6 +21,10 @@
         type="org.apache.tapestry.IActionListener"
         required="yes"
         direction="auto"/>
+    <parameter name="groupMembersListener"
+        type="org.apache.tapestry.IActionListener"
+        required="yes"
+        direction="auto"/>        
      
 	<property-specification name="currentRow" 
 		type="org.sipfoundry.sipxconfig.setting.Group"/>
@@ -67,6 +71,10 @@
     </component>
     <!-- Column 3: view members -->
     <component id="MembersColumnValue" type="Block"/>
+    <component id="memberLink" type="DirectLink">
+        <binding name="listener" expression="groupMembersListener"/>        
+        <binding name="parameters" expression="currentRow.primaryKey"/>
+    </component>
     <component id="memberCount" type="Insert">
         <binding name="value" expression="memberCounts[currentRow.primaryKey]"/>
     </component>

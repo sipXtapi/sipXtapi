@@ -88,7 +88,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
         
-        Collection page1 = m_context.loadPhonesByPage(0, 4, "beanId || modelId", true);
+        Collection page1 = m_context.loadPhonesByPage(null, 0, 4, "beanId || modelId", true);
         Phone[] phones = (Phone[]) page1.toArray(new Phone[page1.size()]);
         assertEquals("00003", phones[0].getSerialNumber());
         assertEquals("00004", phones[1].getSerialNumber());

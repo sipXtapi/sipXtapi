@@ -8,6 +8,9 @@
 	<property-specification name="phones" type="java.util.Collection"/>
 	<property-specification name="currentRow" 
 		type="org.sipfoundry.sipxconfig.phone.Phone"/>
+	<property-specification name="groupId"
+        persistent="yes" 
+		type="java.lang.Integer"/>
 	<property-specification name="currentLine" 
 		type="org.sipfoundry.sipxconfig.phone.Line"/>
    	<property-specification name="selections" 
@@ -23,6 +26,7 @@
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="tableModel" class="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel">
         <set-property name="phoneContext" expression="page.global.phoneContext"/>
+        <set-property name="groupId" expression="groupId"/>
         <set-property name="pageSize" expression="20"/>
     </bean>
 	<!--
@@ -79,5 +83,9 @@
     </component>
     <component id="delete" type="Submit">
         <binding name="listener" expression="listeners.deletePhone"/>
+    </component>
+    <component id="groupFilter" type="GroupFilter">
+        <binding name="selectedGroupId" expression="groupId"/>
+        <binding name="groups" expression="phoneContext.groups"/>
     </component>
 </page-specification>

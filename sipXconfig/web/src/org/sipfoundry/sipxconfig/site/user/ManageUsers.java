@@ -27,6 +27,8 @@ public abstract class ManageUsers extends BasePage {
     public static final String PAGE = "ManageUsers";
     private static final String USER_TABLE_COMPONENT_ID = "userTable";
     public abstract CoreContext getCoreContext();
+    public abstract void setGroupId(Integer groupId);
+    public abstract Integer getGroupId();   
     
     public void addUser(IRequestCycle cycle) {
         NewUser page = (NewUser) cycle.getPage(NewUser.PAGE);

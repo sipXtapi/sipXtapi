@@ -30,6 +30,11 @@ public class PhoneTableModel extends AbstractTableModel {
     private static final String MODEL_PROPERTY = "model.label";
     
     private PhoneContext m_phoneContext;
+    private Integer m_groupId;
+
+    public void setGroupId(Integer groupId) {
+        m_groupId = groupId;
+    }
 
     public void setPhoneContext(PhoneContext context) {
         m_phoneContext = context;
@@ -53,7 +58,7 @@ public class PhoneTableModel extends AbstractTableModel {
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn, boolean orderAscending) {
         OrderByTableColumn userCol = (OrderByTableColumn) objSortColumn;
         String orderBy = userCol != null ? userCol.getOrderBy() : SERIAL_NUM_PROPERTY;
-        List page = m_phoneContext.loadPhonesByPage(firstRow, pageSize, orderBy, orderAscending);
+        List page = m_phoneContext.loadPhonesByPage(m_groupId, firstRow, pageSize, orderBy, orderAscending);
         return page.iterator();
     }
 
