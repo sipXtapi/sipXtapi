@@ -56,7 +56,7 @@ public abstract class AbstractTableModel implements IBasicTableModel {
         
         public OrderByTableColumn(String name, String expression, String orderBy) {
             super(name, expression, true);
-            m_orderBy = orderBy;
+            m_orderBy = orderBy;            
         }
         
         public OrderByTableColumn(String name, String expression) {
