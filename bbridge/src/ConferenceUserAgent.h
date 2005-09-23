@@ -36,8 +36,8 @@ class Participant : public AppDialogSet
       ~Participant();
 
       void assign(Conference* conf, int connId);
+      void accept(const SdpContents& offer, SdpContents& answer);
       int id() const;
-      void startSending(const SdpContents& sdp);
       
    private:
       Conference* mConference;

@@ -19,9 +19,12 @@ Participant::~Participant()
 {
    if (mConference)
    {
-      mConference->stopRtpReceive(mConnId);
-      mConference->stopRtpSend(mConnId);
-      mConference->deleteConnection(mConnId);
+      assert(mConference->mMedia);
+      mConference->mMedia->stopRtpReceive(mConnId);
+      mConference->mMedia->stopRtpSend(mConnId);
+      mConference->mMedia->deleteConnection(mConnId);
+      // should check to see if all participants are gone now and delete the
+      // conference if needed
    }
 }
 
@@ -39,7 +42,7 @@ Participant::id() const
 }
 
 void
-Participant::startSending(const SdpContents& offer, const SdpContents& answer)
+Participant::accept(const SdpContents& offer, SdpContents& answer)
 {
    assert(mConference);
    
@@ -168,6 +171,9 @@ ConferenceUserAgent::onTerminated(InviteSessionHandle h, InviteSessionHandler::T
    Participant* part = dynamic_cast<Participant*>(getAppDialogSet().get());
    assert(part);
    assert(mConferences.count(aor));
+   delete part;
+   // should probably have the conference keep a reference count and remove when
+   // all participants disappear
 }
 
 void
@@ -177,12 +183,11 @@ ConferenceUserAgent::onOffer(InviteSessionHandle handle, const SipMessage& msg, 
    Participant* part = dynamic_cast<Participant*>(getAppDialogSet().get());
    assert(mConferences.count(aor));
    assert(part);
-
-   SdpContents* offer = dynamic_cast<SdpContents*>(msg.getContents());
-   h->provideAnswer(*offer);
-   h->accept();
    
-   part->startSending(*offer, *answer);
+   SdpContents answer;
+   part->accept(offer, answer); // answer is returned
+   h->provideAnswer(answer);
+   h->accept();
 }
 
 void
