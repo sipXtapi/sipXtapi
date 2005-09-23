@@ -11,17 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 
-public class GroupTestDb extends TestCase {
+public class GroupTestDb extends SipxDatabaseTestCase {
     
     private SettingDao m_dao;
 

@@ -44,7 +44,7 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
- * For unittests that need spring instantiated
+ * For unit tests that need spring instantiated
  */
 public final class TestHelper {
 
@@ -122,7 +122,7 @@ public final class TestHelper {
     }
 
     public static IDatabaseConnection getConnection() throws Exception {
-        if (null != s_dbunitConnection) {
+        if (s_dbunitConnection != null) {
             return s_dbunitConnection;
         }
         Class.forName("com.p6spy.engine.spy.P6SpyDriver");
@@ -136,6 +136,13 @@ public final class TestHelper {
         return s_dbunitConnection;
     }
 
+    public static void closeConnection() throws SQLException {
+        if (s_dbunitConnection != null && !s_dbunitConnection.getConnection().isClosed()) {
+            s_dbunitConnection.close();
+            s_dbunitConnection = null;
+        }        
+    }
+    
     public static void main(String[] args) {
         try {
             if (args.length > 0) {

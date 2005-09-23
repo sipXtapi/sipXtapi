@@ -14,13 +14,12 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 
-public class JobRecordTestDb extends TestCase {
+public class JobRecordTestDb extends SipxDatabaseTestCase {
 
     private PhoneContext m_phoneContext;
     

@@ -18,13 +18,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dbunit.dataset.ITable;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.context.ApplicationContext;
 
-public class GatewayContextTestDb extends TestHelper.TestCaseDb {
+public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
     private GatewayContext m_context;
 

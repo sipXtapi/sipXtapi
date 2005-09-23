@@ -13,18 +13,17 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Collection;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class LineTestDb extends TestCase {
+public class LineTestDb extends SipxDatabaseTestCase {
 
     private PhoneContext m_context;
 

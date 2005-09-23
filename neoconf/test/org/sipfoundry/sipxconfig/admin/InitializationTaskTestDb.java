@@ -12,11 +12,10 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import org.dbunit.dataset.ITable;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 
-import junit.framework.TestCase;
-
-public class InitializationTaskTestDb extends TestCase {
+public class InitializationTaskTestDb extends SipxDatabaseTestCase {
 
     private AdminContext m_adminContext;
     

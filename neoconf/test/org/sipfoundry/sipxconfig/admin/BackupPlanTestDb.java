@@ -11,15 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.admin;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 
-public class BackupPlanTestDb extends TestCase {
+public class BackupPlanTestDb extends SipxDatabaseTestCase {
 
     private AdminContext m_adminContext;
     

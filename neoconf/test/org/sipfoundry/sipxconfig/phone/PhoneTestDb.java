@@ -14,12 +14,11 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -33,7 +32,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 
-public class PhoneTestDb extends TestCase {
+public class PhoneTestDb extends SipxDatabaseTestCase {
     
     private PhoneContext context;
     

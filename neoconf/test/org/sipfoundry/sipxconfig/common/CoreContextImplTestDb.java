@@ -15,18 +15,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.ApplicationContext;
 
-public class CoreContextImplTestDb extends TestCase {
+public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     private static final int NUM_USERS = 10;
     private CoreContextImpl m_core;

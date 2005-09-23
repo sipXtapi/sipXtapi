@@ -14,19 +14,18 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.Collection;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
 
-public class UserTestDb extends TestCase {
+public class UserTestDb extends SipxDatabaseTestCase {
 
     private CoreContext core;
     

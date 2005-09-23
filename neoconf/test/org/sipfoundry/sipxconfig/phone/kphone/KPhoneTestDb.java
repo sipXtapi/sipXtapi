@@ -15,12 +15,11 @@ import java.io.InputStream;
 import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
-import junit.framework.TestCase;
-
-public class KPhoneTestDb extends TestCase {
+public class KPhoneTestDb extends SipxDatabaseTestCase {
 
     public void testGenerateEmptyProfile() throws Exception {
         PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
