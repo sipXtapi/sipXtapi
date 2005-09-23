@@ -35,12 +35,29 @@ Participant::assign(Conference* conf, int connId)
 int 
 Participant::id() const
 {
-   return mId;
+   return mConnId;
+}
+
+void
+Participant::startSending(const SdpContents& offer, const SdpContents& answer)
+{
+   mConference->createConnection(mConnId, 0);
+   Data peerHost;
+   int peerRtpPort = 0;
+   int peerRtcpPort = 0;
+
+   int numCodecs = 0;
+   SdpCodec sendCodecs[10];
+   SdpSrtpParameters srtpParams;
+
+   mConference->setConnectionDestination(mConnId, peerHost.c_str(), peerRtpPort, peerRtcpPort, 0, 0);
+   mConference->startRtpReceive(mConnId, numCodecs, sendCodecs, srtpParams);
+   mConference->startRtpSend(mConnId, numCodecs, sendCodecs, srtpParams);
 }
 
 Conference::Conference(ConferenceUserAgent& ua, const Data& aor) : 
-   CpMediaInterface(ua.mMediaFactory.createMediaInterface(DnsUtil::getLocalIpAddress().c_str(), // public 
-                                                          DnsUtil::getLocalIpAddress().c_str(), // local
+   CpMediaInterface(ua.mMediaFactory.createMediaInterface(0, // not used
+                                                          0, // not used
                                                           ua.mNumCodecs, 
                                                           ua.mSdpCodecArray, 
                                                           "",  // locale
@@ -77,9 +94,6 @@ ConferenceUserAgent::ConferenceUserAgent(const NameAddr& myAor) :
    mSdpCodecArray(0),
    mNumCodecs(0)
 {
-   const char* publicAddress = "127.0.0.1";
-   const char* localAddress = "127.0.0.1";
-
    const int numCodecs = 3;
    SdpCodec::SdpCodecTypes sdpCodecEnumArray[numCodecs];
    sdpCodecEnumArray[0] = SdpCodecFactory::getCodecType(CODEC_G711_PCMU);
@@ -161,11 +175,11 @@ ConferenceUserAgent::onOffer(InviteSessionHandle handle, const SipMessage& msg, 
    assert(mConferences.count(aor));
    assert(part);
 
-   SdpContents* sdp = dynamic_cast<SdpContents*>(msg.getContents());
-   h->provideAnswer(*sdp);
+   SdpContents* offer = dynamic_cast<SdpContents*>(msg.getContents());
+   h->provideAnswer(*offer);
    h->accept();
    
-   // createConnection
+   part->startSending(*offer, *answer);
 }
 
 void
