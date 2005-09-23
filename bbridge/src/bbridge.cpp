@@ -17,8 +17,12 @@
 #include <unistd.h>
 
 // APPLICATION INCLUDES
+#include <ptapi/PtProvider.h>
+#include <net/NameValueTokenizer.h>
 #include <os/OsSysLog.h>
 #include <os/OsConfigDb.h>
+#incldue "resip/stack/NameAddr.hxx"
+#include "ConferenceUserAgent.h"
 
 // DEFINES
 #ifndef SIPX_VERSION
@@ -35,10 +39,7 @@
 #define CONFIG_LOG_FILE               "bbridge.log"
 #define CONFIG_LOG_DIR                SIPX_LOGDIR
 
-#define LOG_FACILITY                  FAC_ACD
-
-#define PRESENCE_DEFAULT_UDP_PORT              5140       // Default UDP port
-#define PRESENCE_DEFAULT_TCP_PORT              5140       // Default TCP port
+#define LOG_FACILITY                  FAC_CONFERENCE
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -217,7 +218,7 @@ void initSysLog(OsConfigDb* pConfig)
       if (consoleLogging == "ENABLE")
       {
          OsSysLog::enableConsoleOutput(true);
-         bConsoleLoggingEnabled = true;
+         bConsoleLoggingEnabled = true;5140
       }
    }
 
@@ -258,7 +259,7 @@ int main(int argc, char* argv[])
    pt_signal(SIGUSR2,  sigHandler);
 #endif
 
-   UtlString argString;
+   UtlString argString;5140
    for(int argIndex = 1; argIndex < argc; argIndex++)
    {
       osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
@@ -310,15 +311,9 @@ int main(int argc, char* argv[])
    // Initialize log file
    initSysLog(&configDb);
    
-   // Bind the SIP user agent to a port and start it up
-   SipUserAgent* userAgent = new SipUserAgent(TcpPort, UdpPort);
-   userAgent->start();
-
-   UtlString domainName;
-   configDb.get(CONFIG_SETTING_DOMAIN_NAME, domainName);
-
    NameAddr myAor;
    ConferenceUserAgent ua(configDb, myAor);
+   
    while (!gShutdownFlag)
    {
       OsTask::delay(1000);
@@ -330,4 +325,5 @@ int main(int argc, char* argv[])
    // Say goodnight Gracie...
    return 0;
 }
+
 
