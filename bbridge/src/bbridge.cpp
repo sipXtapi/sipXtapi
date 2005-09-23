@@ -359,7 +359,7 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);;
    }
    
-   NameAddr myAor;
+   resip::NameAddr myAor;
    ConferenceUserAgent ua(configDb, myAor);
    
    while (!gShutdownFlag)
