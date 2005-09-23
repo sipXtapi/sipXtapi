@@ -37,8 +37,6 @@ public abstract class AbstractTableModel implements IBasicTableModel {
         m_pageSize = pageSize;
     }
 
-    public abstract ITableModel createTableModel(IComponent component);
-    
     public ITableModel createTableModel(IComponent component, SimpleTableColumn[] columns) {
         for (int i = 0; i < columns.length; i++) {
             columns[i].loadSettings(component);

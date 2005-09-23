@@ -211,8 +211,12 @@ public class GrandstreamPhone extends Phone {
         }        
     }
     
+    String nonNull(String value) {
+        return value == null ? StringUtils.EMPTY : value;
+    }
+    
     void writeProfileLine(OutputStream wtr, String name, String value) throws IOException {
-        String line = name + " = " + value + (char) LF;
+        String line = name + " = " + nonNull(value) + (char) LF;
         wtr.write(line.getBytes());
     }
     
@@ -222,7 +226,7 @@ public class GrandstreamPhone extends Phone {
         Iterator psi = phoneset.iterator();
         while (psi.hasNext()) {
             Setting pset = (Setting) psi.next();
-            paras.append(pset.getName() + EQUALS + pset.getValue() + ET);
+            paras.append(pset.getName() + EQUALS + nonNull(pset.getValue()) + ET);
         }
 
         Collection lines = getProfileLines();
@@ -232,7 +236,7 @@ public class GrandstreamPhone extends Phone {
             Iterator lsi = lineset.iterator();
             while (lsi.hasNext()) {
                 Setting lset = (Setting) lsi.next();
-                paras.append(lset.getName() + EQUALS + lset.getValue() + ET);
+                paras.append(lset.getName() + EQUALS + nonNull(lset.getValue()) + ET);
             }
         }
         

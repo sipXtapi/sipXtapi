@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidator;
@@ -34,6 +35,18 @@ public abstract class SettingEditor extends BaseComponent {
     public void setBooleanValue(boolean value) {
         BooleanSetting type = (BooleanSetting) getSetting().getType();
         getSetting().setValue(value ? type.getTrueValue() : type.getFalseValue());
+    }
+
+    public String getStringValue() {
+        return getSetting().getValue();
+    }
+    
+    public void setStringValue(String value) {
+        String cleanValue = value;
+        if (StringUtils.isEmpty(value)) {
+            cleanValue = null;
+        }
+        getSetting().setValue(cleanValue);
     }
 
     public IValidator getValidator() {

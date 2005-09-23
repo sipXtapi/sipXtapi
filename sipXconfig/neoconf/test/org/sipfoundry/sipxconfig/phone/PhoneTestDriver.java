@@ -75,7 +75,7 @@ public class PhoneTestDriver {
 
         sipControl = MockControl.createStrictControl(SipService.class);
         sip = (SipService) sipControl.getMock();
-        sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "registrar.sipfoundry.org", "", "juser");
+        sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "registrar.sipfoundry.org", null, "juser");
         sipControl.replay();
         _phone.setSipService(sip);
 
