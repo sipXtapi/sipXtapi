@@ -31,6 +31,8 @@ public interface PhoneContext extends DataObjectSource {
      */
     public void generateProfilesAndRestart(Collection phones);
     
+    public void generateProfilesAndRestartAll();    
+    
     /**
      * Restart phones in background
      * 
