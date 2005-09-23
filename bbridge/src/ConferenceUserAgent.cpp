@@ -107,7 +107,9 @@ Participant::accept(const SdpContents& offer, SdpContents& answer)
    int sdpSize = sdpBody.getLength();
    char * sdpData = new  char[sdpSize];
    sdpBody.getBytes(&sdpData,&sdpSize);
-   answer = SdpContents(sdpData,sdpSize);
+   Data sdata(sdpData);
+   HeaderFieldValue hfv(sdata.data(), sdata.size());
+   answer = SdpContents(hfv,Mime("application", "sdp"));
    delete [] sdpData;
 
    mConference->mMedia->setConnectionDestination(mConnId, peerHost.c_str(), 
