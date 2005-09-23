@@ -51,7 +51,8 @@ public class UserTableModel extends AbstractTableModel {
         return page.iterator();
     }
     
-    public ITableModel createTableModel(IComponent component) {
+    public ITableModel createTableModel(IComponent component, Integer groupId) {
+        setGroupId(groupId);
         OrderByTableColumn[] columns = new OrderByTableColumn[] {
             new OrderByTableColumn(USER_NAME_PROPERTY, USER_NAME_PROPERTY, USER_NAME_PROPERTY),
             new OrderByTableColumn(FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY),

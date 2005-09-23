@@ -22,13 +22,23 @@ public class GroupTest extends TestCase {
     private SettingSet m_root;
     
     private Setting m_apple;
+    
+    private Setting m_pea;
+    
+    protected void setUp() {
+        m_root = new SettingSet();
+        SettingSet fruit = (SettingSet)m_root.addSetting(new SettingSet("fruit"));
+        m_apple = fruit.addSetting(new SettingImpl("apple"));
+        SettingSet vegetable = (SettingSet)m_root.addSetting(new SettingSet("vegetable"));
+        m_pea = vegetable.addSetting(new SettingImpl("pea"));
+        m_pea.setValue("snowpea");
+    }
           
     /**
      * Tests that filter returns decorated settings from tag, not 
      * from underlying setting model.
      */
     public void testDecorateWithFilterRunner() {
-        seedSimpleSettingGroup();
         Group f = new Group();
         f.decorate(m_root);
         Collection settings = SettingUtil.filter(SettingFilter.ALL, m_root);
@@ -37,15 +47,16 @@ public class GroupTest extends TestCase {
         i.next(); // fruit
         ((Setting) i.next()).setValue("granny smith");
         i.next(); // vegetable
-        ((Setting) i.next()).setValue(null);
+        ((Setting) i.next()).setValue("snowpea");
         assertNull(m_apple.getValue());
         assertEquals(1, f.getValues().size());
     }
-
-    private void seedSimpleSettingGroup() {
-        m_root = new SettingSet();
-        SettingSet fruit = (SettingSet)m_root.addSetting(new SettingSet("fruit"));
-        m_apple = fruit.addSetting(new SettingImpl("apple"));
-        m_root.addSetting(new SettingSet("vegetables")).addSetting(new SettingImpl("pea"));
+    
+    public void testDecorate() {
+        Group f = new Group();
+        f.getValues().put("/fruit/apple", "granny smith");
+        f.decorate(m_root);
+        assertEquals("granny smith", m_root.getSetting("fruit/apple").getValue());
+        assertEquals("snowpea", m_root.getSetting("vegetable/pea").getValue());
     }
 }

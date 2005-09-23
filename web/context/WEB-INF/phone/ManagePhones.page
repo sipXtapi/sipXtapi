@@ -26,7 +26,6 @@
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="tableModel" class="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel">
         <set-property name="phoneContext" expression="page.global.phoneContext"/>
-        <set-property name="groupId" expression="groupId"/>
         <set-property name="pageSize" expression="20"/>
     </bean>
 	<!--
@@ -35,7 +34,7 @@
 	<component id="phoneManagement" type="Form">
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
-		<binding name="tableModel" expression="beans.tableModel.createTableModel(getThis())"/>
+		<binding name="tableModel" expression="beans.tableModel.createTableModel(getThis(), groupId)"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>

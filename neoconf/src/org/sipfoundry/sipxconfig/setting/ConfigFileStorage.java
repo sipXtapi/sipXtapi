@@ -55,6 +55,10 @@ public class ConfigFileStorage extends ValueStorage {
             return StringUtils.EMPTY;
         }
     }
+    
+    String nonNull(String value) {
+        return (value == null ? StringUtils.EMPTY : value);
+    }
 
     /**
      * Remove is called when setting is set to default value.
@@ -62,7 +66,7 @@ public class ConfigFileStorage extends ValueStorage {
     public Object remove(Setting setting) {
         try {
             Properties properties = loadForFile(setting);
-            return properties.put(setting.getName(), setting.getValue());
+            return properties.put(setting.getName(), nonNull(setting.getValue()));
         } catch (IOException e) {
             return StringUtils.EMPTY;
         }

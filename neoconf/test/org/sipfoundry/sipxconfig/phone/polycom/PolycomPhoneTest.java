@@ -69,7 +69,7 @@ public class PolycomPhoneTest extends TestCase {
         phone.addLine(secondLine);
         Setting settings = secondLine.getSettings();        
         Setting userId = settings.getSetting("reg/auth.userId");
-        assertEquals(Setting.NULL_VALUE, userId.getValue());
+        assertEquals(null, userId.getValue());
     }
 }
 

@@ -40,7 +40,8 @@ public class PhoneTableModel extends AbstractTableModel {
         m_phoneContext = context;
     }
 
-    public ITableModel createTableModel(IComponent component) {
+    public ITableModel createTableModel(IComponent component, Integer groupId) {
+        setGroupId(groupId);
         OrderByTableColumn[] columns = new OrderByTableColumn[] {
             new OrderByTableColumn("Phone", SERIAL_NUM_PROPERTY, SERIAL_NUM_PROPERTY),
             new OrderByTableColumn("Lines", "lines", "beanId"),

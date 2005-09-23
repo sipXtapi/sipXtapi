@@ -18,10 +18,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.digester.BeanPropertySetterRule;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.Rule;
 import org.apache.commons.digester.RuleSetBase;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
@@ -125,13 +127,28 @@ public class XmlModelBuilder implements ModelBuilder {
             digester.addObjectCreate(m_pattern, m_class);
             digester.addSetProperties(m_pattern, "parent", null);
             digester.addRule(m_pattern, new CopyOfRule());
-            digester.addBeanPropertySetter(m_pattern + EL_VALUE);
+            digester.addRule(m_pattern + EL_VALUE, new BeanPropertyNullOnEmptyStringRule("value"));
             digester.addBeanPropertySetter(m_pattern + "/description");
             digester.addBeanPropertySetter(m_pattern + "/profileName");
             digester.addBeanPropertySetter(m_pattern + EL_LABEL);
             addSettingTypes(digester, m_pattern + "/type/");
             digester.addSetNext(m_pattern, "addSetting", SettingImpl.class.getName());
         }
+    }
+    
+    static class BeanPropertyNullOnEmptyStringRule extends BeanPropertySetterRule {
+        public BeanPropertyNullOnEmptyStringRule(String property) {
+            super(property);     
+        }
+        
+        public void body(String namespace, String name, String text)
+            throws Exception {
+
+            super.body(namespace, name, text);
+            if (StringUtils.isEmpty(bodyText)) {
+                bodyText = null;
+            }
+        }                
     }
 
     static class CopyOfRule extends Rule {
