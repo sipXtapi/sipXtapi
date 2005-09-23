@@ -63,7 +63,7 @@ class Conference
 class ConferenceUserAgent : public InviteSessionHandler
 {
    public:
-      ConferenceUserAgent(const resip::NameAddr&);
+      ConferenceUserAgent(OsConfigDb& db);
       virtual ~ConferenceUserAgent();
 
       virtual void onForkDestroyed(resip::ClientInviteSessionHandle);
@@ -99,6 +99,7 @@ class ConferenceUserAgent : public InviteSessionHandler
       virtual void onMessageFailure(InviteSessionHandle, const SipMessage& msg);
 
    private:
+      OsConfigDb mConfigDb;
       SharedPtr<MasterProfile> mProfile;
       Security* mSecurity;
       SipStack mStack;
@@ -106,7 +107,6 @@ class ConferenceUserAgent : public InviteSessionHandler
       StackThread mStackThread;
       DumThread mDumThread;
 
-      OsConfigDb mConfigDb;
       sipXmediaFactoryImpl mMediaFactory;
       SdpCodecFactory mCodecFactory;
       SdpCodec** mSdpCodecArray;

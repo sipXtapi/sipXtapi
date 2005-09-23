@@ -149,14 +149,14 @@ ParticipantFactory::createAppDialogSet(DialogUsageManager& dum, const SipMessage
 }
 
 
-ConferenceUserAgent::ConferenceUserAgent(const NameAddr& myAor) :
+ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
+   mConfigDb(db),
    mProfile(new MasterProfile),
    mSecurity(new Security(mCertPath)),
    mStack(mSecurity),
    mDum(mStack),
    mStackThread(mStack),
    mDumThread(mDum),
-   mConfigDb(),
    mMediaFactory(&mConfigDb),
    mCodecFactory(),
    mSdpCodecArray(0),
@@ -173,6 +173,13 @@ ConferenceUserAgent::ConferenceUserAgent(const NameAddr& myAor) :
 
    // XXX ADD CODE TO READ FROM CONFIG INTO mUdpPort ET AL HERE.
    //Log::initialize(mLogType, mLogLevel, argv[0]);
+   // hook up resip logging to sipX
+   
+   // !jf! should consider cases where these aren't set
+   mConfigDb.get("SIP.UDP", mUdpPort);
+   mConfigDb.get("SIP.TCP", mTcpPort);
+   mConfigDb.get("SIP.TLS", mTlsPort);
+   
    mDum.addTransport(UDP, mUdpPort);
    mDum.addTransport(TCP, mTcpPort);
    mDum.addTransport(TLS, mTlsPort, V4, Data::Empty, myAor.uri().host());
@@ -180,6 +187,7 @@ ConferenceUserAgent::ConferenceUserAgent(const NameAddr& myAor) :
    mProfile->addSupportedMethod(INVITE);
    mProfile->validateAcceptEnabled() = false;
    mProfile->validateContentEnabled() = false;
+   NameAddr myAor;
    mProfile->setDefaultFrom(myAor);
    mProfile->setUserAgent("BostonBridge/0.1");
    
