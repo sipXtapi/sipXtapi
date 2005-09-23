@@ -18,15 +18,15 @@ using namespace std;
 Conference::Conference(bbridge::ConferenceUserAgent& ua,
                        const resip::Data& aor) : 
    mAor(aor),
-   mMedia(ua.mMediaFactory.createMediaInterface(0, // not used
-                                                0, // not used
-                                                ua.mNumCodecs, 
-                                                ua.mSdpCodecArray, 
-                                                "",  // locale
-                                                QOS_LAYER3_LOW_DELAY_IP_TOS,
-                                                "", // stun server
-                                                0, // stun options
-                                                25)) // stun keep alive
+   mMedia(ua.mMediaFactory->createMediaInterface(0, // not used
+                                                 0, // not used
+                                                 ua.mNumCodecs, 
+                                                 ua.mSdpCodecArray, 
+                                                 "",  // locale
+                                                 QOS_LAYER3_LOW_DELAY_IP_TOS,
+                                                 "", // stun server
+                                                 0, // stun options
+                                                 25)) // stun keep alive
 {
 }
 

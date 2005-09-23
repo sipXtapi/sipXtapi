@@ -13,7 +13,7 @@
 // sipX includes
 #include "os/OsTask.h"
 #include "os/OsConfigDb.h"
-#include "sipXmediaFactoryImpl.h"
+#include "mi/CpMediaInterfaceFactoryFactory.h"
 #include "net/QoS.h"
 #include "net/SdpCodecFactory.h"
 #include "mi/CpMediaInterface.h"
