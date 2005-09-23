@@ -17,10 +17,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dbunit.dataset.ITable;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 
-public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
+public class ParkOrbitTestDb extends SipxDatabaseTestCase {
 
     private CallGroupContext m_context;
 

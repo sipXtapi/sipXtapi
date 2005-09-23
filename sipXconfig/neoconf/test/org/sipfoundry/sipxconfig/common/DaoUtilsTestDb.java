@@ -11,13 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-import junit.framework.TestCase;
-
-public class DaoUtilsTestDb extends TestCase {
+public class DaoUtilsTestDb extends SipxDatabaseTestCase {
     private SipxHibernateDaoSupport m_dao;
     private HibernateTemplate m_hibernate;
 

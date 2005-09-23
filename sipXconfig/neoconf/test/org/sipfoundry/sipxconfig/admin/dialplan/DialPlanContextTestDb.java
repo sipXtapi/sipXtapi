@@ -24,6 +24,7 @@ import org.dbunit.dataset.FilteredDataSet;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.filter.IncludeTableFilter;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -32,7 +33,7 @@ import org.springframework.context.ApplicationContext;
 /**
  * DialPlanContextImplTest
  */
-public class DialPlanContextTestDb extends TestHelper.TestCaseDb {
+public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     private DialPlanContext m_context;
 
     protected void setUp() throws Exception {

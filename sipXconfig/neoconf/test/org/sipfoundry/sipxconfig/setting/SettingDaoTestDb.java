@@ -11,12 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import junit.framework.TestCase;
-
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 
-public class SettingDaoTestDb extends TestCase {
+public class SettingDaoTestDb extends SipxDatabaseTestCase {
     
     SettingDao dao;
     

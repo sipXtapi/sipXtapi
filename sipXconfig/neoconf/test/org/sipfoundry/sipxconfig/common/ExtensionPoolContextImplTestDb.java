@@ -11,12 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 
-import junit.framework.TestCase;
-
-public class ExtensionPoolContextImplTestDb extends TestCase {
+public class ExtensionPoolContextImplTestDb extends SipxDatabaseTestCase {
     private ExtensionPoolContext m_context;
 
     protected void setUp() throws Exception {

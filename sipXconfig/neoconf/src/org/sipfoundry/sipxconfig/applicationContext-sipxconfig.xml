@@ -28,8 +28,10 @@
   <!--
   - P O S T G R E S
   -->
-  <!-- See http://jakarta.apache.org/commons/dbcp/apidocs/org/apache/commons/dbcp/BasicDataSource.html
-       for a description of the properties that can be configured here -->
+  <!-- See http://jakarta.apache.org/commons/dbcp/configuration.html for a description
+       of the properties that can be configured here.  See
+       http://jakarta.apache.org/commons/dbcp/apidocs/org/apache/commons/dbcp/BasicDataSource.html
+       for documentation on this class. -->
   <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
     <property name="driverClassName">
       <value>org.postgresql.Driver</value>
@@ -53,9 +55,9 @@
       <value>8</value>
     </property>
     
-    <!-- If we have to wait for more than five minutes to get a DB connection, then give up
-         and throw an exception rather than just hanging forever.  This will give us better
-         debug info as to what's going wrong. -->
+    <!-- If we have to wait for more than five minutes (300000 millis) to get a DB connection,
+         then give up and throw an exception rather than just hanging forever.
+         This will give us better debug info as to what's going wrong. -->
     <property name="maxWait">
       <value>300000</value>
     </property>
@@ -64,6 +66,30 @@
     <property name="minEvictableIdleTimeMillis">
       <value>300000</value>
     </property>
+    
+    <!-- For debugging -->
+    
+    <!-- Flag to remove abandoned connections if they exceed the removeAbandonedTimout.
+		 If set to true a connection is considered abandoned and eligible for removal
+		 if it has been idle longer than the removeAbandonedTimeout.
+		 Setting this to true can recover db connections from poorly written applications
+		 which fail to close a connection.  Default is false. -->
+    <!-- property name="removeAbandoned">
+      <value>true</value>
+    </property -->
+    
+    <!-- Timeout in seconds before an abandoned connection can be removed.
+         Default is 300. -->
+    <!-- property name="removeAbandonedTimeout">
+      <value>1</value>
+    </property -->
+    
+    <!-- Flag to log stack traces for application code which abandoned a Statement or Connection.
+		 Logging of abandoned Statements and Connections adds overhead for every Connection open
+		 or new Statement because a stack trace has to be generated.  Default is false. -->
+    <!-- property name="logAbandoned">
+      <value>true</value>
+    </property -->
 
   </bean>
   <!--

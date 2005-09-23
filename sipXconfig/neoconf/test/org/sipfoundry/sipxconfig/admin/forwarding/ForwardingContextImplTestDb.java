@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.dbunit.Assertion;
 import org.dbunit.dataset.ITable;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -27,7 +28,7 @@ import org.springframework.dao.DataAccessException;
 /**
  * ForwardingContextImplTestDb
  */
-public class ForwardingContextImplTestDb extends TestHelper.TestCaseDb {
+public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     private ForwardingContext m_context;
     private CoreContext m_coreContext;
     private Integer testUserId = new Integer(1000);

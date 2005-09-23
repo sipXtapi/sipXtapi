@@ -11,14 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import junit.framework.TestCase;
-
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class SipxHibernateDaoSupportTestDb extends TestCase {
+public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
     private static final String GROUP_NAME = "testCallGroup";
     private static final String COPY_OF = "CopyOf";
     private SipxHibernateDaoSupport m_dao;
