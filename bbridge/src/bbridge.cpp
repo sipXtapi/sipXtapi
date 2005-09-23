@@ -17,11 +17,11 @@
 #include <unistd.h>
 
 // APPLICATION INCLUDES
-#include <ptapi/PtProvider.h>
-#include <net/NameValueTokenizer.h>
+#include <os/OsFS.h>
 #include <os/OsSysLog.h>
 #include <os/OsConfigDb.h>
-#incldue "resip/stack/NameAddr.hxx"
+#include <net/NameValueTokenizer.h>
+#include "resip/stack/NameAddr.hxx"
 #include "ConferenceUserAgent.h"
 
 // DEFINES
@@ -41,11 +41,25 @@
 
 #define LOG_FACILITY                  FAC_CONFERENCE
 
+#define CONFIG_SETTING_LOG_DIR        "BOSTON_BRIDGE_LOG_DIR"
+#define CONFIG_SETTING_LOG_LEVEL      "BOSTON_BRIDGE_LOG_LEVEL"
+#define CONFIG_SETTING_LOG_CONSOLE    "BOSTON_BRIDGE_LOG_CONSOLE"
+#define CONFIG_SETTING_UDP_PORT       "BOSTON_BRIDGE_UDP_PORT"
+#define CONFIG_SETTING_TCP_PORT       "BOSTON_BRIDGE_TCP_PORT"
+#define CONFIG_SETTING_RTP_START      "BOSTON_BRIDGE_RTP_START"
+#define CONFIG_SETTING_RTP_END        "BOSTON_BRIDGE_RTP_END"
+
+#define DEFAULT_UDP_PORT              5060       // Default UDP port
+#define DEFAULT_TCP_PORT              5060       // Default TCP port
+#define DEFAULT_TLS_PORT              5061       // Default TLS port
+#define DEFAULT_RTP_START             15000
+#define DEFAULT_RTP_END               20000
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-// STRUCTS
+// STRUCTSCONFIG_SETTING_RTP_START
 // TYPEDEFS
 typedef void (*sighandler_t)(int);
 
@@ -101,7 +115,8 @@ void sigHandler( int sig_num )
     // Unregister interest in the signal to prevent recursive callbacks
     pt_signal( sig_num, SIG_DFL );
 
-    // Minimize the chance that we loose log data
+    // Minimize the chance that we loose log data   configDb.loadFromFile(fileName);
+    
     OsSysLog::flush();
     OsSysLog::add(LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num);
     OsSysLog::flush();
@@ -156,7 +171,7 @@ void initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s"DEFAULT_UDP_PORT, CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
       else
       {
@@ -299,17 +314,50 @@ int main(int argc, char* argv[])
 
    if (configDb.loadFromFile(fileName) != SUCCESS)
    {
-      configDb.set("LOGLEVEL", "INFO");
-      configDb.set("SIP.TCP", 5060);
-      configDb.set("SIP.UDP", 5060);
-      configDb.set("SIP.TLS", 5061);
-      configDb.set("RTP.START", 15000);
-      configDb.set("RTP.END", 20000);
+      configDb.set(CONFIG_SETTING_LOG_DIR, "");
+      configDb.set(CONFIG_SETTING_LOG_LEVEL, "INFO");
+      configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
+      configDb.set(CONFIG_SETTING_UDP_PORT, DEFAULT_UDP_PORT);
+      configDb.set(CONFIG_SETTING_TCP_PORT, DEFAULT_TCP_PORT);
+      configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);
+      configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);
+      configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);
       configDb.storeToFile(filename);
    }
    
    // Initialize log file
    initSysLog(&configDb);
+
+   // Read the user agent parameters from the config file.
+   int UdpPort;
+   if (configDb.get(CONFIG_SETTING_UDP_PORT, UdpPort) != OS_SUCCESS)
+   {
+      configDb.set(CONFIG_SETTING_UDP_PORT, DEFAULT_UDP_PORT);;
+   }
+   
+   int TcpPort;
+   if (configDb.get(CONFIG_SETTING_TCP_PORT, TcpPort) != OS_SUCCESS)
+   {
+      configDb.set(CONFIG_SETTING_TCP_PORT, DEFAULT_TCP_PORT);;
+   }
+
+   int TlsPort;
+   if (configDb.get(CONFIG_SETTING_TLS_PORT, TlsPort) != OS_SUCCESS)
+   {
+      configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);;
+   }
+
+   int RtpStart;
+   if (configDb.get(CONFIG_SETTING_RTP_START, RtpStart) != OS_SUCCESS)
+   {
+      configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);;
+   }
+
+   int RtpEnd;
+   if (configDb.get(CONFIG_SETTING_RTP_END, RtpEnd) != OS_SUCCESS)
+   {
+      configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);;
+   }
    
    NameAddr myAor;
    ConferenceUserAgent ua(configDb, myAor);
