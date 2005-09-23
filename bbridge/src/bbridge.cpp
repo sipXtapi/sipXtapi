@@ -23,6 +23,8 @@
 #include <net/NameValueTokenizer.h>
 #include "ConferenceUserAgent.h"
 
+#include "rutil/Log.hxx"
+
 // DEFINES
 #ifndef SIPX_VERSION
 #  define SIPXCHANGE_VERSION          "SipXpbxVersion"
@@ -31,6 +33,9 @@
 #  define SIPXCHANGE_VERSION          SIPX_VERSION
 #  define SIPXCHANGE_VERSION_COMMENT  ""
 #endif
+
+#define SIPX_LOGDIR "."
+#define SIPX_CONFDIR "."
 
 #define CONFIG_SETTINGS_FILE          "bbridge.conf"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
@@ -246,12 +251,52 @@ void initSysLog(OsConfigDb* pConfig)
    }
 }
 
+class SipXExternalLogger : public resip::ExternalLogger
+{
+   public:
+      virtual bool operator()(resip::Log::Level level,
+                              const resip::Subsystem& subsystem, 
+                              const resip::Data& appName,
+                              const char* file,
+                              int line,
+                              const resip::Data& message,
+                              const resip::Data& messageWithHeaders)
+      {
+         OsSysLog::add(FAC_CONFERENCE, toPriority(level), "%s", message.c_str());
+         return false;
+      }
+      
+      static OsSysLogPriority toPriority(resip::Log::Level level)
+      {
+         switch (level)
+         {
+            case resip::Log::Crit:
+               return PRI_CRIT;
+            case resip::Log::Err:
+               return PRI_ERR;
+            case resip::Log::Warning:
+               return PRI_WARNING;
+            case resip::Log::Info:
+               return PRI_INFO;
+            case resip::Log::Debug:
+            case resip::Log::Stack:
+            default:
+               return PRI_DEBUG;
+         }
+      }
+      
+};
+
+   
 
 //
 // The main entry point to the sipXpark
 //
 int main(int argc, char* argv[])
 {
+   SipXExternalLogger resipLogger;
+   resip::Log::initialize(resip::Log::Cout, resip::Log::Info, resip::Data(argv[0]), resipLogger);
+
    // Configuration Database (used for OsSysLog)
    OsConfigDb configDb;
 
