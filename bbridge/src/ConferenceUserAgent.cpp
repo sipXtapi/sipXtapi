@@ -55,12 +55,58 @@ Participant::accept(const SdpContents& offer, SdpContents& answer)
    Data peerHost;
    int peerRtpPort = 0;
    int peerRtcpPort = 0;
-
+   int dummyPort = 0;
+   
    int numCodecs = 0;
    SdpCodec **sendCodecs = NULL;
    SdpSrtpParameters srtpParams;
 
-   assert(mConference->mMedia);
+
+   assert(mConference->mMedia); // !ah! pointless -- see above, we already indirected it
+   
+   resip::Data offerData;
+   DataStream ds(offerData);
+   ds << offer; // !ah! yetch
+   // !ah! - offerData ready to convert to sipX SDP (yes we know this is gross)
+   
+   ::SdpBody offerSipX(offer.c_str(), offer.size());
+   ::SdpBody answerSipX;
+    
+    int numCodecsInCommon = 0;
+    SdpCodec **codecsInCommon = 0;
+    UtlString remoteAddress;
+    UtlString localAddress;
+    SdpCodecFactory supportedCodecs;
+    SdpSrtpParameters srtpParams;
+    
+    mConference->mMedia->getCapabilities(mConnId, localAddress, localRtpPort, localRtcpPort, dummyPort, dummyPort, supportedCodecs, srtpParams);
+    
+    offerSipX->getBestAudioCodecs(supportedCodecs,
+            numCodecsInCommon,
+            codecsInCommon,
+            &remoteAddress,
+            &peerRtpPort, 
+            &peerRtcpPort,
+            dummyPort,
+            dummyPort); // !ah! dummy used for video
+
+    sdpBody.setStandardHeaderFields("conference",0,0,localAddress);
+    sdpBody.addAudioCodecs(localAddress,
+			   localRtpPort,
+			   localRtcpPort,
+			   dummyPort, dummyPort, // !ah! --video
+			   numCodecsInCommon,
+			   codecsInCommon, 
+			   srtpParams);
+
+    // !ah! convert to resiprocate SDP
+
+   int sdpSize = sdpBody.getLength();
+   char * sdpData = new  char[sdpSize];
+   sdpBody.getBytes(&sdpData,&sdpSize);
+   answer = SdpContents(sdpData,sdpSize);
+   delete [] sdpData;
+
    mConference->mMedia->setConnectionDestination(mConnId, peerHost.c_str(), 
                                                  peerRtpPort, peerRtcpPort,
                                                  0, 0);
