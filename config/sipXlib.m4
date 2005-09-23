@@ -463,6 +463,67 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
 ]) # SFAC_LIB_COMMSERVER
 
 
+## resiprocate
+# CHECK_RESIPROCATE attempts to find the resiprocate project tree
+# 
+# If not found, the configure is aborted.  Otherwise, variables are defined for:
+# RESIPROCATE_PATH     - the top of the resiprocate tree
+# RESIPROCATE_CFLAGS   
+# RESIPROCATE_CXXFLAGS
+# RESIPROCATE_LIBS
+# RESIPROCATE_LDFLAGS
+AC_DEFUN([CHECK_RESIPROCATE],
+[
+    AC_REQUIRE([SFAC_INIT_FLAGS])
+    
+    AC_ARG_WITH([resiprocate],
+        [--with-resiprocate specifies the path to the top of a resiprocate project tree],
+        [resiprocate_path=$withval],
+        [resiprocate_path="[$abs_srcdir]/../../resiprocate $prefix/include /usr /usr/local" ]
+    )
+
+    AC_ARG_WITH([resipobj],
+        [--with-resipobj specifies the object directory name to use from resiprocate],
+        [resipobj=$withval],
+        [resipobj="obj.debug.`uname`.`uname -p`"]
+    )
+
+    foundpath=NO
+    for dir in $resiprocate_path ; do
+        if test -d "$dir/resip";
+        then
+            foundpath=$dir;
+            break;
+        fi;
+    done
+    if test x_$foundpath = x_NO
+    then
+       AC_MSG_ERROR([resiprocate not found; searched $resiprocate_path])
+    else
+       AC_MSG_RESULT($foundpath)
+
+       RESIPROCATE_PATH=$foundpath
+
+       RESIPROCATE_CFLAGS="-I$RESIPROCATE_PATH"
+       RESIPROCATE_CXXFLAGS="-I$RESIPROCATE_PATH"
+
+       RESIPROCATE_LDFLAGS="  -L$(RESIPROCATE_PATH)/resip/dum/$(resipobj)"
+       RESIPROCATE_LDFLAGS+=" -L$(RESIPROCATE_PATH)/resip/stack/$(resipobj)"
+       RESIPROCATE_LDFLAGS+=" -L$(RESIPROCATE_PATH)/rutil/$(resipobj)"
+       RESIPROCATE_LDFLAGS+=" -L$(RESIPROCATE_PATH)/contrib/ares"
+
+       RESIPROCATE_LIBS=" -ldum -lresip -lrutil -lares"
+
+       AC_SUBST(RESIPROCATE_PATH)
+       AC_SUBST(RESIPROCATE_CFLAGS)
+       AC_SUBST(RESIPROCATE_CXXFLAGS)
+       AC_SUBST(RESIPROCATE_LIBS)
+       AC_SUBST(RESIPROCATE_LDFLAGS)
+    fi
+]) # CHECK_RESIPROCATE
+
+
+
 ##  Generic find of an include
 #   Fed from AC_DEFUN([SFAC_INCLUDE_{module name here}],
 #
