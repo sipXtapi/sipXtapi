@@ -14,6 +14,10 @@
 using namespace bbridge;
 using namespace std;
 
+#ifndef SIPX_CONFDIR
+#   define SIPX_CONFDIR "."
+#endif
+
 #define RESIPROCATE_SUBSYSTEM resip::Subsystem::TEST
 
 const char *CODEC_G711_PCMU="258";
@@ -23,7 +27,7 @@ const char *CODEC_DTMF_RFC2833="128";
 ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mConfigDb(db),
    mProfile(new resip::MasterProfile),
-   mSecurity(new resip::Security(mCertPath)),
+   mSecurity(new resip::Security(resip::Data(SIPX_CONFDIR "/ssl"))),
    mStack(mSecurity),
    mDum(mStack),
    mStackThread(mStack),
