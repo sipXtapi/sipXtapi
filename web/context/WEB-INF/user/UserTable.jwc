@@ -12,9 +12,13 @@
       -->    
     <parameter name="userListener" 
         type="org.apache.tapestry.IActionListener"
-        required="no" 
-        direction="auto"
-        default-value="null">
+        required="yes" 
+        direction="auto">
+    </parameter>
+    <parameter name="groupId" 
+        type="java.lang.Integer"
+        required="yes" 
+        direction="auto">
     </parameter>
     <!--
       - P R O P E R T I E S
@@ -30,8 +34,9 @@
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-    <bean name="userTableModel" class="org.sipfoundry.sipxconfig.site.user.UserTableModel">
+    <bean name="userTableModel" class="org.sipfoundry.sipxconfig.site.user.UserTableModel" lifecycle="request">
         <set-property name="coreContext" expression="page.global.coreContext"/>
+        <set-property name="groupId" expression="container.groupId"/>
         <set-property name="pageSize" expression="20"/>
     </bean>
 	<!--

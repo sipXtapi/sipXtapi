@@ -23,6 +23,8 @@ import java.util.Set;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Expression;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -253,9 +255,17 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return count.intValue();
     }
     
-    public List loadUsersByPage(int firstRow, int pageSize, String orderBy, boolean orderAscending) {
-        List users = DaoUtils.loadByPage(getSession(), QUERY_USER, firstRow, 
-                pageSize, orderBy, orderAscending);
+    public List loadUsersByPage(Integer groupId, int firstRow, int pageSize, String orderBy, boolean orderAscending) {
+        Criteria c = getSession().createCriteria(User.class);
+        if (groupId != null) {
+            c.createCriteria("groups", "g");
+            c.add(Expression.eq("g.id", groupId));
+        }
+        c.setFirstResult(firstRow);
+        c.setMaxResults(pageSize);
+        Order order = orderAscending ? Order.asc(orderBy) : Order.desc(orderBy);
+        c.addOrder(order);
+        List users = c.list();
         return users;
     }
 

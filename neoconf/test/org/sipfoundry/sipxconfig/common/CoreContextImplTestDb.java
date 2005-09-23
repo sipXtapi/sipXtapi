@@ -313,12 +313,12 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     
     public void testLoadUserPage() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage(0, 2, "userName", true);
+        Collection page = m_core.loadUsersByPage(null, 0, 2, "userName", true);
         assertEquals(2, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
         
-        Collection next = m_core.loadUsersByPage(2, 2, "userName", true);
+        Collection next = m_core.loadUsersByPage(null, 2, 2, "userName", true);
         assertEquals(2, next.size());
         User nextUser = (User) next.iterator().next();
         assertEquals("charlie", nextUser.getUserName());
@@ -327,8 +327,16 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testLoadUserPageDescending() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
         // expect third user from bottom
-        Collection page = m_core.loadUsersByPage(2, 2, "userName", false);
+        Collection page = m_core.loadUsersByPage(null, 2, 2, "userName", false);
         User u = (User) page.iterator().next();
         assertEquals("horatio", u.getUserName());
+    }
+    
+    public void testLoadUserPageWithGroup() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        Collection page = m_core.loadUsersByPage(new Integer(1001), 0, 10, "userName", true);
+        assertEquals(1, page.size());
+        User u = (User) page.iterator().next();
+        assertEquals("alpha", u.getUserName());        
     }
 }

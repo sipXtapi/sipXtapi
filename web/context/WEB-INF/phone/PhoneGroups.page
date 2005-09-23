@@ -16,6 +16,7 @@
         <binding name="groups" expression="groups"/>
         <binding name="memberCounts" expression="memberCounts"/>
         <binding name="viewGroupListener" expression="listeners.editPhoneGroup"/>
+        <binding name="groupMembersListener" expression="listeners.showGroupMembers"/>
     </component>
     
     <component id="addGroup" type="DirectLink">

@@ -49,6 +49,10 @@ public abstract class ManagePhones extends BasePage
 
     public abstract PhoneContext getPhoneContext();
     
+    public abstract void setGroupId(Integer groupId);
+    
+    public abstract Integer getGroupId();
+    
     public IComponent getThis() {
         return this;
     }
