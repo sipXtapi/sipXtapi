@@ -1,5 +1,5 @@
-#if !defined(DUM_ConferenceUserAgent_hxx)
-#define DUM_ConferenceUserAgent_hxx
+#ifndef __CONFERENCE_USER_AGENT_H
+#define __CONFERENCE_USER_AGENT_H
 
 // repro includes
 #include "resip/dum/AppDialogSetFactory.hxx"
@@ -18,49 +18,12 @@
 #include "net/SdpCodecFactory.h"
 #include "mi/CpMediaInterface.h"
 
-namespace resip
+namespace bbridge
 {
-
-class ParticipantFactory : public AppDialogSetFactory
-{
-   public:
-      AppDialogSet* createAppDialogSet(DialogUsageManager&, const SipMessage&);      
-};
 
 class Conference;
 
-class Participant : public AppDialogSet
-{
-   public:
-      Participant(DialogUsageManager& dum, const SipMessage &msg);
-      ~Participant();
-
-      void assign(Conference* conf);
-      void accept(const SdpContents& offer, SdpContents& answer);
-      int id() const;
-      
-   private:
-      Conference* mConference;
-      int mConnId;
-};
-
-class ConferenceUserAgent;
-
-class Conference 
-{
-   public:
-      Conference(ConferenceUserAgent &ua, const Data& aor);
-      ~Conference();
-
-   private:
-      Data mAor;
-      CpMediaInterface* mMedia;
-      friend class Participant;
-};
-
-
-
-class ConferenceUserAgent : public InviteSessionHandler
+class ConferenceUserAgent : public resip::InviteSessionHandler
 {
    public:
       ConferenceUserAgent(OsConfigDb& db);
@@ -71,41 +34,41 @@ class ConferenceUserAgent : public InviteSessionHandler
       void process();
       
    public:
-      // Invite Session Handler /////////////////////////////////////////////////////
-      virtual void onNewSession(ClientInviteSessionHandle h, InviteSession::OfferAnswerType oat, const SipMessage& msg);
-      virtual void onNewSession(ServerInviteSessionHandle h, InviteSession::OfferAnswerType oat, const SipMessage& msg);
-      virtual void onFailure(ClientInviteSessionHandle h, const SipMessage& msg);
-      virtual void onEarlyMedia(ClientInviteSessionHandle, const SipMessage&, const SdpContents&);
-      virtual void onProvisional(ClientInviteSessionHandle, const SipMessage& msg);
-      virtual void onConnected(ClientInviteSessionHandle h, const SipMessage& msg);
-      virtual void onConnected(InviteSessionHandle, const SipMessage& msg);
-      virtual void onStaleCallTimeout(ClientInviteSessionHandle);
-      virtual void onTerminated(InviteSessionHandle h, InviteSessionHandler::TerminatedReason reason, const SipMessage* msg);
-      virtual void onRedirected(ClientInviteSessionHandle, const SipMessage& msg);
-      virtual void onAnswer(InviteSessionHandle, const SipMessage& msg, const SdpContents&);
-      virtual void onOffer(InviteSessionHandle handle, const SipMessage& msg, const SdpContents& offer);
-      virtual void onOfferRequired(InviteSessionHandle, const SipMessage& msg);
-      virtual void onOfferRejected(InviteSessionHandle, const SipMessage* msg);
-      virtual void onDialogModified(InviteSessionHandle, InviteSession::OfferAnswerType oat, const SipMessage& msg);
-      virtual void onInfo(InviteSessionHandle, const SipMessage& msg);
-      virtual void onInfoSuccess(InviteSessionHandle, const SipMessage& msg);
-      virtual void onInfoFailure(InviteSessionHandle, const SipMessage& msg);
-      virtual void onRefer(InviteSessionHandle, ServerSubscriptionHandle, const SipMessage& msg);
-      virtual void onReferAccepted(InviteSessionHandle, ClientSubscriptionHandle, const SipMessage& msg);
-      virtual void onReferRejected(InviteSessionHandle, const SipMessage& msg);
+      // resip::Invite Session Handler /////////////////////////////////////////////////////
+      virtual void onNewSession(resip::ClientInviteSessionHandle h, resip::InviteSession::OfferAnswerType oat, const resip::SipMessage& msg);
+      virtual void onNewSession(resip::ServerInviteSessionHandle h, resip::InviteSession::OfferAnswerType oat, const resip::SipMessage& msg);
+      virtual void onFailure(resip::ClientInviteSessionHandle h, const resip::SipMessage& msg);
+      virtual void onEarlyMedia(resip::ClientInviteSessionHandle, const resip::SipMessage&, const resip::SdpContents&);
+      virtual void onProvisional(resip::ClientInviteSessionHandle, const resip::SipMessage& msg);
+      virtual void onConnected(resip::ClientInviteSessionHandle h, const resip::SipMessage& msg);
+      virtual void onConnected(resip::InviteSessionHandle, const resip::SipMessage& msg);
+      virtual void onStaleCallTimeout(resip::ClientInviteSessionHandle);
+      virtual void onTerminated(resip::InviteSessionHandle h, resip::InviteSessionHandler::TerminatedReason reason, const resip::SipMessage* msg);
+      virtual void onRedirected(resip::ClientInviteSessionHandle, const resip::SipMessage& msg);
+      virtual void onAnswer(resip::InviteSessionHandle, const resip::SipMessage& msg, const resip::SdpContents&);
+      virtual void onOffer(resip::InviteSessionHandle handle, const resip::SipMessage& msg, const resip::SdpContents& offer);
+      virtual void onOfferRequired(resip::InviteSessionHandle, const resip::SipMessage& msg);
+      virtual void onOfferRejected(resip::InviteSessionHandle, const resip::SipMessage* msg);
+      virtual void onDialogModified(resip::InviteSessionHandle, resip::InviteSession::OfferAnswerType oat, const resip::SipMessage& msg);
+      virtual void onInfo(resip::InviteSessionHandle, const resip::SipMessage& msg);
+      virtual void onInfoSuccess(resip::InviteSessionHandle, const resip::SipMessage& msg);
+      virtual void onInfoFailure(resip::InviteSessionHandle, const resip::SipMessage& msg);
+      virtual void onRefer(resip::InviteSessionHandle, resip::ServerSubscriptionHandle, const resip::SipMessage& msg);
+      virtual void onReferAccepted(resip::InviteSessionHandle, resip::ClientSubscriptionHandle, const resip::SipMessage& msg);
+      virtual void onReferRejected(resip::InviteSessionHandle, const resip::SipMessage& msg);
 
-      virtual void onMessage(InviteSessionHandle, const SipMessage& msg);
-      virtual void onMessageSuccess(InviteSessionHandle, const SipMessage& msg);
-      virtual void onMessageFailure(InviteSessionHandle, const SipMessage& msg);
+      virtual void onMessage(resip::InviteSessionHandle, const resip::SipMessage& msg);
+      virtual void onMessageSuccess(resip::InviteSessionHandle, const resip::SipMessage& msg);
+      virtual void onMessageFailure(resip::InviteSessionHandle, const resip::SipMessage& msg);
 
    private:
       OsConfigDb mConfigDb;
-      SharedPtr<MasterProfile> mProfile;
-      Security* mSecurity;
-      SipStack mStack;
-      DialogUsageManager mDum;
-      StackThread mStackThread;
-      DumThread mDumThread;
+      resip::SharedPtr<resip::MasterProfile> mProfile;
+      resip::Security* mSecurity;
+      resip::SipStack mStack;
+      resip::DialogUsageManager mDum;
+      resip::StackThread mStackThread;
+      resip::DumThread mDumThread;
 
       sipXmediaFactoryImpl mMediaFactory;
       SdpCodecFactory mCodecFactory;
@@ -117,7 +80,7 @@ class ConferenceUserAgent : public InviteSessionHandler
 
       resip::Data mCertPath;
       
-      HashMap<Data, Conference*> mConferences;
+      HashMap<resip::Data, bbridge::Conference*> mConferences;
       
       friend class Conference;
 };
