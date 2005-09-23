@@ -28,11 +28,17 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mDum(mStack),
    mStackThread(mStack),
    mDumThread(mDum),
-   mMediaFactory(&mConfigDb),
+   mMediaFactory(sipXmediaFactoryFactory(NULL)),
    mCodecFactory(),
    mSdpCodecArray(0),
    mNumCodecs(0)
 {
+   // Instruct the factory to use the specified port range
+   int rtpPortStart, rtpPortEnd;
+   mConfigDb.get("BOSTON_BRIDGE_RTP_START", rtpPortStart);
+   mConfigDb.get("BOSTON_BRIDGE_RTP_END", rtpPortEnd);
+   mMediaFactory->getFactoryImplementation()->setRtpPortRange(rtpPortStart, rtpPortEnd) ;
+   
    const int numCodecs = 3;
    SdpCodec::SdpCodecTypes sdpCodecEnumArray[numCodecs];
    sdpCodecEnumArray[0] = SdpCodecFactory::getCodecType(CODEC_G711_PCMU);
@@ -47,9 +53,9 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    // hook up resip logging to sipX
    
    // !jf! should consider cases where these aren't set
-   mConfigDb.get("SIP.UDP", mUdpPort);
-   mConfigDb.get("SIP.TCP", mTcpPort);
-   mConfigDb.get("SIP.TLS", mTlsPort);
+   mConfigDb.get("BOSTON_BRIDGE_UDP_PORT", mUdpPort);
+   mConfigDb.get("BOSTON_BRIDGE_TCP_PORT", mTcpPort);
+   mConfigDb.get("BOSTON_BRIDGE_TLS_PORT", mTlsPort);
    
    resip::NameAddr myAor;
    mDum.addTransport(resip::UDP, mUdpPort);

@@ -13,7 +13,7 @@
 // sipX includes
 #include "os/OsTask.h"
 #include "os/OsConfigDb.h"
-#include "sipXmediaFactoryImpl.h"
+#include "mi/CpMediaInterfaceFactoryFactory.h"
 #include "net/QoS.h"
 #include "net/SdpCodecFactory.h"
 #include "mi/CpMediaInterface.h"
@@ -70,7 +70,7 @@ class ConferenceUserAgent : public resip::InviteSessionHandler
       resip::StackThread mStackThread;
       resip::DumThread mDumThread;
 
-      sipXmediaFactoryImpl mMediaFactory;
+      CpMediaInterfaceFactory* mMediaFactory;
       SdpCodecFactory mCodecFactory;
       SdpCodec** mSdpCodecArray;
       int mNumCodecs;

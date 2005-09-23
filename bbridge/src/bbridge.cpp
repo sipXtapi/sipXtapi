@@ -21,13 +21,12 @@
 #include <os/OsSysLog.h>
 #include <os/OsConfigDb.h>
 #include <net/NameValueTokenizer.h>
-#include "resip/stack/NameAddr.hxx"
 #include "ConferenceUserAgent.h"
 
 // DEFINES
 #ifndef SIPX_VERSION
-#  define SIPXCHANGE_VERSION          SipXpbxVersion
-#  define SIPXCHANGE_VERSION_COMMENT  SipXpbxBuildStamp
+#  define SIPXCHANGE_VERSION          "SipXpbxVersion"
+#  define SIPXCHANGE_VERSION_COMMENT  "SipXpbxBuildStamp"
 #else
 #  define SIPXCHANGE_VERSION          SIPX_VERSION
 #  define SIPXCHANGE_VERSION_COMMENT  ""
@@ -46,6 +45,7 @@
 #define CONFIG_SETTING_LOG_CONSOLE    "BOSTON_BRIDGE_LOG_CONSOLE"
 #define CONFIG_SETTING_UDP_PORT       "BOSTON_BRIDGE_UDP_PORT"
 #define CONFIG_SETTING_TCP_PORT       "BOSTON_BRIDGE_TCP_PORT"
+#define CONFIG_SETTING_TLS_PORT       "BOSTON_BRIDGE_TCP_PORT"
 #define CONFIG_SETTING_RTP_START      "BOSTON_BRIDGE_RTP_START"
 #define CONFIG_SETTING_RTP_END        "BOSTON_BRIDGE_RTP_END"
 
@@ -171,7 +171,7 @@ void initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s"DEFAULT_UDP_PORT, CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
       else
       {
@@ -233,7 +233,7 @@ void initSysLog(OsConfigDb* pConfig)
       if (consoleLogging == "ENABLE")
       {
          OsSysLog::enableConsoleOutput(true);
-         bConsoleLoggingEnabled = true;5140
+         bConsoleLoggingEnabled = true;
       }
    }
 
@@ -274,7 +274,7 @@ int main(int argc, char* argv[])
    pt_signal(SIGUSR2,  sigHandler);
 #endif
 
-   UtlString argString;5140
+   UtlString argString;
    for(int argIndex = 1; argIndex < argc; argIndex++)
    {
       osPrintf("arg[%d]: %s\n", argIndex, argv[argIndex]);
@@ -312,7 +312,7 @@ int main(int argc, char* argv[])
                          OsPathBase::separator +
                          CONFIG_SETTINGS_FILE;
 
-   if (configDb.loadFromFile(fileName) != SUCCESS)
+   if (configDb.loadFromFile(fileName) != OS_SUCCESS)
    {
       configDb.set(CONFIG_SETTING_LOG_DIR, "");
       configDb.set(CONFIG_SETTING_LOG_LEVEL, "INFO");
@@ -322,7 +322,7 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);
       configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);
-      configDb.storeToFile(filename);
+      configDb.storeToFile(fileName);
    }
    
    // Initialize log file
@@ -359,8 +359,7 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);;
    }
    
-   resip::NameAddr myAor;
-   ConferenceUserAgent ua(configDb, myAor);
+   bbridge::ConferenceUserAgent ua(configDb);
    
    while (!gShutdownFlag)
    {
