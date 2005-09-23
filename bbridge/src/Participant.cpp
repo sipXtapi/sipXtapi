@@ -65,8 +65,7 @@ Participant::accept(const resip::SdpContents& offer,
    ::SdpCodec **sendCodecs = NULL;
    ::SdpSrtpParameters srtpParams;
 
-   
-   resip::Data offerData = Data::from(offer);
+   resip::Data offerData = resip::Data::from(offer);
    
    // !ah! - offerData ready to convert to sipX SDP (yes we know this is gross)
    

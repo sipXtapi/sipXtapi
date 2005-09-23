@@ -78,8 +78,6 @@ class ConferenceUserAgent : public resip::InviteSessionHandler
       int mTcpPort;
       int mTlsPort;
 
-      resip::Data mCertPath;
-      
       HashMap<resip::Data, bbridge::Conference*> mConferences;
       
       friend class Conference;
