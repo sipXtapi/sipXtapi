@@ -39,9 +39,7 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         clickLink("EmergencyRouting");
         assertLinkPresent("erouting:addException");
         setFormElement("externalNumber", "33");
-        clickButton("form:ok");
-        // activate dial plans page active
-        assertTextPresent("Dial Plan Activation");
+        clickButton("form:apply");
     }
 
     public void testAddException() throws Exception {
@@ -49,20 +47,18 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         GatewaysTestUi.addTestGateways(getTester(), 3);
         SiteTestHelper.home(getTester());
         clickLink("EmergencyRouting");        
-        assertLinkPresent("erouting:addException");
-        SiteTestHelper.clickSubmitLink(getTester(),"addExceptionLink");
+        // SiteTestHelper.clickSubmitLink(getTester(),"addExceptionLink");
+        clickLink("erouting:addException");
         SiteTestHelper.assertNoException(tester);
         setFormElement("externalNumber", "33");
         setFormElement("externalNumber$0", "911");
         setFormElement("callers", "11, 22");
-        clickButton("form:ok");
-        // activate dial plans page active
-        assertTextPresent("Dial Plan Activation");
+        clickButton("form:apply");
     }
     
     public void testActivateWithErrors() {
         assertLinkPresent("erouting:addException");
-        clickButton("form:ok");
+        clickButton("form:apply");
         // activate dial plans page active
         assertElementPresent("user:error");
     }
