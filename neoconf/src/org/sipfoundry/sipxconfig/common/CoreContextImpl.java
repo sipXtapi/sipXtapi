@@ -23,7 +23,6 @@ import java.util.Set;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
-import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -259,7 +258,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         Criteria c = getSession().createCriteria(User.class);
         if (groupId != null) {
             c.createCriteria("groups", "g");
-            c.add(Expression.eq("g.id", groupId));
+            c.add(Restrictions.eq("g.id", groupId));
         }
         c.setFirstResult(firstRow);
         c.setMaxResults(pageSize);
