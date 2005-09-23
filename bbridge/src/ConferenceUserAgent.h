@@ -35,7 +35,7 @@ class Participant : public AppDialogSet
       Participant(DialogUsageManager& dum, const SipMessage &msg);
       ~Participant();
 
-      void assign(Conference* conf, int connId);
+      void assign(Conference* conf);
       void accept(const SdpContents& offer, SdpContents& answer);
       int id() const;
       
@@ -65,6 +65,8 @@ class ConferenceUserAgent : public InviteSessionHandler
    public:
       ConferenceUserAgent(const resip::NameAddr&);
       virtual ~ConferenceUserAgent();
+
+      virtual void onForkDestroyed(resip::ClientInviteSessionHandle);
 
       void process();
       
@@ -109,6 +111,9 @@ class ConferenceUserAgent : public InviteSessionHandler
       SdpCodecFactory mCodecFactory;
       SdpCodec** mSdpCodecArray;
       int mNumCodecs;
+      int mUdpPort;
+      int mTcpPort;
+      int mTlsPort;
 
       resip::Data mCertPath;
       

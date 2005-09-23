@@ -1,6 +1,8 @@
 #include "rutil/Log.hxx"
 #include "rutil/Logger.hxx"
 #include "resip/dum/ServerInviteSession.hxx"
+#include "resip/dum/Handles.hxx"
+#include "resip/stack/Aor.hxx"
 #include "rutil/DnsUtil.hxx"
 #include "ConferenceUserAgent.h"
 #include "net/SdpCodec.h"
@@ -14,7 +16,9 @@ const char *CODEC_G711_PCMU="258";
 const char *CODEC_G711_PCMA="257";
 const char *CODEC_DTMF_RFC2833="128";
 
-Participant::Participant(DialogUsageManager& dum, const SipMessage& msg) : AppDialogSet(dum)
+Participant::Participant(DialogUsageManager& dum, const SipMessage& msg) :
+  AppDialogSet(dum),
+  mConnId(-1)
 {
    ConferenceUserAgent& ua = dynamic_cast<ConferenceUserAgent&>(dum);
    ((void *)&ua); // suppress "unused variable" warning
@@ -34,10 +38,9 @@ Participant::~Participant()
 }
 
 void
-Participant::assign(Conference* conf, int connId)
+Participant::assign(Conference* conf)
 {
    mConference = conf;
-   mConnId = connId;
 }
 
 int 
@@ -165,21 +168,17 @@ ConferenceUserAgent::ConferenceUserAgent(const NameAddr& myAor) :
 
    mCodecFactory.buildSdpCodecFactory(numCodecs, sdpCodecEnumArray);
    mCodecFactory.getCodecs(mNumCodecs, mSdpCodecArray);
-    
+
+   // XXX ADD CODE TO READ FROM CONFIG INTO mUdpPort ET AL HERE.
    //Log::initialize(mLogType, mLogLevel, argv[0]);
-   addTransport(UDP, mUdpPort);
-   addTransport(TCP, mTcpPort);
-   addTransport(TLS, mTlsPort, V4, Data::Empty, myAor.host());
+   mDum.addTransport(UDP, mUdpPort);
+   mDum.addTransport(TCP, mTcpPort);
+   mDum.addTransport(TLS, mTlsPort, V4, Data::Empty, myAor.uri().host());
     
    mProfile->addSupportedMethod(INVITE);
    mProfile->validateAcceptEnabled() = false;
    mProfile->validateContentEnabled() = false;
    mProfile->setDefaultFrom(myAor);
-   
-   if (!mContact.host().empty())
-   {
-      mProfile->setOverrideHostAndPort(mContact);
-   }
    mProfile->setUserAgent("BostonBridge/0.1");
    
    mDum.setMasterProfile(mProfile);
@@ -204,11 +203,11 @@ ConferenceUserAgent::onNewSession(ServerInviteSessionHandle h, InviteSession::Of
    InfoLog(<< h->myAddr().uri().user() << " INVITE from  " << h->peerAddr().uri().user());
 
    const Data& aor = msg.header(h_RequestLine).uri().getAor();
-   Participant* part = dynamic_cast<Participant*>(getAppDialogSet().get());
+   Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(part);
    if (!mConferences.count(aor))
    {
-      mConferences[aor] = new Conference(aor);
+      mConferences[aor] = new Conference(*this,aor);
    }
    part->assign(mConferences[aor]);
 }
@@ -225,26 +224,29 @@ ConferenceUserAgent::onTerminated(InviteSessionHandle h, InviteSessionHandler::T
       WarningLog(<< h->myAddr().uri().user() << " ended call with " << h->peerAddr().uri().user());
    }
 
-   Participant* part = dynamic_cast<Participant*>(getAppDialogSet().get());
+   Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(part);
-   assert(mConferences.count(aor));
+   assert(mConferences.count(h->myAddr().uri().getAor()));
    delete part;
    // should probably have the conference keep a reference count and remove when
    // all participants disappear
 }
 
 void
-ConferenceUserAgent::onOffer(InviteSessionHandle handle, const SipMessage& msg, const SdpContents& offer)
+ConferenceUserAgent::onOffer(InviteSessionHandle h, const SipMessage& msg, const SdpContents& offer)
 {         
    const Data& aor = msg.header(h_RequestLine).uri().getAor();
-   Participant* part = dynamic_cast<Participant*>(getAppDialogSet().get());
+   Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(mConferences.count(aor));
    assert(part);
    
    SdpContents answer;
    part->accept(offer, answer); // answer is returned
    h->provideAnswer(answer);
-   h->accept();
+
+   ServerInviteSession *sis = dynamic_cast<ServerInviteSession*>(h.get());
+   assert(sis);
+   sis->accept();
 }
 
 void
@@ -382,7 +384,7 @@ ConferenceUserAgent::onForkDestroyed(ClientInviteSessionHandle)
 }
 
 /*
-  Copyright (c) 2005, Jason Fischl
+  Copyright (c) 2005, Jason Fischl, Adam Roach
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without modification,
