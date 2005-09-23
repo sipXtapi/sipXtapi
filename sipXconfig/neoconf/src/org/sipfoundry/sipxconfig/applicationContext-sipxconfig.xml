@@ -66,30 +66,6 @@
     <property name="minEvictableIdleTimeMillis">
       <value>300000</value>
     </property>
-    
-    <!-- For debugging -->
-    
-    <!-- Flag to remove abandoned connections if they exceed the removeAbandonedTimout.
-		 If set to true a connection is considered abandoned and eligible for removal
-		 if it has been idle longer than the removeAbandonedTimeout.
-		 Setting this to true can recover db connections from poorly written applications
-		 which fail to close a connection.  Default is false. -->
-    <!-- property name="removeAbandoned">
-      <value>true</value>
-    </property -->
-    
-    <!-- Timeout in seconds before an abandoned connection can be removed.
-         Default is 300. -->
-    <!-- property name="removeAbandonedTimeout">
-      <value>1</value>
-    </property -->
-    
-    <!-- Flag to log stack traces for application code which abandoned a Statement or Connection.
-		 Logging of abandoned Statements and Connections adds overhead for every Connection open
-		 or new Statement because a stack trace has to be generated.  Default is false. -->
-    <!-- property name="logAbandoned">
-      <value>true</value>
-    </property -->
 
   </bean>
   <!--
