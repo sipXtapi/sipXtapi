@@ -7,6 +7,7 @@
 #include "rutil/DnsUtil.hxx"
 #include "net/SdpCodec.h"
 
+#include "ParticipantFactory.h"
 #include "Participant.h"
 #include "Conference.h"
 #include "ConferenceUserAgent.h"
@@ -73,6 +74,8 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mProfile->setDefaultFrom(myAor);
    mProfile->setUserAgent("BostonBridge/0.1");
    
+   std::auto_ptr<resip::AppDialogSetFactory> rfactory(new ParticipantFactory);
+   mDum.setAppDialogSetFactory(rfactory);
    mDum.setMasterProfile(mProfile);
    mDum.setInviteSessionHandler(this);
    

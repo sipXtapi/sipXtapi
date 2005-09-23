@@ -3,20 +3,13 @@
 
 // repro includes
 #include "resip/dum/AppDialogSetFactory.hxx"
-#include "resip/dum/AppDialogSet.hxx"
-#include "resip/dum/DialogUsageManager.hxx"
-#include "resip/dum/DumThread.hxx"
-#include "resip/dum/InviteSessionHandler.hxx"
-#include "resip/dum/MasterProfile.hxx"
-#include "resip/stack/StackThread.hxx"
 
-// sipX includes
-#include "os/OsTask.h"
-#include "os/OsConfigDb.h"
-#include "mi/CpMediaInterfaceFactoryFactory.h"
-#include "net/QoS.h"
-#include "net/SdpCodecFactory.h"
-#include "mi/CpMediaInterface.h"
+namespace resip
+{
+   class AppDialogSet;
+   class DialogUsageManager;
+   class SipMessage;
+}
 
 namespace bbridge
 {

@@ -21,8 +21,6 @@ Participant::Participant(resip::DialogUsageManager& dum,
   AppDialogSet(dum),
   mConnId(-1)
 {
-   ConferenceUserAgent& ua = dynamic_cast<ConferenceUserAgent&>(dum);
-   ((void *)&ua); // suppress "unused variable" warning
 }
 
 Participant::~Participant()
@@ -55,6 +53,7 @@ Participant::accept(const resip::SdpContents& offer,
                     resip::SdpContents& answer)
 {
    assert(mConference);
+   assert(mConference->mMedia); 
    
    mConference->mMedia->createConnection(mConnId, 0);
    resip::Data peerHost;
@@ -66,12 +65,9 @@ Participant::accept(const resip::SdpContents& offer,
    ::SdpCodec **sendCodecs = NULL;
    ::SdpSrtpParameters srtpParams;
 
-
-   assert(mConference->mMedia); // !ah! pointless -- see above, we already indirected it
    
-   resip::Data offerData;
-   resip::DataStream ds(offerData);
-   ds << offer; // !ah! yetch
+   resip::Data offerData = Data::from(offer);
+   
    // !ah! - offerData ready to convert to sipX SDP (yes we know this is gross)
    
    ::SdpBody offerSipX(offerData.c_str(), offerData.size());
@@ -91,13 +87,13 @@ Participant::accept(const resip::SdpContents& offer,
                                          supportedCodecs, srtpParams);
     
     offerSipX.getBestAudioCodecs(supportedCodecs,
-            numCodecsInCommon,
-            codecsInCommon,
-            remoteAddress,
-            peerRtpPort, 
-            peerRtcpPort,
-            dummyPort,
-            dummyPort); // !ah! dummy used for video
+                                 numCodecsInCommon,
+                                 codecsInCommon,
+                                 remoteAddress,
+                                 peerRtpPort, 
+                                 peerRtcpPort,
+                                 dummyPort,
+                                 dummyPort); // !ah! dummy used for video
 
     answerSipX.setStandardHeaderFields("conference",0,0,localAddress);
     answerSipX.addAudioCodecs(localAddress,
