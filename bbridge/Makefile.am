@@ -7,7 +7,7 @@ unconditional_SUBDIRS = src
 
 include $(srcdir)/config/sipXprojtop.mak
 
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+SUBDIRS = $(unconditional_SUBDIRS)
 RELEASE = 1
 
 EXTRA_DIST = \

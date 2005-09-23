@@ -22,20 +22,26 @@
 #include <os/OsConfigDb.h>
 #include <net/NameValueTokenizer.h>
 #include "ConferenceUserAgent.h"
+#include "config/bbridge-buildstamp.h"
 
 #include "rutil/Log.hxx"
 
 // DEFINES
 #ifndef SIPX_VERSION
-#  define SIPXCHANGE_VERSION          "SipXpbxVersion"
-#  define SIPXCHANGE_VERSION_COMMENT  "SipXpbxBuildStamp"
+#  define SIPX_BBRIDGE_VERSION          bbridgeVersion
+#  define SIPX_BBRIDGE_VERSION_COMMENT  bbridgeBuildStamp
 #else
-#  define SIPXCHANGE_VERSION          SIPX_VERSION
-#  define SIPXCHANGE_VERSION_COMMENT  ""
+#  define SIPX_BBRIDGE_VERSION          SIPX_VERSION
+#  define SIPX_BBRIDGE_VERSION_COMMENT  ""
 #endif
 
-#define SIPX_LOGDIR "."
-#define SIPX_CONFDIR "."
+#ifndef SIPX_LOGDIR
+#  define SIPX_LOGDIR "."
+#endif
+
+#ifndef SIPX_CONFDIR
+#  define SIPX_CONFDIR "."
+#endif
 
 #define CONFIG_SETTINGS_FILE          "bbridge.conf"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
@@ -327,14 +333,14 @@ int main(int argc, char* argv[])
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if(argString.compareTo("-v") == 0)
       {
-         osPrintf("Version: %s (%s)\n", SIPXCHANGE_VERSION, SIPXCHANGE_VERSION_COMMENT);
-         return(1);
+         osPrintf("Version: %s (%s)\n", SIPX_BBRIDGE_VERSION_COMMENT, SIPX_BBRIDGE_VERSION_COMMENT);
+         exit(0);
       }
       else
       {
          osPrintf("usage: %s [-v]\nwhere:\n -v provides the software version\n",
          argv[0]);
-         return(1);
+         exit(1);
       }
    }
 
