@@ -67,7 +67,9 @@ public interface DialPlanContext extends DataObjectSource {
 
     public String getVoiceMail();
 
-    public abstract void applyEmergencyRouting(EmergencyRouting emergencyRouting);
+    public abstract void applyEmergencyRouting();
+    
+    public abstract void storeEmergencyRouting(EmergencyRouting emergencyRouting);
 
     public abstract EmergencyRouting getEmergencyRouting();
 

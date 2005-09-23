@@ -143,7 +143,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      */
     public void resetToFactoryDefault() {
         getHibernateTemplate().delete(getEmergencyRouting());
-        
+
         DialPlan dialPlan = getDialPlan();
         // unload all rules
         getHibernateTemplate().delete(dialPlan);
@@ -272,15 +272,18 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
     }
 
-    public void applyEmergencyRouting(EmergencyRouting er) {
-        getHibernateTemplate().saveOrUpdate(er);
+    public void applyEmergencyRouting() {
         try {
             EmergencyRoutingRules rules = new EmergencyRoutingRules();
-            rules.generate(er, m_coreContext.getDomainName());
+            rules.generate(getEmergencyRouting(), m_coreContext.getDomainName());
             rules.writeToFile(m_configDirectory);
         } catch (IOException e) {
             throw new RuntimeException("Application of emergency routing rules failed.", e);
         }
+    }
+
+    public void storeEmergencyRouting(EmergencyRouting emergencyRouting) {
+        getHibernateTemplate().saveOrUpdate(emergencyRouting);
     }
 
     public EmergencyRouting getEmergencyRouting() {
