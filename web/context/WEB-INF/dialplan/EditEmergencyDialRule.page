@@ -78,8 +78,8 @@
         <binding name="selected" expression="rule.useMediaServer"/>
     </component>
     
-    <component id="emergencyRoutingLink" type="PageLink">
-        <static-binding name="page" value="EditEmergencyRouting"/>
+    <component id="emergencyRoutingLink" type="DirectLink">
+        <binding name="listener" expression="listeners.emergencyRouting"/>
     </component>
     
     <!-- gateways configuration -->    
