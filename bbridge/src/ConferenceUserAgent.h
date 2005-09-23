@@ -46,7 +46,7 @@ class Participant : public AppDialogSet
 
 class ConferenceUserAgent;
 
-class Conference : public CpMediaInterface
+class Conference 
 {
    public:
       Conference(ConferenceUserAgent &ua, const Data& aor);
@@ -54,6 +54,8 @@ class Conference : public CpMediaInterface
 
    private:
       Data mAor;
+      CpMediaInterface* mMedia;
+      friend class Participant;
 };
 
 

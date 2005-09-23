@@ -41,6 +41,8 @@ Participant::id() const
 void
 Participant::startSending(const SdpContents& offer, const SdpContents& answer)
 {
+   assert(mConference);
+   
    mConference->createConnection(mConnId, 0);
    Data peerHost;
    int peerRtpPort = 0;
@@ -50,22 +52,23 @@ Participant::startSending(const SdpContents& offer, const SdpContents& answer)
    SdpCodec sendCodecs[10];
    SdpSrtpParameters srtpParams;
 
-   mConference->setConnectionDestination(mConnId, peerHost.c_str(), peerRtpPort, peerRtcpPort, 0, 0);
-   mConference->startRtpReceive(mConnId, numCodecs, sendCodecs, srtpParams);
-   mConference->startRtpSend(mConnId, numCodecs, sendCodecs, srtpParams);
+   assert(mConference->mMedia);
+   mConference->mMedia->setConnectionDestination(mConnId, peerHost.c_str(), peerRtpPort, peerRtcpPort, 0, 0);
+   mConference->mMedia->startRtpReceive(mConnId, numCodecs, sendCodecs, srtpParams);
+   mConference->mMedia->startRtpSend(mConnId, numCodecs, sendCodecs, srtpParams);
 }
 
 Conference::Conference(ConferenceUserAgent& ua, const Data& aor) : 
-   CpMediaInterface(ua.mMediaFactory.createMediaInterface(0, // not used
-                                                          0, // not used
-                                                          ua.mNumCodecs, 
-                                                          ua.mSdpCodecArray, 
-                                                          "",  // locale
-                                                          QOS_LAYER3_LOW_DELAY_IP_TOS,
-                                                          "", // stun server
-                                                          0, // stun options
-                                                          25)), // stun keep alive
-   mAor(aor)
+   mAor(aor),
+   mMedia(ua.mMediaFactory.createMediaInterface(0, // not used
+                                                0, // not used
+                                                ua.mNumCodecs, 
+                                                ua.mSdpCodecArray, 
+                                                "",  // locale
+                                                QOS_LAYER3_LOW_DELAY_IP_TOS,
+                                                "", // stun server
+                                                0, // stun options
+                                                25)) // stun keep alive
 {
 }
 
