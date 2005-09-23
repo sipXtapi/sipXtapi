@@ -17,9 +17,8 @@ EXTRA_DIST = \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
     config/sipXprojtop.mak \
-    config/sipXcommon.mak.in
-
-#    bbridge.spec
+    config/sipXcommon.mak.in \
+    bbridge.spec
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)
