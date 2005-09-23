@@ -5,13 +5,16 @@
 #include "resip/stack/Aor.hxx"
 #include "resip/stack/SdpContents.hxx"
 #include "rutil/DnsUtil.hxx"
-#include "ConferenceUserAgent.h"
 #include "net/SdpCodec.h"
+
+#include "Participant.h"
+#include "Conference.h"
+#include "ConferenceUserAgent.h"
 
 using namespace bbridge;
 using namespace std;
 
-#define RESIPROCATE_SUBSYSTEM Subsystem::TEST
+#define RESIPROCATE_SUBSYSTEM resip::Subsystem::TEST
 
 const char *CODEC_G711_PCMU="258";
 const char *CODEC_G711_PCMA="257";
@@ -19,8 +22,8 @@ const char *CODEC_DTMF_RFC2833="128";
 
 ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mConfigDb(db),
-   mProfile(new MasterProfile),
-   mSecurity(new Security(mCertPath)),
+   mProfile(new resip::MasterProfile),
+   mSecurity(new resip::Security(mCertPath)),
    mStack(mSecurity),
    mDum(mStack),
    mStackThread(mStack),
@@ -48,14 +51,15 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mConfigDb.get("SIP.TCP", mTcpPort);
    mConfigDb.get("SIP.TLS", mTlsPort);
    
-   mDum.addTransport(UDP, mUdpPort);
-   mDum.addTransport(TCP, mTcpPort);
-   mDum.addTransport(TLS, mTlsPort, V4, Data::Empty, myAor.uri().host());
+   resip::NameAddr myAor;
+   mDum.addTransport(resip::UDP, mUdpPort);
+   mDum.addTransport(resip::TCP, mTcpPort);
+   mDum.addTransport(resip::TLS, mTlsPort, resip::V4, resip::Data::Empty, 
+                     myAor.uri().host());
     
-   mProfile->addSupportedMethod(INVITE);
+   mProfile->addSupportedMethod(resip::INVITE);
    mProfile->validateAcceptEnabled() = false;
    mProfile->validateContentEnabled() = false;
-   NameAddr myAor;
    mProfile->setDefaultFrom(myAor);
    mProfile->setUserAgent("BostonBridge/0.1");
    
@@ -76,11 +80,13 @@ ConferenceUserAgent::~ConferenceUserAgent()
 }
 
 void
-ConferenceUserAgent::onNewSession(ServerInviteSessionHandle h, InviteSession::OfferAnswerType oat, const SipMessage& msg)
+ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
+                                  resip::InviteSession::OfferAnswerType oat,
+                                  const resip::SipMessage& msg)
 {
    InfoLog(<< h->myAddr().uri().user() << " INVITE from  " << h->peerAddr().uri().user());
 
-   const Data& aor = msg.header(h_RequestLine).uri().getAor();
+   const resip::Data& aor = msg.header(resip::h_RequestLine).uri().getAor();
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(part);
    if (!mConferences.count(aor))
@@ -91,7 +97,9 @@ ConferenceUserAgent::onNewSession(ServerInviteSessionHandle h, InviteSession::Of
 }
 
 void
-ConferenceUserAgent::onTerminated(InviteSessionHandle h, InviteSessionHandler::TerminatedReason reason, const SipMessage* msg)
+ConferenceUserAgent::onTerminated(resip::InviteSessionHandle h,
+                                  resip::InviteSessionHandler::TerminatedReason reason,
+                                  const resip::SipMessage* msg)
 {
    if (reason != InviteSessionHandler::PeerEnded)
    {
@@ -111,152 +119,181 @@ ConferenceUserAgent::onTerminated(InviteSessionHandle h, InviteSessionHandler::T
 }
 
 void
-ConferenceUserAgent::onOffer(InviteSessionHandle h, const SipMessage& msg, const SdpContents& offer)
+ConferenceUserAgent::onOffer(resip::InviteSessionHandle h,
+                             const resip::SipMessage& msg,
+                             const resip::SdpContents& offer)
 {         
-   const Data& aor = msg.header(h_RequestLine).uri().getAor();
+   const resip::Data& aor = msg.header(resip::h_RequestLine).uri().getAor();
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(mConferences.count(aor));
    assert(part);
    
-   SdpContents answer;
+   resip::SdpContents answer;
    part->accept(offer, answer); // answer is returned
    h->provideAnswer(answer);
 
-   ServerInviteSession *sis = dynamic_cast<ServerInviteSession*>(h.get());
+   resip::ServerInviteSession *sis =
+     dynamic_cast<resip::ServerInviteSession*>(h.get());
    assert(sis);
    sis->accept();
 }
 
 void
-ConferenceUserAgent::onNewSession(ClientInviteSessionHandle h, InviteSession::OfferAnswerType oat, const SipMessage& msg)
+ConferenceUserAgent::onNewSession(resip::ClientInviteSessionHandle h,
+                                  resip::InviteSession::OfferAnswerType oat,
+                                  const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 
 void
-ConferenceUserAgent::onAnswer(InviteSessionHandle, const SipMessage& msg, const SdpContents&)
+ConferenceUserAgent::onAnswer(resip::InviteSessionHandle,
+                              const resip::SipMessage& msg,
+                              const resip::SdpContents&)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onFailure(ClientInviteSessionHandle h, const SipMessage& msg)
+ConferenceUserAgent::onFailure(resip::ClientInviteSessionHandle h,
+                               const resip::SipMessage& msg)
 {
    assert(0);
 }
       
 void
-ConferenceUserAgent::onEarlyMedia(ClientInviteSessionHandle, const SipMessage&, const SdpContents&)
+ConferenceUserAgent::onEarlyMedia(resip::ClientInviteSessionHandle,
+                                  const resip::SipMessage&,
+                                  const resip::SdpContents&)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onProvisional(ClientInviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onProvisional(resip::ClientInviteSessionHandle,
+                                   const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onConnected(ClientInviteSessionHandle h, const SipMessage& msg)
+ConferenceUserAgent::onConnected(resip::ClientInviteSessionHandle h,
+                                 const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onConnected(InviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onConnected(resip::InviteSessionHandle,
+                                 const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onStaleCallTimeout(ClientInviteSessionHandle)
+ConferenceUserAgent::onStaleCallTimeout(resip::ClientInviteSessionHandle)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onRedirected(ClientInviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onRedirected(resip::ClientInviteSessionHandle,
+                                  const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onOfferRequired(InviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onOfferRequired(resip::InviteSessionHandle,
+                                     const resip::SipMessage& msg)
 {
    assert(false);
 }
 
 void
-ConferenceUserAgent::onOfferRejected(InviteSessionHandle, const SipMessage* msg)
+ConferenceUserAgent::onOfferRejected(resip::InviteSessionHandle,
+                                     const resip::SipMessage* msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onDialogModified(InviteSessionHandle, InviteSession::OfferAnswerType oat, const SipMessage& msg)
+ConferenceUserAgent::onDialogModified(resip::InviteSessionHandle,
+                                      resip::InviteSession::OfferAnswerType oat,
+                                      const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onInfo(InviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onInfo(resip::InviteSessionHandle,
+                            const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onInfoSuccess(InviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onInfoSuccess(resip::InviteSessionHandle,
+                                   const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onInfoFailure(InviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onInfoFailure(resip::InviteSessionHandle,
+                                   const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onRefer(InviteSessionHandle, ServerSubscriptionHandle, const SipMessage& msg)
+ConferenceUserAgent::onRefer(resip::InviteSessionHandle,
+                             resip::ServerSubscriptionHandle,
+                             const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onReferAccepted(InviteSessionHandle, ClientSubscriptionHandle, const SipMessage& msg)
+ConferenceUserAgent::onReferAccepted(resip::InviteSessionHandle,
+                                     resip::ClientSubscriptionHandle,
+                                     const resip::SipMessage& msg)
 {
    assert(false);
 }
 
 void
-ConferenceUserAgent::onReferRejected(InviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onReferRejected(resip::InviteSessionHandle,
+                                     const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onMessage(InviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onMessage(resip::InviteSessionHandle,
+                               const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onMessageSuccess(InviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onMessageSuccess(resip::InviteSessionHandle,
+                                      const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 void
-ConferenceUserAgent::onMessageFailure(InviteSessionHandle, const SipMessage& msg)
+ConferenceUserAgent::onMessageFailure(resip::InviteSessionHandle,
+                                      const resip::SipMessage& msg)
 {
    assert(0);
 }
 
 
 void
-ConferenceUserAgent::onForkDestroyed(ClientInviteSessionHandle)
+ConferenceUserAgent::onForkDestroyed(resip::ClientInviteSessionHandle)
 {
    assert(0);
 }

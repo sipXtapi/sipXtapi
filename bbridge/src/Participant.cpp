@@ -5,15 +5,19 @@
 #include "resip/stack/Aor.hxx"
 #include "resip/stack/SdpContents.hxx"
 #include "rutil/DnsUtil.hxx"
-#include "ConferenceUserAgent.h"
 #include "net/SdpCodec.h"
+
+#include "Conference.h"
+#include "ConferenceUserAgent.h"
+#include "Participant.h"
 
 using namespace bbridge;
 using namespace std;
 
 #define RESIPROCATE_SUBSYSTEM Subsystem::TEST
 
-Participant::Participant(DialogUsageManager& dum, const SipMessage& msg) :
+Participant::Participant(resip::DialogUsageManager& dum,
+                         const resip::SipMessage& msg) :
   AppDialogSet(dum),
   mConnId(-1)
 {
@@ -47,25 +51,26 @@ Participant::id() const
 }
 
 void
-Participant::accept(const SdpContents& offer, SdpContents& answer)
+Participant::accept(const resip::SdpContents& offer,
+                    resip::SdpContents& answer)
 {
    assert(mConference);
    
    mConference->mMedia->createConnection(mConnId, 0);
-   Data peerHost;
+   resip::Data peerHost;
    int peerRtpPort = 0;
    int peerRtcpPort = 0;
    int dummyPort = 0;
    
    int numCodecs = 0;
-   SdpCodec **sendCodecs = NULL;
-   SdpSrtpParameters srtpParams;
+   ::SdpCodec **sendCodecs = NULL;
+   ::SdpSrtpParameters srtpParams;
 
 
    assert(mConference->mMedia); // !ah! pointless -- see above, we already indirected it
    
    resip::Data offerData;
-   DataStream ds(offerData);
+   resip::DataStream ds(offerData);
    ds << offer; // !ah! yetch
    // !ah! - offerData ready to convert to sipX SDP (yes we know this is gross)
    
@@ -108,9 +113,9 @@ Participant::accept(const SdpContents& offer, SdpContents& answer)
    int sdpSize = answerSipX.getLength();
    const char * sdpData = new  char[sdpSize];
    answerSipX.getBytes(&sdpData,&sdpSize);
-   Data sdata(sdpData);
-   HeaderFieldValue hfv(sdata.data(), sdata.size());
-   answer = SdpContents(&hfv, Mime("application","sdp"));
+   resip::Data sdata(sdpData);
+   resip::HeaderFieldValue hfv(sdata.data(), sdata.size());
+   answer = resip::SdpContents(&hfv, resip::Mime("application","sdp"));
    delete [] sdpData;
 
    mConference->mMedia->setConnectionDestination(mConnId, peerHost.c_str(), 

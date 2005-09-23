@@ -21,10 +21,11 @@
 namespace bbridge
 {
 
-class ParticipantFactory : public AppDialogSetFactory
+class ParticipantFactory : public resip::AppDialogSetFactory
 {
    public:
-      AppDialogSet* createAppDialogSet(DialogUsageManager&, const SipMessage&);      
+      resip::AppDialogSet* createAppDialogSet(resip::DialogUsageManager&,
+                                              const resip::SipMessage&);      
 };
 
 }

@@ -21,14 +21,17 @@
 namespace bbridge
 {
 
-class Participant : public AppDialogSet
+class Conference;
+
+class Participant : public resip::AppDialogSet
 {
    public:
-      Participant(DialogUsageManager& dum, const SipMessage &msg);
+      Participant(resip::DialogUsageManager& dum,
+                  const resip::SipMessage &msg);
       ~Participant();
 
       void assign(Conference* conf);
-      void accept(const SdpContents& offer, SdpContents& answer);
+      void accept(const resip::SdpContents& offer, resip::SdpContents& answer);
       int id() const;
       
    private:

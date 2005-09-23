@@ -62,7 +62,7 @@ class ConferenceUserAgent : public resip::InviteSessionHandler
       virtual void onMessageFailure(resip::InviteSessionHandle, const resip::SipMessage& msg);
 
    private:
-      OsConfigDb mConfigDb;
+      OsConfigDb &mConfigDb;
       resip::SharedPtr<resip::MasterProfile> mProfile;
       resip::Security* mSecurity;
       resip::SipStack mStack;

@@ -5,16 +5,19 @@
 #include "resip/stack/Aor.hxx"
 #include "resip/stack/SdpContents.hxx"
 #include "rutil/DnsUtil.hxx"
-#include "ConferenceUserAgent.h"
 #include "net/SdpCodec.h"
+
+#include "ParticipantFactory.h"
+#include "Participant.h"
 
 using namespace bbridge;
 using namespace std;
 
 #define RESIPROCATE_SUBSYSTEM Subsystem::TEST
 
-AppDialogSet* 
-ParticipantFactory::createAppDialogSet(DialogUsageManager& dum, const SipMessage& msg)
+resip::AppDialogSet* 
+ParticipantFactory::createAppDialogSet(resip::DialogUsageManager& dum,
+                                       const resip::SipMessage& msg)
 {
    return new Participant(dum, msg);
 }
