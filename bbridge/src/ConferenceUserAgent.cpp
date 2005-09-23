@@ -143,11 +143,13 @@ ConferenceUserAgent::onOffer(resip::InviteSessionHandle h,
    
    resip::SdpContents answer;
    part->accept(offer, answer); // answer is returned
+   InfoLog (<< "Accepting offer with " << answer);
    h->provideAnswer(answer);
-
+   
    resip::ServerInviteSession *sis =
      dynamic_cast<resip::ServerInviteSession*>(h.get());
    assert(sis);
+   InfoLog (<< "Accepting ");
    sis->accept();
 }
 
@@ -201,7 +203,7 @@ void
 ConferenceUserAgent::onConnected(resip::InviteSessionHandle,
                                  const resip::SipMessage& msg)
 {
-   assert(0);
+   //assert(0);
 }
 
 void

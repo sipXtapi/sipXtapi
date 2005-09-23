@@ -14,7 +14,7 @@
 using namespace bbridge;
 using namespace std;
 
-#define RESIPROCATE_SUBSYSTEM Subsystem::TEST
+#define RESIPROCATE_SUBSYSTEM resip::Subsystem::TEST
 
 Participant::Participant(resip::DialogUsageManager& dum,
                          const resip::SipMessage& msg) :
@@ -54,15 +54,14 @@ Participant::accept(const resip::SdpContents& offer,
 {
    assert(mConference);
    assert(mConference->mMedia); 
-   
+
    mConference->mMedia->createConnection(mConnId, 0);
-   resip::Data peerHost;
+   UtlString peerHost;
    int peerRtpPort = 0;
    int peerRtcpPort = 0;
    int dummyPort = 0;
    
    int numCodecs = 0;
-   ::SdpCodec **sendCodecs = NULL;
    ::SdpSrtpParameters srtpParams;
 
    resip::Data offerData = resip::Data::from(offer);
@@ -71,10 +70,11 @@ Participant::accept(const resip::SdpContents& offer,
    
    ::SdpBody offerSipX(offerData.c_str(), offerData.size());
    ::SdpBody answerSipX;
-    
+
+   InfoLog (<< "Offer: " << offer);
+   
     int numCodecsInCommon = 0;
     SdpCodec **codecsInCommon = 0;
-    UtlString remoteAddress;
     UtlString localAddress;
     SdpCodecFactory supportedCodecs;
     int localRtpPort;
@@ -84,11 +84,15 @@ Participant::accept(const resip::SdpContents& offer,
                                          localRtpPort, localRtcpPort,
                                          dummyPort, dummyPort,
                                          supportedCodecs, srtpParams);
+    InfoLog (<< "mConnId=" << mConnId
+             << " localAddress=" << localAddress
+             << " localRtpPort=" << localRtpPort
+             << " localRtcpPort=" << localRtcpPort);
     
     offerSipX.getBestAudioCodecs(supportedCodecs,
                                  numCodecsInCommon,
                                  codecsInCommon,
-                                 remoteAddress,
+                                 peerHost,
                                  peerRtpPort, 
                                  peerRtcpPort,
                                  dummyPort,
@@ -96,35 +100,43 @@ Participant::accept(const resip::SdpContents& offer,
 
     answerSipX.setStandardHeaderFields("conference",0,0,localAddress);
     answerSipX.addAudioCodecs(localAddress,
-                           localRtpPort,
-                           localRtcpPort,
-                           dummyPort, dummyPort, // !ah! --video
-                           numCodecsInCommon,
-                           codecsInCommon, 
-                           srtpParams);
+                              localRtpPort,
+                              localRtcpPort,
+                              dummyPort, dummyPort, // !ah! --video
+                              numCodecsInCommon,
+                              codecsInCommon, 
+                              srtpParams);
 
     // !ah! convert to resiprocate SDP
 
    int sdpSize = answerSipX.getLength();
    const char * sdpData = new  char[sdpSize];
    answerSipX.getBytes(&sdpData,&sdpSize);
-   resip::Data sdata(sdpData);
-   resip::HeaderFieldValue hfv(sdata.data(), sdata.size());
-   answer = resip::SdpContents(&hfv, resip::Mime("application","sdp"));
-   delete [] sdpData;
 
-   mConference->mMedia->setConnectionDestination(mConnId, peerHost.c_str(), 
+   //InfoLog( <<"Answer so far: " << sdpData);
+   resip::HeaderFieldValue *hfv = new resip::HeaderFieldValue(sdpData, sdpSize);
+
+   answer = resip::SdpContents(hfv, resip::Mime("application","sdp"));
+
+   
+   InfoLog (<< mConnId << " peer=" << peerHost
+            << ":" << peerRtpPort
+            << " conf=" << mConference);
+   assert(numCodecsInCommon > 0);
+   mConference->mMedia->setConnectionDestination(mConnId, peerHost,
                                                  peerRtpPort, peerRtcpPort,
                                                  0, 0);
-   mConference->mMedia->startRtpReceive(mConnId, numCodecs, 
-                                        sendCodecs,
+
+   mConference->mMedia->startRtpReceive(mConnId, numCodecsInCommon, 
+                                        codecsInCommon,
                                         srtpParams);
-   mConference->mMedia->startRtpSend(mConnId,numCodecs,
-                                     sendCodecs,
+   mConference->mMedia->startRtpSend(mConnId,numCodecsInCommon,
+                                     codecsInCommon,
                                      srtpParams);
+   // !jf! delete codecsInCommon
 }
 /*
-  Copyright (c) 2005, Jason Fischl, Adam Roach
+  Copyright (c) 2005, Jason Fischl, Adam Roach, Alan Hawrylyshen
   All rights reserved.
 
   Redistribution and use in source and binary forms, with or without modification,

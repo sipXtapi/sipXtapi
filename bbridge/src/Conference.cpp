@@ -18,8 +18,8 @@ using namespace std;
 Conference::Conference(bbridge::ConferenceUserAgent& ua,
                        const resip::Data& aor) : 
    mAor(aor),
-   mMedia(ua.mMediaFactory->createMediaInterface(0, // not used
-                                                 0, // not used
+   mMedia(ua.mMediaFactory->createMediaInterface(resip::DnsUtil::getLocalIpAddress().c_str(),
+                                                 resip::DnsUtil::getLocalIpAddress().c_str(),
                                                  ua.mNumCodecs, 
                                                  ua.mSdpCodecArray, 
                                                  "",  // locale

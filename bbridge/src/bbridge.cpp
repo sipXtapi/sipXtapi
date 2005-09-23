@@ -53,6 +53,7 @@
 
 #define CONFIG_SETTING_LOG_DIR        "BOSTON_BRIDGE_LOG_DIR"
 #define CONFIG_SETTING_LOG_LEVEL      "BOSTON_BRIDGE_LOG_LEVEL"
+#define CONFIG_SETTING_RESIP_LOG_LEVEL "BOSTON_BRIDGE_RESIP_LOG_LEVEL"
 #define CONFIG_SETTING_LOG_CONSOLE    "BOSTON_BRIDGE_LOG_CONSOLE"
 #define CONFIG_SETTING_UDP_PORT       "BOSTON_BRIDGE_UDP_PORT"
 #define CONFIG_SETTING_TCP_PORT       "BOSTON_BRIDGE_TCP_PORT"
@@ -219,6 +220,7 @@ void initSysLog(OsConfigDb* pConfig)
    {
       logLevel = "ERR";
    }
+
    logLevel.toUpper();
    OsSysLogPriority priority = PRI_ERR;
    int iEntries = sizeof(lkupTable) / sizeof(struct tagPrioriotyLookupTable);
@@ -300,9 +302,6 @@ class SipXExternalLogger : public resip::ExternalLogger
 //
 int main(int argc, char* argv[])
 {
-   SipXExternalLogger resipLogger;
-   resip::Log::initialize(resip::Log::Cout, resip::Log::Info, resip::Data(argv[0]), resipLogger);
-
    // Configuration Database (used for OsSysLog)
    OsConfigDb configDb;
 
@@ -367,6 +366,7 @@ int main(int argc, char* argv[])
    {
       configDb.set(CONFIG_SETTING_LOG_DIR, "");
       configDb.set(CONFIG_SETTING_LOG_LEVEL, "INFO");
+      configDb.set(CONFIG_SETTING_RESIP_LOG_LEVEL, "INFO");
       configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
       configDb.set(CONFIG_SETTING_UDP_PORT, DEFAULT_UDP_PORT);
       configDb.set(CONFIG_SETTING_TCP_PORT, DEFAULT_TCP_PORT);
@@ -376,6 +376,14 @@ int main(int argc, char* argv[])
       configDb.storeToFile(fileName);
    }
    
+   UtlString level;
+   configDb.get(CONFIG_SETTING_RESIP_LOG_LEVEL, level);
+   SipXExternalLogger resipLogger;
+   resip::Log::initialize(resip::Log::Cout, 
+                          resip::Log::toLevel(level.data()), 
+                          resip::Data(argv[0]), 
+                          resipLogger);
+
    // Initialize log file
    initSysLog(&configDb);
 
