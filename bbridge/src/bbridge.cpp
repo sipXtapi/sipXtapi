@@ -22,7 +22,6 @@
 
 // DEFINES
 #ifndef SIPX_VERSION
-#  include "sipxpbx-buildstamp.h"
 #  define SIPXCHANGE_VERSION          SipXpbxVersion
 #  define SIPXCHANGE_VERSION_COMMENT  SipXpbxBuildStamp
 #else
@@ -30,18 +29,11 @@
 #  define SIPXCHANGE_VERSION_COMMENT  ""
 #endif
 
-#define CONFIG_SETTINGS_FILE          "sipxpresence-config"
+#define CONFIG_SETTINGS_FILE          "bbridge.conf"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
 
-#define CONFIG_LOG_FILE               "sipxpresence.log"
+#define CONFIG_LOG_FILE               "bbridge.log"
 #define CONFIG_LOG_DIR                SIPX_LOGDIR
-
-#define CONFIG_SETTING_LOG_DIR        "SIP_PRESENCE_LOG_DIR"
-#define CONFIG_SETTING_LOG_LEVEL      "SIP_PRESENCE_LOG_LEVEL"
-#define CONFIG_SETTING_LOG_CONSOLE    "SIP_PRESENCE_LOG_CONSOLE"
-#define CONFIG_SETTING_DOMAIN_NAME    "SIP_PRESENCE_DOMAIN_NAME"
-#define CONFIG_SETTING_UDP_PORT       "SIP_PRESENCE_UDP_PORT"
-#define CONFIG_SETTING_TCP_PORT       "SIP_PRESENCE_TCP_PORT"
 
 #define LOG_FACILITY                  FAC_ACD
 
@@ -68,8 +60,6 @@ extern "C" {
 // STATIC VARIABLE INITIALIZATIONS
 // GLOBAL VARIABLE INITIALIZATIONS
 UtlBoolean    gShutdownFlag = FALSE;
-OsMutex       gLockMutex (OsMutex::Q_FIFO);
-
 
 
 /* ============================ FUNCTIONS ================================= */
