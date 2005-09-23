@@ -33,14 +33,16 @@ LDFLAGS += -L$(RESIPPATH)/resip/dum/$(RESIPOBJ)/ -ldum
 LDFLAGS += -L$(RESIPPATH)/resip/stack/$(RESIPOBJ)/ -lresip
 LDFLAGS += -L$(RESIPPATH)/rutil/$(RESIPOBJ)/ -lrutil
 LDFLAGS += -L$(RESIPPATH)/contrib/ares -lares
-CPPFLAGS += -I$(RESIPPATH)
+CPPFLAGS += -I$(RESIPPATH)/
 ######################################################################
 
 bbridge: $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $^
 
 ifneq ($(MAKECMDGOALS),clean)
-  -include $(DEPS)
+  ifneq ($(wildcard Makefile.config),Makefile.config)
+    -include $(DEPS)
+  endif
 endif
 
 Makefile.config:
