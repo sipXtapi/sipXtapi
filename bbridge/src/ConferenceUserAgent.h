@@ -63,7 +63,7 @@ class Conference
 class ConferenceUserAgent : public InviteSessionHandler
 {
    public:
-      ConferenceUserAgent();
+      ConferenceUserAgent(const resip::NameAddr&);
       virtual ~ConferenceUserAgent();
 
       void process();
@@ -109,6 +109,8 @@ class ConferenceUserAgent : public InviteSessionHandler
       SdpCodecFactory mCodecFactory;
       SdpCodec** mSdpCodecArray;
       int mNumCodecs;
+
+      resip::Data mCertPath;
       
       HashMap<Data, Conference*> mConferences;
       

@@ -3,16 +3,21 @@
 #include "resip/dum/ServerInviteSession.hxx"
 #include "rutil/DnsUtil.hxx"
 #include "ConferenceUserAgent.h"
+#include "net/SdpCodec.h"
 
 using namespace resip;
 using namespace std;
 
 #define RESIPROCATE_SUBSYSTEM Subsystem::TEST
 
+const char *CODEC_G711_PCMU="258";
+const char *CODEC_G711_PCMA="257";
+const char *CODEC_DTMF_RFC2833="128";
+
 Participant::Participant(DialogUsageManager& dum, const SipMessage& msg) : AppDialogSet(dum)
 {
    ConferenceUserAgent& ua = dynamic_cast<ConferenceUserAgent&>(dum);
-   
+   ((void *)&ua); // suppress "unused variable" warning
 }
 
 Participant::~Participant()
@@ -46,19 +51,25 @@ Participant::accept(const SdpContents& offer, SdpContents& answer)
 {
    assert(mConference);
    
-   mConference->createConnection(mConnId, 0);
+   mConference->mMedia->createConnection(mConnId, 0);
    Data peerHost;
    int peerRtpPort = 0;
    int peerRtcpPort = 0;
 
    int numCodecs = 0;
-   SdpCodec sendCodecs[10];
+   SdpCodec **sendCodecs = NULL;
    SdpSrtpParameters srtpParams;
 
    assert(mConference->mMedia);
-   mConference->mMedia->setConnectionDestination(mConnId, peerHost.c_str(), peerRtpPort, peerRtcpPort, 0, 0);
-   mConference->mMedia->startRtpReceive(mConnId, numCodecs, sendCodecs, srtpParams);
-   mConference->mMedia->startRtpSend(mConnId, numCodecs, sendCodecs, srtpParams);
+   mConference->mMedia->setConnectionDestination(mConnId, peerHost.c_str(), 
+                                                 peerRtpPort, peerRtcpPort,
+                                                 0, 0);
+   mConference->mMedia->startRtpReceive(mConnId, numCodecs, 
+                                        sendCodecs,
+                                        srtpParams);
+   mConference->mMedia->startRtpSend(mConnId,numCodecs,
+                                     sendCodecs,
+                                     srtpParams);
 }
 
 Conference::Conference(ConferenceUserAgent& ua, const Data& aor) : 
@@ -83,7 +94,7 @@ Conference::~Conference()
 AppDialogSet* 
 ParticipantFactory::createAppDialogSet(DialogUsageManager& dum, const SipMessage& msg)
 {
-   return new Participant(dum);
+   return new Participant(dum, msg);
 }
 
 
