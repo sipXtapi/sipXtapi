@@ -26,11 +26,16 @@ public class SipUri {
         String uri = format(userName, domain, port);
         m_uri = uri;
     }
+    
+    public SipUri(String domain, int port) {
+        String uri = format(domain, port);
+        m_uri = uri;
+    }    
 
     public SipUri(String userName, String domain, boolean quote) {
         m_uri = format(userName, domain, quote);
     }
-
+    
     public static String format(User user, String domainName) {
         StringBuffer uri = new StringBuffer();
         boolean needsWrapping = false;
@@ -53,6 +58,14 @@ public class SipUri {
         String uri = MessageFormat.format("sip:{0}@{1}:{2}", params);
         return uri;
     }
+    
+    public static String format(String domainName, int port) {
+        Object[] params = {
+            domainName, Integer.toString(port)
+        };
+        String uri = MessageFormat.format("sip:{0}:{1}", params);
+        return uri;
+    }    
     
     public static String format(String userName, String domain, boolean quote) {
         Object[] params = {
