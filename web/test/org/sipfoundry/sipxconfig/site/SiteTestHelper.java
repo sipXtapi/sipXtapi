@@ -277,7 +277,9 @@ public class SiteTestHelper {
         // submit the form after setting hidden field
         HttpUnitDialog dialog = tester.getDialog();
         WebForm form = dialog.getForm();
-        form.getScriptableObject().setParameterValue("_linkSubmit", linkName);
+        if (linkName != null) {
+            form.getScriptableObject().setParameterValue("_linkSubmit", linkName);
+        }
         WebResponse response = form.submitNoButton();
 
         // set response directly in current JWebUnit object
@@ -288,6 +290,10 @@ public class SiteTestHelper {
 
         Assert.assertSame(tester.getDialog().getResponse(), response);
     }
+    
+    public static void submitNoButton(WebTester tester) throws Exception {
+        clickSubmitLink(tester, null);
+    }
 
     public static void seedUser(WebTester tester) {
         home(tester);
@@ -295,7 +301,7 @@ public class SiteTestHelper {
         home(tester);
         tester.clickLink("seedTestUser");
     }
-
+    
     /**
      * Create a new group, user or phone
      * 

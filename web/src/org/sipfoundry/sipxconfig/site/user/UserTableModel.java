@@ -14,9 +14,7 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.tapestry.IComponent;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.contrib.table.model.ITableModel;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.AbstractTableModel;
 
@@ -41,6 +39,10 @@ public class UserTableModel extends AbstractTableModel {
     public void setGroupId(Integer groupId) {
         m_groupId = groupId;
     }
+    
+    public Integer getGroupId() {
+        return m_groupId;
+    }
 
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
             boolean orderAscending) {
@@ -51,8 +53,8 @@ public class UserTableModel extends AbstractTableModel {
         return page.iterator();
     }
     
-    public ITableModel createTableModel(IComponent component, Integer groupId) {
-        setGroupId(groupId);
+    protected OrderByTableColumn[] createTableColumns() {
+    
         OrderByTableColumn[] columns = new OrderByTableColumn[] {
             new OrderByTableColumn(USER_NAME_PROPERTY, USER_NAME_PROPERTY, USER_NAME_PROPERTY),
             new OrderByTableColumn(FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY),
@@ -60,7 +62,7 @@ public class UserTableModel extends AbstractTableModel {
             new OrderByTableColumn("aliases", "aliasesString")
         };
 
-        return createTableModel(component, columns);
+        return columns;
     }
 }
 

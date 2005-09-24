@@ -33,26 +33,39 @@ public class ManageUsersTestUi extends WebTestCase {
         m_helper.reset();
     }
     
-    public void testListUsers() throws Exception {
+    public void testDisplay() throws Exception {
         clickLink("ManageUsers");              
         SiteTestHelper.assertNoException(tester);        
     }
     
-    /**
-     * DISABLED until sipXconfig 3.2
-     */
-    public void _testNewUser() throws Exception {
+    public void testAddUser() throws Exception {
+        SiteTestHelper.seedUser(tester);
         clickLink("ManageUsers");
         clickLink("AddUser");
-        setFormElement("userId", "new-user-test");
-        setFormElement("firstName", "NewUserFname");
-        setFormElement("lastName", "NewUserLname");
-        setFormElement("extension", "993");
-        setFormElement("pin", "1234");
-        setFormElement("pinConfirm", "1234");
-        clickButton("user:ok");
+        clickButton("form:cancel");
         SiteTestHelper.assertNoException(tester);
-        // assert user is in table
+    }
+    
+    public void testGroupFilter() throws Exception {
+        SiteTestHelper.seedUser(tester);
+        SiteTestHelper.seedGroup(tester, "NewPhoneGroup", 1);
+        clickLink("ManageUsers");
+        
+        // all users
+        int allTableCount = SiteTestHelper.getRowCount(tester, "user:list");
+        
+        // empty group, no users
+        setFormElement("groupFilter", "0");
+        SiteTestHelper.submitNoButton(tester);
+        SiteTestHelper.assertNoException(tester);
+        int emptyTableCount = SiteTestHelper.getRowCount(tester, "user:list");
+        assertTrue(allTableCount > emptyTableCount);
+
+        // back to all users
+        setFormElement("groupFilter", "");
+        SiteTestHelper.submitNoButton(tester);
+        int allTableCountAgain = SiteTestHelper.getRowCount(tester, "user:list");
+        assertEquals(allTableCount, allTableCountAgain);
     }
     
 }

@@ -48,9 +48,23 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public abstract PhoneContext getPhoneContext();
 
-    public abstract void setGroupId(Integer groupId);
-
-    public abstract Integer getGroupId();
+    public void setGroupId(Integer groupId) {
+        PhoneTableModel model = getTableModel();
+        if (model != null) {
+            model.setGroupId(groupId);
+        }
+    }
+    
+    // not sure why this is called
+    public Integer getGroupId() {
+        PhoneTableModel model = getTableModel();
+        if (model != null) {
+            return model.getGroupId();
+        }
+        return null;
+    }
+    
+    public abstract PhoneTableModel getTableModel();
 
     public IComponent getThis() {
         return this;

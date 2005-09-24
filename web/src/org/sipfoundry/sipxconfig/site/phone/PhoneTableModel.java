@@ -14,9 +14,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.tapestry.IComponent;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.contrib.table.model.ITableModel;
 import org.sipfoundry.sipxconfig.components.AbstractTableModel;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
@@ -35,13 +33,16 @@ public class PhoneTableModel extends AbstractTableModel {
     public void setGroupId(Integer groupId) {
         m_groupId = groupId;
     }
+    
+    public Integer getGroupId() {
+        return m_groupId;
+    }
 
     public void setPhoneContext(PhoneContext context) {
         m_phoneContext = context;
     }
 
-    public ITableModel createTableModel(IComponent component, Integer groupId) {
-        setGroupId(groupId);
+    public OrderByTableColumn[] createTableColumns() {
         OrderByTableColumn[] columns = new OrderByTableColumn[] {
             new OrderByTableColumn("Phone", SERIAL_NUM_PROPERTY, SERIAL_NUM_PROPERTY),
             new OrderByTableColumn("Lines", "lines", "beanId"),
@@ -49,7 +50,7 @@ public class PhoneTableModel extends AbstractTableModel {
             new OrderByTableColumn("Description", DESCRIPTION_PROPERTY, DESCRIPTION_PROPERTY)
         };
 
-        return createTableModel(component, columns);
+        return columns;
     }
 
     public int getRowCount() {

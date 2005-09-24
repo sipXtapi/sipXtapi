@@ -63,4 +63,26 @@ public class ManagePhonesTestUi extends WebTestCase {
         
         SiteTestHelper.assertNoException(tester);
     }    
+
+    public void testGroupFilter() throws Exception {
+        m_helper.seedPhone(1);
+        SiteTestHelper.seedGroup(tester, "NewPhoneGroup", 1);
+        clickLink("ManagePhones");
+        
+        // all users
+        int allTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
+        
+        // empty group, no users
+        setFormElement("groupFilter", "0");
+        SiteTestHelper.submitNoButton(tester);
+        SiteTestHelper.assertNoException(tester);
+        int emptyTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
+        assertTrue(allTableCount > emptyTableCount);
+
+        // back to all users
+        setFormElement("groupFilter", "");
+        SiteTestHelper.submitNoButton(tester);
+        int allTableCountAgain = SiteTestHelper.getRowCount(tester, "phone:list");
+        assertEquals(allTableCount, allTableCountAgain);
+    }    
 }
