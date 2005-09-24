@@ -79,8 +79,35 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mDum.setMasterProfile(mProfile);
    mDum.setInviteSessionHandler(this);
    
+   UtlString gw1Aor;
+   mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_AOR", gw1Aor);
+   if (!gw1Aor.isNull())
+   {
+      UtlString gw1Username;
+      UtlString gw1Password;
+      UtlString gw1Conference;
+      
+      mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_USERNAME", gw1Username);
+      mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_PASSWORD", gw1Password);
+      mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_CONFERENCE", gw1Conference);
+      resip::SharedPtr<resip::UserProfile> gw1(new resip::UserProfile(mProfile));
+      resip::NameAddr aor(gw1Aor.data());
+      gw1->setDefaultFrom(aor);
+      gw1->setDigestCredential(aor.uri().host(), gw1Username.data(), gw1Password.data());
+      resip::SipMessage& reg = mDum.makeRegistration(aor, gw1);
+      InfoLog (<< "Registering  " << aor << " for " << gw1Username);
+      mDum.send(reg);
+      mInBoundMap[aor.uri().getAor()] = gw1Conference.data();
+   }
+
    mStackThread.run(); 
    mDumThread.run();
+}
+
+void
+ConferenceUserAgent::process()
+{
+   
 }
 
 ConferenceUserAgent::~ConferenceUserAgent()
@@ -92,6 +119,35 @@ ConferenceUserAgent::~ConferenceUserAgent()
    
 }
 
+void 
+ConferenceUserAgent::onSuccess(resip::ClientRegistrationHandle h, 
+                               const resip::SipMessage& response)
+{
+   const resip::Data& aor = response.header(resip::h_From).uri().getAor();
+   InfoLog (<< "Registered an aor for inbound calls to " << aor);
+
+}
+
+void 
+ConferenceUserAgent::onFailure(resip::ClientRegistrationHandle h, 
+                               const resip::SipMessage& response)
+{
+   InfoLog (<< "Failed to register " << response.header(resip::h_From).uri().getAor());
+}
+
+void 
+ConferenceUserAgent::onRemoved(resip::ClientRegistrationHandle h)
+{
+}
+
+int 
+ConferenceUserAgent::onRequestRetry(resip::ClientRegistrationHandle h, 
+                                    int retrySeconds, 
+                                    const resip::SipMessage& response)
+{
+   return -1;
+}
+
 void
 ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
                                   resip::InviteSession::OfferAnswerType oat,
@@ -99,7 +155,13 @@ ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
 {
    InfoLog(<< h->myAddr().uri().user() << " INVITE from  " << h->peerAddr().uri().user());
 
-   const resip::Data& aor = msg.header(resip::h_RequestLine).uri().getAor();
+   resip::Data aor = msg.header(resip::h_RequestLine).uri().getAor();
+   if (mInBoundMap.count(aor))
+   {
+      aor = mInBoundMap[aor];
+      InfoLog (<< "Remapping caller to conference at " << aor);
+   }
+   
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(part);
    if (!mConferences.count(aor))

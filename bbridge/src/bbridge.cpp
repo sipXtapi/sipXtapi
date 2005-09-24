@@ -22,7 +22,7 @@
 #include <os/OsConfigDb.h>
 #include <net/NameValueTokenizer.h>
 #include "ConferenceUserAgent.h"
-#include "config/bbridge-buildstamp.h"
+//#include "config/bbridge-buildstamp.h"
 
 #include "rutil/Log.hxx"
 
@@ -63,6 +63,11 @@
 #define CONFIG_SETTING_ENTER_SOUND    "BOSTON_BRIDGE_ENTER_SOUND"
 #define CONFIG_SETTING_EXIT_SOUND     "BOSTON_BRIDGE_EXIT_SOUND"
 #define CONFIG_SETTING_HOLD_MUSIC     "BOSTON_BRIDGE_HOLD_MUSIC"
+
+#define CONFIG_SETTING_GATEWAY1_AOR   "BOSTON_BRIDGE_GATEWAY1_AOR"
+#define CONFIG_SETTING_GATEWAY1_USERNAME  "BOSTON_BRIDGE_GATEWAY1_USERNAME"
+#define CONFIG_SETTING_GATEWAY1_PASSWORD  "BOSTON_BRIDGE_GATEWAY1_PASSWORD"
+#define CONFIG_SETTING_GATEWAY1_CONFERENCE  "BOSTON_BRIDGE_GATEWAY1_CONFERENCE"
 
 #define DEFAULT_UDP_PORT              5060       // Default UDP port
 #define DEFAULT_TCP_PORT              5060       // Default TCP port
@@ -335,7 +340,7 @@ int main(int argc, char* argv[])
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if(argString.compareTo("-v") == 0)
       {
-         osPrintf("Version: %s (%s)\n", SIPX_BBRIDGE_VERSION_COMMENT, SIPX_BBRIDGE_VERSION_COMMENT);
+         //osPrintf("Version: %s (%s)\n", SIPX_BBRIDGE_VERSION_COMMENT, SIPX_BBRIDGE_VERSION_COMMENT);
          exit(0);
       }
       else
@@ -376,6 +381,10 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);
       configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);
+      configDb.set(CONFIG_SETTING_GATEWAY1_AOR, "");
+      configDb.set(CONFIG_SETTING_GATEWAY1_USERNAME, "");
+      configDb.set(CONFIG_SETTING_GATEWAY1_PASSWORD, "");
+      configDb.set(CONFIG_SETTING_GATEWAY1_CONFERENCE, "");
       configDb.set(CONFIG_SETTING_ENTER_SOUND, "");
       configDb.set(CONFIG_SETTING_EXIT_SOUND, "");
       configDb.set(CONFIG_SETTING_HOLD_MUSIC, "");

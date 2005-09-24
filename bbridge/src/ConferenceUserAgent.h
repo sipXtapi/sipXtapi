@@ -7,6 +7,8 @@
 #include "resip/dum/DialogUsageManager.hxx"
 #include "resip/dum/DumThread.hxx"
 #include "resip/dum/InviteSessionHandler.hxx"
+#include "resip/dum/ClientRegistration.hxx"
+#include "resip/dum/RegistrationHandler.hxx"
 #include "resip/dum/MasterProfile.hxx"
 #include "resip/stack/StackThread.hxx"
 
@@ -28,8 +30,6 @@ class ConferenceUserAgent : public resip::InviteSessionHandler
    public:
       ConferenceUserAgent(OsConfigDb& db);
       virtual ~ConferenceUserAgent();
-
-      virtual void onForkDestroyed(resip::ClientInviteSessionHandle);
 
       void process();
       
@@ -61,6 +61,14 @@ class ConferenceUserAgent : public resip::InviteSessionHandler
       virtual void onMessageSuccess(resip::InviteSessionHandle, const resip::SipMessage& msg);
       virtual void onMessageFailure(resip::InviteSessionHandle, const resip::SipMessage& msg);
 
+      virtual void onForkDestroyed(resip::ClientInviteSessionHandle);
+
+      // resip::Client Registration Handler ///////////////////////////////////////////
+      virtual void onSuccess(resip::ClientRegistrationHandle, const resip::SipMessage& response);
+      virtual void onRemoved(resip::ClientRegistrationHandle);
+      virtual int onRequestRetry(resip::ClientRegistrationHandle, int retrySeconds, const resip::SipMessage& response);
+      virtual void onFailure(resip::ClientRegistrationHandle, const resip::SipMessage& response);
+
    private:
       OsConfigDb &mConfigDb;
       resip::SharedPtr<resip::MasterProfile> mProfile;
@@ -69,7 +77,7 @@ class ConferenceUserAgent : public resip::InviteSessionHandler
       resip::DialogUsageManager mDum;
       resip::StackThread mStackThread;
       resip::DumThread mDumThread;
-
+      
       CpMediaInterfaceFactory* mMediaFactory;
       SdpCodecFactory mCodecFactory;
       SdpCodec** mSdpCodecArray;
@@ -79,6 +87,11 @@ class ConferenceUserAgent : public resip::InviteSessionHandler
       int mTlsPort;
 
       HashMap<resip::Data, bbridge::Conference*> mConferences;
+
+      resip::ClientRegistrationHandle mRegistration;
+
+      // mapping table from registered AOR -> conference URI
+      HashMap<resip::Data, resip::Data> mInBoundMap;
       
       friend class Conference;
 };

@@ -38,7 +38,8 @@ Conference::~Conference()
    
 }
 
-const resip::Data& Conference::getAor() const
+const resip::Data& 
+Conference::getAor() const
 {
    return mAor;
 }

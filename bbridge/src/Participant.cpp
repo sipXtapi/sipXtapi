@@ -91,9 +91,10 @@ Participant::assign(Conference* conf)
       UtlString holdMusic;
       mConference->mConfigDb.get("BOSTON_BRIDGE_HOLD_MUSIC",holdMusic);
       OsStatus status = mConference->mMedia->playAudio(holdMusic,
-                                               true,  // repeat
-                                               false, // no local party
-                                               true); // remote parties
+                                                       true,  // repeat
+                                                       false, // no local party
+                                                       true); // remote parties
+      (void)status;
    }
    else
    {
@@ -136,7 +137,7 @@ Participant::accept(const resip::SdpContents& offer,
    int peerRtcpPort = 0;
    int dummyPort = 0;
    
-   int numCodecs = 0;
+   //int numCodecs = 0;
    ::SdpSrtpParameters srtpParams;
 
    resip::Data offerData = resip::Data::from(offer);
