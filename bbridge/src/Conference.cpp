@@ -16,7 +16,8 @@ using namespace std;
 #define RESIPROCATE_SUBSYSTEM Subsystem::TEST
 
 Conference::Conference(bbridge::ConferenceUserAgent& ua,
-                       const resip::Data& aor) : 
+                       const resip::Data& aor,
+                       OsConfigDb &configDb) : 
    mAor(aor),
    mMedia(ua.mMediaFactory->createMediaInterface(resip::DnsUtil::getLocalIpAddress().c_str(),
                                                  resip::DnsUtil::getLocalIpAddress().c_str(),
@@ -26,7 +27,8 @@ Conference::Conference(bbridge::ConferenceUserAgent& ua,
                                                  QOS_LAYER3_LOW_DELAY_IP_TOS,
                                                  "", // stun server
                                                  0, // stun options
-                                                 25)) // stun keep alive
+                                                 25)), // stun keep alive
+   mConfigDb(configDb)
 {
 }
 
@@ -35,7 +37,7 @@ Conference::~Conference()
    
 }
 
-const Data& Conference::getAor() const
+const resip::Data& Conference::getAor() const
 {
    return mAor;
 }

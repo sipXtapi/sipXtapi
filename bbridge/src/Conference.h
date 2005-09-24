@@ -26,7 +26,9 @@ class ConferenceUserAgent;
 class Conference 
 {
    public:
-      Conference(ConferenceUserAgent &ua, const resip::Data& aor);
+      Conference(ConferenceUserAgent &ua,
+                 const resip::Data& aor,
+                 OsConfigDb &configDb);
       ~Conference();
       
       const resip::Data& getAor() const;
@@ -35,6 +37,7 @@ class Conference
       resip::Data mAor;
       CpMediaInterface* mMedia;
       friend class Participant;
+      OsConfigDb &mConfigDb;
 };
 
 }

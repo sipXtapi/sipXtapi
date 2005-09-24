@@ -60,6 +60,8 @@
 #define CONFIG_SETTING_TLS_PORT       "BOSTON_BRIDGE_TLS_PORT"
 #define CONFIG_SETTING_RTP_START      "BOSTON_BRIDGE_RTP_START"
 #define CONFIG_SETTING_RTP_END        "BOSTON_BRIDGE_RTP_END"
+#define CONFIG_SETTING_ENTER_SOUND    "BOSTON_BRIDGE_ENTER_SOUND"
+#define CONFIG_SETTING_EXIT_SOUND     "BOSTON_BRIDGE_EXIT_SOUND"
 
 #define DEFAULT_UDP_PORT              5060       // Default UDP port
 #define DEFAULT_TCP_PORT              5060       // Default TCP port
@@ -373,6 +375,8 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);
       configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);
+      configDb.set(CONFIG_SETTING_ENTER_SOUND, "");
+      configDb.set(CONFIG_SETTING_EXIT_SOUND, "");
       configDb.storeToFile(fileName);
    }
    

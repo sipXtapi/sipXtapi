@@ -104,7 +104,7 @@ ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
    assert(part);
    if (!mConferences.count(aor))
    {
-      mConferences[aor] = new Conference(*this,aor);
+      mConferences[aor] = new Conference(*this,aor,mConfigDb);
    }
    part->assign(mConferences[aor]);
 }

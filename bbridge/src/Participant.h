@@ -37,6 +37,9 @@ class Participant : public resip::AppDialogSet
    private:
       Conference* mConference;
       int mConnId;
+
+      static const char sEnterBuffer[8000];
+      static const char sExitBuffer[8000];
 };
  
 }

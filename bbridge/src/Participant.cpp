@@ -28,6 +28,24 @@ Participant::~Participant()
    if (mConference)
    {
       assert(mConference->mMedia);
+
+     // Play the exit sound
+     UtlString exitSound;
+     mConference->mConfigDb.get("BOSTON_BRIDGE_EXIT_SOUND",exitSound);
+     OsStatus status = mConference->mMedia->playAudio(exitSound,
+                                              false, // no repeat
+                                              false, // no local party
+                                              true); // remote parties
+     if (status != OS_SUCCESS)
+     {
+       mConference->mMedia->playBuffer (const_cast<char *>(sExitBuffer),
+                                        sizeof(sExitBuffer),
+                                        0,
+                                        false, // no repeat
+                                        false, // no local party
+                                        true); // remote parties
+     }
+
       mConference->mMedia->stopRtpReceive(mConnId);
       mConference->mMedia->stopRtpSend(mConnId);
       mConference->mMedia->deleteConnection(mConnId);
@@ -40,6 +58,24 @@ void
 Participant::assign(Conference* conf)
 {
    mConference = conf;
+
+   // Play the enter sound
+   UtlString enterSound;
+   mConference->mConfigDb.get("BOSTON_BRIDGE_ENTER_SOUND",enterSound);
+   OsStatus status = mConference->mMedia->playAudio(enterSound,
+                                            false, // no repeat
+                                            false, // no local party
+                                            true); // remote parties
+   if (status != OS_SUCCESS)
+   {
+     mConference->mMedia->playBuffer (const_cast<char *>(sEnterBuffer),
+                                      sizeof(sEnterBuffer),
+                                      0,
+                                      false, // no repeat
+                                      false, // no local party
+                                      true); // remote parties
+   }
+
 }
 
 int 

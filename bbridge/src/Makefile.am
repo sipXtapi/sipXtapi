@@ -30,4 +30,5 @@ bbridge_SOURCES =  \
 	 Participant.cpp \
 	 ParticipantFactory.cpp \
 	 ParticipantFactory.h \
-	 Participant.h
+	 Participant.h \
+         tones.cpp
