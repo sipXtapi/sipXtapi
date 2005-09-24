@@ -6,6 +6,7 @@
 #include "resip/stack/SdpContents.hxx"
 #include "rutil/DnsUtil.hxx"
 #include "net/SdpCodec.h"
+#include "resip/dum/ClientAuthManager.hxx"
 
 #include "ParticipantFactory.h"
 #include "Participant.h"
@@ -78,6 +79,10 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mDum.setAppDialogSetFactory(rfactory);
    mDum.setMasterProfile(mProfile);
    mDum.setInviteSessionHandler(this);
+   mDum.setClientRegistrationHandler(this);
+
+   std::auto_ptr<resip::ClientAuthManager> clam(new resip::ClientAuthManager());
+   mDum.setClientAuthManager(clam);
    
    UtlString gw1Aor;
    mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_AOR", gw1Aor);

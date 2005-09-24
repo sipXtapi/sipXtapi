@@ -25,7 +25,8 @@ namespace bbridge
 
 class Conference;
 
-class ConferenceUserAgent : public resip::InviteSessionHandler
+class ConferenceUserAgent : public resip::InviteSessionHandler,
+                            public resip::ClientRegistrationHandler
 {
    public:
       ConferenceUserAgent(OsConfigDb& db);
