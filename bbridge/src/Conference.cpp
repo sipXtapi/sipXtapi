@@ -18,6 +18,7 @@ using namespace std;
 Conference::Conference(bbridge::ConferenceUserAgent& ua,
                        const resip::Data& aor,
                        OsConfigDb &configDb) : 
+   mRefcount(0),
    mAor(aor),
    mMedia(ua.mMediaFactory->createMediaInterface(resip::DnsUtil::getLocalIpAddress().c_str(),
                                                  resip::DnsUtil::getLocalIpAddress().c_str(),

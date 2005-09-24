@@ -34,10 +34,12 @@ class Conference
       const resip::Data& getAor() const;
 
    private:
+      int mRefcount;
       resip::Data mAor;
       CpMediaInterface* mMedia;
-      friend class Participant;
       OsConfigDb &mConfigDb;
+
+      friend class Participant;
 };
 
 }

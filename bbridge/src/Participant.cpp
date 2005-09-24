@@ -29,28 +29,54 @@ Participant::~Participant()
    {
       assert(mConference->mMedia);
 
-     // Play the exit sound
-     UtlString exitSound;
-     mConference->mConfigDb.get("BOSTON_BRIDGE_EXIT_SOUND",exitSound);
-     OsStatus status = mConference->mMedia->playAudio(exitSound,
-                                              false, // no repeat
-                                              false, // no local party
-                                              true); // remote parties
-     if (status != OS_SUCCESS)
-     {
-       mConference->mMedia->playBuffer (const_cast<char *>(sExitBuffer),
-                                        sizeof(sExitBuffer),
-                                        0,
-                                        false, // no repeat
-                                        false, // no local party
-                                        true); // remote parties
-     }
+      if (mConference->mRefcount == 2)
+      {
+         // Start the hold music
+         UtlString holdMusic;
+         mConference->mConfigDb.get("BOSTON_BRIDGE_HOLD_MUSIC",holdMusic);
+         OsStatus status = mConference->mMedia->playAudio(holdMusic,
+                                                  true,  // repeat
+                                                  false, // no local party
+                                                  true); // remote parties
+
+         // If the hold music failed, play the built-in default exit tone
+         if (status != OS_SUCCESS)
+         {
+           mConference->mMedia->playBuffer (const_cast<char *>(sExitBuffer),
+                                            sizeof(sExitBuffer),
+                                            0,
+                                            false, // no repeat
+                                            false, // no local party
+                                            true); // remote parties
+         }
+      }
+      else
+      {
+         // Play the exit sound
+         UtlString exitSound;
+         mConference->mConfigDb.get("BOSTON_BRIDGE_EXIT_SOUND",exitSound);
+         OsStatus status = mConference->mMedia->playAudio(exitSound,
+                                                  false, // no repeat
+                                                  false, // no local party
+                                                  true); // remote parties
+         if (status != OS_SUCCESS)
+         {
+           mConference->mMedia->playBuffer (const_cast<char *>(sExitBuffer),
+                                            sizeof(sExitBuffer),
+                                            0,
+                                            false, // no repeat
+                                            false, // no local party
+                                            true); // remote parties
+         }
+      }
 
       mConference->mMedia->stopRtpReceive(mConnId);
       mConference->mMedia->stopRtpSend(mConnId);
       mConference->mMedia->deleteConnection(mConnId);
+
       // should check to see if all participants are gone now and delete the
       // conference if needed
+      mConference->mRefcount--;
    }
 }
 
@@ -59,23 +85,36 @@ Participant::assign(Conference* conf)
 {
    mConference = conf;
 
-   // Play the enter sound
-   UtlString enterSound;
-   mConference->mConfigDb.get("BOSTON_BRIDGE_ENTER_SOUND",enterSound);
-   OsStatus status = mConference->mMedia->playAudio(enterSound,
-                                            false, // no repeat
-                                            false, // no local party
-                                            true); // remote parties
-   if (status != OS_SUCCESS)
+   if (mConference->mRefcount == 0)
    {
-     mConference->mMedia->playBuffer (const_cast<char *>(sEnterBuffer),
-                                      sizeof(sEnterBuffer),
-                                      0,
-                                      false, // no repeat
-                                      false, // no local party
-                                      true); // remote parties
+      // Start the hold music
+      UtlString holdMusic;
+      mConference->mConfigDb.get("BOSTON_BRIDGE_HOLD_MUSIC",holdMusic);
+      OsStatus status = mConference->mMedia->playAudio(holdMusic,
+                                               true,  // repeat
+                                               false, // no local party
+                                               true); // remote parties
    }
-
+   else
+   {
+      // Play the enter sound
+      UtlString enterSound;
+      mConference->mConfigDb.get("BOSTON_BRIDGE_ENTER_SOUND",enterSound);
+      OsStatus status = mConference->mMedia->playAudio(enterSound,
+                                               false, // no repeat
+                                               false, // no local party
+                                               true); // remote parties
+      if (status != OS_SUCCESS)
+      {
+        mConference->mMedia->playBuffer (const_cast<char *>(sEnterBuffer),
+                                         sizeof(sEnterBuffer),
+                                         0,
+                                         false, // no repeat
+                                         false, // no local party
+                                         true); // remote parties
+     }
+   }
+   mConference->mRefcount++;
 }
 
 int 
