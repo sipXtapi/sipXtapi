@@ -126,8 +126,11 @@ public class PolycomPhone extends Phone {
             SettingBeanAdapter adapter = new SettingBeanAdapter(c);
             adapter.setSetting(getSettings());
             adapter.addMapping(PhoneSettings.DOMAIN_NAME, "voIpProt/server/1/address");
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "voIpProt/SIP.outboundProxy/address");
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "voIpProt/SIP.outboundProxy/port");
+
+            // XCF-668  Polycom phones send sip traffic to server it's registered with
+            // would only be non-traditional situations and hence not a good default
+            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "voIpProt/SIP.outboundProxy/address");
+            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "voIpProt/SIP.outboundProxy/port");
             o = adapter.getImplementation();
         } else {
             o = super.getAdapter(c);

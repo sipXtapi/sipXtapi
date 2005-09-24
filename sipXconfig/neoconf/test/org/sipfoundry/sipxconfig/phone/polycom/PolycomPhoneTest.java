@@ -30,12 +30,6 @@ public class PolycomPhoneTest extends TestCase {
         tester = new PhoneTestDriver(phone, "polycom/phone.xml");        
     }
     
-    public void testDefaults() throws Exception {
-        Setting settings = phone.getSettings();
-        Setting address = settings.getSetting("voIpProt/SIP.outboundProxy/address");
-        assertEquals("proxy.sipfoundry.org", address.getValue());
-    }
-
     public void testGenerateProfiles() throws Exception {
         phone.setVelocityEngine(TestHelper.getVelocityEngine());
         phone.generateProfiles();

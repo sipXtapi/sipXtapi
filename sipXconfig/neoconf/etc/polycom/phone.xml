@@ -912,7 +912,7 @@
 	      </setting>
 	      <setting name="port">
 	        <type><integer min="1" max="65535"/></type>
-	        <value>5060</value>
+	        <value/>
 	        <description></description>
 	      </setting>
 	    </group>
