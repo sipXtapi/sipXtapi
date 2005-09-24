@@ -28,6 +28,8 @@ class Conference
    public:
       Conference(ConferenceUserAgent &ua, const resip::Data& aor);
       ~Conference();
+      
+      const resip::Data& getAor() const;
 
    private:
       resip::Data mAor;

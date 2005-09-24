@@ -35,6 +35,11 @@ Conference::~Conference()
    
 }
 
+const Data& Conference::getAor() const
+{
+   return mAor;
+}
+
 /*
   Copyright (c) 2005, Jason Fischl, Adam Roach
   All rights reserved.
