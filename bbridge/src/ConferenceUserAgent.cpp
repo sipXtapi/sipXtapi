@@ -85,15 +85,17 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    {
       UtlString gw1Username;
       UtlString gw1Password;
+      UtlString gw1Realm;
       UtlString gw1Conference;
       
       mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_USERNAME", gw1Username);
       mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_PASSWORD", gw1Password);
+      mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_REALM", gw1Realm);
       mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_CONFERENCE", gw1Conference);
       resip::SharedPtr<resip::UserProfile> gw1(new resip::UserProfile(mProfile));
       resip::NameAddr aor(gw1Aor.data());
       gw1->setDefaultFrom(aor);
-      gw1->setDigestCredential(aor.uri().host(), gw1Username.data(), gw1Password.data());
+      gw1->setDigestCredential(gw1Realm.data(), gw1Username.data(), gw1Password.data());
       resip::SipMessage& reg = mDum.makeRegistration(aor, gw1);
       InfoLog (<< "Registering  " << aor << " for " << gw1Username);
       mDum.send(reg);
