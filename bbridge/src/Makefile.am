@@ -3,7 +3,7 @@
 bin_PROGRAMS = bbridge
 
 bbridge_LDADD = \
-	@SIPXMEDIA_MP_LIBS@ \
+        @SIPXMEDIAADAPTER_LIBS@ \
 	@SIPXTACK_LIBS@ \
 	@RESIPROCATE_LIBS@
 
