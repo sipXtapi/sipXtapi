@@ -74,6 +74,10 @@ Participant::~Participant()
       mConference->mMedia->stopRtpSend(mConnId);
       mConference->mMedia->deleteConnection(mConnId);
 
+      // The Conference knows all its Participants.
+      mConference->removeParticipant(this);
+      mConference = NULL;
+
       // should check to see if all participants are gone now and delete the
       // conference if needed
       mConference->mRefcount--;
@@ -83,7 +87,10 @@ Participant::~Participant()
 void
 Participant::assign(Conference* conf)
 {
+   // The Participant points to the Conference.
    mConference = conf;
+   // The Conference knows all its Participants.
+   conf->addParticipant(this);
 
    if (mConference->mRefcount == 0)
    {
@@ -211,6 +218,7 @@ Participant::accept(const resip::SdpContents& offer,
                                      srtpParams);
    // !jf! delete codecsInCommon
 }
+
 /*
   Copyright (c) 2005, Jason Fischl, Adam Roach, Alan Hawrylyshen
   All rights reserved.

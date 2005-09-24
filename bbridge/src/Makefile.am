@@ -25,10 +25,12 @@ bbridge_SOURCES =  \
 	 bbridge.cpp \
 	 Conference.cpp \
 	 Conference.h \
+	 ConferenceSubscriptionApp.cpp \
+	 ConferenceSubscriptionApp.h \
 	 ConferenceUserAgent.cpp \
 	 ConferenceUserAgent.h \
 	 Participant.cpp \
+	 Participant.h \
 	 ParticipantFactory.cpp \
 	 ParticipantFactory.h \
-	 Participant.h \
-         tones.cpp
+	 tones.cpp

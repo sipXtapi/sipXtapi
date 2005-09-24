@@ -4,6 +4,7 @@
 #include "resip/dum/Handles.hxx"
 #include "resip/stack/Aor.hxx"
 #include "resip/stack/SdpContents.hxx"
+#include "resip/stack/PlainContents.hxx"
 #include "rutil/DnsUtil.hxx"
 #include "net/SdpCodec.h"
 
@@ -29,7 +30,8 @@ Conference::Conference(bbridge::ConferenceUserAgent& ua,
                                                  "", // stun server
                                                  0, // stun options
                                                  25)), // stun keep alive
-   mConfigDb(configDb)
+   mConfigDb(configDb),
+   mMime("application", "conference-info+xml")
 {
 }
 
@@ -38,11 +40,97 @@ Conference::~Conference()
    
 }
 
-const resip::Data& 
-Conference::getAor() const
+// Get the AOR to reach this conference.
+const resip::Data& Conference::getAor() const
 {
    return mAor;
 }
+
+// Add a Participant to this conference's list of Participants.
+void Conference::addParticipant(Participant* part)
+{
+   mParticipants.insert(part);
+}
+
+// Delete a Participant from this conference's list of Participants.
+void Conference::removeParticipant(Participant* part)
+{
+   mParticipants.erase(part);
+}
+
+// Add a subscripton to this conference's list of subscriptions.
+void Conference::addSubscription(ConferenceSubscriptionApp* sub)
+{
+   mSubscriptions.insert(sub);
+}
+
+// Delete a subscription from this conference's list of subscriptions.
+void Conference::removeSubscription(ConferenceSubscriptionApp* sub)
+{
+   mSubscriptions.erase(sub);
+}
+
+// Support routines for generating NOTIFYs.
+
+// Generate notices for all subscribers to the conference.
+void Conference::notifyAll()
+{
+   // Construct the XML.
+   const resip::Contents& notice = makeNotice();
+
+   // Send it to all the subscribers for the conference.
+   for(std::set<ConferenceSubscriptionApp*>::const_iterator i = mSubscriptions.begin();
+       i != mSubscriptions.end(); ++i)
+   {
+      // Get the subscription dialog handle for the subscription.
+      resip::ServerSubscriptionHandle handle = (*i)->getSubscriptionHandle();
+      // Create the NOTIFY message.
+      resip::SipMessage& message = handle->update(&notice);
+      // Send it.
+      handle->send(message);
+   }
+}
+
+// Make the Contents which is the conference event body.
+resip::Contents& Conference::makeNotice()
+{
+   resip::Data d;
+   d += "<conference-info>\n";
+   d += "<conference-description>\n";
+   d += "<conf-uris>\n";
+   d += "<entry>\n";
+   d += "<uri>";
+   d += getAor();
+   d += "</uri>\n";
+   d += "<purpose>participation</purpose>\n";
+   d += "</entry>\n";
+   d += "</conf-uris>\n";
+   d += "</conference-description>\n";
+   d += "<conference-state>\n<user-count>0</user-count>\n<active>true</active>\n<locked>false</locked></conference-state\n";
+
+#if 0
+
+     |-- users
+     |    |-- user
+     |    |    |-- endpoint
+     |    |    |    |-- media
+     |    |    |    |-- media
+     |    |    |    |-- call-info
+     |    |    |
+     |    |    |-- endpoint
+     |    |         |-- media
+     |    |-- user
+     |         |-- endpoint
+     |              |-- media
+#endif
+
+
+   d += "</conference-info>\n";
+   
+   resip::Contents* c = new resip::PlainContents("<conference-info/>", mMime);
+   return *c;
+}
+
 
 /*
   Copyright (c) 2005, Jason Fischl, Adam Roach

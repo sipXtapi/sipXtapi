@@ -4,11 +4,15 @@
 #include "resip/dum/Handles.hxx"
 #include "resip/stack/Aor.hxx"
 #include "resip/stack/SdpContents.hxx"
+#include "resip/stack/Headers.hxx"
+#include "resip/stack/RequestLine.hxx"
+#include "resip/stack/MethodTypes.hxx"
 #include "rutil/DnsUtil.hxx"
 #include "net/SdpCodec.h"
 
 #include "ParticipantFactory.h"
 #include "Participant.h"
+#include "ConferenceSubscriptionApp.h"
 
 using namespace bbridge;
 using namespace std;
@@ -19,7 +23,16 @@ resip::AppDialogSet*
 ParticipantFactory::createAppDialogSet(resip::DialogUsageManager& dum,
                                        const resip::SipMessage& msg)
 {
-   return new Participant(dum, msg);
+   // Depending on the method, create the correct application data object
+   // for this dialog.
+   if (msg.header(resip::h_RequestLine).getMethod() == resip::SUBSCRIBE)
+   {
+      return new ConferenceSubscriptionApp(dum, msg);
+   }
+   else
+   {
+      return new Participant(dum, msg);
+   }
 }
 
 /*

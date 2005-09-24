@@ -9,6 +9,7 @@
 #include "resip/dum/InviteSessionHandler.hxx"
 #include "resip/dum/ClientRegistration.hxx"
 #include "resip/dum/RegistrationHandler.hxx"
+#include "resip/dum/SubscriptionHandler.hxx"
 #include "resip/dum/MasterProfile.hxx"
 #include "resip/stack/StackThread.hxx"
 
@@ -20,12 +21,16 @@
 #include "net/SdpCodecFactory.h"
 #include "mi/CpMediaInterface.h"
 
+// bbridge includes
+#include "ConferenceSubscriptionApp.h"
+
 namespace bbridge
 {
 
 class Conference;
 
 class ConferenceUserAgent : public resip::InviteSessionHandler,
+                            public resip::ServerSubscriptionHandler,
                             public resip::ClientRegistrationHandler
 {
    public:
@@ -70,6 +75,30 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       virtual int onRequestRetry(resip::ClientRegistrationHandle, int retrySeconds, const resip::SipMessage& response);
       virtual void onFailure(resip::ClientRegistrationHandle, const resip::SipMessage& response);
 
+      // resip::Subscribe Session Handler /////////////////////////////////////////////////////
+
+      virtual void onNewSubscription(resip::ServerSubscriptionHandle,
+                                     const resip::SipMessage& sub);
+      virtual void onRefresh(resip::ServerSubscriptionHandle,
+                             const resip::SipMessage& sub);
+      virtual void onPublished(resip::ServerSubscriptionHandle associated, 
+                               resip::ServerPublicationHandle publication, 
+                               const resip::Contents* contents,
+                               const resip::SecurityAttributes* attrs);
+      virtual void onNotifyRejected(resip::ServerSubscriptionHandle,
+                                    const resip::SipMessage& msg);      
+      virtual void onTerminated(resip::ServerSubscriptionHandle);
+      virtual void onError(resip::ServerSubscriptionHandle,
+                           const resip::SipMessage& msg);      
+      virtual void onExpiredByClient(resip::ServerSubscriptionHandle,
+                                     const resip::SipMessage& sub,
+                                     resip::SipMessage& notify);
+      virtual void onExpired(resip::ServerSubscriptionHandle,
+                             resip::SipMessage& notify);
+      virtual bool hasDefaultExpires() const;
+      virtual int getDefaultExpires() const;
+      const resip::Mimes& getSupportedMimeTypes() const;
+
    private:
       OsConfigDb &mConfigDb;
       resip::SharedPtr<resip::MasterProfile> mProfile;
@@ -87,6 +116,7 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       int mTcpPort;
       int mTlsPort;
 
+      // Map from AORs to the conferences that have those AORs.
       HashMap<resip::Data, bbridge::Conference*> mConferences;
 
       resip::ClientRegistrationHandle mRegistration;
@@ -94,6 +124,11 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       // mapping table from registered AOR -> conference URI
       HashMap<resip::Data, resip::Data> mInBoundMap;
       
+      // A Mime object for application/conference-info+xml.
+      resip::Mime mMime;
+      // A Mimes object to list { application/conference-info+xml }.
+      resip::Mimes mMimes;
+
       friend class Conference;
 };
  

@@ -1,9 +1,13 @@
 #include "rutil/Log.hxx"
 #include "rutil/Logger.hxx"
 #include "resip/dum/ServerInviteSession.hxx"
+#include "resip/dum/ServerSubscription.hxx"
 #include "resip/dum/Handles.hxx"
 #include "resip/stack/Aor.hxx"
 #include "resip/stack/SdpContents.hxx"
+#include "resip/stack/PlainContents.hxx"
+#include "rutil/Log.hxx"
+#include "rutil/Logger.hxx"
 #include "rutil/DnsUtil.hxx"
 #include "net/SdpCodec.h"
 #include "resip/dum/ClientAuthManager.hxx"
@@ -12,6 +16,7 @@
 #include "Participant.h"
 #include "Conference.h"
 #include "ConferenceUserAgent.h"
+#include "ConferenceSubscriptionApp.h"
 
 using namespace bbridge;
 using namespace std;
@@ -37,7 +42,8 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mMediaFactory(sipXmediaFactoryFactory(NULL)),
    mCodecFactory(),
    mSdpCodecArray(0),
-   mNumCodecs(0)
+   mNumCodecs(0),
+   mMime("application", "conference-info+xml")
 {
    // Instruct the factory to use the specified port range
    int rtpPortStart, rtpPortEnd;
@@ -70,6 +76,8 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
                      myAor.uri().host());
     
    mProfile->addSupportedMethod(resip::INVITE);
+   mProfile->addSupportedMethod(resip::SUBSCRIBE);
+   mProfile->addAllowedEvent(resip::Token("conference"));
    mProfile->validateAcceptEnabled() = false;
    mProfile->validateContentEnabled() = false;
    mProfile->setDefaultFrom(myAor);
@@ -83,7 +91,7 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
 
    std::auto_ptr<resip::ClientAuthManager> clam(new resip::ClientAuthManager());
    mDum.setClientAuthManager(clam);
-   
+
    UtlString gw1Aor;
    mConfigDb.get("BOSTON_BRIDGE_GATEWAY1_AOR", gw1Aor);
    if (!gw1Aor.isNull())
@@ -107,6 +115,9 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
       mInBoundMap[aor.uri().getAor()] = gw1Conference.data();
    }
 
+   mMimes.push_back(mMime);
+   mDum.addServerSubscriptionHandler("conference", this);
+   
    mStackThread.run(); 
    mDumThread.run();
 }
@@ -173,9 +184,12 @@ ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
    assert(part);
    if (!mConferences.count(aor))
    {
-      mConferences[aor] = new Conference(*this,aor,mConfigDb);
+      mConferences[aor] = new Conference(*this, aor, mConfigDb);
    }
    part->assign(mConferences[aor]);
+
+   // Generate notices for all subscribers to this conference's package.
+   mConferences[aor]->notifyAll();
 }
 
 void
@@ -194,8 +208,14 @@ ConferenceUserAgent::onTerminated(resip::InviteSessionHandle h,
 
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(part);
+   Conference* conf = mConferences[h->myAddr().uri().getAor()];
+   assert(conf);
+
    // should probably have the conference keep a reference count and remove when
    // all participants disappear
+
+   // Generate notices for all subscribers for this conference's events.
+   conf->notifyAll();
 }
 
 void
@@ -379,6 +399,129 @@ ConferenceUserAgent::onForkDestroyed(resip::ClientInviteSessionHandle)
 {
    assert(0);
 }
+
+// Implementation of the SUBSCRIBE handler.
+
+void ConferenceUserAgent::onNewSubscription(resip::ServerSubscriptionHandle handle,
+                                            const resip::SipMessage& sub)
+{
+   // Get the AOR that is being subscribed to.
+   resip::Data subscribe_aor = sub.header(resip::h_RequestLine).uri().getAor();
+   // Get the conference for the AOR.
+   Conference* conference = mConferences[subscribe_aor];
+
+   if (conference)
+   {
+      // Accept the subscription.
+      handle->send(handle->accept());
+      // Attach the subscription to the conference.
+      ConferenceSubscriptionApp* subscribe_app =
+         dynamic_cast<ConferenceSubscriptionApp*>(handle->getAppDialogSet().get());
+      subscribe_app->attach(conference);
+      // Record the ServerSubscriptionHandle in the application object.
+      subscribe_app->setSubscriptionHandle(handle);
+      // Send notify to the subscriber.
+      subscribe_app->notifyOne();
+   }
+   else
+   {
+      // Reject the subscription.
+      handle->send(handle->reject(404));
+   }
+}
+
+void ConferenceUserAgent::onRefresh(resip::ServerSubscriptionHandle handle,
+                                    const resip::SipMessage& sub)
+{
+   // Send notify to subscriber.
+   ConferenceSubscriptionApp* subscribe_app =
+      dynamic_cast<ConferenceSubscriptionApp*>(handle->getAppDialogSet().get());
+   subscribe_app->notifyOne();
+}
+
+void ConferenceUserAgent::onPublished(resip::ServerSubscriptionHandle associated, 
+                                      resip::ServerPublicationHandle publication, 
+                                      const resip::Contents* contents,
+                                      const resip::SecurityAttributes* attrs)
+{
+   // This should never be called, as we do not tell DUM that we handle PUBLISH.
+   assert(false);
+}
+
+void ConferenceUserAgent::onNotifyRejected(resip::ServerSubscriptionHandle handle,
+                                           const resip::SipMessage& msg)
+{
+   // If this is an expected sort of rejection, log at info level.  Otherwise, log at
+   // warning level, because the subscriber may be rejecting our conference event
+   // due to it being malformed.
+   // The "expected" responses are:
+   //        481 (Subscription does not exist)
+   //        can happen because the client was reinitialized and forgot the subscription
+   //        408 (Request timed out)
+   //        client is no longer functioning
+   int status = msg.header(resip::h_StatusLine).statusCode();
+   if (status == 408 || status == 481)
+   {
+      InfoLog(<< "NOTIFY failed with status " << status
+              << ", subscriber '" << handle->getSubscriber()
+              << "', for subscription ID '" << handle.getId()
+              << "', dialog ID '" << handle->getDialogId()
+              << "'");
+   }
+   else
+   {
+      WarningLog(<< "NOTIFY failed with status " << status
+                 << ", subscriber '" << handle->getSubscriber()
+                 << "', for subscription ID '" << handle.getId()
+                 << "', dialog ID '" << handle->getDialogId()
+                 << "'");
+   }
+}
+
+//called when this usage is destroyed for any reason. One of the following
+//three methods will always be called before this, but this is the only
+//method that MUST be implemented by a handler
+void ConferenceUserAgent::onTerminated(resip::ServerSubscriptionHandle handle)
+{
+}
+
+//will be called when a NOTIFY is not delivered(with a usage terminating
+//statusCode), or the Dialog is destroyed
+void ConferenceUserAgent::onError(resip::ServerSubscriptionHandle handle,
+                                  const resip::SipMessage& msg)
+{
+}
+
+//app can synchronously decorate terminating NOTIFY messages. The only
+//graceful termination mechanism is expiration, but the client can
+//explicity end a subscription with an Expires header of 0.
+void ConferenceUserAgent::onExpiredByClient(resip::ServerSubscriptionHandle handle,
+                                            const resip::SipMessage& sub,
+                                            resip::SipMessage& notify)
+{
+}
+
+void ConferenceUserAgent::onExpired(resip::ServerSubscriptionHandle handle,
+                                    resip::SipMessage& notify)
+{
+}
+
+bool ConferenceUserAgent::hasDefaultExpires() const
+{
+   return true;
+}
+
+int ConferenceUserAgent::getDefaultExpires() const
+{
+   return 3600;
+}
+
+const resip::Mimes& ConferenceUserAgent::getSupportedMimeTypes() const
+{
+   // Return the Mimes that we have prepared.
+   return mMimes;
+}
+
 
 /*
   Copyright (c) 2005, Jason Fischl, Adam Roach

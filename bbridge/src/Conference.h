@@ -18,10 +18,14 @@
 #include "net/SdpCodecFactory.h"
 #include "mi/CpMediaInterface.h"
 
+// bbridge includes
+#include "Participant.h"
+
 namespace bbridge
 {
 
 class ConferenceUserAgent;
+class ConferenceSubscriptionApp;
 
 class Conference 
 {
@@ -31,7 +35,25 @@ class Conference
                  OsConfigDb &configDb);
       ~Conference();
       
+      // Get the AOR to reach this conference.
       const resip::Data& getAor() const;
+
+      // Add a Participant to this conference's list of Participants.
+      void addParticipant(Participant*);
+      // Delete a Participant from this conference's list of Participants.
+      void Conference::removeParticipant(Participant*);
+
+      // Add a subscription to this conference's list of subscriptions.
+      void addSubscription(ConferenceSubscriptionApp*);
+      // Delete a subscription from this conference's list of subscriptions.
+      void Conference::removeSubscription(ConferenceSubscriptionApp*);
+
+      // Support routines for generating NOTIFYs.
+
+      // Generate notices for all subscribers to the conference.
+      void notifyAll();
+      // Make the Contents which is the conference event body for the current state.
+      resip::Contents& makeNotice();
 
    private:
       int mRefcount;
@@ -40,6 +62,13 @@ class Conference
       OsConfigDb &mConfigDb;
 
       friend class Participant;
+      // The list of the Participants in this Conference.
+      std::set<Participant*> mParticipants;
+      // The list of the subscriptions to this Conference.
+      std::set<ConferenceSubscriptionApp*> mSubscriptions;
+
+      // A Mime object for application/conference-info+xml.
+      resip::Mime mMime;
 };
 
 }
