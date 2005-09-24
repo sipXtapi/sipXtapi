@@ -20,12 +20,17 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
+    <property-specification name="tableModel"
+        type="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel"
+        persistent="yes"
+        initial-value="beans.phoneTableModel"/>
 	<!--
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-    <bean name="tableModel" class="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel">
+    <bean name="phoneTableModel" class="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel" lifecycle="page">
         <set-property name="phoneContext" expression="page.global.phoneContext"/>
+        <set-property name="component" expression="getThis()"/>        
         <set-property name="pageSize" expression="20"/>
     </bean>
 	<!--
@@ -34,7 +39,7 @@
 	<component id="phoneManagement" type="Form">
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
-		<binding name="tableModel" expression="beans.tableModel.createTableModel(getThis(), groupId)"/>
+		<binding name="tableModel" expression="beans.phoneTableModel.wrappedTableModel"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>

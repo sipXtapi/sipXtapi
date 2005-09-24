@@ -19,13 +19,27 @@ import org.apache.tapestry.contrib.table.model.ITableColumnModel;
 import org.apache.tapestry.contrib.table.model.ITableModel;
 import org.apache.tapestry.contrib.table.model.common.BasicTableModelWrap;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
-import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumnModel;
 
 public abstract class AbstractTableModel implements IBasicTableModel {
 
     static final int DEFAULT_PAGE_SIZE = 10;
     private int m_pageSize = DEFAULT_PAGE_SIZE;
+    private IComponent m_component;
+    private BasicTableModelWrap m_wrappedTableModel;
+
+    public void setComponent(IComponent component) {
+        m_component = component;
+        
+        OrderByTableColumn[] columns = createTableColumns();
+        for (int i = 0; i < columns.length; i++) {
+            columns[i].loadSettings(m_component);
+        }
+
+        ITableColumnModel colModel = new SimpleTableColumnModel(Arrays.asList(columns));
+        m_wrappedTableModel = new BasicTableModelWrap(this, colModel);
+        m_wrappedTableModel.getPagingState().setPageSize(m_pageSize);
+    }    
        
     /**
      * For some reason if table model is overridden, page size is ignored when
@@ -37,16 +51,10 @@ public abstract class AbstractTableModel implements IBasicTableModel {
         m_pageSize = pageSize;
     }
 
-    public ITableModel createTableModel(IComponent component, SimpleTableColumn[] columns) {
-        for (int i = 0; i < columns.length; i++) {
-            columns[i].loadSettings(component);
-        }
+    protected abstract OrderByTableColumn[] createTableColumns();
 
-        ITableColumnModel colModel = new SimpleTableColumnModel(Arrays.asList(columns));
-        BasicTableModelWrap tableModel = new BasicTableModelWrap(this, colModel);
-        tableModel.getPagingState().setPageSize(m_pageSize);
-
-        return tableModel;        
+    public ITableModel getWrappedTableModel() {
+        return m_wrappedTableModel;        
     }
     
     public static class OrderByTableColumn extends ExpressionTableColumn {

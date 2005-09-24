@@ -26,6 +26,9 @@
     <property-specification name="coreContext"
         type="org.sipfoundry.sipxconfig.common.CoreContext"
         initial-value="page.global.coreContext"/>
+    <!-- not used but abstract on base class -->
+    <property-specification name="tableModel"
+        type="org.sipfoundry.sipxconfig.site.user.UserTableModel"/>
     <!--
       - B E A N S
       -->

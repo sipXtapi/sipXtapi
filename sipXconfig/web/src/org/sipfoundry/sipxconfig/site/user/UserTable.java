@@ -32,12 +32,25 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
     
     public abstract CoreContext getCoreContext();
     
+    public void setGroupId(Integer groupId) {
+        UserTableModel model = getTableModel();
+        model.setGroupId(groupId);                
+    }
+    
+    // not sure why this is called
+    public Integer getGroupId() {
+        UserTableModel model = getTableModel();
+        return model.getGroupId();                
+    }
+    
+    public abstract UserTableModel getTableModel();
+    
     public void pageBeginRender(PageEvent event_) {
         if (getSelections() == null) {
             setSelections(new SelectMap());            
-        }
+        }        
     }
-    
+
     /**
      * I cannot find out how to get this in ognl so I shamelessly defined a this getter
      * @return this
