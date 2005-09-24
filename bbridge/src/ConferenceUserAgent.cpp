@@ -227,7 +227,7 @@ ConferenceUserAgent::onOffer(resip::InviteSessionHandle h,
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(mConferences.count(aor));
    assert(part);
-   
+
    resip::SdpContents answer;
    part->accept(offer, answer); // answer is returned
    InfoLog (<< "Accepting offer with " << answer);
@@ -236,8 +236,12 @@ ConferenceUserAgent::onOffer(resip::InviteSessionHandle h,
    resip::ServerInviteSession *sis =
      dynamic_cast<resip::ServerInviteSession*>(h.get());
    assert(sis);
-   InfoLog (<< "Accepting ");
-   sis->accept();
+
+   if (h->isEarly())
+   {
+      InfoLog (<< "Accepting ");
+      sis->accept();
+   }
 }
 
 void
