@@ -10,6 +10,7 @@
 #if 1 /* [ */
 #ifndef HAVE_GIPS /* [ */
 #ifdef __pingtel_on_posix__ /* [ */
+#include <sys/types.h>
 #include <netinet/in.h>
 #endif /* __pingtel_on_posix__ ] */
 // APPLICATION INCLUDES
