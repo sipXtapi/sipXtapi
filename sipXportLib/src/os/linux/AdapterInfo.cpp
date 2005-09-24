@@ -9,12 +9,12 @@
 // SYSTEM INCLUDES
 #include <arpa/inet.h>
 #include <errno.h>
-#include <net/if.h>
 #include <netinet/in.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <net/if.h>
 
 // APPLICATION INCLUDES
 #include <os/HostAdapterAddress.h>
