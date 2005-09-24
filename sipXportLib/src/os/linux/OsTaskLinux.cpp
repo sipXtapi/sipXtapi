@@ -10,13 +10,17 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <signal.h>
-#include <sys/mman.h>
 #include <sched.h>
+
+/* Make sure we get MCL_CURRENT and MCL_FUTURE (for mlockall) on OS X 10.3 */
+#define _P1003_1B_VISIBLE
+#include <sys/mman.h>
+#undef _P1003_1B_VISIBLE
 
 // APPLICATION INCLUDES
 #include "os/OsExcept.h"
 #include "os/OsLock.h"
-#include "os/OsUtil.h"adium
+#include "os/OsUtil.h"
 
 #include "os/linux/OsLinuxDefs.h"
 #include "os/linux/OsTaskLinux.h"
