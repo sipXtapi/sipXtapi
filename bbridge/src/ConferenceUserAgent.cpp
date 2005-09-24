@@ -194,8 +194,6 @@ ConferenceUserAgent::onTerminated(resip::InviteSessionHandle h,
 
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(part);
-   assert(mConferences.count(h->myAddr().uri().getAor()));
-   delete part;
    // should probably have the conference keep a reference count and remove when
    // all participants disappear
 }
