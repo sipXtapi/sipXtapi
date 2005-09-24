@@ -225,6 +225,55 @@ AC_DEFUN([SFAC_LIB_MEDIA],
 ]) # SFAC_LIB_MEDIA
 
 
+
+## sipXmediaAdapterLib 
+# SFAC_LIB_MEDIAADAPTER attempts to find the sf media iadapter library and include
+# files by looking in /usr/[lib|include], /usr/local/[lib|include], and
+# relative paths.
+#
+# If not found, the configure is aborted.  Otherwise, variables are defined
+# for both the INC and LIB paths AND the paths are added to the CFLAGS, 
+# CXXFLAGS, LDFLAGS, and LIBS.
+AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
+[
+    AC_REQUIRE([SFAC_LIB_MEDIA])
+
+    SFAC_ARG_WITH_INCLUDE([mi/CpMediaInterface.h],
+            [sipxmediaadapterinc],
+            [ --with-sipxmediaadapterinc=<dir> media adapter library include path ],
+            [sipXmediaAdapterLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('mi/CpMediaInterface.h' not found)
+    fi
+    SIPXMEDIAADAPTERINC=$foundpath
+    AC_SUBST(SIPXMEDIAADAPTERINC)
+
+    if test "$SIPXMEDIAADAPTERINC" != "$SIPXPORTINC"
+    then
+        CFLAGS="-I$SIPXMEDIAADAPTERINC $CFLAGS"
+        CXXFLAGS="-I$SIPXMEDIAADAPTERINC $CXXFLAGS"
+    fi
+    
+    SFAC_ARG_WITH_LIB([libsipXmediaProcessing.la],
+            [sipxmediaadapterlib],
+            [ --with-sipxmediaadapterlib=<dir> media adapter library path ],
+            [sipXmediaAdapterLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXmediaProcessing.la' not found)
+    fi
+    SIPXMEDIAADAPTERLIB=$foundpath
+
+    AC_SUBST(SIPXMEDIAADAPTER_LIBS, ["$SIPXMEDIAADAPTERLIB/libsipXmediaProcessing.la"])
+    AC_SUBST(SIPXMEDIAADAPTER_LDFLAGS, ["-L$SIPXMEDIAADAPTERLIB"])
+]) # SFAC_LIB_MEDIAADAPTER
+
+
 ## Optionally compile in the GIPS library in the media subsystem
 # (sipXmediaLib project) and executables that link it in
 # Conditionally use the GIPS audio libraries
@@ -539,7 +588,7 @@ AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ include_path=$withval ],
-        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/include" ]
+        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/interface" ]
     )
 
     for dir in $include_path ; do
@@ -572,7 +621,7 @@ AC_DEFUN([SFAC_ARG_WITH_LIB],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ lib_path=$withval ],
-        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src" ]
+        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src" ]
     )
     foundpath=""
     for dir in $lib_path ; do
