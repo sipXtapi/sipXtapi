@@ -11,11 +11,13 @@
 #include <unistd.h>
 #include <signal.h>
 #include <sys/mman.h>
+#include <sched.h>
 
 // APPLICATION INCLUDES
 #include "os/OsExcept.h"
 #include "os/OsLock.h"
-#include "os/OsUtil.h"
+#include "os/OsUtil.h"adium
+
 #include "os/linux/OsLinuxDefs.h"
 #include "os/linux/OsTaskLinux.h"
 #include "os/linux/OsUtilLinux.h"
@@ -629,7 +631,13 @@ void * OsTaskLinux::taskEntry(void* arg)
    {
       // Use FIFO realtime scheduling
       param.sched_priority = linuxPriority;
+
+#if defined(__APPLE__)
+      linuxRes = ~POSIX_OK;
+#else
       linuxRes = sched_setscheduler(0, SCHED_FIFO, &param); 
+#endif
+
       if (linuxRes == POSIX_OK)
       {
          OsSysLog::add(FAC_KERNEL, PRI_INFO, 
