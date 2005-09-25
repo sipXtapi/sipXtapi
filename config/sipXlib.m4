@@ -534,7 +534,7 @@ AC_DEFUN([CHECK_RESIPROCATE],
     AC_ARG_WITH([resipobj],
         [--with-resipobj specifies the object directory name to use from resiprocate],
         [resipobj=$withval],
-        [resipobj="obj.debug.`uname`.`uname -p`"]
+        [resipobj="obj.debug.`uname`.`uname -m | tr ' ' _`"]
     )
 
     foundpath=NO
