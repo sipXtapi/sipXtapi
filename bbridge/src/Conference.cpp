@@ -138,7 +138,7 @@ resip::Contents& Conference::makeNotice()
 
    d += "</conference-info>\n";
    
-   resip::Contents* c = new resip::PlainContents("<conference-info/>", mMime);
+   resip::Contents* c = new resip::PlainContents(d, mMime);
    return *c;
 }
 
