@@ -100,6 +100,8 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       const resip::Mimes& getSupportedMimeTypes() const;
 
    private:
+      resip::Data getConferenceUrl(const resip::Uri& msg);
+
       OsConfigDb &mConfigDb;
       resip::SharedPtr<resip::MasterProfile> mProfile;
       resip::Security* mSecurity;

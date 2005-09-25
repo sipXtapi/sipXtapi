@@ -76,11 +76,12 @@ Participant::~Participant()
 
       // The Conference knows all its Participants.
       mConference->removeParticipant(this);
-      mConference = NULL;
 
       // should check to see if all participants are gone now and delete the
       // conference if needed
       mConference->mRefcount--;
+
+      mConference = 0;
    }
 }
 

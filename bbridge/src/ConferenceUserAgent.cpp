@@ -110,7 +110,7 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
       gw1->setDefaultFrom(aor);
       gw1->setDigestCredential(gw1Realm.data(), gw1Username.data(), gw1Password.data());
       resip::SipMessage& reg = mDum.makeRegistration(aor, gw1);
-      InfoLog (<< "Registering  " << aor << " for " << gw1Username);
+      InfoLog (<< "Registering  " << aor.uri().user() << " to map to " << gw1Conference.data());
       mDum.send(reg);
       mInBoundMap[aor.uri().user()] = gw1Conference.data();
    }
@@ -166,6 +166,20 @@ ConferenceUserAgent::onRequestRetry(resip::ClientRegistrationHandle h,
    return -1;
 }
 
+resip::Data
+ConferenceUserAgent::getConferenceUrl(const resip::Uri& uri)
+{
+   resip::Data aor = uri.getAor();
+   if (mInBoundMap.count(uri.user()))
+   {
+     aor = mInBoundMap[uri.user()];
+   }
+     
+   InfoLog (<< "uri: " << uri << " is mapped to  " << aor);
+
+   return aor;
+}
+
 void
 ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
                                   resip::InviteSession::OfferAnswerType oat,
@@ -173,19 +187,14 @@ ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
 {
    InfoLog(<< h->myAddr().uri().user() << " INVITE from  " << h->peerAddr().uri().user());
 
-   resip::Uri uri = msg.header(resip::h_RequestLine).uri();
-   resip::Data aor = uri.getAor();
-   if (mInBoundMap.count(uri.user()))
-   {
-     aor = mInBoundMap[uri.user()];
-     InfoLog (<< "Remapping caller to conference at " << uri);
-   }
    
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(part);
+   resip::Data aor = getConferenceUrl(msg.header(resip::h_RequestLine).uri());
    if (!mConferences.count(aor))
    {
-      mConferences[aor] = new Conference(*this, aor, mConfigDb);
+     InfoLog (<< "Adding a conference for " << aor);
+     mConferences[aor] = new Conference(*this, aor, mConfigDb);
    }
    part->assign(mConferences[aor]);
 
@@ -204,10 +213,10 @@ ConferenceUserAgent::onTerminated(resip::InviteSessionHandle h,
    }
    else
    {
-      WarningLog(<< h->myAddr().uri().user() << " ended call with " << h->peerAddr().uri().user());
+      WarningLog(<< h->myAddr().uri().getAor() << " ended call with " << h->peerAddr().uri().getAor());
    }
 
-   Conference* conf = mConferences[h->myAddr().uri().getAor()];
+   Conference* conf = mConferences[getConferenceUrl(h->myAddr().uri())];
    assert(conf);
 
    // should probably have the conference keep a reference count and remove when
@@ -222,7 +231,7 @@ ConferenceUserAgent::onOffer(resip::InviteSessionHandle h,
                              const resip::SipMessage& msg,
                              const resip::SdpContents& offer)
 {         
-   const resip::Data& aor = msg.header(resip::h_RequestLine).uri().getAor();
+  resip::Data aor = getConferenceUrl(msg.header(resip::h_RequestLine).uri());
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(mConferences.count(aor));
    assert(part);
