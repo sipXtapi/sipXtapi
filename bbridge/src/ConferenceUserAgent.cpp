@@ -112,7 +112,7 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
       resip::SipMessage& reg = mDum.makeRegistration(aor, gw1);
       InfoLog (<< "Registering  " << aor << " for " << gw1Username);
       mDum.send(reg);
-      mInBoundMap[aor.uri().getAor()] = gw1Conference.data();
+      mInBoundMap[aor.uri().user()] = gw1Conference.data();
    }
 
    mMimes.push_back(mMime);
@@ -173,11 +173,12 @@ ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
 {
    InfoLog(<< h->myAddr().uri().user() << " INVITE from  " << h->peerAddr().uri().user());
 
-   resip::Data aor = msg.header(resip::h_RequestLine).uri().getAor();
-   if (mInBoundMap.count(aor))
+   resip::Uri uri = msg.header(resip::h_RequestLine).uri();
+   Data aor = uri.getAor();
+   if (mInBoundMap.count(uri.user()))
    {
-      aor = mInBoundMap[aor];
-      InfoLog (<< "Remapping caller to conference at " << aor);
+     aor = mInBoundMap[uri.user()];
+     InfoLog (<< "Remapping caller to conference at " << uri);
    }
    
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
