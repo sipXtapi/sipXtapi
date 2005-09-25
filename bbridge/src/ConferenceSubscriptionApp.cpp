@@ -40,6 +40,17 @@ void ConferenceSubscriptionApp::attach(Conference* conf)
    conf->addSubscription(this);
 }
 
+void ConferenceSubscriptionApp::detach()
+{
+   if (mConference)
+   {
+      // The Conference knows all its Participants.
+      mConference->removeSubscription(this);
+      // The Participant points to the Conference.
+      mConference = NULL;
+   }
+}
+
 // Record the ServerSubscriptionHandle.
 void ConferenceSubscriptionApp::setSubscriptionHandle(resip::ServerSubscriptionHandle h)
 {
@@ -50,6 +61,23 @@ void ConferenceSubscriptionApp::setSubscriptionHandle(resip::ServerSubscriptionH
 resip::ServerSubscriptionHandle ConferenceSubscriptionApp::getSubscriptionHandle()
 {
    return mSubscriptionHandle;
+}
+
+// Terminate this subscription.
+void ConferenceSubscriptionApp::terminate()
+{
+   if (mConference)
+   {
+      // Construct the XML for the final NOTIFY.
+      const resip::Contents& notice = mConference->makeNotice();
+      // Send the final NOTIFY.
+      // Give as termination reason "noresource", which means that the
+      // subscribed-to resource ceased to exist.
+      mSubscriptionHandle->end(resip::NoResource, &notice);
+      // Detach the subscription now from the conference.
+      // (It is safe to call detach() multiple times.)
+      detach();
+   }
 }
 
 // Functions to generate NOTIFYs.

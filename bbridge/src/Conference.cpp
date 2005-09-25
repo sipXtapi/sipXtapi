@@ -37,7 +37,12 @@ Conference::Conference(bbridge::ConferenceUserAgent& ua,
 
 Conference::~Conference()
 {
-   
+   // Terminate all the subscriptions to this conference.
+   for(std::set<ConferenceSubscriptionApp*>::const_iterator i = mSubscriptions.begin();
+       i != mSubscriptions.end(); ++i)
+   {
+      (*i)->terminate();
+   }
 }
 
 // Get the AOR to reach this conference.

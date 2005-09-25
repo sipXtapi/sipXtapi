@@ -21,10 +21,16 @@ class ConferenceSubscriptionApp : public resip::AppDialogSet
       Conference* getConference();
       // Attach the subscription to a conference.
       void attach(Conference*);
+      // Detach the subscription from its conference.
+      void detach();
       // Record the ServerSubscriptionHandle.
       void setSubscriptionHandle(resip::ServerSubscriptionHandle);
       // Get the ServerSubscriptionHandle.
       resip::ServerSubscriptionHandle getSubscriptionHandle();
+      // Terminate this subscription.
+      // Includes detach(), so after this it is safe to delete the
+      // conference.
+      void terminate();
  
       // Support routines for generating NOTIFYs.
 

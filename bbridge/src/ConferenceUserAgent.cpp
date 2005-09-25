@@ -207,8 +207,6 @@ ConferenceUserAgent::onTerminated(resip::InviteSessionHandle h,
       WarningLog(<< h->myAddr().uri().user() << " ended call with " << h->peerAddr().uri().user());
    }
 
-   Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
-   assert(part);
    Conference* conf = mConferences[h->myAddr().uri().getAor()];
    assert(conf);
 
@@ -488,6 +486,10 @@ void ConferenceUserAgent::onNotifyRejected(resip::ServerSubscriptionHandle handl
 //method that MUST be implemented by a handler
 void ConferenceUserAgent::onTerminated(resip::ServerSubscriptionHandle handle)
 {
+   // Disconnect the subscription from the conference.
+   ConferenceSubscriptionApp* subscribe_app =
+      dynamic_cast<ConferenceSubscriptionApp*>(handle->getAppDialogSet().get());
+   subscribe_app->detach();
 }
 
 //will be called when a NOTIFY is not delivered(with a usage terminating
