@@ -13,7 +13,7 @@ testsuite_LDADD = \
 
 testsuite_CXXFLAGS = \
 	-I$(top_srcdir)/include \
-	@PCRE_CFLAGS@ \
+	@PCRE_CFLAGS@ @CPPUNIT_CFLAGS@ \
 	-DTEST_DIR=\"@abs_builddir@\" \
 	-fno-gcse -O0
 

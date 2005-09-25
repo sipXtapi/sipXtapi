@@ -17,7 +17,10 @@
 #if defined(_WIN32)
 #   include <io.h>
 #   include <string.h>
-#elif defined(__linux__)
+#elif defined(__linux__) || defined(__MACH__)
+#   include <unistd.h>
+#   include <sys/types.h>
+#   include <sys/uio.h>
 #   include <unistd.h>
 #endif
 

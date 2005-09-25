@@ -19,11 +19,11 @@ version_Age=0
 
 libsipXport_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
-	@PCRE_LDFLAGS@ \
+	@PCRE_LDFLAGS@ @CPPUNIT_LDFLAGS@ \
 	@SSL_LDFLAGS@
 
 libsipXport_la_LIBADD = \
-	@PCRE_LIBS@ \
+	@PCRE_LIBS@ @CPPUNIT_LIBS@ \
 	@SSL_LIBS@ \
 	@RT_LIBS@ \
 	-ldl \
@@ -34,7 +34,7 @@ libsipXport_la_LIBADD = \
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
 
 libsipXport_la_CXXFLAGS = \
-	@PCRE_CFLAGS@ \
+	@PCRE_CFLAGS@ @CPPUNIT_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"

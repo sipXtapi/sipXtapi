@@ -16,7 +16,7 @@ testsuite_LDADD = \
 
 testsuite_CXXFLAGS = \
 	-I$(top_srcdir)/include \
-	@PCRE_CFLAGS@ \
+	@PCRE_CFLAGS@ @CPPUNIT_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DTEST_DIR=\"@abs_builddir@\" \
