@@ -174,7 +174,7 @@ ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
    InfoLog(<< h->myAddr().uri().user() << " INVITE from  " << h->peerAddr().uri().user());
 
    resip::Uri uri = msg.header(resip::h_RequestLine).uri();
-   Data aor = uri.getAor();
+   resip::Data aor = uri.getAor();
    if (mInBoundMap.count(uri.user()))
    {
      aor = mInBoundMap[uri.user()];
@@ -200,7 +200,7 @@ ConferenceUserAgent::onTerminated(resip::InviteSessionHandle h,
 {
    if (reason != InviteSessionHandler::PeerEnded)
    {
-      WarningLog(<< h->myAddr().uri().user() << " call terminated with " << h->peerAddr().uri().user());
+      WarningLog(<< h->myAddr().uri().getAor() << " call terminated with " << h->peerAddr().uri().getAor());
    }
    else
    {
