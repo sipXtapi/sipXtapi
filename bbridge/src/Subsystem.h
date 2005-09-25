@@ -2,12 +2,12 @@
 #define SIPX_SUBSYSTEM_HXX 
 
 #include <iostream>
-#include "rutil/Data.hxx"
+#include "rutil/Subsystem.hxx"
 
 namespace bbridge
 {
 
-class Subsystem 
+class Subsystem : public resip::Subsystem
 {
    public:
       // Add new systems below
