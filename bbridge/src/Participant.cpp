@@ -20,6 +20,7 @@ using namespace std;
 Participant::Participant(resip::DialogUsageManager& dum,
                          const resip::SipMessage& msg) :
   AppDialogSet(dum),
+  mConference(0),
   mConnId(-1)
 {
 }

@@ -16,7 +16,8 @@ namespace bbridge
 
 ConferenceSubscriptionApp::ConferenceSubscriptionApp(resip::DialogUsageManager& dum,
                                                      const resip::SipMessage &msg) :
-  resip::AppDialogSet(dum)
+   resip::AppDialogSet(dum),
+   mConference(0)
 {
 }
 
