@@ -12,6 +12,11 @@ class Subsystem : public resip::Subsystem
    public:
       // Add new systems below
       static const Subsystem BBRIDGE;
+
+   private:
+      explicit Subsystem(const char* rhs) : resip::Subsystem(rhs) {};
+      explicit Subsystem(const resip::Data& rhs);
+      Subsystem& operator=(const resip::Data& rhs);
 };
 
 

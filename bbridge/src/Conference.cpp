@@ -10,11 +10,12 @@
 
 #include "ConferenceUserAgent.h"
 #include "Conference.h"
+#include "Subsystem.h"
+
+#define RESIPROCATE_SUBSYSTEM bbridge::Subsystem::BBRIDGE
 
 using namespace bbridge;
 using namespace std;
-
-#define RESIPROCATE_SUBSYSTEM Subsystem::TEST
 
 Conference::Conference(bbridge::ConferenceUserAgent& ua,
                        const resip::Data& aor,
@@ -93,6 +94,11 @@ void Conference::notifyAll()
       resip::SipMessage& message = handle->update(&notice);
       // Send it.
       handle->send(message);
+
+      InfoLog(<< "Sent NOTIFY to subscriber '" << handle->getSubscriber()
+              << "', for subscription ID '" << handle.getId()
+              << "', dialog ID '" << handle->getDialogId()
+              << "'");
    }
 }
 

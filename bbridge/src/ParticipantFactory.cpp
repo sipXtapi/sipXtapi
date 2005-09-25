@@ -13,11 +13,12 @@
 #include "ParticipantFactory.h"
 #include "Participant.h"
 #include "ConferenceSubscriptionApp.h"
+#include "Subsystem.h"
+
+#define RESIPROCATE_SUBSYSTEM bbridge::Subsystem::BBRIDGE
 
 using namespace bbridge;
 using namespace std;
-
-#define RESIPROCATE_SUBSYSTEM Subsystem::TEST
 
 resip::AppDialogSet* 
 ParticipantFactory::createAppDialogSet(resip::DialogUsageManager& dum,

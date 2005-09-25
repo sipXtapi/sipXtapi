@@ -10,11 +10,12 @@
 #include "Conference.h"
 #include "ConferenceUserAgent.h"
 #include "Participant.h"
+#include "Subsystem.h"
 
 using namespace bbridge;
 using namespace std;
 
-#define RESIPROCATE_SUBSYSTEM resip::Subsystem::TEST
+#define RESIPROCATE_SUBSYSTEM bbridge::Subsystem::BBRIDGE
 
 Participant::Participant(resip::DialogUsageManager& dum,
                          const resip::SipMessage& msg) :

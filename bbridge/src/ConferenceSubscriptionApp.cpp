@@ -7,6 +7,10 @@
 #include "rutil/Log.hxx"
 #include "rutil/Logger.hxx"
 
+#include "Subsystem.h"
+
+#define RESIPROCATE_SUBSYSTEM bbridge::Subsystem::BBRIDGE
+
 namespace bbridge
 {
 
@@ -93,6 +97,11 @@ void ConferenceSubscriptionApp::notifyOne()
    // Send it to the subscriber.
    resip::SipMessage& message = mSubscriptionHandle->update(&notice);
    mSubscriptionHandle->send(message);
+
+   InfoLog(<< "Sent NOTIFY to subscriber '" << mSubscriptionHandle->getSubscriber()
+           << "', for subscription ID '" << mSubscriptionHandle.getId()
+           << "', dialog ID '" << mSubscriptionHandle->getDialogId()
+           << "'");
 }
 
 }

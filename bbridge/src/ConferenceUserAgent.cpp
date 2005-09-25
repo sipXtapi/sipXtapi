@@ -17,6 +17,9 @@
 #include "Conference.h"
 #include "ConferenceUserAgent.h"
 #include "ConferenceSubscriptionApp.h"
+#include "Subsystem.h"
+
+#define RESIPROCATE_SUBSYSTEM bbridge::Subsystem::BBRIDGE
 
 using namespace bbridge;
 using namespace std;
@@ -24,8 +27,6 @@ using namespace std;
 #ifndef SIPX_CONFDIR
 #   define SIPX_CONFDIR "."
 #endif
-
-#define RESIPROCATE_SUBSYSTEM resip::Subsystem::TEST
 
 const char *CODEC_G711_PCMU="258";
 const char *CODEC_G711_PCMA="257";
@@ -142,7 +143,7 @@ ConferenceUserAgent::onSuccess(resip::ClientRegistrationHandle h,
                                const resip::SipMessage& response)
 {
    const resip::Data& aor = response.header(resip::h_From).uri().getAor();
-   InfoLog (<< "Registered an aor for inbound calls to " << aor);
+   InfoLog (<< "Registered an AOR for inbound calls to " << aor);
 
 }
 
@@ -424,6 +425,11 @@ void ConferenceUserAgent::onNewSubscription(resip::ServerSubscriptionHandle hand
 
    if (conference)
    {
+      InfoLog(<< "Accepted subscription for AOR '" << subscribe_aor
+              << "', subscriber '" << handle->getSubscriber()
+              << "', for subscription ID '" << handle.getId()
+              << "', dialog ID '" << handle->getDialogId()
+              << "'");
       // Accept the subscription.
       handle->send(handle->accept());
       // Attach the subscription to the conference.
@@ -437,6 +443,8 @@ void ConferenceUserAgent::onNewSubscription(resip::ServerSubscriptionHandle hand
    }
    else
    {
+      InfoLog(<< "Rejected subscription for AOR '" << subscribe_aor
+              << "'");
       // Reject the subscription.
       handle->send(handle->reject(404));
    }
