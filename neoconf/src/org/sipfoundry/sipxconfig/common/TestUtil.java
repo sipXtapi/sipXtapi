@@ -126,15 +126,16 @@ public final class TestUtil {
     }
 
     /**
-     * Create a sysdir.properties file in the classpath. Uses a trick that will only work if
-     * unittests are unjar-ed. This is infavor of doing in ant because it avoids setup and works
-     * in IDE's like eclipse where bin.eclipse is the classpath
+     * Create a sysdir.properties file in the classpath.  Uses a trick that will only work if
+     * unit tests are unjar-ed.  We could do this in ant, but this approach avoids setup and works
+     * in IDEs like Eclipse where bin.eclipse is the classpath.
      */
     public static void setSysDirProperties(Properties sysProps, String etcDirectory,
             String outputDirectory) {
 
         // HACK: sysdir.bin is not a real directory when testing
-        String domainName = "sipfoundry.org";
+        final String domainName = "sipfoundry.org";
+        final String realm = "realm";
         sysProps.setProperty("sysdir.bin", "/opt/work-2.8/sipx/bin/");
         sysProps.setProperty("sysdir.etc", etcDirectory);
         sysProps.setProperty("sysdir.data", outputDirectory);
@@ -144,11 +145,12 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.outboundProxy", "proxy.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.registrationServer", "registrar.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
-        sysProps.setProperty("phoneDefaults.authorizationRealm", "realm");
+        sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
         sysProps.setProperty("phoneDefaults.domainName", domainName);        
         sysProps.setProperty("sipxServer.domainName", domainName);
         sysProps.setProperty("dataSource.url", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
+        sysProps.setProperty("coreContextImpl.authorizationRealm", realm);
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
     }
 

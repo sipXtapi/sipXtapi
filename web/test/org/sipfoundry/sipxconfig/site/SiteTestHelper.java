@@ -62,20 +62,30 @@ public class SiteTestHelper {
     }
 
     /**
-     * Go to TestPage.html, includes hack for slow machines.
+     * Go to TestPage.html and log in.  Includes hack for slow machines.
      */
     public static void home(WebTester tester) {
+        home(tester, true);
+    }
+
+    /**
+     * Go to TestPage.html.  Log in if the login arg is true.
+     * Includes hack for slow machines.
+     */
+    public static void home(WebTester tester, boolean login) {
         tester.beginAt("/app?service=page/TestPage");
-        tester.clickLink("login");
+        if (login) {
+            tester.clickLink("login");
+        }
         tester.clickLink("hideNavigation");
-        // HACK: Webunit doesn't appear to fully load page, especialy
+        // HACK: Webunit doesn't appear to fully load page, especially
         // when the machine you're running it on is slow and you're
         // running a batch of tests, calling beginAt("/") twice seems
         // to get webunit to catch up.
         tester.beginAt("/app?service=page/TestPage");
         assertNoException(tester);
     }
-
+    
     /**
      * Login - form-based login for our pages.
      * 

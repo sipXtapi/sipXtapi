@@ -7,6 +7,10 @@
 
     <description>Page that displays login form</description>
         
+	<property-specification name="coreContext" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="global.coreContext"/>    
+    
     <property-specification name="loginContext" 
     	type="org.sipfoundry.sipxconfig.login.LoginContext" 
     	initial-value="global.loginContext"/>

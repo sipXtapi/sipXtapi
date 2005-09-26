@@ -42,7 +42,7 @@ public class PinTokenChangeServletTestUi extends WebTestCase {
         connection.setDoInput(true);
         connection.setAllowUserInteraction(true);        
         OutputStream out = connection.getOutputStream();
-        out.write("testuser;bfc7e1abe33fb3742529bc3d4ec3b8a1;newpin".getBytes());
+        out.write("testuser;c19d0229f2904a5a235c4a649222c258;newpin".getBytes());
         out.close();
         connection.getContent();
     }
