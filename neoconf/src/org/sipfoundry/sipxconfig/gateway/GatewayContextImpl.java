@@ -31,7 +31,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         BeanFactoryAware {
 
     private static final String NAME_PROP_NAME = "name";
-    
+
     private class DuplicateNameException extends UserException {
         private static final String ERROR = "A gateway with name \"{0}\" already exists.";
 
@@ -64,9 +64,9 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         // Before storing the gateway, make sure that it has a unique name.
         // Throw an exception if it doesn't.
         HibernateTemplate hibernate = getHibernateTemplate();
-        DaoUtils.checkDuplicates(hibernate, gateway, NAME_PROP_NAME,
-                new DuplicateNameException(gateway.getName()));
-        
+        DaoUtils.checkDuplicates(hibernate, gateway, NAME_PROP_NAME, new DuplicateNameException(
+                gateway.getName()));
+
         // Store the updated gateway
         hibernate.saveOrUpdate(gateway);
     }
@@ -96,12 +96,18 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             Gateway g = getGateway(id);
-            g.prepareSettings();
-            g.generateProfiles();            
+            g.propagate();
         }
-        
     }
-    
+
+    public void propagateAllGateways() {
+        List gateways = getGateways();
+        for (Iterator i = gateways.iterator(); i.hasNext();) {
+            Gateway g = (Gateway) i.next();
+            g.propagate();
+        }
+    }
+
     public List getGatewayByIds(Collection gatewayIds) {
         List gateways = new ArrayList(gatewayIds.size());
         for (Iterator i = gatewayIds.iterator(); i.hasNext();) {
@@ -149,9 +155,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     public void setAvailableGatewayModels(List availableGatewayModels) {
         m_availableGatewayModels = availableGatewayModels;
     }
-    
+
     public List getAvailableGatewayModels() {
         return m_availableGatewayModels;
     }
-
 }
