@@ -57,8 +57,8 @@ public class UserTableModel extends AbstractTableModel {
     
         OrderByTableColumn[] columns = new OrderByTableColumn[] {
             new OrderByTableColumn(USER_NAME_PROPERTY, USER_NAME_PROPERTY, USER_NAME_PROPERTY),
-            new OrderByTableColumn(FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY),
             new OrderByTableColumn(LAST_NAME_PROPERTY, LAST_NAME_PROPERTY, LAST_NAME_PROPERTY),
+            new OrderByTableColumn(FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY, FIRST_NAME_PROPERTY),
             new OrderByTableColumn("aliases", "aliasesString")
         };
 
