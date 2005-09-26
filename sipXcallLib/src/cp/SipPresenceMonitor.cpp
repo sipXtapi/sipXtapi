@@ -51,7 +51,7 @@
 SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                        UtlString& domainName,
                                        int hostPort,
-                                       UtlString& configFile,
+                                       OsConfigDb* configFile,
                                        bool toBePublished)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {

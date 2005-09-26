@@ -134,6 +134,9 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
                                              int iStunKeepAlivePeriodSecs)
     : CpMediaInterface(pFactoryImpl)
 {
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::CpPhoneMediaInterface creating a new CpMediaInterface %p",
+                 this);
+                 
    mpFlowGraph = new MpCallFlowGraph(locale);
    
    mStunServer = szStunServer ;
@@ -176,6 +179,9 @@ CpPhoneMediaInterface::CpPhoneMediaInterface(CpMediaInterfaceFactoryImpl* pFacto
 // Destructor
 CpPhoneMediaInterface::~CpPhoneMediaInterface()
 {
+   OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::~CpPhoneMediaInterface deleting the CpMediaInterface %p",
+                 this);
+
     CpPhoneMediaConnection* mediaConnection = NULL;
     while ((mediaConnection = (CpPhoneMediaConnection*) mMediaConnections.get()))
     {
@@ -237,6 +243,8 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId, void* videoW
         int iNextRtpPort = localPort ;
 
         CpPhoneMediaConnection* mediaConnection = new CpPhoneMediaConnection();
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::createConnection creating a new connection %p",
+                      mediaConnection);
         *mediaConnection = connectionId;
         mMediaConnections.append(mediaConnection);
 
@@ -660,6 +668,9 @@ OsStatus CpPhoneMediaInterface::doDeleteConnection(CpPhoneMediaConnection* media
    OsStatus returnCode = OS_NOT_FOUND;
    if(mediaConnection)
    {
+      OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPhoneMediaInterface::deleteConnection deleting the connection %p",
+                    mediaConnection);
+                 
       returnCode = OS_SUCCESS;
       mediaConnection->mDestinationSet = FALSE;
 #ifdef TEST_PRINT

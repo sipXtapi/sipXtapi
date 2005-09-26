@@ -4758,8 +4758,8 @@ MailboxManager::generateDefaultGreetings (
                 {
                     infiles[ arrayIndex ] =
                         m_mediaserverUrl + "/" + PROMPT_ALIAS + "/" + extension( 0, 1 ) + ".wav";
-                    extension = extension( 1, extensionLength) ;
                     extensionLength-- ;
+                    extension = extension( 1, extensionLength) ;
                     arrayIndex ++ ;
                 }
 
@@ -4767,7 +4767,13 @@ MailboxManager::generateDefaultGreetings (
                 infiles[arrayIndex + 1] = "" ;
 
                 if (mergeWaveUrls(infiles, greetingLocation ) != OS_SUCCESS)
+                {
+                    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                                  "MailboxManager::generateDefaultGreetings failed to generate default %s prompt for %s",
+                                  greetingType.data(), mailboxIdentity.data());
+                  
                     result = OS_FAILED;
+                }
 
                 delete [] infiles ;
             }

@@ -34,6 +34,13 @@
 
 #define SECONDS_DELAY 1
 
+#define CONFIG_SETTING_SIGN_IN_CODE        "SIP_PRESENCE_SIGN_IN_CODE"
+#define CONFIG_SETTING_SIGN_OUT_CODE       "SIP_PRESENCE_SIGN_OUT_CODE"
+#define CONFIG_SETTING_SIGN_IN_AUDIO       "SIP_PRESENCE_SIGN_IN_CONFIRMATION_AUDIO"
+#define CONFIG_SETTING_SIGN_OUT_AUDIO      "SIP_PRESENCE_SIGN_OUT_CONFIRMATION_AUDIO"
+#define CONFIG_SETTING_ERROR_AUDIO         "SIP_PRESENCE_ERROR_AUDIO"
+
+
 //#define DEBUGGING 1
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -87,11 +94,35 @@ CallContainer::~CallContainer()
 
 // Constructor
 PresenceDialInServer::PresenceDialInServer(CallManager* callManager,
-                                           UtlString& configFile)
+                                           OsConfigDb* configFile)
    : mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    mpCallManager = callManager;
-   parseConfig(configFile);
+
+   if (configFile->get(CONFIG_SETTING_SIGN_IN_CODE, mSignInFC) != OS_SUCCESS)
+   {
+      mSignInFC  = DEFAULT_SIGNIN_FEATURE_CODE;
+   }
+
+   if (configFile->get(CONFIG_SETTING_SIGN_OUT_CODE, mSignOutFC) != OS_SUCCESS)
+   {
+      mSignOutFC = DEFAULT_SIGNOUT_FEATURE_CODE;
+   }
+
+   if (configFile->get(CONFIG_SETTING_SIGN_IN_AUDIO, mSignInConfirmationAudio) != OS_SUCCESS)
+   {
+      mSignInConfirmationAudio = NULL;
+   }
+
+   if (configFile->get(CONFIG_SETTING_SIGN_OUT_AUDIO, mSignOutConfirmationAudio) != OS_SUCCESS)
+   {
+      mSignOutConfirmationAudio = NULL;
+   }
+
+   if (configFile->get(CONFIG_SETTING_ERROR_AUDIO, mErrorAudio) != OS_SUCCESS)
+   {
+      mErrorAudio = NULL;
+   }
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: configuration for PresenceDialIn:"); 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "PresenceDialInServer:: signInFeatureCode = %s", mSignInFC.data()); 
@@ -350,49 +381,6 @@ bool PresenceDialInServer::notifyStateChange(UtlString& contact, bool signIn)
    mLock.release();
    
    return result;
-}
-
-void PresenceDialInServer::parseConfig(UtlString& configFile)
-{
-   // Parse the XML formated confgiuration file
-   TiXmlDocument doc(configFile);      
-   if (doc.LoadFile())
-   {
-      TiXmlNode* rootNode = doc.FirstChild ("PresenceDialIn");
-      TiXmlNode* paramNode;      
-      if (rootNode != NULL)
-      {
-         paramNode = rootNode->FirstChild("signInFeatureCode");
-         if (paramNode)
-         {
-            mSignInFC = paramNode->FirstChild()->Value();
-         }
-         
-         paramNode = rootNode->FirstChild("signOutFeatureCode");
-         if (paramNode)
-         {
-            mSignOutFC = paramNode->FirstChild()->Value();
-         }
-               
-         paramNode = rootNode->FirstChild("signInConfirmationAudio");
-         if (paramNode)
-         {
-            mSignInConfirmationAudio = paramNode->FirstChild()->Value();
-         }
-         
-         paramNode = rootNode->FirstChild("signOutConfirmationAudio");
-         if (paramNode)
-         {
-             mSignOutConfirmationAudio = paramNode->FirstChild()->Value();
-         }
-
-         paramNode = rootNode->FirstChild("errorAudio");
-         if (paramNode)
-         {
-            mErrorAudio = paramNode->FirstChild()->Value();
-         }
-      }
-   }   
 }
 
 /* ============================ TESTING =================================== */

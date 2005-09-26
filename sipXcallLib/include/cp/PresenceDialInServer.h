@@ -16,11 +16,15 @@
 
 // APPLICATION INCLUDES
 #include <os/OsBSem.h>
+#include <os/OsConfigDb.h>
 #include <net/StateChangeNotifier.h>
 #include <tao/TaoAdaptor.h>
 #include <utl/UtlHashMap.h>
 
 // DEFINES
+#define DEFAULT_SIGNIN_FEATURE_CODE   "*88"
+#define DEFAULT_SIGNOUT_FEATURE_CODE  "*86"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -45,7 +49,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    /// Constructor
-   PresenceDialInServer(CallManager* callMgr, UtlString& configFile);
+   PresenceDialInServer(CallManager* callMgr, OsConfigDb* configFile);
    
    /// Destructor
    virtual ~PresenceDialInServer();

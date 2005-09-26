@@ -525,16 +525,18 @@ void SipProtocolServerBase::deleteClient(SipClient* sipClient)
     }
     mClientList.releaseIteratorHandle(iteratorHandle);
 
-        // Delete the client outside the lock on the list as
-        // it can create a deadlock.  If the client is doing
-        // an operation that requires the locking list, the
-        // client gets blocked from shutting down.  We then
-        // block here trying to delete the client forever.
-        if(client)
-        {
-                delete client;
+    // Delete the client outside the lock on the list as
+    // it can create a deadlock.  If the client is doing
+    // an operation that requires the locking list, the
+    // client gets blocked from shutting down.  We then
+    // block here trying to delete the client forever.
+    if(client)
+    {
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::deleteClient(%p) done",
+                      mProtocolString.data(), sipClient);
+        delete client;
         client = NULL;
-        }
+    }
 
 #ifdef TEST_PRINT
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::deleteClient(%p) done",
@@ -578,8 +580,8 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
             osPrintf("Removing %s client names:\n%s\r\n",
                 mProtocolString.data(), clientNames.data());
 #endif
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Removing %s client:\n%s\r",
-                          mProtocolString.data(), clientNames.data());
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Sip%sServer::Removing old client %p:\n%s\r",
+                          mProtocolString.data(), client, clientNames.data());
 
             mClientList.remove(iteratorHandle);
             // Delete the clients after releasing the lock

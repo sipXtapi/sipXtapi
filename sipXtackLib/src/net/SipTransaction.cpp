@@ -1007,7 +1007,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
     {
         if(toProtocol != OsSocket::UDP)
         {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
                 "SipTransaction::doFirstSend %p unknown protocol: %d using UDP",
                 &message, toProtocol);
 

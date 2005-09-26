@@ -1,8 +1,7 @@
 INSTALL=@INSTALL@
 
 EXTRA_DIST = \
-    sipxpresence-config.in \
-    sipxpresence.xml
+    sipxpresence-config.in
 
 install-data-hook :
 	@for f in $(EXTRA_DIST); \

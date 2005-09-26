@@ -89,9 +89,9 @@ public:
                          const char* remoteHostName, 
                          int localHostPort = PORT_DEFAULT,
                          const char* localHostName = NULL,
-                         bool bEnableStun = TRUE,
-                         const char* szStunServer = "larry.gloo.net",
-                         int iRefreshPeriodInSec = 28,
+                         bool bEnableStun = FALSE,
+                         const char* szStunServer = NULL,
+                         int iRefreshPeriodInSec = 0,
                          int iStunOptions = STUN_OPTION_NORMAL,
                          OsNotification* pNotification = NULL) ;
 

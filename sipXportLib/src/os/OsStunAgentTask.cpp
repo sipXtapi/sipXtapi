@@ -247,6 +247,12 @@ UtlBoolean OsStunAgentTask::handleStunMessage(StunMsg& rMsg)
                 break ;
         }
     }
+    
+    if (pBuffer)
+    {
+       free(pBuffer);
+    }
+    
     return true ;
 }
 

@@ -17,6 +17,7 @@
 
 // APPLICATION INCLUDES
 #include <os/OsBSem.h>
+#include <os/OsConfigDb.h>
 #include <net/StateChangeNotifier.h>
 #include <cp/PresenceDialInServer.h>
 #include <net/SipUserAgent.h>
@@ -60,7 +61,7 @@ class SipPresenceMonitor : public StateChangeNotifier
                                                */
                     UtlString& domainName,    ///< sipX domain name
                     int hostPort,             ///< Host port
-                    UtlString& configFile,    ///< Xml formated configuration
+                    OsConfigDb*configFile,    ///< configuration
                     bool toBePublished);      ///< option to publish for other subscriptions
 
    virtual ~SipPresenceMonitor();
