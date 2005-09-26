@@ -505,17 +505,17 @@
 	    </group>
 	    <group name="dtmf">
 	      <label>DTMF settings</label>
-	      <setting name="P73">
-	        <label>Send DTMF</label>
-	        <type>
-	          <enum>
-                    <option><label>in audio</label><value>0</value></option>
-                    <option><label>via RTP</label><value>1</value></option>
-                    <option><label>via SIP INFO</label><value>2</value></option>
-	          </enum>
-	        </type>
-	        <value>2</value>
-	      </setting>
+				<setting name="P73">
+					<label>Send DTMF</label>
+					<type>
+						<enum>
+							<option><label>in audio</label><value>0</value></option>
+							<option><label>via RTP</label><value>1</value></option>
+							<option><label>via SIP INFO</label><value>2</value></option>
+						</enum>
+					</type>
+					<value>1</value>
+				</setting>
 	      <setting name="P79">
 	        <label>DTMF Payload Type</label>
 	        <type refid="byte"/>
