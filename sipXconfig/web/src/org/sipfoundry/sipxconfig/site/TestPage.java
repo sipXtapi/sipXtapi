@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.site;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
@@ -147,6 +148,14 @@ public abstract class TestPage extends BasePage {
         // Log it in
         Visit visit = (Visit) getVisit();
         visit.login(user.getId(), false);
+    }
+    
+    public void deleteAllUsers(IRequestCycle cycle_) {
+        List users = getCoreContext().loadUsers();
+        for (Iterator iter = users.iterator(); iter.hasNext();) {
+            User user = (User) iter.next();
+            getCoreContext().deleteUser(user);
+        }
     }
     
     public String getUnusedTestUserName() {

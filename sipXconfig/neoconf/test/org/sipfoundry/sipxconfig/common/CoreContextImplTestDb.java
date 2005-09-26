@@ -267,7 +267,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         m_core.createAdminGroupAndInitialUserTask();
 
-        User admin = m_core.loadUserByUserName("superadmin");
+        User admin = m_core.loadUserByUserName(User.SUPERADMIN);
         Group adminGroup = (Group) admin.getGroups().iterator().next();
         IDataSet expectedDs = TestHelper
                 .loadDataSetFlat("common/CreateAdminAndInitialUserExpected.xml");

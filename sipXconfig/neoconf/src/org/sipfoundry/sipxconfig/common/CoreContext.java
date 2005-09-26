@@ -83,7 +83,16 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
     public Collection getGroupMembers(Group group);
 
     /**
-     * Called internally by boot-up process
+     * Called to create a superadmin user with an empty password,
+     * to recover from a situation where there are no admin users in the DB
      */
     public void createAdminGroupAndInitialUserTask();
+    
+    /**
+     * Called by the bootstrap page to create the superadmin user, giving it
+     * the specified pin
+     * 
+     * @param pin
+     */
+    public void createAdminGroupAndInitialUser(String pin);
 }

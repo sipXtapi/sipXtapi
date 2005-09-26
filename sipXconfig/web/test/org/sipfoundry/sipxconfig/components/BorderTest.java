@@ -15,6 +15,8 @@ import junit.framework.TestCase;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.PageRedirectException;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.site.Visit;
 
 public class BorderTest extends TestCase {
@@ -116,6 +118,14 @@ public class BorderTest extends TestCase {
 
         protected void redirectToLogin(IPage page) {
             throw new PageRedirectException("LoginPage");
+        }
+
+        public CoreContext getCoreContext() {
+            return new CoreContextImpl() {
+                public int getUserCount() {
+                    return 1;
+                }
+            };
         }
     }
 }

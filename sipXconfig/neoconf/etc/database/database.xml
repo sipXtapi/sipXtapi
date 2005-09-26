@@ -86,7 +86,6 @@
   <target name="version0" description="upgrade from version 0" unless="version1"
     depends="initialization_task,
 	  user_groups,
-	  admin-group-and-user,
 	  user_name,
 	  user_name_constraints,
 	  user_aliases,
@@ -209,12 +208,6 @@
   </target>
   <target name="user_groups" unless="user_groups">
     <db-patch patch="user_groups"/>
-  </target>
-  <target name="admin-group-and-user" unless="admin-group-and-user">
-      <sipx-sql>
-        insert into initialization_task (name) values ('admin-group-and-user');
-      </sipx-sql>
-      <mark-patch-applied patch="admin-group-and-user"/>
   </target>
   <target name="operator" unless="operator">
     <sipx-sql>

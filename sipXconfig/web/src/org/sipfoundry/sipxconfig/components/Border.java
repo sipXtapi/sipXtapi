@@ -19,11 +19,14 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageValidateListener;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.site.Home;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 import org.sipfoundry.sipxconfig.site.Visit;
+import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 public abstract class Border extends BaseComponent implements PageValidateListener {
+    public abstract CoreContext getCoreContext();
     
     /**
      * When true - page does not require login
@@ -40,13 +43,22 @@ public abstract class Border extends BaseComponent implements PageValidateListen
             return;
         }
 
+        // If there are no users, then we need to create the first user
+        if (getCoreContext().getUserCount() == 0) {
+            throw new PageRedirectException(FirstUser.PAGE);
+        }            
+
+        // If there are users, but no one is logged in, then force a login
         IPage page = getPage();
         Visit visit = getVisit();        
         if (visit.getUserId() == null) {
             redirectToLogin(page);
         }
+        
+        // If the logged-in user is not an admin, and this page is restricted, then 
+        // redirect the user to the home page since they are not worthy.
+        // (We should probably use an error page instead of just tossing them home.)
         if (!visit.isAdmin() && isRestricted()) {
-            // probably we should have a different page for that
             throw new PageRedirectException(Home.PAGE);
         }
     }
