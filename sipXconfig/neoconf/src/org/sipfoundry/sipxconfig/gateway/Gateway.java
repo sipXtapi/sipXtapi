@@ -136,4 +136,8 @@ public class Gateway extends BeanWithSettings implements NamedObject {
         return m_modelId;
     }
 
+    protected void propagate() {
+        prepareSettings();
+        generateProfiles();
+    }
 }

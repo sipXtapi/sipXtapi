@@ -27,6 +27,7 @@ public abstract class ListGateways extends BasePage {
     public abstract GatewayContext getGatewayContext();
 
     public abstract Collection getGatewaysToDelete();
+
     public abstract Collection getGatewaysToPropagate();
 
     /**
@@ -49,5 +50,9 @@ public abstract class ListGateways extends BasePage {
         if (selectedRows != null) {
             getGatewayContext().propagateGateways(selectedRows);
         }
+    }
+
+    public void propagateAllGateways(IRequestCycle cycle_) {
+        getGatewayContext().propagateAllGateways();
     }
 }

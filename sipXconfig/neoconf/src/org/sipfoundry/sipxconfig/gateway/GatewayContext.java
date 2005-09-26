@@ -47,4 +47,6 @@ public interface GatewayContext {
     public abstract Gateway newGateway(PhoneModel model);
     
     public List getAvailableGatewayModels();
+
+    public abstract void propagateAllGateways();
 }
