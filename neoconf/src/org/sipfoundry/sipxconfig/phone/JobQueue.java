@@ -11,35 +11,59 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import org.apache.commons.collections.Buffer;
-import org.apache.commons.collections.BufferUtils;
-import org.apache.commons.collections.buffer.BoundedFifoBuffer;
+import java.io.Serializable;
 
-/**
- * Bounded blocking queue. This is used as alternative to JMS queue because having the queue be
- * remote is not nec., however if this changes, JobRecord is Serializable so this can be converted
- * back to a JMS queue rather easily.
- */
-public class JobQueue {
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.BackgroundTaskQueue;
+import org.sipfoundry.sipxconfig.job.JobContext;
 
-    /** 5 seemed like a reasonable number, no magic to this number */
-    private static final int QUEUE_SIZE = 5;
+public class JobQueue extends BackgroundTaskQueue {
+    private static final Log LOG = LogFactory.getLog(JobQueue.class);
 
-    private Buffer m_queue;
-
-    public JobQueue() {
-        m_queue = BufferUtils.blockingBuffer(new BoundedFifoBuffer(QUEUE_SIZE));
-    }
+    private JobContext m_jobContext;
 
     public void addJob(JobRecord job) {
-        m_queue.add(job);
+        Phone[] phones = job.getPhones();
+        for (int i = 0; i < phones.length; i++) {
+            Job phoneJob = new Job(phones[i], job.getType(), m_jobContext);
+            addTask(phoneJob);
+        }
     }
 
-    public JobRecord removeJob() {
-        return (JobRecord) m_queue.remove();
+    static class Job implements Runnable {
+        private Phone m_phone;
+        private int m_type;
+        private JobContext m_jobContext;
+
+        public Job(Phone phone, int type, JobContext context) {
+            m_phone = phone;
+            m_type = type;
+            m_jobContext = context;
+        }
+
+        public void run() {
+            Serializable jobId = m_jobContext.schedule("Projection for phone "
+                    + m_phone.getSerialNumber());
+            try {
+                m_jobContext.start(jobId);
+                if (m_type == JobRecord.TYPE_PROJECTION) {
+                    m_phone.generateProfiles();
+                }
+                m_phone.restart();
+                m_jobContext.success(jobId);
+            } catch (RestartException re) {
+                m_jobContext.failure(jobId, null, re);
+            } catch (RuntimeException e) {
+                m_jobContext.failure(jobId, null, e);
+                // do not throw error, job queue will stop running.
+                // error gets logged to job error table and sipxconfig.log
+                LOG.error(e);
+            }
+        }
     }
 
-    public boolean isEmpty() {
-        return m_queue.isEmpty();
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
     }
 }
