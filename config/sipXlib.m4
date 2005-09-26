@@ -5,6 +5,9 @@
 ## Common C and C++ flags for pingtel related source
 AC_DEFUN([SFAC_INIT_FLAGS],
 [
+    AC_SUBST(CPPUNIT_CFLAGS,  [])
+    AC_SUBST(CPPUNIT_LDFLAGS, [])
+
     ## TODO Remove cpu specifics and use make variables setup for this
     ##
     ## NOTES:
