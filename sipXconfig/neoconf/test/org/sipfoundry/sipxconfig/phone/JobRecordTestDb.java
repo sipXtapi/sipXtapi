@@ -42,9 +42,9 @@ public class JobRecordTestDb extends SipxDatabaseTestCase {
         phones.add(phone);
         
         m_phoneContext.restart(phones);
-        JobManager jobMgr = (JobManager) TestHelper.getApplicationContext().getBean("jobManager");
-        jobMgr.finishProcessingJobs();
-        
+        JobQueue jobMgr = (JobQueue) TestHelper.getApplicationContext().getBean("jobQueue");
+        jobMgr.yieldTillEmpty();
+                
         phoneControl.verify();
     }
 }
