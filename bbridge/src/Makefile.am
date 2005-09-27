@@ -29,6 +29,8 @@ bbridge_SOURCES =  \
 	 ConferenceSubscriptionApp.h \
 	 ConferenceUserAgent.cpp \
 	 ConferenceUserAgent.h \
+	 DtmfEvent.h \
+	 DtmfEvent.cpp \
 	 Participant.cpp \
 	 Participant.h \
 	 ParticipantFactory.cpp \
