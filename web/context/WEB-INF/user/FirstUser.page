@@ -24,10 +24,6 @@
       -->
 
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    <bean name="pinValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    	<set-property name="required" expression="true"/>
-	    <set-property name="minimumLength" expression="1"/>
-	</bean>    
         
     <!--
       - C O M P O N E N T S
@@ -45,7 +41,7 @@
         <message-binding name="passwordDisplayName" key="label.pin"/>
         <message-binding name="confirmPasswordDisplayName" key="label.pin2"/>
         <message-binding name="passwordMismatchMessage" key="message.pinMismatch"/>
-        <binding name="passwordValidator" expression="beans.pinValidator"/>
+        <binding name="passwordValidator" expression="global.validPinRequired"/>
     </component>
     <component id="formActions" type="FormActions">
         <binding name="callback" expression="callback"/>

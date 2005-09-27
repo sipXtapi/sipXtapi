@@ -12,12 +12,6 @@
 		type="org.sipfoundry.sipxconfig.common.User" 
     	required="yes"
     	direction="auto"/>    
-    
-    <parameter name="pinValidator"
-        type="org.apache.tapestry.valid.IValidator"
-    	required="no"
-    	direction="auto"
-        default-value="beans.defaultPinValidator"/>
         
     <!--
       - P R O P E R T I E S
@@ -47,10 +41,6 @@
     <!--
       - B E A N S 
       -->
-    
-    <bean name="defaultPinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
-    	<set-property name="required" expression="false"/>
-	</bean>
      
     <!--
       - C O M P O N E N T S
@@ -86,7 +76,7 @@
         <message-binding name="passwordDescription" key="description.pin"/>
         <message-binding name="confirmPasswordDisplayName" key="label.pin2"/>
         <message-binding name="passwordMismatchMessage" key="message.pinMismatch"/>
-        <binding name="passwordValidator" expression="pinValidator"/>
+        <binding name="passwordValidator" expression="page.global.validPinRequired"/>
     </component>
     <component id="sipPasswordPanel" type="FieldPanel">
         <binding name="field" expression="components.sipPassword"/>

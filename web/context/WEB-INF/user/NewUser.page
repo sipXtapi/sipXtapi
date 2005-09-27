@@ -27,9 +27,6 @@
       -->
 
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    <bean name="pinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
-    	<set-property name="required" expression="true"/>
-	</bean>    
         
     <!--
       - C O M P O N E N T S
@@ -43,7 +40,6 @@
     </component>
     <component id="userForm" type="UserForm">
         <binding name="user" expression="user"/>
-        <binding name="pinValidator" expression="beans.pinValidator"/>
     </component>
     <component id="formActions" type="FormActions">
         <binding name="callback" expression="callback"/>
