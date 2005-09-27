@@ -9,6 +9,9 @@ AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
 
+# AM_PATH_CPPUNIT(1.10)
+# This is how to check using AM_PATH_CPPUNIT
+
 AC_CONFIG_SRCDIR([src/os/OsConfigDb.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
@@ -19,6 +22,7 @@ AC_PROG_CC
 
 # Checks for libraries.
 CHECK_LIBRT
+CHECK_CPPUNIT
 
 # Checks for header files.
 AC_HEADER_DIRENT
@@ -48,7 +52,7 @@ AC_FUNC_STAT
 AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet_ntoa localtime_r memchr memset mkdir putenv rmdir select setenv socket strchr strdup strerror strrchr strstr strtol strtoul tzset])
 
-CHECK_CPPUNIT
+
 
 CHECK_PCRE
 CHECK_SSL
