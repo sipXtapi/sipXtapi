@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import junit.framework.ComparisonFailure;
 import junit.framework.TestCase;
 
 import org.springframework.aop.framework.ProxyFactory;
