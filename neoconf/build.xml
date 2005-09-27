@@ -195,6 +195,7 @@
 			<fileset dir="etc/commserver" includes="**/*.xml"></fileset>
 			<fileset dir="etc/kphone" includes="**/*.xml"></fileset>
 			<fileset dir="etc/polycom" includes="**/*.xml"></fileset>
+			<fileset dir="etc/snom" includes="**/*.xml"></fileset>
 			<fileset dir="etc/grandstream" includes="**/*.xml"></fileset>
 			<fileset dir="etc/sipxconference" includes="**/*.xml"></fileset>
 			<fileset file="etc/user-settings.xml"/>
