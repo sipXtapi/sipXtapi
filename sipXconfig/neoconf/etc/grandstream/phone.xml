@@ -538,8 +538,8 @@
 	        <description>NTP Server</description>
 	      </setting>
 	      <setting name="P64">
-	        <label>Time Zone. Offset in minutes to GMT</label>
-	        <type><integer/></type>
+	        <label>Time Zone</label>
+          <type><integer min="-720" max="720"/></type>
 	        <value>420</value>
 	        <description>Time Zone. Offset in minutes to GMT</description>
 	      </setting>
