@@ -279,7 +279,7 @@ class SipXExternalLogger : public resip::ExternalLogger
                               const resip::Data& message,
                               const resip::Data& messageWithHeaders)
       {
-         OsSysLog::add(FAC_CONFERENCE, toPriority(level), "%s", message.c_str());
+         OsSysLog::add(FAC_CONFERENCE, toPriority(level), "%s", messageWithHeaders.c_str());
          return false;
       }
       
@@ -435,12 +435,23 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);;
    }
    
-   bbridge::ConferenceUserAgent ua(configDb);
-   
-   while (!gShutdownFlag)
+   try
    {
-      OsTask::delay(1000);
+      bbridge::ConferenceUserAgent ua(configDb);
+      while (!gShutdownFlag)
+      {
+         OsTask::delay(1000);
+      }
    }
+   catch (resip::BaseException& e)
+   {
+      std::cerr << "Uncaught resip exception: " << e << std::endl;
+   }
+   catch (...)
+   {
+      std::cerr << "Uncaught exception: " << std::endl;
+   }
+   
 
    // Flush the log file
    OsSysLog::flush();
