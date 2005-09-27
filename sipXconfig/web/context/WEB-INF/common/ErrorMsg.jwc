@@ -10,7 +10,7 @@
     <!-- by default it'll work with validator bean defined on the page -->
     <!-- one can pass another validator as a parameter -->
 	<parameter name="validator" 
-        type="org.apache.tapestry.valid.IValidationDelegate" 
+        type="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" 
         required="no" 
         default-value="page.beans.validator"
         direction="in">
@@ -24,4 +24,13 @@
     <component id="firstError" type="Delegator">
         <binding name="delegate" expression="validator.firstError"/>
     </component>
+    
+    <component id="hasSuccess" type="Conditional">
+        <binding name="condition" expression="validator.hasSuccess"/>
+    </component>
+    
+    <component id="firstSuccess" type="InsertText">
+        <binding name="value" expression="validator.success"/>
+    </component>
+
 </component-specification>
