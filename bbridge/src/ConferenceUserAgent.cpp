@@ -1,4 +1,3 @@
-#include "rutil/Log.hxx"
 #include "rutil/Logger.hxx"
 #include "resip/dum/ServerInviteSession.hxx"
 #include "resip/dum/ServerSubscription.hxx"
@@ -123,12 +122,6 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mDumThread.run();
 }
 
-void
-ConferenceUserAgent::process()
-{
-   
-}
-
 ConferenceUserAgent::~ConferenceUserAgent()
 {
    mDumThread.shutdown();
@@ -136,6 +129,12 @@ ConferenceUserAgent::~ConferenceUserAgent()
    mStackThread.shutdown();
    mStackThread.join();
    
+}
+
+void
+ConferenceUserAgent::post(resip::DumCommand* cmd)
+{
+   mDum.post(cmd);
 }
 
 void 
@@ -188,7 +187,7 @@ ConferenceUserAgent::onNewSession(resip::ServerInviteSessionHandle h,
 {
    InfoLog(<< h->myAddr().uri().user() << " INVITE from  " << h->peerAddr().uri().user());
 
-   
+
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(part);
    resip::Data aor = getConferenceUrl(msg.header(resip::h_RequestLine).uri());

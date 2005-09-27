@@ -7,8 +7,11 @@
 #include "rutil/DnsUtil.hxx"
 #include "net/SdpCodec.h"
 
+#include "os/OsCallback.h"
+
 #include "Conference.h"
 #include "ConferenceUserAgent.h"
+#include "DtmfEvent.h"
 #include "Participant.h"
 #include "Subsystem.h"
 
@@ -17,11 +20,11 @@ using namespace std;
 
 #define RESIPROCATE_SUBSYSTEM bbridge::Subsystem::BBRIDGE
 
-Participant::Participant(resip::DialogUsageManager& dum,
+Participant::Participant(resip::DialogUsageManager& dum, 
                          const resip::SipMessage& msg) :
-  AppDialogSet(dum),
-  mConference(0),
-  mConnId(-1)
+   AppDialogSet(dum),
+   mConference(0),
+   mConnId(-1)
 {
 }
 
@@ -220,6 +223,33 @@ Participant::accept(const resip::SdpContents& offer,
                                      codecsInCommon,
                                      srtpParams);
    // !jf! delete codecsInCommon
+
+
+   // add some code to install DtmfEvent handler
+   // need to pass in enough information to be able to create a DtmfEvent and
+   // have it get posted to mDum.
+   OsCallback* cb=new OsCallback((const int)(this), Participant::dtmfCallback);
+   mConference->mMedia->addToneListener(cb , mConnId);
+}
+
+void
+Participant::dtmfCallback(const int thisi, const int code)
+{
+   Participant* thisp = reinterpret_cast<Participant*>(thisi);
+   int tone = ((code >> 16) & 0x3fff);
+   int up = code & 0x80000000;
+   int duration = code & 0xFFFF;
+   char tonec = (char)tone + '0';
+   DtmfEvent* devent = new DtmfEvent(*thisp, tonec, duration, up);
+   thisp->mDum.post(devent);
+}
+
+
+void 
+Participant::onDtmfEvent(char event, int duration, bool up)
+{
+   InfoLog (<< " DTMF event handled for " << event << " duration=" << duration << " up=" << up);
+   // dan - insert stuff here
 }
 
 /*

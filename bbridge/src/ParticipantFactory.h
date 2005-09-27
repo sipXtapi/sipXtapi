@@ -13,6 +13,7 @@ namespace resip
 
 namespace bbridge
 {
+class ConferenceUserAgent;
 
 class ParticipantFactory : public resip::AppDialogSetFactory
 {

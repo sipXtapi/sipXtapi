@@ -22,11 +22,12 @@ namespace bbridge
 {
 
 class Conference;
+class ConferenceUserAgent;
 
 class Participant : public resip::AppDialogSet
 {
    public:
-      Participant(resip::DialogUsageManager& dum,
+      Participant(resip::DialogUsageManager& dum, 
                   const resip::SipMessage &msg);
       ~Participant();
 
@@ -34,6 +35,11 @@ class Participant : public resip::AppDialogSet
       void accept(const resip::SdpContents& offer, resip::SdpContents& answer);
       int id() const;
       
+      // dtmf event handler
+      void onDtmfEvent(char event, int duration, bool up);
+
+      static void dtmfCallback(const int thisp, const int eventData);
+
    private:
       Conference* mConference;
       int mConnId;

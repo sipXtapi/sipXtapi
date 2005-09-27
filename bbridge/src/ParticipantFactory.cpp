@@ -28,10 +28,12 @@ ParticipantFactory::createAppDialogSet(resip::DialogUsageManager& dum,
    // for this dialog.
    if (msg.header(resip::h_RequestLine).getMethod() == resip::SUBSCRIBE)
    {
+      InfoLog (<< "Making a conference subscription");
       return new ConferenceSubscriptionApp(dum, msg);
    }
    else
    {
+      InfoLog (<< "Making a participant");
       return new Participant(dum, msg);
    }
 }

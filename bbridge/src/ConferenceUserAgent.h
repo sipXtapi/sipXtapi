@@ -24,6 +24,11 @@
 // bbridge includes
 #include "ConferenceSubscriptionApp.h"
 
+namespace resip
+{
+class DumCommand;
+}
+
 namespace bbridge
 {
 
@@ -37,8 +42,10 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       ConferenceUserAgent(OsConfigDb& db);
       virtual ~ConferenceUserAgent();
 
-      void process();
-      
+      // in order to post an event (command pattern) to be executed later by dum
+      // in the ConferenceUserAgent's thread
+      void post(resip::DumCommand* cmd);
+
    public:
       // resip::Invite Session Handler /////////////////////////////////////////////////////
       virtual void onNewSession(resip::ClientInviteSessionHandle h, resip::InviteSession::OfferAnswerType oat, const resip::SipMessage& msg);
