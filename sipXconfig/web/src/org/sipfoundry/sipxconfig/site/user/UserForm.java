@@ -28,7 +28,13 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class UserForm extends BaseComponent {
-
+    // Display this dummy PIN value (masked) to indicate that a PIN exists.
+    // We can't use a real PIN.  We don't know the real PIN and if we did,
+    // we shouldn't show it.
+    // Pick an obscure PIN to avoid colliding with real user PINs.  (I tried using a
+    // non-printable PIN "\1\1\1\1\1\1\1\1" but Tapestry silently discards the string!)
+    private static final String DUMMY_PIN = "`p1n6P0\361g";
+    
     public abstract CoreContext getCoreContext();
     public abstract ExtensionPoolContext getExtensionPoolContext();
     
@@ -52,6 +58,8 @@ public abstract class UserForm extends BaseComponent {
             if (StringUtils.isEmpty(getAliasesString())) {
                 setAliasesString(getUser().getAliasesString());
             }
+
+            initializePin();
         }
         
         super.renderComponent(writer, cycle);
@@ -75,7 +83,7 @@ public abstract class UserForm extends BaseComponent {
             updatePin();
         }
     }
-    
+
     // If the userName is empty and the user extension pool is enabled, then
     // try to fill in the userName with the next free extension from the pool.
     private void assignExtension() {
@@ -121,15 +129,18 @@ public abstract class UserForm extends BaseComponent {
         }
         return result;
     }
+        
+    // For an existing user with a non-empty PIN, init the displayed PIN
+    // to be the dummy PIN to make it clear that the PIN is not empty.
+    private void initializePin() {
+        if (!getUser().isNew() && getPin() == null) {
+            setPin(DUMMY_PIN);
+        }
+    }
     
-    // Update the user's PIN.
-    // Special case: don't set the PIN to be empty.
-    // In some contexts (creating a new user) an empty PIN is an error, in
-    // other contexts (editing an existing user) we just ignore it.
-    // Leave it up to the containing component to decide whether an empty PIN
-    // is an error or not.
+    // Update the user's PIN
     private void updatePin() {
-        if (!StringUtils.isEmpty(getPin())) {
+        if (!(getPin() == null) && !getPin().equals(DUMMY_PIN)) {
             CoreContext core = getCoreContext();
             getUser().setPin(getPin(), core.getAuthorizationRealm());
         }

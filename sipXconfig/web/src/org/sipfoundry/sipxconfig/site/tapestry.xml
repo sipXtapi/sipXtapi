@@ -50,6 +50,19 @@
       <value>Please enter a comma-separated list of numbers or names, for example: joe, 508</value>
     </property>
   </bean>
+  <bean name="validPin" class="org.apache.tapestry.valid.StringValidator">
+    <property name="required">
+      <value>false</value>
+    </property>
+  </bean>
+  <bean name="validPinRequired" parent="validPin">
+    <property name="required">
+      <value>true</value>
+    </property>
+    <property name="minimumLength">
+      <value>1</value>
+    </property>
+  </bean>
   <bean name="validPhoneSequenceRequired" parent="validPhoneSequence">
     <property name="required">
       <value>true</value>
