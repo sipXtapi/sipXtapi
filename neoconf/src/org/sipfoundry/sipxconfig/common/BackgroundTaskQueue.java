@@ -47,8 +47,13 @@ public class BackgroundTaskQueue {
      * it unless you need it in testing.
      */
     public void yieldTillEmpty() {
-        while (!m_queue.isEmpty()) {
-            Thread.yield();
+        try {
+            while (!m_queue.isEmpty()) {                
+                Thread.sleep(10);
+            }
+        }
+        catch (InterruptedException e) {
+            // Ignoring exception
         }
     }
 
