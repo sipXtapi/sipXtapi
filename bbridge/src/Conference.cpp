@@ -20,7 +20,6 @@ using namespace std;
 Conference::Conference(bbridge::ConferenceUserAgent& ua,
                        const resip::Data& aor,
                        OsConfigDb &configDb) : 
-   mRefcount(0),
    mAor(aor),
    mMedia(ua.mMediaFactory->createMediaInterface(resip::DnsUtil::getLocalIpAddress().c_str(),
                                                  resip::DnsUtil::getLocalIpAddress().c_str(),
@@ -44,6 +43,9 @@ Conference::~Conference()
    {
       (*i)->terminate();
    }
+
+   // !jf! Do I need to do anything other than delete mMedia to free up resources? 
+   mMedia->release();
 }
 
 // Get the AOR to reach this conference.
@@ -62,6 +64,11 @@ void Conference::addParticipant(Participant* part)
 void Conference::removeParticipant(Participant* part)
 {
    mParticipants.erase(part);
+   if (mParticipants.empty())
+   {
+      InfoLog (<< "Last participant has left the conference");
+      delete this;
+   }
 }
 
 // Add a subscripton to this conference's list of subscriptions.
@@ -100,6 +107,12 @@ void Conference::notifyAll()
               << "', dialog ID '" << handle->getDialogId()
               << "'");
    }
+}
+
+bool
+Conference::shouldPlayMusic() const
+{
+   return mParticipants.size() == 1;
 }
 
 // Make the Contents which is the conference event body.

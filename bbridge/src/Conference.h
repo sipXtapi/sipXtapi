@@ -55,8 +55,10 @@ class Conference
       // Make the Contents which is the conference event body for the current state.
       resip::Contents& makeNotice();
 
+      // Return true if there is only one participant
+      bool shouldPlayMusic() const;
+      
    private:
-      int mRefcount;
       resip::Data mAor;
       CpMediaInterface* mMedia;
       OsConfigDb &mConfigDb;

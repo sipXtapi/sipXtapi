@@ -34,7 +34,7 @@ Participant::~Participant()
    {
       assert(mConference->mMedia);
 
-      if (mConference->mRefcount == 2)
+      if (mConference->shouldPlayMusic())
       {
          // Start the hold music
          UtlString holdMusic;
@@ -82,10 +82,6 @@ Participant::~Participant()
       // The Conference knows all its Participants.
       mConference->removeParticipant(this);
 
-      // should check to see if all participants are gone now and delete the
-      // conference if needed
-      mConference->mRefcount--;
-
       mConference = 0;
    }
 }
@@ -98,7 +94,7 @@ Participant::assign(Conference* conf)
    // The Conference knows all its Participants.
    conf->addParticipant(this);
 
-   if (mConference->mRefcount == 0)
+   if (mConference->shouldPlayMusic())
    {
       // Start the hold music
       UtlString holdMusic;
@@ -128,7 +124,6 @@ Participant::assign(Conference* conf)
                                          true); // remote parties
      }
    }
-   mConference->mRefcount++;
 }
 
 int 
