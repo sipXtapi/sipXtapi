@@ -36,49 +36,49 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
  */
 public class CiscoAtaPhone extends CiscoPhone {
 
-    public static final String BEAN_ID = "ciscoAta"; 
+    public static final String BEAN_ID = "ciscoAta";
 
     private static final String ZERO = "0";
-    
+
     private static final String IMAGE_ID = "imageid";
-    
+
     private static final String NONE = "none";
 
     private static final int KOLME = 3;
 
     private static final String NOLLAX = "0x";
-    
+
     private static final String ALLE = "_";
-    
+
     private static final String PHONE_REGISTRATION_SETTING = "sip/Proxy";
-    
+
     private static final SettingFilter S_REALGROUPS = new SettingFilter() {
-            public boolean acceptSetting(Setting root_, Setting setting) {
-                boolean isLeaf = setting.getValues().isEmpty();            
-                boolean isVirtual = (setting.getName().startsWith(ALLE));            
-                return !isLeaf && !isVirtual;
-            }
-        };        
+        public boolean acceptSetting(Setting root_, Setting setting) {
+            boolean isLeaf = setting.getValues().isEmpty();
+            boolean isVirtual = (setting.getName().startsWith(ALLE));
+            return !isLeaf && !isVirtual;
+        }
+    };
 
     private static final SettingFilter S_REALSETTINGS = new SettingFilter() {
-            public boolean acceptSetting(Setting root, Setting setting) {
-                boolean firstGeneration = setting.getParentPath().equals(root.getPath());
-                boolean isLeaf = setting.getValues().isEmpty();            
-                boolean isVirtual = (setting.getName().startsWith(ALLE));            
-                return firstGeneration && isLeaf && !isVirtual;
-            }
-        };        
+        public boolean acceptSetting(Setting root, Setting setting) {
+            boolean firstGeneration = setting.getParentPath().equals(root.getPath());
+            boolean isLeaf = setting.getValues().isEmpty();
+            boolean isVirtual = (setting.getName().startsWith(ALLE));
+            return firstGeneration && isLeaf && !isVirtual;
+        }
+    };
 
     private static final SettingFilter S_BITMAPSETTINGS = new SettingFilter() {
-            public boolean acceptSetting(Setting root_, Setting setting) {
-                boolean isLeaf = setting.getValues().isEmpty();            
-                boolean isBitmapped = (setting.getName().startsWith("__"));            
-                return  isLeaf && isBitmapped;
-            }
-        };        
+        public boolean acceptSetting(Setting root_, Setting setting) {
+            boolean isLeaf = setting.getValues().isEmpty();
+            boolean isBitmapped = (setting.getName().startsWith("__"));
+            return isLeaf && isBitmapped;
+        }
+    };
 
     private String m_ptagDat;
-    
+
     private String m_cfgfmtUtility;
 
     private String m_binDir;
@@ -87,14 +87,14 @@ public class CiscoAtaPhone extends CiscoPhone {
         super(BEAN_ID);
         init();
     }
-    
+
     public CiscoAtaPhone(CiscoModel model) {
         super(model);
         init();
     }
-    
+
     private void init() {
-        setPhoneTemplate("cisco/cisco-ata.vm");        
+        setPhoneTemplate("cisco/cisco-ata.vm");
     }
 
     public String getCfgPrefix() {
@@ -106,11 +106,11 @@ public class CiscoAtaPhone extends CiscoPhone {
         String phoneFilename = getSerialNumber();
         return getTftpRoot() + '/' + getCfgPrefix() + phoneFilename.toLowerCase();
     }
-    
+
     public void setPtagDat(String ptagDat) {
         m_ptagDat = ptagDat;
     }
-    
+
     public String getPtagDat() {
         if (m_ptagDat != null) {
             return m_ptagDat;
@@ -124,7 +124,7 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     /**
      * this points to the cfgfmt utility in etc/cisco directory
-     */ 
+     */
     public String getCfgfmtUtility() {
         if (m_cfgfmtUtility != null) {
             return m_cfgfmtUtility;
@@ -155,37 +155,34 @@ public class CiscoAtaPhone extends CiscoPhone {
         } finally {
             IOUtils.closeQuietly(wtr);
         }
-        
+
         requireFile(getCfgfmtUtility());
-        requireFile(getPtagDat());        
+        requireFile(getPtagDat());
         try {
-            String[] cmd = { 
-                getCfgfmtUtility(), 
-                "-t" + getPtagDat(), 
-                outputTxtfile, 
-                outputfile
+            String[] cmd = {
+                getCfgfmtUtility(), "-t" + getPtagDat(), outputTxtfile, outputfile
             };
             Process p = Runtime.getRuntime().exec(cmd);
             int errCode = p.waitFor();
             if (errCode != 0) {
-                String msg = "Cisco profile conversion utility failed status code:" + errCode; 
-                StringWriter err = new StringWriter();                
+                String msg = "Cisco profile conversion utility failed status code:" + errCode;
+                StringWriter err = new StringWriter();
                 err.write(msg.toCharArray());
                 CopyUtils.copy(p.getErrorStream(), err);
                 throw new RuntimeException(err.toString());
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);            
+            throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
-        }            
+        }
     }
-    
+
     private void requireFile(String filename) {
         File f = new File(filename);
         if (!f.exists()) {
             StringBuffer msg = new StringBuffer();
-            
+
             msg.append("Cannot complete configuration of Cisco device ");
             msg.append(getSerialNumber());
             msg.append(".  Required file cannot be found ");
@@ -194,7 +191,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             throw new RuntimeException(msg.toString());
         }
     }
-    
+
     public Object getAdapter(Class c) {
         Object o = null;
         if (c == PhoneSettings.class) {
@@ -207,7 +204,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         } else {
             o = super.getAdapter(c);
         }
-        
+
         return o;
     }
 
@@ -217,7 +214,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
             adapter.setSetting(line.getSettings());
             adapter.addMapping(LineSettings.AUTHORIZATION_ID, "port/LoginID");
-            adapter.addMapping(LineSettings.USER_ID, "port/UID");            
+            adapter.addMapping(LineSettings.USER_ID, "port/UID");
             adapter.addMapping(LineSettings.PASSWORD, "port/PWD");
             adapter.addMapping(LineSettings.DISPLAY_NAME, "port/DisplayName");
             // sip/SIPPort for outbound proxy?
@@ -225,14 +222,15 @@ public class CiscoAtaPhone extends CiscoPhone {
         } else {
             impl = super.getAdapter(interfac);
         }
-        
+
         return impl;
     }
 
     protected void defaultSettings() {
         super.defaultSettings();
         PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
-        getSettings().getSetting(PHONE_REGISTRATION_SETTING).setValue(defaults.getRegistrationServer());
+        getSettings().getSetting(PHONE_REGISTRATION_SETTING).setValue(
+                defaults.getRegistrationServer());
     }
 
     public String getSoftwareUpgradeConfig() {
@@ -247,8 +245,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         CiscoModel model = (CiscoModel) getModel();
         String upghex = model.getUpgCode();
 
-        if (StringUtils.isBlank(swimage) || swimage.equals(NONE)
-                || imageid.equals(ZERO)) {
+        if (StringUtils.isBlank(swimage) || swimage.equals(NONE) || imageid.equals(ZERO)) {
             return StringUtils.EMPTY;
         }
 
@@ -269,8 +266,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         String logofile = logoupgrade.getSetting("logofile").getValue();
         String imageid = logoupgrade.getSetting("logoid").getValue();
 
-        if (StringUtils.isBlank(logofile) || logofile.equals(NONE)
-                || imageid.equals(ZERO)) {
+        if (StringUtils.isBlank(logofile) || logofile.equals(NONE) || imageid.equals(ZERO)) {
             return StringUtils.EMPTY;
         }
 
@@ -317,7 +313,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         return SettingUtil.filter(S_BITMAPSETTINGS, getSettings());
     }
 
-    private void packBitmaps() {
+    public void packBitmaps() {
         Collection bitmaps = getBitmapSettings();
         Iterator bmi = bitmaps.iterator();
         while (bmi.hasNext()) {
@@ -332,9 +328,9 @@ public class CiscoAtaPhone extends CiscoPhone {
             String tgtname = bname.substring(2, bpoint);
             String btpath = bset.getParentPath() + Setting.PATH_DELIM + tgtname;
             Setting btgt = getSettings().getSetting(btpath.substring(1));
-            
+
             int bofs = Integer.parseInt(bname.substring(bpoint + 1));
-            
+
             String bttype = btgt.getType().getName();
             if (bttype.equals("integer")) {
                 int btmp = Integer.decode(btgt.getValue()).intValue();
