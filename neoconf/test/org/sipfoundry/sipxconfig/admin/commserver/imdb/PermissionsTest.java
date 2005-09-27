@@ -52,6 +52,9 @@ public class PermissionsTest extends XMLTestCase {
 
         User user = new User();
         Group g = new Group();
+        Permission.INTERNATIONAL_DIALING.setEnabled(g,false);
+        Permission.LONG_DISTANCE_DIALING.setEnabled(g,false);
+        Permission.TOLL_FREE_DIALING.setEnabled(g,false);
         Permission.LOCAL_DIALING.setEnabled(g, true);
 
         user.addGroup(g);
