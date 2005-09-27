@@ -21,6 +21,8 @@
     	default-value="false"
     	type="boolean"/>
     
+    <parameter name="successMsg" direction="in" required="no" type="java.lang.String"/>
+    
     <!-- C O M P O N E N T S -->
     <component id="ifRenderOk" type="contrib:FormConditional">
         <binding name="condition" expression="callback != null"/>
