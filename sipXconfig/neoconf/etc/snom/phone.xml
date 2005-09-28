@@ -1165,7 +1165,7 @@
               </option>
             </enum>
           </type>
-          <value>USA-10</value>
+          <value>USA-5</value>
           <description/>
         </setting>
         <setting name="http_proxy">

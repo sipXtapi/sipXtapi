@@ -540,7 +540,7 @@
 	      <setting name="P64">
 	        <label>Time Zone</label>
           <type><integer min="-720" max="720"/></type>
-	        <value>420</value>
+	        <value>-300</value>
 	        <description>Time Zone. Offset in minutes to GMT</description>
 	      </setting>
 	      <setting name="P75">
