@@ -25,7 +25,7 @@ public abstract class FormActions extends BaseComponent {
 
     public abstract IActionListener getListener();
 
-    public abstract String getSuccessMsg();
+    public abstract String getSuccessMessage();
 
     public void onRefresh(IRequestCycle cycle_) {
         // do nothing page should refresh when rendering
@@ -45,7 +45,7 @@ public abstract class FormActions extends BaseComponent {
         adapter.actionTriggered(this, cycle);
         if (validator instanceof SipxValidationDelegate) {
             SipxValidationDelegate sipxValidator = (SipxValidationDelegate) validator;
-            String msg = StringUtils.defaultIfEmpty(getSuccessMsg(), getMessage("user.success"));
+            String msg = StringUtils.defaultIfEmpty(getSuccessMessage(), getMessage("user.success"));
             sipxValidator.recordSuccess(msg);
         }
     }
