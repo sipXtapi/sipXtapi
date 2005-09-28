@@ -26,7 +26,6 @@
 	<classpathentry sourcepath="LIB_SRC/commons-collections/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-collections-3.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/commons-digester/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-digester-1.6.jar"/>
 	<classpathentry sourcepath="LIB_SRC/commons-logging/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-logging-1.0.4.jar"/>
-	<classpathentry sourcepath="LIB_SRC/commons-dbcp/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-dbcp-1.2.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/aopalliance-1.0.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jta.jar"/>
@@ -48,5 +47,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar"/>
 	<classpathentry sourcepath="LIB_SRC/xmlrpc/src.zip" kind="var" path="SIPX_CONFIG/lib/xmlrpc-2.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/antlr/2.7.5/src.zip" kind="var" path="SIPX_CONFIG/lib/antlr-2.7.5H3.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/c3p0-0.9.0.2.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

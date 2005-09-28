@@ -28,45 +28,62 @@
   <!--
   - P O S T G R E S
   -->
-  <!-- See http://jakarta.apache.org/commons/dbcp/configuration.html for a description
-       of the properties that can be configured here.  See
-       http://jakarta.apache.org/commons/dbcp/apidocs/org/apache/commons/dbcp/BasicDataSource.html
-       for documentation on this class. -->
-  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName">
+  <!-- Use c3p0 to manage database connections.
+  	   See http://www.mchange.com/projects/c3p0/index.html#using_c3p0 for documentation on
+  	   configuration properties.
+  	   See http://www.mchange.com/projects/c3p0/apidocs/com/mchange/v2/c3p0/ComboPooledDataSource.html
+  	   for documentation on this class. -->
+  <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+    <property name="driverClass">
       <value>org.postgresql.Driver</value>
     </property>
-    <property name="url">
+    <property name="jdbcUrl">
       <value>jdbc:postgresql://localhost/SIPXCONFIG</value>
     </property>
-    <property name="username">
+    <property name="user">
       <value>postgres</value>
     </property>
-    
-    <!-- Minimize startup time by creating the first DB connection on demand, not in advance -->
-    <property name="initialSize">
-      <value>0</value>
+    <!-- Determines how many connections at a time c3p0 will try to acquire when the pool
+         is exhausted.  Default: 3.
+         Set this to 1 because sipXconfig has very low connection usage. -->
+    <property name="acquireIncrement">
+      <value>1</value>
     </property>
-    
-    <!-- Cap the number of active DB connections to avoid bogging down the machine.  Since
-         we hold onto a connection only for the duration of a web request, we should not
-         need to use many connections simultaneously. -->
-    <property name="maxActive">
-      <value>8</value>
-    </property>
-    
-    <!-- If we have to wait for more than five minutes (300000 millis) to get a DB connection,
-         then give up and throw an exception rather than just hanging forever.
-         This will give us better debug info as to what's going wrong. -->
-    <property name="maxWait">
+    <!-- The number of milliseconds a client calling getConnection() will wait for a Connection
+         to be checked-in or acquired when the pool is exhausted. Zero means wait indefinitely. 
+         Setting any positive value will cause the getConnection() call to time-out and break
+         with an SQLException after the specified number of milliseconds.  Default: 0.
+         Set this to 300000 (5 minutes) because sipXconfig should never hang forever, and the
+         SQLException will provide useful debug info. -->
+    <property name="checkoutTimeout">
       <value>300000</value>
     </property>
-    
-    <!-- If a connection has been idle for five minutes, then allow it to be evicted. -->
-    <property name="minEvictableIdleTimeMillis">
-      <value>300000</value>
+    <!-- Number of Connections a pool will try to acquire upon startup. Should be between
+         minPoolSize and maxPoolSize.  Default: 3.
+         Set this to 1 because sipXconfig has very low connection usage. -->
+    <property name="initialPoolSize">
+      <value>1</value>
     </property>
-
+    <!-- Seconds a Connection can remain pooled but unused before being discarded.
+         Zero means idle connections never expire.  Default: 0.
+         Set this to 900000 (15 minutes) because connections shouldn't hang around forever.
+      -->
+    <property name="maxIdleTime">
+      <value>900000</value>
+    </property>
+    <!-- Maximum number of Connections a pool will maintain at any given time.  Default: 15.
+         Set this to 15.  Even though this is the default value, include an explicit setting
+         here just so that it's easy to change if we want to. -->
+    <property name="maxPoolSize">
+      <value>15</value>
+    </property>
+    <!-- Minimum number of Connections a pool will maintain at any given time.  Default: 3.
+         Set this to 1.  sipXconfig doesn't use many connections, but if we allow the pool
+         to become empty when sipXconfig is idle, then responding to the next request will 
+         be delayed by the time needed to open a new Connection. -->
+    <property name="minPoolSize">
+      <value>1</value>
+    </property>
   </bean>
   <!--
   - T R A N S A C T I O N  S U P P O R T
@@ -86,15 +103,15 @@
     </property>
     <property name="mappingResources">
       <list>
-        <value> org/sipfoundry/sipxconfig/admin/callgroup/callGroup.hbm.xml</value>
-        <value> org/sipfoundry/sipxconfig/admin/callgroup/parkOrbit.hbm.xml</value>
-        <value> org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/admin/callgroup/callGroup.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/admin/callgroup/parkOrbit.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/admin.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/backup.hbm.xml</value>
-        <value> org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
-        <value> org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/admin/dialplan/autoAttendant.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/common/common.hbm.xml</value>
-        <value> org/sipfoundry/sipxconfig/conference/conference.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/conference/conference.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/gateway/gateway.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phone/phone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/setting/setting.hbm.xml</value>

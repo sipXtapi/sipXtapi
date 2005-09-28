@@ -39,7 +39,7 @@
 	<path id="runtime.dependencies">
 		<pathelement location="${commons-logging.jar}" />
 		<pathelement location="${logkit.jar}" />
-		<pathelement location="${commons-dbcp.jar}" />
+		<pathelement location="${c3p0.jar}" />
 		<pathelement location="${commons-pool.jar}" />
 		<pathelement location="${commons-beanutils.jar}"/>
 		<pathelement location="${aopalliance.jar}" />
