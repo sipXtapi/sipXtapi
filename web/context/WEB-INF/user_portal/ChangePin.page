@@ -54,5 +54,6 @@
     
     <component id="formActions" type="FormActions">
         <binding name="listener" expression="listeners.changePin"/>
+        <message-binding name="successMessage" key="message.success"/>
     </component>
 </page-specification>
