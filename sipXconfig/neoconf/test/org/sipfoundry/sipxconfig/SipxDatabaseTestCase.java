@@ -42,8 +42,7 @@ public class SipxDatabaseTestCase extends TestCase {
     protected void tearDown() throws Exception {
         super.tearDown();
         
-        // Comment this out for now, it is causing problems
-//        TestHelper.closeConnection();
+        TestHelper.closeConnection();
     }
 
 }
