@@ -488,7 +488,7 @@
 	    <setting name="gmtOffset">
 	      <!-- 43200 == 12h -->
 	      <type><integer min="-43200" max="43200"/></type>
-	      <value>-28800</value>
+	      <value>-18000</value>
 	      <description>Offset in seconds of the local time zone from GMT. Note: 3600 seconds per hour</description>
 	    </setting>
 	    <setting name="daylightSavings.enable">
