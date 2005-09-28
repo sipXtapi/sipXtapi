@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -47,7 +48,7 @@ public class CallSequence extends AbstractCallSequence {
         return ring;
     }
 
-    public List generateAliases(String domain) {        
+    public List generateAliases(String domain) {
         String identity = m_user.getUserName() + "@" + domain;
         return generateAliases(identity, domain);
     }
@@ -57,7 +58,10 @@ public class CallSequence extends AbstractCallSequence {
         List authExceptions = new ArrayList();
         for (Iterator i = calls.iterator(); i.hasNext();) {
             Ring r = (Ring) i.next();
-            authExceptions.add(r.getNumber());
+            String number = r.getNumber();
+            if (StringUtils.isNotEmpty(number)) {
+                authExceptions.add(number);
+            }
         }
         return authExceptions;
     }
