@@ -45,9 +45,9 @@
     </property>
     <!-- Determines how many connections at a time c3p0 will try to acquire when the pool
          is exhausted.  Default: 3.
-         Set this to 1 because sipXconfig has very low connection usage. -->
+         Use the default. -->
     <property name="acquireIncrement">
-      <value>1</value>
+      <value>3</value>
     </property>
     <!-- The number of milliseconds a client calling getConnection() will wait for a Connection
          to be checked-in or acquired when the pool is exhausted. Zero means wait indefinitely. 
@@ -60,9 +60,9 @@
     </property>
     <!-- Number of Connections a pool will try to acquire upon startup. Should be between
          minPoolSize and maxPoolSize.  Default: 3.
-         Set this to 1 because sipXconfig has very low connection usage. -->
+         Use the default.  -->
     <property name="initialPoolSize">
-      <value>1</value>
+      <value>3</value>
     </property>
     <!-- Seconds a Connection can remain pooled but unused before being discarded.
          Zero means idle connections never expire.  Default: 0.
@@ -72,17 +72,14 @@
       <value>900000</value>
     </property>
     <!-- Maximum number of Connections a pool will maintain at any given time.  Default: 15.
-         Set this to 15.  Even though this is the default value, include an explicit setting
-         here just so that it's easy to change if we want to. -->
+         Use the default. -->
     <property name="maxPoolSize">
       <value>15</value>
     </property>
     <!-- Minimum number of Connections a pool will maintain at any given time.  Default: 3.
-         Set this to 1.  sipXconfig doesn't use many connections, but if we allow the pool
-         to become empty when sipXconfig is idle, then responding to the next request will 
-         be delayed by the time needed to open a new Connection. -->
+         Use the default. -->
     <property name="minPoolSize">
-      <value>1</value>
+      <value>3</value>
     </property>
   </bean>
   <!--
