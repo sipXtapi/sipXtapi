@@ -56,7 +56,7 @@
          Set this to 300000 (5 minutes) because sipXconfig should never hang forever, and the
          SQLException will provide useful debug info. -->
     <property name="checkoutTimeout">
-      <value>300000</value>
+      <value>5000</value>
     </property>
     <!-- Number of Connections a pool will try to acquire upon startup. Should be between
          minPoolSize and maxPoolSize.  Default: 3.
@@ -75,7 +75,7 @@
          Set this to 15.  Even though this is the default value, include an explicit setting
          here just so that it's easy to change if we want to. -->
     <property name="maxPoolSize">
-      <value>15</value>
+      <value>1</value>
     </property>
     <!-- Minimum number of Connections a pool will maintain at any given time.  Default: 3.
          Set this to 1.  sipXconfig doesn't use many connections, but if we allow the pool
