@@ -111,6 +111,7 @@ private:
    //: Parse the CGI/form variables from the &,= delineated name, value pairs and unescape the name and values.
 
    UtlDList mCgiVariableList;
+   bool     mUsingInsensitive;
    UtlString mEnvironmentVars[HTTP_ENV_LAST];
 
 };

@@ -11,9 +11,9 @@
 
 #include <net/NameValuePair.h>
 
-class TestTemplate : public CppUnit::TestCase
+class NameValuePairTest : public CppUnit::TestCase
 {
-    CPPUNIT_TEST_SUITE(TestTemplate);
+    CPPUNIT_TEST_SUITE(NameValuePairTest);
     CPPUNIT_TEST(testAccessors);
     CPPUNIT_TEST_SUITE_END();
 
@@ -49,4 +49,4 @@ public:
     }
 };
 
-CPPUNIT_TEST_SUITE_REGISTRATION(TestTemplate);
+CPPUNIT_TEST_SUITE_REGISTRATION(NameValuePairTest);

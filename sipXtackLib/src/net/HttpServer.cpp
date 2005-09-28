@@ -28,7 +28,6 @@
 #include <fcntl.h>
 #include "os/OsDefs.h"
 #include "os/OsSysLog.h"
-//#include "pingerjni/JXAPI.h"
 
 // APPLICATION INCLUDES
 #include <os/OsServerSocket.h>
@@ -43,8 +42,6 @@
 #include <net/HttpRequestContext.h>
 #include <net/NetAttributeTokenizer.h>
 #include <net/NetMd5Codec.h>
-
-//#include <pinger/Pinger.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -459,7 +456,7 @@ UtlBoolean HttpServer::processRequestIpAddr(const UtlString& remoteIp,
    UtlString remoteAddress(remoteIp);
    UtlString matchIp(remoteAddress);
 
-   if(mValidIpAddrList.isEmpty() || (!mValidIpAddrList.isEmpty() && mValidIpAddrList.find(&matchIp)))
+   if(mValidIpAddrList.isEmpty() || mValidIpAddrList.find(&matchIp))
    {
       isValidIp = TRUE;
    }
@@ -494,18 +491,22 @@ void HttpServer::processRequest(const HttpMessage& request,
         if(method.compareTo(HTTP_GET_METHOD) == 0)
         {
             fileNameEnd = uriFileName.first('?');
-            if(fileNameEnd > 0) uriFileName.remove(fileNameEnd);
+            if(fileNameEnd > 0)
+            {
+               uriFileName.remove(fileNameEnd);
+            }
         }
 
         UtlString mappedUriFileName;
         int badCharsIndex = uriFileName.index("..");
-        if(badCharsIndex < 0) badCharsIndex = uriFileName.index("//");
+        if(badCharsIndex < 0)
+        {
+           badCharsIndex = uriFileName.index("//");
+        }
         if(badCharsIndex >= 0)
         {
-#ifdef TEST_PRINT
-            osPrintf("Disallowing URI: \"%s\" %d %d\n", uriFileName.data(),
-                uriFileName.index(".."),uriFileName.index("//"));
-#endif
+            OsSysLog::add(FAC_SIP, PRI_ERR, "Disallowing URI: \"%s\"", uriFileName.data());
+
             // Disallow relative path names going up for security reasons
             mappedUriFileName.append("/");
         }
@@ -514,6 +515,9 @@ void HttpServer::processRequest(const HttpMessage& request,
             // Map the file name
             mapUri(mUriMaps, uriFileName.data(), mappedUriFileName);
         }
+
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HTTP '%s' '%s' mapped to: '%s'",
+                      method.data(), uriFileName.data(), mappedUriFileName.data());
 
         // Build the request context
         HttpRequestContext requestContext(method.data(), uri.data(),
@@ -525,17 +529,19 @@ void HttpServer::processRequest(const HttpMessage& request,
             //Need to get the CGI/form variables from the body.
             const HttpBody* body = request.getBody();
             if(body  && !body->isMultipart())
+            {
                 requestContext.extractPostCgiVariables(*body);
+            }
         }
 
-        if(method.compareTo(HTTP_GET_METHOD) == 0 ||
-            method.compareTo(HTTP_POST_METHOD) == 0)
+        if(   method.compareTo(HTTP_GET_METHOD) == 0
+           || method.compareTo(HTTP_POST_METHOD) == 0
+           )
         {
             // If there is a request processor for this URI
-            void (*requestProcessorPtr)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response);
-            if(findRequestProcessor(uriFileName.data(), requestProcessorPtr) &&
-                requestProcessorPtr)
+            RequestProcessor* requestProcessorPtr;
+
+            if(findRequestProcessor(uriFileName.data(), requestProcessorPtr))
             {
                 requestProcessorPtr(requestContext, request, response);
             }
@@ -553,8 +559,6 @@ void HttpServer::processRequest(const HttpMessage& request,
                     processFileRequest(requestContext, request, response);
                 }
             }
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "HTTP %s %s mapped to: %s",
-                          method.data(), uriFileName.data(), mappedUriFileName.data());
         }
         else if(method.compareTo(HTTP_PUT_METHOD) == 0)
         {
@@ -564,12 +568,7 @@ void HttpServer::processRequest(const HttpMessage& request,
         {
             processNotSupportedRequest(requestContext, request, response);
         }
-                uri.remove(0);
-                uriFileName.remove(0);
-                mappedUriFileName.remove(0);
     }
-        method.remove(0);
-        userId.remove(0);
 }
 
 void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
@@ -583,32 +582,17 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
     requestContext.getEnvironmentVariable(HttpRequestContext::HTTP_ENV_MAPPED_FILE,
         uriFileName);
     request.getRequestMethod(&method);
-    /*int fileNameEnd = -1;
-    if(method.compareTo(HTTP_GET_METHOD) == 0)
-    {
-        fileNameEnd = uriFileName.first('?');
-        if(fileNameEnd > 0) uriFileName.remove(fileNameEnd);
-    }*/
-    //HttpMessage::convertToPlatformPath(uriFileName.data(), uriFileName);
 
     if(!uriFileName.isNull())
     {
-#ifdef TEST_PRINT
-        osPrintf("HttpServer: Trying to open: \"%s\"\n", uriFileName.data());
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"\n", uriFileName.data());
-#endif
+
         int fileDesc = open(uriFileName.data(), O_BINARY | O_RDONLY, 0);
-#ifdef TEST_PRINT
-        osPrintf("File descriptor: %d\n", fileDesc);
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "File descriptor: %d\n", fileDesc);
-#endif
         if(fileDesc < 0)
         {
-#ifdef TEST_PRINT
-            perror("failed to open dir");
-            osPrintf("Errno: %d\n", errno);
-            OsSysLog::add(FAC_SIP, PRI_ERR, "Errno: %d\n", errno);
-#endif
+            OsSysLog::add(FAC_SIP, PRI_ERR, "HttpServer::processFileRequest"
+                          " failed to open '%s' Errno: %d",
+                          uriFileName.data(), errno);
         }
         struct stat fileStatInfo;
         if(fileDesc >= 0 && !fstat(fileDesc, &fileStatInfo))
@@ -1384,21 +1368,32 @@ void HttpServer::createHtmlResponse(int responseCode, const char* responseCodeTe
 
 void HttpServer::addUriMap(const char* fromUri, const char* toUri)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addUriMap '%s' to '%s'",
+                 fromUri, toUri);
+   
     mUriMaps.set(fromUri, toUri);
 }
 
 void HttpServer::addRequestProcessor(const char* fileUrl,
-                                     void (*requestProcessor)(const HttpRequestContext& requestContext,
-                                     const HttpMessage& request, HttpMessage*& response))
+                                     RequestProcessor* requestProcessor
+                                     )
 {
-    UtlString* name = new UtlString(fileUrl);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addRequestProcessor '%s' to %p",
+                 fileUrl, requestProcessor);
+
+   addUriMap( fileUrl, fileUrl );
+   
+   UtlString* name = new UtlString(fileUrl);
     UtlInt* value = new UtlInt((int)requestProcessor);
     mRequestProcessorMethods.insertKeyAndValue(name, value);
 }
 
 void HttpServer::addHttpService(const char* fileUrl, HttpService* service)
 {
-    UtlString* name = new UtlString(fileUrl);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::addHttpService '%s' to %p",
+                 fileUrl, service);
+
+   UtlString* name = new UtlString(fileUrl);
     UtlVoidPtr* value = new UtlVoidPtr(service);
     mHttpServices.insertKeyAndValue(name, value);
 }
@@ -1480,8 +1475,8 @@ void HttpServer::removeUser(const char* user, const char* password)
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
-            void (*&requestProcessor)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response))
+                                            RequestProcessor* &requestProcessor
+                                            )
 {
     UtlString uriCollectable(fileUri);
     UtlInt* processorCollectable;
@@ -1491,10 +1486,7 @@ UtlBoolean HttpServer::findRequestProcessor(const char* fileUri,
         (UtlInt*) mRequestProcessorMethods.findValue(&uriCollectable);
     if(processorCollectable)
     {
-        requestProcessor =
-            (void (*)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response))
-                processorCollectable->getValue();
+        requestProcessor = (RequestProcessor*)processorCollectable->getValue();
     }
 
     return(requestProcessor != NULL);
@@ -1525,21 +1517,15 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
         UtlString mapFromUri(uri);
         UtlString mapToUri;
         int dirSeparatorIndex;
+
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::mapUri looking for \"%s\"\n",
+                      mapFromUri.data());
+
         do
         {
-#ifdef TEST_PRINT
-            osPrintf("Looking for map of: \"%s\"\n", mapFromUri.data());
-            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Looking for map of: \"%s\"\n", mapFromUri.data());
-#endif
-
             uriMaps.get(mapFromUri, mapToUri);
             if(!mapToUri.isNull())
             {
-#ifdef TEST_PRINT
-                osPrintf("Found map to uri: \"%s\"\n", mapToUri.data());
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "Found map to uri: \"%s\"\n", mapToUri.data());
-#endif
-
                 mappedUri.remove(0);
                 mappedUri.append(mapToUri.data());
                 if(mappedUri.data()[mappedUri.length() - 1] != '/' &&
@@ -1554,19 +1540,22 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
                 break;
             }
             dirSeparatorIndex = mapFromUri.last('/');
-            if(dirSeparatorIndex == 0 && mapFromUri.length() > 1) mapFromUri.remove(1);
-            else if(dirSeparatorIndex >= 0) mapFromUri.remove(dirSeparatorIndex);
-                        else break;
-        }
-        while(!mapFound && !mapFromUri.isNull() != 0);
-        originalUri.remove(0);
-        mapFromUri.remove(0);
-        mapToUri.remove(0);
+            if(dirSeparatorIndex == 0 && mapFromUri.length() > 1)
+            {
+               mapFromUri.remove(1);
+            }
+            else if(dirSeparatorIndex >= 0)
+            {
+               mapFromUri.remove(dirSeparatorIndex);
+            }
+            else
+            {
+               break;
+            }
+        } while(!mapFound && !mapFromUri.isNull() != 0);
     }
-#ifdef TEST_PRINT
-    osPrintf("Map to uri: \"%s\"\n", mappedUri.data());
+
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "Map to uri: \"%s\"\n", mappedUri.data());
-#endif
 
     return(mapFound);
 }

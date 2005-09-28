@@ -113,8 +113,7 @@ MwiPlugin::handleSubscribeRequest (
     UtlString mailboxIdentity;
     mailboxUrl.getIdentity(mailboxIdentity);
 
-    // @JC Changed these to the correct names, note
-    // that although this should be the identity it can also
+    // Note that although this should be the identity it can also
     // be the userid (extension@domain) ideally we should perform a DB
     // lookup here
     voicemailCGIUrl.setHeaderParameter(
@@ -249,6 +248,9 @@ MwiPlugin::handleEvent (
 
     if( !identityUrlStr.isNull())
     {
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "MwiPlugin::handleEvent notice for '%s'", identityUrlStr.data());
+
         // Extract just the identity part from the IDENTITY
         // a user may specify all sorts of displayname and field
         // modifier in the request, we are interested in the user@address part
@@ -262,37 +264,65 @@ MwiPlugin::handleEvent (
         HttpBody *pBody = (HttpBody *)request.getBody();
         if ( pBody )
         {
-            pBody->getBytes(&buffer, &charsRead);
-            int contentLength = request.getContentLength();
+           UtlString bodyType = pBody->getContentType();
+           if ( bodyType.compareTo( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY, UtlString::ignoreCase )
+               == 0
+               )
+           {
+              pBody->getBytes(&buffer, &charsRead);
+              int contentLength = request.getContentLength();
 
-            // create a simple message summary body for
-            // each subscription and send it via the user
-            // agent to the device
-            HttpBody* body =
-                new HttpBody (
-                    buffer,
-                    contentLength,
-                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
+              if ( buffer.index("messages-waiting:", 0, UtlString::ignoreCase) != UTL_NOT_FOUND )
+              {
+                 // create a simple message summary body for
+                 // each subscription and send it via the user
+                 // agent to the device
+                 HttpBody* body = new HttpBody (buffer,
+                                                contentLength,
+                                                CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
 
-            SipMessage notifyRequest;
-            notifyRequest.setBody( body );
+                 SipMessage notifyRequest;
+                 notifyRequest.setBody( body );
 
-            // Add the content type for the body
-            notifyRequest.setContentType( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
-            notifyRequest.setContentLength( contentLength );
+                 // Add the content type for the body
+                 notifyRequest.setContentType( CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY );
+                 notifyRequest.setContentLength( contentLength );
 
-            // Send a MWI state change to all subscribed to this
-            // mailbox
-            mNotifier->sendNotifyForeachSubscription(
-                mailboxIdentity.data(),
-                SIP_EVENT_MESSAGE_SUMMARY,
-                notifyRequest);
-        } else
-        {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                "MwiPlugin::handleEvent() - request has no body");
-            //result = OS_FAILED;
+                 // Send a MWI state change to all subscribed to this
+                 // mailbox
+                 mNotifier->sendNotifyForeachSubscription(mailboxIdentity.data(),
+                                                          SIP_EVENT_MESSAGE_SUMMARY,
+                                                          notifyRequest);
+              }
+              else
+              {
+                 OsSysLog::add(FAC_SIP, PRI_ERR,
+                               "MwiPlugin::handleEvent request body is not a valid notice\n"
+                               "======\n%s\n======",
+                               buffer.data()
+                               );
+              }
+           }
+           else
+           {
+              OsSysLog::add(FAC_SIP, PRI_ERR,
+                            "MwiPlugin::handleEvent request body is not type '"
+                            CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY "'\n"
+                            "Content-Type: '%s'",
+                            bodyType.data()
+                            );
+           }
         }
+        else
+        {
+           OsSysLog::add(FAC_SIP, PRI_ERR,
+                         "MwiPlugin::handleEvent request has no body");
+        }
+    }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "MwiPlugin::handleEvent no identity found in http request");
     }
     return result;
 }

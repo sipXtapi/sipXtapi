@@ -1112,7 +1112,7 @@ public:
        Url url00("<sip:333@212.247.206.174:2052;transport=tcp;line=98tq8dsn>;q=1.0;+sip.instance=\"<urn:uuid:1d960183-88c9-4813-80e1-b97946c09465>\";audio;mobility=\"fixed\";duplex=\"full\";description=\"snom320\";actor=\"principal\";events=\"dialog\";methods=\"INVITE,ACK,CANCEL,BYE,REFER,OPTIONS,NOTIFY,SUBSCRIBE,PRACK,MESSAGE,INFO\"");
 
        url00.getFieldParameter("+sip.instance", value, 0);
-       printf("Start of parsing\n");
+
        ASSERT_STR_EQUAL("<urn:uuid:1d960183-88c9-4813-80e1-b97946c09465>",
                         value.data());
 

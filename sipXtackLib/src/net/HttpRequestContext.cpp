@@ -21,6 +21,12 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+//#define TEST_DEBUG
+
+#ifdef TEST_DEBUG
+#  include <os/OsSysLog.h>
+#endif
+
 // STATIC VARIABLE INITIALIZATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -30,7 +36,8 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
                                        const char* rawUrl,
                                        const char* mappedFile,
                                        const char* serverName,
-                                       const char* userId)
+                                       const char* userId) :
+   mUsingInsensitive(false)
 {
    if(requestMethod)
    {
@@ -91,6 +98,7 @@ HttpRequestContext::HttpRequestContext(const HttpRequestContext& rHttpRequestCon
    }
 
    //copy mCgiVariableList memebers individually
+   mUsingInsensitive = rHttpRequestContext.mUsingInsensitive;
         UtlDListIterator iterator((UtlDList&)rHttpRequestContext.mCgiVariableList);
         NameValuePair* nameValuePair = NULL;
    UtlString value;
@@ -101,13 +109,14 @@ HttpRequestContext::HttpRequestContext(const HttpRequestContext& rHttpRequestCon
       nameValuePair = (NameValuePair*)iterator();
       if(nameValuePair)
       {
-         name.append(*nameValuePair);
-         value.append(nameValuePair->getValue());
-         NameValuePair* newNvPair = new NameValuePair(name, value);
+         name = *nameValuePair;
+         value = nameValuePair->getValue();
+         NameValuePair* newNvPair = ( mUsingInsensitive
+                                     ? new NameValuePair(name, value)
+                                     : new NameValuePairInsensitive(name, value)
+                                     );
          mCgiVariableList.insertAt(index, newNvPair);
          index ++;
-         name.remove(0);
-         value.remove(0);
       }
    }
    while (nameValuePair != NULL);
@@ -148,6 +157,7 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
          mCgiVariableList.destroyAll();
       }
       //copy mCgiVariableList memebers individually
+      mUsingInsensitive = rhs.mUsingInsensitive;
            UtlDListIterator iterator((UtlDList&)rhs.mCgiVariableList);
            NameValuePair* nameValuePair = NULL;
       UtlString value;
@@ -161,7 +171,10 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
          {
             name.append(*nameValuePair);
             value.append(nameValuePair->getValue());
-            NameValuePair* newNvPair = new NameValuePair(name, value);
+            NameValuePair* newNvPair = ( mUsingInsensitive
+                                        ? new NameValuePair(name, value)
+                                        : new NameValuePairInsensitive(name, value)
+                                        );
             mCgiVariableList.insertAt(index, newNvPair);
             index ++;
             value.remove(0);
@@ -202,48 +215,74 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
                                              UtlString& value,
                                              int occurance) const
 {
-        UtlDListIterator iterator((UtlDList&)mCgiVariableList);
-        NameValuePair* nameValuePair = NULL;
-        int fieldIndex = 0;
-    UtlString upperCaseName;
-    UtlBoolean foundName = FALSE;
+   UtlDListIterator iterator((UtlDList&)mCgiVariableList);
+   NameValuePair* nameValuePair = NULL;
+   int fieldIndex = 0;
+   UtlString upperCaseName;
+   UtlBoolean foundName = FALSE;
+   
+   value.remove(0);
+ 
+#  ifdef TEST_DEBUG
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "HttpRequestContext::getCgiVariable %p (\"%s\",<val>,%d)",
+                 &mCgiVariableList, name, occurance
+                 );
+#  endif
 
-    value.remove(0);
-        iterator.reset();
+   if(name)
+   {
+      upperCaseName.append(name);
+      upperCaseName.toUpper();
+   }
+   NameValuePair *matchName = ( mUsingInsensitive
+                               ? new NameValuePair(upperCaseName)
+                               : new NameValuePairInsensitive(upperCaseName)
+                               );
 
-        if(name)
-        {
-                upperCaseName.append(name);
-                upperCaseName.toUpper();
-        }
-    NameValuePair matchName(upperCaseName);
+   // For each name value:
+   for (fieldIndex = 0, nameValuePair = (NameValuePair*) iterator.findNext(matchName);
+        fieldIndex < occurance;
+        fieldIndex++
+        )
+   {
+      nameValuePair = (NameValuePair*) iterator.findNext(matchName);
 
-        // For each name value:
-        while(fieldIndex <= occurance)
-        {
-                // Go to the next header field
-        nameValuePair = (NameValuePair*) iterator.findNext(&matchName);
+#     ifdef TEST_DEBUG
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "HttpRequestContext::getCgiVariable(name,val,occ) %p skipping %d '%s' -> '%s'",
+                    &mCgiVariableList,
+                    fieldIndex,
+                    nameValuePair ? nameValuePair->data() : "UNFOUND",
+                    nameValuePair ? nameValuePair->getValue() : "UNFOUND"
+                    );
+#     endif
+   }
+   delete matchName;
 
-                if(!nameValuePair || fieldIndex == occurance)
-                {
-                        break;
-                }
-                fieldIndex++;
-        }
+#  ifdef TEST_DEBUG
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "HttpRequestContext::getCgiVariable(name,val,occ) %p stopped at %d '%s' -> '%s'",
+                 &mCgiVariableList, fieldIndex,
+                 nameValuePair ? nameValuePair->data() : "UNFOUND",
+                 nameValuePair ? nameValuePair->getValue() : "UNFOUND"
+                 );
+#  endif
 
-    if(fieldIndex == occurance && nameValuePair)
-    {
-        value.append(nameValuePair->getValue());
-        foundName = TRUE;
-    }
+   if(fieldIndex == occurance && nameValuePair)
+   {
+      value.append(nameValuePair->getValue());
+      foundName = TRUE;
+   }
 
-    upperCaseName.remove(0);
-    return(foundName);
+   return(foundName);
 }
 
 UtlBoolean HttpRequestContext::getCgiVariable(int index, UtlString& name, UtlString& value) const
 {
     NameValuePair* nameValuePair = NULL;
+    name.remove(0);
+    value.remove(0);
 
     if((int)(mCgiVariableList.entries()) > index && index >= 0)
     {
@@ -251,13 +290,7 @@ UtlBoolean HttpRequestContext::getCgiVariable(int index, UtlString& name, UtlStr
         if(nameValuePair)
         {
             name = *nameValuePair;
-            value.remove(0);
             value.append(nameValuePair->getValue());
-        }
-        else
-        {
-            name.remove(0);
-            value.remove(0);
         }
     }
 
@@ -284,11 +317,6 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
                                            UtlBoolean nameIsCaseInsensitive,
                                            UnEscapeFunction unescape)
 {
-#if 0
-   printf("HttpRequestContext::parseCgiVariables queryString = '%s', pairSeparator = '%s', nameValueSeparator = '%s', nameIsCaseInsensitive = %d\n",
-          queryString, pairSeparator, nameValueSeparator,
-          nameIsCaseInsensitive);
-#endif
    //UtlString nameAndValue;
    const char* nameAndValuePtr;
    int nameAndValueLength;
@@ -338,8 +366,6 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
 
          if(nameLength > 0)
          {
-            //NameValueTokenizer::getSubField(nameAndValue, 1,
-            //              nameValueSeparator, &value);
             // Ignore any subsequent name value separators should they exist
             //int nvSeparatorIndex = nameAndValue.index(nameValueSeparator);
             int valueSeparatorOffset = strspn(&(namePtr[nameLength]),
@@ -356,14 +382,6 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
                valuePtr = NULL;
                valueLength = 0;
             }
-            /*if(nvSeparatorIndex >= 0)
-              {
-              value.append(&(nameAndValue.data()[nvSeparatorIndex + 1]));
-              }
-              else
-              {
-              value.append("");
-              }*/
 
             // Construct the new pair of the right subclass of NameValuePair
             // to have the compareTo method we want.
@@ -390,11 +408,17 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
             unescape(*newNvPair);
             NameValueTokenizer::frontBackTrim(newNvPair, " \t\n\r");
 
+#           ifdef TEST_DEBUG
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "HttpRequestContext::parseCgiVariables adding %p '%s' -> '%s'",
+                          &cgiVariableList, newNvPair->data(), newNvPair->getValue()
+                          );
+#           endif
+
             // Add the name, value pair to the list
             cgiVariableList.insert(newNvPair);
 
             nameValueIndex++;
-            //value.remove(0);
          }
       }
    } while(nameAndValuePtr &&

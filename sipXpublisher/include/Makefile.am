@@ -14,6 +14,3 @@ nobase_include_HEADERS = \
     statusserver/SubscribeServerPluginBase.h \
     statusserver/SubscribeServerThread.h \
     statusserver/WebServer.h
-
-noinst_HEADERS = \
-    statusserver/version.h

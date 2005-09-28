@@ -93,8 +93,12 @@ public:
 
     void addUriMap(const char* fromUri, const char* toUri);
 
-    void addRequestProcessor(const char* fileUrl, void (*requestProcessor)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response));
+    typedef void RequestProcessor(const HttpRequestContext& requestContext,
+                                  const HttpMessage& request,
+                                  HttpMessage*& response
+                                  );
+    
+    void addRequestProcessor(const char* fileUrl, RequestProcessor* requestProcessor);
 
     void addHttpService(const char* fileUrl, HttpService* service);
 
@@ -147,8 +151,8 @@ protected:
     void putFile(const char* fileName, HttpBody& body);
 
     UtlBoolean findRequestProcessor(const char* fileUri,
-            void (*&requestProcessor)(const HttpRequestContext& requestContext,
-                const HttpMessage& request, HttpMessage*& response));
+                                    RequestProcessor*& requestProcessor
+                                    );
 
     UtlBoolean findHttpService(const char* fileUri, HttpService*& service);
 

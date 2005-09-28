@@ -83,8 +83,8 @@ WebServer::ProcessEvent(
 
     request.getBytes(&httpString , &len);
     OsSysLog::add(FAC_SIP, PRI_INFO, 
-        "WebServer::ProcessEvent HttpEvent \n%s\n", 
-        httpString.data());
+                  "WebServer::ProcessEvent HttpEvent \n%s", 
+                  httpString.data());
 
     // get the ACTION CGI variable
     requestContext.getCgiVariable( EVENTTYPE, event );
@@ -98,11 +98,6 @@ WebServer::ProcessEvent(
             plugin = pluginContainer->getPlugin();
             if(plugin)
             {
-                //create copy of request , response and request Context
-                //HttpRequestContext *reqContext = new HttpRequestContext(requestContext);
-                //HttpMessage *req = new HttpMessage(request);
-                //HttpMessage *res = new HttpMessage(*response);
-         
                 // send 200 ok reply.
                 response->setResponseFirstHeaderLine (
                     HTTP_PROTOCOL_VERSION,
@@ -112,8 +107,29 @@ WebServer::ProcessEvent(
                 //call the event handler for the plugin
                 plugin->handleEvent(requestContext, request, *response);
             }
+            else
+            {
+               OsSysLog::add(FAC_SIP, PRI_ERR, 
+                             "WebServer::ProcessEvent no plugin in container for event type '%s'",
+                             event.data()
+                             );
+            }
         }
-    } 
+        else
+        {
+           OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                         "WebServer::ProcessEvent no plugin found for event type '%s'",
+                         event.data()
+                         );
+        }
+    }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_WARNING, 
+                     "WebServer::ProcessEvent no '" EVENTTYPE "' variable found"
+                     );
+    }
+    
 
     // We did not find a plugin so nobody handled this request.
     if(plugin == NULL)
@@ -139,16 +155,16 @@ WebServer::WebServer()
 
 void WebServer::initWebServer( HttpServer* pHttpServer )
 {
-    OsSysLog::add(FAC_SIP, PRI_INFO, "WebServer::initWebServer reached\n") ;
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "WebServer::initWebServer") ;
     if( pHttpServer )
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO, "WebServer::access HttpServer pointer\n") ;
         // New user interface
-        OsSysLog::add(FAC_SIP, PRI_INFO, "WebServer::add requests to web server\n") ;
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "WebServer::add requests to web server") ;
 
         pHttpServer->addRequestProcessor("/cgi/StatusEvent.cgi", ProcessEvent);       
-    } else 
+    }
+    else 
     {
-        OsSysLog::add(FAC_SIP, PRI_INFO, "WebServer::couldn't add requests\n") ;
+        OsSysLog::add(FAC_SIP, PRI_ERR, "WebServer::couldn't add requests") ;
     }
 }

@@ -278,7 +278,8 @@ check_rpmnew() {
     You should compare each of the following files with your version
     (the same name, with the '.rpmnew' removed).  To reconcile the 
     differences, check for new settings in the .rpmnew file and copy them 
-    to your file.
+    to your file.  When you have finished, remove the .rpmnew file to
+    suppress this warning.
 
 EOF
         for Rpm in $RpmNews; do
