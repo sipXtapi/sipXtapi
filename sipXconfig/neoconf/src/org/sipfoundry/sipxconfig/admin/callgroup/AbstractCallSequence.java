@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -103,6 +104,9 @@ public class AbstractCallSequence extends BeanWithId {
         ForkQueueValue q = new ForkQueueValue(calls.size());
         for (Iterator i = calls.iterator(); i.hasNext();) {
             AbstractRing r = (AbstractRing) i.next();
+            if (StringUtils.isEmpty(r.getUserPart().toString())) {
+                continue;
+            }
             String contact = r.calculateContact(domain, q, true);
             AliasMapping alias = new AliasMapping(identity, contact);
             aliases.add(alias);
