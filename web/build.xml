@@ -31,7 +31,7 @@
     <pathelement path="${commons-beanutils.jar}" />
     <pathelement path="${commons-codec.jar}" />
     <pathelement path="${commons-collections.jar}" />
-    <pathelement path="${commons-dbcp.jar}" />
+    <pathelement path="${c3p0.jar}" />
     <pathelement path="${commons-digester.jar}" />
     <pathelement path="${commons-fileupload.jar}" />
     <pathelement path="${commons-io.jar}" />
