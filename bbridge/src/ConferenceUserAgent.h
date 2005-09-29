@@ -2,27 +2,27 @@
 #define __CONFERENCE_USER_AGENT_H
 
 // repro includes
-#include "resip/dum/AppDialogSetFactory.hxx"
 #include "resip/dum/AppDialogSet.hxx"
+#include "resip/dum/AppDialogSetFactory.hxx"
+#include "resip/dum/ClientRegistration.hxx"
 #include "resip/dum/DialogUsageManager.hxx"
 #include "resip/dum/DumThread.hxx"
 #include "resip/dum/InviteSessionHandler.hxx"
-#include "resip/dum/ClientRegistration.hxx"
+#include "resip/dum/MasterProfile.hxx"
 #include "resip/dum/RegistrationHandler.hxx"
 #include "resip/dum/SubscriptionHandler.hxx"
-#include "resip/dum/MasterProfile.hxx"
 #include "resip/stack/StackThread.hxx"
 
 // sipX includes
-#include "os/OsTask.h"
-#include "os/OsConfigDb.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
+#include "mi/CpMediaInterface.h"
 #include "net/QoS.h"
 #include "net/SdpCodecFactory.h"
-#include "mi/CpMediaInterface.h"
 
 // bbridge includes
 #include "ConferenceSubscriptionApp.h"
+
+class OsConfig;
 
 namespace resip
 {
@@ -34,16 +34,41 @@ namespace bbridge
 
 class Conference;
 
+/**
+   There is one ConferenceUserAgent per conference bridge. Its responsibilities
+   include managing the resip::SipStack and resip::Dum objects. These objects are
+   run in their own respective threads using resip::StackThread and
+   resip::DumThread respectively. ConferenceUserAgent also creates and manages
+   Conference objects. A conference is one bridge and is identified by a unique
+   sip url. It is also possible for the ConferenceUserAgent to maintain some
+   registrations to services like Vonage or Stanaphone for the purposes of
+   providing DID access to specific conferences. 
+ */
 class ConferenceUserAgent : public resip::InviteSessionHandler,
                             public resip::ServerSubscriptionHandler,
                             public resip::ClientRegistrationHandler
 {
    public:
+      /** 
+          On construction, the ConferenceUserAgent will create the SipStack,
+          DialogUsageManager and their associated threads. All configuration
+          data is pulled out of the OsConfigDb. Some of this data is used to
+          populate the resip::MasterProfile. When the constructor finishes the
+          stack and dum threads are running. 
+       */ 
       ConferenceUserAgent(OsConfigDb& db);
+
+      /** 
+          On destruction, the ConferenceUserAgent shuts down its child threads
+          and waits for them to finish shutting down
+      */
       virtual ~ConferenceUserAgent();
 
-      // in order to post an event (command pattern) to be executed later by dum
-      // in the ConferenceUserAgent's thread
+      /** In order to post an event (command pattern) to be executed later by dum
+          in the ConferenceUserAgent's thread. Specifically, this is used by the
+          Participant in a conference to post DtmfEvent objects asynchronously
+          for later processing. 
+      */
       void post(resip::DumCommand* cmd);
 
    public:
@@ -83,7 +108,6 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       virtual void onFailure(resip::ClientRegistrationHandle, const resip::SipMessage& response);
 
       // resip::Subscribe Session Handler /////////////////////////////////////////////////////
-
       virtual void onNewSubscription(resip::ServerSubscriptionHandle,
                                      const resip::SipMessage& sub);
       virtual void onRefresh(resip::ServerSubscriptionHandle,
@@ -107,6 +131,12 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       const resip::Mimes& getSupportedMimeTypes() const;
 
    private:
+      /**
+         When provided a Request-URI, this method will determine if the URI maps
+         to an existing conference URI using mInBoundMap (used to map from a DID
+         to a conference). This mechanism is only useful in small enterprise
+         environments. 
+       */
       resip::Data getConferenceUrl(const resip::Uri& msg);
 
       OsConfigDb &mConfigDb;
@@ -125,17 +155,16 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       int mTcpPort;
       int mTlsPort;
 
-      // Map from AORs to the conferences that have those AORs.
+      /// Map from AORs to the conferences that have those AORs.
       HashMap<resip::Data, bbridge::Conference*> mConferences;
 
-      resip::ClientRegistrationHandle mRegistration;
-
-      // mapping table from registered AOR -> conference URI
+      /// mapping table from registered AOR -> conference URI
       HashMap<resip::Data, resip::Data> mInBoundMap;
       
-      // A Mime object for application/conference-info+xml.
+      /// A Mime object for application/conference-info+xml.
       resip::Mime mMime;
-      // A Mimes object to list { application/conference-info+xml }.
+
+      /// A Mimes object to list { application/conference-info+xml }.
       resip::Mimes mMimes;
 
       friend class Conference;

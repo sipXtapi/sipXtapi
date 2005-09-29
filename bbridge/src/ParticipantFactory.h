@@ -15,6 +15,11 @@ namespace bbridge
 {
 class ConferenceUserAgent;
 
+/**
+   Handles the creation of Participant and ConferenceSubscriptionApp objects
+   (perhaps poorly named) based on the METHOD of the inbound request to the
+   UserAgent. 
+ */
 class ParticipantFactory : public resip::AppDialogSetFactory
 {
    public:

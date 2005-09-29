@@ -2,8 +2,8 @@
 #define __CONFERENCE_H
 
 // repro includes
-#include "resip/dum/AppDialogSetFactory.hxx"
 #include "resip/dum/AppDialogSet.hxx"
+#include "resip/dum/AppDialogSetFactory.hxx"
 #include "resip/dum/DialogUsageManager.hxx"
 #include "resip/dum/DumThread.hxx"
 #include "resip/dum/InviteSessionHandler.hxx"
@@ -11,12 +11,12 @@
 #include "resip/stack/StackThread.hxx"
 
 // sipX includes
-#include "os/OsTask.h"
-#include "os/OsConfigDb.h"
+#include "mi/CpMediaInterface.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
 #include "net/QoS.h"
 #include "net/SdpCodecFactory.h"
-#include "mi/CpMediaInterface.h"
+#include "os/OsConfigDb.h"
+#include "os/OsTask.h"
 
 // bbridge includes
 #include "Participant.h"
@@ -27,35 +27,55 @@ namespace bbridge
 class ConferenceUserAgent;
 class ConferenceSubscriptionApp;
 
+/**
+   Conferences are objects that take care of managing a group of Participant
+   objects that share media. The Conference also takes care of knowing when to
+   play music on hold, managing subscriptions to the conference package, as well
+   as creation and deletion of CpMediaInterface resources. 
+*/
 class Conference 
 {
    public:
+      /** 
+          Called to create a new Conference which will always be associated with
+          an address of record (AOR). At creation, there are no participants in
+          a conference. Makes a CpMediaInterface (Flow Graph) using its
+          associated factory.
+      */ 
       Conference(ConferenceUserAgent &ua,
                  const resip::Data& aor,
                  OsConfigDb &configDb);
+
+      /**
+         Terminates all subscriptions to the conference event package and
+         releases the resources associated with the CpMediaInterface.
+       */
       ~Conference();
       
-      // Get the AOR to reach this conference.
+      /// Get the AOR to reach this conference.
       const resip::Data& getAor() const;
 
-      // Add a Participant to this conference's list of Participants.
+      /// Add a Participant to this conference's list of Participants.
       void addParticipant(Participant*);
-      // Delete a Participant from this conference's list of Participants.
+
+      /// Delete a Participant from this conference's list of Participants.
       void Conference::removeParticipant(Participant*);
 
-      // Add a subscription to this conference's list of subscriptions.
+      /** Add a subscription (watcher) to this conference's list of
+          subscriptions.  */
       void addSubscription(ConferenceSubscriptionApp*);
-      // Delete a subscription from this conference's list of subscriptions.
+
+      /** Delete a subscription (watcher) from this conference's list of
+          subscriptions. */
       void Conference::removeSubscription(ConferenceSubscriptionApp*);
 
-      // Support routines for generating NOTIFYs.
-
-      // Generate notices for all subscribers to the conference.
+      /// Generate notices for all subscribers (watchers) to the conference.
       void notifyAll();
-      // Make the Contents which is the conference event body for the current state.
+
+      /// Make the Contents which is the conference event body for the current state.
       resip::Contents& makeNotice();
 
-      // Return true if there is only one participant
+      /// Return true if there is only one participant
       bool shouldPlayMusic() const;
       
    private:
@@ -63,14 +83,16 @@ class Conference
       CpMediaInterface* mMedia;
       OsConfigDb &mConfigDb;
 
-      friend class Participant;
-      // The list of the Participants in this Conference.
+      /// The list of the Participants in this Conference.
       std::set<Participant*> mParticipants;
-      // The list of the subscriptions to this Conference.
+
+      /// The list of the subscriptions to this Conference.
       std::set<ConferenceSubscriptionApp*> mSubscriptions;
 
-      // A Mime object for application/conference-info+xml.
+      /// A Mime object for application/conference-info+xml.
       resip::Mime mMime;
+
+      friend class Participant;
 };
 
 }

@@ -5,7 +5,7 @@
 
 using namespace bbridge;
 
-#define RESIPROCATE_SUBSYSTEM resip::Subsystem::TEST
+#define RESIPROCATE_SUBSYSTEM resip::Subsystem::BBRIDGE
 
 DtmfEvent::DtmfEvent(Participant& part, char event, int duration, bool up) : 
    mParticipant(part),

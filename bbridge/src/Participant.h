@@ -2,8 +2,8 @@
 #define __PARTICIPANT_H
 
 // repro includes
-#include "resip/dum/AppDialogSetFactory.hxx"
 #include "resip/dum/AppDialogSet.hxx"
+#include "resip/dum/AppDialogSetFactory.hxx"
 #include "resip/dum/DialogUsageManager.hxx"
 #include "resip/dum/DumThread.hxx"
 #include "resip/dum/InviteSessionHandler.hxx"
@@ -11,12 +11,12 @@
 #include "resip/stack/StackThread.hxx"
 
 // sipX includes
-#include "os/OsTask.h"
-#include "os/OsConfigDb.h"
+#include "mi/CpMediaInterface.h"
 #include "mi/CpMediaInterfaceFactoryFactory.h"
 #include "net/QoS.h"
 #include "net/SdpCodecFactory.h"
-#include "mi/CpMediaInterface.h"
+#include "os/OsConfigDb.h"
+#include "os/OsTask.h"
 
 namespace bbridge
 {
@@ -24,20 +24,58 @@ namespace bbridge
 class Conference;
 class ConferenceUserAgent;
 
+/**
+   A Participant object is created for each inbound INVITE request. The
+   Participant derives from AppDialogSet and is created before the Participant
+   gets associated with a Conference by the ParticipantFactory (which is created
+   by the ConferenceUserAgent and managed by DUM). The Participant is also
+   responsible for taking DTMF events from sipXmedia and passing them to DUM as
+   DumCommand objects - which will result in the onDtmfEvent method call on the
+   Participant. 
+ */
 class Participant : public resip::AppDialogSet
 {
    public:
       Participant(resip::DialogUsageManager& dum, 
                   const resip::SipMessage &msg);
+      /**
+         On destruction, the Participant may decide to tell the conference to
+         play music on hold if the conference indicates to do so. Exit sounds
+         are also handled here. Media connection resources are also released.
+       */
       ~Participant();
 
+      /**
+         Assigns this Participant to a particular conference. Plays hold music
+         if necessary, plays entry sounds. Starts playing audio. 
+       */
       void assign(Conference* conf);
+
+      /**
+         Takes an SDP offer from the incoming INVITE and produces an answer
+         based on the CpMediaInterface's current capabilities. Sets up media
+         flow graph to start sending and receiving audio and returns the answer
+         so that it can be sent back in the 200 OK. 
+       */
       void accept(const resip::SdpContents& offer, resip::SdpContents& answer);
+
+      /// Returns the flow graph's associated connection ID. 
       int id() const;
       
-      // dtmf event handler
+      /**
+         Called whenever this Participant provides DTMF. The event is a
+         character '0' - '9', '*', '#' plus duration and whether the key was
+         pressed or released. 
+       */
       void onDtmfEvent(char event, int duration, bool up);
 
+      /**
+         Callback from within the CpMediaInterface indicating the dtmf
+         data. This gets packaged up as a DtmfEvent (DumCommand) and posted to
+         the DialogUsageManager asynchronously. This provides thread-safe
+         communication between the CpMediaInterface thread and the
+         ConferenceUserAgent thread. 
+      */
       static void dtmfCallback(const int thisp, const int eventData);
 
    private:

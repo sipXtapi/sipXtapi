@@ -111,9 +111,9 @@ Participant::assign(Conference* conf)
       UtlString enterSound;
       mConference->mConfigDb.get("BOSTON_BRIDGE_ENTER_SOUND",enterSound);
       OsStatus status = mConference->mMedia->playAudio(enterSound,
-                                               false, // no repeat
-                                               false, // no local party
-                                               true); // remote parties
+                                                       false, // no repeat
+                                                       false, // no local party
+                                                       true); // remote parties
       if (status != OS_SUCCESS)
       {
         mConference->mMedia->playBuffer (const_cast<char *>(sEnterBuffer),
