@@ -46,7 +46,7 @@ public abstract class LoginPage extends BasePage implements PageRenderListener {
     public void pageBeginRender(PageEvent event_) {
         // If there are no users in the DB, then redirect to the FirstUser page to make one.
         // For most pages, Border takes care of this check, but LoginPage doesn't have a Border.
-        int userCount = getCoreContext().getUserCount();
+        int userCount = getCoreContext().getUsersCount();
         if (userCount == 0) {
             throw new PageRedirectException(FirstUser.PAGE);
         }

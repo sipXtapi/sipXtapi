@@ -44,7 +44,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         }
 
         // If there are no users, then we need to create the first user
-        if (getCoreContext().getUserCount() == 0) {
+        if (getCoreContext().getUsersCount() == 0) {
             throw new PageRedirectException(FirstUser.PAGE);
         }            
 

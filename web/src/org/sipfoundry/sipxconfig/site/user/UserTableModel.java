@@ -32,7 +32,7 @@ public class UserTableModel extends AbstractTableModel {
     }
     
     public int getRowCount() {
-        int count = m_coreContext.getUserCount();
+        int count = m_coreContext.getUsersInGroupCount(m_groupId);
         return count;
     }
     

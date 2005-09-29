@@ -25,6 +25,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -247,26 +248,42 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return getHibernateTemplate().loadAll(User.class);
     }
     
-    public int getUserCount() {
-        String userCountQuery = "userCount";
-        Collection countCollection = getHibernateTemplate().findByNamedQuery(userCountQuery);
-        Integer count = (Integer) DaoUtils.requireOneOrZero(countCollection, userCountQuery);
-        
+    public int getUsersCount() {
+        return getUsersInGroupCount(null);
+    }
+    
+    public int getUsersInGroupCount(Integer groupId) {        
+        Criteria crit = getUsersCriteria(groupId);
+        crit.setProjection(Projections.rowCount());
+        List results = crit.list();
+        if (results.size() > 1) {
+            throw new RuntimeException("Querying for user count returned multiple results!");
+        }
+        Integer count = (Integer) results.get(0);
         return count.intValue();
     }
     
     public List loadUsersByPage(Integer groupId, int firstRow, int pageSize, String orderBy, boolean orderAscending) {
-        Criteria c = getSession().createCriteria(User.class);
-        if (groupId != null) {
-            c.createCriteria("groups", "g");
-            c.add(Restrictions.eq("g.id", groupId));
-        }
+        Criteria c = getUsersCriteria(groupId);
         c.setFirstResult(firstRow);
         c.setMaxResults(pageSize);
         Order order = orderAscending ? Order.asc(orderBy) : Order.desc(orderBy);
         c.addOrder(order);
         List users = c.list();
         return users;
+    }
+    
+    /**
+     * Create and return a Criteria object for querying users in the specified group.
+     * If groupId is null, then allow users to be in any group.
+     */
+    private Criteria getUsersCriteria(Integer groupId) {        
+        Criteria crit = getSession().createCriteria(User.class);
+        if (groupId != null) {
+            crit.createCriteria("groups", "g");
+            crit.add(Restrictions.eq("g.id", groupId));
+        }
+        return crit;
     }
 
     public void clear() {

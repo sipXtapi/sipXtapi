@@ -122,7 +122,7 @@ public class BorderTest extends TestCase {
 
         public CoreContext getCoreContext() {
             return new CoreContextImpl() {
-                public int getUserCount() {
+                public int getUsersCount() {
                     return 1;
                 }
             };
