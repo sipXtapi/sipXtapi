@@ -17,7 +17,6 @@
     
 	<property-specification name="currentPin" type="java.lang.String"/>
 	<property-specification name="newPin" type="java.lang.String"/>
-	<property-specification name="confirmNewPin" type="java.lang.String"/>
 
     <!--
       - B E A N S 

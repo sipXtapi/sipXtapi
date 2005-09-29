@@ -135,6 +135,10 @@ public abstract class UserForm extends BaseComponent {
     private void initializePin() {
         if (!getUser().isNew() && getPin() == null) {
             setPin(DUMMY_PIN);
+            
+            // Reset the confirm PIN field as well.  Ugly to reach into the component
+            // like this, but I haven't figured out a better way.
+            getComponent("pin").setProperty("confirmPassword", DUMMY_PIN);
         }
     }
     
@@ -143,6 +147,9 @@ public abstract class UserForm extends BaseComponent {
         if (!(getPin() == null) && !getPin().equals(DUMMY_PIN)) {
             CoreContext core = getCoreContext();
             getUser().setPin(getPin(), core.getAuthorizationRealm());
+            
+            // Having updated the user, scrub the PIN field for security
+            setPin(null);
         }
     }
 
