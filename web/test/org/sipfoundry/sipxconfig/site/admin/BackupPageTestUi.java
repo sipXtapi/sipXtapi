@@ -25,11 +25,11 @@ public class BackupPageTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
         clickLink("BackupPage");
-    }    
-    
+    }
+
     /**
      * Does not check if backup was successful - just checks if no Tapestry exceptions show up
-     * would have to send mock backup shell script to artificial root. 
+     * would have to send mock backup shell script to artificial root.
      */
     public void testBackupNow() {
         SiteTestHelper.assertNoException(getTester());
@@ -49,7 +49,7 @@ public class BackupPageTestUi extends WebTestCase {
         checkCheckbox("dailyScheduleEnabled");
         selectOption("dailyScheduledDay", "Wednesday");
         setFormElement("dailyScheduledTime", "3:24 AM");
-        clickButton("backup:ok");        
+        clickButton("backup:ok");
         SiteTestHelper.assertNoException(getTester());
         assertCheckboxSelected("checkVoicemail");
         assertCheckboxSelected("checkConfigs");
@@ -58,5 +58,19 @@ public class BackupPageTestUi extends WebTestCase {
         assertCheckboxSelected("dailyScheduleEnabled");
         assertOptionEquals("dailyScheduledDay", "Wednesday");
         assertFormElementEquals("dailyScheduledTime", "3:24 AM");
+    }
+
+    public void testEmptyTime() {
+        SiteTestHelper.assertNoException(getTester());
+        checkCheckbox("checkVoicemail");
+        checkCheckbox("checkConfigs");
+        checkCheckbox("checkDatabase");
+        selectOption("limitCount", "10");
+        checkCheckbox("dailyScheduleEnabled");
+        selectOption("dailyScheduledDay", "Wednesday");
+        setFormElement("dailyScheduledTime", "");
+        clickButton("backup:ok");
+        SiteTestHelper.assertNoException(getTester());
+        SiteTestHelper.assertUserError(getTester());
     }
 }
