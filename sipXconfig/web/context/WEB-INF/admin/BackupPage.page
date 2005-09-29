@@ -107,6 +107,7 @@
     <component id="dailyScheduledTime" type="contrib:DateField">
         <binding name="format" expression="global.validTime.format"/>
         <binding name="validator" expression="global.validTime"/>
+        <binding name="required" expression="true"/>
         <binding name="date" expression="schedule.timeOfDay"/>        
         <static-binding name="displayName" value="Time Of Day"/>
     </component>
