@@ -1096,18 +1096,10 @@
 	    <group name="digitmap">
 	      <label>Digit Map</label>
 	      <setting name="digitmap">
-	        
-	        
 	        <!--string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435. String
-	        
-	        
-	        
-	        
 	        is limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
 	        turn dial tone back on.-->
-	        <value><![CDATA[[2-9]11|0T|011xxx.T|[0-1][2-9]xxxxxxxxx|[2-9]xxxxxxxxx|[2-9]xxxT]]>
-	        </value>
-	        
+	        <value><![CDATA[[2-9]11|0T|011xxx.T|91[2-9]xxxxxxxxx|[1-8]xx]]></value>	        
 	        <description>When this attribute is present, number-only dialing during the setup phase of new calls
 	          will be compared against the patterns therein and if a match is found, the call will be initiated
 	          automatically eliminating the need to press Send.
