@@ -86,8 +86,9 @@ public abstract class ChangePin extends BasePage {
         user.setPin(getNewPin(), coreContext.getAuthorizationRealm());
         coreContext.saveUser(user);
         
-        // TODO: Provide a success message confirming the PIN change,
-        // when the mechanism for success messages becomes available.
+        // Scrub the PIN fields, for security
+        setCurrentPin(null);
+        setNewPin(null);
     }
     
 }
