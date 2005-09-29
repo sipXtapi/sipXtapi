@@ -16,7 +16,6 @@ registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}
 coreContextImpl.authorizationRealm=${SIPXCHANGE_REALM}
 coreContextImpl.domainName=${SIPXCHANGE_DOMAIN_NAME}
 adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
-dataSource.url=jdbc:postgresql://localhost/SIPXCONFIG
 vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
 vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
 orbitsGenerator.audioDirectory=@sipxpark.audio.dir@

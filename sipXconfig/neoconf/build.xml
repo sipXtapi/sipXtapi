@@ -118,7 +118,7 @@
       <fileset file="${servlet.jsp.jar}" />
       <fileset file="${jasper-compiler.jar}" />
       <fileset file="${jasper-runtime.jar}" />
-      <fileset file="${commons-dbcp.jar}" />
+      <fileset file="${c3p0.jar}" />
       <fileset file="${commons-pool.jar}" />
       <fileset file="${commons-digester.jar}" />
       <fileset file="${commons-collections.jar}" />
