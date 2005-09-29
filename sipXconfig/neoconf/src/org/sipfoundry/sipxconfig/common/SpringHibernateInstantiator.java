@@ -24,8 +24,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
- * Enables Spring to create hibernate object. Use when to allow Spring manage object dependencies
- * with hibernate All Interceptor methods, with the exception od instantiate, copied from
+ * Enables Spring to create the hibernate object.  Use to allow Spring to manage object dependencies
+ * with hibernate All Interceptor methods, with the exception of instantiate, copied from
  * EmptyInterceptor
  */
 public class SpringHibernateInstantiator extends EmptyInterceptor implements BeanFactoryAware {    

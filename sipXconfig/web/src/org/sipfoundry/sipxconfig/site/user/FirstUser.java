@@ -32,7 +32,7 @@ public abstract class FirstUser extends BasePage implements PageRenderListener {
         // This page runs only when there are no users, and the first user
         // needs to be created.  If a user exists, then bail out to the login page.
         // After we create the user, we'll land here and go to login.
-        if (getCoreContext().getUserCount() != 0) {
+        if (getCoreContext().getUsersCount() != 0) {
             LoginPage loginPage = (LoginPage) event.getRequestCycle().getPage(LoginPage.PAGE);
             throw new PageRedirectException(loginPage);
         }

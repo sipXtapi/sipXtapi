@@ -308,7 +308,13 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     
     public void testCountUsers() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
-        assertEquals(10, m_core.getUserCount());
+        assertEquals(10, m_core.getUsersCount());
+    }
+    
+    public void testCountUsersInGroup() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        assertEquals(2, m_core.getUsersInGroupCount(new Integer(1001)));
+        assertEquals(3, m_core.getUsersInGroupCount(new Integer(1002)));
     }
     
     public void testLoadUserPage() throws Exception {
