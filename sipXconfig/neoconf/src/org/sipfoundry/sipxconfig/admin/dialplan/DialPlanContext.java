@@ -47,6 +47,8 @@ public interface DialPlanContext extends DataObjectSource {
 
     public abstract void deleteAutoAttendantsByIds(Collection attendantsIds, String scriptsDir);
 
+    public abstract void removeGateways(Collection gatewaysIds);
+
     public void storeRule(DialingRule rule);
 
     public List getRules();
@@ -68,7 +70,7 @@ public interface DialPlanContext extends DataObjectSource {
     public String getVoiceMail();
 
     public abstract void applyEmergencyRouting();
-    
+
     public abstract void storeEmergencyRouting(EmergencyRouting emergencyRouting);
 
     public abstract EmergencyRouting getEmergencyRouting();

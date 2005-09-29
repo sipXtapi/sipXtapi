@@ -50,7 +50,7 @@ public class BackgroundTaskQueue {
         Runnable sentinel = new Runnable() {
             public void run() {
                 // do nothing
-            };
+            }
         };
         m_queue.add(sentinel);
         while (!m_queue.isEmpty()) {

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -98,5 +99,23 @@ public class EmergencyRouting extends BeanWithId {
         rule.setGateways(Collections.singletonList(gateway));
         rule.setDialPatterns(Collections.singletonList(new DialPattern(externalNumber, 0)));
         return rule;
+    }
+
+    public void removeGateways(Collection gatewayIds) {
+        Collection exceptions = new HashSet(getExceptions());
+        for (Iterator i = gatewayIds.iterator(); i.hasNext();) {
+            Object id = i.next();
+            if (m_defaultGateway != null && m_defaultGateway.getId().equals(id)) {
+                m_defaultGateway = null;
+            }
+            for (Iterator j = exceptions.iterator(); j.hasNext();) {
+                RoutingException re = (RoutingException) j.next();
+                Gateway gateway = re.getGateway();
+                if (gateway != null && gateway.getId().equals(id)) {
+                    re.setGateway(null);
+                    j.remove();
+                }
+            }
+        }
     }
 }
