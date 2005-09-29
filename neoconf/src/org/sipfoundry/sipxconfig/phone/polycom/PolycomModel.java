@@ -14,22 +14,26 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
 /**
- * Static differences in polycom phone models 
+ * Static differences in polycom phone models
  */
-public final class PolycomModel extends PhoneModel {    
+public final class PolycomModel extends PhoneModel {
 
     /** basic phone */
-    public static final PolycomModel MODEL_300 = new PolycomModel("300", "Polycom SoundPoint IP 300", 2);
+    public static final PolycomModel MODEL_300 = new PolycomModel("300",
+            "Polycom SoundPoint IP 300/301", 2);
 
     /** standard phone */
-    public static final PolycomModel MODEL_500 = new PolycomModel("500", "Polycom SoundPoint IP 500", 4);
+    public static final PolycomModel MODEL_500 = new PolycomModel("500",
+            "Polycom SoundPoint IP 500/501", 4);
 
     /** deluxe phone */
-    public static final PolycomModel MODEL_600 = new PolycomModel("600", "Polycom SoundPoint IP 600", 6);
+    public static final PolycomModel MODEL_600 = new PolycomModel("600",
+            "Polycom SoundPoint IP 600/601", 6);
 
     /** conference phone, verify num lines */
-    public static final PolycomModel MODEL_4000 = new PolycomModel("4000", "Polycom SoundPoint IP 4000",  6);
-    
+    public static final PolycomModel MODEL_4000 = new PolycomModel("4000",
+            "Polycom SoundPoint IP 4000", 6);
+
     private PolycomModel(String modelId, String label, int maxLines) {
         super(PolycomPhone.BEAN_ID, modelId, label, maxLines);
     }

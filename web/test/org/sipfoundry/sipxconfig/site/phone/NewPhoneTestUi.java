@@ -16,18 +16,17 @@ import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-
 public class NewPhoneTestUi extends WebTestCase {
-    
+
     private PhoneTestHelper m_helper;
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(NewPhoneTestUi.class);
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         m_helper = new PhoneTestHelper(tester);
         m_helper.reset();
     }
@@ -37,58 +36,62 @@ public class NewPhoneTestUi extends WebTestCase {
     }
 
     public void testAddPhone() {
-        clickLink("NewPhone");  
+        clickLink("NewPhone");
         setFormElement("serialNumber", "000000000000");
-        selectOption("phoneModel", "Polycom SoundPoint IP 500");
+        selectOption("phoneModel", "Polycom SoundPoint IP 500/501");
         clickButton("phone:ok");
         String[][] table = new String[][] {
-            { "000000000000", "", "Polycom SoundPoint IP 500" },                
+            {
+                "000000000000", "", "Polycom SoundPoint IP 500/501"
+            },
         };
         assertTextInTable("phone:list", table[0]);
     }
-    
+
     public void testSaveAndStay() {
-        clickLink("NewPhone");  
+        clickLink("NewPhone");
         setFormElement("serialNumber", "000000000000");
-        selectOption("phoneModel", "Polycom SoundPoint IP 500");
+        selectOption("phoneModel", "Polycom SoundPoint IP 500/501");
         checkCheckbox("stay");
         clickButton("phone:ok");
         assertCheckboxSelected("stay");
         // should clear the form
-        assertEquals("", getDialog().getFormParameterValue("serialNumber"));        
+        assertEquals("", getDialog().getFormParameterValue("serialNumber"));
 
         clickButton("phone:cancel");
         String[][] table = new String[][] {
-            { "000000000000", "", "Polycom SoundPoint IP 500" },                
+            {
+                "000000000000", "", "Polycom SoundPoint IP 500/501"
+            },
         };
         assertTextInTable("phone:list", table[0]);
     }
-    
+
     public void testInvalidSerialNumber() {
-        clickLink("NewPhone");  
-        
+        clickLink("NewPhone");
+
         // no digits
-        clickButton("phone:ok");        
+        clickButton("phone:ok");
         assertElementPresent("user:error");
-        
+
         // wrong chars and wrong number
         setFormElement("serialNumber", "x");
-        clickButton("phone:ok");        
+        clickButton("phone:ok");
         assertElementPresent("user:error");
-        
+
         // 12 digits, but not valid chars
         setFormElement("serialNumber", "123456789abx");
-        clickButton("phone:ok");        
+        clickButton("phone:ok");
         assertElementPresent("user:error");
 
         // 16 correct digits
         setFormElement("serialNumber", "123456789abcdef");
-        clickButton("phone:ok");        
-        assertElementPresent("user:error");        
+        clickButton("phone:ok");
+        assertElementPresent("user:error");
 
         // finally got it right
         setFormElement("serialNumber", "123456789abc");
-        clickButton("phone:ok");        
-        assertElementNotPresent("user:error");        
+        clickButton("phone:ok");
+        assertElementNotPresent("user:error");
     }
 }
