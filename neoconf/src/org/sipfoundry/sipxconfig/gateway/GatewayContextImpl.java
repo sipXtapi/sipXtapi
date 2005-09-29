@@ -79,12 +79,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public void deleteGateways(Collection selectedRows) {
         // remove gateways from rules first
-        List rules = m_dialPlanContext.getRules();
-        for (Iterator i = rules.iterator(); i.hasNext();) {
-            DialingRule rule = (DialingRule) i.next();
-            rule.removeGateways(selectedRows);
-            m_dialPlanContext.storeRule(rule);
-        }
+        m_dialPlanContext.removeGateways(selectedRows);
         // remove gateways from the database
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();

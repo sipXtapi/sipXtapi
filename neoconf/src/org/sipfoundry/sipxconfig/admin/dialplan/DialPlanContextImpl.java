@@ -351,4 +351,17 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public String getVoiceMail() {
         return getDialPlan().getLikelyVoiceMailValue();
     }
+
+    public void removeGateways(Collection gatewayIds) {
+        List rules = getRules();
+        for (Iterator i = rules.iterator(); i.hasNext();) {
+            DialingRule rule = (DialingRule) i.next();
+            rule.removeGateways(gatewayIds);
+            storeRule(rule);
+        }
+        EmergencyRouting emergencyRouting = getEmergencyRouting();
+        emergencyRouting.removeGateways(gatewayIds);
+        storeEmergencyRouting(emergencyRouting);
+        applyEmergencyRouting();
+    }
 }
