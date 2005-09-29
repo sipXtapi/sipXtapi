@@ -11,19 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import java.text.DateFormat;
-import java.util.Date;
-
-import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.job.Job;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 public abstract class JobStatusPage extends BasePage {
-    public static final DateFormat FORMAT = DateFormat.getDateTimeInstance(DateFormat.SHORT,
-            DateFormat.SHORT);
-
     public abstract JobContext getJobContext();
 
     public abstract Job getCurrentRow();
@@ -36,20 +31,11 @@ public abstract class JobStatusPage extends BasePage {
         getJobContext().clear();
     }
 
-    public String getCurrentStart() {
-        Date start = getCurrentRow().getStart();
-        return formatDate(start);
+    public ITableColumn getStartColumn() {
+        return TapestryUtils.createDateColumn(this, "start");
     }
 
-    public String getCurrentStop() {
-        Date stop = getCurrentRow().getStop();
-        return formatDate(stop);
-    }
-
-    private String formatDate(Date date) {
-        if (date == null) {
-            return StringUtils.EMPTY;
-        }
-        return FORMAT.format(date);
+    public ITableColumn getStopColumn() {
+        return TapestryUtils.createDateColumn(this, "stop");
     }
 }

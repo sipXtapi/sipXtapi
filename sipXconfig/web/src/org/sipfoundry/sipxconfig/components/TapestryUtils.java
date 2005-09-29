@@ -16,6 +16,8 @@ import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IMessages;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.contrib.table.model.ITableColumn;
+import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 
@@ -146,5 +148,20 @@ public final class TapestryUtils {
         String label = messages.getMessage(fullKey, key);
         
         return label;
+    }
+
+    /**
+     * Creates column model that can be used to display dates
+     * 
+     * @param component used only to retrieve localized version of the column
+     * @param columnName used as internal column name, user visible name (through getMessage), and
+     *        OGNL expression to calculate the name
+     * @return newly create column model
+     */
+    public static ITableColumn createDateColumn(AbstractComponent component, String columnName) {
+        ExpressionTableColumn column = new ExpressionTableColumn(columnName, component
+                .getMessage(columnName), columnName, true);
+        column.setValueRendererSource(new DateTableRendererSource());
+        return column;
     }    
 }
