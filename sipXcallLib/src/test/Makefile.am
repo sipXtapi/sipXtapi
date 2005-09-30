@@ -10,7 +10,7 @@ check_PROGRAMS = testsuite
 
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
-    @SIPXMEDIA_MP_LIBS@ \
+    @SIPXMEDIAADAPTER_LIBS@ \
     ../libsipXcall.la
 
 testsuite_SOURCES = \
@@ -35,7 +35,7 @@ noinst_PROGRAMS = regression
 
 regression_LDADD = \
     @SIPXUNIT_LIBS@ \
-    @SIPXMEDIA_MP_LIBS@ \
+    @SIPXMEDIAADAPTER_LIBS@ \
     ../libsipXcall.la
 
 regression_SOURCES = \

@@ -51,6 +51,7 @@ AC_CHECK_FUNCS([clock_gettime getcwd gethostbyname gethostname gettimeofday inet
 CHECK_CPPUNIT
 
 SFAC_LIB_MEDIA
+SFAC_LIB_MEDIAADAPTER
 
 SFAC_FEATURE_SIP_TLS
 
