@@ -25,8 +25,6 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
 
     public static final String CONTEXT_BEAN_NAME = "coreContext";
 
-    public static final Integer UNSAVED_ID = new Integer(-1);
-
     public void saveUser(User user);
 
     public void deleteUser(User user);
