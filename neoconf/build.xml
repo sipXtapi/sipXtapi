@@ -68,6 +68,8 @@
 		<pathelement location="${dbunit.jar}" />
 		<pathelement location="${p6spy.jar}" />
         <pathelement location="${xmlunit.jar}"/>
+	    <pathelement location="${xerces.jar}" />
+	    <pathelement location="${xml-apis.jar}" />
 	</path>
 	<property name="classpath" refid="base.path" />
 
