@@ -111,6 +111,26 @@ AC_DEFUN([SFAC_LIB_PORT],
     CFLAGS="-I$SIPXPORTINC $PCRE_CFLAGS $CPPUNIT_CFLAGS $CFLAGS"
     CXXFLAGS="-I$SIPXPORTINC $PCRE_CXXFLAGS $CPPUNIT_CFLAGS $CXXFLAGS"
 
+    foundpath=""
+
+    SFAC_ARG_WITH_INCLUDE([sipxunit/TestUtilities.h],
+            [sipxportinc],
+            [ --with-sipxportinc=<dir> portability include path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('sipxunit/TestUtilities.h' not found)
+    fi
+    SIPXUNITINC=$foundpath
+    AC_SUBST(SIPXUNITINC)
+
+    CFLAGS="-I$SIPXUNITINC $CFLAGS"
+    CXXFLAGS="-I$SIPXUNITINC $CXXFLAGS"
+
+    foundpath=""
+
     SFAC_ARG_WITH_LIB([libsipXport.la],
             [sipxportlib],
             [ --with-sipxportlib=<dir> portability library path ],
@@ -120,12 +140,24 @@ AC_DEFUN([SFAC_LIB_PORT],
         AC_MSG_RESULT($foundpath)
         AC_SUBST(SIPXPORT_LIBS,    "$foundpath/libsipXport.la")
         AC_SUBST(SIPXPORT_LDFLAGS, "-L$foundpath")
-
-        # sipXunit unitesting support
-        AC_SUBST(SIPXUNIT_LDFLAGS, "-L$foundpath/test/sipxunit")
-        AC_SUBST(SIPXUNIT_LIBS,    "$foundpath/libsipXunit.la")
     else
         AC_MSG_ERROR('libsipXport.la' not found)
+    fi
+
+    foundpath=""
+
+    SFAC_ARG_WITH_LIB([libsipXunit.la],
+            [sipxportlib],
+            [ --with-sipxportlib=<dir> portability library path ],
+            [sipXportLib])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+        # sipXunit unitesting support
+        AC_SUBST(SIPXUNIT_LDFLAGS, "-L$foundpath")
+        AC_SUBST(SIPXUNIT_LIBS,    "$foundpath/libsipXunit.la")
+    else
+        AC_MSG_ERROR('libsipXunit.la' not found)
     fi
 ]) # SFAC_LIB_PORT
 
@@ -587,11 +619,11 @@ AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
 [
     SFAC_SRCDIR_EXPAND()
 
-    AC_MSG_CHECKING(for [$4] includes)
+    AC_MSG_CHECKING(for [$4] [($1)] includes)
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ include_path=$withval ],
-        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/interface" ]
+        [ include_path="$includedir $prefix/include /usr/include /usr/local/include [$abs_srcdir]/../[$4]/include [$abs_srcdir]/../[$4]/interface [$abs_srcdir]/../[$4]/src/test"]
     )
 
     for dir in $include_path ; do
@@ -620,11 +652,11 @@ AC_DEFUN([SFAC_ARG_WITH_LIB],
 [
     SFAC_SRCDIR_EXPAND()
 
-    AC_MSG_CHECKING(for [$4] libraries)
+    AC_MSG_CHECKING(for [$4] [($1)] libraries)
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ lib_path=$withval ],
-        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src" ]
+        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit" ]
     )
     foundpath=""
     for dir in $lib_path ; do
