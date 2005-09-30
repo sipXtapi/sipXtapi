@@ -44,10 +44,10 @@ import org.springframework.context.access.ContextSingletonBeanFactoryLocator;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
- * For unit tests that need spring instantiated
+ * TestHelper: used for unit tests that need Spring instantiated
  */
 public final class TestHelper {
-
+    
     private static Properties s_sysDirProps;
 
     private static ApplicationContext s_appContext;
@@ -55,8 +55,13 @@ public final class TestHelper {
     private static DatabaseConnection s_dbunitConnection;
 
     static {
-        // default XML parser (crimson) cannot resolve relative DTDs, google for bug
+        // The default XML parser (Apache Crimson) cannot resolve relative DTDs, google to find the bug.
         System.setProperty("org.xml.sax.driver", "org.apache.xerces.parsers.SAXParser");
+        
+        // The method SAXParserFactory.newInstance is using this system property to find the parser factory.
+        // So we have to set this property instead of, or in addition to, the one above.
+        // Fixes XCF-537: jdk dependency in DB unit tests, fails with jdk 1.4.2, works with jdk 1.5.
+        System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl");
     }
 
     public static ApplicationContext getApplicationContext() {
@@ -178,8 +183,8 @@ public final class TestHelper {
 
     public static IDataSet loadDataSetFlat(String resource) throws Exception {
         InputStream datasetStream = TestHelper.class.getResourceAsStream(resource);
-        // we do not want to use metadata since it DBTestUnit resolves relative DTDs incorrectly
-        // we are checking XML validity in separate Ant tasks (test-dataset) 
+        // we do not want to use metadata since DBTestUnit resolves relative DTDs incorrectly
+        // we are checking XML validity in separate Ant tasks (test-dataset)
         return new FlatXmlDataSet(datasetStream, false);
     }
 
