@@ -4,6 +4,10 @@
 </head>
 <body>
 <span jwcid="$content$">
+	<ul element="ul" class="component-links">
+		<li jwcid="toggleShowSipPassword"></li>
+	</ul>    
+    <fieldset>
         <table>
 	        <tr jwcid="userIdPanel" for="user:userId">
 				<input jwcid="userId" id="user:userId" type="text"/>
@@ -14,9 +18,11 @@
 	        <tr jwcid="firstNamePanel" for="user:firstName">
 				<input jwcid="firstName" id="user:firstName" type="text"/>
             </tr>
-			<span jwcid="pin"/>
-	        <tr jwcid="sipPasswordPanel" for="user:sipPassword">
-				<input jwcid="sipPassword" id="user:sipPassword" type="text"/>
+			<tr jwcid="pin"/>
+            <tr jwcid="ifRenderSipPassword">
+		        <span jwcid="sipPasswordPanel" for="user:sipPassword">
+					<input jwcid="sipPassword" id="user:sipPassword" type="text"/>
+        	    </span>
             </tr>
 	        <tr>
 	            <td>
@@ -29,6 +35,7 @@
 				<input jwcid="aliases" id="user:aliases" type="text"/>
             </tr>
         </table>
+	</fieldset>
 </span>
 </body>
 </html>

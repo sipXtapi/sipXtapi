@@ -63,12 +63,8 @@
         <binding name="value" expression="currentSetting.description"/>
     </component>
     
-    <component id="toggleShowAdvanced" type="LinkSubmit">
-        <binding name="tag" expression="!showAdvanced"/>
-        <binding name="selected" expression="showAdvanced"/>
+    <component id="toggleShowAdvanced" type="ToggleLink">
+        <binding name="toggle" expression="showAdvanced"/>
     </component>
     
-    <component id="toggleText" type="InsertText">
-        <binding name="value" expression="messages.getMessage(showAdvanced?'hideAdvanced':'showAdvanced')"/>
-    </component>    
 </component-specification>

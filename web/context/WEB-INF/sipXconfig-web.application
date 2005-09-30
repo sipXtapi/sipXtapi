@@ -112,6 +112,7 @@
     <component-type type="SettingsFieldset" specification-path="setting/SettingsFieldset.jwc"/>
     <component-type type="SettingsForm" specification-path="setting/SettingsForm.jwc"/>
     <component-type type="SettingsNavigation" specification-path="setting/SettingsNavigation.jwc"/>
+    <component-type type="ToggleLink" specification-path="common/ToggleLink.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
     <component-type type="UserPortalNavigation" specification-path="user_portal/UserPortalNavigation.jwc"/>
     <component-type type="UserRingTable" specification-path="admin/UserRingTable.jwc"/>
