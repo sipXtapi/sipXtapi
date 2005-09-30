@@ -73,6 +73,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     public boolean deleteGateway(Integer id) {
         Gateway g = getGateway(id);
+        g.removeProfiles();
         getHibernateTemplate().delete(g);
         return true;
     }

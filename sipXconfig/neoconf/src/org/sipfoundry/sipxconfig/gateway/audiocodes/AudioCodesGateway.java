@@ -20,6 +20,7 @@ import java.io.Writer;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 
@@ -41,11 +42,7 @@ public class AudioCodesGateway extends Gateway {
     public void generateProfiles() {
         Writer wtr = null;
         try {
-            File tftpDir = new File(getTftpRoot());
-            if (!tftpDir.exists()) {
-                FileUtils.forceMkdir(tftpDir);
-            }
-            File iniFile = new File(tftpDir, getSerialNumber() + ".ini");
+            File iniFile = getIniFile();
             wtr = new FileWriter(iniFile);
             generateProfiles(wtr);
         } catch (IOException e) {
@@ -53,6 +50,27 @@ public class AudioCodesGateway extends Gateway {
         } finally {
             IOUtils.closeQuietly(wtr);
         }
+    }
+
+    public void removeProfiles() {
+        try {
+            FileUtils.forceDelete(getIniFile());
+        } catch (IOException e) {
+            LogFactory.getLog(this.getClass()).info(e.getMessage());
+        }
+    }
+
+    /**
+     * @return object representing ini file - does not create the file but does create parent
+     *         directory if needed
+     */
+    File getIniFile() throws IOException {
+        File tftpDir = new File(getTftpRoot());
+        if (!tftpDir.exists()) {
+            FileUtils.forceMkdir(tftpDir);
+        }
+        File iniFile = new File(tftpDir, getSerialNumber() + ".ini");
+        return iniFile;
     }
 
     public void generateProfiles(Writer writer) throws IOException {

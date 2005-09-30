@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -20,51 +22,55 @@ import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class PolycomPhoneTest extends TestCase {
-    
-    PolycomPhone phone;
-    
-    PhoneTestDriver tester;
-    
+
+    private PolycomPhone m_phone;
+
+    private PhoneTestDriver m_tester;
+
     protected void setUp() {
-        phone = new PolycomPhone(PolycomModel.MODEL_600);
-        tester = new PhoneTestDriver(phone, "polycom/phone.xml");        
+        m_phone = new PolycomPhone(PolycomModel.MODEL_600);
+        m_tester = new PhoneTestDriver(m_phone, "polycom/phone.xml");
     }
-    
+
     public void testGenerateProfiles() throws Exception {
-        phone.setVelocityEngine(TestHelper.getVelocityEngine());
-        phone.generateProfiles();
-        
+        m_phone.setVelocityEngine(TestHelper.getVelocityEngine());
+        ApplicationConfiguration cfg = new ApplicationConfiguration(m_phone);
+        m_phone.generateProfiles();
+
         // content of profiles is tested in individual base classes of ConfigurationTemplate
+        File file = new File(m_phone.getTftpRoot(), cfg.getAppFilename());
+        assertTrue(file.exists());
+
+        m_phone.removeProfiles();
+        assertFalse(file.exists());
     }
-    
+
     public void testRestartFailureNoLine() throws Exception {
-        phone.getLines().clear();
+        m_phone.getLines().clear();
         try {
-            phone.restart();
+            m_phone.restart();
             fail();
         } catch (RestartException re) {
             assertTrue(true);
         }
     }
-    
+
     public void testRestart() throws Exception {
-        phone.restart();
-        tester.sipControl.verify();
+        m_phone.restart();
+        m_tester.sipControl.verify();
     }
 
     public void testLineDefaults() throws Exception {
-        Setting settings = tester.line.getSettings();
+        Setting settings = m_tester.line.getSettings();
         Setting address = settings.getSetting("reg/server/1/address");
         assertEquals("registrar.sipfoundry.org", address.getValue());
     }
 
     public void testLineDefaultsNoUser() throws Exception {
-        Line secondLine = phone.createLine();
-        phone.addLine(secondLine);
-        Setting settings = secondLine.getSettings();        
+        Line secondLine = m_phone.createLine();
+        m_phone.addLine(secondLine);
+        Setting settings = secondLine.getSettings();
         Setting userId = settings.getSetting("reg/auth.userId");
         assertEquals(null, userId.getValue());
     }
 }
-
-

@@ -128,6 +128,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public void deletePhone(Phone phone) {
+        phone.removeProfiles();
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         Iterator i = phone.getLines().iterator();
         while (i.hasNext()) {
@@ -160,7 +161,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public int getPhonesCount() {
         return getPhonesInGroupCount(null);
     }
-    
+
     public int getPhonesInGroupCount(Integer groupId) {
         return getBeansInGroupCount(Phone.class, groupId);
     }
