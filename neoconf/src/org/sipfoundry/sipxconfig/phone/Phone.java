@@ -35,7 +35,7 @@ public class Phone extends BeanWithGroups {
 
     public static final PhoneModel MODEL = new PhoneModel("unmanagedPhone", "Unmanaged phone");
     
-    public static final String PHONE_GROUP_RESOURCE = PHONE_CONSTANT;
+    public static final String GROUP_RESOURCE_ID = PHONE_CONSTANT;
     
     private String m_description;
 

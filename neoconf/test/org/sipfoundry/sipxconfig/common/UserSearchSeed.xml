@@ -4,8 +4,8 @@
 	<value_storage value_storage_id="1001"/>
 	<value_storage value_storage_id="1002"/>
 	
-	<group_storage group_id="1001" name="group 1" resource="user" description="group 1" weight="0"/>
-	<group_storage group_id="1002" name="group 2" resource="user" description="group 2" weight="0"/>
+	<group_storage group_id="1001" name="user group 1" resource="user" description="user group 1" weight="0"/>
+	<group_storage group_id="1002" name="user group 2" resource="user" description="user group 2" weight="0"/>
 		
 	<users first_name="" last_name="" user_name="userseed1" pintoken="x" user_id="1001"/>
 	<users first_name="" last_name="" user_name="userseed2" pintoken="x" user_id="1002"/>

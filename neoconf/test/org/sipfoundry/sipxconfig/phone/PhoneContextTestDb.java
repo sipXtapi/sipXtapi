@@ -104,4 +104,17 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         assertEquals(null, m_context.getPhoneIdBySerialNumber("won't find this guy"));
     }
     
+    public void testCountPhones() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        assertEquals(4, m_context.getPhonesCount());
+    }
+    
+    public void testCountPhonesInGroup() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        assertEquals(1, m_context.getPhonesInGroupCount(new Integer(1001)));
+        assertEquals(2, m_context.getPhonesInGroupCount(new Integer(1002)));
+    }
+    
 }

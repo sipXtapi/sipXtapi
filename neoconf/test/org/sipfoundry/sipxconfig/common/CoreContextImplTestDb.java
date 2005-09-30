@@ -235,7 +235,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testLoadGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
-        List groups = m_core.getUserGroups();
+        List groups = m_core.getGroups();
         assertEquals(1, groups.size());
         Group group = (Group) groups.get(0);
         assertEquals("SeedUserGroup1", group.getName());

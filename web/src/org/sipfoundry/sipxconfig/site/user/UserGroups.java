@@ -67,6 +67,6 @@ public abstract class UserGroups extends BasePage  implements PageRenderListener
     
     public void pageBeginRender(PageEvent event_) {
         CoreContext context = getCoreContext();
-        setGroups(context.getUserGroups());
+        setGroups(context.getGroups());
     }
 }
