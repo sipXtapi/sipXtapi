@@ -924,11 +924,27 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
     if(toProtocol == OsSocket::UNKNOWN)
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                     "SipTransaction::doFirstSend %p send protocol not explicitly set - using UDP",
-                     &message);
-
-        toProtocol = lastSentProtocol;
+       if ( lastSentProtocol == OsSocket::UNKNOWN )
+       {
+          /*
+           * :HACK: This is a problem, and a more comprehensive fix is still needed. [XSL-49]
+           *
+           * We get to here when sending an ACK to 2xx responses, and we shouldn't;
+           * those really should be going through the normal routing to determine the
+           * protocol using DNS SRV lookups, but there is code elsewhere that prevents
+           * that from happening. 
+           *
+           * Forcing UDP may not always be correct, but it's the best we can do now.
+           */
+          toProtocol = OsSocket::UDP;
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipTransaction::doFirstSend protocol not explicitly set - using UDP"
+                        );
+       }
+       else
+       {
+          toProtocol = lastSentProtocol;
+       }
     }
 
     // Responses:
@@ -1192,7 +1208,6 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
 
                 OsTimer* expiresTimer = new OsTimer(incomingQ,
                         (int)expiresEvent);
-                OsQueuedEvent* expiresQueuedEvent = (OsQueuedEvent*)expiresTimer->getNotifier();
                 mTimers.append(expiresTimer);
 #ifdef TEST_PRINT
                 osPrintf("SipTransaction::doFirstSend added timer %p to timer list.\n", expiresTimer);
