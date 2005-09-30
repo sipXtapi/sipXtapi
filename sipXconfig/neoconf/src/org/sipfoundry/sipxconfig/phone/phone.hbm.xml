@@ -57,9 +57,5 @@
   <query name="phonesByUserId">
     <![CDATA[from Phone p where p.lines.user.id = :userId]]>
   </query>
-
-  <query name="phoneCount">
-    <![CDATA[select count(*) from Phone]]>
-  </query>
   
 </hibernate-mapping>

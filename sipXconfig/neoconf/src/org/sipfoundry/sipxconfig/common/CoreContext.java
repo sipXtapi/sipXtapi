@@ -75,7 +75,7 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
 
     public void clear();
 
-    public List getUserGroups();
+    public List getGroups();
 
     /**
      * Model of all user settings

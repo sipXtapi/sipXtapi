@@ -54,7 +54,7 @@ public class PhoneTableModel extends AbstractTableModel {
     }
 
     public int getRowCount() {
-        return m_phoneContext.getPhoneCount();
+        return m_phoneContext.getPhonesInGroupCount(m_groupId);
     }
 
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn, boolean orderAscending) {

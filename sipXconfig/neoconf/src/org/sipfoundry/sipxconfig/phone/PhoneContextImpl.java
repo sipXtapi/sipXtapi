@@ -19,9 +19,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -160,34 +157,22 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return line;
     }
 
-    public int getPhoneCount() {
-        String countQuery = "phoneCount";
-        Collection countCollection = getHibernateTemplate().findByNamedQuery(countQuery);
-        Integer count = (Integer) DaoUtils.requireOneOrZero(countCollection, countQuery);
-
-        return count.intValue();
+    public int getPhonesCount() {
+        return getPhonesInGroupCount(null);
+    }
+    
+    public int getPhonesInGroupCount(Integer groupId) {
+        return getBeansInGroupCount(Phone.class, groupId);
     }
 
     public List loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String orderBy,
             boolean orderAscending) {
-        Criteria c = getSession().createCriteria(Phone.class);
-        if (groupId != null) {
-            c.createCriteria("groups", "g");
-            c.add(Restrictions.eq("g.id", groupId));
-        }
-        c.setFirstResult(firstRow);
-        c.setMaxResults(pageSize);
-        Order order = orderAscending ? Order.asc(orderBy) : Order.desc(orderBy);
-        c.addOrder(order);
-        List phones = c.list();
-        return phones;
+        return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending);
     }
 
     public Collection loadPhones() {
         String phoneQuery = QUERY_PHONE;
-        List phones = getHibernateTemplate().find(phoneQuery);
-
-        return phones;
+        return getHibernateTemplate().find(phoneQuery);
     }
 
     public Phone loadPhone(Integer id) {
@@ -284,7 +269,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         if (Group.class.equals(c)) {
             Group group = (Group) entity;
             getHibernateTemplate().update(group);
-            if (Phone.PHONE_GROUP_RESOURCE.equals(group.getResource())) {
+            if (Phone.GROUP_RESOURCE_ID.equals(group.getResource())) {
                 Collection phones = getPhonesByGroupId(group.getId());
                 Iterator iphones = phones.iterator();
                 while (iphones.hasNext()) {

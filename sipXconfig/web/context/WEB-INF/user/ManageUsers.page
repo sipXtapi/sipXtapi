@@ -39,7 +39,7 @@
     </component>
     <component id="groupFilter" type="GroupFilter">
         <binding name="selectedGroupId" expression="groupId"/>
-        <binding name="groups" expression="coreContext.userGroups"/>
+        <binding name="groups" expression="coreContext.groups"/>
     </component>
             
 </page-specification>

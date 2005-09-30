@@ -87,7 +87,7 @@
 	    <binding name="value" expression="user.sipPassword"/>
     </component>
     <component id="groupSelect" type="GroupSelect">
-        <binding name="groups" expression="coreContext.userGroups"/>
+        <binding name="groups" expression="coreContext.groups"/>
         <binding name="values" expression="user.groups"/>
     </component>
     <component id="aliasesPanel" type="FieldPanel">
