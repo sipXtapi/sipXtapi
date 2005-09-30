@@ -17,14 +17,6 @@
       - P R O P E R T I E S
       -->
     
-    <!-- not yet implemented -->
-    <property-specification name="confirmPin" 
-        type="java.lang.String"/>
-    
-    <!-- not yet implemented -->
-    <property-specification name="confirmSipPassword" 
-        type="java.lang.String"/>
-    
     <property-specification name="coreContext"
         type="org.sipfoundry.sipxconfig.common.CoreContext"
         initial-value="page.global.coreContext"/>
@@ -34,6 +26,8 @@
         initial-value="page.global.extensionPoolContext"/>
     
     <property-specification name="pin" type="java.lang.String"/>
+    
+    <property-specification name="showSipPassword" type="boolean" persistent="yes"/>
     
 	<!-- comma-delimited list of aliases -->
     <property-specification name="aliasesString" type="java.lang.String"/>
@@ -101,4 +95,11 @@
 	    <message-binding name="displayName" key="label.aliases"/>
     </component>
     
+    <component id="ifRenderSipPassword" type="contrib:FormConditional">
+        <binding name="condition" expression="showSipPassword"/>
+    </component>
+    
+    <component id="toggleShowSipPassword" type="ToggleLink">
+        <binding name="toggle" expression="showSipPassword"/>
+    </component>
 </component-specification>
