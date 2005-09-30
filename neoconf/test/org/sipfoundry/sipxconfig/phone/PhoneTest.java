@@ -11,23 +11,36 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.File;
+
 import junit.framework.TestCase;
 
 public class PhoneTest extends TestCase {
-    
-    Phone phone = new Phone();
-    
+
     public void testSetSerialNumber() {
+        Phone phone = new Phone();
         phone.setSerialNumber("123456789012");
-        assertEquals("123456789012", phone.getSerialNumber());        
+        assertEquals("123456789012", phone.getSerialNumber());
         phone.setSerialNumber("1234 5678 9012");
-        assertEquals("123456789012", phone.getSerialNumber());        
+        assertEquals("123456789012", phone.getSerialNumber());
         phone.setSerialNumber("12:34:56:78:90:12");
-        assertEquals("123456789012", phone.getSerialNumber());        
+        assertEquals("123456789012", phone.getSerialNumber());
         phone.setSerialNumber("AABBCCDDEEFF");
-        assertEquals("aabbccddeeff", phone.getSerialNumber());        
+        assertEquals("aabbccddeeff", phone.getSerialNumber());
         phone.setSerialNumber("totallybogus");
-        assertEquals("totallybogus", phone.getSerialNumber());        
+        assertEquals("totallybogus", phone.getSerialNumber());
     }
 
+    public void testGenerateAndRemoveProfiles() {
+        // TODO: generic phone should not generate profile at all
+        // this test will have to be rewritten once we fix it
+        Phone phone = new Phone();
+        phone.setSerialNumber("123456789012");
+        String phoneFilename = phone.getPhoneFilename();
+        File profile = new File(phoneFilename);
+        phone.generateProfiles();
+        assertTrue(profile.exists());
+        phone.removeProfiles();
+        assertFalse(profile.exists());
+    }
 }

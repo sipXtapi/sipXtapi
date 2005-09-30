@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
  */
 public class PolycomPhone extends Phone {
-    
+
     public static final String BEAN_ID = "polycom";
 
     public static final String CALL = "call";
@@ -44,11 +44,11 @@ public class PolycomPhone extends Phone {
     private String m_coreTemplate = m_phoneConfigDir + "/ipmid.cfg.vm";
 
     private String m_applicationTemplate = "polycom/mac-address.cfg.vm";
-    
+
     public PolycomPhone() {
         super(BEAN_ID);
     }
-    
+
     public PolycomPhone(PolycomModel model) {
         super(model);
     }
@@ -100,7 +100,23 @@ public class PolycomPhone extends Phone {
 
         app.deleteStaleDirectories();
     }
-    
+
+    public void removeProfiles() {
+        ApplicationConfiguration app = new ApplicationConfiguration(this);
+        File cfgFile = new File(getTftpRoot(), app.getAppFilename());
+        // new to call this function to generate stale directories list
+        app.getDirectory();
+        // this will remove all old directories
+        app.deleteStaleDirectories();
+
+        File[] files = {
+            cfgFile
+        };
+
+        // and this will remove new ones
+        removeProfileFiles(files);
+    }
+
     /**
      * HACK: should be private, avoiding checkstyle error
      */
@@ -112,7 +128,8 @@ public class PolycomPhone extends Phone {
             out = new FileWriter(f);
             generateProfile(cfg, template, out);
         } catch (IOException ioe) {
-            throw new RuntimeException("Could not generate profile " + outputFile + " from template " + template, ioe);
+            throw new RuntimeException("Could not generate profile " + outputFile
+                    + " from template " + template, ioe);
         } finally {
             if (out != null) {
                 IOUtils.closeQuietly(out);
@@ -127,25 +144,27 @@ public class PolycomPhone extends Phone {
             adapter.setSetting(getSettings());
             adapter.addMapping(PhoneSettings.DOMAIN_NAME, "voIpProt/server/1/address");
 
-            // XCF-668  Polycom phones send sip traffic to server it's registered with
+            // XCF-668 Polycom phones send sip traffic to server it's registered with
             // would only be non-traditional situations and hence not a good default
-            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "voIpProt/SIP.outboundProxy/address");
-            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "voIpProt/SIP.outboundProxy/port");
+            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY,
+            // "voIpProt/SIP.outboundProxy/address");
+            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT,
+            // "voIpProt/SIP.outboundProxy/port");
             o = adapter.getImplementation();
         } else {
             o = super.getAdapter(c);
         }
-        
+
         return o;
     }
-    
+
     public Object getLineAdapter(Line line, Class interfac) {
         Object impl;
         if (interfac == LineSettings.class) {
             SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
             adapter.setSetting(line.getSettings());
             adapter.addMapping(LineSettings.AUTHORIZATION_ID, "reg/auth.userId");
-            adapter.addMapping(LineSettings.USER_ID, "reg/address");            
+            adapter.addMapping(LineSettings.USER_ID, "reg/address");
             adapter.addMapping(LineSettings.PASSWORD, "reg/auth.password");
             adapter.addMapping(LineSettings.DISPLAY_NAME, "reg/displayName");
             adapter.addMapping(LineSettings.REGISTRATION_SERVER, "reg/server/1/address");
@@ -154,13 +173,13 @@ public class PolycomPhone extends Phone {
         } else {
             impl = super.getAdapter(interfac);
         }
-        
+
         return impl;
     }
-    
+
     protected void defaultLineSettings(Line line) {
         super.defaultLineSettings(line);
-        
+
         User u = line.getUser();
         if (u != null) {
             PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
@@ -170,11 +189,10 @@ public class PolycomPhone extends Phone {
             String voiceMail = defaults.getVoiceMail();
             mwi.getSetting("callBack").setValue(voiceMail + '@' + defaults.getDomainName());
             mwi.getSetting("callBackMode").setValue("contact");
-        }        
+        }
     }
 
     public void restart() {
-        sendCheckSyncToFirstLine();        
+        sendCheckSyncToFirstLine();
     }
 }
-
