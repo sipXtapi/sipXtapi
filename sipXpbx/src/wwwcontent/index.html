@@ -1,11 +1,36 @@
 <html>
 <head>
 <title>sipXpbx</title>
+<link rel="stylesheet" href="userui/pingtel1.css" type="text/css">
+
+<script language="JavaScript">
+<!-- Hide script from old browsers
+function config()
+{
+  top.location = 'https://' + self.location.hostname + ':8443/sipxconfig'
+}
+
+function voicemail()
+{
+  top.location = 'https://' + self.location.hostname + ':8091/userui'
+}
+
+// End script hiding from old browsers -->
+</script>
 </head>
-<frameset cols="110,*" frameborder="NO" border="0" framespacing="0">
-  <frame name="leftFrame" noresize src="/index-navigation.html"/>
-  <frame name="mainFrame" noresize src="/userui/blank.html"/>
-</frameset>
-<noframes/>
-<body/>
+<body>
+
+  <h1 id='welcome'>Welcome to SIPxchange</h1>
+
+  <div class="menubox">
+
+    <div class="menuitem">
+      <a href="javascript:config()">Configuration</a>
+    </div>
+    <div class="menuitem">
+      <a href="javascript:voicemail()">Voice Mail</a>
+    </div>
+  </div>
+
+</body>
 </html>

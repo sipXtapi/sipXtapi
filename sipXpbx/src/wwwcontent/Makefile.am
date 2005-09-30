@@ -11,7 +11,6 @@ wwwcontentdir=@wwwdir@/doc
 #      sed -e 's,\.\/,    ,g' \
 #       sort > Makefile.guts
 wwwcontent = \
-	index-navigation.html \
 	index.html \
 	aa_vxml/autoattendant-operator.vxml \
 	aa_vxml/dialbyname.vxml \

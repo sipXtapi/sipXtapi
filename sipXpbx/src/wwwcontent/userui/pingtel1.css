@@ -16,6 +16,24 @@ H1 {
 	margin-bottom: 2pt;
 }
 
+div.menubox {
+    margin-top: 20px;
+    text-align: center;
+    width:500px;
+    margin:0px auto;
+    padding:15px;
+    border-style: none;
+}
+
+div.menuboxitem {
+    margin: 0px auto;
+}
+
+h1#welcome {
+    margin-top: 20px;
+    text-align: center;
+}
+
 /*=(Generated Code)=================================================*/
 /*=(WARNING: DO NOT EDIT OR DELETE THIS SECTION!)===================*/
 /*begin!kadov{{=====================================================*/ 
@@ -135,6 +153,10 @@ LI.kadov-P {
 /*}}end!kadov=======================================================*/ 
 
 
+
+A {
+	color: #008000;
+}
 
 A.expandspot {
 	color: #008000;
