@@ -13,7 +13,7 @@
 	        <label>24 Hour format</label>
 	        <type><boolean/></type>
 	        <value>0</value>
-	        <description>If 1, time is display using hour range 0-24, otherwise 1-12 AM/PM.</description>
+	        <description>If checked time is in the 24h format, otherwise 12h AM/PM format.</description>
 	      </setting>
 	    </group>
 	    <group name="datetime">
