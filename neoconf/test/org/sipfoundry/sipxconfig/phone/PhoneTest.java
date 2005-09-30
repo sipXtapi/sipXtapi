@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.io.File;
+import java.io.IOException;
 
 import junit.framework.TestCase;
 
@@ -32,11 +33,26 @@ public class PhoneTest extends TestCase {
     }
 
     public void testGenerateAndRemoveProfiles() {
-        // TODO: generic phone should not generate profile at all
-        // this test will have to be rewritten once we fix it
-        Phone phone = new Phone();
-        phone.setSerialNumber("123456789012");
+        Phone phone = new Phone() {
+            private String m_name;
+
+            public String getPhoneFilename() {
+                if (m_name != null) {
+                    return m_name;
+                }
+                try {
+                    File f = File.createTempFile("phone", "cfg");
+                    f.delete();
+                    m_name = f.getPath();
+                    return m_name;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+
         String phoneFilename = phone.getPhoneFilename();
+        System.err.println(phoneFilename);
         File profile = new File(phoneFilename);
         phone.generateProfiles();
         assertTrue(profile.exists());
