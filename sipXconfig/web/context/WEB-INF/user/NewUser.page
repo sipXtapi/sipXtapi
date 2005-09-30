@@ -16,8 +16,6 @@
         persistent="yes"/>
     <property-specification name="user"
         type="org.sipfoundry.sipxconfig.common.User"/>
-    <property-specification name="returnPage"
-        type="java.lang.String" persistent="yes"/>    
 	<property-specification name="coreContext" 
 		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="global.coreContext"/>    
