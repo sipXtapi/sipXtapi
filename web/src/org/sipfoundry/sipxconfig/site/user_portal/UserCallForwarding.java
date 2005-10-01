@@ -24,6 +24,9 @@ import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Permission;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.sipfoundry.sipxconfig.site.Visit;
@@ -36,35 +39,53 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
     private static final String ACTION_ADD = "add";
 
     public abstract ForwardingContext getForwardingContext();
+
     public abstract LoginContext getLoginContext();
 
+    public abstract CoreContext getCoreContext();
+
     public abstract CallSequence getCallSequence();
+
     public abstract void setCallSequence(CallSequence callSequence);
 
+    public abstract User getUser();
+
+    public abstract void setUser(User user);
+
     public abstract ListEditMap getRingsMap();
+
     public abstract void setRingsMap(ListEditMap map);
 
     public abstract Ring getRing();
+
     public abstract void setRing(Ring ring);
 
     public abstract Integer getUserId();
+
     public abstract void setUserId(Integer userId);
 
     public abstract String getAction();
-    
+
     public abstract ICallback getCallback();
+
     public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
+        CallSequence callSequence = getCallSequence();
+        if (callSequence != null) {
+            return;
+        }
+
         Integer userId = getUserId();
         Visit visit = (Visit) getVisit();
         Integer loggedInUserId = visit.getUserId();
+
         if (userId == null) {
             // No userId has been set yet, so make it the logged-in user
             userId = loggedInUserId;
         } else {
             // If the userId is not that of the logged-in user, then make sure
-            // that the logged-in user has admin privileges.  If not, then 
+            // that the logged-in user has admin privileges. If not, then
             // force the userId to be the one for the logged-in user, so non-admin
             // users can only see/modify their own settings.
             if (!userId.equals(loggedInUserId)) {
@@ -73,14 +94,16 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
                 }
             }
         }
+
         setUserId(userId);
-        
-        CallSequence callSequence = getCallSequence();
-        if (callSequence == null) {
-            ForwardingContext forwardingContext = getForwardingContext();
-            callSequence = forwardingContext.getCallSequenceForUserId(userId);
-            setCallSequence(callSequence);
-        }
+
+        User user = getCoreContext().loadUser(userId);
+        setUser(user);
+
+        ForwardingContext forwardingContext = getForwardingContext();
+        callSequence = forwardingContext.getCallSequenceForUserId(userId);
+        setCallSequence(callSequence);
+
         ListEditMap map = createListEditMap(callSequence);
         setRingsMap(map);
     }
@@ -110,6 +133,8 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
             CallSequence callSequence = getCallSequence();
             callSequence.insertRing();
             getForwardingContext().saveCallSequence(getCallSequence());
+            // read saved rings from database
+            setCallSequence(null);
         }
     }
 
@@ -120,7 +145,7 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
         }
         getForwardingContext().saveCallSequence(getCallSequence());
     }
-    
+
     /**
      * Called by ListEdit component to retrieve exception object associated with a specific id
      */
@@ -143,5 +168,16 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
         CallSequence callSequence = ring.getCallSequence();
         callSequence.removeRing(ring);
         forwardingContext.saveCallSequence(callSequence);
+    }
+
+    public String getFirstCallMsg() {
+        Object[] params = {
+            getUser().getUserName()
+        };
+        return format("msg.first", params);
+    }
+
+    public boolean getHasVoiceMail() {
+        return getUser().hasPermission(Permission.VOICEMAIL);
     }
 }

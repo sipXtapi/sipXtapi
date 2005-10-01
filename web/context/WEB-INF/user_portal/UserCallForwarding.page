@@ -15,9 +15,15 @@
     	type="org.sipfoundry.sipxconfig.login.LoginContext" 
     	initial-value="global.loginContext"/>
         
+    <property-specification name="coreContext" 
+    	type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="global.coreContext"/>
+
     <property-specification name="ringsMap" type="org.apache.tapestry.form.ListEditMap"/>
     
     <property-specification name="callSequence" type="org.sipfoundry.sipxconfig.admin.forwarding.CallSequence"/>
+    
+    <property-specification name="user" type="org.sipfoundry.sipxconfig.common.User"/>
     
     <property-specification name="ring" type="org.sipfoundry.sipxconfig.admin.forwarding.Ring"/>
     
@@ -68,5 +74,13 @@
     <component id="formActions" type="FormActions">
         <binding name="callback" expression="callback"/>
         <binding name="listener" expression="listeners.commit"/>
-    </component>    
+    </component>
+    
+    <component id="firstCall" type="InsertText">
+        <binding name="value" expression="firstCallMsg"/>
+    </component>
+    
+    <component id="renderVoicemail" type="Conditional">
+        <binding name="condition" expression="hasVoiceMail"/>
+    </component>
 </page-specification>

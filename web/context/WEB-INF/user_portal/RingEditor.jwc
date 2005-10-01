@@ -39,16 +39,18 @@
     <component id="number" type="ValidField">
         <binding name="value" expression="ring.number"/>
         <binding name="validator" expression="page.global.validPhoneRequired"/>
-        <static-binding name="displayName" value="Forward to"/>
+        <message-binding name="displayName" key="label.forward"/>
     </component>
     
     <component id="expirationLabel" type="FieldLabel">
         <binding name="field" expression="components.expiration"/>
     </component>
-    <component id="expiration" type="ValidField">
+    <component id="expiration" type="contrib:NumericField">
         <binding name="value" expression="ring.expiration"/>
-        <binding name="validator" expression="page.global.validPhoneRequired"/>
-        <static-binding name="displayName" value="Ring for"/>
+        <binding name="minimum" expression="1"/>
+        <binding name="maximum" expression="999"/>
+        <static-binding name="type" value="int"/>
+        <message-binding name="displayName" key="label.ring"/>
     </component>
 
     <component id="deleteRing" type="DirectLink">
