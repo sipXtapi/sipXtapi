@@ -286,6 +286,10 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
         // future reference.
         mpDecryptedBody = bodyToEncrypt;
 
+        // We almost always want to use binary for SIP as it is 
+        // much more efficient than base64.
+        UtlBoolean encryptedDataInBase64Format = FALSE;
+
 #ifdef ENABLE_OPENSSL_SMIME
         encryptionSucceeded = 
             opensslSmimeEncrypt(numRecipients,
@@ -296,9 +300,6 @@ UtlBoolean SmimeBody::encrypt(HttpBody* bodyToEncrypt,
                                 encryptedDataInBase64Format,
                                 mBody);
 #elif ENABLE_NSS_SMIME
-        // We almost always want to use binary for SIP as it is 
-        // much more efficient than base64.
-        UtlBoolean encryptedDataInBase64Format = FALSE;
 
         encryptionSucceeded = 
             nssSmimeEncrypt(numRecipients,
