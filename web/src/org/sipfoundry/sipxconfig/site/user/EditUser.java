@@ -37,7 +37,9 @@ public abstract class EditUser extends PageWithCallback implements PageRenderLis
     public abstract void setUser(User user);
 
     public void commit(IRequestCycle cycle_) {
-        save();
+        if (TapestryUtils.isValid(this)) {
+            getCoreContext().saveUser(getUser());
+        }
     }
 
     public void editCallForwarding(IRequestCycle cycle) {
@@ -52,10 +54,6 @@ public abstract class EditUser extends PageWithCallback implements PageRenderLis
         page.setCallback(callback);
 
         cycle.activate(page);
-    }
-
-    private void save() {
-        getCoreContext().saveUser(getUser());
     }
 
     public void pageBeginRender(PageEvent event_) {
