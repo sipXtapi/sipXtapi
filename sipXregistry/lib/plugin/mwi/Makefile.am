@@ -18,14 +18,14 @@ version_Age=0
 libRegistrarImpliedMWI_la_LDFLAGS = \
 	-module \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
-	@PCRE_LDFLAGS@ @CPPUNIT_LDFLAGS@\
+	@PCRE_LDFLAGS@ \
 	@SSL_LDFLAGS@
 
 libRegistrarImpliedMWI_la_LIBADD = \
 	@SIPXCOMMSERVER_LIBS@
 
 libRegistrarImpliedMWI_la_CXXFLAGS = \
-	@PCRE_CFLAGS@ @CPPUNIT_CFLAGS@ \
+	@PCRE_CFLAGS@ \
 	-I$(top_builddir)/config
 
 libRegistrarImpliedMWI_la_SOURCES =  \
