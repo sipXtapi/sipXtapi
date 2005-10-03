@@ -33,6 +33,8 @@ public class PhoneDefaults {
     
     private String m_tftpServer;
     
+    private String m_profileRootUrl;
+    
     private String m_domainName;
     
     private String m_authorizationRealm;
@@ -65,6 +67,26 @@ public class PhoneDefaults {
 
     public String getTftpServer() {
         return m_tftpServer;
+    }
+    
+    /**
+     * URL where phone profiles are delivered from apache web server.
+     * @return generated url if not set 
+     */
+    public String getProfileRootUrl() {
+        if (m_profileRootUrl != null) {
+            return m_profileRootUrl;
+        }
+        
+        StringBuffer url = new StringBuffer();
+        url.append("http://").append(getDomainName()).append(":8090");
+        url.append("/phone/profile/docroot");
+        
+        return url.toString();
+    }
+    
+    public void setProfileRootUrl(String profileUrl) {
+        m_profileRootUrl = profileUrl;
     }
 
     public void setOutboundProxy(String outboundProxy) {
