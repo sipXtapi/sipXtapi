@@ -8,7 +8,7 @@ lib_LTLIBRARIES = libsipXphone.la
 
 libsipXphone_la_LIBADD = \
 	@GLIB_LIBS@ \
-	@PCRE_LIBS@  @CPPUNIT_LIBS@\
+	@PCRE_LIBS@ \
     @SIPXCALL_LIBS@ 
 
 
