@@ -11,7 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -28,6 +30,15 @@ public class BeanWithGroups extends BeanWithSettings {
 
     public void setGroups(Set settingSets) {
         m_groups = settingSets;        
+    }
+    
+    public List getGroupsAsList() {
+        return new ArrayList(getGroups());
+    }
+
+    public void setGroupsAsList(List groups) {
+        getGroups().clear();
+        getGroups().addAll(groups);
     }
         
     public void addGroup(Group tag) {
