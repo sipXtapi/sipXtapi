@@ -43,6 +43,10 @@
     	<set-property name="collection" expression="phoneContext.availablePhoneModels"/>
     	<set-property name="labelExpression" expression="'label'"/>        
     </bean>
+    <bean name="phoneGroupSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    	<set-property name="collection" expression="phoneContext.groups"/>
+    	<set-property name="labelExpression" expression="'name'"/>        
+    </bean>
     <!--
       - C O M P O N E N T S
       -->
@@ -73,9 +77,11 @@
         <binding name="value" expression="phoneModel"/>
         <binding name="disabled" expression="!phone.isNew()"/>
     </component>
-    <component id="groupSelect" type="GroupSelect">
-        <binding name="groups" expression="phoneContext.groups"/>
-        <binding name="values" expression="phone.groups"/>
+    <component id="groupSelect" type="contrib:Palette">
+        <binding name="selected" expression="phone.groupsAsList"/>
+        <binding name="model" expression="beans.phoneGroupSelectionModel"/>
+        <binding name="sort" expression="@org.apache.tapestry.contrib.palette.SortMode@LABEL"/>
+        <binding name="rows" expression="3"/>
     </component>
     
 </component-specification>

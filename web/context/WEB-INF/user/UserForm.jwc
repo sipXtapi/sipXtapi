@@ -35,6 +35,10 @@
     <!--
       - B E A N S 
       -->
+    <bean name="userGroupSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    	<set-property name="collection" expression="coreContext.groups"/>
+    	<set-property name="labelExpression" expression="'name'"/>        
+    </bean>
      
     <!--
       - C O M P O N E N T S
@@ -80,9 +84,11 @@
     <component id="sipPassword" type="TextField">
 	    <binding name="value" expression="user.sipPassword"/>
     </component>
-    <component id="groupSelect" type="GroupSelect">
-        <binding name="groups" expression="coreContext.groups"/>
-        <binding name="values" expression="user.groups"/>
+    <component id="groupSelect" type="contrib:Palette">
+        <binding name="selected" expression="user.groupsAsList"/>
+        <binding name="model" expression="beans.userGroupSelectionModel"/>
+        <binding name="sort" expression="@org.apache.tapestry.contrib.palette.SortMode@LABEL"/>
+        <binding name="rows" expression="3"/>
     </component>
     <component id="aliasesPanel" type="FieldPanel">
         <binding name="field" expression="components.aliases"/>
