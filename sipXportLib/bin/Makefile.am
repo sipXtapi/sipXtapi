@@ -11,8 +11,24 @@ check_SCRIPTS = sipx-upgrade-testsuite
 
 EXTRA_DIST = \
     $(bin_SCRIPTS) \
-    sipx-upgrade-testsuite \
-    shell-unit
+    sipx-upgrade-testsuite.in \
+    shell-unit.in \
+    sipx-upgrade.in
+
+install-exec-hook :
+
+sipx-upgrade: $(srcdir)/sipx-upgrade.in
+	$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade.in > sipx-upgrade
+
+shell-unit: $(srcdir)/shell-unit.in
+	cp $(srcdir)/shell-unit.in shell-unit
+
+$(DESTDIR)$(bindir)/sipx-upgrade: sipx-upgrade
+	$(INSTALL) -D -m 755 $(srcdir)/sipx-upgrade $(DESTDIR)$(bindir)/sipx-upgrade
+
+sipx-upgrade-testsuite: sipx-upgrade shell-unit $(srcdir)/sipx-upgrade-testsuite.in
+	$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade-testsuite.in > $@
+	chmod +x $@
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP

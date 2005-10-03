@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Unit tests for sipx-upgrade
-Path=`dirname $0`
-source ${Path}/shell-unit
-source ${Path}/sipx-upgrade -p UnitTest --nooperation
+MyDir=`dirname $0`
+source ${MyDir}/shell-unit
+source ${MyDir}/sipx-upgrade -p UnitTest --nooperation
 
 ##------------------------------------
 # test functions
