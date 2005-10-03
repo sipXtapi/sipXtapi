@@ -539,7 +539,7 @@
 	        <value></value>
 	        <description>Firmware version that the phone should use (without filename extension).</description>
 	      </setting>
-	      <setting name="language">
+	      <setting name="language" hidden="yes">
 	        <value></value>
 	        <description>For future use, only English is supported.</description>
 	      </setting>

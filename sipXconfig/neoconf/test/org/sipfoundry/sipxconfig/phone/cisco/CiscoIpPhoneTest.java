@@ -16,29 +16,33 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
+import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class CiscoIpPhoneTest extends TestCase {
-    
-    CiscoIpPhone phone;
-    
-    PhoneTestDriver tester;
-    
+
+    private CiscoIpPhone m_phone;
+
     protected void setUp() {
-        phone = new CiscoIpPhone(CiscoModel.MODEL_7960);
-        tester = new PhoneTestDriver(phone, "cisco/ip-phone.xml");
+        m_phone = new CiscoIpPhone(CiscoModel.MODEL_7960);
+        new PhoneTestDriver(m_phone, "cisco/ip-phone.xml");
     }
-    
+
     public void testGetSettings() {
-        phone.getSettings();
+        m_phone.getSettings();
     }
 
     public void testGenerate7960Profiles() throws Exception {
         StringWriter profile = new StringWriter();
-        phone.generateProfile(profile);
-        String expected = IOUtils.toString(this.getClass().getResourceAsStream("expected-7960.cfg"));
+        m_phone.generateProfile(profile);
+        String expected = IOUtils.toString(this.getClass().getResourceAsStream(
+                "expected-7960.cfg"));
         assertEquals(expected, profile.toString());
     }
+
+    public void testDefaultSettings() {
+        m_phone.defaultSettings();
+        assertEquals(InternalRule.DEFAULT_VOICEMAIL, m_phone
+                .getSettingValue("phone/messages_uri"));
+    }
 }
-
-
