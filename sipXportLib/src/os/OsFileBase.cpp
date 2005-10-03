@@ -115,20 +115,55 @@ OsFileBase::~OsFileBase()
 
 /* ============================ MANIPULATORS ============================== */
 
-int OsFileBase::openAndRead(const char* filename, UtlString& fileContentsRead)
+long OsFileBase::openAndRead(const char* filename, UtlString& fileContentsRead)
 {
     fileContentsRead.remove(0);
     OsFile fileToRead(filename);
 
-    char buffer[READ_BUFFER_SIZE];
-    unsigned long bytesRead = 0;
-    while(fileToRead.read(buffer, READ_BUFFER_SIZE, bytesRead) == OS_SUCCESS &&
-        bytesRead > 0)
+    long totalBytesRead = -1;
+    if(OS_SUCCESS == fileToRead.open(READ_ONLY))
     {
-        fileContentsRead.append(buffer, bytesRead);
+        char buffer[READ_BUFFER_SIZE];
+        unsigned long bytesRead = 0;
+
+        while(fileToRead.read(buffer, READ_BUFFER_SIZE, bytesRead) == OS_SUCCESS &&
+            bytesRead > 0)
+        {
+            fileContentsRead.append(buffer, bytesRead);
+        }
+        totalBytesRead = fileContentsRead.length();
+
+        fileToRead.close();
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIP, PRI_WARNING,
+            "unable to open file: \"%s\" for read", 
+            filename ? filename : "<null>");
+    }
+    return(totalBytesRead);
+}
+
+long OsFileBase::openAndWrite(const char* filename, UtlString& fileContentsToWrite)
+{
+    OsFile fileToWrite(filename);
+
+    long totalBytesWritten = -1;
+    unsigned long bytesWritten = 0;
+    if(OS_SUCCESS == fileToWrite.open(WRITE_ONLY) &&
+       OS_SUCCESS == fileToWrite.write(fileContentsToWrite.data(),
+       fileContentsToWrite.length(), bytesWritten))
+    {
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIP, PRI_WARNING,
+            "unable to open file: \"%s\" for write", 
+            filename ? filename : "<null>");
     }
 
-    return(fileContentsRead.length());
+    fileToWrite.close();
+    return(totalBytesWritten);
 }
 
 OsStatus OsFileBase::setReadOnly(UtlBoolean isReadOnly)
