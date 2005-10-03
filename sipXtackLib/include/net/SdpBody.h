@@ -1,10 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
+
+// Author: Daniel Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _SdpBody_h_
 #define _SdpBody_h_
@@ -21,7 +28,7 @@
 // DEFINES
 // Crypto suites
 #define AES_CM_128_HMAC_SHA1_80   1
-#define AES_CM_128_HAMC_SHA1_32   2
+#define AES_CM_128_HMAC_SHA1_32   2
 #define F8_128_HMAC_SHA1_80       3
 // Protection level
 #define ENCRYPTION                1
