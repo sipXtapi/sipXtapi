@@ -19,6 +19,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
@@ -26,23 +27,23 @@ import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
  * Support for Cisco 7940/7960
  */
 public class CiscoIpPhone extends CiscoPhone {
-    
-    public static final String BEAN_ID = "ciscoIp"; 
+
+    public static final String BEAN_ID = "ciscoIp";
 
     public CiscoIpPhone() {
         super(BEAN_ID);
         init();
     }
-    
+
     public CiscoIpPhone(CiscoModel model) {
         super(model);
         init();
     }
-    
+
     private void init() {
-        setPhoneTemplate("cisco/cisco-ip.vm");        
+        setPhoneTemplate("cisco/cisco-ip.vm");
     }
-    
+
     public String getPhoneFilename() {
         String phoneFilename = getSerialNumber();
         return getTftpRoot() + "/SIP" + phoneFilename.toUpperCase() + ".cnf";
@@ -59,7 +60,7 @@ public class CiscoIpPhone extends CiscoPhone {
         } else {
             o = super.getAdapter(c);
         }
-        
+
         return o;
     }
 
@@ -69,7 +70,7 @@ public class CiscoIpPhone extends CiscoPhone {
             SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
             adapter.setSetting(line.getSettings());
             adapter.addMapping(LineSettings.AUTHORIZATION_ID, "line/authname");
-            adapter.addMapping(LineSettings.USER_ID, "line/name");            
+            adapter.addMapping(LineSettings.USER_ID, "line/name");
             adapter.addMapping(LineSettings.PASSWORD, "line/password");
             adapter.addMapping(LineSettings.DISPLAY_NAME, "line/displayname");
             adapter.addMapping(LineSettings.REGISTRATION_SERVER, "proxy/address");
@@ -78,13 +79,23 @@ public class CiscoIpPhone extends CiscoPhone {
         } else {
             impl = super.getAdapter(interfac);
         }
-        
+
         return impl;
+    }
+
+    protected void defaultSettings() {
+        super.defaultSettings();
+
+        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+        String voiceMail = defaults.getVoiceMail();
+        if (StringUtils.isNotBlank(voiceMail)) {
+            setSettingValue("phone/messages_uri", voiceMail);
+        }
     }
 
     public void defaultLineSettings(Line line) {
         super.defaultLineSettings(line);
-        
+
         User u = line.getUser();
         if (u != null) {
             line.getSettings().getSetting("line/shortname").setValue(u.getUserName());
