@@ -19,6 +19,7 @@
 #include <os/OsDefs.h>
 #include <net/HttpMessage.h>
 #include <net/SdpBody.h>
+#include <net/NetBase64Codec.h>
 
 
 /**
@@ -734,6 +735,14 @@ a=sendrecv\r\n\n";
 
         CPPUNIT_ASSERT(srtpParameters.cipherType == AES_CM_128_HMAC_SHA1_32);
 
+        const char* uuencodedKey = "exg2ZMzbqFK92aWGIkLUw8qsESrMVVlCUo5dNhZb";
+        int decodedLength = NetBase64Codec::decodedSize(strlen(uuencodedKey), uuencodedKey);
+        char* srtpKey = new char[decodedLength + 1];
+        int size;
+        NetBase64Codec::decode(strlen(uuencodedKey), uuencodedKey, size, srtpKey);
+        UtlString referenceKey(srtpKey, size);
+        UtlString parsedKey(((const char*)&(srtpParameters.masterKey[0])), SRTP_KEY_LENGTH);
+        CPPUNIT_ASSERT(referenceKey.compareTo(parsedKey) == 0);
 
     }
 
