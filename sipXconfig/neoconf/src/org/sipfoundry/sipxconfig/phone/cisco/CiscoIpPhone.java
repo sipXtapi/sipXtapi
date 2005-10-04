@@ -19,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
@@ -56,6 +55,8 @@ public class CiscoIpPhone extends CiscoPhone {
             adapter.setSetting(getSettings());
             adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/outbound_proxy");
             adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "sip/outbound_proxy_port");
+            adapter.addMapping(PhoneSettings.VOICE_MAIL_NUMBER, "phone/messages_uri");
+
             o = adapter.getImplementation();
         } else {
             o = super.getAdapter(c);
@@ -81,16 +82,6 @@ public class CiscoIpPhone extends CiscoPhone {
         }
 
         return impl;
-    }
-
-    protected void defaultSettings() {
-        super.defaultSettings();
-
-        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
-        String voiceMail = defaults.getVoiceMail();
-        if (StringUtils.isNotBlank(voiceMail)) {
-            setSettingValue("phone/messages_uri", voiceMail);
-        }
     }
 
     public void defaultLineSettings(Line line) {

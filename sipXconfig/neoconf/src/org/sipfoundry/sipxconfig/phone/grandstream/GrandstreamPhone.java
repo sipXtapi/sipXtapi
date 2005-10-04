@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
  * Support for Grandstream BudgeTone / HandyTone
  */
 public class GrandstreamPhone extends Phone {
-    
+
     public static final String BEAN_ID = "grandstream";
 
     public static final String SIP = "sip";
@@ -63,22 +63,22 @@ public class GrandstreamPhone extends Phone {
     public static final String EQUALS = "=";
 
     public static final String ET = "&";
-    
+
     private static final SettingFilter S_REALSETTINGS = new SettingFilter() {
-            public boolean acceptSetting(Setting root_, Setting setting) {
-                boolean isLeaf = setting.getValues().isEmpty();            
-                boolean isVirtual = (setting.getName().startsWith("_"));            
-                return isLeaf && !isVirtual;
-            }
-        };        
+        public boolean acceptSetting(Setting root_, Setting setting) {
+            boolean isLeaf = setting.getValues().isEmpty();
+            boolean isVirtual = (setting.getName().startsWith("_"));
+            return isLeaf && !isVirtual;
+        }
+    };
 
     private static final SettingFilter S_IPSETTINGS = new SettingFilter() {
-            public boolean acceptSetting(Setting root_, Setting setting) {
-                boolean isLeaf = setting.getValues().isEmpty();            
-                boolean isBitmapped = (setting.getName().startsWith("__"));            
-                return  isLeaf && isBitmapped;
-            }
-        };        
+        public boolean acceptSetting(Setting root_, Setting setting) {
+            boolean isLeaf = setting.getValues().isEmpty();
+            boolean isBitmapped = (setting.getName().startsWith("__"));
+            return isLeaf && isBitmapped;
+        }
+    };
 
     private boolean m_isTextFormatEnabled;
 
@@ -86,20 +86,19 @@ public class GrandstreamPhone extends Phone {
         super(BEAN_ID);
         init();
     }
-    
+
     public GrandstreamPhone(GrandstreamModel model) {
         super(model); // sexy
         init();
     }
-    
+
     private void init() {
-        setPhoneTemplate("grandstream/grandstream.vm");        
+        setPhoneTemplate("grandstream/grandstream.vm");
     }
 
-
-    /** 
-     * Generate files in text format.  Won't be usable by phone, but you can use 
-     * grandstreams config tool to convert manually.  This is mostly for debugging
+    /**
+     * Generate files in text format. Won't be usable by phone, but you can use grandstreams
+     * config tool to convert manually. This is mostly for debugging
      * 
      * @param isTextFormatEnabled true to save as text, default is false
      */
@@ -123,11 +122,13 @@ public class GrandstreamPhone extends Phone {
             adapter.setSetting(getSettings());
             adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/P48");
             adapter.addMapping(PhoneSettings.TFTP_SERVER, "upgrade/__TFTPServer-213");
+            adapter.addMapping(PhoneSettings.VOICE_MAIL_NUMBER, "misc/P33");
+
             o = adapter.getImplementation();
         } else {
             o = super.getAdapter(c);
         }
-        
+
         return o;
     }
 
@@ -145,9 +146,10 @@ public class GrandstreamPhone extends Phone {
         } else {
             impl = super.getAdapter(interfac);
         }
-        
+
         return impl;
     }
+
     public Collection getProfileLines() {
         int lineCount = getModel().getMaxLineCount();
         ArrayList linesSettings = new ArrayList(lineCount);
@@ -183,14 +185,14 @@ public class GrandstreamPhone extends Phone {
             } else {
                 writeTextFile(wtr);
             }
-                
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
             IOUtils.closeQuietly(wtr);
         }
     }
-    
+
     void writeTextFile(OutputStream wtr) throws IOException {
         Collection phoneset = getRealSettings(getSettings());
         Iterator psi = phoneset.iterator();
@@ -208,18 +210,18 @@ public class GrandstreamPhone extends Phone {
                 Setting lset = (Setting) lsi.next();
                 writeProfileLine(wtr, lset.getName(), lset.getValue());
             }
-        }        
+        }
     }
-    
+
     String nonNull(String value) {
         return value == null ? StringUtils.EMPTY : value;
     }
-    
+
     void writeProfileLine(OutputStream wtr, String name, String value) throws IOException {
         String line = name + " = " + nonNull(value) + (char) LF;
         wtr.write(line.getBytes());
     }
-    
+
     String generateGsParaBody() {
         StringBuffer paras = new StringBuffer();
         Collection phoneset = getRealSettings(getSettings());
@@ -239,21 +241,24 @@ public class GrandstreamPhone extends Phone {
                 paras.append(lset.getName() + EQUALS + nonNull(lset.getValue()) + ET);
             }
         }
-        
+
         return paras.toString();
     }
 
     void generateGsParaString(OutputStream wtr, String body) throws IOException {
-        byte[] gsheader = new byte[] {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                      0x00, 0x00, 0x00, 0x00, CR, LF, CR, LF};
+        byte[] gsheader = new byte[] {
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, CR, LF, CR,
+            LF
+        };
         StringBuffer paras = new StringBuffer();
-        
+
         String serial = getSerialNumber();
-        
+
         for (int si = 0; si < SIX; si++) {
-            gsheader[si + SIX] = (byte) Integer.parseInt(serial.substring(si * 2, si * 2 + 2), SIXTEEN);
+            gsheader[si + SIX] = (byte) Integer.parseInt(serial.substring(si * 2, si * 2 + 2),
+                    SIXTEEN);
         }
-        
+
         paras.append(body);
 
         paras.append("gnkey=0b82");
@@ -306,11 +311,13 @@ public class GrandstreamPhone extends Phone {
             }
 
             Setting btgt = getSettings().getSetting(bset.getParentPath().substring(1));
-            
+
             int bofs = Integer.parseInt(bname.substring(bpoint + 1));
-            
+
             String ipa = bset.getValue();
-            String[] ipn = {EMPTY, EMPTY, EMPTY, EMPTY};
+            String[] ipn = {
+                EMPTY, EMPTY, EMPTY, EMPTY
+            };
 
             if (!StringUtils.isBlank(ipa)) {
                 ipn = ipa.split("\\.");
@@ -323,6 +330,6 @@ public class GrandstreamPhone extends Phone {
     }
 
     public void restart() {
-        sendCheckSyncToFirstLine();        
+        sendCheckSyncToFirstLine();
     }
 }
