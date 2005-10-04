@@ -55,6 +55,9 @@
         <binding name="class" expression="beans.tabs.getTabClass(currentSetting.name)"/>
         <binding name="id" expression="'link:' + currentSetting.name"/>
     </component>
+    <component id="renderTab" type="Conditional">
+        <binding name="condition" expression="!currentSetting.hidden"/>
+    </component>
     <component id="settingsTabLabel" type="Insert">
         <binding name="value" expression="currentSetting.label"/>
     </component>

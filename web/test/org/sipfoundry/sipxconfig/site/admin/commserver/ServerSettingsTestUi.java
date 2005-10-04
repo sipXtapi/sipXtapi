@@ -27,48 +27,52 @@ public class ServerSettingsTestUi extends WebTestCase {
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ServerSettingsTestUi.class);
     }
-    
+
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
         clickLink(ServerSettings.PAGE);
     }
-    
+
     public void testDisplay() {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        
+
         // click on all the links on the page
-        
-        String etcDir =  SiteTestHelper.getArtificialSystemRootDirectory() + "/etc";
+
+        String etcDir = SiteTestHelper.getArtificialSystemRootDirectory() + "/etc";
         assertNotNull(etcDir);
-        
+
         File settingDir = new File(etcDir, "commserver");
         File modelDefsFile = new File(settingDir, "server.xml");
         Setting model = new XmlModelBuilder(etcDir).buildModel(modelDefsFile).copy();
         Collection sections = model.getValues();
         assertFalse(sections.isEmpty());
-        
+
         for (Iterator i = sections.iterator(); i.hasNext();) {
             Setting section = (Setting) i.next();
-            clickLinkWithText(section.getLabel());
-            SiteTestHelper.assertNoException(tester);
-            SiteTestHelper.assertNoUserError(tester);            
+            if (section.isHidden()) {
+                assertLinkNotPresent(section.getLabel());
+            } else {
+                clickLinkWithText(section.getLabel());
+                SiteTestHelper.assertNoException(tester);
+                SiteTestHelper.assertNoUserError(tester);
+            }
         }
     }
-    
+
     /**
      * If domain name changes, replication is triggered, make sure system is ok
      */
     public void testDomainNameChange() {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        clickLink("link:domain");               
+        clickLink("link:domain");
 
         // HACK: Don't know how to set user form element with id setting:SIPXCHANGE_DOMAIN_NAME
-        // very difficult Web/Http Unit do not expose some internal attributes. 
-        String domainNameElement = "stringField"; 
-        
+        // very difficult Web/Http Unit do not expose some internal attributes.
+        String domainNameElement = "stringField";
+
         setFormElement(domainNameElement, "zappa");
         clickButton("setting:apply");
         SiteTestHelper.assertNoException(tester);
