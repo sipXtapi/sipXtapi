@@ -4,8 +4,10 @@
 
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT group (label?,profileName?,description?,(setting|group)*)>
-<!ATTLIST group name NMTOKEN #REQUIRED>
-<!ATTLIST group copy-of NMTOKEN #IMPLIED>
+<!ATTLIST group 
+	name NMTOKEN #REQUIRED
+	hidden %flag; "no"
+  copy-of NMTOKEN #IMPLIED>
 <!ELEMENT label (#PCDATA)>
 <!ELEMENT model (type*,group+)>
 <!ELEMENT profileName (#PCDATA)>
