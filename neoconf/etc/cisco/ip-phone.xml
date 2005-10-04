@@ -319,11 +319,16 @@
 	        <value></value>
 	        <description>IP address of a secondary dynamic DNS server.</description>
 	      </setting>
-	      <setting name="dyn_tftp_addr">
-	        <type><ipaddr/></type>
-	        <value></value>
-	        <description>IP address of a dynamic TFTP server.</description>
-	      </setting>
+				<setting name="dyn_tftp_addr" advanced="yes">
+					<type>
+						<ipaddr/>
+					</type>
+					<value></value>
+					<description>IP address of a secondary, dynamic TFTP server. After initially querying sipXconfig
+						TFTP server, the phone will rerequest the configuration files from the new TFTP server. Do not
+						configure this value unless you intend to maintain additional TFTP server independent from
+						sipXconfig.</description>
+				</setting>
 	      <setting name="http_proxy_addr">
 	        <type><ipaddr/></type>
 	        <value></value>
