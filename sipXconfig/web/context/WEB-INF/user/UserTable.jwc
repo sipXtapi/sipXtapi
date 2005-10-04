@@ -74,7 +74,7 @@
     <component id="userNameAsText" copy-of="userName"/>
 	<component id="userValues" type="contrib:TableValues">
 	</component>
-    <component id="selectedRow" type="Checkbox">
+    <component id="selectedRow" type="checkboxes:ControlledCheckbox">
         <binding name="selected" expression="selections.selected[currentUser.id]"/>
     </component>    
     <component id="tablePages" type="contrib:TableFormPages"/>

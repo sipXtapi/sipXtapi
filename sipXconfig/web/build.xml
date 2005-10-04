@@ -17,6 +17,7 @@
     <pathelement path="${servlet.jar}" />
     <pathelement path="${tapestry.jar}" />
     <pathelement path="${tapestry-contrib.jar}" />
+    <pathelement path="${tapestry-checkboxes.jar}" />
     <pathelement path="${ognl.jar}" />
   </path>
   <!-- 
@@ -171,6 +172,7 @@
       <fileset file="${sipxconfig.war}"/>
       <fileset file="${tapestry.jar}" />
       <fileset file="${tapestry-contrib.jar}" />
+      <fileset file="${tapestry-checkboxes.jar}" />
       <fileset file="${ognl.jar}" />
     </copy>
   </target>	
