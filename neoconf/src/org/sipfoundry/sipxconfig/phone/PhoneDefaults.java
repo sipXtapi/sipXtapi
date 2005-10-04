@@ -20,27 +20,27 @@ import org.sipfoundry.sipxconfig.common.User;
  * Sets up phone and line objects with system defaults.
  */
 public class PhoneDefaults {
-    
+
     private static final String DEFAULT_SIP_PORT = "5060";
-    
+
     private String m_outboundProxy;
-    
+
     private String m_outboundProxyPort;
-    
+
     private String m_registrationServer;
-    
+
     private String m_registrationServerPort;
-    
+
     private String m_tftpServer;
-    
+
     private String m_profileRootUrl;
-    
+
     private String m_domainName;
-    
+
     private String m_authorizationRealm;
-    
+
     private DialPlanContext m_dialPlanContext;
-    
+
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
@@ -68,23 +68,24 @@ public class PhoneDefaults {
     public String getTftpServer() {
         return m_tftpServer;
     }
-    
+
     /**
      * URL where phone profiles are delivered from apache web server.
-     * @return generated url if not set 
+     * 
+     * @return generated url if not set
      */
     public String getProfileRootUrl() {
         if (m_profileRootUrl != null) {
             return m_profileRootUrl;
         }
-        
+
         StringBuffer url = new StringBuffer();
         url.append("http://").append(getDomainName()).append(":8090");
         url.append("/phone/profile/docroot");
-        
+
         return url.toString();
     }
-    
+
     public void setProfileRootUrl(String profileUrl) {
         m_profileRootUrl = profileUrl;
     }
@@ -108,11 +109,11 @@ public class PhoneDefaults {
     public void setTftpServer(String tftpServer) {
         m_tftpServer = tftpServer;
     }
-    
+
     public void setDomainName(String domainName) {
         m_domainName = domainName;
     }
-    
+
     public String getAuthorizationRealm() {
         return m_authorizationRealm;
     }
@@ -129,21 +130,25 @@ public class PhoneDefaults {
                 settings.setOutboundProxyPort(m_outboundProxyPort);
             }
             settings.setTftpServer(m_tftpServer);
+            String voiceMail = getVoiceMail();
+            if (StringUtils.isNotBlank(voiceMail)) {
+                settings.setVoiceMailNumber(voiceMail);
+            }
         }
     }
-    
+
     public String getVoiceMail() {
         if (m_dialPlanContext == null) {
             return InternalRule.DEFAULT_VOICEMAIL;
         }
-        
+
         return m_dialPlanContext.getVoiceMail();
     }
-    
+
     static boolean defaultSipPort(String port) {
         return StringUtils.isBlank(port) || DEFAULT_SIP_PORT.equals(port);
     }
-    
+
     public void setLineDefaults(Line line, User user) {
         LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
         if (settings != null) {
@@ -161,12 +166,12 @@ public class PhoneDefaults {
                 settings.setVoiceMail(getVoiceMail());
             }
         }
-        
+
         if (user != null) {
             line.setUri(getUri(user));
         }
     }
-    
+
     public String getUri(User user) {
         StringBuffer sb = new StringBuffer();
         sb.append("sip:").append(user.getUserName());
@@ -180,5 +185,5 @@ public class PhoneDefaults {
 
         return uri;
     }
-    
+
 }

@@ -16,7 +16,6 @@ import java.io.StringWriter;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class CiscoIpPhoneTest extends TestCase {
@@ -38,11 +37,5 @@ public class CiscoIpPhoneTest extends TestCase {
         String expected = IOUtils.toString(this.getClass().getResourceAsStream(
                 "expected-7960.cfg"));
         assertEquals(expected, profile.toString());
-    }
-
-    public void testDefaultSettings() {
-        m_phone.defaultSettings();
-        assertEquals(InternalRule.DEFAULT_VOICEMAIL, m_phone
-                .getSettingValue("phone/messages_uri"));
     }
 }
