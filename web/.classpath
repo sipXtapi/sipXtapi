@@ -40,5 +40,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jsp.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-io-1.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/spring/1.2.3/src.zip" kind="var" path="SIPX_CONFIG/lib/spring-1.2.3.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-checkboxes-1.1.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

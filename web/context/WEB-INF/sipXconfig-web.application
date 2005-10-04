@@ -10,6 +10,7 @@
     <property name="org.apache.tapestry.visit-class" value="org.sipfoundry.sipxconfig.site.Visit"/>    
     
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
+    <library id="checkboxes" specification-path="/org/mb/tapestry/checkboxes/checkboxes.library"/>
 
     <!--
       -  P A G E S 

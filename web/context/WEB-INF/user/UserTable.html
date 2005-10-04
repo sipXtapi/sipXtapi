@@ -1,4 +1,5 @@
 <span jwcid="$content$">
+	<span jwcid="@checkboxes:CheckboxGroup">
 	<table jwcid="userTable" id="user:list" class="component">
         <span jwcid="userNameColumnValue">                    
             <span jwcid="userNameAsLinkConditional">
@@ -9,7 +10,7 @@
             </span>
         </span>
 		<tr class="component-hdr">
-			<td width="5"/>
+			<td width="5"><span jwcid="@checkboxes:ControlCheckbox"/></td>
 			<td jwcid="userColumns"/>
 		</tr>
 		<tr jwcid="userRows">
@@ -24,4 +25,5 @@
             </tr>
         </tfoot>
 	</table>
+    </span>
 </span>
