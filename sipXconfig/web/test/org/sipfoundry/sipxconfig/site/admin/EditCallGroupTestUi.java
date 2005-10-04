@@ -85,7 +85,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         assertCheckboxNotSelected("selectedRow$0");
 
         for (int i = 0; i < 3; i++) {
-            SiteTestHelper.checkCheckbox(getTester(), "selectedRow", i);
+            SiteTestHelper.enableCheckbox(getTester(), "selectedRow", i, true);
         }
     }
 

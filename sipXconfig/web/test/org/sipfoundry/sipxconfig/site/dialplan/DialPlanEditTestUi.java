@@ -65,7 +65,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
         // remove all
         for (int i = 0; i < 7; i++) {
-            SiteTestHelper.checkCheckbox(tester, "selectedRow", i);
+            SiteTestHelper.enableCheckbox(tester, "selectedRow", i, true);
         }
         clickButton("dialplan:delete");
         // should be empty now
@@ -151,14 +151,14 @@ public class DialPlanEditTestUi extends WebTestCase {
 
     public void testMove() {
         clickButton("dialplan:revert");
-        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
+        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
         clickButton("dialplan:move:up");
         // no changes
         SiteTestHelper.assertNoException(getTester());
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
 
         // move first row down
-        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
+        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
         clickButton("dialplan:move:down");
         SiteTestHelper.assertNoException(getTester());
         WebTable rulesTable = getTester().getDialog().getWebTableBySummaryOrId("dialplan:list");
@@ -212,7 +212,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertTableRowsEqual("list:gateway", 1, gateways);
 
         // test moving up/down
-        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
+        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
         clickButton("gateway:moveUp");
         // no changes expected - cannot move up
         SiteTestHelper.assertNoException(getTester());
@@ -227,7 +227,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         // test removal
         for (int i = 0; i < gatewayCount; i++) {
-            SiteTestHelper.checkCheckbox(tester, "selectedRow", i);
+            SiteTestHelper.enableCheckbox(tester, "selectedRow", i, true);
         }
         clickButton("gateway:remove");
         // only header in the table
@@ -236,7 +236,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         // test adding existing gateways
         SiteTestHelper.clickSubmitLink(tester, "selectGatewayLink");
         for (int i = 0; i < gatewayCount; i++) {
-            SiteTestHelper.checkCheckbox(tester, "selectedRow", i);
+            SiteTestHelper.enableCheckbox(tester, "selectedRow", i, true);
         }
         clickButton("select:gateway:save");
         assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "list:gateway"));

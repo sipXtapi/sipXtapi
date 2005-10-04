@@ -63,8 +63,8 @@ public class ManageAttendantsTestUi extends WebTestCase {
     public void testDeleteAttendants() throws IOException {
         seedAttendants(4);
         // delete 2nd and last for no brilliant reason 
-        SiteTestHelper.checkCheckbox(tester, "selectedRow", 1);
-        SiteTestHelper.checkCheckbox(tester, "selectedRow", 3);
+        SiteTestHelper.enableCheckbox(tester, "selectedRow", 1, true);
+        SiteTestHelper.enableCheckbox(tester, "selectedRow", 3, true);
         clickButton("list:attendant:delete");
         String [][] expectedData = {
                 //            Name             Ext     Description

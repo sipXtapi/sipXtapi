@@ -48,7 +48,7 @@ public class PhoneGroupsTestUi extends WebTestCase {
         tester.seedGroup(3);
         SiteTestHelper.home(getTester());
         clickLink("PhoneGroups");
-        SiteTestHelper.checkCheckbox(getTester(), "selectedRow", 1);
+        SiteTestHelper.enableCheckbox(getTester(), "selectedRow", 1, true);
 
         // move up
         clickButton("group:moveUp");
@@ -76,7 +76,7 @@ public class PhoneGroupsTestUi extends WebTestCase {
         tester.seedGroup(3);
         SiteTestHelper.home(getTester());
         clickLink("PhoneGroups");
-        SiteTestHelper.checkCheckbox(getTester(), "selectedRow", 1);
+        SiteTestHelper.enableCheckbox(getTester(), "selectedRow", 1, true);
         clickButton("group:delete");
         SiteTestHelper.assertNoException(getTester());
         String[][] table = new String[][] {

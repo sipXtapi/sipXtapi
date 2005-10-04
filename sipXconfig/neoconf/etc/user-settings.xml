@@ -13,6 +13,7 @@
     </boolean>
   </type>
   <group name="permission">
+    <label>Permissions</label>
     <group name="application">
       <label>Web UI Permissions</label>
       <setting name="superadmin">
