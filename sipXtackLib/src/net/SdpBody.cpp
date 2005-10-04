@@ -1319,6 +1319,7 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
    int preExistingMedia = getMediaSetCount();
    int mediaIndex = 0;
    UtlBoolean fieldFound = TRUE;
+   UtlBoolean commonVideo = FALSE;
    UtlString mediaType;
    int mediaPort, audioPort, videoPort;
    int mediaPortPairs, audioPortPairs, videoPortPairs;
@@ -1495,6 +1496,8 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
             codecsInCommon[payloadIndex]->getMediaType(mediaType);
             if (mediaType.compareTo("video") == 0)
             {
+                // We've found at least one common video codec
+                commonVideo = TRUE;
                 codecsInCommon[payloadIndex]->getEncodingName(mimeSubType);
 
                 // If we still have the same mime type only change format. We're depending on the
@@ -1518,33 +1521,37 @@ void SdpBody::addAudioCodecs(const char* rtpAddress, int rtpAudioPort,
 
             }
         }
-        mediaPort = rtpVideoPort;
-        mediaPortPairs = 1;
-        addMediaData(SDP_VIDEO_MEDIA_TYPE,
-                    mediaPort, mediaPortPairs,
-                    videoTransportType.data(),
-                    destIndex+1,
-                    supportedPayloadTypes);
-        if (commonVideoSrtpParams.securityLevel)
+        // Only add m-line if we actually have common video codecs
+        if (commonVideo)
         {
-            addSrtpCryptoField(commonAudioSrtpParams);
-        }
-
-        if (strcmp(videoTransportType.data(), SDP_RTP_MEDIA_TRANSPORT_TYPE) == 0)
-        {
-            // It is assumed that rtcp is the odd port immediately after 
-            // the rtp port.  If that is not true, we must add a parameter 
-            // to specify the rtcp port.
-            if ((rtcpVideoPort > 0) && ((rtcpVideoPort != rtpVideoPort + 1) || (rtcpVideoPort % 2) == 0))
+            mediaPort = rtpVideoPort;
+            mediaPortPairs = 1;
+            addMediaData(SDP_VIDEO_MEDIA_TYPE,
+                        mediaPort, mediaPortPairs,
+                        videoTransportType.data(),
+                        destIndex+1,
+                        supportedPayloadTypes);
+            if (commonVideoSrtpParams.securityLevel)
             {
-                char cRtcpBuf[32] ;
-                sprintf(cRtcpBuf, "rtcp:%d", rtcpVideoPort) ;
-                addValue("a", cRtcpBuf) ;
+                addSrtpCryptoField(commonAudioSrtpParams);
             }
-        }
 
-        addCodecParameters(supportedPayloadCount,
-                            codecsInCommon, "video");
+            if (strcmp(videoTransportType.data(), SDP_RTP_MEDIA_TRANSPORT_TYPE) == 0)
+            {
+                // It is assumed that rtcp is the odd port immediately after 
+                // the rtp port.  If that is not true, we must add a parameter 
+                // to specify the rtcp port.
+                if ((rtcpVideoPort > 0) && ((rtcpVideoPort != rtpVideoPort + 1) || (rtcpVideoPort % 2) == 0))
+                {
+                    char cRtcpBuf[32] ;
+                    sprintf(cRtcpBuf, "rtcp:%d", rtcpVideoPort) ;
+                    addValue("a", cRtcpBuf) ;
+                }
+            }
+
+            addCodecParameters(supportedPayloadCount,
+                                codecsInCommon, "video");
+        }
     }
 
     // Zero out the port to indicate none are supported
