@@ -149,8 +149,13 @@ public class SiteTestHelper {
      * @param id
      * @param index
      */
-    public static void checkCheckbox(WebTester tester, String id, int index) {
-        tester.checkCheckbox(getIndexedId(id, index));
+    public static void enableCheckbox(WebTester tester, String id, int index, boolean enable) {
+        String field = getIndexedId(id, index);
+        if (enable) {
+            tester.checkCheckbox(field);
+        } else {
+            tester.uncheckCheckbox(field);
+        }
     }
     
     /**

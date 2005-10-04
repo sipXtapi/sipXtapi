@@ -4,18 +4,20 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
-    <h2>User</h2>		
 	    <div class="help">
 			<b>Quick Links</b>
 			<ul>
 				<li><a jwcid="callForwardingLink" href="#">Call Forwarding</a></li>
 			</ul>
 		</div>
-        <span jwcid="@ErrorMsg"/>
-        <form jwcid="form">
-            <span jwcid="userForm"/>
-    		<ul jwcid="formActions"/>
-		</form>    
+		<span jwcid="editUserNavigation"/>
+	    <span jwcid="@ErrorMsg"/>
+		<div id="settings-content">
+	        <form jwcid="form">
+	            <span jwcid="userForm"/>
+	    		<ul jwcid="formActions"/>
+			</form>    
+		</div>
     </div>
 </body>
 </html>

@@ -102,7 +102,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         clickLink("NewAutoAttendant");
         assertFormPresent("attendant:form");
         
-        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
+        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
         clickButton("attendant:removeMenuItems");
         String[][] expectedMenuItems = {
                 { KEYS, "Operator", "" }, 

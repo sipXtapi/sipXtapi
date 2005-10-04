@@ -36,5 +36,10 @@
         <binding name="callback" expression="callback"/>
         <binding name="listener" expression="listeners.commit"/>
     </component>
+    <component id="editUserNavigation" type="UserNavigation">
+        <binding name="user" expression="user"/>
+        <binding name="tab" expression="EditUser"/>
+        <static-binding name="heading" value="Identification"/>
+    </component>
     
 </page-specification>

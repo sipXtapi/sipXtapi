@@ -35,7 +35,7 @@ public class ManagePhonesTestUi extends WebTestCase {
         m_helper.seedPhone(1);
 
         clickLink("ManagePhones");
-        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
+        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
         checkCheckbox("selectedRow");
         clickButton("phone:sendProfiles");
         SiteTestHelper.assertNoException(tester);
@@ -46,7 +46,7 @@ public class ManagePhonesTestUi extends WebTestCase {
         m_helper.seedPhone(1);
 
         clickLink("ManagePhones");   
-        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
+        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
         clickButton("phone:restart");
         SiteTestHelper.assertNoException(tester);        
         // test if SIP messages were sent
@@ -56,7 +56,7 @@ public class ManagePhonesTestUi extends WebTestCase {
         m_helper.seedPhone(1);
 
         clickLink("ManagePhones");          
-        SiteTestHelper.checkCheckbox(tester, "selectedRow", 0);
+        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
         clickButton("phone:delete");
         // 2 = 1 thead (columns) + 1 tfoot (pager)
         assertEquals(2, SiteTestHelper.getRowCount(tester, "phone:list"));
