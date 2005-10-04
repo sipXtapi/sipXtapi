@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -22,10 +23,13 @@ import java.util.Iterator;
 import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
+import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
@@ -51,6 +55,10 @@ public class CiscoAtaPhone extends CiscoPhone {
     private static final String ALLE = "_";
 
     private static final String PHONE_REGISTRATION_SETTING = "sip/Proxy";
+
+    private static final String SIP_PORT_SETTING = "sip/SIPPort";
+    
+    private static final Log LOG = LogFactory.getLog(CiscoAtaPhone.class);
 
     private static final SettingFilter S_REALGROUPS = new SettingFilter() {
         public boolean acceptSetting(Setting root_, Setting setting) {
@@ -162,6 +170,8 @@ public class CiscoAtaPhone extends CiscoPhone {
             String[] cmd = {
                 getCfgfmtUtility(), "-t" + getPtagDat(), outputTxtfile, outputfile
             };
+            String cmdline = MessageFormat.format("{0} {1} {2} {3}", cmd);
+            LOG.info(cmdline);
             Process p = Runtime.getRuntime().exec(cmd);
             int errCode = p.waitFor();
             if (errCode != 0) {
@@ -198,7 +208,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             SettingBeanAdapter adapter = new SettingBeanAdapter(c);
             adapter.setSetting(getSettings());
             adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/SipOutBoundProxy");
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "sip/SIPPort");
+            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, SIP_PORT_SETTING);
             adapter.addMapping(PhoneSettings.TFTP_SERVER, "network/TftpURL");
             o = adapter.getImplementation();
         } else {
@@ -347,5 +357,20 @@ public class CiscoAtaPhone extends CiscoPhone {
                 }
             }
         }
+    }
+
+    protected void sendCheckSyncToFirstLine() {
+        if (getLines().size() == 0) {
+            throw new RestartException("Restart command is sent to first line and "
+                                       + "first phone line is not valid");
+        }
+
+        Line line = getLine(0);
+        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
+
+        getSipService().sendCheckSync(line.getUri(),
+                                      getSettings().getSetting(PHONE_REGISTRATION_SETTING).getValue(),
+                                      getSettings().getSetting(SIP_PORT_SETTING).getValue(),
+                                      settings.getUserId());
     }
 }
