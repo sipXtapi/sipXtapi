@@ -75,7 +75,7 @@
       <setting name="Voicemail">
         <label>Voice Mail</label>
         <type refid="enable-disable"/>
-        <value>DISABLE</value>
+        <value>ENABLE</value>
         <description>User has voicemail inbox</description>
       </setting>
       <setting name="ForwardCallsExternal">
