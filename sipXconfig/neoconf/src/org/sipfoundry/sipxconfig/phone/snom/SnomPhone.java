@@ -45,10 +45,16 @@ public class SnomPhone extends Phone {
     public String getPhoneFilename() {
         return getWebDirectory() + "/" + getProfileName();
     }
-    
+
     String getProfileName() {
-        String phoneFilename = getModel() + "-" + getSerialNumber().toUpperCase();
-        return phoneFilename + ".htm";        
+        StringBuffer buffer = new StringBuffer(getModel().toString());
+        String serialNumber = getSerialNumber();
+        if (StringUtils.isNotBlank(serialNumber)) {
+            buffer.append("-");
+            buffer.append(serialNumber.toUpperCase());
+        }
+        buffer.append(".htm");
+        return buffer.toString();
     }
 
     public int getMaxLineCount() {
@@ -89,10 +95,10 @@ public class SnomPhone extends Phone {
 
         return linesSettings;
     }
-    
+
     protected void defaultSettings() {
         super.defaultSettings();
-        
+
         Setting settings = getSettings();
         PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
         String configUrl = defaults.getProfileRootUrl() + '/' + getProfileName();
@@ -117,6 +123,6 @@ public class SnomPhone extends Phone {
     }
 
     public void restart() {
-        sendCheckSyncToFirstLine();        
+        sendCheckSyncToFirstLine();
     }
 }
