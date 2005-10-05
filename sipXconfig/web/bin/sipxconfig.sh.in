@@ -299,7 +299,14 @@ configtest() {
     @bin.dir@/sipx-validate-xml @sipxpbx.conf.dir@/topology.xml.in
     Status=$(($Status+$?))
     databaseCheck
-    Status=$(($Status+$?))    
+    Status=$(($Status+$?))
+
+    # Print out a success message if everything is OK, to give the user some feedback.
+    # If there is an error then the test will yield an error message.
+    if [ $Status = 0 ]
+    then
+	echo "The config test succeeded."
+    fi
 }
 
 while [ $# -ne 0 ]
