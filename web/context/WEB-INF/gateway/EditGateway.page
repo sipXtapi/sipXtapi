@@ -25,7 +25,9 @@
 		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
     	initial-value="global.gatewayContext"/>    
     
-    <property-specification name="nextPage" type="java.lang.String" persistent="yes"/>
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback" 
+    	persistent="yes"/>
     
     <property-specification name="currentSettingSetName"
         type="java.lang.String"
@@ -47,12 +49,10 @@
     <component id="gatewayForm" type="GatewayForm">
         <binding name="gateway" expression="gateway"/>
     </component>
-            
-    <component id="onSave" type="Submit">
-        <binding name="listener" expression="listeners.save"/>
-    </component>
-    <component id="onCancel" type="CancelButton">
-        <binding name="returnPageName" expression="nextPage"/>
+    
+    <component id="formActions" type="FormActions">
+        <binding name="listener" expression="listeners.apply"/>
+        <binding name="callback" expression="callback"/>
     </component>
     
     <component id="settings" type="SettingsNavigation">
@@ -63,14 +63,11 @@
     <component id="settingDescription" type="Insert">
         <binding name="value" expression="currentSettingSet.description"/>
     </component>
-    <component id="settingsForm" type="SettingsForm">
+    <component id="settingsFieldset" type="SettingsFieldset">
         <binding name="settings" expression="currentSettingSet"/>
-        <binding name="cancelListener" expression="listeners.cancel"/>
-        <binding name="applyListener" expression="listeners.apply"/>
-        <binding name="validator" expression="beans.validator"/>
     </component>
     
     <component id="renderSettings" type="Conditional">
-        <binding name="condition" expression="gateway.settings != null"/>
+        <binding name="condition" expression="currentSettingSet != null"/>
     </component>
 </page-specification>

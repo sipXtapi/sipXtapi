@@ -11,7 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
-
-
 public class MediantGateway extends AudioCodesGateway {
+    protected void defaultSettings() {
+        super.defaultSettings();
+        setSettingValue("SIP_Params/SIPGATEWAYNAME", getDefaults().getDomainName());
+        setSettingValue("SIP_Params/SIPDESTINATIONPORT", getDefaults().getProxyServerSipPort());
+    }
 }

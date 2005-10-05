@@ -91,7 +91,7 @@ public class GatewaysTestUi extends WebTestCase {
         gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(1, gatewaysTable.getRowCount());
     }
-    
+
     public void testValidateDescription() {
         clickLink("ListGateways");
         clickLink("addGateway");
@@ -103,14 +103,14 @@ public class GatewaysTestUi extends WebTestCase {
         char[] descriptionOk = new char[limit];
         Arrays.fill(descriptionOk, 'x');
         setFormElement("gatewayDescription", new String(descriptionToLong));
-        tester.clickButton("gateway:save");
+        tester.clickButton("form:ok");
         // there should be an error now
         assertTextPresent("Enter at most");
         setFormElement("gatewayDescription", new String(descriptionOk));
-        tester.clickButton("gateway:save");
+        tester.clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         // we should not get error this time
-        assertTablePresent("list:gateway");        
+        assertTablePresent("list:gateway");
     }
 
     /**
@@ -128,30 +128,33 @@ public class GatewaysTestUi extends WebTestCase {
      * @param name response after clicking submit button
      */
     public static String[] addGateway(WebTester tester, String name) {
-        String[] row = new String[] {name + "Name", name + "Address", name + "Description"};
+        String[] row = new String[] {
+            name + "Name", name + "Address", name + "Description"
+        };
         if (null != name) {
             tester.setFormElement("gatewayName", row[0]);
             tester.setFormElement("gatewayAddress", row[1]);
             tester.setFormElement("gatewayDescription", row[2]);
         }
-        tester.clickButton("gateway:save");
+        tester.clickButton("form:ok");
         return row;
     }
 
     /**
      * Adds number of test gateways to test
-     * @param counter number of gateways to add - names gateway0..gateway'count-1' 
+     * 
+     * @param counter number of gateways to add - names gateway0..gateway'count-1'
      */
     public static void addTestGateways(WebTester tester, int counter) {
         tester.clickLink("ListGateways");
 
         for (int i = 0; i < counter; i++) {
             tester.clickLink("addGateway");
-            
+
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
             String gatewayName = "gateway" + i + Long.toString(System.currentTimeMillis());
-            
+
             addGateway(tester, gatewayName);
         }
     }

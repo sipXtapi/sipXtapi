@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -49,7 +50,7 @@ public abstract class GatewayTable extends BaseComponent implements PageRenderLi
         Integer id = (Integer) cycle.getServiceParameters()[0];
         page.setGatewayId(id);
         page.setRuleId(getRuleId());
-        page.setNextPage(cycle.getPage().getPageName());        
+        page.setCallback(new PageCallback(getPage()));
         cycle.activate(page);
     }
 }

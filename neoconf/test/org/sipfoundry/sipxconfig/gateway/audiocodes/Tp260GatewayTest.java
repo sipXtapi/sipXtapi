@@ -30,7 +30,8 @@ public class Tp260GatewayTest extends TestCase {
     protected void setUp() throws Exception {
         m_model = (AudioCodesModel) TestHelper.getApplicationContext().getBean(
                 "gmAudiocodesTP260_2_Span");
-        m_gateway = (Tp260Gateway) TestHelper.getApplicationContext().getBean("gwAudiocodesTp260");
+        m_gateway = (Tp260Gateway) TestHelper.getApplicationContext()
+                .getBean("gwAudiocodesTp260");
         m_gateway.setBeanId(m_model.getBeanId());
         m_gateway.setModelId(m_model.getModelId());
     }
@@ -51,18 +52,15 @@ public class Tp260GatewayTest extends TestCase {
         MockControl defaultsCtrl = MockClassControl.createControl(PhoneDefaults.class);
         PhoneDefaults defaults = (PhoneDefaults) defaultsCtrl.getMock();
         defaults.getDomainName();
-        defaultsCtrl.setReturnValue("mysipdomain.com");
-        defaults.getOutboundProxy();
+        defaultsCtrl.setDefaultReturnValue("mysipdomain.com");
+        defaults.getProxyServerAddr();
         defaultsCtrl.setReturnValue("10.1.2.3");
-        defaults.getOutboundProxyPort();
-        defaultsCtrl.setReturnValue("4321");
 
         defaultsCtrl.replay();
 
         m_gateway.setDefaults(defaults);
-        m_gateway.prepareSettings();
 
-        assertEquals("10.1.2.3:4321", m_gateway.getSettingValue("SIPgw/ProxyIp"));
+        assertEquals("10.1.2.3", m_gateway.getSettingValue("SIPgw/ProxyIp"));
         assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIPgw/ProxyName"));
 
         defaultsCtrl.verify();

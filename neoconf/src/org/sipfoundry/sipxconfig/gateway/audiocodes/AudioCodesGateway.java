@@ -28,12 +28,11 @@ public class AudioCodesGateway extends Gateway {
 
     private PhoneDefaults m_defaults;
 
-    public void prepareSettings() {
-        super.prepareSettings();
+    protected void defaultSettings() {
+        super.defaultSettings();
         AudioCodesModel model = (AudioCodesModel) getModel();
         setSettingValue(model.getProxyNameSetting(), m_defaults.getDomainName());
-        setSettingValue(model.getProxyIpSetting(), m_defaults.getOutboundProxy() + ":"
-                + m_defaults.getOutboundProxyPort());
+        setSettingValue(model.getProxyIpSetting(), m_defaults.getProxyServerAddr());
     }
 
     /**
@@ -92,5 +91,9 @@ public class AudioCodesGateway extends Gateway {
 
     public void setDefaults(PhoneDefaults defaults) {
         m_defaults = defaults;
+    }
+
+    public PhoneDefaults getDefaults() {
+        return m_defaults;
     }
 }

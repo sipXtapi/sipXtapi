@@ -104,7 +104,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         Integer id = getRuleId();
         editGatewayPage.setRuleId(id);
         editGatewayPage.setGatewayId(null);
-        editGatewayPage.setNextPage(cycle.getPage().getPageName());
+        editGatewayPage.setCallback(new PageCallback(this));
         cycle.activate(editGatewayPage);
     }
 

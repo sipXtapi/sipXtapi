@@ -28,14 +28,14 @@
     <constructor-arg><value>gwAudiocodesMediant</value></constructor-arg>
     <constructor-arg><value>1X4_4_FXO</value></constructor-arg>
     <constructor-arg><value>AudioCodes MP1X4 4 Port FXO</value></constructor-arg>
- 		<constructor-arg><value>MP104FXSProxy.ini</value></constructor-arg>
+ 		<constructor-arg><value>MP108FXOProxy.ini</value></constructor-arg>
   </bean>
   
   <bean id="gmAudiocodesMP1X8_8_FXO" parent="gmAutiocodesMP">
     <constructor-arg><value>gwAudiocodesMediant</value></constructor-arg>
     <constructor-arg><value>1X8_8_FXO</value></constructor-arg>
     <constructor-arg><value>AudioCodes MP1X8 8 Port FXO</value></constructor-arg>
- 		<constructor-arg><value>MP104FXSProxy.ini</value></constructor-arg>
+ 		<constructor-arg><value>MP108FXOProxy.ini</value></constructor-arg>
   </bean>
   
   <bean id="gmAudiocodesTP260_1_Span" parent="gmAutiocodesTP">
