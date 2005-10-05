@@ -80,6 +80,7 @@ class Conference
       
    private:
       resip::Data mAor;
+      ConferenceUserAgent& mUa;
       CpMediaInterface* mMedia;
       OsConfigDb &mConfigDb;
 

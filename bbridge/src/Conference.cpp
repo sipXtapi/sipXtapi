@@ -21,6 +21,7 @@ Conference::Conference(bbridge::ConferenceUserAgent& ua,
                        const resip::Data& aor,
                        OsConfigDb &configDb) : 
    mAor(aor),
+   mUa(ua),
    mMedia(ua.mMediaFactory->createMediaInterface(resip::DnsUtil::getLocalIpAddress().c_str(),
                                                  resip::DnsUtil::getLocalIpAddress().c_str(),
                                                  ua.mNumCodecs, 
@@ -46,6 +47,7 @@ Conference::~Conference()
 
    // !jf! Do I need to do anything other than delete mMedia to free up resources? 
    mMedia->release();
+   mUa.mConferences.erase(mAor);
 }
 
 // Get the AOR to reach this conference.
