@@ -40,8 +40,8 @@
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="userTableModel" class="org.sipfoundry.sipxconfig.site.user.UserTableModel" lifecycle="page">
         <set-property name="coreContext" expression="page.global.coreContext"/>
+        <set-property name="pageSize" expression="page.visit.tablePageSize"/>
         <set-property name="component" expression="getThis()"/>        
-        <set-property name="pageSize" expression="20"/>
     </bean>
 	<!--
 	  - C O M P O N E N T S

@@ -30,8 +30,8 @@
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="phoneTableModel" class="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel" lifecycle="page">
         <set-property name="phoneContext" expression="page.global.phoneContext"/>
+        <set-property name="pageSize" expression="page.visit.tablePageSize"/>
         <set-property name="component" expression="getThis()"/>        
-        <set-property name="pageSize" expression="20"/>
     </bean>
 	<!--
 	  - C O M P O N E N T S
