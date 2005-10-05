@@ -222,6 +222,11 @@ void SipDialog::updateDialogData(const SipMessage& message)
             if(message.getContactUri(0, &messageContact) &&
                 !messageContact.isNull())
             {
+                // Add the angle brackets for contact
+                Url url(messageContact);
+                url.includeAngleBrackets();
+                messageContact = url.toString();
+                
                 if(message.isResponse())
                 {
                     mRemoteContact = messageContact;

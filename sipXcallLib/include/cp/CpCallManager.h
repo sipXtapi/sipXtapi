@@ -631,6 +631,12 @@ public:
     //! Deprecated
     virtual void setTransferType(int type) = 0;
 
+    virtual void setDelayInDeleteCall(int delayInDeleteCall) = 0;
+    //: Set the number of seconds to delay in deleting the call
+
+    virtual int getDelayInDeleteCall() = 0;
+    //: Get the number of seconds to delay in deleting the call
+
 /* ============================ ACCESSORS ================================= */
 
    /**

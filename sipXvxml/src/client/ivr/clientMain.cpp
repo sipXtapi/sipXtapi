@@ -827,6 +827,8 @@ int main(int argc, char *argv[])
                       maxFlowGraphs,                     // maxCalls
                       sipXmediaFactoryFactory(NULL)      // CpMediaInterfaceFactory
          );
+         
+   pCallMgr->setDelayInDeleteCall(CALL_DELETE_DELAY_SECS);
 
    // Create the Media Task monitoring thread if autothrottle.engage is set.
 

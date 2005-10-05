@@ -43,9 +43,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define CALL_STATUS_FIELD       "status"
-#define CALL_DELETE_DELAY_SECS  2     // Number of seconds between a drop 
-// request (call) and call deletion
-// (call manager)
+
 #ifdef _WIN32
 #   define CALL_CONTROL_TONES
 #endif
@@ -212,6 +210,27 @@ CpPeerCall::~CpPeerCall()
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving CpPeerCall-%s destructor:: callId is Null\n", name.data());       
     }
 #endif
+
+                  
+#if 0
+    // We might have the memory leak here because those three objects might not being deleted yet!!!
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::~CpPeerCall deleting CpIntMessage %p queuedEvent %p timer %p",
+                  pExitMsg, queuedEvent, timer);
+    if (pExitMsg)
+    {
+        delete pExitMsg;
+    }
+    
+    if (queuedEvent)
+    {
+        delete queuedEvent;
+    }
+    
+    if (timer)
+    {
+        delete timer;
+    }
+#endif    
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -2700,6 +2719,8 @@ void CpPeerCall::onHook()
     osPrintf("%s-CpPeerCall: hanging up\n", mName.data());
 #endif
 
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::onHook hanging up this call ...");
+    
     Connection* connection = NULL;
 
     // Take this call out of focus right away
@@ -2817,10 +2838,30 @@ void CpPeerCall::dropIfDead()
                         {
                             connection->fireSipXEvent(CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL) ;
                         }
-                    }                
+                    }
+                                    
                     // Drop the call immediately
-                    CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (int)this) ;
-                    mpManager->postMessage(ExitMsg) ;
+                    if (mpManager->getDelayInDeleteCall() == 0)
+                    {
+                        CpIntMessage ExitMsg(CallManager::CP_CALL_EXITED, (int)this) ;
+                        mpManager->postMessage(ExitMsg) ;
+                    }
+                    else
+                    {                    
+                        // For media server we need to hold off the deletion for a while
+                        pExitMsg = new CpIntMessage(CallManager::CP_CALL_EXITED,(int)this);
+                        queuedEvent = new OsQueuedEvent(*(mpManager->getMessageQueue()), (int)pExitMsg);
+                        timer = new OsTimer(*queuedEvent);
+                        OsTime timerTime(mpManager->getDelayInDeleteCall(), 0);
+                        timer->oneshotAfter(timerTime);
+                        UtlString thisCallId;
+                        getCallId(thisCallId);
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::dropIfDead Wait for %d secs to signal the exit for call %s ...",
+                                     mpManager->getDelayInDeleteCall(), thisCallId.data());
+                        OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::dropIfDead creating CpIntMessage %p queuedEvent %p timer %p",
+                                     pExitMsg, queuedEvent, timer);
+                    }
+                    
             }
             else
             {

@@ -52,11 +52,11 @@
 
 #define LOG_FACILITY                  FAC_ACD
 
-#define DEFAULT_UDP_PORT              5130       // Default UDP port
-#define DEFAULT_TCP_PORT              5130       // Default TCP port
+#define DEFAULT_UDP_PORT              5140       // Default UDP port
+#define DEFAULT_TCP_PORT              5140       // Default TCP port
 #define DEFAULT_HTTP_PORT             8200       // Default HTTP port
 
-#define DEFAULT_REFRESH_INTERVAL      180000
+#define DEFAULT_REFRESH_INTERVAL      300
 
 // MACROS
 // EXTERNAL FUNCTIONS

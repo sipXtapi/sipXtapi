@@ -1077,6 +1077,9 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis,
            {
                if ((impl->live == 0) && impl->recording) 
                {
+                  OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
+                                "osbrec::OSBrecRecord calling stopRecording() for %s",
+                                impl->callId);
                   impl->pCallMgr->stopRecording((const char*)impl->callId);
                   impl->recording = 0;
 
@@ -1109,6 +1112,9 @@ static VXIrecResult OSBrecRecord(VXIrecInterface *pThis,
 
            if (impl->recording)
            {
+              OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
+                            "osbrec::OSBrecRecord calling stopRecording() for %s",
+                            impl->callId);
               impl->pCallMgr->stopRecording((const char*)impl->callId);
               impl->recording = 0;
            }
@@ -1267,35 +1273,37 @@ OSBREC_API VXIrecResult OSBrecShutDown(VXIlogInterface *log)
 OSBREC_API VXIrecResult OSBrecExiting (VXIlogInterface  *log,
                                        VXIrecInterface  **rec)
 { 
-  if (! log) return VXIrec_RESULT_INVALID_ARGUMENT;
+   if (! log) return VXIrec_RESULT_INVALID_ARGUMENT;
 
-  if (rec == NULL || *rec == NULL) return VXIrec_RESULT_INVALID_ARGUMENT;
-  OSBrecImpl* impl = reinterpret_cast<OSBrecImpl*>(*rec);
+   if (rec == NULL || *rec == NULL) return VXIrec_RESULT_INVALID_ARGUMENT;
+   OSBrecImpl* impl = reinterpret_cast<OSBrecImpl*>(*rec);
 
-  if (!impl) return VXIrec_RESULT_INVALID_ARGUMENT;
+   if (!impl) return VXIrec_RESULT_INVALID_ARGUMENT;
 
-  impl->hungup = 1;
+   impl->hungup = 1;
 
-  OSBrecData * tp = impl->recData;
-  tp->Diag(DIAG_TAG_REC, NULL, L"Rec Exiting");
+   OSBrecData * tp = impl->recData;
+   tp->Diag(DIAG_TAG_REC, NULL, L"Rec Exiting");
 
-  if ((impl->live == 1) && impl->pExitGuard)
-  {
-        impl->pExitGuard->acquire();
-        if (impl->live == 1)
-        {
-                        impl->live = 0;
+   if ((impl->live == 1) && impl->pExitGuard)
+   {
+      impl->pExitGuard->acquire();
+      if (impl->live == 1)
+      {
+         impl->live = 0;
 
-                        if ((impl->recording == 1) && impl->pCallMgr && impl->callId)
-                        {
-                                        impl->pCallMgr->stopRecording((const char*)impl->callId);
-                                        impl->recording = 0;
-               tp->Diag(DIAG_TAG_REC, NULL, L"stopRecording called");
-                        }
-
-        }
-        impl->pExitGuard->release();
-  }
+         if ((impl->recording == 1) && impl->pCallMgr && impl->callId)
+         {
+            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG,
+                          "osbrec::OSBrecExiting calling stopRecording() for %s",
+                          impl->callId);
+            impl->pCallMgr->stopRecording((const char*)impl->callId);
+            impl->recording = 0;
+            tp->Diag(DIAG_TAG_REC, NULL, L"stopRecording called");
+         }
+      }
+      impl->pExitGuard->release();
+   }
 
   return VXIrec_RESULT_SUCCESS; 
 }

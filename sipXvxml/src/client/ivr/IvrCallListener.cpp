@@ -370,6 +370,12 @@ void IvrCallListener::handleDisconnectCall(TaoMessage& rMsg, TaoString& arg)
          removeCallId(callId.data());
       }
    }
+   else
+   {
+      OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_ERR, 
+                    "IvrCallListener::handleDisconnectCall %s has %d connections", 
+                    callId.data(), numConns);
+   }
 }
 
 void IvrCallListener::handleConnectCall(TaoMessage& rMsg, TaoString& arg)

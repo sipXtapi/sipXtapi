@@ -32,6 +32,11 @@
 #define CP_CALL_HISTORY_LENGTH 50
 
 #define CP_MAXIMUM_RINGING_EXPIRE_SECONDS 180
+
+#define CALL_DELETE_DELAY_SECS  10    // Number of seconds between a drop
+                                      // request (call) and call deletion
+                                      // (call manager)
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -379,6 +384,12 @@ public:
    //: Can a new connection be added to the specified call?  This method is 
    //: delegated to the media interface.
    
+   virtual void setDelayInDeleteCall(int delayInDeleteCall);
+   //: Set the number of seconds to delay in deleting the call
+
+   virtual int getDelayInDeleteCall();
+   //: Get the number of seconds to delay in deleting the call
+   
 /* ============================ INQUIRY =================================== */
    int getTotalNumberOutgoingCalls() { return mnTotalOutgoingCalls;}
    int getTotalNumberIncomingCalls() { return mnTotalIncomingCalls;}
@@ -437,6 +448,9 @@ private:
     int mStunOptions ;
     int mStunKeepAlivePeriodSecs ;
     CpMediaInterfaceFactory* mpMediaFactory;
+    
+    // Delay in deleting the call
+    int mDelayInDeleteCall;
 
     // Private accessors
     void pushCall(CpCall* call);

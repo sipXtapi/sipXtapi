@@ -47,6 +47,7 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
    
    Url url(localAddress);
    url.setHostPort(hostPort);
+   url.includeAngleBrackets();
    mContact = url.toString();
    mRefreshTimeout = refreshTimeout;
    mToBePublished = toBePublished;

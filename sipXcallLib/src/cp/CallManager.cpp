@@ -121,6 +121,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
     mnTotalIncomingCalls = 0;
     mnTotalOutgoingCalls = 0;
     mMaxCalls = maxCalls ;
+    mDelayInDeleteCall = 0;
     
     if (pMediaFactory)
     {
@@ -133,6 +134,7 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
 
     // Instruct the factory to use the specified port range
     mpMediaFactory->getFactoryImplementation()->setRtpPortRange(rtpPortStart, rtpPortEnd) ;
+    mStunServer = NULL;
 
     mLineAvailableBehavior = availableBehavior;
     mOfferedTimeOut = offeringDelay;
@@ -1276,6 +1278,8 @@ PtStatus CallManager::consult(const char* idleTargetCallId,
 void CallManager::drop(const char* callId)
 {
     CpMultiStringMessage callMessage(CP_DROP, callId);
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::drop is called for call %s",
+                  callId);
     postMessage(callMessage);
 }
 
@@ -1541,6 +1545,8 @@ void CallManager::createPlayer(const char* callId,
                                MpStreamPlaylistPlayer** ppPlayer)
 {
     // TO_BE_REMOVED
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::createPlayer(MpStreamPlaylistPlayer) for call %s",
+                  callId);
     int msgtype = CP_CREATE_PLAYLIST_PLAYER;;
 
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
@@ -1625,6 +1631,8 @@ void CallManager::createPlayer(int type,
 void CallManager::destroyPlayer(const char* callId, MpStreamPlaylistPlayer* pPlayer)
 {
     // TO_BE_REMOVED
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::destroyPlayer(MpStreamPlaylistPlayer) for call %s",
+                  callId);
     int msgtype = CP_DESTROY_PLAYLIST_PLAYER;
 
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
@@ -2520,6 +2528,8 @@ UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char
 
 OsStatus CallManager::stopRecording(const char* callId)
 {
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::stopRecording stopping the recording for call %s",
+                  callId);
     OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
     OsProtectedEvent* stoprecEvent = eventMgr->alloc();
     OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
@@ -2555,6 +2565,8 @@ OsStatus CallManager::ezRecord(const char* callId,
                                int& dtmfterm,
                                OsProtectedEvent* recordEvent)
 {
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::ezRecord starting the recording for call %s",
+                  callId);
     CpMultiStringMessage recordMessage(CP_EZRECORD,
         callId, fileName, NULL, NULL, NULL,
         (int)recordEvent, ms, silenceLength, dtmfterm);
@@ -3788,6 +3800,16 @@ void CallManager::releaseEvent(const char* callId,
     {
         eventMgr->release(dtmfEvent);
     }
+}
+
+void CallManager::setDelayInDeleteCall(int delayInDeleteCall)
+{
+    mDelayInDeleteCall = delayInDeleteCall;
+}
+
+int CallManager::getDelayInDeleteCall()
+{
+    return mDelayInDeleteCall;
 }
 
 /* ============================ FUNCTIONS ================================= */

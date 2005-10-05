@@ -80,6 +80,7 @@ LinePresenceMonitor::LinePresenceMonitor(int userAgentPort,
    
    Url url(localAddress);
    url.setHostPort(userAgentPort);
+   url.includeAngleBrackets();
    mContact = url.toString();    
 }
 

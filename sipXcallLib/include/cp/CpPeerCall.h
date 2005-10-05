@@ -33,6 +33,9 @@
 // FORWARD DECLARATIONS
 class Connection;
 class SipUserAgent;
+class CpIntMessage;
+class OsQueuedEvent;
+class OsTimer;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -338,7 +341,12 @@ private:
     UtlBoolean mbRequestedDrop;      // Have we requested to be dropped by the CallManager
 
     SIPX_CALLSTATE_EVENT eLastMajor ;
-    SIPX_CALLSTATE_CAUSE eLastMinor ; 
+    SIPX_CALLSTATE_CAUSE eLastMinor ;
+    
+    // For media server
+    CpIntMessage* pExitMsg;
+    OsQueuedEvent* queuedEvent;
+    OsTimer* timer;
 
     CpPeerCall(const CpPeerCall& rCpPeerCall);
     //:Copy constructor

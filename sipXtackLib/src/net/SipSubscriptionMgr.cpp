@@ -251,6 +251,12 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             // Set the contact to the same request URI that came in
             UtlString contact;
             subscribeRequest.getRequestUri(&contact);
+            
+            // Add the angle brackets for contact
+            Url url(contact);
+            url.includeAngleBrackets();
+            contact = url.toString();
+            
             subscribeResponse.setResponseData(subscribeCopy, 
                                             SIP_ACCEPTED_CODE,
                                             SIP_ACCEPTED_TEXT, 
@@ -338,6 +344,12 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 // Set the contact to the same request URI that came in
                 UtlString contact;
                 subscribeRequest.getRequestUri(&contact);
+
+                // Add the angle brackets for contact
+                Url url(contact);
+                url.includeAngleBrackets();
+                contact = url.toString();
+
                 subscribeResponse.setResponseData(&subscribeRequest, 
                                                 SIP_ACCEPTED_CODE,
                                                 SIP_ACCEPTED_TEXT, 
@@ -387,6 +399,12 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 // Set the contact to the same request URI that came in
                 UtlString contact;
                 subscribeRequest.getRequestUri(&contact);
+ 
+                // Add the angle brackets for contact
+                Url url(contact);
+                url.includeAngleBrackets();
+                contact = url.toString();
+
                 subscribeResponse.setResponseData(&subscribeRequest, 
                                                 SIP_ACCEPTED_CODE,
                                                 SIP_ACCEPTED_TEXT, 
