@@ -41,6 +41,12 @@ public class PhoneDefaults {
 
     private DialPlanContext m_dialPlanContext;
 
+    /** see config.defs PROXY_SERVER_ADDR */
+    private String m_proxyServerAddr;
+
+    /** see config.defs PROXY_SERVER_SIP_PORT */
+    private String m_proxyServerSipPort;
+
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
@@ -67,6 +73,22 @@ public class PhoneDefaults {
 
     public String getTftpServer() {
         return m_tftpServer;
+    }
+
+    public void setProxyServerAddr(String proxyServerAddr) {
+        m_proxyServerAddr = proxyServerAddr;
+    }
+
+    public String getProxyServerAddr() {
+        return m_proxyServerAddr;
+    }
+
+    public void setProxyServerSipPort(String proxyServerSipPort) {
+        m_proxyServerSipPort = proxyServerSipPort;
+    }
+
+    public String getProxyServerSipPort() {
+        return m_proxyServerSipPort;
     }
 
     /**

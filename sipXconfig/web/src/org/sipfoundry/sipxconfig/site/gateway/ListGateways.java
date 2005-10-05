@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.gateway;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
@@ -37,7 +38,7 @@ public abstract class ListGateways extends BasePage {
         EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
         page.setGatewayId(null);
         page.setRuleId(null);
-        page.setNextPage(cycle.getPage().getPageName());
+        page.setCallback(new PageCallback(this));
         cycle.activate(page);
     }
 

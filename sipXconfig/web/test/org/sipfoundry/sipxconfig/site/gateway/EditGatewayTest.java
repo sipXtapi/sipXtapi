@@ -21,8 +21,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
-import org.sipfoundry.sipxconfig.site.gateway.ListGateways;
 
 /**
  * EditGatewayTest
@@ -50,7 +48,6 @@ public class EditGatewayTest extends TestCase {
         m_editGatewayPage.setGateway(g);
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
-        m_editGatewayPage.setNextPage(ListGateways.PAGE);
         cycleControl.replay();
         m_editGatewayPage.saveGateway();
 
@@ -87,7 +84,6 @@ public class EditGatewayTest extends TestCase {
         m_editGatewayPage.setGatewayContext(context);
         m_editGatewayPage.setGateway(g);
         m_editGatewayPage.setRuleId(rule.getId());
-        m_editGatewayPage.setNextPage("EditCustomDialRule");
         m_editGatewayPage.pageBeginRender(null);
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);

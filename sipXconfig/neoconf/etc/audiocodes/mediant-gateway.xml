@@ -3,17 +3,60 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
-  <type id="inverted_boolean">
-    <boolean>
-      <true><value>0</value></true>
-      <false><value>1</value></false>
-    </boolean>
-  </type>
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534"/>
+  </type>		
+	<group name="SYSTEM_Params">
+		<label>System</label>
+		<profileName>SYSTEM Params</profileName>
+		<setting name="DNSPriServerIP">
+			<label>DNS Server</label>
+			<type>
+				<ipaddr/>	
+			</type>
+			<value></value>
+			<description>IP Address of the primary DNS server</description>
+		</setting>
+		<setting name="DNSSecServerIP" advanced="yes">
+			<label>Secondary DNS Server</label>
+			<type>
+				<ipaddr/>	
+			</type>
+			<value></value>
+			<description>IP Address of the secondary DNS server</description>
+		</setting>
+		<setting name="EnableSyslog" advanced="yes">
+			<label>Use Syslog</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>If checked syslog server is used.</description>			
+		</setting>		
+		<setting name="SyslogServerIP" advanced="yes">
+			<label>Syslog Server</label>
+			<type>
+				<ipaddr/>	
+			</type>
+			<value></value>
+			<description>IP Address of the syslog server</description>			
+		</setting>
+	</group>
   <group name="SIP_Params">
     <label>SIP Params</label>
     <profileName>SIP Params</profileName>
-    <setting name="PROXYNAME" hidden="yes">
-      <label>PROXYNAME</label>
+    <setting name="ISPROXYUSED" advanced="yes">
+      <label>Use Proxy</label>
+			<type>
+				<boolean/>
+			</type>
+      <value>1</value>
+      <description>If unchecked proxy isn’t used, the internal routing table is used instead. 
+				If checked gateway will use SIP proxy and SIP Proxy Address has to be set.				
+      </description>
+    </setting>
+    <setting name="PROXYNAME" advanced="yes">
+      <label>SIP Proxy Domain Name</label>
       <type>
         <string/>
       </type>
@@ -22,8 +65,8 @@
         REGISTER, INVITE and other SIP messages. If not specified, the Proxy IP address is used
         instead.</description>
     </setting>
-    <setting name="PROXYIP" hidden="yes">
-      <label>PROXYIP</label>
+    <setting name="PROXYIP" advanced="yes">
+      <label>SIP Proxy Address</label>
       <type>
         <ipaddr/>
       </type>
@@ -32,22 +75,33 @@
         address as FQDN or in dotted format notation for example 201.10.8.1. You can also specify the selected
         port in the format: IP Address:port</description>
     </setting>
-    <setting name="ISPROXYUSED" hidden="yes">
-      <label>Use Proxy</label>
-      <type refid="inverted_boolean"/>
-      <value>1</value>
-      <description>Don’t Use Proxy [0] = Proxy isn’t used, the internal routing table is used instead.Use Proxy
-        [1] = Proxy is used.If you are using a Proxy server, enter the IP address of the primary Proxy server in the
-        Proxy IP address field. If you are not using a Proxy server, you must configure the Tel to IP Routing table
-        on the gateway
-      </description>
-    </setting>
+    <setting name="SIPDESTINATIONPORT" advanced="yes">
+			<label>SIP Proxy Port</label>
+			<type refid="port-number"/>
+			<value>5060</value>
+			<description>Domain name used by the gateway name.</description>
+		</setting>
     <setting name="ISREGISTERNEEDED" hidden="yes">
       <label>Registration Needed</label>
-      <type refid="inverted_boolean"/>
+			<type>
+				<boolean/>
+			</type>
       <value>0</value>
-      <description>No [0] = Gateway doesn’t register to Proxy / Registrar .Yes [1] = Gateway registers to Proxy /
-        Registrar when the device is powered up and every RegistrationTime seconds.</description>
+      <description>If checked gateway will register with SIP proxy. Usually registration is not required for FXO gateways.</description>
+    </setting>
+    <setting name="SIPGATEWAYNAME" advanced="yes">
+			<label>Gateway Domain Name</label>
+			<value></value>
+			<description>Domain name used by the gateway name.</description>
+		</setting>
+    <setting name="TRUNKGROUP_1" advanced="yes">
+      <label>Trunk Group</label>
+      <type>
+        <string>
+          <pattern>\d+-\d+,\d+,\d+</pattern>
+        </string>
+      </type>
+      <value>1-8,100,0</value>
     </setting>
     <setting name="MAXDIGITS">
       <label>Maximum Digits</label>
@@ -56,15 +110,6 @@
       </type>
       <value>15</value>
       <description>Maximum number of digits that can be dialed. The valid range is 1 to 49.</description>
-    </setting>
-    <setting name="TRUNKGROUP_1" hidden="yes">
-      <label>Trunk Group</label>
-      <type>
-        <string>
-          <pattern>\d+-\d+,\d+,\d+</pattern>
-        </string>
-      </type>
-      <value>1-1,201,0</value>
     </setting>
   </group>
 </model>

@@ -61,18 +61,17 @@ public class MediantGatewayTest extends TestCase {
         MockControl defaultsCtrl = MockClassControl.createControl(PhoneDefaults.class);
         PhoneDefaults defaults = (PhoneDefaults) defaultsCtrl.getMock();
         defaults.getDomainName();
-        defaultsCtrl.setReturnValue("mysipdomain.com");
-        defaults.getOutboundProxy();
+        defaultsCtrl.setDefaultReturnValue("mysipdomain.com");
+        defaults.getProxyServerAddr();
         defaultsCtrl.setReturnValue("10.1.2.3");
-        defaults.getOutboundProxyPort();
-        defaultsCtrl.setReturnValue("4321");
+        defaults.getProxyServerSipPort();
+        defaultsCtrl.setReturnValue("1234");
 
         defaultsCtrl.replay();
 
         m_gateway.setDefaults(defaults);
-        m_gateway.prepareSettings();
 
-        assertEquals("10.1.2.3:4321", m_gateway.getSettingValue("SIP_Params/PROXYIP"));
+        assertEquals("10.1.2.3", m_gateway.getSettingValue("SIP_Params/PROXYIP"));
         assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP_Params/PROXYNAME"));
 
         defaultsCtrl.verify();
@@ -83,7 +82,7 @@ public class MediantGatewayTest extends TestCase {
         assertEquals("15", settings.getSetting("SIP_Params/MAXDIGITS").getValue());
         assertTrue(settings instanceof SettingSet);
         SettingSet root = (SettingSet) settings;
-        SettingSet currentSettingSet = (SettingSet) root.getDefaultSetting(SettingSet.class);
+        SettingSet currentSettingSet = (SettingSet) root.getSetting("SIP_Params");
         assertEquals("15", currentSettingSet.getSetting("MAXDIGITS").getValue());
     }
 }

@@ -12,18 +12,13 @@
 package org.sipfoundry.sipxconfig.site.gateway;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.AbstractComponent;
-import org.apache.tapestry.IActionListener;
-import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.components.TapestryContext;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -31,7 +26,7 @@ import org.sipfoundry.sipxconfig.setting.SettingSet;
 /**
  * EditGateway
  */
-public abstract class EditGateway extends BasePage implements PageRenderListener {
+public abstract class EditGateway extends PageWithCallback implements PageRenderListener {
     public static final String PAGE = "EditGateway";
 
     public abstract Integer getGatewayId();
@@ -54,10 +49,6 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
 
     public abstract void setGatewayContext(GatewayContext context);
 
-    public abstract String getNextPage();
-
-    public abstract void setNextPage(String nextPage);
-
     public abstract String getCurrentSettingSetName();
 
     public abstract void setCurrentSettingSet(SettingSet currentSettingSet);
@@ -69,26 +60,9 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         return !delegate.getHasErrors();
     }
 
-    public void save(IRequestCycle cycle) {
-        // If there are no errors, then save the gateway.
+    public void apply(IRequestCycle cycle_) {
         if (isValid()) {
-            saveGatewayWrapper(cycle);
-        }
-        
-        // If there are still no errors (saveGateway may have found a problem)
-        // then navigate to the next page.
-        if (isValid()) {        
-            cycle.activate(getNextPage());
-        }
-    }
-
-    public void cancel(IRequestCycle cycle_) {
-        // do nothing - page will refresh automatically
-    }
-
-    public void apply(IRequestCycle cycle) {
-        if (isValid()) {
-            saveGatewayWrapper(cycle);
+            saveGateway();
         }
     }
 
@@ -119,22 +93,6 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
         }
     }
 
-    // TODO: use FormActions, which would automatically handle treating user exceptions
-    // as validation errors, so we could drop the validation wrapper below.
-    private void saveGatewayWrapper(IRequestCycle cycle) {
-        IValidationDelegate validator = TapestryUtils.getValidator((AbstractComponent) getPage());
-        TapestryContext context = new TapestryContext();
-        IActionListener saveListener = new SaveListener();
-        IActionListener adapter = context.treatUserExceptionAsValidationError(validator, saveListener);
-        adapter.actionTriggered(this, cycle);
-    }
-    
-    private class SaveListener implements IActionListener {
-        public void actionTriggered(IComponent component_, IRequestCycle cycle_) {
-            saveGateway();
-        }
-    }
-    
     void saveGateway() {
         Gateway gateway = getGateway();
         GatewayContext gatewayContext = getGatewayContext();
@@ -155,6 +113,11 @@ public abstract class EditGateway extends BasePage implements PageRenderListener
             DialingRule rule = manager.getRule(ruleId);
             rule.addGateway(gateway);
             manager.storeRule(rule);
-        }        
+        }
+        // refresh gateway - it cannot be new any more
+        if (getGatewayId() == null) {
+            setGatewayId(gateway.getId());
+            setGateway(null);
+        }
     }
 }

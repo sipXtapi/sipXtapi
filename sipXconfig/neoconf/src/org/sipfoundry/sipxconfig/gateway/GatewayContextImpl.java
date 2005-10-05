@@ -30,12 +30,18 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext,
         BeanFactoryAware {
 
-    private static final String NAME_PROP_NAME = "name";
-
     private class DuplicateNameException extends UserException {
         private static final String ERROR = "A gateway with name \"{0}\" already exists.";
 
         public DuplicateNameException(String name) {
+            super(ERROR, name);
+        }
+    }
+
+    private class DuplicateSerialNumberException extends UserException {
+        private static final String ERROR = "A gateway with serial number \"{0}\" already exists.";
+
+        public DuplicateSerialNumberException(String name) {
             super(ERROR, name);
         }
     }
@@ -64,8 +70,10 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         // Before storing the gateway, make sure that it has a unique name.
         // Throw an exception if it doesn't.
         HibernateTemplate hibernate = getHibernateTemplate();
-        DaoUtils.checkDuplicates(hibernate, gateway, NAME_PROP_NAME, new DuplicateNameException(
-                gateway.getName()));
+        DaoUtils.checkDuplicates(hibernate, gateway, "name", new DuplicateNameException(gateway
+                .getName()));
+        DaoUtils.checkDuplicates(hibernate, gateway, "serialNumber",
+                new DuplicateSerialNumberException(gateway.getSerialNumber()));
 
         // Store the updated gateway
         hibernate.saveOrUpdate(gateway);
@@ -92,7 +100,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             Gateway g = getGateway(id);
-            g.propagate();
+            g.generateProfiles();
         }
     }
 
@@ -100,7 +108,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         List gateways = getGateways();
         for (Iterator i = gateways.iterator(); i.hasNext();) {
             Gateway g = (Gateway) i.next();
-            g.propagate();
+            g.generateProfiles();
         }
     }
 

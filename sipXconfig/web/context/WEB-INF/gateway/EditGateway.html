@@ -8,20 +8,13 @@
     <span jwcid="@ErrorMsg"/>    
     <form jwcid="@Form" delegate="ognl:beans.validator" id="gateway">
         <fieldset jwcid="gatewayForm"></fieldset>
-        <ul class="form-actions">
-            <li>
-                <input id="gateway:save" jwcid="onSave" type="submit" value="OK"/>
-            </li>
-            <li>
-                <input id="gateway:cancel" jwcid="onCancel" type="submit" value="Cancel"/>
-            </li>
-		</ul>
+	    <span jwcid="renderSettings">
+    	    <span jwcid="settings"/>
+        	    <span jwcid="settingDescription"></span>
+	        <fieldset jwcid="settingsFieldset"/>
+    	</span>
+        <ul jwcid="formActions"/>
     </form>
-    <span jwcid="renderSettings">
-        <span jwcid="settings"/>
-            <span jwcid="settingDescription"></span>
-        <span jwcid="settingsForm"/>
-    </span>
     </div>
 </body>
 </html>

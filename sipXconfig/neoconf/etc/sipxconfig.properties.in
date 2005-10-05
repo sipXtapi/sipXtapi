@@ -4,6 +4,8 @@ sip.proxyPort=${PROXY_SERVER_SIP_PORT}
 phoneDefaults.outboundProxy=${SIPXCHANGE_DOMAIN_NAME}
 phoneDefaults.outboundProxyPort=5060
 # proxy will forward to registry server.
+phoneDefaults.proxyServerAddr=${PROXY_SERVER_ADDR}
+phoneDefaults.proxyServerSipPort=${PROXY_SERVER_SIP_PORT}
 phoneDefaults.registrationServer=${SIPXCHANGE_DOMAIN_NAME}
 phoneDefaults.registrationServerPort=5060
 phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}

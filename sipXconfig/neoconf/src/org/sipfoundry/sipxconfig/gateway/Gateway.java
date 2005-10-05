@@ -40,18 +40,9 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     private PhoneModel m_model;
 
-    public Gateway() {
-    }
-
     public void generateProfiles(Writer writer_) throws IOException {
         // generic gateways does not support generating profiles
         throw new UnsupportedOperationException();
-    }
-
-    public void prepareSettings() {
-        // do nothing for generic gateways - this method is called before generateProfiles is
-        // called
-        // use to adjust settings for generation
     }
 
     public void generateProfiles() {
@@ -140,10 +131,5 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public String getModelId() {
         return m_modelId;
-    }
-
-    protected void propagate() {
-        prepareSettings();
-        generateProfiles();
     }
 }
