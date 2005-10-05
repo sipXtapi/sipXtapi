@@ -185,7 +185,7 @@ databaseCheck() {
     then        
         return 1
     else
-        dbver=`${Psql} -c "select vh.version from version_history vh;" ${Database} postgres | sed -n 's/^\s*\([0-9]\)\s*$/\1/p'`
+        dbver=`${Psql} -c "select vh.version from version_history vh;" ${Database} postgres | sed -n 's/^\s*\([0-9][0-9]*\)\s*$/\1/p'`
         if [ "$dbver" != $RequiredDatabaseVersion ]
         then
             if [ "$dbver" == 0 ]
