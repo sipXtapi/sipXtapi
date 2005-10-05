@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
@@ -245,18 +246,17 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return getHibernateTemplate().loadAll(User.class);
     }
     
-    public int getUserCount() {
-        String userCountQuery = "userCount";
-        Collection countCollection = getHibernateTemplate().findByNamedQuery(userCountQuery);
-        Integer count = (Integer) DaoUtils.requireOneOrZero(countCollection, userCountQuery);
-        
-        return count.intValue();
+    public int getUsersCount() {
+        return getUsersInGroupCount(null);
     }
     
-    public List loadUsersByPage(int firstRow, int pageSize, String orderBy, boolean orderAscending) {
-        List users = DaoUtils.loadByPage(getSession(), QUERY_USER, firstRow, 
-                pageSize, orderBy, orderAscending);
-        return users;
+    public int getUsersInGroupCount(Integer groupId) {        
+        return getBeansInGroupCount(User.class, groupId);
+    }
+    
+    public List loadUsersByPage(Integer groupId, int firstRow, int pageSize, String orderBy,
+            boolean orderAscending) {
+        return loadBeansByPage(User.class, groupId, firstRow, pageSize, orderBy, orderAscending);
     }
 
     public void clear() {
@@ -278,11 +278,24 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     /**
-     * Temporary hack: create a superadmin user with an empty password. We will remove this hack
-     * before the product ships, and provide a bootstrap page instead so that if the product comes
-     * up and there are no users, then the first user can be created.
+     * Create a superadmin user with an empty pin.
+     * This is used to recover from the loss of all users from the database.
      */
     public void createAdminGroupAndInitialUserTask() {
+        createAdminGroupAndInitialUser(null);
+    }
+    
+    /**
+     * Create a superadmin user with the specified pin.
+     * 
+     * Map an empty pin to an empty pintoken as a special hack allowing the empty pin to
+     * be used when an insecure, easy to remember pin is needed.
+     * Previously we used 'password' rather than the empty string, relying on another hack
+     * that allowed the password and pintoken to be the same. That hack is gone so setting
+     * the pintoken to 'password' would no longer work because the password would then be
+     * the inverse hash of 'password' rather than 'password'.
+     */
+    public void createAdminGroupAndInitialUser(String pin) {
         Group adminGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, ADMIN_GROUP_NAME);
         if (adminGroup == null) {            
             adminGroup = new Group();
@@ -295,29 +308,27 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
         m_settingDao.saveGroup(adminGroup);
 
-        // using superadmin name not to disrupt existing customers
-        // can be anything
-        String superadmin = "superadmin";
-        User admin = loadUserByUserName(superadmin);
+        User admin = loadUserByUserName(User.SUPERADMIN);
         if (admin == null) {
             admin = new User();
-            admin.setUserName(superadmin);
-            // Note: previously this hack set the pintoken to 'password', relying on another hack
-            // that allowed the password and pintoken to be the same. That hack is gone so setting
-            // the pintoken to 'password' would no longer work because the password would then be
-            // the inverse hash of 'password' rather than 'password'.
-            admin.setPintoken("");
+            admin.setUserName(User.SUPERADMIN);
+            
+            if (StringUtils.isEmpty(pin)) {
+                admin.setPintoken("");
+            } else {
+                admin.setPin(pin, getAuthorizationRealm());
+            }
         }
 
         admin.addGroup(adminGroup);
-        saveUser(admin);
+        saveUser(admin);        
     }
-
+    
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
 
-    public List getUserGroups() {
+    public List getGroups() {
         return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
     }
 

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -24,22 +25,20 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 /**
  * EmergencyRouting
  */
-public class EmergencyRouting {
+public class EmergencyRouting extends BeanWithId {
     private Gateway m_defaultGateway;
     private String m_externalNumber;
 
     private Collection m_exceptions = new ArrayList();
 
     public void addException(RoutingException exception) {
+        exception.setEmergencyRouting(this);
         m_exceptions.add(exception);
     }
 
     public void removeException(RoutingException exception) {
         m_exceptions.remove(exception);
-    }
-
-    public void removeException(Integer exceptionId) {
-        m_exceptions.remove(new BeanWithId(exceptionId));
+        exception.setEmergencyRouting(null);
     }
 
     // getters and setters
@@ -100,5 +99,23 @@ public class EmergencyRouting {
         rule.setGateways(Collections.singletonList(gateway));
         rule.setDialPatterns(Collections.singletonList(new DialPattern(externalNumber, 0)));
         return rule;
+    }
+
+    public void removeGateways(Collection gatewayIds) {
+        Collection exceptions = new HashSet(getExceptions());
+        for (Iterator i = gatewayIds.iterator(); i.hasNext();) {
+            Object id = i.next();
+            if (m_defaultGateway != null && m_defaultGateway.getId().equals(id)) {
+                m_defaultGateway = null;
+            }
+            for (Iterator j = exceptions.iterator(); j.hasNext();) {
+                RoutingException re = (RoutingException) j.next();
+                Gateway gateway = re.getGateway();
+                if (gateway != null && gateway.getId().equals(id)) {
+                    re.setGateway(null);
+                    j.remove();
+                }
+            }
+        }
     }
 }

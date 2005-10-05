@@ -1,15 +1,10 @@
+/* Edited with EditCSS */
+/**** LINK-tag style sheet sipxconfig.css ****/
+
 body
 {
 	font-family:Verdana, Arial, Helvetica, sans-serif;
 	font-size:12px;
-	scrollbar-base-#color:#FFFFCC;
-	scrollbar-track-color:#FFFFCC;
-	scrollbar-face-color:#3D3D3D;
-	scrollbar-highlight-color:#FFFFCC;
-	scrollbar-3dlight-color:#669999;
-	scrollbar-darkshadow-color:#964E2E;
-	scrollbar-shadow-color:#669999;
-	scrollbar-arrow-color:#FFF;
 	margin:0;
 	padding:0;
 	background:#FFFFCC;
@@ -17,36 +12,31 @@ body
 
 a:link
 {
-	font-weight:bold;
-	text-decoration:none;
-	color:#3D3D3D;
+	color:#000099;
 }
 
 a:visited
 {
-	font-weight:bold;
-	text-decoration:none;
-	color:#3D3D3D;
+	color:#660099;
 }
 
 a:hover,a:active
 {
-	text-decoration:underline;
-	color:#3D3D3D;
+	color:#006699;
 }
 
 h1
 {
 	font-family:Arial, Helvetica, sans-serif;
 	font-size:24px;
-	color:#3D3D3D;
+	color:#003333;
 }
 
 h2
 {
 	font-family:Arial, Helvetica, sans-serif;
 	font-size:20px;
-	color:#3D3D3D;
+	color:#003333;
 }
 
 h3
@@ -54,7 +44,7 @@ h3
 	font-family:Arial, Helvetica, sans-serif;
 	font-size:16px;
 	font-weight:bolder;
-	color:#3D3D3D;
+	color:#003333;
 }
 
 h4
@@ -142,8 +132,6 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 	height:0;
 	color:#fff;
 	border-bottom:thick solid #669999;
-	font-weight:bold;
-	font-style:italic;
 	padding:55px 0 20px 120px;
 	background:url(/sipxconfig/images/sipxconfig-logo.png) no-repeat left #669999;
 }
@@ -151,13 +139,11 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 #banner-links
 {
 	float:right;
-	font-style:normal;
 	padding:0 50px 0 0;
 }
 
 #banner-links a
 {
-	font-weight:bold;
 	text-decoration:none;
 	color:#fff;
 	padding:0 5px;
@@ -165,8 +151,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 
 #banner-links a:hover,a:active
 {
-	text-decoration:underline;
-	color:#3D3D3D;
+	color:#003333;
 }
 
 #navigation
@@ -187,6 +172,8 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 }
 
 #navigation a {
+        text-decoration:none;
+	font-style:normal;
         color: #FFFFFF;
 }
 
@@ -197,7 +184,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 .navHeading
 {
 	font-family:Arial, Helvetica, sans-serif;
-	font-size:16px;
+	font-size:14px;
 	font-weight:bold;
         color: #FFFFFF;
 }
@@ -336,9 +323,11 @@ table.component thead th
 	padding:3px;
 }
 
-table.component th a
+table.component th a, th
 {
+        text-decoration:none;
 	color:#fff;
+        font-weight:normal;
 }
 
 table.component td
@@ -479,13 +468,19 @@ ul.form-actions li
 .user-error
 {
 	font-weight:bold;
-	color:#3D3D3D;
+	color:#CC3333;
+}
+
+.user-success
+{
+	font-weight:bold;
+	color:#3399FF;
 }
 
 #comments
 {
 	border-top:solid;
-	color:#3D3D3D;
+	color:#000033;
 }
 
 #col1
@@ -500,8 +495,32 @@ ul.form-actions li
 	width:25em;
 }
 
-text-align: left; }
-ul.form-actions li
-{
-	display:inline;
-}
+TABLE.tapestry-palette TH
+ {
+   font-size: 9pt;
+   font-weight: bold;
+   color: white;
+   background-color: #3d3d3d;
+   text-align: center;
+ }
+
+ TD.available-cell SELECT
+ {
+   font-weight: normal;
+   background-color: #FFFFFF;
+   width: 200px;
+ }
+ 
+ TD.selected-cell SELECT
+ {
+   font-weight: normal;
+   background-color: #FFFFFF;
+   width: 200px;
+ }
+ 
+ TABLE.tapestry-palette TD.controls
+ {
+   text-align: center;
+   vertical-align: middle;
+   width: 60px;
+ }

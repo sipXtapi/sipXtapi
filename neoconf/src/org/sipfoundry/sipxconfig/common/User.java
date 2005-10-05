@@ -31,6 +31,10 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class User extends BeanWithGroups {
 
     public static final String GROUP_RESOURCE_ID = "user";
+    
+    // Reserved name for the special superadmin user.  In principle, this name could now be
+    // anything, it's just "superadmin" by current convention.
+    public static final String SUPERADMIN = "superadmin";
 
     private String m_firstName;
 

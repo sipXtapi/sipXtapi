@@ -16,9 +16,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.dbunit.dataset.ITable;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -26,7 +25,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
 
-public class CallGroupContextImplTestDb extends TestCase {
+public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
 
     private CallGroupContext m_context;
 

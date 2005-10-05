@@ -19,7 +19,9 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
 public class SnomPhone extends Phone {
@@ -41,8 +43,18 @@ public class SnomPhone extends Phone {
     }
 
     public String getPhoneFilename() {
-        String phoneFilename = getModel() + "-" + getSerialNumber().toUpperCase();
-        return getWebDirectory() + "/" + phoneFilename + ".htm";
+        return getWebDirectory() + "/" + getProfileName();
+    }
+
+    String getProfileName() {
+        StringBuffer buffer = new StringBuffer(getModel().toString());
+        String serialNumber = getSerialNumber();
+        if (StringUtils.isNotBlank(serialNumber)) {
+            buffer.append("-");
+            buffer.append(serialNumber.toUpperCase());
+        }
+        buffer.append(".htm");
+        return buffer.toString();
     }
 
     public int getMaxLineCount() {
@@ -84,6 +96,15 @@ public class SnomPhone extends Phone {
         return linesSettings;
     }
 
+    protected void defaultSettings() {
+        super.defaultSettings();
+
+        Setting settings = getSettings();
+        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+        String configUrl = defaults.getProfileRootUrl() + '/' + getProfileName();
+        settings.getSetting("update/setting_server").setValue(configUrl);
+    }
+
     public Object getLineAdapter(Line line, Class interfac) {
         Object impl;
         if (interfac == LineSettings.class) {
@@ -102,6 +123,6 @@ public class SnomPhone extends Phone {
     }
 
     public void restart() {
-        sendCheckSyncToFirstLine();        
+        sendCheckSyncToFirstLine();
     }
 }

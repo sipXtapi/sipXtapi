@@ -17,10 +17,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dbunit.dataset.ITable;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 
-public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
+public class ParkOrbitTestDb extends SipxDatabaseTestCase {
 
     private CallGroupContext m_context;
 
@@ -80,6 +81,13 @@ public class ParkOrbitTestDb extends TestHelper.TestCaseDb {
         assertEquals(1, orbitTable.getRowCount());
     }
     
+    public void testGenerateAliases() throws Exception {
+        // park orbits do not generate any aliases
+        Collection aliases = m_context.getAliasMappings();
+        assertNotNull(aliases);
+        assertEquals(0, aliases.size());
+    }
+
     public void testDefaultMusicOnHold() throws Exception {
         final String newMusic = "new.wav";
         assertEquals("default.wav", m_context.getDefaultMusicOnHold());

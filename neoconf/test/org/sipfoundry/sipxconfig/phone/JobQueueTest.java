@@ -13,64 +13,90 @@ package org.sipfoundry.sipxconfig.phone;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.collections.BufferOverflowException;
+import org.easymock.MockControl;
+import org.easymock.classextension.MockClassControl;
+import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class JobQueueTest extends TestCase {
-    
-    private int m_count;
-    
+
     private JobQueue m_queue;
-    
-    private JobRecord m_stop = new JobRecord();
-    
+
     protected void setUp() {
-        m_queue = new JobQueue();        
+        m_queue = new JobQueue();
     }
-    
-    public void testExceptionOnOverflow() {
-        for (int i = 0; i < 5; i++) {
-            m_queue.addJob(new JobRecord());
-        }
-        try {
-            m_queue.addJob(new JobRecord());
-            fail();
-        } catch (BufferOverflowException expected) {
-            assertTrue(true);
-        }
+
+    public void testGenerateProfiles() throws Exception {
+        Integer jobId = new Integer(4);
+
+        MockControl jobContextCtrl = MockControl.createStrictControl(JobContext.class);
+        JobContext jobContext = (JobContext) jobContextCtrl.getMock();
+        jobContext.schedule("Projection for phone 000000000000");
+        jobContextCtrl.setReturnValue(jobId);
+        jobContext.start(jobId);
+        jobContext.success(jobId);
+        jobContextCtrl.replay();
+
+        MockControl phoneControl = MockClassControl.createStrictControl(Phone.class);
+        Phone phone = (Phone) phoneControl.getMock();
+        phoneControl.expectAndReturn(phone.getSerialNumber(), "000000000000");
+        phone.generateProfiles();
+        phoneControl.setVoidCallable(1);
+        phone.restart();
+        phoneControl.setVoidCallable(1);
+        phoneControl.replay();
+
+        JobRecord job = new JobRecord();
+        job.setPhones(new Phone[] {
+            phone
+        });
+
+        job.setType(JobRecord.TYPE_PROJECTION);
+
+        m_queue.setJobContext(jobContext);
+        m_queue.addJob(job);
+        m_queue.yieldTillEmpty();
+
+        jobContextCtrl.verify();
+        phoneControl.verify();
     }
-    
-    
-    public void testQueue() throws Exception {
-        Runnable producer = new Runnable() {
-            public void run() {
-                for (int i = 0; i < 4; i++) {
-                    m_queue.addJob(new JobRecord());
-                }
-                m_queue.addJob(m_stop);
-            }
-        };
-        
-        Runnable consumer = new Runnable() {
-            public void run() {
-                JobRecord job = null;
-                while (job != m_stop) {
-                    job = m_queue.removeJob();
-                    // artificial delay
-                    try {
-                        Thread.sleep(100);
-                    }
-                    catch (InterruptedException ie) {
-                        fail();
-                    }
-                    m_count++;
-                }
-            }
-        };
-        
-        Thread consumerThread = new Thread(consumer);
-        consumerThread.start();
-        new Thread(producer).start();
-        consumerThread.join();
-        assertEquals(5, m_count);
+
+    public void testRestartException() throws Exception {
+        Integer jobId = new Integer(4);
+
+        RestartException re = new RestartException("xxx");
+
+        MockControl jobContextCtrl = MockControl.createStrictControl(JobContext.class);
+        JobContext jobContext = (JobContext) jobContextCtrl.getMock();
+        jobContext.schedule("Projection for phone 000000000000");
+        jobContextCtrl.setReturnValue(jobId);
+        jobContext.start(jobId);
+        jobContext.failure(jobId, null, re);
+        jobContextCtrl.replay();
+
+        MockControl phoneControl = MockClassControl.createStrictControl(Phone.class);
+        Phone phone = (Phone) phoneControl.getMock();
+        phoneControl.expectAndReturn(phone.getSerialNumber(), "000000000000");
+        phone.restart();
+        phoneControl.setThrowable(re);
+        phoneControl.replay();
+
+        JobRecord job = new JobRecord();
+        job.setPhones(new Phone[] {
+            phone
+        });
+
+        job.setType(JobRecord.TYPE_DEVICE_RESTART);
+
+        m_queue.setJobContext(jobContext);
+        m_queue.addJob(job);
+        m_queue.yieldTillEmpty();
+
+        phoneControl.verify();
+        jobContextCtrl.verify();
+    }
+
+    public void testStartStop() throws Exception {
+        JobQueue queue = new JobQueue();
+        assertTrue(queue.isEmpty());
     }
 }

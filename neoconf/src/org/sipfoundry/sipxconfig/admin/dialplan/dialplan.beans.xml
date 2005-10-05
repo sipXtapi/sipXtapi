@@ -79,7 +79,7 @@
       <value>Toll free dialing</value>
     </property>
     <property name="areaCodes">
-      <value>800, 877, 888</value>
+      <value>800, 866, 877, 888</value>
     </property>
     <property name="permission">
       <bean id="org.sipfoundry.sipxconfig.common.Permission.TOLL_FREE_DIALING"

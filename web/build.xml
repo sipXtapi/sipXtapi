@@ -17,6 +17,7 @@
     <pathelement path="${servlet.jar}" />
     <pathelement path="${tapestry.jar}" />
     <pathelement path="${tapestry-contrib.jar}" />
+    <pathelement path="${tapestry-checkboxes.jar}" />
     <pathelement path="${ognl.jar}" />
   </path>
   <!-- 
@@ -31,7 +32,7 @@
     <pathelement path="${commons-beanutils.jar}" />
     <pathelement path="${commons-codec.jar}" />
     <pathelement path="${commons-collections.jar}" />
-    <pathelement path="${commons-dbcp.jar}" />
+    <pathelement path="${c3p0.jar}" />
     <pathelement path="${commons-digester.jar}" />
     <pathelement path="${commons-fileupload.jar}" />
     <pathelement path="${commons-io.jar}" />
@@ -183,6 +184,7 @@
       <fileset file="${sipxconfig.war}"/>
       <fileset file="${tapestry.jar}" />
       <fileset file="${tapestry-contrib.jar}" />
+      <fileset file="${tapestry-checkboxes.jar}" />
       <fileset file="${ognl.jar}" />
       <!-- SOAP -->
       <fileset file="${xfire.jar}" />

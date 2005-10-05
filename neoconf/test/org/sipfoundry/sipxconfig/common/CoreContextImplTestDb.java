@@ -15,18 +15,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.context.ApplicationContext;
 
-public class CoreContextImplTestDb extends TestCase {
+public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     private static final int NUM_USERS = 10;
     private CoreContextImpl m_core;
@@ -236,7 +235,7 @@ public class CoreContextImplTestDb extends TestCase {
     public void testLoadGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
-        List groups = m_core.getUserGroups();
+        List groups = m_core.getGroups();
         assertEquals(1, groups.size());
         Group group = (Group) groups.get(0);
         assertEquals("SeedUserGroup1", group.getName());
@@ -268,7 +267,7 @@ public class CoreContextImplTestDb extends TestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         m_core.createAdminGroupAndInitialUserTask();
 
-        User admin = m_core.loadUserByUserName("superadmin");
+        User admin = m_core.loadUserByUserName(User.SUPERADMIN);
         Group adminGroup = (Group) admin.getGroups().iterator().next();
         IDataSet expectedDs = TestHelper
                 .loadDataSetFlat("common/CreateAdminAndInitialUserExpected.xml");
@@ -309,17 +308,23 @@ public class CoreContextImplTestDb extends TestCase {
     
     public void testCountUsers() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
-        assertEquals(10, m_core.getUserCount());
+        assertEquals(10, m_core.getUsersCount());
+    }
+    
+    public void testCountUsersInGroup() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        assertEquals(2, m_core.getUsersInGroupCount(new Integer(1001)));
+        assertEquals(3, m_core.getUsersInGroupCount(new Integer(1002)));
     }
     
     public void testLoadUserPage() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage(0, 2, "userName", true);
+        Collection page = m_core.loadUsersByPage(null, 0, 2, "userName", true);
         assertEquals(2, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
         
-        Collection next = m_core.loadUsersByPage(2, 2, "userName", true);
+        Collection next = m_core.loadUsersByPage(null, 2, 2, "userName", true);
         assertEquals(2, next.size());
         User nextUser = (User) next.iterator().next();
         assertEquals("charlie", nextUser.getUserName());
@@ -328,8 +333,16 @@ public class CoreContextImplTestDb extends TestCase {
     public void testLoadUserPageDescending() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
         // expect third user from bottom
-        Collection page = m_core.loadUsersByPage(2, 2, "userName", false);
+        Collection page = m_core.loadUsersByPage(null, 2, 2, "userName", false);
         User u = (User) page.iterator().next();
         assertEquals("horatio", u.getUserName());
+    }
+    
+    public void testLoadUserPageWithGroup() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        Collection page = m_core.loadUsersByPage(new Integer(1001), 0, 10, "userName", true);
+        assertEquals(1, page.size());
+        User u = (User) page.iterator().next();
+        assertEquals("alpha", u.getUserName());        
     }
 }

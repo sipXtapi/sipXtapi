@@ -14,15 +14,24 @@ package org.sipfoundry.sipxconfig.site.setting;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.test.AbstractInstantiator;
 import org.apache.tapestry.valid.IValidator;
 import org.apache.tapestry.valid.PatternValidator;
 import org.apache.tapestry.valid.StringValidator;
+import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 
 public class SettingEditorTest extends TestCase {
+    
+    private SettingEditor m_editor;
+
+    protected void setUp() throws Exception {
+        m_editor = (SettingEditor) new AbstractInstantiator().getInstance(SettingEditor.class);
+    }
 
     public void testValidatorForInteger() {
         SettingType type = new IntegerSetting();
@@ -75,5 +84,55 @@ public class SettingEditorTest extends TestCase {
     public void testEnumModelForInvalidType() {
         IPropertySelectionModel model = SettingEditor.enumModelForType(new StringSetting());
         assertNull(model);
+    }
+
+    
+    public void testGetDefaultValue() {
+        SettingType type = new IntegerSetting();
+        
+        MockControl settingCtrl = MockControl.createControl(Setting.class);
+        Setting setting = (Setting) settingCtrl.getMock();        
+        settingCtrl.expectAndReturn(setting.getDefaultValue(), "bongo");
+        settingCtrl.expectAndReturn(setting.getType(), type);        
+        settingCtrl.replay();
+        
+        m_editor.setSetting(setting);
+        
+        assertEquals("bongo", m_editor.getDefaultValue());
+
+        settingCtrl.verify();
+    }
+    
+    public void testGetDefaultValueForString() {
+        StringSetting type = new StringSetting();
+        type.setPassword(false);
+        
+        MockControl settingCtrl = MockControl.createControl(Setting.class);
+        Setting setting = (Setting) settingCtrl.getMock();        
+        settingCtrl.expectAndReturn(setting.getDefaultValue(), "bongo");
+        settingCtrl.expectAndReturn(setting.getType(), type);        
+        settingCtrl.replay();
+        
+        m_editor.setSetting(setting);
+        
+        assertEquals("bongo", m_editor.getDefaultValue());
+
+        settingCtrl.verify();
+    }
+
+    public void testGetDefaultValueForPassword() {
+        StringSetting type = new StringSetting();
+        type.setPassword(true);
+        
+        MockControl settingCtrl = MockControl.createControl(Setting.class);
+        Setting setting = (Setting) settingCtrl.getMock();        
+        settingCtrl.expectAndReturn(setting.getType(), type);        
+        settingCtrl.replay();
+        
+        m_editor.setSetting(setting);
+        
+        assertNull(m_editor.getDefaultValue());
+
+        settingCtrl.verify();
     }
 }

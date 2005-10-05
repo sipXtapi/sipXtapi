@@ -12,24 +12,10 @@
 		type="org.sipfoundry.sipxconfig.common.User" 
     	required="yes"
     	direction="auto"/>    
-    
-    <parameter name="pinValidator"
-        type="org.apache.tapestry.valid.IValidator"
-    	required="no"
-    	direction="auto"
-        default-value="beans.defaultPinValidator"/>
         
     <!--
       - P R O P E R T I E S
       -->
-    
-    <!-- not yet implemented -->
-    <property-specification name="confirmPin" 
-        type="java.lang.String"/>
-    
-    <!-- not yet implemented -->
-    <property-specification name="confirmSipPassword" 
-        type="java.lang.String"/>
     
     <property-specification name="coreContext"
         type="org.sipfoundry.sipxconfig.common.CoreContext"
@@ -41,16 +27,18 @@
     
     <property-specification name="pin" type="java.lang.String"/>
     
+    <property-specification name="showSipPassword" type="boolean" persistent="yes"/>
+    
 	<!-- comma-delimited list of aliases -->
     <property-specification name="aliasesString" type="java.lang.String"/>
 
     <!--
       - B E A N S 
       -->
-    
-    <bean name="defaultPinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
-    	<set-property name="required" expression="false"/>
-	</bean>
+    <bean name="userGroupSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    	<set-property name="collection" expression="coreContext.groups"/>
+    	<set-property name="labelExpression" expression="'name'"/>        
+    </bean>
      
     <!--
       - C O M P O N E N T S
@@ -86,7 +74,7 @@
         <message-binding name="passwordDescription" key="description.pin"/>
         <message-binding name="confirmPasswordDisplayName" key="label.pin2"/>
         <message-binding name="passwordMismatchMessage" key="message.pinMismatch"/>
-        <binding name="passwordValidator" expression="pinValidator"/>
+        <binding name="passwordValidator" expression="page.global.validPinRequired"/>
     </component>
     <component id="sipPasswordPanel" type="FieldPanel">
         <binding name="field" expression="components.sipPassword"/>
@@ -96,9 +84,11 @@
     <component id="sipPassword" type="TextField">
 	    <binding name="value" expression="user.sipPassword"/>
     </component>
-    <component id="groupSelect" type="GroupSelect">
-        <binding name="groups" expression="coreContext.userGroups"/>
-        <binding name="values" expression="user.groups"/>
+    <component id="groupSelect" type="contrib:Palette">
+        <binding name="selected" expression="user.groupsAsList"/>
+        <binding name="model" expression="beans.userGroupSelectionModel"/>
+        <binding name="sort" expression="@org.apache.tapestry.contrib.palette.SortMode@LABEL"/>
+        <binding name="rows" expression="3"/>
     </component>
     <component id="aliasesPanel" type="FieldPanel">
         <binding name="field" expression="components.aliases"/>
@@ -111,4 +101,11 @@
 	    <message-binding name="displayName" key="label.aliases"/>
     </component>
     
+    <component id="ifRenderSipPassword" type="contrib:FormConditional">
+        <binding name="condition" expression="showSipPassword"/>
+    </component>
+    
+    <component id="toggleShowSipPassword" type="ToggleLink">
+        <binding name="toggle" expression="showSipPassword"/>
+    </component>
 </component-specification>

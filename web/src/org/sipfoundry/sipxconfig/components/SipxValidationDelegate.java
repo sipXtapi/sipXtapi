@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IFormComponent;
@@ -28,6 +29,7 @@ public class SipxValidationDelegate extends ValidationDelegate {
 
     private String m_suffix;
     private boolean m_decorateLabels;
+    private String m_success;
 
     public SipxValidationDelegate() {
         this("*", false);
@@ -61,5 +63,27 @@ public class SipxValidationDelegate extends ValidationDelegate {
             writer.print(m_suffix);
             writer.end();
         }
+    }
+    
+    public void clear() {
+        super.clear();
+        m_success = null;        
+    }
+    
+    public void clearErrors() {
+        super.clearErrors();
+        m_success = null;
+    }
+    
+    public void recordSuccess(String success) {
+        m_success = success;
+    }
+    
+    public String getSuccess() {
+        return m_success;
+    }
+    
+    public boolean getHasSuccess() {
+        return !getHasErrors() && StringUtils.isNotBlank(m_success);
     }
 }

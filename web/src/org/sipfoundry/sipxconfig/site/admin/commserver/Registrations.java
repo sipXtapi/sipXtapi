@@ -12,28 +12,64 @@
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.tapestry.IRender;
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.contrib.table.model.ITableColumn;
+import org.apache.tapestry.contrib.table.model.ITableModelSource;
+import org.apache.tapestry.contrib.table.model.ITableRendererSource;
+import org.apache.tapestry.contrib.table.model.simple.ITableColumnEvaluator;
+import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.valid.RenderString;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 
 public abstract class Registrations extends BasePage implements PageRenderListener {
     public static final String PAGE = "Registrations";
 
-    private long m_startRenderingTime;
+    private static final String EXPIRES_COLUMN = "expires";
 
-    public abstract RegistrationItem getCurrentRow();
+    private long m_startRenderingTime;
 
     public void pageBeginRender(PageEvent event_) {
         m_startRenderingTime = System.currentTimeMillis() / DateUtils.MILLIS_PER_SECOND;
     }
 
-    public String getTimeToExpire() {
-        RegistrationItem item = getCurrentRow();
-        long l = item.timeToExpireAsSeconds(m_startRenderingTime);
-        if (l < 0) {
-            return getMessage("status.expired");
+    public ITableColumn getExpiresColumn() {
+        ITableColumnEvaluator eval = new ExpireTimeEvaluator();
+        ExpireTimeRendererSource rendererSource = new ExpireTimeRendererSource(
+                getMessage("status.expired"));
+        SimpleTableColumn column = new SimpleTableColumn(EXPIRES_COLUMN,
+                getMessage(EXPIRES_COLUMN), eval, true);
+        column.setValueRendererSource(rendererSource);
+        return column;
+    }
+
+    private static class ExpireTimeRendererSource implements ITableRendererSource {
+        private IRender m_expiredRenderer;
+
+        public ExpireTimeRendererSource(String msg) {
+            m_expiredRenderer = new RenderString(msg);
         }
-        return Long.toString(l);
+
+        public IRender getRenderer(IRequestCycle objCycle_, ITableModelSource objSource_,
+                ITableColumn objColumn, Object objRow) {
+            SimpleTableColumn objSimpleColumn = (SimpleTableColumn) objColumn;
+
+            Long expired = (Long) objSimpleColumn.getColumnValue(objRow);
+            if (expired.longValue() > 0) {
+                return new RenderString(expired.toString());
+            }
+            return m_expiredRenderer;
+        }
+    }
+
+    private class ExpireTimeEvaluator implements ITableColumnEvaluator {
+        public Object getColumnValue(ITableColumn objColumn_, Object objRow) {
+            RegistrationItem item = (RegistrationItem) objRow;
+            long l = item.timeToExpireAsSeconds(m_startRenderingTime);
+            return new Long(l);
+        }
     }
 }

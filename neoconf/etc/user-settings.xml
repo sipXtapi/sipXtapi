@@ -13,6 +13,7 @@
     </boolean>
   </type>
   <group name="permission">
+    <label>Permissions</label>
     <group name="application">
       <label>Web UI Permissions</label>
       <setting name="superadmin">
@@ -50,20 +51,26 @@
       <setting name="InternationalDialing">
         <label>International Dialing</label>
         <type refid="enable-disable"/>
-        <value>DISABLE</value>
+        <value>ENABLE</value>
         <description>User can dial international numbers</description>
       </setting>
       <setting name="LocalDialing">
         <label>Local Dialing</label>
         <type refid="enable-disable"/>
-        <value>DISABLE</value>
+        <value>ENABLE</value>
         <description>User can dial local numbers</description>
       </setting>
       <setting name="LongDistanceDialing">
         <label>Long Distance Dialing</label>
         <type refid="enable-disable"/>
-        <value>DISABLE</value>
+        <value>ENABLE</value>
         <description>User can dial long distance numbers</description>
+      </setting>
+      <setting name="TollFree">
+        <label>Toll Free</label>
+        <type refid="enable-disable"/>
+        <value>ENABLE</value>
+        <description>User can dial toll free numbers</description>
       </setting>
       <setting name="Voicemail">
         <label>Voice Mail</label>

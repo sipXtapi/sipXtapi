@@ -13,15 +13,14 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.util.Date;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 
-public class DailyBackupScheduleTestDb extends TestCase {
+public class DailyBackupScheduleTestDb extends SipxDatabaseTestCase {
     
     private AdminContext m_adminContext;
     

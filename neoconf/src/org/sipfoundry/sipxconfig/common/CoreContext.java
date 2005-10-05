@@ -25,8 +25,6 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
 
     public static final String CONTEXT_BEAN_NAME = "coreContext";
 
-    public static final Integer UNSAVED_ID = new Integer(-1);
-
     public void saveUser(User user);
 
     public void deleteUser(User user);
@@ -37,9 +35,11 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
 
     public List loadUsers();
     
-    public int getUserCount();
-        
-    public List loadUsersByPage(int page, int pageSize, String orderBy, boolean orderAscending);
+    public int getUsersCount();
+    
+    public int getUsersInGroupCount(Integer groupId);
+    
+    public List loadUsersByPage(Integer groupId, int page, int pageSize, String orderBy, boolean orderAscending);
 
     public List loadUserByTemplateUser(User template);
 
@@ -73,7 +73,7 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
 
     public void clear();
 
-    public List getUserGroups();
+    public List getGroups();
 
     /**
      * Model of all user settings
@@ -83,7 +83,16 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
     public Collection getGroupMembers(Group group);
 
     /**
-     * Called internally by boot-up process
+     * Called to create a superadmin user with an empty password,
+     * to recover from a situation where there are no admin users in the DB
      */
     public void createAdminGroupAndInitialUserTask();
+    
+    /**
+     * Called by the bootstrap page to create the superadmin user, giving it
+     * the specified pin
+     * 
+     * @param pin
+     */
+    public void createAdminGroupAndInitialUser(String pin);
 }

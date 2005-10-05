@@ -12,32 +12,38 @@
 package org.sipfoundry.sipxconfig.phone;
 
 /**
- * Basic phone setting all phones should implement.  See SettingBeanAdapter for mapping support to 
+ * Basic phone setting all phones should implement. See SettingBeanAdapter for mapping support to
  * settings
  */
 public interface PhoneSettings {
 
     public static final String DOMAIN_NAME = "domainName";
-    
+
     public static final String OUTBOUND_PROXY = "outboundProxy";
-    
+
     public static final String OUTBOUND_PROXY_PORT = "outboundProxyPort";
-    
+
     public static final String TFTP_SERVER = "tftpServer";
-    
+
+    public static final String VOICE_MAIL_NUMBER = "voiceMailNumber";
+
     public String getOutboundProxy();
-    
+
     public void setOutboundProxy(String proxy);
-    
+
     public String getOutboundProxyPort();
 
     public void setOutboundProxyPort(String port);
-    
+
     public String getDomainName();
-    
+
     public void setDomainName(String domainName);
-    
+
     public String getTftpServer();
 
     public void setTftpServer(String server);
+
+    public String getVoiceMailNumber();
+
+    public void setVoiceMailNumber(String voiceMail);
 }

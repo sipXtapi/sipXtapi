@@ -16,14 +16,12 @@ registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}
 coreContextImpl.authorizationRealm=${SIPXCHANGE_REALM}
 coreContextImpl.domainName=${SIPXCHANGE_DOMAIN_NAME}
 adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
-dataSource.url=jdbc:postgresql://localhost/SIPXCONFIG
 vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
 vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
 orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
 
 # external aliases
 externalAliases.addinsDirectory=@sipxpbx.data.dir@
-# it should be set to dolar_sign{dataset.alias.addins} for backward compatibility but configpp returns errors
 externalAliases.aliasAddins=
 
 # name changes to anything starting w/sysdir need to be reflected in

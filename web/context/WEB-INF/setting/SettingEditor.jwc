@@ -11,22 +11,13 @@
     
     <parameter name="setting" direction="auto" required="yes" type="org.sipfoundry.sipxconfig.setting.Setting"/>
     
-    <component id="settingLabel" type="Any">
+    <component id="fieldPanel" type="FieldPanel">
         <binding name="for" expression="'setting:' + setting.name"/>
-    </component>
-    <component id="settingLabelText" type="FieldLabel">
         <binding name="field" expression="components.get(setting.type.name + 'Field')"/>
-        <binding name="displayName" expression="setting.label"/>
-    </component>
-    
-    <component id="settingDescription" type="Insert">
-        <binding name="value" expression="setting.description"/>
-    </component>
-
-    <component id="settingDefault" type="Insert">
-        <binding name="value" expression="setting.defaultValue"/>
+        <binding name="label" expression="setting.label"/>
+        <binding name="defaultValue" expression="defaultValue"/>
+        <binding name="description" expression="setting.description"/>        
     </component>    
-
     
     <component id="integerField" type="contrib:NumericField">
         <binding name="id" expression="'setting:' + setting.name"/>
@@ -52,7 +43,7 @@
         
 	<component id="stringField" type="ValidField">
         <binding name="id" expression="'setting:' + setting.name"/>
-        <binding name="value" expression="setting.value"/>
+        <binding name="value" expression="stringValue"/>
         <binding name="hidden" expression="setting.type.password"/>
         <binding name="displayName" expression="setting.label"/>
         <binding name="validator" expression="validator"/>
@@ -75,6 +66,6 @@
     
     <component id="field" type="RenderBlock">
         <binding name="block" expression="components.get(setting.type.name + 'Block')"/>
-    </component>    
+    </component>
     
 </component-specification>

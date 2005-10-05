@@ -16,7 +16,6 @@ import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.ListEditMap;
@@ -34,25 +33,32 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
  */
 public abstract class EditEmergencyRouting extends BasePage implements PageRenderListener {
 
+    public static final String PAGE = "EditEmergencyRouting";
+
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract EmergencyRouting getEmergencyRouting();
+
     public abstract void setEmergencyRouting(EmergencyRouting emergencyRouting);
 
     public abstract ListEditMap getExceptionsMap();
+
     public abstract void setExceptionsMap(ListEditMap map);
 
     public abstract void setExceptionItem(RoutingException exception);
-    
+
     public abstract ICallback getCallback();
+
     public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
         EmergencyRouting emergencyRouting = getEmergencyRouting();
-        if (emergencyRouting == null) {
-            emergencyRouting = getDialPlanContext().getEmergencyRouting();
-            setEmergencyRouting(emergencyRouting);
+        if (emergencyRouting != null) {
+            return;
         }
+        emergencyRouting = getDialPlanContext().getEmergencyRouting();
+        setEmergencyRouting(emergencyRouting);
+
         Collection exceptions = emergencyRouting.getExceptions();
         ListEditMap map = new ListEditMap();
         for (Iterator i = exceptions.iterator(); i.hasNext();) {
@@ -60,18 +66,6 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
             map.add(exception.getId(), exception);
         }
         setExceptionsMap(map);
-        
-        // If no callback was set before navigating to this page, then by
-        // default, go back to the ActivateDialPlan page
-        if (getCallback() == null) {
-            setCallback(new PageCallback(ActivateDialPlan.PAGE));
-        }
-    }
-
-    public void formSubmit(IRequestCycle cycle_) {
-        if (!isValid()) {
-            return;
-        }
     }
 
     public void commit(IRequestCycle cycle_) {
@@ -79,8 +73,8 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
             return;
         }
         DialPlanContext manager = getDialPlanContext();
+        manager.storeEmergencyRouting(getEmergencyRouting());
         manager.applyEmergencyRouting();
-        manager.generateDialPlan();
     }
 
     /**
@@ -98,21 +92,20 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
     }
 
     public void addException(IRequestCycle cycle_) {
-        EmergencyRouting emergencyRouting = getEmergencyRouting();
+        EmergencyRouting emergencyRouting = getDialPlanContext().getEmergencyRouting();
         emergencyRouting.addException(new RoutingException());
+        getDialPlanContext().storeEmergencyRouting(emergencyRouting);
     }
 
     public void deleteException(IRequestCycle cycle) {
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
                 .getServiceParameters(), 0);
-        getEmergencyRouting().removeException(id);
+        getDialPlanContext().removeRoutingException(id);
     }
 
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
         PropertySelection component = (PropertySelection) getComponent("gateways");
-        // HACK: we should be checking component properties but component.getModel() always
-        // returns null
         if (null == getEmergencyRouting().getDefaultGateway()) {
             delegate.setFormComponent(component);
             delegate.record("Please configure at least one gateway.",

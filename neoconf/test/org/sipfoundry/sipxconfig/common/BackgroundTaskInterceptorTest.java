@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import junit.framework.ComparisonFailure;
 import junit.framework.TestCase;
 
 import org.springframework.aop.framework.ProxyFactory;
@@ -51,11 +50,6 @@ public class BackgroundTaskInterceptorTest extends TestCase {
 
         m_queue.yieldTillEmpty();
 
-        // broken
-        try {            
-            assertEquals("xx", m_buffer.toString());
-        } catch (ComparisonFailure xcf488) {            
-            xcf488.printStackTrace();
-        }
+        assertEquals("xx", m_buffer.toString());
     }
 }

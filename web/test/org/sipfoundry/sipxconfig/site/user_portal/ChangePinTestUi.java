@@ -27,9 +27,8 @@ public class ChangePinTestUi extends WebTestCase {
     private static final String NON_NUMERIC_PIN = "nerf";
     
     private static final String MSG_WRONG_PIN = "The current PIN that you entered is incorrect";
-    private static final String MSG_NON_NUMERIC_PIN = "must be a numeric value";
     private static final String MSG_PIN_MISMATCH = "The new PIN and confirmed new PIN don't match";
-    private static final String MSG_EMPTY_NEW_PIN="The new PIN cannot be empty";
+    private static final String MSG_EMPTY_NEW_PIN="You must enter a value for New PIN";
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ChangePinTestUi.class);
@@ -63,11 +62,12 @@ public class ChangePinTestUi extends WebTestCase {
     }
     
     // When entering an empty current PIN, we expect to see an error that it is the wrong PIN,
-    // because in fact the PIN is not empty.  But we should accept an empty current PIN as valid
-    // data, even though we won't allow someone to set their PIN to empty in the UI, just
-    // in case the PIN was cleared at the DB level and the user wants to restore a legal PIN value. 
+    // because the PIN is not empty.  We should not get an error about the PIN being required.
+    // We allow an empty current PIN even though the UI won't let you set the PIN empty, 
+    // because the PIN might be empty due to a database reset.
     public void testEmptyCurrentPin() throws Exception {
         changePin("", NEW_PIN);
+        dumpResponse(System.err);
         assertTextPresent(MSG_WRONG_PIN);
         SiteTestHelper.assertNoException(tester);
     }
@@ -84,9 +84,10 @@ public class ChangePinTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
     }
     
+    // Non-numeric PINs should work fine
     public void testNonNumericPin() throws Exception {
         changePin(CURRENT_PIN, NON_NUMERIC_PIN);
-        assertTextPresent(MSG_NON_NUMERIC_PIN);
+        SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
     }
    

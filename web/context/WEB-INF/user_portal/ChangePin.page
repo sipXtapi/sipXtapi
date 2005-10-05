@@ -17,15 +17,11 @@
     
 	<property-specification name="currentPin" type="java.lang.String"/>
 	<property-specification name="newPin" type="java.lang.String"/>
-	<property-specification name="confirmNewPin" type="java.lang.String"/>
 
     <!--
       - B E A N S 
       -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    <bean name="pinValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
-    	<set-property name="required" expression="false"/>
-	</bean>
     
     <!--
      - C O M P O N E N T S
@@ -40,7 +36,9 @@
     </component>
     <component id="currentPin" type="ValidField">
 	    <binding name="value" expression="currentPin"/>
-    	<binding name="validator" expression="beans.pinValidator"/>
+        <!-- Allow the current PIN to be empty.  Usually empty PINs are not allowed,
+             but if the PIN got to be empty, you should be able to change it. -->
+    	<binding name="validator" expression="global.validPin"/>
         <binding name="hidden" expression="true"/>
         <message-binding name="displayName" key="label.currentPin"/>
     </component>
@@ -50,10 +48,11 @@
         <message-binding name="passwordDisplayName" key="label.newPin"/>
         <message-binding name="confirmPasswordDisplayName" key="label.confirmNewPin"/>
         <message-binding name="passwordMismatchMessage" key="message.newPinMismatch"/>
-        <binding name="passwordValidator" expression="beans.pinValidator"/>
+        <binding name="passwordValidator" expression="global.validPinRequired"/>
     </component>
     
     <component id="formActions" type="FormActions">
         <binding name="listener" expression="listeners.changePin"/>
+        <message-binding name="successMessage" key="message.success"/>
     </component>
 </page-specification>

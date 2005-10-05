@@ -42,18 +42,23 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public Gateway() {
     }
-    
+
     public void generateProfiles(Writer writer_) throws IOException {
         // generic gateways does not support generating profiles
         throw new UnsupportedOperationException();
     }
 
     public void prepareSettings() {
-        // do nothing for generic gateways - this method is called before generateProfiles is called
+        // do nothing for generic gateways - this method is called before generateProfiles is
+        // called
         // use to adjust settings for generation
     }
-    
+
     public void generateProfiles() {
+        // do nothing for generic gateways - we do not generate profile for it
+    }
+
+    public void removeProfiles() {
         // do nothing for generic gateways - we do not generate profile for it
     }
 
@@ -65,7 +70,7 @@ public class Gateway extends BeanWithSettings implements NamedObject {
         }
         return null;
     }
-    
+
     /**
      * This is slightly unusual setter - used to initialed model variable TODO: replace with
      * proper hibernate mappings
@@ -120,10 +125,11 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     public PhoneModel getModel() {
         return m_model;
     }
-    
+
     public void setModel(PhoneModel model) {
         m_model = model;
     }
+
     public String getBeanId() {
         return m_beanId;
     }
@@ -136,4 +142,8 @@ public class Gateway extends BeanWithSettings implements NamedObject {
         return m_modelId;
     }
 
+    protected void propagate() {
+        prepareSettings();
+        generateProfiles();
+    }
 }

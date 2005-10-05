@@ -11,12 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
-import java.util.Map;
 
 
 public interface UserService {    
     
     public void echo();
-    
-    public void createUser(Map properties);
 }

@@ -11,9 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import junit.framework.TestCase;
-
 import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -21,7 +20,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
 
-public class ReplicationTriggerTestDb extends TestCase {
+public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
 	
 	private ReplicationTrigger m_trigger;
 	private SipxReplicationContext m_oldReplicationContext;

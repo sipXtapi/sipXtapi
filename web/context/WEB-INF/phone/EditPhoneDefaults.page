@@ -45,6 +45,9 @@
     <!--
      - C O M P O N E N T S
      -->    
+    <component id="settingsHeading" type="Insert">
+        <binding name="value" expression="editFormSetting.label"/>
+    </component>
     <component id="phoneDefaultsNavigationDescription" type="Insert">
         <binding name="value" expression="editFormSetting.description"/>
     </component>        
@@ -78,4 +81,7 @@
     <component id="groupLabel" type="GroupLabel">
         <binding name="group" expression="group"/>
     </component>    
+    <component id="modelLabel" type="Insert">
+        <binding name="value" expression="phone.model.label"/>
+    </component>
 </page-specification>

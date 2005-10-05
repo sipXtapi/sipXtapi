@@ -112,4 +112,17 @@ public class SipxServerTest extends TestCase {
         phoneDefaultsCtrl.verify();
         coreContextCtrl.verify();
     }
+    
+    public void testGetPresenceServerUri() {
+        MockControl phoneDefaultsCtrl = MockClassControl.createControl(PhoneDefaults.class);
+        PhoneDefaults phoneDefaults = (PhoneDefaults) phoneDefaultsCtrl.getMock();
+        phoneDefaults.getOutboundProxy();
+        phoneDefaultsCtrl.setDefaultReturnValue("presence.com");
+        phoneDefaultsCtrl.replay();
+
+        m_server.setPhoneDefaults(phoneDefaults);        
+        assertEquals("sip:presence.com:5130", m_server.getPresenceServerUri());
+        
+        phoneDefaultsCtrl.verify();        
+    }
 }

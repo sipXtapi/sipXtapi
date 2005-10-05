@@ -42,5 +42,8 @@
         <binding name="applyListener" expression="listeners.apply"/>
         <binding name="validator" expression="beans.validator"/>
     </component>    
+    <component id="editGroup" type="DirectLink">
+        <binding name="listener" expression="listeners.editGroupName"/>
+    </component>
         
 </page-specification>

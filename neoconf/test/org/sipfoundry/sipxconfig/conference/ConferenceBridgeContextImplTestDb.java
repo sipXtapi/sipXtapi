@@ -18,11 +18,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dbunit.database.IDatabaseConnection;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class ConferenceBridgeContextImplTestDb extends TestHelper.TestCaseDb {
+public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
 
     private ConferenceBridgeContext m_context;
     private CoreContext m_coreContext;

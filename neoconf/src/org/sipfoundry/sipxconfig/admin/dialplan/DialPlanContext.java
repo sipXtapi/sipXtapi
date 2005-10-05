@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import org.sipfoundry.sipxconfig.common.DataObjectSource;
  * DialPlanContext
  */
 public interface DialPlanContext extends DataObjectSource {
-    
+
     public static final String CONTEXT_BEAN_NAME = "dialPlanContext";
 
     public abstract void clear();
@@ -30,25 +31,23 @@ public interface DialPlanContext extends DataObjectSource {
 
     public abstract void activateDialPlan();
 
-    public abstract void applyEmergencyRouting();
-
     public abstract ConfigGenerator getGenerator();
 
     public abstract DialingRuleFactory getRuleFactory();
 
-    public abstract EmergencyRouting getEmergencyRouting();
-    
     public abstract void storeAutoAttendant(AutoAttendant attendant);
-    
+
     public abstract void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir);
-    
+
     public abstract AutoAttendant getOperator();
-    
+
     public abstract AutoAttendant getAutoAttendant(Integer id);
-    
+
     public abstract List getAutoAttendants();
-    
+
     public abstract void deleteAutoAttendantsByIds(Collection attendantsIds, String scriptsDir);
+
+    public abstract void removeGateways(Collection gatewaysIds);
 
     public void storeRule(DialingRule rule);
 
@@ -59,12 +58,22 @@ public interface DialPlanContext extends DataObjectSource {
     public void deleteRules(Collection selectedRows);
 
     public void duplicateRules(Collection selectedRows);
-    
+
     public void moveRules(Collection selectedRows, int step);
 
     public List getGenerationRules();
-    
+
     public void resetToFactoryDefault();
-    
+
     public boolean isDialPlanEmpty();
+
+    public String getVoiceMail();
+
+    public abstract void applyEmergencyRouting();
+
+    public abstract void storeEmergencyRouting(EmergencyRouting emergencyRouting);
+
+    public abstract EmergencyRouting getEmergencyRouting();
+
+    public abstract void removeRoutingException(Serializable routingExceptionId);
 }

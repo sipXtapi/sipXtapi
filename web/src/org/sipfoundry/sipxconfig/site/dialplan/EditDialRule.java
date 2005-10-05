@@ -51,14 +51,17 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract Integer getRuleId();
+
     public abstract void setRuleId(Integer ruleId);
 
     public abstract DialingRule getRule();
+
     public abstract void setRule(DialingRule rule);
-    
+
     public abstract ICallback getCallback();
+
     public abstract void setCallback(ICallback callback);
-    
+
     public Permission[] getCallHandlingPermissions() {
         return Permission.CALL_HANDLING.getChildren();
     }
@@ -84,9 +87,9 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
             rule = createNewRule();
         }
         setRule(rule);
-        
+
         // Ignore the callback passed to us for now because we're navigating
-        // to unexpected places.  Always go to the EditFlexibleDialPlan plan.
+        // to unexpected places. Always go to the EditFlexibleDialPlan plan.
         setCallback(new PageCallback(EditFlexibleDialPlan.PAGE));
     }
 
@@ -113,6 +116,18 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         cycle.activate(selectGatewayPage);
     }
 
+    /**
+     * Go to emergency routing page. Set callback to return to this page. Used only in
+     * EditEmergencyRouting rule
+     */
+    public void emergencyRouting(IRequestCycle cycle) {
+        PageCallback callback = new PageCallback(getPage());
+        EditEmergencyRouting page = (EditEmergencyRouting) cycle
+                .getPage(EditEmergencyRouting.PAGE);
+        page.setCallback(callback);
+        cycle.activate(page);
+    }
+
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
         AbstractComponent component = (AbstractComponent) getComponent("common");
@@ -130,7 +145,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     public void commit(IRequestCycle cycle) {
         if (isValid()) {
             saveValid();
-            
+
             // Ignore the callback for now because we're navigating to unexpected places.
             // Always go to the EditFlexibleDialPlan plan.
             cycle.activate(EditFlexibleDialPlan.PAGE);

@@ -13,12 +13,11 @@ package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Collection;
 
-import junit.framework.TestCase;
-
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 
 
-public class PhoneSummaryTestDb extends TestCase {
+public class PhoneSummaryTestDb extends SipxDatabaseTestCase {
 
     private PhoneContext m_context;
     

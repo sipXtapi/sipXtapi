@@ -25,7 +25,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.seedUser(getTester());
         SiteTestHelper.home(getTester());
-        // clickLink("resetCallGroupContext");
+        clickLink("resetCallGroupContext");
         clickLink("NewCallGroup");
         setFormData();
     }
@@ -39,7 +39,6 @@ public class EditCallGroupTestUi extends WebTestCase {
         assertElementPresent("item:enabled");
 
         assertLinkPresent("callgroup:addRing");
-        // assertTableEquals("callgroups:list", createExpectedTable());
         assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
         assertButtonPresent("userring:delete");
         assertButtonPresent("userring:moveUp");
@@ -50,11 +49,26 @@ public class EditCallGroupTestUi extends WebTestCase {
         addUser();
 
         assertEquals(2, SiteTestHelper.getRowCount(tester, "userring:list"));
+        
+        reopenScreen();
+
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "userring:list"));        
 
         checkCheckbox("selectedRow");
         clickButton("userring:delete");
 
         assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
+        
+        reopenScreen();
+        
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));                
+    }
+
+    private void reopenScreen() {
+        // leave the screen and get back to it again
+        SiteTestHelper.home(getTester());
+        clickLink("ListCallGroups");
+        clickLinkWithText("testName");
     }
 
     public void testMoveRing() throws Exception {
@@ -71,7 +85,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         assertCheckboxNotSelected("selectedRow$0");
 
         for (int i = 0; i < 3; i++) {
-            SiteTestHelper.checkCheckbox(getTester(), "selectedRow", i);
+            SiteTestHelper.enableCheckbox(getTester(), "selectedRow", i, true);
         }
     }
 

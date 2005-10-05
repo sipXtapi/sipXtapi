@@ -13,7 +13,7 @@
 	        <label>24 Hour format</label>
 	        <type><boolean/></type>
 	        <value>0</value>
-	        <description>If 1, time is display using hour range 0-24, otherwise 1-12 AM/PM.</description>
+	        <description>If checked time is in the 24h format, otherwise 12h AM/PM format.</description>
 	      </setting>
 	    </group>
 	    <group name="datetime">
@@ -488,7 +488,7 @@
 	    <setting name="gmtOffset">
 	      <!-- 43200 == 12h -->
 	      <type><integer min="-43200" max="43200"/></type>
-	      <value>-28800</value>
+	      <value>-18000</value>
 	      <description>Offset in seconds of the local time zone from GMT. Note: 3600 seconds per hour</description>
 	    </setting>
 	    <setting name="daylightSavings.enable">
@@ -517,7 +517,7 @@
 	      <description>Time of day to start DST, in 24 hour clock. 2=2 am, 14=2 pm</description>
 	    </setting>
 	    <setting name="daylightSavings.start.dayOfWeek">
-	      <type><integer min="0" max="7"/></type>
+	      <type><integer min="1" max="7"/></type>
 	      <value>1</value>
 	      <description>Day of week to apply DST. 1=Mon, 2=Tue, ..., 7=Sun</description>
 	    </setting>
@@ -570,7 +570,7 @@
 	    </setting>
 	    <setting name="forceSend">
 	      <type><integer min="1024" max="65534"/></type>
-	      <value></value>
+	      <value/>
 	      <description>When not empty, send all RTP packets to, and expect all RTP packets to arrive on, the specified
 	        port. Note: both tcpIpApp.port.rtp.filterByIp and tcpIpApp.port.rtp.filterByPort must be enabled
 	        for this to work.</description>
@@ -578,7 +578,7 @@
 	    <setting name="mediaPortRangeStart">
 	      <!-- even values only -->
 	      <type><integer min="1024" max="65534"/></type>
-	      <value></value>
+	      <value/>
 	      <description>If empty, the value 2222 will be used for the first allocated RTP port, otherwise, the
 	        specified port will be used. Subsequent ports will be allocated from a pool starting with the specified
 	        port plus two up to a value of (start-port + 46), after which the port number will wrap back to the starting
@@ -826,7 +826,7 @@
 	        <enum>
 	          <option><value>audio</value></option>
 	          <option><value>call</value></option>
-	          <option><label>no strategy</label><value></value></option>
+	          <option><label>no strategy</label><value/></option>
 	        </enum>
 	      </type>
 	      <value>call</value>
@@ -842,7 +842,7 @@
 	      Idle Display refresh rate.</description>
 	    <setting name="proxy">
 	      <type><!-- Null or domain name or IP address in the format address:port --></type>
-	      <value></value>
+	      <value/>
 	      <description>Address of the desired HTTP proxy to be used by the MicroBrowser. If blank, normal unproxied
 	        HTTP is used by the MicroBrowser.
 	      </description>
@@ -851,7 +851,7 @@
 	      <setting name="home">
 	        <type>
 	          <!-- Null, or any fully formed valid HTTP URL. Length up to 255 characters.--></type>
-	        <value></value>
+	        <value/>
 	        <description>URL used for MicroBrowser idle display home-page. Example: http://www.example.com/
 	          xhtml/frontpage.cgi?page=home. If empty, there will be no microbrowser idle display feature. Note
 	          that the MicroBrowser idle display will displace the idle display indicator. See Indicators
@@ -870,7 +870,7 @@
 	    <group name="main">
 	      <setting name="home">
 	        <type><!-- Any fully formed valid HTTP URL. Length up to 255 characters.--></type>
-	        <value></value>
+	        <value/>
 	        <description>URL used for MicroBrowser home-page. If blank, the browser will notify the user that a blank
 	          home-page was used. Example: http://www.example.com/ xhtml/frontpage.cgi?page=home.
 	        </description>
@@ -879,7 +879,7 @@
 	    <group name="limits">
 	      <setting name="nodes">
 	        <type><integer/></type>
-	        <value></value>
+	        <value/>
 	        <description>Limits the number of tags which the XML parser will handle. This limits the amount of memory
 	          used by complicated pages. The Services browser and the Idle Display each use memory defined by this
 	          limit. A maximum total of 500 (256 each) is recommended. Increasing this value may have a detrimental
@@ -888,7 +888,7 @@
 	      </setting>
 	      <setting name="cache">
 	        <type><integer/></type>
-	        <value></value>
+	        <value/>
 	        <description>Limits the total size of objects downloaded for each page (both XHTML and images). Once this
 	          limit is reached, no more images are downloaded until the next page is requested. Units = kBytes.
 	          Increasing this value may have a detrimental effect on performance of the phone.</description>
@@ -905,14 +905,14 @@
 	      <setting name="address">
 	        <label>Server</label>
 	        <type><!-- dotted-decimal IP address or host name --></type>
-	        <value></value>
+	        <value/>
 	        <description>IP address or host name and port of a SIP server to which the phone shall send all requests for
 	          making calls.
 	        </description>
 	      </setting>
 	      <setting name="port">
 	        <type><integer min="1" max="65535"/></type>
-	        <value>5060</value>
+	        <value/>
 	        <description></description>
 	      </setting>
 	    </group>
@@ -965,7 +965,7 @@
 	      </setting>
 	      <setting name="requestURI.E164.addGlobalPrefix">
 	        <type><string/></type>
-	        <value></value>
+	        <value/>
 	        <description></description>
 	      </setting>
 	    </group>
@@ -980,7 +980,7 @@
 	            
 	            
 	            <!-- string to compare against the value of Alert-Info headers in INVITE requests --></type>
-	          <value></value>
+	          <value/>
 	          <description>Alert-Info fields from INVITE requests will be compared against with this value and if a
 	            match is found, the behavior described in the corresponding ring class will be
 	            applied.</description>
@@ -994,7 +994,7 @@
 	              <option><value>ring-answer</value></option>
 	            </enum>
 	          </type>
-	          <value></value>
+	          <value/>
 	          <description>one of these four valid values: ring, visual, answer, or ring-answer</description>
 	        </setting>
 	      </group>
@@ -1007,7 +1007,7 @@
 	        <label>Event Type to Validate</label>
 	        <setting name="request">
 	          <type><string/></type>
-	          <value></value>
+	          <value/>
 	          <description>One of: 'INVITE', 'ACK', 'BYE', 'REGISTER', 'CANCEL', 'OPTIONS', 'INFO', 'MESSAGE',
 	            'SUBSCRIBE', 'NOTIFY', 'REFER', 'PRACK', or 'UPDATE'. Sets the name of the method for which
 	            validation will be applied. WARNING: Intensive request validation may have a negative performance
@@ -1016,7 +1016,7 @@
 	        </setting>
 	        <setting name="method">
 	          <type><string/></type>
-	          <value></value>
+	          <value/>
 	          <description>Null or one of: 'source', 'digest' or 'both'/'all'. If Null, no validation is done.
 	            Otherwise this sets the type of validation performed for the request: source: ensure request is
 	            received from an IP address of a server belonging to the set of target registration servers; digest:
@@ -1026,7 +1026,7 @@
 	        </setting>
 	        <setting name="request.1.event">
 	          <type><string/></type>
-	          <value></value>
+	          <value/>
 	          <description>Determines which events specified with the Event header should be validated; only
 	            applicable when request is set to 'SUBSCRIBE' or 'NOTIFY'. If set to Null, all events will be
 	            validated.
@@ -1066,7 +1066,7 @@
 	    <group name="conference">
 	      <setting name="address">
 	        <type><string maxLen="128"/></type>
-	        <value></value>
+	        <value/>
 	        <description>If Null, conferences are set up on the phone locally. If set to some value, conferences are
 	          set up by the server using the conferencing agent specified by this address. The acceptable values
 	          depend on the conferencing server implementation policy.
@@ -1096,18 +1096,10 @@
 	    <group name="digitmap">
 	      <label>Digit Map</label>
 	      <setting name="digitmap">
-	        
-	        
 	        <!--string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435. String
-	        
-	        
-	        
-	        
 	        is limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
 	        turn dial tone back on.-->
-	        <value><![CDATA[[2-9]11|0T|011xxx.T|[0-1][2-9]xxxxxxxxx|[2-9]xxxxxxxxx|[2-9]xxxT]]>
-	        </value>
-	        
+	        <value><![CDATA[[2-9]11|0T|011xxx.T|91[2-9]xxxxxxxxx|[1-8]xx]]></value>	        
 	        <description>When this attribute is present, number-only dialing during the setup phase of new calls
 	          will be compared against the patterns therein and if a match is found, the call will be initiated
 	          automatically eliminating the need to press Send.
@@ -1123,7 +1115,7 @@
 	      <group name="routing.1">
 	        <setting name="address">
 	          <type><!-- dotted-decimal IP address or host name --></type>
-	          <value></value>
+	          <value/>
 	          <description>IP address or host name and port of a SIP server that will be used for routing calls.
 	          </description>
 	        </setting>
@@ -1169,19 +1161,19 @@
 	    </description>
 	    <setting name="ip">
 	      <type><ipaddr/></type>
-	      <value></value>
+	      <value/>
 	      <description>IP address to advertise within SIP signaling, should match the external IP address used by the
 	        NAT device.</description>
 	    </setting>
 	    <setting name="signalPort">
 	      <type><integer min="1024" max="65536"/></type>
-	      <value></value>
+	      <value/>
 	      <description>If non-Null, this port will be used by the phone for SIP signaling, overriding the value set for
 	        RTP Settings</description>
 	    </setting>
 	    <setting name="mediaPortStart">
 	      <type><integer min="1024" max="65536"/></type>
-	      <value></value>
+	      <value/>
 	      <description>If non-Null, this attribute will be used to set the initially allocated RTP port, overriding
 	        the value set in RTP Settings.</description>
 	    </setting>
@@ -1192,18 +1184,18 @@
 	    <label>Registration</label>
 	    <setting name="displayName">
 	      <type><string/></type>
-	      <value></value>
+	      <value/>
 	      <description>Display name used for local user interface as well as SIP signaling.</description>
 	    </setting>
 	    <setting name="address">
 	      <label>User Address</label>
 	      <type></type>
-	      <value></value>
+	      <value/>
 	      <description>user (e.g. '1002'), the implied domain will be the registration server.</description>
 	    </setting>
 	    <setting name="label">
 	      <type><string/></type>
-	      <value></value>
+	      <value/>
 	      <description>Text label to appear on the display adjacent to the associated line key. If omitted, the label
 	        will be derived from the user part of 'Registration Server'</description>
 	    </setting>
@@ -1217,14 +1209,14 @@
 	    </setting>
 	    <setting name="thirdPartyName">
 	      <type></type>
-	      <value></value>
+	      <value/>
 	      <description>This field must match the Address value of the other registration which makes up the bridged
 	        line.
 	      </description>
 	    </setting>
 	    <setting name="auth.userId">
 	      <type><string/></type>
-	      <value></value>
+	      <value/>
 	      <description>User ID to be used for authentication challenges for this registration. If non-empty, will
 	        override the 'Reg User' parameter entered into the Authentication submenu off of the Settings menu on the
 	        phone.</description>
@@ -1233,7 +1225,7 @@
 	      <type>
 	        <string password="yes"/>
 	      </type>
-	      <value></value>
+	      <value/>
 	      <description>Password to be used for authentication challenges for this registration. If non-empty, will
 	        override the 'Reg Password' parameter entered into the Authentication submenu off of the Settings menu on
 	        the phone.
@@ -1246,20 +1238,20 @@
 	        <setting name="address">
 	          <profileName>server.1.address</profileName>
 	          <type><!-- dotted-decimal IP address or host name --></type>
-	          <value></value>
+	          <value/>
 	          <description>Primary Registration Server. IP address or host name of a SIP server that accepts
 	            registrations.</description>
 	        </setting>
 	        <setting name="port">
 	          <profileName>server.1.port</profileName>
 	          <type></type>
-	          <value></value>
+	          <value/>
 	          <description>0, empty, 1 to 65535</description>
 	        </setting>
 	        <setting name="transport">
 	          <profileName>server.1.transport</profileName>
 	          <type></type>
-	          <value></value>
+	          <value/>
 	          <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address is a hostname and
 	            Port is 0 or empty, do NAPTR then SRV look-ups to try to discover the transport, ports and servers, as per
 	            RFC 3263. If Address is an IP address, or a port is given, then UDP is used. If set to TCPpreferred: TCP is
@@ -1269,31 +1261,31 @@
 	        <setting name="expires">
 	          <profileName>server.1.expires</profileName>
 	          <type></type>
-	          <value></value>
+	          <value/>
 	          <description>positive integer</description>
 	        </setting>
 	        <setting name="register">
 	          <profileName>server.1.register</profileName>
 	          <type></type>
-	          <value></value>
+	          <value/>
 	          <description>0, 1 enable registration</description>
 	        </setting>
 	        <setting name="retryTimeOut">
 	          <profileName>server.1.retryTimeOut</profileName>
 	          <type><integer/></type>
-	          <value></value>
+	          <value/>
 	          <description></description>
 	        </setting>
 	        <setting name="retryMaxCount">
 	          <profileName>server.1.retryMaxCount</profileName>
 	          <type><integer/></type>
-	          <value></value>
+	          <value/>
 	          <description></description>
 	        </setting>
 	        <setting name="expires.lineSeize">
 	          <profileName>server.1.expires.lineSeize</profileName>
 	          <type><integer min="1"/></type>
-	          <value></value>
+	          <value/>
 	          <description></description>
 	        </setting>
 	      </group>
@@ -1302,20 +1294,20 @@
 	        <setting name="address">
 	          <profileName>server.2.address</profileName>
 	          <type><!-- dotted-decimal IP address or host name --></type>
-	          <value></value>
-	          <description>Primary Registration Server. IP address or host name of a SIP server that accepts
+	          <value/>
+	          <description>Secondary Registration Server. IP address or host name of a SIP server that accepts
 	            registrations.</description>
 	        </setting>
 	        <setting name="port">
 	          <profileName>server.2.port</profileName>
 	          <type><integer min="0" max="65535"/></type>
-	          <value></value>
+	          <value/>
 	          <description>0, empty, 1 to 65535</description>
 	        </setting>
 	        <setting name="transport">
 	          <profileName>server.2.transport</profileName>
 	          <type><string/></type>
-	          <value></value>
+	          <value/>
 	          <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address is a hostname and
 	            Port is 0 or empty, do NAPTR then SRV look-ups to try to discover the transport, ports and servers, as per
 	            RFC 3263. If Address is an IP address, or a port is given, then UDP is used. If set to TCPpreferred: TCP is
@@ -1325,31 +1317,31 @@
 	        <setting name="expires">
 	          <profileName>server.2.expires</profileName>
 	          <type><integer min="1"/></type>
-	          <value></value>
+	          <value/>
 	          <description></description>
 	        </setting>
 	        <setting name="register">
 	          <profileName>server.2.register</profileName>
 	          <type></type>
-	          <value></value>
+	          <value/>
 	          <description>0, 1 enable registration</description>
 	        </setting>
 	        <setting name="retryTimeOut">
 	          <profileName>server.2.retryTimeOut</profileName>
 	          <type></type>
-	          <value></value>
+	          <value/>
 	          <description>empty or non-negative integer</description>
 	        </setting>
 	        <setting name="retryMaxCount">
 	          <profileName>server.2.retryMaxCount</profileName>
 	          <type></type>
-	          <value></value>
+	          <value/>
 	          <description>empty or non-negative integer</description>
 	        </setting>
 	        <setting name="expires.lineSeize">
 	          <profileName>server.2.expires.lineSeize</profileName>
 	          <type></type>
-	          <value></value>
+	          <value/>
 	          <description>positive integer</description>
 	        </setting>
 	      </group>
@@ -1370,7 +1362,7 @@
 	        </description>
 	      </setting>
 	      <setting name="contact">
-	        <value></value>
+	        <value/>
 	        <description>ASCII encoded string containing digits (the user part of a SIP URL) or a string that
 	          constitutes a valid SIP URL (6416 or 6416@domain.com)</description>
 	      </setting>
@@ -1395,7 +1387,7 @@
 	        
 	        <!-- ASCII encoded string containing digits (the user part of a SIP URL) or a string that constitutes a valid
 	        SIP URL (6416 or 6416@domain.com)--></type>
-	      <value></value>
+	      <value/>
 	      <description>The forward-to contact used for all automatic call diversion features unless overridden by a
 	        specific contact of a per-call diversion feature.
 	      </description>
@@ -1432,7 +1424,7 @@
 	      </setting>
 	      <setting name="contact">
 	        <type></type>
-	        <value></value>
+	        <value/>
 	        <description>Forward-to contact for calls forwarded due to busy status, if empty, Contact will be used.
 	          ASCII encoded string containing digits (the user part of a SIP URL) or a string that constitutes a valid
 	          SIP URL (6416 or 6416@domain.com)
@@ -1454,7 +1446,7 @@
 	      </setting>
 	      <setting name="contact">
 	        <type></type>
-	        <value></value>
+	        <value/>
 	        <description>Forward-to contact used for calls forwarded due to no answer, if empty, Contact will be
 	          used. ASCII encoded string containing digits (the user part of a SIP URL) or a string that constitutes a
 	          valid SIP URL (6416 or 6416@domain.com)
@@ -1462,7 +1454,7 @@
 	      </setting>
 	    </group>
 	    <group name="dnd">
-	      <label>On Do No Disturb</label>
+	      <label>On Do Not Disturb</label>
 	      <setting name="enabled">
 	        <type><boolean/></type>
 	        <value>0</value>
@@ -1471,7 +1463,7 @@
 	      </setting>
 	      <setting name="contact">
 	        <type></type>
-	        <value></value>
+	        <value/>
 	        <description>Forward-to contact used for calls forwarded due to DND status, if empty Contact will be
 	          used. ASCII encoded string containing digits (the user part of a SIP URL) or a string that constitutes a
 	          valid SIP URL (6416 or 6416@domain.com)
@@ -1506,7 +1498,7 @@
 	          
 	          limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
 	          turn dial tone back on. --></type>
-	        <value></value>
+	        <value/>
 	        
 	        <description>When present, this attribute overrides the global dial plan defined Phone's Dial Plan
 	          settings</description>
@@ -1514,7 +1506,7 @@
 	      <setting name="digitmap.timeOut">
 	        <label>Time out</label>
 	        <type><integer min="1"/></type>
-	        <value></value>
+	        <value/>
 	        
 	        <description>When present, this attribute overrides the global dial plan defined Phone's Dial Plan
 	          settings</description>
@@ -1523,13 +1515,13 @@
 	        <label>Emergency Gateway</label>
 	        <setting name="address">
 	          <type><!-- dotted-decimal IP address or host name --></type>
-	          <value></value>
+	          <value/>
 	          <description>IP address or host name and port of a SIP server that will be used for routing
 	            calls.</description>
 	        </setting>
 	        <setting name="port">
 	          <type><integer min="1" max="65535"/></type>
-	          <value></value>
+	          <value/>
 	          <description></description>
 	        </setting>
 	        <setting name="emergency.1.value">
@@ -1539,7 +1531,7 @@
 	            <!-- Comma separated list of entries or single entry representing a or a combination of SIP
 	            URL. -->
 	          </type>
-	          <value></value>
+	          <value/>
 	          <description>This represents the URLs that should be watched for emergency routing. When one of these
 	            defined URL is detected as being dialed by the user, the call will be automatically directed to the
 	            defined emergency server.
@@ -1555,7 +1547,7 @@
 	    <setting name="subscribe">
 	      <type>
 	      </type>
-	      <value></value>
+	      <value/>
 	      <description>If non-empty, the phone will send a SUBSCRIBE request to this contact after boot-up. ASCII
 	        encoded string containing digits (the user part of a SIP URL) or a string that constitutes a valid SIP URL
 	        (6416 or 6416@domain.com)</description>
@@ -1580,7 +1572,7 @@
 	        <!--ASCII encoded string containing digits (the user part of a SIP URL) or a string that
 	        constitutes a valid SIP URL (6416 or 6416@domain.com)-->
 	      </type>
-	      <value></value>
+	      <value/>
 	      <description>Contact to call when retrieving messages for this registration.
 	      </description>
 	    </setting>

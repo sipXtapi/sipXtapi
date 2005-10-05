@@ -4,14 +4,14 @@
 	<form jwcid="settingsForm">
         <fieldset jwcid="settingsFieldset"/>            
 		<ul class="form-actions">
-			<li>
-				<input jwcid="cancel" id="setting:cancel" value="Cancel"/>
+			<li jwcid="ifRenderOk" element="li">
+				<input jwcid="ok" id="setting:ok" value="OK"/>
 			</li>
 			<li>
 				<input jwcid="apply" id="setting:apply" value="Apply"/>
 			</li>
-			<li jwcid="ifRenderOk" element="li">
-				<input jwcid="ok" id="setting:ok" value="OK"/>
+			<li>
+				<input jwcid="cancel" id="setting:cancel" value="Cancel"/>
 			</li>
 		</ul>
 	</form>

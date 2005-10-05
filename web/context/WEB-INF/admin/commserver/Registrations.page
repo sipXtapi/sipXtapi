@@ -28,7 +28,7 @@
         <binding name="source" expression="registrationContext.registrations"/>
         <static-binding name="pageSize" value="-1"/>
         <static-binding name="columns" 
-            value="uri,contact,expires:timeToExpire"/>        
+            value="uri,contact,=expiresColumn"/>        
     </component>
     <component id="tableColumns" type="contrib:TableColumns"/>    
     <component id="tableRows" type="contrib:TableRows">
@@ -36,11 +36,6 @@
 		<binding name="class" expression="beans.rowClass.next"/>
     </component>
     <component id="tableValues" type="contrib:TableValues"/>
-    
-    <component id="expiresColumnValue" type="Block"/>    
-    <component id="expires" type="InsertText">
-        <binding name="value" expression="timeToExpire"/>
-    </component>
     
     <component id="refreshButton" type="Submit">
         <message-binding name="label" key="button.refresh"/>

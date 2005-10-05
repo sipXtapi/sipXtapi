@@ -156,7 +156,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         }
         // remove 2nd and 4th
         for (int i = 0; i < toBeRemoved.length; i++) {
-            SiteTestHelper.checkCheckbox(getTester(), "selectedRow", toBeRemoved[i]);
+            SiteTestHelper.enableCheckbox(getTester(), "selectedRow", toBeRemoved[i], true);
         }
 
         clickButton(buildId("delete"));

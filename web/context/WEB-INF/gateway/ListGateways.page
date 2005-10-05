@@ -48,6 +48,10 @@
         <message-binding name="label" key="button.propagate"/>
     </component>
     
+    <component id="propagateAllButton" type="Submit">
+        <binding name="listener" expression="listeners.propagateAllGateways"/>
+        <message-binding name="label" key="button.propagateAll"/>
+    </component>
     
     <component id="gatewaysListForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>

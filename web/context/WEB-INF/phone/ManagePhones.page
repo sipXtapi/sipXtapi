@@ -8,6 +8,9 @@
 	<property-specification name="phones" type="java.util.Collection"/>
 	<property-specification name="currentRow" 
 		type="org.sipfoundry.sipxconfig.phone.Phone"/>
+	<property-specification name="groupId"
+        persistent="yes" 
+		type="java.lang.Integer"/>
 	<property-specification name="currentLine" 
 		type="org.sipfoundry.sipxconfig.phone.Line"/>
    	<property-specification name="selections" 
@@ -17,12 +20,17 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
+    <property-specification name="tableModel"
+        type="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel"
+        persistent="yes"
+        initial-value="beans.phoneTableModel"/>
 	<!--
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-    <bean name="tableModel" class="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel">
+    <bean name="phoneTableModel" class="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel" lifecycle="page">
         <set-property name="phoneContext" expression="page.global.phoneContext"/>
+        <set-property name="component" expression="getThis()"/>        
         <set-property name="pageSize" expression="20"/>
     </bean>
 	<!--
@@ -31,7 +39,7 @@
 	<component id="phoneManagement" type="Form">
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
-		<binding name="tableModel" expression="beans.tableModel.createTableModel(getThis())"/>
+		<binding name="tableModel" expression="beans.phoneTableModel.wrappedTableModel"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>
@@ -46,7 +54,7 @@
         <binding name="listener" expression="listeners.addPhone"/>
     </component>
     <!-- Column 1: select phone -->
-    <component id="selectedRow" type="Checkbox">
+    <component id="selectedRow" type="checkboxes:ControlledCheckbox">
         <binding name="selected" expression="selections.selected[currentRow.primaryKey]"/>
     </component>
     <!-- Column 2: edit phone -->
@@ -74,10 +82,17 @@
     <component id="sendProfiles" type="Submit">
         <binding name="listener" expression="listeners.generateProfiles"/>
     </component>
+    <component id="sendAllProfiles" type="Submit">
+        <binding name="listener" expression="listeners.generateAllProfiles"/>
+    </component>    
     <component id="restart" type="Submit">
         <binding name="listener" expression="listeners.restart"/>
     </component>
     <component id="delete" type="Submit">
         <binding name="listener" expression="listeners.deletePhone"/>
+    </component>
+    <component id="groupFilter" type="GroupFilter">
+        <binding name="selectedGroupId" expression="groupId"/>
+        <binding name="groups" expression="phoneContext.groups"/>
     </component>
 </page-specification>

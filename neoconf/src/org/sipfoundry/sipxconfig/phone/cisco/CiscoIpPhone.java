@@ -26,23 +26,23 @@ import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
  * Support for Cisco 7940/7960
  */
 public class CiscoIpPhone extends CiscoPhone {
-    
-    public static final String BEAN_ID = "ciscoIp"; 
+
+    public static final String BEAN_ID = "ciscoIp";
 
     public CiscoIpPhone() {
         super(BEAN_ID);
         init();
     }
-    
+
     public CiscoIpPhone(CiscoModel model) {
         super(model);
         init();
     }
-    
+
     private void init() {
-        setPhoneTemplate("cisco/cisco-ip.vm");        
+        setPhoneTemplate("cisco/cisco-ip.vm");
     }
-    
+
     public String getPhoneFilename() {
         String phoneFilename = getSerialNumber();
         return getTftpRoot() + "/SIP" + phoneFilename.toUpperCase() + ".cnf";
@@ -55,11 +55,13 @@ public class CiscoIpPhone extends CiscoPhone {
             adapter.setSetting(getSettings());
             adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/outbound_proxy");
             adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "sip/outbound_proxy_port");
+            adapter.addMapping(PhoneSettings.VOICE_MAIL_NUMBER, "phone/messages_uri");
+
             o = adapter.getImplementation();
         } else {
             o = super.getAdapter(c);
         }
-        
+
         return o;
     }
 
@@ -69,7 +71,7 @@ public class CiscoIpPhone extends CiscoPhone {
             SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
             adapter.setSetting(line.getSettings());
             adapter.addMapping(LineSettings.AUTHORIZATION_ID, "line/authname");
-            adapter.addMapping(LineSettings.USER_ID, "line/name");            
+            adapter.addMapping(LineSettings.USER_ID, "line/name");
             adapter.addMapping(LineSettings.PASSWORD, "line/password");
             adapter.addMapping(LineSettings.DISPLAY_NAME, "line/displayname");
             adapter.addMapping(LineSettings.REGISTRATION_SERVER, "proxy/address");
@@ -78,13 +80,13 @@ public class CiscoIpPhone extends CiscoPhone {
         } else {
             impl = super.getAdapter(interfac);
         }
-        
+
         return impl;
     }
 
     public void defaultLineSettings(Line line) {
         super.defaultLineSettings(line);
-        
+
         User u = line.getUser();
         if (u != null) {
             line.getSettings().getSetting("line/shortname").setValue(u.getUserName());

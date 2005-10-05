@@ -14,13 +14,12 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.Collection;
 import java.util.Map;
 
-import junit.framework.TestCase;
-
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public class PhoneContextTestDb extends TestCase {
+public class PhoneContextTestDb extends SipxDatabaseTestCase {
 
     private PhoneContext m_context;
     
@@ -84,16 +83,38 @@ public class PhoneContextTestDb extends TestCase {
     
     /**
      * this test is really for PhoneTableModel in web context
+     * FIXME
      */
-    public void testGetPhonesByPageSortedByModel() throws Exception {
+    public void ____testGetPhonesByPageSortedByModel() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
         
-        Collection page1 = m_context.loadPhonesByPage(0, 4, "beanId || modelId", true);
+        Collection page1 = m_context.loadPhonesByPage(null, 0, 4, "beanId || modelId", true);
         Phone[] phones = (Phone[]) page1.toArray(new Phone[page1.size()]);
         assertEquals("00003", phones[0].getSerialNumber());
         assertEquals("00004", phones[1].getSerialNumber());
         assertEquals("00002", phones[2].getSerialNumber());        
         assertEquals("00001", phones[3].getSerialNumber());
-    }    
+    }
+    
+    public void testGetPhoneIdBySerialNumber() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        assertEquals(new Integer(1002), m_context.getPhoneIdBySerialNumber("00003"));
+        assertEquals(null, m_context.getPhoneIdBySerialNumber("won't find this guy"));
+    }
+    
+    public void testCountPhones() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        assertEquals(4, m_context.getPhonesCount());
+    }
+    
+    public void testCountPhonesInGroup() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        assertEquals(1, m_context.getPhonesInGroupCount(new Integer(1001)));
+        assertEquals(2, m_context.getPhonesInGroupCount(new Integer(1002)));
+    }
+    
 }

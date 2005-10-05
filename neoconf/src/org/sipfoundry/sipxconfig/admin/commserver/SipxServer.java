@@ -124,12 +124,10 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     public Collection getAliasMappings() {
         Collection aliases = new ArrayList();
         String domainName = m_coreContext.getDomainName();
-        int presencePort = ((Integer) getSettingTypedValue(ServerSettings.PRESENCE_SERVER_SIP_PORT))
-                .intValue();
+        int presencePort = getPresenceServerPort();
         String signInCode = getSettingValue(ServerSettings.PRESENCE_SIGN_IN_CODE);
         String signOutCode = getSettingValue(ServerSettings.PRESENCE_SIGN_OUT_CODE);
-        // HACK: assume that presence server runs on the same machine as SIP proxy
-        String presenceServer = m_phoneDefaults.getOutboundProxy();
+        String presenceServer = getPresenceServerLocation();
 
         aliases.add(createPresenceAliaseMapping(signInCode.trim(), domainName, presenceServer,
                 presencePort));
@@ -139,11 +137,26 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         return aliases;
     }
 
+    private String getPresenceServerLocation() {
+        // HACK: assume that presence server runs on the same machine as SIP proxy
+        String presenceServer = m_phoneDefaults.getOutboundProxy();
+        return presenceServer;
+    }
+
+    private int getPresenceServerPort() {
+        return ((Integer) getSettingTypedValue(ServerSettings.PRESENCE_SERVER_SIP_PORT))
+                .intValue();
+    }
+
     private AliasMapping createPresenceAliaseMapping(String code, String domainName,
             String presenceServer, int port) {
         AliasMapping mapping = new AliasMapping();
         mapping.setIdentity(AliasMapping.createUri(code, domainName));
         mapping.setContact(SipUri.format(code, presenceServer, port));
         return mapping;
+    }
+
+    public String getPresenceServerUri() {
+        return SipUri.format(getPresenceServerLocation(), getPresenceServerPort());
     }
 }

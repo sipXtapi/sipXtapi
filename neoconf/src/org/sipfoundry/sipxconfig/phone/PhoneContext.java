@@ -31,6 +31,8 @@ public interface PhoneContext extends DataObjectSource {
      */
     public void generateProfilesAndRestart(Collection phones);
     
+    public void generateProfilesAndRestartAll();    
+    
     /**
      * Restart phones in background
      * 
@@ -52,9 +54,11 @@ public interface PhoneContext extends DataObjectSource {
      */
     public void flush();
     
-    public int getPhoneCount();
+    public int getPhonesCount();
     
-    public List loadPhonesByPage(int page, int pageSize, String orderBy, boolean orderAscending);
+    public int getPhonesInGroupCount(Integer groupId);
+    
+    public List loadPhonesByPage(Integer groupId, int page, int pageSize, String orderBy, boolean orderAscending);
     
     public Collection loadPhones();      
 
@@ -67,6 +71,8 @@ public interface PhoneContext extends DataObjectSource {
     public Phone newPhone(PhoneModel model);
 
     public Phone loadPhone(Integer id);
+    
+    public Integer getPhoneIdBySerialNumber(String serialNumber);
     
     public Object load(Class c, Integer id);
         

@@ -18,9 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.gateway.Gateway;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
  * DialingRuleTest
@@ -102,5 +102,4 @@ public class DialingRuleTest extends TestCase {
         assertTrue(availableGateways.contains(g2));
         assertFalse(availableGateways.contains(g3));
     }
-
 }

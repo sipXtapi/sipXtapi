@@ -32,6 +32,8 @@ public interface LineSettings {
     public static final String DOMAIN_NAME = "domainName";
     
     public static final String AUTHORIZATION_REALM = "authorizationRealm";
+    
+    public static final String VOICEMAIL = "voiceMail";
 
     public String getRegistrationServer();
     
@@ -64,4 +66,8 @@ public interface LineSettings {
     public String getDomainName();
     
     public void setDomainName(String address);
+    
+    public String getVoiceMail();
+    
+    public void setVoiceMail(String voiceMail);
 }

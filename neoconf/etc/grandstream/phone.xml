@@ -23,10 +23,10 @@
 	    <group name="network">
 	      <label>Network Settings</label>
 	      <setting name="P8">
-	        <label>DHCP support</label>
+	        <label>DHCP Off</label>
 	        <type><boolean/></type>
 	        <value>0</value>
-	        <description>Enable DHCP support.</description>
+	        <description>Disable DHCP support.</description>
 	      </setting>
 	      <setting name="P82">
 	        <label>PPPoE user ID</label>
@@ -505,17 +505,17 @@
 	    </group>
 	    <group name="dtmf">
 	      <label>DTMF settings</label>
-	      <setting name="P73">
-	        <label>Send DTMF</label>
-	        <type>
-	          <enum>
-                    <option><label>in audio</label><value>0</value></option>
-                    <option><label>via RTP</label><value>1</value></option>
-                    <option><label>via SIP INFO</label><value>2</value></option>
-	          </enum>
-	        </type>
-	        <value>0</value>
-	      </setting>
+				<setting name="P73">
+					<label>Send DTMF</label>
+					<type>
+						<enum>
+							<option><label>in audio</label><value>0</value></option>
+							<option><label>via RTP</label><value>1</value></option>
+							<option><label>via SIP INFO</label><value>2</value></option>
+						</enum>
+					</type>
+					<value>1</value>
+				</setting>
 	      <setting name="P79">
 	        <label>DTMF Payload Type</label>
 	        <type refid="byte"/>
@@ -534,13 +534,13 @@
 	      <setting name="P30">
 	        <label>NTP Server</label>
 	        <type><string/></type>
-	        <value>time.gist.gov</value>
+	        <value>pool.ntp.org</value>
 	        <description>NTP Server</description>
 	      </setting>
 	      <setting name="P64">
-	        <label>Time Zone. Offset in minutes to GMT</label>
-	        <type><integer/></type>
-	        <value>420</value>
+	        <label>Time Zone</label>
+          <type><integer min="-720" max="720"/></type>
+	        <value>-300</value>
 	        <description>Time Zone. Offset in minutes to GMT</description>
 	      </setting>
 	      <setting name="P75">
@@ -591,7 +591,7 @@
 	      <setting name="P99">
 	        <label>SUBSCRIBE for MWI</label>
 	        <type><boolean/></type>
-	        <value>0</value>
+	        <value>1</value>
 	        <description>SUBSCRIBE for MWI. Whether or not send SUBSCRIBE for Message Waiting Indication.</description>
 	      </setting>
 	      <setting name="P71">

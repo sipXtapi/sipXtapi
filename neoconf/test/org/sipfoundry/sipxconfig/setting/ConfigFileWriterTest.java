@@ -51,7 +51,7 @@ public class ConfigFileWriterTest extends TestCase {
         Writer buffer = new StringWriter();
         CopyUtils.copy(configStream, buffer);
 
-        m_originalContent = TestUtil.cleanEndOfLines(buffer.toString());
+        m_originalContent = buffer.toString();
 
         IOUtils.closeQuietly(configStream);
     }

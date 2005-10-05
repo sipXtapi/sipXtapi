@@ -60,5 +60,9 @@ public class DialPlanContextImplTest extends TestCase {
         DialPlan getDialPlan() {
             return m_plan;
         }
+        
+        public EmergencyRouting getEmergencyRouting() {
+            return new EmergencyRouting();
+        }
     }
 }

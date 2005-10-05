@@ -18,5 +18,7 @@ public interface Server {
     
     ServerSettings getServerSettings();
     
+    String getPresenceServerUri();
+    
     void applySettings();
 }

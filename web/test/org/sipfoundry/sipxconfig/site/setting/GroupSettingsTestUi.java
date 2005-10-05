@@ -39,4 +39,17 @@ public class GroupSettingsTestUi extends WebTestCase {
     public void seedGroup(int count) {
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", count);
     }
+    
+    public void testEditGroup() {
+        seedGroup(1);
+        clickLink("UserGroups");
+        clickLinkWithText("seedGroup0");
+        clickLink("group:edit");
+        assertFormElementEquals("name", "seedGroup0");
+        // Pick a group name that is very unlikely to collide with any previous names
+        setFormElement("name", "edit seed test " + System.currentTimeMillis());
+        clickButton("group:ok");
+        SiteTestHelper.assertNoException(getTester());
+        assertLinkPresent("group:edit");        
+    }
 }

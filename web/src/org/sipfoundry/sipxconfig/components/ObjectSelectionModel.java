@@ -37,7 +37,7 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
     }
 
     /**
-     * Will run expression on each object in collection to build labe text
+     * Will run expression on each object in collection to build label text
      */
     public void setLabelExpression(String labelOgnlExpression) {
         m_labelExpression = labelOgnlExpression;

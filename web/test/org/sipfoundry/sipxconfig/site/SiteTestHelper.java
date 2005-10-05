@@ -62,20 +62,30 @@ public class SiteTestHelper {
     }
 
     /**
-     * Go to TestPage.html, includes hack for slow machines.
+     * Go to TestPage.html and log in.  Includes hack for slow machines.
      */
     public static void home(WebTester tester) {
+        home(tester, true);
+    }
+
+    /**
+     * Go to TestPage.html.  Log in if the login arg is true.
+     * Includes hack for slow machines.
+     */
+    public static void home(WebTester tester, boolean login) {
         tester.beginAt("/app?service=page/TestPage");
-        tester.clickLink("login");
+        if (login) {
+            tester.clickLink("login");
+        }
         tester.clickLink("hideNavigation");
-        // HACK: Webunit doesn't appear to fully load page, especialy
+        // HACK: Webunit doesn't appear to fully load page, especially
         // when the machine you're running it on is slow and you're
         // running a batch of tests, calling beginAt("/") twice seems
         // to get webunit to catch up.
         tester.beginAt("/app?service=page/TestPage");
         assertNoException(tester);
     }
-
+    
     /**
      * Login - form-based login for our pages.
      * 
@@ -139,8 +149,13 @@ public class SiteTestHelper {
      * @param id
      * @param index
      */
-    public static void checkCheckbox(WebTester tester, String id, int index) {
-        tester.checkCheckbox(getIndexedId(id, index));
+    public static void enableCheckbox(WebTester tester, String id, int index, boolean enable) {
+        String field = getIndexedId(id, index);
+        if (enable) {
+            tester.checkCheckbox(field);
+        } else {
+            tester.uncheckCheckbox(field);
+        }
     }
     
     /**
@@ -277,7 +292,9 @@ public class SiteTestHelper {
         // submit the form after setting hidden field
         HttpUnitDialog dialog = tester.getDialog();
         WebForm form = dialog.getForm();
-        form.getScriptableObject().setParameterValue("_linkSubmit", linkName);
+        if (linkName != null) {
+            form.getScriptableObject().setParameterValue("_linkSubmit", linkName);
+        }
         WebResponse response = form.submitNoButton();
 
         // set response directly in current JWebUnit object
@@ -288,6 +305,10 @@ public class SiteTestHelper {
 
         Assert.assertSame(tester.getDialog().getResponse(), response);
     }
+    
+    public static void submitNoButton(WebTester tester) throws Exception {
+        clickSubmitLink(tester, null);
+    }
 
     public static void seedUser(WebTester tester) {
         home(tester);
@@ -295,7 +316,7 @@ public class SiteTestHelper {
         home(tester);
         tester.clickLink("seedTestUser");
     }
-
+    
     /**
      * Create a new group, user or phone
      * 

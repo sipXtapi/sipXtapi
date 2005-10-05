@@ -11,6 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.List;
+
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -48,6 +54,46 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
         }
                 
         return copy;
+    }
+    
+    public List loadBeansByPage(Class beanClass, Integer groupId, int firstRow, int pageSize,
+            String orderBy, boolean orderAscending) {
+        Criteria c = getByGroupCriteria(beanClass, groupId);
+        c.setFirstResult(firstRow);
+        c.setMaxResults(pageSize);
+        Order order = orderAscending ? Order.asc(orderBy) : Order.desc(orderBy);
+        c.addOrder(order);
+        List users = c.list();
+        return users;
+    }
+    
+    /**
+     * Return the count of beans of type beanClass in the specified group.
+     * If groupId is null, then don't filter by group, just count all the beans.
+     */
+    public int getBeansInGroupCount(Class beanClass, Integer groupId) {        
+        Criteria crit = getByGroupCriteria(beanClass, groupId);
+        crit.setProjection(Projections.rowCount());
+        List results = crit.list();
+        if (results.size() > 1) {
+            throw new RuntimeException("Querying for bean count returned multiple results!");
+        }
+        Integer count = (Integer) results.get(0);
+        return count.intValue();
+    }
+    
+    /**
+     * Create and return a Criteria object for filtering beans by group membership.
+     * The class passed in should extend BeanWithGroups.
+     * If groupId is null, then don't filter by group.
+     */
+    public Criteria getByGroupCriteria(Class klass, Integer groupId) {        
+        Criteria crit = getSession().createCriteria(klass);
+        if (groupId != null) {
+            crit.createCriteria("groups", "g");
+            crit.add(Restrictions.eq("g.id", groupId));
+        }
+        return crit;
     }
     
 }

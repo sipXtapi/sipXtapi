@@ -39,7 +39,7 @@
 	<path id="runtime.dependencies">
 		<pathelement location="${commons-logging.jar}" />
 		<pathelement location="${logkit.jar}" />
-		<pathelement location="${commons-dbcp.jar}" />
+		<pathelement location="${c3p0.jar}" />
 		<pathelement location="${commons-pool.jar}" />
 		<pathelement location="${commons-beanutils.jar}"/>
 		<pathelement location="${aopalliance.jar}" />
@@ -68,6 +68,8 @@
 		<pathelement location="${dbunit.jar}" />
 		<pathelement location="${p6spy.jar}" />
         <pathelement location="${xmlunit.jar}"/>
+	    <pathelement location="${xerces.jar}" />
+	    <pathelement location="${xml-apis.jar}" />
 	</path>
 	<property name="classpath" refid="base.path" />
 
@@ -77,6 +79,7 @@
 		<copy todir="${dest.dir}${sipxpbx.conf.dir}">
 			<fileset dir="etc">
 				<include name="**/*"/>
+				<exclude name="cisco/syncinfo.xml"/> <!-- goes into tftp root, see below -->
 		    </fileset>
 	    </copy>    	
 
@@ -117,7 +120,7 @@
       <fileset file="${servlet.jsp.jar}" />
       <fileset file="${jasper-compiler.jar}" />
       <fileset file="${jasper-runtime.jar}" />
-      <fileset file="${commons-dbcp.jar}" />
+      <fileset file="${c3p0.jar}" />
       <fileset file="${commons-pool.jar}" />
       <fileset file="${commons-digester.jar}" />
       <fileset file="${commons-collections.jar}" />
@@ -143,6 +146,8 @@
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot"/>
     <mkdir dir="${dest.dir}${sipxpbx.log.dir}"/>	
+	
+	<copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/cisco/syncinfo.xml"/>
 
     </target>
 	
@@ -188,10 +193,11 @@
 	
 	<target name="test-models">
 		<xmlvalidate description="validate setting description files">
-			<fileset dir="etc/cisco" includes="**/*.xml"></fileset>
+			<fileset dir="etc/cisco" includes="**/*.xml" excludes="syncinfo.xml"></fileset>
 			<fileset dir="etc/commserver" includes="**/*.xml"></fileset>
 			<fileset dir="etc/kphone" includes="**/*.xml"></fileset>
 			<fileset dir="etc/polycom" includes="**/*.xml"></fileset>
+			<fileset dir="etc/snom" includes="**/*.xml"></fileset>
 			<fileset dir="etc/grandstream" includes="**/*.xml"></fileset>
 			<fileset dir="etc/sipxconference" includes="**/*.xml"></fileset>
 			<fileset file="etc/user-settings.xml"/>

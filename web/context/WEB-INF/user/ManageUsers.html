@@ -4,17 +4,18 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
-        <h2>User Management</h2>
+        <h2><span key="title">Users</span></h2>
 		<ul class="component-links">
 			<li>
-				<a href="#" id="AddUser" jwcid="addUser">Add User</a>
+				<a href="#" id="AddUser" jwcid="addUser"><span key="add">Add User</span></a>
 			</li>
 		</ul>
 		<form jwcid="userManagement">
+            Group: <span jwcid="groupFilter"/>
 			<span jwcid="userTable" class="component"/>
 			<ul class="component-submit">
 				<li>
-					<input id="user:delete" jwcid="delete" value="Delete"
+					<input id="user:delete" jwcid="delete" value="message:delete"
 	                   onclick="return confirm('Are you sure you want to delete selected users?')"/>
 				</li>
 			</ul>

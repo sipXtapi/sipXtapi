@@ -33,8 +33,8 @@ public class UserTableModelTest extends TestCase {
         
         MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
         CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
-        coreContextCtrl.expectAndReturn(coreContext.loadUsersByPage(0, 1, "userName", true), page1); 
-        coreContextCtrl.expectAndReturn(coreContext.loadUsersByPage(1, 1, "userName", true), page2); 
+        coreContextCtrl.expectAndReturn(coreContext.loadUsersByPage(null, 0, 1, "userName", true), page1); 
+        coreContextCtrl.expectAndReturn(coreContext.loadUsersByPage(null, 1, 1, "userName", true), page2); 
         coreContextCtrl.replay();
 
         UserTableModel model = new UserTableModel();

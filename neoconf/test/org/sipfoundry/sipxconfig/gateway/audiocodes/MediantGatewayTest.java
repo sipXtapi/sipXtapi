@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
+import java.io.File;
 import java.io.StringWriter;
 import java.io.Writer;
 
@@ -30,7 +31,8 @@ public class MediantGatewayTest extends TestCase {
     protected void setUp() throws Exception {
         m_model = (AudioCodesModel) TestHelper.getApplicationContext().getBean(
                 "gmAudiocodesMP1X4_4_FXO");
-        m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean("gwAudiocodesMediant");
+        m_gateway = (MediantGateway) TestHelper.getApplicationContext().getBean(
+                "gwAudiocodesMediant");
         m_gateway.setBeanId(m_model.getBeanId());
         m_gateway.setModelId(m_model.getModelId());
     }
@@ -43,6 +45,14 @@ public class MediantGatewayTest extends TestCase {
 
         // cursory check for now
         assertTrue(writer.toString().indexOf("MAXDIGITS") >= 0);
+    }
+
+    public void testGenerateAndRemoveProfiles() throws Exception {
+        File file = m_gateway.getIniFile();
+        m_gateway.generateProfiles();
+        assertTrue(file.exists());
+        m_gateway.removeProfiles();
+        assertFalse(file.exists());
     }
 
     public void testPrepareSettings() throws Exception {

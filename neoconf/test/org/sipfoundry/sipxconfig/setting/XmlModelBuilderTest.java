@@ -131,4 +131,10 @@ public class XmlModelBuilderTest extends TestCase {
         assertTrue(giveBirth.isAdvanced());
         assertFalse(giveBirth.isHidden());
     }
+    
+    public void testNullValue() throws Exception {
+        InputStream in = getClass().getResourceAsStream("simplemodel.xml");
+        SettingSet root = m_builder.buildModel(in);
+        assertNull(root.getSetting("group/setting").getValue());
+    }
 }

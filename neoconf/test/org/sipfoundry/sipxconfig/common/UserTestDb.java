@@ -14,37 +14,36 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.Collection;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
 
-public class UserTestDb extends TestCase {
+public class UserTestDb extends SipxDatabaseTestCase {
 
-    private CoreContext core;
+    private CoreContext m_core;
     
-    private SettingDao settingDao;
+    private SettingDao m_settingDao;
     
     private Integer userId = new Integer(1000);
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext(); 
-        core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);        
-        settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
+        m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);        
+        m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
     }
 
     public void testLoadUser() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.xml");
         
-        User user = core.loadUser(userId);
+        User user = m_core.loadUser(userId);
         assertEquals(userId, user.getPrimaryKey());
         assertEquals(userId, user.getId());
     }
@@ -58,7 +57,7 @@ public class UserTestDb extends TestCase {
         user.setPintoken("password");
         user.setSipPassword("sippassword");
         user.getAliases().add("1234");
-        core.saveUser(user);
+        m_core.saveUser(user);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveUserExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
@@ -75,7 +74,7 @@ public class UserTestDb extends TestCase {
     public void testUserGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
-        User user = core.loadUser(new Integer(1001));
+        User user = m_core.loadUser(new Integer(1001));
         Set groups = user.getGroups();
         assertEquals(1, groups.size());
     }
@@ -83,7 +82,7 @@ public class UserTestDb extends TestCase {
     public void testUserSettings() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
-        User user = core.loadUser(new Integer(1001));
+        User user = m_core.loadUser(new Integer(1001));
         Setting settings = user.getSettings();        
         assertNotNull(settings);
     }
@@ -91,10 +90,10 @@ public class UserTestDb extends TestCase {
     public void testGroupMembers() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
-        Group group = settingDao.getGroup(new Integer(1001));
-        Collection users = core.getGroupMembers(group);
+        Group group = m_settingDao.getGroup(new Integer(1001));
+        Collection users = m_core.getGroupMembers(group);
         assertEquals(1, users.size());
-        User actualUser = core.loadUser(new Integer(1001));
+        User actualUser = m_core.loadUser(new Integer(1001));
         User expectedUser = (User) users.iterator().next();
         assertEquals(actualUser.getDisplayName(), expectedUser.getDisplayName());
     }
@@ -102,8 +101,8 @@ public class UserTestDb extends TestCase {
     public void testDeleteUserGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
-        Group group = settingDao.getGroup(new Integer(1001));
-        settingDao.deleteGroup(group);
+        Group group = m_settingDao.getGroup(new Integer(1001));
+        m_settingDao.deleteGroup(group);
         // link table references removed
         ITable actual = TestHelper.getConnection().createDataSet().getTable("user_group");
         assertEquals(0, actual.getRowCount());

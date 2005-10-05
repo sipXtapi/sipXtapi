@@ -13,24 +13,27 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang.StringUtils;
+import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.FilteredDataSet;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.filter.IncludeTableFilter;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.springframework.context.ApplicationContext;
 
 /**
  * DialPlanContextImplTest
  */
-public class DialPlanContextTestDb extends TestCase {
+public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     private DialPlanContext m_context;
 
     protected void setUp() throws Exception {
@@ -74,10 +77,10 @@ public class DialPlanContextTestDb extends TestCase {
         // IDataSet reference = new FilteredDataSet(filter, TestHelper
         // .loadDataSet("admin/dialplan/defaultFlexibleDialPlan.xml"));
         // Assertion.assertEquals(set, reference);
-        
+
         ITable internal = set.getTable("internal_dialing_rule");
         assertEquals(1, internal.getRowCount());
-        assertEquals("operator, 0", internal.getValue(0,"aa_aliases"));
+        assertEquals("operator, 0", internal.getValue(0, "aa_aliases"));
     }
 
     public void testDuplicateRules() throws Exception {
@@ -97,13 +100,13 @@ public class DialPlanContextTestDb extends TestCase {
 
     public void testDuplicateDefaultRules() throws Exception {
         m_context.resetToFactoryDefault();
-        
+
         List rules = m_context.getRules();
-        
+
         Transformer bean2id = new BeanWithId.BeanToId();
-        
+
         Collection ruleIds = CollectionUtils.collect(rules, bean2id);
-        
+
         m_context.duplicateRules(ruleIds);
 
         assertEquals(ruleIds.size() * 2, m_context.getRules().size());
@@ -111,5 +114,48 @@ public class DialPlanContextTestDb extends TestCase {
         IDataSet set = TestHelper.getConnection().createDataSet();
         ITable table = set.getTable("dialing_rule");
         assertEquals(ruleIds.size() * 2, table.getRowCount());
+    }
+
+    public void testGetEmergencyRouting() throws Exception {
+        TestHelper.insertFlat("admin/dialplan/emergency_routing.db.xml");
+        EmergencyRouting emergencyRouting = m_context.getEmergencyRouting();
+
+        assertEquals("9100", emergencyRouting.getExternalNumber());
+        Gateway defaultGateway = emergencyRouting.getDefaultGateway();
+        assertNotNull(defaultGateway);
+        assertTrue(defaultGateway.getName().startsWith("x"));
+
+        Collection exceptions = emergencyRouting.getExceptions();
+        assertEquals(2, exceptions.size());
+
+        for (Iterator i = exceptions.iterator(); i.hasNext();) {
+            RoutingException e = (RoutingException) i.next();
+            assertNotNull(e.getGateway());
+            assertTrue(e.getExternalNumber().startsWith("9"));
+            String[] callers = StringUtils.split(e.getCallers(), ", ");
+            assertEquals(2, callers.length);
+        }
+    }
+
+    public void testAddRoutingException() throws Exception {
+        TestHelper.insertFlat("admin/dialplan/emergency_routing.db.xml");
+        RoutingException re = new RoutingException();
+        EmergencyRouting er = m_context.getEmergencyRouting();
+        er.addException(re);
+        m_context.storeEmergencyRouting(er);
+
+        IDatabaseConnection db = TestHelper.getConnection();
+        assertEquals(3, db.getRowCount("routing_exception"));
+    }
+    
+    public void testRemoveRoutingException() throws Exception {
+        TestHelper.insertFlat("admin/dialplan/emergency_routing.db.xml");
+        
+        EmergencyRouting er = m_context.getEmergencyRouting();
+        RoutingException re = (RoutingException) er.getExceptions().iterator().next();
+        m_context.removeRoutingException(re.getId());
+
+        IDatabaseConnection db = TestHelper.getConnection();
+        assertEquals(1, db.getRowCount("routing_exception"));
     }    
 }

@@ -14,8 +14,6 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -27,24 +25,27 @@ public abstract class ManageUsers extends BasePage {
     public static final String PAGE = "ManageUsers";
     private static final String USER_TABLE_COMPONENT_ID = "userTable";
     public abstract CoreContext getCoreContext();
+    public abstract void setGroupId(Integer groupId);
+    public abstract Integer getGroupId();   
     
     public void addUser(IRequestCycle cycle) {
+        // Prep the NewUser page with a null userId so a new user will be created
         NewUser page = (NewUser) cycle.getPage(NewUser.PAGE);
-        cycle.activate(page);
+        page.setUserId(null);
+
+        // Go to the New User page
+        page.activatePageWithCallback(PAGE, cycle);
     }
     
     public void editUser(IRequestCycle cycle) {
+        // Prep the EditUser page with the userId
         Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, 
                 cycle.getServiceParameters(), 0);        
         EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);
         page.setUserId(userId);
 
-        // When we navigate to the Edit User page, clicking OK or Cancel on that
-        // page should send the user back here
-        ICallback callback = new PageCallback(PAGE);
-        page.setCallback(callback);
-
-        cycle.activate(page);        
+        // Go to the Edit User page
+        page.activatePageWithCallback(PAGE, cycle);
     }
     
     public void deleteUsers(IRequestCycle cycle_) {

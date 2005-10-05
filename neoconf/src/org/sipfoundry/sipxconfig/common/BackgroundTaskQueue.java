@@ -46,7 +46,13 @@ public class BackgroundTaskQueue {
      * This is one of the methods that can be used to actively wait till queue is empty Do not use
      * it unless you need it in testing.
      */
-    void yieldTillEmpty() {
+    public void yieldTillEmpty() {
+        Runnable sentinel = new Runnable() {
+            public void run() {
+                // do nothing
+            }
+        };
+        m_queue.add(sentinel);
         while (!m_queue.isEmpty()) {
             Thread.yield();
         }

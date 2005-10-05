@@ -37,6 +37,9 @@ public class CallSequenceTest extends TestCase {
             Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED);
             rings.add(ring);
         }
+        // add empty ring - should not change anything
+        rings.add(new Ring());
+
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
         sequence.setCalls(rings);
@@ -47,10 +50,11 @@ public class CallSequenceTest extends TestCase {
             AliasMapping a = (AliasMapping) i.next();
             assertEquals("abc@sipfoundry.org", a.getIdentity());
             String contact = a.getContact();
-            assertTrue(contact.matches("<sip:\\d+@sipfoundry.org;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
+            assertTrue(contact
+                    .matches("<sip:\\d+@sipfoundry.org;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
         }
     }
-    
+
     public void testGenerateAuthExceptions() {
         final int N = 7;
         List rings = new ArrayList(N);
@@ -58,12 +62,15 @@ public class CallSequenceTest extends TestCase {
             Ring ring = new Ring("2" + i, i, Ring.Type.DELAYED);
             rings.add(ring);
         }
+        // add empty ring - should not change anything
+        rings.add(new Ring());
+
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
         sequence.setCalls(rings);
 
         List authExceptions = sequence.generateAuthExceptions();
-        assertEquals(N, authExceptions.size());        
+        assertEquals(N, authExceptions.size());
         for (int i = 0; i < authExceptions.size(); i++) {
             String number = (String) authExceptions.get(i);
             assertEquals("2" + i, number);

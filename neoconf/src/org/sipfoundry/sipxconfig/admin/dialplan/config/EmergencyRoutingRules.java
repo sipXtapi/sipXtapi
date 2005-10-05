@@ -20,6 +20,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.RoutingException;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
  * EmergencyRoutingRules generates XML markup for e911rules.xml file
@@ -40,9 +41,12 @@ public class EmergencyRoutingRules extends XmlFile {
         m_document = FACTORY.createDocument();
         Element mappings = m_document.addElement("mappings", E911RULES_NAMESPACE);
         Element defaultMatch = mappings.addElement("defaultMatch");
-        String externalNumber = er.getExternalNumber();
-        String address = er.getDefaultGateway().getAddress();
-        generateTransform(defaultMatch, externalNumber, address);
+        Gateway defaultGateway = er.getDefaultGateway();
+        if (defaultGateway != null) {
+            String externalNumber = er.getExternalNumber();
+            String address = defaultGateway.getAddress();
+            generateTransform(defaultMatch, externalNumber, address);
+        }
         Collection exceptions = er.getExceptions();
         for (Iterator i = exceptions.iterator(); i.hasNext();) {
             RoutingException exception = (RoutingException) i.next();
@@ -75,9 +79,12 @@ public class EmergencyRoutingRules extends XmlFile {
             Element userPattern = userMatch.addElement("userPattern");
             userPattern.setText(patterns[j]);
         }
-        String externalNumber = exception.getExternalNumber();
-        String address = exception.getGateway().getAddress();
-        generateTransform(userMatch, externalNumber, address);
+        Gateway gateway = exception.getGateway();
+        if (gateway != null) {
+            String address = gateway.getAddress();
+            String externalNumber = exception.getExternalNumber();
+            generateTransform(userMatch, externalNumber, address);
+        }
     }
 
     /**

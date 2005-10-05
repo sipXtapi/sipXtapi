@@ -14,13 +14,12 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.TestCase;
-
 import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 
-public class JobRecordTestDb extends TestCase {
+public class JobRecordTestDb extends SipxDatabaseTestCase {
 
     private PhoneContext m_phoneContext;
     
@@ -43,9 +42,9 @@ public class JobRecordTestDb extends TestCase {
         phones.add(phone);
         
         m_phoneContext.restart(phones);
-        JobManager jobMgr = (JobManager) TestHelper.getApplicationContext().getBean("jobManager");
-        jobMgr.finishProcessingJobs();
-        
+        JobQueue jobMgr = (JobQueue) TestHelper.getApplicationContext().getBean("jobQueue");
+        jobMgr.yieldTillEmpty();
+                
         phoneControl.verify();
     }
 }

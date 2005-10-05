@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -33,9 +34,9 @@ import org.springframework.context.ApplicationListener;
 /**
  * DialPlanContextImpl is an implementation of DialPlanContext with hibernate support.
  */
-public class DialPlanContextImpl extends SipxHibernateDaoSupport 
-        implements BeanFactoryAware, DialPlanContext, ApplicationListener {
-    
+public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
+        DialPlanContext, ApplicationListener {
+
     private static final String NAME_PROP_NAME = "name";
     private static final String EXTENSION_PROP_NAME = "extension";
     private static final String OPERATOR_CONSTANT = "operator";
@@ -51,8 +52,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
     }
 
     private String m_configDirectory;
-
-    private EmergencyRouting m_emergencyRouting = new EmergencyRouting();
 
     private transient ConfigGenerator m_generator;
 
@@ -86,9 +85,10 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
         // Check for duplicate names before saving the rule
         String name = rule.getName();
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), rule,
-                QUERY_DIALING_RULE_IDS_WITH_NAME, name, new NameInUseException("dialing rule", name));
+                QUERY_DIALING_RULE_IDS_WITH_NAME, name, new NameInUseException("dialing rule",
+                        name));
 
-        // Save the rule.  If it's a new rule then attach it to the dial plan first
+        // Save the rule. If it's a new rule then attach it to the dial plan first
         // and save it via the dial plan.
         if (rule.isNew()) {
             DialPlan dialPlan = getDialPlan();
@@ -116,13 +116,15 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
     public void duplicateRules(Collection selectedRows) {
         DialPlan dialPlan = getDialPlan();
         List rules = dialPlan.getRules();
-        Collection selectedRules = DataCollectionUtil.findByPrimaryKey(rules, selectedRows.toArray());
+        Collection selectedRules = DataCollectionUtil.findByPrimaryKey(rules, selectedRows
+                .toArray());
         for (Iterator i = selectedRules.iterator(); i.hasNext();) {
             DialingRule rule = (DialingRule) i.next();
-                        
+
             // Create a copy of the rule with a unique name
-            DialingRule ruleDup = (DialingRule) duplicateBean(rule, QUERY_DIALING_RULE_IDS_WITH_NAME);
-            
+            DialingRule ruleDup = (DialingRule) duplicateBean(rule,
+                    QUERY_DIALING_RULE_IDS_WITH_NAME);
+
             rules.add(ruleDup);
         }
         DataCollectionUtil.updatePositions(rules);
@@ -140,16 +142,18 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
      * Loads default rules definition from bean factory file.
      */
     public void resetToFactoryDefault() {
+        getHibernateTemplate().delete(getEmergencyRouting());
+
         DialPlan dialPlan = getDialPlan();
         // unload all rules
         getHibernateTemplate().delete(dialPlan);
-        
+
         // Flush the session to cause the delete to take immediate effect.
         // Otherwise we can get name collisions on dialing rules when we load the
         // default dial plan, causing a DB integrity exception, even though the
         // collisions would go away as soon as the session was flushed.
         getHibernateTemplate().flush();
-        
+
         dialPlan = (DialPlan) m_beanFactory.getBean("defaultDialPlan");
         AutoAttendant operator = getOperator();
         dialPlan.setOperator(operator);
@@ -179,11 +183,10 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
         // Check for duplicate names or extensions before saving the call group
         String name = aa.getName();
         final String aaTypeName = "auto attendant";
-        DaoUtils.checkDuplicates(getHibernateTemplate(), aa,
-                NAME_PROP_NAME, new NameInUseException(aaTypeName, name));
+        DaoUtils.checkDuplicates(getHibernateTemplate(), aa, NAME_PROP_NAME,
+                new NameInUseException(aaTypeName, name));
         String extension = aa.getExtension();
-        DaoUtils.checkDuplicates(getHibernateTemplate(), aa,
-                EXTENSION_PROP_NAME,
+        DaoUtils.checkDuplicates(getHibernateTemplate(), aa, EXTENSION_PROP_NAME,
                 new ExtensionInUseException(extension));
 
         getHibernateTemplate().saveOrUpdate(aa);
@@ -191,7 +194,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
 
     public AutoAttendant getOperator() {
         String operatorQuery = "from AutoAttendant a where a.systemId = :operator";
-        List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery, 
+        List operatorList = getHibernateTemplate().findByNamedParam(operatorQuery,
                 OPERATOR_CONSTANT, AutoAttendant.OPERATOR_ID);
 
         AutoAttendant operator = (AutoAttendant) DaoUtils.requireOneOrZero(operatorList,
@@ -254,7 +257,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
 
     public ConfigGenerator generateDialPlan() {
         ConfigGenerator generator = new ConfigGenerator();
-        generator.generate(m_emergencyRouting);
+        generator.generate(getEmergencyRouting());
         generator.generate(this);
         m_generator = generator;
         return m_generator;
@@ -272,11 +275,32 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
     public void applyEmergencyRouting() {
         try {
             EmergencyRoutingRules rules = new EmergencyRoutingRules();
-            rules.generate(m_emergencyRouting, m_coreContext.getDomainName());
+            rules.generate(getEmergencyRouting(), m_coreContext.getDomainName());
             rules.writeToFile(m_configDirectory);
         } catch (IOException e) {
             throw new RuntimeException("Application of emergency routing rules failed.", e);
         }
+    }
+
+    public void storeEmergencyRouting(EmergencyRouting emergencyRouting) {
+        getHibernateTemplate().saveOrUpdate(emergencyRouting);
+    }
+
+    public EmergencyRouting getEmergencyRouting() {
+        List ers = getHibernateTemplate().loadAll(EmergencyRouting.class);
+        if (ers.isEmpty()) {
+            EmergencyRouting er = new EmergencyRouting();
+            getHibernateTemplate().save(er);
+            return er;
+        }
+        return (EmergencyRouting) ers.get(0);
+    }
+
+    public void removeRoutingException(Serializable routingExceptionId) {
+        RoutingException re = (RoutingException) getHibernateTemplate().load(
+                RoutingException.class, routingExceptionId);
+        getEmergencyRouting().removeException(re);
+        getHibernateTemplate().saveOrUpdate(re);
     }
 
     public ConfigGenerator getGenerator() {
@@ -298,21 +322,13 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
         m_configDirectory = configDirectory;
     }
 
-    public EmergencyRouting getEmergencyRouting() {
-        return m_emergencyRouting;
-    }
-
-    public void setEmergencyRouting(EmergencyRouting emergencyRouting) {
-        m_emergencyRouting = emergencyRouting;
-    }
-
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
-    
+
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof InitializationTask) {
-            InitializationTask dbEvent = (InitializationTask) event;            
+            InitializationTask dbEvent = (InitializationTask) event;
             if (dbEvent.getTask().equals("dial-plans")) {
                 resetToFactoryDefault();
             } else if (dbEvent.getTask().equals(OPERATOR_CONSTANT)) {
@@ -320,7 +336,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
             }
         }
     }
-    
+
     void createOperator() {
         AutoAttendant operator = getOperator();
         if (operator == null) {
@@ -329,6 +345,23 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport
             DialPlan dialPlan = getDialPlan();
             dialPlan.setOperator(operator);
             getHibernateTemplate().saveOrUpdate(dialPlan);
-        }        
+        }
+    }
+
+    public String getVoiceMail() {
+        return getDialPlan().getLikelyVoiceMailValue();
+    }
+
+    public void removeGateways(Collection gatewayIds) {
+        List rules = getRules();
+        for (Iterator i = rules.iterator(); i.hasNext();) {
+            DialingRule rule = (DialingRule) i.next();
+            rule.removeGateways(gatewayIds);
+            storeRule(rule);
+        }
+        EmergencyRouting emergencyRouting = getEmergencyRouting();
+        emergencyRouting.removeGateways(gatewayIds);
+        storeEmergencyRouting(emergencyRouting);
+        applyEmergencyRouting();
     }
 }

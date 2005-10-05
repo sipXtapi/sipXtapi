@@ -11,15 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.common.event;
 
-import junit.framework.TestCase;
-
 import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.context.ApplicationContext;
 
-public class DaoEventDispatcherTestDb extends TestCase {
+public class DaoEventDispatcherTestDb extends SipxDatabaseTestCase {
     
     private DaoEventDispatcher m_dispatcher;
     private DaoEventPublisher m_publisherOrg;

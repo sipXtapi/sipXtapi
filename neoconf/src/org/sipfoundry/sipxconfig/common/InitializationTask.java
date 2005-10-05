@@ -14,9 +14,9 @@ package org.sipfoundry.sipxconfig.common;
 import org.springframework.context.ApplicationEvent;
 
 /**
- * Database task event that get's sent around once when business objects
- * need initializition in the database. initialization tasks are considered
- * complete it successfully sending event, no need to mark task complete.
+ * Database task event that gets sent around once when business objects
+ * need initialization in the database.  Initialization tasks are considered
+ * completed on successfully sending the event, no need to mark the task complete.
  * 
  * Example:
  * <code>

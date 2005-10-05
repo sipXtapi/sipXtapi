@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
@@ -21,28 +23,23 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
- * Tapestry Page support for editing and creating new phone phones
+ * Tapestry Page support for editing and creating new phones
  */
 public abstract class EditPhone extends BasePage implements PageRenderListener {
     
     public static final String PAGE = "EditPhone"; 
 
     public abstract Phone getPhone();
-    
     public abstract void setPhone(Phone phone);
     
     /** REQUIRED PROPERTY */
-    public abstract Integer getPhoneId();
-    
+    public abstract Integer getPhoneId();    
     public abstract void setPhoneId(Integer id);
     
     public abstract PhoneContext getPhoneContext();
     
-    public void ok(IRequestCycle cycle) {
-        if (save()) {
-            cycle.activate(ManagePhones.PAGE);
-        }
-    }
+    public abstract ICallback getCallback();
+    public abstract void setCallback(ICallback callback);
 
     public void addLine(IRequestCycle cycle) {
         Object[] params = cycle.getServiceParameters();
@@ -53,7 +50,7 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
         cycle.activate(page);        
     }
     
-    public void apply(IRequestCycle cycle_) {
+    public void commit(IRequestCycle cycle_) {
         save();
     }
     
@@ -68,12 +65,14 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
         return save;
     }
     
-    public void cancel(IRequestCycle cycle) {
-        cycle.activate(ManagePhones.PAGE);
-    }
-    
     public void pageBeginRender(PageEvent event_) {
+        // Load the phone with the ID that was passed in
         PhoneContext context = getPhoneContext();
         setPhone(context.loadPhone(getPhoneId()));
+        
+        // If no callback has been given, then navigate back to Manage Phones on OK/Cancel
+        if (getCallback() == null) {
+            setCallback(new PageCallback(ManagePhones.PAGE));
+        }
     }       
 }

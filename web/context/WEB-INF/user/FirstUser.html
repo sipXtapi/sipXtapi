@@ -1,0 +1,27 @@
+<html jwcid="shell">
+<body jwcid="@Body">
+  <div id="banner">
+    <span class="hide" key="title">sipXconfig</span>
+  </div>
+  <span jwcid="@ErrorMsg"/>
+  <div class="help">
+  <p><span key="help1">Provide a PIN (password) for the new "superadmin" user account, the first user
+   to be created. The superadmin has special administrative privileges, so it is
+   important to choose a secure alphanumeric PIN
+   that cannot be easily guessed.  For example, "ch33zeW1z" is a better PIN
+   than "dog" or "123".</span></p>
+  <p><span key="help2">PINs for non-admin users are typically numeric because numbers are easier to 
+   dial on a phone keypad.  However, the superadmin account is generally used for
+   administering sipXconfig via the web, where this is not an issue.</span></p>
+  </div>
+  <form jwcid="form" id="firstuser:form">
+    <fieldset>
+    <legend><span key="prompt">Define password for "superadmin" account</span></legend>
+    <table>
+      <span jwcid="pin"/>
+    </table>
+    </fieldset>
+    <ul jwcid="formActions"/>
+  </form>
+</body>
+</html>

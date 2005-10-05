@@ -237,26 +237,26 @@
           <description>Use Headset Device</description>
         </setting>
         <setting name="use_backlight">
-          <type refid="on-off"/>
           <label>use_backlight</label>
+          <type refid="on-off"/>
           <value>on</value>
           <description>Use Backlight.</description>
         </setting>
         <setting name="date_us_format">
-          <type refid="on-off"/>
           <label>date_us_format</label>
+          <type refid="on-off"/>
           <value>on</value>
           <description>US date format (mm/dd).</description>
         </setting>
         <setting name="time_24_format">
-          <type refid="on-off"/>
           <label>time_24_format</label>
+          <type refid="on-off"/>
           <value>on</value>
           <description>24 hour clock.</description>
         </setting>
         <setting name="with_flash">
-          <type refid="on-off"/>
           <label>with_flash</label>
+          <type refid="on-off"/>
           <value>off</value>
           <description>Use Flash Plugin.</description>
         </setting>
@@ -1165,7 +1165,7 @@
               </option>
             </enum>
           </type>
-          <value>USA-10</value>
+          <value>USA-5</value>
           <description/>
         </setting>
         <setting name="http_proxy">
@@ -1544,28 +1544,28 @@
           <type>
             <enum>
               <option>
-                <value>auto_update</value>
                 <label>Update automatically</label>
+                <value>auto_update</value>
               </option>
               <option>
-                <value>ask_for_update</value>
                 <label>Ask for update</label>
+                <value>ask_for_update</value>
               </option>
               <option>
-                <value>never_update_firm</value>
                 <label>Ask for updating bootloader only</label>
+                <value>never_update_firm</value>
               </option>
               <option>
-                <value>never_update_boot</value>
                 <label>Ask for updating firmware only</label>
+                <value>never_update_boot</value>
               </option>
               <option>
-                <value>settings_only</value>
                 <label>Never update, load settings only</label>
+                <value>settings_only</value>
               </option>
               <option>
-                <value>never_update</value>
                 <label>Never update, do not load settings</label>
+                <value>never_update</value>
               </option>
             </enum>
           </type>
@@ -1616,10 +1616,10 @@
           <description>FQDN name of the domain or registrar.</description>
         </setting>
         <setting name="user_pname">
+          <label>Authentication Username</label>
           <type>
             <string/>
           </type>
-          <label>Authentication Username</label>
           <value/>
           <description>Username for the authentication if it differs from username.</description>
         </setting>

@@ -40,6 +40,12 @@ public class SipUriTest extends TestCase {
         assertEquals("sip:name@sipfoundry.org:33", uri.toString());        
     }
     
+    public void testFormatDomainPort() {
+        SipUri uri = new SipUri("sipfoundry.org", 34);
+        
+        assertEquals("sip:sipfoundry.org:34", uri.toString());        
+    }    
+    
     public void testFormatNameDomain() {
         SipUri uri = new SipUri("name", "sipfoundry.org", false);
         

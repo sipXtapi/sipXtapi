@@ -13,17 +13,16 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.File;
 
-import junit.framework.TestCase;
-
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.springframework.context.ApplicationContext;
 
-public class AutoAttendantTestDb extends TestCase {
+public class AutoAttendantTestDb extends SipxDatabaseTestCase {
 
     private DialPlanContext m_context;
 

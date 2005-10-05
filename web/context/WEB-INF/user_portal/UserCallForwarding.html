@@ -13,23 +13,23 @@
                 Select <em>At the same time</em>, if you want the phone to start rigning simultanously with the phone configured in previous line.
                 Configure how long phone should be ringing by entering the interval in seconds.</div>
 		<div id="component">
-            <h2>Manage Call Forwarding</h2>
+            <h2><span key="title">Call Forwarding</span></h2>
 			<form jwcid="form">
 	            <ul class="component-links">
-	                <li><a jwcid="addRingLink" href="#">Add Number</a></li>
+	                <li><a jwcid="addRingLink" href="#"><span key="add">Add Number</span></a></li>
 	            </ul>
 	            <fieldset>
 				<table>
                     <tbody>                        
                     <tr>
-                        <td colspan="4">Your extension will ring first.</td>
+                        <td colspan="4"><span jwcid="firstCall">Your extension will ring first.</span></td>
                     </tr>
                     <!-- iterate here -->
                     <tr jwcid="rings">
                         <span jwcid="ringEditor"></span>
                     </tr>
-                    <tr>
-                        <td colspan="4">If no-one answers your call will be forwarded to Voicemail.</td>
+                    <tr jwcid="renderVoicemail" element="tr">
+                        <td colspan="4"><span key="msg.voicemail">If no-one answers your call will be forwarded to Voicemail.</span></td>
                     </tr>
                     </tbody>
 				</table>

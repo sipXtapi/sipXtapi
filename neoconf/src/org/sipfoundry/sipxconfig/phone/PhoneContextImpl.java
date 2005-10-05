@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -44,6 +45,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private static final String GROUP_RESOURCE_ID = "phone";
     private static final String QUERY_PHONE = "from Phone";
+    private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
 
     private SettingDao m_settingDao;
 
@@ -56,7 +58,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private String m_systemDirectory;
 
     private Map m_modelCache = new HashMap();
-    
+
     private PhoneDefaults m_phoneDefaults;
 
     /**
@@ -67,10 +69,15 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         m_jobQueue.addJob(job);
     }
 
+    public void generateProfilesAndRestartAll() {
+        Collection phones = getHibernateTemplate().loadAll(Phone.class);
+        generateProfilesAndRestart(phones);
+    }
+
     public List getAvailablePhoneModels() {
         return m_availableModels;
     }
-    
+
     public void setAvailablePhoneModels(List models) {
         m_availableModels = models;
     }
@@ -114,13 +121,14 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void storePhone(Phone phone) {
         HibernateTemplate hibernate = getHibernateTemplate();
         String serialNumber = phone.getSerialNumber();
-        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, "phoneIdsWithSerialNumber", serialNumber,
-                new DuplicateSerialNumberException(serialNumber));
+        DaoUtils.checkDuplicatesByNamedQuery(hibernate, phone, QUERY_PHONE_ID_BY_SERIAL_NUMBER,
+                serialNumber, new DuplicateSerialNumberException(serialNumber));
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         hibernate.saveOrUpdate(phone);
     }
 
     public void deletePhone(Phone phone) {
+        phone.removeProfiles();
         phone.setValueStorage(clearUnsavedValueStorage(phone.getValueStorage()));
         Iterator i = phone.getLines().iterator();
         while (i.hasNext()) {
@@ -144,31 +152,28 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         // If no settings don't bother saving anything.
         return vs != null && vs.isNew() && vs.size() == 0 ? null : vs;
     }
-    
+
     public Line loadLine(Integer id) {
-        Line line = (Line) getHibernateTemplate().load(Line.class, id); 
+        Line line = (Line) getHibernateTemplate().load(Line.class, id);
         return line;
     }
 
-    public int getPhoneCount() {
-        String countQuery = "phoneCount";
-        Collection countCollection = getHibernateTemplate().findByNamedQuery(countQuery);
-        Integer count = (Integer) DaoUtils.requireOneOrZero(countCollection, countQuery);
-        
-        return count.intValue();        
+    public int getPhonesCount() {
+        return getPhonesInGroupCount(null);
     }
-    
-    public List loadPhonesByPage(int firstRow, int pageSize, String orderBy, boolean orderAscending) {
-        List phones = DaoUtils.loadByPage(getSession(), QUERY_PHONE, firstRow, 
-                pageSize, orderBy, orderAscending);
-        return phones;
+
+    public int getPhonesInGroupCount(Integer groupId) {
+        return getBeansInGroupCount(Phone.class, groupId);
     }
-    
+
+    public List loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String orderBy,
+            boolean orderAscending) {
+        return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending);
+    }
+
     public Collection loadPhones() {
         String phoneQuery = QUERY_PHONE;
-        List phones = getHibernateTemplate().find(phoneQuery);
-
-        return phones;
+        return getHibernateTemplate().find(phoneQuery);
     }
 
     public Phone loadPhone(Integer id) {
@@ -176,10 +181,25 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return phone;
     }
 
+    public Integer getPhoneIdBySerialNumber(String serialNumber) {
+        Integer phoneId = null;
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", serialNumber);
+        if (CollectionUtils.safeSize(objs) != 0) {
+            if (objs.size() > 1) {
+                // There is a database uniqueness constraint that should prevent this from ever
+                // happening
+                throw new IllegalStateException("Duplicate phone serial number: " + serialNumber);
+            }
+            phoneId = (Integer) objs.get(0);
+        }
+        return phoneId;
+    }
+
     public Phone newPhone(PhoneModel model) {
         Phone phone = (Phone) m_beanFactory.getBean(model.getBeanId());
         phone.setModelId(model.getModelId());
-        
+
         return phone;
     }
 
@@ -194,7 +214,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         deleteAll(QUERY_PHONE);
         deleteAll("from Group where resource = 'phone'");
     }
-    
+
     private void deleteAll(String query) {
         Collection c = getHibernateTemplate().find(query);
         getHibernateTemplate().deleteAll(c);
@@ -217,8 +237,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
             m_modelCache.put(filename, model);
         }
         return model;
-    }    
-    
+    }
+
     private class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A phone with serial number: {0} already exists.";
 
@@ -238,10 +258,10 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void setPhoneDefaults(PhoneDefaults phoneDefaults) {
         m_phoneDefaults = phoneDefaults;
     }
-    
+
     public Collection getPhonesByGroupId(Integer groupId) {
-        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByGroupId", 
-                "groupId", groupId);
+        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "phonesByGroupId", "groupId", groupId);
         return users;
     }
 
@@ -250,13 +270,13 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         if (Group.class.equals(c)) {
             Group group = (Group) entity;
             getHibernateTemplate().update(group);
-            if (Phone.PHONE_GROUP_RESOURCE.equals(group.getResource())) {
+            if (Phone.GROUP_RESOURCE_ID.equals(group.getResource())) {
                 Collection phones = getPhonesByGroupId(group.getId());
                 Iterator iphones = phones.iterator();
                 while (iphones.hasNext()) {
                     Phone phone = (Phone) iphones.next();
-                    Object[] ids = new Object[] { 
-                            group.getId() 
+                    Object[] ids = new Object[] {
+                        group.getId()
                     };
                     DataCollectionUtil.removeByPrimaryKey(phone.getGroups(), ids);
                     storePhone(phone);
@@ -278,18 +298,18 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
                         ids.add(line.getId());
                     }
                 }
-                DataCollectionUtil.removeByPrimaryKey(lines, ids.toArray());                        
+                DataCollectionUtil.removeByPrimaryKey(lines, ids.toArray());
                 storePhone(phone);
-            }            
+            }
         }
     }
 
     public void onSave(Object entity_) {
     }
-    
+
     public Collection getPhonesByUserId(Integer userId) {
-        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId", 
+        Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam("phonesByUserId",
                 "userId", userId);
-        return users;        
+        return users;
     }
 }

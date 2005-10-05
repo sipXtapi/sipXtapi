@@ -18,13 +18,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dbunit.dataset.ITable;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.context.ApplicationContext;
 
-public class GatewayContextTestDb extends TestHelper.TestCaseDb {
+public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
     private GatewayContext m_context;
 
@@ -94,8 +96,8 @@ public class GatewayContextTestDb extends TestHelper.TestCaseDb {
         Gateway g1 = new Gateway();
         g1.setAddress("10.1.1.1");
         m_context.storeGateway(g1);
-        
-        Gateway g2 = m_context.getGateway(g1.getId());       
+
+        Gateway g2 = m_context.getGateway(g1.getId());
         g2.setAddress("10.1.1.2");
         m_context.storeGateway(g2);
         assertEquals("10.1.1.2", g2.getAddress());
@@ -111,7 +113,6 @@ public class GatewayContextTestDb extends TestHelper.TestCaseDb {
         rule.addGateway(g1);
 
         m_dialPlanContext.storeRule(rule);
-
         // remove gateway
         m_context.deleteGateways(Collections.singletonList(g1.getId()));
 
@@ -121,18 +122,33 @@ public class GatewayContextTestDb extends TestHelper.TestCaseDb {
         assertTrue(rule.getGateways().isEmpty());
     }
 
+    public void testDeleteGatewayInUseByEmergencyRouting() {
+        Gateway g1 = new Gateway();
+        g1.setAddress("10.1.1.1");
+        m_context.storeGateway(g1);
+
+        EmergencyRouting emergencyRouting = m_dialPlanContext.getEmergencyRouting();
+        emergencyRouting.setDefaultGateway(g1);
+        m_dialPlanContext.storeEmergencyRouting(emergencyRouting);
+
+        // remove gateway
+        m_context.deleteGateways(Collections.singletonList(g1.getId()));
+
+        emergencyRouting = m_dialPlanContext.getEmergencyRouting();
+        assertNull(emergencyRouting.getDefaultGateway());
+    }
+
     public void testAllGateways() throws Exception {
         Collection models = m_context.getAvailableGatewayModels();
         for (Iterator i = models.iterator(); i.hasNext();) {
             PhoneModel model = (PhoneModel) i.next();
             Gateway gateway = m_context.newGateway(model);
-            String beanId = model.getBeanId();            
+            String beanId = model.getBeanId();
             assertEquals(gateway.getClass(), m_appContext.getBean(beanId).getClass());
-            if(beanId.equals("gwGeneric")) {                
+            if (beanId.equals("gwGeneric")) {
                 assertNull(gateway.getSettings());
-            }
-            else {
-                assertNotNull(gateway.getSettings());                
+            } else {
+                assertNotNull(gateway.getSettings());
             }
             m_context.storeGateway(gateway);
         }
@@ -146,7 +162,8 @@ public class GatewayContextTestDb extends TestHelper.TestCaseDb {
      * factory from the beans
      */
     public void testGetFactoryIds() {
-        // TODO: introduce gateway model - otherwise we will have problems if phone models are defined in bean files
+        // TODO: introduce gateway model - otherwise we will have problems if phone models are
+        // defined in bean files
         String[] gatewayModelBeansArray = m_appContext.getBeanNamesForType(PhoneModel.class);
         List gatewayModelBeans = Arrays.asList(gatewayModelBeansArray);
 
@@ -158,7 +175,7 @@ public class GatewayContextTestDb extends TestHelper.TestCaseDb {
             gatewayModelBeans.contains(beanId);
         }
     }
-    
+
     public void testGetGatewaySettings() throws Exception {
         TestHelper.cleanInsertFlat("gateway/SeedGateway.xml");
         Gateway gateway = m_context.getGateway(new Integer(1001));

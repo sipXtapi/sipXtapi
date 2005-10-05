@@ -40,6 +40,20 @@ public class SipServiceImplTest extends TestCase {
         assertEquals("sip:sipuaconfig@donut:5000", m_sip.getServerUri());
     }
     
+    public void testGetNotifyRequestUri() {
+        String actual = m_sip.getNotifyRequestUri("b.com", "5060", "a");
+        assertEquals("sip:a@b.com", actual);
+        
+        actual = m_sip.getNotifyRequestUri("b.com", "5061", "a");
+        assertEquals("sip:a@b.com:5061", actual);
+
+        actual = m_sip.getNotifyRequestUri("b.com", "", "a");
+        assertEquals("sip:a@b.com", actual);
+
+        actual = m_sip.getNotifyRequestUri("b.com", null, "a");
+        assertEquals("sip:a@b.com", actual);
+    }
+    
     public void _testSend() throws Exception {
         ReadSipMessage rdr = new ReadSipMessage();
         

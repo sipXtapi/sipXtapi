@@ -309,10 +309,6 @@
 	    </group>
 	    <group name="network">
 	      <label>Network parameters</label>
-	      <setting name="directory_url">
-	        <value></value>
-	        <description>URL of the external directory server.</description>
-	      </setting>
 	      <setting name="dyn_dns_addr_1">
 	        <type><ipaddr/></type>
 	        <value></value>
@@ -323,11 +319,16 @@
 	        <value></value>
 	        <description>IP address of a secondary dynamic DNS server.</description>
 	      </setting>
-	      <setting name="dyn_tftp_addr">
-	        <type><ipaddr/></type>
-	        <value></value>
-	        <description>IP address of a dynamic TFTP server.</description>
-	      </setting>
+				<setting name="dyn_tftp_addr" advanced="yes">
+					<type>
+						<ipaddr/>
+					</type>
+					<value></value>
+					<description>IP address of a secondary, dynamic TFTP server. After initially querying sipXconfig
+						TFTP server, the phone will rerequest the configuration files from the new TFTP server. Do not
+						configure this value unless you intend to maintain additional TFTP server independent from
+						sipXconfig.</description>
+				</setting>
 	      <setting name="http_proxy_addr">
 	        <type><ipaddr/></type>
 	        <value></value>
@@ -543,12 +544,13 @@
 	        <value></value>
 	        <description>Firmware version that the phone should use (without filename extension).</description>
 	      </setting>
-	      <setting name="language">
+	      <setting name="language" hidden="yes">
 	        <value></value>
 	        <description>For future use, only English is supported.</description>
 	      </setting>
 	      <setting name="sync">
-	        <value></value>
+	        <type><boolean/></type>
+	        <value>1</value>
 	        <description>Value against which to compare the sync value before a remote reboot is
 	          performed.</description>
 	      </setting>
