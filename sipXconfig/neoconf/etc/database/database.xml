@@ -60,20 +60,19 @@
   </target>
   
   <!-- Resets database for unittesting -->
-  <target name="unittest-reset" depends="drop,createdb,schema,version0"/>
+  <target name="unittest-reset" depends="drop,createdb,schema,version1"/>
   
   <!-- 
-    - NOTE: Creating a database runs all the patches.  Before shipping, update schema.sql
-    - then remove version0 from dependencies. 
+    - NOTE: Creating a database runs all the patches.
     -->
-  <target name="create-no-init" depends="createdb,schema,patches,version0">    
+  <target name="create-no-init" depends="createdb,schema,patches,version1">    
   </target>  
   <target name="create" depends="create-no-init,initialize"
     description="create database with schema">    
   </target>  
 
   <target name="upgrade" description="applied all patches that need to be applied"
-    depends="patches,version0,initialize"/>
+    depends="patches,version1,initialize"/>
     	
   <target name="initialize" depends="tasks" if="initialize">
   	<echo>initialize=${initialize}</echo>
@@ -83,24 +82,9 @@
   </target>
 	
   <!-- List each dependency on a separate line below to make source control merging easier -->
-  <target name="version0" description="upgrade from version 0" unless="version1"
-    depends="initialization_task,
-	  user_groups,
-	  user_name,
-	  user_name_constraints,
-	  user_aliases,
-	  phoneBeanId,
-	  meetme,
-	  gatewayBeanId,
-	  extension_pool,
-	  operator,
-	  name_uniqueness,
-      relax_group_name_uniqueness,
-      phone_description,
-	  dialing_rule_name_uniqueness,
-	  phone_serial_number_uniqueness,
-  	  emergency_routing
-	  "/>
+  <target name="version1" description="upgrade from version 1" unless="version2"/>
+    <!-- depends="" -->
+	
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -126,11 +110,6 @@
      Migration Targets Legend
 
      migrate-2.8          - PDS to SIPXCONFIG, 2.8 release to 3.0 release
-    
-     version0 to version1 - development database to initial version, this can be deleted
-                              when all patches are migrated into schema.sql because migration
-                              will be solved by a separate process and we're not supporting
-                              upgrading from a development database.
     -->	
 
   <!-- 
@@ -200,91 +179,6 @@
     </exec>    
   </target>
 
-   <!--
-    - version0 patches
-    -->
-  <target name="initialization_task" unless="initialization_task">
-    <db-patch patch="initialization_task"/>
-  </target>
-  <target name="user_groups" unless="user_groups">
-    <db-patch patch="user_groups"/>
-  </target>
-  <target name="operator" unless="operator">
-    <sipx-sql>
-      	insert into initialization_task (name) values ('operator');
-    </sipx-sql>
-  	<mark-patch-applied patch="operator"/>
-  </target>  
-  <target name="phoneBeanId" unless="phoneBeanId">
-    <sipx-sql>
-      	alter table phone rename column factory_id to bean_id;
-      	alter table phone add column model_id varchar(64);
-    </sipx-sql>
-  	<mark-patch-applied patch="phoneBeanId"/>
-  </target>
-  <target name="gatewayBeanId" unless="gatewayBeanId">
-    <sipx-sql>
-      	alter table gateway rename column factory_id to bean_id;
-      	alter table gateway add column model_id varchar(64);       
-    </sipx-sql>
-  	<mark-patch-applied patch="gatewayBeanId"/>
-  </target>  
-  
-  <target name="user_name" unless="user_name">
-    <sipx-sql>
-		alter table users rename column display_id to user_name;
-    </sipx-sql>
-  	<mark-patch-applied patch="user_name"/>
-  </target>
-  <target name="user_name_constraints" unless="user_name_constraints">
-    <sipx-sql>
-		alter table users add constraint uqc_user_name unique (user_name);
-		alter table users alter column user_name set not null;
-    </sipx-sql>
-  	<mark-patch-applied patch="user_name_constraints"/>
-  </target>
-  <target name="user_aliases" unless="user_aliases">
-    <db-patch patch="user_aliases"/>
-  </target>  
-  <target name="meetme" unless="meetme">
-    <db-patch patch="meetme"/>
-  </target>  
-  <target name="extension_pool" unless="extension_pool">
-    <db-patch patch="extension_pool"/>
-  </target>  
-  <target name="name_uniqueness" unless="name_uniqueness">
-    <db-patch patch="name_uniqueness"/>
-  </target>  
-  <target name="relax_group_name_uniqueness" unless="relax_group_name_uniqueness">
-    <sipx-sql>
-      alter table group_storage drop constraint uqc_group_storage_name;
-      alter table group_storage add constraint uqc_group_storage_name unique (name, resource);
-    </sipx-sql>
-  	<mark-patch-applied patch="relax_group_name_uniqueness"/>
-  </target>
-  <target name="phone_description" unless="phone_description">
-    <sipx-sql>
-		alter table phone add column description varchar(255);  
-		update phone set description=name;
-		alter table phone drop column name;
-		update phone set bean_id = 'unmanagedPhone' where bean_id = 'genericPhone';
-	</sipx-sql>
-  	<mark-patch-applied patch="phone_description"/>
-  </target>
-  <target name="dialing_rule_name_uniqueness" unless="dialing_rule_name_uniqueness">
-    <db-patch patch="dialing_rule_name_uniqueness"/>
-  </target>  
-  <target name="phone_serial_number_uniqueness" unless="phone_serial_number_uniqueness">
-    <sipx-sql>	
-		alter table phone add constraint uqc_phone_serial_number unique (serial_number);
-		alter table phone alter column serial_number set not null;
-	</sipx-sql>
-  	<mark-patch-applied patch="phone_serial_number_uniqueness"/>
-  </target>
-  <target name="emergency_routing" unless="emergency_routing">
-	    <db-patch patch="emergency_routing"/>
-  </target>  
-	
   <!--
     - SUPPORT UTILITIES
     -->

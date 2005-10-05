@@ -7,9 +7,11 @@ create table version_history(
 );
 
 /**
- *   CHANGE VERSION HERE ----------------------------> X <------------------ 
+ * CHANGE VERSION HERE ----------------------------> X <------------------
+ *
+ * For sipXconfig v3.0, the database version is 1.
  */
-insert into version_history (version, applied) values (0, now());
+insert into version_history (version, applied) values (1, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -19,10 +21,11 @@ create table patch(
  */
 create table phone (
    phone_id int4 not null,
-   name varchar(255),
-   serial_number varchar(255),
-   factory_id varchar(255),
+   description varchar(255) unique,
+   serial_number varchar(255) not null unique,
+   bean_id varchar(255),
    value_storage_id int4,
+   model_id varchar(64),
    primary key (phone_id)
 );
 create table dial_pattern (
@@ -50,7 +53,7 @@ create table line_group (
 );
 create table dialing_rule (
    dialing_rule_id int4 not null,
-   name varchar(255) not null,
+   name varchar(255) not null unique,
    description varchar(255),
    enabled bool,
    position int4,
@@ -59,7 +62,7 @@ create table dialing_rule (
 );
 create table auto_attendant (
    auto_attendant_id int4 not null,
-   name varchar(255),
+   name varchar(255) unique,
    extension varchar(255),
    prompt varchar(255),
    system_id varchar(255),
@@ -71,7 +74,7 @@ create table park_orbit (
    orbit_type char(1) not null,
    music varchar(255),
    enabled bool,
-   name varchar(255),
+   name varchar(255) unique,
    extension varchar(255),
    description varchar(255),
    primary key (park_orbit_id)
@@ -95,12 +98,13 @@ create table user_ring (
 );
 create table gateway (
    gateway_id int4 not null,
-   factory_id varchar(255) not null,
-   name varchar(255),
+   bean_id varchar(255) not null,
+   name varchar(255) unique,
    address varchar(255),
    description varchar(255),
    serial_number varchar(255),
    value_storage_id int4,
+   model_id varchar(64),
    primary key (gateway_id)
 );
 create table daily_backup_schedule (
@@ -159,7 +163,7 @@ create table custom_dialing_rule (
 create table call_group (
    call_group_id int4 not null,
    enabled bool,
-   name varchar(255),
+   name varchar(255) unique,
    extension varchar(255),
    description varchar(255),
    primary key (call_group_id)
@@ -209,8 +213,8 @@ create table users (
    pintoken varchar(255),
    sip_password varchar(255),
    last_name varchar(255),
-   display_id varchar(255),
-   extension varchar(255),
+   user_name varchar(255) not null unique,
+   value_storage_id int4,
    primary key (user_id)
 );
 create table custom_dialing_rule_permission (
@@ -235,6 +239,71 @@ create table long_distance_dialing_rule (
    pstn_prefix varchar(255),
    primary key (international_dialing_rule_id)
 );
+create table initialization_task (
+  name varchar(255) not null primary key
+); 
+create table user_group(
+   user_id int4 not null,
+   group_id int4 not null,
+   primary key (user_id, group_id)
+);  
+create table user_alias (
+  user_id int4 not null,
+  alias varchar(255) not null unique,
+  primary key (user_id, alias)
+);
+create table meetme_participant (
+    meetme_participant_id int4 not null,
+    enabled bool,
+    value_storage_id int4,
+    user_id int4 not null,
+	meetme_conference_id int4 not null,    
+    primary key (meetme_participant_id)
+);
+create table meetme_conference (
+    meetme_conference_id int4 not null,
+    enabled bool,    
+    name varchar(255) not null,
+    description varchar(255),
+    extension varchar(255),
+    value_storage_id int4,
+    meetme_bridge_id int4 not null,
+    primary key (meetme_conference_id)
+);
+create table meetme_bridge (
+    meetme_bridge_id int4 not null,
+    enabled bool,
+    name varchar(255) not null,
+    host varchar(255),
+    port int4,
+    description varchar(255),
+    value_storage_id int4,
+    primary key (meetme_bridge_id)
+);
+create table extension_pool (
+  extension_pool_id int4 not null,
+  enabled boolean not null,
+  name varchar(255) unique not null,
+  first_extension int4,
+  last_extension int4,
+  next_extension int4,
+  primary key (extension_pool_id)
+);
+create table emergency_routing (
+    emergency_routing_id int4 not null,
+    gateway_id int4,
+    external_number varchar(255),
+    primary key (emergency_routing_id)
+);
+create table routing_exception (
+    routing_exception_id int4 not null,
+    gateway_id int4,
+    external_number varchar(255),
+    callers  varchar(255),
+    emergency_routing_id int4,
+    primary key (routing_exception_id)
+);
+
 alter table phone add constraint FK65B3D6ECB50FCED foreign key (value_storage_id) references value_storage;
 alter table dial_pattern add constraint FK8D4D2DC1454433A3 foreign key (custom_dialing_rule_id) references custom_dialing_rule;
 alter table international_dialing_rule add constraint FKE5D682BA7DD83CC0 foreign key (international_dialing_rule_id) references dialing_rule;
@@ -243,6 +312,7 @@ alter table line_group add constraint FK8A14274A8B4D46 foreign key (line_id) ref
 alter table line_group add constraint FK8A142741E2E76DB foreign key (group_id) references group_storage;
 alter table dialing_rule add constraint FK3B60F0A99F03EC22 foreign key (dial_plan_id) references dial_plan;
 alter table group_storage add constraint FK92BDF0BB1E2E76DB foreign key (group_id) references value_storage;
+alter table group_storage add constraint uqc_group_storage_name unique (name, resource);
 alter table user_ring add constraint FK143BDE242A05F79C foreign key (call_group_id) references call_group;
 alter table user_ring add constraint FK143BDE24F73AEE0F foreign key (user_id) references users;
 alter table gateway add constraint FKF4BA4644CB50FCED foreign key (value_storage_id) references value_storage;
@@ -264,6 +334,17 @@ alter table custom_dialing_rule_permission add constraint FK8F3EE457454433A3 for
 alter table internal_dialing_rule add constraint FK5D102EEB5BEFFE1D foreign key (auto_attendant_id) references auto_attendant;
 alter table internal_dialing_rule add constraint FK5D102EEBDE4556EF foreign key (internal_dialing_rule_id) references dialing_rule;
 alter table long_distance_dialing_rule add constraint FKA10B67307DD83CC0 foreign key (international_dialing_rule_id) references dialing_rule;
+alter table users add constraint user_fk1 foreign key (value_storage_id) references value_storage;
+alter table user_group add constraint user_group_fk1 foreign key (user_id) references users;
+alter table user_group add constraint user_group_fk2 foreign key (group_id) references group_storage;
+alter table user_alias add constraint user_alias_fk1 foreign key (user_id) references users;
+alter table meetme_conference add constraint fk_meetme_conference_bridge foreign key (meetme_bridge_id) references meetme_bridge;
+alter table meetme_participant add constraint fk_meetme_participant_conference foreign key (meetme_conference_id) references meetme_conference;
+alter table meetme_participant add constraint fk_meetme_participant_user foreign key (user_id) references users;
+alter table emergency_routing add constraint fk_emergency_routing_gateway foreign key (gateway_id) references gateway;
+alter table routing_exception add constraint fk_routing_exception_gateway foreign key (gateway_id) references gateway;
+alter table routing_exception add constraint fk_emergency_routing_routing_exception foreign key (emergency_routing_id) references emergency_routing;
+    
 create sequence group_weight_seq;
 create sequence dialing_rule_seq;
 create sequence ring_seq;
@@ -279,3 +360,12 @@ create sequence line_seq;
 create sequence job_seq;
 create sequence call_group_seq;
 create sequence backup_plan_seq;
+create sequence meetme_seq;
+create sequence extension_pool_seq;
+
+/* retro-add initialization items that used legacy interface */
+insert into initialization_task (name) values ('dial-plans');
+insert into initialization_task (name) values ('default-phone-group');
+
+insert into initialization_task (name) values ('add_default_user_group');
+insert into initialization_task (name) values ('operator');
