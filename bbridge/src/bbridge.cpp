@@ -1,6 +1,10 @@
 // 
 // 
 // Copyright (C) 2005 Jason Fischl, Dan Petrie
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
@@ -14,7 +18,6 @@
 // SYSTEM INCLUDES
 #include <stdio.h>
 #include <signal.h>
-#include <unistd.h>
 
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
