@@ -7,7 +7,8 @@
     <description>sipXconfig Application</description>
     
     <property name="org.apache.tapestry.global-class" value="org.sipfoundry.sipxconfig.site.BeanFactoryGlobals"/>
-    <property name="org.apache.tapestry.visit-class" value="org.sipfoundry.sipxconfig.site.Visit"/>    
+    <!-- note: SipxconfigEngine creates visit objects using spring factory -->
+    <!-- setting org.apache.tapestry.visit-class here will be ignored -->
     
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
     <library id="checkboxes" specification-path="/org/mb/tapestry/checkboxes/checkboxes.library"/>

@@ -20,6 +20,8 @@ import org.apache.tapestry.engine.IEngineServiceView;
  * Tapestry Visit object - session parameters for sipXconfig
  */
 public class Visit {
+    public static final String BEAN_NAME = "visit";
+
     /**
      * true if we want to display title bar and navigation false for testing and when embedding
      * pages in profilegen
@@ -27,6 +29,8 @@ public class Visit {
     private boolean m_navigationVisible = true;
 
     private boolean m_admin;
+
+    private int m_tablePageSize;
 
     /**
      * user that is currently logged in
@@ -39,6 +43,14 @@ public class Visit {
 
     public void setNavigationVisible(boolean navigationVisible) {
         m_navigationVisible = navigationVisible;
+    }
+
+    public int getTablePageSize() {
+        return m_tablePageSize;
+    }
+
+    public void setTablePageSize(int tablePageSize) {
+        m_tablePageSize = tablePageSize;
     }
 
     public boolean isAdmin() {
@@ -57,7 +69,7 @@ public class Visit {
     public void logout(IRequestCycle cycle) {
         // Clear the visit state so we forget about this user and their admin rights, if any
         clear();
-        
+
         // Invalidate the user session.
         // See http://wiki.apache.org/jakarta-tapestry/FrequentlyAskedQuestions/LogoutLink .
         try {

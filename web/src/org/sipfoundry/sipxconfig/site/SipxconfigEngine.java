@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site;
 
 import javax.servlet.ServletContext;
 
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.engine.BaseEngine;
 import org.apache.tapestry.request.RequestContext;
 import org.springframework.web.context.WebApplicationContext;
@@ -40,7 +41,19 @@ public class SipxconfigEngine extends BaseEngine {
         ServletContext servletContext = context.getServlet().getServletContext();
         WebApplicationContext bf = WebApplicationContextUtils
                 .getWebApplicationContext(servletContext);
-        global.setApplicationContext(bf);        
+        global.setApplicationContext(bf);
         return global;
+    }
+
+    /**
+     * Create Visit object from Spring application context which allows us to configure Visit
+     * using bean configuration files.
+     * 
+     * Setting "org.apache.tapestry.visit-class" property in .application file does not have any
+     * effect.
+     */
+    protected Object createVisit(IRequestCycle cycle_) {
+        BeanFactoryGlobals global = (BeanFactoryGlobals) getGlobal();
+        return global.getApplicationContext().getBean("visit", Visit.class);
     }
 }

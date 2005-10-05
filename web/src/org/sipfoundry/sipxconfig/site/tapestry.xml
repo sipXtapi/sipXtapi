@@ -142,6 +142,10 @@
       <value>Unlimited</value>
     </property>
   </bean>
+  <!-- prototype for a visit object -->
+  <bean id="visit" class="org.sipfoundry.sipxconfig.site.Visit" singleton="false">
+    <property name="tablePageSize" value="20"/>    
+  </bean>
   <!-- tapestry utilities -->
   <bean name="tapestry" class="org.sipfoundry.sipxconfig.components.TapestryContext"/>
 </beans>
