@@ -8,10 +8,6 @@
 
     <description>Reminds users that sipX services need to be restarted</description>
     
-    <property-specification name="sipxProcessContext" 
-    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext" 
-    	initial-value="global.sipxProcessContext"/>
-    
     <property-specification name="restartLater" type="boolean" initial-value="false"/>
     
     <property-specification name="nextPage" type="java.lang.String"/>
@@ -31,11 +27,9 @@
         <binding name="value" expression="processes"/>
     </component>
     
-    <component id="reminder" type="InsertText">
-        <message-binding name="value" key="reminder"/>
+    <component id="reminder" type="RestartReminderPanel">
+        <binding name="processes" expression="processes"/>
+        <message-binding name="reminderMsg" key="reminder"/>        
     </component>
     
-    <component id="checkRestartLater" type="Checkbox">
-        <binding name="selected" expression="restartLater"/>
-    </component>    
 </page-specification>
