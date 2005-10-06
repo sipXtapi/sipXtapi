@@ -142,7 +142,7 @@ incrementalBuild()
 
     if test "$Success" = "true"
     then
-        echo "SUCCESS : $Project built successfully"
+        echo "SUCCESS : $Project built successfully $UNITCHECK"
         echo ""
         return 0
     else
@@ -190,7 +190,7 @@ tarBuild()
 
     if test "$Success" = "true"
     then
-        echo "SUCCESS : $Project tarball built successfully"
+        echo "SUCCESS : $Project tarball built successfully $UNITCHECK"
         echo ""
         return 0
     else
@@ -252,7 +252,7 @@ distributionBuild()
 
     if test "$Success" = "true"
     then
-        echo "SUCCESS : $Project built successfully"
+        echo "SUCCESS : $Project built successfully $UNITCHECK"
         echo ""
         return 0
     else
@@ -355,7 +355,7 @@ rpmBuild()
 
     if test "$Success" = "true"
     then
-        echo "SUCCESS : $Project built successfully"
+        echo "SUCCESS : $Project built successfully $UNITCHECK"
         echo ""
         return 0
     else
@@ -506,6 +506,21 @@ else
     then
         Deps=NODEPS
     fi
+fi
+
+if test $Check = NOCHECK
+then
+    cat <<EOF
+********************************************************************
+**** UNIT TESTS ARE DISABLED
+**** The results of this build should not be considered suitable for 
+****     any production purpose.  
+**** Unit tests should always be run before checking in any change!
+********************************************************************
+EOF
+    UNITCHECK="[with unit tests disabled]"
+else
+    UNITCHECK=""
 fi
 
 if test "$Action" = "INCREMENTAL" 
