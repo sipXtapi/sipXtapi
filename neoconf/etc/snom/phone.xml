@@ -789,6 +789,12 @@
       </group>
       <group name="network">
         <label>Network</label>
+        <!-- 
+          - Phone will reboot infinitely if you try to 
+          - set these settings.  If admin is using static IP
+          - these will be maintaining those setting from phone 
+          - itself.
+          -->
         <!-- setting name="dhcp">
           <label>DHCP</label>
           <type refid="on-off"/>
