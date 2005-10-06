@@ -789,7 +789,7 @@
       </group>
       <group name="network">
         <label>Network</label>
-        <setting name="dhcp">
+        <!-- setting name="dhcp">
           <label>DHCP</label>
           <type refid="on-off"/>
           <value>on</value>
@@ -850,7 +850,7 @@
           </type>
           <value/>
           <description/>
-        </setting>
+        </setting -->
         <setting name="ntp_server">
           <label>NTP Server</label>
           <type>
