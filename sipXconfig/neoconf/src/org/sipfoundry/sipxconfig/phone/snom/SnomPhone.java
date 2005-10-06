@@ -27,6 +27,8 @@ import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 public class SnomPhone extends Phone {
 
     public static final String BEAN_ID = "snom";
+    
+    public static final String USER_HOST = "line/user_host";
 
     public SnomPhone() {
         super(BEAN_ID);
@@ -114,14 +116,24 @@ public class SnomPhone extends Phone {
             adapter.addMapping(LineSettings.PASSWORD, "line/user_pass");
             adapter.addMapping(LineSettings.AUTHORIZATION_ID, "line/user_pname");
             adapter.addMapping(LineSettings.DISPLAY_NAME, "line/user_realname");
-            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "line/user_host");
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER, USER_HOST);
             impl = adapter.getImplementation();
         } else {
             impl = super.getAdapter(interfac);
         }
         return impl;
     }
-
+    
+    protected void defaultLineSettings(Line line) {
+        super.defaultLineSettings(line);
+        
+        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+        // registration server shouldn't be used, proxy(e.g domain name) should handle delivery
+        String domainName = defaults.getDomainName();
+        String registrationUri = domainName + ";transport=udp";
+        line.getSettings().getSetting(USER_HOST).setValue(registrationUri);     
+    }    
+        
     public void restart() {
         sendCheckSyncToFirstLine();
     }
