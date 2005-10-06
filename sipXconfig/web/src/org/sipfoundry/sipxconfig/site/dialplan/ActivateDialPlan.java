@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
-import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
+import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
 
 /**
  * ActivateDialPlan
@@ -39,14 +39,17 @@ public abstract class ActivateDialPlan extends BasePage {
         // ignore xml - read only field
     }
 
+    public Process[] getAffectedProcesses() {
+        return new Process[] {
+            Process.REGISTRAR, Process.AUTH_PROXY
+        };
+    }
+
     public void activate(IRequestCycle cycle) {
         DialPlanContext manager = getDialPlanContext();
         manager.activateDialPlan();
-        RestartReminder restartPage = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
-        restartPage.setNextPage(EditFlexibleDialPlan.PAGE);
-        restartPage.setProcesses(new Process[] {
-            Process.REGISTRAR, Process.AUTH_PROXY
-        });
-        cycle.activate(restartPage);
+        RestartReminderPanel reminder = (RestartReminderPanel) getComponent("reminder");
+        reminder.restart();
+        cycle.activate(EditFlexibleDialPlan.PAGE);
     }
 }

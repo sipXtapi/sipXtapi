@@ -16,6 +16,8 @@
 		type="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType">
         @org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@MAPPING_RULES
     </property-specification>
+    
+    <property-specification name="showAdvanced" persistent="yes" type="boolean" initial-value="false"/>
 
     <!--
      - B E A N S
@@ -46,8 +48,24 @@
     
     <component id="activate" type="Submit">
         <binding name="listener" expression="listeners.activate"/>
+        <message-binding name="label" key="button.ok"/>
     </component>
     <component id="cancel" type="CancelButton">
         <static-binding name="returnPageName" value="EditFlexibleDialPlan"/>
+    </component>
+    
+    <component id="showAdvanced" type="ToggleLink">
+        <binding name="toggle" expression="showAdvanced"/>
+        <message-binding name="labelOff" key="link.showXml"/>
+        <message-binding name="labelOn" key="link.hideXml"/>
+    </component>
+    
+    <component id="renderXml" type="contrib:FormConditional">
+        <binding name="condition" expression="showAdvanced"/>
+    </component>
+    
+    <component id="reminder" type="RestartReminderPanel">
+        <binding name="processes" expression="affectedProcesses"/>
+        <message-binding name="reminderMsg" key="msg.restart"/>
     </component>
 </page-specification>

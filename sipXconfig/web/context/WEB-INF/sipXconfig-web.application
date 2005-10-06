@@ -23,7 +23,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="UserSettings" specification-path="user/UserSettings.page"/>    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
+    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddUserRing" specification-path="admin/AddUserRing.page"/>    
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
@@ -70,7 +70,8 @@
     <page name="ServerSettings" specification-path="admin/commserver/ServerSettings.page"/>    
     <page name="Services" specification-path="admin/commserver/Services.page"/>
     <page name="UserCallForwarding" specification-path="user_portal/UserCallForwarding.page"/>
-    <page name="UserGroups" specification-path="user/UserGroups.page"/>    
+    <page name="UserGroups" specification-path="user/UserGroups.page"/>
+    <page name="UserSettings" specification-path="user/UserSettings.page"/>    
 
     <!--
       -  C O M P O N E N T S
@@ -109,6 +110,7 @@
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneLabel" specification-path="phone/PhoneLabel.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>
+    <component-type type="RestartReminderPanel" specification-path="admin/commserver/RestartReminderPanel.jwc"/>
     <component-type type="RingEditor" specification-path="user_portal/RingEditor.jwc"/>
     <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
     <component-type type="SettingEditor" specification-path="setting/SettingEditor.jwc"/>

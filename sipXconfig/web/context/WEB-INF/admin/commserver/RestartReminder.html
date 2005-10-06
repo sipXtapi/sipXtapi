@@ -8,13 +8,7 @@
         <form jwcid="@Form" id="restart:form">
             <input jwcid="nextPage" type="hidden"/>
             <input jwcid="processes" type="hidden"/>
-            <fieldset>
-		        <span jwcid="reminder">You should restart your services now - reminder.</span>
-			</fieldset>                
-            <fieldset>
-	            <input jwcid="checkRestartLater" id="restart:later" type="checkbox"/>
-                <label for="restart:later"><span key="restart.later.label">Restart later</span></label>
-            </fieldset>
+            <fieldset jwcid="reminder"/>
 		    <ul class="form-actions">
 	    		<li><input jwcid="continue" id="restart:save" type="button" name="save" value="OK"/></li>
 		    </ul>            
