@@ -35,96 +35,106 @@ AC_DEFUN([CHECK_CLOVER],
    fi
 ])
 
-# ============ C P P U N I T ===========
-AC_DEFUN([CHECK_CPPUNIT],
-[   AC_MSG_CHECKING([for cppunit])
-    # Process the --with-cppunit argument which gives the pcre base directory.
-    AC_ARG_WITH(cppunit,
-                [--with-cppunit=PATH path to cppunit install directory],
-                )
-    homeval=$withval
-    # Have to unset withval so we can tell if --with-pcre_includedir was
-    # specified, as AC_ARG_WITH will not unset withval if the option is not
-    # there!
-    withval=
-
-    # Process the --with-cppunit_includedir argument which gives the cppunit include
-    # directory.
-    AC_ARG_WITH(cppunit_includedir,
-                [--with-cppunit_includedir=PATH path to cppunit include directory (containing cppunit.h)],
-                )
-    # If withval is set, use that.  If not and homeval is set, use
-    # $homeval/include.  If neither, use null.
-    includeval=${withval:-${homeval:+$homeval/include}}
-    withval=
-
-    # Process the --with-cppunit_libdir argument which gives the cppunit library
-    # directory.
-    AC_ARG_WITH(cppunit_libdir,
-                [--with-cppunit_libdir=PATH path to cppunit lib directory (containing libcppunit.{so,a})],
-                )
-    libval=${withval:-${homeval:+$homeval/lib}}
-
-    # Check for cppunit.h in the specified include directory if any, and a number
-    # of other likely places.
-    for dir in $includeval /usr/local/include /usr/local/cppunit/include /usr/include /usr/include/cppunit /sw/include; do
-        if test -f "$dir/cppunit/TestCase.h"; then
-            found_cppunit_include="yes";
-            includeval=$dir
-            break;
-        fi
-    done
-
-    # Check for libcppunit.{so,a} in the specified lib directory if any, and a
-    # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/local/cppunit/lib /usr/lib /sw/lib; do
-        if test -f "$dir/libcppunit.so" -o -f "$dir/libcppunit.a" -o -f "$dir/libcppunit.dylib" ; then
-            found_cppunit_lib="yes";
-            libval=$dir
-            break;
-        fi
-    done
-
-    # Test that we've been able to find both directories, and set the various
-    # makefile variables.
-    if test x_$found_cppunit_include != x_yes; then
-        AC_MSG_ERROR(Cannot find cppunit/TestCase.h - looked in $includeval)
-    else
-        if test x_$found_cppunit_lib != x_yes; then
-            AC_MSG_ERROR(Cannot find libcppunit.so, libcppunit.dylib or libcppunit.a libraries - looked in $libval)
-        else
-            ## Test for version
-            cppunit_ver=`cppunit-config --version`
-            AX_COMPARE_VERSION([$cppunit_ver],[ge],[1.10],
-                               [AC_MSG_RESULT($cppunit_ver is ok)],
-                               [AC_MSG_ERROR([cppunit version must be >= 1.10 - found $cppunit_ver])])
-
-            AC_MSG_RESULT([    cppunit includes found in $includeval])
-            AC_MSG_RESULT([    cppunit libraries found in $libval])
-
-            CPPUNIT_CFLAGS="-I$includeval"
-            CPPUNIT_CXXFLAGS="-I$includeval"
-            AC_SUBST(CPPUNIT_CFLAGS)
-            AC_SUBST(CPPUNIT_CXXFLAGS)
-
-            AC_SUBST(CPPUNIT_LIBS, "-lcppunit" )
-            AC_SUBST(CPPUNIT_LDFLAGS, "-L$libval")
-        fi
-    fi
-])dnl
-
 
 # ============= C P P U N I T ==================
-dnl AC_DEFUN([CHECK_CPPUNIT],
-dnl [
-dnl     ## Had trouble deciding whether to make this optional or not
-dnl     ## hard to imagine a situation where someone would want to
-dnl     ## compile unittests so make it required for now
-dnl     AC_LANG_PUSH(C++)
-dnl     AC_CHECK_HEADER([cppunit/TestCase.h],,
-dnl         AC_MSG_ERROR([Cannot find required package cppunit to make unittests]))
-dnl     AC_LANG_POP(C++)
-dnl ])
+dnl
+dnl AM_PATH_CPPUNIT(MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
+dnl
+AC_DEFUN([AM_PATH_CPPUNIT],
+[
+
+AC_ARG_WITH(cppunit-prefix,[  --with-cppunit-prefix=PFX   Prefix where CppUnit is installed (optional)],
+            cppunit_config_prefix="$withval", cppunit_config_prefix="")
+AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix where CppUnit is installed (optional)],
+            cppunit_config_exec_prefix="$withval", cppunit_config_exec_prefix="")
+
+  if test x$cppunit_config_exec_prefix != x ; then
+     cppunit_config_args="$cppunit_config_args --exec-prefix=$cppunit_config_exec_prefix"
+     if test x${CPPUNIT_CONFIG+set} != xset ; then
+        CPPUNIT_CONFIG=$cppunit_config_exec_prefix/bin/cppunit-config
+     fi
+  fi
+  if test x$cppunit_config_prefix != x ; then
+     cppunit_config_args="$cppunit_config_args --prefix=$cppunit_config_prefix"
+     if test x${CPPUNIT_CONFIG+set} != xset ; then
+        CPPUNIT_CONFIG=$cppunit_config_prefix/bin/cppunit-config
+     fi
+  fi
+
+  AC_PATH_PROG(CPPUNIT_CONFIG, cppunit-config, no)
+  cppunit_version_min=$1
+
+  AC_MSG_CHECKING(for Cppunit - version >= $cppunit_version_min)
+  no_cppunit=""
+  if test "$CPPUNIT_CONFIG" = "no" ; then
+    AC_MSG_RESULT(no)
+    no_cppunit=yes
+  else
+    CPPUNIT_CFLAGS=`$CPPUNIT_CONFIG --cflags`
+    CPPUNIT_LIBS=`$CPPUNIT_CONFIG --libs`
+    cppunit_version=`$CPPUNIT_CONFIG --version`
+
+    cppunit_major_version=`echo $cppunit_version | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
+    cppunit_minor_version=`echo $cppunit_version | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
+    cppunit_micro_version=`echo $cppunit_version | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
+
+    cppunit_major_min=`echo $cppunit_version_min | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
+    if test "x${cppunit_major_min}" = "x" ; then
+       cppunit_major_min=0
+    fi
+    
+    cppunit_minor_min=`echo $cppunit_version_min | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
+    if test "x${cppunit_minor_min}" = "x" ; then
+       cppunit_minor_min=0
+    fi
+    
+    cppunit_micro_min=`echo $cppunit_version_min | \
+           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
+    if test "x${cppunit_micro_min}" = "x" ; then
+       cppunit_micro_min=0
+    fi
+
+    cppunit_version_proper=`expr \
+        $cppunit_major_version \> $cppunit_major_min \| \
+        $cppunit_major_version \= $cppunit_major_min \& \
+        $cppunit_minor_version \> $cppunit_minor_min \| \
+        $cppunit_major_version \= $cppunit_major_min \& \
+        $cppunit_minor_version \= $cppunit_minor_min \& \
+        $cppunit_micro_version \>= $cppunit_micro_min `
+
+    if test "$cppunit_version_proper" = "1" ; then
+      AC_MSG_RESULT([$cppunit_major_version.$cppunit_minor_version.$cppunit_micro_version])
+    else
+      AC_MSG_RESULT(no)
+      no_cppunit=yes
+    fi
+  fi
+
+  if test "x$no_cppunit" = x ; then
+     ifelse([$2], , :, [$2])     
+  else
+     CPPUNIT_CFLAGS=""
+     CPPUNIT_LIBS=""
+     ifelse([$3], , :, [$3])
+  fi
+
+  AC_SUBST(CPPUNIT_CFLAGS)
+  AC_SUBST(CPPUNIT_LIBS)
+])
+
+
+AC_DEFUN([CHECK_CPPUNIT],
+[
+    AM_PATH_CPPUNIT(1.9,
+      [],
+      [AC_MSG_ERROR("cppunit not found")]
+    )
+])
 
 
 # ============ T O M C A T  =======================

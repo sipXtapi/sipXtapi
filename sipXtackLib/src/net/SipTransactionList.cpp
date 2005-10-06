@@ -24,7 +24,7 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-#define TIME_LOG /* turns on timestamping of finding and garbage collecting transactions */
+//#define TIME_LOG /* turns on timestamping of finding and garbage collecting transactions */
 #ifdef TIME_LOG
 #  include <os/OsTimeLog.h>
 #endif

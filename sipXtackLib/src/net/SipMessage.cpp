@@ -352,8 +352,10 @@ void SipMessage::setInviteData(const char* fromField,
         }
         else
         {
-            osPrintf("WARNING: SipMessage::setInviteData URL header disallowed: %s: %s\n",
-                headerName.data(), headerValue.data());
+           OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         "SipMessage::setInviteData "
+                         "URL header '%s: %s' may not be added using a header parameter",
+                         headerName.data(), headerValue.data());
         }
 
         headerIndex++;
