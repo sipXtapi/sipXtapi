@@ -600,7 +600,7 @@ then
 elif test "$Action" = "RPM"
 then
 
-    for Project in `ProjectsInOrder $RpmProjects`; do
+    for Project in `ProjectsInOrder $Projects`; do
       if [ -d $Project ]
       then
         rpmBuild $Project
@@ -617,7 +617,7 @@ then
     # need to reverse because of interproject 
     # dependencies
     Reverse=""
-    for Project in `ProjectsInOrder $RpmProjects`; do
+    for Project in `ProjectsInOrder $Projects`; do
         Reverse="$Project $Reverse"
     done
 
