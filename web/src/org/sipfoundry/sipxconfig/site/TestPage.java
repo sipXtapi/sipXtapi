@@ -212,7 +212,7 @@ public abstract class TestPage extends BasePage {
         sipxReplicationContext.generate(DataSet.getEnum(setName));
     }
 
-    public void throwException(IRequestCycle cycle) {
+    public void throwException(IRequestCycle cycle_) {
         throw new IllegalArgumentException("Just testing");
     }
 }
