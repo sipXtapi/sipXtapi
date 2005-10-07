@@ -21,10 +21,6 @@ import junit.framework.Assert;
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
-import com.meterware.httpunit.WebForm;
-import com.meterware.httpunit.WebResponse;
-
 import net.sourceforge.jwebunit.HttpUnitDialog;
 import net.sourceforge.jwebunit.WebTester;
 
@@ -37,11 +33,14 @@ import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import com.meterware.httpunit.WebForm;
+import com.meterware.httpunit.WebResponse;
+
 public class SiteTestHelper {
 
     /**
-     * Same userName that TestPage creates. thought of referencing static variable but may pull
-     * in unnec. dependencies
+     * Same userName that TestPage creates. thought of referencing static variable but may pull in
+     * unnec. dependencies
      */
     public static final String TEST_USER = "testuser";
 
@@ -62,15 +61,14 @@ public class SiteTestHelper {
     }
 
     /**
-     * Go to TestPage.html and log in.  Includes hack for slow machines.
+     * Go to TestPage.html and log in. Includes hack for slow machines.
      */
     public static void home(WebTester tester) {
         home(tester, true);
     }
 
     /**
-     * Go to TestPage.html.  Log in if the login arg is true.
-     * Includes hack for slow machines.
+     * Go to TestPage.html. Log in if the login arg is true. Includes hack for slow machines.
      */
     public static void home(WebTester tester, boolean login) {
         tester.beginAt("/app?service=page/TestPage");
@@ -85,7 +83,7 @@ public class SiteTestHelper {
         tester.beginAt("/app?service=page/TestPage");
         assertNoException(tester);
     }
-    
+
     /**
      * Login - form-based login for our pages.
      * 
@@ -110,7 +108,7 @@ public class SiteTestHelper {
      */
     public static void assertNoException(WebTester tester) {
         try {
-            tester.assertTextNotPresent("An exception has occurred");
+            tester.assertElementNotPresent("exceptionDisplay");
         } catch (AssertionFailedError e) {
             tester.dumpResponse(System.err);
             throw e;
@@ -127,13 +125,13 @@ public class SiteTestHelper {
             Assert.fail("User error on page: " + element.getFirstChild().getNodeValue());
         }
     }
-    
+
     public static void assertUserError(WebTester tester) {
         Element element = tester.getDialog().getElement("user:error");
         if (null == element) {
             Assert.fail("Expected user error on the page.");
         }
-    }    
+    }
 
     /**
      * Returns the row count in a table. Don't forget to include +1 in assert count if you have a
@@ -157,13 +155,13 @@ public class SiteTestHelper {
             tester.uncheckCheckbox(field);
         }
     }
-    
+
     /**
      * Translates between Tapestry index and normal index
      * 
      * @param id HTML element id
      * @param index tapestry index
-     */    
+     */
     public static String getIndexedId(String id, int index) {
         String suffix = "";
         if (index > 0) {
@@ -222,10 +220,10 @@ public class SiteTestHelper {
 
         return directory;
     }
-    
+
     /**
      * Get the full path and copy file from etc incase there are modiifcations to it
-     *  
+     * 
      * @param path relative to etc dir e.g. "kphone/phone.xml"
      * @return full path to config file
      */
@@ -239,9 +237,9 @@ public class SiteTestHelper {
             return webpath;
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
-        }        
+        }
     }
-    
+
     public static Setting loadSettings(String path) {
         String sysdir = TestUtil.getProjectDirectory() + "/../neoconf/etc";
         XmlModelBuilder builder = new XmlModelBuilder(sysdir);
@@ -305,7 +303,7 @@ public class SiteTestHelper {
 
         Assert.assertSame(tester.getDialog().getResponse(), response);
     }
-    
+
     public static void submitNoButton(WebTester tester) throws Exception {
         clickSubmitLink(tester, null);
     }
@@ -316,7 +314,7 @@ public class SiteTestHelper {
         home(tester);
         tester.clickLink("seedTestUser");
     }
-    
+
     /**
      * Create a new group, user or phone
      * 

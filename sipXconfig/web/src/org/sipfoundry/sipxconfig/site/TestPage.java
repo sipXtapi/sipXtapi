@@ -49,8 +49,7 @@ public abstract class TestPage extends BasePage {
     public static final String TEST_USER_ALIAS2 = "200";
     public static final String TEST_USER_ALIASES = TEST_USER_ALIAS1 + ", " + TEST_USER_ALIAS2;
     public static final String TEST_USER_PIN = "1234";
-    
-    
+
     public abstract DialPlanContext getDialPlanContext();
 
     public abstract GatewayContext getGatewayContext();
@@ -64,7 +63,7 @@ public abstract class TestPage extends BasePage {
     public abstract SipxReplicationContext getSipxReplicationContext();
 
     public abstract JobContext getJobContext();
-    
+
     public void resetDialPlans(IRequestCycle cycle_) {
         getDialPlanContext().clear();
         getGatewayContext().clear();
@@ -107,11 +106,11 @@ public abstract class TestPage extends BasePage {
         Visit visit = (Visit) getVisit();
         visit.setNavigationVisible(!visit.isNavigationVisible());
     }
-    
+
     public void hideNavigation(IRequestCycle cycle_) {
         Visit visit = (Visit) getVisit();
         visit.setNavigationVisible(false);
-    }    
+    }
 
     public void toggleAdmin(IRequestCycle cycle) {
         Visit visit = (Visit) getVisit();
@@ -132,24 +131,25 @@ public abstract class TestPage extends BasePage {
         user.setUserName(userName);
         user.setFirstName(firstName);
         user.setLastName(TEST_USER_LASTNAME);
-        user.setAliasesString(userName.equals(TEST_USER_USERNAME) ? TEST_USER_ALIASES : EMPTY_STRING);
+        user.setAliasesString(userName.equals(TEST_USER_USERNAME) ? TEST_USER_ALIASES
+                : EMPTY_STRING);
         user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
     }
-    
+
     public void loginFirstTestUser(IRequestCycle cycle_) {
         // Find the first test user
         User user = getCoreContext().loadUserByUserName(TEST_USER_USERNAME);
         if (user == null) {
-            throw new IllegalStateException("Test user with username = "
-                    + TEST_USER_USERNAME + " is not in the database");
+            throw new IllegalStateException("Test user with username = " + TEST_USER_USERNAME
+                    + " is not in the database");
         }
-        
+
         // Log it in
         Visit visit = (Visit) getVisit();
         visit.login(user.getId(), false);
     }
-    
+
     public void deleteAllUsers(IRequestCycle cycle_) {
         List users = getCoreContext().loadUsers();
         for (Iterator iter = users.iterator(); iter.hasNext();) {
@@ -157,7 +157,7 @@ public abstract class TestPage extends BasePage {
             getCoreContext().deleteUser(user);
         }
     }
-    
+
     public String getUnusedTestUserName() {
         String userName = null;
         int count = 0;
@@ -166,19 +166,19 @@ public abstract class TestPage extends BasePage {
             User user = getCoreContext().loadUserByUserName(userName);
             count++;
             if (user == null) {
-                break;      // found an unused username
+                break; // found an unused username
             }
         }
         return userName;
     }
-    
+
     // Construct a username by appending a numeric suffix to the standard
-    // test username.  Special case: when the count is 0, append the empty
+    // test username. Special case: when the count is 0, append the empty
     // string rather than "0".
     private String getUsernameSuffix(int i) {
         return i != 0 ? Integer.toString(i) : EMPTY_STRING;
     }
-    
+
     public void populateJobs(IRequestCycle cycle_) {
         JobContext jobContext = getJobContext();
         jobContext.clear();
@@ -193,8 +193,8 @@ public abstract class TestPage extends BasePage {
         jobContext.failure(jobIds[JOBS - 1], "something bad happened", null);
     }
 
-    public void login(IRequestCycle cycle) {        
-        CoreContext core = getCoreContext(); 
+    public void login(IRequestCycle cycle) {
+        CoreContext core = getCoreContext();
         List users = core.loadUsers();
         if (users.isEmpty()) {
             seedTestUser(cycle);
@@ -210,5 +210,9 @@ public abstract class TestPage extends BasePage {
                 .getServiceParameters(), 0);
         SipxReplicationContext sipxReplicationContext = getSipxReplicationContext();
         sipxReplicationContext.generate(DataSet.getEnum(setName));
+    }
+
+    public void throwException(IRequestCycle cycle) {
+        throw new IllegalArgumentException("Just testing");
     }
 }

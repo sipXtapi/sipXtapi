@@ -76,6 +76,10 @@
     <component id="RestartReminder" type="DirectLink">
         <binding name="listener" expression="listeners.goToRestartReminderPage"/>
     </component>
+
+    <component id="throwException" type="DirectLink">
+        <binding name="listener" expression="listeners.throwException"/>
+    </component>        
     
     <!-- generation of data sets -->    
     <property-specification name="dataSet" type="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet"/>
