@@ -12,10 +12,14 @@
 package org.sipfoundry.sipxconfig.site;
 
 import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.engine.BaseEngine;
 import org.apache.tapestry.request.RequestContext;
+import org.apache.tapestry.request.ResponseOutputStream;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -23,6 +27,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * Hook Spring into Tapestry's global application context
  */
 public class SipxconfigEngine extends BaseEngine {
+    private static final Log LOG = LogFactory.getLog(SipxconfigEngine.class);
     private static final long serialVersionUID;
 
     static {
@@ -55,5 +60,22 @@ public class SipxconfigEngine extends BaseEngine {
     protected Object createVisit(IRequestCycle cycle_) {
         BeanFactoryGlobals global = (BeanFactoryGlobals) getGlobal();
         return global.getApplicationContext().getBean("visit", Visit.class);
+    }
+
+    /**
+     * Call super implementation but log exception first. Default implementation only logs it the
+     * are problems on exception page
+     */
+    protected void activateExceptionPage(IRequestCycle cycle, ResponseOutputStream output,
+            Throwable cause) throws ServletException {
+        LOG.warn("Tapestry exception", cause);
+        super.activateExceptionPage(cycle, output, cause);
+    }
+
+    /**
+     * To display standard "developers" error page call super.getExceptionPage instead
+     */
+    protected String getExceptionPageName() {
+        return "InternalErrorPage";
     }
 }
