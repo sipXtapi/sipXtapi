@@ -28,6 +28,7 @@ Args=""
 : ${Chown:=chown}
 : ${LogDir:=@sipxpbx.log.dir@}
 : ${TmpDir:=@sipxpbx.tmp.dir@}
+: ${RunningUser:=@sipxpbx.user@}
 
 Database=SIPXCONFIG
 RequiredDatabaseVersion=1
@@ -132,11 +133,22 @@ databaseCommand() {
         -f ${DatabaseProject} \
         $@
 }
+
+runningUserCheck() {
+  CurrentUser=`id -un`
+  if [ "$CurrentUser" != "$RunningUser" ]; then
+    echo "Only user @sipxpbx.user@ can run this command." 1>&2
+    return 1
+  fi
+  return 0
+}
     
 # Run Web interface
 onWebUi() {
 
-    runConfigpp
+    runningUserCheck || exit 1 
+
+    runConfigpp   
 
     databaseCommand upgrade
     databaseVersionCheck
