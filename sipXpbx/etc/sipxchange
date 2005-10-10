@@ -11,64 +11,13 @@ missingok
 
 # Now we list the files
 
-/var/log/sipxpbx/apacheauth.log {
+/var/log/sipxpbx/*.log {
 }
 
-/var/log/sipxpbx/dbmonitor.log {
-}
-
-/var/log/sipxpbx/error_log {
-}
-
-/var/log/sipxpbx/httpd_access_log {
+/var/log/sipxpbx/httpd_error_log /var/log/sipxpbx/httpd_access_log {
     notifempty
     sharedscripts
     postrotate
         /bin/kill -USR1 `cat /var/run/sipxpbx/httpd.pid 2>/dev/null` 2> /dev/null || true
     endscript
-}
-
-/var/log/sipxpbx/httpd_error_log {
-}
-
-/var/log/sipxpbx/mediaserver.log {
-}
-
-/var/log/sipxpbx/mediaserver_cgi.log {
-}
-
-/var/log/sipxpbx/processcgi.log {
-}
-
-/var/log/sipxpbx/replicationcgi.log {
-}
-
-/var/log/sipxpbx/sipauthproxy.log {
-}
-
-/var/log/sipxpbx/sipproxy.log {
-}
-
-/var/log/sipxpbx/sipregistrar.log {
-}
-
-/var/log/sipxpbx/sipstatus.log {
-}
-
-/var/log/sipxpbx/sipxconfig.log {
-}
-
-/var/log/sipxpbx/sipxpark.log {
-}
-
-/var/log/sipxpbx/sipxacd.log {
-}
-
-/var/log/sipxpbx/sipxpresence.log {
-}
-
-/var/log/sipxpbx/vxmlengine.log {
-}
-
-/var/log/sipxpbx/watchdog.log {
 }
