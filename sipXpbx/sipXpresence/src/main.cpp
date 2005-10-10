@@ -71,7 +71,6 @@ extern "C" {
 // STATIC VARIABLE INITIALIZATIONS
 // GLOBAL VARIABLE INITIALIZATIONS
 UtlBoolean    gShutdownFlag = FALSE;
-OsMutex       gLockMutex (OsMutex::Q_FIFO);
 
 
 

@@ -49,7 +49,7 @@ extern "C" {
 UtlBoolean removeAllRows = FALSE;
 UtlBoolean gShutdownFlag = FALSE;
 UtlBoolean gClosingIMDB  = FALSE;
-OsMutex   gLockMutex (OsMutex::Q_FIFO);
+OsMutex*   gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 
 OsServerTask* pServerTask   = NULL;
 
@@ -86,7 +86,7 @@ void
 closeIMDBConnections (int sig_num )
 {
     // Critical Section here
-    OsLock lock( gLockMutex );
+    OsLock lock( *gpLockMutex );
     // search for a clue as to whether the signal is from an IMDB assertion
     // or not, if it is bypass the code to unregister unregister the PIDs from
     // the IMDB

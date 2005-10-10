@@ -84,7 +84,7 @@ extern "C" {
     sighandler_t pt_signal( int sig_num, sighandler_t handler );
 }
 // GLOBAL VARIABLE INITIALIZATIONS
-OsMutex     gLockMutex (OsMutex::Q_FIFO);
+OsMutex*     gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 UtlBoolean   gClosingIMDB = FALSE;
 static UtlBoolean   gInSigHandler = FALSE;
 cgicc::Cgicc *gCgi = NULL;
@@ -100,7 +100,7 @@ void
 closeIMDBConnectionsFromCGI ()
 {
     // Critical Section here
-    OsLock lock( gLockMutex );
+    OsLock lock( *gpLockMutex );
 
     if (!gClosingIMDB)
     {

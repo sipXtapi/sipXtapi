@@ -59,7 +59,7 @@ extern "C" {
 
 // FORWARD DECLARATIONS
 // GLOBAL VARIABLES
-OsMutex     gLockMutex (OsMutex::Q_FIFO);
+OsMutex*     gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 UtlBoolean   gShutdownFlag = FALSE;
 UtlBoolean   gHandlerInitialized = FALSE;
 
@@ -97,7 +97,7 @@ closeIMDBConnections ()
     if ( currentUserName.compareTo(SIPXCHANGE_USERNAME) == 0 )
     {
         // Critical process lock  here
-        OsLock lock( gLockMutex );
+        OsLock lock( *gpLockMutex );
 
         // now deregister this process's database references from the IMDB
         SIPDBManager::getInstance()->releaseAllDatabase();
@@ -293,7 +293,7 @@ SIPXAuthHandler::check_user_id( ApacheRequestRec *pRequest )
     // is preloaded by the root initialization code
 
     // Critical Section here
-    OsLock lock( gLockMutex );
+    OsLock lock( *gpLockMutex );
 
     if ( !gHandlerInitialized ) {
         initializeHandler( pRequest );

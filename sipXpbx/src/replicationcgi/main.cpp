@@ -79,7 +79,7 @@ extern "C" {
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 // GLOBAL VARIABLE INITIALIZATIONS
-OsMutex     gLockMutex (OsMutex::Q_FIFO);
+OsMutex*     gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 UtlBoolean   gClosingIMDB = FALSE;
 
 UtlString gstrError("");
@@ -96,7 +96,7 @@ void
 closeIMDBConnectionsFromCGI ()
 {
     // Critical Section here
-    OsLock lock( gLockMutex );
+    OsLock lock( *gpLockMutex );
 
     if (!gClosingIMDB)
     {
