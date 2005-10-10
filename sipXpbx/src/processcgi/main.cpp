@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
                         userState = USER_PROCESS_STOP;
                     }
 
-                    OsProcessMgr *pProcessMgr = getProcessMgrInstance();
+                    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
                     //wait up to 30 secs for process state to change
                     int secs = 0;
                     int currentState = 0;

@@ -22,9 +22,6 @@
 #include "os/OsTask.h"
 #include "EmailReporter.h"
 
-//set during process xml startup code
-extern UtlString gWorkingDirStr;
-
 //The worker who does all the checking... based on OsServerTask
 WatchDog *pDog;
 

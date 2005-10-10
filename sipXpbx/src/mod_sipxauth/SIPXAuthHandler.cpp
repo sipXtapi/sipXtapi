@@ -161,32 +161,6 @@ getPID (UtlString& rPidStr)
     rPidStr = temp;
 }
 
-/*
-void
-_init()
-{
-    fprintf (stderr, "Inside _init()\n");
-}
-
-void
-_fini()
-{
-    // Critical Section here
-    OsLock lock( gLockMutex );
-
-    if ( gHandlerInitialized )
-    {
-        OsSysLog::add( LOG_FACILITY, PRI_DEBUG, "Exiting _fini()" );
-        OsSysLog::flush();
-        closeIMDBConnections();
-        gHandlerInitialized = FALSE;
-    } else
-    {
-        fprintf (stderr, "Inside _fini()\n");
-    }
-}
-*/
-
 SIPXAuthHandler::SIPXAuthHandler() : ApacheHandler()
 {
     // do NOT Initialize the IMDB Singleton - Note this is called
@@ -458,7 +432,7 @@ SIPXAuthHandler::check_user_id( ApacheRequestRec *pRequest )
                 break;
 
             ///////////////
-            // case UNKNOWN:
+            case UNKNOWN:
             ///////////////
                 // result remains HTTP_UNAUTHORIZED.
                 break;

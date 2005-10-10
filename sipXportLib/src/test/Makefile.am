@@ -18,7 +18,6 @@ testsuite_CXXFLAGS = \
 	-I$(top_srcdir)/include \
 	@PCRE_CFLAGS@ @CPPUNIT_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
-	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DTEST_DIR=\"@abs_builddir@\" \
 	-fno-gcse -O0
 
@@ -44,7 +43,6 @@ testsuite_SOURCES = \
     utl/UtlSortedListIteratorTest.cpp \
     utl/UtlHashMap.cpp \
     utl/UtlHashMapIterator.cpp \
-    utl/UtlRegex.cpp \
     utl/UtlHashBag.cpp \
     utl/UtlHashBagIterator.cpp \
     utl/UtlRegex.cpp \
@@ -73,6 +71,8 @@ testsuite_SOURCES = \
     os/OsProcessMgrTest.cpp \
 	 utl/TestPlugin.h \
 	 utl/PluginHooksTest.cpp
+
+# Removed because it hangs when the working directory does not exist
 
 # :TODO: Removed because they depend on direct access to glib
 #    os/OsTimerTest.cpp

@@ -36,7 +36,7 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPX_DATADIR, [${datadir}/sipxpbx])
     AC_SUBST(SIPX_LOGDIR,  [${localstatedir}/log/sipxpbx])
     AC_SUBST(SIPX_RUNDIR,  [${localstatedir}/run/sipxpbx])
-    AC_SUBST(SIPX_TMPDIR,  [${localstatedir}/tmp])
+    AC_SUBST(SIPX_TMPDIR,  [${localstatedir}/sipxdata/tmp])
     AC_SUBST(SIPX_DBDIR,   [${localstatedir}/sipxdata/sipdb])
     AC_SUBST(SIPX_SCHEMADIR, [${datadir}/sipx/schema])
     AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipx])

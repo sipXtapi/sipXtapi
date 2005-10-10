@@ -1034,8 +1034,7 @@ SipRedirectorPickUpTask::SipRedirectorPickUpTask(SipUserAgent* pSipUserAgent,
 
 SipRedirectorPickUpTask::~SipRedirectorPickUpTask()
 {
-   // Stop listening for NOTIFYs.
-   mpSipUserAgent->removeMessageObserver(*(this->getMessageQueue()));
+   // we don't need to remove the observer here; the SipUserAgent cleans it up
 }
 
 UtlBoolean

@@ -52,9 +52,6 @@ int processCount = 0;
 UtlString childDepList[1000];
 int childDepCount = 0;
 
-//set to the location to store the processAlias file
-UtlString gWorkingDirStr;
-
 //default wait if no delay is found
 int gGlobalDependentDelay = 0;
 
@@ -92,9 +89,7 @@ adjustProcessList(TiXmlDocument &doc)
 {
     OsStatus retval = OS_FAILED;
 
-    OsProcessMgr *pProcessMgr = getProcessMgrInstance();
-
-    pProcessMgr->setWorkingDirectory(gWorkingDirStr);
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
 
     TiXmlElement*rootElement = doc.RootElement();
     if (rootElement)
@@ -357,9 +352,7 @@ startstopProcess(
     //set to true if both bools passed in are false
     UtlBoolean bAskToStart = FALSE;
 
-    OsProcessMgr *pProcessMgr = getProcessMgrInstance();
-
-    pProcessMgr->setWorkingDirectory(gWorkingDirStr);
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
 
     UtlBoolean bDone = FALSE;
 
@@ -672,38 +665,6 @@ verifyUser(TiXmlDocument &doc, UtlString &rUsername, UtlString &rPassword)
     return retval;
 }
 
-OsStatus setWorkDirectory(TiXmlDocument &doc)
-{
-    OsStatus retval = OS_FAILED;
-
-    TiXmlElement*rootElement = doc.RootElement();
-    if (rootElement)
-    {
-        TiXmlNode *worknode = rootElement->FirstChild( "workdir" );
-
-
-        if ( worknode != NULL )
-        {
-            // This is actually an individual row
-            TiXmlElement *nextItemsContainer = worknode->ToElement();
-
-            // Determine the DB to insert the items into
-            const char *pWorkDir = nextItemsContainer->Attribute("location");
-            if ( pWorkDir )
-            {
-
-                gWorkingDirStr = pWorkDir;
-                retval = OS_SUCCESS;
-
-            }
-        } else
-            printf("ERROR: workdir not set in xml file!\n");
-    }
-
-    return retval;
-}
-
-
 OsStatus getGlobalDependentDelay(TiXmlDocument &doc)
 {
     OsStatus retval = OS_FAILED;
@@ -854,7 +815,7 @@ OsStatus startstopProcessTree(TiXmlDocument &rProcessXMLDoc, UtlString &rProcess
     //number of children.
     //we can now start executing
 
-    OsProcessMgr *pProcessMgr = getProcessMgrInstance();
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
 
     pProcessMgr->lockAliasFile();
 
@@ -903,11 +864,6 @@ OsStatus startstopProcessTree(TiXmlDocument &rProcessXMLDoc, UtlString &rProcess
     return retval;
 }
 
-OsProcessMgr *getProcessMgrInstance()
-{
-    return OsProcessMgr::getInstance();
-}
-
 //initialize all structures used for process management
 OsStatus initProcessXMLLayer(UtlString &rProcessXMLPath,  TiXmlDocument &rProcessXMLDoc, UtlString &rStrErrorMsg)
 {
@@ -919,12 +875,6 @@ OsStatus initProcessXMLLayer(UtlString &rProcessXMLPath,  TiXmlDocument &rProces
     //load process xml template
     if ( loadProcessXML(rProcessXMLPath, rProcessXMLDoc) == OS_SUCCESS )
     {
-        if ( setWorkDirectory(rProcessXMLDoc) == OS_SUCCESS )
-        {
-            //create the one and only processMgr
-            OsProcessMgr *pProcessMgr = getProcessMgrInstance();
-            pProcessMgr->setWorkingDirectory(gWorkingDirStr);
-
             //for all processes, grab their dependencies
             if ( getGlobalDependentDelay(rProcessXMLDoc) == OS_SUCCESS )
             {
@@ -942,8 +892,6 @@ OsStatus initProcessXMLLayer(UtlString &rProcessXMLPath,  TiXmlDocument &rProces
             } else
                 rStrErrorMsg = "Couldn't set dependent delay!\n";
 
-        } else
-            rStrErrorMsg =  "Could nor set temp work directory!\n";
     } else
         rStrErrorMsg =  "Error loading process xml file!\n";
 

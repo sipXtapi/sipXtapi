@@ -12,7 +12,7 @@
 
 <process_definitions>
     <dependentdelay wait="0" />
-    <workdir location="@localstatedir@/tmp" />
+    <workdir location="@SIPX_TMPDIR@" />
 
     <!-- =============================================== -->
     <!-- LOGFILE FOR PROCESSCGI              -->

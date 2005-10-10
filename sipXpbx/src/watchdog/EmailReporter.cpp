@@ -88,7 +88,7 @@ OsStatus EmailReporter::report(UtlString &rProcessAlias,UtlString &rMessage)
 OsStatus EmailReporter::send()
 {
     OsStatus retval = OS_FAILED;
-    OsProcessMgr *processMgr = getProcessMgrInstance();
+    OsProcessMgr *processMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
     int numSent = 0;
 
     OsSysLog::add(FAC_WATCHDOG,PRI_INFO,"Checking if reports need to be e-mailed");

@@ -39,6 +39,5 @@ OsStatus initProcessXMLLayer(UtlString &rProcessXMLPath, TiXmlDocument &rProcess
 OsStatus startstopProcessTree(TiXmlDocument &rProcessXMLDoc, UtlString &rProcessAlias, UtlString &rActionVerb);
 OsStatus WriteProcessXML(TiXmlDocument &doc, UtlString &buffer);
 OsStatus VerifyProcess(UtlString &rAlias);
-OsProcessMgr *getProcessMgrInstance();
 
 #endif //_processXMLCommon__

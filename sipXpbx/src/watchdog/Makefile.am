@@ -8,7 +8,8 @@ INCLUDES = -I$(top_srcdir)/include
 bin_PROGRAMS = watchdog
 
 watchdog_CXXFLAGS = \
-	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
+	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
+	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\"
 
 watchdog_SOURCES =  \
 	../../config/sipxpbx-buildstamp.h \

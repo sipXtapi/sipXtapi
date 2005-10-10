@@ -21,7 +21,6 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 extern int gnCheckPeriod;
-extern UtlString gWorkingDirStr;
 
 #define STARTING_TIME 5 /* seconds */
 
@@ -114,7 +113,7 @@ void MonitoredProcess::enableRestart(UtlBoolean bEnable)
 //a restart of the process
 void MonitoredProcess::resetStoppedState()
 {
-    OsProcessMgr *pProcessMgr = getProcessMgrInstance();
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
 
     int processstate = pProcessMgr->getAliasState(mAliasStr);
     if (processstate == PROCESS_STOPPED)
@@ -211,7 +210,7 @@ void stateToString(int state, UtlString &rStateStr)
 
 void MonitoredProcess::ApplyUserRequestedState()
 {
-    OsProcessMgr *pProcessMgr = getProcessMgrInstance();
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
 
     pProcessMgr->lockAliasFile() ;
 
@@ -257,7 +256,7 @@ OsStatus MonitoredProcess::check()
     char msgbuf[160];
     UtlString msgStr = mAliasStr;
 
-    OsProcessMgr *pProcessMgr = getProcessMgrInstance();
+    OsProcessMgr *pProcessMgr = OsProcessMgr::getInstance(SIPX_TMPDIR);
 
     pProcessMgr->lockAliasFile() ;
     

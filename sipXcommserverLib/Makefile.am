@@ -25,7 +25,7 @@ install-data-hook:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(datadir)/sipxpbx
 	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/log/sipxpbx
 	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/run/sipxpbx
-	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/tmp
+	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/sipxdata/tmp
 	$(INSTALL) -d -m 755 $(DESTDIR)$(localstatedir)/sipxdata/sipdb
 
 DISTCLEANFILES = \
