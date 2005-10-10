@@ -68,7 +68,7 @@ extern "C" {
 OsServerTask* pServerTask   = NULL;
 UtlBoolean     gShutdownFlag = FALSE;
 UtlBoolean     gClosingIMDB  = FALSE;
-OsMutex       gLockMutex (OsMutex::Q_FIFO);
+OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 
 /* ============================ FUNCTIONS ================================= */
 
@@ -80,7 +80,7 @@ void
 closeIMDBConnections ()
 {
     // Critical Section here
-    OsLock lock( gLockMutex );
+    OsLock lock( *gpLockMutex );
 
     // now deregister this process's database references from the IMDB
     // and also ensure that we do not cause this code recursively
