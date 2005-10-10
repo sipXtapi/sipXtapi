@@ -45,7 +45,7 @@ sipXconfig : sipXtackLib
 	@echo sipXconfig
 
 .PHONY: sipXvxml
-sipXvxml : sipXcallLib sipXcommserverLib
+sipXvxml : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
 	@echo sipXvxml
 
 .PHONY: sipXpbx
