@@ -82,8 +82,10 @@
   </target>
 	
   <!-- List each dependency on a separate line below to make source control merging easier -->
-  <target name="version1" description="upgrade from version 1" unless="version2"/>
-    <!-- depends="" -->
+  <target name="version1" description="upgrade from version 1" unless="version2"
+    depends="
+	  relax_phone_description_uniqueness
+	  "/>
 	
   <target name="schema" unless="schema">
     <sipx-sql>
@@ -177,6 +179,16 @@
       <arg value="-c"/>
       <arg value="zcat ${pds.tar.gz} | pg_restore -U ${sipxconfig.db.user} -d PDS"/>
     </exec>    
+  </target>
+	
+  <!--
+    - version1 patches
+    -->
+  <!-- The phone uniqueness constraint was a mistake, get rid of it -->
+  <target name="relax_phone_description_uniqueness" unless="relax_phone_description_uniqueness">
+    <sipx-sql>
+      alter table phone drop constraint phone_description_key;
+    </sipx-sql>
   </target>
 
   <!--

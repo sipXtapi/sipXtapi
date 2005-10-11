@@ -21,6 +21,7 @@ create table patch(
  */
 create table phone (
    phone_id int4 not null,
+   /* This uniqueness constraint was a mistake, there is a patch that removes it */
    description varchar(255) unique,
    serial_number varchar(255) not null unique,
    bean_id varchar(255),
