@@ -325,8 +325,7 @@ int SipClient::run(void* runArg)
                        logMessage.append(fromIpAddress);
                        logMessage.append("---- Port: ");
                        char buff[10];
-                       sprintf(buff, "%d",
-                               !portIsValid(fromPort) ? 5060 : fromPort);
+                       sprintf(buff, "%d", !portIsValid(fromPort) ? 5060 : fromPort);
                        logMessage.append(buff);
                        logMessage.append("----\n");
 

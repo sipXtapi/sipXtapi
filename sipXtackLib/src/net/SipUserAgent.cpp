@@ -1058,7 +1058,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
       messageStatusString.append(serverAddress);
       messageStatusString.append("---- Port: ");
       char buff[10];
-      sprintf(buff, "%d", port);
+      sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
       messageStatusString.append(buff);
       messageStatusString.append("----\n");
 
@@ -1073,7 +1073,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
       messageStatusString.append(serverAddress);
       messageStatusString.append("---- Port: ");
       char buff[10];
-      sprintf(buff, "%d", port);
+      sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
       messageStatusString.append(buff);
       messageStatusString.append("----\n");
       message->logTimeEvent("FAILED");
@@ -1119,7 +1119,7 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(const SipMessage& message,
         message.getBytes(&msgBytes, &msgLen);
         UtlString outcomeMsg;
         char portString[20];
-        sprintf(portString, "%d", port);
+        sprintf(portString, "%d", !portIsValid(port) ? 5060 : port);
 
         if(sentOk)
         {
@@ -1300,7 +1300,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
             messageStatusString.append(serverAddress);
             messageStatusString.append("---- Port: ");
             char buff[10];
-            sprintf(buff, "%d", port);
+            sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
             messageStatusString.append(buff);
             messageStatusString.append("----\n");
 
@@ -1371,7 +1371,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
       messageStatusString.append(serverAddress);
       messageStatusString.append("---- Port: ");
       char buff[10];
-      sprintf(buff, "%d", port);
+      sprintf(buff, "%d", !portIsValid(port) ? 5060 : port);
       messageStatusString.append(buff);
       messageStatusString.append("----\n");
 
