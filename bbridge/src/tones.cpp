@@ -1,5 +1,9 @@
 #include "Participant.h"
 
+#ifdef _MSC_VER
+#pragma warning( disable : 4309 )
+#endif
+
 const char bbridge::Participant::sEnterBuffer[8000] =
 {
   0x00, 0x00, 0xEF, 0x29, 0x3D, 0x4F, 0xCC, 0x6B, 0x75, 0x7C, 0x61,

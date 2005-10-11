@@ -18,6 +18,9 @@
 // SYSTEM INCLUDES
 #include <stdio.h>
 #include <signal.h>
+#if defined(_WIN32)
+#   include <winsock2.h>
+#endif
 
 // APPLICATION INCLUDES
 #include <os/OsFS.h>

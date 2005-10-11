@@ -1,3 +1,7 @@
+#if defined(_WIN32)
+#   include <winsock2.h>
+#endif
+
 #include "os/OsConfigDb.h"
 #include "os/OsTask.h"
 #include "net/SdpCodec.h"
@@ -64,8 +68,6 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mCodecFactory.getCodecs(mNumCodecs, mSdpCodecArray);
 
    // XXX ADD CODE TO READ FROM CONFIG INTO mUdpPort ET AL HERE.
-   //Log::initialize(mLogType, mLogLevel, argv[0]);
-   // hook up resip logging to sipX
    
    // !jf! should consider cases where these aren't set
    mConfigDb.get("BOSTON_BRIDGE_UDP_PORT", mUdpPort);
