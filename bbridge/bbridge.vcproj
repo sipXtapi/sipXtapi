@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\MyProjects\resiprocate;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;..\sipXmediaAdapterLib\interface;C:\MyProjects\resiprocate\contrib\pcre"
+				AdditionalIncludeDirectories=";..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;..\sipXmediaAdapterLib\interface;$(ProjectDir)..\..\resiprocate;$(ProjectDir)..\..\resiprocate\contrib\pcre"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="3"
@@ -70,6 +70,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories=";..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;..\sipXmediaAdapterLib\interface;$(ProjectDir)..\..\resiprocate;$(ProjectDir)..\..\resiprocate\contrib\pcre"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
