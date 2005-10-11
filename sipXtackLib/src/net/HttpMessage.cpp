@@ -26,6 +26,8 @@
 // APPLICATION INCLUDES
 #include <net/HttpMessage.h>
 #include <net/NameValuePair.h>
+// Needed for SIP_SHORT_CONTENT_LENGTH_FIELD.
+#include <net/SipMessage.h>
 
 #include <net/NameValueTokenizer.h>
 #include <net/NetAttributeTokenizer.h>
@@ -1276,11 +1278,19 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       // Read the HTTP message.
       //
 
-      // If there are no residual bytes in the buffer.
+      // If there are no residual bytes in the buffer, read from the socket.
+      // :TODO:  This is probably not quite right.  I suspect that its
+      // main effect is to have the first read from the socket use 4
+      // arguments (to get the remote host/port), whereas the read at
+      // the bottom of the do-while uses 2 arguments (because it
+      // usually does later reads, and don't need to get the remote
+      // ost/port again).  But this scheme doesn't work so well, as
+      // there is a third fetch of remote host/port inside the body of
+      // the do-while.
       if (bytesTotal <= 0 &&
           inSocket->isOk() &&
-          ((socketType != OsSocket::TCP && socketType != OsSocket::SSL_SOCKET) ||
-          inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
+          (OsSocket::isFramed(socketType) ||
+           inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)))
       {
          bytesRead = inSocket->read(buffer, bufferSize,
                                     &remoteHost, &remotePort);
@@ -1314,8 +1324,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
             // UDP and Multicast UDP you can only do one read
             // The fragmentation is handled at the socket layer
             // If we did not get it all we are not going to get any more
-            if (socketType != OsSocket::TCP &&
-                socketType != OsSocket::SSL_SOCKET && headerEnd <=0)
+            if (OsSocket::isFramed(socketType) && headerEnd <= 0)
             {
                headerEnd = bytesTotal;
             }
@@ -1355,24 +1364,23 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
 
 #endif
                // Get the content length
-               contentLength = getContentLength();
-               contentLengthSet =
-                  (getHeaderValue(0, HTTP_CONTENT_LENGTH_FIELD) != NULL);
-
-               // This probably does not belong here but it makes
-               // SIP TCP work
-               if (! contentLengthSet)
                {
-                  // Check for the short form
-                  const char* contentLengthChar =
-                     getHeaderValue(0, "L"); // SIP_SHORT_CONTENT_LENGTH_FIELD
-                  if (contentLengthChar != NULL)
+                  const char* value;
+
+                  if ((value =
+                       getHeaderValue(0, HTTP_CONTENT_LENGTH_FIELD)) != NULL)
                   {
                      contentLengthSet = TRUE;
-                     contentLength = atoi(contentLengthChar);
-                  }
+                     contentLength = atoi(value);
+                  } else if ((value =
+                              getHeaderValue(0, SIP_SHORT_CONTENT_LENGTH_FIELD)) != NULL)
+                  {
+                     contentLengthSet = TRUE;
+                     contentLength = atoi(value);
+                  } 
                }
-               // If the content type is set there should be a body
+
+               // Get the content type
                contentTypeSet = getContentType(&contentType);
 
 #ifdef TEST
@@ -1407,7 +1415,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                                 "closing socket type: %d to %s:%d",
                                 contentLength, socketType, remoteHost.data(),
                                 remotePort);
-                  // Shut it all down
+                  // Shut it all down, because it may be an abusive sender.
                   inSocket->close();
                   allBytes->remove(0);
                   break;
@@ -1420,8 +1428,9 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                {
                   byteCapacity = headerEnd + contentLength + 100;
 
+                  int newCap =
+                     allBytes->capacity(headerEnd + contentLength + 100);
 #ifdef TEST_PRINT
-                  int newCap = allBytes->capacity(headerEnd + contentLength + 100);
                   //osPrintf("Setting new capacity to %d bytes \n",newCap);
                   osPrintf("HttpMessage::setting buffer capacity: %d new cap: %d getCap: %d\n",
                            headerEnd + contentLength + 100, newCap, allBytes->capacity());
@@ -1430,24 +1439,41 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
             }
          }
 
-         // If we know we have all of the message
-         if (headerEnd > 0 && // All of the headers have been read
-            (contentLength > 0 && // The HTTP server had given a length
-             contentLength + headerEnd <= ((int)allBytes->length())) || // & read total length of the message
-            !contentTypeSet || // The content type is not set so there is no content/body
-            (contentLength == 0 && (headerEnd + 1) == ((int)allBytes->length()))) // Have read EXACTLY all of header, and believe there is no body
-
+         // If we know we have all of the message, exit this loop.
+         // To know we have all of the message, we need to have seen the end of the headers.
+         // If there was a Content-Length, we need to have read that many more bytes.
+         // If there was no Content-Length, this socket must have a framed protocol.
+         if (headerEnd > 0 &&
+             (contentLengthSet ? 
+              contentLength + headerEnd <= ((int) allBytes->length()) :
+              OsSocket::isFramed(socketType)))
          {
             break;
          }
 
-         // Control should never get here but just to be safe...
-         if (socketType != OsSocket::TCP && socketType != OsSocket::SSL_SOCKET)
+         // Check to see if this is a non-framed protocol, we have seen the end of the headers,
+         // but we haven't seen a Content-Length header.  That is an error condition.
+         if (!OsSocket::isFramed(socketType) &&
+             headerEnd > 0 &&
+             !contentLengthSet)
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "HttpMessage::read ERROR attempt to do second read "
-                          "on socket type: %d\n",
+                          "HttpMessage::read Message has no Content-Length "
+                          "on unframed socket type: %d\n",
                           socketType);
+            // Exit the loop with the defective message, because we have no way to find its end.
+            break;
+         }
+
+         // Check to see if this is a framed protocol, because to get here, the first read
+         // of the message did not get to its end.  That is an error condition.
+         if (OsSocket::isFramed(socketType))
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "HttpMessage::read Attempt to do second read for a message "
+                          "on framed socket type: %d\n",
+                          socketType);
+            // Exit the loop with the defective message, because we have no way to find its end.
             break;
          }
 
@@ -1458,11 +1484,12 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
             remotePort = inSocket->getRemoteHostPort();
             setSendAddress(remoteHost.data(), remotePort);
          }
-      }
-      while (inSocket->isOk() &&
-             ((socketType != OsSocket::TCP && socketType != OsSocket::SSL_SOCKET) ||
-              inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)) &&
-             (bytesRead = inSocket->read(buffer, bufferSize)) > 0);
+
+         // Read more of the message and continue processing it.
+      } while (inSocket->isOk() &&
+               (OsSocket::isFramed(socketType) ||
+                inSocket->isReadyToRead(HTTP_READ_TIMEOUT_MSECS)) &&
+               (bytesRead = inSocket->read(buffer, bufferSize)) > 0);
 
       //
       // We have reached one of the conditions that indicates to stop
@@ -1474,18 +1501,21 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       unsigned int bodyLength = 0;
       unsigned int messageLength = 0;
       if (headerEnd > 0 &&
-         (!contentLengthSet ||
-          (socketType != OsSocket::TCP && socketType != OsSocket::SSL_SOCKET)))
+          (!contentLengthSet ||
+           OsSocket::isFramed(socketType)))
       {
          messageLength = allBytes->length();
          bodyLength = messageLength - headerEnd;
       }
       else if (headerEnd > 0 && contentLengthSet)
       {
+         // We have found a Content-Length header.
+
          //only if the total bytes read is as expected
          //ie equal or greater than (contentLength + headerEnd)
          if (bytesTotal - headerEnd >=  contentLength)
          {
+            // We have the entire expected length of the message.
             bodyLength = contentLength;
             messageLength = headerEnd + contentLength;
 
@@ -1528,13 +1558,11 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
          }
          else
          {
+            // We do not have the entire expected length of the message.
             bodyLength = bytesTotal - headerEnd;
 #           ifdef MSG_DEBUG
-            // :TODO: This is an ordinary condition on TCP
-            // connections, because the read can return partial SIP
-            // messages.  This condition should be detected and
-            // reported at a higher level, where true end-of-data can
-            // be detected.
+            // At this point, the entire message should have been read
+            // (in multiple reads if necessary).
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "HttpMessage::read Not all content data "
                           "successfully read: received %d body bytes but "
@@ -1554,12 +1582,12 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
       }
       else if (allBytes->length() > 0)
       {
+         // We have not found the end of headers, or we have not found
+         // a Content-Length header.
+
 #        ifdef MSG_DEBUG
-         // :TODO: This is an ordinary condition on TCP
-         // connections, because the read can return partial SIP
-         // messages.  This condition should be detected and
-         // reported at a higher level, where true end-of-data can
-         // be detected.
+         // This should not happen because the message will have been
+         // fetched with multiple reads if necessary.
          OsSysLog::add(FAC_SIP, PRI_ERR,
                        "HttpMessage::read End of headers not found.  "
                        "%d bytes read.  Content:\n>>>%.*s<<<\n",
@@ -1582,7 +1610,9 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
    }
    else
    {
-      // allBytes->capacity(bufferSize) failed, so return an error.
+      // Attempt to resize the input buffer to the requested
+      // approximate size (allBytes->capacity(bufferSize)) failed, so
+      // return an error.
       OsSysLog::add(FAC_SIP, PRI_ERR,
                     "HttpMessage::read allBytes->capacity(%d) failed, "
                     "returning %d",

@@ -1179,6 +1179,32 @@ void OsSocket::inet_ntoa_pt(struct in_addr input_address,
 #endif
 }
 
+//:Returns TRUE if the given IpProtocolSocketType is a framed message protocol
+// (that is, every read returns exactly one message), and so the Content-Length
+// header may be omitted.
+UtlBoolean OsSocket::isFramed(IpProtocolSocketType type)
+{
+   UtlBoolean r;
+
+   switch (type)
+   {
+   case TCP:
+   case SSL_SOCKET:
+      // UNKNOWN and all other values return TRUE for safety.
+   case UNKNOWN:
+   default:
+      r = FALSE;
+      break;
+
+   case UDP:
+   case MULTICAST:
+      r = TRUE;
+      break;
+   }
+
+   return r;
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

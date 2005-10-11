@@ -254,9 +254,12 @@ public:
      *   from inSocket.
      * \param maxContentLength - this is the maximum message size that
      *   will be read.  If the message content-length is larger, the
-     *   socket is closed and the buffer is cleared.
-     * \return the number of bytes read from the socket, or 0 to
-     *   indicate an error
+     *   socket is closed and the buffer is cleared.  (This is to protect
+     *   against abusive senders.)
+     * \return the number of bytes in the message that was read,
+     *   or 0 to indicate an error.  If it is less than
+     *   externalBuffer.length(), the remaining bytes are the start of
+     *   another message.
      */
     int read(OsSocket* inSocket,
              int bufferSize = HTTP_DEFAULT_SOCKET_BUFFER_SIZE,

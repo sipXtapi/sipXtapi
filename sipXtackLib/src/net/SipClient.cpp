@@ -507,7 +507,6 @@ UtlBoolean SipClient::isReadyToRead()
 
     readyToRead = clientSocket->isReadyToRead(-1);
 
-
     return(readyToRead);
 }
 

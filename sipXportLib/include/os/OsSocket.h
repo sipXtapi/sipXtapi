@@ -146,6 +146,7 @@ public:
       SSL_SOCKET = 3
    } IpProtocolSocketType;
    //: Protocol Types
+   //  Note: If you add a value to this enum, add a case in OsSocket::isFramed.
    
 /* ============================ CREATORS ================================== */
    OsSocket();
@@ -174,7 +175,7 @@ public:
    //:Non-blocking or limited blocking write to socket
    // Same as blocking version except that this write will block
    // for no more than the specified length of time.
-   //!param: waitMilliseconds - The maximum number of milliseconds to block. This may be set to zero, in which case it does not block.
+   //!param: waitMilliseconds - The maximum number of milliseconds to block.  This may be set to zero, in which case it does not block.
 
    virtual int read(char* buffer, int bufferLength);
    //:Blocking read from the socket
@@ -319,7 +320,7 @@ public:
 
    virtual UtlBoolean isReadyToRead(long waitMilliseconds = 0) const;
    //:Poll if there are bytes to read
-   // Returns TRUE if socket is read to read.
+   // Returns TRUE if socket is ready to read.
    // Returns FALSE if wait expires or socket error.
 
    virtual UtlBoolean isReadyToWrite(long waitMilliseconds = 0) const;
@@ -340,6 +341,11 @@ public:
 
    static void inet_ntoa_pt(struct in_addr input_address, UtlString& output_address);
    //:Convert in_addr input_address to dot ip address to avoid memory leak
+
+   static UtlBoolean isFramed(IpProtocolSocketType type);
+   //:Returns TRUE if the given IpProtocolSocketType is a framed message protocol
+   // (that is, every read returns exactly one message), and so the Content-Length
+   // header may be omitted.
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
