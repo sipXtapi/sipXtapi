@@ -63,7 +63,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories=".;..\..\sipXportLib\include;..\..\sipXmediaLib\include;..\..\sipXcallLib\include;..\..\sipXtackLib\include;..\..\sipXmediaAdapterLib\interface"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
-				RuntimeLibrary="1"
+				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
