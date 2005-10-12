@@ -11,10 +11,10 @@ Url:      http://www.sipfoundry.org/sipX
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxmedialib >= 2.9
-Requires: sipxmediaadapterlib >= 2.9
-Requires: sipxtacklib >= 2.9
-Requires: sipxportlib >= 2.9
+Requires: sipxmedialib >= 3.0
+Requires: sipxmediaadapterlib >= 3.0
+Requires: sipxtacklib >= 3.0
+Requires: sipxportlib >= 3.0
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
