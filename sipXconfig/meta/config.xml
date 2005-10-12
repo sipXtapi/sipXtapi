@@ -4,8 +4,8 @@
 	<plugin name="ant" antscript="/usr/bin/ant" uselogger="true" usedebug="false"/>
 	
 	<plugin name="htmlemail" buildresultsurl="http://osprey:8080/cruisecontrol"
-		defaultsuffix="@pingtel.com" mailhost="mail.pingtel.com" xsldir="webapps/xsl"
-		css="webapps/css/cruisecontrol.css" returnaddress="cruisecontrol@pingtel.com">
+		defaultsuffix="@pingtel.com" mailhost="mail.pingtel.com" xsldir="webapps/cruisecontrol/xsl"
+		css="webapps/cruisecontrol/css/cruisecontrol.css" returnaddress="cruisecontrol@pingtel.com">
 		<map alias="lazyboy" address="dhubler"/>
 	</plugin>
 	
