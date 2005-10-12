@@ -54,18 +54,6 @@
 
         <!-- Checks for Javadoc comments.                     -->
         <!-- See http://checkstyle.sf.net/config_javadoc.html -->
-        <module name="JavadocMethod">
-            <property name="severity" value="ignore"/>
-        	<property name="scope" value="public"/>
-		</module>
-        <module name="JavadocType">
-            <property name="severity" value="info"/>
-        	<property name="scope" value="public"/>
-		</module>
-        <module name="JavadocVariable">
-            <property name="severity" value="info"/>
-        	<property name="scope" value="public"/>
-		</module>
         <module name="JavadocStyle">
             <property name="checkFirstSentence" value="false"/>
         </module>
