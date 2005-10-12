@@ -87,6 +87,12 @@
        description="Enables code coverage instrumentation">
     <my.subant target="with.clover"/>
   </target>
+ 
+  <target name="clover.report"
+       description="Generate HTML based clover report">
+    <my.subant target="clover.report"/>
+  </target>
+
 
   <!--
     - U N I T T E S T   R E P O R T
