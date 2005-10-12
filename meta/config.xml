@@ -34,8 +34,8 @@
 		
 		<!-- directory to write build logs to -->
 		<log logdir="logs/sipXconfig">
-			<merge dir="projects/sipXconfig/build/neoconf/test-results/"/>
-			<merge dir="projects/sipXconfig/build/web/test-results/"/>
+			<merge dir="projects/sipXconfig/build/neoconf/junit/"/>
+			<merge dir="projects/sipXconfig/build/web/junit/"/>
 			<merge file="projects/sipXconfig/build/neoconf/checkstyle_errors.xml"/>
 			<merge file="projects/sipXconfig/build/web/checkstyle_errors.xml"/>
 		</log>

@@ -182,7 +182,7 @@
     	  <formatter type="plain"/>
 	      <formatter type="xml"/>
 	      <sysproperty key="basedir" value="${basedir}"/>
-	      <batchtest todir="${test.results.dir}">
+	      <batchtest todir="${junit.results.dir}">
 	        <fileset dir="${test.classes.dir}"> 
 	          <patternset refid="test-db.classes"/>
 	        </fileset>
