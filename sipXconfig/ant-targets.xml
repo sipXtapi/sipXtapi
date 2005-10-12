@@ -28,6 +28,7 @@
   <property name="style.dir" value="${build.dir}/style" />
   <property name="api.dir" value="${top.build.dir}/doc/api/${ant.project.name}" />
   <property name="test.results.dir" value="${build.dir}/test-results" />
+  <property name="junit.results.dir" value="${build.dir}/junit" />
   <property name="test.classes.dir" value="${build.dir}/tests"/>
   <property name="clover.dir" value="${build.dir}/clover"/>
 
@@ -119,6 +120,7 @@
     <mkdir dir="${dist.dir}" />
     <mkdir dir="${api.dir}" />
     <mkdir dir="${test.results.dir}"/>
+    <mkdir dir="${junit.results.dir}"/>
     <mkdir dir="${test.classes.dir}"/>
     <mkdir dir="${style.dir}"/>
   </target>
@@ -147,6 +149,7 @@
 
     <delete dir="${classes.dir}"/>
     <delete dir="${test.classes.dir}"/>
+    <delete dir="${junit.results.dir}"/>
     <delete dir="${test.results.dir}"/>
     <delete dir="${dist.dir}"/>
     <delete dir="${clover.dir}"/>
@@ -255,7 +258,7 @@
       <formatter type="plain"/>
       <formatter type="xml"/>
       <sysproperty key="basedir" value="${basedir}"/>
-      <batchtest todir="${test.results.dir}">
+      <batchtest todir="${junit.results.dir}">
         <fileset dir="${test.classes.dir}"> 
           <patternset refid="test.classes"/>
         </fileset>
@@ -283,15 +286,15 @@
 
     <property name="org.xml.sax.driver" value="org.apache.xerces.parsers.SAXParser"/>
 
-    <junitreport todir="${test.results.dir}">
+    <junitreport todir="${junit.results.dir}">
 
-      <fileset dir="${test.results.dir}">
+      <fileset dir="${junit.results.dir}">
         <include name="TEST-*.xml"/>
       </fileset>
 
       <!-- Uses ANT embedded XSL file -->
       <report format="noframes" 
-           todir="${test.results.dir}"/>
+           todir="${junit.results.dir}"/>
 
     </junitreport>
   </target>
