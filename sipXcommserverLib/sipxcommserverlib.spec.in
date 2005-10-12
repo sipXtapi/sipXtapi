@@ -12,8 +12,8 @@ Url: http://www.sipfoundry.org/sipXcommserverLib
 Source: %name-%version.tar.gz
 
 Requires: xerces-c >= 2.6.0
-Requires: sipxportlib >= 3.0
-Requires: sipxtacklib >= 3.0
+Requires: sipxportlib >= 3.1
+Requires: sipxtacklib >= 3.1
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -27,8 +27,8 @@ project.
 %package devel
 Requires: %name
 Requires: xerces-c-devel >= 2.6.0
-Requires: sipxportlib-devel >= 3.0
-Requires: sipxtacklib-devel >= 3.0
+Requires: sipxportlib-devel >= 3.1
+Requires: sipxtacklib-devel >= 3.1
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name 

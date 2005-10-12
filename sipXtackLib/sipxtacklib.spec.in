@@ -9,7 +9,7 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXtackLib
 
-Requires: sipxportlib >= 3.0
+Requires: sipxportlib >= 3.1
 
 Source: %name-%version.tar.gz
 
@@ -28,7 +28,7 @@ class. This project depends upon the sipXportLib OS abstraction layer.
 # Install header files
 %package devel
 Requires: %name
-Requires: sipxportlib-devel >= 3.0
+Requires: sipxportlib-devel >= 3.1
 
 Group: Development/Libraries
 Vendor: SIPfoundry

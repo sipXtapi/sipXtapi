@@ -11,12 +11,12 @@ Url: http://www.sipfoundry.org/sipXvxmlLib
 
 Source: %name-%version.tar.gz
 
-Requires: sipxcalllib >= 3.0
-Requires: sipxcommserverlib >= 3.0
-Requires: sipxmedialib >= 3.0
-Requires: sipxmediaadapterlib >= 3.0
-Requires: sipxtacklib >= 3.0
-Requires: sipxportlib >= 3.0
+Requires: sipxcalllib >= 3.1
+Requires: sipxcommserverlib >= 3.1
+Requires: sipxmedialib >= 3.1
+Requires: sipxmediaadapterlib >= 3.1
+Requires: sipxtacklib >= 3.1
+Requires: sipxportlib >= 3.1
 
 # Httpd is needed to serve VXML applications and execute supporting CGIs.
 Requires: httpd >= 2.0
@@ -33,7 +33,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.0
+Requires: sipxcommserverlib-devel >= 3.1
 
 %description devel
 Internal class documentation for the sipXvxml classes
