@@ -3,7 +3,7 @@
 # benign edit
 
 AC_PREREQ(2.57)
-AC_INIT(sipXpbx, 2.9.0, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXpbx, 3.0.0, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
