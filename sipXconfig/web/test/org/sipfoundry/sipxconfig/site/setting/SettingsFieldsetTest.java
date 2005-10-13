@@ -64,6 +64,28 @@ public class SettingsFieldsetTest extends TestCase {
         control.verify();
     }
 
+    public void testRenderSettingPlaceholder() throws Exception {
+        MockControl control = MockControl.createControl(Setting.class);
+        Setting setting = (Setting) control.getMock();
+        control.expectAndReturn(setting.isAdvanced(), true, 2);
+        control.expectAndReturn(setting.isAdvanced(), false, 2);
+        control.replay();
+
+        m_fieldset.setShowAdvanced(true);
+        assertFalse(m_fieldset.renderSettingPlaceholder(setting));
+
+        m_fieldset.setShowAdvanced(false);
+        assertTrue(m_fieldset.renderSettingPlaceholder(setting));
+
+        m_fieldset.setShowAdvanced(true);
+        assertFalse(m_fieldset.renderSettingPlaceholder(setting));
+
+        m_fieldset.setShowAdvanced(false);
+        assertFalse(m_fieldset.renderSettingPlaceholder(setting));
+
+        control.verify();
+    }
+
     public void testRenderToggle() throws Exception {
         SettingSet set = new SettingSet();
 

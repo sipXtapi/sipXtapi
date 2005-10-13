@@ -33,10 +33,10 @@
     <component id="ifRenderGroupTitle" type="Conditional">
         <binding name="condition" expression="renderGroupTitle"/>
     </component>
-    <component id="IfGroup" type="contrib:FormConditional">
+    <component id="IfGroup" type="Conditional">
         <binding name="condition" expression="currentSetting.getValues().size() > 0"/>
     </component>
-    <component id="IfSetting" type="contrib:FormConditional">
+    <component id="IfSetting" type="Conditional">
         <binding name="condition" expression="currentSetting.getValues().size() == 0"/>
     </component>
     <component id="ifRenderSetting" type="contrib:FormConditional">
@@ -67,4 +67,10 @@
         <binding name="toggle" expression="showAdvanced"/>
     </component>
     
+    <component id="ifRenderPlaceholder" type="contrib:FormConditional">
+        <binding name="condition" expression="renderSettingPlaceholder(currentSetting)"/>
+    </component>
+    <component id="placeholder" type="Hidden">
+        <binding name="value" expression="currentSetting.value"/>
+    </component>    
 </component-specification>
