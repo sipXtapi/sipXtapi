@@ -37,12 +37,13 @@ EXTRA_DIST = \
 # BUILT_SOURCES is special autoconf variable to be checked on every make
 BUILT_SOURCES = build.properties
 
-build.properties : build.properties.in Makefile $(top_srcdir)/top.build.dir
+build.properties : build.properties.in Makefile _top.build.dir
 	$(edit) $(srcdir)/build.properties.in > $(top_builddir)/build.properties
 
 # This sets the default build dir to the last directory that called
 # configure shell script.  This allows 'ant' to be called from any directory
-$(top_srcdir)/top.build.dir :
+# target name is not a file to force this make everytime
+_top.build.dir :    
 	echo "top.build.dir="`pwd` > $(top_srcdir)/top.build.dir
 
 # Alternative is to do svn export, but it's very handy to be able to 
