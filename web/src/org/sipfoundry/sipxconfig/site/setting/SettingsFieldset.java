@@ -64,4 +64,15 @@ public abstract class SettingsFieldset extends BaseComponent {
         }
         return !setting.isAdvanced() || getShowAdvanced();
     }
+
+    /**
+     * Returns true for advanced settings that are not rendered. Instead we render a placeholder
+     * that keeps setting value in case it was modified.
+     * 
+     * @param setting
+     * @return true if setting is not rendered (is advanced and advanced settings are not shown)
+     */
+    public boolean renderSettingPlaceholder(Setting setting) {
+        return setting.isAdvanced() && !getShowAdvanced();
+    }
 }
