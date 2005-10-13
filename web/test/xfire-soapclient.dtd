@@ -1,0 +1,6 @@
+<!ELEMENT config (#PCDATA | entry | node)*>
+<!ELEMENT node (#PCDATA | node | entry)*>
+<!ATTLIST node name CDATA #IMPLIED>
+<!ELEMENT entry (#PCDATA)>
+<!ATTLIST entry name CDATA #IMPLIED>
+<!ATTLIST entry value CDATA #IMPLIED>

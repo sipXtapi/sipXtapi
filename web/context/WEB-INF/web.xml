@@ -15,16 +15,23 @@
             classpath*:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml
             classpath*:/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml
-						classpath*:/org/sipfoundry/sipxconfig/conference/conference.beans.xml          
-						classpath*:/org/sipfoundry/sipxconfig/job/job.beans.xml          
+			classpath*:/org/sipfoundry/sipxconfig/conference/conference.beans.xml          
+			classpath*:/org/sipfoundry/sipxconfig/job/job.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/login/login.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/phone/phone.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml
             classpath*:/org/sipfoundry/sipxconfig/site/tapestry.xml 
             classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml
+            classpath:org/codehaus/xfire/spring/xfire.xml
             </param-value>
     </context-param>
+    <!-- BEGIN XFIRE -->
+    <context-param>
+      <param-name>log4jConfigLocation</param-name>
+      <param-value>/WEB-INF/log4j.properties</param-value>
+    </context-param>
+    <!-- END XFIRE -->
     <filter>
         <filter-name>redirect</filter-name>
         <filter-class>org.apache.tapestry.RedirectFilter</filter-class>
@@ -33,10 +40,21 @@
         <filter-name>redirect</filter-name>
         <url-pattern>/</url-pattern>
     </filter-mapping>
+    <!-- BEGIN XFIRE -->
+    <listener>
+      <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+    </listener>
+    <!-- END XFIRE -->
     <listener>
         <listener-class>
             org.sipfoundry.sipxconfig.site.ContextLoaderListener</listener-class>
     </listener>
+    <!-- BEGIN XFIRE -->
+    <servlet>
+      <servlet-name>service</servlet-name>
+      <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+    </servlet>
+    <!-- END XFIRE -->
     <servlet>
         <servlet-name>sipXconfig-web</servlet-name>
         <servlet-class>org.apache.tapestry.ApplicationServlet</servlet-class>
@@ -46,6 +64,12 @@
 		<servlet-name>change-pintoken</servlet-name>
 		<servlet-class>org.sipfoundry.sipxconfig.site.user.PinTokenChangeServlet</servlet-class>	    
 	</servlet>
+    <!-- BEGIN XFIRE -->
+    <servlet-mapping>
+      <servlet-name>service</servlet-name>
+      <url-pattern>/service/*</url-pattern>
+    </servlet-mapping>
+    <!-- END XFIRE -->
     <servlet-mapping>
         <servlet-name>sipXconfig-web</servlet-name>
         <url-pattern>/app</url-pattern>
