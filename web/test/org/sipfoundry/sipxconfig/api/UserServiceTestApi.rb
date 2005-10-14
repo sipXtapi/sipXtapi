@@ -12,8 +12,13 @@ class UserServiceTestApi < Test::Unit::TestCase
 		@userService.wiredump_dev = STDOUT
     end
 
-	def test_echo
-		result = @userService.createUser(:in0 => 'testApiUser', :in1=> '1234')	
-		puts "the userService returned: #{result}" 	
+	def test_getUserProperties
+		properties = @userService.getUserProperties()	
+		puts "the userService returned: #{properties}" 	
+    end
+
+	def test_createUser
+		@userService.createUser(:in0 => 'testApiUser', :in1=> '1234')	
+		@userService.deleteUser('testApiUser')
     end
 end

@@ -12,9 +12,10 @@
 package org.sipfoundry.sipxconfig.api;
 
 /**
- * 
- * @author dhubler
- *
+ * Any change to users gets replicated in batches to sipx family 
+ * of servers asynchronously.  Changes to phones does not happen
+ * automatically so you will need to explicity send profiles to
+ * rellevant phones.
  */
 public interface UserService {    
 
@@ -27,4 +28,13 @@ public interface UserService {
      */
     public void createUser(String userName, String pin);
     
+    /**
+     * Delete user and all related information by username
+     */
+    public void deleteUser(String userName);
+
+    /**
+     * Delete user by username
+     */
+    public void setUserProperty(String userName, String property, Object value);
 }
