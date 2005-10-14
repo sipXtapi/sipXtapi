@@ -38,6 +38,9 @@
     </component>
 	<component id="pin" type="ConfirmPassword">
         <binding name="password" expression="pin"/>
+        <message-binding name="passwordDisplayName" key="label.newPin"/>
+        <message-binding name="confirmPasswordDisplayName" key="label.confirmNewPin"/>
+        <message-binding name="passwordMismatchMessage" key="message.newPinMismatch"/>
         <binding name="passwordValidator" expression="global.validPinRequired"/>
     </component>
     <component id="formActions" type="FormActions">
