@@ -683,3 +683,6 @@ select migrate_phone_group_tree();
 select migrate_group_weights();
 select migrate_dialing_plans();
 select migrate_extension_pools();
+
+-- this will give superadmin user correct permissions on system startup
+insert into initialization_task (name) values ('admin-group-and-user');

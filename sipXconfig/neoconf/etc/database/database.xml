@@ -84,7 +84,7 @@
   <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version1" description="upgrade from version 1" unless="version2"
     depends="
-	  relax_phone_description_uniqueness
+	  relax_phone_desc_uniqueness
 	  "/>
 	
   <target name="schema" unless="schema">
@@ -98,11 +98,12 @@
   
   <target name="import-2.8" depends="import-2.8-run,migrate-2.8" 
         description="import 2.8 PDS database from backup file, note clears all existing 3.0 data"/>
-  
+
   <target name="reset-superadmin-initialization-task">
     <sipx-sql>
       delete from initialization_task where name = 'admin-group-and-user';
       insert into initialization_task (name) values ('admin-group-and-user');
+      update users set pintoken = '' where user_name = 'superadmin';
     </sipx-sql>
   </target>
   <target name="reset-superadmin" depends="reset-superadmin-initialization-task,upgrade"
@@ -185,10 +186,11 @@
     - version1 patches
     -->
   <!-- The phone uniqueness constraint was a mistake, get rid of it -->
-  <target name="relax_phone_description_uniqueness" unless="relax_phone_description_uniqueness">
+  <target name="relax_phone_desc_uniqueness" unless="relax_phone_desc_uniqueness">
     <sipx-sql>
       alter table phone drop constraint phone_description_key;
     </sipx-sql>
+    <mark-patch-applied patch="relax_phone_desc_uniqueness"/>
   </target>
 
   <!--
