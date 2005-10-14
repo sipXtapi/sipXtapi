@@ -217,6 +217,11 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 	margin-left:12em;
 }
 
+.highlight
+{
+	border: dashed 1px #699;
+}
+
 #footer
 {
 	clear:both;
