@@ -17,6 +17,7 @@
         <binding name="label" expression="setting.label"/>
         <binding name="defaultValue" expression="defaultValue"/>
         <binding name="description" expression="setting.description"/>        
+        <binding name="highlight" expression="modified"/>
     </component>    
     
     <component id="integerField" type="contrib:NumericField">

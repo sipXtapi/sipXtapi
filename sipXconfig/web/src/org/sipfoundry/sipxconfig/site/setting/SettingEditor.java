@@ -104,4 +104,10 @@ public abstract class SettingEditor extends BaseComponent {
         validator.setRequired(stringType.isRequired());
         return validator;
     }
+    
+    public boolean isModified() {
+        Object val = getSetting().getValue();
+        Object def = getSetting().getDefaultValue();
+        return val == null ? def != null : !val.equals(def);
+    }
 }
