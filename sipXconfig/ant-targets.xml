@@ -199,23 +199,19 @@
   </target>
 
   <target name="style.check" depends="check.src.present" if="src.present">
-    <checkstyle config="${top.dir}/meta/checkstyle.xml" failOnViolation="false" 
-        failureproperty="checkstyle.failed" classpathref="base.path"> 
+    <checkstyle config="${top.dir}/meta/checkstyle.xml" failOnViolation="false"
+      failureproperty="checkstyle.failed" classpathref="base.path">
       <fileset dir="${src.dir}/org/sipfoundry" includes="**/*.java">
         <depend targetdir="${style.dir}">
           <mapper type="merge" to="checkstyle.success"/>
         </depend>
       </fileset>
-      <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml"/> 
+      <formatter type="plain"/>
+      <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml"/>
     </checkstyle>
-    <xslt in="${build.dir}/checkstyle_errors.xml"
-      out="${build.dir}/checkstyle_errors.txt"
-      style="${top.dir}/meta/checkstyle-text.xsl"></xslt> 
-    <concat>
-      <fileset file="${build.dir}/checkstyle_errors.txt"/>
-    </concat>
-    <fail if="checkstyle.failed"/> 
-  </target> 
+    <fail if="checkstyle.failed"/>
+  </target>
+	
 	
   <target name="style" depends="init,style.check" unless="checkstyle.failed" 
 		description="check code violations">
