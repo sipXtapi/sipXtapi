@@ -9,6 +9,9 @@
             <entry key="/UserService">
                 <ref bean="userService"/>
             </entry>
+            <entry key="/TestService">
+                <ref bean="testService"/>
+            </entry>
         </map>
     </property>
 </bean>
@@ -21,8 +24,20 @@
     <property name="serviceInterface" value="org.sipfoundry.sipxconfig.api.UserService"/>
 </bean>
 
+<bean id="testService" class="org.codehaus.xfire.spring.remoting.XFireExporter">
+    <property name="serviceFactory" ref="xfire.serviceFactory"/>
+    <property name="xfire" ref="xfire"/>
+    <property name="service" ref="testServiceImpl"/>
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.api.TestService"/>
+</bean>
+	
+<bean id="testServiceImpl" class="org.sipfoundry.sipxconfig.api.TestServiceImpl">
+	<property name="coreContext" ref="coreContext"/>	
+</bean>
+
 <bean id="userServiceImpl" class="org.sipfoundry.sipxconfig.api.UserServiceImpl">
 	<property name="coreContext" ref="coreContext"/>
+	<property name="settingDao" ref="settingDao"/>
 </bean>
 
 </beans>

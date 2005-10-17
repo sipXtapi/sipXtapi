@@ -18,23 +18,20 @@ package org.sipfoundry.sipxconfig.api;
  * rellevant phones.
  */
 public interface UserService {    
-
+    
     /**
      * Create a new user 
      * @param displayName e.g. jsmith or 160
      * @param pin uncrypted pin value used for voicemail access and web end user portal
      *    e.g. 1234.  alpha-numeric is ok and stronger password
-     *    to break, but voicemail authentication from phone dialpad would not be possible 
+     *    to break, but voicemail authentication from phone dialpad would not be possible
+     * @param groups comma separated list of groups user belongs to.  e.g. "a, b"  Can be null.      
      */
-    public void createUser(String userName, String pin);
-    
+    public void createUser(String userName, String pin, String firstName, String lastName, 
+            String aliases, String userGroups);
+        
     /**
      * Delete user and all related information by username
      */
     public void deleteUser(String userName);
-
-    /**
-     * Delete user by username
-     */
-    public void setUserProperty(String userName, String property, Object value);
 }

@@ -51,7 +51,7 @@ public class User extends BeanWithGroups {
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
      * user. To keep the PIN secure, we don't store it.
-     */
+     */    
     public String getPintoken() {
         return (String) ObjectUtils.defaultIfNull(m_pintoken, StringUtils.EMPTY);
     }
@@ -178,6 +178,14 @@ public class User extends BeanWithGroups {
         String aliasesString2 = aliasesString.trim();
         String[] aliases = aliasesString2.split("\\s*,\\s*");
         return aliases;
+    }
+    
+    /**
+     * Given a comma-delimited string of group names, return the names as a string array. Trim
+     * leading and trailing whitespace from each group name
+     */
+    public static String[] groupNamesFromString(String groupString) {
+        return aliasesArrayFromString(groupString);
     }
 
     public String getUri(String domainName) {
