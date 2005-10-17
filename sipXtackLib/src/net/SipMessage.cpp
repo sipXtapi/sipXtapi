@@ -167,17 +167,31 @@ UtlBoolean SipMessage::getLongName(const char* shortFieldName,
 
 void SipMessage::replaceShortFieldNames()
 {
-   UtlDListIterator iterator(mNameValues);
    NameValuePair* nvPair;
    UtlString longName;
-
-   while ((nvPair = (NameValuePair*) iterator()))
+   size_t position;
+   
+   for ( position= 0;
+         (nvPair = dynamic_cast<NameValuePair*>(mNameValues.at(position)));
+         position++
+        )
    {
       if(getLongName(nvPair->data(), &longName))
       {
-            mHeaderCacheClean = FALSE;
+         // There is a long form for this name, so replace it.
+         mHeaderCacheClean = FALSE;
+         NameValuePair* modified;
+
+         /*
+          * NOTE: the header name is the containable key, so we must remove the
+          *       NameValuePair from the mNameValues list and then reinsert the
+          *       modified version; you are not allowed to modify key values while
+          *       an object is in a container.
+          */
+         modified = dynamic_cast<NameValuePair*>(mNameValues.removeAt(position));
          nvPair->remove(0);
-         nvPair->append(longName.data());
+         nvPair->append(longName);
+         mNameValues.insertAt(position, modified);
       }
    }
 }
