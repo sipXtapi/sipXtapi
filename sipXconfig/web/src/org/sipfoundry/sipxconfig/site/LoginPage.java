@@ -81,11 +81,9 @@ public abstract class LoginPage extends BasePage implements PageRenderListener {
         Visit visit = (Visit) getVisit();
         visit.login(user.getId(), context.isAdmin(user));
 
-        ICallback callback = getCallback();
-        if (callback != null) {
-            callback.performCallback(cycle);
-        } else {
-            cycle.activate(Home.PAGE);
-        }
+        // Ignore any callback and go to the home page.  If the user was redirected to the login
+        // page because the session timed out, then after logging in we will have lost all session
+        // data.  Trying to execute a callback under these circumstances is hazardous -- see XCF-590.
+        cycle.activate(Home.PAGE);
     }
 }
