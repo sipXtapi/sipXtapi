@@ -2,12 +2,12 @@ Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
 
-Summary: OS Abstraction and OS Utilities library for sipX modules
-License: Pingtel Commercial License
+Summary: Media subsystem abstraction interface
+License: LGPL
 Group: Development/Libraries
-Vendor: Pingtel Corp
-Packager: Pingtel <support@pingtel.com>
-Url: http://www.pingtel.com
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXmediaAdapterLib
 
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
