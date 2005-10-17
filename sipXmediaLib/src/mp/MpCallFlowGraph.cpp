@@ -9,9 +9,9 @@
 
 #include "rtcp/RtcpConfig.h"
 
-#ifndef __pingtel_on_posix__
-#define DOING_ECHO_SUPPRESSION
-#endif
+//#ifndef __pingtel_on_posix__
+//#define DOING_ECHO_SUPPRESSION
+//#endif
 
 // SYSTEM INCLUDES
 #include <assert.h>
