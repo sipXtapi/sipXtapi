@@ -12,16 +12,31 @@ FULL PBX INSTALL
 If you have installed the entire sipX PBX on Fedora or Redhat Enterprise LINUX
 then you're done.  SipXconfig has been installed as part of the PBX.
 
+DEPENDENCIES
+
+You will need:
+
+* sipXportLib (http://www.sipfoundry.org/sipXportLib) (same version as sipXconfig)
+* sipXtackLib (http://www.sipfoundry.org/sipXtack) (same version as sipXconfig)
+* sipXcommserverLib (http://www.sipfoundry.org/sipXcommserverLib) (same version as sipXconfig)
+* sipXpbx (http://www.sipfoundry.org/sipXpbx) (same version as sipXconfig)
+* Java SDK 1.4 (http://java.sun.com/j2se/1.4.2/download.html) or
+  Java SDK 1.5 (http://java.sun.com/j2se/1.5.0/download.jsp) (tested with 1.4.2_09 and 1.5.0_05)
+* postgres 7.3 or 8.0 (http://www.postgresql.org/) (tested with 7.3.4 and 8.0.4)
+* Ant 1.6 (http://ant.apache.org/) (tested with 1.6.1) 
+
+See the wiki for more information on how to download this software.
+
 INSTALL FROM RPMS
 
-For Fedora Core 3, and soon Fedora Core 4, You can download and install
+For Fedora Core 3, and soon Fedora Core 4, you can download and install
 sipXconfig RPMs from http://www.sipfoundry.org/pub/sipX/.
 
 INSTALL FROM SOURCE
 
-For other LINUX distributions, you can download sipXconfig source and build the
-product yourself.  If you have obtained source code from subversion and not from
-a tar file, then run these commands:
+For other LINUX distributions (as well as Fedora), you can download sipXconfig
+source and build the product yourself.  If you have obtained source code from
+subversion and not from a tar file, then run these commands:
 
     autoreconf -if
     ./configure
