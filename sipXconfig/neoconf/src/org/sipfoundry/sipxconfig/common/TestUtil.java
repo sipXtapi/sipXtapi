@@ -136,7 +136,7 @@ public final class TestUtil {
         // HACK: sysdir.bin is not a real directory when testing
         final String domainName = "sipfoundry.org";
         final String realm = "realm";
-        sysProps.setProperty("sysdir.bin", "/opt/work-2.8/sipx/bin/");
+        sysProps.setProperty("sysdir.bin", "/opt/sipx/3.1/sipfoundry/bin");
         sysProps.setProperty("sysdir.etc", etcDirectory);
         sysProps.setProperty("sysdir.data", outputDirectory);
         sysProps.setProperty("sysdir.phone", outputDirectory);
