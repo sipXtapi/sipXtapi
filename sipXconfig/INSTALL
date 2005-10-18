@@ -20,5 +20,16 @@ sipXconfig RPMs from http://www.sipfoundry.org/pub/sipX/.
 INSTALL FROM SOURCE
 
 For other LINUX distributions, you can download sipXconfig source and build the
-product yourself.  See the above wiki page for more information.
+product yourself.  If you have obtained source code from subversion and not from
+a tar file, then run these commands:
 
+    autoreconf -if
+    ./configure
+    make all check install
+
+Then you need to run this one command to initialize the database, once ever as root:
+
+  su - root
+  sipxconfig.sh --setup
+
+See the above wiki page for more information.
