@@ -17,7 +17,7 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.DoubleConverter;
 
 public class RealSetting implements SettingType {
-    private static final Converter CONVERTER = new DoubleConverter();
+    private static final Converter CONVERTER = new DoubleConverter(null);
 
     private float m_min;
 

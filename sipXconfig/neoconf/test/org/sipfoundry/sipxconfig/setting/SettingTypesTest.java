@@ -64,6 +64,21 @@ public class SettingTypesTest extends TestCase {
         }
     }
 
+    public void testNullSettings() {
+        SettingType[] types = {
+            new IntegerSetting(), new RealSetting(), new BooleanSetting(), new StringSetting(),
+            new EnumSetting()
+        };
+
+        for (int i = 0; i < types.length; i++) {
+            Setting setting = new SettingImpl();
+            SettingType type = types[i];
+
+            setting.setType(type);
+            assertNull("Failed for" + type, setting.getTypedValue());
+        }
+    }
+
     public void testSettingRealType() {
         final float[][] EXPECTED = {
             {
@@ -156,7 +171,7 @@ public class SettingTypesTest extends TestCase {
         assertEquals("0", boolSetting.getFalseValue());
 
         assertTrue(setting.getTypedValue() instanceof Boolean);
-        
+
         assertSame(setting.getTypedValue(), Boolean.TRUE);
     }
 
@@ -168,7 +183,7 @@ public class SettingTypesTest extends TestCase {
         BooleanSetting boolSetting = (BooleanSetting) type;
         assertEquals("true", boolSetting.getTrueValue());
         assertEquals("false", boolSetting.getFalseValue());
-        
+
         assertTrue(setting.getTypedValue() instanceof Boolean);
 
         assertSame(setting.getTypedValue(), Boolean.FALSE);
