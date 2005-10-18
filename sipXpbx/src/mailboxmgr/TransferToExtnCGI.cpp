@@ -69,11 +69,6 @@ TransferToExtnCGI::execute(UtlString* out)
         // Contains the dynamically generated VXML script.
             dynamicVxml =   VXML_BODY_BEGIN \
                         "<form> \n" \
-                            "<block> \n" \
-                                "<prompt bargein=\"false\"> \n" \
-                                "<audio src=\"" + ivrPromptUrl + "/" + UtlString (PROMPT_ALIAS) + "/please_hold.wav\" /> \n" \
-                                "</prompt>\n" \
-                            "</block> \n" \
                             "<transfer dest=\"" + extensionUrl.toString() /* transferUrlString */ + "\" /> \n" \
                         "</form> \n" \
                         VXML_END;
