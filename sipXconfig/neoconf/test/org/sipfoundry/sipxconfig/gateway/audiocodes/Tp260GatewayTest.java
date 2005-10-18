@@ -55,23 +55,22 @@ public class Tp260GatewayTest extends TestCase {
         defaultsCtrl.setDefaultReturnValue("mysipdomain.com");
         defaults.getProxyServerAddr();
         defaultsCtrl.setReturnValue("10.1.2.3");
+        defaults.getProxyServerSipPort();
+        defaultsCtrl.setReturnValue("1234");
 
         defaultsCtrl.replay();
 
         m_gateway.setDefaults(defaults);
 
-        assertEquals("10.1.2.3", m_gateway.getSettingValue("SIPgw/ProxyIp"));
-        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIPgw/ProxyName"));
+        assertEquals("10.1.2.3", m_gateway.getSettingValue("SIP_Params/PROXYIP"));
+        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP_Params/PROXYNAME"));
 
         defaultsCtrl.verify();
     }
 
     public void testGetSettings() throws Exception {
         Setting settings = m_gateway.getSettings();
-        assertEquals(new Integer(1), settings.getSetting("SIPgw/VoiceVolume").getTypedValue());
+        assertEquals(new Integer(0), settings.getSetting("SIPgw/FramingMethod").getTypedValue());
         assertTrue(settings instanceof SettingSet);
-        SettingSet root = (SettingSet) settings;
-        SettingSet currentSettingSet = (SettingSet) root.getDefaultSetting(SettingSet.class);
-        assertEquals(Boolean.TRUE, currentSettingSet.getSetting("IsFaxUsed").getTypedValue());
     }
 }

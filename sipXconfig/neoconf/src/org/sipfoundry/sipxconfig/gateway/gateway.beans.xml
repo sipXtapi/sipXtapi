@@ -20,8 +20,8 @@
 
   <bean id="gmAutiocodesTP" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
     <property name="modelFilesContext" ref="modelFilesContext"/>
-    <property name="proxyNameSetting" value="SIPgw/ProxyName"/>
-    <property name="proxyIpSetting" value="SIPgw/ProxyIp"/>
+    <property name="proxyNameSetting" value="SIP_Params/PROXYNAME"/>
+    <property name="proxyIpSetting" value="SIP_Params/PROXYIP"/>
   </bean>
       
   <bean id="gmAudiocodesMP1X4_4_FXO" parent="gmAutiocodesMP">
