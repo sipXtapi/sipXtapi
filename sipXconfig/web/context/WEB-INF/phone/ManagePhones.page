@@ -20,10 +20,6 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
-    <property-specification name="tableModel"
-        type="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel"
-        persistent="yes"
-        initial-value="beans.phoneTableModel"/>
 	<!--
 	  - B E A N S
 	  -->
@@ -39,7 +35,7 @@
 	<component id="phoneManagement" type="Form">
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
-		<binding name="tableModel" expression="beans.phoneTableModel.wrappedTableModel"/>
+		<binding name="tableModel" expression="wrappedTableModel"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>

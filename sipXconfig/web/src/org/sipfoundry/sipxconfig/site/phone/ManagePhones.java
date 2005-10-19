@@ -18,6 +18,7 @@ import java.util.Iterator;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.contrib.table.model.ITableModel;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
@@ -35,6 +36,8 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public static final String PAGE = "ManagePhones";
 
+    private static final String TABLE_MODEL_BEAN = "phoneTableModel";
+
     /** model of the table */
     public abstract void setPhones(Collection phones);
 
@@ -48,23 +51,15 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public abstract PhoneContext getPhoneContext();
 
-    public void setGroupId(Integer groupId) {
-        PhoneTableModel model = getTableModel();
-        if (model != null) {
-            model.setGroupId(groupId);
-        }
+    public abstract Integer getGroupId();
+
+    public abstract void setGroupId(Integer groupId);
+
+    public ITableModel getWrappedTableModel() {
+        PhoneTableModel model = (PhoneTableModel) getBeans().getBean(TABLE_MODEL_BEAN);
+        model.setGroupId(getGroupId());
+        return model.getWrappedTableModel();
     }
-    
-    // not sure why this is called
-    public Integer getGroupId() {
-        PhoneTableModel model = getTableModel();
-        if (model != null) {
-            return model.getGroupId();
-        }
-        return null;
-    }
-    
-    public abstract PhoneTableModel getTableModel();
 
     public IComponent getThis() {
         return this;
