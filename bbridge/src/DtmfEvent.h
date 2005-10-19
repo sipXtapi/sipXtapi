@@ -13,7 +13,7 @@ class DtmfEvent : public resip::DumCommand
 {
    public:
       DtmfEvent(Participant& ua, char event, int duration, bool up);
-      virtual void execute();
+      virtual void executeCommand();
 
       Message* clone() const;
       std::ostream& encode(std::ostream& strm) const;

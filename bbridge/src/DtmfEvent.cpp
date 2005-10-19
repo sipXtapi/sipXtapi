@@ -16,7 +16,7 @@ DtmfEvent::DtmfEvent(Participant& part, char event, int duration, bool up) :
 }
 
 void 
-DtmfEvent::execute()
+DtmfEvent::executeCommand()
 {
    mParticipant.onDtmfEvent(mDtmfTone, mDuration, mUp);
 }
