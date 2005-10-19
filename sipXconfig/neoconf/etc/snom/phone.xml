@@ -559,7 +559,7 @@
         <setting name="challenge_response">
           <label>Challenge Response on phone</label>
           <type refid="on-off"/>
-          <value>on</value>
+          <value>off</value>
           <description>Show password dialog for challenges</description>
         </setting>
         <setting name="cmc_feature">
