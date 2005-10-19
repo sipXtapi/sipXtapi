@@ -23,6 +23,7 @@
     
     <parameter name="defaultValue" required="no" direction="in" type="java.lang.String"/>
     <parameter name="description" required="no" direction="in" type="java.lang.String"/>
+    <parameter name="highlight" required="no" direction="in" type="boolean"/>
     
     <component id="settingLabel" type="Any">
         <binding name="for" expression="for"/>
@@ -45,4 +46,8 @@
     <component id="settingDefault" type="Insert">
         <binding name="value" expression="defaultValue"/>
     </component>    
+    <component id="highlightStyle" type="Any">
+        <binding name="class" expression="highlight ? 'highlight' : ''"/>
+    </component> 
+   
 </component-specification>
