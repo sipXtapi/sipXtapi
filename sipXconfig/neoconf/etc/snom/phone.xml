@@ -1637,6 +1637,14 @@
           <value/>
           <description>Password for authentication against the server.</description>
         </setting>
+        <setting name="user_mailbox">
+          <label>Mailbox</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Number to internal voice mail system.</description>
+        </setting>
       </group>
     </group>
   </group>
