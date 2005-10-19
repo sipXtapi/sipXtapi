@@ -250,7 +250,7 @@ ConferenceUserAgent::onOffer(resip::InviteSessionHandle h,
      dynamic_cast<resip::ServerInviteSession*>(h.get());
    assert(sis);
 
-   if (h->isEarly())
+   if (h->isAccepted())
    {
       InfoLog (<< "Accepting ");
       sis->accept();
