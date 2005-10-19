@@ -1,37 +1,25 @@
-
-
-This file was generated using the following command.  If you are
-already looking at this from a web browser, then please ignore this
-message.
-
-  cd doc;ant text-doc
-----------------------------------------------------------
-
                                     README
 
-   This is initial instructions to setup sipXconfig post installation. If
-   you've installed from source, you should add /usr/local/sipx/bin to your
-   PATH environment variable.
+These are brief initial instructions to set up sipXconfig after installation.
+For installation instructions, see the INSTALL file in this directory.
+For more information on sipXconfig, see the sipXconfig section on this page:
 
-Accessing web GUI
+    http://sipx-wiki.calivia.com/index.php/Main_Page
 
-   Then you can access the web gui from url: http://localhost:8080/pds
+PATH
 
-Initial Setup of Domain
+If you have installed from source, you should add /usr/local/sipx/bin to your
+PATH environment variable.
 
-   First thing you'll want to do is setup your system with a domain, at login
-   prompt, type the following user name and password
-  user name: installer
-  password : password
+ACCESSING WEB GUI
 
-   Here's a sample of information on next screen
- Organization : Acme Corp.
+With sipXconfig running, you can access the web interface by opening this URL
+in your web browser:
 
-   Unless  your  machine's hostname is 'sipxchange' I suggest using fully
-   qualified hostname here (e.g myhost.acme.com)
- DNS Domain   : myhostname.acme.com
- PIN          : ****
+    https://localhost:8443/sipxconfig
 
-   For   more   information,   see   the   sipXconfig   manual  built  in
-   doc/manual/index.html which is text-based web browser friendly.
-   Last modified: Mon Nov 29 14:13:57 EST 2004
+SUPERADMIN
+
+When you run sipXconfig for the first time, you will be prompted to choose
+a PIN (password) for the "superadmin" user account.  Superadmin has the 
+administrative privileges needed to add users, phones, etc. to the PBX.

@@ -15,7 +15,10 @@ import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.IntegerConverter;
 
 public class IntegerSetting implements SettingType {
-    private static final Converter CONVERTER = new IntegerConverter();
+    /**
+     * Converter should allow for null value: return null by default instead of throwing exception
+     */
+    private static final Converter CONVERTER = new IntegerConverter(null);
 
     private int m_min;
 

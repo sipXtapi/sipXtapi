@@ -33,6 +33,9 @@ public class AudioCodesGateway extends Gateway {
         AudioCodesModel model = (AudioCodesModel) getModel();
         setSettingValue(model.getProxyNameSetting(), m_defaults.getDomainName());
         setSettingValue(model.getProxyIpSetting(), m_defaults.getProxyServerAddr());
+
+        setSettingValue("SIP_Params/SIPGATEWAYNAME", getDefaults().getDomainName());
+        setSettingValue("SIP_Params/SIPDESTINATIONPORT", getDefaults().getProxyServerSipPort());
     }
 
     /**

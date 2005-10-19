@@ -21,7 +21,7 @@ import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang.ObjectUtils;
 
 public class EnumSetting implements SettingType {
-    private static final Converter CONVERTER = new IntegerConverter();
+    private static final Converter CONVERTER = new IntegerConverter(null);
 
     private Map m_enums = new LinkedMap();
 
