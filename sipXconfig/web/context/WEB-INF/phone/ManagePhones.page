@@ -36,6 +36,7 @@
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
 		<binding name="tableModel" expression="wrappedTableModel"/>
+        <binding name="tableSessionStateManager" expression="@org.apache.tapestry.contrib.table.model.common.NullTableSessionStateManager@NULL_STATE_MANAGER"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>
