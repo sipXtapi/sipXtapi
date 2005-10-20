@@ -23,6 +23,10 @@ declare
   next_id int;
 begin
 
+  -- cannot insert phone group id directly into new database, ids would conflict with
+  -- user groups as the share same tables
+  create temporary table user_group_migration (pds_group_id int not null, group_id int not null);
+
   -- todo user permissions
   raise notice ''DATA LOSS: User group permissions not migrated'';
 
@@ -30,17 +34,17 @@ begin
       as (id int, name text) loop
 
     raise notice ''importing user group %...'', usrgrp.name;
+
+    next_id := nextval(''storage_seq'');
+
+    insert into user_group_migration (pds_group_id, group_id) values (usrgrp.id, next_id);
  
-    insert into value_storage (value_storage_id) values (usrgrp.id);
+    insert into value_storage (value_storage_id) values (next_id);
 
     insert into group_storage (group_id, name, weight, resource)
-        values (usrgrp.id, usrgrp.name, nextval(''group_weight_seq''), ''user'');
+        values (next_id, usrgrp.name, nextval(''group_weight_seq''), ''user'');
     
   end loop; 
-
-  -- update value_storage_seq  
-  next_id := max(value_storage_id) + 1 from value_storage;
-  perform setval(''storage_seq'', next_id);
 
   return 1;
 end;
@@ -90,6 +94,7 @@ create or replace function migrate_users() returns integer as '
 declare
   usr record;
   next_id int;
+  my_group_id int;
 begin
 
   -- todo report user permissions that cannot be handled
@@ -110,7 +115,8 @@ begin
 
     -- user group
     if usr.ug_id is not null then
-      insert into user_group (user_id, group_id) values (usr.id, usr.ug_id);
+      select into my_group_id group_id from user_group_migration where pds_group_id = usr.ug_id;
+      insert into user_group (user_id, group_id) values (usr.id, my_group_id);
     end if;
 
   end loop; 
@@ -265,9 +271,11 @@ create or replace function insert_users_into_groups(varchar) returns integer as 
 declare
   user_select alias for $1;
   grp record;
+  user_group_id int;
 begin
   for grp in select * from dblink(user_select) as (user_id int, group_id int) loop
-    insert into user_group (user_id, group_id) values (grp.user_id, grp.group_id);
+    select into user_group_id group_id from user_group_migration where pds_group_id = grp.group_id;
+    insert into user_group (user_id, group_id) values (grp.user_id, user_group_id);
   end loop;
 
   return 1;

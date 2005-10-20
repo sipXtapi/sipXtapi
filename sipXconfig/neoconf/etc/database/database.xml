@@ -84,7 +84,7 @@
   <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version1" description="upgrade from version 1" unless="version2"
     depends="
-	  relax_phone_desc_uniqueness
+          nop
 	  "/>
 	
   <target name="schema" unless="schema">
@@ -92,6 +92,9 @@
       <transaction src="${sql.dir}/schema.sql"/>
     </sipx-sql>
   </target>  
+
+  <!-- Perform no operation, byproduct of the fact ant won't allow empty depends attribute -->
+  <target name="nop"/>
 
   <target name="migrate-2.8" depends="migrate-2.8-run,initialize,migrate-2.8-report" 
         description="migrate existing 2.8 PDS database, note clears all existing 3.0 data"/>
@@ -185,12 +188,16 @@
   <!--
     - version1 patches
     -->
-  <!-- The phone uniqueness constraint was a mistake, get rid of it -->
-  <target name="relax_phone_desc_uniqueness" unless="relax_phone_desc_uniqueness">
+  <!-- 
+    - The phone uniqueness constraint was a mistake, get rid of it, 
+    - NOTE: Do not copy/paste this task to to create a new patch
+    - THIS is not a patch, rather a left-over task incase a customer has this
+    - issue.  Original schema was fixed.
+    -->
+  <target name="repair_phone_description_uniqueness">
     <sipx-sql>
       alter table phone drop constraint phone_description_key;
     </sipx-sql>
-    <mark-patch-applied patch="relax_phone_desc_uniqueness"/>
   </target>
 
   <!--
