@@ -47,15 +47,16 @@
   </target>
 	
   <target name="drop" description="drops database!">
-    <exec executable="dropdb">
+    <exec executable="dropdb" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}"/>
     </exec>    
   </target>
 
   <!-- creates database void of schema -->
   <target name="createdb">
+    <sleep seconds="3"/><!-- sporadic template1 in use, allow dropdb to disconnect... -->
     <exec executable="createdb" failonerror="true">
-      <arg line="-U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}"/>
+      <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}"/>
     </exec>
   </target>
   
@@ -75,7 +76,6 @@
     depends="patches,version1,initialize"/>
     	
   <target name="initialize" depends="tasks" if="initialize">
-  	<echo>initialize=${initialize}</echo>
     <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null">
       <arg value="noexit"/>
     </java>
@@ -84,9 +84,9 @@
   <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version1" description="upgrade from version 1" unless="version2"
     depends="
-          nop
+      nop
 	  "/>
-	
+
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
@@ -96,7 +96,7 @@
   <!-- Perform no operation, byproduct of the fact ant won't allow empty depends attribute -->
   <target name="nop"/>
 
-  <target name="migrate-2.8" depends="migrate-2.8-run,initialize,migrate-2.8-report" 
+  <target name="migrate-2.8" depends="migrate-2.8-run,initialize" 
         description="migrate existing 2.8 PDS database, note clears all existing 3.0 data"/>
   
   <target name="import-2.8" depends="import-2.8-run,migrate-2.8" 
@@ -144,20 +144,10 @@
     </sipx-sql>
   </target>
   <target name="migrate-2.8-run" depends="drop,create-no-init,migrate-2.8-setup">
-    <echo>see migration log file for error or potential data loss:</echo>
+    <echo>see migration log file for errors or warnings about potential data loss:</echo>
     <echo>  ${migration.log}</echo>
     <exec executable="psql" output="${migration.log}" failonerror="true">
       <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
-    </exec>
-  </target>
-  <target name="migrate-2.8-report">
-    <echo>
- NOTE:  Not all data could be migrated. You may have to re-create data in the
- following areas
-    </echo>
-    <exec executable="sh">
-      <arg value="-c"/>
-      <arg value="grep 'NOTICE:\s*DATA LOSS' ${migration.log} | sed 's/.*NOTICE://g'"/>
     </exec>
   </target>
   <target name="import-2.8-run">
@@ -173,13 +163,14 @@
     <exec executable="createuser" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} --createdb --no-adduser sipxchange"/>
     </exec>    
-    <exec executable="dropdb">
+    <exec executable="dropdb" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} PDS"/>
     </exec>    
-    <exec executable="createdb">
-      <arg line="-U ${sipxconfig.db.user} --encoding=UNICODE PDS"/>
+    <sleep seconds="3"/><!-- sporadic template1 in use, allow dropdb to disconnect... -->
+    <exec executable="createdb" failonerror="true">
+      <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE PDS"/>
     </exec>    
-    <exec executable="/bin/sh">
+    <exec executable="/bin/sh" failonerror="true" outputproperty="eatme">
       <arg value="-c"/>
       <arg value="zcat ${pds.tar.gz} | pg_restore -U ${sipxconfig.db.user} -d PDS"/>
     </exec>    
