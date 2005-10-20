@@ -18,17 +18,21 @@
 					</li>
 				</ul>
 				<table id="line:list" jwcid="lineTableView" class="component">
-                <span jwcid="LineColumnValue">
-                    <a href="#" jwcid="editLineLink"><span jwcid="lineLabel">address of record</span></a>
-                </span>
-				<tr class="component-hdr">
-					<td width="5"/>
-					<td jwcid="lineColumns"/>
-				</tr>
-				<tr jwcid="lineRows">
-                    <td><span jwcid="selectedRow"/></td>
-					<td jwcid="lineValues"/>                    
-				</tr>
+                    <thead>
+						<tr>
+							<th width="5"/>
+							<th jwcid="lineColumns"/>
+						</tr>                        
+					</thead>               
+                    <tbody>
+		                <span jwcid="LineColumnValue">
+		                    <a href="#" jwcid="editLineLink"><span jwcid="lineLabel">address of record</span></a>
+		                </span>
+						<tr jwcid="lineRows">
+		                    <td><span jwcid="selectedRow"/></td>
+							<td jwcid="lineValues"/>                    
+						</tr>
+					</tbody>                                 
 				</table>
 				<ul class="component-submit">
 					<li>

@@ -2,26 +2,28 @@
   <form jwcid="groupManagement">
     <table jwcid="tableView" class="component" id="group:list">
       <thead>
-        <tr class="component-hdr">
+        <tr>
           <th width="5"/>
           <th jwcid="tableColumns"/>
         </tr>
       </thead>
-      <tr jwcid="tableRows">
-        <td><span jwcid="selectedRow"/></td>
-        <span jwcid="NameColumnValue">
-            <span jwcid="lineNumber"/>. <a jwcid="viewGroupLink"><span jwcid="viewGroupLabel"/></a>
-        </span>
-        <span jwcid="MembersColumnValue">
-            <a jwcid="memberLink"><span jwcid="memberCount"/></a>
-        </span>
-        <td jwcid="tableValues"/>
-      </tr>
       <tfoot>
         <tr>
           <td colspan="4"><span jwcid="@contrib:TableFormPages"/></td>
         </tr>
       </tfoot>
+      <tbody>
+	      <tr jwcid="tableRows">
+	        <td><span jwcid="selectedRow"/></td>
+	        <span jwcid="NameColumnValue">
+	            <span jwcid="lineNumber"/>. <a jwcid="viewGroupLink"><span jwcid="viewGroupLabel"/></a>
+	        </span>
+	        <span jwcid="MembersColumnValue">
+	            <a jwcid="memberLink"><span jwcid="memberCount"/></a>
+	        </span>
+	        <td jwcid="tableValues"/>
+	      </tr>
+	  </tbody>	          
     </table>
     <ul class="component-submit">
       <li>
