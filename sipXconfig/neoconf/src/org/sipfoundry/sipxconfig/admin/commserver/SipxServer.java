@@ -138,9 +138,7 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     }
 
     private String getPresenceServerLocation() {
-        // HACK: assume that presence server runs on the same machine as SIP proxy
-        String presenceServer = m_phoneDefaults.getOutboundProxy();
-        return presenceServer;
+        return getSettingValue(ServerSettings.PRESENCE_SERVER_LOCATION);
     }
 
     private int getPresenceServerPort() {
