@@ -2,7 +2,7 @@
 --  Double all single quotes in all function bodies.
 --  Dont use variable names that match tables or column names when setting 
 --    variable (see my_* usages)
---  primative logging by raising notices.
+--  primitive logging by raising notices.
 --  some functions preserve primary keys from PDS, others do not.  depends on
 --    how easy it is to adjust
 --    and if destination table has to merge values from multiple tables in 
@@ -117,6 +117,10 @@ begin
     if usr.ug_id is not null then
       select into my_group_id group_id from user_group_migration where pds_group_id = usr.ug_id;
       insert into user_group (user_id, group_id) values (usr.id, my_group_id);
+    end if;
+
+    if usr.extension is not null then
+        insert into user_alias (user_id, alias) values (usr.id, usr.extension);
     end if;
 
   end loop; 
@@ -589,14 +593,13 @@ begin
        from emergency_dialing_rule'') 
        as (id int, prefix text, number text, usemediaserver bool);
 
-  -- todo find operator auto attendant
+  -- operator initialization task will trigger associate to all internal dialing rules created here
   insert into internal_dialing_rule
      (internal_dialing_rule_id, local_extension_len, voice_mail, voice_mail_prefix)
     select * from 
     dblink(''select internal_dialing_rule_id, localextensionlen, voicemail, voicemailprefix
        from internal_dialing_rule'') 
        as (id int, xlen int, vm text, vmprefix text);
-  -- insert into initialization_task values (''migrate_auto_attendant'');
 
   insert into international_dialing_rule
      (international_dialing_rule_id, international_prefix)
@@ -628,6 +631,10 @@ begin
     dblink(''select ring_id, number, position, expiration, ring_type, user_id
        from ring'') 
        as (id int, number text, position int, expiration int, ring_type text, user_id int);
+
+  -- data has already gone thru initialization, this would
+  -- clobber all dialplans post migration
+  delete from initialization_task where name = ''dial-plans'';
 
   next_id := max(ring_id) + 1 from ring;
   perform setval(''ring_seq'', next_id);
