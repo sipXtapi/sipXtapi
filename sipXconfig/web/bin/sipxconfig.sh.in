@@ -116,8 +116,6 @@ databaseCommand() {
 
     databaseCheck
 
-    echo $$ > ${PidFile}
-
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \
         ${LibDir}/*.jar`
