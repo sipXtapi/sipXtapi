@@ -528,6 +528,7 @@ end;
 create or replace function migrate_dialing_plans() returns integer as '
 declare
   next_id int;
+  user_sensitive_routing bool;
 begin
   -- GATEWAY
   insert into gateway
@@ -592,6 +593,12 @@ begin
     dblink(''select emergency_dialing_rule_id, optionalprefix, emergencynumber, usemediaserver
        from emergency_dialing_rule'') 
        as (id int, prefix text, number text, usemediaserver bool);
+       
+  -- warn about data loss if user forwarding was used
+  select into user_sensitive_routing use_media_server from emergency_dialing_rule where use_media_server is true;
+  if found then
+  	raise notice ''DATA LOSS: User sensitive emergency routing settings not migrated'';
+  end if;
 
   -- operator initialization task will trigger associate to all internal dialing rules created here
   insert into internal_dialing_rule

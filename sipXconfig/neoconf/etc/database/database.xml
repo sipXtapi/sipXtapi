@@ -169,8 +169,9 @@
     <sleep seconds="3"/><!-- sporadic template1 in use, allow dropdb to disconnect... -->
     <exec executable="createdb" failonerror="true">
       <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE PDS"/>
-    </exec>    
-    <exec executable="/bin/sh" failonerror="true" outputproperty="eatme">
+    </exec>
+    <!-- ignore error in this task, importing database can fail if going from Postgres 7 to 8 -->
+    <exec executable="/bin/sh" failonerror="false" outputproperty="eatme">
       <arg value="-c"/>
       <arg value="zcat ${pds.tar.gz} | pg_restore -U ${sipxconfig.db.user} -d PDS"/>
     </exec>    
