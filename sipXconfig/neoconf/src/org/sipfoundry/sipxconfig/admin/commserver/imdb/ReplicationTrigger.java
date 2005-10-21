@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.common.InitializationTask;
+import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -25,6 +25,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);    
     
     private SipxReplicationContext m_replicationContext;
+    private boolean m_replicateOnStartup = true; 
 
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
@@ -32,6 +33,14 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     public SipxReplicationContext getReplicationContext() {
         return m_replicationContext;
+    }
+
+    public boolean isReplicateOnStartup() {
+        return m_replicateOnStartup;
+    }
+
+    public void setReplicateOnStartup(boolean replicateOnStartup) {
+        m_replicateOnStartup = replicateOnStartup;
     }
 
     public void onSave(Object entity) {
@@ -44,15 +53,12 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     /**
      * Override ApplicationListener.onApplicationEvent so we can handle events.
-     * The "replicate" event causes data replication.
+     * Perform data replication every time the app starts up.
      */
     public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof InitializationTask) {
-            InitializationTask task = (InitializationTask) event;
-            if (task.getTask().equals("replicate")) {
-                LOG.info("Handling \"replicate\" event: replicate all data sets");
-                m_replicationContext.generateAll();
-            }
+        if (event instanceof ApplicationInitializedEvent && isReplicateOnStartup()) {
+            LOG.info("Replicating all data sets after application has initialized");
+            m_replicationContext.generateAll();
         }
     }
 
@@ -67,4 +73,5 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             m_replicationContext.generateAll();
         }
     }
+
 }
