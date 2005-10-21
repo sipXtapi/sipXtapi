@@ -54,6 +54,8 @@ public class JettyTestSetup extends TestSetup {
     }
 
     protected void startServer() throws Exception {
+        // uncomment to disable page and component caching
+        // System.setProperty("org.apache.tapestry.disable-caching", "true");
         m_server = new Server();
         m_server.addListener(new InetAddrPort(m_port));
 
