@@ -96,7 +96,7 @@
   <!-- Perform no operation, byproduct of the fact ant won't allow empty depends attribute -->
   <target name="nop"/>
 
-  <target name="migrate-2.8" depends="migrate-2.8-run" 
+  <target name="migrate-2.8" depends="migrate-2.8-run,initialize" 
         description="migrate existing 2.8 PDS database, note clears all existing 3.0 data"/>
   
   <target name="import-2.8" depends="import-2.8-run,migrate-2.8" 
@@ -111,13 +111,6 @@
   </target>
   <target name="reset-superadmin" depends="reset-superadmin-initialization-task,upgrade"
       description="initialize superadmin user, administation group and resets password to blank"/>
-
-  <target name="replicate">
-    <sipx-sql>
-      delete from initialization_task where name = 'replicate';
-      insert into initialization_task (name) values ('replicate');
-    </sipx-sql>
-  </target>
 
   <!-- 
      Migration Targets Legend

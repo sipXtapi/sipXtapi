@@ -701,3 +701,6 @@ select migrate_extension_pools();
 
 -- this will give superadmin user correct permissions on system startup
 insert into initialization_task (name) values ('admin-group-and-user');
+
+-- trigger replication after data migration
+insert into initialization_task (name) values ('replicate');
