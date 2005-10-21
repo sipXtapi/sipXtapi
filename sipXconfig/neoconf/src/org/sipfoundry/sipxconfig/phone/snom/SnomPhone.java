@@ -51,7 +51,7 @@ public class SnomPhone extends Phone {
     }
 
     String getProfileName() {
-        StringBuffer buffer = new StringBuffer(getModel().toString());
+        StringBuffer buffer = new StringBuffer(getModel().getName());
         String serialNumber = getSerialNumber();
         if (StringUtils.isNotBlank(serialNumber)) {
             buffer.append("-");
