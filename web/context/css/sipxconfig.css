@@ -172,13 +172,13 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 }
 
 #navigation a {
-        text-decoration:none;
+    text-decoration:none;
 	font-style:normal;
-        color: #FFFFFF;
+    color: #FFFFFF;
 }
 
 #navigation a:hover {
-        color: #3D3D3D;
+    color: #3D3D3D;
 }
 
 .navHeading
@@ -186,7 +186,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 	font-family:Arial, Helvetica, sans-serif;
 	font-size:14px;
 	font-weight:bold;
-        color: #FFFFFF;
+    color: #FFFFFF;
 }
 
 #content
@@ -303,13 +303,7 @@ table.component thead
 	background:#3d3d3d;
 }
 
-tr.component-hdr
-{
-	color:#fff;
-	background:#3d3d3d;
-}
-
-table.component th
+table.component thead tr th
 {
 	border:1px;
 	white-space:nowrap;
@@ -318,24 +312,13 @@ table.component th
 	padding:3px;
 }
 
-table.component thead th
+table.component th a
 {
-	border:1px;
-	white-space:nowrap;
-	color:#FFFFCC;
-	border-color:#FFFFCC;
-	border-style:solid;
-	padding:3px;
-}
-
-table.component th a, th
-{
-        text-decoration:none;
+    text-decoration:none;
 	color:#fff;
-        font-weight:normal;
 }
 
-table.component td
+table.component tbody tr td
 {
 	white-space:nowrap;
 	border-collapse:collapse;
@@ -343,7 +326,7 @@ table.component td
 	padding-top:3px;
 }
 
-table.component tfoot td
+table.component tfoot tr td
 {
 	text-align:center;
 	border:1px;

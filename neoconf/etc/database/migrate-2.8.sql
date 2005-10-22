@@ -2,7 +2,7 @@
 --  Double all single quotes in all function bodies.
 --  Dont use variable names that match tables or column names when setting 
 --    variable (see my_* usages)
---  primative logging by raising notices.
+--  primitive logging by raising notices.
 --  some functions preserve primary keys from PDS, others do not.  depends on
 --    how easy it is to adjust
 --    and if destination table has to merge values from multiple tables in 
@@ -23,6 +23,10 @@ declare
   next_id int;
 begin
 
+  -- cannot insert phone group id directly into new database, ids would conflict with
+  -- user groups as the share same tables
+  create temporary table user_group_migration (pds_group_id int not null, group_id int not null);
+
   -- todo user permissions
   raise notice ''DATA LOSS: User group permissions not migrated'';
 
@@ -30,17 +34,17 @@ begin
       as (id int, name text) loop
 
     raise notice ''importing user group %...'', usrgrp.name;
+
+    next_id := nextval(''storage_seq'');
+
+    insert into user_group_migration (pds_group_id, group_id) values (usrgrp.id, next_id);
  
-    insert into value_storage (value_storage_id) values (usrgrp.id);
+    insert into value_storage (value_storage_id) values (next_id);
 
     insert into group_storage (group_id, name, weight, resource)
-        values (usrgrp.id, usrgrp.name, nextval(''group_weight_seq''), ''user'');
+        values (next_id, usrgrp.name, nextval(''group_weight_seq''), ''user'');
     
   end loop; 
-
-  -- update value_storage_seq  
-  next_id := max(value_storage_id) + 1 from value_storage;
-  perform setval(''storage_seq'', next_id);
 
   return 1;
 end;
@@ -90,6 +94,7 @@ create or replace function migrate_users() returns integer as '
 declare
   usr record;
   next_id int;
+  my_group_id int;
 begin
 
   -- todo report user permissions that cannot be handled
@@ -110,7 +115,12 @@ begin
 
     -- user group
     if usr.ug_id is not null then
-      insert into user_group (user_id, group_id) values (usr.id, usr.ug_id);
+      select into my_group_id group_id from user_group_migration where pds_group_id = usr.ug_id;
+      insert into user_group (user_id, group_id) values (usr.id, my_group_id);
+    end if;
+
+    if usr.extension is not null then
+        insert into user_alias (user_id, alias) values (usr.id, usr.extension);
     end if;
 
   end loop; 
@@ -265,9 +275,11 @@ create or replace function insert_users_into_groups(varchar) returns integer as 
 declare
   user_select alias for $1;
   grp record;
+  user_group_id int;
 begin
   for grp in select * from dblink(user_select) as (user_id int, group_id int) loop
-    insert into user_group (user_id, group_id) values (grp.user_id, grp.group_id);
+    select into user_group_id group_id from user_group_migration where pds_group_id = grp.group_id;
+    insert into user_group (user_id, group_id) values (grp.user_id, user_group_id);
   end loop;
 
   return 1;
@@ -516,6 +528,7 @@ end;
 create or replace function migrate_dialing_plans() returns integer as '
 declare
   next_id int;
+  user_sensitive_routing bool;
 begin
   -- GATEWAY
   insert into gateway
@@ -580,15 +593,20 @@ begin
     dblink(''select emergency_dialing_rule_id, optionalprefix, emergencynumber, usemediaserver
        from emergency_dialing_rule'') 
        as (id int, prefix text, number text, usemediaserver bool);
+       
+  -- warn about data loss if user forwarding was used
+  select into user_sensitive_routing use_media_server from emergency_dialing_rule where use_media_server is true;
+  if found then
+  	raise notice ''DATA LOSS: User sensitive emergency routing settings not migrated'';
+  end if;
 
-  -- todo find operator auto attendant
+  -- operator initialization task will trigger associate to all internal dialing rules created here
   insert into internal_dialing_rule
      (internal_dialing_rule_id, local_extension_len, voice_mail, voice_mail_prefix)
     select * from 
     dblink(''select internal_dialing_rule_id, localextensionlen, voicemail, voicemailprefix
        from internal_dialing_rule'') 
        as (id int, xlen int, vm text, vmprefix text);
-  -- insert into initialization_task values (''migrate_auto_attendant'');
 
   insert into international_dialing_rule
      (international_dialing_rule_id, international_prefix)
@@ -620,6 +638,10 @@ begin
     dblink(''select ring_id, number, position, expiration, ring_type, user_id
        from ring'') 
        as (id int, number text, position int, expiration int, ring_type text, user_id int);
+
+  -- data has already gone thru initialization, this would
+  -- clobber all dialplans post migration
+  delete from initialization_task where name = ''dial-plans'';
 
   next_id := max(ring_id) + 1 from ring;
   perform setval(''ring_seq'', next_id);
@@ -686,3 +708,6 @@ select migrate_extension_pools();
 
 -- this will give superadmin user correct permissions on system startup
 insert into initialization_task (name) values ('admin-group-and-user');
+
+-- trigger replication after data migration
+insert into initialization_task (name) values ('replicate');

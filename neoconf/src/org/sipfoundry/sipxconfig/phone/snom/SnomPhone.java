@@ -29,6 +29,8 @@ public class SnomPhone extends Phone {
     public static final String BEAN_ID = "snom";
     
     public static final String USER_HOST = "line/user_host";
+    
+    public static final String MAILBOX = "line/user_mailbox";
 
     public SnomPhone() {
         super(BEAN_ID);
@@ -49,7 +51,7 @@ public class SnomPhone extends Phone {
     }
 
     String getProfileName() {
-        StringBuffer buffer = new StringBuffer(getModel().toString());
+        StringBuffer buffer = new StringBuffer(getModel().getName());
         String serialNumber = getSerialNumber();
         if (StringUtils.isNotBlank(serialNumber)) {
             buffer.append("-");
@@ -131,7 +133,11 @@ public class SnomPhone extends Phone {
         // registration server shouldn't be used, proxy(e.g domain name) should handle delivery
         String domainName = defaults.getDomainName();
         String registrationUri = domainName + ";transport=udp";
-        line.getSettings().getSetting(USER_HOST).setValue(registrationUri);     
+        line.getSettings().getSetting(USER_HOST).setValue(registrationUri);
+        if (line.getUser() != null) {        
+            String voiceMail = defaults.getVoiceMail();        
+            line.getSettings().getSetting(MAILBOX).setValue(voiceMail);
+        }
     }    
         
     public void restart() {

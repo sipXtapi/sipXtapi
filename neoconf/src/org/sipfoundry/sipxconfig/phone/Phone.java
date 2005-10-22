@@ -233,7 +233,7 @@ public class Phone extends BeanWithGroups {
     }
 
     /**
-     * @throws RestartException is cannot complete operation
+     * @throws RestartException if it cannot complete the operation
      */
     public void restart() {
     }

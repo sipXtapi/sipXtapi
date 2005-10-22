@@ -16,13 +16,13 @@
     <parameter name="addGatewayListener"
     	type="org.apache.tapestry.IActionListener"
     	required="yes"
-    	direction="in"
+    	direction="auto"
     />
     
     <parameter name="selectGatewayListener"
     	type="org.apache.tapestry.IActionListener"
     	required="yes"
-    	direction="in"
+    	direction="auto"
     />
             
 	<!-- P R O P E R T I E S -->

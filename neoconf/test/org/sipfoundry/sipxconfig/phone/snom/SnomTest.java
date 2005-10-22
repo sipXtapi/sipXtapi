@@ -27,8 +27,8 @@ public class SnomTest extends TestCase {
     public void testGetProfileName() {
         SnomPhone phone = new SnomPhone(SnomModel.MODEL_360);
         // it can be called without serial number
-        assertEquals("SnomModel[snom360].htm", phone.getProfileName());
+        assertEquals("snom360.htm", phone.getProfileName());
         phone.setSerialNumber("abc123");
-        assertEquals("SnomModel[snom360]-ABC123.htm", phone.getProfileName());
+        assertEquals("snom360-ABC123.htm", phone.getProfileName());
     }
 }
