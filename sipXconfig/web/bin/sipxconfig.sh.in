@@ -116,17 +116,17 @@ databaseCommand() {
 
     databaseCheck
 
-    echo $$ > ${PidFile}
-
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \
         ${LibDir}/*.jar`
 
+    echo "*** Optional check for tools.jar, OK if not found..."
     $JavaCmd \
         -Djava.net.preferIPv4Stack=true \
         -classpath $Classpath \
         org.apache.tools.ant.launch.Launcher \
         -emacs \
+        -quiet \
         -Dlib.dir=${LibDir} \
         -Dlog.dir=${LogDir} \
         -Dtmp.dir=${TmpDir} \

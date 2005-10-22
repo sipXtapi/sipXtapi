@@ -18,27 +18,31 @@
             Group: <span jwcid="groupFilter"/>
             <span jwcid="@checkboxes:CheckboxGroup">
 			<table jwcid="phoneTableView" class="component" id="phone:list">
-                <span jwcid="PhoneColumnValue">
-                    <a href="#" jwcid="editPhoneLink"><span jwcid="phoneLabel">serial number</span></a>
-                </span>
-                <span jwcid="LinesColumnValue">
-                    <span jwcid="editLines">
-                        <a href="#" jwcid="lineLink"><span jwcid="lineLabel">line</span></a>
-                    </span>
-                </span>
-				<tr class="component-hdr">
-					<td width="5"><span jwcid="@checkboxes:ControlCheckbox"/></td>
-					<td jwcid="phoneColumns"/>
-				</tr>
-				<tr jwcid="phoneRows">
-                    <td><span jwcid="selectedRow"/></td>
-					<td jwcid="phoneValues"/>                    
-				</tr>
+				<thead>
+                    <tr>
+						<th width="5"><span jwcid="@checkboxes:ControlCheckbox"/></th>
+						<th jwcid="phoneColumns"/>
+                    </tr>
+				</thead>
                 <tfoot>
                     <tr>
                         <td colspan="5"><span jwcid="@contrib:TableFormPages"/></td>
                     </tr>
                 </tfoot>
+                <tbody>
+	                <span jwcid="PhoneColumnValue">
+	                    <a href="#" jwcid="editPhoneLink"><span jwcid="phoneLabel">serial number</span></a>
+	                </span>
+	                <span jwcid="LinesColumnValue">
+	                    <span jwcid="editLines">
+	                        <a href="#" jwcid="lineLink"><span jwcid="lineLabel">line</span></a>
+	                    </span>
+	                </span>
+					<tr jwcid="phoneRows">
+    	                <td><span jwcid="selectedRow"/></td>
+						<td jwcid="phoneValues"/>                    
+					</tr>
+                </tbody>
 			</table>
             </span>
 			<ul class="component-submit">

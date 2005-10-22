@@ -130,6 +130,13 @@
       <value>5130</value>
       <description>The IP port on which the presence server listens to SIP messages.</description>
     </setting>		
+    <setting name="SIP_PRESENCE_DOMAIN_NAME" hidden="yes">
+      <label>Presence server location</label>
+      <!-- treat as read-only: we are taking this from sipxpresence-config and not from sipxpresence-config.in -->
+      <profileName>sipxpresence-config</profileName>
+      <value></value>
+      <description>Presence server location. Used when generating presence server aliases.</description>
+    </setting>
   </group>
   <group name="Logging">
     <setting name="SIP_AUTHPROXY_LOG_LEVEL">

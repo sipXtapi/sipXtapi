@@ -79,7 +79,9 @@
 		<copy todir="${dest.dir}${sipxpbx.conf.dir}">
 			<fileset dir="etc">
 				<include name="**/*"/>
-				<exclude name="cisco/syncinfo.xml"/> <!-- goes into tftp root, see below -->
+				<!-- goes into tftp root, see below -->
+				<exclude name="cisco/syncinfo.xml"/> 
+				<exclude name="cisco/sipx7912.logo"/>
 		    </fileset>
 	    </copy>    	
 
@@ -148,6 +150,7 @@
     <mkdir dir="${dest.dir}${sipxpbx.log.dir}"/>	
 	
 	<copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/cisco/syncinfo.xml"/>
+  	<copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/cisco/sipx7912.logo"/>
 
     </target>
 	

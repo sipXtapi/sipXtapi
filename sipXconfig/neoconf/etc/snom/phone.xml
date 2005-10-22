@@ -559,7 +559,7 @@
         <setting name="challenge_response">
           <label>Challenge Response on phone</label>
           <type refid="on-off"/>
-          <value>on</value>
+          <value>off</value>
           <description>Show password dialog for challenges</description>
         </setting>
         <setting name="cmc_feature">
@@ -1636,6 +1636,14 @@
           </type>
           <value/>
           <description>Password for authentication against the server.</description>
+        </setting>
+        <setting name="user_mailbox">
+          <label>Mailbox</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Number to internal voice mail system.</description>
         </setting>
       </group>
     </group>

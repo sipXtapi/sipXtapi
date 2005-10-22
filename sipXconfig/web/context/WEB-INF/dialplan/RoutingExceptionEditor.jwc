@@ -15,7 +15,7 @@
     <parameter name="deleteListener"
     	type="org.apache.tapestry.IActionListener"
     	required="yes"
-    	direction="in"
+    	direction="auto"
     />
     
     <parameter name="gateways"

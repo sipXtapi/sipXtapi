@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
+import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
@@ -330,6 +331,8 @@ public class GrandstreamPhone extends Phone {
     }
 
     public void restart() {
-        sendCheckSyncToFirstLine();
+        // Grandstream does not let third-party software restart their phones
+        throw new RestartException(
+                "Grandstream phones cannot be restarted remotely, except by Grandstream's GAPSLITE product");
     }
 }

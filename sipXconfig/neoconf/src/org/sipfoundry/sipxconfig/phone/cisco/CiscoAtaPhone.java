@@ -58,6 +58,8 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     private static final String SIP_PORT_SETTING = "sip/SIPPort";
     
+    private static final String UPGRADE_SETTING_GROUP = "upgrade";
+    
     private static final Log LOG = LogFactory.getLog(CiscoAtaPhone.class);
 
     private static final SettingFilter S_REALGROUPS = new SettingFilter() {
@@ -244,7 +246,7 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     public String getSoftwareUpgradeConfig() {
-        Setting swupgrade = getSettings().getSetting("upgrade");
+        Setting swupgrade = getSettings().getSetting(UPGRADE_SETTING_GROUP);
 
         if (swupgrade == null) {
             return StringUtils.EMPTY;
@@ -267,7 +269,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             return StringUtils.EMPTY;
         }
 
-        Setting logoupgrade = getSettings().getSetting("upgradelogo");
+        Setting logoupgrade = getSettings().getSetting(UPGRADE_SETTING_GROUP);
 
         if (logoupgrade == null) {
             return StringUtils.EMPTY;
