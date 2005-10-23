@@ -30,24 +30,17 @@
     <property-specification name="coreContext"
         type="org.sipfoundry.sipxconfig.common.CoreContext"
         initial-value="page.global.coreContext"/>
-    <property-specification name="tableModel"
-        type="org.sipfoundry.sipxconfig.site.user.UserTableModel"
-        persistent="yes"
-        initial-value="beans.userTableModel"/>
 	<!--
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-    <bean name="userTableModel" class="org.sipfoundry.sipxconfig.site.user.UserTableModel" lifecycle="page">
-        <set-property name="coreContext" expression="page.global.coreContext"/>
-        <set-property name="pageSize" expression="page.visit.tablePageSize"/>
-        <set-property name="component" expression="getThis()"/>        
-    </bean>
 	<!--
 	  - C O M P O N E N T S
 	  -->
 	<component id="userTable" type="contrib:TableView">
-        <binding name="tableModel" expression="beans.userTableModel.wrappedTableModel"/>
+        <static-binding name="columns" value="userName,firstName,lastName,aliases:aliasesString"/>
+        <binding name="pageSize" expression="page.visit.tablePageSize"/>
+        <binding name="source" expression="tableModel"/>
         <static-binding name="initialSortColumn" value="userName"/>
 	</component>
 	<component id="userColumns" type="contrib:TableColumns">
