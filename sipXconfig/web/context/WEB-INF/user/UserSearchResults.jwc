@@ -16,6 +16,12 @@
         required="yes"
         direction="auto">
     </parameter>
+    <parameter name="groupId" 
+        type="java.lang.Integer"
+        required="no" 
+        direction="in"
+        default-value="null"/>
+    
     <!--
       - P R O P E R T I E S
       -->
@@ -26,9 +32,6 @@
     <property-specification name="coreContext"
         type="org.sipfoundry.sipxconfig.common.CoreContext"
         initial-value="page.global.coreContext"/>
-    <!-- not used but abstract on base class -->
-    <property-specification name="tableModel"
-        type="org.sipfoundry.sipxconfig.site.user.UserTableModel"/>
     <!--
       - B E A N S
       -->
@@ -38,7 +41,7 @@
       -->
     <component id="userTable" type="contrib:TableView">
 		<binding name="source" expression="users"/>
-		<static-binding name="columns" value="* userName:userName,lastName:lastName,firstName:firstName,aliases:aliasesString"/>
+		<static-binding name="columns" value="* userName,lastName,firstName,aliases:aliasesString"/>
 		<static-binding name="initialSortColumn" value="lastName"/>
 		<static-binding name="pageSize" value="-1"/>
     </component>
