@@ -27,7 +27,7 @@
 
 // DEFINES
 /** sipXtapi can be configured to expire after a certain date */
-#define SIPXTAPI_EVAL_EXPIRATION 
+//#define SIPXTAPI_EVAL_EXPIRATION 
 
 #ifdef SIPXTAPI_EVAL_EXPIRATION
 #  define EVAL_EXPIRE_MONTH     9
