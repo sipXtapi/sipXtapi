@@ -14,7 +14,6 @@
 // APPLICATION INCLUDES
 #include "OrbitListener.h"
 #include "ParkedCallObject.h"
-#include "os/OsWriteLock.h"
 #include <tao/TaoMessage.h>
 #include <tao/TaoString.h>
 #include <cp/CallManager.h>
@@ -41,7 +40,6 @@
 
 // Constructor
 OrbitListener::OrbitListener(CallManager* callManager)
-   : mRWMutex(OsRWMutex::Q_PRIORITY)
 {
    mpCallManager = callManager;
 }
@@ -88,10 +86,17 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
          case PtEvent::CONNECTION_ESTABLISHED:
             if (localConnection) 
             {
-               OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - Call connected: callId %s", callId.data());
+               OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - Call connected: callId %s, address: %s",
+                             callId.data(), address.data());
 
-               ParkedCallObject* pThisCall = findEntry(callId);
-
+               ParkedCallObject* pThisCall = NULL;
+               UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mCalls.findValue(&callId));
+               
+               if (container != NULL)
+               {
+                  pThisCall = (ParkedCallObject *) container->getValue();
+               }
+               
                if (pThisCall == NULL)
                {
                   //
@@ -101,12 +106,15 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                   if (validateOrbitRequest(callId, address, audio) == OS_SUCCESS)
                   {
                      pThisCall = new ParkedCallObject(mpCallManager, callId, audio);
+                     pThisCall->setAddress(address);
 
                      // Create a player and start to play out the file
                      if (pThisCall->playAudio() == OS_SUCCESS)
                      {
-                        // Put it in a sorted list
-                        insertEntry(callId, pThisCall);
+                        // Put it in a list
+                        mCalls.insertKeyAndValue(new UtlString(callId), new UtlVoidPtr(pThisCall));
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG, "OrbitListener::handleMessage insert call object %p to the list",
+                                      pThisCall);
                      }
                      else
                      {
@@ -131,6 +139,8 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                   //
                   // Second leg of transfer.
                   //
+                  OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - change the call address from %s to %s",
+                                pThisCall->getAddress().data(), address.data());
                   pThisCall->setAddress(address);
                }
             }
@@ -141,22 +151,29 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
          case PtEvent::CONNECTION_DISCONNECTED:
             if (!localConnection)
             {
-               OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - Call Dropped: %s\n", callId.data());
+               OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - Call Dropped: callId %s, address: %s",
+                             callId.data(), address.data());
 
                // See if the callId is in our list and if the address matches.
-               ParkedCallObject* pDroppedCall = findEntry(callId);
+               UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mCalls.findValue(&callId));
+               ParkedCallObject* pDroppedCall = (ParkedCallObject *) container->getValue();
+               OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - found call object %p for %s\n",
+                             pDroppedCall, callId.data());
                if (pDroppedCall == NULL)
                {
                   OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::handleMessage - No callId %s founded in the active call list\n",
                                 callId.data());
                }
-               else if (pDroppedCall->getAddress() == address)
+               else if (address.compareTo(pDroppedCall->getAddress()) == 0)
                {
                   // Remove the call from the pool and clean up the call
-                  pDroppedCall = removeEntry(callId);
+                  mCalls.destroy(&callId);
+   
                   pDroppedCall->cleanUp();
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG, "OrbitListener::handleMessage remove call object %p from the list",
+                                pDroppedCall);
                   delete pDroppedCall;
-
+   
                   // Drop the call
                   mpCallManager->drop(callId);
                }
@@ -288,73 +305,6 @@ void OrbitListener::dumpTaoMessageArgs(unsigned char eventId, TaoString& args)
 }
 
 
-ParkedCallObject* OrbitListener::findEntry(UtlString& rKey)
-{
-   OsWriteLock lock(mRWMutex);
-   ActiveCall  lookupPair(rKey);
-   ActiveCall* pEntry;
-   unsigned int i = mCalls.index(&lookupPair);
-   if (i == UTL_NOT_FOUND)
-   {
-      return NULL;
-   }
-   else
-   {
-      pEntry = (ActiveCall *)mCalls.at(i);
-      return pEntry->getCallObject();
-   }
-}
-
-
-void OrbitListener::insertEntry(UtlString& rKey, ParkedCallObject* newObject)
-{
-   OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::insertEntry - Putting %p into the call pool for callId %s\n",
-                 newObject, rKey.data());
-
-   OsWriteLock lock(mRWMutex);
-   ActiveCall  tempEntry(rKey, newObject);
-   ActiveCall* pOldEntry;
-   unsigned int       i;
-   i = mCalls.index(&tempEntry);
-   if (i != UTL_NOT_FOUND)
-   {
-      // We already have an entry with this key
-      pOldEntry = (ActiveCall *)mCalls.at(i);
-      OsSysLog::add(FAC_ACD, PRI_WARNING, "OrbitListener::insertEntry - FOUND %s\n", rKey.data());
-osPrintf("insertEntry - Duplicate CallID: %s\n", rKey.data());
-   }
-   else
-   {
-      ActiveCall* pNewEntry = new ActiveCall(rKey, newObject);
-      mCalls.insert(pNewEntry);
-
-      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::insertEntry - Inserted %s\n", rKey.data());
-   }
-}
-
-
-ParkedCallObject* OrbitListener::removeEntry(UtlString& rKey)
-{
-   OsWriteLock lock(mRWMutex);
-   ActiveCall  lookupPair(rKey);
-   ActiveCall* pEntryToRemove;
-   unsigned int i = mCalls.index(&lookupPair);
-   if (i == UTL_NOT_FOUND)
-   {
-      return NULL;
-   }
-   else
-   {
-      pEntryToRemove = (ActiveCall *)mCalls.at(i);
-      ParkedCallObject* pObject = pEntryToRemove->getCallObject();
-      mCalls.removeAt(i);
-      delete pEntryToRemove;
-
-      OsSysLog::add(FAC_ACD, PRI_DEBUG, "OrbitListener::remove - Removed CallObject %p\n", pObject);
-
-      return pObject;
-   }
-}
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
