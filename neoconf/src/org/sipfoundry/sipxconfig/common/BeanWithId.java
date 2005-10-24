@@ -11,10 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.Transformer;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
  * BeanWithId - simplify implementation of the model layer
@@ -43,10 +45,11 @@ public class BeanWithId implements Cloneable, PrimaryKeySource {
     public Integer getId() {
         return m_id;
     }
-    
+
     /**
-     * Checks if the object has been saved to the database
-     * Works because hibernate changes id when the object is saved
+     * Checks if the object has been saved to the database Works because hibernate changes id when
+     * the object is saved
+     * 
      * @return true if the object has never been saved
      */
     public boolean isNew() {
@@ -90,8 +93,8 @@ public class BeanWithId implements Cloneable, PrimaryKeySource {
     /**
      * Assigns a unique id to a newly created object.
      * 
-     * For testing only.  Most objects are created with id -1 and hibernate sets a proper id.
-     * We want to be able to set the id to a unique value in tests.
+     * For testing only. Most objects are created with id -1 and hibernate sets a proper id. We
+     * want to be able to set the id to a unique value in tests.
      * 
      * @return the same object - to allow for chaining calls
      */
@@ -107,8 +110,22 @@ public class BeanWithId implements Cloneable, PrimaryKeySource {
         }
     }
 
+    public static final class IdToBean implements Transformer {
+        private final HibernateTemplate m_template;
+        private final Class m_klass;
+
+        public IdToBean(HibernateTemplate template, Class klass) {
+            m_template = template;
+            m_klass = klass;
+        }
+
+        public Object transform(Object input) {
+            return m_template.load(m_klass, (Serializable) input);
+        }
+    }
+
     /**
-     * Implementation of PrimaryKeySource 
+     * Implementation of PrimaryKeySource
      */
     public Object getPrimaryKey() {
         return getId();

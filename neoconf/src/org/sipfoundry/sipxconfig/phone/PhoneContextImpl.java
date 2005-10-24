@@ -312,4 +312,12 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
                 "userId", userId);
         return users;
     }
+
+    public void addToGroup(Integer groupId, Collection ids) {
+        DaoUtils.addToGroup(getHibernateTemplate(), groupId, Phone.class, ids);
+    }
+
+    public void removeFromGroup(Integer groupId, Collection ids) {
+        DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, Phone.class, ids);
+    }
 }
