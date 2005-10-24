@@ -38,7 +38,7 @@
 	  - C O M P O N E N T S
 	  -->
 	<component id="userTable" type="contrib:TableView">
-        <static-binding name="columns" value="userName,firstName,lastName,aliases:aliasesString"/>
+        <static-binding name="columns" value="* userName,firstName,lastName,aliases:aliasesString"/>
         <binding name="pageSize" expression="page.visit.tablePageSize"/>
         <binding name="source" expression="tableModel"/>
         <static-binding name="initialSortColumn" value="userName"/>
