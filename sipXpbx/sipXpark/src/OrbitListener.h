@@ -16,10 +16,8 @@
 
 // APPLICATION INCLUDES
 #include <tao/TaoAdaptor.h>
-//#include <mp/MpStreamPlaylistPlayer.h>
-#include <ActiveCall.h>
-#include <utl/UtlSortedList.h>
-#include <os/OsRWMutex.h>
+#include <ParkedCallObject.h>
+#include <utl/UtlHashMap.h>
 
 // DEFINES
 #define ORBIT_CONFIG_FILE     "orbits.xml"
@@ -84,10 +82,7 @@ private:
 
     CallManager* mpCallManager;
 
-    UtlSortedList mCalls;
-
-    /** reader/writer lock for synchronization */
-    OsRWMutex mRWMutex;
+    UtlHashMap mCalls;
 };
 
 /* ============================ INLINE METHODS ============================ */

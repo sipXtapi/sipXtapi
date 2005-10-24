@@ -27,12 +27,10 @@ sipxpark_SOURCES =  \
    ../../config/sipxpbx-buildstamp.cpp \
 	main.cpp \
 	OrbitListener.cpp \
-	ActiveCall.cpp \
 	ParkedCallObject.cpp
 
 noinst_HEADERS = \
 	OrbitListener.h \
-	ActiveCall.h \
 	ParkedCallObject.h
 
 install-exec-hook :
