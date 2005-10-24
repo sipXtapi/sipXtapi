@@ -36,11 +36,11 @@ public class ConfigGeneratorTest extends XMLTestCase {
         DialPlanContext empty = (DialPlanContext) controlPlan.getMock();
         empty.getGenerationRules();
         controlPlan.setReturnValue(Collections.EMPTY_LIST);
-        controlPlan.replay();        
-        
+        controlPlan.replay();
+
         EmergencyRouting er = new EmergencyRouting();
-        
-        ConfigGenerator generator = new ConfigGenerator();        
+
+        ConfigGenerator generator = new ConfigGenerator();
         generator.generate(er);
         generator.generate(empty);
         checkConfigFileGeneration(generator, new AuthRules(), ConfigFileType.AUTH_RULES);
@@ -50,8 +50,8 @@ public class ConfigGeneratorTest extends XMLTestCase {
     }
 
     /**
-     * Execute test for a single configuration type. Tries to generate it
-     * directly and generate pretty formatted text through generator.
+     * Execute test for a single configuration type. Tries to generate it directly and generate
+     * pretty formatted text through generator.
      */
     private void checkConfigFileGeneration(ConfigGenerator generator, XmlFile configFile,
             ConfigFileType type) throws Exception {
@@ -61,33 +61,39 @@ public class ConfigGeneratorTest extends XMLTestCase {
         String xml = generator.getFileContent(type);
         assertXMLEqual("Comparing: " + type, writer.getBuffer().toString(), xml);
     }
-    
+
     public void testActivate() throws Exception {
         MockControl controlPlan = MockControl.createStrictControl(DialPlanContext.class);
         DialPlanContext empty = (DialPlanContext) controlPlan.getMock();
         empty.getGenerationRules();
         controlPlan.setReturnValue(Collections.EMPTY_LIST);
-        controlPlan.replay();        
+        controlPlan.replay();
         ConfigGenerator generator = new ConfigGenerator();
         generator.generate(empty);
         File x = File.createTempFile("test", "in");
         String tmpDir = x.getParent();
         x.deleteOnExit();
-        generator.activate(tmpDir);
-        
+
         File[] files = new File[3];
         files[0] = new File(tmpDir, "mappingrules.xml.in");
         files[1] = new File(tmpDir, "fallbackrules.xml.in");
         files[2] = new File(tmpDir, "authrules.xml.in");
-        
+        files[2].createNewFile(); // will use to test backup
+
+        generator.activate(tmpDir);
+
         for (int i = 0; i < files.length; i++) {
             File file = files[i];
-            assertTrue( file.canRead() );
+            assertTrue(file.canRead());
             FileInputStream stream = new FileInputStream(file);
-            assertEquals( '<', stream.read() );
+            assertEquals('<', stream.read());
             stream.close();
             file.deleteOnExit();
         }
+
+        File backup = new File(tmpDir, "authrules.xml.in.~");
+        assertTrue(backup.exists());
+
         controlPlan.verify();
     }
 }
