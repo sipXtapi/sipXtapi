@@ -15,10 +15,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
-import org.apache.tapestry.contrib.table.model.ITableModel;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
@@ -33,16 +32,9 @@ import org.sipfoundry.sipxconfig.site.line.EditLine;
  * List all the phones/phones for management and details drill-down
  */
 public abstract class ManagePhones extends BasePage implements PageRenderListener {
-
     public static final String PAGE = "ManagePhones";
 
-    private static final String TABLE_MODEL_BEAN = "phoneTableModel";
-
     /** model of the table */
-    public abstract void setPhones(Collection phones);
-
-    public abstract Collection getPhones();
-
     public abstract SelectMap getSelections();
 
     public abstract void setSelections(SelectMap selected);
@@ -55,14 +47,8 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public abstract void setGroupId(Integer groupId);
 
-    public ITableModel getWrappedTableModel() {
-        PhoneTableModel model = (PhoneTableModel) getBeans().getBean(TABLE_MODEL_BEAN);
-        model.setGroupId(getGroupId());
-        return model.getWrappedTableModel();
-    }
-
-    public IComponent getThis() {
-        return this;
+    public IBasicTableModel getTableModel() {
+        return new PhoneTableModel(getPhoneContext(), getGroupId());
     }
 
     /**
@@ -140,7 +126,6 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
         setIdConverter(new PhoneDataSqueezer(phoneContext));
 
         // Generate the list of phone items
-        setPhones(phoneContext.loadPhones());
         if (getSelections() == null) {
             setSelections(new SelectMap());
         }

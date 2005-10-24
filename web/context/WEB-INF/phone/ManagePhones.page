@@ -5,7 +5,6 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="phones" type="java.util.Collection"/>
 	<property-specification name="currentRow" 
 		type="org.sipfoundry.sipxconfig.phone.Phone"/>
 	<property-specification name="groupId"
@@ -24,19 +23,15 @@
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-    <bean name="phoneTableModel" class="org.sipfoundry.sipxconfig.site.phone.PhoneTableModel" lifecycle="page">
-        <set-property name="phoneContext" expression="page.global.phoneContext"/>
-        <set-property name="pageSize" expression="page.visit.tablePageSize"/>
-        <set-property name="component" expression="getThis()"/>        
-    </bean>
 	<!--
 	  - C O M P O N E N T S
 	  -->
 	<component id="phoneManagement" type="Form">
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
-		<binding name="tableModel" expression="wrappedTableModel"/>
-        <binding name="tableSessionStateManager" expression="@org.apache.tapestry.contrib.table.model.common.NullTableSessionStateManager@NULL_STATE_MANAGER"/>
+        <static-binding name="columns" value="* serialNumber,lines,modelId:model.label,description"/>
+        <binding name="source" expression="tableModel"/>
+        <binding name="pageSize" expression="page.visit.tablePageSize"/>
 	</component>
 	<component id="phoneColumns" type="contrib:TableColumns">
 	</component>
@@ -55,7 +50,7 @@
         <binding name="selected" expression="selections.selected[currentRow.primaryKey]"/>
     </component>
     <!-- Column 2: edit phone -->
-    <component id="PhoneColumnValue" type="Block"/>
+    <component id="serialNumberColumnValue" type="Block"/>
     <component id="editPhoneLink" type="DirectLink">
         <binding name="listener" expression="listeners.editPhone"/>
         <binding name="parameters" expression="currentRow.primaryKey"/>
@@ -64,7 +59,7 @@
         <binding name="value" expression="currentRow.serialNumber"/>
     </component>
     <!-- Column 3: edit lines -->
-    <component id="LinesColumnValue" type="Block"/>
+    <component id="linesColumnValue" type="Block"/>
     <component id="editLines" type="Foreach">
         <binding name="source" expression="currentRow.lines"/>
         <binding name="value" expression="currentLine"/>
