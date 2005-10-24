@@ -83,6 +83,7 @@ RpmLibraryProjects="\
 setConfigureSwitches()
 {
     ConfigureSwitches=""
+    UsedLabels=""
     for bl in `echo ${BuildLabel} | sed 's/,/ /g'`
     do
         ConfigureSwitchFile="meta/${bl}.configure-switches"
@@ -98,12 +99,15 @@ setConfigureSwitches()
            ## and that didn't work for me - may have to be put back in
            ## to evaluate variables in the switches
             Switch=$SwitchExpression
-            
-            ConfigureSwitches="$ConfigureSwitches $Switch"
+            UsedLabels="${UsedLabels} ${bl}"
+            # using the echo command forces all the switches onto one line
+            ConfigureSwitches="$ConfigureSwitches `echo $Switch`"
         else
             echo "Build label '$bl' not defined - no file '${ConfigureSwitchFile}' found." 1>&2
         fi
     done
+    echo "      Using labels:             ${UsedLabels:-(none)}"
+    echo "      Using configure switches: ${ConfigureSwitches:-(none)}"
 }
 
 ## I N C R E M E N T A L
@@ -116,14 +120,14 @@ incrementalBuild()
 
     Success=false
     echo "Building $Project"
-    pushd $Project || return 1
+    pushd $Project > /dev/null || return 1
 
     setConfigureSwitches 
 
     if autoreconf --install --force
     then
         mkbuilddir build
-        cd build
+        cd build > /dev/null
         if ../configure $ConfigureSwitches --prefix $Destination
         then
             if make -s 
@@ -138,7 +142,7 @@ incrementalBuild()
             fi
         fi
     fi
-    popd
+    popd > /dev/null
 
     if test "$Success" = "true"
     then
@@ -170,14 +174,14 @@ tarBuild()
 
     Success=false
     echo "Building $Project tarball"
-    pushd $Project || return 1
+    pushd $Project > /dev/null || return 1
 
     setConfigureSwitches 
 
     if autoreconf --force --install
     then
         mkbuilddir build
-        cd build
+        cd build > /dev/null
         if ../configure $ConfigureSwitches --prefix $Destination
         then
             if make -s dist
@@ -186,7 +190,7 @@ tarBuild()
             fi
         fi
     fi
-    popd
+    popd > /dev/null
 
     if test "$Success" = "true"
     then
@@ -210,14 +214,14 @@ distributionBuild()
 
     Success=false
     echo "Building $Project distribution"
-    pushd $Project || return 1
+    pushd $Project > /dev/null || return 1
 
     setConfigureSwitches 
 
     if autoreconf --force --install
     then
         mkbuilddir build
-        cd build
+        cd build > /dev/null
         if ../configure $ConfigureSwitches --prefix $Destination
         then
             if make -s dist
@@ -229,7 +233,7 @@ distributionBuild()
                 tar -xvzf $TarBall --directory=$Staging
     
                 # standard make/install
-                pushd $Staging/$TarDir
+                pushd $Staging/$TarDir > /dev/null
                 # override install dir for apache modules to avoid need for sudo
                 if ./configure $ConfigureSwitches --prefix $Destination
                 then
@@ -244,11 +248,11 @@ distributionBuild()
                         fi
                     fi
                 fi
-                popd
+                popd > /dev/null
             fi
         fi
     fi
-    popd
+    popd > /dev/null
 
     if test "$Success" = "true"
     then
@@ -297,7 +301,7 @@ rpmBuild()
 
     Success=false
     echo "Building $Project RPM"
-    pushd $Project || return 1
+    pushd $Project > /dev/null || return 1
 
     setConfigureSwitches
 
@@ -316,7 +320,7 @@ rpmBuild()
     if autoreconf --force --install
     then
         mkbuilddir build
-        cd build
+        cd build > /dev/null
         if ../configure $ConfigureSwitches
         then
             if make -s rpm
@@ -351,7 +355,7 @@ rpmBuild()
             fi
         fi
     fi
-    popd
+    popd > /dev/null
 
     if test "$Success" = "true"
     then
@@ -683,7 +687,7 @@ Options are:
      none              Incrementally build every project. Must have rw access 
                        to destination directory. destination is required.
                        In an incremental build, if a project build fails, the
-                       default action is to clean it an retry the build; it
+                       default action is to clean it and retry the build; it
                        is only considered a failure if this second attempt
                        fails (see --failfast).
 
@@ -750,7 +754,6 @@ Options are:
                        separated values ( --label foo,bar ).
                        The labels default to the environment variable \$BuildLabel 
                        if it is defined.
-
 USAGE
 
 exit
