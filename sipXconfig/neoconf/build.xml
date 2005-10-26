@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--  -->
 
-<project name="neoconf" default="default" basedir=".">
+<project name="neoconf" default="default">
 	<property name="sipxconfig.db.pds" value="SIPXCONFIG_TEST"/>
 	<property name="sipxconfig.db.user" value="postgres"/>
 	

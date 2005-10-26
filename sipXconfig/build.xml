@@ -1,4 +1,4 @@
-<project name="sipxconfig" default="default" basedir="." >
+<project name="sipxconfig" default="default">
  
   <condition property="build.properties">
     <available file="${basedir}/top.build.dir"/>
