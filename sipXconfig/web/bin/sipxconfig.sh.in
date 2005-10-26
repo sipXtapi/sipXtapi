@@ -236,7 +236,9 @@ postgresSetup() {
 
   # Set up the server.
   Service=`postgresService`
-  ${ServiceDir}/${Service} stop 2> /dev/null
+
+  # May not by running, so eat up error (ENG-314)
+  ${ServiceDir}/${Service} stop 2>&1 1> /dev/null
 
   # Custom
   if test -z $PGDATA
