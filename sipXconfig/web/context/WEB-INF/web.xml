@@ -15,23 +15,17 @@
             classpath*:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml
             classpath*:/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml
-			classpath*:/org/sipfoundry/sipxconfig/conference/conference.beans.xml          
-			classpath*:/org/sipfoundry/sipxconfig/job/job.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/conference/conference.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/job/job.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/login/login.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/phone/phone.beans.xml          
             classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml
             classpath*:/org/sipfoundry/sipxconfig/site/tapestry.xml 
             classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml
-            classpath:org/codehaus/xfire/spring/xfire.xml
-            </param-value>
+        </param-value>
     </context-param>
-    <!-- BEGIN XFIRE -->
-    <context-param>
-      <param-name>log4jConfigLocation</param-name>
-      <param-value>/WEB-INF/log4j.properties</param-value>
-    </context-param>
-    <!-- END XFIRE -->
+
     <filter>
         <filter-name>redirect</filter-name>
         <filter-class>org.apache.tapestry.RedirectFilter</filter-class>
@@ -40,21 +34,30 @@
         <filter-name>redirect</filter-name>
         <url-pattern>/</url-pattern>
     </filter-mapping>
-    <!-- BEGIN XFIRE -->
-    <listener>
-      <listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
-    </listener>
-    <!-- END XFIRE -->
     <listener>
         <listener-class>
             org.sipfoundry.sipxconfig.site.ContextLoaderListener</listener-class>
     </listener>
-    <!-- BEGIN XFIRE -->
+
+    <!-- START AXIS -->
+    <listener>
+        <listener-class>org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
+    </listener>
     <servlet>
-      <servlet-name>service</servlet-name>
-      <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+      <servlet-name>AxisServlet</servlet-name>
+      <servlet-class>
+         org.apache.axis.transport.http.AxisServlet
+      </servlet-class>
     </servlet>
-    <!-- END XFIRE -->
+    <servlet>
+      <servlet-name>AdminServlet</servlet-name>
+      <servlet-class>
+        org.apache.axis.transport.http.AdminServlet
+      </servlet-class>
+      <load-on-startup>100</load-on-startup>
+    </servlet>
+    <!-- END AXIS -->
+
     <servlet>
         <servlet-name>sipXconfig-web</servlet-name>
         <servlet-class>org.apache.tapestry.ApplicationServlet</servlet-class>
@@ -64,12 +67,6 @@
 		<servlet-name>change-pintoken</servlet-name>
 		<servlet-class>org.sipfoundry.sipxconfig.site.user.PinTokenChangeServlet</servlet-class>	    
 	</servlet>
-    <!-- BEGIN XFIRE -->
-    <servlet-mapping>
-      <servlet-name>service</servlet-name>
-      <url-pattern>/service/*</url-pattern>
-    </servlet-mapping>
-    <!-- END XFIRE -->
     <servlet-mapping>
         <servlet-name>sipXconfig-web</servlet-name>
         <url-pattern>/app</url-pattern>
@@ -78,8 +75,33 @@
         <servlet-name>change-pintoken</servlet-name>
         <url-pattern>/api/change-pintoken</url-pattern>
     </servlet-mapping>
+
+    <!-- START AXIS -->
+    <servlet-mapping>
+      <servlet-name>AdminServlet</servlet-name>
+      <url-pattern>/servlet/AdminServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+      <servlet-name>AxisServlet</servlet-name>
+      <url-pattern>/services/*</url-pattern>
+    </servlet-mapping>
+    <!-- END AXIS -->
+
     <!-- Explicitly set session timeout to 15 minutes -->
     <session-config>
         <session-timeout>15</session-timeout>
     </session-config>
+
+    <!-- START AXIS -->
+    <mime-mapping>
+      <extension>wsdl</extension>
+      <mime-type>text/xml</mime-type>
+    </mime-mapping>
+
+    <mime-mapping>
+      <extension>xsd</extension>
+      <mime-type>text/xml</mime-type>
+    </mime-mapping>
+    <!-- END AXIS -->
+
 </web-app>
