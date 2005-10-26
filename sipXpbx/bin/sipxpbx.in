@@ -210,24 +210,25 @@ configtest() { # process-name  process-wd  process-command
     unset BASH_ENV
     
     status=0
-    if [ $iam = @SIPXPBXUSER@ ]
+    if [ -x $proc_cmd ]
     then
-        if [ -x $proc_cmd ]
+        if [ $iam = @SIPXPBXUSER@ ]
         then
-            $proc_cmd --configtest
-            status=$?
+                $proc_cmd --configtest
+                status=$?
+        elif [ $iam = root ]
+        then
+            su @SIPXPBXUSER@ -c \
+              "test -x $proc_cmd && $proc_cmd --configtest; echo \$? > @SIPX_RUNDIR@/$proc_name.result"
+            status=`cat @SIPX_RUNDIR@/$proc_name.result`
+            rm -f @SIPX_RUNDIR@/$proc_name.result
         else
-            echo "configtest: tbd: not found '$proc_cmd'"
+            echo "You must be able to run as @SIPXPBXUSER@" 1>&2
+            exit 1
         fi
-    elif [ $iam = root ]
-    then
-        su @SIPXPBXUSER@ -c \
-          "test -x $proc_cmd && $proc_cmd --configtest; echo \$? > @SIPX_RUNDIR@/$proc_name.result"
-        status=`cat @SIPX_RUNDIR@/$proc_name.result`
-        rm -f @SIPX_RUNDIR@/$proc_name.result
     else
-        echo "You must be able to run as @SIPXPBXUSER@" 1>&2
-        exit 1
+        echo "Installation error? '$proc_cmd' not found" 1>&2
+        status=1
     fi
 
     test $status -eq 0 && echo "    OK"
