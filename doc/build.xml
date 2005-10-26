@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
-<project name="documentation" default="default" basedir=".">
+<project name="documentation" default="default">
 
 	<patternset id="test.classes" excludes="**" />
 

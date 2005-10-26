@@ -9,7 +9,7 @@
   -  Attempts to define targets w/standard target names, but not authorative
   -    standard was used.
   -->
-<project xmlns:ivy="antlib:fr.jayasoft.ivy.ant" name="ant-targets" default="default" basedir="." >
+<project xmlns:ivy="antlib:fr.jayasoft.ivy.ant" name="ant-targets" default="default">
 
   <!-- 
     -  P R O P E R T I E S
