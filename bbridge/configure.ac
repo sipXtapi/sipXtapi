@@ -9,7 +9,7 @@ AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
 
 AC_CONFIG_SRCDIR([src/ConferenceUserAgent.h])
-AM_CONFIG_HEADER([config.h])
+#AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
 # Checks for programs.
