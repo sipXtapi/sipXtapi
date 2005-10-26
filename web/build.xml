@@ -58,15 +58,16 @@
     <pathelement path="${xml-apis.jar}" />
     <pathelement path="${xmlrpc.jar}" />
     <pathelement path="${antlr.jar}" />
-  	<!-- SOAP -->
-  	<pathelement path="${xfire.jar}" />
-  	<pathelement path="${xfire-spring.jar}" />
-  	<pathelement path="${xfire-aegis.jar}" />
-  	<pathelement path="${stax-api.jar}"/>
-  	<pathelement path="${javamail.jar}"/>
-  	<pathelement path="${yom.jar}"/>
-  	<pathelement path="${wsdl4j.jar}"/>
-  	<pathelement path="${stax-dev.jar}"/>
+    <!-- SOAP -->
+    <pathelement path="${jaxrpc.jar}"/>
+    <pathelement path="${javamail.jar}"/>
+    <pathelement path="${axis.jar}"/>
+    <pathelement path="${saaj.jar}"/>
+    <pathelement path="${wsdl4j.jar}"/>
+    <pathelement path="${commons-discovery.jar}"/>
+    <pathelement path="${activation.jar}"/>
+    <pathelement path="${axis-ant.jar}"/>
+    <pathelement path="${axis-schema.jar}"/>
   </path>
 
   <path id="base.path">
@@ -118,6 +119,7 @@
       <classes dir="${classes.dir}" />
       <classes dir="${src.dir}">
         <include name="**/*.xml" />
+        <include name="**/*.wsdl" />
         <include name="**/*.properties" />
       </classes>
       <classes dir="etc">
@@ -177,21 +179,24 @@
       </fileset>
     </copy>
   	
+	<echo>wsdl4j.jar=${wsdl4j.jar}</echo>
+	
     <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
+      <fileset file="${wsdl4j.jar}"/>
       <fileset file="${sipxconfig.war}"/>
       <fileset file="${tapestry.jar}" />
       <fileset file="${tapestry-contrib.jar}" />
       <fileset file="${tapestry-checkboxes.jar}" />
       <fileset file="${ognl.jar}" />
       <!-- SOAP -->
-      <fileset file="${xfire.jar}" />
-      <fileset file="${xfire-spring.jar}" />
-      <fileset file="${xfire-aegis.jar}" />
-      <fileset file="${stax-api.jar}"/>
+      <fileset file="${axis.jar}"/>
+      <fileset file="${saaj.jar}"/>
+      <fileset file="${jaxrpc.jar}"/>
       <fileset file="${javamail.jar}"/>
-      <fileset file="${yom.jar}"/>
-      <fileset file="${wsdl4j.jar}"/>
-      <fileset file="${stax-dev.jar}"/>
+      <fileset file="${commons-discovery.jar}"/>
+      <fileset file="${activation.jar}"/>
+      <fileset file="${axis-ant.jar}"/>
+      <fileset file="${axis-schema.jar}"/>
     </copy>
   </target>	
 	
