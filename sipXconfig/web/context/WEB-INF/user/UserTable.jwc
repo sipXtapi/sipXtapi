@@ -13,13 +13,16 @@
     <parameter name="userListener" 
         type="org.apache.tapestry.IActionListener"
         required="yes" 
-        direction="auto">
-    </parameter>
+        direction="auto"/>
     <parameter name="groupId" 
         type="java.lang.Integer"
         required="yes" 
-        direction="in">
-    </parameter>
+        direction="in"/>
+    <parameter name="searchString" 
+        type="java.lang.String"
+        required="no" 
+        direction="in"
+        default-value="null"/>
     <!--
       - P R O P E R T I E S
       -->

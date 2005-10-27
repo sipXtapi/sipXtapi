@@ -11,7 +11,39 @@
 			</li>
 		</ul>
 		<form jwcid="userManagement">
-            Group: <span jwcid="groupFilter"/>
+			<table>
+				<tr>
+					<td>
+						<span class="settingLabel" jwcid="searchLabel" for="user:searchField"/>
+				    </td>
+					<td>
+						<span id="user:searchField" jwcid="searchField"/>
+				    </td>
+					<td>
+					    <submit id="user:search" jwcid="search" value="Search"/>
+				    </td>
+					<td>
+						<submit id="user:clearSearch" jwcid="clearSearch" value="Clear"/>
+					</td>
+				</tr>
+				<tr>
+					<td/>
+					<td colspan="3">
+						<span class="settingDescription" jwcid="searchDescription"/>
+					</td>
+				</tr>
+			</table>
+			<table>
+				<tr>
+					<td>
+						<span class="settingLabel" jwcid="groupLabel"/>
+				    </td>
+					<td>
+						<span jwcid="groupFilter"/>
+					</td>
+			    </tr>
+			</table>
+			<br/>
 			<span jwcid="userTable" class="component"/>
 			<ul class="component-submit">
 				<li>

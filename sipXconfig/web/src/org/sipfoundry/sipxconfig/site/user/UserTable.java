@@ -33,9 +33,11 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
     public abstract CoreContext getCoreContext();
 
     public abstract Integer getGroupId();
+    
+    public abstract String getSearchString();
 
     public IBasicTableModel getTableModel() {
-        return new UserTableModel(getCoreContext(), getGroupId());
+        return new UserTableModel(getCoreContext(), getGroupId(), getSearchString());
     }
 
     public void pageBeginRender(PageEvent event_) {

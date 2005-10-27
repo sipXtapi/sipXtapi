@@ -135,7 +135,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         template.setUserName("userseed");
         List users = m_core.loadUserByTemplateUser(template);
 
-        assertEquals(6, users.size());
+        assertEquals(7, users.size());
     }
 
     public void testSearchByAlias() throws Exception {
@@ -147,17 +147,6 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(1, users.size());
         User user = (User) users.get(0);
         assertEquals("userseed2", user.getUserName());
-    }
-
-    public void testSearchByAliasNotAllowed() throws Exception {
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
-
-        User template = new User();
-        template.setUserName("two");
-
-        // Pass in false to turn off matching on aliases, so search should return nothing
-        List users = m_core.loadUserByTemplateUser(template, false);
-        assertEquals(0, users.size());
     }
 
     public void testSearchByFirstName() throws Exception {
@@ -317,14 +306,21 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(3, m_core.getUsersInGroupCount(new Integer(1002)));
     }
     
+    public void testCountUsersInGroupWithSearch() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        assertEquals(1, m_core.getUsersInGroupWithSearchCount(new Integer(1001), "pha"));
+        assertEquals(1, m_core.getUsersInGroupWithSearchCount(new Integer(1002), "add"));
+        assertEquals(2, m_core.getUsersInGroupWithSearchCount(new Integer(1003), "l"));
+    }
+    
     public void testLoadUserPage() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage(null, 0, 2, "userName", true);
+        Collection page = m_core.loadUsersByPage(null, null, 0, 2, "userName", true);
         assertEquals(2, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
         
-        Collection next = m_core.loadUsersByPage(null, 2, 2, "userName", true);
+        Collection next = m_core.loadUsersByPage(null, null, 2, 2, "userName", true);
         assertEquals(2, next.size());
         User nextUser = (User) next.iterator().next();
         assertEquals("charlie", nextUser.getUserName());
@@ -333,16 +329,62 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testLoadUserPageDescending() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
         // expect third user from bottom
-        Collection page = m_core.loadUsersByPage(null, 2, 2, "userName", false);
+        Collection page = m_core.loadUsersByPage(null, null, 2, 2, "userName", false);
         User u = (User) page.iterator().next();
         assertEquals("horatio", u.getUserName());
+    }
+
+    public void testLoadUserPageOrderByFirstName() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        // try sorting by last name
+        Collection page = m_core.loadUsersByPage(null, null, 2, 2, "firstName", true);
+        User u = (User) page.iterator().next();
+        assertEquals("kyle", u.getUserName());        
     }
     
     public void testLoadUserPageWithGroup() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage(new Integer(1001), 0, 10, "userName", true);
+        Collection page = m_core.loadUsersByPage(null, new Integer(1001), 0, 10, "userName", true);
         assertEquals(1, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());        
     }
+        
+    public void testLoadUserPageWithUserSearch() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        Collection page = m_core.loadUsersByPage("og", null, 0, 10, "userName", true);
+        assertEquals(6, page.size());
+        User u = (User) page.iterator().next();
+        assertEquals("alpha", u.getUserName());
+        
+        page = m_core.loadUsersByPage("og", null, 2, 2, "userName", true);
+        assertEquals(2, page.size());
+        u = (User) page.iterator().next();
+        assertEquals("elephant", u.getUserName());
+        
+        page = m_core.loadUsersByPage("og", null, 4, 2, "userName", true);
+        assertEquals(2, page.size());
+        u = (User) page.iterator().next();
+        assertEquals("gogo", u.getUserName());
+
+        page = m_core.loadUsersByPage("og", null, 6, 2, "userName", true);
+        assertEquals(0, page.size());
+    }
+    
+    public void testLoadUserPageWithUserSearchAndGroup() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        Collection page = m_core.loadUsersByPage("og", new Integer(1003), 0, 10, "userName", true);
+        assertEquals(1, page.size());
+        User u = (User) page.iterator().next();
+        assertEquals("gogo", u.getUserName());
+    }
+    
+    public void testLoadUserPageWithUserSearchCaseInsensitive() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        Collection page = m_core.loadUsersByPage("mamba", null, 0, 10, "userName", true);
+        assertEquals(1, page.size());
+        User u = (User) page.iterator().next();
+        assertEquals("kyle", u.getUserName());
+    }
+    
 }

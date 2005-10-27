@@ -152,6 +152,7 @@ public final class TestUtil {
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("coreContextImpl.authorizationRealm", realm);
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
+        sysProps.setProperty("replicationTrigger.replicateOnStartup", "false");
     }
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

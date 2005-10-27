@@ -39,11 +39,22 @@ public interface CoreContext extends DataObjectSource, AliasProvider {
     
     public int getUsersInGroupCount(Integer groupId);
     
-    public List loadUsersByPage(Integer groupId, int page, int pageSize, String orderBy, boolean orderAscending);
+    /**
+     * Return the number of users who are both in the group and found by search.
+     * Search matches the searchString against user names, first names, last
+     * names, and aliases.  Matching is case-insensitive and also matches substrings.
+     * For example, the search string "cn" will match the last name "McNamara".
+     * 
+     * @param groupId ID of a group, or null to match all groups
+     * @param searchString string to search with, or null to not search
+     * @return number of users
+     */
+    public int getUsersInGroupWithSearchCount(Integer groupId, String searchString);
+    
+    public List loadUsersByPage(String search, Integer groupId, int page, int pageSize,
+            String orderBy, boolean orderAscending);
 
     public List loadUserByTemplateUser(User template);
-
-    public List loadUserByTemplateUser(User userTemplate, boolean matchUserNameOrAlias);
 
     public User loadUserByUserName(String userName);
 
