@@ -83,7 +83,6 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
-    <component-type type="UserNavigation" specification-path="user/UserNavigation.jwc"/>
     <component-type type="AdminNavigation" specification-path="common/AdminNavigation.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>
@@ -98,6 +97,7 @@
     <component-type type="GatewayForm" specification-path="gateway/GatewayForm.jwc"/>
     <component-type type="GatewaysPanel" specification-path="gateway/GatewaysPanel.jwc"/>
     <component-type type="GatewayTable" specification-path="gateway/GatewayTable.jwc"/>
+    <component-type type="GroupActions" specification-path="phone/GroupActions.jwc"/>
     <component-type type="GroupFilter" specification-path="setting/GroupFilter.jwc"/>
     <component-type type="GroupLabel" specification-path="setting/GroupLabel.jwc"/>
     <component-type type="GroupSelect" specification-path="setting/GroupSelect.jwc"/>
@@ -119,11 +119,12 @@
     <component-type type="SettingsNavigation" specification-path="setting/SettingsNavigation.jwc"/>
     <component-type type="ToggleLink" specification-path="common/ToggleLink.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
+    <component-type type="UserNavigation" specification-path="user/UserNavigation.jwc"/>
     <component-type type="UserPortalNavigation" specification-path="user_portal/UserPortalNavigation.jwc"/>
     <component-type type="UserRingTable" specification-path="admin/UserRingTable.jwc"/>
     <component-type type="UserSearch" specification-path="user/UserSearch.jwc"/>
-    <component-type type="UserTable" specification-path="user/UserTable.jwc"/>
     <component-type type="UserSearchResults" specification-path="user/UserSearchResults.jwc"/>
+    <component-type type="UserTable" specification-path="user/UserTable.jwc"/>
     
     
     <!-- Services -->
