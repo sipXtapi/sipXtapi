@@ -19,5 +19,5 @@ package org.sipfoundry.sipxconfig.api;
  */
 public interface UserService {    
     
-    public void nop();
+    public void hello(String message, String message2);
 }

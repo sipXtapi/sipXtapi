@@ -13,6 +13,6 @@ class UserServiceTestApi < Test::Unit::TestCase
     end
 
 	def test_createUser
-		@userService.nop(:hello =>'hello')
+		@userService.nop()
     end
 end

@@ -14,7 +14,8 @@ package org.sipfoundry.sipxconfig.api;
 
 public class UserServiceImpl implements UserService {
     
-    public void nop() {
-        System.out.print("nop");
+    public void hello(String message, String message2) {
+        System.out.print("got message " + message);
+        System.out.print("got message2 " + message2);
     }
 }
