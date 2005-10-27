@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.phone.GroupActions"
+    allow-body="no"
+    allow-informal-parameters="no">
+    
+    <description>Component presents action to add and remove property groups</description>
+    
+  <parameter name="selectedPhoneIds" 
+  	direction="in" 
+  	required="yes" 
+  	type="java.util.Collection"/>
+  
+  <parameter name="groups" 
+  	direction="in" 
+  	required="yes" 
+  	type="java.util.Collection"/>  
+
+  <property-specification name="selectedGroupId" type="java.lang.Integer"/>
+  
+  <property-specification name="phoneContext" 
+  	type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+  	initial-value="page.global.phoneContext"/>
+  
+  <property-specification name="groupModel" type="org.apache.tapestry.form.IPropertySelectionModel"/>
+  
+  <component id="actionSelection" type="PropertySelection">
+      <binding name="model" expression="groupModel"/>
+      <binding name="submitOnChange" expression="true"/>
+      <binding name="value" expression="selectedGroupId"/>
+  </component>
+</component-specification>

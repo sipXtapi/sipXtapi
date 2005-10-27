@@ -23,10 +23,13 @@
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    
 	<!--
 	  - C O M P O N E N T S
 	  -->
 	<component id="phoneManagement" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
 	</component>
 	<component id="phoneTableView" type="contrib:TableView">
         <static-binding name="columns" value="* serialNumber,lines,modelId:model.label,description"/>
@@ -85,6 +88,10 @@
     </component>
     <component id="groupFilter" type="GroupFilter">
         <binding name="selectedGroupId" expression="groupId"/>
+        <binding name="groups" expression="phoneContext.groups"/>
+    </component>    
+    <component id="groupActions" type="GroupActions">
+        <binding name="selectedPhoneIds" expression="selections.allSelected"/>
         <binding name="groups" expression="phoneContext.groups"/>
     </component>
 </page-specification>
