@@ -47,9 +47,9 @@
 #end	  
 	<else />
 	  <!-- Here is the transfer to a given extension -->
-	  <assign name="action" expr="'transfer'" />
+	  <assign name="operation" expr="'transfer_to_extension'" />
 	  <assign name="extension" expr="menu" />
-	  <goto nextitem="transfertoextn"/>
+	  <goto nextitem="menuaction"/>
 	</if>
       </filled>
       <noinput count="1">
