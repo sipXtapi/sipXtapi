@@ -21,10 +21,12 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 public class UserTableModel implements IBasicTableModel {
     private CoreContext m_coreContext;
     private Integer m_groupId;
+    private String m_searchString;
 
-    public UserTableModel(CoreContext coreContext, Integer groupId) {
+    public UserTableModel(CoreContext coreContext, Integer groupId, String searchString) {
         setCoreContext(coreContext);
         setGroupId(groupId);
+        setSearchString(searchString);
     }
 
     public UserTableModel() {
@@ -36,22 +38,30 @@ public class UserTableModel implements IBasicTableModel {
     }
 
     public int getRowCount() {
-        int count = m_coreContext.getUsersInGroupCount(m_groupId);
+        int count = m_coreContext.getUsersInGroupWithSearchCount(m_groupId, m_searchString);
         return count;
-    }
-
-    public void setGroupId(Integer groupId) {
-        m_groupId = groupId;
     }
 
     public Integer getGroupId() {
         return m_groupId;
     }
 
+    public void setGroupId(Integer groupId) {
+        m_groupId = groupId;
+    }
+
+    public String getSearchString() {
+        return m_searchString;
+    }
+
+    public void setSearchString(String searchString) {
+        m_searchString = searchString;
+    }
+
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
             boolean orderAscending) {
         String orderBy = objSortColumn != null ? objSortColumn.getColumnName() : null;
-        List page = m_coreContext.loadUsersByPage(m_groupId, firstRow, pageSize, orderBy,
+        List page = m_coreContext.loadUsersByPage(m_searchString, m_groupId, firstRow, pageSize, orderBy,
                 orderAscending);
         return page.iterator();
     }

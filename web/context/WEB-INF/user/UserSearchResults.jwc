@@ -21,6 +21,11 @@
         required="no" 
         direction="in"
         default-value="null"/>
+    <parameter name="searchString" 
+        type="java.lang.String"
+        required="no" 
+        direction="in"
+        default-value="null"/>
     
     <!--
       - P R O P E R T I E S

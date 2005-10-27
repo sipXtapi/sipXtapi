@@ -24,9 +24,22 @@ public abstract class ManageUsers extends BasePage {
     
     public static final String PAGE = "ManageUsers";
     private static final String USER_TABLE_COMPONENT_ID = "userTable";
+
     public abstract CoreContext getCoreContext();
-    public abstract void setGroupId(Integer groupId);
+
     public abstract Integer getGroupId();   
+    public abstract void setGroupId(Integer groupId);
+    
+    public abstract String getSearchString();
+    public abstract void setSearchString(String searchString);
+    
+    public void searchUsers(IRequestCycle cycle_) {
+        // do nothing, page should refresh when rendering        
+    }
+    
+    public void clearSearch(IRequestCycle cycle_) {
+        setSearchString(null);
+    }
     
     public void addUser(IRequestCycle cycle) {
         // Prep the NewUser page with a null userId so a new user will be created

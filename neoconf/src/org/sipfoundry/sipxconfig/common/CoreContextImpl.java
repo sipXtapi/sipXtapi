@@ -211,35 +211,18 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     /**
      * Return all users matching the userTemplate example. Empty properties of userTemplate are
-     * ignored in the search. The empty string is effectively a search wildcard. Therefore if you
-     * pass in userTemplate with all properties left empty, the result set contains all users. Set
-     * matchUserNameOrAlias to true to look for userName matches in either the userName or aliases
-     * properties. For example, if you pass in userTemplate with matchUserNameOrAlias set to true,
-     * and userTemplate.userName = "102", then the search will return users with "102" as either
-     * the userName or an alias. Otherwise matching is only done on the userName and aliases are
-     * ignored. Strings are matched with a wildcard at the end. For example, if you pass in
-     * userTemplate.firstName = "jo" then you'll get matches on users with first name = "jo" or
-     * "joe" but not "flojo".
+     * ignored in the search.
+     * The userName property matches either the userName or aliases properties.
      */
-    public List loadUserByTemplateUser(final User userTemplate, final boolean matchUserNameOrAlias) {
+    public List loadUserByTemplateUser(final User userTemplate) {
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
                 UserLoader loader = new UserLoader(session);
-                return loader.loadUsers(userTemplate, matchUserNameOrAlias);
+                return loader.loadUsers(userTemplate);
             }
         };
         List users = getHibernateTemplate().executeFind(callback);
-
-        // Eliminate any duplicates in the list. See http://www.hibernate.org/117.html#A11 --
-        // we can't count on the "distinct" keyword in HQL to fix this, because the query
-        // sometimes uses outer joins.
-        Set usersSet = new HashSet(users);
-        users = new ArrayList(usersSet);
         return users;
-    }
-
-    public List loadUserByTemplateUser(User userTemplate) {
-        return loadUserByTemplateUser(userTemplate, true);
     }
 
     public List loadUsers() {
@@ -254,9 +237,33 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return getBeansInGroupCount(User.class, groupId);
     }
     
-    public List loadUsersByPage(Integer groupId, int firstRow, int pageSize, String orderBy,
-            boolean orderAscending) {
-        return loadBeansByPage(User.class, groupId, firstRow, pageSize, orderBy, orderAscending);
+    public int getUsersInGroupWithSearchCount(final Integer groupId, final String searchString) {
+        int numUsers = 0;
+        if (!StringUtils.isEmpty(searchString)) {
+            HibernateCallback callback = new HibernateCallback() {
+                public Object doInHibernate(Session session) {
+                    UserLoader loader = new UserLoader(session);
+                    return loader.countUsers(searchString, groupId);
+                }
+            };
+            Integer count = (Integer) getHibernateTemplate().execute(callback);
+            numUsers = count.intValue();
+        } else {
+            numUsers = getUsersInGroupCount(groupId);
+        }
+        return numUsers;
+    }
+
+    public List loadUsersByPage(final String search, final Integer groupId, final int firstRow,
+            final int pageSize, final String orderBy, final boolean orderAscending) {
+        HibernateCallback callback = new HibernateCallback() {
+            public Object doInHibernate(Session session) {
+                UserLoader loader = new UserLoader(session);
+                return loader.loadUsersByPage(search, groupId, firstRow, pageSize, orderBy, orderAscending);
+            }
+        };
+        List users = getHibernateTemplate().executeFind(callback);
+        return users;
     }
 
     public void clear() {

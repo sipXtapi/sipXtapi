@@ -25,6 +25,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  */
 public class BeanWithId implements Cloneable, PrimaryKeySource {
     public static final Integer UNSAVED_ID = new Integer(-1);
+    public static final String ID_PROPERTY = "id";
 
     private static int s_id = 1;
 

@@ -15,31 +15,65 @@
 	<property-specification name="groupId"
         persistent="yes" 
 		type="java.lang.Integer"/>
+	<property-specification name="searchString"
+        persistent="yes" 
+		type="java.lang.String"/>
 
     <!--
 	  - B E A N S
 	  -->
         
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    <bean name="noopValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="false"/>
+	    <set-property name="minimumLength" expression="0"/>
+	</bean>    
     
 	<!--
 	  - C O M P O N E N T S
 	  -->
     
-	<component id="userManagement" type="Form"/>
     <component id="addUser" type="PageLink">
         <static-binding name="page" value="NewUser"/>
     </component>
-	<component id="userTable" type="UserTable">
-        <binding name="userListener" expression="listeners.editUser"/>
-        <binding name="groupId" expression="groupId"/>
-	</component>
-    <component id="delete" type="Submit">
-        <binding name="listener" expression="listeners.deleteUsers"/>
+	<component id="userManagement" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+    <component id="searchLabel" type="Insert">
+        <message-binding name="value" key="label.searchField"/>
+    </component>
+    <component id="searchField" type="ValidField">
+        <binding name="value" expression="searchString"/>
+        <binding name="validator" expression="beans.noopValidator"/>
+        <message-binding name="displayName" key="label.search"/>
+    </component>
+    <component id="searchDescription" type="Insert">
+        <message-binding name="value" key="description.searchField"/>
+    </component>
+    <component id="search" type="Submit">
+        <binding name="listener" expression="listeners.searchUsers"/>
+        <message-binding name="label" key="label.search"/>        
+    </component>
+    <component id="clearSearch" type="Submit">
+        <binding name="listener" expression="listeners.clearSearch"/>
+        <message-binding name="label" key="label.clearSearch"/>        
+    </component>
+    <component id="groupLabel" type="Insert">
+        <message-binding name="value" key="label.group"/>
     </component>
     <component id="groupFilter" type="GroupFilter">
         <binding name="selectedGroupId" expression="groupId"/>
         <binding name="groups" expression="coreContext.groups"/>
+    </component>
+	<component id="userTable" type="UserTable">
+        <binding name="userListener" expression="listeners.editUser"/>
+        <binding name="groupId" expression="groupId"/>
+        <binding name="searchString" expression="searchString"/>
+	</component>
+    <component id="delete" type="Submit">
+        <binding name="listener" expression="listeners.deleteUsers"/>
+        <message-binding name="label" key="label.delete"/>        
     </component>
             
 </page-specification>

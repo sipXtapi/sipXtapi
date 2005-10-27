@@ -23,6 +23,7 @@ import org.apache.commons.collections.Transformer;
  * Common code for line, phone, and user information.
  */
 public class BeanWithGroups extends BeanWithSettings {
+    public static final String GROUPS_PROPERTY = "groups";
 
     private Set m_groups = new TreeSet();
 

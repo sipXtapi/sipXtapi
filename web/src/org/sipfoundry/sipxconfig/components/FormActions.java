@@ -28,7 +28,7 @@ public abstract class FormActions extends BaseComponent {
     public abstract String getSuccessMessage();
 
     public void onRefresh(IRequestCycle cycle_) {
-        // do nothing page should refresh when rendering
+        // do nothing, page should refresh when rendering
     }
 
     public void onOk(IRequestCycle cycle) {
