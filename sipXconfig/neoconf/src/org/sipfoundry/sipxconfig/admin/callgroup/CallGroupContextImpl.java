@@ -54,7 +54,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         String extension = callGroup.getExtension();
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
                 QUERY_CALL_GROUP_IDS_WITH_EXTENSION, extension, new ExtensionInUseException(
-                        extension, "hunt group extension"));
+                        "hunt group extension", extension));
 
         getHibernateTemplate().saveOrUpdate(callGroup);
         // activate call groups every time the call group is saved
