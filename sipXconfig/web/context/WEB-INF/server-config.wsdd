@@ -1,7 +1,7 @@
 <deployment xmlns="http://xml.apache.org/axis/wsdd/"
     xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">  
   <handler name="URLMapper" type="java:org.apache.axis.handlers.http.URLMapper"/>
-  <service name="UserService" style="document">
+  <service name="UserService" style="wrapped">
     <parameter name="className" value="org.sipfoundry.sipxconfig.api.UserServiceImpl"/>
     <parameter name="allowedMethods" value="*"/>
     <wsdlFile>org/sipfoundry/sipxconfig/api/UserService.wsdl</wsdlFile>

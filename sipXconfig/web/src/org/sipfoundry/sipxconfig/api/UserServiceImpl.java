@@ -15,7 +15,11 @@ package org.sipfoundry.sipxconfig.api;
 public class UserServiceImpl implements UserService {
     
     public void hello(String message, String message2) {
-        System.out.print("got message " + message);
-        System.out.print("got message2 " + message2);
+        System.out.print("hello message " + message);
+        System.out.print("hello message2 " + message2);
+    }
+
+    public void goodbye(String message) {
+        System.out.print("goodbye message " + message);
     }
 }
