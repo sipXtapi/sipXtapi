@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
@@ -26,7 +27,9 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
@@ -34,11 +37,11 @@ import org.sipfoundry.sipxconfig.site.setting.EditGroup;
  * TestPage page
  */
 public abstract class TestPage extends BasePage {
-
     public static final String PAGE = "TestPage";
 
     public static final int JOBS = 4;
     public static final String EMPTY_STRING = "";
+    public static final int SERIAL_NUM_LEN = 12;
 
     // Data for the primary test user
     // Make sure the username matches SiteTestHelper.java
@@ -191,6 +194,16 @@ public abstract class TestPage extends BasePage {
         }
         jobContext.success(jobIds[2]);
         jobContext.failure(jobIds[JOBS - 1], "something bad happened", null);
+    }
+
+    public void populatePhones(IRequestCycle cycle_) {
+        List availablePhoneModels = getPhoneContext().getAvailablePhoneModels();
+        for (Iterator i = availablePhoneModels.iterator(); i.hasNext();) {
+            PhoneModel model = (PhoneModel) i.next();
+            Phone phone = getPhoneContext().newPhone(model);
+            phone.setSerialNumber(RandomStringUtils.randomNumeric(SERIAL_NUM_LEN));
+            getPhoneContext().storePhone(phone);
+        }
     }
 
     public void login(IRequestCycle cycle) {
