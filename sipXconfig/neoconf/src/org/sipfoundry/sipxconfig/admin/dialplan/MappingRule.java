@@ -160,8 +160,7 @@ public class MappingRule extends DialingRule {
             setPatterns(new String[] {
                 voiceMail
             });
-            setUrl(buildUrl(CallDigits.FIXED_DIGITS, MappingRule.VMAIL_RETRIEVE,
-                    getMailboxParams(CallDigits.FIXED_DIGITS)));
+            setUrl(buildUrl(CallDigits.FIXED_DIGITS, MappingRule.VMAIL_RETRIEVE, null));
         }
 
     }
