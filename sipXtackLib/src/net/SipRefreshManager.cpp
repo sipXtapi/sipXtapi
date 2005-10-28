@@ -404,13 +404,14 @@ UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle)
                 // Reset the request with a zero expiration
                 setForResend(*state,
                              TRUE); // expire now
-                mpUserAgent->send(*(state->mpLastRequest));
 
                 // Don't really need to set this stuff as we are
                 // going to delete the state anyway
                 state->mRequestState = REFRESH_REQUEST_PENDING;
                 state->mPendingStartTime = now;
                 state->mExpirationPeriodSeconds = 0;
+
+                mpUserAgent->send(*(state->mpLastRequest));
 
                 // Invoke the refresh state call back to indicate
                 // the refresh has been expired
@@ -432,6 +433,10 @@ UtlBoolean SipRefreshManager::stopRefresh(const char* dialogHandle)
                     "SipRefreshManager::stopRefresh state with NULL mpLastRequest");
             }
         }
+
+        // Stop and delete the refresh timer
+        state->mpRefreshTimer->stop();
+        deleteTimerAndEvent(state->mpRefreshTimer);
 
         // Get rid of the dialog
         mpDialogMgr->deleteDialog(*state);
@@ -1070,7 +1075,14 @@ void SipRefreshManager::setForResend(RefreshDialogState& state,
         mpDialogMgr->setNextLocalTransactionInfo(*(state.mpLastRequest));
 
         // Set the expiration
-        state.mpLastRequest->setDateField();
+        if (expireNow)
+        {
+           state.mpLastRequest->setExpiresField(0);
+        }
+        else
+        {
+           state.mpLastRequest->setDateField();
+        }
     }
 }
 

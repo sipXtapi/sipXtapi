@@ -178,6 +178,9 @@ bool SipDialogMonitor::addExtension(UtlString& groupName, Url& contactUrl)
       else
       {
          mDialogHandleList.insertKeyAndValue(new UtlString(resourceId), new UtlString(dialogHandle));
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipDialogMonitor::addExtension Added dialogHandle: %s",
+                       dialogHandle.data());
          result = true;
       }
    }
@@ -214,12 +217,15 @@ bool SipDialogMonitor::removeExtension(UtlString& groupName, Url& contactUrl)
       if (resource)
       {
          UtlString* dialogHandle = dynamic_cast <UtlString *> (mDialogHandleList.findValue(&resourceId));
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipDialogMonitor::removeExtension Calling endSubscription(%s)",
+                       dialogHandle->data());
          UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
                   
          if (!status)
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "SipDialogMonitor::unsubscribe Unsubscription failed for %s.",
+                          "SipDialogMonitor::removeExtension Unsubscription failed for %s.",
                           resourceId.data());
          }
 

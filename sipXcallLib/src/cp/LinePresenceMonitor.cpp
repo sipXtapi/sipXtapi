@@ -23,7 +23,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define DEFAULT_REFRESH_INTERVAL      180000
+#define DEFAULT_REFRESH_INTERVAL      300
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -61,7 +61,12 @@ LinePresenceMonitor::LinePresenceMonitor(int userAgentPort,
       // Add itself to the dialog monitor for state change notification
       mpDialogMonitor->addStateChangeNotifier("Line_Presence_Monitor", this);
 
-      presenceServer.getIdentity(mPresenceServer);
+      // Verify that a presence server uri has been specified
+      presenceServer.getHostAddress(mPresenceServer);
+      if (mPresenceServer != NULL)
+      {
+         presenceServer.getIdentity(mPresenceServer);
+      }
    }
    else
    {
@@ -146,9 +151,9 @@ bool LinePresenceMonitor::setStatus(const Url& aor, const Status value)
    aor.getUserId(contact);
    
    UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mSubscribeList.findValue(&contact));
-   LinePresenceBase* line = (LinePresenceBase *) container->getValue();
-   if (line)
+   if (container != NULL)
    {
+      LinePresenceBase* line = (LinePresenceBase *) container->getValue();
       // Set the state value in LinePresenceBase
       switch (value)
       {
@@ -178,20 +183,30 @@ bool LinePresenceMonitor::setStatus(const Url& aor, const Status value)
          }
          
          break;
+      }
+   }
 
-      case StateChangeNotifier::PRESENT:
-         if (!line->getState(LinePresenceBase::PRESENT))
+   // Set the presence status      
+   container = dynamic_cast <UtlVoidPtr *> (mPresenceSubscribeList.findValue(&contact));
+   if (container != NULL)
+   {
+      LinePresenceBase* line = (LinePresenceBase *) container->getValue();
+      // Set the state value in LinePresenceBase
+      switch (value)
+      {
+      case StateChangeNotifier::SIGN_IN:
+         if (!line->getState(LinePresenceBase::SIGNED_IN))
          {
-            line->updateState(LinePresenceBase::PRESENT, true);
+            line->updateState(LinePresenceBase::SIGNED_IN, true);
             result = true;
          }
          
          break;
          
-      case StateChangeNotifier::AWAY:
-         if (line->getState(LinePresenceBase::PRESENT))
+      case StateChangeNotifier::SIGN_OUT:
+         if (line->getState(LinePresenceBase::SIGNED_IN))
          {
-            line->updateState(LinePresenceBase::PRESENT, false);
+            line->updateState(LinePresenceBase::SIGNED_IN, false);
             result = false;
          }
          
@@ -254,7 +269,7 @@ OsStatus LinePresenceMonitor::subscribe(LinePresenceBase* line)
    lineUrl->getUserId(contactId);
    if (!mPresenceServer.isNull())
    {
-      resourceId = contactId + "@" + mPresenceServer;
+      resourceId = contactId + mPresenceServer;
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "LinePresenceMonitor::subscribe Sending out the SUBSCRIBE to contact %s",
                     resourceId.data());
@@ -304,6 +319,11 @@ OsStatus LinePresenceMonitor::unsubscribe(LinePresenceBase* line)
    mLock.acquire();
    Url* lineUrl = line->getUri();
    
+   if (lineUrl == NULL)
+   {
+      return OS_FAILED;
+   }
+
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::unsubscribe unsubscribing for line %s",
                  lineUrl->toString().data());
                   
@@ -344,14 +364,19 @@ OsStatus LinePresenceMonitor::unsubscribe(LinePresenceBase* line)
    
    if (!mPresenceServer.isNull())
    {
+      UtlBoolean status = true;
+
       UtlString* dialogHandle = dynamic_cast <UtlString *> (mDialogHandleList.findValue(&contact));
-      UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
-                  
-      if (!status)
+      if (dialogHandle != NULL)
       {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "LinePresenceMonitor::unsubscribe Unsubscription failed for %s.",
-                       contact.data());
+         UtlBoolean status = mpSipSubscribeClient->endSubscription(dialogHandle->data());
+                  
+         if (!status)
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "LinePresenceMonitor::unsubscribe Unsubscription failed for %s.",
+                          contact.data());
+         }
       }
       
       mDialogHandleList.destroy(&contact);
@@ -426,8 +451,11 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
    Url fromUrl;
    notifyMessage->getFromUrl(fromUrl);
    UtlString contact;
-   fromUrl.getIdentity(contact);
-   
+
+   fromUrl.getUserId(contact);
+
+   contact += mPresenceServer;
+
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::handleNotifyMessage receiving a notify message from %s",
                  contact.data()); 
    
@@ -447,17 +475,25 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
       NetMd5Codec::encode(contact, id);
       Tuple* tuple = sipPresenceEvent->getTuple(id);
       
-      UtlString status;
-      tuple->getStatus(status);
-      
-      Url contactUrl(contact);
-      if (status.compareTo(STATUS_CLOSE) == 0)
+      if (tuple != NULL)
       {
-         setStatus(contactUrl, StateChangeNotifier::AWAY);
+         UtlString status;
+         tuple->getStatus(status);
+      
+         Url contactUrl(contact);
+         if (status.compareTo(STATUS_CLOSE) == 0)
+         {
+            setStatus(contactUrl, StateChangeNotifier::AWAY);
+         }
+         else
+         {     
+            setStatus(contactUrl, StateChangeNotifier::PRESENT);
+         }
       }
       else
-      {     
-         setStatus(contactUrl, StateChangeNotifier::PRESENT);
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::handleNotifyMessage unable to find matching tuple for: %s",
+                       contact.data()); 
       }
       
       delete sipPresenceEvent;

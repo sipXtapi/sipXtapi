@@ -84,6 +84,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpMisc.cpp \
     mp/MpPlayer.cpp \
     mp/MpPlayerEvent.cpp \
+    mp/MpRawAudioBuffer.cpp \
     mp/MprBridge.cpp \
     mp/MprDecode.cpp \
     mp/MprDejitter.cpp \

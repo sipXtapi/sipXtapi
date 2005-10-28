@@ -302,6 +302,8 @@ SipDialogEvent::~SipDialogEvent()
 
 void SipDialogEvent::parseBody(const char* bodyBytes)
 {
+   bool foundDialogs = false;
+
    if(bodyBytes)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::parseBody incoming package = %s\n", 
@@ -309,7 +311,8 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                     
       TiXmlDocument doc("dialogEvent.xml");
       
-      if (doc.Parse(bodyBytes))
+      doc.Parse(bodyBytes);
+      if (!doc.Error())
       {
          TiXmlNode * rootNode = doc.FirstChild ("dialog-info");
         
@@ -333,6 +336,8 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
             {
                UtlString dialogId, callId, localTag, remoteTag, direction;
                
+               foundDialogs = true;
+
                // Get the attributes in dialog
                ucElement = groupNode->ToElement();
                if (ucElement)
@@ -424,7 +429,19 @@ void SipDialogEvent::parseBody(const char* bodyBytes)
                // Insert it into the list
                insertDialog(pDialog);               
             }
+            if (foundDialogs == false)
+            {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::parseBody no dialogs found");
+            }
          }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogEvent::parseBody <dialog-info> not found");
+         }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR, "SipDialogEvent::parseBody xml parsing error");
       }
    }
 }
@@ -716,7 +733,7 @@ void SipDialogEvent::buildBody() const
    ((SipDialogEvent*)this)->mBody = dialogEvent;
    ((SipDialogEvent*)this)->bodyLength = dialogEvent.length();
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::getBytes Dialog content = \n%s", 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipDialogEvent::buildBody Dialog content = \n%s", 
                  dialogEvent.data());
   
    // Increment the version number

@@ -145,4 +145,9 @@ libsipXcall_la_SOURCES = \
     tapi/SipXHandleMap.cpp \
     tapi/SipXMessageObserver.cpp
 
+noinst_HEADERS = \
+    cp/ConfirmationTone.h \
+    cp/DialTone.h \
+    cp/BusyTone.h
+
 DISTCLEANFILES = Makefile.in
