@@ -122,9 +122,14 @@ LinePresenceMonitor::~LinePresenceMonitor()
       delete mpDialogMonitor;
    }
    
-   if (!mSubscribeList.isEmpty())
+   if (!mDialogSubscribeList.isEmpty())
    {
-      mSubscribeList.destroyAll();
+      mDialogSubscribeList.destroyAll();
+   }
+
+   if (!mPresenceSubscribeList.isEmpty())
+   {
+      mPresenceSubscribeList.destroyAll();
    }
 }
 
@@ -150,7 +155,11 @@ bool LinePresenceMonitor::setStatus(const Url& aor, const Status value)
    UtlString contact;
    aor.getUserId(contact);
    
-   UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mSubscribeList.findValue(&contact));
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::setStatus set the value %d for %s",
+                 value, contact.data());
+   
+   // Set the dialog status
+   UtlVoidPtr* container = dynamic_cast <UtlVoidPtr *> (mDialogSubscribeList.findValue(&contact));
    if (container != NULL)
    {
       LinePresenceBase* line = (LinePresenceBase *) container->getValue();
@@ -182,7 +191,7 @@ bool LinePresenceMonitor::setStatus(const Url& aor, const Status value)
             result = true;
          }
          
-         break;
+         break;         
       }
    }
 
@@ -211,26 +220,21 @@ bool LinePresenceMonitor::setStatus(const Url& aor, const Status value)
          }
          
          break;
-         
-      default:
-      
-         OsSysLog::add(FAC_SIP, PRI_ERR, "LinePresenceMonitor::setStatus tried to set an unsupported value %d",
-                       value);
       }
    }
-      
+
    mLock.release();
    
    return result;
 }
 
-OsStatus LinePresenceMonitor::subscribe(LinePresenceBase* line)
+OsStatus LinePresenceMonitor::subscribeDialog(LinePresenceBase* line)
 {
    OsStatus result = OS_FAILED;
    mLock.acquire();
    Url* lineUrl = line->getUri();
    
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscribe subscribing for line %s",
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscribeDialog subscribing dialog for line %s",
                  lineUrl->toString().data()); 
 
    if (mLocal)
@@ -264,56 +268,18 @@ OsStatus LinePresenceMonitor::subscribe(LinePresenceBase* line)
       }      
    }
    
-   // Send out the SUBSCRIBE to the presence server
-   UtlString contactId, resourceId;
-   lineUrl->getUserId(contactId);
-   if (!mPresenceServer.isNull())
-   {
-      resourceId = contactId + mPresenceServer;
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "LinePresenceMonitor::subscribe Sending out the SUBSCRIBE to contact %s",
-                    resourceId.data());
-   
-      
-      UtlString toUrl;
-      lineUrl->toString(toUrl);
-         
-      UtlString fromUri = "linePresenceMonitor@" + mDomainName;
-      UtlString dialogHandle;
-               
-      UtlBoolean status = mpSipSubscribeClient->addSubscription(resourceId.data(),
-                                                                PRESENCE_EVENT_TYPE,
-                                                                fromUri.data(),
-                                                                toUrl.data(),
-                                                                mContact.data(),
-                                                                DEFAULT_REFRESH_INTERVAL,
-                                                                (void *) this,
-                                                                LinePresenceMonitor::subscriptionStateCallback,
-                                                                LinePresenceMonitor::notifyEventCallback,
-                                                                dialogHandle);
-                  
-      if (!status)
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR,
-                       "LinePresenceMonitor::subscribe Subscription failed to contact %s.",
-                       resourceId.data());
-      }
-      else
-      {
-         mDialogHandleList.insertKeyAndValue(new UtlString(contactId), new UtlString(dialogHandle));
-      }
-   }
-
    // Insert the line to the Subscribe Map
-   mSubscribeList.insertKeyAndValue(new UtlString(contactId),
-                                    new UtlVoidPtr(line));
+   UtlString contactId;
+   lineUrl->getUserId(contactId);
+   mDialogSubscribeList.insertKeyAndValue(new UtlString(contactId),
+                                          new UtlVoidPtr(line));
 
    mLock.release();
    
    return result;
 }
 
-OsStatus LinePresenceMonitor::unsubscribe(LinePresenceBase* line)
+OsStatus LinePresenceMonitor::unsubscribeDialog(LinePresenceBase* line)
 {
    OsStatus result = OS_FAILED;
    mLock.acquire();
@@ -324,7 +290,7 @@ OsStatus LinePresenceMonitor::unsubscribe(LinePresenceBase* line)
       return OS_FAILED;
    }
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::unsubscribe unsubscribing for line %s",
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::unsubscribeDialog unsubscribing dialog for line %s",
                  lineUrl->toString().data());
                   
    if (mLocal)
@@ -357,7 +323,119 @@ OsStatus LinePresenceMonitor::unsubscribe(LinePresenceBase* line)
          result = OS_FAILED;
       }      
    }
+         
+   UtlString contact;
+   lineUrl->getUserId(contact);
+   mDialogSubscribeList.destroy(&contact);
+   
+   mLock.release();
+   return result;
+}
+
+OsStatus LinePresenceMonitor::subscribeDialog(UtlSList& list)
+{
+   OsStatus result = OS_FAILED;
+   mLock.acquire();
+   UtlSListIterator iterator(list);
+   LinePresenceBase* line;
+   while ((line = dynamic_cast <LinePresenceBase *> (iterator())) != NULL)
+   {
+      subscribeDialog(line);
+   }
+
+   mLock.release();
+   
+   return result;
+}
+
+OsStatus LinePresenceMonitor::unsubscribeDialog(UtlSList& list)
+{
+   OsStatus result = OS_FAILED;
+   mLock.acquire();
+   UtlSListIterator iterator(list);
+   LinePresenceBase* line;
+   while ((line = dynamic_cast <LinePresenceBase *> (iterator())) != NULL)
+   {
+      unsubscribeDialog(line);
+   }
+
+   mLock.release();
+   
+   return result;
+}
+
+OsStatus LinePresenceMonitor::subscribePresence(LinePresenceBase* line)
+{
+   OsStatus result = OS_FAILED;
+   mLock.acquire();
+   Url* lineUrl = line->getUri();
+   
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::subscribePresence subscribing presence for line %s",
+                 lineUrl->toString().data()); 
+   
+   // Send out the SUBSCRIBE to the presence server
+   UtlString contactId, resourceId;
+   lineUrl->getUserId(contactId);
+   if (!mPresenceServer.isNull())
+   {
+      resourceId = contactId + mPresenceServer;
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "LinePresenceMonitor::subscribePresence Sending out the SUBSCRIBE to contact %s",
+                    resourceId.data());
+   
       
+      UtlString toUrl;
+      lineUrl->toString(toUrl);
+         
+      UtlString fromUri = "linePresenceMonitor@" + mDomainName;
+      UtlString dialogHandle;
+               
+      UtlBoolean status = mpSipSubscribeClient->addSubscription(resourceId.data(),
+                                                                PRESENCE_EVENT_TYPE,
+                                                                fromUri.data(),
+                                                                toUrl.data(),
+                                                                mContact.data(),
+                                                                DEFAULT_REFRESH_INTERVAL,
+                                                                (void *) this,
+                                                                LinePresenceMonitor::subscriptionStateCallback,
+                                                                LinePresenceMonitor::notifyEventCallback,
+                                                                dialogHandle);
+                  
+      if (!status)
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "LinePresenceMonitor::subscribePresence Subscription failed to contact %s.",
+                       resourceId.data());
+      }
+      else
+      {
+         mDialogHandleList.insertKeyAndValue(new UtlString(contactId), new UtlString(dialogHandle));
+      }
+   }
+
+   // Insert the line to the Subscribe Map
+   mPresenceSubscribeList.insertKeyAndValue(new UtlString(contactId),
+                                            new UtlVoidPtr(line));
+
+   mLock.release();
+   
+   return result;
+}
+
+OsStatus LinePresenceMonitor::unsubscribePresence(LinePresenceBase* line)
+{
+   OsStatus result = OS_FAILED;
+   mLock.acquire();
+   Url* lineUrl = line->getUri();
+   
+   if (lineUrl == NULL)
+   {
+      return OS_FAILED;
+   }
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "LinePresenceMonitor::unsubscribePresence unsubscribing presence for line %s",
+                 lineUrl->toString().data());
+                  
    // Remove the line from the Subscribe Map
    UtlString contact;
    lineUrl->getUserId(contact);
@@ -374,7 +452,7 @@ OsStatus LinePresenceMonitor::unsubscribe(LinePresenceBase* line)
          if (!status)
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "LinePresenceMonitor::unsubscribe Unsubscription failed for %s.",
+                          "LinePresenceMonitor::unsubscribePresence Unsubscription failed for %s.",
                           contact.data());
          }
       }
@@ -382,13 +460,13 @@ OsStatus LinePresenceMonitor::unsubscribe(LinePresenceBase* line)
       mDialogHandleList.destroy(&contact);
    }
    
-   mSubscribeList.destroy(&contact);
+   mPresenceSubscribeList.destroy(&contact);
    
    mLock.release();
    return result;
 }
 
-OsStatus LinePresenceMonitor::subscribe(UtlSList& list)
+OsStatus LinePresenceMonitor::subscribePresence(UtlSList& list)
 {
    OsStatus result = OS_FAILED;
    mLock.acquire();
@@ -396,7 +474,7 @@ OsStatus LinePresenceMonitor::subscribe(UtlSList& list)
    LinePresenceBase* line;
    while ((line = dynamic_cast <LinePresenceBase *> (iterator())) != NULL)
    {
-      subscribe(line);
+      subscribePresence(line);
    }
 
    mLock.release();
@@ -404,7 +482,7 @@ OsStatus LinePresenceMonitor::subscribe(UtlSList& list)
    return result;
 }
 
-OsStatus LinePresenceMonitor::unsubscribe(UtlSList& list)
+OsStatus LinePresenceMonitor::unsubscribePresence(UtlSList& list)
 {
    OsStatus result = OS_FAILED;
    mLock.acquire();
@@ -412,13 +490,14 @@ OsStatus LinePresenceMonitor::unsubscribe(UtlSList& list)
    LinePresenceBase* line;
    while ((line = dynamic_cast <LinePresenceBase *> (iterator())) != NULL)
    {
-      unsubscribe(line);
+      unsubscribePresence(line);
    }
 
    mLock.release();
    
    return result;
 }
+
 
 void LinePresenceMonitor::subscriptionStateCallback(SipSubscribeClient::SubscriptionState newState,
                                                     const char* earlyDialogHandle,
@@ -483,11 +562,11 @@ void LinePresenceMonitor::handleNotifyMessage(const SipMessage* notifyMessage)
          Url contactUrl(contact);
          if (status.compareTo(STATUS_CLOSE) == 0)
          {
-            setStatus(contactUrl, StateChangeNotifier::AWAY);
+            setStatus(contactUrl, StateChangeNotifier::SIGN_OUT);
          }
          else
          {     
-            setStatus(contactUrl, StateChangeNotifier::PRESENT);
+            setStatus(contactUrl, StateChangeNotifier::SIGN_IN);
          }
       }
       else

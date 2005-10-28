@@ -68,17 +68,29 @@ public:
    /// Set the state value.
    virtual bool setStatus(const Url& aor, const Status value);
 
-   /// Subscribe a line in the list
-   OsStatus subscribe(LinePresenceBase* line);
+   /// Subscribe the dialog on a specific line in the list
+   OsStatus subscribeDialog(LinePresenceBase* line);
 
-   /// Unsubscribe a line from the list
-   OsStatus unsubscribe(LinePresenceBase* line);
+   /// Unsubscribe the dialog on a specific line from the list
+   OsStatus unsubscribeDialog(LinePresenceBase* line);
    
-   /// Subscribe a list
-   OsStatus subscribe(UtlSList& list);
+   /// Subscribe the dialogs for a list
+   OsStatus subscribeDialog(UtlSList& list);
    
-   /// Unsubscribe a list
-   OsStatus unsubscribe(UtlSList& list);
+   /// Unsubscribe the dialogs for a list
+   OsStatus unsubscribeDialog(UtlSList& list);
+
+   /// Subscribe the presence on a specific line in the list
+   OsStatus subscribePresence(LinePresenceBase* line);
+
+   /// Unsubscribe the presence on a specific line from the list
+   OsStatus unsubscribePresence(LinePresenceBase* line);
+   
+   /// Subscribe the presence for a list
+   OsStatus subscribePresence(UtlSList& list);
+   
+   /// Unsubscribe the presence for a list
+   OsStatus unsubscribePresence(UtlSList& list);
 
 /* ============================ INQUIRY =================================== */
 
@@ -119,7 +131,8 @@ private:
    Url mRemoteServer;
    UtlString mPresenceServer;
 
-   UtlHashMap mSubscribeList;
+   UtlHashMap mDialogSubscribeList;
+   UtlHashMap mPresenceSubscribeList;
    UtlHashMap mDialogHandleList;
 
    OsBSem mLock;                  /**<

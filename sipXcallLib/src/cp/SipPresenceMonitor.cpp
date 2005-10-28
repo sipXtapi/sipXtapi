@@ -289,10 +289,28 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
          OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipPresenceMonitor::addPresenceEvent remove the presenceEvent %p for contact %s",
                        oldPresenceEvent, contact.data()); 
 
+         int numOldContents;
+         HttpBody* oldContent[1];           
+         
+         // Unpublish the content to the subscribe server
+         if (!mSipPublishContentMgr.unpublish(contact.data(), PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE, 1, numOldContents, oldContent))
+         {
+            UtlString presenceContent;
+            int length;
+                 
+            oldPresenceEvent->getBytes(&presenceContent, &length);
+            OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully unpublished from the subscribe server",
+                          presenceContent.data());
+         }
+
          if (oldPresenceEvent)
          {
             delete oldPresenceEvent;
          }
+      }
+      else
+      {
+         delete presenceEvent;
       }
    }
 
@@ -318,6 +336,7 @@ bool SipPresenceMonitor::addPresenceEvent(UtlString& contact, SipPresenceEvent* 
 
 void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* presenceEvent)
 {
+#ifdef SUPPORT_RESOURCE_LIST
    bool contentChanged;
 
    // Loop through all the resource lists
@@ -373,7 +392,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
          HttpBody* oldContent[1];           
    
          // Publish the content to the subscribe server
-         if (!mSipPublishContentMgr.publish(listUri->data(), PRESENCE_EVENT_TYPE, DIALOG_EVENT_TYPE, 1, (HttpBody**)&list, 1, numOldContents, oldContent))
+         if (!mSipPublishContentMgr.publish(listUri->data(), PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE, 1, (HttpBody**)&list, 1, numOldContents, oldContent))
          {
             UtlString presenceContent;
             int length;
@@ -382,9 +401,22 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
             OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully published to the subscribe server",
                           presenceContent.data());
          }
-      }
-      
-      
+      }      
+   }
+#endif
+
+   int numOldContents;
+   HttpBody* oldContent[1];           
+   
+   // Publish the content to the subscribe server
+   if (!mSipPublishContentMgr.publish(contact.data(), PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE, 1, (HttpBody**)&presenceEvent, 1, numOldContents, oldContent))
+   {
+      UtlString presenceContent;
+      int length;
+           
+      presenceEvent->getBytes(&presenceContent, &length);
+      OsSysLog::add(FAC_SIP, PRI_ERR, "SipPresenceMonitor::publishContent PresenceEvent %s\n was not successfully published to the subscribe server",
+                    presenceContent.data());
    }
 }
 
