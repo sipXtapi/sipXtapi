@@ -35,7 +35,6 @@ ProjectsInOrder() {
 
 ## All known projects
 CommunityProjects="\
-   resiprocateLib \
    sipXportLib \
    sipXtackLib \
    sipXmediaLib \
