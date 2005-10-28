@@ -13,8 +13,6 @@ CHECK_AUTOCONF
 
 AC_CONFIG_SRCDIR([neoconf/src/org/sipfoundry/sipxconfig/common/User.java])
 
-AM_CONDITIONAL(USE_BLDNO, test x$enable_buildnumber = xyes)
-
 SFAC_INIT_FLAGS
 
 CHECK_SSL
