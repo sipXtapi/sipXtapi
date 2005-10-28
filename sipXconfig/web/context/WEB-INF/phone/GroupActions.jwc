@@ -18,8 +18,10 @@
   	direction="in" 
   	required="yes" 
   	type="java.util.Collection"/>  
+  
+  <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.DisabledGroupPropertySelectionRenderer"/>
 
-  <property-specification name="selectedGroupId" type="java.lang.Integer"/>
+  <property-specification name="selectedAction" type="org.apache.tapestry.IActionListener"/>
   
   <property-specification name="phoneContext" 
   	type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
@@ -30,6 +32,7 @@
   <component id="actionSelection" type="PropertySelection">
       <binding name="model" expression="groupModel"/>
       <binding name="submitOnChange" expression="true"/>
-      <binding name="value" expression="selectedGroupId"/>
+      <binding name="value" expression="selectedAction"/>
+      <binding name="renderer" expression="beans.propertyRenderer"/>
   </component>
 </component-specification>

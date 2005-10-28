@@ -11,17 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
-import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -32,9 +35,9 @@ public abstract class GroupActions extends BaseComponent {
 
     public abstract Collection getGroups();
 
-    public abstract Integer getSelectedGroupId();
+    public abstract IActionListener getSelectedAction();
 
-    public abstract void setSelectedGroupId(Integer groupId);
+    public abstract void setSelectedAction(IActionListener action);
 
     public abstract IPropertySelectionModel getGroupModel();
 
@@ -43,10 +46,10 @@ public abstract class GroupActions extends BaseComponent {
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         initGroupModel();
         // always start with empty group
-        setSelectedGroupId(null);
+        setSelectedAction(null);
         super.renderComponent(writer, cycle);
         if (cycle.isRewinding()) {
-            addToGroup();
+            addToGroup(cycle);
         }
     }
 
@@ -54,29 +57,37 @@ public abstract class GroupActions extends BaseComponent {
         if (getGroupModel() != null) {
             return;
         }
-        ObjectSelectionModel model = new ObjectSelectionModel();
-        model.setCollection(getGroups());
-        model.setLabelExpression("name");
-        model.setValueExpression("id");
+        Collection groups = getGroups();
+        Collection actions = new ArrayList(groups.size());
+        for (Iterator i = groups.iterator(); i.hasNext();) {
+            Group g = (Group) i.next();
+            actions.add(new AddToPhoneGroupAction(g));
+        }
+
+        AdaptedSelectionModel model = new AdaptedSelectionModel();
+        model.setCollection(actions);
 
         ExtraOptionModelDecorator decorator = new ExtraOptionModelDecorator();
-        decorator.setExtraLabel("More Actions:");
+        decorator.setExtraLabel("More Actions...");
         decorator.setExtraOption(null);
         decorator.setModel(model);
         setGroupModel(decorator);
     }
 
-    private void addToGroup() {
-        Integer groupId = getSelectedGroupId();
-        if (groupId == null) {
+    private void addToGroup(IRequestCycle cycle) {
+        IActionListener a = getSelectedAction();
+        if (!(a instanceof AddToPhoneGroupAction)) {
             return;
         }
+        AddToPhoneGroupAction action = (AddToPhoneGroupAction) a;
         Collection selectedIds = getSelectedPhoneIds();
-        getPhoneContext().addToGroup(groupId, selectedIds);
+        action.setIds(selectedIds);
+        action.setPhoneContext(getPhoneContext());
+        action.actionTriggered(this, cycle);
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
                 .getValidator((AbstractComponent) getPage());
-        Group group = (Group) getPhoneContext().load(Group.class, groupId);
-        String msg = format("msg.success", Integer.toString(selectedIds.size()), group.getName());
+        String msg = format("msg.success", Integer.toString(selectedIds.size()), action.getLabel(
+                action, 0));
         validator.recordSuccess(msg);
     }
 }
