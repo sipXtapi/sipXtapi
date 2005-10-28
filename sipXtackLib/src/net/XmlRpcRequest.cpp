@@ -37,6 +37,8 @@ XmlRpcRequest::XmlRpcRequest(Url& uri, const char* methodName)
    
    // Start to construct the XML-RPC body
    mpRequestBody = new XmlRpcBody();
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "XmlRpcRequest::XmlRpcRequest creating a XmlRpcBody %p", mpRequestBody);
    mpRequestBody->append(BEGIN_METHOD_CALL);
    
    UtlString methodCall = BEGIN_METHOD_NAME + UtlString(methodName) + END_METHOD_NAME;
@@ -75,8 +77,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
 
    // Create an empty response object and sent the built up request
    // to the XML-RPC server
-   HttpMessage *pResponse =
-      new HttpMessage(static_cast< const HttpMessage& >(*mpHttpRequest));
+   HttpMessage *pResponse = new HttpMessage();
 
    pResponse->get(mUrl, *mpHttpRequest, XML_RPC_TIMEOUT);
 
