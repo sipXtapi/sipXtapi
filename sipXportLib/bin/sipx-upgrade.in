@@ -125,7 +125,7 @@ EOF
             fi
             ;;
 
-        2.9*)
+        2.9*  | 3.0*)
             ;;
 
         '')
@@ -232,7 +232,7 @@ UpgradeProxy() {
                 sed 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' $f.OLD > $f
             fi
             ;;
-        2.8* | 2.9*)
+        2.8* | 2.9* | 3.0*)
             ;;
 
         '')
@@ -259,7 +259,7 @@ UpgradeSubscriptions() {
            fi
            ;;
 
-        2.8* | 2.9*)
+        2.8* | 2.9* | 3.0*)
            ;;
 
         '')
@@ -294,7 +294,7 @@ UpgradePbx() {
             fi
             ;;
 
-        2.8* | 2.9*)
+        2.8* | 2.9* | 3.0*)
             ;;
 
         '')
