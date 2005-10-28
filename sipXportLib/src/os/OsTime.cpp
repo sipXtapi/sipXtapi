@@ -37,6 +37,29 @@ OsTime::OsTime()
 }
 
 // Constructor
+OsTime::OsTime(const long msecs)
+{
+   init();
+
+   // Calculate the number of seconds and microseconds
+   if (msecs < 0 || msecs >= MSECS_PER_SEC)
+   {
+       mSeconds =  msecs / MSECS_PER_SEC;
+       mUsecs   = (msecs % MSECS_PER_SEC) * USECS_PER_MSEC;
+
+      if (msecs < 0)
+      {
+         mSeconds -= 1;
+         mUsecs   += USECS_PER_SEC;
+      }
+   }
+   else     // 0 <= msecs < MSECS_PER_SEC
+   {
+       mUsecs = msecs * USECS_PER_MSEC;
+   }
+}
+
+// Constructor
 OsTime::OsTime(const long seconds, const long usecs)
 {
    init();
@@ -233,7 +256,7 @@ UtlBoolean OsTime::isInfinite(void) const
    else
       return FALSE;
 }
-     
+
 // Return TRUE if the time interval is zero (no wait)
 UtlBoolean OsTime::isNoWait(void) const
 {

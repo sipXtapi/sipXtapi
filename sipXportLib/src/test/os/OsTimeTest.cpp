@@ -37,6 +37,18 @@ public:
         msg = "if a constructor parameter is used to set information in \
 an ancestor class, then verify it gets set correctly (i.e., via ancestor \
 class accessor method.";
+        msg = "try giving the constructor a positive \"millisecond\" value";
+        pInterval1 = new OsTime(3010);
+        CPPUNIT_ASSERT_MESSAGE(msg, 3     == pInterval1->seconds());
+        CPPUNIT_ASSERT_MESSAGE(msg, 10000 == pInterval1->usecs());
+        delete pInterval1;
+                                                                                
+        msg = "try giving the constructor a negative \"millisecond\" value";
+        pInterval1 = new OsTime(-3010);
+        CPPUNIT_ASSERT_MESSAGE(msg, -3010  == pInterval1->cvtToMsecs());
+        delete pInterval1;
+                                                                                
+        msg = "try giving the constructor a positive \"second\" and \"microsecond\" values";
         pInterval1 = new OsTime(30, 10);
         CPPUNIT_ASSERT_MESSAGE(msg, 30 == pInterval1->seconds());
         CPPUNIT_ASSERT_MESSAGE(msg, 10 == pInterval1->usecs());

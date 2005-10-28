@@ -33,6 +33,10 @@ nobase_include_HEADERS =  \
     net/NetBase64Codec.h \
     net/NetMd5Codec.h \
     net/PidfBody.h \
+    net/ProvisioningAgent.h \
+    net/ProvisioningAgentXmlRpcAdapter.h \
+    net/ProvisioningAttrList.h \
+    net/ProvisioningClass.h \
     net/QoS.h \
     net/SdpBody.h \
     net/SdpCodecFactory.h \

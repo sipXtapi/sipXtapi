@@ -200,6 +200,7 @@ bool XmlRpcBody::addStruct(UtlHashMap* members)
       result = addValue(pObject);
       if (!result)
       {
+         mBody.append(END_MEMBER);
          break;
       }
       

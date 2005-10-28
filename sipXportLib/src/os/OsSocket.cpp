@@ -50,6 +50,7 @@
 #endif
 
 
+#define DOMAIN_NAME_LENGTH 512
 #define HOST_NAME_LENGTH 512
 
 
@@ -851,26 +852,30 @@ unsigned long OsSocket::getDefaultBindAddress()
 //gets static member m_DomainName
 void OsSocket::getDomainName(UtlString &domain_name)
 {
-        if (m_DomainName == "")
-        {
+    if (m_DomainName == NULL)
+    {
+#ifdef __pingtel_on_posix__
+        char nameBuffer[DOMAIN_NAME_LENGTH];
+        getdomainname(nameBuffer, DOMAIN_NAME_LENGTH - 1);
+        m_DomainName = nameBuffer;
+#endif  //__pingtel_on_posix__
 
 #ifdef _VXWORKS
-            RESOLV_PARAMS_S resolvParams;
+        RESOLV_PARAMS_S resolvParams;
 
-                resolvParamsGet(&resolvParams);
-                m_DomainName = resolvParams.domainName;
-#endif //VXWORKS
+        resolvParamsGet(&resolvParams);
+        m_DomainName = resolvParams.domainName;
+#endif  //VXWORKS
 
 #ifdef WIN32
-                char domain[256];
-                getWindowsDomainName (domain);
-                m_DomainName = domain;
+        char domain[DOMAIN_NAME_LENGTH];
+        getWindowsDomainName (domain);
+        m_DomainName = domain;
 #endif  //WIN32
 
-        }
+    }
 
-
-        domain_name = m_DomainName;
+    domain_name = m_DomainName;
 }
 
 

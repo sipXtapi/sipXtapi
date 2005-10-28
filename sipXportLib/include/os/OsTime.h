@@ -45,8 +45,11 @@ public:
    OsTime();
      //:Default constructor (creates a zero duration interval)
 
+   OsTime(const long msecs);
+     //:Constructor specifying time/duration in terms of milliseconds
+
    OsTime(const long seconds, const long usecs);
-     //:Constructor
+     //:Constructor specifying time/duration in terms of seconds and microseconds
 
    OsTime(const OsTime& rOsTime);
      //:Copy constructor

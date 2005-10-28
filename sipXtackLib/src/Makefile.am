@@ -56,6 +56,10 @@ libsipXtack_la_SOURCES =  \
     net/NetBase64Codec.cpp \
     net/NetMd5Codec.cpp \
     net/PidfBody.cpp \
+    net/ProvisioningAgent.cpp \
+    net/ProvisioningAgentXmlRpcAdapter.cpp \
+    net/ProvisioningAttrList.cpp \
+    net/ProvisioningClass.cpp \
     net/SdpBody.cpp \
     net/SdpCodec.cpp \
     net/SdpCodecFactory.cpp \
@@ -106,6 +110,7 @@ libsipXtack_la_SOURCES =  \
     net/SipUserAgentStateless.cpp \
     net/SmimeBody.cpp \
     net/StateChangeNotifier.cpp \
+    net/TapiMgr.cpp \
     net/Url.cpp \
     net/XmlRpcBody.cpp \
     net/XmlRpcDispatch.cpp \
@@ -126,5 +131,5 @@ libsipXtack_la_SOURCES =  \
     resparse/res_parse.c \
     resparse/res_print.c \
     resparse/res_query.c \
-    resparse/res_send.c \
-	 net/TapiMgr.cpp
+    resparse/res_send.c
+
