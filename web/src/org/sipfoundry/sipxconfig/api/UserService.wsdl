@@ -2,38 +2,74 @@
 <definitions name="UserService"
 	targetNamespace="urn:UserService" 
 	xmlns:tns="urn:UserService" 
+	xmlns:xsd1="urn:sipxconfig.xsd" 
 	xmlns="http://schemas.xmlsoap.org/wsdl/" 
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
 	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	
+	<types>
+		<!-- NOTE: qualify w/xsd:, SOAP4R doesn't support switching namespaces -->
+		<xsd:schema targetNamespace="urn:UserService">
+            <xsd:element name="hello">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="message" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="message2" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+					</xsd:sequence>
+			    </xsd:complexType>
+			</xsd:element>
+			<xsd:element name="goodbye">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="message" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+					</xsd:sequence>
+			    </xsd:complexType>
+			</xsd:element>
+		</xsd:schema>
+	</types>
 
 	<message name="helloResponse">
 	</message>
-
 	<message name="helloRequest">
-		<part name="hello" type="xsd:string"/>
+		<part element="tns:hello" name="hello"/>
 	</message>
 	
+	<message name="goodbyeResponse">
+	</message>
+	<message name="goodbyeRequest">
+		<part element="tns:goodbye" name="goodbye"/>
+	</message>
+
 	<portType name="UserService">
 		<operation name="hello">
 			<input message="tns:helloRequest"/>
 			<output message="tns:helloResponse"/>
 		</operation>
+		<operation name="goodbye">
+			<input message="tns:goodbyeRequest"/>
+			<output message="tns:goodbyeResponse"/>
+		</operation>
 	</portType>
 	
 	<binding name="UserServiceSoapBinding" type="tns:UserService">
 		<soap:binding style="document"/>
-		<operation name="hello">
-			
+		<operation name="hello">			
 			<input>
 				<soap:body use="literal" namespace="urn:UserService" />
-			</input>
-			
+			</input>			
 			<output>
 				<soap:body use="literal" namespace="urn:UserService"/>
-			</output>
-			
-			<soap:operation soapAction=""></soap:operation>
-			
+			</output>			
+			<soap:operation soapAction=""></soap:operation>			
+		</operation>
+		<operation name="goodbye">			
+			<input>
+				<soap:body use="literal" namespace="urn:UserService" />
+			</input>			
+			<output>
+				<soap:body use="literal" namespace="urn:UserService"/>
+			</output>			
+			<soap:operation soapAction=""></soap:operation>			
 		</operation>
 	</binding>
 	

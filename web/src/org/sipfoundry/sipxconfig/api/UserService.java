@@ -20,4 +20,6 @@ package org.sipfoundry.sipxconfig.api;
 public interface UserService {    
     
     public void hello(String message, String message2);
+
+    public void goodbye(String message);
 }
