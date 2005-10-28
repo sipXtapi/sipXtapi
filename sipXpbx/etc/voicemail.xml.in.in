@@ -148,7 +148,7 @@
         the message summary notify message contents
     -->
     <mwi>
-        <mwiurl>https://localhost:8101/cgi/StatusEvent.cgi</mwiurl>
+        <mwiurl>https://${STATUS_SERVER_ADDR}:${STATUS_SERVER_HTTPS_PORT}/cgi/StatusEvent.cgi</mwiurl>
     </mwi>
 
 </settings>

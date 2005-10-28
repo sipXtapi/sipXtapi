@@ -234,7 +234,8 @@ unsigned int OrbitListener::validateOrbitRequest(UtlString& callId, UtlString& a
 
    TiXmlDocument doc(fileName);
 
-   if (doc.LoadFile())
+   doc.LoadFile();
+   if (!doc.Error())
    {
       TiXmlNode* rootNode = doc.FirstChild("orbits");
       if (rootNode != NULL)
@@ -243,10 +244,14 @@ unsigned int OrbitListener::validateOrbitRequest(UtlString& callId, UtlString& a
          if (userId == "moh")
          {
             TiXmlNode *groupNode = rootNode->FirstChild("music-on-hold");
-            if (rootNode != NULL)
+            if (groupNode != NULL)
             {
                TiXmlNode* audioNode = groupNode->FirstChild("background-audio");
-               audio = (audioNode->FirstChild())->Value();
+               if ((audioNode != NULL)
+                && (audioNode->FirstChild() != NULL))
+               {
+                  audio = (audioNode->FirstChild())->Value();
+               }
             }
          }
          else
@@ -258,11 +263,19 @@ unsigned int OrbitListener::validateOrbitRequest(UtlString& callId, UtlString& a
             {
                // See if the <extension> matches
                TiXmlNode* orbitNode = groupNode->FirstChild("extension");
-               if ((orbitNode->FirstChild())->Value() == userId)
+               if (orbitNode != NULL)
                {
-                  TiXmlNode* audioNode = groupNode->FirstChild("background-audio");
-                  audio = (audioNode->FirstChild())->Value();
-                  break;
+                  if ((orbitNode->FirstChild() != NULL)
+                   && ((orbitNode->FirstChild())->Value() == userId))
+                  {
+                     TiXmlNode* audioNode = groupNode->FirstChild("background-audio");
+                     if ((audioNode != NULL)
+                      && (audioNode->FirstChild() != NULL))
+                     {
+                        audio = (audioNode->FirstChild())->Value();
+                     }
+                     break;
+                  }
                }
             }
          }
