@@ -788,14 +788,6 @@ int main(int argc, char *argv[])
       maxFlowGraphs = VXIIntegerValue(value);
    }
 
-   MpMediaTask* pMedia = MpMediaTask::getMediaTask(maxFlowGraphs);
-   mpStartUp(8000, 80, 3 * maxFlowGraphs, NULL);
-
-#ifdef INCLUDE_RTCP
-   CRTCManager::getRTCPControl();
-#endif
-   mpStartTasks();
-
    CallManager* pCallMgr;
    pCallMgr =
       new CallManager(FALSE,                             // isRequiredUserIdMatch
@@ -836,6 +828,7 @@ int main(int argc, char *argv[])
    UtlBoolean autoThrottleThreadStarted = FALSE;
 
    // This value has to stay allocated until autoThrottleThread is halted.
+   MpMediaTask* pMedia = NULL;
    void *(args[2]) = { (void*) pMedia, (void*) pCallMgr };
 
    const VXIInteger* value2 =
