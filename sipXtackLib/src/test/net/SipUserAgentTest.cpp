@@ -21,7 +21,7 @@
 #include <net/SipLineMgr.h>
 #include <net/SipRefreshMgr.h>
 
-#define SHUTDOWN_TEST_ITERATIONS 3
+#define SHUTDOWN_TEST_ITERATIONS 2
 
 /**
  * Unittest for SipUserAgent
@@ -144,10 +144,7 @@ public:
          sipUA->send(testMsg);
 
          // Wait long enough for some stack timeouts/retansmits to occur
-         for(int i = 0; i < 10; ++i)
-         {
-             OsTask::delay(1000);
-         }
+         OsTask::delay(10000); // 10 seconds
 
          sipUA->shutdown(TRUE);
          lineMgr->requestShutdown();
@@ -217,10 +214,7 @@ public:
          sipUA->send(testMsg);
 
          // Wait long enough for some stack timeouts/retansmits to occur
-         for(int i = 0; i < 10; ++i)
-         {
-             OsTask::delay(1000);
-         }
+         OsTask::delay(10000); // 10 seconds
 
          sipUA->shutdown(FALSE);
          lineMgr->requestShutdown();
