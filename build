@@ -35,6 +35,7 @@ ProjectsInOrder() {
 
 ## All known projects
 CommunityProjects="\
+   resiprocateLib \
    sipXportLib \
    sipXtackLib \
    sipXmediaLib \
@@ -376,6 +377,7 @@ cleanBuild()
 {
     echo "Cleaning $Project"
     pushd $1 > /dev/null || return 1
+    test -f build/Makefile && ( make -C build clean 2> /dev/null || : )
     rm -rf autom4te.cache config.h.in configure aclocal.m4 build
     find -name Makefile.in -exec rm '{}' \;
     popd > /dev/null

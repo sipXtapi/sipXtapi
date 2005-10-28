@@ -563,18 +563,23 @@ AC_DEFUN([CHECK_RESIPROCATE],
     AC_ARG_WITH([resiprocate],
         [--with-resiprocate specifies the path to the top of a resiprocate project tree],
         [resiprocate_path=$withval],
-        [resiprocate_path="[$abs_srcdir]/../../resiprocate $prefix/include /usr /usr/local" ]
+        [resiprocate_path="$prefix /usr /usr/local"]
     )
 
     AC_ARG_WITH([resipobj],
         [--with-resipobj specifies the object directory name to use from resiprocate],
-        [resipobj=$withval],
-        [resipobj="obj.debug.`uname`.`uname -m | tr ' ' _`"]
+        [useresipobj=true; resipobj=$resiprocate_path/$withval],
+        [useresipobj=false]
     )
 
+    AC_MSG_CHECKING([for resiprocate includes])
     foundpath=NO
     for dir in $resiprocate_path ; do
-        if test -d "$dir/resip";
+        if test -f "$dir/include/resip/stack/SipStack.hxx"
+        then
+            foundpath=$dir/include;
+            break;
+        elif test -f "$dir/resip/stack/SipStack.hxx"
         then
             foundpath=$dir;
             break;
@@ -582,7 +587,7 @@ AC_DEFUN([CHECK_RESIPROCATE],
     done
     if test x_$foundpath = x_NO
     then
-       AC_MSG_ERROR([resiprocate not found; searched $resiprocate_path])
+       AC_MSG_ERROR([not found; searched '$resiprocate_path' for 'include/resip/stack/SipStack.hxx' or 'resip/stack/SipStack.hxx'])
     else
        AC_MSG_RESULT($foundpath)
 
@@ -591,10 +596,34 @@ AC_DEFUN([CHECK_RESIPROCATE],
        RESIPROCATE_CFLAGS="-I$RESIPROCATE_PATH"
        RESIPROCATE_CXXFLAGS="-I$RESIPROCATE_PATH"
 
-       RESIPROCATE_LDFLAGS=" -L$RESIPROCATE_PATH/resip/dum/$resipobj"
-       RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/resip/stack/$resipobj"
-       RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/rutil/$resipobj"
-       RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/contrib/ares"
+       if test x$useresipobj = xtrue
+       then
+           RESIPROCATE_LDFLAGS=" -L$RESIPROCATE_PATH/resip/dum/$resipobj"
+           RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/resip/stack/$resipobj"
+           RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/rutil/$resipobj"
+           RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/contrib/ares"
+       else
+           AC_MSG_CHECKING([for resiprocate libraries])
+           foundpath=NO
+           for dir in $resiprocate_path ; do
+               if test -f "$dir/lib/libresip.a";
+               then
+                   foundpath=$dir/lib;
+                   break;
+               elif test -f "$dir/libresip.a";
+               then
+                   foundpath=$dir;
+                   break;
+               fi;
+           done
+           if test x_$foundpath = x_NO
+           then
+              AC_MSG_ERROR([not found; searched '$resiprocate_path' for 'lib/libresip.a' or 'libresip.a'])
+           else
+              AC_MSG_RESULT($foundpath)
+              RESIPROCATE_LDFLAGS=" -L$foundpath"
+           fi
+       fi
 
        RESIPROCATE_LIBS=" -ldum -lresip -lrutil -lares"
 

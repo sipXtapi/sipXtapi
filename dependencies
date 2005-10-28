@@ -57,7 +57,11 @@ sipXphone : sipXcallLib
 	@echo sipXphone
 
 .PHONY: bbridge
-bbridge : sipXmediaAdapterLib
+bbridge : resiprocateLib sipXmediaAdapterLib
 	@echo bbridge
+
+.PHONY: resiprocateLib
+resiprocateLib : 
+	@echo resiprocateLib
 
 
