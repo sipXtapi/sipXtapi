@@ -93,5 +93,6 @@
     <component id="groupActions" type="GroupActions">
         <binding name="selectedPhoneIds" expression="selections.allSelected"/>
         <binding name="groups" expression="phoneContext.groups"/>
+        <binding name="removeFromGroupId" expression="groupId"/>
     </component>
 </page-specification>

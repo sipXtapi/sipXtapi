@@ -7,7 +7,7 @@
     allow-body="no"
     allow-informal-parameters="no">
     
-    <description>Component presents action to add and remove property groups</description>
+    <description>Component presents action to add and remove property groups.</description>
     
   <parameter name="selectedPhoneIds" 
   	direction="in" 
@@ -17,7 +17,14 @@
   <parameter name="groups" 
   	direction="in" 
   	required="yes" 
-  	type="java.util.Collection"/>  
+  	type="java.util.Collection"/>
+  
+  <!-- this is a single group for which remove (rather then add) action will be created -->
+  <parameter name="removeFromGroupId"
+  	direction="in"
+  	required="no"
+  	default-value="null"
+  	type="java.lang.Integer"/>
   
   <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.DisabledGroupPropertySelectionRenderer"/>
 
@@ -26,6 +33,10 @@
   <property-specification name="phoneContext" 
   	type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
   	initial-value="page.global.phoneContext"/>
+  
+  <property-specification name="tapestry"
+  	type="org.sipfoundry.sipxconfig.components.TapestryContext"
+  	initial-value="page.global.tapestry"/>
   
   <property-specification name="groupModel" type="org.apache.tapestry.form.IPropertySelectionModel"/>
   
