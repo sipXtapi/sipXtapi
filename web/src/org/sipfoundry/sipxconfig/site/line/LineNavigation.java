@@ -15,7 +15,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class LineNavigation extends BaseComponent {
@@ -33,7 +33,7 @@ public abstract class LineNavigation extends BaseComponent {
 
     public abstract Setting getCurrentSetting();
     
-    public abstract PhoneContext getPhoneContext();
+    public abstract PhoneManager getPhoneContext();
 
     public void editLine(IRequestCycle cycle) {
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);

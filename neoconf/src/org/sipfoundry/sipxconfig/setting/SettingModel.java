@@ -34,7 +34,7 @@ public class SettingModel extends SettingDecorator {
     }
 
     /**
-     * File path relative to ModelFilesContext's system root directory
+     * File path relative to ModelFilesManager's system root directory
      * 
      * @param resource
      */
@@ -42,7 +42,7 @@ public class SettingModel extends SettingDecorator {
         m_resource = resource;
     }
 
-    public void setModelFilesContext(ModelFilesContext modelFileContext) {
+    public void setModelFilesContext(ModelFilesManager modelFileContext) {
         Setting model = modelFileContext.loadModelFile(m_resource);
         if (m_root != null) {
             model = model.getSetting(m_root);

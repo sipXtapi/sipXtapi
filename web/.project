@@ -33,5 +33,10 @@
 			<type>2</type>
 			<location>SIPX_BUILD/web/dist/wsdl-src</location>
 		</link>
+		<link>
+			<name>build</name>
+			<type>2</type>
+			<location>/home/wgillett/work/3.1/sipfoundry/sipXconfig/build</location>
+		</link>
 	</linkedResources>
 </projectDescription>

@@ -19,7 +19,7 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantInUseException;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -28,7 +28,7 @@ public abstract class ManageAttendants extends BasePage {
     
     public static final String PAGE = "ManageAttendants"; 
     
-    public abstract DialPlanContext getDialPlanContext();
+    public abstract DialPlanManager getDialPlanContext();
     
     public abstract VxmlGenerator getVxmlGenerator();
 
@@ -39,7 +39,7 @@ public abstract class ManageAttendants extends BasePage {
     public void deleteSelected(IRequestCycle cycle_) {        
         Collection selectedRows = getSelections().getAllSelected();
         if (selectedRows != null) {
-            DialPlanContext manager = getDialPlanContext();
+            DialPlanManager manager = getDialPlanContext();
             try {
                 manager.deleteAutoAttendantsByIds(selectedRows, getVxmlGenerator().getScriptsDirectory());
             } catch (AttendantInUseException e) {

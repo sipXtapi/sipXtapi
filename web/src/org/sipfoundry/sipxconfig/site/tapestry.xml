@@ -147,5 +147,5 @@
     <property name="tablePageSize" value="20"/>    
   </bean>
   <!-- tapestry utilities -->
-  <bean name="tapestry" class="org.sipfoundry.sipxconfig.components.TapestryContext"/>
+  <bean name="tapestry" class="org.sipfoundry.sipxconfig.components.TapestryUtil"/>
 </beans>

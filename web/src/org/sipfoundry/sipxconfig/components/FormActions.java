@@ -40,7 +40,7 @@ public abstract class FormActions extends BaseComponent {
 
     public void onApply(IRequestCycle cycle) {
         IValidationDelegate validator = TapestryUtils.getValidator((AbstractComponent) getPage());
-        IActionListener adapter = new TapestryContext.UserExceptionAdapter(validator,
+        IActionListener adapter = new TapestryUtil.UserExceptionAdapter(validator,
                 getListener());
         adapter.actionTriggered(this, cycle);
         if (validator instanceof SipxValidationDelegate) {

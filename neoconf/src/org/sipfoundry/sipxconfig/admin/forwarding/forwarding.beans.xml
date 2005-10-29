@@ -8,7 +8,7 @@
   -->
     
   <bean id="forwardingContextImpl"
-    class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContextImpl">
+    class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingManagerImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="coreContext" ref="coreContextImpl"/>
     <property name="replicationContext" ref="sipxReplicationContext"/>    
@@ -20,7 +20,7 @@
   <bean id="forwardingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
      depends-on="forwardingContextUserDelete">
     <property name="proxyInterfaces" 
-      value="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext"/>
+      value="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingManager"/>
     <property name="target">
       <ref local="forwardingContextImpl"/>
     </property>

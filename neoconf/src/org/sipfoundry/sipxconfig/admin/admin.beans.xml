@@ -7,7 +7,7 @@
   -->
   <bean id="adminContext" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.admin.AdminContext</value>
+      <value>org.sipfoundry.sipxconfig.admin.AdminManager</value>
     </property>
     <property name="interceptorNames">
       <list>
@@ -16,7 +16,7 @@
       </list>
     </property>
   </bean>
-  <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl"
+  <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminManagerImpl"
     autowire="byType">
     <property name="binDirectory">
       <value>${sysdir.bin}</value>

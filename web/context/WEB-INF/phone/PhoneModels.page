@@ -7,7 +7,7 @@
     <description>add a description</description>
     
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
     	initial-value="global.phoneContext"/>    
     <property-specification name="groupId"
         type="java.lang.Integer"

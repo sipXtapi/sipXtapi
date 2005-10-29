@@ -75,7 +75,7 @@ public class UserLoader {
      * the query may return duplicates, so we can't do a simple SQL count, we have to pull data
      * back and filter out the duplicates.  Maybe there is a better way to do this?
      * At least the search constraint will reduce the data size.  In fact if there is no search
-     * constraint, we'll throw an exception to force you to use CoreContext.getUsersInGroupCount
+     * constraint, we'll throw an exception to force you to use CoreManager.getUsersInGroupCount
      * instead.
      * Return Integer rather than int because we're operating inside a Hibernate callback and
      * must return an Object.

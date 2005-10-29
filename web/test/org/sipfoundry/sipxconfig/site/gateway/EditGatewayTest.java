@@ -17,10 +17,10 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.gateway.GatewayManager;
 
 /**
  * EditGatewayTest
@@ -37,9 +37,9 @@ public class EditGatewayTest extends TestCase {
         Gateway g = new Gateway();
         g.setUniqueId();
 
-        MockControl contextControl = MockControl.createStrictControl(GatewayContext.class);
+        MockControl contextControl = MockControl.createStrictControl(GatewayManager.class);
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        GatewayContext context = (GatewayContext) contextControl.getMock();
+        GatewayManager context = (GatewayManager) contextControl.getMock();
 
         context.storeGateway(g);
 
@@ -64,13 +64,13 @@ public class EditGatewayTest extends TestCase {
         g.setUniqueId();
 
         MockControl dialPlanContextControl = MockControl
-                .createStrictControl(DialPlanContext.class);
+                .createStrictControl(DialPlanManager.class);
         dialPlanContextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        DialPlanContext dialPlanContext = (DialPlanContext) dialPlanContextControl.getMock();
+        DialPlanManager dialPlanContext = (DialPlanManager) dialPlanContextControl.getMock();
 
-        MockControl contextControl = MockControl.createStrictControl(GatewayContext.class);
+        MockControl contextControl = MockControl.createStrictControl(GatewayManager.class);
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        GatewayContext context = (GatewayContext) contextControl.getMock();
+        GatewayManager context = (GatewayManager) contextControl.getMock();
 
         context.storeGateway(g);
         dialPlanContext.getRule(rule.getId());
@@ -111,9 +111,9 @@ public class EditGatewayTest extends TestCase {
         gateway.setName("kuku");
         Integer id = gateway.getId();
 
-        MockControl contextControl = MockControl.createStrictControl(GatewayContext.class);
+        MockControl contextControl = MockControl.createStrictControl(GatewayManager.class);
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        GatewayContext context = (GatewayContext) contextControl.getMock();
+        GatewayManager context = (GatewayManager) contextControl.getMock();
 
         contextControl.expectAndReturn(context.getGateway(id), gateway);
         contextControl.replay();

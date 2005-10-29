@@ -3,7 +3,7 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   
-  <bean id="loginContext" class="org.sipfoundry.sipxconfig.login.LoginContextImpl">
+  <bean id="loginContext" class="org.sipfoundry.sipxconfig.login.LoginManagerImpl">
     <property name="coreContext">
       <ref bean="coreContext"/>
     </property>    

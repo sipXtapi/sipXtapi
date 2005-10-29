@@ -34,14 +34,14 @@ public class DataInitializer {
         BeanFactoryLocator bfl = ContextSingletonBeanFactoryLocator.getInstance();
         BeanFactoryReference bfr = bfl.useBeanFactory("servicelayer-context");
         ApplicationContext app = (ApplicationContext) bfr.getFactory();
-        AdminContext adminContext = (AdminContext) app.getBean(AdminContext.CONTEXT_BEAN_NAME);
+        AdminManager adminContext = (AdminManager) app.getBean(AdminManager.CONTEXT_BEAN_NAME);
         String[] tasks = adminContext.getInitializationTasks();
         for (int i = 0; i < tasks.length; i++) {
             initializeData(tasks[i], app, adminContext);
         }
     }
     
-    void initializeData(String task, ApplicationContext app, AdminContext admin) {
+    void initializeData(String task, ApplicationContext app, AdminManager admin) {
         InitializationTask event = new InitializationTask(task);
         app.publishEvent(event);
         admin.deleteInitializationTask(task);            

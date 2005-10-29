@@ -6,7 +6,7 @@
 	  - P R O P E R T I E S
 	  -->
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
     	initial-value="global.phoneContext"/>    
 	<property-specification name="phone" 
 		type="org.sipfoundry.sipxconfig.phone.Phone"

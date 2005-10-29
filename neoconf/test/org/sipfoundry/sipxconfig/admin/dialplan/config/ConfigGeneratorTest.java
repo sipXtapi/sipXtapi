@@ -20,7 +20,7 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.MockControl;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 
 /**
@@ -32,8 +32,8 @@ public class ConfigGeneratorTest extends XMLTestCase {
     }
 
     public void testGetFileContent() throws Exception {
-        MockControl controlPlan = MockControl.createStrictControl(DialPlanContext.class);
-        DialPlanContext empty = (DialPlanContext) controlPlan.getMock();
+        MockControl controlPlan = MockControl.createStrictControl(DialPlanManager.class);
+        DialPlanManager empty = (DialPlanManager) controlPlan.getMock();
         empty.getGenerationRules();
         controlPlan.setReturnValue(Collections.EMPTY_LIST);
         controlPlan.replay();        
@@ -63,8 +63,8 @@ public class ConfigGeneratorTest extends XMLTestCase {
     }
     
     public void testActivate() throws Exception {
-        MockControl controlPlan = MockControl.createStrictControl(DialPlanContext.class);
-        DialPlanContext empty = (DialPlanContext) controlPlan.getMock();
+        MockControl controlPlan = MockControl.createStrictControl(DialPlanManager.class);
+        DialPlanManager empty = (DialPlanManager) controlPlan.getMock();
         empty.getGenerationRules();
         controlPlan.setReturnValue(Collections.EMPTY_LIST);
         controlPlan.replay();        

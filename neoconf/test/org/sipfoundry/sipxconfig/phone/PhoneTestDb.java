@@ -20,7 +20,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -34,17 +34,17 @@ import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureExcepti
 
 public class PhoneTestDb extends SipxDatabaseTestCase {
     
-    private PhoneContext context;
+    private PhoneManager context;
     
     private SettingDao settingDao;
     
-    private CoreContext core;
+    private CoreManager core;
     
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
-        context = (PhoneContext) app.getBean(PhoneContext.CONTEXT_BEAN_NAME);        
+        context = (PhoneManager) app.getBean(PhoneManager.CONTEXT_BEAN_NAME);        
         settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
-        core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);        
+        core = (CoreManager) app.getBean(CoreManager.CONTEXT_BEAN_NAME);        
     }
     
     public void testSave() throws Exception {

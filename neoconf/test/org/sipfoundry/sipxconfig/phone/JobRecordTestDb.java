@@ -21,11 +21,11 @@ import org.sipfoundry.sipxconfig.TestHelper;
 
 public class JobRecordTestDb extends SipxDatabaseTestCase {
 
-    private PhoneContext m_phoneContext;
+    private PhoneManager m_phoneContext;
     
     protected void setUp() throws Exception {
-        m_phoneContext = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
+        m_phoneContext = (PhoneManager) TestHelper.getApplicationContext().getBean(
+                PhoneManager.CONTEXT_BEAN_NAME);
     }
         
     public void testRunJob() throws Exception {

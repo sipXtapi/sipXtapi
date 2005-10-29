@@ -22,7 +22,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
  *           String value = sipx.getServer().getServerSettings().getDomainName();
  * </pre>
  * 
- * You will find mapping in SipxProcessContextImpl
+ * You will find mapping in SipxProcessManagerImpl
  */
 public interface ServerSettings {
 

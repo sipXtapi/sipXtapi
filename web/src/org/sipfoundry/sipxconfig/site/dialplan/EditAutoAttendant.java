@@ -26,7 +26,7 @@ import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -44,7 +44,7 @@ public abstract class EditAutoAttendant extends BasePage implements PageRenderLi
 
     public abstract SelectMap getSelections();
 
-    public abstract DialPlanContext getDialPlanContext();
+    public abstract DialPlanManager getDialPlanContext();
 
     public abstract DialPad getAddMenuItemDialPad();
     public abstract void setAddMenuItemDialPad(DialPad dialPad);

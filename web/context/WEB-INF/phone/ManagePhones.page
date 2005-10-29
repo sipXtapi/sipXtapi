@@ -17,7 +17,7 @@
    	<property-specification name="idConverter" 
        type="org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor"/>
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
     	initial-value="global.phoneContext"/>    
 	<!--
 	  - B E A N S

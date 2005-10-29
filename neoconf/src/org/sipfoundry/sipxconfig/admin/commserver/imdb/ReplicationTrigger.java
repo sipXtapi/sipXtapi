@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -24,14 +24,14 @@ import org.springframework.context.ApplicationListener;
 public class ReplicationTrigger implements ApplicationListener, DaoEventListener {
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);    
     
-    private SipxReplicationContext m_replicationContext;
+    private SipxReplicationManager m_replicationContext;
     private boolean m_replicateOnStartup = true; 
 
-    public void setReplicationContext(SipxReplicationContext replicationContext) {
+    public void setReplicationContext(SipxReplicationManager replicationContext) {
         m_replicationContext = replicationContext;
     }
 
-    public SipxReplicationContext getReplicationContext() {
+    public SipxReplicationManager getReplicationContext() {
         return m_replicationContext;
     }
 

@@ -24,7 +24,7 @@ public class PhoneTestDriver {
 
     public MockControl phoneContextControl;
 
-    public PhoneContext phoneContext;
+    public PhoneManager phoneContext;
     
     public User user;
 
@@ -46,8 +46,8 @@ public class PhoneTestDriver {
         defaults.setRegistrationServer("registrar.sipfoundry.org");
         defaults.setTftpServer("tftp.sipfoundry.org");
 
-        phoneContextControl = MockControl.createNiceControl(PhoneContext.class);
-        phoneContext = (PhoneContext) phoneContextControl.getMock();
+        phoneContextControl = MockControl.createNiceControl(PhoneManager.class);
+        phoneContext = (PhoneManager) phoneContextControl.getMock();
         String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
         phoneContextControl.expectAndReturn(phoneContext.getSystemDirectory(), sysdir,
                 MockControl.ZERO_OR_MORE);

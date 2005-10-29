@@ -22,14 +22,14 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupManager;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class EditCallGroup extends BasePage implements PageRenderListener {
     public static final String PAGE = "EditCallGroup";
 
-    public abstract CallGroupContext getCallGroupContext();
+    public abstract CallGroupManager getCallGroupContext();
 
     public abstract Integer getCallGroupId();
 
@@ -50,7 +50,7 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         }
         Integer id = getCallGroupId();
         if (null != id) {
-            CallGroupContext context = getCallGroupContext();
+            CallGroupManager context = getCallGroupContext();
             callGroup = context.loadCallGroup(id);
         } else {
             callGroup = new CallGroup();
@@ -117,7 +117,7 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
     }
 
     private void saveValid() {
-        CallGroupContext context = getCallGroupContext();
+        CallGroupManager context = getCallGroupContext();
         CallGroup callGroup = getCallGroup();
         context.storeCallGroup(callGroup);
         Integer id = getCallGroup().getId();

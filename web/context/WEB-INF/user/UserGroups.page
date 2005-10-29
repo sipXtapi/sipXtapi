@@ -6,7 +6,7 @@
     <property-specification name="groups" 
         type="java.util.List"/>
 	<property-specification name="coreContext" 
-		type="org.sipfoundry.sipxconfig.common.CoreContext" 
+		type="org.sipfoundry.sipxconfig.common.CoreManager" 
     	initial-value="global.coreContext"/>    
 	<property-specification name="settingContext" 
 		type="org.sipfoundry.sipxconfig.setting.SettingDao" 

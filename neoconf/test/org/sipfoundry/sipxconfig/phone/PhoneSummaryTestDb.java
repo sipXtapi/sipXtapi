@@ -19,11 +19,11 @@ import org.sipfoundry.sipxconfig.TestHelper;
 
 public class PhoneSummaryTestDb extends SipxDatabaseTestCase {
 
-    private PhoneContext m_context;
+    private PhoneManager m_context;
     
     protected void setUp() throws Exception {
-        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);        
+        m_context = (PhoneManager) TestHelper.getApplicationContext().getBean(
+                PhoneManager.CONTEXT_BEAN_NAME);        
     }
     
     public void testLoad() throws Exception {        

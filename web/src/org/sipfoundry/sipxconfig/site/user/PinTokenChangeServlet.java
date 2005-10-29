@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.context.ApplicationContext;
@@ -45,7 +45,7 @@ public class PinTokenChangeServlet extends HttpServlet {
         try {
             ApplicationContext app = WebApplicationContextUtils
                     .getRequiredWebApplicationContext(getServletContext());
-            CoreContext core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
+            CoreManager core = (CoreManager) app.getBean(CoreManager.CONTEXT_BEAN_NAME);
             changePin(core, body);
             resp.setContentType("application/text");
         } catch (ChangePinException e) {
@@ -59,7 +59,7 @@ public class PinTokenChangeServlet extends HttpServlet {
         }
     }
 
-    void changePin(CoreContext core, String body) {
+    void changePin(CoreManager core, String body) {
         StringTokenizer toks = new StringTokenizer(body, ";");
         if (toks.countTokens() != EXPECTED_TOKEN_COUNT) {
             throw new ChangePinException(

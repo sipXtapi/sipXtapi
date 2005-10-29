@@ -17,7 +17,7 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -32,11 +32,11 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
     private String m_domainName;
 
-    private SipxReplicationContext m_sipxReplicationContext;
+    private SipxReplicationManager m_sipxReplicationContext;
 
     private PhoneDefaults m_phoneDefaults;
 
-    private CoreContext m_coreContext;
+    private CoreManager m_coreContext;
 
     protected void decorateSettings() {
         Setting settings = getSettings();
@@ -60,7 +60,7 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         m_domainName = domainName;
     }
 
-    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+    public void setSipxReplicationContext(SipxReplicationManager sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
     }
 
@@ -68,7 +68,7 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         m_phoneDefaults = phoneDefaults;
     }
 
-    public void setCoreContext(CoreContext coreContext) {
+    public void setCoreContext(CoreManager coreContext) {
         m_coreContext = coreContext;
     }
 
