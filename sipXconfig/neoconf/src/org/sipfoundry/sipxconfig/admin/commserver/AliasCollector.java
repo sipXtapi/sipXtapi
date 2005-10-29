@@ -64,7 +64,7 @@ public class AliasCollector implements AliasProvider, ApplicationListener {
             // collect all proxies
             for (Iterator i = beanMap.values().iterator(); i.hasNext();) {
                 AliasProvider provider = (AliasProvider) i.next();
-                // only include beans create through Factories - need hibernate support
+                // only include beans created through Factories - need hibernate support
                 if (provider instanceof Proxy) {
                     m_aliasProviders.add(provider);
                 }

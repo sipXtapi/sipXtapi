@@ -15,13 +15,14 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * CoreContext
  */
-public interface CoreContext extends DataObjectSource, AliasProvider {
+public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner {
 
     public static final String CONTEXT_BEAN_NAME = "coreContext";
 

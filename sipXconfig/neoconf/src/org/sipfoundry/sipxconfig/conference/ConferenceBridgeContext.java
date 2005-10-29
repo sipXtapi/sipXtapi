@@ -15,7 +15,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
-public interface ConferenceBridgeContext {
+import org.sipfoundry.sipxconfig.alias.AliasOwner;
+
+public interface ConferenceBridgeContext extends AliasOwner {
     
     public static final String CONTEXT_BEAN_NAME = "conferenceBridgeContext";
 

@@ -212,5 +212,12 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
 
         rings = TestHelper.getConnection().createDataSet().getTable("user_ring");
         assertEquals(0, rings.getRowCount());
-    }    
+    }
+    
+    public void testIsAliasInUse() {
+        assertTrue(m_context.isAliasInUse("401"));
+        assertTrue(m_context.isAliasInUse("402"));
+        assertFalse(m_context.isAliasInUse("911"));
+    }
+    
 }

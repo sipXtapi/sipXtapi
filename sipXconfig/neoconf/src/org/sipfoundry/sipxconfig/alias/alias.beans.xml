@@ -1,0 +1,9 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!--
+  - A L I A S  M A N A G E R 
+  -->
+  <bean id="aliasManager"
+    class="org.sipfoundry.sipxconfig.alias.AliasManager"/>
+</beans>

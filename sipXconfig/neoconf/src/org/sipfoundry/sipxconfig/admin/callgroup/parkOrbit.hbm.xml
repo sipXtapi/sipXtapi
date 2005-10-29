@@ -34,5 +34,9 @@
       <property name="extension"/>
 	    <property name="description"/>
 	</class>
+  
+    <query name="parkOrbitIdsWithExtension">
+      <![CDATA[select orbit.id from ParkOrbit orbit where orbit.extension = :value]]>
+    </query>
     
 </hibernate-mapping>

@@ -23,4 +23,9 @@
           </composite-element>
 	    </map>
 	</class>
+  
+  <query name="autoAttendantIdsWithExtension">
+    <![CDATA[select aa.id from AutoAttendant aa where aa.extension = :value]]>
+  </query>
+	
 </hibernate-mapping>

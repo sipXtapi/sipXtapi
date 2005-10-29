@@ -65,7 +65,7 @@
       <many-to-one name="autoAttendant" column="auto_attendant_id"
         class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant"/>
       <property name="localExtensionLen"/>
-      <property name="voiceMail"/>
+      <property name="voiceMail"/>		<!-- voicemail extension -->
       <property name="voiceMailPrefix"/>
       <property name="aaAliases"/>
     </joined-subclass>
@@ -127,5 +127,13 @@
   <query name="dialingRuleIdsWithName">
     <![CDATA[select dr.id from DialingRule dr where dr.name = :value]]>
   </query>  
-	
+	  
+  <query name="internalRuleIdsWithVoiceMailExtension">
+    <![CDATA[select ir.id from InternalRule ir where ir.voiceMail = :value]]>
+  </query>  
+	  
+  <query name="aaAliases">
+    <![CDATA[select ir.aaAliases from InternalRule ir]]>
+  </query>  
+
 </hibernate-mapping>

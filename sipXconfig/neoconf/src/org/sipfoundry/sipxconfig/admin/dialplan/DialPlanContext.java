@@ -16,12 +16,13 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
+import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
 /**
  * DialPlanContext
  */
-public interface DialPlanContext extends DataObjectSource {
+public interface DialPlanContext extends DataObjectSource, AliasOwner {
 
     public static final String CONTEXT_BEAN_NAME = "dialPlanContext";
 
