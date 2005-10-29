@@ -15,7 +15,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneManager;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 /**
@@ -41,7 +41,7 @@ public abstract class NewLine extends BasePage {
     
     public abstract String getReturnPage();
     
-    public abstract PhoneContext getPhoneContext();
+    public abstract PhoneManager getPhoneContext();
 
     public void finish(IRequestCycle cycle) {
         saveLine();

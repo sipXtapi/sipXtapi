@@ -8,7 +8,7 @@
    <!--
    - P H O N E  C O N T E X T   I M P L
    -->
-  <bean id="phoneContextImpl" class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
+  <bean id="phoneContextImpl" class="org.sipfoundry.sipxconfig.phone.PhoneManagerImpl">
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
@@ -72,7 +72,7 @@
   <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean"
      parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.phone.PhoneContext</value>
+      <value>org.sipfoundry.sipxconfig.phone.PhoneManager</value>
     </property>
     <property name="target">
       <ref local="phoneContextImpl"/>

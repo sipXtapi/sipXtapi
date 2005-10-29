@@ -17,12 +17,12 @@ import java.io.Writer;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 
 public abstract class DataSetGenerator {
 
     private static final DocumentFactory FACTORY = DocumentFactory.getInstance();
-    private CoreContext m_coreContext;
+    private CoreManager m_coreContext;
 
     protected final Element createItemsElement(DataSet dataSet) {
         Document document = FACTORY.createDocument();
@@ -35,11 +35,11 @@ public abstract class DataSetGenerator {
         return items.addElement("item");        
     }
 
-    public void setCoreContext(CoreContext coreContext) {
+    public void setCoreContext(CoreManager coreContext) {
         m_coreContext = coreContext;
     }
     
-    protected CoreContext getCoreContext() {
+    protected CoreManager getCoreContext() {
         return m_coreContext;
     }
     

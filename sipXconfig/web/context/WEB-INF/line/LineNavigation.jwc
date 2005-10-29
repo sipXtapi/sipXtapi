@@ -32,7 +32,7 @@
     <property-specification name="currentSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext"
+		type="org.sipfoundry.sipxconfig.phone.PhoneManager"
         initial-value="page.global.phoneContext"/>
     <!--
       - B E A N S

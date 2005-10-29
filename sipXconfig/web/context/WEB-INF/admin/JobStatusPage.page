@@ -12,7 +12,7 @@
 	  - P R O P E R T I E S
 	  -->    
     <property-specification name="jobContext" 
-    	type="org.sipfoundry.sipxconfig.job.JobContext" 
+    	type="org.sipfoundry.sipxconfig.job.JobManager" 
     	initial-value="global.jobContext"/>
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.job.Job"/>

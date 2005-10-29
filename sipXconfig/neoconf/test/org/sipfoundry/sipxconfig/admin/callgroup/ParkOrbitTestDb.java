@@ -23,11 +23,11 @@ import org.springframework.context.ApplicationContext;
 
 public class ParkOrbitTestDb extends SipxDatabaseTestCase {
 
-    private CallGroupContext m_context;
+    private CallGroupManager m_context;
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_context = (CallGroupContext) appContext.getBean(CallGroupContext.CONTEXT_BEAN_NAME);
+        m_context = (CallGroupManager) appContext.getBean(CallGroupManager.CONTEXT_BEAN_NAME);
         
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsert("admin/callgroup/OrbitSeed.xml");

@@ -12,7 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -39,7 +39,7 @@ public class PhoneDefaults {
 
     private String m_authorizationRealm;
 
-    private DialPlanContext m_dialPlanContext;
+    private DialPlanManager m_dialPlanContext;
 
     /** see config.defs PROXY_SERVER_ADDR */
     private String m_proxyServerAddr;
@@ -47,7 +47,7 @@ public class PhoneDefaults {
     /** see config.defs PROXY_SERVER_SIP_PORT */
     private String m_proxyServerSipPort;
 
-    public void setDialPlanContext(DialPlanContext dialPlanContext) {
+    public void setDialPlanContext(DialPlanManager dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
     }
 

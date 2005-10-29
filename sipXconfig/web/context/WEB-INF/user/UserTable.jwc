@@ -31,7 +31,7 @@
     <property-specification name="currentUser"
         type="org.sipfoundry.sipxconfig.common.User"/>
     <property-specification name="coreContext"
-        type="org.sipfoundry.sipxconfig.common.CoreContext"
+        type="org.sipfoundry.sipxconfig.common.CoreManager"
         initial-value="page.global.coreContext"/>
 	<!--
 	  - B E A N S

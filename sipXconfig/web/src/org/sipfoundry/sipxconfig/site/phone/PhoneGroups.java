@@ -20,7 +20,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneManager;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
@@ -32,7 +32,7 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
     
     public abstract List getGroups();
     
-    public abstract PhoneContext getPhoneContext();
+    public abstract PhoneManager getPhoneContext();
     
     public abstract SettingDao getSettingContext();
         
@@ -56,7 +56,7 @@ public abstract class PhoneGroups extends BasePage implements PageRenderListener
     }
     
     public void pageBeginRender(PageEvent event_) {
-        PhoneContext context = getPhoneContext();
+        PhoneManager context = getPhoneContext();
         setGroups(context.getGroups());
     }
 

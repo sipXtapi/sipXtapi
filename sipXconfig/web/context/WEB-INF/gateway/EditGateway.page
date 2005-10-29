@@ -18,11 +18,11 @@
     	persistent="yes"/>
 
 	<property-specification name="dialPlanContext" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager" 
     	initial-value="global.dialPlanContext"/>
     
 	<property-specification name="gatewayContext" 
-		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
+		type="org.sipfoundry.sipxconfig.gateway.GatewayManager" 
     	initial-value="global.gatewayContext"/>    
     
     <property-specification name="callback" 

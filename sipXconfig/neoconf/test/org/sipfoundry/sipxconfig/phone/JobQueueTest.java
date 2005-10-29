@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 
 import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
-import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.job.JobManager;
 
 public class JobQueueTest extends TestCase {
 
@@ -28,8 +28,8 @@ public class JobQueueTest extends TestCase {
     public void testGenerateProfiles() throws Exception {
         Integer jobId = new Integer(4);
 
-        MockControl jobContextCtrl = MockControl.createStrictControl(JobContext.class);
-        JobContext jobContext = (JobContext) jobContextCtrl.getMock();
+        MockControl jobContextCtrl = MockControl.createStrictControl(JobManager.class);
+        JobManager jobContext = (JobManager) jobContextCtrl.getMock();
         jobContext.schedule("Projection for phone 000000000000");
         jobContextCtrl.setReturnValue(jobId);
         jobContext.start(jobId);
@@ -65,8 +65,8 @@ public class JobQueueTest extends TestCase {
 
         RestartException re = new RestartException("xxx");
 
-        MockControl jobContextCtrl = MockControl.createStrictControl(JobContext.class);
-        JobContext jobContext = (JobContext) jobContextCtrl.getMock();
+        MockControl jobContextCtrl = MockControl.createStrictControl(JobManager.class);
+        JobManager jobContext = (JobManager) jobContextCtrl.getMock();
         jobContext.schedule("Projection for phone 000000000000");
         jobContextCtrl.setReturnValue(jobId);
         jobContext.start(jobId);

@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneManager;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 
@@ -54,10 +54,10 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     
     public abstract void setSelections(SelectMap selections);
     
-    public abstract PhoneContext getPhoneContext();
+    public abstract PhoneManager getPhoneContext();
 
     public void pageBeginRender(PageEvent event_) {
-        PhoneContext context = getPhoneContext();
+        PhoneManager context = getPhoneContext();
         Phone phone = context.loadPhone(getPhoneId()); 
         setPhone(phone);
         
@@ -84,7 +84,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     }
     
     public void deleteLine(IRequestCycle cycle_) {
-        PhoneContext context = getPhoneContext();
+        PhoneManager context = getPhoneContext();
         Phone phone = getPhone();
         
         // hack, avoid hibernate exception on unsaved valuestorage objects
@@ -106,7 +106,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     }
     
     private void moveLines(int step) {
-        PhoneContext context = getPhoneContext();
+        PhoneManager context = getPhoneContext();
         Phone phone = getPhone();
         Object[] lineIds = getSelections().getAllSelected().toArray();
         DataCollectionUtil.moveByPrimaryKey(phone.getLines(), lineIds, step);        
@@ -119,7 +119,7 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
     }
 
     public void apply(IRequestCycle cycle_) {
-        PhoneContext dao = getPhoneContext();
+        PhoneManager dao = getPhoneContext();
         dao.storePhone(getPhone());
         dao.flush();
     }

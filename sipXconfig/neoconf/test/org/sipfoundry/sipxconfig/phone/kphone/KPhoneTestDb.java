@@ -17,13 +17,13 @@ import java.io.StringWriter;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneManager;
 
 public class KPhoneTestDb extends SipxDatabaseTestCase {
 
     public void testGenerateEmptyProfile() throws Exception {
-        PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
+        PhoneManager pc = (PhoneManager) TestHelper.getApplicationContext().getBean(
+                PhoneManager.CONTEXT_BEAN_NAME);
 
         KPhone kphone = (KPhone) pc.newPhone(KPhone.MODEL);
 

@@ -16,14 +16,14 @@ import java.util.List;
 
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 
 public class UserTableModel implements IBasicTableModel {
-    private CoreContext m_coreContext;
+    private CoreManager m_coreContext;
     private Integer m_groupId;
     private String m_searchString;
 
-    public UserTableModel(CoreContext coreContext, Integer groupId, String searchString) {
+    public UserTableModel(CoreManager coreContext, Integer groupId, String searchString) {
         setCoreContext(coreContext);
         setGroupId(groupId);
         setSearchString(searchString);
@@ -33,7 +33,7 @@ public class UserTableModel implements IBasicTableModel {
         // intentionally empty
     }
 
-    public void setCoreContext(CoreContext coreContext) {
+    public void setCoreContext(CoreManager coreContext) {
         m_coreContext = coreContext;
     }
 

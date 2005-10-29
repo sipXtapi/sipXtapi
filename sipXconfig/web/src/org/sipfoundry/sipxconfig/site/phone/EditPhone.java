@@ -20,7 +20,7 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneManager;
 
 /**
  * Tapestry Page support for editing and creating new phones
@@ -36,7 +36,7 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
     public abstract Integer getPhoneId();    
     public abstract void setPhoneId(Integer id);
     
-    public abstract PhoneContext getPhoneContext();
+    public abstract PhoneManager getPhoneContext();
     
     public abstract ICallback getCallback();
     public abstract void setCallback(ICallback callback);
@@ -58,7 +58,7 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
         IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
         boolean save = !delegate.getHasErrors();
         if (save) {
-            PhoneContext dao = getPhoneContext();
+            PhoneManager dao = getPhoneContext();
             dao.storePhone(getPhone());
         }
         
@@ -67,7 +67,7 @@ public abstract class EditPhone extends BasePage implements PageRenderListener {
     
     public void pageBeginRender(PageEvent event_) {
         // Load the phone with the ID that was passed in
-        PhoneContext context = getPhoneContext();
+        PhoneManager context = getPhoneContext();
         setPhone(context.loadPhone(getPhoneId()));
         
         // If no callback has been given, then navigate back to Manage Phones on OK/Cancel

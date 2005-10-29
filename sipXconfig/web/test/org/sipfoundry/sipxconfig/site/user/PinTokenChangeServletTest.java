@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.site.user;
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -52,8 +52,8 @@ public class PinTokenChangeServletTest extends TestCase {
     
     
     public void testNoUser() {
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        MockControl coreContextCtrl = MockControl.createControl(CoreManager.class);
+        CoreManager coreContext = (CoreManager) coreContextCtrl.getMock();
         coreContextCtrl.expectAndReturn(coreContext.loadUserByUserName("joe"), null);
         coreContextCtrl.replay();
 
@@ -68,8 +68,8 @@ public class PinTokenChangeServletTest extends TestCase {
     }
     
     public void testChangePin() {        
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        MockControl coreContextCtrl = MockControl.createControl(CoreManager.class);
+        CoreManager coreContext = (CoreManager) coreContextCtrl.getMock();
         coreContextCtrl.expectAndReturn(coreContext.loadUserByUserName("joe"), m_user);
         coreContext.saveUser(m_user);
         coreContextCtrl.replay();
@@ -85,8 +85,8 @@ public class PinTokenChangeServletTest extends TestCase {
         m_user.addGroup(g);
         Permission.TUI_CHANGE_PIN.setEnabled(g, false);
         
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        MockControl coreContextCtrl = MockControl.createControl(CoreManager.class);
+        CoreManager coreContext = (CoreManager) coreContextCtrl.getMock();
         coreContextCtrl.expectAndReturn(coreContext.loadUserByUserName("joe"), m_user);
         coreContextCtrl.replay();
 

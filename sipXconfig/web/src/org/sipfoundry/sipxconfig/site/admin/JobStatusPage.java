@@ -16,10 +16,10 @@ import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.job.Job;
-import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.job.JobManager;
 
 public abstract class JobStatusPage extends BasePage {
-    public abstract JobContext getJobContext();
+    public abstract JobManager getJobContext();
 
     public abstract Job getCurrentRow();
 

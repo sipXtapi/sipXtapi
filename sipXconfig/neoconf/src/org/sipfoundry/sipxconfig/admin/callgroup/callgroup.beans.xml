@@ -7,7 +7,7 @@
   </bean>
   
   <bean id="callGroupContextImpl"
-    class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl">
+    class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupManagerImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="coreContext" ref="coreContextImpl"/>
     <property name="replicationContext" ref="sipxReplicationContext"/>
@@ -23,7 +23,7 @@
     parent="abstractDao"
     depends-on="callGroupContextUserDelete">
     <property name="proxyInterfaces"
-      value="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext"/>
+      value="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupManager"/>
     <property name="target">
       <ref local="callGroupContextImpl"/>
     </property>

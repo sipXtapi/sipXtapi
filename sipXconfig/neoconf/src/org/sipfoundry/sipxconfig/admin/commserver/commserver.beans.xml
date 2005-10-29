@@ -19,7 +19,7 @@
 		<property name="sipxReplicationContext" ref="sipxReplicationContext"/>
 	</bean>	
 	<bean id="sipxReplicationContextImpl" abstract="true"
-		class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
+		class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationManagerImpl">
 		<property name="configDirectory" value="${sysdir.etc}"/>
 		<property name="replicationManager">
 			<bean class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl"/>
@@ -28,14 +28,14 @@
 	</bean>
 	
 	<bean id="sipxProcessContext" parent="sipxReplicationContextImpl"
-		class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
+		class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessManagerImpl">
 	</bean>
 	
 	<bean id="backgroundTaskInterceptor"
 		class="org.sipfoundry.sipxconfig.common.BackgroundTaskInterceptor"/>
 	
 	<bean id="sipxReplicationContext"
-		class="org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl"
+		class="org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationManagerImpl"
 		init-method="init">
 		<property name="target">
 			<ref local="sipxProcessContext"></ref>
@@ -84,6 +84,6 @@
 	</bean>
 	
 	<bean id="registrationContext"
-		class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl">		
+		class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationManagerImpl">		
 	</bean>
 </beans>

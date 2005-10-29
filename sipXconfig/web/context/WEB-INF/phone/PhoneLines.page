@@ -18,7 +18,7 @@
     <property-specification name="selections"
         type="org.sipfoundry.sipxconfig.components.SelectMap"/>
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
     	initial-value="global.phoneContext"/>    
 	<!--
 	  - B E A N S

@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -33,7 +33,7 @@ public abstract class UserNavigation extends BaseComponent {
 
     public abstract Setting getCurrentSetting();
     
-    public abstract CoreContext getCoreContext();
+    public abstract CoreManager getCoreContext();
 
     public void editUser(IRequestCycle cycle) {
         EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);

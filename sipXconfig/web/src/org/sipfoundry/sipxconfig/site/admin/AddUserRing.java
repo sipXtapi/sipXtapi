@@ -18,8 +18,8 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupManager;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
@@ -27,9 +27,9 @@ import org.sipfoundry.sipxconfig.site.user.UserTable;
 public abstract class AddUserRing extends BasePage implements PageRenderListener {
     public static final String PAGE = "AddUserRing";
 
-    public abstract CallGroupContext getCallGroupContext();
+    public abstract CallGroupManager getCallGroupContext();
 
-    public abstract CoreContext getCoreContext();
+    public abstract CoreManager getCoreContext();
 
     public abstract Integer getCallGroupId();
 

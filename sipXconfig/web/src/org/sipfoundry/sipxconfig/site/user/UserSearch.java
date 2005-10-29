@@ -18,7 +18,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.common.User;
 
 
@@ -34,7 +34,7 @@ public abstract class UserSearch extends BaseComponent implements PageRenderList
     
     public abstract void setUsers(List users);
     
-    public abstract CoreContext getCoreContext();
+    public abstract CoreManager getCoreContext();
     
     public abstract boolean isFirstRender();
     

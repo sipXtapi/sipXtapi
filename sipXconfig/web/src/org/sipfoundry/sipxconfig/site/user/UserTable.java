@@ -16,7 +16,7 @@ import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -30,7 +30,7 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
 
     public abstract void setSelections(SelectMap selected);
 
-    public abstract CoreContext getCoreContext();
+    public abstract CoreManager getCoreContext();
 
     public abstract Integer getGroupId();
     
@@ -47,7 +47,7 @@ public abstract class UserTable extends BaseComponent implements PageRenderListe
     }
 
     public IPrimaryKeyConvertor getIdConverter() {
-        CoreContext context = getCoreContext();
+        CoreManager context = getCoreContext();
         return new ObjectSourceDataSqueezer(context, User.class);
     }
 }

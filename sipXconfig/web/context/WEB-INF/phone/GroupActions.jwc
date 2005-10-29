@@ -31,11 +31,11 @@
   <property-specification name="selectedAction" type="org.apache.tapestry.IActionListener"/>
   
   <property-specification name="phoneContext" 
-  	type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+  	type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
   	initial-value="page.global.phoneContext"/>
   
   <property-specification name="tapestry"
-  	type="org.sipfoundry.sipxconfig.components.TapestryContext"
+  	type="org.sipfoundry.sipxconfig.components.TapestryUtil"
   	initial-value="page.global.tapestry"/>
   
   <property-specification name="groupModel" type="org.apache.tapestry.form.IPropertySelectionModel"/>

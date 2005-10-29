@@ -15,7 +15,7 @@
     <parameter name="reminderMsg" type="java.lang.String" direction="in" required="yes"/>
     
     <property-specification name="sipxProcessContext" 
-    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext" 
+    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessManager" 
     	initial-value="page.global.sipxProcessContext"/>
     
     <property-specification name="restartLater" type="boolean" initial-value="false"/>

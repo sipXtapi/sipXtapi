@@ -18,7 +18,7 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.ExtensionPool;
-import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
+import org.sipfoundry.sipxconfig.common.ExtensionPoolManager;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ExtensionPoolsPage extends BasePage {
@@ -29,8 +29,8 @@ public abstract class ExtensionPoolsPage extends BasePage {
      * Properties
      */
     
-    public abstract ExtensionPoolContext getExtensionPoolContext();
-    public abstract void setExtensionPoolContext(ExtensionPoolContext pool);
+    public abstract ExtensionPoolManager getExtensionPoolContext();
+    public abstract void setExtensionPoolContext(ExtensionPoolManager pool);
     
     public abstract ExtensionPool getUserExtensionPool();
     public abstract void setUserExtensionPool(ExtensionPool pool);

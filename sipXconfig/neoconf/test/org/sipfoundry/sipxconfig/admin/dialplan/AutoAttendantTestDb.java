@@ -24,11 +24,11 @@ import org.springframework.context.ApplicationContext;
 
 public class AutoAttendantTestDb extends SipxDatabaseTestCase {
 
-    private DialPlanContext m_context;
+    private DialPlanManager m_context;
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_context = (DialPlanContext) appContext.getBean(DialPlanContext.CONTEXT_BEAN_NAME);
+        m_context = (DialPlanManager) appContext.getBean(DialPlanManager.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 

@@ -22,7 +22,7 @@ import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -67,14 +67,14 @@ public class SipxServerTest extends TestCase {
         phoneDefaults.setDomainName(newDomainName);
         phoneDefaultsCtrl.replay();
 
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        MockControl coreContextCtrl = MockControl.createControl(CoreManager.class);
+        CoreManager coreContext = (CoreManager) coreContextCtrl.getMock();
         coreContext.setDomainName(newDomainName);
         coreContextCtrl.replay();
 
         MockControl replicationContextCtrl = MockControl
-                .createControl(SipxReplicationContext.class);
-        SipxReplicationContext replicationContext = (SipxReplicationContext) replicationContextCtrl
+                .createControl(SipxReplicationManager.class);
+        SipxReplicationManager replicationContext = (SipxReplicationManager) replicationContextCtrl
                 .getMock();
         replicationContext.generate(DataSet.ALIAS);
         replicationContext.generateAll();
@@ -95,8 +95,8 @@ public class SipxServerTest extends TestCase {
     }
 
     public void testGetAliasMappings() {
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        MockControl coreContextCtrl = MockControl.createControl(CoreManager.class);
+        CoreManager coreContext = (CoreManager) coreContextCtrl.getMock();
         coreContext.getDomainName();
         coreContextCtrl.setDefaultReturnValue("domain.com");
         coreContextCtrl.replay();

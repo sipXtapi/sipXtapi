@@ -15,7 +15,7 @@ import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -25,7 +25,7 @@ public abstract class ManageUsers extends BasePage {
     public static final String PAGE = "ManageUsers";
     private static final String USER_TABLE_COMPONENT_ID = "userTable";
 
-    public abstract CoreContext getCoreContext();
+    public abstract CoreManager getCoreContext();
 
     public abstract Integer getGroupId();   
     public abstract void setGroupId(Integer groupId);

@@ -16,13 +16,13 @@ import java.util.Collection;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
 public abstract class Services extends BasePage {
     public static final String PAGE = "Services";
 
-    public abstract SipxProcessContext getSipxProcessContext();
+    public abstract SipxProcessManager getSipxProcessContext();
 
     public abstract ServiceStatus getCurrentRow();
 
@@ -40,19 +40,19 @@ public abstract class Services extends BasePage {
         // triggered, data is available only for those components that precede it in the
         // rendering order. So wait until formSubmit, at which time all data will be there.
 
-        SipxProcessContext processContext = getSipxProcessContext();
+        SipxProcessManager processContext = getSipxProcessContext();
         if (getServicesToStart() != null) {
             // Start selected services
             String[] serviceNames = namesCollectionToArray(getServicesToStart());
-            processContext.manageServices(serviceNames, SipxProcessContext.Command.START);
+            processContext.manageServices(serviceNames, SipxProcessManager.Command.START);
         } else if (getServicesToStop() != null) {
             // Stop selected services
             String[] serviceNames = namesCollectionToArray(getServicesToStop());
-            processContext.manageServices(serviceNames, SipxProcessContext.Command.STOP);
+            processContext.manageServices(serviceNames, SipxProcessManager.Command.STOP);
         } else if (getServicesToRestart() != null) {
             // Restart selected services
             String[] serviceNames = namesCollectionToArray(getServicesToRestart());
-            processContext.manageServices(serviceNames, SipxProcessContext.Command.RESTART);
+            processContext.manageServices(serviceNames, SipxProcessManager.Command.RESTART);
         }
     }
 

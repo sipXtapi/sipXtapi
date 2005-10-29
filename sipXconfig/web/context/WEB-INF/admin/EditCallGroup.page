@@ -12,7 +12,7 @@
 	  - P R O P E R T I E S
 	  -->
     <property-specification name="callGroupContext" 
-    	type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext" 
+    	type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupManager" 
 	    initial-value="global.callGroupContext"/>
     
 	<property-specification name="callGroup" 

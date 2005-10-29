@@ -13,14 +13,14 @@ package org.sipfoundry.sipxconfig.api;
 
 import java.rmi.RemoteException;
 
-import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.CoreManager;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class UserServiceSoapBindingImpl implements UserService {
     
-    private CoreContext m_coreContext;
+    private CoreManager m_coreContext;
     
-    public void setCoreContext(CoreContext coreContext) {
+    public void setCoreContext(CoreManager coreContext) {
         m_coreContext = coreContext;
     }
 

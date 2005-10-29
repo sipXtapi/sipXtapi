@@ -13,12 +13,12 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.PhoneManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
 public class RemoveFromPhoneGroupAction extends BulkGroupAction {
-    private PhoneContext m_phoneContext;
+    private PhoneManager m_phoneContext;
 
     public RemoveFromPhoneGroupAction(Group group) {
         super(group);
@@ -28,7 +28,7 @@ public class RemoveFromPhoneGroupAction extends BulkGroupAction {
         m_phoneContext.removeFromGroup(getGroup().getId(), getIds());
     }
 
-    public void setPhoneContext(PhoneContext phoneContext) {
+    public void setPhoneContext(PhoneManager phoneContext) {
         m_phoneContext = phoneContext;
     }
 }
