@@ -157,5 +157,15 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
         IDatabaseConnection db = TestHelper.getConnection();
         assertEquals(1, db.getRowCount("routing_exception"));
-    }    
+    }
+    
+    public void testIsAliasInUse() throws Exception {
+        TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
+        assertTrue(m_context.isAliasInUse("1234"));     // auto attendant extension
+        assertTrue(m_context.isAliasInUse("alias1"));   // auto attendant alias
+        assertTrue(m_context.isAliasInUse("alias2"));   // auto attendant alias
+        assertTrue(m_context.isAliasInUse("100"));      // voicemail extension
+        assertFalse(m_context.isAliasInUse("200"));     // a random extension that should not be in use
+    }
+
 }

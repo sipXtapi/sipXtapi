@@ -73,4 +73,8 @@
     <![CDATA[from Participant p where p.user = :user and p.conference = :conference]]>
   </query>
   
+  <query name="conferenceIdsWithExtension">
+    <![CDATA[select conf.id from Conference conf where conf.extension = :value]]>
+  </query>
+  
 </hibernate-mapping>

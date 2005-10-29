@@ -97,4 +97,11 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         ITable orbitTable = TestHelper.getConnection().createDataSet().getTable("park_orbit");
         assertEquals(newMusic, orbitTable.getValue(2, "music"));
     }
+    
+    public void testIsAliasInUse() {
+        assertTrue(m_context.isAliasInUse("401"));
+        assertTrue(m_context.isAliasInUse("402"));
+        assertFalse(m_context.isAliasInUse("911"));
+    }
+    
 }

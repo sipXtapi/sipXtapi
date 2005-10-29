@@ -20,6 +20,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
+import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -34,8 +35,12 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext {
     private static final String NAME_PROP_NAME = "name";
     private static final String EXTENSION_PROP_NAME = "extension";
+    private static final String VALUE = "value";
+    
     private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";
     private static final String QUERY_CALL_GROUP_IDS_WITH_EXTENSION = "callGroupIdsWithExtension";
+    private static final String QUERY_PARK_ORBIT_IDS_WITH_EXTENSION = "parkOrbitIdsWithExtension";
+    
     private CoreContext m_coreContext;
     private Orbits m_orbitsGenerator;
     private SipxReplicationContext m_replicationContext;
@@ -266,4 +271,29 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
     }
+
+    /**
+     * Implement AliasOwner.isAliasInUse.
+     * CallGroupContextImpl owns aliases for call groups and park orbits.
+     */
+    public boolean isAliasInUse(String alias) {
+        return isCallGroupAliasInUse(alias) || isParkOrbitAliasInUse(alias);
+    }
+    
+    private boolean isCallGroupAliasInUse(String alias) {
+        // Look for the ID of a call group with the specified alias/extension.
+        // If there is one, then the alias is in use.
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_CALL_GROUP_IDS_WITH_EXTENSION, VALUE, alias);
+        return CollectionUtils.safeSize(objs) > 0;
+    }
+    
+    private boolean isParkOrbitAliasInUse(String alias) {
+        // Look for the ID of a park orbit with the specified alias/extension.
+        // If there is one, then the alias is in use.
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_PARK_ORBIT_IDS_WITH_EXTENSION, VALUE, alias);
+        return CollectionUtils.safeSize(objs) > 0;        
+    }
+
 }

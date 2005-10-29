@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
+import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -40,7 +41,13 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private static final String NAME_PROP_NAME = "name";
     private static final String EXTENSION_PROP_NAME = "extension";
     private static final String OPERATOR_CONSTANT = "operator";
+    private static final String VALUE = "value";
+    
     private static final String QUERY_DIALING_RULE_IDS_WITH_NAME = "dialingRuleIdsWithName";
+    private static final String QUERY_AUTO_ATTENDANT_IDS_WITH_EXTENSION = "autoAttendantIdsWithExtension";
+    private static final String QUERY_AUTO_ATTENDANT_ALIASES = "aaAliases";
+    private static final String QUERY_INTERNAL_RULE_IDS_WITH_VOICE_MAIL_EXTENSION =
+        "internalRuleIdsWithVoiceMailExtension";
 
     private class NameInUseException extends UserException {
         private static final String ERROR = "The name \"{1}\" is already in use. "
@@ -364,4 +371,50 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         storeEmergencyRouting(emergencyRouting);
         applyEmergencyRouting();
     }
+
+    /**
+     * Implement AliasOwner.isAliasInUse.  DialPlanContextImpl owns aliases for
+     * auto attendants and voicemail.
+     */
+    public boolean isAliasInUse(String alias) {
+        return isAutoAttendantExtensionInUse(alias)
+                || isAutoAttendantAliasInUse(alias)
+                || isVoiceMailExtensionInUse(alias);
+    }
+
+    private boolean isAutoAttendantExtensionInUse(String alias) {
+        // Look for the ID of an auto attendant with the specified alias/extension.
+        // If there is one, then the alias is in use.
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_AUTO_ATTENDANT_IDS_WITH_EXTENSION, VALUE, alias);
+        return CollectionUtils.safeSize(objs) > 0;        
+    }
+    
+    private boolean isAutoAttendantAliasInUse(String alias) {
+        // Because auto attendant aliases are stored together in a comma-delimited string,
+        // we can't query the DB for individual aliases.  However, there will be so few
+        // of these aliases (one string per internal dialing rule) that we can simply load
+        // all such alias strings and check them in Java.
+        boolean isAliasInUse = false;
+        List aliasStrings = getHibernateTemplate().findByNamedQuery(QUERY_AUTO_ATTENDANT_ALIASES);
+        for (Iterator iter = CollectionUtils.safeIterator(aliasStrings); iter.hasNext();) {
+            String aliasesString = (String) iter.next();
+            String[] aliases = InternalRule.getAttendantAliasesAsArray(aliasesString);
+            for (int i = 0; i < aliases.length; i++) {
+                String ruleAlias = aliases[i];
+                if (ruleAlias.equals(alias)) {
+                    isAliasInUse = true;
+                    break;
+                }
+            }
+        }
+        return isAliasInUse;
+    }
+    
+    private boolean isVoiceMailExtensionInUse(String alias) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_INTERNAL_RULE_IDS_WITH_VOICE_MAIL_EXTENSION, VALUE, alias);
+        return CollectionUtils.safeSize(objs) > 0;        
+    }
+
 }

@@ -23,8 +23,8 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Common utility methods for unittesting with neoconf. Somewhat controversial being in codebase,
- * however unittest library is uglier IMHO.
+ * Common utility methods for unit testing with neoconf. Somewhat controversial being in codebase,
+ * however unit test library is uglier IMHO.
  */
 public final class TestUtil {
     

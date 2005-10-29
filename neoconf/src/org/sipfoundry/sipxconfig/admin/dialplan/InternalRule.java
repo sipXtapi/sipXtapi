@@ -59,10 +59,12 @@ public class InternalRule extends DialingRule {
         m_localExtensionLen = localExtensionLen;
     }
 
+    /** Return the voicemail extension */
     public String getVoiceMail() {
         return m_voiceMail;
     }
 
+    /** Set the voicemail extension */
     public void setVoiceMail(String voiceMail) {
         m_voiceMail = voiceMail;
     }
@@ -84,12 +86,16 @@ public class InternalRule extends DialingRule {
     }
 
     public String[] getAttendantAliasesAsArray() {
-        if (null == m_aaAliases) {
-            return ArrayUtils.EMPTY_STRING_ARRAY;
-        }
-        return StringUtils.split(m_aaAliases, ", ");
+        return getAttendantAliasesAsArray(m_aaAliases);
     }
 
+    public static String[] getAttendantAliasesAsArray(String aliasesString) {
+        if (aliasesString == null) {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+        return StringUtils.split(aliasesString, ", ");        
+    }
+    
     public void appendToGenerationRules(List rules) {
         if (!isEnabled()) {
             return;

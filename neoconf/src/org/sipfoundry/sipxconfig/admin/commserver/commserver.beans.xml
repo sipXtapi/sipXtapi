@@ -47,10 +47,10 @@
 		<property name="coreContext" ref="coreContext"/>
 	</bean>
 	
-	<!-- list of files and directory in shich they are located can be changed in sipxconfig.properties -->
+	<!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
 	<bean id="externalAliases" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases"/>
 	
-	<!-- aliasCoollector needs to be a named bean - it listens to application events -->
+	<!-- aliasCollector needs to be a named bean - it listens to application events -->
 	<bean id="aliasCollector" class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
 		<property name="aliasProviderBeanIds">
 			<list>

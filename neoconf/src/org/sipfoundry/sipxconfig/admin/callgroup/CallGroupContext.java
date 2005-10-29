@@ -15,8 +15,9 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+import org.sipfoundry.sipxconfig.alias.AliasOwner;
 
-public interface CallGroupContext extends AliasProvider {
+public interface CallGroupContext extends AliasProvider, AliasOwner {
     public static final String CONTEXT_BEAN_NAME = "callGroupContext";
 
     void activateCallGroups();

@@ -385,4 +385,13 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public void onSave(Object entity_) {
     }
+
+    public boolean isAliasInUse(String alias) {
+        // Look for the ID of a user with a user ID or user alias matching the specified SIP alias.
+        // If there is one, then the alias is in use.
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_USER_IDS_BY_NAME_OR_ALIAS, "value", alias);
+        return CollectionUtils.safeSize(objs) > 0;        
+    }
+
 }

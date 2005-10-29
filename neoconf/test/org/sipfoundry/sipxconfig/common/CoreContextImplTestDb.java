@@ -387,4 +387,11 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("kyle", u.getUserName());
     }
     
+    public void testIsAliasInUse() throws Exception {
+        TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
+        assertTrue(m_core.isAliasInUse("janus"));       // a user ID
+        assertTrue(m_core.isAliasInUse("dweezil"));     // a user alias
+        assertFalse(m_core.isAliasInUse("jessica"));    // a first name
+    }
+
 }

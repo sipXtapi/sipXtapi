@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
@@ -163,4 +164,11 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
+
+    public boolean isAliasInUse(String alias) {
+        List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "conferenceIdsWithExtension", "value", alias);
+        return CollectionUtils.safeSize(confIds) > 0;        
+    }
+    
 }

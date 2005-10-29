@@ -178,5 +178,15 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(0, db.getRowCount("meetme_bridge"));
         assertEquals(0, db.getRowCount("meetme_conference"));
         assertEquals(0, db.getRowCount("meetme_participant"));
+    }    
+
+    public void testIsAliasInUse() throws Exception {
+        TestHelper.getConnection();
+        TestHelper.insertFlat("conference/participants.db.xml");
+        assertTrue(m_context.isAliasInUse("1699"));
+        assertTrue(m_context.isAliasInUse("1700"));
+        assertTrue(m_context.isAliasInUse("1701"));
+        assertFalse(m_context.isAliasInUse("1702"));
     }
+    
 }
