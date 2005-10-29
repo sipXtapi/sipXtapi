@@ -17,15 +17,15 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
-public class AddToPhoneGroupAction extends BulkGroupAction {
+public class RemoveFromPhoneGroupAction extends BulkGroupAction {
     private PhoneContext m_phoneContext;
 
-    public AddToPhoneGroupAction(Group group) {
+    public RemoveFromPhoneGroupAction(Group group) {
         super(group);
     }
 
     public void actionTriggered(IComponent component_, IRequestCycle cycle_) {
-        m_phoneContext.addToGroup(getGroup().getId(), getIds());
+        m_phoneContext.removeFromGroup(getGroup().getId(), getIds());
     }
 
     public void setPhoneContext(PhoneContext phoneContext) {
