@@ -4,7 +4,28 @@
   <property name="project.dir" value="web" />
   <import file="../ant-targets.xml" />
   <property name="test.war" value="${test.classes.dir}/war" />
+  <property name="wsdl.src.dir" value="${dist.dir}/wsdl-src"/>
   <patternset id="test-ui.classes" includes="**/*TestUi.class" /> 
+  
+  <path id="axis.path">
+    <pathelement location="${jaxrpc.jar}"/>
+    <pathelement location="${commons-discovery.jar}"/>
+    <pathelement location="${saaj.jar}"/>
+    <pathelement location="${wsdl4j.jar}"/>
+    <pathelement location="${axis-ant.jar}"/>
+    <pathelement location="${axis-schema.jar}"/>		
+    <pathelement location="${activation.jar}"/>
+    <pathelement location="${javamail.jar}"/>
+    <pathelement location="${axis.jar}"/>	
+  </path>
+  
+  <taskdef name="wsdl2java" 
+	    classname="org.apache.axis.tools.ant.wsdl.Wsdl2javaAntTask">
+	<classpath refid="axis.path"/>
+	<classpath>
+	    <pathelement location="${axis-ant.jar}"/>
+	</classpath>	
+  </taskdef>
 
   <!-- 
             - common path unittests will need that interfaces w/sipxconfig lib 
@@ -93,10 +114,49 @@
 
   <!-- D E F A U L T -->
   <target name="default" depends="war" />
+  
+  <target name="compile.wsdl">
+	<delete dir="${wsdl.src.dir}"/>
+	<mkdir dir="${wsdl.src.dir}"/>
+	<wsdl2java 		
+		url="${src.dir}/org/sipfoundry/sipxconfig/api/UserService.wsdl"
+		output="${wsdl.src.dir}"
+		serverside="true"
+		noWrapped="true">
+		<mapping namespace="urn:UserService" 
+			package="org.sipfoundry.sipxconfig.api"/>
+	</wsdl2java>
+	<!-- generted impl classes are just stubbed -->
+	<delete>
+          <fileset dir="${wsdl.src.dir}">
+		<include name="**/*BindingImpl.java"/>
+          </fileset>
+	</delete>
+    <sipx-javac srcdir="${wsdl.src.dir}"
+       destdir="${classes.dir}"
+       classpathref="base.path">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+      </classpath>
+    </sipx-javac>	
+	<!-- aggregate axis deployment files into 1 server-config.wsdd -->
+	<java
+	  classname="org.apache.axis.utils.Admin"
+	  fork="true"
+	  failonerror="true"
+	  dir="${wsdl.src.dir}">
+	    <classpath refid="axis.path"/>
+	    <classpath location="${log4j.jar}"/>
+	    <classpath location="${commons-logging.jar}"/>
+	    <classpath location="${classes.dir}"/>
+  	    <arg value="server"/>
+	    <arg file="${wsdl.src.dir}/org/sipfoundry/sipxconfig/api/deploy.wsdd" />
+	</java>
+  </target>
 
   <!-- W A R -->	
   <!-- FIXME: Remove dependency on compile.test -->	
-  <target name="war" depends="compile,compile.test" 
+  <target name="war" depends="init,compile.wsdl,compile,compile.test" 
     description="assemble sipxconfig for tapestry war">
   	<condition property="include.testpage">
   		<equals arg1="${debug}" arg2="on"/>
@@ -115,6 +175,9 @@
       	<present present="srconly" targetdir="${ant.1.4.1}/src/main"/>      	
         <exclude name="**/TestPage.*" unless="include.testpage"/>
       </webinf>
+	  <webinf dir="${wsdl.src.dir}">
+		<include name="server-config.wsdd"/>
+	  </webinf>
       <classes dir="${classes.dir}" />
       <classes dir="${src.dir}">
         <include name="**/*.xml" />
@@ -178,8 +241,6 @@
       </fileset>
     </copy>
   	
-	<echo>wsdl4j.jar=${wsdl4j.jar}</echo>
-	
     <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
       <fileset file="${wsdl4j.jar}"/>
       <fileset file="${sipxconfig.war}"/>

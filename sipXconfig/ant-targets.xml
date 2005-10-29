@@ -131,7 +131,7 @@
   <target name="compile" depends="init,with.clover">
 		<description>compile all files in src directory</description>
 
-    <javac srcdir="${src.dir}"
+    <sipx-javac srcdir="${src.dir}"
         destdir="${classes.dir}"
         classpathref="base.path"
         debug="${debug}"
@@ -176,19 +176,14 @@
   <target name="compile.test" depends="check.compile.test,compile,init,with.clover" if="tests.present">
 		<description>compile tests</description>
 
-    <javac srcdir="${test.src.dir}"
+    <sipx-javac srcdir="${test.src.dir}"
        destdir="${test.classes.dir}"
-       classpathref="base.path"
-       debug="${debug}"
-       deprecation="${deprecation}"
-       optimize="${optimize}"
-       source="1.4"
-       target="1.4">
+       classpathref="base.path">
       <classpath>
         <pathelement path="${classes.dir}"/>
         <pathelement location="${junit.jar}"/>
       </classpath>
-    </javac>
+    </sipx-javac>
   </target>
 
   <!-- C H E C K S T Y L E -->
@@ -337,6 +332,17 @@
   <presetdef name="sipx-jar">
 		<jar manifest="${dist.dir}/MANIFEST.MF"/>
 	</presetdef>
+	
+  <presetdef name="sipx-javac">
+	<javac
+       destdir="${test.classes.dir}"
+       classpathref="base.path"
+       debug="${debug}"
+       deprecation="${deprecation}"
+       optimize="${optimize}"
+       source="1.4"
+       target="1.4"/>	
+  </presetdef>
 	
 </project>
 
