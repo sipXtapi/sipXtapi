@@ -26,7 +26,7 @@
   	default-value="null"
   	type="java.lang.Integer"/>
   
-  <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.DisabledGroupPropertySelectionRenderer"/>
+  <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer"/>
 
   <property-specification name="selectedAction" type="org.apache.tapestry.IActionListener"/>
   

@@ -20,8 +20,9 @@ import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 public class AddToPhoneGroupAction extends BulkGroupAction {
     private PhoneContext m_phoneContext;
 
-    public AddToPhoneGroupAction(Group group) {
+    public AddToPhoneGroupAction(Group group, PhoneContext phoneContext) {
         super(group);
+        m_phoneContext = phoneContext;
     }
 
     public void actionTriggered(IComponent component_, IRequestCycle cycle_) {

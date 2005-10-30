@@ -11,12 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
@@ -27,6 +25,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
+import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
@@ -71,15 +70,19 @@ public abstract class GroupActions extends BaseComponent {
         for (Iterator i = groups.iterator(); i.hasNext();) {
             Group g = (Group) i.next();
             if (g.getId().equals(getRemoveFromGroupId())) {
-                // do not add remove from...
+                // do not add the "remove from" group...
                 removeFromGroup = g;
                 continue;
             }
-            actions.add(new AddToPhoneGroupAction(g));
+            if (actions.size() == 0) {
+                actions.add(new OptGroup("Add to:"));
+            }
+            actions.add(new AddToPhoneGroupAction(g, getPhoneContext()));
         }
 
         if (removeFromGroup != null) {
-            actions.add(new RemoveFromPhoneGroupAction(removeFromGroup));
+            actions.add(new OptGroup("Remove from:"));
+            actions.add(new RemoveFromPhoneGroupAction(removeFromGroup, getPhoneContext()));
         }
 
         AdaptedSelectionModel model = new AdaptedSelectionModel();
@@ -98,14 +101,6 @@ public abstract class GroupActions extends BaseComponent {
         BulkGroupAction action = (BulkGroupAction) a;
         Collection selectedIds = getSelectedPhoneIds();
         action.setIds(selectedIds);
-
-        try {
-            BeanUtils.setProperty(action, "phoneContext", getPhoneContext());
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
 
         action.actionTriggered(this, cycle);
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
