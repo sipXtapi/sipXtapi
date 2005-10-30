@@ -18,7 +18,9 @@
        type="org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor"/>
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-    	initial-value="global.phoneContext"/>    
+    	initial-value="global.phoneContext"/>
+    <property-specification name="actionModel" 
+    	type="org.apache.tapestry.form.IPropertySelectionModel"/>
 	<!--
 	  - B E A N S
 	  -->
@@ -91,8 +93,7 @@
         <binding name="groups" expression="phoneContext.groups"/>
     </component>    
     <component id="groupActions" type="GroupActions">
-        <binding name="selectedPhoneIds" expression="selections.allSelected"/>
-        <binding name="groups" expression="phoneContext.groups"/>
-        <binding name="removeFromGroupId" expression="groupId"/>
+        <binding name="selectedIds" expression="selections.allSelected"/>
+        <binding name="actionModel" expression="actionModel"/>
     </component>
 </page-specification>
