@@ -20,8 +20,9 @@ import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 public class RemoveFromPhoneGroupAction extends BulkGroupAction {
     private PhoneManager m_phoneContext;
 
-    public RemoveFromPhoneGroupAction(Group group) {
+    public RemoveFromPhoneGroupAction(Group group, PhoneManager phoneContext) {
         super(group);
+        m_phoneContext = phoneContext;
     }
 
     public void actionTriggered(IComponent component_, IRequestCycle cycle_) {

@@ -49,10 +49,10 @@ public class OptGroupPropertySelectionRenderer implements IPropertySelectionRend
     public final void renderOption(PropertySelection component_, IMarkupWriter writer,
             IRequestCycle cycle_, IPropertySelectionModel model, Object option, int index,
             boolean selected) {
-        if (option == null) {
-            renderOptGroup(writer, model, index, selected);
+        if (option instanceof OptGroup) {
+            renderOptGroup(writer, (OptGroup) option, index);
         } else {
-            renderNormalOption(writer, model, index, selected);
+            renderNormalOption(writer, model, index, selected, option == null);
         }
     }
 
@@ -63,41 +63,34 @@ public class OptGroupPropertySelectionRenderer implements IPropertySelectionRend
     }
 
     protected void renderNormalOption(IMarkupWriter writer, IPropertySelectionModel model,
-            int index, boolean selected) {
+            int index, boolean selected, boolean disabled) {
         writer.begin(OPTION_ELEM);
         writer.attribute(VALUE_ATTR, model.getValue(index));
-
         if (selected) {
             writer.attribute(SELECTED_ATTR, true);
         }
-        writer.print(model.getLabel(index));
+        if (disabled) {
+            writer.attribute(DISABLED_ATTR, true);
+        }
+        String label = model.getLabel(index);
+        writer.attribute(LABEL_ATTR, label);
+        writer.print(label);
         writer.end();
         writer.println();
     }
 
-    private void renderOptGroup(IMarkupWriter writer, IPropertySelectionModel model, int index,
-            boolean selected) {
-        // this is really option group
+    protected void renderOptGroup(IMarkupWriter writer, OptGroup optGroup, int index) {
         endOptionGroup(writer);
-        renderOptGroupStart(writer, model, index, selected);
+        writer.begin("optgroup");
+        writer.attribute(LABEL_ATTR, optGroup.getLabel(optGroup, index));
+        writer.println();
         m_insideOptGroup = true;
     }
 
-    protected void renderOptGroupStart(IMarkupWriter writer, IPropertySelectionModel model,
-            int index, boolean selected_) {
-        writer.begin("optgroup");
-        writer.attribute(LABEL_ATTR, model.getLabel(index));
-        writer.println();
-    }
-
-    protected void endOptionGroup(IMarkupWriter writer) {
+    private void endOptionGroup(IMarkupWriter writer) {
         if (m_insideOptGroup) {
-            renderOptGroupEnd(writer);
+            writer.end();
             m_insideOptGroup = false;
         }
-    }
-
-    protected void renderOptGroupEnd(IMarkupWriter writer) {
-        writer.end();
     }
 }

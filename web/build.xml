@@ -97,6 +97,7 @@
     <!-- TEST -->
     <pathelement path="${commons-digester.jar}" />
     <pathelement path="${easymock.jar}" />
+    <pathelement path="${easymockclassextension.jar}" />
     <pathelement path="${httpunit.jar}" />
     <pathelement path="${jwebunit.jar}" />
     <pathelement path="${jetty.jar}" />
