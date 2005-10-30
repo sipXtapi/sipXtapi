@@ -26,14 +26,14 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
-    // There are four AliasOwners (excluding AliasManager itself): CallGroupManagerImpl,
-    // ConferenceBridgeManagerImpl, CoreManagerImpl, and DialPlanManagerImpl.
+    // There are four AliasOwners (excluding AliasManager itself): CallGroupContextImpl,
+    // ConferenceBridgeContextImpl, CoreContextImpl, and DialPlanContextImpl.
     public void testGetAliasOwners() {
         Collection aliasOwners = m_aliasManager.getAliasOwners();
         assertTrue(aliasOwners.size() >= 4);    // allow for more AliasOwners to be added
     }
     
-    // See CoreManagerImplTestDb.testIsAliasInUse
+    // See CoreContextImplTestDb.testIsAliasInUse
     public void testIsUserAliasInUse() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
         assertTrue(m_aliasManager.isAliasInUse("janus"));       // a user ID
@@ -41,7 +41,7 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
         assertFalse(m_aliasManager.isAliasInUse("jessica"));    // a first name        
     }
     
-    // See DialPlanManagerTestDb,DialPlanManagerTestDb
+    // See DialPlanContextTestDb,DialPlanContextTestDb
     public void testIsAutoAttendantAliasInUse() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
         assertTrue(m_aliasManager.isAliasInUse("1234"));     // auto attendant extension

@@ -102,7 +102,7 @@
   
     
   <!-- gateway context -->
-  <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayManagerImpl">
+  <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
     <property name="dialPlanContext">
       <ref bean="dialPlanContext"/>
     </property>
@@ -125,7 +125,7 @@
   <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean"
     parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.gateway.GatewayManager</value>
+      <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>
     </property>
     <property name="target">
       <ref local="gatewayContextImpl"/>

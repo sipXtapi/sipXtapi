@@ -16,7 +16,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
 
@@ -33,7 +33,7 @@ public abstract class EditLine extends BasePage implements PageRenderListener {
     
     public abstract void setLineId(Integer id);
     
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
 
     public void ok(IRequestCycle cycle) {
         apply(cycle);
@@ -41,7 +41,7 @@ public abstract class EditLine extends BasePage implements PageRenderListener {
     }
 
     public void apply(IRequestCycle cycle_) {
-        PhoneManager dao = getPhoneContext();
+        PhoneContext dao = getPhoneContext();
         dao.storeLine(getLine());
         dao.flush();
     }
@@ -51,7 +51,7 @@ public abstract class EditLine extends BasePage implements PageRenderListener {
     }
     
     public void pageBeginRender(PageEvent event_) {
-        PhoneManager context = getPhoneContext();
+        PhoneContext context = getPhoneContext();
         setLine(context.loadLine(getLineId()));
     }
 }

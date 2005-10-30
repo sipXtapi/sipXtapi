@@ -16,14 +16,14 @@ import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 
 public abstract class FirstUser extends BasePage implements PageRenderListener {
     public static final String PAGE = "FirstUser";
 
-    public abstract CoreManager getCoreContext();
+    public abstract CoreContext getCoreContext();
     
     public abstract String getPin();
     public abstract void setPin(String pin);

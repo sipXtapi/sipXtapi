@@ -15,10 +15,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingManager;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 
 public class AuthExceptions extends DataSetGenerator {
-    private ForwardingManager m_forwardingContext;
+    private ForwardingContext m_forwardingContext;
 
     protected DataSet getType() {
         return DataSet.AUTH_EXCEPTION;
@@ -33,7 +33,7 @@ public class AuthExceptions extends DataSetGenerator {
         }
     }
     
-    public void setForwardingContext(ForwardingManager forwardingContext) {
+    public void setForwardingContext(ForwardingContext forwardingContext) {
         m_forwardingContext = forwardingContext;
     }    
 }

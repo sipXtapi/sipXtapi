@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
@@ -50,7 +50,7 @@ public class ConfigGenerator {
         }                
     }
     
-    public void generate(DialPlanManager plan) {
+    public void generate(DialPlanContext plan) {
         List rules = plan.getGenerationRules();
 
         for (Iterator i = rules.iterator(); i.hasNext();) {

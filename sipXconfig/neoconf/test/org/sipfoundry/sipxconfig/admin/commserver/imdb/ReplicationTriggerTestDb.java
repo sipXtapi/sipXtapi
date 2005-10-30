@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -24,17 +24,17 @@ import org.springframework.context.ApplicationContext;
 public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
 	
 	private ReplicationTrigger m_trigger;
-	private SipxReplicationManager m_oldReplicationContext;
+	private SipxReplicationContext m_oldReplicationContext;
 	private MockControl m_processControl;
-	private SipxReplicationManager m_replicationContext;
+	private SipxReplicationContext m_replicationContext;
 	private SettingDao m_dao;
 
 	protected void setUp() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         ApplicationContext app = TestHelper.getApplicationContext();
         m_trigger = (ReplicationTrigger) app.getBean("replicationTrigger");
-		m_processControl = MockControl.createStrictControl(SipxReplicationManager.class);
-        m_replicationContext = (SipxReplicationManager) m_processControl.getMock();        
+		m_processControl = MockControl.createStrictControl(SipxReplicationContext.class);
+        m_replicationContext = (SipxReplicationContext) m_processControl.getMock();        
         m_oldReplicationContext = m_trigger.getReplicationContext();		
         m_dao = (SettingDao) app.getBean("settingDao");
 	}

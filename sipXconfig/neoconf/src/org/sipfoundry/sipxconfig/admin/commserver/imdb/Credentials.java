@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class Credentials extends DataSetGenerator {
@@ -24,7 +24,7 @@ public class Credentials extends DataSetGenerator {
     }
 
     protected void addItems(Element items) {
-        CoreManager coreContext = getCoreContext();
+        CoreContext coreContext = getCoreContext();
         String domainName = coreContext.getDomainName();
         String realm = coreContext.getAuthorizationRealm();
         List list = coreContext.loadUsers();

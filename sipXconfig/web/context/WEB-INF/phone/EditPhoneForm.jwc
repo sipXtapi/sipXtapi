@@ -30,7 +30,7 @@
 		type="org.apache.tapestry.form.IPropertySelectionModel"
         persistent="yes"/>   
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneManager"
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext"
         initial-value="page.global.phoneContext"/>
     <!--
       - B E A N S 

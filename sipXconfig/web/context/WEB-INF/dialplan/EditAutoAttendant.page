@@ -19,7 +19,7 @@
        type="org.sipfoundry.sipxconfig.components.SelectMap"
        initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
 	<property-specification name="dialPlanContext" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>   
     <property-specification name="currentDialPad"
         type="org.sipfoundry.sipxconfig.common.DialPad"/>

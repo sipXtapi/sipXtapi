@@ -16,11 +16,11 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.valid.IValidationDelegate;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.GatewayManager;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
 /**
@@ -41,13 +41,13 @@ public abstract class EditGateway extends PageWithCallback implements PageRender
 
     public abstract void setRuleId(Integer id);
 
-    public abstract DialPlanManager getDialPlanContext();
+    public abstract DialPlanContext getDialPlanContext();
 
-    public abstract void setDialPlanContext(DialPlanManager dialPlanContext);
+    public abstract void setDialPlanContext(DialPlanContext dialPlanContext);
 
-    public abstract GatewayManager getGatewayContext();
+    public abstract GatewayContext getGatewayContext();
 
-    public abstract void setGatewayContext(GatewayManager context);
+    public abstract void setGatewayContext(GatewayContext context);
 
     public abstract String getCurrentSettingSetName();
 
@@ -95,7 +95,7 @@ public abstract class EditGateway extends PageWithCallback implements PageRender
 
     void saveGateway() {
         Gateway gateway = getGateway();
-        GatewayManager gatewayContext = getGatewayContext();
+        GatewayContext gatewayContext = getGatewayContext();
         if (gateway.isNew()) {
             Gateway newGateway = gatewayContext.newGateway(gateway.getModel());
             newGateway.setName(gateway.getName());
@@ -109,7 +109,7 @@ public abstract class EditGateway extends PageWithCallback implements PageRender
         // attach gateway to current rule
         Integer ruleId = getRuleId();
         if (null != ruleId) {
-            DialPlanManager manager = getDialPlanContext();
+            DialPlanContext manager = getDialPlanContext();
             DialingRule rule = manager.getRule(ruleId);
             rule.addGateway(gateway);
             manager.storeRule(rule);

@@ -22,7 +22,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
-import org.sipfoundry.sipxconfig.admin.AdminManager;
+import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.DailyBackupSchedule;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -47,7 +47,7 @@ public abstract class BackupPage extends BasePage implements PageRenderListener 
         new Integer(50)
     });
 
-    public abstract AdminManager getAdminContext();
+    public abstract AdminContext getAdminContext();
 
     public abstract List getBackupFiles();
 
@@ -88,7 +88,7 @@ public abstract class BackupPage extends BasePage implements PageRenderListener 
             // do nothing on errors
             return;
         }
-        AdminManager adminContext = getAdminContext();
+        AdminContext adminContext = getAdminContext();
         BackupPlan plan = getBackupPlan();
         File[] backupFiles = adminContext.performBackup(plan);
         if (null != backupFiles) {
@@ -100,7 +100,7 @@ public abstract class BackupPage extends BasePage implements PageRenderListener 
     }
     
     public void ok(IRequestCycle cycle_) {
-        AdminManager adminContext = getAdminContext();
+        AdminContext adminContext = getAdminContext();
         BackupPlan plan = getBackupPlan();
         adminContext.storeBackupPlan(plan);
     }

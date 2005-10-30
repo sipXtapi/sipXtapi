@@ -19,21 +19,21 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class LineTestDb extends SipxDatabaseTestCase {
 
-    private PhoneManager m_context;
+    private PhoneContext m_context;
 
-    private CoreManager m_core;
+    private CoreContext m_core;
 
     protected void setUp() throws Exception {
-        m_context = (PhoneManager) TestHelper.getApplicationContext().getBean(
-                PhoneManager.CONTEXT_BEAN_NAME);
-        m_core = (CoreManager) TestHelper.getApplicationContext().getBean(
-                CoreManager.CONTEXT_BEAN_NAME);
+        m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(
+                PhoneContext.CONTEXT_BEAN_NAME);
+        m_core = (CoreContext) TestHelper.getApplicationContext().getBean(
+                CoreContext.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.xml");
     }

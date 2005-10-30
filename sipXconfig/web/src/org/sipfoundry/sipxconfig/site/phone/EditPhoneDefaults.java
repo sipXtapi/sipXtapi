@@ -20,7 +20,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -54,7 +54,7 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
 
     public abstract SettingDao getSettingDao();
     
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
 
     public abstract Setting getCurrentNavigationSetting();
     

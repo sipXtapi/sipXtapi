@@ -11,7 +11,7 @@
     <property-specification name="phoneId"
         type="java.lang.Integer" persistent="yes"/>
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
     <property-specification name="callback" 
     	type="org.apache.tapestry.callback.ICallback"

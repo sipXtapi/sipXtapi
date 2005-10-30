@@ -41,7 +41,7 @@
   </bean>
   
   <bean id="conferenceBridgeContextImpl"
-    class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeManagerImpl">
+    class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="coreContext" ref="coreContextImpl"/>
   </bean>
@@ -53,7 +53,7 @@
     parent="abstractDao"
     depends-on="conferenceBridgeContextUserDelete">
     <property name="proxyInterfaces"
-      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeManager"/>
+      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext"/>
     <property name="target">
       <ref local="conferenceBridgeContextImpl"/>
     </property>

@@ -23,7 +23,7 @@ import org.apache.tapestry.form.PropertySelection;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.RoutingException;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -35,7 +35,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
 
     public static final String PAGE = "EditEmergencyRouting";
 
-    public abstract DialPlanManager getDialPlanContext();
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract EmergencyRouting getEmergencyRouting();
 
@@ -72,7 +72,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
         if (!isValid()) {
             return;
         }
-        DialPlanManager manager = getDialPlanContext();
+        DialPlanContext manager = getDialPlanContext();
         manager.storeEmergencyRouting(getEmergencyRouting());
         manager.applyEmergencyRouting();
     }

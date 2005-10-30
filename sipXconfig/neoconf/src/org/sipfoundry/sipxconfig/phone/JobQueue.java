@@ -16,12 +16,12 @@ import java.io.Serializable;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.BackgroundTaskQueue;
-import org.sipfoundry.sipxconfig.job.JobManager;
+import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class JobQueue extends BackgroundTaskQueue {
     private static final Log LOG = LogFactory.getLog(JobQueue.class);
 
-    private JobManager m_jobContext;
+    private JobContext m_jobContext;
 
     public void addJob(JobRecord job) {
         Phone[] phones = job.getPhones();
@@ -34,9 +34,9 @@ public class JobQueue extends BackgroundTaskQueue {
     static class Job implements Runnable {
         private Phone m_phone;
         private int m_type;
-        private JobManager m_jobContext;
+        private JobContext m_jobContext;
 
-        public Job(Phone phone, int type, JobManager context) {
+        public Job(Phone phone, int type, JobContext context) {
             m_phone = phone;
             m_type = type;
             m_jobContext = context;
@@ -63,7 +63,7 @@ public class JobQueue extends BackgroundTaskQueue {
         }
     }
 
-    public void setJobContext(JobManager jobContext) {
+    public void setJobContext(JobContext jobContext) {
         m_jobContext = jobContext;
     }
 }

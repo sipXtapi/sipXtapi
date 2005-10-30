@@ -18,17 +18,17 @@ import java.util.List;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationManager;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.gateway.GatewayManager;
-import org.sipfoundry.sipxconfig.job.JobManager;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
@@ -53,19 +53,19 @@ public abstract class TestPage extends BasePage {
     public static final String TEST_USER_ALIASES = TEST_USER_ALIAS1 + ", " + TEST_USER_ALIAS2;
     public static final String TEST_USER_PIN = "1234";
 
-    public abstract DialPlanManager getDialPlanContext();
+    public abstract DialPlanContext getDialPlanContext();
 
-    public abstract GatewayManager getGatewayContext();
+    public abstract GatewayContext getGatewayContext();
 
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
 
-    public abstract CallGroupManager getCallGroupContext();
+    public abstract CallGroupContext getCallGroupContext();
 
-    public abstract CoreManager getCoreContext();
+    public abstract CoreContext getCoreContext();
 
-    public abstract SipxReplicationManager getSipxReplicationContext();
+    public abstract SipxReplicationContext getSipxReplicationContext();
 
-    public abstract JobManager getJobContext();
+    public abstract JobContext getJobContext();
 
     public void resetDialPlans(IRequestCycle cycle_) {
         getDialPlanContext().clear();
@@ -183,7 +183,7 @@ public abstract class TestPage extends BasePage {
     }
 
     public void populateJobs(IRequestCycle cycle_) {
-        JobManager jobContext = getJobContext();
+        JobContext jobContext = getJobContext();
         jobContext.clear();
         Serializable[] jobIds = new Serializable[JOBS];
         for (int i = 0; i < jobIds.length; i++) {
@@ -207,7 +207,7 @@ public abstract class TestPage extends BasePage {
     }
 
     public void login(IRequestCycle cycle) {
-        CoreManager core = getCoreContext();
+        CoreContext core = getCoreContext();
         List users = core.loadUsers();
         if (users.isEmpty()) {
             seedTestUser(cycle);
@@ -221,7 +221,7 @@ public abstract class TestPage extends BasePage {
     public void generateDataSet(IRequestCycle cycle) {
         String setName = (String) TapestryUtils.assertParameter(String.class, cycle
                 .getServiceParameters(), 0);
-        SipxReplicationManager sipxReplicationContext = getSipxReplicationContext();
+        SipxReplicationContext sipxReplicationContext = getSipxReplicationContext();
         sipxReplicationContext.generate(DataSet.getEnum(setName));
     }
 

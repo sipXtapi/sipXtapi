@@ -18,7 +18,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -34,7 +34,7 @@ public abstract class UserGroups extends BasePage  implements PageRenderListener
     
     public abstract List getGroups();
     
-    public abstract CoreManager getCoreContext();
+    public abstract CoreContext getCoreContext();
     
     public abstract SettingDao getSettingContext();
         
@@ -66,7 +66,7 @@ public abstract class UserGroups extends BasePage  implements PageRenderListener
     }
     
     public void pageBeginRender(PageEvent event_) {
-        CoreManager context = getCoreContext();
+        CoreContext context = getCoreContext();
         setGroups(context.getGroups());
     }
 }

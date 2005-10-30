@@ -4,7 +4,7 @@
   <!--
   - C O R E  C O N T E X T   I M P L
   -->
-  <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreManagerImpl">
+  <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
@@ -19,7 +19,7 @@
   -->
   <bean id="coreContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.common.CoreManager</value>
+      <value>org.sipfoundry.sipxconfig.common.CoreContext</value>
     </property>
     <property name="target">
       <ref local="coreContextImpl"/>
@@ -29,7 +29,7 @@
   <!--
   - E X T E N S I O N  P O O L  C O N T E X T   I M P L
   -->
-  <bean id="extensionPoolContextImpl" class="org.sipfoundry.sipxconfig.common.ExtensionPoolManagerImpl">
+  <bean id="extensionPoolContextImpl" class="org.sipfoundry.sipxconfig.common.ExtensionPoolContextImpl">
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
@@ -42,7 +42,7 @@
   -->
   <bean id="extensionPoolContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.common.ExtensionPoolManager</value>
+      <value>org.sipfoundry.sipxconfig.common.ExtensionPoolContext</value>
     </property>
     <property name="target">
       <ref local="extensionPoolContextImpl"/>

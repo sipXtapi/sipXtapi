@@ -27,7 +27,7 @@ import org.springframework.context.ApplicationContext;
 
 public class UserTestDb extends SipxDatabaseTestCase {
 
-    private CoreManager m_core;
+    private CoreContext m_core;
     
     private SettingDao m_settingDao;
     
@@ -35,7 +35,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext(); 
-        m_core = (CoreManager) app.getBean(CoreManager.CONTEXT_BEAN_NAME);        
+        m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);        
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
     }
 

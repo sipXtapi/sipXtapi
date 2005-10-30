@@ -14,7 +14,7 @@
     <property-specification name="lineId"
         type="java.lang.Integer" persistent="yes"/>
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
     <!--
       - C O M P O N E N T S

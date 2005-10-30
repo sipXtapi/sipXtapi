@@ -49,7 +49,7 @@ public class Phone extends BeanWithGroups {
 
     private List m_lines = Collections.EMPTY_LIST;
 
-    private PhoneManager m_phoneContext;
+    private PhoneContext m_phoneContext;
 
     private String m_tftpRoot;
 
@@ -339,11 +339,11 @@ public class Phone extends BeanWithGroups {
         getPhoneContext().getPhoneDefaults().setLineDefaults(line, line.getUser());
     }
 
-    public PhoneManager getPhoneContext() {
+    public PhoneContext getPhoneContext() {
         return m_phoneContext;
     }
 
-    public void setPhoneContext(PhoneManager phoneContext) {
+    public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
     }
 

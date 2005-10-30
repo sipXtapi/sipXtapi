@@ -28,8 +28,8 @@ public class DataInitializerTest extends TestCase {
     public void testApplyPatch() {        
         InitializationTask event0 = new InitializationTask("unittest");
         
-        MockControl adminControl = MockControl.createStrictControl(AdminManager.class);        
-        AdminManager admin = (AdminManager) adminControl.getMock();
+        MockControl adminControl = MockControl.createStrictControl(AdminContext.class);        
+        AdminContext admin = (AdminContext) adminControl.getMock();
         admin.deleteInitializationTask(event0.getTask());
         adminControl.replay();
                 

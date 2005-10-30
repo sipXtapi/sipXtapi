@@ -16,7 +16,7 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -26,7 +26,7 @@ public abstract class EditUser extends PageWithCallback implements PageRenderLis
 
     public static final String PAGE = "EditUser";
 
-    public abstract CoreManager getCoreContext();
+    public abstract CoreContext getCoreContext();
 
     public abstract Integer getUserId();
 

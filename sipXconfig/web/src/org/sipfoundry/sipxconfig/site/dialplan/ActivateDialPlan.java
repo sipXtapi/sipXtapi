@@ -13,8 +13,8 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessManager.Process;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminderPanel;
@@ -27,7 +27,7 @@ public abstract class ActivateDialPlan extends BasePage {
 
     public abstract ConfigFileType getSelected();
 
-    public abstract DialPlanManager getDialPlanContext();
+    public abstract DialPlanContext getDialPlanContext();
 
     public String getXml() {
         ConfigGenerator generator = getDialPlanContext().getGenerator();
@@ -46,7 +46,7 @@ public abstract class ActivateDialPlan extends BasePage {
     }
 
     public void activate(IRequestCycle cycle) {
-        DialPlanManager manager = getDialPlanContext();
+        DialPlanContext manager = getDialPlanContext();
         manager.activateDialPlan();
         RestartReminderPanel reminder = (RestartReminderPanel) getComponent("reminder");
         reminder.restart();

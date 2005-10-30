@@ -17,12 +17,12 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
 
 
@@ -39,9 +39,9 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     
     public abstract void setPhoneId(Integer id);
     
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
     
-    public abstract CoreManager getCoreContext();
+    public abstract CoreContext getCoreContext();
     
     /** 
      * made no attempts to abstract this to return to generic page
@@ -54,7 +54,7 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
     public abstract boolean getReturnToEditPhone();
     
     public void select(IRequestCycle cycle) {
-        PhoneManager context = getPhoneContext();
+        PhoneContext context = getPhoneContext();
         Phone phone = context.loadPhone(getPhoneId());
         
         UserTable table = (UserTable) getComponent("searchResults");

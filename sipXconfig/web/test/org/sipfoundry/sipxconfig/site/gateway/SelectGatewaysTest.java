@@ -20,10 +20,10 @@ import junit.framework.TestCase;
 import org.apache.tapestry.test.AbstractInstantiator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.GatewayManager;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.site.gateway.SelectGateways;
 
 /**
@@ -50,13 +50,13 @@ public class SelectGatewaysTest extends TestCase {
         DialingRule rule = new CustomDialingRule();
         rule.setUniqueId();
         
-        MockControl dialPlanContextControl = MockControl.createStrictControl(DialPlanManager.class);
+        MockControl dialPlanContextControl = MockControl.createStrictControl(DialPlanContext.class);
         dialPlanContextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        DialPlanManager dialPlanContext = (DialPlanManager) dialPlanContextControl.getMock();
+        DialPlanContext dialPlanContext = (DialPlanContext) dialPlanContextControl.getMock();
         
-        MockControl contextControl = MockControl.createStrictControl(GatewayManager.class);
+        MockControl contextControl = MockControl.createStrictControl(GatewayContext.class);
         contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        GatewayManager context = (GatewayManager) contextControl.getMock();
+        GatewayContext context = (GatewayContext) contextControl.getMock();
         
         dialPlanContext.getRule(rule.getId());
         dialPlanContextControl.setReturnValue(rule);

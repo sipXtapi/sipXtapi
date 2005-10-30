@@ -17,7 +17,7 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -28,7 +28,7 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
     public static final String PAGE = "NewUser";
     private static final int SIP_PASSWORD_LEN = 8;
 
-    public abstract CoreManager getCoreContext();
+    public abstract CoreContext getCoreContext();
 
     public abstract Integer getUserId();
 
@@ -41,7 +41,7 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
     public void commit(IRequestCycle cycle_) {
         if (TapestryUtils.isValid(this)) {
             // Save the user
-            CoreManager core = getCoreContext();
+            CoreContext core = getCoreContext();
             User user = getUser();
             core.saveUser(user);
 

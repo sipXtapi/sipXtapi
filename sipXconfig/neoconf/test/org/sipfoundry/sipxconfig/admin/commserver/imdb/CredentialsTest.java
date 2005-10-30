@@ -19,7 +19,7 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -29,8 +29,8 @@ public class CredentialsTest extends XMLTestCase {
     private static final String DOMAIN = "sipx." + SIPFOUNDRY;
 
     public void testGenerateEmpty() throws Exception {
-        MockControl control = MockControl.createControl(CoreManager.class);
-        CoreManager coreContext = (CoreManager) control.getMock();
+        MockControl control = MockControl.createControl(CoreContext.class);
+        CoreContext coreContext = (CoreContext) control.getMock();
         coreContext.getDomainName();
         control.setReturnValue("host.company.com");
         coreContext.getAuthorizationRealm();

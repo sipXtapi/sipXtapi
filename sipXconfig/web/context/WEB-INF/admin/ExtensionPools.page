@@ -9,7 +9,7 @@
       - P R O P E R T I E S
       -->        
 	<property-specification name="extensionPoolContext" 
-		type="org.sipfoundry.sipxconfig.common.ExtensionPoolManager" 
+		type="org.sipfoundry.sipxconfig.common.ExtensionPoolContext" 
     	initial-value="global.extensionPoolContext"/>        
 	<property-specification name="userExtensionPool" 
 		type="org.sipfoundry.sipxconfig.common.ExtensionPool" 

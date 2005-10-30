@@ -12,7 +12,7 @@
         type="org.sipfoundry.sipxconfig.gateway.Gateway"/>
     
     <property-specification name="gatewayContext" 
-    	type="org.sipfoundry.sipxconfig.gateway.GatewayManager"
+    	type="org.sipfoundry.sipxconfig.gateway.GatewayContext"
         initial-value="page.global.gatewayContext"/>
     
     <!-- 

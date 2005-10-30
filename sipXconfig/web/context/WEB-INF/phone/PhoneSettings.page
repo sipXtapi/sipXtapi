@@ -18,7 +18,7 @@
     <property-specification name="parentSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
     <!-- B E A N S -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>

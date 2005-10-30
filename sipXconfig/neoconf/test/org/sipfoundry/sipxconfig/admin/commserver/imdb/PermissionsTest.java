@@ -20,7 +20,7 @@ import org.dom4j.Element;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -28,8 +28,8 @@ import org.sipfoundry.sipxconfig.setting.Group;
 public class PermissionsTest extends XMLTestCase {
 
     public void testGenerateEmpty() throws Exception {
-        MockControl control = MockControl.createControl(CoreManager.class);
-        CoreManager coreContext = (CoreManager) control.getMock();
+        MockControl control = MockControl.createControl(CoreContext.class);
+        CoreContext coreContext = (CoreContext) control.getMock();
         coreContext.getDomainName();
         control.setReturnValue("host.company.com");
         coreContext.loadUsers();

@@ -20,7 +20,7 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class ExtensionsTest extends XMLTestCase {
@@ -54,8 +54,8 @@ public class ExtensionsTest extends XMLTestCase {
     }
 
     public void testGenerateEmpty() throws Exception {
-        MockControl control = MockControl.createControl(CoreManager.class);
-        CoreManager coreContext = (CoreManager) control.getMock();
+        MockControl control = MockControl.createControl(CoreContext.class);
+        CoreContext coreContext = (CoreContext) control.getMock();
         coreContext.getDomainName();
         control.setReturnValue("company.com");
         coreContext.loadUsers();
@@ -73,8 +73,8 @@ public class ExtensionsTest extends XMLTestCase {
     }
     
     public void testGenerate() throws Exception {
-        MockControl control = MockControl.createControl(CoreManager.class);
-        CoreManager coreContext = (CoreManager) control.getMock();
+        MockControl control = MockControl.createControl(CoreContext.class);
+        CoreContext coreContext = (CoreContext) control.getMock();
         coreContext.getDomainName();
         control.setReturnValue("company.com");
         coreContext.loadUsers();

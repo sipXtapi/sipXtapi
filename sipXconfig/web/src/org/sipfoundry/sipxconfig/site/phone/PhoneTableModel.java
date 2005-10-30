@@ -16,17 +16,17 @@ import java.util.List;
 
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 /**
  * Geared towards paging-based data models for tapestry TableViews that only load one page at a
  * time and do server-side sorting.
  */
 public class PhoneTableModel implements IBasicTableModel {
-    private PhoneManager m_phoneContext;
+    private PhoneContext m_phoneContext;
     private Integer m_groupId;
 
-    public PhoneTableModel(PhoneManager phoneContext, Integer groupId) {
+    public PhoneTableModel(PhoneContext phoneContext, Integer groupId) {
         m_phoneContext = phoneContext;
         m_groupId = groupId;
     }
@@ -39,7 +39,7 @@ public class PhoneTableModel implements IBasicTableModel {
         m_groupId = groupId;
     }
 
-    public void setPhoneContext(PhoneManager context) {
+    public void setPhoneContext(PhoneContext context) {
         m_phoneContext = context;
     }
 

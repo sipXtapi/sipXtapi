@@ -18,11 +18,11 @@
       -->
     
     <property-specification name="coreContext"
-        type="org.sipfoundry.sipxconfig.common.CoreManager"
+        type="org.sipfoundry.sipxconfig.common.CoreContext"
         initial-value="page.global.coreContext"/>
     
     <property-specification name="extensionPoolContext"
-        type="org.sipfoundry.sipxconfig.common.ExtensionPoolManager"
+        type="org.sipfoundry.sipxconfig.common.ExtensionPoolContext"
         initial-value="page.global.extensionPoolContext"/>
     
     <property-specification name="pin" type="java.lang.String"/>
