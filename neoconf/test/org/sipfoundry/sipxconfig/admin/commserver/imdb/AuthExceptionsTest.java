@@ -17,14 +17,14 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingManager;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 
 public class AuthExceptionsTest extends XMLTestCase {
     private String[] DATA = { "aaa", "bbb", "ccc" };
 
     public void testGenerate() throws Exception {
-        MockControl control = MockControl.createControl(ForwardingManager.class);
-        ForwardingManager forwardingContext = (ForwardingManager) control.getMock();
+        MockControl control = MockControl.createControl(ForwardingContext.class);
+        ForwardingContext forwardingContext = (ForwardingContext) control.getMock();
         forwardingContext.getForwardingAuthExceptions();
         control.setReturnValue(Arrays.asList(DATA));
         control.replay();

@@ -21,14 +21,14 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.ListEditMap;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingManager;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.login.LoginManager;
+import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.sipfoundry.sipxconfig.site.Visit;
 
 /**
@@ -38,11 +38,11 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
     public static final String PAGE = "UserCallForwarding";
     private static final String ACTION_ADD = "add";
 
-    public abstract ForwardingManager getForwardingContext();
+    public abstract ForwardingContext getForwardingContext();
 
-    public abstract LoginManager getLoginContext();
+    public abstract LoginContext getLoginContext();
 
-    public abstract CoreManager getCoreContext();
+    public abstract CoreContext getCoreContext();
 
     public abstract CallSequence getCallSequence();
 
@@ -100,7 +100,7 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
         User user = getCoreContext().loadUser(userId);
         setUser(user);
 
-        ForwardingManager forwardingContext = getForwardingContext();
+        ForwardingContext forwardingContext = getForwardingContext();
         callSequence = forwardingContext.getCallSequenceForUserId(userId);
         setCallSequence(callSequence);
 
@@ -163,7 +163,7 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
     public void deleteRing(IRequestCycle cycle) {
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
                 .getServiceParameters(), 0);
-        ForwardingManager forwardingContext = getForwardingContext();
+        ForwardingContext forwardingContext = getForwardingContext();
         Ring ring = forwardingContext.getRing(id);
         CallSequence callSequence = ring.getCallSequence();
         callSequence.removeRing(ring);

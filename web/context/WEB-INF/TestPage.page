@@ -7,25 +7,25 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.TestPage">
     
 	<property-specification name="dialPlanContext" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
     	initial-value="global.dialPlanContext"/>
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>
     <property-specification name="callGroupContext" 
-    	type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupManager" 
+    	type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext" 
 	    initial-value="global.callGroupContext"/>    
 	<property-specification name="gatewayContext" 
-		type="org.sipfoundry.sipxconfig.gateway.GatewayManager" 
+		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
     	initial-value="global.gatewayContext"/>    
 	<property-specification name="coreContext" 
-		type="org.sipfoundry.sipxconfig.common.CoreManager" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="global.coreContext"/>
     <property-specification name="sipxReplicationContext"
-    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationManager"
+    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext"
     	initial-value="global.sipxReplicationContext"/>
     <property-specification name="jobContext" 
-    	type="org.sipfoundry.sipxconfig.job.JobManager" 
+    	type="org.sipfoundry.sipxconfig.job.JobContext" 
     	initial-value="global.jobContext"/>
 
     <component id="resetDialPlans" type="DirectLink">

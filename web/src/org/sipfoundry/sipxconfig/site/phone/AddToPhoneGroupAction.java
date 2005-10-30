@@ -13,14 +13,14 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
 public class AddToPhoneGroupAction extends BulkGroupAction {
-    private PhoneManager m_phoneContext;
+    private PhoneContext m_phoneContext;
 
-    public AddToPhoneGroupAction(Group group, PhoneManager phoneContext) {
+    public AddToPhoneGroupAction(Group group, PhoneContext phoneContext) {
         super(group);
         m_phoneContext = phoneContext;
     }
@@ -29,7 +29,7 @@ public class AddToPhoneGroupAction extends BulkGroupAction {
         m_phoneContext.addToGroup(getGroup().getId(), getIds());
     }
 
-    public void setPhoneContext(PhoneManager phoneContext) {
+    public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
     }
 }

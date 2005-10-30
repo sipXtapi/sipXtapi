@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 /**
@@ -41,7 +41,7 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public abstract void setIdConverter(IPrimaryKeyConvertor cvt);
 
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
 
     public abstract Integer getGroupId();
 
@@ -76,7 +76,7 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
     }
 
     public void deletePhone(IRequestCycle cycle_) {
-        PhoneManager context = getPhoneContext();
+        PhoneContext context = getPhoneContext();
         Phone[] phones = getSelectedPhones();
         for (int i = 0; i < phones.length; i++) {
             context.deletePhone(phones[i]);
@@ -96,7 +96,7 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
     }
 
     private Phone[] getSelectedPhones() {
-        PhoneManager phoneContext = getPhoneContext();
+        PhoneContext phoneContext = getPhoneContext();
 
         SelectMap selections = getSelections();
         Iterator phoneIds = selections.getAllSelected().iterator();
@@ -121,7 +121,7 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
      * called before page is drawn
      */
     public void pageBeginRender(PageEvent event_) {
-        PhoneManager phoneContext = getPhoneContext();
+        PhoneContext phoneContext = getPhoneContext();
 
         setIdConverter(new PhoneDataSqueezer(phoneContext));
 
@@ -137,7 +137,7 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
      */
     static class PhoneDataSqueezer extends ObjectSourceDataSqueezer {
 
-        PhoneDataSqueezer(PhoneManager context) {
+        PhoneDataSqueezer(PhoneContext context) {
             super(context, Phone.class);
         }
 
@@ -152,8 +152,8 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
         public Object getValue(Object objPrimaryKey) {
             Phone phoneMeta = (Phone) super.getValue(objPrimaryKey);
-            // reload object due to PhoneManager API (good) restriction
-            PhoneManager pc = (PhoneManager) getDataObjectSource();
+            // reload object due to PhoneContext API (good) restriction
+            PhoneContext pc = (PhoneContext) getDataObjectSource();
             Phone phone = pc.loadPhone(phoneMeta.getId());
 
             return phone;

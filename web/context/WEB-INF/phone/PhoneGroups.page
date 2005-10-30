@@ -6,7 +6,7 @@
     <property-specification name="groups" 
         type="java.util.List"/>
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>    
 	<property-specification name="settingContext" 
 		type="org.sipfoundry.sipxconfig.setting.SettingDao" 

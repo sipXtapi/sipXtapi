@@ -22,16 +22,16 @@ import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.components.TapestryUtil;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
 public abstract class GroupActions extends BaseComponent {
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
 
     public abstract Collection getSelectedPhoneIds();
 
@@ -47,7 +47,7 @@ public abstract class GroupActions extends BaseComponent {
 
     public abstract void setGroupModel(IPropertySelectionModel model);
 
-    public abstract TapestryUtil getTapestry();
+    public abstract TapestryContext getTapestry();
 
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         initGroupModel();

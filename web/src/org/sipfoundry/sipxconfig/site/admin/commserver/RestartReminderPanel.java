@@ -16,15 +16,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessManager;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessManager.Process;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 
 public abstract class RestartReminderPanel extends BaseComponent {
     public static final String PAGE = "RestartReminder";
 
     public abstract boolean getRestartLater();
 
-    public abstract SipxProcessManager getSipxProcessContext();
+    public abstract SipxProcessContext getSipxProcessContext();
 
     public abstract void setProcesses(Object[] processes);
 
@@ -36,10 +36,10 @@ public abstract class RestartReminderPanel extends BaseComponent {
         }
         Object[] processes = getProcesses();
         List procsToRestart = (null != processes) ? Arrays.asList(processes) : Process.getAll();
-        SipxProcessManager processContext = getSipxProcessContext();
+        SipxProcessContext processContext = getSipxProcessContext();
         for (Iterator i = procsToRestart.iterator(); i.hasNext();) {
             Process p = (Process) i.next();
-            processContext.manageService(p, SipxProcessManager.Command.RESTART);
+            processContext.manageService(p, SipxProcessContext.Command.RESTART);
         }
     }
 }

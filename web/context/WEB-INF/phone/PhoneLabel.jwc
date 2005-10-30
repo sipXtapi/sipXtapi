@@ -17,7 +17,7 @@
         direction="in">
     </parameter>    
 	<parameter name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneManager" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	required="yes"
     	direction="auto"/>    
     <!--

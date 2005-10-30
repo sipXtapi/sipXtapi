@@ -9,7 +9,7 @@
     <description>Backup page</description>
     
     <property-specification name="adminContext" 
-    	type="org.sipfoundry.sipxconfig.admin.AdminManager" 
+    	type="org.sipfoundry.sipxconfig.admin.AdminContext" 
     	initial-value="global.adminContext"/>
         
     <property-specification name="backupFiles" type="java.util.List"/>

@@ -22,11 +22,11 @@ import org.sipfoundry.sipxconfig.TestHelper;
 
 public class DailyBackupScheduleTestDb extends SipxDatabaseTestCase {
     
-    private AdminManager m_adminContext;
+    private AdminContext m_adminContext;
     
     protected void setUp() throws Exception {
-        m_adminContext = (AdminManager) TestHelper.getApplicationContext().getBean(
-                AdminManager.CONTEXT_BEAN_NAME);
+        m_adminContext = (AdminContext) TestHelper.getApplicationContext().getBean(
+                AdminContext.CONTEXT_BEAN_NAME);
     }
     
     public void testStoreJob() throws Exception {

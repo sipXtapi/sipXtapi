@@ -22,8 +22,8 @@ import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
-import org.sipfoundry.sipxconfig.common.CoreManager;
-import org.sipfoundry.sipxconfig.common.ExtensionPoolManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -35,8 +35,8 @@ public abstract class UserForm extends BaseComponent {
     // non-printable PIN "\1\1\1\1\1\1\1\1" but Tapestry silently discards the string!)
     private static final String DUMMY_PIN = "`p1n6P0\361g";
     
-    public abstract CoreManager getCoreContext();
-    public abstract ExtensionPoolManager getExtensionPoolContext();
+    public abstract CoreContext getCoreContext();
+    public abstract ExtensionPoolContext getExtensionPoolContext();
     
     public abstract User getUser();
     public abstract void setUser(User user);
@@ -92,7 +92,7 @@ public abstract class UserForm extends BaseComponent {
         }
         
         // Get and use the next free extension
-        ExtensionPoolManager epc = getExtensionPoolContext();
+        ExtensionPoolContext epc = getExtensionPoolContext();
         Integer extension = epc.getNextFreeUserExtension();
         if (extension != null) {
             String extStr = extension.toString();
@@ -145,7 +145,7 @@ public abstract class UserForm extends BaseComponent {
     // Update the user's PIN
     private void updatePin() {
         if (!(getPin() == null) && !getPin().equals(DUMMY_PIN)) {
-            CoreManager core = getCoreContext();
+            CoreContext core = getCoreContext();
             getUser().setPin(getPin(), core.getAuthorizationRealm());
             
             // Having updated the user, scrub the PIN field for security

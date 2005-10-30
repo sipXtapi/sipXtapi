@@ -14,7 +14,7 @@
 	  - P R O P E R T I E S
 	  -->
     <property-specification name="callGroupContext" 
-    	type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupManager" 
+    	type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext" 
 	    initial-value="page.global.callGroupContext"/>
     
     <property-specification name="music" type="java.lang.String"/>

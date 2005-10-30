@@ -35,7 +35,7 @@
     <property-specification name="settings"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
 	<property-specification name="coreContext" 
-		type="org.sipfoundry.sipxconfig.common.CoreManager"
+		type="org.sipfoundry.sipxconfig.common.CoreContext"
         initial-value="page.global.coreContext"/>
     <!--
       - C O M P O N E N T S

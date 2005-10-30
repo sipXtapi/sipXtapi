@@ -10,7 +10,7 @@
     <parameter name="restricted" type="boolean" default-value="true" required="no" direction="auto"/>
     
 	<property-specification name="coreContext" 
-		type="org.sipfoundry.sipxconfig.common.CoreManager" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="page.global.coreContext"/>    
 
     <component id="shell" type="Shell">

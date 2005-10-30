@@ -15,7 +15,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.dom4j.Element;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -33,7 +33,7 @@ public class Permissions extends DataSetGenerator {
      * to the list of items.
      */
     protected void addItems(Element items) {
-        CoreManager coreContext = getCoreContext();
+        CoreContext coreContext = getCoreContext();
         String domain = coreContext.getDomainName();
         List list = coreContext.loadUsers();
         for (Iterator i = list.iterator(); i.hasNext();) {

@@ -15,7 +15,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
 
@@ -34,7 +34,7 @@ public abstract class NewPhone extends BasePage {
     
     public abstract void setPhone(Phone phone);
     
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
     
     public abstract boolean isStay();
 

@@ -15,7 +15,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -36,7 +36,7 @@ public abstract class PhoneNavigation extends BaseComponent {
 
     public abstract Setting getCurrentSetting();
     
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
 
     public void editPhone(IRequestCycle cycle) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);

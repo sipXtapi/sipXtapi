@@ -16,7 +16,7 @@ import java.util.Collection;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.gateway.GatewayManager;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -25,7 +25,7 @@ public abstract class ListGateways extends BasePage {
     public static final String PAGE = "ListGateways";
 
     // virtual properties
-    public abstract GatewayManager getGatewayContext();
+    public abstract GatewayContext getGatewayContext();
 
     public abstract Collection getGatewaysToDelete();
 

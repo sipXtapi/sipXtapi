@@ -22,7 +22,7 @@
     </property>
   </bean>  
 
-  <bean id="modelFilesContext" class="org.sipfoundry.sipxconfig.setting.ModelFilesManagerImpl" dependency-check="all">
+  <bean id="modelFilesContext" class="org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl" dependency-check="all">
     <property name="configDirectory">
       <value>${sysdir.etc}</value>
     </property>

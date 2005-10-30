@@ -14,14 +14,14 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 import java.io.File;
 
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
-import org.sipfoundry.sipxconfig.setting.ModelFilesManager;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 
 public class AudioCodesModel extends PhoneModel {
     private String m_iniFileName;
     private String m_proxyNameSetting;
     private String m_proxyIpSetting;
     
-    private ModelFilesManager m_modelFilesContext;
+    private ModelFilesContext m_modelFilesContext;
     
     
     public AudioCodesModel(String beanId, String modelId, String label, String iniFileName) {
@@ -33,7 +33,7 @@ public class AudioCodesModel extends PhoneModel {
         return m_modelFilesContext.getModelFile("audiocodes", m_iniFileName);        
     }
     
-    public void setModelFilesContext(ModelFilesManager modelFilesContext) {
+    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
         m_modelFilesContext = modelFilesContext;
     }
 

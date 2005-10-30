@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.common.event;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.context.ApplicationContext;
 
@@ -22,12 +22,12 @@ public class DaoEventDispatcherTestDb extends SipxDatabaseTestCase {
     
     private DaoEventDispatcher m_dispatcher;
     private DaoEventPublisher m_publisherOrg;
-    private CoreManager m_core;
+    private CoreContext m_core;
 
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
-        m_core = (CoreManager) app.getBean(CoreManager.CONTEXT_BEAN_NAME);
+        m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_dispatcher = (DaoEventDispatcher)app.getBean("onSaveEventDispatcher");
         TestHelper.cleanInsert("ClearDb.xml");
         m_publisherOrg = null;

@@ -16,7 +16,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 
@@ -46,7 +46,7 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
     
     public abstract void setParentSetting(Setting parent);
     
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
 
     public void pageBeginRender(PageEvent event_) {
         Line line = getLine();
@@ -54,7 +54,7 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
             return;
         }
 
-        PhoneManager context = getPhoneContext();
+        PhoneContext context = getPhoneContext();
         line = context.loadLine(getLineId());
         setLine(line);
         Setting root = line.getSettings();
@@ -68,7 +68,7 @@ public abstract class LineSettings extends BasePage implements PageRenderListene
     }
 
     public void apply(IRequestCycle cycle_) {
-        PhoneManager dao = getPhoneContext();
+        PhoneContext dao = getPhoneContext();
         dao.storeLine(getLine());
         dao.flush();
     }

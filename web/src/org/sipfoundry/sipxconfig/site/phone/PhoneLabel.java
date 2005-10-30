@@ -22,7 +22,7 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneManager;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 
 public abstract class PhoneLabel extends BaseComponent {
@@ -30,7 +30,7 @@ public abstract class PhoneLabel extends BaseComponent {
     public abstract Phone getPhone();    
     public abstract void setPhone(Phone phone);
  
-    public abstract PhoneManager getPhoneContext();
+    public abstract PhoneContext getPhoneContext();
 
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);        

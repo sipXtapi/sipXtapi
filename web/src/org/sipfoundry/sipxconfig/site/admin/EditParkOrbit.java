@@ -19,7 +19,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupManager;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.callgroup.ParkOrbit;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 public abstract class EditParkOrbit extends BasePage implements PageRenderListener {
     public static final String PAGE = "EditParkOrbit";
 
-    public abstract CallGroupManager getCallGroupContext();
+    public abstract CallGroupContext getCallGroupContext();
 
     public abstract Integer getParkOrbitId();
     public abstract void setParkOrbitId(Integer id);
@@ -45,7 +45,7 @@ public abstract class EditParkOrbit extends BasePage implements PageRenderListen
         }
         Integer id = getParkOrbitId();
         if (null != id) {
-            CallGroupManager context = getCallGroupContext();
+            CallGroupContext context = getCallGroupContext();
             orbit = context.loadParkOrbit(id);
         } else {
             orbit = new ParkOrbit();
@@ -78,7 +78,7 @@ public abstract class EditParkOrbit extends BasePage implements PageRenderListen
     }
 
     private void saveValid() {
-        CallGroupManager context = getCallGroupContext();
+        CallGroupContext context = getCallGroupContext();
         ParkOrbit orbit = getParkOrbit();
         context.storeParkOrbit(orbit);
         context.activateParkOrbits();

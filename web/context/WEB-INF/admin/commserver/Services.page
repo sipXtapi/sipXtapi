@@ -10,7 +10,7 @@
 	  - P R O P E R T I E S
 	  -->    
     <property-specification name="sipxProcessContext" 
-    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessManager" 
+    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext" 
     	initial-value="global.sipxProcessContext"/>
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus">

@@ -9,7 +9,7 @@
     <description>Displays active and expired registrations</description>
     
     <property-specification name="registrationContext" 
-    	type="org.sipfoundry.sipxconfig.admin.commserver.RegistrationManager" 
+    	type="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext" 
     	initial-value="global.registrationContext"/>
     
     <property-specification name="currentRow" type="org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem"/>

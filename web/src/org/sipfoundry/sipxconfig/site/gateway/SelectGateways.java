@@ -19,10 +19,10 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.gateway.GatewayManager;
+import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.site.dialplan.EditDialRule;
 
 /**
@@ -32,13 +32,13 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
     public static final String PAGE = "SelectGateways";
 
     // virtual properties
-    public abstract DialPlanManager getDialPlanContext();
+    public abstract DialPlanContext getDialPlanContext();
 
-    public abstract void setDialPlanContext(DialPlanManager manager);
+    public abstract void setDialPlanContext(DialPlanContext manager);
 
-    public abstract GatewayManager getGatewayContext();
+    public abstract GatewayContext getGatewayContext();
 
-    public abstract void setGatewayContext(GatewayManager context);
+    public abstract void setGatewayContext(GatewayContext context);
 
     public abstract Integer getRuleId();
 
@@ -78,7 +78,7 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
      * @param gatewayIds list of gateway ids to be added to the dial plan
      */
     void selectGateways(Collection gatewayIds) {
-        DialPlanManager manager = getDialPlanContext();
+        DialPlanContext manager = getDialPlanContext();
         Integer ruleId = getRuleId();
         DialingRule rule = manager.getRule(ruleId);
         if (null == rule) {

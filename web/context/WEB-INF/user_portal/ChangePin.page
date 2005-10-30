@@ -9,10 +9,10 @@
       - P R O P E R T I E S
       -->        
 	<property-specification name="coreContext" 
-		type="org.sipfoundry.sipxconfig.common.CoreManager" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="global.coreContext"/>        
     <property-specification name="loginContext" 
-    	type="org.sipfoundry.sipxconfig.login.LoginManager" 
+    	type="org.sipfoundry.sipxconfig.login.LoginContext" 
     	initial-value="global.loginContext"/>
     
 	<property-specification name="currentPin" type="java.lang.String"/>

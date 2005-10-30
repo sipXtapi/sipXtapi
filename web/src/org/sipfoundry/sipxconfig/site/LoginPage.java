@@ -21,18 +21,18 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.login.LoginManager;
+import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 public abstract class LoginPage extends BasePage implements PageRenderListener {
 
     public static final String PAGE = "LoginPage";
 
-    public abstract CoreManager getCoreContext();
-    public abstract LoginManager getLoginContext();
+    public abstract CoreContext getCoreContext();
+    public abstract LoginContext getLoginContext();
     
     public abstract String getPassword();
     public abstract void setPassword(String password);
@@ -70,7 +70,7 @@ public abstract class LoginPage extends BasePage implements PageRenderListener {
             return;
         }
 
-        LoginManager context = getLoginContext();
+        LoginContext context = getLoginContext();
         User user = context.checkCredentials(getUserName(), password);
         if (user == null) {
             IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");

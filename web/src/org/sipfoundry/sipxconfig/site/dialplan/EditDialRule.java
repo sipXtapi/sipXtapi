@@ -21,7 +21,7 @@ import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
@@ -48,7 +48,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
 
     private DialingRuleType m_ruleType;
 
-    public abstract DialPlanManager getDialPlanContext();
+    public abstract DialPlanContext getDialPlanContext();
 
     public abstract Integer getRuleId();
 
@@ -81,7 +81,7 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         }
         Integer id = getRuleId();
         if (null != id) {
-            DialPlanManager manager = getDialPlanContext();
+            DialPlanContext manager = getDialPlanContext();
             rule = manager.getRule(id);
         } else {
             rule = createNewRule();

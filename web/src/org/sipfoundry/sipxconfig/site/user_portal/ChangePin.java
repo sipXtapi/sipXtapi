@@ -17,10 +17,10 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
-import org.sipfoundry.sipxconfig.common.CoreManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.login.LoginManager;
+import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.sipfoundry.sipxconfig.site.Visit;
 
 /**
@@ -33,8 +33,8 @@ public abstract class ChangePin extends BasePage {
      * Properties
      */
     
-    public abstract CoreManager getCoreContext();
-    public abstract LoginManager getLoginContext();
+    public abstract CoreContext getCoreContext();
+    public abstract LoginContext getLoginContext();
 
     public abstract String getCurrentPin();
     public abstract void setCurrentPin(String currentPin);
@@ -61,9 +61,9 @@ public abstract class ChangePin extends BasePage {
         // Note that the ConfirmPassword component ensures that the new PIN and
         // confirm new PIN fields match, so we don't have to worry about that here.
         
-        CoreManager coreContext = getCoreContext();
+        CoreContext coreContext = getCoreContext();
         User user = coreContext.loadUser(userId);
-        LoginManager loginContext = getLoginContext();
+        LoginContext loginContext = getLoginContext();
         
         // If the currentPin is null, then make it the empty string
         String currentPin = (String) ObjectUtils.defaultIfNull(getCurrentPin(), StringUtils.EMPTY);

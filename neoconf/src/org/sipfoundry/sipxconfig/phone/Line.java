@@ -61,7 +61,7 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
         return groups;
     }
     
-    public PhoneManager getPhoneContext() {
+    public PhoneContext getPhoneContext() {
         return getPhone().getPhoneContext();
     }
 

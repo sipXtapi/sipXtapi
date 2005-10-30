@@ -12,7 +12,7 @@
       -->
 
 	<property-specification name="coreContext" 
-		type="org.sipfoundry.sipxconfig.common.CoreManager" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="global.coreContext"/>    
     <property-specification name="callback" 
     	type="org.apache.tapestry.callback.ICallback"
