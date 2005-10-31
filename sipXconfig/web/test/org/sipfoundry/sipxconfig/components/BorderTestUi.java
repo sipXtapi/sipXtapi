@@ -24,42 +24,38 @@ public class BorderTestUi extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-    }    
-    
+    }
+
     /**
-     * Checks if navigation disappears/re-appears when we click the toggle 
+     * Checks if navigation disappears/re-appears when we click the toggle
      */
     public void testToggleNavigation() {
         SiteTestHelper.assertNoException(getTester());
         assertElementNotPresent("navigation");
-        assertElementNotPresent("content");
-        assertElementPresent("_content");
+        assertElementPresent("content");
 
         clickLink("toggleNavigation");
 
         SiteTestHelper.assertNoException(getTester());
         assertElementPresent("navigation");
         assertElementPresent("content");
-        assertElementNotPresent("_content");
-        
+
         clickLink("toggleNavigation");
 
         SiteTestHelper.assertNoException(getTester());
         assertElementNotPresent("navigation");
-        assertElementNotPresent("content");
-        assertElementPresent("_content");
+        assertElementPresent("content");
     }
 
-    
     public void testLogout() {
         // display navigation and click logout link
         clickLink("toggleNavigation");
         clickLink("link.logout");
-        
+
         // login form should be visible
         SiteTestHelper.assertNoException(getTester());
         assertFormPresent("login:form");
         SiteTestHelper.assertNoUserError(getTester());
     }
-    
+
 }
