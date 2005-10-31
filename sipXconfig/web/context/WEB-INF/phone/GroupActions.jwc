@@ -9,39 +9,26 @@
     
     <description>Component presents action to add and remove property groups.</description>
     
-  <parameter name="selectedPhoneIds" 
+  <parameter name="selectedIds" 
   	direction="in" 
   	required="yes" 
   	type="java.util.Collection"/>
   
-  <parameter name="groups" 
+  <parameter name="actionModel" 
   	direction="in" 
   	required="yes" 
-  	type="java.util.Collection"/>
-  
-  <!-- this is a single group for which remove (rather then add) action will be created -->
-  <parameter name="removeFromGroupId"
-  	direction="in"
-  	required="no"
-  	default-value="null"
-  	type="java.lang.Integer"/>
-  
+  	type="org.apache.tapestry.form.IPropertySelectionModel"/>
+    
   <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer"/>
 
   <property-specification name="selectedAction" type="org.apache.tapestry.IActionListener"/>
-  
-  <property-specification name="phoneContext" 
-  	type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-  	initial-value="page.global.phoneContext"/>
   
   <property-specification name="tapestry"
   	type="org.sipfoundry.sipxconfig.components.TapestryContext"
   	initial-value="page.global.tapestry"/>
   
-  <property-specification name="groupModel" type="org.apache.tapestry.form.IPropertySelectionModel"/>
-  
   <component id="actionSelection" type="PropertySelection">
-      <binding name="model" expression="groupModel"/>
+      <binding name="model" expression="decorateModel(actionModel)"/>
       <binding name="submitOnChange" expression="true"/>
       <binding name="value" expression="selectedAction"/>
       <binding name="renderer" expression="beans.propertyRenderer"/>

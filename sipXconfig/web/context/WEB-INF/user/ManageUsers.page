@@ -75,5 +75,9 @@
         <binding name="listener" expression="listeners.deleteUsers"/>
         <message-binding name="label" key="label.delete"/>        
     </component>
+    <component id="groupActions" type="GroupActions">
+        <binding name="actionModel" expression="actionModel"/>
+        <binding name="selectedIds" expression="components.userTable.selections.allSelected"/>
+    </component>
             
 </page-specification>

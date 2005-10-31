@@ -9,33 +9,29 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.phone;
+package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IMessages;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
-public class AddToPhoneGroupAction extends BulkGroupAction {
-    private PhoneContext m_phoneContext;
+public class AddToUserGroupAction extends BulkGroupAction {
+    private CoreContext m_coreContext;
 
-    public AddToPhoneGroupAction(Group group, PhoneContext phoneContext) {
+    public AddToUserGroupAction(Group group, CoreContext coreContext) {
         super(group);
-        m_phoneContext = phoneContext;
+        m_coreContext = coreContext;
     }
 
     public void actionTriggered(IComponent component_, IRequestCycle cycle_) {
-        m_phoneContext.addToGroup(getGroup().getId(), getIds());
-    }
-
-    public void setPhoneContext(PhoneContext phoneContext) {
-        m_phoneContext = phoneContext;
+        m_coreContext.addToGroup(getGroup().getId(), getIds());
     }
 
     public String getSuccessMsg(IMessages messages) {
-        return messages.format("msg.success.addToPhoneGroupAction", Integer.toString(getIds()
+        return messages.format("msg.success.addToUserGroupAction", Integer.toString(getIds()
                 .size()), getGroup().getName());
     }
 }

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.setting;
 import java.util.Collection;
 
 import org.apache.tapestry.IActionListener;
+import org.apache.tapestry.IMessages;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -53,5 +54,11 @@ public abstract class BulkGroupAction implements OptionAdapter, IActionListener 
 
     public String squeezeOption(Object option_, int index_) {
         return getClass().getName() + m_group.getId();
+    }
+
+    public String getSuccessMsg(IMessages messages_) {
+        // TODO: use global message repository...
+        // messages_.getMessage("msg.actionSuccess");
+        return "Operation completed successfully";
     }
 }

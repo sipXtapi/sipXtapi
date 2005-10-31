@@ -42,10 +42,10 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private static final String USER_GROUP_RESOURCE_ID = "user";
     private static final String USERNAME_PROP_NAME = "userName";
     /** nothing special about this name */
-    private static final String ADMIN_GROUP_NAME = "administrators"; 
+    private static final String ADMIN_GROUP_NAME = "administrators";
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
     private static final String QUERY_USER = "from User";
-    
+
     private String m_authorizationRealm;
 
     private String m_domainName;
@@ -132,15 +132,14 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return loadUserByNamedQueryAndNamedParam("userByNameOrAlias", "userNameOrAlias",
                 userNameOrAlias);
     }
-    
+
     /**
-     * Check whether the user has a username or alias that collides with an existing username
-     * or alias.  Check for internal collisions as well, for example, the user has an alias
-     * that is the same as the username.  (Duplication within the aliases is not possible 
-     * because the aliases are stored as a Set.)
-     * If there is a collision, then return the bad name (username or alias).
-     * Otherwise return null.
-     * If there are multiple collisions, then it's arbitrary which name is returned.
+     * Check whether the user has a username or alias that collides with an existing username or
+     * alias. Check for internal collisions as well, for example, the user has an alias that is
+     * the same as the username. (Duplication within the aliases is not possible because the
+     * aliases are stored as a Set.) If there is a collision, then return the bad name (username
+     * or alias). Otherwise return null. If there are multiple collisions, then it's arbitrary
+     * which name is returned.
      * 
      * @param user user to test
      * @return name that collides
@@ -148,13 +147,13 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public String checkForDuplicateNameOrAlias(User user) {
         HibernateTemplate hibernate = getHibernateTemplate();
         String result = null;
-        
+
         // Check for duplication within the user itself
         List names = new ArrayList(user.getAliases());
         names.add(user.getUserName());
         result = checkForDuplicateString(names);
         if (result == null) {
-            // Check the username.  If it is the username or alias for a different existing
+            // Check the username. If it is the username or alias for a different existing
             // user, then return it as a bad name.
             if (DaoUtils.checkDuplicatesByNamedQuery(hibernate, user,
                     QUERY_USER_IDS_BY_NAME_OR_ALIAS, user.getUserName(), null)) {
@@ -172,13 +171,13 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                 }
             }
         }
-        
+
         return result;
     }
 
     /**
-     * Given a collection of strings, look for duplicates.  Return the first
-     * duplicate found, or null if all strings are unique.
+     * Given a collection of strings, look for duplicates. Return the first duplicate found, or
+     * null if all strings are unique.
      */
     String checkForDuplicateString(Collection strings) {
         Map map = new HashMap(strings.size());
@@ -187,11 +186,11 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             if (map.containsKey(str)) {
                 return str;
             }
-            map.put(str, null);            
+            map.put(str, null);
         }
         return null;
     }
-    
+
     private User loadUserByNamedQueryAndNamedParam(String queryName, String paramName,
             Object value) {
         Collection usersColl = getHibernateTemplate().findByNamedQueryAndNamedParam(queryName,
@@ -211,8 +210,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     /**
      * Return all users matching the userTemplate example. Empty properties of userTemplate are
-     * ignored in the search.
-     * The userName property matches either the userName or aliases properties.
+     * ignored in the search. The userName property matches either the userName or aliases
+     * properties.
      */
     public List loadUserByTemplateUser(final User userTemplate) {
         HibernateCallback callback = new HibernateCallback() {
@@ -228,15 +227,15 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public List loadUsers() {
         return getHibernateTemplate().loadAll(User.class);
     }
-    
+
     public int getUsersCount() {
         return getUsersInGroupCount(null);
     }
-    
-    public int getUsersInGroupCount(Integer groupId) {        
+
+    public int getUsersInGroupCount(Integer groupId) {
         return getBeansInGroupCount(User.class, groupId);
     }
-    
+
     public int getUsersInGroupWithSearchCount(final Integer groupId, final String searchString) {
         int numUsers = 0;
         if (!StringUtils.isEmpty(searchString)) {
@@ -259,7 +258,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         HibernateCallback callback = new HibernateCallback() {
             public Object doInHibernate(Session session) {
                 UserLoader loader = new UserLoader(session);
-                return loader.loadUsersByPage(search, groupId, firstRow, pageSize, orderBy, orderAscending);
+                return loader.loadUsersByPage(search, groupId, firstRow, pageSize, orderBy,
+                        orderAscending);
             }
         };
         List users = getHibernateTemplate().executeFind(callback);
@@ -285,26 +285,25 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     /**
-     * Create a superadmin user with an empty pin.
-     * This is used to recover from the loss of all users from the database.
+     * Create a superadmin user with an empty pin. This is used to recover from the loss of all
+     * users from the database.
      */
     public void createAdminGroupAndInitialUserTask() {
         createAdminGroupAndInitialUser(null);
     }
-    
+
     /**
      * Create a superadmin user with the specified pin.
      * 
-     * Map an empty pin to an empty pintoken as a special hack allowing the empty pin to
-     * be used when an insecure, easy to remember pin is needed.
-     * Previously we used 'password' rather than the empty string, relying on another hack
-     * that allowed the password and pintoken to be the same. That hack is gone so setting
-     * the pintoken to 'password' would no longer work because the password would then be
-     * the inverse hash of 'password' rather than 'password'.
+     * Map an empty pin to an empty pintoken as a special hack allowing the empty pin to be used
+     * when an insecure, easy to remember pin is needed. Previously we used 'password' rather than
+     * the empty string, relying on another hack that allowed the password and pintoken to be the
+     * same. That hack is gone so setting the pintoken to 'password' would no longer work because
+     * the password would then be the inverse hash of 'password' rather than 'password'.
      */
     public void createAdminGroupAndInitialUser(String pin) {
         Group adminGroup = m_settingDao.getGroupByName(User.GROUP_RESOURCE_ID, ADMIN_GROUP_NAME);
-        if (adminGroup == null) {            
+        if (adminGroup == null) {
             adminGroup = new Group();
             adminGroup.setName(ADMIN_GROUP_NAME);
             adminGroup.setResource(User.GROUP_RESOURCE_ID);
@@ -319,7 +318,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         if (admin == null) {
             admin = new User();
             admin.setUserName(User.SUPERADMIN);
-            
+
             if (StringUtils.isEmpty(pin)) {
                 admin.setPintoken("");
             } else {
@@ -328,9 +327,9 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         }
 
         admin.addGroup(adminGroup);
-        saveUser(admin);        
+        saveUser(admin);
     }
-    
+
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
     }
@@ -387,11 +386,19 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public boolean isAliasInUse(String alias) {
-        // Look for the ID of a user with a user ID or user alias matching the specified SIP alias.
+        // Look for the ID of a user with a user ID or user alias matching the specified SIP
+        // alias.
         // If there is one, then the alias is in use.
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_USER_IDS_BY_NAME_OR_ALIAS, "value", alias);
-        return CollectionUtils.safeSize(objs) > 0;        
+        return CollectionUtils.safeSize(objs) > 0;
     }
 
+    public void addToGroup(Integer groupId, Collection ids) {
+        DaoUtils.addToGroup(getHibernateTemplate(), groupId, User.class, ids);
+    }
+
+    public void removeFromGroup(Integer groupId, Collection ids) {
+        DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, User.class, ids);
+    }
 }
