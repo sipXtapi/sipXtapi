@@ -27,11 +27,4 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>com.iw.plugins.spindle.core.tapestrynature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>wsdl-src</name>
-			<type>2</type>
-			<location>SIPX_BUILD/web/dist/wsdl-src</location>
-		</link>
-	</linkedResources>
 </projectDescription>

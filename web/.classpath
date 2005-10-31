@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="wsdl-src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/sipXconfig-neoconf"/>
@@ -49,5 +48,6 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jaxrpc.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/axis-ant-1.3.jar"/>
 	<classpathentry sourcepath="LIB_SRC/easymockclassextension/src.zip" kind="var" path="SIPX_CONFIG/lib/easymockclassextension-1.1.jar"/>
+	<classpathentry kind="var" path="SIPX_BUILD/web/dist/sipxconfig-wsdl-generated.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
