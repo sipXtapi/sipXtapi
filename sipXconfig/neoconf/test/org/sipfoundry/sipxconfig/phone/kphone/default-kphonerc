@@ -7,6 +7,6 @@ TrayIcon=No
 [Registration]
 SipUri="Joe User"<sip:juser@sipfoundry.org>
 UserName=juser
-SipServer=registrar.sipfoundry.org
+SipServer=sipfoundry.org
 AutoRegister=Yes
 qValue=
