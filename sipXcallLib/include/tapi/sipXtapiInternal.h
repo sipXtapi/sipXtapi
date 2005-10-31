@@ -48,23 +48,23 @@ class SipSubscribeClient;
 // TYPEDEFS
 typedef struct
 {
-        bool bInitialized ;     /**< Is the data valid */
-        bool bMuted ;           /**< Muted state (regain gain) */
-        int  iGain ;            /**< Gain setting (GAIN_MIN-GAIN_MAX) */
-        UtlString device;       /**< Desired auto device */
+    bool bInitialized ;     /**< Is the data valid */
+    bool bMuted ;           /**< Muted state (regain gain) */
+    int  iGain ;            /**< Gain setting (GAIN_MIN-GAIN_MAX) */
+    UtlString device;       /**< Desired auto device */
 } MIC_SETTING ;
 
 typedef struct
 {
-        bool bInitialized ;     /**< Is the data valid */
-        int  iVol ;             /**< Gain setting (VOLUME_MIN-VOLUME_MAX) */
-        UtlString device;       /**< Desired auto device */
+    bool bInitialized ;     /**< Is the data valid */
+    int  iVol ;             /**< Gain setting (VOLUME_MIN-VOLUME_MAX) */
+    UtlString device;       /**< Desired auto device */
 } SPEAKER_SETTING ;
 
 typedef struct
 {
-        bool bInitialized ;     /**< Is the data valid */
-        bool bEnabled ;         /**< Is AEC enabled? */
+    bool bInitialized ;     /**< Is the data valid */
+    bool bEnabled ;         /**< Is AEC enabled? */
 } AEC_SETTING ;
 
 typedef struct 
@@ -303,7 +303,7 @@ void sipxFireCallEvent(const void* pSrc,
 
 /**
  * Fires a Line Event to the listeners.
- */
+ */                           
 void sipxFireLineEvent(const void* pSrc,
                        const char* szLineIdentifier,
                        SIPX_LINE_EVENT_TYPE_MAJOR major,

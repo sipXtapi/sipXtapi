@@ -815,7 +815,6 @@ SIPXTAPI_API char* sipxCallEventToString(SIPX_CALLSTATE_MAJOR eMajor,
                                      char*  szBuffer,
                                      size_t nBuffer) ;
 
-
 /**
  * Create a printable string version of the designated event.
  * This is generally used for debugging.
@@ -880,8 +879,5 @@ SIPXTAPI_API char* sipxLineEventToString(SIPX_LINE_EVENT_TYPE_MAJOR lineTypeMajo
 SIPXTAPI_API char* sipxConfigEventToString(SIPX_CONFIG_EVENT event, 
                                            char* szBuffer, 
                                            size_t nBuffer) ;
-
-
-                                     
 
 #endif /* ifndef _sipXtapiEvents_h_ */
