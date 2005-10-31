@@ -15,6 +15,7 @@
 
         <!-- Parameter required for invoking the CGIs -->
         <var name="action" expr="'changepin'"/>
+        <var name="change_attempts" expr="0"/>
 
         <field name="pin" type="digits?minlength=1">
             <prompt>
@@ -25,6 +26,12 @@
                     <return />
                 </if>
             </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
         </field>
 
         <field name="newpin" type="digits?minlength=1">
@@ -36,6 +43,12 @@
                     <return />
                 </if>
             </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
         </field>
 
         <field name="newpin2" type="digits?minlength=1">
@@ -51,15 +64,21 @@
                     <goto nextitem="mismatch"/>
                 </if>
             </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
         </field>
     
         <!-- Call the CGI to do the pin setting -->
         <subdialog name="pinsetting" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action extension pin newpin">
             <filled>
                 <if cond="pinsetting.result == 'success'">
-		    <prompt>
-		        <audio expr="mediaserverurl + promptsalias + 'pin_changed.wav'"/>
-		    </prompt>
+		    		<prompt>
+		        		<audio expr="mediaserverurl + promptsalias + 'pin_changed.wav'"/>
+		    		</prompt>
                     <return/>
                 <elseif cond="pinsetting.result == 'failed'"/>
                     <!-- The operation is failed and the password is not changed -->
@@ -70,10 +89,10 @@
                     <return/>
                 <else/>
                     <prompt>
-		        <audio expr="mediaserverurl + promptsalias + 'invalid_old_pin.wav'" />
+		        		<audio expr="mediaserverurl + promptsalias + 'invalid_old_pin.wav'" />
                     </prompt>
-		    <clear namelist="pin newpin newpin2"/>
-		    <goto nextitem="pin"/>
+		    		<clear namelist="pin newpin newpin2"/>
+		    		<goto nextitem="pin"/>
                 </if>
             </filled>
         </subdialog>
@@ -82,9 +101,17 @@
             <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'mismatch_pin.wav'"/>
             </prompt>
-            <clear namelist="newpin newpin2"/>
-            <goto nextitem="newpin"/>
-	</block>
+            <if cond="change_attempts == '2'">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            <else/>
+            	<assign name="change_attempts" expr="change_attempts + 1"/>           
+	            <clear namelist="newpin newpin2"/>
+	            <goto nextitem="newpin"/>
+	        </if>
+		</block>
     </form>
 </vxml>
 
