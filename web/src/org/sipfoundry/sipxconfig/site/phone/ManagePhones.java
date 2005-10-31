@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -20,12 +21,16 @@ import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
+import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 /**
@@ -46,6 +51,10 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
     public abstract Integer getGroupId();
 
     public abstract void setGroupId(Integer groupId);
+
+    public abstract IPropertySelectionModel getActionModel();
+
+    public abstract void setActionModel(IPropertySelectionModel model);
 
     public IBasicTableModel getTableModel() {
         return new PhoneTableModel(getPhoneContext(), getGroupId());
@@ -129,6 +138,35 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
         if (getSelections() == null) {
             setSelections(new SelectMap());
         }
+        initActionsModel();
+    }
+
+    private void initActionsModel() {
+        Collection groups = getPhoneContext().getGroups();
+        Collection actions = new ArrayList(groups.size());
+
+        Group removeFromGroup = null;
+        for (Iterator i = groups.iterator(); i.hasNext();) {
+            Group g = (Group) i.next();
+            if (g.getId().equals(getGroupId())) {
+                // do not add the "remove from" group...
+                removeFromGroup = g;
+                continue;
+            }
+            if (actions.size() == 0) {
+                actions.add(new OptGroup(getMessage("label.addTo")));
+            }
+            actions.add(new AddToPhoneGroupAction(g, getPhoneContext()));
+        }
+
+        if (removeFromGroup != null) {
+            actions.add(new OptGroup(getMessage("label.removeFrom")));
+            actions.add(new RemoveFromPhoneGroupAction(removeFromGroup, getPhoneContext()));
+        }
+
+        AdaptedSelectionModel model = new AdaptedSelectionModel();
+        model.setCollection(actions);
+        setActionModel(model);
     }
 
     /**
