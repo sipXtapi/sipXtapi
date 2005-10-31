@@ -5,6 +5,9 @@
   <import file="../ant-targets.xml" />
   <property name="test.war" value="${test.classes.dir}/war" />
   <property name="wsdl.src.dir" value="${dist.dir}/wsdl-src"/>
+  <property name="wsdl.ruby.dir" value="${dist.dir}/wsdl-ruby"/>
+  <property name="wsdl.classes.dir" value="${dist.dir}/wsdl-classes"/>
+  <property name="sipxconfig-wsdl-generated.jar" value="${dist.dir}/sipxconfig-wsdl-generated.jar"/>
   <patternset id="test-ui.classes" includes="**/*TestUi.class" /> 
   
   <path id="axis.path">
@@ -19,14 +22,6 @@
     <pathelement location="${axis.jar}"/>	
   </path>
   
-  <taskdef name="wsdl2java" 
-	    classname="org.apache.axis.tools.ant.wsdl.Wsdl2javaAntTask">
-	<classpath refid="axis.path"/>
-	<classpath>
-	    <pathelement location="${axis-ant.jar}"/>
-	</classpath>	
-  </taskdef>
-
   <!-- 
             - common path unittests will need that interfaces w/sipxconfig lib 
             - all spring jars at this point
@@ -40,6 +35,7 @@
     <pathelement path="${tapestry-contrib.jar}" />
     <pathelement path="${tapestry-checkboxes.jar}" />
     <pathelement path="${ognl.jar}" />
+	<pathelement location="${sipxconfig-wsdl-generated.jar}"/>
   </path>
   <!-- 
             - common path unittests will need that interfaces w/sipxconfig lib 
@@ -111,53 +107,15 @@
 
   <target name="init" depends="ant-targets.init">
     <mkdir dir="${dist.dir}/war-root" />
+	<mkdir dir="${wsdl.classes.dir}"/>
   </target>
 
   <!-- D E F A U L T -->
   <target name="default" depends="war" />
-  
-  <target name="compile.wsdl">
-	<delete dir="${wsdl.src.dir}"/>
-	<mkdir dir="${wsdl.src.dir}"/>
-	<wsdl2java 		
-		url="${src.dir}/org/sipfoundry/sipxconfig/api/UserService.wsdl"
-		output="${wsdl.src.dir}"
-		serverside="true"
-		noWrapped="true">
-		<mapping namespace="urn:UserService" 
-			package="org.sipfoundry.sipxconfig.api"/>
-	</wsdl2java>
-	<!-- generted impl classes are just stubbed -->
-	<delete>
-          <fileset dir="${wsdl.src.dir}">
-		<include name="**/*BindingImpl.java"/>
-          </fileset>
-	</delete>
-    <sipx-javac srcdir="${wsdl.src.dir}"
-       destdir="${classes.dir}"
-       classpathref="base.path">
-      <classpath>
-        <pathelement path="${classes.dir}"/>
-      </classpath>
-    </sipx-javac>	
-	<!-- aggregate axis deployment files into 1 server-config.wsdd -->
-	<java
-	  classname="org.apache.axis.utils.Admin"
-	  fork="true"
-	  failonerror="true"
-	  dir="${wsdl.src.dir}">
-	    <classpath refid="axis.path"/>
-	    <classpath location="${log4j.jar}"/>
-	    <classpath location="${commons-logging.jar}"/>
-	    <classpath location="${classes.dir}"/>
-  	    <arg value="server"/>
-	    <arg file="${wsdl.src.dir}/org/sipfoundry/sipxconfig/api/deploy.wsdd" />
-	</java>
-  </target>
-
+	
   <!-- W A R -->	
   <!-- FIXME: Remove dependency on compile.test -->	
-  <target name="war" depends="init,compile.wsdl,compile,compile.test" 
+  <target name="war" depends="init,server-config.wsdd,compile,compile.test" 
     description="assemble sipxconfig for tapestry war">
   	<condition property="include.testpage">
   		<equals arg1="${debug}" arg2="on"/>
@@ -185,6 +143,9 @@
         <include name="**/*.wsdl" />
         <include name="**/*.properties" />
       </classes>
+      <lib dir="${dist.dir}">
+		  <include name="sipxconfig-wsdl-generated.jar"/>
+	  </lib>
       <classes dir="etc">
         <include name="*.xml" />
         <include name="*.properties" />
@@ -318,4 +279,103 @@
     </junit>
     <fail if="junit.failed" />
   </target>
+  
+  <!-- W E B   S E R V I C E -->
+  <taskdef name="wsdl2java" 
+	    classname="org.apache.axis.tools.ant.wsdl.Wsdl2javaAntTask">
+	<classpath refid="axis.path"/>
+	<classpath>
+	    <pathelement location="${axis-ant.jar}"/>
+	</classpath>	
+  </taskdef>
+
+  <target name="compile.wsdl">
+    <delete dir="${wsdl.src.dir}"/>
+    <mkdir dir="${wsdl.src.dir}"/>
+    <wsdl2java      
+        url="${src.dir}/org/sipfoundry/sipxconfig/api/UserService.wsdl"
+        output="${wsdl.src.dir}"
+        serverside="true"
+        noWrapped="true">
+        <mapping namespace="urn:UserService" 
+            package="org.sipfoundry.sipxconfig.api"/>
+    </wsdl2java>
+    <!-- generted impl classes are just stubbed -->
+    <delete>
+          <fileset dir="${wsdl.src.dir}">
+        <include name="**/*BindingImpl.java"/>
+          </fileset>
+    </delete>
+    <sipx-javac srcdir="${wsdl.src.dir}"
+       destdir="${wsdl.classes.dir}"
+       classpathref="base.path">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+      </classpath>
+    </sipx-javac>   
+	<jar destfile="${sipxconfig-wsdl-generated.jar}"
+		basedir="${wsdl.classes.dir}"/>
+  </target>
+	
+  <target name="server-config-nospring.wsdd" depends="compile.wsdl">
+    <!-- aggregate axis deployment files into 1 server-config.wsdd -->
+    <java
+      classname="org.apache.axis.utils.Admin"
+      fork="true"
+      failonerror="true"
+      dir="${wsdl.src.dir}">
+        <classpath refid="axis.path"/>
+        <classpath location="${log4j.jar}"/>
+        <classpath location="${commons-logging.jar}"/>
+        <classpath location="${classes.dir}"/>
+		<classpath location="${sipxconfig-wsdl-generated.jar}"/>
+        <arg value="server"/>
+        <arg file="${wsdl.src.dir}/org/sipfoundry/sipxconfig/api/deploy.wsdd" />
+    </java>
+	<move 
+		file="${wsdl.src.dir}/server-config.wsdd" 
+		tofile="${wsdl.src.dir}/server-config-nospring.wsdd" 
+		overwrite="true"/>
+  </target>
+	
+  <target name="server-config.wsdd" depends="server-config-nospring.wsdd">
+	  <!-- 
+		- HACK: WSDD doesn't validate, schema does not resolve among 
+		- other things, so removing erroneous referance to namespaces
+		-->
+	<replace file="${wsdl.src.dir}/server-config-nospring.wsdd">
+		<replacetoken><![CDATA[xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java"]]></replacetoken>
+	</replace>
+	<style 
+		style="meta/server-config.xsl" 
+		in="${wsdl.src.dir}/server-config-nospring.wsdd" 
+		out="${wsdl.src.dir}/server-config.wsdd">	  
+	</style>
+  </target>
+  
+  <target name="compile.wsdl.ruby">
+    <!-- Ruby client stubs -->
+    <delete dir="${wsdl.ruby.dir}"/>
+    <mkdir dir="${wsdl.ruby.dir}"/>
+    <!-- HACK, wsdl2ruby only generates output to current dir, and
+      - absolute path to wsdl confuses mswindows because of drive letter.
+      - This may resolve itself when I copy wsdl's to war root for inclusion
+      - in WAR
+      -->
+    <copy todir="${wsdl.ruby.dir}" flatten="true">
+      <fileset dir="${src.dir}" includes="**/*.wsdl"/>
+    </copy>
+    <echo>${src.dir}/org/sipfoundry/sipxconfig/api/UserService.wsdl</echo>
+    <exec executable="${ruby}">
+      <arg line="-C${wsdl.ruby.dir} ${soap4r}/bin/wsdl2ruby.rb --force --type client --wsdl UserService.wsdl"/>
+    </exec>
+  </target>
+  
+  <target name="test-api" depends="compile.wsdl.ruby">
+    <property name="test.api.dir" value="${test.src.dir}/org/sipfoundry/sipxconfig/api"/>
+    <exec executable="${ruby}">
+      <arg line="-I${wsdl.ruby.dir} -d ${test.api.dir}/UserServiceTestApi.rb"/>
+    </exec>    
+  </target>
+    
 </project>

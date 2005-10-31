@@ -30,8 +30,8 @@
         <replacefilter token="@JAVAC_DEBUG@" value="on"/>
         <replacefilter token="@bindir@" value="${install.dir}/bin"/>
         <replacefilter token="@libdir@" value="${install.dir}/lib"/>
-    	  <replacefilter token="@localstatedir@" value="${install.dir}/lib"/>
-    	  <replacefilter token="@SIPX_CONFIGPHONEDIR@" value="${install.dir}/var/phone"/>
+    	<replacefilter token="@localstatedir@" value="${install.dir}/lib"/>
+    	<replacefilter token="@SIPX_CONFIGPHONEDIR@" value="${install.dir}/var/phone"/>
     	  <replacefilter token="@SIPX_BACKUPDIR@" value="${install.dir}/var/backup"/>
     	  <replacefilter token="@SIPXCONFIG_LIBDIR@" value="${install.dir}/lib"/>
     	  <replacefilter token="@SIPX_BINDIR@" value="${install.dir}/bin"/>
@@ -44,6 +44,7 @@
     	  <replacefilter token="@SIPX_LOGDIR@" value="${install.dir}/var/log"/>
     	  <replacefilter token="@SIPX_RUNDIR@" value="${install.dir}/var/run"/>
     	<replacefilter token="@SIPX_TMPDIR@" value="${install.dir}/var/tmp"/>
+        <replacefilter token="@RUBY@" value="/ruby/bin/ruby.exe"/>
     </replace>
   </target> 
 

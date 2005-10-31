@@ -45,7 +45,7 @@
         <listener-class>org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
     </listener>
     <servlet>
-      <servlet-name>axis</servlet-name>
+      <servlet-name>services</servlet-name>
       <servlet-class>com.workingmouse.webservice.axis.SpringAxisServlet</servlet-class>
     </servlet>
     <servlet>
@@ -81,7 +81,7 @@
       <url-pattern>/servlet/AdminServlet</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-      <servlet-name>axis</servlet-name>
+      <servlet-name>services</servlet-name>
       <url-pattern>/services/*</url-pattern>
     </servlet-mapping>
     <!-- END AXIS -->
