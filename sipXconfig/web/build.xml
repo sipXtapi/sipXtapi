@@ -116,7 +116,7 @@
 	
   <!-- W A R -->	
   <!-- FIXME: Remove dependency on compile.test -->	
-  <target name="war" depends="init,server-config.wsdd,compile,compile.test" 
+  <target name="war" depends="init,wsdl,compile,compile.test" 
     description="assemble sipxconfig for tapestry war">
   	<condition property="include.testpage">
   		<equals arg1="${debug}" arg2="on"/>
@@ -290,7 +290,26 @@
 	</classpath>	
   </taskdef>
 
-  <target name="compile.wsdl">
+  <target name="wsdl.init">
+	  <uptodate property="server-config.wsdd.uptodate" targetfile="${sipxconfig-wsdl-generated.jar}">
+		  <srcfiles dir="${src.dir}">
+			  <include name="**/*.wsdl"/>
+		  </srcfiles>	  
+		  <srcfiles dir="meta">
+			  <include name="server-config.xsl"/>
+		  </srcfiles>	  
+	  </uptodate>	  
+  </target>		
+	
+  <target name="wsdl" depends="wsdl.init,server-config.wsdd"
+	  description="Compile WSDL into java classes">	  
+  </target>
+
+  <!--
+	- Compile WSDL into java server-side bindings.
+	-->
+  <target name="compile.wsdl" 
+	  unless="server-config.wsdd.uptodate">
     <delete dir="${wsdl.src.dir}"/>
     <mkdir dir="${wsdl.src.dir}"/>
     <wsdl2java      
@@ -318,9 +337,12 @@
 		basedir="${wsdl.classes.dir}"/>
   </target>
 	
-  <target name="server-config-nospring.wsdd" depends="compile.wsdl">
-    <!-- aggregate axis deployment files into 1 server-config.wsdd -->
-    <java
+  <!-- 
+	- aggregate axis generated WSDD files into 1 server-config.wsdd 
+	-->
+  <target name="server-config-nospring.wsdd" depends="compile.wsdl" 
+	  unless="server-config.wsdd.uptodate">
+     <java
       classname="org.apache.axis.utils.Admin"
       fork="true"
       failonerror="true"
@@ -338,21 +360,33 @@
 		overwrite="true"/>
   </target>
 	
+  <!-- 
+	- Transform WSDD file to include spring adapter
+	-->
   <target name="server-config.wsdd" depends="server-config-nospring.wsdd">
-	  <!-- 
+  	  <!-- 
 		- HACK: WSDD doesn't validate, schema does not resolve among 
-		- other things, so removing erroneous referance to namespaces
+		- other things, so removing erroneous referance to namespaces.
+		- I have posted email to ant project to get feedback on this
+		-	http://thread.gmane.org/gmane.comp.jakarta.ant.user/34470
 		-->
-	<!-- replace file="${wsdl.src.dir}/server-config-nospring.wsdd">
+	<replace file="${wsdl.src.dir}/server-config-nospring.wsdd">
 		<replacetoken><![CDATA[xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java"]]></replacetoken>
-	</replace -->
-	<style 
+	</replace>
+	<style
 		style="meta/server-config.xsl" 
 		in="${wsdl.src.dir}/server-config-nospring.wsdd" 
 		out="${wsdl.src.dir}/server-config.wsdd">	  
 	</style>
+        <!-- causing axis errors on startup -->
+	<replace file="${wsdl.src.dir}/server-config.wsdd">
+		<replacetoken><![CDATA[xmlns=""]]></replacetoken>
+	</replace>
   </target>
   
+  <!--
+	- Compile WSDL into Ruby client-side binding.
+	-->
   <target name="compile.wsdl.ruby">
     <!-- Ruby client stubs -->
     <delete dir="${wsdl.ruby.dir}"/>
@@ -365,12 +399,14 @@
     <copy todir="${wsdl.ruby.dir}" flatten="true">
       <fileset dir="${src.dir}" includes="**/*.wsdl"/>
     </copy>
-    <echo>${src.dir}/org/sipfoundry/sipxconfig/api/UserService.wsdl</echo>
     <exec executable="${ruby}">
       <arg line="-C${wsdl.ruby.dir} ${soap4r}/bin/wsdl2ruby.rb --force --type client --wsdl UserService.wsdl"/>
     </exec>
   </target>
   
+  <!--
+	- Run web services unit tests
+	-->
   <target name="test-api" depends="compile.wsdl.ruby">
     <property name="test.api.dir" value="${test.src.dir}/org/sipfoundry/sipxconfig/api"/>
     <exec executable="${ruby}">
