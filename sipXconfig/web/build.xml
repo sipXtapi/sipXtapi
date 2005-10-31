@@ -13,6 +13,7 @@
   <path id="axis.path">
     <pathelement location="${jaxrpc.jar}"/>
     <pathelement location="${commons-discovery.jar}"/>
+    <pathelement path="${commons-logging.jar}" />
     <pathelement location="${saaj.jar}"/>
     <pathelement location="${wsdl4j.jar}"/>
     <pathelement location="${axis-ant.jar}"/>
@@ -326,7 +327,6 @@
       dir="${wsdl.src.dir}">
         <classpath refid="axis.path"/>
         <classpath location="${log4j.jar}"/>
-        <classpath location="${commons-logging.jar}"/>
         <classpath location="${classes.dir}"/>
 		<classpath location="${sipxconfig-wsdl-generated.jar}"/>
         <arg value="server"/>
