@@ -120,29 +120,113 @@
   </group>
   <group name="SIPgw">
     <label>T1 Params</label>
-    <setting name="FramingMethod">      
+    <setting name="FramingMethod">
       <label>Framing method</label>
       <type>
         <enum>
           <option>
             <label>ESF with CRC6</label>
-            <value>0</value>            
-          </option>          
+            <value>0</value>
+          </option>
           <option>
             <label>SF</label>
-            <value>1</value>            
-          </option>          
+            <value>1</value>
+          </option>
           <option>
             <label>F4 multiframe</label>
-            <value>A</value>            
-          </option>          
+            <value>A</value>
+          </option>
           <option>
             <label>ESF without CRC6</label>
-            <value>C</value>            
-          </option>          
+            <value>C</value>
+          </option>
         </enum>
       </type>
-      <value>0</value>      
+      <value>0</value>
     </setting>
-  </group>    
+    <setting name="PCMLawSelect">
+      <label>PCM Law select</label>
+      <type>
+        <enum>
+          <option>
+            <label>Alaw</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Mulaw</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="ProtocolType">
+      <label>Protocol type</label>
+      <type>
+        <enum>
+          <option>
+            <label>T1 NI2</label>
+            <value>10</value>
+          </option>
+          <option>
+            <label>T1 4ESS</label>
+            <value>11</value>
+          </option>
+          <option>
+            <label>T1 5ESS 10 ISDN</label>
+            <value>13</value>
+          </option>
+          <option>
+            <label>T1 DMS 100</label>
+            <value>14</value>
+          </option>
+        </enum>
+      </type>
+      <value>13</value>
+    </setting>
+    <setting name="LineCode">
+      <label>Line code</label>
+      <type>
+        <enum>
+          <option>
+            <label>B8ZS</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>AMI</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>HDB3</label>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="LineBuildOut">
+      <label>Line build out loss</label>
+      <type>
+        <enum>
+          <option>
+            <label>0dB</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>-7.5dB</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>-15dB</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>-22.5dB</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
 </model>

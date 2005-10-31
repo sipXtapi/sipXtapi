@@ -196,6 +196,7 @@
 	
 	<target name="test-models">
 		<xmlvalidate description="validate setting description files">
+			<fileset dir="etc/audiocodes" includes="**/*.xml"></fileset>
 			<fileset dir="etc/cisco" includes="**/*.xml" excludes="syncinfo.xml"></fileset>
 			<fileset dir="etc/commserver" includes="**/*.xml"></fileset>
 			<fileset dir="etc/kphone" includes="**/*.xml"></fileset>
