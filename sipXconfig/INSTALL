@@ -1,6 +1,6 @@
                                     INSTALL
 
-These are brief instructions on how to install sipXconfig. For much more detailed
+These are brief instructions on how to install sipXconfig. For more detailed
 information, see this page on the SIPfoundry wiki:
 
     http://sipx-wiki.calivia.com/index.php/SipX_ConfigServer_Installation
@@ -14,18 +14,49 @@ then you're done.  SipXconfig has been installed as part of the PBX.
 
 DEPENDENCIES
 
-You will need:
+Installing Java
+
+Download j2sdk 1.4 (http://java.sun.com/j2se/1.4.2/download.html) and follow the
+installation instructions on that web page. j2sdk 1.5
+(http://java.sun.com/j2se/1.5.0/download.jsp) is also supported.  You will have
+a choice between "RPM in self-extracting file" and "self-extracting
+file". Choose the latter (non-RPM) because Sun's RPMs are ill-behaved.
+
+Installing dependencies with yum (Fedora Core only)
+
+Common to all Fedora systems, you need to add the following packages:
+
+    yum install tftp-server httpd postgresql-server
+
+For Redhat Enterprise:
+
+    yum install tftp-server httpd rh-postgresql-server
+
+Java build tools using JPackage
+
+You can add JPackage to your yum repository as follows (see http://www.mksearch.mkdoc.org/howto/jpackage-fc3/ for more information):
+
+    wget -P /tmp http://jpackage.org/jpackage.asc
+    rpm --import /tmp/jpackage.asc
+    wget -P /etc/yum.repos.d http://jpackage.org/jpackage.repo
+
+Remove any previous ant install:
+
+    rpm -e apache-ant
+
+Now you can update your system to the required packages:
+
+    yum install ant ant-nodeps junit ant-junit checkstyle checkstyle-optional\
+    ant-trax jakarta-commons-beanutils jakarta-commons-collections
+
+SipX dependencies:
 
 * sipXportLib (http://www.sipfoundry.org/sipXportLib) (same version as sipXconfig)
 * sipXtackLib (http://www.sipfoundry.org/sipXtack) (same version as sipXconfig)
 * sipXcommserverLib (http://www.sipfoundry.org/sipXcommserverLib) (same version as sipXconfig)
 * sipXpbx (http://www.sipfoundry.org/sipXpbx) (same version as sipXconfig)
-* Java SDK 1.4 (http://java.sun.com/j2se/1.4.2/download.html) or
-  Java SDK 1.5 (http://java.sun.com/j2se/1.5.0/download.jsp) (tested with 1.4.2_09 and 1.5.0_05)
-* postgres 7.3 or 8.0 (http://www.postgresql.org/) (tested with 7.3.4 and 8.0.4)
-* Ant 1.6 (http://ant.apache.org/) (tested with 1.6.1) 
 
-See the wiki for more information on how to download this software.
+See the next section for more information on how to download this software.
 
 INSTALL FROM RPMS
 

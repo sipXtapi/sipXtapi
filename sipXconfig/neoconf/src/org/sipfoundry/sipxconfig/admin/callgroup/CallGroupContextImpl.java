@@ -54,14 +54,16 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         String name = callGroup.getName();
         final String huntGroupTypeName = "hunt group";
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
-                QUERY_CALL_GROUP_IDS_WITH_NAME, name, new NameInUseException(huntGroupTypeName, name));
+                QUERY_CALL_GROUP_IDS_WITH_NAME, name, new NameInUseException(huntGroupTypeName,
+                        name));
         String extension = callGroup.getExtension();
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
-                QUERY_CALL_GROUP_IDS_WITH_EXTENSION,
-                extension,
-                new CallGroupExtensionInUseException(extension));
+                QUERY_CALL_GROUP_IDS_WITH_EXTENSION, extension, new ExtensionInUseException(
+                        "hunt group extension", extension));
 
         getHibernateTemplate().saveOrUpdate(callGroup);
+        // activate call groups every time the call group is saved
+        activateCallGroups();
     }
 
     public void removeCallGroups(Collection ids) {
@@ -69,6 +71,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             return;
         }
         removeAll(CallGroup.class, ids);
+        // activate call groups every time the call group is removed
         activateCallGroups();
     }
 
@@ -79,14 +82,14 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     public void duplicateCallGroups(Collection ids) {
         for (Iterator i = ids.iterator(); i.hasNext();) {
             CallGroup group = loadCallGroup((Integer) i.next());
-            
+
             // Create a copy of the call group with a unique name
             CallGroup groupDup = (CallGroup) duplicateBean(group, QUERY_CALL_GROUP_IDS_WITH_NAME);
-            
+
             // Extensions should be unique, so don't copy the extension from the
-            // source call group.  The admin must fill it in explicitly.
+            // source call group. The admin must fill it in explicitly.
             groupDup.setExtension(null);
-            
+
             groupDup.setEnabled(false);
             storeCallGroup(groupDup);
         }
@@ -111,8 +114,8 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     }
 
     /**
-     * Generate aliases for all call groups
-     * Park orbits do not generate any aliases - registrar handles it directly
+     * Generate aliases for all call groups Park orbits do not generate any aliases - registrar
+     * handles it directly
      */
     public Collection getAliasMappings() {
         final String dnsDomain = m_coreContext.getDomainName();
@@ -123,17 +126,17 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             allAliases.addAll(cg.generateAliases(dnsDomain));
         }
         return allAliases;
-    }    
+    }
 
     public void storeParkOrbit(ParkOrbit parkOrbit) {
         // Check for duplicate names and extensions before saving the park orbit
         String name = parkOrbit.getName();
         final String parkOrbitTypeName = "call park extension";
-        DaoUtils.checkDuplicates(getHibernateTemplate(), parkOrbit,
-                NAME_PROP_NAME, new NameInUseException(parkOrbitTypeName, name));
+        DaoUtils.checkDuplicates(getHibernateTemplate(), parkOrbit, NAME_PROP_NAME,
+                new NameInUseException(parkOrbitTypeName, name));
         String extension = parkOrbit.getExtension();
-        DaoUtils.checkDuplicates(getHibernateTemplate(), parkOrbit,
-                EXTENSION_PROP_NAME, new ParkOrbitExtensionInUseException(extension));
+        DaoUtils.checkDuplicates(getHibernateTemplate(), parkOrbit, EXTENSION_PROP_NAME,
+                new ExtensionInUseException(parkOrbitTypeName, extension));
 
         getHibernateTemplate().saveOrUpdate(parkOrbit);
     }
@@ -230,21 +233,12 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         }
     }
 
-    private class CallGroupExtensionInUseException extends UserException {
-        private static final String ERROR =
-            "Extension {0} is already in use. Please choose another extension for this hunt group.";
+    private class ExtensionInUseException extends UserException {
+        private static final String ERROR = "Extension {1} is already in use. "
+                + "Please choose another {0}.";
 
-        public CallGroupExtensionInUseException(String extension) {
-            super(ERROR, extension);
-        }
-    }
-
-    private class ParkOrbitExtensionInUseException extends UserException {
-        private static final String ERROR =
-            "Extension {0} is already in use. Please choose another call park extension.";
-
-        public ParkOrbitExtensionInUseException(String extension) {
-            super(ERROR, extension);
+        public ExtensionInUseException(String objectType, String extension) {
+            super(ERROR, objectType, extension);
         }
     }
 
