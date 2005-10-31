@@ -12,7 +12,7 @@ class UserServiceTestApi < Test::Unit::TestCase
     end
 
 	def test_createUser
-		addUser = AddUser.new('joeyx', '1234');
+		addUser = AddUser.new('joeyxz', '1234');
 		@userService.addUser(addUser)
     end
 end
