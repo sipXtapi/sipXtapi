@@ -93,7 +93,7 @@ public:
 
 /* ============================ INQUIRY =================================== */
 
-        UtlBoolean isOk();
+    UtlBoolean isOk();
 
     UtlBoolean isConnectedTo(UtlString& hostName, int hostPort);
 
@@ -105,8 +105,10 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
+    // Test whether the socket is ready to read.  (Does not block.)
     UtlBoolean isReadyToRead();
-
+    // Wait until the socket is ready to read (or has an error).
+    UtlBoolean waitForReadyToRead();
 
     OsSocket* clientSocket;
     OsSocket::IpProtocolSocketType mSocketType;

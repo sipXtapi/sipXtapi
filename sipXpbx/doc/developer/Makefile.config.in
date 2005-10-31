@@ -24,7 +24,7 @@ prefix=@prefix@
 .PHONY: no-config-server no-media-server \
 	install-test-certificate install-host-name install-test-config \
 	install-fix-apache-modules \
-	check-libraries
+	check-libraries log-debug
 
 # There is no default action.
 default:

@@ -884,4 +884,3 @@ void RegisterPlugin::takeAction( const SipMessage&   registerMessage
                  "RegisterPlugin::takeAction not resolved by configured hook"
                  );
 }
-

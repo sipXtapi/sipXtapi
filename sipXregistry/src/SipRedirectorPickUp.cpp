@@ -30,6 +30,13 @@
 
 // DEFINES
 
+// If ALWAYS_PINGTEL_NEO is defined, the effect of the PINGTEL_NEO
+// env. var. is always active.  Namely, the INVITE/Replaces for a call
+// pick-up is generated without the "early-only" parameter which it
+// should have.  This is a work-around for the older Polycom phones,
+// which could not cope with the "early-only" parameter.
+#define ALWAYS_PINGTEL_NEO
+
 // The parameter giving the directed call pick-up feature code.
 #define CONFIG_SETTING_DIRECTED_CODE \
     "SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE"
@@ -495,7 +502,11 @@ SipRedirectorPickUp::lookUpDialog(
           SipRedirectorPrivateStoragePickUp::TargetDialogDurationAbsent)
       {
          // A dialog has been recorded.  Construct a contact for it.
-         Url contact_URI(dialog_info->mTargetDialogRemoteURI);
+         // Beware that as recorded in the dialog event notice, the
+         // target URI is in addr-spec format; any parameters are URI
+         // parameters.  (Field parameters have been broken out in
+         // param elements.)
+         Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);
 
          // Construct the Replaces: header value the caller should use.
          UtlString header_value(dialog_info->mTargetDialogCallId);
@@ -512,12 +523,14 @@ SipRedirectorPickUp::lookUpDialog(
          // don't pick up a call that has just been answered.
          if (dialog_info->mStateFilter == stateEarly)
          {
+#ifndef ALWAYS_PINGTEL_NEO
             // If env. var. PINGTEL_NEO is set, do not add "early-only".
             char* v = getenv("PINGTEL_NEO");
             if (!(v != NULL && v[0] != '\0'))
             {
                header_value.append(";early-only");
             }
+#endif
          }
 
          // Add a header parameter to specify the Replaces: header.
@@ -547,12 +560,14 @@ SipRedirectorPickUp::lookUpDialog(
             h.append(dialog_info->mTargetDialogRemoteTag);
             if (dialog_info->mStateFilter == stateEarly)
             {
+#ifndef ALWAYS_PINGTEL_NEO
                // If env. var. PINGTEL_NEO is set, do not add "early-only".
                char* v = getenv("PINGTEL_NEO");
                if (!(v != NULL && v[0] != '\0'))
                {
                   h.append(";early-only");
                }
+#endif
             }
 
             c.setHeaderParameter("Replaces", h.data());
@@ -622,7 +637,9 @@ SipRedirectorPickUp::lookUpDialog(
       mCSeq++;
       mCSeq &= 0x0FFFFFFF;
       // Set the "Expires: 0" header.
-      subscribe.setExpiresField(0);
+      // :WORKAROUND: Use "Expires: 1" in hope of getting current Snom
+      // phones to work.
+      subscribe.setExpiresField(1);
       // Set the "Event: dialog" header.
       subscribe.setEventField("dialog");
       // Set the "Accept: application/dialog-info+xml" header.

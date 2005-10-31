@@ -67,13 +67,13 @@ SipRedirectorRegDB::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
-   UtlString contactIdentity;
-
-   UtlString requestIdentity;
-   requestUri.getIdentity(requestIdentity);
-
    int timeNow = OsDateTime::getSecsSinceEpoch();
    ResultSet registrations;
+   // Note that getUnexpiredContacts will reduce the requestUri to its
+   // identity (user/host/port) part before searching in the
+   // database.  The requestUri identity is matched against the
+   // "identity" column of the database, which is the identity part of
+   // the "uri" column which is stored in registration.xml.
    RegistrationDB::getInstance()->
       getUnexpiredContacts(requestUri, timeNow, registrations);
 
