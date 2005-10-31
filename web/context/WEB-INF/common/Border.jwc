@@ -25,7 +25,8 @@
     </component>
     
     <component id="renderContent" type="Any">
-        <binding name="id" expression="(page.visit.navigationVisible)?'content':'_content'"/>
+        <!--binding name="id" expression="(page.visit.navigationVisible)?'content':'_content'"/-->
+        <static-binding name="id" value="content"/>
         <static-binding name="element" value="div"/>        
     </component>
     
