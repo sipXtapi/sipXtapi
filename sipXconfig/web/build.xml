@@ -343,9 +343,9 @@
 		- HACK: WSDD doesn't validate, schema does not resolve among 
 		- other things, so removing erroneous referance to namespaces
 		-->
-	<replace file="${wsdl.src.dir}/server-config-nospring.wsdd">
+	<!-- replace file="${wsdl.src.dir}/server-config-nospring.wsdd">
 		<replacetoken><![CDATA[xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java"]]></replacetoken>
-	</replace>
+	</replace -->
 	<style 
 		style="meta/server-config.xsl" 
 		in="${wsdl.src.dir}/server-config-nospring.wsdd" 

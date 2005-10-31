@@ -4,13 +4,9 @@
   -->
 <xsl:stylesheet 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-	xmlns="http://xml.apache.org/axis/wsdd/" 
-	xmlns:java="http://xml.apache.org/axis/wsdd/providers/java"
 	version="1.0">
 <xsl:output method="xml" />
 
-<xsl:apply-templates/>
-	
 <xsl:template match="deployment">
   <!-- put namespaces back-in, axis will complain -->
   <deployment xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
