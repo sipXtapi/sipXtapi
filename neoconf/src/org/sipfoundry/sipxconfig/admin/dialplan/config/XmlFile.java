@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
@@ -69,28 +70,36 @@ public abstract class XmlFile {
     }
 
     /**
-     * Creates a bakup copy of a generated file, and writes a new file
+     * Creates a bakup copy of a generated file, and writes a new file. The implementation
+     * actually writes to a temporary file first and only if this is successfull it will rename
+     * the file.
      * 
      * @param configDir File object representing a directory in which files are created
      * @param filename xml file name
      * @throws IOException
      */
     public void writeToFile(File configDir, String filename) throws IOException {
+        // write content to temporary file
+        File tmpFile = File.createTempFile(filename, "tmp", configDir);
+        FileWriter writer = new FileWriter(tmpFile);
+        try {
+            write(writer);
+        } finally {
+            IOUtils.closeQuietly(writer);
+        }
+
         File configFile = new File(configDir, filename);
         // make a backup copy of the file if it exist
-        boolean created = configFile.createNewFile();
-        if (!created) {
+        if (configFile.exists()) {
             // FIXME: this is a naive generation of backup files - we should not have more than n
             // backups
             File backup = new File(configDir, filename + ".~");
             backup.delete();
             configFile.renameTo(backup);
-            configFile = new File(configDir, filename);
-            configFile.createNewFile();
         }
-        FileWriter writer = new FileWriter(configFile);
-        write(writer);
-        writer.close();
+
+        // rename tmpFile to configFile
+        tmpFile.renameTo(configFile);
     }
 
     protected void addRuleDescription(Element userMatch, IDialingRule rule) {

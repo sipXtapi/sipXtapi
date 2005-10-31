@@ -24,7 +24,7 @@
       <userPattern>101</userPattern>
       <permissionMatch>
         <transform>
-          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve%26mailbox%3D{digits}&gt;</url>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dretrieve&gt;</url>
         </transform>
       </permissionMatch>
     </userMatch>

@@ -88,7 +88,6 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
             return;
         }
         saveValid();
-        getCallGroupContext().activateCallGroups();
     }
 
     /**

@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -134,9 +135,13 @@ public class SnomPhone extends Phone {
         String domainName = defaults.getDomainName();
         String registrationUri = domainName + ";transport=udp";
         line.getSettings().getSetting(USER_HOST).setValue(registrationUri);
-        if (line.getUser() != null) {        
-            String voiceMail = defaults.getVoiceMail();        
-            line.getSettings().getSetting(MAILBOX).setValue(voiceMail);
+        User user = line.getUser(); 
+        if (user != null) {  
+            // XCF-722 Setting this to the mailbox (e.g. 101) would fix issue
+            // where mailbox button on phone calls voicemail server, but would
+            // break MWI subscription because SUBSCRIBE message fails 
+            // authentication unless this value is user's username
+            line.getSettings().getSetting(MAILBOX).setValue(user.getUserName());
         }
     }    
         
