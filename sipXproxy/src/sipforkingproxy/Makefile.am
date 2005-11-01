@@ -22,4 +22,3 @@ sipproxy_SOURCES =  \
 	ForwardRules.h \
 	ForkingProxyCseObserver.h \
 	ForkingProxyCseObserver.cpp
-

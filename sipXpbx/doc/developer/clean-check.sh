@@ -23,7 +23,7 @@ cd "$T"
 mkdir "$T/build"
 make -f "$MAKEFILE" -C "$T/build" checkout
 # Get the list of files from the fresh checkout.
-( cd "$T/build" ;
+( cd "$T/build/sipX" ;
   find . -name .svn -prune -false -o -type f | sort ) >"$T/clean-files"
 
 # Make an install directory.
@@ -32,18 +32,26 @@ mkdir "$T/install"
 # process will use it instead of /lib/httpd/modules.
 mkdir -p "$T/install/lib/httpd/modules"
 # Build everything.
-make PREFIX="$T/install" -f "$MAKEFILE" -C "$T/build" build-check-install
+make PREFIX="$T/install" -f "$MAKEFILE" -C "$T/build/sipX" build-install
+# List generated files that aren't svn:ignore.
+( cd "$T/build/sipX" ; svn status |
+  grep '^?      ' |
+  sed -e 's/^?      //' >$T/unignored-files )
 # Clean the build directory..
-make PREFIX="$T/install" -f "$MAKEFILE" -C "$T/build" distclean
+make PREFIX="$T/install" -f "$MAKEFILE" -C "$T/build/sipX" distclean
 
 # Get the list of files after build and distclean.
-( cd "$T/build" ;
+( cd "$T/build/sipX" ;
   find . -name .svn -prune -false -o -type f | sort ) >"$T/build-files"
 # Take the differences between the two lists of files.
 comm -13 "$T/clean-files" "$T/build-files" >"$T/uncleaned-files"
 comm -23 "$T/clean-files" "$T/build-files" >"$T/destroyed-files"
 
-# Print the message.
+# Print the messages.
+echo "----- The following files are build artifacts not recorded in svn:ignore:"
+cat "$T/unignored-files"
+echo "----- [end]"
+
 echo "----- The following files are build artifacts not removed by 'make distclean':"
 cat "$T/uncleaned-files"
 echo "----- [end]"

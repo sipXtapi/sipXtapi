@@ -180,12 +180,19 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     UtlString bytes;
     int len;
     message.getBytes(&bytes, &len);
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipTransactionList::findTransactionFor %p %s %s %s",
-                  &message,
-                  isOutgoing ? "OUTGOING" : "INCOMING", 
-                  transactionFound ? "FOUND" : "NOT FOUND",
-                  relationString.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG
+                  ,"SipTransactionList::findTransactionFor %p %s %s %s"
+#                 ifdef TIME_LOG
+                  "\n\tTime Log %s"
+#                 endif
+                  ,&message
+                  ,isOutgoing ? "OUTGOING" : "INCOMING"
+                  ,transactionFound ? "FOUND" : "NOT FOUND"
+                  ,relationString.data()
+#                 ifdef TIME_LOG
+                  ,findTimeLog.data()
+#                 endif
+                  );
     
 #endif
 
@@ -285,7 +292,13 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
        delete[] transactionsToBeDeleted;
     }
 
-    return;
+#   ifdef TIME_LOG
+    UtlString timeString;
+    gcTimes.getLogString(timeString);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::removeOldTransactions "
+                  "%s", timeString.data()
+                  );
+#   endif
 }
 
 void SipTransactionList::stopTransactionTimers()

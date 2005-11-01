@@ -318,6 +318,10 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
    message->getRequestUri(&stringUri);
    // The requestUri is an addr-spec, not a name-addr.
    const Url requestUri(stringUri, TRUE);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRedirectServer::processRedirect "
+                 "Starting to process request URI '%s'",
+                 stringUri.data());
 
    // Seize the lock that protects the list of suspend objects.
    OsLock lock(mMutex);

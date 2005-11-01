@@ -28,7 +28,8 @@
 //:Mutual exclusion semaphore (mutex)
 // The mutual-exclusion semaphore is a specialized version of the binary
 // semaphore, designed to address issues inherent in mutual exclusion, such
-// as recursive access to resources, priority inversion, and deletion safety
+// as recursive access to resources, priority inversion, and deletion safety.
+
 
 // The fundamental behavior of the mutual-exclusion semaphore is identical to
 // that of a binary semaphore except for:

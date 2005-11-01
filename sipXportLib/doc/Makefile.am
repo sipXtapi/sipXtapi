@@ -46,3 +46,4 @@ external-docs: @PACKAGE@ $(foreach img,$(images),@PACKAGE@/$(img))
 $(foreach img,$(images),@PACKAGE@/$(img)): @PACKAGE@/% : %
 	cp $< $@
 
+DISTCLEANFILES = sipxportlib

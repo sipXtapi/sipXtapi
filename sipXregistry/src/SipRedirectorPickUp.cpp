@@ -30,6 +30,14 @@
 
 // DEFINES
 
+// If ALWAYS_PINGTEL_NEO is defined, the effect of the PINGTEL_NEO
+// env. var. is always active.  Namely, the INVITE/Replaces for a call
+// pick-up is generated without the "early-only" parameter which it
+// should have.  This is a work-around for the older Polycom phones,
+// which could not cope with the "early-only" parameter.
+// :WORKAROUND:
+#define ALWAYS_PINGTEL_NEO
+
 // The parameter giving the directed call pick-up feature code.
 #define CONFIG_SETTING_DIRECTED_CODE \
     "SIP_REGISTRAR_DIRECTED_CALL_PICKUP_CODE"
@@ -65,7 +73,12 @@ const int SipRedirectorPrivateStoragePickUp::TargetDialogDurationAbsent = -1;
 // Constructor
 SipRedirectorPickUp::SipRedirectorPickUp() :
    mpSipUserAgent(NULL),
-   mTask(NULL)
+   mTask(NULL),
+   mOrbitFileName(""),
+   mOrbitFileLastModTimeCheck(0),    // 0 is never a valid time.
+   // OS_INFINITY is never a valid time.
+   // We use it as a dummy meaning "file does not exist".
+   mOrbitFileModTime(OsTime::OS_INFINITY)
 {
 }
 
@@ -159,13 +172,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
          UtlString fileName =
             *configDir + OsPathBase::separator + *orbitConfigFilename;
 
-         // If the file is absent, that is not an error.
-         if (!OsFileSystem::exists(fileName))
-         {
-            OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
-                          "Orbit file '%s' does not exist", fileName.data());
-         }
-         else if (
+         if (
             // Get the park server's SIP domain so we can forward its
             // addresses to it.
             (configDb.get(CONFIG_SETTING_PARK_SERVER, mParkServerDomain) !=
@@ -177,19 +184,21 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
          }
          else
          {
+            mOrbitFileName = fileName;
             OsSysLog::add(FAC_SIP, PRI_INFO, "SipRedirectorPickUp::initialize "
                           "Call retrieve code is '%s', orbit file is '%s', "
                           "park server domain is '%s'",
-                          callRetrieveCode.data(), fileName.data(),
+                          callRetrieveCode.data(), mOrbitFileName.data(),
                           mParkServerDomain.data());
-            // Read the orbit file to get the list of orbit numbers.
-            if (parseOrbitFile(fileName) == OS_SUCCESS)
-            {
-               r = OS_SUCCESS;
-               // All needed information for call retrieval is present,
-               // so set mCallRetrieveCode to activate it.
-               mCallRetrieveCode = callRetrieveCode;
-            }
+            r = OS_SUCCESS;
+            // All needed information for call retrieval is present,
+            // so set mCallRetrieveCode to activate it.
+            mCallRetrieveCode = callRetrieveCode;
+            // Force the caching scheme to read in the orbit file, so that
+            // if there are any failures, they are reported near the start
+            // of the registrar's log file.
+            UtlString dummy("dummy value");
+            findInOrbitList(dummy);
          }
       }
    }
@@ -413,7 +422,7 @@ SipRedirectorPickUp::lookUp(
       }
    }
    else if (!mCallRetrieveCode.isNull() &&
-            mOrbitList.find(&userId))
+            findInOrbitList(userId))
    {
       // Check if call retrieve is active, and this is a request for
       // an extension that is an orbit number.
@@ -435,7 +444,7 @@ SipRedirectorPickUp::lookUp(
       // Extract the putative orbit number.
       UtlString orbit(userId.data() + mCallRetrieveCode.length());
       // Look it up in the orbit list.
-      if (mOrbitList.find(&orbit))
+      if (findInOrbitList(orbit))
       {
          return lookUpDialog(requestString,
                              response,
@@ -495,7 +504,11 @@ SipRedirectorPickUp::lookUpDialog(
           SipRedirectorPrivateStoragePickUp::TargetDialogDurationAbsent)
       {
          // A dialog has been recorded.  Construct a contact for it.
-         Url contact_URI(dialog_info->mTargetDialogRemoteURI);
+         // Beware that as recorded in the dialog event notice, the
+         // target URI is in addr-spec format; any parameters are URI
+         // parameters.  (Field parameters have been broken out in
+         // param elements.)
+         Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);
 
          // Construct the Replaces: header value the caller should use.
          UtlString header_value(dialog_info->mTargetDialogCallId);
@@ -503,7 +516,7 @@ SipRedirectorPickUp::lookUpDialog(
          // the local tag at the destination of the INVITE/Replaces.
          // But the INVITE/Replaces goes to the other end of the call from
          // the one we queried with SUBSCRIBE, so the to-tag in the
-         // Replaces: header is the *remote* tag in the NOTIFY.
+         // Replaces: header is the *remote* tag from the NOTIFY.
          header_value.append(";to-tag=");
          header_value.append(dialog_info->mTargetDialogRemoteTag);
          header_value.append(";from-tag=");
@@ -512,12 +525,14 @@ SipRedirectorPickUp::lookUpDialog(
          // don't pick up a call that has just been answered.
          if (dialog_info->mStateFilter == stateEarly)
          {
+#ifndef ALWAYS_PINGTEL_NEO
             // If env. var. PINGTEL_NEO is set, do not add "early-only".
             char* v = getenv("PINGTEL_NEO");
             if (!(v != NULL && v[0] != '\0'))
             {
                header_value.append(";early-only");
             }
+#endif
          }
 
          // Add a header parameter to specify the Replaces: header.
@@ -547,12 +562,14 @@ SipRedirectorPickUp::lookUpDialog(
             h.append(dialog_info->mTargetDialogRemoteTag);
             if (dialog_info->mStateFilter == stateEarly)
             {
+#ifndef ALWAYS_PINGTEL_NEO
                // If env. var. PINGTEL_NEO is set, do not add "early-only".
                char* v = getenv("PINGTEL_NEO");
                if (!(v != NULL && v[0] != '\0'))
                {
                   h.append(";early-only");
                }
+#endif
             }
 
             c.setHeaderParameter("Replaces", h.data());
@@ -622,7 +639,9 @@ SipRedirectorPickUp::lookUpDialog(
       mCSeq++;
       mCSeq &= 0x0FFFFFFF;
       // Set the "Expires: 0" header.
-      subscribe.setExpiresField(0);
+      // :WORKAROUND: Use "Expires: 1" in hope of getting current Snom
+      // phones to work.
+      subscribe.setExpiresField(1);
       // Set the "Event: dialog" header.
       subscribe.setEventField("dialog");
       // Set the "Accept: application/dialog-info+xml" header.
@@ -1083,26 +1102,44 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
                   // *pStorage.
                   const char* body;
                   int length;
-                  message->getBody()->getBytes(&body, &length);
-                  if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                  // Be careful getting the body, as any of the pointers
+                  // may be null.
+                  const HttpBody* http_body;
+                  if (!(http_body = message->getBody()))
                   {
-                     // Calculate the response delay.
-                     OsTime now;
-                     OsDateTime::getCurTime(now);
-                     OsTime delta;
-                     delta = now - (pStorage->mSubscribeSendTime);
-
                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                    "SipRedirectorPickUpTask::handleMessage "
-                                   "NOTIFY for request %d, delay %d.%06d, "
-                                   "body '%s'",
-                                   itor.requestSeqNo(),
-                                   (int) delta.seconds(), (int) delta.usecs(),
-                                   body);
+                                   "getBody returns NULL, ignoring");
                   }
-                  // Parse this NOTICE and store the needed
-                  // information in private storage.
-                  pStorage->processNotify(body);
+                  else if (http_body->getBytes(&body, &length),
+                           !(body && length > 0))
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                   "SipRedirectorPickUpTask::handleMessage "
+                                   "getBytes returns no body, ignoring");
+                  }                     
+                  else
+                  {
+                     if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+                     {
+                        // Calculate the response delay.
+                        OsTime now;
+                        OsDateTime::getCurTime(now);
+                        OsTime delta;
+                        delta = now - (pStorage->mSubscribeSendTime);
+
+                        OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                      "SipRedirectorPickUpTask::handleMessage "
+                                      "NOTIFY for request %d, delay %d.%06d, "
+                                      "body '%s'",
+                                      itor.requestSeqNo(),
+                                      (int) delta.seconds(), (int) delta.usecs(),
+                                      body);
+                     }
+                     // Parse this NOTICE and store the needed
+                     // information in private storage.
+                     pStorage->processNotify(body);
+                  }
 
                   // Don't bother checking for a match with any other request.
                   break;
@@ -1175,4 +1212,88 @@ SipRedirectorPickUp::textContentDeepRecursive(UtlString& string,
          textContentDeepRecursive(string, child->ToElement());
       }
    }
+}
+
+// Return TRUE if the argument is an orbit name listed in the orbits.xml file.
+//
+// This function takes some care to avoid re-reading orbits.xml when it has
+// not changed since the last call.
+// The strategy is to check the modification time of the orbits.xml file,
+// and only re-read orbits.xml if the modification time has changed since
+// the last time we checked it.
+// But checking the modification time is relatively slow, and we do not want
+// to do it on all calls in a high-usage system.  So we check the clock time
+// instead, and if it has been 1 second since the last time we checked
+// the modification time of orbits.xml, we check it again.
+// Checking the clock time is fast (about 1.6 microseconds on a 2GHz
+// processor), and checking the modification time of orbits.xml once a
+// second is acceptable.
+// Any process which changes orbits.xml should wait 1 second before reporting
+// that it has succeeded, and before doing any further changes to orbits.xml.
+UtlBoolean SipRedirectorPickUp::findInOrbitList(UtlString& user)
+{
+   // If there is no orbit file name, just return FALSE.
+   if (mOrbitFileName.isNull())
+   {
+      return FALSE;
+   }
+
+   // Check to see if 1 second has elapsed since the last time we checked
+   // the modification time of orbits.xml.
+   unsigned long current_time = OsDateTime::getSecsSinceEpoch();
+   if (current_time != mOrbitFileLastModTimeCheck)
+   {
+      // It has been.
+      mOrbitFileLastModTimeCheck = current_time;
+
+      // Check to see if orbits.xml has a different modification time than
+      // the last time we checked.
+      OsFile orbitFile(mOrbitFileName);
+      OsFileInfo fileInfo;
+      OsTime mod_time;
+      if (orbitFile.getFileInfo(fileInfo) == OS_SUCCESS) {
+         // If the file exists, use its modification time.
+         fileInfo.getModifiedTime(mod_time);
+      }
+      else
+      {
+         // If the file does not exist, use OS_INFINITY as a dummy value.
+         mod_time = OsTime::OS_INFINITY;
+      }
+
+      // Check to see if the modification time of orbits.xml is different
+      // than the last time we checked.
+      if (mod_time != mOrbitFileModTime)
+      {
+         // It is different.
+         mOrbitFileModTime = mod_time;
+
+         // Clear the list of the previous orbit names.
+         mOrbitList.destroyAll();
+
+         if (mOrbitFileModTime != OsTime::OS_INFINITY)
+         {
+            // The file exists, so we should read and parse it.
+            OsStatus status = parseOrbitFile(mOrbitFileName);
+            OsSysLog::add(FAC_SIP, PRI_INFO,
+                          "SipRedirectorPickUp::findInOrbitList "
+                          "Re-read orbit file '%s', status = %s",
+                          mOrbitFileName.data(),
+                          status == OS_SUCCESS ? "SUCCESS" : "FAILURE");
+         }
+         else
+         {
+            // The file does not exist, that is not an error.
+            // Take no further action.
+            OsSysLog::add(FAC_SIP, PRI_INFO,
+                          "SipRedirectorPickUp::findInOrbitList "
+                          "Orbit file '%s' does not exist",
+                          mOrbitFileName.data());
+         }
+      }
+   }
+
+   // Having refreshed mOrbitList if necessary, check to see if 'user' is
+   // in it.
+   return mOrbitList.find(&user) != NULL;
 }

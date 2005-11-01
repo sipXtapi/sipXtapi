@@ -457,23 +457,21 @@ main(int argc, char* argv[])
                 }
             } else if ( action == "retrieve" )
             {
-                const char* sRetrieveMailbox;
-                if( requestIsFromWebUI )
-                {
-                    sRetrieveMailbox = gValues->valueOf( "REMOTE_USER" );
-                } else
-                {
-                    sRetrieveMailbox = sFromCGIVar;
-                    OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - For Retrieve, mailbox is same as from. Resetting to mailbox=%s \n", sFromCGIVar);
+               const char* sRetrieveMailbox =
+                  requestIsFromWebUI ? gValues->valueOf( "REMOTE_USER" ) :
+                  // If mailbox was passed in the URL, use it
+                  !mailbox.isNull() ? mailbox.data() :
+                  sFromCGIVar;
+               OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                             "Mediaserver CGI - For Retrieve, using mailbox '%s'",
+                             sRetrieveMailbox);
 
-                }
+               if ( sRetrieveMailbox )
+               {
+                  UtlString retrieveMailbox( sRetrieveMailbox );
 
-                if ( sRetrieveMailbox )
-                {
-                    UtlString retrieveMailbox( sRetrieveMailbox );
-
-                    cmd = new RetrieveCGI( requestIsFromWebUI, retrieveMailbox );
-                }
+                  cmd = new RetrieveCGI( requestIsFromWebUI, retrieveMailbox );
+               }
             } else if ( action == "autoattendant" )
             {
                 if ( sFromCGIVar )
