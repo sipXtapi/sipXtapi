@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.admin.callgroup;
+package org.sipfoundry.sipxconfig.admin.parkorbit;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 

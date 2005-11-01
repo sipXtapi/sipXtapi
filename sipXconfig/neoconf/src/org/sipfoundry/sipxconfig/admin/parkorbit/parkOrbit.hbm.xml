@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.callgroup" default-lazy="false">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.parkorbit" default-lazy="false">
 	<!-- 
 	  - Default background music
 	  -->
@@ -35,8 +35,8 @@
 	    <property name="description"/>
 	</class>
   
-    <query name="parkOrbitIdsWithExtension">
-      <![CDATA[select orbit.id from ParkOrbit orbit where orbit.extension = :value]]>
+    <query name="parkOrbitIdsWithAlias">
+      <![CDATA[select orbit.id from ParkOrbit orbit where orbit.name = :value or orbit.extension = :value]]>
     </query>
     
 </hibernate-mapping>

@@ -62,6 +62,10 @@
           -->
         <pathelement location="${checkstyle-antlr.jar}"/>
         <pathelement location="${checkstyle-optional.jar}"/>
+	<!-- add these for Windows -->
+        <pathelement location="${commons-beanutils.jar}"/>
+        <pathelement location="${commons-logging.jar}"/>
+        <pathelement location="${regexp.jar}"/>
      </classpath> 
    </taskdef> 
 

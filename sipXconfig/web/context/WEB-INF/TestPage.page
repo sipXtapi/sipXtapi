@@ -15,6 +15,9 @@
     <property-specification name="callGroupContext" 
     	type="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext" 
 	    initial-value="global.callGroupContext"/>    
+    <property-specification name="parkOrbitContext" 
+    	type="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext" 
+	    initial-value="global.parkOrbitContext"/>
 	<property-specification name="gatewayContext" 
 		type="org.sipfoundry.sipxconfig.gateway.GatewayContext" 
     	initial-value="global.gatewayContext"/>    
@@ -36,6 +39,9 @@
     </component>    
     <component id="resetCallGroupContext" type="DirectLink">
         <binding name="listener" expression="listeners.resetCallGroupContext"/>
+    </component>    
+    <component id="resetParkOrbitContext" type="DirectLink">
+        <binding name="listener" expression="listeners.resetParkOrbitContext"/>
     </component>    
     <component id="resetCoreContext" type="DirectLink">
         <binding name="listener" expression="listeners.resetCoreContext"/>

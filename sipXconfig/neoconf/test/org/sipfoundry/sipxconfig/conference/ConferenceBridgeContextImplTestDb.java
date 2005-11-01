@@ -183,9 +183,18 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
     public void testIsAliasInUse() throws Exception {
         TestHelper.getConnection();
         TestHelper.insertFlat("conference/participants.db.xml");
+        
+        // conference names are aliases
+        assertTrue(m_context.isAliasInUse("conf_3001"));
+        assertTrue(m_context.isAliasInUse("conf_3002"));
+        assertTrue(m_context.isAliasInUse("conf_3003"));
+
+        // conference extensions are aliases
         assertTrue(m_context.isAliasInUse("1699"));
         assertTrue(m_context.isAliasInUse("1700"));
         assertTrue(m_context.isAliasInUse("1701"));
+        
+        // we're not using this extension
         assertFalse(m_context.isAliasInUse("1702"));
     }
     

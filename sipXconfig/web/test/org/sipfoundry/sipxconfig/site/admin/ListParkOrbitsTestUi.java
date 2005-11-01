@@ -25,7 +25,7 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
     }
 
     public ListParkOrbitsTestUi() throws Exception {
-        super("ListParkOrbits", "resetCallGroupContext", "orbits");
+        super("ListParkOrbits", "resetParkOrbitContext", "orbits");
         setHasDuplicate(false);
         m_musicOnHoldFileName = EditAutoAttendantTestUi.seedPromptFile("parkserver/music");
     }

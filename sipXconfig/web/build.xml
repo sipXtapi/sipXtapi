@@ -13,7 +13,6 @@
   <path id="axis.path">
     <pathelement location="${jaxrpc.jar}"/>
     <pathelement location="${commons-discovery.jar}"/>
-    <pathelement path="${commons-logging.jar}" />
     <pathelement location="${saaj.jar}"/>
     <pathelement location="${wsdl4j.jar}"/>
     <pathelement location="${axis-ant.jar}"/>
@@ -21,6 +20,8 @@
     <pathelement location="${activation.jar}"/>
     <pathelement location="${javamail.jar}"/>
     <pathelement location="${axis.jar}"/>	
+    <!-- add this for Windows -->
+    <pathelement path="${commons-logging.jar}" />
   </path>
   
   <!-- 

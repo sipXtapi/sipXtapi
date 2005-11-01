@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.admin.callgroup;
+package org.sipfoundry.sipxconfig.admin.parkorbit;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -19,18 +19,20 @@ import java.util.List;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.springframework.context.ApplicationContext;
 
 public class ParkOrbitTestDb extends SipxDatabaseTestCase {
 
-    private CallGroupContext m_context;
+    private ParkOrbitContext m_context;
 
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
-        m_context = (CallGroupContext) appContext.getBean(CallGroupContext.CONTEXT_BEAN_NAME);
+        m_context = (ParkOrbitContext) appContext.getBean(ParkOrbitContext.CONTEXT_BEAN_NAME);
         
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsert("admin/callgroup/OrbitSeed.xml");
+        TestHelper.cleanInsert("admin/parkorbit/OrbitSeed.xml");
     }
 
     public void testLoadParkOrbit() throws Exception {
@@ -99,6 +101,7 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
     }
     
     public void testIsAliasInUse() {
+        assertTrue(m_context.isAliasInUse("sales"));
         assertTrue(m_context.isAliasInUse("401"));
         assertTrue(m_context.isAliasInUse("402"));
         assertFalse(m_context.isAliasInUse("911"));

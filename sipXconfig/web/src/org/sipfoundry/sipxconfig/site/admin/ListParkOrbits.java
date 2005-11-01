@@ -17,15 +17,15 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
-import org.sipfoundry.sipxconfig.admin.callgroup.ParkOrbit;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ListParkOrbits extends BasePage implements PageRenderListener {
 
     public static final String PAGE = "ListParkOrbits";
 
-    public abstract CallGroupContext getCallGroupContext();
+    public abstract ParkOrbitContext getParkOrbitContext();
 
     public void pageBeginRender(PageEvent event_) {
         // initialize properties
@@ -57,7 +57,7 @@ public abstract class ListParkOrbits extends BasePage implements PageRenderListe
     }
 
     public void activate(IRequestCycle cycle_) {
-        getCallGroupContext().activateParkOrbits();
+        getParkOrbitContext().activateParkOrbits();
     }
 
     /**
@@ -66,7 +66,7 @@ public abstract class ListParkOrbits extends BasePage implements PageRenderListe
     private void delete() {
         Collection selectedRows = getRowsToDelete();
         if (null != selectedRows) {
-            getCallGroupContext().removeParkOrbits(selectedRows);
+            getParkOrbitContext().removeParkOrbits(selectedRows);
         }
     }
 }

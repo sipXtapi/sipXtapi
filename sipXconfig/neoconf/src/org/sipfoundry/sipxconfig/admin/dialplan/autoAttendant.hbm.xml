@@ -24,8 +24,8 @@
 	    </map>
 	</class>
   
-  <query name="autoAttendantIdsWithExtension">
-    <![CDATA[select aa.id from AutoAttendant aa where aa.extension = :value]]>
+  <query name="autoAttendantIdsWithNameOrExtension">
+    <![CDATA[select aa.id from AutoAttendant aa where aa.name = :value or aa.extension = :value]]>
   </query>
 	
 </hibernate-mapping>
