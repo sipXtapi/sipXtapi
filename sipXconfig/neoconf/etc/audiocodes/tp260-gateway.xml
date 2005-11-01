@@ -204,7 +204,7 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="LineBuildOut">
+    <setting name="LineBuildOut.LOSS">
       <label>Line build out loss</label>
       <type>
         <enum>
@@ -227,6 +227,22 @@
         </enum>
       </type>
       <value>0</value>
+    </setting>
+    <setting name="TerminationSide">
+      <label>Termination side</label>
+      <type>
+        <enum>
+          <option>
+            <label>User</label>
+            <value>0</value>            
+          </option>
+          <option>
+            <label>Network</label>
+            <value>1</value>            
+          </option>          
+        </enum>        
+      </type>
+      <value>0</value>      
     </setting>
   </group>
 </model>
