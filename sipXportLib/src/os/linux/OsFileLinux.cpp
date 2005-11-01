@@ -174,16 +174,14 @@ OsStatus OsFileLinux::getFileInfo(OsFileInfoBase& fileinfo) const
     if (stat(mFilename,&stats) == 0)
     {
         ret = OS_SUCCESS;
-        if (stats.st_mode & S_IWUSR)
-            fileinfo.mbIsReadOnly = FALSE;
-        else
-            fileinfo.mbIsReadOnly = TRUE;
 
-        OsTime createTime(stats.st_ctime,0);
+        fileinfo.mbIsReadOnly = (stats.st_mode & S_IWUSR) == 0;
+
+        OsTime createTime(stats.st_ctime, 0);
         fileinfo.mCreateTime = createTime;
 
-        OsTime modifiedTime(stats.st_ctime,0);
-        fileinfo.mCreateTime = modifiedTime;
+        OsTime modifiedTime(stats.st_mtime, 0);
+        fileinfo.mModifiedTime = modifiedTime;
 
         fileinfo.mSize = stats.st_size;
 

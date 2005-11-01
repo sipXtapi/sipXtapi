@@ -87,6 +87,10 @@ install-test-config:
 	do \
 	install sipXpbx/doc/developer/test-config/etc=sipxpbx/$$file @SIPX_CONFDIR@/$$file ; \
 	done
+	grep -q '^replicationTrigger.replicateOnStartup=false' \
+		@SIPX_CONFDIR@/sipxconfig.properties.in || \
+	echo 'replicationTrigger.replicateOnStartup=false' \
+		>>@SIPX_CONFDIR@/sipxconfig.properties.in
 
 # Remove from httpd.conf any LoadModule directives for modules that
 # Apache (@APACHE2_HTTPD@) has built in.
@@ -144,6 +148,7 @@ log-debug:
 	    mv $$FILE $$FILE.tmp ; \
 	    sed <$$FILE.tmp >$$FILE \
 	        -e 's/_LOG_LEVEL *:.*$$/_LOG_LEVEL : $(LEVEL)/' \
+		-e $$'s/^mediaserver\\.log\\.level[ \t].*$$/mediaserver.log.level  VXIString  $(LEVEL)/' \
 	        -e 's/-log-level>[^<>]*</-log-level>$(LEVEL)</' ; \
 	    rm $$FILE.tmp ; \
 	done

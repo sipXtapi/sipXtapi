@@ -136,8 +136,20 @@ class SipRedirectorPickUp : public SipRedirector
    // The SIP domain of the park server.
    UtlString mParkServerDomain;
 
+   // The full name of the orbit.xml file, or "" if there is none,
+   // or if some other problem (e.g., no domain name for the park
+   // server is specified) diables orbit recognition.
+   UtlString mOrbitFileName;
+
    // A hash map that has as keys all the call parking orbit users.
    UtlHashMap mOrbitList;
+
+   // The last time we checked the modification time of mOrbitFileName.
+   unsigned long mOrbitFileLastModTimeCheck;
+
+   // The last known modification time of mOrbitFileName, or OS_INFINITY
+   // if it did not exist.
+   OsTime mOrbitFileModTime;
 
    // The SIP domain we are operating in.
    UtlString mDomain;
@@ -161,6 +173,11 @@ class SipRedirectorPickUp : public SipRedirector
 
    // Read and parse the call parking orbit description file.
    OsStatus parseOrbitFile(UtlString& fileName);
+
+   // Return TRUE if the argument is an orbit name listed in the orbits.xml file.
+   // (This function takes some care to avoid re-reading orbits.xml when it has
+   // not changed since the last call.)
+   UtlBoolean findInOrbitList(UtlString&);
 };
 
 /**
