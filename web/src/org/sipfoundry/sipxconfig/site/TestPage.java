@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -68,6 +69,8 @@ public abstract class TestPage extends BasePage {
 
     public abstract SipxReplicationContext getSipxReplicationContext();
 
+    public abstract ConferenceBridgeContext getConferenceBridgeContext();
+
     public abstract JobContext getJobContext();
 
     public void resetDialPlans(IRequestCycle cycle_) {
@@ -85,6 +88,10 @@ public abstract class TestPage extends BasePage {
 
     public void resetParkOrbitContext(IRequestCycle cycle_) {
         getParkOrbitContext().clear();
+    }
+
+    public void resetConferenceBridgeContext(IRequestCycle cycle_) {
+        getConferenceBridgeContext().clear();
     }
 
     public void resetCoreContext(IRequestCycle cycle) {

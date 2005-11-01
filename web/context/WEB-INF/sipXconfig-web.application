@@ -30,6 +30,8 @@
     <page name="ChangePin" specification-path="user_portal/ChangePin.page"/>
 	<page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
     <page name="EditCallGroup" specification-path="admin/EditCallGroup.page"/>
+    <page name="EditBridge" specification-path="conference/EditBridge.page"/>
+    <page name="EditConference" specification-path="conference/EditConference.page"/>
     <page name="EditCustomDialRule" specification-path="dialplan/EditCustomDialRule.page"/>
     <page name="EditEmergencyDialRule" specification-path="dialplan/EditEmergencyDialRule.page"/>
     <page name="EditEmergencyRouting" specification-path="dialplan/EditEmergencyRouting.page"/>
@@ -88,6 +90,7 @@
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
 	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
+    <component-type type="ConferencesPanel" specification-path="conference/ConferencesPanel.jwc"/>
     <component-type type="ConfirmPassword" specification-path="user/ConfirmPassword.jwc"/>
     <component-type type="DownloadLink" specification-path="common/DownloadLink.jwc"/>
     <component-type type="EditPhoneForm" specification-path="phone/EditPhoneForm.jwc"/>
@@ -107,6 +110,7 @@
     <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>
     <component-type type="MusicOnHoldForm" specification-path="admin/MusicOnHoldForm.jwc"/>
     <component-type type="OptionalElement" specification-path="common/OptionalElement.jwc"/>
+    <component-type type="ParticipantsPanel" specification-path="conference/ParticipantsPanel.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneLabel" specification-path="phone/PhoneLabel.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>

@@ -3,6 +3,16 @@
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
     "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
 <model>
-  <group name="settings">        
+  <group name="bridge-bridge">
+    <setting name="BRIDGE_MAX_LEGS">
+      <label>Maximum legs</label>
+      <type>
+        <integer required="yes"/>        
+      </type>
+      <value>10</value>
+      <description>The maximum number of call legs to be allowed by this bridge. If a call request is received
+        when there are this many legs already active, a 486 Busy Here is returned with a Warning header indicating
+        that there are too many users on the bridge.</description>
+    </setting>
   </group>
 </model>

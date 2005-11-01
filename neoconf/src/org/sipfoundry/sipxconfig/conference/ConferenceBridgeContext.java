@@ -18,12 +18,14 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 
 public interface ConferenceBridgeContext extends AliasOwner {
-    
+
     public static final String CONTEXT_BEAN_NAME = "conferenceBridgeContext";
 
     List getBridges();
 
     void store(Bridge bridge);
+
+    void store(Conference conference);
 
     Bridge newBridge();
 
