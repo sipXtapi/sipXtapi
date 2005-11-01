@@ -139,16 +139,17 @@ WebServer::WebServer()
 
 void WebServer::initWebServer( HttpServer* pHttpServer )
 {
-        osPrintf("WebServer::initWebServer reached\n") ;
-        if( pHttpServer )
-        {
-        osPrintf("WebServer::access HttpServer pointer\n") ;
-        // New user interface
-        osPrintf("WebServer::add requests to web server\n") ;
+   osPrintf("WebServer::initWebServer reached\n") ;
+   if( pHttpServer )
+   {
+      osPrintf("WebServer::access HttpServer pointer\n") ;
+      // New user interface
+      osPrintf("WebServer::add requests to web server\n") ;
 
-        pHttpServer->addRequestProcessor("/cgi/ProcessMwiEvent.cgi", ProcessEvent);
-        } else
-        {
-        osPrintf("WebServer::couldn't add requests\n") ;
-        }
+      pHttpServer->addRequestProcessor("/cgi/ProcessMwiEvent.cgi", ProcessEvent);
+   }
+   else
+   {
+      osPrintf("WebServer::couldn't add requests\n") ;
+   }
 }

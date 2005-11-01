@@ -35,6 +35,7 @@
 // pick-up is generated without the "early-only" parameter which it
 // should have.  This is a work-around for the older Polycom phones,
 // which could not cope with the "early-only" parameter.
+// :WORKAROUND:
 #define ALWAYS_PINGTEL_NEO
 
 // The parameter giving the directed call pick-up feature code.
@@ -514,7 +515,7 @@ SipRedirectorPickUp::lookUpDialog(
          // the local tag at the destination of the INVITE/Replaces.
          // But the INVITE/Replaces goes to the other end of the call from
          // the one we queried with SUBSCRIBE, so the to-tag in the
-         // Replaces: header is the *remote* tag in the NOTIFY.
+         // Replaces: header is the *remote* tag from the NOTIFY.
          header_value.append(";to-tag=");
          header_value.append(dialog_info->mTargetDialogRemoteTag);
          header_value.append(";from-tag=");

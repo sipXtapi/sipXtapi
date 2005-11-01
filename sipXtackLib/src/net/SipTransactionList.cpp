@@ -292,7 +292,13 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
        delete[] transactionsToBeDeleted;
     }
 
-    return;
+#   ifdef TIME_LOG
+    UtlString timeString;
+    gcTimes.getLogString(timeString);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::removeOldTransactions "
+                  "%s", timeString.data()
+                  );
+#   endif
 }
 
 void SipTransactionList::stopTransactionTimers()

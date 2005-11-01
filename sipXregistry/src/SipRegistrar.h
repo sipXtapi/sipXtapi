@@ -13,7 +13,7 @@
 #define _SipRegistrar_h_
 
 // SYSTEM INCLUDES
-//#include <...>
+#include <sipdb/RegistrationDB.h>
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"

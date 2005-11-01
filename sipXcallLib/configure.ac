@@ -39,6 +39,11 @@ CHECK_GIPSNEQ
 CHECK_GIPSVE
 CHECK_GIPSCE
 
+AC_ARG_ENABLE(call-examples,
+             [  --enable-call-examples    build sipXtapi examples PlaceCall and ReceiveCall],
+             [enable_call_examples=yes], [enable_call_examples=no])
+AM_CONDITIONAL(CALL_EXAMPLES, test x$enable_call_examples = xyes)
+
 SFAC_FEATURE_SIPX_EZPHONE
 
 AC_CONFIG_FILES([

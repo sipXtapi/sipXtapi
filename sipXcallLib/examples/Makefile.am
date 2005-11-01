@@ -3,11 +3,17 @@
 EXTRA_DIST = musicServer CallScript PlaceCall ReceiveCall
 
 if BUILDEZPHONE
-optional_SUBDIRS = sipXezPhone
+ezphone_SUBDIRS = sipXezPhone
 else
-optional_SUBDIRS = 
+ezphone_SUBDIRS = 
 endif
 
-SUBDIRS = ${optional_SUBDIRS}
+if CALL_EXAMPLES
+example_SUBDIRS = PlaceCall ReceiveCall
+else
+example_SUBDIRS = 
+endif
+
+SUBDIRS = ${ezphone_SUBDIRS} ${example_SUBDIRS}
 
 DISTCLEANFILES = Makefile.in
