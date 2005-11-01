@@ -24,7 +24,11 @@ if SIPVIEWER
 SIPVIEWER_OPT = sipviewer
 endif
 
-unconditional_SUBDIRS = . include src bin meta examples syslog2siptrace siplog2siptrace siptest $(SIPVIEWER_OPT)
+if EXAMPLES
+EXAMPLES_OPT = examples
+endif
+
+unconditional_SUBDIRS = . include src bin meta examples syslog2siptrace siplog2siptrace siptest $(SIPVIEWER_OPT) $(EXAMPLES_OPT)
 
 include $(srcdir)/config/sipXprojtop.mak
 

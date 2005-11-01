@@ -79,13 +79,8 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    // to the XML-RPC server
    HttpMessage *pResponse = new HttpMessage();
 
-   pResponse->get(mUrl, *mpHttpRequest, XML_RPC_TIMEOUT);
-
-   UtlString status;
-   
-   pResponse->getResponseStatusText(&status);
-      
-   if (status.compareTo("OK") == 0)
+   int statusCode = pResponse->get(mUrl, *mpHttpRequest, XML_RPC_TIMEOUT);
+   if (statusCode/100 == 2)
    {
       const HttpBody* pResponseBody = pResponse->getBody();
       pResponseBody->getBytes(&bodyString, &bodyLength);
@@ -96,15 +91,24 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
       {
          result = true;
       }
-      else
-      {
-         result = false;
-      }
+   }
+   else if (statusCode == -1)
+   {
+      response.setFault(XmlRpcResponse::ConnectionFailure, CONNECTION_FAILURE_FAULT_STRING);
+
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "XmlRpcRequest::execute http connection failed\n");
    }
    else
    {
+      UtlString statusText;
+   
+      pResponse->getResponseStatusText(&statusText);
+      response.setFault(XmlRpcResponse::HttpFailure, statusText.data());
+
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "XmlRpcRequest::execute failed with status = %s\n", status.data());
+                    "XmlRpcRequest::execute failed with status = %d %s\n",
+                    statusCode, statusText.data());
    }
 
    delete pResponse;

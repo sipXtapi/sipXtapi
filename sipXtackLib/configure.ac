@@ -49,6 +49,11 @@ then
   CHECK_ANT
 fi
 
+AC_ARG_ENABLE(stack-examples, 
+  [  --enable-stack-examples       Builds examples directory (disabled by default) ]
+  , enable_stack_examples=yes)
+AM_CONDITIONAL(EXAMPLES, test x$enable_stack_examples = xyes)
+
 # named is used in some sipXtackLib tests
 CHECK_NAMED
 
@@ -62,6 +67,7 @@ AC_CONFIG_FILES([
   src/test/Makefile
   examples/Makefile
   examples/im/Makefile
+  examples/xmlrpc/Makefile
   syslog2siptrace/Makefile 
   siplog2siptrace/Makefile
   sipviewer/Makefile 
