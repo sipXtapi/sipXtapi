@@ -31,9 +31,9 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
         ConferenceBridgeContext {
     private static final String USER_QUERY_PARAM = "user";
-    
+
     private static final String CONFERENCE_QUERY_PARAM = "conference";
-    
+
     private CoreContext m_coreContext;
 
     private BeanFactory m_beanFactory;
@@ -44,6 +44,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public void store(Bridge bridge) {
         getHibernateTemplate().saveOrUpdate(bridge);
+    }
+
+    public void store(Conference conference) {
+        getHibernateTemplate().saveOrUpdate(conference);
     }
 
     public Bridge newBridge() {
@@ -143,7 +147,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         List bridges = getBridges();
         getHibernateTemplate().deleteAll(bridges);
     }
-    
+
     public UserDeleteListener createUserDeleteListener() {
         return new OnUserDelete();
     }
@@ -152,7 +156,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         protected void onUserDelete(User user) {
             List participantIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
                     "participantIdForUser", USER_QUERY_PARAM, user);
-            removeParticipants(participantIds);            
+            removeParticipants(participantIds);
         }
     }
 
@@ -168,7 +172,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     public boolean isAliasInUse(String alias) {
         List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "conferenceIdsWithAlias", "value", alias);
-        return CollectionUtils.safeSize(confIds) > 0;        
+        return CollectionUtils.safeSize(confIds) > 0;
     }
-    
+
 }

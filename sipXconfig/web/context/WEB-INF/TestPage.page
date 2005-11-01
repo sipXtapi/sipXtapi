@@ -30,6 +30,9 @@
     <property-specification name="jobContext" 
     	type="org.sipfoundry.sipxconfig.job.JobContext" 
     	initial-value="global.jobContext"/>
+    <property-specification name="conferenceBridgeContext"
+    	type="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext"
+    	initial-value="global.conferenceBridgeContext"/>
 
     <component id="resetDialPlans" type="DirectLink">
         <binding name="listener" expression="listeners.resetDialPlans"/>
@@ -45,7 +48,10 @@
     </component>    
     <component id="resetCoreContext" type="DirectLink">
         <binding name="listener" expression="listeners.resetCoreContext"/>
-    </component>      
+    </component>
+    <component id="resetConferenceBridgeContext" type="DirectLink">
+        <binding name="listener" expression="listeners.resetConferenceBridgeContext"/>
+    </component>
     <component id="newPhoneGroup" type="DirectLink">
         <binding name="listener" expression="listeners.newGroup"/>
         <static-binding name="parameters" value="phone"/>
