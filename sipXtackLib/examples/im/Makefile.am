@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/include 
 
-bin_PROGRAMS = basicImClient
+noinst_PROGRAMS = basicImClient
 
 basicImClient_LDADD = $(top_builddir)/src/libsipXtack.la
 

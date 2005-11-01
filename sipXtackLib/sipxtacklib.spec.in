@@ -79,8 +79,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/siptrace-merge
 %attr(755,root,root) %{_bindir}/syslog2siptrace
-%attr(755,root,root) %{_bindir}/basicImClient
-%attr(755,root,root) %{_bindir}/xmlrpcClient
 %attr(755,root,root) %{_libdir}/libsipXtack.la
 %attr(755,root,root) %{_libdir}/libsipXtack.so*
 %attr(755,root,root) %{_datadir}/sipx/schema/sip_types.xsd

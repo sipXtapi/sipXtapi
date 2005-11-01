@@ -2,7 +2,7 @@
 
 INCLUDES = -I$(top_srcdir)/include 
 
-bin_PROGRAMS = xmlrpcClient
+noinst_PROGRAMS = xmlrpcClient
 
 xmlrpcClient_LDADD = $(top_builddir)/src/libsipXtack.la
 
