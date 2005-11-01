@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
@@ -94,6 +97,17 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
             crit.add(Restrictions.eq("g.id", groupId));
         }
         return crit;
+    }
+
+    protected void removeAll(Class klass, Collection ids) {
+        HibernateTemplate template = getHibernateTemplate();
+        Collection entities = new ArrayList(ids.size());
+        for (Iterator i = ids.iterator(); i.hasNext();) {
+            Integer id = (Integer) i.next();
+            Object entity = template.load(klass, id);
+            entities.add(entity);
+        }
+        template.deleteAll(entities);
     }
 
 }

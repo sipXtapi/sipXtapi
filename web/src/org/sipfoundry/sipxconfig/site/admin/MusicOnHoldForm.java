@@ -16,13 +16,13 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class MusicOnHoldForm extends BaseComponent implements PageRenderListener {
     public abstract boolean getCommitChanges();
 
-    public abstract CallGroupContext getCallGroupContext();
+    public abstract ParkOrbitContext getParkOrbitContext();
 
     public abstract String getMusic();
 
@@ -31,7 +31,7 @@ public abstract class MusicOnHoldForm extends BaseComponent implements PageRende
     public void pageBeginRender(PageEvent event_) {
         String music = getMusic();
         if (null == music) {
-            music = getCallGroupContext().getDefaultMusicOnHold();
+            music = getParkOrbitContext().getDefaultMusicOnHold();
             setMusic(music);
         }
     }
@@ -47,7 +47,7 @@ public abstract class MusicOnHoldForm extends BaseComponent implements PageRende
     }
 
     private void saveValid() {
-        CallGroupContext context = getCallGroupContext();
+        ParkOrbitContext context = getParkOrbitContext();
         context.setDefaultMusicOnHold(getMusic());
         context.activateParkOrbits();
     }

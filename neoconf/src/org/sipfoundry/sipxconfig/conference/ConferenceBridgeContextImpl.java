@@ -167,7 +167,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public boolean isAliasInUse(String alias) {
         List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "conferenceIdsWithExtension", "value", alias);
+                "conferenceIdsWithAlias", "value", alias);
         return CollectionUtils.safeSize(confIds) > 0;        
     }
     

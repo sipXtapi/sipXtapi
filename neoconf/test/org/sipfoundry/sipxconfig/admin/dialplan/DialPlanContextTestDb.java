@@ -161,6 +161,7 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     
     public void testIsAliasInUse() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
+        assertTrue(m_context.isAliasInUse("test attendant in use"));	// auto attendant name
         assertTrue(m_context.isAliasInUse("1234"));     // auto attendant extension
         assertTrue(m_context.isAliasInUse("alias1"));   // auto attendant alias
         assertTrue(m_context.isAliasInUse("alias2"));   // auto attendant alias

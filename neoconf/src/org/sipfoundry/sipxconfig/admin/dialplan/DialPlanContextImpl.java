@@ -44,7 +44,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private static final String VALUE = "value";
     
     private static final String QUERY_DIALING_RULE_IDS_WITH_NAME = "dialingRuleIdsWithName";
-    private static final String QUERY_AUTO_ATTENDANT_IDS_WITH_EXTENSION = "autoAttendantIdsWithExtension";
+    private static final String QUERY_AUTO_ATTENDANT_IDS_WITH_NAME_OR_EXTENSION = "autoAttendantIdsWithNameOrExtension";
     private static final String QUERY_AUTO_ATTENDANT_ALIASES = "aaAliases";
     private static final String QUERY_INTERNAL_RULE_IDS_WITH_VOICE_MAIL_EXTENSION =
         "internalRuleIdsWithVoiceMailExtension";
@@ -377,16 +377,16 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      * auto attendants and voicemail.
      */
     public boolean isAliasInUse(String alias) {
-        return isAutoAttendantExtensionInUse(alias)
+        return isAutoAttendantNameOrExtensionInUse(alias)
                 || isAutoAttendantAliasInUse(alias)
                 || isVoiceMailExtensionInUse(alias);
     }
 
-    private boolean isAutoAttendantExtensionInUse(String alias) {
+    private boolean isAutoAttendantNameOrExtensionInUse(String alias) {
         // Look for the ID of an auto attendant with the specified alias/extension.
         // If there is one, then the alias is in use.
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_AUTO_ATTENDANT_IDS_WITH_EXTENSION, VALUE, alias);
+                QUERY_AUTO_ATTENDANT_IDS_WITH_NAME_OR_EXTENSION, VALUE, alias);
         return CollectionUtils.safeSize(objs) > 0;        
     }
     

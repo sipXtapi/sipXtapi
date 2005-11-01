@@ -9,6 +9,7 @@
         <value>classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/admin.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</value>
 		<value>classpath*:/org/sipfoundry/sipxconfig/alias/alias.beans.xml</value>

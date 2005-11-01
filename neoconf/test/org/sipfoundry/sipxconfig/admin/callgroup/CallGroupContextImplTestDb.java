@@ -215,6 +215,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
     }
     
     public void testIsAliasInUse() {
+        assertTrue(m_context.isAliasInUse("sales"));
         assertTrue(m_context.isAliasInUse("401"));
         assertTrue(m_context.isAliasInUse("402"));
         assertFalse(m_context.isAliasInUse("911"));

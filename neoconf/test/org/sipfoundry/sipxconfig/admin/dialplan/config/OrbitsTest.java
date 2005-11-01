@@ -19,8 +19,8 @@ import java.util.Collection;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.sipfoundry.sipxconfig.admin.callgroup.BackgroundMusic;
-import org.sipfoundry.sipxconfig.admin.callgroup.ParkOrbit;
+import org.sipfoundry.sipxconfig.admin.parkorbit.BackgroundMusic;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 
 public class OrbitsTest extends XMLTestCase {

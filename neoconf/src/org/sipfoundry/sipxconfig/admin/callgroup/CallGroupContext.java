@@ -17,7 +17,7 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 
-public interface CallGroupContext extends AliasProvider, AliasOwner {
+public interface CallGroupContext extends AliasOwner, AliasProvider {
     public static final String CONTEXT_BEAN_NAME = "callGroupContext";
 
     void activateCallGroups();
@@ -35,18 +35,4 @@ public interface CallGroupContext extends AliasProvider, AliasOwner {
     void removeUser(Integer userId);
 
     void clear();
-
-    ParkOrbit loadParkOrbit(Integer id);
-
-    void storeParkOrbit(ParkOrbit parkOrbit);
-
-    void removeParkOrbits(Collection ids);
-
-    Collection getParkOrbits();
-
-    void activateParkOrbits();
-
-    String getDefaultMusicOnHold();
-
-    void setDefaultMusicOnHold(String newMusic);
 }

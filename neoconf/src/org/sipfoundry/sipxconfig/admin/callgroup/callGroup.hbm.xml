@@ -47,8 +47,8 @@
     <![CDATA[select cg.id from CallGroup cg where cg.name = :value]]>
   </query>  
   
-  <query name="callGroupIdsWithExtension">
-    <![CDATA[select cg.id from CallGroup cg where cg.extension = :value]]>
+  <query name="callGroupIdsWithAlias">
+    <![CDATA[select cg.id from CallGroup cg where cg.name = :value or cg.extension = :value]]>
   </query>
 	
 </hibernate-mapping>

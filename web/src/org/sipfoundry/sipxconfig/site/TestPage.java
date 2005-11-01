@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -61,6 +62,8 @@ public abstract class TestPage extends BasePage {
 
     public abstract CallGroupContext getCallGroupContext();
 
+    public abstract ParkOrbitContext getParkOrbitContext();
+
     public abstract CoreContext getCoreContext();
 
     public abstract SipxReplicationContext getSipxReplicationContext();
@@ -78,6 +81,10 @@ public abstract class TestPage extends BasePage {
 
     public void resetCallGroupContext(IRequestCycle cycle_) {
         getCallGroupContext().clear();
+    }
+
+    public void resetParkOrbitContext(IRequestCycle cycle_) {
+        getParkOrbitContext().clear();
     }
 
     public void resetCoreContext(IRequestCycle cycle) {

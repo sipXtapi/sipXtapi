@@ -9,9 +9,10 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.admin.callgroup;
+package org.sipfoundry.sipxconfig.admin.parkorbit;
 
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 
 import junit.framework.TestCase;
 
