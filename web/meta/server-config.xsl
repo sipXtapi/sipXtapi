@@ -19,12 +19,16 @@
  <service provider="Handler" style="document" use="literal">	
  <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
  <xsl:apply-templates mode="spring-service"/>
+ <parameter name="wsdlFile" value="org/sipfoundry/sipxconfig/api/sipxconfig.wsdl"/>
  <parameter name="handlerClass" value="com.workingmouse.webservice.axis.SpringBeanRPCProvider"/>
  <parameter name="springBean">
 	 <xsl:attribute name="value">
 		 <!-- Must name bean same as service -->
 		 <xsl:value-of select="@name"/>
 	 </xsl:attribute>
+ </parameter>
+ <parameter name="springBeanClass">
+	 <xsl:attribute name="value">org.sipfoundry.sipxconfig.api.<xsl:value-of select="@name"/>Impl.class</xsl:attribute>
  </parameter>
  </service>	 
 </xsl:template>	

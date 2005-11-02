@@ -42,3 +42,4 @@ clover.jar=@CLOVER_JAR@
 #soap api unit testing
 ruby=@RUBY@
 wsdl2ruby=@WSDL2RUBY@
+@RUBY_BINDINGS_ENABLED@

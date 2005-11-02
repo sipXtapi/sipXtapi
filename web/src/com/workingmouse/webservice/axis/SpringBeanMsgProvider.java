@@ -58,7 +58,7 @@ public class SpringBeanMsgProvider extends MsgProvider {
     protected Class getServiceClass(String clsName, SOAPService service, MessageContext msgContext)
         throws AxisFault {
 
-        return provider.getBeanClass(msgContext, clsName);
+        return provider.getBeanClass(clsName);
     }
 
     /**

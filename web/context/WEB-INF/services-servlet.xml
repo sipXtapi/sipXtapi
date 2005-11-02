@@ -7,5 +7,9 @@
 	<property name="coreContext" ref="coreContext"/>
 </bean>
 
+<bean id="TestService" class="org.sipfoundry.sipxconfig.api.TestServiceImpl">
+	<property name="coreContext" ref="coreContext"/>
+</bean>
+
 </beans>
 

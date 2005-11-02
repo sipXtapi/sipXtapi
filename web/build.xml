@@ -109,7 +109,6 @@
 
   <target name="init" depends="ant-targets.init">
     <mkdir dir="${dist.dir}/war-root" />
-	<mkdir dir="${wsdl.classes.dir}"/>
   </target>
 
   <!-- D E F A U L T -->
@@ -292,6 +291,7 @@
   </taskdef>
 
   <target name="wsdl.init">
+	<mkdir dir="${wsdl.classes.dir}"/>
 	  <uptodate property="server-config.wsdd.uptodate" targetfile="${sipxconfig-wsdl-generated.jar}">
 		  <srcfiles dir="${src.dir}">
 			  <include name="**/*.wsdl"/>
@@ -314,11 +314,11 @@
     <delete dir="${wsdl.src.dir}"/>
     <mkdir dir="${wsdl.src.dir}"/>
     <wsdl2java      
-        url="${src.dir}/org/sipfoundry/sipxconfig/api/UserService.wsdl"
+        url="${src.dir}/org/sipfoundry/sipxconfig/api/sipxconfig.wsdl"
         output="${wsdl.src.dir}"
         serverside="true"
         noWrapped="true">
-        <mapping namespace="urn:UserService" 
+        <mapping namespace="urn:ConfigService" 
             package="org.sipfoundry.sipxconfig.api"/>
     </wsdl2java>
     <!-- generted impl classes are just stubbed -->
@@ -400,8 +400,9 @@
     <copy todir="${wsdl.ruby.dir}" flatten="true">
       <fileset dir="${src.dir}" includes="**/*.wsdl"/>
     </copy>
+	<property name="wsdl2ruby-command" value="-C${wsdl.ruby.dir} ${wsdl2ruby} --force --type client --wsdl"/>
     <exec executable="${ruby}">
-      <arg line="-C${wsdl.ruby.dir} ${wsdl2ruby} --force --type client --wsdl UserService.wsdl"/>
+      <arg line="${wsdl2ruby-command} sipxconfig.wsdl"/>
     </exec>
   </target>
   
@@ -417,9 +418,10 @@
       <classpath location="${sipxconfig-wsdl-generated.jar}" />
       <sysproperty key="basedir" value="${basedir}" />
     </java>    
-    <property name="test.api.dir" value="${test.src.dir}/org/sipfoundry/sipxconfig/api"/>
+	<property name="webservice-unittest-command" 
+		value="-I${wsdl.ruby.dir} -d ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
     <exec executable="${ruby}">
-      <arg line="-I${wsdl.ruby.dir} -d ${test.api.dir}/UserServiceTestApi.rb"/>
+      <arg line="${webservice-unittest-command}/UserServiceTestApi.rb"/>
     </exec>    
     <!-- shutdown incase other tests relying on web server need to run -->
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">

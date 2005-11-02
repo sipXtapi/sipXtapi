@@ -5,6 +5,7 @@ include $(srcdir)/config/sipXprojtop.mak
 edit = $(LocalizeSipXconfig) \
     -e 's,@OPENSSL\@,@OPENSSL@,g' \
     -e 's,@CLOVER_JAR\@,@CLOVER_JAR@,g' \
+    -e 's,@RUBY_BINDINGS_ENABLED\@,@RUBY_BINDINGS_ENABLED@,g' \
     -e 's,@RUBY\@,@RUBY@,g' \
     -e 's,@WSDL2RUBY\@,@WSDL2RUBY@,g' \
     -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g'
