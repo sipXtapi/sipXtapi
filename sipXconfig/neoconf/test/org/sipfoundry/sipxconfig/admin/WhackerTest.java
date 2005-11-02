@@ -15,6 +15,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
@@ -24,20 +25,21 @@ import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 
 public class WhackerTest extends TestCase {
     private Whacker m_whacker;
+    private MockControl m_processControl;
     
     protected void setUp() throws Exception {
         m_whacker = new Whacker();
+
+        // The Whacker is supposed to do a restart through the processContext.
+        // Make a mock control that checks that.
+        m_processControl = MockClassControl.createStrictControl(SipxProcessContext.class);
+        SipxProcessContext processContext = (SipxProcessContext) m_processControl.getMock();
+        processContext.manageServices(Whacker.SERVICE_NAMES, SipxProcessContext.Command.RESTART);
+        m_processControl.replay();
+        m_whacker.setProcessContext(processContext);
     }
 
     public void testWhacker() throws Exception {
-        // The Whacker is supposed to do a restart through the processContext.
-        // Make a mock control that checks that.
-        MockControl processControl = MockClassControl.createStrictControl(SipxProcessContext.class);
-        SipxProcessContext processContext = (SipxProcessContext) processControl.getMock();
-        processContext.manageServices(Whacker.SERVICE_NAMES, SipxProcessContext.Command.RESTART);
-        processControl.replay();
-        m_whacker.setProcessContext(processContext);
-
         // Set the WhackerTask to run very soon so we don't get bored waiting for it
         Date date = new Date();
         date.setTime(date.getTime() + 500);    // add 1/2 second
@@ -50,7 +52,11 @@ public class WhackerTest extends TestCase {
         
         // Wait for a second to make sure the task has run, then verify
         Thread.sleep(1000);
-        processControl.verify();
+        try {
+            m_processControl.verify();
+        } catch (AssertionFailedError e) {
+            fail("processContext.manageServices was not called by the TimerTask.  Be aware that this test is timing-dependent, you may need to tweak the TimerTask time or the sleep time for the main thread.");
+        }
     }
 
     public void testWhackerLikesDateFormat() {
