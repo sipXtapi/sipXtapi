@@ -17,12 +17,19 @@ import org.apache.commons.lang.enums.Enum;
 
 public interface SipxProcessContext {
     public static class Process extends Enum {
-        public static final Process REGISTRAR = new Process("SIPRegistrar");
-        public static final Process AUTH_PROXY = new Process("SIPAuthProxy");
-        public static final Process STATUS = new Process("SIPStatus");
-        public static final Process PROXY = new Process("SIPProxy");
-        public static final Process MEDIA_SERVER = new Process("MediaServer");
-        public static final Process PARK_SERVER = new Process("ParkServer");
+        public static final String REGISTRAR_NAME = "SIPRegistrar";
+        public static final String AUTH_PROXY_NAME = "SIPAuthProxy";
+        public static final String STATUS_SERVER_NAME = "SIPStatus";
+        public static final String PROXY_NAME = "SIPProxy";
+        public static final String MEDIA_SERVER_NAME = "MediaServer";
+        public static final String PARK_SERVER_NAME = "ParkServer";
+
+        public static final Process REGISTRAR = new Process(REGISTRAR_NAME);
+        public static final Process AUTH_PROXY = new Process(AUTH_PROXY_NAME);
+        public static final Process STATUS = new Process(STATUS_SERVER_NAME);
+        public static final Process PROXY = new Process(PROXY_NAME);
+        public static final Process MEDIA_SERVER = new Process(MEDIA_SERVER_NAME);
+        public static final Process PARK_SERVER = new Process(PARK_SERVER_NAME);
 
         public Process(String name) {
             super(name);

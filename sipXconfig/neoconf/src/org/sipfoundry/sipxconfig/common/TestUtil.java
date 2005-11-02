@@ -23,8 +23,8 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Common utility methods for unittesting with neoconf. Somewhat controversial being in codebase,
- * however unittest library is uglier IMHO.
+ * Common utility methods for unit testing with neoconf.  Somewhat controversial being in codebase,
+ * however unit test library would be uglier, IMHO.
  */
 public final class TestUtil {
     
@@ -152,6 +152,7 @@ public final class TestUtil {
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("coreContextImpl.authorizationRealm", realm);
         sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
+        sysProps.setProperty("whacker.enabled", "false");
     }
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

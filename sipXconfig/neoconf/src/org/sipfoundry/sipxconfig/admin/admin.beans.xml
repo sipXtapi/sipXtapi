@@ -23,4 +23,7 @@
     </property>
   </bean>
 
+  <bean id="whacker" class="org.sipfoundry.sipxconfig.admin.Whacker">
+    <property name="processContext" ref="sipxProcessContext"/>
+  </bean>
 </beans>
