@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.CollectionUtils;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -46,6 +47,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private static final String GROUP_RESOURCE_ID = "phone";
     private static final String QUERY_PHONE = "from Phone";
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
+
+    private CoreContext m_coreContext;
 
     private SettingDao m_settingDao;
 
@@ -105,6 +108,10 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     public void setJobQueue(JobQueue jobQueue) {
         m_jobQueue = jobQueue;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
     /**
@@ -319,5 +326,17 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     public void removeFromGroup(Integer groupId, Collection ids) {
         DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, Phone.class, ids);
+    }
+
+    public void addUsersToPhone(Integer phoneId, Collection ids) {
+        Phone phone = loadPhone(phoneId);
+        for (Iterator i = ids.iterator(); i.hasNext();) {
+            Integer userId = (Integer) i.next();
+            User user = m_coreContext.loadUser(userId);
+            Line line = phone.createLine();
+            line.setUser(user);
+            phone.addLine(line);
+        }
+        storePhone(phone);
     }
 }

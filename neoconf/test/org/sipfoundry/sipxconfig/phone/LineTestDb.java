@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
@@ -46,13 +47,39 @@ public class LineTestDb extends SipxDatabaseTestCase {
         User user = m_core.loadUserByUserName("testuser");
 
         Line thirdLine = phone.createLine();
-        thirdLine.setUser(user);        
+        thirdLine.setUser(user);
         phone.addLine(thirdLine);
         m_context.storePhone(phone);
 
         // reload data to get updated ids
         m_context.flush();
         Phone reloadedPhone = m_context.loadPhone(new Integer(1000));
+        Line reloadedThirdLine = reloadedPhone.getLine(2);
+
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddLineExpected.xml");
+        ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
+        expectedRds.addReplacementObject("[line_id]", reloadedThirdLine.getPrimaryKey());
+        expectedRds.addReplacementObject("[null]", null);
+
+        ITable expected = expectedRds.getTable("line");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
+
+        Assertion.assertEquals(expected, actual);
+    }
+
+    public void testAddingLineByContext() throws Exception {
+        TestHelper.cleanInsertFlat("phone/AddLineSeed.xml");
+
+        Integer phoneId = new Integer(1000);
+        Phone phone = m_context.loadPhone(phoneId);
+        assertEquals(2, phone.getLines().size());
+        User user = m_core.loadUserByUserName("testuser");
+
+        m_context.addUsersToPhone(phoneId, Collections.singleton(user.getId()));
+
+        // reload data to get updated ids
+        m_context.flush();
+        Phone reloadedPhone = m_context.loadPhone(phoneId);
         Line reloadedThirdLine = reloadedPhone.getLine(2);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/AddLineExpected.xml");
@@ -100,11 +127,11 @@ public class LineTestDb extends SipxDatabaseTestCase {
         Phone phone = m_context.loadPhone(new Integer(1000));
         Collection lines = phone.getLines();
         assertEquals(1, lines.size());
-        
+
         Line line = (Line) lines.iterator().next();
         line.getSettings();
         m_context.storePhone(phone);
-        
+
         lines.clear();
         m_context.storePhone(phone);
 
