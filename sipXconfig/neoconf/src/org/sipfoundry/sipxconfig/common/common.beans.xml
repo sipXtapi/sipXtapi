@@ -49,7 +49,7 @@
     </property>
   </bean>
 	
-  <bean id="userSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel" singleton="false">
+  <bean id="userSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel">
     <property name="resource" value="user-settings.xml"/>
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>

@@ -39,6 +39,7 @@ import org.sipfoundry.sipxconfig.site.setting.EditGroup;
  * TestPage page
  */
 public abstract class TestPage extends BasePage {
+
     public static final String PAGE = "TestPage";
 
     public static final int JOBS = 4;
@@ -54,6 +55,7 @@ public abstract class TestPage extends BasePage {
     public static final String TEST_USER_ALIAS2 = "200";
     public static final String TEST_USER_ALIASES = TEST_USER_ALIAS1 + ", " + TEST_USER_ALIAS2;
     public static final String TEST_USER_PIN = "1234";
+    public static final int MANY_USERS = 10000;
 
     public abstract DialPlanContext getDialPlanContext();
 
@@ -152,6 +154,19 @@ public abstract class TestPage extends BasePage {
                 : EMPTY_STRING);
         user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
+    }
+
+    public void populateUsers(IRequestCycle cycle_) {
+        long l = System.currentTimeMillis();
+        for (int i = 0; i < MANY_USERS; i++) {
+            String firstName = TEST_USER_FIRSTNAME;
+            User user = new User();
+            user.setUserName("xuser" + (l + i));
+            user.setFirstName(firstName);
+            user.setLastName(TEST_USER_LASTNAME);
+            user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
+            getCoreContext().saveUser(user);
+        }
     }
 
     public void loginFirstTestUser(IRequestCycle cycle_) {

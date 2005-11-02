@@ -101,7 +101,7 @@ public class BackgroundTaskQueue {
                     Runnable task = removeTask();
                     try {
                         task.run();
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         LOG.error("Exception in background task.", e);
                     }
                 }
