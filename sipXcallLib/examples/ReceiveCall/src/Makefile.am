@@ -2,8 +2,7 @@ SUBDIRS =
 
 INCLUDES = -I$(top_srcdir)/include 
 
-ReceiveCalldir = .
-ReceiveCall_PROGRAMS = ReceiveCall
+noinst_PROGRAMS = ReceiveCall
 
 ReceiveCall_LDADD = \
 	@SIPXMEDIA_MP_LIBS@ \

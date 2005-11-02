@@ -2,8 +2,7 @@ SUBDIRS =
 
 INCLUDES = -I$(top_srcdir)/include 
 
-PlaceCalldir = .
-PlaceCall_PROGRAMS = PlaceCall
+noinst_PROGRAMS = PlaceCall
 
 PlaceCall_LDADD = \
 	@SIPXMEDIA_MP_LIBS@ \

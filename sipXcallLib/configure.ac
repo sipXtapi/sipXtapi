@@ -53,7 +53,9 @@ AC_CONFIG_FILES([
   doc/Makefile
   examples/CallScript/src/Makefile
   examples/Makefile 
+  examples/PlaceCall/Makefile
   examples/PlaceCall/src/Makefile
+  examples/ReceiveCall/Makefile
   examples/ReceiveCall/src/Makefile
   examples/musicServer/Makefile
   examples/sipXezPhone/Makefile
@@ -62,4 +64,5 @@ AC_CONFIG_FILES([
   src/test/Makefile 
   src/test/tapi/Makefile 
 ])
+
 AC_OUTPUT
