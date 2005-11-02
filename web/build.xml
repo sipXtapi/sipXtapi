@@ -388,7 +388,7 @@
   <!--
 	- Compile WSDL into Ruby client-side binding.
 	-->
-  <target name="compile.wsdl.ruby" depends="server-config.wsdd" if="wsdl2ruby">
+  <target name="compile.wsdl.ruby" depends="server-config.wsdd" if="ruby-bindings-enabled">
     <!-- Ruby client stubs -->
     <delete dir="${wsdl.ruby.dir}"/>
     <mkdir dir="${wsdl.ruby.dir}"/>
@@ -409,7 +409,7 @@
   <!--
 	- Run web services unit tests
 	-->
-  <target name="test-api" depends="test-war,compile.wsdl.ruby" if="wsdl2ruby">
+  <target name="test-api" depends="test-war,compile.wsdl.ruby" if="ruby-bindings-enabled">
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
       <classpath refid="base.path" />
       <classpath refid="test.path" />
