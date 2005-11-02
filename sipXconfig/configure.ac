@@ -37,10 +37,13 @@ AC_ARG_ENABLE(ruby-bindings,
   [  --enable-ruby-bindings       Build optional ruby bindings to web services],
   enable_ruby_binding=yes, )
 
+AC_SUBST(RUBY_BINDINGS_ENABLED, [])
 if test x$enable_ruby_binding == xyes ; then
+  RUBY_BINDINGS_ENABLED=ruby-bindings-enabled=
   CHECK_RUBY
   SFAC_SRCDIR_EXPAND
   AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/web/meta/wsdl2ruby.rb)
+  # TODO: Check for SOAP4R and http-access2 modules
 fi
 
 AC_CONFIG_FILES([
