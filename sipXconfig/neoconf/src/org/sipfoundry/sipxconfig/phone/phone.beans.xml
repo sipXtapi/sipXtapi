@@ -9,24 +9,17 @@
    - P H O N E  C O N T E X T   I M P L
    -->
   <bean id="phoneContextImpl" class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>
-    <property name="settingDao">
-      <ref bean="settingDaoImpl"/>
-    </property>
-    <property name="jobQueue">
-      <ref bean="jobQueue"/>
-    </property>
-    <property name="systemDirectory">
-      <value>${sysdir.etc}</value>
-    </property>
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="settingDao" ref="settingDaoImpl"/>
+    <property name="jobQueue" ref="jobQueue"/>
+    <property name="coreContext" ref="coreContext"/>
+    <property name="systemDirectory" value="${sysdir.etc}"/>
     <property name="phoneDefaults">
       <ref local="phoneDefaults"/>
     </property>
     <property name="availablePhoneModels">
       <list>
-        <!-- TODO: alphabatize.  right now certain unittests are selecting the Nth
+        <!-- TODO: alphabetize.  right now certain unittests are selecting the Nth
              item, fix to select 0th, the unmanged one -->
         <bean id="org.sipfoundry.sipxconfig.phone.Phone.MODEL"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>

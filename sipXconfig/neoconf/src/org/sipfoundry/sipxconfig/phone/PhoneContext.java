@@ -94,4 +94,6 @@ public interface PhoneContext extends DataObjectSource {
     public void addToGroup(Integer groupId, Collection ids);
 
     public void removeFromGroup(Integer groupId, Collection ids);
+
+    public void addUsersToPhone(Integer phoneId, Collection ids);
 }
