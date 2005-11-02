@@ -19,6 +19,8 @@
     
     <property-specification name="conference" type="org.sipfoundry.sipxconfig.conference.Conference"/>
     
+    <property-specification name="newUsersIds" type="java.util.Collection"/>
+    
     <property-specification name="changed" type="boolean"/>
             
     <!--

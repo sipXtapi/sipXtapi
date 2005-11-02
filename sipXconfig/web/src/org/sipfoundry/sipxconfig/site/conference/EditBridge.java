@@ -50,10 +50,10 @@ public abstract class EditBridge extends PageWithCallback implements PageRenderL
             List bridges = getConferenceBridgeContext().getBridges();
             if (bridges.size() > 0) {
                 bridge = (Bridge) bridges.get(0);
+                setBridgeId(bridge.getId());
             } else {
                 bridge = getConferenceBridgeContext().newBridge();
             }
-            setBridgeId(bridge.getId());
         }
         setBridge(bridge);
     }
