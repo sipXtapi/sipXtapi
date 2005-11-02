@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.util.Collection;
 
 import org.apache.tapestry.AbstractComponent;
+import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
@@ -25,6 +26,8 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.site.user.SelectUsers;
+import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 
 public abstract class EditCallGroup extends BasePage implements PageRenderListener {
     public static final String PAGE = "EditCallGroup";
@@ -43,7 +46,12 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
 
     public abstract void setCallback(ICallback callback);
 
+    public abstract Collection getNewUsersIds();
+
+    public abstract void setNewUsersIds(Collection participantsIds);
+
     public void pageBeginRender(PageEvent event_) {
+        addNewUsers();
         CallGroup callGroup = getCallGroup();
         if (null != callGroup) {
             return;
@@ -59,6 +67,15 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         if (null == getCallback()) {
             setCallback(new PageCallback(ListCallGroups.PAGE));
         }
+    }
+
+    protected void addNewUsers() {
+        Integer id = getCallGroupId();
+        Collection ids = getNewUsersIds();
+        if (id != null && ids != null) {
+            getCallGroupContext().addUsersToCallGroup(id, ids);
+        }
+        setNewUsersIds(null);
     }
 
     /**
@@ -101,8 +118,10 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
             return;
         }
         saveValid();
-        AddUserRing page = (AddUserRing) cycle.getPage(AddUserRing.PAGE);
-        page.setCallGroupId(getCallGroupId());
+        SelectUsers page = (SelectUsers) cycle.getPage(SelectUsers.PAGE);
+        page.setTitle(getMessage("title.selectRings"));
+        page.setPrompt(getMessage("prompt.selectRings"));
+        page.setCallback(new SelectRingsCallback(getCallGroupId()));
         cycle.activate(page);
     }
 
@@ -151,5 +170,20 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
 
     private UserRingTable getUserRingTable() {
         return (UserRingTable) getComponent("ringTable");
+    }
+
+    private static class SelectRingsCallback extends SelectUsersCallback {
+        private Integer m_callGroupId;
+
+        public SelectRingsCallback(Integer callGroupId) {
+            super(PAGE);
+            setIdsPropertyName("newUsersIds");
+            m_callGroupId = callGroupId;
+        }
+
+        protected void beforeActivation(AbstractPage page) {
+            EditCallGroup editCallGroup = (EditCallGroup) page;
+            editCallGroup.setCallGroupId(m_callGroupId);
+        }
     }
 }

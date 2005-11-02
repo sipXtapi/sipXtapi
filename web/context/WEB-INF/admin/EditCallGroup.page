@@ -21,7 +21,9 @@
 	<property-specification name="callGroupId" 
 		type="java.lang.Integer"
     	persistent="yes"/>
-    
+       
+    <property-specification name="newUsersIds" type="java.util.Collection"/>
+
     <property-specification name="commitChanges" type="boolean" initial-value="false"/>
     
     <property-specification name="callback" 
