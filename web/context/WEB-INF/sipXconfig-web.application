@@ -69,6 +69,7 @@
     <page name="RestartReminder" specification-path="admin/commserver/RestartReminder.page"/>
     <page name="SelectGateways" specification-path="gateway/SelectGateways.page"/>
     <page name="SelectRuleType" specification-path="dialplan/SelectRuleType.page"/>
+    <page name="SelectUsers" specification-path="user/SelectUsers.page"/>
     <page name="ServerSettings" specification-path="admin/commserver/ServerSettings.page"/>    
     <page name="Services" specification-path="admin/commserver/Services.page"/>
     <page name="UserCallForwarding" specification-path="user_portal/UserCallForwarding.page"/>

@@ -12,8 +12,10 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
+import java.util.Collection;
 
 import org.apache.commons.logging.LogFactory;
+import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageEvent;
@@ -23,6 +25,8 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.site.user.SelectUsers;
+import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 
 public abstract class EditConference extends PageWithCallback implements PageRenderListener {
     public static final String PAGE = "EditConference";
@@ -43,7 +47,12 @@ public abstract class EditConference extends PageWithCallback implements PageRen
 
     public abstract boolean getChanged();
 
+    public abstract Collection getNewUsersIds();
+
+    public abstract void setNewUsersIds(Collection participantsIds);
+
     public void pageBeginRender(PageEvent event_) {
+        addNewParticipants();
         if (getConference() != null) {
             return;
         }
@@ -54,6 +63,15 @@ public abstract class EditConference extends PageWithCallback implements PageRen
             conference = getConferenceBridgeContext().newConference();
         }
         setConference(conference);
+    }
+
+    protected void addNewParticipants() {
+        Collection ids = getNewUsersIds();
+        Serializable conferenceId = getConferenceId();
+        if (ids != null && conferenceId != null) {
+            getConferenceBridgeContext().addParticipantsToConference(conferenceId, ids);
+        }
+        setNewUsersIds(null);
     }
 
     public void apply(IRequestCycle cycle) {
@@ -87,7 +105,13 @@ public abstract class EditConference extends PageWithCallback implements PageRen
             return;
         }
         saveValid(cycle);
-        // do something to add them
+        SelectParticipantsCallback callback = new SelectParticipantsCallback(getBridgeId(),
+                getConferenceId());
+        SelectUsers selectUsersPage = (SelectUsers) cycle.getPage(SelectUsers.PAGE);
+        selectUsersPage.setCallback(callback);
+        selectUsersPage.setPrompt(getMessage("prompt.selectParticipants"));
+        selectUsersPage.setTitle(getMessage("title.selectParticipants"));
+        cycle.activate(selectUsersPage);
     }
 
     public void editParticipant(IRequestCycle cycle) {
@@ -111,5 +135,24 @@ public abstract class EditConference extends PageWithCallback implements PageRen
         setConferenceId(conferenceId);
         setCallback(callback);
         cycle.activate(this);
+    }
+
+    private static class SelectParticipantsCallback extends SelectUsersCallback {
+        private Serializable m_bridgeId;
+
+        private Serializable m_conferenceId;
+
+        public SelectParticipantsCallback(Serializable bridgeId, Serializable conferenceId) {
+            super(PAGE);
+            setIdsPropertyName("newUsersIds");
+            m_bridgeId = bridgeId;
+            m_conferenceId = conferenceId;
+        }
+
+        protected void beforeActivation(AbstractPage page) {
+            EditConference editConferencePage = (EditConference) page;
+            editConferencePage.setBridgeId(m_bridgeId);
+            editConferencePage.setConferenceId(m_conferenceId);
+        }
     }
 }

@@ -78,7 +78,7 @@
 	<component id="nameColumnValue" type="Block"/>
     
     <component id="nameText" type="Insert">
-        <binding name="value" expression="currentRow.name"/>
+        <binding name="value" expression="currentRow.user.userName"/>
     </component>
     
     <component id="editRowLink" type="DirectLink">
