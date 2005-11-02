@@ -33,6 +33,16 @@ CHECK_JDK
 CHECK_ANT
 CHECK_CLOVER
 
+AC_ARG_ENABLE(ruby-bindings,
+  [  --enable-ruby-bindings       Build optional ruby bindings to web services],
+  enable_ruby_binding=yes, )
+
+if test x$enable_ruby_binding == xyes ; then
+  CHECK_RUBY
+  SFAC_SRCDIR_EXPAND
+  AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/web/meta/wsdl2ruby.rb)
+fi
+
 AC_CONFIG_FILES([
     Makefile
     config/sipXcommon.mak

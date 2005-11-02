@@ -238,7 +238,7 @@
   	<echo/>
     <input>Press Enter/Return key to shutdown web server...</input>
   </target>
-  <target name="test-all" depends="ant-targets.test-all,test-ui" />
+  <target name="test-all" depends="ant-targets.test-all,test-ui,test-api" />
   <target name="test-war" depends="default.deps,compile.test,war" 
     description="Creates a war file for unittests">
     <property name="test.systemRoot" 
@@ -388,7 +388,7 @@
   <!--
 	- Compile WSDL into Ruby client-side binding.
 	-->
-  <target name="compile.wsdl.ruby">
+  <target name="compile.wsdl.ruby" depends="server-config.wsdd" if="wsdl2ruby">
     <!-- Ruby client stubs -->
     <delete dir="${wsdl.ruby.dir}"/>
     <mkdir dir="${wsdl.ruby.dir}"/>
@@ -401,18 +401,36 @@
       <fileset dir="${src.dir}" includes="**/*.wsdl"/>
     </copy>
     <exec executable="${ruby}">
-      <arg line="-C${wsdl.ruby.dir} ${soap4r}/bin/wsdl2ruby.rb --force --type client --wsdl UserService.wsdl"/>
+      <arg line="-C${wsdl.ruby.dir} ${wsdl2ruby} --force --type client --wsdl UserService.wsdl"/>
     </exec>
   </target>
   
   <!--
 	- Run web services unit tests
 	-->
-  <target name="test-api" depends="compile.wsdl.ruby">
+  <target name="test-api" depends="test-war,compile.wsdl.ruby" if="wsdl2ruby">
+    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
+      <classpath refid="base.path" />
+      <classpath refid="test.path" />
+      <classpath location="${junit.jar}" />
+      <classpath location="${log4j.jar}" />
+      <classpath location="${sipxconfig-wsdl-generated.jar}" />
+      <sysproperty key="basedir" value="${basedir}" />
+    </java>    
     <property name="test.api.dir" value="${test.src.dir}/org/sipfoundry/sipxconfig/api"/>
     <exec executable="${ruby}">
       <arg line="-I${wsdl.ruby.dir} -d ${test.api.dir}/UserServiceTestApi.rb"/>
     </exec>    
+    <!-- shutdown incase other tests relying on web server need to run -->
+    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
+      <classpath refid="base.path" />
+      <classpath refid="test.path" />
+      <classpath location="${junit.jar}" />
+      <classpath location="${log4j.jar}" />
+      <classpath location="${sipxconfig-wsdl-generated.jar}" />
+      <sysproperty key="basedir" value="${basedir}" />
+      <arg value="shutdown"/>
+    </java>    
   </target>
     
 </project>

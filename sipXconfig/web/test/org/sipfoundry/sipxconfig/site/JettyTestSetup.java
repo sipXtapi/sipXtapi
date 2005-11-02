@@ -15,8 +15,11 @@ import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.mortbay.jetty.Server;
 import org.mortbay.util.InetAddrPort;
+import org.sipfoundry.sipxconfig.phone.SipServiceImpl;
 
 /**
  * Assumes you've run ant to build test war file first ant build-test-war
@@ -28,6 +31,8 @@ public class JettyTestSetup extends TestSetup {
     private int m_port = 9999;
 
     private String m_url = "http://localhost:" + m_port + "/sipxconfig";
+    
+    private static final Log LOG = LogFactory.getLog(JettyTestSetup.class);
 
     static {
         // shows which URLs were accessed among other diagnotics
@@ -63,11 +68,19 @@ public class JettyTestSetup extends TestSetup {
         m_server.addWebApplication("/sipxconfig", war);
         m_server.start();
     }
-
-    /**
-     * If you want to run sipXconfig in jetty w/o any tests
-     */
-    public static void main(String[] args) {
+    
+    private static void shutdownJetty() {
+        if (m_server != null) {
+            try {
+                m_server.stop();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            m_server = null;
+        }        
+    }
+    
+    private static void startJetty() {
         TestCase notest = new TestCase() {
             // empty
         };
@@ -77,7 +90,21 @@ public class JettyTestSetup extends TestSetup {
             Runtime.getRuntime().addShutdownHook(new Thread(jetty.shutdownHoook()));
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }        
+    }
+
+    /**
+     * If you want to run sipXconfig in jetty w/o any tests
+     */
+    public static void main(String[] args) {
+
+        LOG.debug("######jetty args=" + args);
+
+        if (args.length > 0 && "shutdown".equals(args[0])) {
+            shutdownJetty();           
+        } else {
+            startJetty();
+        }        
     }
 
     Runnable shutdownHoook() {
