@@ -27,8 +27,8 @@
 	  -->
     
 	<component id="userManagement" type="Form"/>
-    <component id="addUser" type="PageLink">
-        <static-binding name="page" value="NewUser"/>
+    <component id="addUser" type="DirectLink">
+        <binding name="listener" expression="listeners.addUser"/>
     </component>
 	<component id="userTable" type="UserTable">
         <binding name="userListener" expression="listeners.editUser"/>
