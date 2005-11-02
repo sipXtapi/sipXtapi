@@ -47,8 +47,10 @@
             </prompt>
             <filled>
                 <if cond="extension == '0'">
-                    <assign name="action" expr="'autoattendant'" />
-                    <goto nextitem="autoattendant" />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+                    </prompt>
+                    <goto next="root.vxml#operator" />
                 <elseif cond="extension== '#'"/>
                     <clear namelist="extension"/>
                     <goto nextitem="extension"/>
@@ -74,8 +76,10 @@
                     <clear namelist="extension pin"/>
                     <goto nextitem="extension"/>
                 <elseif cond="pin == '0'" />
-                    <assign name="action" expr="'autoattendant'" />
-                    <goto nextitem="autoattendant" />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+                    </prompt>
+                    <goto next="root.vxml#operator" />
                 <else/>
                     <goto nextitem="login"/>
                 </if>
@@ -189,15 +193,6 @@
             <param name="mediaserverurl" expr="mediaserverurl" />
             <param name="securemediaserverurl" expr="securemediaserverurl" />
             <param name="isRecordSystemPromptsEnabled" expr="login.isRecordSystemPromptsEnabled" />
-        </subdialog>
-
-        <subdialog name="dialbyname" cond="extension == '9'" srcexpr="securemediaserverurl + dialbynameurl'">
-            <param name="from" expr="from" />
-            <param name="mediaserverurl" expr="mediaserverurl" />
-            <param name="securemediaserverurl" expr="securemediaserverurl" />
-        </subdialog>
-
-        <subdialog name="autoattendant" cond="extension == '0' || pin == '0'" srcexpr="securemediaserverurl + cgiurl"  namelist="action from">
         </subdialog>
 
     </form>
