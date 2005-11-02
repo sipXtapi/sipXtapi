@@ -87,6 +87,9 @@
     <component id="populatePhones" type="DirectLink">
         <binding name="listener" expression="listeners.populatePhones"/>
     </component>
+    <component id="populateUsers" type="DirectLink">
+        <binding name="listener" expression="listeners.populateUsers"/>
+    </component>    
    
     <component id="RestartReminder" type="DirectLink">
         <binding name="listener" expression="listeners.goToRestartReminderPage"/>

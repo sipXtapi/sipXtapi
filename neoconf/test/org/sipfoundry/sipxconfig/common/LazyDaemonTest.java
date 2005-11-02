@@ -22,7 +22,7 @@ public class LazyDaemonTest extends TestCase {
         mock.start();
         // do not give it more than 1 second to complete
         mock.join(1000);
-        assertEquals("xXxXxX", m_testBuffer.toString());
+        assertEquals("xXxxXxX", m_testBuffer.toString());
     }
 
     private class LazyDaemonMock extends LazyDaemon {
@@ -37,9 +37,13 @@ public class LazyDaemonTest extends TestCase {
         }
 
         protected boolean work() {
-            m_testBuffer.append("X");
             m_i++;
-            return m_i < 3;
+            if (m_i == 2) {
+                // check if we can recover from that without stopping the thread
+                throw new Error("ignore - thrown on purpose");
+            }
+            m_testBuffer.append("X");
+            return m_i < 4;
         }
     }
 }

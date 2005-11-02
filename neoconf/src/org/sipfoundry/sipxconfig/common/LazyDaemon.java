@@ -37,7 +37,7 @@ public abstract class LazyDaemon extends Thread {
                 sleep(m_sleepInterval);
                 try {
                     moreWork = work();
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     LOG.error(getName() + "exception in background task.", e);
                 }
             }
