@@ -1104,3 +1104,35 @@ AC_DEFUN([CHECK_SELINUX],
     fi
 ])
 
+
+# ==================== Ruby ====================
+AC_DEFUN([CHECK_RUBY],
+[
+  AC_PATH_PROG([RUBY], ruby)
+
+  if test "x$RUBY" == "x" ; then
+    AC_MSG_ERROR([ruby is required])
+  fi
+  
+  minRubyVersion="1.8.3"
+
+  ## warning about line below: use $ 2 instead of $2 otherwise m4 trys to interpret, 
+  ## luckily awk doesn't care
+  rubyVersion=`ruby --version | awk '{print $ 2}'`
+
+  AX_COMPARE_VERSION([$rubyVersion],[ge],[$minRubyVersion],
+       [AC_MSG_RESULT($rubyVersion is ok)],
+       [AC_MSG_ERROR([ruby version must be >= $minRubyVersion - found $rubyVersion])])
+])
+
+##
+##  pass module path (e.g. wsdl/soap/wsl2ruby)
+##
+AC_DEFUN([CHECK_RUBY_MODULE],
+[
+  rubyModule=[$1]
+  if test $RUBY -e "require '$rubyModule'" 2> /dev/null ; then
+    return "yes"
+  fi
+  return "no"
+])
