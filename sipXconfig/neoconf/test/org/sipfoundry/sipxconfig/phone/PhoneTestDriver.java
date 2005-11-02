@@ -42,6 +42,7 @@ public class PhoneTestDriver {
         
         defaults = new PhoneDefaults();
         defaults.setDomainName("sipfoundry.org");
+        defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
         defaults.setTftpServer("tftp.sipfoundry.org");
 
         phoneContextControl = MockControl.createNiceControl(PhoneContext.class);

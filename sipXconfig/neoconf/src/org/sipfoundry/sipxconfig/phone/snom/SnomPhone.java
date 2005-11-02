@@ -32,6 +32,8 @@ public class SnomPhone extends Phone {
     public static final String USER_HOST = "line/user_host";
     
     public static final String MAILBOX = "line/user_mailbox";
+    
+    public static final String OUTBOUND_PROXY = "sip/user_outbound";
 
     public SnomPhone() {
         super(BEAN_ID);

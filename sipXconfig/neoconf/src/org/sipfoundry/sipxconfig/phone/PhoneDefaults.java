@@ -36,6 +36,8 @@ public class PhoneDefaults {
     private String m_profileRootUrl;
 
     private String m_domainName;
+    
+    private String m_fullyQualifiedDomainName; 
 
     private String m_authorizationRealm;
 
@@ -126,7 +128,7 @@ public class PhoneDefaults {
         }
 
         StringBuffer url = new StringBuffer();
-        url.append("http://").append(getDomainName()).append(":8090");
+        url.append("http://").append(getFullyQualifiedDomainName()).append(":8090");
         url.append("/phone/profile/docroot");
 
         return url.toString();
@@ -238,4 +240,11 @@ public class PhoneDefaults {
         return uri;
     }
 
+    public String getFullyQualifiedDomainName() {
+        return m_fullyQualifiedDomainName;
+    }
+
+    public void setFullyQualifiedDomainName(String fullyQualifiedDomainName) {
+        m_fullyQualifiedDomainName = fullyQualifiedDomainName;
+    }
 }

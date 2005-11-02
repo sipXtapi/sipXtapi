@@ -147,6 +147,7 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
         sysProps.setProperty("phoneDefaults.domainName", domainName);        
+        sysProps.setProperty("phoneDefaults.fullyQualifiedDomainName", "pbx." + domainName);        
         sysProps.setProperty("sipxServer.domainName", domainName);
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
