@@ -34,5 +34,7 @@ public interface CallGroupContext extends AliasOwner, AliasProvider {
 
     void removeUser(Integer userId);
 
+    void addUsersToCallGroup(Integer callGroupId, Collection ids);
+
     void clear();
 }
