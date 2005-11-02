@@ -11,14 +11,14 @@ install: install-rutil install-resip install-dum
 
 .PHONY: rutil
 rutil: @abs_top_srcdir@/resiprocate/build/Makefile.conf
-	$(MAKE) -C @abs_top_srcdir@/resiprocate rutil install-rutil
+	$(MAKE) -C @abs_top_srcdir@/resiprocate rutil
 
 .PHONY: install-rutil
 	$(MAKE) -C @abs_top_srcdir@/resiprocate install-rutil
 
 .PHONY: resip
 resip: @abs_top_srcdir@/resiprocate/build/Makefile.conf
-	$(MAKE) -C @abs_top_srcdir@/resiprocate resiprocate install-resip
+	$(MAKE) -C @abs_top_srcdir@/resiprocate resiprocate
 
 .PHONY: resip-test
 resip-test:
@@ -30,7 +30,7 @@ install-resip:
 
 .PHONY: dum
 dum: @abs_top_srcdir@/resiprocate/build/Makefile.conf
-	$(MAKE) -C @abs_top_srcdir@/resiprocate dum install-dum
+	$(MAKE) -C @abs_top_srcdir@/resiprocate dum 
 
 .PHONY: install-dum
 install-dum:
