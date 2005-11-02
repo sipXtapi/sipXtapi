@@ -98,13 +98,13 @@ KeepAlive On
 # during a persistent connection. Set to 0 to allow an unlimited amount.
 # We recommend you leave this number high, for maximum performance.
 #
-MaxKeepAliveRequests 100
+MaxKeepAliveRequests 50
 
 #
 # KeepAliveTimeout: Number of seconds to wait for the next request from the
 # same client on the same connection.
 #
-KeepAliveTimeout 15
+KeepAliveTimeout 10
 
 ##
 ## Server-Pool Size Regulation (MPM specific)
@@ -120,8 +120,8 @@ KeepAliveTimeout 15
 StartServers         5
 MinSpareServers      5
 MaxSpareServers     10
-MaxClients         150
-MaxRequestsPerChild  0
+MaxClients         250
+MaxRequestsPerChild 10
 </IfModule>
 
 # worker MPM
