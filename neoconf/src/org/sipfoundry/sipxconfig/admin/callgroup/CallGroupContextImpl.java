@@ -33,10 +33,10 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  */
 public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext {
     private static final String VALUE = "value";
-    
+
     private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";
     private static final String QUERY_CALL_GROUP_IDS_WITH_ALIAS = "callGroupIdsWithAlias";
-    
+
     private CoreContext m_coreContext;
     private SipxReplicationContext m_replicationContext;
 
@@ -174,4 +174,13 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         return CollectionUtils.safeSize(objs) > 0;
     }
 
+    public void addUsersToCallGroup(Integer callGroupId, Collection ids) {
+        CallGroup callGroup = loadCallGroup(callGroupId);
+        for (Iterator i = ids.iterator(); i.hasNext();) {
+            Integer userId = (Integer) i.next();
+            User user = m_coreContext.loadUser(userId);
+            callGroup.insertRing(user);
+        }
+        storeCallGroup(callGroup);
+    }
 }
