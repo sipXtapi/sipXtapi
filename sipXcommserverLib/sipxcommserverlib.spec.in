@@ -111,6 +111,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/digitmaps/*
 %{_includedir}/fastdb/*
 %{_includedir}/sipdb/*
+%{_includedir}/configrpc/*
 
 %pre
 grep @SIPXPBXUSER@ /etc/group > /dev/null \
