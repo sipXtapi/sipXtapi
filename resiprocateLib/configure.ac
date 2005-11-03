@@ -6,6 +6,7 @@ AC_INIT(resiprocateLib, 3.1.0, resiprocate-devel@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 AM_INIT_AUTOMAKE(foreign)
+
 SFAC_AUTOMAKE_VERSION([1.6])
 CHECK_AUTOCONF
 
@@ -26,13 +27,14 @@ CHECK_CPPUNIT
 CHECK_PCRE
 CHECK_SSL
 
-SFAC_INIT_FLAGS
+SFAC_LIB_PORT
 
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
-AC_CONFIG_FILES([
-  Makefile 
-])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([src/Makefile])
+AC_CONFIG_FILES([include/Makefile])
+AC_CONFIG_FILES([config/sipXcommon.mak])
 
 AC_OUTPUT

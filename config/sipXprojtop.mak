@@ -2,7 +2,6 @@
 
 ## BUILDSTAMP records the subversion revision, date/time, and host of the build
 ##   it also creates the cpp file config/sipX-buildstamp.cpp with the same information.
-all: BUILDSTAMP
 
 ## The SVN-VERSION file is created to record the version 
 ##  in the distribution tarball; it is not used in a subversion working copy
@@ -33,6 +32,8 @@ SVN-VERSION:
 
 SVN-EXPORT-VERSION: SVN-VERSION
 	cp SVN-VERSION SVN-EXPORT-VERSION
+
+all: BUILDSTAMP
 
 .PHONY: BUILDSTAMP
 BUILDSTAMP: SVN-VERSION
@@ -95,5 +96,5 @@ CONFIG_DISTCLEANFILES = \
 	config/install-sh \
 	config/ltmain.sh \
 	config/missing \
-	config/sipxcalllib-buildstamp.cpp \
-	config/sipxcalllib-buildstamp.h
+	config/@PACKAGE@-buildstamp.cpp \
+	config/@PACKAGE@-buildstamp.h

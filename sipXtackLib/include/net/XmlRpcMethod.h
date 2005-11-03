@@ -64,12 +64,12 @@ class XmlRpcMethod
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-   enum ExecutionStatus
+   typedef enum ExecutionStatus
    {
       OK,
       FAILED,
       REQUIRE_AUTHENTICATION
-   };
+   } ExecutionStatus;
 
 /* ============================ CREATORS ================================== */
 

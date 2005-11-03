@@ -62,4 +62,5 @@ libsipXcommserver_la_SOURCES =  \
     fastdb/unisock.cpp \
     fastdb/w32sock.cpp \
     fastdb/wwwapi.cpp \
-    digitmaps/UrlMapping.cpp
+    digitmaps/UrlMapping.cpp \
+	 configrpc/ConfigRPC.cpp

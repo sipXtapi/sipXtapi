@@ -5,6 +5,7 @@ bin_PROGRAMS = bbridge
 bbridge_LDADD = \
    @SIPXMEDIAADAPTER_LIBS@ \
 	@SIPXTACK_LIBS@ \
+	@SIPXCOMMSERVER_LIBS@ \
 	@RESIPROCATE_LIBS@
 
 bbridge_LDFLAGS = \

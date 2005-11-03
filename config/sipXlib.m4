@@ -607,11 +607,11 @@ AC_DEFUN([CHECK_RESIPROCATE],
            AC_MSG_CHECKING([for resiprocate libraries])
            foundpath=NO
            for dir in $resiprocate_path ; do
-               if test -f "$dir/lib/libresip.a";
+               if test -f "$dir/lib/libsipXresiprocateLib.la";
                then
                    foundpath=$dir/lib;
                    break;
-               elif test -f "$dir/libresip.a";
+               elif test -f "$dir/libsipXresiprocateLib.la";
                then
                    foundpath=$dir;
                    break;
@@ -619,14 +619,15 @@ AC_DEFUN([CHECK_RESIPROCATE],
            done
            if test x_$foundpath = x_NO
            then
-              AC_MSG_ERROR([not found; searched '$resiprocate_path' for 'lib/libresip.a' or 'libresip.a'])
+              AC_MSG_ERROR([not found; searched '$resiprocate_path' for 'lib/libsipXresiprocateLib.la' or 'libsipXresiprocateLib.la'])
            else
               AC_MSG_RESULT($foundpath)
+              RESIPROCATE_LIBDIR=$foundpath
               RESIPROCATE_LDFLAGS=" -L$foundpath"
            fi
        fi
 
-       RESIPROCATE_LIBS=" -ldum -lresip -lrutil -lares"
+       RESIPROCATE_LIBS="${RESIPROCATE_LIBDIR}/libsipXresiprocateLib.la -ldum -lresip -lrutil -lares"
 
        AC_SUBST(RESIPROCATE_PATH)
        AC_SUBST(RESIPROCATE_CFLAGS)

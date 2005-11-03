@@ -1,5 +1,4 @@
 // 
-// 
 // Copyright (C) 2005 Jason Fischl, Dan Petrie
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
@@ -23,17 +22,18 @@
 #endif
 
 // APPLICATION INCLUDES
-#include <os/OsFS.h>
-#include <os/OsSysLog.h>
-#include <os/OsConfigDb.h>
-#include <net/NameValueTokenizer.h>
+#include "os/OsFS.h"
+#include "os/OsSysLog.h"
+#include "os/OsConfigDb.h"
+#include "net/NameValueTokenizer.h"
+#include "resiprocateLib/sipXexternalLogger.h"
+#include "net/XmlRpcDispatch.h"
+#include "configrpc/ConfigRPC.h"
 #include "ConferenceUserAgent.h"
-//#include "config/bbridge-buildstamp.h"
-
-#include "rutil/Log.hxx"
 
 // DEFINES
 #ifndef SIPX_VERSION
+#  include "config/bbridge-buildstamp.h"
 #  define SIPX_BBRIDGE_VERSION          bbridgeVersion
 #  define SIPX_BBRIDGE_VERSION_COMMENT  bbridgeBuildStamp
 #else
@@ -64,6 +64,7 @@
 #define CONFIG_SETTING_UDP_PORT       "BOSTON_BRIDGE_UDP_PORT"
 #define CONFIG_SETTING_TCP_PORT       "BOSTON_BRIDGE_TCP_PORT"
 #define CONFIG_SETTING_TLS_PORT       "BOSTON_BRIDGE_TLS_PORT"
+#define CONFIG_SETTING_XMLRPC_PORT    "BOSTON_BRIDGE_XMLRPC_PORT"
 #define CONFIG_SETTING_RTP_START      "BOSTON_BRIDGE_RTP_START"
 #define CONFIG_SETTING_RTP_END        "BOSTON_BRIDGE_RTP_END"
 #define CONFIG_SETTING_ENTER_SOUND    "BOSTON_BRIDGE_ENTER_SOUND"
@@ -79,6 +80,7 @@
 #define DEFAULT_UDP_PORT              5060       // Default UDP port
 #define DEFAULT_TCP_PORT              5060       // Default TCP port
 #define DEFAULT_TLS_PORT              5061       // Default TLS port
+#define DEFAULT_XMLRPC_PORT           8201
 #define DEFAULT_RTP_START             15000
 #define DEFAULT_RTP_END               20000
 
@@ -86,6 +88,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const char* ConfigurationDatasetName = CONFIG_SETTINGS_FILE;
+
 // STRUCTSCONFIG_SETTING_RTP_START
 // TYPEDEFS
 typedef void (*sighandler_t)(int);
@@ -274,46 +278,9 @@ void initSysLog(OsConfigDb* pConfig)
    }
 }
 
-class SipXExternalLogger : public resip::ExternalLogger
-{
-   public:
-      virtual bool operator()(resip::Log::Level level,
-                              const resip::Subsystem& subsystem, 
-                              const resip::Data& appName,
-                              const char* file,
-                              int line,
-                              const resip::Data& message,
-                              const resip::Data& messageWithHeaders)
-      {
-         OsSysLog::add(FAC_CONFERENCE, toPriority(level), "%s", messageWithHeaders.c_str());
-         return false;
-      }
-      
-      static OsSysLogPriority toPriority(resip::Log::Level level)
-      {
-         switch (level)
-         {
-            case resip::Log::Crit:
-               return PRI_CRIT;
-            case resip::Log::Err:
-               return PRI_ERR;
-            case resip::Log::Warning:
-               return PRI_WARNING;
-            case resip::Log::Info:
-               return PRI_INFO;
-            case resip::Log::Debug:
-            case resip::Log::Stack:
-            default:
-               return PRI_DEBUG;
-         }
-      }
-      
-};
-
-   
 
 //
-// The main entry point to the sipXpark
+// The main entry point to the Boston Bridge
 //
 int main(int argc, char* argv[])
 {
@@ -330,7 +297,7 @@ int main(int argc, char* argv[])
 #if defined(__pingtel_on_posix__)
    pt_signal(SIGHUP,   sigHandler);    // Hangup
    pt_signal(SIGQUIT,  sigHandler);
-   pt_signal(SIGPIPE,  sigHandler);    // Handle TCP Failure
+   pt_signal(SIGPIPE,  SIG_IGN);       // Force TCP failure to return an error.
    pt_signal(SIGBUS,   sigHandler);
    pt_signal(SIGSYS,   sigHandler);
    pt_signal(SIGXCPU,  sigHandler);
@@ -339,6 +306,8 @@ int main(int argc, char* argv[])
    pt_signal(SIGUSR2,  sigHandler);
 #endif
 
+   enableConsoleOutput(TRUE);
+   
    UtlString argString;
    for(int argIndex = 1; argIndex < argc; argIndex++)
    {
@@ -347,7 +316,7 @@ int main(int argc, char* argv[])
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if(argString.compareTo("-v") == 0)
       {
-         //osPrintf("Version: %s (%s)\n", SIPX_BBRIDGE_VERSION_COMMENT, SIPX_BBRIDGE_VERSION_COMMENT);
+         osPrintf("Version: %s (%s)\n", SIPX_BBRIDGE_VERSION, SIPX_BBRIDGE_VERSION_COMMENT);
          exit(0);
       }
       else
@@ -358,7 +327,7 @@ int main(int argc, char* argv[])
       }
    }
 
-   // Load configuration file file
+   // Load configuration file 
    OsPath workingDirectory;
    if (OsFileSystem::exists(CONFIG_ETC_DIR))
    {
@@ -373,11 +342,9 @@ int main(int argc, char* argv[])
       path.getNativePath(workingDirectory);
    }
 
-   UtlString fileName =  workingDirectory +
-                         OsPathBase::separator +
-                         CONFIG_SETTINGS_FILE;
+   UtlString configFileName =  workingDirectory + OsPathBase::separator + ConfigurationDatasetName;
 
-   if (configDb.loadFromFile(fileName) != OS_SUCCESS)
+   if (configDb.loadFromFile(configFileName) != OS_SUCCESS)
    {
       configDb.set(CONFIG_SETTING_LOG_DIR, "");
       configDb.set(CONFIG_SETTING_LOG_LEVEL, "INFO");
@@ -386,6 +353,7 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_UDP_PORT, DEFAULT_UDP_PORT);
       configDb.set(CONFIG_SETTING_TCP_PORT, DEFAULT_TCP_PORT);
       configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);
+      configDb.set(CONFIG_SETTING_XMLRPC_PORT, DEFAULT_XMLRPC_PORT);
       configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);
       configDb.set(CONFIG_SETTING_GATEWAY1_AOR, "");
@@ -396,7 +364,7 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_ENTER_SOUND, "");
       configDb.set(CONFIG_SETTING_EXIT_SOUND, "");
       configDb.set(CONFIG_SETTING_HOLD_MUSIC, "");
-      configDb.storeToFile(fileName);
+      configDb.storeToFile(configFileName);
    }
    
    UtlString level;
@@ -441,6 +409,32 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);;
    }
    
+   int XmlRpcPort = configDb.getPort(CONFIG_SETTING_XMLRPC_PORT);
+   if (PORT_DEFAULT == XmlRpcPort)
+   {
+      XmlRpcPort = DEFAULT_XMLRPC_PORT;
+   }
+
+   ConfigRPC_Callback* defaultCallbacks;
+   ConfigRPC*          configRPC;
+   XmlRpcDispatch*     rpc;
+   
+   if (XmlRpcPort != PORT_NONE)
+   {
+      // start an XmlRpc interface
+      rpc = new XmlRpcDispatch(XmlRpcPort, true /* use https */);
+
+      // create the connector between the OsConfigDb and XmlRpc
+      defaultCallbacks = new ConfigRPC_Callback();
+      configRPC        = new ConfigRPC( ConfigurationDatasetName
+                                       ,bbridgeVersion
+                                       ,configFileName
+                                       ,defaultCallbacks
+                                       );
+      // enter the connector RPC methods in the XmlRpcDispatch table
+      ConfigRPC::registerMethods(*rpc);
+   }
+   
    try
    {
       bbridge::ConferenceUserAgent ua(configDb);
@@ -458,7 +452,6 @@ int main(int argc, char* argv[])
       std::cerr << "Uncaught exception: " << std::endl;
    }
    
-
    // Flush the log file
    OsSysLog::flush();
 
