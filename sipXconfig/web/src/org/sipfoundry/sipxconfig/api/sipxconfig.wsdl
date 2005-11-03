@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  - NOTES: After editing this file, run "ant wsdl" target and hit f5 in eclipse
+  -->
 <definitions name="ConfigService"
 	targetNamespace="urn:ConfigService" 
 	xmlns:tns="urn:ConfigService" 
@@ -10,22 +13,25 @@
 	<types>
 		<!-- NOTE: qualify w/xsd:, SOAP4R doesn't support switching namespaces -->
 		<xsd:schema targetNamespace="urn:ConfigService">
+			<!-- business objects -->
+			<xsd:complexType name="user">
+				<xsd:all>
+					<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+					<xsd:element name="pin" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+				</xsd:all>
+		    </xsd:complexType>				
+    		<!-- api support -->
             <xsd:element name="addUser">
 				<xsd:complexType>
 					<xsd:all>
-						<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-						<xsd:element name="pin" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="user" type="tns:user" maxOccurs="1" minOccurs="1"/>
 					</xsd:all>
-			    </xsd:complexType>
+				</xsd:complexType>
 			</xsd:element>
 		</xsd:schema>
 	</types>
 
-	<message name="resetUserServiceResponse">
-	</message>
-	<message name="resetUserServiceRequest">
-	</message>
-
+    <!-- U S E R   S E R V I C E -->
 	<message name="addUserResponse">
 	</message>
 	<message name="addUserRequest">
@@ -38,27 +44,7 @@
 			<output message="tns:addUserResponse"/>
 		</operation>
 	</portType>
-	
-	<portType name="TestService">
-		<operation name="resetUserService">
-			<input message="tns:resetUserServiceRequest"/>
-			<output message="tns:resetUserServiceResponse"/>
-		</operation>
-	</portType>
-	
-	<binding name="TestServiceSoapBinding" type="tns:TestService">
-		<soap:binding style="document"/>
-		<operation name="resetUserService">			
- 			<input name="resetUserServiceRequest">
-				<soap:body use="literal" namespace="urn:TestService" />
-			</input>			
-			<output name="resetUserServiceResponse">
-				<soap:body use="literal" namespace="urn:TestService"/>
-			</output>			
-			<soap:operation soapAction=""></soap:operation>			
-		</operation>
-	</binding>	
-	
+
 	<binding name="UserServiceSoapBinding" type="tns:UserService">
 		<soap:binding style="document"/>
 		<!-- 
@@ -79,7 +65,34 @@
 			<soap:operation soapAction=""></soap:operation>			
 		</operation>
 	</binding>
+
+    <!-- T E S T  S E R V I C E -->	
+	<message name="resetUserServiceResponse">
+	</message>
+	<message name="resetUserServiceRequest">
+	</message>
+
+	<portType name="TestService">
+		<operation name="resetUserService">
+			<input message="tns:resetUserServiceRequest"/>
+			<output message="tns:resetUserServiceResponse"/>
+		</operation>
+	</portType>
 	
+	<binding name="TestServiceSoapBinding" type="tns:TestService">
+		<soap:binding style="document"/>
+		<operation name="resetUserService">			
+ 			<input name="resetUserServiceRequest">
+				<soap:body use="literal" namespace="urn:TestService" />
+			</input>			
+			<output name="resetUserServiceResponse">
+				<soap:body use="literal" namespace="urn:TestService"/>
+			</output>			
+			<soap:operation soapAction=""></soap:operation>			
+		</operation>
+	</binding>	
+		
+    <!-- S E R V I C E S -->	
 	<service name="ConfigImplService">
 		<port name="UserService" binding="tns:UserServiceSoapBinding">
 			<soap:address 

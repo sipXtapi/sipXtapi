@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.api;
 import java.rmi.RemoteException;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
 
 public class UserServiceImpl implements UserService {
     
@@ -25,9 +24,10 @@ public class UserServiceImpl implements UserService {
     }
     
     public void addUser(AddUser addUser) throws RemoteException {
-        User u = new User();
-        u.setUserName(addUser.getUserName());
-        u.setPin(addUser.getPin(), m_coreContext.getAuthorizationRealm());
+        org.sipfoundry.sipxconfig.common.User u = new org.sipfoundry.sipxconfig.common.User();
+        User ut = addUser.getUser();
+        u.setUserName(ut.getUserName());
+        u.setPin(ut.getPin(), m_coreContext.getAuthorizationRealm());
         m_coreContext.saveUser(u);
     }    
 }
