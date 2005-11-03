@@ -46,11 +46,11 @@
   </class>
 
   <query name="userByAlias">
-    <![CDATA[from User u join u.aliases alias where alias = :alias]]>
+    <![CDATA[from User u join u.aliases alias where alias = :value]]>
   </query>
 	  
   <query name="userByNameOrAlias">
-    <![CDATA[from User u left outer join u.aliases alias where u.userName = :userNameOrAlias or alias = :userNameOrAlias]]>
+    <![CDATA[from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
   </query>
 	  
   <query name="userIdsByNameOrAlias">

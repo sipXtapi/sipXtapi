@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.alias;
 
+import java.util.Collection;
+
 /**
  * AliasOwner: represents "ownership" of a set of SIP aliases (including extensions).
  * For example, CallGroupContext owns the SIP aliases belonging to call groups and
@@ -23,4 +25,13 @@ public interface AliasOwner {
      * call group or park orbit, ignoring the enabled/disabled state.
      */
     public boolean isAliasInUse(String alias);
+    
+    /**
+     * Return objects with the specified alias, or null if there are no such objects.
+     * If the database is healthy then there should never be more than one such object.
+     * But allow for the possibility that there are conflicts in the database by 
+     * returning a Collection, particularly since alias uniqueness across tables is not
+     * enforced by database constraints.
+     */
+    public Collection getObjectsWithAlias(String alias);
 }

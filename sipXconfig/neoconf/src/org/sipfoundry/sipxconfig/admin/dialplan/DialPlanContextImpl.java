@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -45,9 +46,12 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     
     private static final String QUERY_DIALING_RULE_IDS_WITH_NAME = "dialingRuleIdsWithName";
     private static final String QUERY_AUTO_ATTENDANT_IDS_WITH_NAME_OR_EXTENSION = "autoAttendantIdsWithNameOrExtension";
+    private static final String QUERY_AUTO_ATTENDANTS_WITH_NAME_OR_EXTENSION = "autoAttendantsWithNameOrExtension";
     private static final String QUERY_AUTO_ATTENDANT_ALIASES = "aaAliases";
     private static final String QUERY_INTERNAL_RULE_IDS_WITH_VOICE_MAIL_EXTENSION =
         "internalRuleIdsWithVoiceMailExtension";
+    private static final String QUERY_INTERNAL_RULES_WITH_VOICE_MAIL_EXTENSION =
+        "internalRulesWithVoiceMailExtension";
 
     private class NameInUseException extends UserException {
         private static final String ERROR = "The name \"{1}\" is already in use. "
@@ -399,16 +403,25 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         List aliasStrings = getHibernateTemplate().findByNamedQuery(QUERY_AUTO_ATTENDANT_ALIASES);
         for (Iterator iter = CollectionUtils.safeIterator(aliasStrings); iter.hasNext();) {
             String aliasesString = (String) iter.next();
-            String[] aliases = InternalRule.getAttendantAliasesAsArray(aliasesString);
-            for (int i = 0; i < aliases.length; i++) {
-                String ruleAlias = aliases[i];
-                if (ruleAlias.equals(alias)) {
-                    isAliasInUse = true;
-                    break;
-                }
+            isAliasInUse = doesAliasesStringContainAlias(aliasesString, alias);
+            if (isAliasInUse) {
+                break;
             }
         }
         return isAliasInUse;
+    }
+    
+    private boolean doesAliasesStringContainAlias(String aliasesString, String alias) {
+        boolean containsAlias = false;
+        String[] aliases = InternalRule.getAttendantAliasesAsArray(aliasesString);
+        for (int i = 0; i < aliases.length; i++) {
+            String ruleAlias = aliases[i];
+            if (ruleAlias.equals(alias)) {
+                containsAlias = true;
+                break;
+            }
+        }
+        return containsAlias;
     }
     
     private boolean isVoiceMailExtensionInUse(String alias) {
@@ -416,5 +429,36 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
                 QUERY_INTERNAL_RULE_IDS_WITH_VOICE_MAIL_EXTENSION, VALUE, alias);
         return CollectionUtils.safeSize(objs) > 0;        
     }
+    
+    public Collection getObjectsWithAlias(String alias) {
+        Collection objs = getAutoAttendantsWithNameOrExtension(alias);
+        objs.addAll(getInternalRulesWithAutoAttendantAlias(alias));
+        objs.addAll(getInternalRulesWithVoiceMailExtension(alias));
+        return objs;
+    }
+    
+    private Collection getAutoAttendantsWithNameOrExtension(String alias) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_AUTO_ATTENDANTS_WITH_NAME_OR_EXTENSION, VALUE, alias);
+        return objs;
+    }
+    
+    private Collection getInternalRulesWithAutoAttendantAlias(String alias) {
+        List allRules = getHibernateTemplate().loadAll(InternalRule.class);
+        Collection rules = new ArrayList();     // add rules to this list, to be returned
+        for (Iterator iter = CollectionUtils.safeIterator(allRules); iter.hasNext();) {
+            InternalRule rule = (InternalRule) iter.next();
+            if (doesAliasesStringContainAlias(rule.getAaAliases(), alias)) {
+                rules.add(rule);
+            }
+        }        
+        return rules;
+    }
 
+    private Collection getInternalRulesWithVoiceMailExtension(String alias) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_INTERNAL_RULES_WITH_VOICE_MAIL_EXTENSION, VALUE, alias);
+        return objs;
+    }
+    
 }

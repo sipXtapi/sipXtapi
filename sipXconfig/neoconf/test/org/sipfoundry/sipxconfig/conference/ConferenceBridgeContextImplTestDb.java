@@ -197,5 +197,23 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         // we're not using this extension
         assertFalse(m_context.isAliasInUse("1702"));
     }
-    
+
+    public void testGetObjectsWithAlias() throws Exception {
+        TestHelper.getConnection();
+        TestHelper.insertFlat("conference/participants.db.xml");
+        
+        // conference names are aliases
+        assertTrue(m_context.getObjectsWithAlias("conf_3001").size() == 1);
+        assertTrue(m_context.getObjectsWithAlias("conf_3002").size() == 1);
+        assertTrue(m_context.getObjectsWithAlias("conf_3003").size() == 1);
+
+        // conference extensions are aliases
+        assertTrue(m_context.getObjectsWithAlias("1699").size() == 1);
+        assertTrue(m_context.getObjectsWithAlias("1700").size() == 1);
+        assertTrue(m_context.getObjectsWithAlias("1701").size() == 1);
+        
+        // we're not using this extension
+        assertTrue(m_context.getObjectsWithAlias("1702").size() == 0);        
+    }
+
 }

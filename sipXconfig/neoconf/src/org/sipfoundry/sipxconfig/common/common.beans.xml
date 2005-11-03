@@ -12,6 +12,9 @@
     <property name="settingDao">
       <ref bean="settingDao"/>
     </property>
+    <property name="aliasManager">
+      <ref bean="aliasManager"/>
+    </property>
     <property name="userSettingModel" ref="userSettingModel"/>
   </bean>
   <!--

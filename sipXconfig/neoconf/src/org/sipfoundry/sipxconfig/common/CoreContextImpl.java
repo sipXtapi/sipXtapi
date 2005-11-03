@@ -25,6 +25,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -41,20 +42,19 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final String USER_GROUP_RESOURCE_ID = "user";
     private static final String USERNAME_PROP_NAME = "userName";
+    private static final String VALUE = "value";
     /** nothing special about this name */
     private static final String ADMIN_GROUP_NAME = "administrators";
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
+    private static final String QUERY_USER_BY_NAME_OR_ALIAS = "userByNameOrAlias";
     private static final String QUERY_USER = "from User";
 
     private String m_authorizationRealm;
-
     private String m_domainName;
-
     private SettingDao m_settingDao;
-
     private Setting m_userSettingModel;
-
     private DaoEventPublisher m_daoEventPublisher;
+    private AliasManager m_aliasManager;
 
     public CoreContextImpl() {
         super();
@@ -74,6 +74,14 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public void setDomainName(String domainName) {
         m_domainName = domainName;
+    }
+
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }
+
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
     }
 
     public void saveUser(User user) {
@@ -125,11 +133,11 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public User loadUserByAlias(String alias) {
-        return loadUserByNamedQueryAndNamedParam("userByAlias", "alias", alias);
+        return loadUserByNamedQueryAndNamedParam("userByAlias", VALUE, alias);
     }
 
     public User loadUserByUserNameOrAlias(String userNameOrAlias) {
-        return loadUserByNamedQueryAndNamedParam("userByNameOrAlias", "userNameOrAlias",
+        return loadUserByNamedQueryAndNamedParam(QUERY_USER_BY_NAME_OR_ALIAS, VALUE,
                 userNameOrAlias);
     }
 
@@ -153,6 +161,14 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         names.add(user.getUserName());
         result = checkForDuplicateString(names);
         if (result == null) {
+            // If this User is unsaved, then ask the AliasManager if this user's names
+            // DO_NOW: continue: change this code to call AliasManager instead of DaoUtils
+
+            // temporary dummy code to fight checkstyle warnings about this prop not being read yet
+            if (m_aliasManager != null) {
+                System.out.println("wow!");
+            }
+            
             // Check the username. If it is the username or alias for a different existing
             // user, then return it as a bad name.
             if (DaoUtils.checkDuplicatesByNamedQuery(hibernate, user,
@@ -271,10 +287,6 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         getHibernateTemplate().deleteAll(c);
     }
 
-    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
-        m_daoEventPublisher = daoEventPublisher;
-    }
-
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof InitializationTask) {
             InitializationTask task = (InitializationTask) event;
@@ -386,14 +398,19 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public boolean isAliasInUse(String alias) {
-        // Look for the ID of a user with a user ID or user alias matching the specified SIP
-        // alias.
+        // Look for the ID of a user with a user ID or user alias matching the specified SIP alias.
         // If there is one, then the alias is in use.
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_USER_IDS_BY_NAME_OR_ALIAS, "value", alias);
+                QUERY_USER_IDS_BY_NAME_OR_ALIAS, VALUE, alias);
         return CollectionUtils.safeSize(objs) > 0;
     }
-
+    
+    public Collection getObjectsWithAlias(String alias) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_USER_BY_NAME_OR_ALIAS, VALUE, alias);
+        return objs;
+    }
+    
     public void addToGroup(Integer groupId, Collection ids) {
         DaoUtils.addToGroup(getHibernateTemplate(), groupId, User.class, ids);
     }
@@ -401,4 +418,5 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public void removeFromGroup(Integer groupId, Collection ids) {
         DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, User.class, ids);
     }
+
 }

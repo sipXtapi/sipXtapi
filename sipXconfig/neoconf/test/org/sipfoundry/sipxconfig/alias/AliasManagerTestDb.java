@@ -18,15 +18,15 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 
 public class AliasManagerTestDb extends SipxDatabaseTestCase {
-    private AliasManager m_aliasManager;
+    private AliasManagerImpl m_aliasManager;
     
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
-        m_aliasManager = (AliasManager) app.getBean(AliasManager.CONTEXT_BEAN_NAME);
+        m_aliasManager = (AliasManagerImpl) app.getBean(AliasManagerImpl.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
-    // There are four AliasOwners (excluding AliasManager itself): CallGroupContextImpl,
+    // There are four AliasOwners (excluding AliasManagerImpl itself): CallGroupContextImpl,
     // ConferenceBridgeContextImpl, CoreContextImpl, and DialPlanContextImpl.
     public void testGetAliasOwners() {
         Collection aliasOwners = m_aliasManager.getAliasOwners();
@@ -50,5 +50,10 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
         assertTrue(m_aliasManager.isAliasInUse("100"));      // voicemail extension
         assertFalse(m_aliasManager.isAliasInUse("200"));     // a random extension that should not be in use
     }
-    
+
+    // DO_NOW
+    public void testGetObjectsWithAlias() {
+        
+    }
+   
 }

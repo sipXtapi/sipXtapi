@@ -50,5 +50,9 @@
   <query name="callGroupIdsWithAlias">
     <![CDATA[select cg.id from CallGroup cg where cg.name = :value or cg.extension = :value]]>
   </query>
+  
+  <query name="callGroupsWithAlias">
+    <![CDATA[select cg from CallGroup cg where cg.name = :value or cg.extension = :value]]>
+  </query>
 	
 </hibernate-mapping>
