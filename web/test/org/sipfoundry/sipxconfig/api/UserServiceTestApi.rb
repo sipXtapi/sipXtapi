@@ -2,8 +2,8 @@ require 'test/unit'
 require 'ConfigServiceDriver.rb'
 
 SERVICE_ROOT = 'http://localhost:9999/sipxconfig/services'
-USER_SERVICE_WSDL = SERVICE_ROOT + '/UserService?wsdl'
-TEST_SERVICE_WSDL = SERVICE_ROOT + '/TestService?wsdl'
+USER_SERVICE_WSDL = SERVICE_ROOT + '/UserService'
+TEST_SERVICE_WSDL = SERVICE_ROOT + '/TestService'
 
 class UserServiceTestApi < Test::Unit::TestCase
 
@@ -17,7 +17,7 @@ class UserServiceTestApi < Test::Unit::TestCase
     end
 
 	def test_createUser
-		addUser = AddUser.new('joeyxz', '1234')
-		@userService.addUser(addUser)
+	    @user = User.new('lipton', '1234')
+		@userService.addUser(AddUser.new(@user))
     end
 end
