@@ -14,6 +14,7 @@ rutil: @abs_top_srcdir@/resiprocate/build/Makefile.conf
 	$(MAKE) -C @abs_top_srcdir@/resiprocate rutil
 
 .PHONY: install-rutil
+install-rutil:
 	$(MAKE) -C @abs_top_srcdir@/resiprocate install-rutil
 
 .PHONY: resip
