@@ -400,7 +400,6 @@ VXItelResult OSBtelTransferBlind(VXItelInterface * vxip,
          {
             UtlString from(str);
             HttpMessage::unescape( from );
-            OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_DEBUG, "OSBtelTransferBlind from = '%s'", from.data());
             if (impl->live == 1) 
             {
                 if (PT_SUCCESS == impl->pCallMgr->transfer_blind((char*)impl->callId, from.data(), 0, 0))

@@ -77,7 +77,7 @@ public:
                                 const HttpMessage& request,
                                 HttpMessage*& response);
 
-    static void processUserNotAuthorized(const HttpRequestContext& requestContext,
+        static void processUserNotAuthorized(const HttpRequestContext& requestContext,
                                      const HttpMessage& request,
                                      HttpMessage*& response,
                                      const char* text = 0);

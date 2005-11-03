@@ -3,4 +3,3 @@
 bin_PROGRAMS = syslogviewer
 syslogviewer_SOURCES =  main.c
 
-DISTCLEANFILES = Makefile.in

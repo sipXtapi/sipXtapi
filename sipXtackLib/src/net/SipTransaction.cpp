@@ -461,11 +461,6 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
         message->getResponseSendAddress(toAddress,
                                         port,
                                         protocolString);
-#       ifdef ROUTE_DEBUG
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipTransaction::handleOutgoing called getResponseSendAddress, returned toAddress = '%s', port = %d, protocolString = '%s'",
-                      toAddress.data(), port, protocolString.data());
-#       endif
         SipMessage::convertProtocolStringToEnum(protocolString.data(),
                                         protocol);
     }
@@ -478,19 +473,9 @@ UtlBoolean SipTransaction::handleOutgoing(SipMessage& outgoingMessage,
                               toAddress,
                               port,
                               protocol);
-#       ifdef ROUTE_DEBUG
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipTransaction::handleOutgoing called prepareRequestForSend, returned toAddress = '%s', port = %d, protocol = OsSocket::SocketProtocolTypes(%d), addressRequiresDnsSrvLookup = %d",
-                      toAddress.data(), port, protocol,
-                      addressRequiresDnsSrvLookup);
-#       endif
 
         if(mSendToAddress.isNull())
         {
-#       ifdef ROUTE_DEBUG
-           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                         "SipTransaction::handleOutgoing setting mSendTo* variables");
-#       endif
             mSendToAddress = toAddress;
             mSendToPort = port;
             mSendToProtocol = protocol;
@@ -657,9 +642,9 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
        // For INVITE, process header parameters in the request uri
        if (0 == method.compareTo(SIP_INVITE_METHOD))
        {
-          UtlString uriWithHeaderParams;
-          request.getRequestUri(&uriWithHeaderParams);
-          Url requestUri(uriWithHeaderParams, TRUE);
+                    UtlString uriWithHeaderParams;
+                    request.getRequestUri(&uriWithHeaderParams);
+                    Url requestUri(uriWithHeaderParams, TRUE);
 
           int header;
           UtlString hdrName;
@@ -706,8 +691,8 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
         userAgent.getProxyServer(0, &toAddress, &port, &protocol);
 #       ifdef ROUTE_DEBUG
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipTransaction::prepareRequestForSend %p got proxy toAddress '%s', port %d, protocol '%s'",
-                      &request, toAddress.data(), port, protocol.data());
+                      "SipTransaction::prepareRequestForSend %p got proxy address: '%s'",
+                      &request, toAddress.data());
 #       endif
 
         // See if there is a route
@@ -728,7 +713,7 @@ void SipTransaction::prepareRequestForSend(SipMessage& request,
 
         // All of this URL maipulation should be done via
         // the Url (routeUrlParser) object.  However to
-        // be safe, we are only using it to
+        // be safe, impact wise, we are only using it to
         // get the maddr If the maddr is present use it as the address
         if(!maddr.isNull())
         {

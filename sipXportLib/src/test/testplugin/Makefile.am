@@ -53,4 +53,4 @@ libtestpluginA_la_SOURCES =  \
 
 libtestpluginB_la_SOURCES =  $(libtestpluginA_la_SOURCES)
 
-DISTCLEANFILES = Makefile.in
+

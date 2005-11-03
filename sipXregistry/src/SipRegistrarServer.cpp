@@ -32,17 +32,6 @@
 #include "registry/RegisterPlugin.h"
 
 // DEFINES
-
-/*
- * GRUUs are constructed by hashing the AOR, the IID, and the primary
- * SIP domain.  The SIP domain is included so that GRUUs constructed by
- * different systems will be different, but that any registrars that
- * form a redundant set will generate the same GRUU for an AOR/IID pair.
- * (Strictly, we use the entire value of the +sip.instance field parameter
- * on the Contact: header, which should be <...> around the IID, but there
- * is no point enforcing or parsing that rule.)
- */
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -60,8 +49,6 @@ static UtlString gContactKey("contact");
 static UtlString gExpiresKey("expires");
 static UtlString gCseqKey("cseq");
 static UtlString gQvalueKey("qvalue");
-static UtlString gInstanceIdKey("instance_id");
-static UtlString gGruuKey("gruu");
 
 SipRegistrarServer::SipRegistrarServer() :
     OsServerTask("SipRegistrarServer", NULL, 2000),
@@ -185,9 +172,9 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
         commonExpires = mDefaultRegistryPeriod;
     }
 
-    // Get the header 'To' field from the REGISTER
-    // message and construct a URL from it.
-    // This is the Address Of Record that this registration is for.
+    // get the header 'to' field from the register
+    // message and construct a URL with it
+    // this is also called the Address of record
     UtlString registerToStr;
     registerMessage.getToUri( &registerToStr );
     Url toUrl( registerToStr );
@@ -228,10 +215,6 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
               contactIndexCount++
              )
         {
-           OsSysLog::add( FAC_SIP, PRI_WARNING,
-                          "SipRegistrarServer::applyRegisterToDirectory - processing '%s'\n",
-                          registerContactStr.data()
-                               );
             if ( registerContactStr.compareTo("*") != 0 ) // is contact == "*" ?
             {
                 // contact != "*"; a normal contact
@@ -286,21 +269,9 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
 
                     if ( REGISTER_SUCCESS == returnStatus )
                     {
-                        // Get the qValue from the register message.
+                        // get the qValue from the register message
                         UtlString registerQvalueStr;
                         registerContactURL.getFieldParameter( SIP_Q_FIELD, registerQvalueStr );
-                        // Get the Instance ID (if any) from the REGISTER message Contact field.
-                        UtlString instanceId;
-                        registerContactURL.getFieldParameter( "+sip.instance", instanceId );
-                        // See if the Contact field has a "gruu" URI field..
-                        // :TODO: Have to check whether the gruu URI parameter
-                        // is still favored.  And what exactly this check is about.
-                        UtlBoolean gruuPresent;
-                        UtlString gruuDummy;
-                        gruuPresent = registerContactURL.getUrlParameter( "gruu", gruuDummy );
-                        OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                       "SipRegistrarServer::applyRegisterToDirectory instance ID = '%s'",
-                                       instanceId.data());
 
                         // remove the parameter fields - they are not part of the contact itself
                         registerContactURL.removeFieldParameters();
@@ -316,63 +287,15 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
                             new UtlInt ( expires );
                         UtlString* qvalueValue =
                             new UtlString ( registerQvalueStr );
-                        UtlString* instanceIdValue = new UtlString ( instanceId );
-                        UtlString* gruuValue;
 
                         // key strings - make shallow copies of static keys
                         UtlString* contactKey = new UtlString( gContactKey );
                         UtlString* expiresKey = new UtlString( gExpiresKey );
                         UtlString* qvalueKey = new UtlString( gQvalueKey );
-                        UtlString* instanceIdKey = new UtlString( gInstanceIdKey );
-                        UtlString* gruuKey = new UtlString( gGruuKey );
-
-                        // Calculate GRUU if gruu is in Supported, +sip.instance is provided, but
-                        // gruu is not a URI parameter.
-                        if (!instanceId.isNull() &&
-                            !gruuPresent &&
-                            registerMessage.isInSupportedField("gruu"))
-                        {
-                           // Hash the GRUU base, the AOR, and IID to
-                           // get the variable part of the GRUU.
-                           NetMd5Codec encoder;
-                           UtlString temp;
-                           // Use the trick that the MD5 of a series of null-
-                           // separated strings is effectively a unique function
-                           // of all of the strings.
-                           // Include "sipX" as the signature of this software.
-                           temp.append("sipX", 5);
-                           temp.append(mDefaultDomain);
-                           temp.append("\0", 1);
-                           temp.append(toUrl.toString());
-                           temp.append("\0", 1);
-                           temp.append(instanceId);
-                           UtlString hash;
-                           encoder.encode(temp, hash);
-                           hash.remove(16);
-                           // Now construct the GRUU URI,
-                           // "gruu~XXXXXXXXXXXXXXXX@[principal SIP domain]".
-                           // That is what we store in IMDB, so it can be
-                           // searched for by the redirector, since it searches
-                           // for the "identity" part of the URI, which does
-                           // not contain the scheme.
-                           gruuValue = new UtlString(GRUU_PREFIX);
-                           gruuValue->append(hash);
-                           gruuValue->append("@");
-                           gruuValue->append(mDefaultDomain);
-                           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                         "SipRegistrarServer::applyRegisterToDirectory gruu = '%s'",
-                                         gruuValue->data());
-                        }
-                        else
-                        {
-                           gruuValue = new UtlString( "" );
-                        }
 
                         registrationRow.insertKeyAndValue( contactKey, contactValue );
                         registrationRow.insertKeyAndValue( expiresKey, expiresValue );
                         registrationRow.insertKeyAndValue( qvalueKey, qvalueValue );
-                        registrationRow.insertKeyAndValue( instanceIdKey, instanceIdValue );
-                        registrationRow.insertKeyAndValue( gruuKey, gruuValue );
 
                         registrations.addValue( registrationRow );
                     }
@@ -467,14 +390,10 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
                             }
 
                             UtlString qvalue(*(UtlString*)record.findValue(&gQvalueKey));
-                            UtlString instance_id(*(UtlString*)record.findValue(&gInstanceIdKey));
-                            UtlString gruu(*(UtlString*)record.findValue(&gGruuKey));
 
                             imdb->updateBinding( toUrl, contact, qvalue
                                                 ,registerCallidStr, registerCseqInt
                                                 ,expirationTime
-                                                ,instance_id
-                                                ,gruu
                                                 );
 
                             // track longest expirations for doing implied subscriptions
@@ -615,15 +534,11 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             UtlString contactKey("contact");
                             UtlString expiresKey("expires");
                             UtlString qvalueKey("qvalue");
-                            UtlString instanceIdKey("instance_id");
-                            UtlString gruuKey("gruu");
-                            UtlString contact = *((UtlString*)record.findValue(&contactKey));
+                            UtlString contact= *((UtlString*)record.findValue(&contactKey));
                             UtlString qvalue = *((UtlString*)record.findValue(&qvalueKey));
-                            int expires = ((UtlInt*)record.findValue(&expiresKey))->getValue();
+                            int expires     = ((UtlInt*)record.findValue(&expiresKey))->getValue();
                             expires = expires - timeNow;
 
-                            OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage - "
-                               "processing contact '%s'", contact.data());
                             Url contactUri( contact );
 
                             char buffexpires[32];
@@ -632,8 +547,6 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             contactUri.setFieldParameter(SIP_EXPIRES_FIELD, buffexpires);
                             if ( !qvalue.isNull() && qvalue.compareTo(SPECIAL_IMDB_NULL_VALUE)!=0 )
                             {
-                               OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage - "
-                               "adding q '%s'", qvalue.data());
                                // :TODO: (XPL-3) need a RegEx copy constructor here
                                //check if q value is numeric and between the range 0.0 and 1.0
                                static RegEx qValueValid("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); 
@@ -642,28 +555,6 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                   contactUri.setFieldParameter(SIP_Q_FIELD, qvalue);
                                }
                             }
-
-                            // Add the +sip.instance and gruu
-                            // parameters if an instance ID is recorded.
-                            UtlString* instance_id = dynamic_cast<UtlString*> (record.findValue(&instanceIdKey));
-                            OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage - value %p, instance_id %p, instanceIdKey = '%s'", 
-                                           record.findValue(&instanceIdKey),
-                                           instance_id, instanceIdKey.data());
-                            if (instance_id && !instance_id->isNull() &&
-                                instance_id->compareTo(SPECIAL_IMDB_NULL_VALUE) !=0 )
-                            {
-                               OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage - add instance '%s'", instance_id->data());
-                               contactUri.setFieldParameter("+sip.instance",
-                                                            *instance_id);
-                               // Prepend "sip:" to the GRUU, since it is stored
-                               // in the database in identity form.
-                               UtlString temp("sip:");
-                               temp.append(
-                                  *(dynamic_cast<UtlString*>
-                                    (record.findValue(&gruuKey))));
-                               contactUri.setFieldParameter("gruu", temp);
-                            }
-
                             finalResponse.setContactField(contactUri.toString(),i);
                         }
                     }
@@ -993,3 +884,4 @@ void RegisterPlugin::takeAction( const SipMessage&   registerMessage
                  "RegisterPlugin::takeAction not resolved by configured hook"
                  );
 }
+

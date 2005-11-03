@@ -17,24 +17,24 @@
 
      If the target URI matches a registered address, then the Contact
      addresses sent in the registration are added.  These are stored
-     in the in-memory database, but are made persistent in the XML
+     in the in-memory database, but are made persistent in the xml
      file.  You can read the in-memory database directly using the
      sipdbtest utility found in the sipXcommserverLib.
 
   2) Aliases ($prefix/var/sipxdata/sipdb/alias.xml)
 
      The file maps addresses based on the contacts configured in the
-     XML file.  Each AOR can translate to any number of contacts.
+     xml file.  Each AOR can translate to any number of contacts.
      This is used for direct mappings such as a user name for use in a
      SIP URL to an extension number (or the reverse).  There is an
      example alias.xml file in this directory.
 
   3) Mapping Rules ($prefix/etc/sipxpbx/mappingrules.xml)
 
-     Mapping rules provide the means to select addresses based on host
-     and user name patterns and configured permissions, and then add
-     contacts.  Mapping rules may use the results of those matches and
-     other configured data to add contacts to the result set.
+     Mapping rules provide the means to select addresses based on
+     host and user name patterns and configured permissions, and then
+     add contacts that may use the results of those matches and other
+     configured data to add contacts to the result set.
 
   4) Fallback Mapping Rules ($prefix/etc/sipxpbx/fallbackrules.xml)
 
@@ -130,10 +130,12 @@
   non-suspended redirection, and that a very small fraction of
   redirection requests will be suspended.
 
+
   Each request that is suspended has a sequence number that is unique
   over long periods of time.  Currently, the sequence number is a 32 bit
   unsigned integer that increments for every request.  It is given to
   each redirector and is used to identify the request.
+
 
   Redirectors may maintain their own data storage in one of two ways.
 
@@ -152,5 +154,4 @@
   using the request serial numbers to coordinate its data items with the
   redirect server's list of suspended requests.  The redirect server
   guarantees to call the redirector's "cancel request" method once its
-  services are no longer needed for that request.  The redirector's
-  "cancel request" method can free storage allocated for the request.
+  services are no longer needed for that request.

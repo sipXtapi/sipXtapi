@@ -23,4 +23,4 @@ sipxincludedir = $(includedir)/sipxunit
 sipxinclude_HEADERS = \
     TestUtilities.h
 
-DISTCLEANFILES = Makefile.in
+

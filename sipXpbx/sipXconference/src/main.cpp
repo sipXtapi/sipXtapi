@@ -97,6 +97,7 @@ extern "C" {
 UtlBoolean    gShutdownFlag = FALSE;
 
 
+
 /* ============================ FUNCTIONS ================================= */
 
 /**
@@ -317,7 +318,7 @@ int main(int argc, char* argv[])
 #if defined(__pingtel_on_posix__)
    pt_signal(SIGHUP,   sigHandler);    // Hangup
    pt_signal(SIGQUIT,  sigHandler);
-   pt_signal(SIGPIPE,  SIG_IGN);       // Handle TCP Failure
+   pt_signal(SIGPIPE,  SIG_IGN);    // Handle TCP Failure
    pt_signal(SIGBUS,   sigHandler);
    pt_signal(SIGSYS,   sigHandler);
    pt_signal(SIGXCPU,  sigHandler);

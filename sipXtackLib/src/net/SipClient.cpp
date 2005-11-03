@@ -104,7 +104,7 @@ SipClient::~SipClient()
     if(clientSocket)
     {
         // Close the socket to unblock the run method
-        // in case it is blocked in a waitForReadyToRead or
+        // in case it is blocked in a isReadyToRead or
         // a read on the clientSocket.  This should also
         // cause the run method to exit.
 #ifdef TEST_PRINT
@@ -209,14 +209,11 @@ int SipClient::run(void* runArg)
             // clientSocket shouldn't be null
             // in this case some sort of race with the destructor.  This should
             // not actually ever happen.
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipClient::run readAMessage = %d, "
-                          "buffer.length() = %d, clientSocket = %p",
-                          readAMessage, buffer.length(), clientSocket);
+
             if (clientSocket
                 && ((readAMessage
                      && buffer.length() >= MINIMUM_SIP_MESSAGE_SIZE)
-                    || waitForReadyToRead()))
+                    || isReadyToRead()))
             {
 #ifdef LOG_TIME
                 eventTimes.addEvent("locking");
@@ -232,21 +229,6 @@ int SipClient::run(void* runArg)
                 // not actually ever happen.
                 if(clientSocket)
                 {
-                   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-                   {
-                      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                    "SipClient::run %p socket %p host: %s "
-                                    "sock addr: %s via addr: %s rcv addr: %s "
-                                    "sock type: %s read ready %s",
-                                    this, clientSocket,
-                                    mRemoteHostName.data(),
-                                    mRemoteSocketAddress.data(),
-                                    mRemoteViaAddress.data(),
-                                    mReceivedAddress.data(),
-                                    OsSocket::ipProtocolString(clientSocket->getIpProtocol()),
-                                    isReadyToRead() ? "READY" : "NOT READY"
-                         );
-                   }
 #ifdef LOG_TIME
                     eventTimes.addEvent("reading");
 #endif
@@ -343,8 +325,7 @@ int SipClient::run(void* runArg)
                        logMessage.append(fromIpAddress);
                        logMessage.append("---- Port: ");
                        char buff[10];
-                       sprintf(buff, "%d",
-                               !portIsValid(fromPort) ? 5060 : fromPort);
+                       sprintf(buff, "%d", !portIsValid(fromPort) ? 5060 : fromPort);
                        logMessage.append(buff);
                        logMessage.append("----\n");
 
@@ -491,12 +472,8 @@ int SipClient::run(void* runArg)
                    && buffer.length()
                    )
                 {
-                    OsSysLog::add(FAC_SIP, 
-                                  // For UDP, this is an error, but not
-                                  // for TCP or TLS.
-                                  (clientSocket->getIpProtocol() ==
-                                   OsSocket::UDP) ? PRI_ERR : PRI_DEBUG,
-                                  "SipClient::run buffer residual bytes: %d\n===>%s<===\n",
+                    OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                  "SipClient::run UDP residual bytes: %d\n===>%s<===\n",
                                   buffer.length(), buffer.data());
                 }
             } // if bytesRead > 0
@@ -524,17 +501,15 @@ int SipClient::run(void* runArg)
     return(0);
 }
 
-// Test whether the socket is ready to read. (Does not block.)
 UtlBoolean SipClient::isReadyToRead()
 {
-   return clientSocket->isReadyToRead(0);
+    UtlBoolean readyToRead = FALSE;
+
+    readyToRead = clientSocket->isReadyToRead(-1);
+
+    return(readyToRead);
 }
 
-// Wait until the socket is ready to read (or has an error).
-UtlBoolean SipClient::waitForReadyToRead()
-{
-   return clientSocket->isReadyToRead(-1);
-}
 
 UtlBoolean SipClient::send(SipMessage* message)
 {

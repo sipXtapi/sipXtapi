@@ -67,37 +67,15 @@ SipRedirectorRegDB::lookUp(
    int redirectorNo,
    SipRedirectorPrivateStorage*& privateStorage)
 {
+   UtlString contactIdentity;
+
+   UtlString requestIdentity;
+   requestUri.getIdentity(requestIdentity);
+
    int timeNow = OsDateTime::getSecsSinceEpoch();
    ResultSet registrations;
-   // Local copy of requestUri
-   Url requestUriCopy = requestUri;
-
-   // Look for any grid parameter and remove it.
-   UtlString gridParameter;
-   UtlBoolean gridPresent =
-      requestUriCopy.getUrlParameter("grid", gridParameter, 0);
-   if (gridPresent)
-   {
-      requestUriCopy.removeUrlParameter("grid");
-   }
-   if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-   {
-      UtlString temp;
-      requestUriCopy.getUri(temp);
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectorRegDB::lookUp "
-                    "gridPresent = %d, gridParameter = '%s', "
-                    "requestUriCopy after removing grid = '%s'",
-                    gridPresent, gridParameter.data(), temp.data());
-   }
-
-   // Note that getUnexpiredContacts will reduce the requestUri to its
-   // identity (user/host/port) part before searching in the
-   // database.  The requestUri identity is matched against the
-   // "identity" column of the database, which is the identity part of
-   // the "uri" column which is stored in registration.xml.
    RegistrationDB::getInstance()->
-      getUnexpiredContacts(requestUriCopy, timeNow, registrations);
+      getUnexpiredContacts(requestUri, timeNow, registrations);
 
    int numUnexpiredContacts = registrations.getSize();
 
@@ -122,7 +100,7 @@ SipRedirectorRegDB::lookUp(
       Url contactUri(contact);
 
       // If the contact URI is the same as the request URI, ignore it.
-      if (!contactUri.isUserHostPortEqual(requestUriCopy))
+      if (!contactUri.isUserHostPortEqual(requestUri))
       {
          // Check if the q-value from the database is valid, and if so,
          // add it into contactUri.
@@ -136,12 +114,6 @@ SipRedirectorRegDB::lookUp(
             {
                contactUri.setFieldParameter(SIP_Q_FIELD, qvalue);
             }
-         }
-
-         // Re-apply any grid parameter.
-         if (gridPresent)
-         {
-            contactUri.setUrlParameter("grid", gridParameter);
          }
 
          // Add the contact.

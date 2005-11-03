@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include <sipdb/RegistrationDB.h>
+//#include <...>
 
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
@@ -38,8 +38,6 @@ UtlString RegistrationDB::gContactKey("contact");
 UtlString RegistrationDB::gExpiresKey("expires");
 UtlString RegistrationDB::gCseqKey("cseq");
 UtlString RegistrationDB::gQvalueKey("qvalue");
-UtlString RegistrationDB::gInstanceIdKey("instance_id");
-UtlString RegistrationDB::gGruuKey("gruu");
 UtlBoolean     grVerboseLoggingEnabled = FALSE;
 
 // extern gExpiresKey;
@@ -343,9 +341,7 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
         qvalue,
         *((UtlString*)nvPairs.findValue(&gCallidKey)),
         cseq,
-        expires,
-        *((UtlString*)nvPairs.findValue(&gInstanceIdKey)),
-        *((UtlString*)nvPairs.findValue(&gGruuKey))
+        expires
                    );
 }
 
@@ -357,8 +353,6 @@ RegistrationDB::updateBinding( const Url& uri
                               ,const UtlString& callid
                               ,const int& cseq
                               ,const int& expires
-                              ,const UtlString& instance_id
-                              ,const UtlString& gruu
                               )
 {
     UtlString identity;
@@ -402,8 +396,6 @@ RegistrationDB::updateBinding( const Url& uri
                 row.contact     = contact;
                 row.qvalue      = qvalue;
                 row.expires     = expires;
-                row.instance_id = instance_id;
-                row.gruu        = gruu;
                 insert (row);
                 break;
 
@@ -414,8 +406,6 @@ RegistrationDB::updateBinding( const Url& uri
                 cursor->cseq    = cseq;
                 cursor->qvalue  = qvalue;
                 cursor->expires = expires;
-                cursor->instance_id = instance_id;
-                cursor->gruu    = gruu;
                 cursor.update();
                 break;
         }
@@ -640,24 +630,7 @@ RegistrationDB::getUnexpiredContacts (
 
         dbCursor< RegistrationRow > cursor;
         dbQuery query;
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "RegistrationDB::getUnexpiredContacts "
-                      "identity = '%s'",
-                      identity.data());
-        if (strncmp(identity.data(), GRUU_PREFIX,
-                    sizeof (GRUU_PREFIX) - 1) == 0)
-        {
-           // This is a GRUU, search for it in the gruu column.
-           query="gruu=",identity," and expires>",timeNow;
-           OsSysLog::add(FAC_DB, PRI_DEBUG,
-                         "RegistrationDB::getUnexpiredContacts recognized GRUU");
-        }
-        else
-        {
-           // This is not a GRUU, search for it in the identity column.
-           query="np_identity=",identity," and expires>",timeNow;
-        }
-
+        query="np_identity=",identity," and expires>",timeNow;
         if ( cursor.select(query) > 0 )
         {
             // Copy all the unexpired contacts into the result hash
@@ -676,16 +649,6 @@ RegistrationDB::getUnexpiredContacts (
                     new UtlInt ( cursor->cseq );
                 UtlString* qvalueValue =
                     new UtlString ( cursor->qvalue );
-                UtlString* instanceIdValue =
-                    new UtlString ( cursor->instance_id );
-                UtlString* gruuValue =
-                    new UtlString ( cursor->gruu );
-                OsSysLog::add(FAC_DB, PRI_DEBUG,
-                              "RegistrationDB::getUnexpiredContacts Record found "
-                              "uri = '%s', contact = '%s', instance_id = '%s', "
-                              "gruu = '%s'",
-                              uriValue->data(), contactValue->data(),
-                              instanceIdValue->data(), gruuValue->data());
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* uriKey
@@ -700,10 +663,6 @@ RegistrationDB::getUnexpiredContacts (
                     = new UtlString( gCseqKey );
                 UtlString* qvalueKey
                     = new UtlString( gQvalueKey );
-                UtlString* instanceIdKey 
-                    = new UtlString( gInstanceIdKey );
-                UtlString* gruuKey
-                    = new UtlString( gGruuKey );
 
                 record.insertKeyAndValue (
                     uriKey, uriValue);
@@ -717,10 +676,6 @@ RegistrationDB::getUnexpiredContacts (
                     cseqKey, cseqValue);
                 record.insertKeyAndValue (
                     qvalueKey, qvalueValue);
-                record.insertKeyAndValue (
-                    instanceIdKey, instanceIdValue);
-                record.insertKeyAndValue (
-                    gruuKey, gruuValue);
 
                 rResultSet.addValue(record);
 

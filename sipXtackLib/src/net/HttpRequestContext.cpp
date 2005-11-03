@@ -158,8 +158,8 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
       }
       //copy mCgiVariableList memebers individually
       mUsingInsensitive = rhs.mUsingInsensitive;
-      UtlDListIterator iterator((UtlDList&)rhs.mCgiVariableList);
-      NameValuePair* nameValuePair = NULL;
+           UtlDListIterator iterator((UtlDList&)rhs.mCgiVariableList);
+           NameValuePair* nameValuePair = NULL;
       UtlString value;
       UtlString name;
 
@@ -317,11 +317,6 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
                                            UtlBoolean nameIsCaseInsensitive,
                                            UnEscapeFunction unescape)
 {
-#if 0
-   printf("HttpRequestContext::parseCgiVariables queryString = '%s', pairSeparator = '%s', nameValueSeparator = '%s', nameIsCaseInsensitive = %d\n",
-          queryString, pairSeparator, nameValueSeparator,
-          nameIsCaseInsensitive);
-#endif
    //UtlString nameAndValue;
    const char* nameAndValuePtr;
    int nameAndValueLength;

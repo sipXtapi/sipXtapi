@@ -21,13 +21,4 @@ include $(srcdir)/config/sipXprojtop.mak
 SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 
 DISTCLEANFILES = \
-	$(CONFIG_DISTCLEANFILES) \
-	BUILDSTAMP \
-	Makefile.in \
-	SVN-VERSION \
-	aclocal.m4 \
-	autom4te.cache/output.0 \
-	autom4te.cache/output.1 \
-	autom4te.cache/requests \
-	autom4te.cache/traces.0 \
-	autom4te.cache/traces.1
+	$(CONFIG_DISTCLEANFILES)

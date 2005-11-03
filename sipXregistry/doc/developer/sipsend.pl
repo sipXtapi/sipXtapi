@@ -361,7 +361,7 @@ sub DigestResponse
 
     if ( $challenge =~ m/nonce="([0-9a-f]+)"/i )
     {
-        $nonce = $1;
+        $nonce     = $1;
     }
     if ( $challenge =~ m/realm="([^"]+)"/i ) #"
     {
@@ -373,7 +373,7 @@ sub DigestResponse
     }
     if ( $challenge =~ m/algorithm=(MD5|MD5-sess)/i )
     {
-        $algorithm = $1;
+        $algorithm =$1;
     }
     else
     {

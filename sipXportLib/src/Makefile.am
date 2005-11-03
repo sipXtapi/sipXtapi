@@ -174,5 +174,3 @@ EXTRA_DIST= \
     os/Wnt/OsTimerMessage.cpp \
     os/Wnt/OsUtilWnt.cpp \
     os/Wnt/WindowsAdapterInfo.cpp 
-
-DISTCLEANFILES = Makefile.in

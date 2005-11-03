@@ -121,6 +121,6 @@ UtlHashMapPerformance_CXXFLAGS = \
 UtlHashMapPerformance_LDADD = \
     ../libsipXport.la
 
+
 EXTRA_DIST=
 
-DISTCLEANFILES = Makefile.in

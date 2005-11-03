@@ -304,9 +304,7 @@ void TiXmlParsingData::Stamp( const char* now, TiXmlEncoding encoding )
 
 const char* TiXmlBase::SkipWhiteSpace( const char* p, TiXmlEncoding encoding )
 {
-   // *p == '\0' is legitimate, and will cause the code below to return
-   // p.
-	if ( !p )
+	if ( !p || !*p )
 	{
 		return 0;
 	}

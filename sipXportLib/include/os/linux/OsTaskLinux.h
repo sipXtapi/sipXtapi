@@ -270,7 +270,7 @@ private:
    void taskUnregister(void);
 
    static void * taskEntry(void* arg);
-     //:Function that serves as the starting address for a Linux task
+     //:Function that serves as the starting address for a VxWorks task
 
    OsTaskLinux(const OsTaskLinux& rOsTaskLinux);
      //:Copy constructor (not implemented for this class)

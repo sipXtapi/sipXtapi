@@ -22,7 +22,6 @@ sipregistrar_SOURCES =  \
     SipRedirectorAliasDB.cpp \
     SipRedirectorHunt.cpp \
     SipRedirectorMapping.cpp \
-    SipRedirectorMPT.cpp \
     SipRedirectorPickUp.cpp \
     SipRedirectorRegDB.cpp \
     SipRedirectorSubscribe.cpp \
@@ -35,7 +34,6 @@ sipregistrar_SOURCES =  \
     SipRedirectorAliasDB.h \
     SipRedirectorHunt.h \
     SipRedirectorMapping.h \
-    SipRedirectorMPT.h \
     SipRedirectorPickUp.h \
     SipRedirectorRegDB.h \
     SipRedirectorSubscribe.h \

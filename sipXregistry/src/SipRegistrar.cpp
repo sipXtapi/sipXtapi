@@ -89,7 +89,6 @@ mSipRegisterPlugins(sipRegisterPlugins)
 
       sipUserAgent->allowExtension("sip-cc-01");
       sipUserAgent->allowExtension("timer");
-      sipUserAgent->allowExtension("gruu");
    }
 
    if(!defaultAuthAlgorithm.isNull())
