@@ -17,7 +17,17 @@ class UserServiceTestApi < Test::Unit::TestCase
     end
 
 	def test_createUser
-	    @user = User.new('lipton', '1234')
-		@userService.addUser(AddUser.new(@user))
+	    user = User.new('lipton', '1234')
+		@userService.addUser(AddUser.new(user))
     end
+    
+	def test_findUser
+	    user = User.new('john', '1234')
+		@userService.addUser(AddUser.new(user))
+
+	    findUser = FindUser.new()
+	    findUser.byName = 'john'
+	    users = @userService.findUser(findUser)	    
+    end
+    
 end

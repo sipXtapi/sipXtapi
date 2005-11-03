@@ -402,7 +402,7 @@
       <fileset dir="${src.dir}" includes="**/*.wsdl"/>
     </copy>
 	<property name="wsdl2ruby-command" value="-C${wsdl.ruby.dir} ${wsdl2ruby} --force --type client --wsdl"/>
-    <exec executable="${ruby}">
+    <exec executable="${ruby}" failonerror="true">
       <arg line="${wsdl2ruby-command} sipxconfig.wsdl"/>
     </exec>
   </target>
@@ -422,7 +422,7 @@
     </java>    
 	<property name="webservice-unittest-command" 
 		value="-I${wsdl.ruby.dir} -d ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
-    <exec executable="${ruby}">
+    <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unittest-command}/UserServiceTestApi.rb"/>
     </exec>    
     <!-- shutdown incase other tests relying on web server need to run -->

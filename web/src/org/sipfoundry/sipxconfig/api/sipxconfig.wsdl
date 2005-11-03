@@ -5,43 +5,65 @@
 <definitions name="ConfigService"
 	targetNamespace="urn:ConfigService" 
 	xmlns:tns="urn:ConfigService" 
-	xmlns:xsd1="urn:sipxconfig.xsd" 
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
 	xmlns="http://schemas.xmlsoap.org/wsdl/" 
 	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+	xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
 	
 	<types>
-		<!-- NOTE: qualify w/xsd:, SOAP4R doesn't support switching namespaces -->
 		<xsd:schema targetNamespace="urn:ConfigService">
 			<!-- business objects -->
-			<xsd:complexType name="user">
+			<xsd:complexType name="User">
 				<xsd:all>
 					<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-					<xsd:element name="pin" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+					<xsd:element name="pin" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="pintoken" type="xsd:string" nillable="true" maxOccurs="1"/>
 				</xsd:all>
 		    </xsd:complexType>				
+			<xsd:complexType name="ArrayOfUser">
+				<xsd:sequence>
+					<xsd:element name="user" type="tns:User" maxOccurs="unbounded"/>
+				</xsd:sequence>
+		    </xsd:complexType>
     		<!-- api support -->
-            <xsd:element name="addUser">
+            <xsd:element name="AddUser">
 				<xsd:complexType>
 					<xsd:all>
-						<xsd:element name="user" type="tns:user" maxOccurs="1" minOccurs="1"/>
+						<xsd:element name="user" type="tns:User" maxOccurs="1" minOccurs="1"/>
 					</xsd:all>
 				</xsd:complexType>
 			</xsd:element>
+			<xsd:element name="FindUser">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="byName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:complexType>
+		    </xsd:element>
 		</xsd:schema>
 	</types>
 
     <!-- U S E R   S E R V I C E -->
-	<message name="addUserResponse">
-	</message>
+	<message name="addUserResponse"/>
 	<message name="addUserRequest">
-		<part element="tns:addUser" name="addUser"/>
+		<part name="addUser" element="tns:AddUser"/>
+	</message>
+
+	<message name="findUserResponse">
+		<part name="result" type="tns:ArrayOfUser"/>
+    </message>
+	<message name="findUserRequest">
+		<part name="findUser" element="tns:FindUser"/>
 	</message>
 
 	<portType name="UserService">
 		<operation name="addUser">
 			<input message="tns:addUserRequest"/>
 			<output message="tns:addUserResponse"/>
+		</operation>
+		<operation name="findUser">
+			<input message="tns:findUserRequest"/>
+			<output message="tns:findUserResponse"/>
 		</operation>
 	</portType>
 
@@ -64,13 +86,20 @@
 			</output>			
 			<soap:operation soapAction=""></soap:operation>			
 		</operation>
+		<operation name="findUser">
+ 			<input>
+				<soap:body use="literal" namespace="urn:ConfigService" />
+			</input>			
+			<output>
+				<soap:body use="literal" namespace="urn:ConfigService"/>
+			</output>			
+			<soap:operation soapAction=""></soap:operation>						
+		</operation>
 	</binding>
 
     <!-- T E S T  S E R V I C E -->	
-	<message name="resetUserServiceResponse">
-	</message>
-	<message name="resetUserServiceRequest">
-	</message>
+	<message name="resetUserServiceResponse"/> 
+	<message name="resetUserServiceRequest"/>
 
 	<portType name="TestService">
 		<operation name="resetUserService">
@@ -83,7 +112,7 @@
 		<soap:binding style="document"/>
 		<operation name="resetUserService">			
  			<input name="resetUserServiceRequest">
-				<soap:body use="literal" namespace="urn:TestService" />
+				<soap:body use="literal" namespace="urn:TestService"/>
 			</input>			
 			<output name="resetUserServiceResponse">
 				<soap:body use="literal" namespace="urn:TestService"/>
