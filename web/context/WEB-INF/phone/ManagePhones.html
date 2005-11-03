@@ -17,35 +17,16 @@
 				</li>
 			</ul>
             Group: <span jwcid="groupFilter"/>
-            <span jwcid="@checkboxes:CheckboxGroup">
-			<table jwcid="phoneTableView" class="component" id="phone:list">
-				<thead>
-                    <tr>
-						<th width="5"><span jwcid="@checkboxes:ControlCheckbox"/></th>
-						<th jwcid="phoneColumns"/>
-                    </tr>
-				</thead>
-                <tfoot>
-                    <tr>
-                        <td colspan="5"><span jwcid="@contrib:TableFormPages"/></td>
-                    </tr>
-                </tfoot>
-                <tbody>
-	                <span jwcid="serialNumberColumnValue">
-	                    <a href="#" jwcid="editPhoneLink"><span jwcid="phoneLabel">serial number</span></a>
-	                </span>
-	                <span jwcid="linesColumnValue">
-	                    <span jwcid="editLines">
-	                        <a href="#" jwcid="lineLink"><span jwcid="lineLabel">line</span></a>
-	                    </span>
-	                </span>
-					<tr jwcid="phoneRows">
-    	                <td><span jwcid="selectedRow"/></td>
-						<td jwcid="phoneValues"/>                    
-					</tr>
-                </tbody>
+			<table jwcid="newPhoneTable" id="phone:list">
+                <span jwcid="serialNumberColumnValue">
+                    <a href="#" jwcid="editPhoneLink"><span jwcid="phoneLabel">serial number</span></a>
+                </span>
+                <span jwcid="linesColumnValue">
+                    <span jwcid="editLines">
+                        <a href="#" jwcid="lineLink"><span jwcid="lineLabel">line</span></a>
+                    </span>
+                </span>
 			</table>
-            </span>
 			<ul class="component-submit">
 				<li>
 					<input id="phone:sendProfiles" jwcid="sendProfiles" value="Send Profiles"/>
