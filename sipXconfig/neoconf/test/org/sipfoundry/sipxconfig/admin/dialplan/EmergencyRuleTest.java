@@ -12,7 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -32,9 +32,13 @@ public class EmergencyRuleTest extends TestCase {
         m_rule.setEmergencyNumber("911");
         m_rule.setOptionalPrefix("9");
 
-        Gateway g = new Gateway();
-        g.setAddress("sosgateway.com");
-        m_rule.setGateways(Collections.singletonList(g));
+        Gateway g1 = new Gateway();
+        g1.setAddress("sosgateway1.com");
+        Gateway g2 = new Gateway();
+        g2.setAddress("sosgateway2.com");
+        m_rule.setGateways(Arrays.asList(new Gateway[] {
+            g1, g2
+        }));
     }
 
     public void testGetPatterns() {
@@ -47,9 +51,11 @@ public class EmergencyRuleTest extends TestCase {
 
     public void testGetTransforms() {
         Transform[] transforms = m_rule.getTransforms();
-        assertEquals(1, transforms.length);
+        assertEquals(2, transforms.length);
         UrlTransform emergencyTransform = (UrlTransform) transforms[0];
-        assertEquals("sip:911@sosgateway.com", emergencyTransform.getUrl());
+        assertEquals("<sip:911@sosgateway1.com>;q=0.933", emergencyTransform.getUrl());
+        emergencyTransform = (UrlTransform) transforms[1];
+        assertEquals("<sip:911@sosgateway2.com>;q=0.867", emergencyTransform.getUrl());
     }
 
     public void testCallerSensitiveForwarding() {
@@ -72,24 +78,24 @@ public class EmergencyRuleTest extends TestCase {
         m_rule.setEnabled(true);
         m_rule.setDescription(testDescription);
         List gateways = m_rule.getGateways();
-        assertEquals(1, gateways.size());
+        assertEquals(2, gateways.size());
         ArrayList rules = new ArrayList();
         m_rule.appendToGenerationRules(rules);
         assertEquals(1, rules.size());
         DialingRule rule = (DialingRule) rules.get(0);
-        assertEquals(1, rule.getGateways().size());
-        assertEquals(testDescription,rule.getDescription());
+        assertEquals(2, rule.getGateways().size());
+        assertEquals(testDescription, rule.getDescription());
 
         // if we are using media server return empty gateways list
         m_rule.setUseMediaServer(true);
         gateways = m_rule.getGateways();
-        assertEquals(1, gateways.size());
+        assertEquals(2, gateways.size());
         rules = new ArrayList();
         m_rule.appendToGenerationRules(rules);
         assertEquals(1, rules.size());
         rule = (DialingRule) rules.get(0);
         assertTrue(rule.getGateways().isEmpty());
-        assertEquals(testDescription,rule.getDescription());
+        assertEquals(testDescription, rule.getDescription());
     }
 
     public void testAppendToGenerationRulesDisabled() {
