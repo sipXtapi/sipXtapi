@@ -30,9 +30,11 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
         ConferenceBridgeContext {
-    private static final String USER_QUERY_PARAM = "user";
-
-    private static final String CONFERENCE_QUERY_PARAM = "conference";
+    private static final String USER = "user";
+    private static final String CONFERENCE = "conference";
+    private static final String VALUE = "value";
+    private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
+    private static final String CONFERENCES_WITH_ALIAS = "conferencesWithAlias";
 
     private CoreContext m_coreContext;
 
@@ -113,7 +115,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     private Participant getParticipant(Conference conference, User user) {
         String[] params = {
-            CONFERENCE_QUERY_PARAM, USER_QUERY_PARAM
+            CONFERENCE, USER
         };
         Object[] values = {
             conference, user
@@ -155,7 +157,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private class OnUserDelete extends UserDeleteListener {
         protected void onUserDelete(User user) {
             List participantIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                    "participantIdForUser", USER_QUERY_PARAM, user);
+                    "participantIdForUser", USER, user);
             removeParticipants(participantIds);
         }
     }
@@ -171,8 +173,14 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public boolean isAliasInUse(String alias) {
         List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "conferenceIdsWithAlias", "value", alias);
+                CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
         return CollectionUtils.safeSize(confIds) > 0;
+    }
+    
+    public Collection getObjectsWithAlias(String alias) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                CONFERENCES_WITH_ALIAS, VALUE, alias);
+        return objs;
     }
 
 }

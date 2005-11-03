@@ -128,6 +128,10 @@
     <![CDATA[select dr.id from DialingRule dr where dr.name = :value]]>
   </query>  
 	  
+  <query name="internalRulesWithVoiceMailExtension">
+    <![CDATA[select ir from InternalRule ir where ir.voiceMail = :value]]>
+  </query>  
+	  
   <query name="internalRuleIdsWithVoiceMailExtension">
     <![CDATA[select ir.id from InternalRule ir where ir.voiceMail = :value]]>
   </query>  

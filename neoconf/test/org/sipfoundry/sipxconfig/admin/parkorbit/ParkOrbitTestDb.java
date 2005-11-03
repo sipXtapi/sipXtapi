@@ -106,5 +106,12 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.isAliasInUse("402"));
         assertFalse(m_context.isAliasInUse("911"));
     }
-    
+
+    public void testGetObjectsWithAlias() {
+        assertTrue(m_context.getObjectsWithAlias("sales").size() == 1);
+        assertTrue(m_context.getObjectsWithAlias("401").size() == 1);
+        assertTrue(m_context.getObjectsWithAlias("402").size() == 1);
+        assertTrue(m_context.getObjectsWithAlias("911").size() == 0);
+    }
+
 }

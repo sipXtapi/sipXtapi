@@ -30,9 +30,9 @@ public class UserLoader {
     private static final Log LOG = LogFactory.getLog(UserLoader.class);
     
     // names of query parameters
-    private static final String PARAM_USER_NAME_OR_ALIAS = "userNameOrAlias";
     private static final String PARAM_GROUP_ID = "groupId";
     private static final String PARAM_SEARCH = "search";
+    private static final String PARAM_VALUE = "value";
 
     // strings for SQL aliases (not sipX aliases!)
     private static final String ALIASES_ALIAS = "alias";
@@ -254,12 +254,12 @@ public class UserLoader {
         if (!StringUtils.isEmpty(userTemplate.getUserName())) {
             m_queryBuf.append("left outer join u.aliases alias ");
             m_queryBuf.append("where (u.userName like :");
-            m_queryBuf.append(PARAM_USER_NAME_OR_ALIAS);
+            m_queryBuf.append(PARAM_VALUE);
             m_queryBuf.append("  or alias like :");
-            m_queryBuf.append(PARAM_USER_NAME_OR_ALIAS);
+            m_queryBuf.append(PARAM_VALUE);
             m_queryBuf.append(" ) ");
             
-            m_paramNames.add(PARAM_USER_NAME_OR_ALIAS);
+            m_paramNames.add(PARAM_VALUE);
             addWildParamValue_(userTemplate.getUserName());
             m_noWhere = false;  // we added "where" to the query string
         }

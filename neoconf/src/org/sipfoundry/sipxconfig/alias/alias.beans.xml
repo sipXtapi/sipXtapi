@@ -4,6 +4,5 @@
   <!--
   - A L I A S  M A N A G E R 
   -->
-  <bean id="aliasManager"
-    class="org.sipfoundry.sipxconfig.alias.AliasManager"/>
+  <bean id="aliasManager" class="org.sipfoundry.sipxconfig.alias.AliasManagerImpl"/>
 </beans>

@@ -31,6 +31,7 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     private static final String EXTENSION_PROP_NAME = "extension";
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
+    private static final String QUERY_PARK_ORBITS_WITH_ALIAS = "parkOrbitsWithAlias";
 
     private SipxReplicationContext m_replicationContext;
     private Orbits m_orbitsGenerator;
@@ -108,6 +109,12 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_PARK_ORBIT_IDS_WITH_ALIAS, VALUE, alias);
         return CollectionUtils.safeSize(objs) > 0;        
+    }
+    
+    public Collection getObjectsWithAlias(String alias) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_PARK_ORBITS_WITH_ALIAS, VALUE, alias);
+        return objs;
     }
 
     /**

@@ -36,6 +36,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
 
     private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";
     private static final String QUERY_CALL_GROUP_IDS_WITH_ALIAS = "callGroupIdsWithAlias";
+    private static final String QUERY_CALL_GROUPS_WITH_ALIAS = "callGroupsWithAlias";
 
     private CoreContext m_coreContext;
     private SipxReplicationContext m_replicationContext;
@@ -172,6 +173,12 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE, alias);
         return CollectionUtils.safeSize(objs) > 0;
+    }
+    
+    public Collection getObjectsWithAlias(String alias) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_CALL_GROUPS_WITH_ALIAS, VALUE, alias);
+        return objs;
     }
 
     public void addUsersToCallGroup(Integer callGroupId, Collection ids) {
