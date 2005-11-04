@@ -25,7 +25,6 @@
      - B E A N S
      -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="idConverter" class="org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer">
         <set-property name="class" expression="@org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant@class"/>
         <set-property name="source" expression="global.dialPlanContext"/>
@@ -33,18 +32,13 @@
     <!--
       - C O M P O N E N T S
       -->
-    <component id="tableView" type="contrib:TableView">
-        <binding name="source" expression="dialPlanContext.autoAttendants"/>
-        <static-binding name="pageSize" value="-1"/>              
+    <component id="tableView" type="Table">
         <static-binding name="columns" value="* Name:name,Extension:extension,Description:description"/>
-    </component>
-    <component id="tableColumns" type="contrib:TableColumns"/>    
-    <component id="tableRows" type="contrib:TableFormRows">
-		<binding name="class" expression="beans.rowClass.next"/>
+        <binding name="source" expression="dialPlanContext.autoAttendants"/>
 		<binding name="row" expression="currentRow"/>
         <binding name="convertor" expression="beans.idConverter"/>
+        <binding name="selections" expression="selections"/>
     </component>
-    <component id="tableValues" type="contrib:TableValues"/>        
 	<component id="NameColumnValue" type="Block"/>    
     <component id="nameText" type="Insert">
         <binding name="value" expression="currentRow.name"/>

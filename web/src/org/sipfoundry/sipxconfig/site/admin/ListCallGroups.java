@@ -14,21 +14,26 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ListCallGroups extends BasePage implements PageRenderListener {
-    
+
     public static final String PAGE = "ListCallGroups";
 
     public abstract CallGroupContext getCallGroupContext();
 
+    public abstract CoreContext getCoreContext();
+
     public void pageBeginRender(PageEvent event_) {
-        // initialize properties        
+        // initialize properties
     }
 
     public abstract CallGroup getCurrentRow();
@@ -43,7 +48,7 @@ public abstract class ListCallGroups extends BasePage implements PageRenderListe
         EditCallGroup editCallGroup = (EditCallGroup) cycle.getPage(EditCallGroup.PAGE);
         editCallGroup.setCallGroupId(null);
         editCallGroup.setCallGroup(null);
-        cycle.activate(editCallGroup);        
+        cycle.activate(editCallGroup);
     }
 
     public void edit(IRequestCycle cycle) {
@@ -51,7 +56,7 @@ public abstract class ListCallGroups extends BasePage implements PageRenderListe
         Integer callGroupId = TapestryUtils.getBeanId(cycle);
         editCallGroup.setCallGroupId(callGroupId);
         editCallGroup.setCallGroup(null);
-        cycle.activate(editCallGroup);        
+        cycle.activate(editCallGroup);
     }
 
     public void formSubmit(IRequestCycle cycle_) {
@@ -77,5 +82,9 @@ public abstract class ListCallGroups extends BasePage implements PageRenderListe
         if (null != selectedRows) {
             getCallGroupContext().duplicateCallGroups(selectedRows);
         }
-    }    
+    }
+
+    public IPrimaryKeyConvertor getIdConverter() {
+        return new ObjectSourceDataSqueezer(getCoreContext(), CallGroup.class);
+    }
 }

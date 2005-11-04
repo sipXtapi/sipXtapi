@@ -121,8 +121,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         assertEquals(count + 1, SiteTestHelper.getRowCount(tester, buildId("list")));
         if (m_exactCheck) {
             assertTableRowsEqual(buildId("list"), 1, expected);
-        }
-        else {
+        } else {
             assertTableRowsExist(buildId("list"), expected);
         }
     }
@@ -156,7 +155,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         }
         // remove 2nd and 4th
         for (int i = 0; i < toBeRemoved.length; i++) {
-            SiteTestHelper.enableCheckbox(getTester(), "selectedRow", toBeRemoved[i], true);
+            SiteTestHelper.selectRow(tester, toBeRemoved[i], true);
         }
 
         clickButton(buildId("delete"));
@@ -181,7 +180,7 @@ public abstract class ListWebTestCase extends WebTestCase {
     }
 
     private void assertTableRowsExist(String tableId, ExpectedTable expected) {
-        for(int i = 0; i < expected.getExpectedStrings().length; i++) {
+        for (int i = 0; i < expected.getExpectedStrings().length; i++) {
             assertTextInTable(tableId, expected.getExpectedStrings()[i][0]);
         }
     }

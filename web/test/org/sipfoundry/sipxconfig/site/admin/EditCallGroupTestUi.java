@@ -49,19 +49,19 @@ public class EditCallGroupTestUi extends WebTestCase {
         addUser();
 
         assertEquals(2, SiteTestHelper.getRowCount(tester, "userring:list"));
-        
+
         reopenScreen();
 
-        assertEquals(2, SiteTestHelper.getRowCount(tester, "userring:list"));        
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "userring:list"));
 
-        checkCheckbox("selectedRow");
+        SiteTestHelper.selectRow(tester, 0, true);
         clickButton("userring:delete");
 
         assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
-        
+
         reopenScreen();
-        
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));                
+
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
     }
 
     private void reopenScreen() {
@@ -76,16 +76,16 @@ public class EditCallGroupTestUi extends WebTestCase {
             addUser();
         }
 
-        checkCheckbox("selectedRow");
+        SiteTestHelper.selectRow(tester, 0, true);
         clickButton("userring:moveDown");
-        assertCheckboxNotSelected("selectedRow");
-        assertCheckboxSelected("selectedRow$0");
+        SiteTestHelper.assertRowNotSelected(tester, 0);
+        SiteTestHelper.assertRowSelected(tester, 1);
         clickButton("userring:moveUp");
-        assertCheckboxSelected("selectedRow");
-        assertCheckboxNotSelected("selectedRow$0");
+        SiteTestHelper.assertRowSelected(tester, 0);
+        SiteTestHelper.assertRowNotSelected(tester, 1);
 
         for (int i = 0; i < 3; i++) {
-            SiteTestHelper.enableCheckbox(getTester(), "selectedRow", i, true);
+            SiteTestHelper.selectRow(tester, i, true);
         }
     }
 
@@ -93,7 +93,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         SiteTestHelper.clickSubmitLink(getTester(), "addRow");
 
         clickButton("user:search");
-        checkCheckbox("selectedRow");
+        SiteTestHelper.selectRow(tester, 0, true);
         clickButton("user:select");
     }
 

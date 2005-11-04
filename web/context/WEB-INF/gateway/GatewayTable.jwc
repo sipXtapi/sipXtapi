@@ -34,28 +34,19 @@
        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
     
     <!-- B E A N S -->           
-    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     <bean name="gateway2id" class="org.sipfoundry.sipxconfig.components.Gateway2Id" lifecycle="page">
         <set-property name="context">page.global.gatewayContext</set-property>
     </bean>    
     
     <!-- C O M P O N E N T S -->           
-    <component id="tableView" type="contrib:TableView">
-        <binding name="source" expression="gatewayCollection"/>
-        <static-binding name="pageSize" value="-1"/>              
+    <component id="table" type="Table">
         <static-binding name="columns" value="* Name:name,Address:address,Description:description"/>
-    </component>    
-    
-    <component id="tableColumns" type="contrib:TableColumns"/>
-    
-    <component id="tableRows" type="contrib:TableFormRows">
-		<binding name="class" expression="beans.rowClass.next"/>
+        <binding name="source" expression="gatewayCollection"/>
 		<binding name="row" expression="currentRow"/>
         <binding name="convertor" expression="beans.gateway2id"/>
+        <binding name="selections" expression="selections"/>
     </component>
 
-    <component id="tableValues" type="contrib:TableValues"/>
-        
 	<component id="NameColumnValue" type="Block"/>
     
     <component id="nameText" type="Insert">
@@ -65,10 +56,6 @@
     <component id="editRowLink" type="DirectLink">
         <binding name="listener" expression="listeners.edit"/>
         <binding name="parameters" expression="currentRow.id"/>
-    </component>
-    
-    <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.id]"/>
     </component>
                     
 </component-specification>

@@ -44,6 +44,11 @@ public class SiteTestHelper {
      */
     public static final String TEST_USER = "testuser";
 
+    /**
+     * The name of the checkbox used in standard tables
+     */
+    public static final String ROW_CHECKBOX = "checkbox";
+
     private static String s_buildDir;
 
     private static String s_baseUrl;
@@ -154,6 +159,32 @@ public class SiteTestHelper {
         } else {
             tester.uncheckCheckbox(field);
         }
+    }
+
+    /**
+     * Select/unselect rows in the table Only works if there is a single table on the screen.
+     * 
+     * @param tester
+     * @param index row number starting from 0
+     * @param enable True to select checkbox, false otherwise
+     */
+    public static void selectRow(WebTester tester, int index, boolean enable) {
+        String field = getIndexedId(ROW_CHECKBOX, index);
+        if (enable) {
+            tester.checkCheckbox(field);
+        } else {
+            tester.uncheckCheckbox(field);
+        }
+    }
+
+    public static void assertRowSelected(WebTester tester, int index) {
+        String field = getIndexedId(ROW_CHECKBOX, index);
+        tester.assertCheckboxSelected(field);
+    }
+
+    public static void assertRowNotSelected(WebTester tester, int index) {
+        String field = getIndexedId(ROW_CHECKBOX, index);
+        tester.assertCheckboxNotSelected(field);
     }
 
     /**

@@ -6,30 +6,18 @@
         	    <a jwcid="addRow" id="callgroup:addRing" href="../user/search.html"><span key="link.add">Add User</span></a>
 	        </li>
 		</ul>
-		<table jwcid="tableView" id="userring:list" class="component">
-	        <thead>
-	            <tr>
-	                <th width="5"/>
-	                <span jwcid="tableColumns"/>
-	            </tr>
-	        </thead>
-	        <tbody>
-	            <span jwcid="sequenceColumnValue">
-                    <span jwcid="ifRenderSequence">
-		                <span jwcid="sequence"></span>
-                    </span>
-                	<span jwcid="ifRenderInitial">
-                        <span jwcid="@InsertText" value="message:text.initiallyCall">Initially call</span>
-                    </span>    
-	            </span>
-	            <span jwcid="expirationColumnValue">
-	                <input jwcid="expiration" maxlength="6" type="text" size="3"></input>
-	            </span>
-	            <span jwcid="tableRows">
-	                <td><span jwcid="selectedRow"/></td>
-					<span jwcid="tableValues"/>
-	            </span>
-	        </tbody>
+		<table jwcid="tableView" id="userring:list">
+            <span jwcid="sequenceColumnValue">
+                <span jwcid="ifRenderSequence">
+	                <span jwcid="sequence"></span>
+                </span>
+            	<span jwcid="ifRenderInitial">
+                    <span jwcid="@InsertText" value="message:text.initiallyCall">Initially call</span>
+                </span>    
+            </span>
+            <span jwcid="expirationColumnValue">
+                <input jwcid="expiration" maxlength="6" type="text" size="3"></input>
+            </span>
 		</table>
 	    <ul class="component-submit">
 			<li>
