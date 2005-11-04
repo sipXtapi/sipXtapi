@@ -18,7 +18,6 @@
      - B E A N S
      -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     
     <!--
      - C O M P O N E N T S

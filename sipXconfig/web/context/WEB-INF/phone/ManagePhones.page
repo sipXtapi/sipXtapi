@@ -35,7 +35,7 @@
     <component id="newPhoneTable" type="Table">
         <static-binding name="columns" value="* serialNumber,lines,modelId:model.label,description"/>
         <binding name="source" expression="tableModel"/>
-        <binding name="pageSize" expression="page.visit.tablePageSize"/>
+        <binding name="usePager" expression="true"/>
 		<binding name="row" expression="currentRow"/>
         <binding name="convertor" expression="idConverter"/>
         <binding name="selections" expression="selections"/>

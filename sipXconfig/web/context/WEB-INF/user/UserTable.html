@@ -1,33 +1,12 @@
 <span jwcid="$content$">
-	<span jwcid="@checkboxes:CheckboxGroup">
-	<table jwcid="userTable" id="user:list" class="component">
-        <thead>
-			<tr>
-				<th width="5"><span jwcid="@checkboxes:ControlCheckbox"/></th>
-				<th jwcid="userColumns"/>
-			</tr>
-		</thead>              
-        <tfoot>
-            <tr>
-                <td colspan="5"><span jwcid="tablePages"/></td>
-            </tr>
-        </tfoot>
-        <tbody>
-	        <span jwcid="userNameColumnValue">                    
-	            <span jwcid="userNameAsLinkConditional">
-	                <a href="#" jwcid="userNameLink"><span jwcid="userName"/></a>
-	            </span>
-	            <span jwcid="userNameAsTextConditional">
-	                <span jwcid="userNameAsText"/>
-	            </span>
-	        </span>
-			<tr jwcid="userRows">
-				<td>
-					<span jwcid="selectedRow"/>
-				</td>
-				<td jwcid="userValues"/>
-			</tr>
-        </tbody>
+	<table jwcid="userTable" id="user:list">
+        <span jwcid="userNameColumnValue">                    
+            <span jwcid="userNameAsLinkConditional">
+                <a href="#" jwcid="userNameLink"><span jwcid="userName"/></a>
+            </span>
+            <span jwcid="userNameAsTextConditional">
+                <span jwcid="userNameAsText"/>
+            </span>
+        </span>
 	</table>
-    </span>
 </span>

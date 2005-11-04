@@ -23,7 +23,7 @@ import com.meterware.httpunit.WebTable;
  * DialPlanEditTestUi
  */
 public class DialPlanEditTestUi extends WebTestCase {
-    
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(DialPlanEditTestUi.class);
     }
@@ -60,12 +60,12 @@ public class DialPlanEditTestUi extends WebTestCase {
         clickLink("resetDialPlans");
         clickLink("FlexibleDialPlan");
     }
-    
+
     public void testDisplayAndClean() {
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
         // remove all
         for (int i = 0; i < 7; i++) {
-            SiteTestHelper.enableCheckbox(tester, "selectedRow", i, true);
+            SiteTestHelper.selectRow(tester, i, true);
         }
         clickButton("dialplan:delete");
         // should be empty now
@@ -89,7 +89,7 @@ public class DialPlanEditTestUi extends WebTestCase {
                 checkGateways();
             }
             setFormElement("name", "");
-            clickButton("form:ok");           
+            clickButton("form:ok");
             // if validation kicks in we are on the same page
             assertTextPresent("You must enter a value for Name.");
             setFormElement("name", name + "changed");
@@ -151,14 +151,14 @@ public class DialPlanEditTestUi extends WebTestCase {
 
     public void testMove() {
         clickButton("dialplan:revert");
-        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
+        SiteTestHelper.selectRow(tester, 0, true);
         clickButton("dialplan:move:up");
         // no changes
         SiteTestHelper.assertNoException(getTester());
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
 
         // move first row down
-        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
+        SiteTestHelper.selectRow(tester, 0, true);
         clickButton("dialplan:move:down");
         SiteTestHelper.assertNoException(getTester());
         WebTable rulesTable = getTester().getDialog().getWebTableBySummaryOrId("dialplan:list");
@@ -199,11 +199,11 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         for (int i = 0; i < gatewayCount; i++) {
             SiteTestHelper.clickSubmitLink(tester, "addGatewayLink");
-            
+
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
             String gatewayName = "gateway" + i + Long.toString(System.currentTimeMillis());
-            
+
             gateways[i] = GatewaysTestUi.addGateway(tester, gatewayName);
             SiteTestHelper.assertNoException(tester);
         }
@@ -212,7 +212,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertTableRowsEqual("list:gateway", 1, gateways);
 
         // test moving up/down
-        SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
+        SiteTestHelper.selectRow(tester, 0, true);
         clickButton("gateway:moveUp");
         // no changes expected - cannot move up
         SiteTestHelper.assertNoException(getTester());
@@ -227,7 +227,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         // test removal
         for (int i = 0; i < gatewayCount; i++) {
-            SiteTestHelper.enableCheckbox(tester, "selectedRow", i, true);
+            SiteTestHelper.selectRow(tester, i, true);
         }
         clickButton("gateway:remove");
         // only header in the table
@@ -236,7 +236,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         // test adding existing gateways
         SiteTestHelper.clickSubmitLink(tester, "selectGatewayLink");
         for (int i = 0; i < gatewayCount; i++) {
-            SiteTestHelper.enableCheckbox(tester, "selectedRow", i, true);
+            SiteTestHelper.selectRow(tester, i, true);
         }
         clickButton("select:gateway:save");
         assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "list:gateway"));

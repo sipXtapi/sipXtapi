@@ -21,27 +21,27 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 /**
  * Helper methods for phone base unittesting.
  * 
- * Thought about making this a helper w/static functions but webunit methods are
- * protected, as they probably should be.
+ * Thought about making this a helper w/static functions but webunit methods are protected, as
+ * they probably should be.
  */
 public class PhoneTestHelper {
-    
+
     public Phone[] endpoint;
-    
+
     public Line[] line;
-    
+
     private WebTester m_tester;
-    
+
     public PhoneTestHelper(WebTester tester) {
         m_tester = tester;
     }
-        
+
     public void reset() {
         SiteTestHelper.home(m_tester);
         m_tester.clickLink("resetPhoneContext");
         SiteTestHelper.assertNoException(m_tester);
     }
-    
+
     public void seedPhone(int count) {
         SiteTestHelper.home(m_tester);
         endpoint = new Phone[count];
@@ -56,12 +56,12 @@ public class PhoneTestHelper {
             SiteTestHelper.home(m_tester);
         }
     }
-    
+
     public void seedLine(int count) {
         SiteTestHelper.seedUser(m_tester);
         seedPhone(1);
         SiteTestHelper.home(m_tester);
-        m_tester.clickLink("ManagePhones");        
+        m_tester.clickLink("ManagePhones");
         m_tester.clickLinkWithText(endpoint[0].getSerialNumber());
         m_tester.clickLinkWithText("Lines");
         line = new Line[count];
@@ -70,15 +70,15 @@ public class PhoneTestHelper {
             User testUser = new User();
             testUser.setUserName(SiteTestHelper.TEST_USER);
             line[0].setUser(testUser);
-            m_tester.clickLink("AddUser");        
+            m_tester.clickLink("AddUser");
             m_tester.clickButton("user:search");
             // first (should be only?) row
-            m_tester.checkCheckbox("selectedRow");
+            SiteTestHelper.selectRow(m_tester, 0, true);
             m_tester.clickButton("user:select");
         }
         SiteTestHelper.home(m_tester);
     }
-    
+
     public void seedGroup(int count) {
         SiteTestHelper.seedGroup(m_tester, "NewPhoneGroup", count);
     }

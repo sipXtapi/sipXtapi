@@ -18,8 +18,6 @@
     
     <parameter name="columns" type="java.lang.Object" required="yes"/>
     
-	<parameter name="pageSize" type="int" direction="in" required="yes"/>
-  
     <parameter name="initialSortColumn" 
 		type="java.lang.String" 
 		required="no"/>
@@ -37,11 +35,14 @@
     
     <parameter name="convertor"
     	type="org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor"
-    	required="no"
-    	direction="auto"
-    	default-value="null">
-    </parameter>
-
+    	required="yes"
+    	direction="auto"/>
+    
+    <parameter name="usePager" 
+    	type="boolean"
+	    required="no"
+    	direction="in" 
+    	default-value="false"/>
 
 	<!--
 	  - B E A N S
@@ -54,13 +55,13 @@
 	</component>
 
 	<component id="ifRenderPages" type="contrib:FormConditional">
-		<binding name="condition" expression="true"/>
+		<binding name="condition" expression="usePager"/>
 	</component>
 
 	<component id="tableView" type="contrib:TableView">
 		<inherited-binding name="source" parameter-name="source"/>
 		<inherited-binding name="columns" parameter-name="columns"/>
-		<binding name="pageSize" expression="pageSize"/>
+		<binding name="pageSize" expression="usePager ? page.visit.tablePageSize : -1"/>
 		<inherited-binding name="initialSortColumn" parameter-name="initialSortColumn"/>
 		<static-binding name="element">span</static-binding>
 		<binding name="columnSettingsContainer" expression="container"/>        
@@ -86,7 +87,5 @@
         <!-- need an extra column for a footer -->
         <binding name="colspan" expression="components.tableView.getTableColumnModel().columnCount + 1"/>
         <static-binding name="element" value="td"/>        
-    </component>
-    
-    
+    </component>        
 </component-specification>

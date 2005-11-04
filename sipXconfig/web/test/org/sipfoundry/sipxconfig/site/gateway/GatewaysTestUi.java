@@ -73,17 +73,16 @@ public class GatewaysTestUi extends WebTestCase {
         WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(11, gatewaysTable.getRowCount());
 
-        checkCheckbox("selectedRow");
-        checkCheckbox("selectedRow$0");
+        SiteTestHelper.selectRow(tester, 0, true);
+        SiteTestHelper.selectRow(tester, 1, true);
         clickButton("list:gateway:delete");
 
         assertTablePresent("list:gateway");
         gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(9, gatewaysTable.getRowCount());
 
-        checkCheckbox("selectedRow");
-        for (int i = 0; i < 7; i++) {
-            checkCheckbox("selectedRow$" + i);
+        for (int i = 0; i < 8; i++) {
+            SiteTestHelper.selectRow(tester, i, true);
         }
         clickButton("list:gateway:delete");
 

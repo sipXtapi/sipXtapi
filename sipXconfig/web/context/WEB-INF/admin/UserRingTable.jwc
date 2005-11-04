@@ -16,7 +16,12 @@
         direction="auto">
     </parameter>
     
-    <!-- P R O P E R T I E S -->    
+    <!-- P R O P E R T I E S -->
+    
+    <property-specification name="coreContext" 
+    	type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="page.global.coreContext"/>
+    
     <property-specification name="currentRow"
         type="org.sipfoundry.sipxconfig.admin.callgroup.UserRing"/>
     
@@ -38,14 +43,16 @@
         <set-property name="enumClass" 
         	expression="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>        
 	</bean>    
-    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
     
     <!-- C O M P O N E N T S -->           
-    <component id="tableView" type="contrib:TableView">
-        <binding name="source" expression="rings"/>
-        <static-binding name="pageSize" value="-1"/>              
+    <component id="tableView" type="Table">
         <static-binding name="columns" 
-        	value="* !sequence:type,!userid:user.userName,!alias:user.aliasesString,!expiration:expiration"/>
+        	value="* !sequence:type,!userid:user.userName,!alias:user.aliasesString,!expiration"/>
+        <binding name="source" expression="rings"/>
+		<binding name="class" expression="beans.rowClass.next"/>
+		<binding name="row" expression="currentRow"/>
+        <binding name="selections" expression="selections"/>
+        <binding name="convertor" expression="idConverter"/>
     </component>
     
 	<component id="sequenceColumnValue" type="Block"/>
@@ -70,19 +77,6 @@
         <binding name="value" expression="currentRow.expiration"/>
         <binding name="validator" expression="page.global.validPhoneRequired"/>
         <static-binding name="displayName" value="Ring for"/>
-    </component>
-    
-    <component id="tableColumns" type="contrib:TableColumns"/>
-    
-    <component id="tableRows" type="contrib:TableRows">
-		<binding name="class" expression="beans.rowClass.next"/>
-		<binding name="row" expression="currentRow"/>
-    </component>
-
-    <component id="tableValues" type="contrib:TableValues"/>
-        
-    <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.id]"/>
     </component>
 
     <component id="addRow" type="LinkSubmit">
