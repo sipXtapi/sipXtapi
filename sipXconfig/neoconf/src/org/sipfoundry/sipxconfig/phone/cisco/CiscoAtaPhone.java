@@ -209,8 +209,10 @@ public class CiscoAtaPhone extends CiscoPhone {
         if (c == PhoneSettings.class) {
             SettingBeanAdapter adapter = new SettingBeanAdapter(c);
             adapter.setSetting(getSettings());
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/SipOutBoundProxy");
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, SIP_PORT_SETTING);
+            // XCF-760 safe not to set these, traffic is sent to registration
+            // server by default, FQDN or just DN. 
+            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/SipOutBoundProxy");
+            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, SIP_PORT_SETTING);
             adapter.addMapping(PhoneSettings.TFTP_SERVER, "network/TftpURL");
             o = adapter.getImplementation();
         } else {
