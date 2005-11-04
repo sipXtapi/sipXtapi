@@ -15,7 +15,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 
 public class ExtensionInUseException extends UserException {
     private static final String ERROR = "Extension {1} is already in use. "
-            + "Please choose another {0}.";
+            + "Please choose another extension for this {0}.";
 
     public ExtensionInUseException(String objectType, String extension) {
         super(ERROR, objectType, extension);

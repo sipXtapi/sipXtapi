@@ -157,6 +157,9 @@
     <property name="coreContext">
       <ref bean="coreContext"></ref>
     </property>
+    <property name="aliasManager">
+      <ref bean="aliasManager"/>
+    </property>
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>

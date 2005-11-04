@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -36,7 +37,6 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
 
     private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";
     private static final String QUERY_CALL_GROUP_IDS_WITH_ALIAS = "callGroupIdsWithAlias";
-    private static final String QUERY_CALL_GROUPS_WITH_ALIAS = "callGroupsWithAlias";
 
     private CoreContext m_coreContext;
     private SipxReplicationContext m_replicationContext;
@@ -175,10 +175,11 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         return CollectionUtils.safeSize(objs) > 0;
     }
     
-    public Collection getObjectsWithAlias(String alias) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_CALL_GROUPS_WITH_ALIAS, VALUE, alias);
-        return objs;
+    public Collection getBeanIdsOfObjectsWithAlias(String alias) {
+        List ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE, alias);
+        Collection bids = BeanId.createBeanIdCollection(ids, CallGroup.class);
+        return bids;
     }
 
     public void addUsersToCallGroup(Integer callGroupId, Collection ids) {

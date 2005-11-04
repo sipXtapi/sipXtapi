@@ -1,0 +1,103 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2005 SIPfoundry Inc.
+ * Licensed by SIPfoundry under the LGPL license.
+ * 
+ * Copyright (C) 2005 Pingtel Corp.
+ * Licensed to SIPfoundry under a Contributor Agreement.
+ * 
+ * $
+ */
+package org.sipfoundry.sipxconfig.common;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+/**
+ * BeanId -- uniquely identify a persisted object of type BeanWithId through two properties,
+ * its Java class and its database ID.
+ */
+public class BeanId {
+    private Integer m_id;
+    private Class m_beanClass;
+
+    public BeanId(Integer id, Class beanClass) {
+        m_id = id;
+        m_beanClass = beanClass;
+    }
+    
+    public BeanId(BeanWithId bean) {
+        m_id = bean.getId();
+        m_beanClass = bean.getClass();
+    }
+
+    /**
+     * Given a Collection of IDs and a Java class, create and return a Collection of BeanIds.
+     * Throw an exception if any ID is negative (unsaved object) or is not unique.
+     */
+    public static Collection createBeanIdCollection(Collection ids, Class klass) {
+        if (CollectionUtils.safeIsEmpty(ids)) {
+            return CollectionUtils.EMPTY_COLLECTION;
+        }
+        Collection bids = new ArrayList(ids.size());
+        Collection idCheck = new ArrayList(ids.size());     // for uniqueness checking
+        for (Iterator iter = ids.iterator(); iter.hasNext();) {
+            Integer id = (Integer) iter.next();
+            if (id == null) {
+                throw new IllegalArgumentException("The ID collection contains a null ID");
+            }
+            int idVal = id.intValue();
+            if (idVal < 0) {
+                throw new IllegalArgumentException("The ID collection contains a negative ID: "
+                        + idVal);
+            }
+            if (idCheck.contains(id)) {
+                throw new IllegalArgumentException(
+                        "The ID collection contains this ID more than once: " + idVal);                
+            }
+            idCheck.add(id);
+            BeanId bid = new BeanId(id, klass);
+            bids.add(bid);
+        }
+        return bids;
+    }
+    
+    public Class getBeanClass() {
+        return m_beanClass;
+    }
+    public void setBeanClass(Class beanClass) {
+        m_beanClass = beanClass;
+    }
+    public Integer getId() {
+        return m_id;
+    }
+    public void setId(Integer id) {
+        m_id = id;
+    }
+
+    public boolean isIdOfBean(BeanWithId bean) {
+        if (bean == null) {
+            return false;
+        }
+        return getBeanClass().equals(bean.getClass())
+                && getId().equals(bean.getId());
+    }
+    
+    public boolean equals(Object obj) {
+        if (obj instanceof BeanId) {
+            BeanId bid = (BeanId) obj;
+            return bid.getBeanClass().equals(getBeanClass())
+                && bid.getId().equals(getId());
+        } else {
+            return false;
+        }
+    }
+
+    public int hashCode() {
+        int hashCode = getClass().getName().hashCode() * (getId().intValue() + 1);
+        return hashCode;
+    }
+
+}

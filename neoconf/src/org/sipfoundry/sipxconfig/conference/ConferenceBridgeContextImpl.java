@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -34,7 +35,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private static final String CONFERENCE = "conference";
     private static final String VALUE = "value";
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
-    private static final String CONFERENCES_WITH_ALIAS = "conferencesWithAlias";
 
     private CoreContext m_coreContext;
 
@@ -177,10 +177,11 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return CollectionUtils.safeSize(confIds) > 0;
     }
     
-    public Collection getObjectsWithAlias(String alias) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                CONFERENCES_WITH_ALIAS, VALUE, alias);
-        return objs;
+    public Collection getBeanIdsOfObjectsWithAlias(String alias) {
+        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
+        Collection bids = BeanId.createBeanIdCollection(ids, User.class);
+        return bids;
     }
 
 }

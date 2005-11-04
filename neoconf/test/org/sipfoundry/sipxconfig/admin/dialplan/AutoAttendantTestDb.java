@@ -19,6 +19,8 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
+import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.springframework.context.ApplicationContext;
 
@@ -106,4 +108,34 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
             assertTrue(true);
         }
     }
+    
+    public void testSaveNameThatIsDuplicateAlias() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/seedUser.xml");
+        boolean gotNameInUseException = false;
+        AutoAttendant aa = new AutoAttendant();
+        aa.setName("alpha");
+        try {
+            m_context.storeAutoAttendant(aa);
+        }
+        catch (NameInUseException e) {
+            gotNameInUseException = true;
+        }
+        assertTrue(gotNameInUseException);
+    }
+    
+    public void testSaveExtensionThatIsDuplicateAlias() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/seedUser.xml");
+        boolean gotExtensionInUseException = false;
+        AutoAttendant aa = new AutoAttendant();
+        aa.setName("autodafe");
+        aa.setExtension("alpha");
+        try {
+            m_context.storeAutoAttendant(aa);
+        }
+        catch (ExtensionInUseException e) {
+            gotExtensionInUseException = true;
+        }
+        assertTrue(gotExtensionInUseException);
+    }
+
 }

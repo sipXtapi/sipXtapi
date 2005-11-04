@@ -27,11 +27,17 @@ public interface AliasOwner {
     public boolean isAliasInUse(String alias);
     
     /**
-     * Return objects with the specified alias, or null if there are no such objects.
+     * Return the bean IDs of objects with the specified alias, or null if there are no such objects.
      * If the database is healthy then there should never be more than one such object.
      * But allow for the possibility that there are conflicts in the database by 
      * returning a Collection, particularly since alias uniqueness across tables is not
      * enforced by database constraints.
+     * 
+     * To avoid Hibernate problems, return IDs rather than the objects themselves.
+     * Otherwise it is easy to load the same object twice from different Sessions, which
+     * often causes trouble.
+     * 
+     * @return collection of BeanId objects
      */
-    public Collection getObjectsWithAlias(String alias);
+    public Collection getBeanIdsOfObjectsWithAlias(String alias);
 }
