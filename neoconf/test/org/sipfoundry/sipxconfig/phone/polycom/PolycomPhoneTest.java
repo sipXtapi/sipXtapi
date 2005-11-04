@@ -63,7 +63,7 @@ public class PolycomPhoneTest extends TestCase {
     public void testLineDefaults() throws Exception {
         Setting settings = m_tester.line.getSettings();
         Setting address = settings.getSetting("reg/server/1/address");
-        assertEquals("registrar.sipfoundry.org", address.getValue());
+        assertEquals("sipfoundry.org", address.getValue());
     }
 
     public void testLineDefaultsNoUser() throws Exception {

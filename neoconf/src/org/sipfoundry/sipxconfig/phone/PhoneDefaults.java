@@ -36,6 +36,8 @@ public class PhoneDefaults {
     private String m_profileRootUrl;
 
     private String m_domainName;
+    
+    private String m_fullyQualifiedDomainName; 
 
     private String m_authorizationRealm;
 
@@ -55,18 +57,30 @@ public class PhoneDefaults {
         return m_domainName;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public String getOutboundProxy() {
         return m_outboundProxy;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public String getOutboundProxyPort() {
         return m_outboundProxyPort;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public String getRegistrationServer() {
         return m_registrationServer;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public String getRegistrationServerPort() {
         return m_registrationServerPort;
     }
@@ -75,18 +89,30 @@ public class PhoneDefaults {
         return m_tftpServer;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public void setProxyServerAddr(String proxyServerAddr) {
         m_proxyServerAddr = proxyServerAddr;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public String getProxyServerAddr() {
         return m_proxyServerAddr;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public void setProxyServerSipPort(String proxyServerSipPort) {
         m_proxyServerSipPort = proxyServerSipPort;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public String getProxyServerSipPort() {
         return m_proxyServerSipPort;
     }
@@ -102,7 +128,7 @@ public class PhoneDefaults {
         }
 
         StringBuffer url = new StringBuffer();
-        url.append("http://").append(getDomainName()).append(":8090");
+        url.append("http://").append(getFullyQualifiedDomainName()).append(":8090");
         url.append("/phone/profile/docroot");
 
         return url.toString();
@@ -112,18 +138,30 @@ public class PhoneDefaults {
         m_profileRootUrl = profileUrl;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public void setOutboundProxy(String outboundProxy) {
         m_outboundProxy = outboundProxy;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public void setOutboundProxyPort(String outboundProxyPort) {
         m_outboundProxyPort = outboundProxyPort;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public void setRegistrationServer(String registrationServer) {
         m_registrationServer = registrationServer;
     }
 
+    /**
+     * @deprecated use domain name
+     */
     public void setRegistrationServerPort(String registrationServerPort) {
         m_registrationServerPort = registrationServerPort;
     }
@@ -147,10 +185,7 @@ public class PhoneDefaults {
     public void setPhoneDefaults(Phone phone) {
         PhoneSettings settings = (PhoneSettings) phone.getAdapter(PhoneSettings.class);
         if (settings != null) {
-            settings.setOutboundProxy(m_outboundProxy);
-            if (!defaultSipPort(m_outboundProxyPort)) {
-                settings.setOutboundProxyPort(m_outboundProxyPort);
-            }
+            settings.setOutboundProxy(m_domainName);
             settings.setTftpServer(m_tftpServer);
             String voiceMail = getVoiceMail();
             if (StringUtils.isNotBlank(voiceMail)) {
@@ -175,10 +210,7 @@ public class PhoneDefaults {
         LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
         if (settings != null) {
             settings.setDomainName(m_domainName);
-            settings.setRegistrationServer(m_registrationServer);
-            if (!defaultSipPort(m_registrationServerPort)) {
-                settings.setRegistrationServerPort(m_registrationServerPort);
-            }
+            settings.setRegistrationServer(m_domainName);
             if (user != null) {
                 settings.setAuthorizationId(user.getUserName());
                 settings.setUserId(user.getUserName());
@@ -208,4 +240,11 @@ public class PhoneDefaults {
         return uri;
     }
 
+    public String getFullyQualifiedDomainName() {
+        return m_fullyQualifiedDomainName;
+    }
+
+    public void setFullyQualifiedDomainName(String fullyQualifiedDomainName) {
+        m_fullyQualifiedDomainName = fullyQualifiedDomainName;
+    }
 }

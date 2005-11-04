@@ -11,11 +11,12 @@
 <!ELEMENT label (#PCDATA)>
 <!ELEMENT model (type*,group+)>
 <!ELEMENT profileName (#PCDATA)>
-<!ELEMENT setting (label?,profileName?,type?,value,description?)>
+<!ELEMENT setting (label?,profileName?,type?,value?,description?)>
 <!ATTLIST setting 
   name NMTOKEN #REQUIRED
   advanced %flag; "no"
-  hidden %flag; "no">
+  hidden %flag; "no"
+  copy-of NMTOKEN #IMPLIED>
 
 <!ELEMENT value (#PCDATA)>
 

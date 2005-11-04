@@ -34,8 +34,8 @@
 	  - C O M P O N E N T S
 	  -->
     
-    <component id="addUser" type="PageLink">
-        <static-binding name="page" value="NewUser"/>
+    <component id="addUser" type="DirectLink">
+        <binding name="listener" expression="listeners.addUser"/>
     </component>
 	<component id="userManagement" type="Form">
         <binding name="delegate" expression="beans.validator"/>

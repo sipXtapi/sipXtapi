@@ -42,8 +42,7 @@ public class PhoneTestDriver {
         
         defaults = new PhoneDefaults();
         defaults.setDomainName("sipfoundry.org");
-        defaults.setOutboundProxy("proxy.sipfoundry.org");
-        defaults.setRegistrationServer("registrar.sipfoundry.org");
+        defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
         defaults.setTftpServer("tftp.sipfoundry.org");
 
         phoneContextControl = MockControl.createNiceControl(PhoneContext.class);
@@ -75,7 +74,7 @@ public class PhoneTestDriver {
 
         sipControl = MockControl.createStrictControl(SipService.class);
         sip = (SipService) sipControl.getMock();
-        sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "registrar.sipfoundry.org", null, "juser");
+        sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "sipfoundry.org", null, "juser");
         sipControl.replay();
         _phone.setSipService(sip);
 

@@ -482,7 +482,7 @@
 	    </setting>
 	    <setting name="address">
 	      <type><!-- a valid host name or IP address --></type>
-	      <value>clock</value>
+	      <value>pool.ntp.org</value>
 	      <description>Address of the SNTP server.</description>
 	    </setting>
 	    <setting name="gmtOffset">

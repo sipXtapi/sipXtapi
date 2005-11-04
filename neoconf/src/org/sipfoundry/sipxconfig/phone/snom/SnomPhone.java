@@ -32,6 +32,8 @@ public class SnomPhone extends Phone {
     public static final String USER_HOST = "line/user_host";
     
     public static final String MAILBOX = "line/user_mailbox";
+    
+    public static final String OUTBOUND_PROXY = "sip/user_outbound";
 
     public SnomPhone() {
         super(BEAN_ID);
@@ -142,6 +144,10 @@ public class SnomPhone extends Phone {
             // break MWI subscription because SUBSCRIBE message fails 
             // authentication unless this value is user's username
             line.getSettings().getSetting(MAILBOX).setValue(user.getUserName());
+
+            // XPB-398 This forces TCP, this is defined in conjunction with "transport=udp"
+            // This is benign w/o SRV, but required w/SRV
+            line.getSettings().getSetting(OUTBOUND_PROXY).setValue(defaults.getFullyQualifiedDomainName());
         }
     }    
         

@@ -42,10 +42,15 @@ public class EmergencyRule extends DialingRule {
 
     public Transform[] getStandardTransforms() {
         List gateways = getGateways();
+        if (gateways.size() <= 0) {
+            return new Transform[0];
+        }
         List transforms = new ArrayList(gateways.size());
+        ForkQueueValue q = new ForkQueueValue(gateways.size());
         for (Iterator i = gateways.iterator(); i.hasNext();) {
             Gateway gateway = (Gateway) i.next();
-            String url = "sip:" + m_emergencyNumber + "@" + gateway.getAddress();
+            String url = "<sip:" + m_emergencyNumber + "@" + gateway.getAddress() + ">;"
+                    + q.getSerial();
             UrlTransform transform = new UrlTransform();
             transform.setUrl(url);
             transforms.add(transform);
