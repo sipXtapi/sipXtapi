@@ -166,7 +166,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
             // temporary dummy code to fight checkstyle warnings about this prop not being read yet
             if (m_aliasManager != null) {
-                System.out.println("wow!");
+                result = null;  // intentional noop
             }
             
             // Check the username. If it is the username or alias for a different existing
