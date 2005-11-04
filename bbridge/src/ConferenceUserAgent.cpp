@@ -240,20 +240,28 @@ ConferenceUserAgent::onOffer(resip::InviteSessionHandle h,
    Participant* part = dynamic_cast<Participant*>(h->getAppDialogSet().get());
    assert(mConferences.count(aor));
    assert(part);
-
-   resip::SdpContents answer;
-   part->accept(offer, answer); // answer is returned
-   InfoLog (<< "Accepting offer with " << answer);
-   h->provideAnswer(answer);
    
    resip::ServerInviteSession *sis =
      dynamic_cast<resip::ServerInviteSession*>(h.get());
    assert(sis);
 
-   if (h->isAccepted())
+   if (!h->isAccepted())
    {
+      resip::SdpContents answer;
+      part->accept(offer, answer); // answer is returned
+      InfoLog (<< "Accepting offer with " << answer);
+      h->provideAnswer(answer);
+
       InfoLog (<< "Accepting ");
       sis->accept();
+   }
+   else
+   {
+       // Re-invite - should probably be passed to Participant, incase SDP has changed
+       // for now just assume a re-invite is only for session refresh and SDP has not changed
+       // TODO
+       h->provideAnswer(sis->getLocalSdp());
+       InfoLog (<< "providing Answer to reInvite");
    }
 }
 
