@@ -21,7 +21,13 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 /**
  * BeanWithId - simplify implementation of the model layer
  * 
- * Hibernate advises against using object identifiers in equals and hashCode methods
+ * Hibernate advises against using object IDs in equals and hashCode methods, as we do below.
+ * See http://www.hibernate.org/109.html .  However, we disagree.  It's true that using the
+ * ID means that an unsaved object (with ID = -1) doesn't have a unique identity and that can
+ * cause problems.  However, if you use "business keys" like, for example, the object name,
+ * in the equals and hashcode methods, then the object identity changes if you change the 
+ * values of those keys, which is also bad.  We feel that the unsaved object problems are
+ * easier to deal with.  
  */
 public class BeanWithId implements Cloneable, PrimaryKeySource {
     public static final Integer UNSAVED_ID = new Integer(-1);
@@ -46,7 +52,7 @@ public class BeanWithId implements Cloneable, PrimaryKeySource {
     public Integer getId() {
         return m_id;
     }
-
+    
     /**
      * Checks if the object has been saved to the database Works because hibernate changes id when
      * the object is saved

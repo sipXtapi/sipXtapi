@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.admin;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 public class NameInUseException extends UserException {
-    private static final String ERROR = "There is already a {0} with the name \"{1}\". "
+    private static final String ERROR = "The name \"{1}\" is already being used by a user or service.  "
             + "Please choose another name for this {0}.";
 
     public NameInUseException(String objectType, String name) {

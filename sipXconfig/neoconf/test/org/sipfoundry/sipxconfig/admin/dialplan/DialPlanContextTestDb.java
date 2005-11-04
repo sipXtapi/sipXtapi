@@ -169,14 +169,14 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         assertFalse(m_context.isAliasInUse("200"));     // a random extension that should not be in use
     }
 
-    public void testGetObjectsWithAlias() throws Exception {
+    public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        assertTrue(m_context.getObjectsWithAlias("test attendant in use").size() == 1);    // auto attendant name
-        assertTrue(m_context.getObjectsWithAlias("1234").size() == 1);     // auto attendant extension
-        assertTrue(m_context.getObjectsWithAlias("alias1").size() == 1);   // auto attendant alias
-        assertTrue(m_context.getObjectsWithAlias("alias2").size() == 1);   // auto attendant alias
-        assertTrue(m_context.getObjectsWithAlias("100").size() == 1);      // voicemail extension
-        assertTrue(m_context.getObjectsWithAlias("200").size() == 0);     // a random extension that should not be in use        
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("test attendant in use").size() == 1);    // auto attendant name
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1234").size() == 1);     // auto attendant extension
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("alias1").size() == 1);   // auto attendant alias
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("alias2").size() == 1);   // auto attendant alias
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("100").size() == 1);      // voicemail extension
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("200").size() == 0);     // a random extension that should not be in use        
     }
 
 }

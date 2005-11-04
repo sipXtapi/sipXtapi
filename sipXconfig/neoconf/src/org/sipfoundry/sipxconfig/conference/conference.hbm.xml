@@ -77,8 +77,4 @@
     <![CDATA[select conf.id from Conference conf where conf.name = :value or conf.extension = :value]]>
   </query>
   
-  <query name="conferencesWithAlias">
-    <![CDATA[select conf from Conference conf where conf.name = :value or conf.extension = :value]]>
-  </query>
-  
 </hibernate-mapping>

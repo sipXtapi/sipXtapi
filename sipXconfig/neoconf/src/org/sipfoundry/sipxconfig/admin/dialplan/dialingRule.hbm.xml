@@ -128,16 +128,16 @@
     <![CDATA[select dr.id from DialingRule dr where dr.name = :value]]>
   </query>  
 	  
-  <query name="internalRulesWithVoiceMailExtension">
-    <![CDATA[select ir from InternalRule ir where ir.voiceMail = :value]]>
-  </query>  
-	  
   <query name="internalRuleIdsWithVoiceMailExtension">
     <![CDATA[select ir.id from InternalRule ir where ir.voiceMail = :value]]>
   </query>  
 	  
   <query name="aaAliases">
     <![CDATA[select ir.aaAliases from InternalRule ir]]>
+  </query>  
+	  
+  <query name="internalRuleIdsAndAaAliases">
+    <![CDATA[select ir.id, ir.aaAliases from InternalRule ir]]>
   </query>  
 
 </hibernate-mapping>

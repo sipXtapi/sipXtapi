@@ -34,7 +34,6 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext,
         ApplicationListener, DaoEventListener {
@@ -45,8 +44,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private static final String VALUE = "value";
     /** nothing special about this name */
     private static final String ADMIN_GROUP_NAME = "administrators";
-    private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
     private static final String QUERY_USER_BY_NAME_OR_ALIAS = "userByNameOrAlias";
+    private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
     private static final String QUERY_USER = "from User";
 
     private String m_authorizationRealm;
@@ -153,39 +152,27 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
      * @return name that collides
      */
     public String checkForDuplicateNameOrAlias(User user) {
-        HibernateTemplate hibernate = getHibernateTemplate();
         String result = null;
 
         // Check for duplication within the user itself
         List names = new ArrayList(user.getAliases());
-        names.add(user.getUserName());
+        String userName = user.getUserName();
+        names.add(userName);
         result = checkForDuplicateString(names);
         if (result == null) {
-            // If this User is unsaved, then ask the AliasManager if this user's names
-            // DO_NOW: continue: change this code to call AliasManager instead of DaoUtils
-
-            // temporary dummy code to fight checkstyle warnings about this prop not being read yet
-            if (m_aliasManager != null) {
-                result = null;  // intentional noop
-            }
-            
-            // Check the username. If it is the username or alias for a different existing
-            // user, then return it as a bad name.
-            if (DaoUtils.checkDuplicatesByNamedQuery(hibernate, user,
-                    QUERY_USER_IDS_BY_NAME_OR_ALIAS, user.getUserName(), null)) {
-                result = user.getUserName();
+            // Check whether the userName is a duplicate.
+            if (!m_aliasManager.canObjectUseAlias(user, userName)) {
+                result = userName;
             } else {
                 // Check the aliases and return any duplicate as a bad name.
-                // 
                 for (Iterator iter = user.getAliases().iterator(); iter.hasNext();) {
                     String alias = (String) iter.next();
-                    if (DaoUtils.checkDuplicatesByNamedQuery(hibernate, user,
-                            QUERY_USER_IDS_BY_NAME_OR_ALIAS, alias, null)) {
+                    if (!m_aliasManager.canObjectUseAlias(user, alias)) {
                         result = alias;
                         break;
                     }
-                }
-            }
+                }                
+            }           
         }
 
         return result;
@@ -405,10 +392,11 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         return CollectionUtils.safeSize(objs) > 0;
     }
     
-    public Collection getObjectsWithAlias(String alias) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_USER_BY_NAME_OR_ALIAS, VALUE, alias);
-        return objs;
+    public Collection getBeanIdsOfObjectsWithAlias(String alias) {
+        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_USER_IDS_BY_NAME_OR_ALIAS, VALUE, alias);
+        Collection bids = BeanId.createBeanIdCollection(ids, User.class);
+        return bids;
     }
     
     public void addToGroup(Integer groupId, Collection ids) {

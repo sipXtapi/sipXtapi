@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
+import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -31,7 +32,6 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
     private static final String EXTENSION_PROP_NAME = "extension";
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
-    private static final String QUERY_PARK_ORBITS_WITH_ALIAS = "parkOrbitsWithAlias";
 
     private SipxReplicationContext m_replicationContext;
     private Orbits m_orbitsGenerator;
@@ -111,10 +111,11 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         return CollectionUtils.safeSize(objs) > 0;        
     }
     
-    public Collection getObjectsWithAlias(String alias) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_PARK_ORBITS_WITH_ALIAS, VALUE, alias);
-        return objs;
+    public Collection getBeanIdsOfObjectsWithAlias(String alias) {
+        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                QUERY_PARK_ORBIT_IDS_WITH_ALIAS, VALUE, alias);
+        Collection bids = BeanId.createBeanIdCollection(ids, ParkOrbit.class);
+        return bids;        
     }
 
     /**
