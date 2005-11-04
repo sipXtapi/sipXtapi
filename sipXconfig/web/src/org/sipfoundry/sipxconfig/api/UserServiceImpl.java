@@ -18,6 +18,9 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 
 public class UserServiceImpl implements UserService {
     
+    /** TODO: Remove this */
+    private static final int PAGE_SIZE = 1000;
+    
     private CoreContext m_coreContext;
     
     public void setCoreContext(CoreContext coreContext) {
@@ -33,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
     public User[] findUser(FindUser findUser) throws RemoteException {
         List users = m_coreContext.loadUsersByPage(findUser.getByName(), 
-                null, 0, 1000, null, true);
+                null, 0, PAGE_SIZE, null, true);
         
         User[] arrayOfUsers = new User[users.size()];
         for (int i = 0; i < users.size(); i++) {
