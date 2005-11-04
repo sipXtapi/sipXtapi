@@ -47,6 +47,11 @@ public final class ScheduledDay extends Enum {
         }
     }
 
+    /** Map the day ID string to a ScheduledDay object */
+    public static ScheduledDay getScheduledDay(String id) {
+        return (ScheduledDay) getEnum(ScheduledDay.class, id);
+    }
+
     /**
      * @return example Calendar.SATURDAY
      */

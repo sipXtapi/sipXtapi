@@ -101,10 +101,10 @@
 	        <description>Subnet mask byte 4</description>
 	      </setting>
 	      <setting name="__Router-17">
-	        <label>Subnet mask</label>
+	        <label>Router</label>
 	        <type><ipaddr/></type>
 	        <value></value>
-	        <description>Ignore if DHCP or PPPoE is used</description>
+	        <description>Otherwise known as "Gateway", Ignore if DHCP or PPPoE is used</description>
               </setting>
 	      <setting name="P17" hidden="yes">
 	        <label>Router byte 1</label>

@@ -17,9 +17,9 @@ public class PhoneDefaultsTest extends TestCase {
     
     public void testGetProfileRotUrl() {
         PhoneDefaults defaults = new PhoneDefaults();
-        defaults.setDomainName("sipfoundry.org");
+        defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
         String actual = defaults.getProfileRootUrl();
-        assertEquals("http://sipfoundry.org:8090/phone/profile/docroot", actual);
+        assertEquals("http://pbx.sipfoundry.org:8090/phone/profile/docroot", actual);
         
         String expected = "http://blah/profile";
         defaults.setProfileRootUrl(expected);

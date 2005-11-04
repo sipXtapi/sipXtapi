@@ -24,36 +24,36 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Common utility methods for unit testing with neoconf. Somewhat controversial being in codebase,
- * however unit test library is uglier IMHO.
+ * however unit test library would be uglier, IMHO.
  */
 public final class TestUtil {
-    
+
     private static final String EOL = System.getProperty("line.separator");
-    
+
     private static final String FORWARD_SLASH = "/";
 
     private TestUtil() {
         // empty - to prevent instantiation
     }
-    
+
     public static final boolean isWindows() {
-        return File.separatorChar == '\\';        
+        return File.separatorChar == '\\';
     }
-    
+
     /**
-     * Change "\n" the the native end-of-line char.  On unix, this
-     * does nothing on windows, this add "\r\n"
+     * Change "\n" the the native end-of-line char. On unix, this does nothing on windows, this
+     * add "\r\n"
      */
     public static final String cleanEndOfLines(String s) {
         String clean = s.replaceAll("\n", EOL);
         return clean;
     }
-    
+
     public static final String currentDrive() {
         if (!isWindows()) {
             return "";
         }
-        
+
         String drive = new File(FORWARD_SLASH).getAbsolutePath().substring(0, 2);
         return drive;
     }
@@ -82,10 +82,10 @@ public final class TestUtil {
      * but when you need a filename use this. Example:
      * 
      * <pre>
-     *  
-     *   # Test file in same directory as JUnit test source file 
-     *   String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
-     *   
+     *      
+     *       # Test file in same directory as JUnit test source file 
+     *       String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
+     *       
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
@@ -126,9 +126,9 @@ public final class TestUtil {
     }
 
     /**
-     * Create a sysdir.properties file in the classpath.  Uses a trick that will only work if
-     * unit tests are unjar-ed.  We could do this in ant, but this approach avoids setup and works
-     * in IDEs like Eclipse where bin.eclipse is the classpath.
+     * Create a sysdir.properties file in the classpath. Uses a trick that will only work if unit
+     * tests are unjar-ed. We could do this in ant, but this approach avoids setup and works in
+     * IDEs like Eclipse where bin.eclipse is the classpath.
      */
     public static void setSysDirProperties(Properties sysProps, String etcDirectory,
             String outputDirectory) {
@@ -146,13 +146,16 @@ public final class TestUtil {
         sysProps.setProperty("phoneDefaults.registrationServer", "registrar.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
-        sysProps.setProperty("phoneDefaults.domainName", domainName);        
+        sysProps.setProperty("phoneDefaults.domainName", domainName);
+        sysProps.setProperty("phoneDefaults.fullyQualifiedDomainName", "pbx." + domainName);
         sysProps.setProperty("sipxServer.domainName", domainName);
         sysProps.setProperty("dataSource.jdbcUrl", "jdbc:postgresql://localhost/SIPXCONFIG_TEST");
         sysProps.setProperty("adminContextImpl.backupDirectory", outputDirectory + "/backup");
         sysProps.setProperty("coreContextImpl.authorizationRealm", realm);
-        sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory + "/parkserver/music");
-        sysProps.setProperty("replicationTrigger.replicateOnStartup", "false");
+        sysProps.setProperty("orbitsGenerator.audioDirectory", outputDirectory
+                + "/parkserver/music");
+        sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
+        sysProps.setProperty("whacker.enabled", Boolean.toString(false));
     }
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

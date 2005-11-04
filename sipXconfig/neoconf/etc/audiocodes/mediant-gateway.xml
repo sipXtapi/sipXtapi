@@ -6,6 +6,9 @@
   <type id="port-number">
     <integer required="yes" min="1024" max="65534"/>
   </type>		
+  <type id="optional-port-number">
+    <integer min="1024" max="65534"/>
+  </type>		  
 	<group name="SYSTEM_Params">
 		<label>System</label>
 		<profileName>SYSTEM Params</profileName>
@@ -77,7 +80,7 @@
     </setting>
     <setting name="SIPDESTINATIONPORT" advanced="yes">
 			<label>SIP Proxy Port</label>
-			<type refid="port-number"/>
+			<type refid="optional-port-number"/>
 			<value>5060</value>
 			<description>Domain name used by the gateway name.</description>
 		</setting>
@@ -103,6 +106,38 @@
       </type>
       <value>1-8,100,0</value>
     </setting>
+    <setting name="TARGETOFCHANNEL0" advanced="yes">
+      <label>Automatic dialing port 0</label>
+      <type>
+        <string required="yes">
+          <pattern>\d+,[01]</pattern>
+        </string>
+      </type>
+      <value>100,1</value>
+      <description>Automactic dialing for this port. Enter destination phone number followed by comma and 1 if
+        automatic should be enabled, or zero if it should be disabled.</description>
+    </setting>
+    <setting name="TARGETOFCHANNEL1" copy-of="TARGETOFCHANNEL0">
+      <label>Automatic dialing port 1</label>      
+    </setting>
+    <setting name="TARGETOFCHANNEL2" copy-of="TARGETOFCHANNEL0">
+      <label>Automatic dialing port 2</label>      
+    </setting>
+    <setting name="TARGETOFCHANNEL3" copy-of="TARGETOFCHANNEL0">
+      <label>Automatic dialing port 3</label>      
+    </setting>
+    <setting name="TARGETOFCHANNEL4" copy-of="TARGETOFCHANNEL0">
+      <label>Automatic dialing port 4</label>      
+    </setting>
+    <setting name="TARGETOFCHANNEL5" copy-of="TARGETOFCHANNEL0">
+      <label>Automatic dialing port 5</label>      
+    </setting>
+    <setting name="TARGETOFCHANNEL6" copy-of="TARGETOFCHANNEL0">
+      <label>Automatic dialing port 6</label>      
+    </setting>
+    <setting name="TARGETOFCHANNEL7" copy-of="TARGETOFCHANNEL0">
+      <label>Automatic dialing port 7</label>      
+    </setting>    
     <setting name="MAXDIGITS">
       <label>Maximum Digits</label>
       <type>

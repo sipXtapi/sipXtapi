@@ -242,7 +242,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         super.defaultSettings();
         PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
         getSettings().getSetting(PHONE_REGISTRATION_SETTING).setValue(
-                defaults.getRegistrationServer());
+                defaults.getDomainName());
     }
 
     public String getSoftwareUpgradeConfig() {
