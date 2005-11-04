@@ -1,6 +1,6 @@
 <!-- Delegating build script, used by cruisecontrol to build sipXconfig.
      Note that the basedir is set to the checked out project -->
-<project name="build-sipXconfig" default="build" basedir="projects/sipXconfig">
+<project name="build-sipXconfig" default="build" basedir="..">
 	<target name="build">
 		<!-- Get the latest from SVN -->
 		<exec executable="/usr/bin/svn">
