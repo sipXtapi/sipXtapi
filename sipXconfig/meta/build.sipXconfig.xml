@@ -13,6 +13,7 @@
 		</ant>
 		<ant antfile="build.xml" target="style"/>
 		<ant antfile="build.xml" target="test-all"/>
+		<ant antfile="build.xml" target="test-report"/>
 		<ant antfile="build.xml" target="clover.report"/>
 	</target>
 </project>
