@@ -23,7 +23,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
+    <page name="ListBridges" specification-path="conference/ListBridges.page"/>    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
     <page name="ChangePin" specification-path="user_portal/ChangePin.page"/>
@@ -88,6 +88,7 @@
     <component-type type="AdminNavigation" specification-path="common/AdminNavigation.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>
+    <component-type type="BridgesPanel" specification-path="conference/BridgesPanel.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
 	<component-type type="CancelButton" specification-path="common/CancelButton.jwc"/>
     <component-type type="ConferencesPanel" specification-path="conference/ConferencesPanel.jwc"/>
@@ -110,7 +111,6 @@
     <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>
     <component-type type="MusicOnHoldForm" specification-path="admin/MusicOnHoldForm.jwc"/>
     <component-type type="OptionalElement" specification-path="common/OptionalElement.jwc"/>
-    <component-type type="ParticipantsPanel" specification-path="conference/ParticipantsPanel.jwc"/>
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneLabel" specification-path="phone/PhoneLabel.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>

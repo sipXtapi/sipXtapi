@@ -19,8 +19,6 @@
     
     <property-specification name="conference" type="org.sipfoundry.sipxconfig.conference.Conference"/>
     
-    <property-specification name="newUsersIds" type="java.util.Collection"/>
-    
     <property-specification name="changed" type="boolean"/>
             
     <!--
@@ -44,13 +42,6 @@
         <binding name="renderGroupTitle" expression="false"/>
     </component>
 
-    <component id="participantsPanel" type="ParticipantsPanel">
-        <binding name="participants" expression="conference.participants"/>
-        <binding name="addListener" expression="listeners.addParticipant"/>
-        <binding name="selectListener" expression="listeners.editParticipant"/>
-        <binding name="changed" expression="changed"/>
-    </component>
-    
     <component id="formActions" type="FormActions">
         <binding name="listener" expression="listeners.apply"/>
         <binding name="callback" expression="callback"/>
