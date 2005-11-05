@@ -15,6 +15,8 @@ import java.rmi.RemoteException;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public class UserServiceImpl implements UserService {
     
@@ -23,38 +25,57 @@ public class UserServiceImpl implements UserService {
     
     private CoreContext m_coreContext;
     
+    private SettingDao m_settingDao;
+    
+    private UserBuilder m_userBuilder;
+    
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
     
-    public void addUser(AddUser addUser) throws RemoteException {
-        org.sipfoundry.sipxconfig.common.User u = new org.sipfoundry.sipxconfig.common.User();
-        User ut = addUser.getUser();
-        fromSoap(u, ut);
-        m_coreContext.saveUser(u);
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
     }
 
-    public User[] findUser(FindUser findUser) throws RemoteException {
-        List users = m_coreContext.loadUsersByPage(findUser.getByName(), 
+    public void setUserBuilder(UserBuilder userTranslater) {
+        m_userBuilder = userTranslater;
+    }
+    
+    public void addUser(AddUser addUser) throws RemoteException {
+        org.sipfoundry.sipxconfig.common.User neoUser = new org.sipfoundry.sipxconfig.common.User();
+        User soapUser = addUser.getUser();        
+        m_userBuilder.fromApi(soapUser, neoUser);
+        String[] groups = addUser.getGroup();
+        String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
+        for (int i = 0; groups != null && i < groups.length; i++) {
+            Group g = m_settingDao.getGroupByName(resourceId, groups[i]);
+            // convienence: create group if not found
+            if (g == null) {
+                g = new Group();
+                g.setResource(resourceId);
+                g.setName(groups[i]);
+                m_settingDao.saveGroup(g);
+            }
+            neoUser.addGroup(g);
+        }
+        m_coreContext.saveUser(neoUser);
+    }
+
+    public FindUserResponse findUser(FindUser findUser) throws RemoteException {
+        FindUserResponse response = new FindUserResponse();
+        List users = m_coreContext.loadUsersByPage(findUser.getByName(),
                 null, 0, PAGE_SIZE, null, true);
         
         User[] arrayOfUsers = new User[users.size()];
         for (int i = 0; i < users.size(); i++) {
-            org.sipfoundry.sipxconfig.common.User u = (org.sipfoundry.sipxconfig.common.User) users.get(i);
+            org.sipfoundry.sipxconfig.common.User neoUser = (org.sipfoundry.sipxconfig.common.User) users.get(i);
             arrayOfUsers[i] = new User();
-            toSoap(u, arrayOfUsers[i]);
+            m_userBuilder.toApi(arrayOfUsers[i], neoUser);
         }
+        response.setUsers(arrayOfUsers);
         
-        return arrayOfUsers;
-    }    
-    
-    void toSoap(org.sipfoundry.sipxconfig.common.User from, User to) {
-        to.setUserName(from.getUserName());
-        to.setPintoken(from.getPintoken());        
+        return response;
     }
-    
-    void fromSoap(org.sipfoundry.sipxconfig.common.User to, User from) {
-        to.setUserName(from.getUserName());
-        to.setPin(from.getPin(), m_coreContext.getAuthorizationRealm());                
-    }
+        
+      
 }

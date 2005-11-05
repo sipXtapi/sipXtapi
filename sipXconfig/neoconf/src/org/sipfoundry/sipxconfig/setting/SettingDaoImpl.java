@@ -11,10 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -91,6 +93,22 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         String query = "groupsByResourceAndName";
         List groups = getHibernateTemplate().findByNamedQueryAndNamedParam(query, params, values);
         return (Group) DaoUtils.requireOneOrZero(groups, query);
+    }
+
+    public String getGroupsAsString(List groups) {
+        String groupsString = StringUtils.join(groups.iterator(), ", ");
+        return groupsString;
+    }
+
+    public List getGroupsByString(String resource, String groupString) {
+        String[] groupNames = groupString.split(",\\w");
+        List groups = new ArrayList(groupNames.length);
+        for (int i = 0; i < groupNames.length; i++) {
+            Group g = getGroupByName(resource, groupNames[i]);
+            groups.add(g);
+        }
+        
+        return groups;            
     }
 
     public Group loadGroup(Integer id) {

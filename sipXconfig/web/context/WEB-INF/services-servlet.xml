@@ -5,9 +5,15 @@
 
 <bean id="UserService" class="org.sipfoundry.sipxconfig.api.UserServiceImpl">
 	<property name="coreContext" ref="coreContext"/>
+	<property name="userBuilder" ref="userBuilder"/>
+	<property name="settingDao" ref="settingDao"/>
 </bean>
 
 <bean id="TestService" class="org.sipfoundry.sipxconfig.api.TestServiceImpl">
+	<property name="coreContext" ref="coreContext"/>
+</bean>
+
+<bean id="userBuilder" class="org.sipfoundry.sipxconfig.api.UserBuilder">
 	<property name="coreContext" ref="coreContext"/>
 </bean>
 

@@ -40,5 +40,11 @@ public class CollectionUtilsTest extends TestCase {
         iter = CollectionUtils.safeIterator(nonEmptyCollection);
         assertTrue(iter.hasNext());
     }
-
+    
+    public void testSplitString() {
+        String[] actual = CollectionUtils.splitString("one, two ");
+        assertEquals(2, actual.length);
+        assertEquals("one", actual[0]);
+        assertEquals("two", actual[1]);
+    }
 }
