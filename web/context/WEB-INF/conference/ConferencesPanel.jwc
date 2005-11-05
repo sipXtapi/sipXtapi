@@ -36,7 +36,10 @@
     
     <property-specification name="conferenceBridgeContext" type="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext" 
     	initial-value="page.global.conferenceBridgeContext"/>
-    
+
+    <property-specification name="coreContext" type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="page.global.coreContext"/>
+        
 	<property-specification name="rowsToDelete" type="java.util.Collection"/>    
 	<property-specification name="action" type="org.apache.tapestry.IActionListener"/>
     <property-specification name="currentRow"/>
@@ -60,21 +63,14 @@
         <message-binding name="value" key="button.delete"/>
     </component>
 
-    <component id="tableView" type="contrib:TableView">
-        <binding name="source" expression="conferences"/>
-        <static-binding name="pageSize" value="-1"/>              
+    <component id="tableView" type="Table">
         <static-binding name="columns" value="* name:name,extension:extension,description:description"/>
-    </component>    
-    
-    <component id="tableColumns" type="contrib:TableColumns"/>
-    
-    <component id="tableRows" type="contrib:TableRows">
-		<binding name="class" expression="beans.rowClass.next"/>
+        <binding name="source" expression="conferences"/>
 		<binding name="row" expression="currentRow"/>
+        <binding name="selections" expression="selections"/>
+        <binding name="convertor" expression="idConverter"/>
     </component>
 
-    <component id="tableValues" type="contrib:TableValues"/>
-        
 	<component id="nameColumnValue" type="Block"/>
     
     <component id="nameText" type="Insert">

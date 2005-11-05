@@ -12,9 +12,9 @@
 package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
-import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -46,14 +46,7 @@ public abstract class EditBridge extends PageWithCallback implements PageRenderL
         if (getBridgeId() != null) {
             bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
         } else {
-            // take the first bridge if available
-            List bridges = getConferenceBridgeContext().getBridges();
-            if (bridges.size() > 0) {
-                bridge = (Bridge) bridges.get(0);
-                setBridgeId(bridge.getId());
-            } else {
-                bridge = getConferenceBridgeContext().newBridge();
-            }
+            bridge = getConferenceBridgeContext().newBridge();
         }
         setBridge(bridge);
     }
@@ -91,5 +84,18 @@ public abstract class EditBridge extends PageWithCallback implements PageRenderL
                 .getServiceParameters(), 0);
         EditConference editConference = (EditConference) cycle.getPage(EditConference.PAGE);
         editConference.activate(cycle, new PageCallback(this), getBridgeId(), id);
+    }
+
+    /**
+     * Activate this page
+     * 
+     * @param cycle current cycle
+     * @param callback usually page callback to return to activating page
+     * @param bridgeId bridge identifier
+     */
+    public void activate(IRequestCycle cycle, ICallback callback, Serializable bridgeId) {
+        setBridgeId(bridgeId);
+        setCallback(callback);
+        cycle.activate(this);
     }
 }
