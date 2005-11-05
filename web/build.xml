@@ -410,8 +410,7 @@
   <!--
 	- Run web services unit tests
 	-->
-  <target name="test-api" depends="test-war,ruby-bindings" if="ruby-bindings-enabled"
-	description="Test web services">
+  <target name="start-web-server" depends="test-war">
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
       <classpath refid="base.path" />
       <classpath refid="test.path" />
@@ -419,12 +418,10 @@
       <classpath location="${log4j.jar}" />
       <classpath location="${sipxconfig-wsdl-generated.jar}" />
       <sysproperty key="basedir" value="${basedir}" />
-    </java>    
-	<property name="webservice-unittest-command" 
-		value="-I${wsdl.ruby.dir} -d ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
-    <exec executable="${ruby}" failonerror="true">
-      <arg line="${webservice-unittest-command}/UserServiceTestApi.rb"/>
-    </exec>    
+    </java>    	
+  </target>	
+
+  <target name="stop-web-server">
     <!-- shutdown incase other tests relying on web server need to run -->
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
       <classpath refid="base.path" />
@@ -435,6 +432,19 @@
       <sysproperty key="basedir" value="${basedir}" />
       <arg value="shutdown"/>
     </java>    
+  </target>	
+  
+  <target name="test-api" depends="start-web-server,test-api-run,stop-web-server" 
+	if="ruby-bindings-enabled"
+	description="Test web services"/>
+  
+  <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
+	description="Test web services with starting webserver">
+	<property name="webservice-unittest-command" 
+		value="-I${wsdl.ruby.dir} -d ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unittest-command}/UserServiceTestApi.rb"/>
+    </exec>    
   </target>
     
 </project>

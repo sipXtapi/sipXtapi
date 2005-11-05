@@ -18,7 +18,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
@@ -168,22 +167,9 @@ public class User extends BeanWithGroups {
 
     /** Set the aliases from a comma-delimited string */
     public void setAliasesString(String aliasesString) {
-        String[] aliases = aliasesArrayFromString(aliasesString);
+        String[] aliases = CollectionUtils.splitString(aliasesString);
         getAliases().clear();
         addAliases(aliases);
-    }
-
-    /**
-     * Given a comma-delimited string of aliases, return the aliases as a string array. Trim
-     * leading and trailing whitespace from each alias.
-     */
-    public static String[] aliasesArrayFromString(String aliasesString) {
-        if (StringUtils.isBlank(aliasesString)) {
-            return ArrayUtils.EMPTY_STRING_ARRAY;
-        }
-        String aliasesString2 = aliasesString.trim();
-        String[] aliases = aliasesString2.split("\\s*,\\s*");
-        return aliases;
     }
     
     /**
@@ -191,7 +177,7 @@ public class User extends BeanWithGroups {
      * leading and trailing whitespace from each group name
      */
     public static String[] groupNamesFromString(String groupString) {
-        return aliasesArrayFromString(groupString);
+        return CollectionUtils.splitString(groupString);
     }
 
     public String getUri(String domainName) {

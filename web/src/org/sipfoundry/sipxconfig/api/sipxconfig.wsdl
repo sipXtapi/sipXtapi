@@ -18,19 +18,33 @@
 					<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					<xsd:element name="pin" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="pintoken" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="lastName" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="firstName" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="displayName" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="aliases" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="sipPassword" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="id" type="xsd:string" nillable="true" maxOccurs="1"/>
 				</xsd:all>
 		    </xsd:complexType>				
 			<xsd:complexType name="ArrayOfUser">
 				<xsd:sequence>
-					<xsd:element name="user" type="tns:User" maxOccurs="unbounded"/>
+					<xsd:element name="user" type="tns:User" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 				</xsd:sequence>
 		    </xsd:complexType>
     		<!-- api support -->
+			<xsd:element name="FindUserResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="users" type="tns:ArrayOfUser" minOccurs="1" maxOccurs="1"/>						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>:
             <xsd:element name="AddUser">
 				<xsd:complexType>
-					<xsd:all>
+					<xsd:sequence>
 						<xsd:element name="user" type="tns:User" maxOccurs="1" minOccurs="1"/>
-					</xsd:all>
+						<xsd:element name="group" type="xsd:string" nillable="true" maxOccurs="unbounded"/>
+					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
 			<xsd:element name="FindUser">
@@ -50,7 +64,7 @@
 	</message>
 
 	<message name="findUserResponse">
-		<part name="result" type="tns:ArrayOfUser"/>
+		<part name="findUserResponse" element="tns:FindUserResponse"/>
     </message>
 	<message name="findUserRequest">
 		<part name="findUser" element="tns:FindUser"/>

@@ -15,6 +15,8 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.collections.iterators.EmptyIterator;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class CollectionUtils extends org.apache.commons.collections.CollectionUtils {
     
@@ -32,4 +34,16 @@ public class CollectionUtils extends org.apache.commons.collections.CollectionUt
         return coll != null ? coll.iterator() : EmptyIterator.INSTANCE;
     }
 
+    /**
+     * Given a comma-delimited string of names, return the names as a string array. Trim
+     * leading and trailing whitespace from each name.
+     */
+    public static String[] splitString(String delmittedString) {
+        if (StringUtils.isBlank(delmittedString)) {
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+        }
+        String delmittedClean = delmittedString.trim();
+        String[] split = delmittedClean.split("\\s*,\\s*");
+        return split;
+    }
 }
