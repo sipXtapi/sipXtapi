@@ -15,10 +15,14 @@ import java.io.Serializable;
 
 import org.hibernate.type.Type;
 
-public interface IndexManager {
+public interface Indexer {
     public String DEFAULT_FIELD = "all";
 
     void indexBean(Object bean, Serializable id, Object[] state, String[] fieldNames, Type[] types);
 
     void removeBean(Object bean, Serializable id);
+
+    void open();
+
+    void close();
 }

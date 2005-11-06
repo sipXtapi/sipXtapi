@@ -23,7 +23,7 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
-import org.sipfoundry.sipxconfig.search.BeanIndexer.Identity;
+import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -33,7 +33,7 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
 
     private Analyzer m_analyzer;
 
-    private BeanIndexer m_beanIndexer;
+    private BeanAdaptor m_beanAdaptor;
 
     public void setDirectory(Directory directory) {
         m_directory = directory;
@@ -43,8 +43,8 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
         m_analyzer = analyzer;
     }
 
-    public void setBeanIndexer(BeanIndexer beanIndexer) {
-        m_beanIndexer = beanIndexer;
+    public void setBeanAdaptor(BeanAdaptor beanAdaptor) {
+        m_beanAdaptor = beanAdaptor;
     }
 
     public Collection search(String queryText) {
@@ -59,7 +59,7 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
             Collection results = new ArrayList(hitCount);
             for (int i = 0; i < hitCount; i++) {
                 Document document = hits.doc(i);
-                Identity identity = m_beanIndexer.getBeanIdentity(document);
+                Identity identity = m_beanAdaptor.getBeanIdentity(document);
                 if (identity == null) {
                     continue;
                 }
@@ -75,7 +75,7 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
     private Hits getHits(String queryText) {
         IndexSearcher searcher = null;
         try {
-            QueryParser parser = new QueryParser(IndexManager.DEFAULT_FIELD, m_analyzer);
+            QueryParser parser = new QueryParser(Indexer.DEFAULT_FIELD, m_analyzer);
             Query query = parser.parse(queryText);
             searcher = new IndexSearcher(m_directory);
             return searcher.search(query);

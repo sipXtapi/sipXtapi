@@ -16,27 +16,19 @@ import java.io.Serializable;
 import org.hibernate.type.Type;
 import org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator;
 
-public class IndexingInterceptor extends SpringHibernateInstantiator {
+/**
+ * This is used to indexing on load
+ */
+public class LoadIndexingInterceptor extends SpringHibernateInstantiator {
     private Indexer m_indexer;
 
     public void setIndexer(Indexer indexer) {
         m_indexer = indexer;
     }
 
-    public boolean onSave(Object entity, Serializable id, Object[] state, String[] propertyNames,
+    public boolean onLoad(Object entity, Serializable id, Object[] state, String[] propertyNames,
             Type[] types) {
         m_indexer.indexBean(entity, id, state, propertyNames, types);
-        return false;
-    }
-
-    public void onDelete(Object entity, Serializable id, Object[] state_,
-            String[] propertyNames_, Type[] types_) {
-        m_indexer.removeBean(entity, id);
-    }
-
-    public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState,
-            Object[] previousState_, String[] propertyNames, Type[] types) {
-        m_indexer.indexBean(entity, id, currentState, propertyNames, types);
         return false;
     }
 }

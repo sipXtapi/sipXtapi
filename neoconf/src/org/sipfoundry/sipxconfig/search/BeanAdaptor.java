@@ -17,7 +17,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.hibernate.type.Type;
 
-public interface BeanIndexer {
+public interface BeanAdaptor {
 
     /**
      * @return true if the document should be added to index

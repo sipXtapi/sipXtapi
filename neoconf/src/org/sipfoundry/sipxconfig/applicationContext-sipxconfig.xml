@@ -148,7 +148,7 @@
   <bean id="springInstantiator"
     class="org.sipfoundry.sipxconfig.search.IndexingInterceptor">
     <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="indexManager" ref="indexManager"/>
+    <property name="indexer" ref="fastIndexer"/>
   </bean>
   <!--
   - Use this instead of 'hibernateInterceptor' when you want to

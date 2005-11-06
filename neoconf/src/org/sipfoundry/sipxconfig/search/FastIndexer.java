@@ -22,12 +22,12 @@ import org.apache.lucene.index.Term;
 import org.apache.lucene.store.Directory;
 import org.hibernate.type.Type;
 
-public class IndexManagerImpl implements IndexManager {
+public class FastIndexer implements Indexer {
     private Directory m_directory;
 
     private Analyzer m_analyzer;
 
-    private BeanIndexer m_beanIndexer;
+    private BeanAdaptor m_beanAdaptor;
 
     private boolean m_createIndex = true;
 
@@ -35,7 +35,7 @@ public class IndexManagerImpl implements IndexManager {
             Type[] types) {
         removeBean(bean, id);
         Document document = new Document();
-        if (!m_beanIndexer.documentFromBean(document, bean, id, state, fieldNames, types)) {
+        if (!m_beanAdaptor.documentFromBean(document, bean, id, state, fieldNames, types)) {
             return;
         }
         IndexWriter writer = null;
@@ -57,7 +57,7 @@ public class IndexManagerImpl implements IndexManager {
         IndexReader reader = null;
         try {
             reader = IndexReader.open(m_directory);
-            Term idTerm = m_beanIndexer.getIdentityTerm(bean, id);
+            Term idTerm = m_beanAdaptor.getIdentityTerm(bean, id);
             reader.delete(idTerm);
             reader.close();
         } catch (IOException e) {
@@ -76,7 +76,15 @@ public class IndexManagerImpl implements IndexManager {
         m_analyzer = analyzer;
     }
 
-    public void setBeanIndexer(BeanIndexer beanIndexer) {
-        m_beanIndexer = beanIndexer;
+    public void setBeanAdaptor(BeanAdaptor beanAdaptor) {
+        m_beanAdaptor = beanAdaptor;
+    }
+
+    public void open() {
+        // intentionally empty
+    }
+
+    public void close() {
+        // intentionally empty
     }
 }

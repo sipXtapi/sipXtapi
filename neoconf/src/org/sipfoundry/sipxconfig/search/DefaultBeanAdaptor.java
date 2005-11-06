@@ -24,12 +24,12 @@ import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public class DefaultBeanIndexer implements BeanIndexer {
-    private static final Log LOG = LogFactory.getLog(DefaultBeanIndexer.class);
+public class DefaultBeanAdaptor implements BeanAdaptor {
+    private static final Log LOG = LogFactory.getLog(DefaultBeanAdaptor.class);
 
     // keep it sorted - used in binary search
     private static final String[] FIELDS = {
-        "description", "extension", "firstName", "lastName", "name", "userName"
+        "extension", "firstName", "lastName", "name", "userName"
     };
 
     /**
@@ -48,11 +48,11 @@ public class DefaultBeanIndexer implements BeanIndexer {
             if (Arrays.binarySearch(FIELDS, fieldName) >= 0) {
                 // index all fields we know about
                 document.add(Field.Text(fieldName, (String) state[i]));
-                document.add(Field.UnStored(IndexManager.DEFAULT_FIELD, (String) value));
+                document.add(Field.UnStored(Indexer.DEFAULT_FIELD, (String) value));
                 addToIndex = true;
             } else if (types[i] instanceof StringType) {
                 // index all strings
-                document.add(Field.UnStored(IndexManager.DEFAULT_FIELD, (String) value));
+                document.add(Field.UnStored(Indexer.DEFAULT_FIELD, (String) value));
                 addToIndex = true;
             }
         }
