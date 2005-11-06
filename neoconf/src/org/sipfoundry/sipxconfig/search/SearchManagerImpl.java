@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.queryParser.ParseException;
@@ -24,6 +23,8 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.store.Directory;
+import org.sipfoundry.sipxconfig.search.BeanIndexer.Identity;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SearchManagerImpl extends HibernateDaoSupport implements SearchManager {
@@ -31,6 +32,8 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
     private Directory m_directory;
 
     private Analyzer m_analyzer;
+
+    private BeanIndexer m_beanIndexer;
 
     public void setDirectory(Directory directory) {
         m_directory = directory;
@@ -40,6 +43,10 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
         m_analyzer = analyzer;
     }
 
+    public void setBeanIndexer(BeanIndexer beanIndexer) {
+        m_beanIndexer = beanIndexer;
+    }
+
     public Collection search(String queryText) {
         Hits hits = getHits(queryText);
         return hits2beans(hits);
@@ -47,20 +54,20 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
 
     private Collection hits2beans(Hits hits) {
         try {
-            Collection results = new ArrayList();
-            for (int i = 0; i < hits.length(); i++) {
+            HibernateTemplate hibernate = getHibernateTemplate();
+            final int hitCount = hits.length();
+            Collection results = new ArrayList(hitCount);
+            for (int i = 0; i < hitCount; i++) {
                 Document document = hits.doc(i);
-                String docId = document.get("id");
-                String[] ids = StringUtils.split(docId, ':');
-                Class klass = Class.forName(ids[0]);
-                Integer id = Integer.valueOf(ids[1]);
-                Object found = getHibernateTemplate().load(klass, id);
+                Identity identity = m_beanIndexer.getBeanIdentity(document);
+                if (identity == null) {
+                    continue;
+                }
+                Object found = hibernate.load(identity.getBeanClass(), identity.getBeanId());
                 results.add(found);
             }
             return results;
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }

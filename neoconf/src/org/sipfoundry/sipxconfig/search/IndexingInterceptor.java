@@ -13,10 +13,10 @@ package org.sipfoundry.sipxconfig.search;
 
 import java.io.Serializable;
 
-import org.hibernate.EmptyInterceptor;
 import org.hibernate.type.Type;
+import org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator;
 
-public class IndexingInterceptor extends EmptyInterceptor {
+public class IndexingInterceptor extends SpringHibernateInstantiator {
     private IndexManager m_indexManager;
 
     public void setIndexManager(IndexManager indexManager) {
