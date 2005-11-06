@@ -112,6 +112,7 @@
         <value>org/sipfoundry/sipxconfig/gateway/gateway.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phone/phone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/setting/setting.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/domain/domain.hbm.xml</value>
       </list>
     </property>
     <property name="hibernateProperties">
@@ -125,6 +126,7 @@
       <list>
         <value>gwGeneric</value>
         <value>unmanagedPhone</value>
+        <value>unmanagedDomain</value>
       </list>
     </property>
     

@@ -21,6 +21,7 @@
         <value>classpath*:/org/sipfoundry/sipxconfig/phone/phone.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/domain/domain.beans.xml</value>
       </list>
     </constructor-arg>
   </bean>

@@ -1,0 +1,29 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+        <h2>Domains</h2>
+        <span jwcid="@ErrorMsg"/>
+		<form jwcid="domainManagement">
+			<ul class="component-links">
+				<li>
+					<a href="#" id="AddDomain" jwcid="addDomain">Add Domain</a>
+				</li>
+			</ul>
+			<table jwcid="domainTable" id="domain:list">
+                <span jwcid="domainColumnValue">
+                    <a href="#" jwcid="editDomain"><span jwcid="domainLabel">domain</span></a>
+                </span>
+			</table>
+			<ul class="component-submit">
+				<li>
+					<input id="domain:delete" jwcid="deleteDomains" value="Delete"
+                       onclick="return confirm('Are you sure you want to delete selected domains?')"/>
+				</li>
+			</ul>
+		</form>
+	</div>
+</body>
+</html>

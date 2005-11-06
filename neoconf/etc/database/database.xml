@@ -82,9 +82,10 @@
   </target>
 	
   <!-- List each dependency on a separate line below to make source control merging easier -->
-  <target name="version1" description="upgrade from version 1" unless="version2"
+  <target name="version1" description="upgrade from version 0" unless="version2"
     depends="
-      nop
+      nop,
+	  domain
 	  "/>
 
   <target name="schema" unless="schema">
@@ -191,6 +192,10 @@
       alter table phone drop constraint phone_description_key;
     </sipx-sql>
   </target>
+  
+  <target name="domain" unless="domain">
+	  <db-patch patch="domain"/>
+  </target>	
 
   <!--
     - SUPPORT UTILITIES

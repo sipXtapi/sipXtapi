@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean"
+     parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.domain.DomainManager</value>
+    </property>
+    <property name="target">
+      <ref local="domainManagerImpl"/>
+    </property>
+  </bean>
+
+  <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+
+  <bean id="unmanagedDomain"
+    class="org.sipfoundry.sipxconfig.domain.Domain" 
+    singleton="false">
+    <property name="settingModel">
+		  <bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
+			  <property name="resource" value="domain.xml"/>
+			  <property name="modelFilesContext" ref="modelFilesContext"/>    
+		  </bean>
+    </property>
+  </bean>	  
+
+  <bean id="sipxPbx"
+    class="org.sipfoundry.sipxconfig.admin.SipxPbx" 
+    singleton="false">
+    <property name="settingModel">
+		  <bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
+			  <property name="resource" value="commserver/server.xml"/>
+			  <property name="modelFilesContext" ref="modelFilesContext"/>    
+		  </bean>
+    </property>
+  </bean>
+		
+</beans>

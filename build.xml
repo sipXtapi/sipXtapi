@@ -46,6 +46,7 @@
     	<replacefilter token="@SIPX_TMPDIR@" value="${install.dir}/var/tmp"/>
         <replacefilter token="@RUBY@" value="/ruby/bin/ruby.exe"/>
         <replacefilter token="@WSDL2RUBY@" value="${top.dir}/web/meta/wsdl2ruby.rb"/>
+       <replacefilter token="@RUBY_BINDINGS_ENABLED@" value="ruby-bindings-enabled="/>
     </replace>
   </target> 
 

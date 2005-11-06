@@ -23,7 +23,9 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="ListBridges" specification-path="conference/ListBridges.page"/>    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
+    <page name="ManageDomains" specification-path="domain/ManageDomains.page"/>    
+    <page name="ListBridges" specification-path="conference/ListBridges.page"/>    
+    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
     <page name="ChangePin" specification-path="user_portal/ChangePin.page"/>

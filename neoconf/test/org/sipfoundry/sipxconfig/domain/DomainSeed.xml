@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
+<dataset>
+	<domain name="sipfoundry.org" bean_id="sipxPbx" domain_id="1001"/>
+	<domain name="fwd.org" bean_id="unmanagedDomain" domain_id="1002"/>
+</dataset>
