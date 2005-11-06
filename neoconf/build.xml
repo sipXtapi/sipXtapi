@@ -30,7 +30,6 @@
     <pathelement location="${commons-codec.jar}" />
 		<pathelement location="${commons-io.jar}" />
     <pathelement location="${xmlrpc.jar}" />
-    <pathelement location="${lucene.jar}"/>
 	</path>
 
 	<!-- 
@@ -53,6 +52,7 @@
 		<pathelement location="${jdbc-driver.jar}" />
 		<pathelement location="${odmg.jar}" />
 		<pathelement location="${ehcache.jar}" />
+    <pathelement location="${lucene.jar}"/>
 	</path>
 
 	<path id="base.path">
@@ -144,6 +144,7 @@
       <fileset file="${log4j.jar}" />
       <fileset file="${xmlrpc.jar}" />
       <fileset file="${antlr.jar}" />
+      <fileset file="${lucene.jar}" />      
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>
