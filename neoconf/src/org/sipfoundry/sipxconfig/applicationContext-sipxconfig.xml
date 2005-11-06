@@ -148,6 +148,7 @@
   <bean id="springInstantiator"
     class="org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator">
     <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="indexManager" ref="indexManager"/>
   </bean>
   <!--
   - Use this instead of 'hibernateInterceptor' when you want to

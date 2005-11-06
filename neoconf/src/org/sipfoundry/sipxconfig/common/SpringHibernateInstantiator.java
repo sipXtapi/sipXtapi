@@ -15,20 +15,22 @@ import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
+import org.sipfoundry.sipxconfig.search.IndexingInterceptor;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
- * Enables Spring to create the hibernate object.  Use to allow Spring to manage object dependencies
- * with hibernate All Interceptor methods, with the exception of instantiate, copied from
- * EmptyInterceptor
+ * Enables Spring to create the hibernate object. Use to allow Spring to manage object
+ * dependencies with hibernate.
+ * 
+ * Note: it inherits from IndexingInterceptor: only one interceptor can be registered with
+ * hibernate session.
  */
-public class SpringHibernateInstantiator extends EmptyInterceptor implements BeanFactoryAware {    
+public class SpringHibernateInstantiator extends IndexingInterceptor implements BeanFactoryAware {
     private static final Log LOG = LogFactory.getLog(SpringHibernateInstantiator.class);
     private ListableBeanFactory m_beanFactory;
     private SessionFactory m_sessionFactory;
@@ -56,7 +58,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
             }
         }
         return null;
-    }    
+    }
 
     /**
      * This can only be used withy listeable bean factory
@@ -64,12 +66,12 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
     }
-    
+
     public BeanFactory getBeanFactory() {
         return m_beanFactory;
     }
 
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
-    }    
+    }
 }

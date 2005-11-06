@@ -30,6 +30,7 @@
     <pathelement location="${commons-codec.jar}" />
 		<pathelement location="${commons-io.jar}" />
     <pathelement location="${xmlrpc.jar}" />
+    <pathelement location="${lucene.jar}"/>
 	</path>
 
 	<!-- 

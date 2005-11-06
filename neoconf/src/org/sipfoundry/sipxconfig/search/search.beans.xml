@@ -1,0 +1,26 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="indexDirectory" class="org.apache.lucene.store.RAMDirectory"/>
+  <bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
+  
+  <bean id="indexManager" class="org.sipfoundry.sipxconfig.search.IndexManagerImpl">
+  	<property name="directory" ref="indexDirectory"/>
+    <property name="analyzer" ref="analyzer"/>
+  </bean>
+  
+  <bean id="searchManagerImpl" class="org.sipfoundry.sipxconfig.search.SearchManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  	<property name="directory" ref="indexDirectory"/>  
+    <property name="analyzer" ref="analyzer"/>
+  </bean>
+  
+  <bean id="searchManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.search.SearchManager</value>
+    </property>
+    <property name="target">
+      <ref local="searchManagerImpl"/>
+    </property>
+  </bean>
+</beans>
