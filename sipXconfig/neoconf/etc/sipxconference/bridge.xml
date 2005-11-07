@@ -139,7 +139,7 @@
       <label>Background music</label>
       <type><!-- upload -->
       </type>
-      <value>exit.wav</value>
+      <value></value>
       <description> The audio file to be played when a call leg has been created but is not (for any reason)
         receiving the bridged conference audio (such as prior to the start of the conference). </description>
     </setting>

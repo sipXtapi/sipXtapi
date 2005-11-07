@@ -15,29 +15,34 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 
 public class Bridge extends BeanWithSettings implements NamedObject {
     public static final String BEAN_NAME = "conferenceBridge";
+
+    public static final String SIP_DOMAIN = "bridge-bridge/BOSTON_BRIDGE_SIP_DOMAIN";
 
     private boolean m_enabled;
 
     private String m_name;
 
     private String m_description;
-    
+
     private Set m_conferences = new HashSet();
-    
+
+    private PhoneDefaults m_systemDefaults;
+
     public void insertConference(Conference conference) {
         getConferences().add(conference);
         conference.setBridge(this);
     }
-    
+
     public void removeConference(Conference conference) {
         conference.setBridge(null);
         getConferences().remove(conference);
-    }    
-    
+    }
+
     // trivial get/set
     public String getDescription() {
         return m_description;
@@ -62,12 +67,20 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     public void setName(String name) {
         m_name = name;
     }
-    
+
     public Set getConferences() {
         return m_conferences;
     }
-    
+
     public void setConferences(Set conferences) {
         m_conferences = conferences;
+    }
+
+    public void setSystemDefaults(PhoneDefaults systemDefaults) {
+        m_systemDefaults = systemDefaults;
+    }
+
+    protected void defaultSettings() {
+        setSettingValue(SIP_DOMAIN, m_systemDefaults.getDomainName());
     }
 }

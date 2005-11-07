@@ -57,7 +57,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     }
 
     public Conference newConference() {
-        return (Conference) m_beanFactory.getBean(Conference.BEAN_NAME, Conference.class);
+        Conference conference = (Conference) m_beanFactory.getBean(Conference.BEAN_NAME,
+                Conference.class);
+        conference.generateAccessCodes();
+        return conference;
     }
 
     private Participant newParticipant() {
@@ -176,7 +179,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
                 CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
         return CollectionUtils.safeSize(confIds) > 0;
     }
-    
+
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
