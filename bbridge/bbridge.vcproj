@@ -19,7 +19,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=";..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;..\sipXmediaAdapterLib\interface;$(ProjectDir)..\..\resiprocate;$(ProjectDir)..\..\resiprocate\contrib\pcre"
+				AdditionalIncludeDirectories="..\resiprocateLib\include;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;..\sipXmediaAdapterLib\interface;..\resiprocateLib\resiprocate;..\resiprocateLib\resiprocate\contrib\pcre;..\sipXcommserverLib\include;..\resiprocateLib\resiprocate\contrib\OpenSSL\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="3"
@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\libeay32.lib&quot; &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\ssleay32.lib&quot;"
+				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\static\libeay32.lib&quot; &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\static\ssleay32.lib&quot;"
 				OutputFile="$(OutDir)/bbridge.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -69,8 +69,8 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalIncludeDirectories="..\resiprocateLib\include;..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;..\sipXmediaAdapterLib\interface;..\resiprocateLib\resiprocate;..\resiprocateLib\resiprocate\contrib\pcre;..\sipXcommserverLib\include;..\resiprocateLib\resiprocate\contrib\OpenSSL\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				AdditionalIncludeDirectories=";..\sipXportLib\include;..\sipXmediaLib\include;..\sipXcallLib\include;..\sipXtackLib\include;..\sipXmediaAdapterLib\interface;$(ProjectDir)..\..\resiprocate;$(ProjectDir)..\..\resiprocate\contrib\pcre"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -83,7 +83,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\libeay32.lib&quot; &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\ssleay32.lib&quot;"
+				AdditionalDependencies="Ws2_32.lib Dnsapi.lib Iphlpapi.lib Winmm.lib &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\static\libeay32.lib&quot; &quot;$(ProjectDir)..\..\resiprocate\contrib\openssl\lib\vc\static\ssleay32.lib&quot;"
 				OutputFile="$(OutDir)/bbridge.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -142,6 +142,9 @@
 				RelativePath=".\src\ParticipantFactory.cpp">
 			</File>
 			<File
+				RelativePath="..\resiprocateLib\src\sipXexternalLogger.cpp">
+			</File>
+			<File
 				RelativePath=".\src\Subsystem.cpp">
 			</File>
 			<File
@@ -169,6 +172,9 @@
 			</File>
 			<File
 				RelativePath=".\src\ParticipantFactory.h">
+			</File>
+			<File
+				RelativePath="..\resiprocateLib\include\resiprocateLib\sipXexternalLogger.h">
 			</File>
 			<File
 				RelativePath=".\src\Subsystem.h">

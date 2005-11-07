@@ -2,9 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="sipXportLib"
-	SccProjectName="Perforce Project"
-	SccLocalPath=".">
+	Name="sipXportLib">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
@@ -1763,6 +1761,27 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\src\utl\UtlBool.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="src\utl\UtlContainable.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -1785,6 +1804,27 @@
 			</File>
 			<File
 				RelativePath="src\utl\UtlContainer.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""
+						BasicRuntimeChecks="3"
+						BrowseInformation="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions=""/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\src\utl\UtlDateTime.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
 					<Tool
@@ -2574,10 +2614,16 @@
 				RelativePath="include\aes\uitypes.h">
 			</File>
 			<File
+				RelativePath=".\include\utl\UtlBool.h">
+			</File>
+			<File
 				RelativePath="include\utl\UtlContainable.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlContainer.h">
+			</File>
+			<File
+				RelativePath=".\include\utl\UtlDateTime.h">
 			</File>
 			<File
 				RelativePath="include\utl\UtlDefs.h">

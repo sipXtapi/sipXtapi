@@ -19,6 +19,8 @@
 #include <signal.h>
 #if defined(_WIN32)
 #   include <winsock2.h>
+#   define bbridgeVersion "0.1" // ?slg? is there a better way to handle this on Windows?
+#   define SIPX_VERSION          bbridgeVersion
 #endif
 
 // APPLICATION INCLUDES
@@ -408,7 +410,10 @@ int main(int argc, char* argv[])
    {
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);;
    }
-   
+
+#if !defined(WIN32)  // !slg! Note:  ConfigRPC stuff brings in a bunch of OpenSSL source files from sipX - 
+                     //              these sources currently do not build nicely in Windows - disable for now  
+
    int XmlRpcPort = configDb.getPort(CONFIG_SETTING_XMLRPC_PORT);
    if (PORT_DEFAULT == XmlRpcPort)
    {
@@ -434,7 +439,8 @@ int main(int argc, char* argv[])
       // enter the connector RPC methods in the XmlRpcDispatch table
       ConfigRPC::registerMethods(*rpc);
    }
-   
+#endif   
+
    try
    {
       bbridge::ConferenceUserAgent ua(configDb);
