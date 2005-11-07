@@ -75,7 +75,7 @@ public class ConfigFileStorageTest extends TestCase {
         m_storage.setValue(m_andorra, newValue);
         assertEquals(newValue, m_storage.getValue(m_andorra));
         m_storage.flush();
-        m_storage.remove(m_andorra);
+        m_storage.revertToDefault(m_andorra);
         m_storage.flush();
 
         BufferedReader reader = new BufferedReader(new FileReader(new File(m_configDirectory,

@@ -63,7 +63,7 @@ public class ConfigFileStorage extends ValueStorage {
     /**
      * Remove is called when setting is set to default value.
      */
-    public Object remove(Setting setting) {
+    public Object revertToDefault(Setting setting) {
         try {
             Properties properties = loadForFile(setting);
             return properties.put(setting.getName(), nonNull(setting.getValue()));

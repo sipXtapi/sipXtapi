@@ -31,13 +31,13 @@ public class SettingValue extends SettingDecorator {
         String defValue = getDefaultValue();
         if (value == null) {
             if (defValue == null) {
-                m_storage.remove(getDelegate());
+                m_storage.revertToDefault(getDelegate());
             } else {
                 m_storage.setValue(getDelegate(), Setting.NULL_VALUE);
             }
         } else {
             if (value.equals(defValue)) {
-                m_storage.remove(getDelegate());
+                m_storage.revertToDefault(getDelegate());
             } else {
                 m_storage.setValue(getDelegate(), value);
             }

@@ -17,5 +17,5 @@ public interface Storage {
 
     Object setValue(Setting setting, Object value);
 
-    Object remove(Setting setting);
+    Object revertToDefault(Setting setting);
 }

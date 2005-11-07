@@ -48,7 +48,7 @@ public abstract class AbstractStorage extends BeanWithId implements Storage {
         return put(setting.getPath(), value);
     }
 
-    public Object remove(Setting setting) {
+    public Object revertToDefault(Setting setting) {
         return remove(setting.getPath());
     }
 
