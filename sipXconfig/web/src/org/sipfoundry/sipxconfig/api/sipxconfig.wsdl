@@ -20,7 +20,6 @@
 					<xsd:element name="pintoken" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="lastName" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="firstName" type="xsd:string" nillable="true" maxOccurs="1"/>
-					<xsd:element name="displayName" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="aliases" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="sipPassword" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="id" type="xsd:string" nillable="true" maxOccurs="1"/>
@@ -47,10 +46,31 @@
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
+		    <xsd:element name="DeleteUser">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>						
+					</xsd:sequence>
+				</xsd:complexType>
+		    </xsd:element>		
 			<xsd:element name="FindUser">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="byName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:complexType>
+		    </xsd:element>
+			<xsd:complexType name="Property">
+				<xsd:all>
+					<xsd:element name="property" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+					<xsd:element name="value" type="xsd:string" nillable="true" minOccurs="1" maxOccurs="1"/>					
+				</xsd:all>
+			</xsd:complexType>
+			<xsd:element name="EditUser">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="properties" type="tns:Property" maxOccurs="unbounded"/>
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>
@@ -70,6 +90,16 @@
 		<part name="findUser" element="tns:FindUser"/>
 	</message>
 
+	<message name="deleteUserResponse"/>
+	<message name="deleteUserRequest">
+		<part name="deleteUser" element="tns:DeleteUser"/>
+	</message>
+	
+	<message name="editUserResponse"/>
+	<message name="editUserRequest">
+		<part name="editUser" element="tns:EditUser"/>
+	</message>
+
 	<portType name="UserService">
 		<operation name="addUser">
 			<input message="tns:addUserRequest"/>
@@ -78,6 +108,14 @@
 		<operation name="findUser">
 			<input message="tns:findUserRequest"/>
 			<output message="tns:findUserResponse"/>
+		</operation>
+		<operation name="deleteUser">
+			<input message="tns:deleteUserRequest"/>
+			<output message="tns:deleteUserResponse"/>
+		</operation>
+		<operation name="editUser">
+			<input message="tns:editUserRequest"/>
+			<output message="tns:editUserResponse"/>
 		</operation>
 	</portType>
 
@@ -101,6 +139,24 @@
 			<soap:operation soapAction=""></soap:operation>			
 		</operation>
 		<operation name="findUser">
+ 			<input>
+				<soap:body use="literal" namespace="urn:ConfigService" />
+			</input>			
+			<output>
+				<soap:body use="literal" namespace="urn:ConfigService"/>
+			</output>			
+			<soap:operation soapAction=""></soap:operation>						
+		</operation>
+		<operation name="deleteUser">
+ 			<input>
+				<soap:body use="literal" namespace="urn:ConfigService" />
+			</input>			
+			<output>
+				<soap:body use="literal" namespace="urn:ConfigService"/>
+			</output>			
+			<soap:operation soapAction=""></soap:operation>						
+		</operation>
+		<operation name="editUser">
  			<input>
 				<soap:body use="literal" namespace="urn:ConfigService" />
 			</input>			

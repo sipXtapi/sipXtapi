@@ -11,9 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
+import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.List;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -76,6 +78,33 @@ public class UserServiceImpl implements UserService {
         
         return response;
     }
-        
-      
+
+    public void deleteUser(DeleteUser deleteUser) throws RemoteException {
+        org.sipfoundry.sipxconfig.common.User user = requireUser(deleteUser.getUserName());
+        m_coreContext.deleteUser(user);
+    }
+
+    public void editUser(EditUser editUser) throws RemoteException {
+        org.sipfoundry.sipxconfig.common.User user = requireUser(editUser.getUserName());
+            
+        Property[] props = editUser.getProperties();
+        for (int i = 0; i < props.length; i++) {
+            try {
+                BeanUtils.setProperty(user, props[i].getProperty(), props[i].getValue());
+            } catch (IllegalAccessException iae) {
+                throw new IllegalArgumentException(iae);
+            } catch (InvocationTargetException ite) {
+                throw new IllegalArgumentException(ite);
+            }
+        }
+        m_coreContext.saveUser(user);
+    }
+    
+    private org.sipfoundry.sipxconfig.common.User requireUser(String userName) {
+        org.sipfoundry.sipxconfig.common.User user = m_coreContext.loadUserByUserName(userName);
+        if (user == null) {
+            throw new IllegalArgumentException("user not found with user name " + userName);
+        }
+        return user;
+    }
 }

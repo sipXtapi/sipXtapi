@@ -441,7 +441,7 @@
   <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
 	description="Test web services with starting webserver">
 	<property name="webservice-unittest-command" 
-		value="-I${wsdl.ruby.dir} -d ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
+		value="-I${wsdl.ruby.dir} ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unittest-command}/UserServiceTestApi.rb"/>
     </exec>    

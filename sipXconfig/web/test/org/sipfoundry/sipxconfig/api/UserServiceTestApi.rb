@@ -23,11 +23,11 @@ class UserServiceTestApi < Test::Unit::TestCase
 		@userService.addUser(addUser)
 
 	    findUser = FindUser.new()
-	    findUser.byName = expected.displayName
+	    findUser.byName = expected.userName
 	    users = @userService.findUser(findUser).users
 	    
 	    assert_equal(1, users.length)
-	    assert_equal(expected.displayName, users[0].displayName)
+	    assert_equal(expected.userName, users[0].userName)
 		
     end
     
@@ -39,11 +39,41 @@ class UserServiceTestApi < Test::Unit::TestCase
 	    user2 = User.new('mary', '1234')
 		@userService.addUser(AddUser.new(user2))
 
-	    findUser = FindUser.new()
-	    findUser.byName = 'john'
+	    findUser = FindUser.new('john')
 	    users = @userService.findUser(findUser).users
 
 	    assert_equal(2, users.length)	    
     end
     
+	def test_deleteUser
+	    user1 = User.new('john', '1234')
+		@userService.addUser(AddUser.new(user1))
+
+	    findUser = FindUser.new('john')
+	    users = @userService.findUser(findUser).users
+	    assert_equal(1, users.length)
+	    
+	    @userService.deleteUser(DeleteUser.new('john'))
+	    
+	    users = @userService.findUser(findUser).users
+	    assert_equal(0, users.length)
+    end
+
+	def test_editUser
+	    user1 = User.new('john', '1234')
+	    user1.firstName = 'Johny'
+	    user1.lastName = 'Quest'
+		@userService.addUser(AddUser.new(user1))
+		
+		editUser = EditUser.new('john')
+		editUser.properties = [ Property.new('firstName', 'Secret'), 
+		    Property.new('lastName', 'Agent') ]
+
+	    users = @userService.editUser(editUser)	    
+	    
+	    findUser = FindUser.new('john')
+	    user = @userService.findUser(findUser).users[0]
+	    assert_equal('Secret', user.firstName)
+	    assert_equal('Agent', user.lastName)
+    end
 end
