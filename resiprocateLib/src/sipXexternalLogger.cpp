@@ -10,6 +10,9 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
+#if defined(_WIN32)
+#   include <winsock2.h>
+#endif
 #include "os/OsSysLog.h"
 #include "resiprocateLib/sipXexternalLogger.h"
 
