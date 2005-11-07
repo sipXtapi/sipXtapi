@@ -19,10 +19,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -192,7 +192,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         Integer phoneId = null;
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", serialNumber);
-        if (CollectionUtils.safeSize(objs) != 0) {
+        if (SipxCollectionUtils.safeSize(objs) != 0) {
             if (objs.size() > 1) {
                 // There is a database uniqueness constraint that should prevent this from ever
                 // happening

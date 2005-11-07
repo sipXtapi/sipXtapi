@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
 
@@ -216,4 +217,23 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1702").size() == 0);        
     }
 
+    public void testValidate() throws Exception {
+        TestHelper.getConnection();
+        TestHelper.insertFlat("conference/participants.db.xml");
+        
+        // create a conference with a duplicate extension, should fail to validate
+        Conference conf = new Conference();
+        conf.setName("Appalachian");
+        conf.setExtension("1699");
+        try {
+            m_context.validate(conf);
+            fail("conference has duplicate extension but was validated anyway");
+        } catch (UserException e) {
+            // expected
+        }
+        
+        // pick an unused extension, should be OK
+        conf.setExtension("1800");
+        m_context.validate(conf);
+    }
 }

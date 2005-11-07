@@ -10,6 +10,7 @@
     class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="replicationContext" ref="sipxReplicationContext"/>
+    <property name="aliasManager" ref="aliasManager"/>
     <property name="orbitsGenerator">
       <ref local="orbitsGenerator"/>
     </property>

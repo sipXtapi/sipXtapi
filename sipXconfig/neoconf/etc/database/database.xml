@@ -60,7 +60,7 @@
     </exec>
   </target>
   
-  <!-- Resets database for unittesting -->
+  <!-- Resets database for unit testing -->
   <target name="unittest-reset" depends="drop,createdb,schema,version1"/>
   
   <!-- 
@@ -84,8 +84,15 @@
   <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version1" description="upgrade from version 1" unless="version2"
     depends="
-      nop
+  	  conference_name_uniqueness
 	  "/>
+
+  <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
+    <sipx-sql>
+    	alter table meetme_conference add constraint conference_name_key unique(name);
+    </sipx-sql>
+  	<mark-patch-applied patch="conference_name_uniqueness"/>
+  </target>  
 
   <target name="schema" unless="schema">
     <sipx-sql>

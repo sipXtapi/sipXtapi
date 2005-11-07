@@ -20,10 +20,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
+import org.sipfoundry.sipxconfig.admin.NameInUseException;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -37,7 +41,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
 
     private CoreContext m_coreContext;
-
+    private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
 
     public List getBridges() {
@@ -48,10 +52,30 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         getHibernateTemplate().saveOrUpdate(bridge);
     }
 
-    public void store(Conference conference) {
+    public void store(Conference conference) {        
+        validate(conference);
         getHibernateTemplate().saveOrUpdate(conference);
     }
 
+    public void validate(Conference conference) {
+        String name = conference.getName();
+        String extension = conference.getExtension();
+        if (name == null) {
+            throw new UserException("A conference must have a name");
+        }
+        if (extension == null) {
+            throw new UserException("A conference must have an extension");
+        }
+        
+        final String conferenceTypeName = CONFERENCE;
+        if (!m_aliasManager.canObjectUseAlias(conference, name)) {
+            throw new NameInUseException(conferenceTypeName, name);
+        }
+        if (!m_aliasManager.canObjectUseAlias(conference, extension)) {
+            throw new ExtensionInUseException(conferenceTypeName, extension);
+        }
+    }
+    
     public Bridge newBridge() {
         return (Bridge) m_beanFactory.getBean(Bridge.BEAN_NAME, Bridge.class);
     }
@@ -174,16 +198,20 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         m_coreContext = coreContext;
     }
 
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
+    }
+
     public boolean isAliasInUse(String alias) {
         List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
-        return CollectionUtils.safeSize(confIds) > 0;
+        return SipxCollectionUtils.safeSize(confIds) > 0;
     }
 
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
-        Collection bids = BeanId.createBeanIdCollection(ids, User.class);
+        Collection bids = BeanId.createBeanIdCollection(ids, Conference.class);
         return bids;
     }
 

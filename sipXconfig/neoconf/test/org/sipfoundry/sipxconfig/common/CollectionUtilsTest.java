@@ -29,20 +29,20 @@ public class CollectionUtilsTest extends TestCase {
     }
     
     public void testSafeSize() {
-        assertEquals(0, CollectionUtils.safeSize(null));
-        assertEquals(1, CollectionUtils.safeSize(nonEmptyCollection));
+        assertEquals(0, SipxCollectionUtils.safeSize(null));
+        assertEquals(1, SipxCollectionUtils.safeSize(nonEmptyCollection));
     }
     
     public void testSafeIterator() {
-        Iterator iter = CollectionUtils.safeIterator(null);
+        Iterator iter = SipxCollectionUtils.safeIterator(null);
         assertFalse(iter.hasNext());
         
-        iter = CollectionUtils.safeIterator(nonEmptyCollection);
+        iter = SipxCollectionUtils.safeIterator(nonEmptyCollection);
         assertTrue(iter.hasNext());
     }
     
     public void testSplitString() {
-        String[] actual = CollectionUtils.splitString("one, two ");
+        String[] actual = SipxCollectionUtils.splitString("one, two ");
         assertEquals(2, actual.length);
         assertEquals("one", actual[0]);
         assertEquals("two", actual[1]);

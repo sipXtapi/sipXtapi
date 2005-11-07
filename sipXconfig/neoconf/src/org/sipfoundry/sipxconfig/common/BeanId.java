@@ -15,6 +15,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.collections.CollectionUtils;
+
 /**
  * BeanId -- uniquely identify a persisted object of type BeanWithId through two properties,
  * its Java class and its database ID.
@@ -29,16 +31,15 @@ public class BeanId {
     }
     
     public BeanId(BeanWithId bean) {
-        m_id = bean.getId();
-        m_beanClass = bean.getClass();
+        this(bean.getId(), bean.getClass());
     }
 
     /**
      * Given a Collection of IDs and a Java class, create and return a Collection of BeanIds.
      * Throw an exception if any ID is negative (unsaved object) or is not unique.
      */
-    public static Collection createBeanIdCollection(Collection ids, Class klass) {
-        if (CollectionUtils.safeIsEmpty(ids)) {
+    public static Collection createBeanIdCollection(Collection ids, Class beanClass) {
+        if (SipxCollectionUtils.safeIsEmpty(ids)) {
             return CollectionUtils.EMPTY_COLLECTION;
         }
         Collection bids = new ArrayList(ids.size());
@@ -58,7 +59,7 @@ public class BeanId {
                         "The ID collection contains this ID more than once: " + idVal);                
             }
             idCheck.add(id);
-            BeanId bid = new BeanId(id, klass);
+            BeanId bid = new BeanId(id, beanClass);
             bids.add(bid);
         }
         return bids;
@@ -98,6 +99,15 @@ public class BeanId {
     public int hashCode() {
         int hashCode = getClass().getName().hashCode() * (getId().intValue() + 1);
         return hashCode;
+    }
+
+    public String toString() {
+        StringBuffer buf = new StringBuffer(m_beanClass != null
+                ? m_beanClass.getCanonicalName()
+                : "null class");
+        buf.append(", ID=");
+        buf.append(m_id);
+        return buf.toString();
     }
 
 }

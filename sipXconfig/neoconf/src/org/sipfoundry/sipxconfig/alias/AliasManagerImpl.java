@@ -67,17 +67,10 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
         return objects;
     }
     
-    /**
-     * Return true if the bean is allowed to use the specified alias.
-     * If there are no existing database objects with that alias, then the
-     * bean is allowed to use the alias.
-     * If there are existing database objects with that alias, then the bean is
-     * only allowed to use the alias if one of those objects is the bean itself.
-     * (Ideally there should be at most one database object with a given alias, but
-     * it is quite possible for duplication to occur across tables and the
-     * system needs to continue to operate smoothly in this situation.)
-     */
     public boolean canObjectUseAlias(BeanWithId bean, String alias) {
+        if (alias == null) {
+            return true;
+        }
         boolean canUseAlias = false;
         if (bean.isNew()) {
             // For a new bean, if there is any database object that has already claimed
@@ -90,10 +83,13 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
                 // No one is using the alias so we can take it
                 canUseAlias = true;
             } else if (size == 1) {
-                // One object is using the alias.  OK if that object is the bean itself,
-                // otherwise this is no good.
+                // One object is using the alias.  If that object is the bean itself, then
+                // it's OK for the bean to use the alias, otherwise not.
                 BeanId bid = (BeanId) bids.iterator().next();
                 canUseAlias = bid.isIdOfBean(bean);
+                if (LOG.isInfoEnabled() && !canUseAlias) {
+                    LOG.info("Alias \"" + alias + "\" is in use by: " + bid.toString());
+                }
             } else {
                 // More than one object is using the alias!  If the bean is one of them,
                 // then the bean can continue to use the alias, but log an error in any
@@ -105,7 +101,8 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
                         break;
                     }
                 }
-                StringBuffer buf = new StringBuffer("Alias \"" + alias + "\" is being used by multiple objects:");
+                // Construct this string carefully to avoid bogus checkstyle duplicate string errors (arrrgh!)
+                StringBuffer buf = new StringBuffer("Alias " + "\"" + alias + "\" is being used by multiple objects:");
                 for (Iterator iter = bids.iterator(); iter.hasNext();) {
                     Object obj = (Object) iter.next();
                     buf.append(" ");

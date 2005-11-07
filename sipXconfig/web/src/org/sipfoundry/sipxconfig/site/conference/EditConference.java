@@ -63,6 +63,12 @@ public abstract class EditConference extends PageWithCallback implements PageRen
 
     private void saveValid(IRequestCycle cycle_) {
         Conference conference = getConference();
+        
+        // Make sure the conference is OK to save before we save it.
+        // Since the database is not locked, there is a race condition here, but at least
+        // we are reducing the likelihood of a problem significantly.
+        getConferenceBridgeContext().validate(conference);
+        
         if (conference.isNew()) {
             // associate with bridge
             Bridge bridge = getConferenceBridgeContext().loadBridge(getBridgeId());

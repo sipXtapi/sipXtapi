@@ -21,30 +21,31 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CollectionUtils;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements ParkOrbitContext {
-    private static final String NAME_PROP_NAME = "name";
-    private static final String EXTENSION_PROP_NAME = "extension";
     private static final String VALUE = "value";
     private static final String QUERY_PARK_ORBIT_IDS_WITH_ALIAS = "parkOrbitIdsWithAlias";
 
     private SipxReplicationContext m_replicationContext;
+    private AliasManager m_aliasManager;
     private Orbits m_orbitsGenerator;
 
     public void storeParkOrbit(ParkOrbit parkOrbit) {
         // Check for duplicate names and extensions before saving the park orbit
         String name = parkOrbit.getName();
-        final String parkOrbitTypeName = "call park extension";
-        DaoUtils.checkDuplicates(getHibernateTemplate(), parkOrbit, NAME_PROP_NAME,
-                new NameInUseException(parkOrbitTypeName, name));
         String extension = parkOrbit.getExtension();
-        DaoUtils.checkDuplicates(getHibernateTemplate(), parkOrbit, EXTENSION_PROP_NAME,
-                new ExtensionInUseException(parkOrbitTypeName, extension));
+        final String parkOrbitTypeName = "call park";
+        if (!m_aliasManager.canObjectUseAlias(parkOrbit, name)) {
+            throw new NameInUseException(parkOrbitTypeName, name);
+        }
+        if (!m_aliasManager.canObjectUseAlias(parkOrbit, extension)) {
+            throw new ExtensionInUseException(parkOrbitTypeName, extension);
+        }
 
         getHibernateTemplate().saveOrUpdate(parkOrbit);
     }
@@ -103,12 +104,16 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         m_replicationContext = replicationContext;
     }
 
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
+    }
+
     public boolean isAliasInUse(String alias) {
         // Look for the ID of a park orbit with the specified alias as its name or extension.
         // If there is one, then the alias is in use.
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_PARK_ORBIT_IDS_WITH_ALIAS, VALUE, alias);
-        return CollectionUtils.safeSize(objs) > 0;        
+        return SipxCollectionUtils.safeSize(objs) > 0;        
     }
     
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {

@@ -40,7 +40,7 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
         assertEquals("sales", orbit.getName());
         assertTrue(orbit.isEnabled());
         assertEquals("sales", orbit.getName());
-        assertEquals("401", orbit.getExtension());
+        assertEquals("501", orbit.getExtension());
         assertEquals("something.wav", orbit.getMusic());
     }
     
@@ -102,15 +102,15 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
     
     public void testIsAliasInUse() {
         assertTrue(m_context.isAliasInUse("sales"));
-        assertTrue(m_context.isAliasInUse("401"));
-        assertTrue(m_context.isAliasInUse("402"));
+        assertTrue(m_context.isAliasInUse("501"));
+        assertTrue(m_context.isAliasInUse("502"));
         assertFalse(m_context.isAliasInUse("911"));
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("sales").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("401").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("402").size() == 1);
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("501").size() == 1);
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("502").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("911").size() == 0);
     }
 

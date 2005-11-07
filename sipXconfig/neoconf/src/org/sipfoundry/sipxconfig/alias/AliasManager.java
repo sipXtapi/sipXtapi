@@ -28,6 +28,7 @@ public interface AliasManager extends AliasOwner {
      * (Ideally there should be at most one database object with a given alias, but
      * it is quite possible for duplication to occur across tables and the
      * system needs to continue to operate smoothly in this situation.)
+     * If alias is null, then return true, since null aliases don't cause SIP collisions.
      */
     public boolean canObjectUseAlias(BeanWithId bean, String alias);
     

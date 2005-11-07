@@ -18,7 +18,11 @@ import org.apache.commons.collections.iterators.EmptyIterator;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
-public class CollectionUtils extends org.apache.commons.collections.CollectionUtils {
+public final class SipxCollectionUtils {
+
+    /** Singleton class with static methods, don't allow anyone to instantiate */
+    private SipxCollectionUtils() {
+    }
     
     /** Return the Collection size.  Return 0 if the Collection is null. */
     public static int safeSize(Collection coll) {
@@ -38,11 +42,11 @@ public class CollectionUtils extends org.apache.commons.collections.CollectionUt
      * Given a comma-delimited string of names, return the names as a string array. Trim
      * leading and trailing whitespace from each name.
      */
-    public static String[] splitString(String delmittedString) {
-        if (StringUtils.isBlank(delmittedString)) {
+    public static String[] splitString(String delimitedString) {
+        if (StringUtils.isBlank(delimitedString)) {
             return ArrayUtils.EMPTY_STRING_ARRAY;
         }
-        String delmittedClean = delmittedString.trim();
+        String delmittedClean = delimitedString.trim();
         String[] split = delmittedClean.split("\\s*,\\s*");
         return split;
     }

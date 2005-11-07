@@ -167,7 +167,7 @@ public class User extends BeanWithGroups {
 
     /** Set the aliases from a comma-delimited string */
     public void setAliasesString(String aliasesString) {
-        String[] aliases = CollectionUtils.splitString(aliasesString);
+        String[] aliases = SipxCollectionUtils.splitString(aliasesString);
         getAliases().clear();
         addAliases(aliases);
     }
@@ -177,7 +177,7 @@ public class User extends BeanWithGroups {
      * leading and trailing whitespace from each group name
      */
     public static String[] groupNamesFromString(String groupString) {
-        return CollectionUtils.splitString(groupString);
+        return SipxCollectionUtils.splitString(groupString);
     }
 
     public String getUri(String domainName) {

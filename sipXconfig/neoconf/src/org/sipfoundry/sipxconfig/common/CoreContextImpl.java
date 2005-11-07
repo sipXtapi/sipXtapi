@@ -389,7 +389,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         // If there is one, then the alias is in use.
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_USER_IDS_BY_NAME_OR_ALIAS, VALUE, alias);
-        return CollectionUtils.safeSize(objs) > 0;
+        return SipxCollectionUtils.safeSize(objs) > 0;
     }
     
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {

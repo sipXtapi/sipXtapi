@@ -7,6 +7,7 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="coreContext" ref="coreContextImpl"/>
     <property name="replicationContext" ref="sipxReplicationContext"/>
+    <property name="aliasManager" ref="aliasManager"/>
   </bean>
   
   <bean id="callGroupContextUserDelete"

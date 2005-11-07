@@ -15,8 +15,8 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 
 
 public class UserBuilder implements ApiBeanBuilder {
@@ -29,7 +29,7 @@ public class UserBuilder implements ApiBeanBuilder {
     
     public UserBuilder() {
         m_ignoreList = new HashSet();
-        m_ignoreList.addAll(Arrays.asList(CollectionUtils.splitString(IGNORE_LIST)));
+        m_ignoreList.addAll(Arrays.asList(SipxCollectionUtils.splitString(IGNORE_LIST)));
     }
     
     public void setCoreContext(CoreContext coreContext) {

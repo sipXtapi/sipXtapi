@@ -25,11 +25,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
@@ -123,7 +123,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         for (int i = 0; i < aliases.length; i++) {
             String ruleAlias = aliases[i];
             if (!m_aliasManager.canObjectUseAlias(rule, ruleAlias)) {
-                final String message = "Alias {0} is already in use.  "
+                final String message = "Alias \"{0}\" is already in use.  "
                     + "Please choose another alias for this auto attendant.";
                 throw new UserException(message, ruleAlias);
             }            
@@ -406,7 +406,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         // If there is one, then the alias is in use.
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_AUTO_ATTENDANT_IDS_WITH_NAME_OR_EXTENSION, VALUE, alias);
-        return CollectionUtils.safeSize(objs) > 0;        
+        return SipxCollectionUtils.safeSize(objs) > 0;        
     }
     
     private boolean isAutoAttendantAliasInUse(String alias) {
@@ -416,7 +416,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         // all such alias strings and check them in Java.
         boolean isAliasInUse = false;
         List aliasStrings = getHibernateTemplate().findByNamedQuery(QUERY_AUTO_ATTENDANT_ALIASES);
-        for (Iterator iter = CollectionUtils.safeIterator(aliasStrings); iter.hasNext();) {
+        for (Iterator iter = SipxCollectionUtils.safeIterator(aliasStrings); iter.hasNext();) {
             String aliasesString = (String) iter.next();
             isAliasInUse = doesAliasesStringContainAlias(aliasesString, alias);
             if (isAliasInUse) {
@@ -442,7 +442,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private boolean isVoiceMailExtensionInUse(String alias) {
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_INTERNAL_RULE_IDS_WITH_VOICE_MAIL_EXTENSION, VALUE, alias);
-        return CollectionUtils.safeSize(objs) > 0;        
+        return SipxCollectionUtils.safeSize(objs) > 0;        
     }
     
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {

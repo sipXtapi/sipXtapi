@@ -45,6 +45,7 @@
     class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="coreContext" ref="coreContextImpl"/>
+    <property name="aliasManager" ref="aliasManager"/>
   </bean>
   
   <bean id="conferenceBridgeContextUserDelete"

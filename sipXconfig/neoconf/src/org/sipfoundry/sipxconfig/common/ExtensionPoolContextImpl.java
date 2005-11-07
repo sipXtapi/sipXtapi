@@ -84,7 +84,7 @@ public class ExtensionPoolContextImpl extends SipxHibernateDaoSupport implements
         ExtensionPool pool = null;
         
         // Create the pool if it doesn't exist
-        if (CollectionUtils.safeIsEmpty(pools)) {
+        if (SipxCollectionUtils.safeIsEmpty(pools)) {
             // Create the pool
             pool = new ExtensionPool(DEFAULT_ENABLED, poolName, DEFAULT_FIRST_EXTENSION,
                     DEFAULT_LAST_EXTENSION, DEFAULT_NEXT_EXTENSION);

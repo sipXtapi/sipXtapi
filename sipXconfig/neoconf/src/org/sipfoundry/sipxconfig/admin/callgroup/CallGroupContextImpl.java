@@ -20,10 +20,10 @@ import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
@@ -40,6 +40,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
 
     private CoreContext m_coreContext;
     private SipxReplicationContext m_replicationContext;
+    private AliasManager m_aliasManager;
 
     // trivial setters
     public void setCoreContext(CoreContext coreContext) {
@@ -50,6 +51,10 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         m_replicationContext = replicationContext;
     }
 
+    public void setAliasManager(AliasManager aliasManager) {
+        m_aliasManager = aliasManager;
+    }
+
     public CallGroup loadCallGroup(Integer id) {
         return (CallGroup) getHibernateTemplate().load(CallGroup.class, id);
     }
@@ -57,14 +62,14 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     public void storeCallGroup(CallGroup callGroup) {
         // Check for duplicate names or extensions before saving the call group
         String name = callGroup.getName();
-        final String huntGroupTypeName = "hunt group";
-        DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
-                QUERY_CALL_GROUP_IDS_WITH_NAME, name, new NameInUseException(huntGroupTypeName,
-                        name));
         String extension = callGroup.getExtension();
-        DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), callGroup,
-                QUERY_CALL_GROUP_IDS_WITH_ALIAS, extension, new ExtensionInUseException(
-                        "hunt group extension", extension));
+        final String huntGroupTypeName = "hunt group";
+        if (!m_aliasManager.canObjectUseAlias(callGroup, name)) {
+            throw new NameInUseException(huntGroupTypeName, name);
+        }
+        if (!m_aliasManager.canObjectUseAlias(callGroup, extension)) {
+            throw new ExtensionInUseException(huntGroupTypeName, extension);
+        }
 
         getHibernateTemplate().saveOrUpdate(callGroup);
         // activate call groups every time the call group is saved
@@ -172,7 +177,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         // If there is one, then the alias is in use.
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE, alias);
-        return CollectionUtils.safeSize(objs) > 0;
+        return SipxCollectionUtils.safeSize(objs) > 0;
     }
     
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
