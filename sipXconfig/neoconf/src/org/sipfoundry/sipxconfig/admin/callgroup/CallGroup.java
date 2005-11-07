@@ -104,7 +104,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         }
         String myIdentity = AliasMapping.createUri(m_name, domainName);
 
-        List aliases = generateAliases(myIdentity, domainName);
+        List aliases = generateAliases(myIdentity, domainName, false);
         if (StringUtils.isNotBlank(m_extension)) {
             AliasMapping extensionAlias = new AliasMapping(AliasMapping.createUri(m_extension,
                     domainName), myIdentity);

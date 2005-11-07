@@ -96,9 +96,11 @@ public class AbstractCallSequence extends BeanWithId {
      * 
      * @param identity
      * @param domain used to calculate proper URI for ring contact
+     * @param neverRouteToVoicemail set to true if call should never be routed to voicemail, set
+     *        to false to allow for routing the last call to voicemail
      * @return list of AliasMapping objects
      */
-    protected List generateAliases(String identity, String domain) {
+    protected List generateAliases(String identity, String domain, boolean neverRouteToVoicemail) {
         List calls = getCalls();
         List aliases = new ArrayList(calls.size());
         ForkQueueValue q = new ForkQueueValue(calls.size());
@@ -107,7 +109,9 @@ public class AbstractCallSequence extends BeanWithId {
             if (StringUtils.isEmpty(r.getUserPart().toString())) {
                 continue;
             }
-            String contact = r.calculateContact(domain, q, true);
+            // ignore voicemail for all but last call
+            final boolean ignoreVoiceMail = neverRouteToVoicemail || i.hasNext();
+            String contact = r.calculateContact(domain, q, ignoreVoiceMail);
             AliasMapping alias = new AliasMapping(identity, contact);
             aliases.add(alias);
         }
