@@ -103,7 +103,7 @@ public class BeanId {
 
     public String toString() {
         StringBuffer buf = new StringBuffer(m_beanClass != null
-                ? m_beanClass.getCanonicalName()
+                ? m_beanClass.getName()
                 : "null class");
         buf.append(", ID=");
         buf.append(m_id);
