@@ -92,9 +92,10 @@ public class UserServiceImpl implements UserService {
             try {
                 BeanUtils.setProperty(user, props[i].getProperty(), props[i].getValue());
             } catch (IllegalAccessException iae) {
-                throw new IllegalArgumentException(iae);
+                throw new RuntimeException(iae);
             } catch (InvocationTargetException ite) {
-                throw new IllegalArgumentException(ite);
+                // TODO: possible property spelling error, throw better error here
+                throw new RuntimeException(ite);
             }
         }
         m_coreContext.saveUser(user);
