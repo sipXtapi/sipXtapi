@@ -29,7 +29,7 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
         setHasDuplicate(false);
         m_musicOnHoldFileName = EditAutoAttendantTestUi.seedPromptFile("parkserver/music");
     }
-    
+
     public void setUp() {
         super.setUp();
         // sort by name
@@ -57,5 +57,5 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
     protected void setAddParams(String[] names, String[] values) {
         super.setAddParams(names, values);
         tester.selectOption("prompt", m_musicOnHoldFileName);
-    }    
+    }
 }

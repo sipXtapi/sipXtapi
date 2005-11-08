@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE model 
     PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
-    "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
   <type id="loglevel">
     <enum>
@@ -44,7 +44,12 @@
     <string required="yes">
       <pattern>[0-9*#]+</pattern>
     </string>
-  </type>  
+  </type>
+  <type id="upload-music">
+    <file>
+      <directory>/tmp</directory>
+    </file>
+  </type>
   
   <group name="bridge-bridge">
     <setting name="BOSTON_BRIDGE_LOG_LEVEL" advanced="yes">
@@ -123,22 +128,19 @@
     </setting>
     <setting name="BOSTON_BRIDGE_ENTER_SOUND">
       <label>Enter sound</label>
-      <type><!-- upload -->
-      </type>
+      <type refid="upload-music"/>
       <value>join.wav</value>
       <description>The audio file to be played when a new call joins the conference.</description>
     </setting>
     <setting name="BOSTON_BRIDGE_EXIT_SOUND">
       <label>Exit sound</label>
-      <type><!-- upload -->
-      </type>
+      <type refid="upload-music"/>
       <value>exit.wav</value>
       <description>The audio file to be played when a call leaves the conference.</description>
     </setting>
     <setting name="BOSTON_BRIDGE_HOLD_MUSIC">
       <label>Background music</label>
-      <type><!-- upload -->
-      </type>
+      <type refid="upload-music"/>
       <value></value>
       <description> The audio file to be played when a call leg has been created but is not (for any reason)
         receiving the bridged conference audio (such as prior to the start of the conference). </description>

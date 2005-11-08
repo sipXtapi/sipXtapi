@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
+import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
@@ -187,5 +188,16 @@ public class SettingTypesTest extends TestCase {
         assertTrue(setting.getTypedValue() instanceof Boolean);
 
         assertSame(setting.getTypedValue(), Boolean.FALSE);
+    }
+
+    public void testFileType() {
+        Setting setting = group.getSetting("file_setting");
+        SettingType type = setting.getType();
+
+        assertTrue(type instanceof FileSetting);
+        FileSetting fileType = (FileSetting) type;
+        assertTrue(fileType.isRequired());
+        assertEquals("/tmp", fileType.getDirectory());
+        assertEquals("audio/x-wav", fileType.getContentType());
     }
 }

@@ -29,11 +29,10 @@
         <binding name="listener" expression="listeners.formSubmit"/>
     </component>
 
-    <component id="musicOnHoldSelector" type="AssetSelector">
+    <component id="musicOnHoldSelector" type="AssetSelectorPanel">
         <binding name="asset" expression="music"/>
         <binding name="assetDir" expression="page.global.orbitsGenerator.audioDirectory"/>
         <message-binding name="selectLabel" key="label.music"/>
-        <message-binding name="uploadLabel" key="label.upload"/>
         <message-binding name="errorMsg" key="error.select"/>        
     </component>
             

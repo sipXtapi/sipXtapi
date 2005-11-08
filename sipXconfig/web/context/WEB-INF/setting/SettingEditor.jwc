@@ -65,8 +65,16 @@
     </component>
     <component id="booleanBlock" type="Block"></component>
     
+    <component id="fileField" type="AssetSelector">
+        <binding name="id" expression="'setting:' + setting.name"/>
+        <binding name="asset" expression="setting.value"/>
+        <binding name="assetDir" expression="setting.type.directory"/>
+        <binding name="contentType" expression="setting.type.contentType"/>
+        <binding name="submitOnChange" expression="false"/>
+    </component>
+    <component id="fileBlock" type="Block"/>
+    
     <component id="field" type="RenderBlock">
         <binding name="block" expression="components.get(setting.type.name + 'Block')"/>
-    </component>
-    
+    </component>    
 </component-specification>

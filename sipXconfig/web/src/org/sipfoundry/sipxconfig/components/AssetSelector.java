@@ -20,17 +20,17 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IForm;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 
-public abstract class AssetSelector extends BaseComponent implements PageRenderListener {
+public abstract class AssetSelector extends BaseComponent implements IFormComponent {
     public abstract String getAssetDir();
 
     public abstract void setAssetSelectionModel(IPropertySelectionModel model);
@@ -45,7 +45,12 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
 
     public abstract String getErrorMsg();
 
-    public void pageBeginRender(PageEvent event_) {
+    private static boolean isUploadFileSpecified(IUploadFile file) {
+        boolean isSpecified = file != null && !StringUtils.isBlank(file.getFilePath());
+        return isSpecified;
+    }
+
+    private IPropertySelectionModel createModel() {
         File assetDir = new File(getAssetDir());
         // make sure it exists
         assetDir.mkdirs();
@@ -53,17 +58,12 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
         if (assets == null) {
             assets = new String[0];
         }
-
-        IPropertySelectionModel model = new StringPropertySelectionModel(assets);
-        setAssetSelectionModel(model);
-    }
-
-    private static boolean isUploadFileSpecified(IUploadFile file) {
-        boolean isSpecified = file != null && !StringUtils.isBlank(file.getFilePath());
-        return isSpecified;
+        return new StringPropertySelectionModel(assets);
     }
 
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
+        IPropertySelectionModel model = createModel();
+        setAssetSelectionModel(model);
         super.renderComponent(writer, cycle);
         if (!cycle.isRewinding()) {
             return;
@@ -132,5 +132,33 @@ public abstract class AssetSelector extends BaseComponent implements PageRenderL
         if (StringUtils.isBlank(getAsset()) && !isUploadFileSpecified(getUploadAsset())) {
             validator.record(errorMsg, ValidationConstraint.REQUIRED);
         }
+    }
+
+    // what follows is empty IFormComponent implementation
+    // we only need getDisplayName to return null - it's used by label component
+
+    public IForm getForm() {
+        return null;
+    }
+
+    public void setForm(IForm form_) {
+        // empty
+    }
+
+    public String getName() {
+        return StringUtils.EMPTY;
+    }
+
+    public void setName(String name_) {
+    }
+
+    /**
+     * Implemented in some subclasses to provide a display name (suitable for presentation to the
+     * user as a label or error message). This implementation return null.
+     * 
+     */
+
+    public String getDisplayName() {
+        return null;
     }
 }

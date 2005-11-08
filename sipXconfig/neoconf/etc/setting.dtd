@@ -21,7 +21,7 @@
 <!ELEMENT value (#PCDATA)>
 
 <!-- settings type system -->
-<!ELEMENT type (string|integer|enum|ipaddr|bitmap|boolean|real)?>
+<!ELEMENT type (string|integer|enum|ipaddr|bitmap|boolean|real|file)?>
 <!ATTLIST type 
     required %flag; "no"
     id ID #IMPLIED
@@ -59,6 +59,14 @@
 <!ELEMENT false (value)>
 
 <!ELEMENT pattern (#PCDATA)>
+
+<!ELEMENT file (directory?,mimeType?)>
+<!ATTLIST file
+    required %flag; "no">
+
+<!ELEMENT directory (#PCDATA)>
+<!ELEMENT mimeType (#PCDATA)>
+
 
 <!-- enumeration type is a list of options, each option has a value and may have label -->
 <!-- if not label is provided, value is used as a label -->

@@ -26,6 +26,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
+import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
@@ -110,6 +111,7 @@ public class XmlModelBuilder implements ModelBuilder {
         digester.addRuleSet(new StringSettingRule(patternPrefix + "string"));
         digester.addRuleSet(new EnumSettingRule(patternPrefix + "enum"));
         digester.addRuleSet(new BooleanSettingRule(patternPrefix + "boolean"));
+        digester.addRuleSet(new FileSettingRule(patternPrefix + "file"));
     }
 
     class SettingRuleSet extends RuleSetBase {
@@ -127,28 +129,31 @@ public class XmlModelBuilder implements ModelBuilder {
             digester.addObjectCreate(m_pattern, m_class);
             digester.addSetProperties(m_pattern, "parent", null);
             digester.addRule(m_pattern, new CopyOfRule());
-            digester.addRule(m_pattern + EL_VALUE, new BeanPropertyNullOnEmptyStringRule("value"));
-            digester.addBeanPropertySetter(m_pattern + "/description");
-            digester.addBeanPropertySetter(m_pattern + "/profileName");
-            digester.addBeanPropertySetter(m_pattern + EL_LABEL);
+            digester
+                    .addRule(m_pattern + EL_VALUE, new BeanPropertyNullOnEmptyStringRule("value"));
+            final String[] properties = {
+                "/description", "/profileName", EL_LABEL
+            };
+            for (int i = 0; i < properties.length; i++) {
+                digester.addBeanPropertySetter(m_pattern + properties[i]);
+            }
             addSettingTypes(digester, m_pattern + "/type/");
             digester.addSetNext(m_pattern, "addSetting", SettingImpl.class.getName());
         }
     }
-    
+
     static class BeanPropertyNullOnEmptyStringRule extends BeanPropertySetterRule {
         public BeanPropertyNullOnEmptyStringRule(String property) {
-            super(property);     
+            super(property);
         }
-        
-        public void body(String namespace, String name, String text)
-            throws Exception {
+
+        public void body(String namespace, String name, String text) throws Exception {
 
             super.body(namespace, name, text);
             if (StringUtils.isEmpty(bodyText)) {
                 bodyText = null;
             }
-        }                
+        }
     }
 
     static class CopyOfRule extends Rule {
@@ -279,6 +284,19 @@ public class XmlModelBuilder implements ModelBuilder {
             digester.addCallMethod(option, "addEnum", 2);
             digester.addCallParam(option + EL_VALUE, 0);
             digester.addCallParam(option + EL_LABEL, 1);
+            super.addRuleInstances(digester);
+        }
+    }
+
+    class FileSettingRule extends SettingTypeRule {
+        public FileSettingRule(String pattern) {
+            super(pattern);
+        }
+
+        public void addRuleInstances(Digester digester) {
+            digester.addObjectCreate(getPattern(), FileSetting.class);
+            digester.addSetProperties(getPattern());
+            digester.addSetNestedProperties(getPattern());
             super.addRuleInstances(digester);
         }
     }
