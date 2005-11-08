@@ -91,9 +91,8 @@ public class BeanId {
             BeanId bid = (BeanId) obj;
             return bid.getBeanClass().equals(getBeanClass())
                 && bid.getId().equals(getId());
-        } else {
-            return false;
         }
+        return false;
     }
 
     public int hashCode() {
