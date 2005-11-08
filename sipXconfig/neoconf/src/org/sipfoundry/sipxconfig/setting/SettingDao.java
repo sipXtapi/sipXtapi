@@ -50,4 +50,9 @@ public interface SettingDao extends DataObjectSource {
      * @return map {groupId as Integer, count as Integer} 
      */
     public Map getGroupMemberCountIndexedByGroupId(Class groupOwner);
+
+    /**
+     * convienence: find and create group if not found
+     */ 
+    public Group getGroupCreateIfNotFound(String resourceId, String groupName);
 }

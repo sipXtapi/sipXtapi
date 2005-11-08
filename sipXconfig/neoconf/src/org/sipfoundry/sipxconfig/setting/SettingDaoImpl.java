@@ -155,4 +155,15 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
             m_weight = weight;
         }
     }
+
+    public Group getGroupCreateIfNotFound(String resourceId, String groupName) {
+        Group g = getGroupByName(resourceId, groupName);
+        if (g == null) {
+            g = new Group();
+            g.setResource(resourceId);
+            g.setName(groupName);
+            saveGroup(g);
+        }
+        return g;
+    }
 }

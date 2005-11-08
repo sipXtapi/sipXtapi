@@ -11,11 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
-import java.lang.reflect.InvocationTargetException;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -50,30 +48,19 @@ public class UserServiceImpl implements UserService {
         String[] groups = addUser.getGroup();
         String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
         for (int i = 0; groups != null && i < groups.length; i++) {
-            Group g = m_settingDao.getGroupByName(resourceId, groups[i]);
-            // convienence: create group if not found
-            if (g == null) {
-                g = new Group();
-                g.setResource(resourceId);
-                g.setName(groups[i]);
-                m_settingDao.saveGroup(g);
-            }
+            Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, groups[i]);
             neoUser.addGroup(g);
         }
         m_coreContext.saveUser(neoUser);
     }
-
+    
     public FindUserResponse findUser(FindUser findUser) throws RemoteException {
         FindUserResponse response = new FindUserResponse();
         List users = m_coreContext.loadUsersByPage(findUser.getByName(),
                 null, 0, PAGE_SIZE, null, true);
         
-        User[] arrayOfUsers = new User[users.size()];
-        for (int i = 0; i < users.size(); i++) {
-            org.sipfoundry.sipxconfig.common.User neoUser = (org.sipfoundry.sipxconfig.common.User) users.get(i);
-            arrayOfUsers[i] = new User();
-            m_userBuilder.toApi(arrayOfUsers[i], neoUser);
-        }
+        User[] arrayOfUsers = (User[]) ApiBeanUtil.toApiArray(m_userBuilder, users.toArray(), 
+                User.class);
         response.setUsers(arrayOfUsers);
         
         return response;
@@ -86,18 +73,7 @@ public class UserServiceImpl implements UserService {
 
     public void editUser(EditUser editUser) throws RemoteException {
         org.sipfoundry.sipxconfig.common.User user = requireUser(editUser.getUserName());
-            
-        Property[] props = editUser.getProperties();
-        for (int i = 0; i < props.length; i++) {
-            try {
-                BeanUtils.setProperty(user, props[i].getProperty(), props[i].getValue());
-            } catch (IllegalAccessException iae) {
-                throw new RuntimeException(iae);
-            } catch (InvocationTargetException ite) {
-                // TODO: possible property spelling error, throw better error here
-                throw new RuntimeException(ite);
-            }
-        }
+        ApiBeanUtil.setProperties(user, editUser.getProperties());
         m_coreContext.saveUser(user);
     }
     

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  - NOTES: After editing this file, run "ant wsdl" target and hit f5 in eclipse
+  - NOTES: 
+  -  o After editing this file, run "ant wsdl" target and hit f5 in eclipse on
+  -    web project
   -->
 <definitions name="ConfigService"
 	targetNamespace="urn:ConfigService" 
@@ -12,7 +14,8 @@
 	
 	<types>
 		<xsd:schema targetNamespace="urn:ConfigService">
-			<!-- business objects -->
+
+			<!-- B U S I N E S S  O B J E C T S -->
 			<xsd:complexType name="User">
 				<xsd:all>
 					<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
@@ -30,14 +33,81 @@
 					<xsd:element name="user" type="tns:User" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 				</xsd:sequence>
 		    </xsd:complexType>
-    		<!-- api support -->
+			<xsd:complexType name="Phone">
+				<xsd:all>
+					<xsd:element name="serialNumber" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+					<xsd:element name="modelId" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="id" type="xsd:string" nillable="true" maxOccurs="1"/>
+				</xsd:all>
+		    </xsd:complexType>				
+			<xsd:complexType name="ArrayOfPhone">
+				<xsd:sequence>
+					<xsd:element name="user" type="tns:Phone" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+				</xsd:sequence>
+		    </xsd:complexType>
+			<xsd:complexType name="Property">
+				<xsd:all>
+					<xsd:element name="property" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+					<xsd:element name="value" type="xsd:string" nillable="true" minOccurs="1" maxOccurs="1"/>					
+				</xsd:all>
+			</xsd:complexType>
+			<xsd:complexType name="PhoneSearch">
+				<xsd:sequence>
+					<xsd:element name="bySerialNumber" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+					<xsd:element name="byGroup" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+					<xsd:element name="byId" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+				</xsd:sequence>
+			</xsd:complexType>
+
+			<!-- R E S P O N S E  / R E Q U E S T S -->
+			
+			<!-- P H O N E -->
+			<xsd:element name="FindPhoneResponse">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="phones" type="tns:ArrayOfPhone" minOccurs="1" maxOccurs="1"/>						
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+            <xsd:element name="AddPhone">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="phone" type="tns:Phone" maxOccurs="1" minOccurs="1"/>
+						<xsd:element name="group" type="xsd:string" nillable="true" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+			</xsd:element>
+		    <xsd:element name="DeletePhone">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:complexType>
+		    </xsd:element>		
+			<xsd:element name="FindPhone">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:complexType>
+		    </xsd:element>
+			<xsd:element name="EditPhone">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="properties" type="tns:Property" maxOccurs="unbounded"/>
+					</xsd:sequence>
+				</xsd:complexType>
+		    </xsd:element>			
+			
+			<!-- U S E R -->
 			<xsd:element name="FindUserResponse">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="users" type="tns:ArrayOfUser" minOccurs="1" maxOccurs="1"/>						
 					</xsd:sequence>
 				</xsd:complexType>
-			</xsd:element>:
+			</xsd:element>
             <xsd:element name="AddUser">
 				<xsd:complexType>
 					<xsd:sequence>
@@ -60,12 +130,6 @@
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>
-			<xsd:complexType name="Property">
-				<xsd:all>
-					<xsd:element name="property" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-					<xsd:element name="value" type="xsd:string" nillable="true" minOccurs="1" maxOccurs="1"/>					
-				</xsd:all>
-			</xsd:complexType>
 			<xsd:element name="EditUser">
 				<xsd:complexType>
 					<xsd:sequence>
@@ -73,9 +137,104 @@
 						<xsd:element name="properties" type="tns:Property" maxOccurs="unbounded"/>
 					</xsd:sequence>
 				</xsd:complexType>
-		    </xsd:element>
+		    </xsd:element>		    
+		    <xsd:element name="ResetService">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="phone" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="user" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:complexType>
+		    </xsd:element>		    
 		</xsd:schema>
 	</types>
+	
+	<!-- 
+	  - BOILER PLATE SECTION
+	  - Much of this section is redundant, cutting and pasting.  Automation is eminent
+      -->
+	
+	<!-- P H O N E  S E R V I C E -->
+	<message name="addPhoneResponse"/>
+	<message name="addPhoneRequest">
+		<part name="addPhone" element="tns:AddPhone"/>
+	</message>
+
+	<message name="findPhoneResponse">
+		<part name="findPhoneResponse" element="tns:FindPhoneResponse"/>
+    </message>
+	<message name="findPhoneRequest">
+		<part name="findPhone" element="tns:FindPhone"/>
+	</message>
+
+	<message name="deletePhoneResponse"/>
+	<message name="deletePhoneRequest">
+		<part name="deletePhone" element="tns:DeletePhone"/>
+	</message>
+	
+	<message name="editPhoneResponse"/>
+	<message name="editPhoneRequest">
+		<part name="editPhone" element="tns:EditPhone"/>
+	</message>
+
+	<portType name="PhoneService">
+		<operation name="addPhone">
+			<input message="tns:addPhoneRequest"/>
+			<output message="tns:addPhoneResponse"/>
+		</operation>
+		<operation name="findPhone">
+			<input message="tns:findPhoneRequest"/>
+			<output message="tns:findPhoneResponse"/>
+		</operation>
+		<operation name="deletePhone">
+			<input message="tns:deletePhoneRequest"/>
+			<output message="tns:deletePhoneResponse"/>
+		</operation>
+		<operation name="editPhone">
+			<input message="tns:editPhoneRequest"/>
+			<output message="tns:editPhoneResponse"/>
+		</operation>
+	</portType>	
+
+	<binding name="PhoneServiceSoapBinding" type="tns:PhoneService">
+		<soap:binding style="document"/>
+		<operation name="addPhone">
+ 			<input>
+				<soap:body use="literal" namespace="urn:ConfigService" />
+			</input>			
+			<output>
+				<soap:body use="literal" namespace="urn:ConfigService"/>
+			</output>			
+			<soap:operation soapAction=""></soap:operation>			
+		</operation>	  
+		<operation name="findPhone">
+ 			<input>
+				<soap:body use="literal" namespace="urn:ConfigService" />
+			</input>			
+			<output>
+				<soap:body use="literal" namespace="urn:ConfigService"/>
+			</output>			
+			<soap:operation soapAction=""></soap:operation>						
+		</operation>
+		<operation name="deletePhone">
+ 			<input>
+				<soap:body use="literal" namespace="urn:ConfigService" />
+			</input>			
+			<output>
+				<soap:body use="literal" namespace="urn:ConfigService"/>
+			</output>			
+			<soap:operation soapAction=""></soap:operation>						
+		</operation>
+		<operation name="editPhone">
+ 			<input>
+				<soap:body use="literal" namespace="urn:ConfigService" />
+			</input>			
+			<output>
+				<soap:body use="literal" namespace="urn:ConfigService"/>
+			</output>			
+			<soap:operation soapAction=""></soap:operation>						
+		</operation>
+	</binding>
 
     <!-- U S E R   S E R V I C E -->
 	<message name="addUserResponse"/>
@@ -122,8 +281,6 @@
 	<binding name="UserServiceSoapBinding" type="tns:UserService">
 		<soap:binding style="document"/>
 		<!-- 
-		  - TODO: Make this soap comment to gets in API docs
-		  -
 		  - Any change to users gets replicated in batches to sipx family 
 		  - of servers asynchronously.  Changes to phones does not happen
 		  - automatically so you will need to explicity send profiles to
@@ -168,23 +325,25 @@
 	</binding>
 
     <!-- T E S T  S E R V I C E -->	
-	<message name="resetUserServiceResponse"/> 
-	<message name="resetUserServiceRequest"/>
+	<message name="resetServiceResponse"/>
+	<message name="resetServiceRequest">
+		<part name="resetService" element="tns:ResetService"/>
+	</message>
 
 	<portType name="TestService">
-		<operation name="resetUserService">
-			<input message="tns:resetUserServiceRequest"/>
-			<output message="tns:resetUserServiceResponse"/>
+		<operation name="resetService">
+			<input message="tns:resetServiceRequest"/>
+			<output message="tns:resetServiceResponse"/>
 		</operation>
 	</portType>
 	
 	<binding name="TestServiceSoapBinding" type="tns:TestService">
 		<soap:binding style="document"/>
-		<operation name="resetUserService">			
- 			<input name="resetUserServiceRequest">
+		<operation name="resetService">			
+ 			<input name="resetServiceRequest">
 				<soap:body use="literal" namespace="urn:TestService"/>
 			</input>			
-			<output name="resetUserServiceResponse">
+			<output name="resetServiceResponse">
 				<soap:body use="literal" namespace="urn:TestService"/>
 			</output>			
 			<soap:operation soapAction=""></soap:operation>			
@@ -193,6 +352,10 @@
 		
     <!-- S E R V I C E S -->	
 	<service name="ConfigImplService">
+		<port name="PhoneService" binding="tns:PhoneServiceSoapBinding">
+			<soap:address 
+				location="http://localhost:9999/sipxconfig/services/PhoneService"/>
+		</port>
 		<port name="UserService" binding="tns:UserServiceSoapBinding">
 			<soap:address 
 				location="http://localhost:9999/sipxconfig/services/UserService"/>

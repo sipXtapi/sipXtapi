@@ -9,13 +9,19 @@
 	<property name="settingDao" ref="settingDao"/>
 </bean>
 
-<bean id="TestService" class="org.sipfoundry.sipxconfig.api.TestServiceImpl">
-	<property name="coreContext" ref="coreContext"/>
+<bean id="PhoneService" class="org.sipfoundry.sipxconfig.api.PhoneServiceImpl">
+	<property name="phoneContext" ref="phoneContext"/>
+	<property name="phoneBuilder" ref="phoneBuilder"/>
+	<property name="settingDao" ref="settingDao"/>
 </bean>
+
+<bean id="TestService" class="org.sipfoundry.sipxconfig.api.TestServiceImpl" 
+	autowire="byName"/>
 
 <bean id="userBuilder" class="org.sipfoundry.sipxconfig.api.UserBuilder">
 	<property name="coreContext" ref="coreContext"/>
 </bean>
 
+<bean id="phoneBuilder" class="org.sipfoundry.sipxconfig.api.PhoneBuilder"/>
 </beans>
 

@@ -13,7 +13,9 @@ class UserServiceTestApi < Test::Unit::TestCase
 
 		@testService = TestService.new(TEST_SERVICE_WSDL)
 		@testService.wiredump_dev = STDOUT if $DEBUG
-		@testService.resetUserService()
+		reset = ResetService.new();
+		reset.user = true;
+		@testService.resetService(reset)
     end
 
 	def test_createUser	    

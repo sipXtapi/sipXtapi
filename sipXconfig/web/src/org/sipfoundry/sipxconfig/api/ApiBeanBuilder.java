@@ -11,9 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
+/**
+ * Transforming beans used in API to beans used in neoconf library 
+ */
 public interface ApiBeanBuilder {
         
-    public void toApi(Object soapObject, Object otherObject);
+    public void toApi(Object apiObject, Object otherObject);
     
-    public void fromApi(Object soapObject, Object otherObject);        
+    public void fromApi(Object apiObject, Object otherObject);        
 }
