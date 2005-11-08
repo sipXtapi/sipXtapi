@@ -65,7 +65,7 @@
     required %flag; "no">
 
 <!ELEMENT directory (#PCDATA)>
-<!ELEMENT mimeType (#PCDATA)>
+<!ELEMENT contentType (#PCDATA)>
 
 
 <!-- enumeration type is a list of options, each option has a value and may have label -->
