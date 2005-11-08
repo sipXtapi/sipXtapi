@@ -60,7 +60,7 @@
 
 <!ELEMENT pattern (#PCDATA)>
 
-<!ELEMENT file (directory?,mimeType?)>
+<!ELEMENT file (directory?,contentType?)>
 <!ATTLIST file
     required %flag; "no">
 

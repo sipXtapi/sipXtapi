@@ -25,6 +25,7 @@
       <ref local="bridgeSettingModel"/>
     </property>
     <property name="systemDefaults" ref="phoneDefaults"/>
+    <property name="audioDirectory" value="${sysdir.phone}/conference"/>
   </bean>
 
   <bean name="conferenceConference" class="org.sipfoundry.sipxconfig.conference.Conference"
@@ -59,6 +60,5 @@
     <property name="target">
       <ref local="conferenceBridgeContextImpl"/>
     </property>
-  </bean>
-  
+  </bean>  
 </beans>

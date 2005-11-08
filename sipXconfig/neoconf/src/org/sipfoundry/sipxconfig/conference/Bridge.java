@@ -16,7 +16,11 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
+import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.FileSetting;
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 public class Bridge extends BeanWithSettings implements NamedObject {
     public static final String BEAN_NAME = "conferenceBridge";
@@ -32,6 +36,8 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     private Set m_conferences = new HashSet();
 
     private PhoneDefaults m_systemDefaults;
+
+    private String m_audioDirectory;
 
     public void insertConference(Conference conference) {
         getConferences().add(conference);
@@ -80,7 +86,22 @@ public class Bridge extends BeanWithSettings implements NamedObject {
         m_systemDefaults = systemDefaults;
     }
 
+    public void setAudioDirectory(String audioDirectory) {
+        m_audioDirectory = audioDirectory;
+    }
+
     protected void defaultSettings() {
         setSettingValue(SIP_DOMAIN, m_systemDefaults.getDomainName());
+        getSettings().acceptVisitor(new AudioDirectorySetter());
+    }
+
+    private class AudioDirectorySetter extends AbstractSettingVisitor {
+        public void visitSetting(Setting setting) {
+            SettingType type = setting.getType();
+            if (type instanceof FileSetting) {
+                FileSetting fileType = (FileSetting) type;
+                fileType.setDirectory(m_audioDirectory);
+            }
+        }
     }
 }

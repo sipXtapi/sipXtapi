@@ -17,6 +17,7 @@ import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
+import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 
 public class BridgeTest extends TestCase {
 
@@ -54,6 +55,8 @@ public class BridgeTest extends TestCase {
     }
 
     public void testGetDefaults() {
+        final String audioDir = "/really/strange/directory";
+
         MockControl defaultsCtrl = MockClassControl.createControl(PhoneDefaults.class);
         PhoneDefaults defaults = (PhoneDefaults) defaultsCtrl.getMock();
         defaults.getDomainName();
@@ -61,9 +64,16 @@ public class BridgeTest extends TestCase {
         defaultsCtrl.replay();
 
         Bridge bridge = (Bridge) TestHelper.getApplicationContext().getBean(Bridge.BEAN_NAME);
+        bridge.setAudioDirectory(audioDir);
+
         bridge.setSystemDefaults(defaults);
 
         assertEquals("xyz.org", bridge.getSettingValue(Bridge.SIP_DOMAIN));
+
+        FileSetting settingType = (FileSetting) bridge.getSettings().getSetting(
+                "bridge-bridge/BOSTON_BRIDGE_HOLD_MUSIC").getType();
+
+        assertEquals(audioDir, settingType.getDirectory());
 
         defaultsCtrl.verify();
     }

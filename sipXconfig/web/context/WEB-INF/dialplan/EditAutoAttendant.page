@@ -76,7 +76,7 @@
     </component>
     
     <!-- auto attendant prompts selection -->
-    <component id="attendantPromptSelector" type="AssetSelector">
+    <component id="attendantPromptSelector" type="AssetSelectorPanel">
         <binding name="asset" expression="attendant.prompt"/>
         <binding name="assetDir" expression="vxmlGenerator.promptsDirectory"/>
         <message-binding name="errorMsg" key="error.select"/>
