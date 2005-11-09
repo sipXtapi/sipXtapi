@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.api;
 
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -65,9 +66,11 @@ public class PhoneServiceImpl implements PhoneService {
             phones = m_context.loadPhones();
         } else if (search.getBySerialNumber() != null) {
             Integer id = m_context.getPhoneIdBySerialNumber(search.getBySerialNumber());
-            org.sipfoundry.sipxconfig.phone.Phone phone = m_context.loadPhone(id);
-            if (phone != null) {
-                phones = Collections.singleton(phone);                
+            if (id != null) {
+                org.sipfoundry.sipxconfig.phone.Phone phone = m_context.loadPhone(id);
+                if (phone != null) {
+                    phones = Collections.singleton(phone);
+                }
             }
         } else if (search.getByGroup() != null) {
             String resourceId = org.sipfoundry.sipxconfig.phone.Phone.GROUP_RESOURCE_ID;
@@ -84,13 +87,6 @@ public class PhoneServiceImpl implements PhoneService {
         
         return (org.sipfoundry.sipxconfig.phone.Phone[])
             phones.toArray(new org.sipfoundry.sipxconfig.phone.Phone[phones.size()]);
-    }
-
-    public void deletePhone(DeletePhone deletePhone) throws RemoteException {
-        org.sipfoundry.sipxconfig.phone.Phone[] otherPhones = phoneSearch(deletePhone.getSearch());
-        for (int i = 0; i < otherPhones.length; i++) {
-            m_context.deletePhone(otherPhones[i]);
-        }
     }
 
     public void editPhone(EditPhone editPhone) throws RemoteException {
@@ -112,5 +108,20 @@ public class PhoneServiceImpl implements PhoneService {
 
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
+    }
+
+    public void managePhone(ManagePhone managePhone) throws RemoteException {
+        org.sipfoundry.sipxconfig.phone.Phone[] otherPhones = phoneSearch(managePhone.getSearch());
+        if (Boolean.TRUE.equals(managePhone.getGenerateProfiles())) {
+            m_context.generateProfilesAndRestart(Arrays.asList(otherPhones));            
+        } else if (Boolean.TRUE.equals(managePhone.getRestart())) {
+            m_context.restart(Arrays.asList(otherPhones));            
+        } else {
+            for (int i = 0; i < otherPhones.length; i++) {
+                if (Boolean.TRUE.equals(managePhone.getDoDelete())) {
+                    m_context.deletePhone(otherPhones[i]);
+                }
+            }
+        }
     }
 }

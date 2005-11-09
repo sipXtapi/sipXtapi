@@ -102,15 +102,8 @@ public class UserServiceImpl implements UserService {
     
     void warnIfOverflow(List list, int size) {
         if (list.size() >= size) {
-            LOG.warn("Search results on exceeded maximum size " + PAGE_SIZE);
+            LOG.warn("Search results exceeded maximum size " + PAGE_SIZE);
         }        
-    }
-
-    public void deleteUser(DeleteUser deleteUser) throws RemoteException {
-        org.sipfoundry.sipxconfig.common.User[] otherUsers = search(deleteUser.getSearch());
-        for (int i = 0; i < otherUsers.length; i++) {
-            m_coreContext.deleteUser(otherUsers[i]);
-        }
     }
 
     public void editUser(EditUser editUser) throws RemoteException {
@@ -119,6 +112,15 @@ public class UserServiceImpl implements UserService {
             ApiBeanUtil.setProperties(otherUsers[i], editUser.getProperties());
             // TODO: lines and groups
             m_coreContext.saveUser(otherUsers[i]);
+        }
+    }
+
+    public void manageUser(ManageUser manageUser) throws RemoteException {
+        org.sipfoundry.sipxconfig.common.User[] otherUsers = search(manageUser.getSearch());
+        for (int i = 0; i < otherUsers.length; i++) {
+            if (Boolean.TRUE.equals(manageUser.getDoDelete())) {
+                m_coreContext.deleteUser(otherUsers[i]);
+            }
         }
     }
 }

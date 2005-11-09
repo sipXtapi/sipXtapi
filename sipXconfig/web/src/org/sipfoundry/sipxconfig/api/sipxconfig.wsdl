@@ -25,9 +25,9 @@
 					<xsd:element name="firstName" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="aliases" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="sipPassword" type="xsd:string" nillable="true" maxOccurs="1"/>
-					<xsd:element name="id" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="id" type="xsd:int" nillable="true" maxOccurs="1"/>
 				</xsd:all>
-		    </xsd:complexType>				
+		    </xsd:complexType>
 			<xsd:complexType name="ArrayOfUser">
 				<xsd:sequence>
 					<xsd:element name="user" type="tns:User" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
@@ -37,7 +37,7 @@
 				<xsd:all>
 					<xsd:element name="serialNumber" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					<xsd:element name="modelId" type="xsd:string" nillable="true" maxOccurs="1"/>
-					<xsd:element name="id" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="id" type="xsd:int" nillable="true" maxOccurs="1"/>
 				</xsd:all>
 		    </xsd:complexType>				
 			<xsd:complexType name="ArrayOfPhone">
@@ -83,13 +83,6 @@
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
-		    <xsd:element name="DeletePhone">
-				<xsd:complexType>
-					<xsd:sequence>
-						<xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
-					</xsd:sequence>
-				</xsd:complexType>
-		    </xsd:element>		
 			<xsd:element name="FindPhone">
 				<xsd:complexType>
 					<xsd:sequence>
@@ -105,6 +98,16 @@
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>			
+		    <xsd:element name="ManagePhone">
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="generateProfiles" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="restart" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="doDelete" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+					</xsd:sequence>
+				</xsd:complexType>
+		    </xsd:element>
 			
 			<!-- U S E R -->
 			<xsd:element name="FindUserResponse">
@@ -122,10 +125,11 @@
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
-		    <xsd:element name="DeleteUser">
+		    <xsd:element name="ManageUser">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="search" type="tns:UserSearch" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="doDelete" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>		
@@ -175,9 +179,9 @@
 		<part name="findPhone" element="tns:FindPhone"/>
 	</message>
 
-	<message name="deletePhoneResponse"/>
-	<message name="deletePhoneRequest">
-		<part name="deletePhone" element="tns:DeletePhone"/>
+	<message name="managePhoneResponse"/>
+	<message name="managePhoneRequest">
+		<part name="managePhone" element="tns:ManagePhone"/>
 	</message>
 	
 	<message name="editPhoneResponse"/>
@@ -194,9 +198,9 @@
 			<input message="tns:findPhoneRequest"/>
 			<output message="tns:findPhoneResponse"/>
 		</operation>
-		<operation name="deletePhone">
-			<input message="tns:deletePhoneRequest"/>
-			<output message="tns:deletePhoneResponse"/>
+		<operation name="managePhone">
+			<input message="tns:managePhoneRequest"/>
+			<output message="tns:managePhoneResponse"/>
 		</operation>
 		<operation name="editPhone">
 			<input message="tns:editPhoneRequest"/>
@@ -224,7 +228,7 @@
 			</output>			
 			<soap:operation soapAction=""></soap:operation>						
 		</operation>
-		<operation name="deletePhone">
+		<operation name="managePhone">
  			<input>
 				<soap:body use="literal" namespace="urn:ConfigService" />
 			</input>			
@@ -257,9 +261,9 @@
 		<part name="findUser" element="tns:FindUser"/>
 	</message>
 
-	<message name="deleteUserResponse"/>
-	<message name="deleteUserRequest">
-		<part name="deleteUser" element="tns:DeleteUser"/>
+	<message name="manageUserResponse"/>
+	<message name="manageUserRequest">
+		<part name="manageUser" element="tns:ManageUser"/>
 	</message>
 	
 	<message name="editUserResponse"/>
@@ -276,9 +280,9 @@
 			<input message="tns:findUserRequest"/>
 			<output message="tns:findUserResponse"/>
 		</operation>
-		<operation name="deleteUser">
-			<input message="tns:deleteUserRequest"/>
-			<output message="tns:deleteUserResponse"/>
+		<operation name="manageUser">
+			<input message="tns:manageUserRequest"/>
+			<output message="tns:manageUserResponse"/>
 		</operation>
 		<operation name="editUser">
 			<input message="tns:editUserRequest"/>
@@ -312,7 +316,7 @@
 			</output>			
 			<soap:operation soapAction=""></soap:operation>						
 		</operation>
-		<operation name="deleteUser">
+		<operation name="manageUser">
  			<input>
 				<soap:body use="literal" namespace="urn:ConfigService" />
 			</input>			

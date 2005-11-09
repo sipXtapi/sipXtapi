@@ -29,8 +29,7 @@ class UserServiceTestApi < Test::Unit::TestCase
 	    users = @userService.findUser(findUser).users
 	    
 	    assert_equal(1, users.length)
-	    assert_equal(expected.userName, users[0].userName)
-		
+	    assert_equal(expected.userName, users[0].userName)		
     end
     
 	def test_findUser
@@ -56,12 +55,14 @@ class UserServiceTestApi < Test::Unit::TestCase
 	    users = @userService.findUser(FindUser.new(search)).users
 	    assert_equal(1, users.length)
 	    
-	    @userService.deleteUser(DeleteUser.new(search))
+	    deleteUser = ManageUser.new(search);
+	    deleteUser.doDelete = true
+	    @userService.manageUser(deleteUser)
 	    
 	    users = @userService.findUser(FindUser.new(search)).users
 	    assert_equal(0, users.length)
     end
-
+    
 	def test_editUser
     	addUser1 = AddUser.new(User.new('user1', '1234'))
 	    addUser1.user.firstName = 'Ali'
