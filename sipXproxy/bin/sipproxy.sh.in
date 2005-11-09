@@ -71,11 +71,11 @@ case ${Action} in
      #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/forwardingrules.xml
      #Status=$?
 
-     myHostname=`hostname -f`
+     myHostname=`hostname -f | tr A-Z a-z`
      status=$? 
      Status=$((${Status}+${status}))
      
-     myDomain=`. ${CONFIG_DEFS}; echo ${SIPXCHANGE_DOMAIN_NAME}`
+     myDomain=`. ${CONFIG_DEFS}; echo ${SIPXCHANGE_DOMAIN_NAME} | tr A-Z a-z`
      status=$? 
      Status=$((${Status}+${status}))
 
