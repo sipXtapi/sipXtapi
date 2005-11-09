@@ -49,7 +49,7 @@ public class SpringBeanMsgProvider extends MsgProvider {
     protected Object makeNewServiceObject(MessageContext msgContext, String clsName)
         throws Exception {
 
-        return provider.getBean(msgContext, clsName);
+        return provider.getBean(msgContext.getAxisEngine(), clsName);
     }
 
     /**
@@ -58,7 +58,7 @@ public class SpringBeanMsgProvider extends MsgProvider {
     protected Class getServiceClass(String clsName, SOAPService service, MessageContext msgContext)
         throws AxisFault {
 
-        return provider.getBeanClass(msgContext, clsName);
+        return provider.getBeanClass(service.getEngine(), clsName);
     }
 
     /**

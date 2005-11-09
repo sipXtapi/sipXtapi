@@ -3,6 +3,7 @@ package com.workingmouse.webservice.axis;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 
+import org.apache.axis.AxisFault;
 import org.apache.axis.transport.http.AxisServlet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -57,10 +58,6 @@ public class SpringAxisServlet extends AxisServlet {
      * @see org.springframework.web.context.support.XmlWebApplicationContext
      */
     public static final Class DEFAULT_CONTEXT_CLASS = XmlWebApplicationContext.class;
-
-    /** Name of the ServletContext attribute for the WebApplicationContext */
-    public static final String SERVLET_CONTEXT_ATTRIBUTE = SpringAxisServlet.class.getName()
-            + ".CONTEXT";
 
     /** Custom WebApplicationContext class */
     private Class contextClass = DEFAULT_CONTEXT_CLASS;
@@ -218,14 +215,11 @@ public class SpringAxisServlet extends AxisServlet {
                     + "'");
         }
 
-        // publish the context as a servlet context attribute
-        ctx.setAttribute(SERVLET_CONTEXT_ATTRIBUTE, wac);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Published WebApplicationContext of servlet '"
-                    + getServletName()
-                    + "' as ServletContext attribute with name ["
-                    + SERVLET_CONTEXT_ATTRIBUTE
-                    + "]");
+        // publish the context to axis engine application session
+        try {
+            SpringBeanProvider.setWebApplicationContext(getEngine(), wac);
+        } catch (AxisFault e) {
+            throw new ApplicationContextException("Could not save axis engine session object", e);
         }
         return wac;
     }

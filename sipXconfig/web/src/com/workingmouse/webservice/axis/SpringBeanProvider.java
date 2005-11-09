@@ -1,12 +1,9 @@
 package com.workingmouse.webservice.axis;
 
-import javax.servlet.ServletContext;
 import javax.xml.rpc.ServiceException;
-import javax.xml.rpc.server.ServletEndpointContext;
 
+import org.apache.axis.AxisEngine;
 import org.apache.axis.AxisFault;
-import org.apache.axis.Constants;
-import org.apache.axis.MessageContext;
 import org.apache.axis.utils.Messages;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -25,51 +22,44 @@ public class SpringBeanProvider {
      */
     public static final String BEAN_OPTION_NAME = "springBean";
 
-    private WebApplicationContext webAppCtx;
+    /** Name of the Application session attribute for the WebApplicationContext */
+    private static final String APPLICATION_SESSION_ATTRIBUTE = SpringBeanProvider.class.getName()
+            + ".APPLICATION_SESSION_ATTRIBUTE";
 
     /**
      * Return a bean bound with the given beanName from the WebApplicationContext.
      */
-    public Object getBean(MessageContext msgContext, String beanName) throws Exception {
-        initWebAppContext(msgContext);
-        return webAppCtx.getBean(beanName);
+    public Object getBean(AxisEngine engine, String beanName) throws Exception {
+        return getWebApplicationContext(engine).getBean(beanName);
     }
 
     /**
      * Return the class of a bean bound with the given beanName in the WebApplicationContext.
      */
-    public Class getBeanClass(MessageContext msgContext, String beanName) throws AxisFault {
+    public Class getBeanClass(AxisEngine engine, String beanName) throws AxisFault {
         try {
-            Object bean = getBean(msgContext, beanName);
+            Object bean = getBean(engine, beanName);
             return bean.getClass();
 
         } catch (Exception e) {
             throw new AxisFault(Messages.getMessage("noClassForService00", beanName), e);
         }
     }
-
-    private void initWebAppContext(MessageContext msgContext) throws ServiceException {
-        if (webAppCtx == null && msgContext != null) {
-            Object context = msgContext.getProperty(Constants.MC_SERVLET_ENDPOINT_CONTEXT);
-            if (context instanceof ServletEndpointContext) {
-                ServletEndpointContext servletEndpointContext = (ServletEndpointContext) context;
-                ServletContext servletCtx = servletEndpointContext.getServletContext();
-                webAppCtx = (WebApplicationContext) servletCtx
-                    .getAttribute(SpringAxisServlet.SERVLET_CONTEXT_ATTRIBUTE);
-                if (webAppCtx == null) {
-                    throw new ServiceException(
-                        "Cannot find SpringAxisServlet's WebApplicationContext"
-                                + " as ServletContext attribute ["
-                                + SpringAxisServlet.SERVLET_CONTEXT_ATTRIBUTE
-                                + "]");
-                }
-            } else {
-                throw new ServiceException("Invalid context - expected ["
-                        + ServletEndpointContext.class.getName()
-                        + "], actual ["
-                        + context
+    
+    public static WebApplicationContext getWebApplicationContext(AxisEngine engine) throws ServiceException {
+        WebApplicationContext context = (WebApplicationContext) engine.getApplicationSession().get(APPLICATION_SESSION_ATTRIBUTE);
+        if (context == null) {
+            throw new ServiceException(
+                "Cannot find SpringAxisServlet's WebApplicationContext"
+                        + " as ServletContext attribute ["
+                        + APPLICATION_SESSION_ATTRIBUTE
                         + "]");
-            }
         }
+        
+        return context;
+    }
+    
+    public static void setWebApplicationContext(AxisEngine engine, WebApplicationContext context) {
+        engine.getApplicationSession().set(APPLICATION_SESSION_ATTRIBUTE, context);        
     }
 }
