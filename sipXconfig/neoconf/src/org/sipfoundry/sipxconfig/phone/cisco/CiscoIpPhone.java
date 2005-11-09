@@ -53,8 +53,10 @@ public class CiscoIpPhone extends CiscoPhone {
         if (c == PhoneSettings.class) {
             SettingBeanAdapter adapter = new SettingBeanAdapter(c);
             adapter.setSetting(getSettings());
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/outbound_proxy");
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "sip/outbound_proxy_port");
+            // XCF-760 safe not to set these, traffic is sent to registration
+            // server by default, FQDN or just DN. 
+            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/outbound_proxy");
+            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, "sip/outbound_proxy_port");
             adapter.addMapping(PhoneSettings.VOICE_MAIL_NUMBER, "phone/messages_uri");
 
             o = adapter.getImplementation();

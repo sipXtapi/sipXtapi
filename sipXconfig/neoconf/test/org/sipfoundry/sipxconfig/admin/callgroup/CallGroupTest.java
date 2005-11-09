@@ -56,6 +56,8 @@ public class CallGroupTest extends TestCase {
             AliasMapping am = (AliasMapping) aliases.get(i);
             assertEquals(am.getIdentity(), group.getName() + "@kuku");
             assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
+            // for all but last we need sipx-noroute=Voicemail in the sequence
+            assertEquals(i < ringsLen - 1, 0 < am.getContact().indexOf("sipx-noroute=Voicemail"));
         }
 
         // the last alias is an extension => identity

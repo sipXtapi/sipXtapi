@@ -50,7 +50,8 @@ public class CallSequence extends AbstractCallSequence {
 
     public List generateAliases(String domain) {
         String identity = m_user.getUserName() + "@" + domain;
-        return generateAliases(identity, domain);
+        // pass true to never route this to voicemail
+        return generateAliases(identity, domain, true);
     }
 
     public List generateAuthExceptions() {

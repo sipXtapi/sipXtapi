@@ -166,6 +166,7 @@ onWebUi() {
 
     # Used in sipxconfig-jetty.xml only
     SystemProps="\
+        -Djava.io.tmpdir=${TmpDir} \
         -Djetty.lib.dir=@sipxconfig.lib.dir@ \
         -Djetty.conf.dir=@sipxpbx.conf.dir@ \
         -Djetty.log.dir=${LogDir} \
