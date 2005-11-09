@@ -18,10 +18,9 @@
 <bean id="TestService" class="org.sipfoundry.sipxconfig.api.TestServiceImpl" 
 	autowire="byName"/>
 
-<bean id="userBuilder" class="org.sipfoundry.sipxconfig.api.UserBuilder">
-	<property name="coreContext" ref="coreContext"/>
-</bean>
+<bean id="userBuilder" class="org.sipfoundry.sipxconfig.api.UserBuilder" autowire="byName"/>
 
-<bean id="phoneBuilder" class="org.sipfoundry.sipxconfig.api.PhoneBuilder"/>
+<bean id="phoneBuilder" class="org.sipfoundry.sipxconfig.api.PhoneBuilder" autowire="byName"/>
+
 </beans>
 

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.api;
 import java.rmi.RemoteException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,23 +50,23 @@ public class UserServiceImpl implements UserService {
     }
     
     public void addUser(AddUser addUser) throws RemoteException {
-        org.sipfoundry.sipxconfig.common.User neoUser = new org.sipfoundry.sipxconfig.common.User();
-        User soapUser = addUser.getUser();        
-        m_userBuilder.fromApi(soapUser, neoUser);
+        org.sipfoundry.sipxconfig.common.User myUser = new org.sipfoundry.sipxconfig.common.User();
+        User apiUser = addUser.getUser();        
+        ApiBeanUtil.toMyObject(m_userBuilder, myUser, apiUser);
         String[] groups = addUser.getGroup();
         String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
         for (int i = 0; groups != null && i < groups.length; i++) {
             Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, groups[i]);
-            neoUser.addGroup(g);
+            myUser.addGroup(g);
         }
-        m_coreContext.saveUser(neoUser);
+        myUser.setPin(addUser.getPin(), m_coreContext.getAuthorizationRealm());
+        m_coreContext.saveUser(myUser);
     }
     
     public FindUserResponse findUser(FindUser findUser) throws RemoteException {
         FindUserResponse response = new FindUserResponse();        
-        org.sipfoundry.sipxconfig.common.User[] users = search(findUser.getSearch());        
-        User[] arrayOfUsers = (User[]) ApiBeanUtil.toApiArray(m_userBuilder, users, 
-                User.class);
+        org.sipfoundry.sipxconfig.common.User[] users = search(findUser.getSearch());
+        User[] arrayOfUsers = (User[]) ApiBeanUtil.toApiArray(m_userBuilder, users, User.class);
         response.setUsers(arrayOfUsers);
         
         return response;
@@ -89,11 +90,6 @@ public class UserServiceImpl implements UserService {
             Group g = m_settingDao.getGroupByName(resourceId, search.getByGroup());
             users = m_coreContext.loadUsersByPage(null, g.getId(), 0, PAGE_SIZE, SORT_ORDER, true);
             warnIfOverflow(users, PAGE_SIZE);
-        } else if (search.getById() != null) {
-            org.sipfoundry.sipxconfig.common.User user = m_coreContext.loadUser(search.getById());
-            if (user != null) {
-                users = Collections.singletonList(user);
-            }
         }
         
         return (org.sipfoundry.sipxconfig.common.User[])
@@ -107,19 +103,22 @@ public class UserServiceImpl implements UserService {
     }
 
     public void editUser(EditUser editUser) throws RemoteException {
-        org.sipfoundry.sipxconfig.common.User[] otherUsers = search(editUser.getSearch());
-        for (int i = 0; i < otherUsers.length; i++) {
-            ApiBeanUtil.setProperties(otherUsers[i], editUser.getProperties());
+        org.sipfoundry.sipxconfig.common.User[] myUsers = search(editUser.getSearch());
+        Set properties  = ApiBeanUtil.getSpecfiedProperties(editUser.getProperties());
+        for (int i = 0; i < myUsers.length; i++) {
+            User apiUser = new User();
+            ApiBeanUtil.setProperties(apiUser, editUser.getProperties());
+            m_userBuilder.toMyObject(myUsers[i], apiUser, properties);
             // TODO: lines and groups
-            m_coreContext.saveUser(otherUsers[i]);
+            m_coreContext.saveUser(myUsers[i]);
         }
     }
 
     public void manageUser(ManageUser manageUser) throws RemoteException {
-        org.sipfoundry.sipxconfig.common.User[] otherUsers = search(manageUser.getSearch());
-        for (int i = 0; i < otherUsers.length; i++) {
+        org.sipfoundry.sipxconfig.common.User[] myUsers = search(manageUser.getSearch());
+        for (int i = 0; i < myUsers.length; i++) {
             if (Boolean.TRUE.equals(manageUser.getDoDelete())) {
-                m_coreContext.deleteUser(otherUsers[i]);
+                m_coreContext.deleteUser(myUsers[i]);
             }
         }
     }

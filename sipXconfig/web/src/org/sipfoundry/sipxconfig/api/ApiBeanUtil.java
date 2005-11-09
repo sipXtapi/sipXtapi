@@ -11,77 +11,125 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
 
 public final class ApiBeanUtil {
-
+    
     private ApiBeanUtil() {
     }
     
-    public static void setProperties(Object otherObject, Property[] properties) {
+    public static void toApiObject(ApiBeanBuilder builder, Object apiObject, Object myObject) {
+        Set properties = getReadableProperties(apiObject);
+        builder.toApiObject(apiObject, myObject, properties);
+    }
+    
+    public static void toMyObject(ApiBeanBuilder builder, Object myObject, Object apiObject) {
+        Set properties = getReadableProperties(apiObject);
+        builder.toMyObject(myObject, apiObject, properties);
+    }
+
+    public static void setProperties(Object object, Property[] properties) {
         for (int i = 0; i < properties.length; i++) {
-            try {
-                BeanUtils.setProperty(otherObject, properties[i].getProperty(), properties[i].getValue());
-            } catch (IllegalAccessException iae) {
-                throw new RuntimeException(iae);
-            } catch (InvocationTargetException ite) {
-                // TODO: possible property spelling error, throw better error here
-                throw new RuntimeException(ite);
-            }
+            setProperty(object, properties[i].getProperty(), properties[i].getValue());
         }        
     }
     
-    public static Object[] toApiArray(ApiBeanBuilder builder, Object[] fromOther, Class toApiClass) {
-        Object[] apiObject = (Object[]) Array.newInstance(toApiClass, fromOther.length);
-        for (int i = 0; i < fromOther.length; i++) {
-            try {
-                apiObject[i] = toApiClass.newInstance();
+    public static Set getSpecfiedProperties(Property[] properties) {
+        Set props = new HashSet(properties.length);
+        for (int i = 0; i < properties.length; i++) {
+            props.add(properties[i].getProperty());
+        }
+        return props;
+    }
+    
+    public static Object[] newArray(Class elementClass, int size) {
+        Object[] to = (Object[]) Array.newInstance(elementClass, size);
+        for (int i = 0; i < size; i++) {
+            try {                
+                to[i] = elementClass.newInstance();
             } catch (InstantiationException impossible1) {
                 wrapImpossibleException(impossible1);
             } catch (IllegalAccessException impossible2) {
                 wrapImpossibleException(impossible2);
             }
-            builder.toApi(apiObject[i], fromOther[i]);
         }
         
-        return apiObject;
-        
+        return to;        
     }
     
-    static void wrapImpossibleException(Exception e) {
-        throw new RuntimeException("Impossible exception made possible", e);        
+    public static Object[] toApiArray(ApiBeanBuilder builder, Object[] myObjects, Class apiClass) {
+        Object[] apiArray = ApiBeanUtil.newArray(apiClass, myObjects.length);
+        if (myObjects.length == 0) {
+            return apiArray; 
+        }
+        Set properties = ApiBeanUtil.getReadableProperties(apiArray[0]);
+        for (int i = 0; i < myObjects.length; i++) {
+            builder.toApiObject(apiArray[i], myObjects[i], properties);
+        }
+        return apiArray;
     }
     
-    public static void copyProperties(Object from, Object to, Set ignoreList) {        
+    
+    public static void wrapImpossibleException(Exception e) {
+        throw new RuntimeException("Unexpected bean error", e);        
+    }
+    
+    public static void wrapPropertyException(String property, Exception e) {
+        throw new IllegalArgumentException("Error acessing property " + property, e);                
+    }
+    
+    public static Set getReadableProperties(Object o) {
+        Set properties = null;
         try {
-            PropertyDescriptor[] origDescriptors =
-                PropertyUtils.getPropertyDescriptors(from);
-            for (int i = 0; i < origDescriptors.length; i++) {
-                String name = origDescriptors[i].getName();
-                if ("class".equals(name)) {
-                    continue; // No point in trying to set an object's class
-                }
-                boolean ignore = (ignoreList != null && ignoreList.contains(name)); 
-                if (!ignore && PropertyUtils.isReadable(from, name)
-                        && PropertyUtils.isWriteable(to, name)) {
-                    try {
-                        Object value = PropertyUtils.getSimpleProperty(from, name);
-                        BeanUtils.copyProperty(to, name, value);
-                    } catch (NoSuchMethodException impossible) {
-                        throw new RuntimeException(impossible);
-                    }
-                }
+            Map desciption = BeanUtils.describe(o);
+            desciption.remove("class");
+            properties = desciption.keySet();
+        } catch (IllegalAccessException e) {
+            wrapImpossibleException(e);
+        } catch (InvocationTargetException e) {
+            wrapImpossibleException(e);
+        } catch (NoSuchMethodException e) {
+            wrapImpossibleException(e);
+        }
+        return properties;
+    }
+    
+    public static void copyProperties(Object to, Object from, Set properties, Set ignoreList) {
+        Iterator i = properties.iterator();
+        while (i.hasNext()) {
+            String name = (String) i.next();
+            if (ignoreList != null && ignoreList.contains(name)) {
+                continue;
             }
-        } catch (IllegalAccessException iae) {
-            throw new RuntimeException(iae);
-        } catch (InvocationTargetException ite) {
-            throw new RuntimeException(ite);
+            try {
+                Object value = PropertyUtils.getSimpleProperty(from, name);                
+                BeanUtils.copyProperty(to, name, value);
+            } catch (IllegalAccessException iae) {
+                wrapPropertyException(name, iae);
+                throw new RuntimeException(iae);
+            } catch (InvocationTargetException ite) {
+                wrapPropertyException(name, ite);
+            } catch (NoSuchMethodException nsme) {
+                wrapPropertyException(name, nsme);
+            }
         }
     }
+
+    public static void setProperty(Object o, String property, Object value) {
+        try {
+            BeanUtils.copyProperty(o, property, value);
+        } catch (IllegalAccessException iae) {
+            ApiBeanUtil.wrapPropertyException(property, iae);
+        } catch (InvocationTargetException ite) {
+            ApiBeanUtil.wrapPropertyException(property, ite);
+        }
+    }    
 }

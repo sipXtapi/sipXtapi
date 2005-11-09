@@ -12,25 +12,30 @@
 package org.sipfoundry.sipxconfig.api;
 
 import java.util.Arrays;
-
-import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
+import java.util.Set;
 
 public class PhoneBuilder extends SimpleBeanBuilder {
     
-    private static final String IGNORE_LIST = "modelId";
+    private static final String MODEL_ID_PROP = "modelId"; 
+    
+    private static final String[] IGNORE_LIST = { 
+        MODEL_ID_PROP 
+    };
     
     public PhoneBuilder() {
-        getIgnoreList().addAll(Arrays.asList(SipxCollectionUtils.splitString(IGNORE_LIST)));        
+        getIgnoreList().addAll(Arrays.asList(IGNORE_LIST));        
     }
-
-    public void toApi(Object apiObject, Object otherObject) {
-        super.toApi(apiObject, otherObject);  
+    
+    public void toApiObject(Object apiObject, Object myObject, Set properties) {
+        super.toApiObject(apiObject, myObject, properties);
         Phone phone = (Phone) apiObject;
-        org.sipfoundry.sipxconfig.phone.Phone otherPhone = (org.sipfoundry.sipxconfig.phone.Phone) otherObject;
-        phone.setModelId(otherPhone.getModelId());
+        org.sipfoundry.sipxconfig.phone.Phone otherPhone = (org.sipfoundry.sipxconfig.phone.Phone) myObject;
+        if (properties.contains(MODEL_ID_PROP)) {
+            phone.setModelId(otherPhone.getModelId());
+        }
     }
 
-    public void fromApi(Object apiObject, Object otherObject) {
-        super.fromApi(apiObject, otherObject);
+    public void toMyObject(Object myObject, Object apiObject, Set properties) {
+        super.toMyObject(myObject, apiObject, properties);
     }    
 }

@@ -11,50 +11,46 @@
  */
 package org.sipfoundry.sipxconfig.api;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import junit.framework.TestCase;
 
-public class ApiBeanUtilTest extends TestCase {
-
+public class ApiBeanUtilTest extends TestCase {    
+    private Set frackProps;
+    
+    protected void setUp() {
+        frackProps = new HashSet();
+    }
+    
     public void testCopyProperties() {
-        ApiBean1 one = new ApiBean1();
-        one.setFreak("homer");
-        ApiBean2 two = new ApiBean2();
-        ApiBeanUtil.copyProperties(one, two, null);
-        assertEquals("homer", two.getFreak());
+        Frick frick = new Frick("yaya", "123 hello st.");
+        Frack frack = new Frack();
+        frackProps.add("name");
+        ApiBeanUtil.copyProperties(frack, frick, frackProps, null);
+        assertEquals("yaya", frack.getName());
     }
     
-    public static class ApiBean1 {
-        
-        private String m_freak;
-        
-        public String getFreak() {        
-            return m_freak;
-        }
-        
-        public void setFreak(String freak) {
-            m_freak = freak;
-        }
+    public void testReadableProperties() {
+        Object[] props = ApiBeanUtil.getReadableProperties(new Frick()).toArray();
+        Arrays.sort(props);
+        assertEquals(2, props.length);        
+        assertEquals("address", props[0]);
+        assertEquals("name", props[1]);
     }
     
-    public static class ApiBean2 {
-        private String m_freak;
-        private String m_ball;
-        
-        public String getFreak() {        
-            return m_freak;
-        }
-        
-        public void setFreak(String freak) {
-            m_freak = freak;
-        }
-        
-        public String getBall() {            
-            return m_ball;
-        }
-        
-        public void setBall(String ball) {
-            m_ball = ball;
-        }
+    public void testToApiArray() {
+        Frick[] fricks = new Frick[] {
+                new Frick("a", "b"),
+                new Frick("c", "d")
+        };
+        SimpleBeanBuilder builder = new SimpleBeanBuilder();
+        builder.getIgnoreList().add("abode");
+        Frack[] fracks = (Frack[]) ApiBeanUtil.toApiArray(builder, fricks, Frack.class);
+        assertEquals("a", fracks[0].getName());
+        assertEquals(null, fracks[0].getAbode());
+        assertEquals("c", fracks[1].getName());
+        assertEquals(null, fracks[1].getAbode());
     }
-
 }

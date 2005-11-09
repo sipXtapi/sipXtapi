@@ -15,6 +15,7 @@ import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -41,7 +42,7 @@ public class PhoneServiceImpl implements PhoneService {
         Phone apiPhone = addPhone.getPhone(); 
         PhoneModel model = requireModelId(apiPhone.getModelId());
         org.sipfoundry.sipxconfig.phone.Phone phone = m_context.newPhone(model);
-        m_builder.fromApi(apiPhone, phone);
+        ApiBeanUtil.toMyObject(m_builder, phone, apiPhone);
         String[] groups = addPhone.getGroup();
         String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
         for (int i = 0; groups != null && i < groups.length; i++) {
@@ -53,8 +54,8 @@ public class PhoneServiceImpl implements PhoneService {
 
     public FindPhoneResponse findPhone(FindPhone findPhone) throws RemoteException {
         FindPhoneResponse response = new FindPhoneResponse();        
-        org.sipfoundry.sipxconfig.phone.Phone[] otherPhones = phoneSearch(findPhone.getSearch());
-        Phone[] arrayOfPhones = (Phone[]) ApiBeanUtil.toApiArray(m_builder, otherPhones, Phone.class);
+        org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(findPhone.getSearch());
+        Phone[] arrayOfPhones = (Phone[]) ApiBeanUtil.toApiArray(m_builder, myPhones, Phone.class);
         response.setPhones(arrayOfPhones);
         
         return response;
@@ -78,11 +79,6 @@ public class PhoneServiceImpl implements PhoneService {
             if (g != null) {
                 phones = m_context.getPhonesByGroupId(g.getId());
             }
-        } else if (search.getById() != null) {
-            org.sipfoundry.sipxconfig.phone.Phone phone = m_context.loadPhone(search.getById());
-            if (phone != null) {
-                phones = Collections.singleton(phone);
-            }
         }
         
         return (org.sipfoundry.sipxconfig.phone.Phone[])
@@ -90,11 +86,14 @@ public class PhoneServiceImpl implements PhoneService {
     }
 
     public void editPhone(EditPhone editPhone) throws RemoteException {
-        org.sipfoundry.sipxconfig.phone.Phone[] otherPhones = phoneSearch(editPhone.getSearch());
-        for (int i = 0; i < otherPhones.length; i++) {
-            ApiBeanUtil.setProperties(otherPhones[i], editPhone.getProperties());
+        org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(editPhone.getSearch());
+        Set properties  = ApiBeanUtil.getSpecfiedProperties(editPhone.getProperties());
+        for (int i = 0; i < myPhones.length; i++) {
+            Phone apiPhone = new Phone();
+            ApiBeanUtil.setProperties(apiPhone, editPhone.getProperties());
+            m_builder.toMyObject(myPhones[i], apiPhone, properties);
             // TODO: lines and groups
-            m_context.storePhone(otherPhones[i]);
+            m_context.storePhone(myPhones[i]);
         }
     }
 
@@ -111,15 +110,15 @@ public class PhoneServiceImpl implements PhoneService {
     }
 
     public void managePhone(ManagePhone managePhone) throws RemoteException {
-        org.sipfoundry.sipxconfig.phone.Phone[] otherPhones = phoneSearch(managePhone.getSearch());
+        org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(managePhone.getSearch());
         if (Boolean.TRUE.equals(managePhone.getGenerateProfiles())) {
-            m_context.generateProfilesAndRestart(Arrays.asList(otherPhones));            
+            m_context.generateProfilesAndRestart(Arrays.asList(myPhones));            
         } else if (Boolean.TRUE.equals(managePhone.getRestart())) {
-            m_context.restart(Arrays.asList(otherPhones));            
+            m_context.restart(Arrays.asList(myPhones));            
         } else {
-            for (int i = 0; i < otherPhones.length; i++) {
+            for (int i = 0; i < myPhones.length; i++) {
                 if (Boolean.TRUE.equals(managePhone.getDoDelete())) {
-                    m_context.deletePhone(otherPhones[i]);
+                    m_context.deletePhone(myPhones[i]);
                 }
             }
         }

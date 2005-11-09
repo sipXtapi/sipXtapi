@@ -33,12 +33,12 @@ class UserServiceTestApi < Test::Unit::TestCase
     end
     
 	def test_findUser
-	    user1 = User.new('joe', '1234')
-		@userService.addUser(AddUser.new(user1))
-	    user2 = User.new('joe-boy', '1234')
-		@userService.addUser(AddUser.new(user2))
-	    user3 = User.new('mary-joe', '1234')
-		@userService.addUser(AddUser.new(user3))
+	    user1 = User.new('joe')
+		@userService.addUser(AddUser.new(user1, '1234'))
+	    user2 = User.new('joe-boy')
+		@userService.addUser(AddUser.new(user2, '1234'))
+	    user3 = User.new('mary-joe')
+		@userService.addUser(AddUser.new(user3, '1234'))
 
 	    findUser = FindUser.new(UserSearch.new())
 	    findUser.search.byUserName = 'joe'
@@ -47,8 +47,7 @@ class UserServiceTestApi < Test::Unit::TestCase
     end
     
 	def test_deleteUser
-	    user1 = User.new('john', '1234')
-		@userService.addUser(AddUser.new(user1))
+		@userService.addUser(AddUser.new(User.new('john'), '1234'))
 
 		search = UserSearch.new();
 	    search.byUserName = 'john'
@@ -64,19 +63,19 @@ class UserServiceTestApi < Test::Unit::TestCase
     end
     
 	def test_editUser
-    	addUser1 = AddUser.new(User.new('user1', '1234'))
+    	addUser1 = AddUser.new(User.new('user1'), '1234')
 	    addUser1.user.firstName = 'Ali'
 	    addUser1.user.lastName = 'Baba'
 	    addUser1.group = [ 'group1', 'group2' ]
 		@userService.addUser(addUser1)
 
-	    addUser2 = AddUser.new(User.new('user2', '1234'))
+	    addUser2 = AddUser.new(User.new('user2'), '1234')
 	    addUser2.user.firstName = 'Holy'
 	    addUser2.user.lastName = 'Mackerel'
 	    addUser2.group = [ 'group1', 'group3' ]
 		@userService.addUser(addUser2)
 
-	    addUser3 = AddUser.new(User.new('user3', '1234'))
+	    addUser3 = AddUser.new(User.new('user3'), '1234')
 	    addUser3.user.firstName = 'Sim'
 	    addUser3.user.lastName = 'Salabim'
 	    addUser3.group = [ 'group2', 'group3' ]

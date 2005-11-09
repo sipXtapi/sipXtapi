@@ -12,36 +12,38 @@
 package org.sipfoundry.sipxconfig.api;
 
 import java.util.Arrays;
+import java.util.Set;
 
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
+import org.apache.commons.lang.StringUtils;
 
 public class UserBuilder extends SimpleBeanBuilder {
     
-    private static final String IGNORE_LIST = "aliases, pin";
+    private static final String ALIASES_PROP = "aliases";
     
-    private CoreContext m_coreContext;
+    private static final String[] IGNORE_LIST = { 
+        ALIASES_PROP 
+    };
     
     public UserBuilder() {
-        getIgnoreList().addAll(Arrays.asList(SipxCollectionUtils.splitString(IGNORE_LIST)));
+        getIgnoreList().addAll(Arrays.asList(IGNORE_LIST));
     }
     
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
-    }
-
-    public void toApi(Object apiObject, Object otherObject) {
-        super.toApi(apiObject, otherObject);
-        org.sipfoundry.sipxconfig.common.User other = (org.sipfoundry.sipxconfig.common.User) otherObject;
+    public void toApiObject(Object apiObject, Object myObject, Set properties) {
+        super.toApiObject(apiObject, myObject, properties);
+        org.sipfoundry.sipxconfig.common.User my = (org.sipfoundry.sipxconfig.common.User) myObject;
         User api = (User) apiObject;
-        api.setAliases(other.getAliasesString());        
+        if (properties.contains(ALIASES_PROP) && !StringUtils.isBlank(my.getAliasesString())) {
+            api.setAliases((String[]) my.getAliases().toArray(new String[0]));
+        }
     }
     
-    public void fromApi(Object apiObject, Object otherObject) {
-        super.fromApi(apiObject, otherObject);
-        org.sipfoundry.sipxconfig.common.User other = (org.sipfoundry.sipxconfig.common.User) otherObject;
+    public void toMyObject(Object myObject, Object apiObject, Set properties) {
+        super.toMyObject(myObject, apiObject, properties);
+        org.sipfoundry.sipxconfig.common.User my = (org.sipfoundry.sipxconfig.common.User) myObject;
         User api = (User) apiObject;
-        other.setAliasesString(api.getAliases());
-        other.setPin(api.getPin(), m_coreContext.getAuthorizationRealm());
+        if (properties.contains(ALIASES_PROP) && api.getAliases() != null) {
+            my.getAliases().clear();
+            my.addAliases(api.getAliases());
+        }
     }            
 }  

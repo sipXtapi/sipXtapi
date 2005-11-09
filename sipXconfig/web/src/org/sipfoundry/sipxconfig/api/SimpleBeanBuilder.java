@@ -18,7 +18,9 @@ import java.util.Set;
  * Copies all getters from one bean into all the available, matching
  * setters of another bean.
  */
-public class SimpleBeanBuilder implements ApiBeanBuilder {
+public class SimpleBeanBuilder implements ApiBeanBuilder {    
+    public static final String ID_PROP = "id";
+    
     private Set m_ignoreList;
     
     public Set getIgnoreList() {
@@ -29,11 +31,11 @@ public class SimpleBeanBuilder implements ApiBeanBuilder {
         return m_ignoreList;
     }
     
-    public void toApi(Object apiObject, Object otherObject) {
-        ApiBeanUtil.copyProperties(otherObject, apiObject, m_ignoreList);
+    public void toApiObject(Object apiObject, Object myObject, Set properties) {
+        ApiBeanUtil.copyProperties(apiObject, myObject, properties, m_ignoreList);
     }
     
-    public void fromApi(Object apiObject, Object otherObject) {
-        ApiBeanUtil.copyProperties(apiObject, otherObject, m_ignoreList);
+    public void toMyObject(Object myObject, Object apiObject, Set properties) {
+        ApiBeanUtil.copyProperties(myObject, apiObject, properties, m_ignoreList);
     }            
 }

@@ -17,9 +17,9 @@ public class PhoneBuilderTest extends TestCase {
 
     public void testToApi() {
         PhoneBuilder builder = new PhoneBuilder();
-        org.sipfoundry.sipxconfig.phone.Phone otherPhone = new org.sipfoundry.sipxconfig.phone.Phone();
+        org.sipfoundry.sipxconfig.phone.Phone myPhone = new org.sipfoundry.sipxconfig.phone.Phone();
         Phone apiPhone = new Phone();
-        builder.toApi(apiPhone, otherPhone);
-        assertEquals(apiPhone.getModelId(), otherPhone.getModelId());
+        ApiBeanUtil.toApiObject(builder, apiPhone, myPhone);
+        assertEquals(apiPhone.getModelId(), myPhone.getModelId());
     }
 }
