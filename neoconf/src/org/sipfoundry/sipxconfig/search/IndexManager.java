@@ -11,10 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.search;
 
-import java.util.List;
+public interface IndexManager {
+    String CONTEXT_BEAN_NAME = "indexManager";
 
-public interface SearchManager {
-    String CONTEXT_BEAN_NAME = "searchManager";
-
-    List search(String query);
+    void indexAll();
 }

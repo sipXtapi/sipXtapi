@@ -65,5 +65,15 @@ public class SearchManagerImplTestDb extends TestCase {
         collection = m_searchManager.search("bongo");
         assertEquals(0, collection.size());
 
+        user.setAliasesString("aaa, bcd");
+        m_coreContext.saveUser(user);
+
+        collection = m_searchManager.search("aaa");
+        assertEquals(1, collection.size());
+        assertTrue(collection.remove(user));
+
+        collection = m_searchManager.search("alias:bcd");
+        assertEquals(1, collection.size());
+        assertTrue(collection.remove(user));
     }
 }

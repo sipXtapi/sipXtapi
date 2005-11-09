@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.search;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -47,16 +47,16 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
         m_beanAdaptor = beanAdaptor;
     }
 
-    public Collection search(String queryText) {
+    public List search(String queryText) {
         Hits hits = getHits(queryText);
         return hits2beans(hits);
     }
 
-    private Collection hits2beans(Hits hits) {
+    private List hits2beans(Hits hits) {
         try {
             HibernateTemplate hibernate = getHibernateTemplate();
             final int hitCount = hits.length();
-            Collection results = new ArrayList(hitCount);
+            List results = new ArrayList(hitCount);
             for (int i = 0; i < hitCount; i++) {
                 Document document = hits.doc(i);
                 Identity identity = m_beanAdaptor.getBeanIdentity(document);

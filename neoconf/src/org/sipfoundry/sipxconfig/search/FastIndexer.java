@@ -59,7 +59,6 @@ public class FastIndexer implements Indexer {
             reader = IndexReader.open(m_directory);
             Term idTerm = m_beanAdaptor.getIdentityTerm(bean, id);
             reader.delete(idTerm);
-            reader.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {

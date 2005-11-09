@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.search;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -40,24 +42,35 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         boolean addToIndex = false;
         document.add(Field.Keyword(BeanWithId.ID_PROPERTY, getKeyword(bean, id)));
         for (int i = 0; i < fieldNames.length; i++) {
-            String fieldName = fieldNames[i];
             Object value = state[i];
-            if (value == null) {
-                continue;
-            }
-            if (Arrays.binarySearch(FIELDS, fieldName) >= 0) {
-                // index all fields we know about
-                document.add(Field.Text(fieldName, (String) state[i]));
-                document.add(Field.UnStored(Indexer.DEFAULT_FIELD, (String) value));
-                addToIndex = true;
-            } else if (types[i] instanceof StringType) {
-                // index all strings
-                document.add(Field.UnStored(Indexer.DEFAULT_FIELD, (String) value));
+            if (value != null && indexField(document, value, fieldNames[i], types[i])) {
                 addToIndex = true;
             }
         }
 
         return addToIndex;
+    }
+
+    private boolean indexField(Document document, Object state, String fieldName, Type type) {
+        if (Arrays.binarySearch(FIELDS, fieldName) >= 0) {
+            // index all fields we know about
+            document.add(Field.UnStored(fieldName, (String) state));
+            document.add(Field.UnStored(Indexer.DEFAULT_FIELD, (String) state));
+            return true;
+        } else if (type instanceof StringType) {
+            // index all strings
+            document.add(Field.UnStored(Indexer.DEFAULT_FIELD, (String) state));
+            return true;
+        } else if (fieldName.equals("aliases")) {
+            Set aliases = (Set) state;
+            for (Iterator a = aliases.iterator(); a.hasNext();) {
+                String alias = (String) a.next();
+                document.add(Field.UnStored("alias", alias));
+                document.add(Field.UnStored(Indexer.DEFAULT_FIELD, alias));
+            }
+            return true;
+        }
+        return false;
     }
 
     private String getKeyword(Object bean, Serializable id) {

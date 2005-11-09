@@ -6,25 +6,26 @@
   <bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
   
   <bean id="fastIndexer" class="org.sipfoundry.sipxconfig.search.FastIndexer">
-  	<property name="directory" ref="indexDirectory"/>
-    <property name="analyzer" ref="analyzer"/>
-    <property name="beanAdaptor" ref="beanAdaptor"/>
-  </bean>
-
-  <bean id="bulkIndexer" class="org.sipfoundry.sipxconfig.search.BulkIndexer">
-  	<property name="directory" ref="indexDirectory"/>
-    <property name="analyzer" ref="analyzer"/>
-    <property name="beanAdaptor" ref="beanAdaptor"/>
-  </bean>
-    
-  <bean id="searchManagerImpl" class="org.sipfoundry.sipxconfig.search.SearchManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
-  	<property name="directory" ref="indexDirectory"/>  
+    <property name="directory" ref="indexDirectory"/>
     <property name="analyzer" ref="analyzer"/>
     <property name="beanAdaptor" ref="beanAdaptor"/>
   </bean>
   
-  <bean id="searchManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+  <bean id="bulkIndexer" class="org.sipfoundry.sipxconfig.search.BulkIndexer">
+    <property name="directory" ref="indexDirectory"/>
+    <property name="analyzer" ref="analyzer"/>
+    <property name="beanAdaptor" ref="beanAdaptor"/>
+  </bean>
+  
+  <bean id="searchManagerImpl" class="org.sipfoundry.sipxconfig.search.SearchManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="directory" ref="indexDirectory"/>
+    <property name="analyzer" ref="analyzer"/>
+    <property name="beanAdaptor" ref="beanAdaptor"/>
+  </bean>
+  
+  <bean id="searchManager" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.search.SearchManager</value>
     </property>
@@ -32,4 +33,33 @@
       <ref local="searchManagerImpl"/>
     </property>
   </bean>
+  
+  <bean id="loadIndexingInterceptor"
+    class="org.sipfoundry.sipxconfig.search.LoadIndexingInterceptor">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="indexer" ref="bulkIndexer"/>
+  </bean>
+  
+  <bean id="loadIndexingHibernateTemplate"
+    class="org.springframework.orm.hibernate3.HibernateTemplate">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="entityInterceptor" ref="loadIndexingInterceptor"/>
+    <property name="alwaysUseNewSession" value="true"/>
+  </bean>
+  
+  <bean id="indexManagerImpl" class="org.sipfoundry.sipxconfig.search.IndexManagerImpl">
+    <property name="hibernateTemplate" ref="loadIndexingHibernateTemplate"/>
+    <property name="indexer" ref="bulkIndexer"/>
+  </bean>
+  
+  <bean id="indexManager" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.search.IndexManager</value>
+    </property>
+    <property name="target">
+      <ref local="indexManagerImpl"/>
+    </property>
+  </bean>
+  
 </beans>
