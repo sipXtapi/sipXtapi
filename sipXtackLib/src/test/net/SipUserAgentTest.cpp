@@ -30,7 +30,7 @@ class SipUserAgentTest : public CppUnit::TestCase
 {
       CPPUNIT_TEST_SUITE(SipUserAgentTest);
       CPPUNIT_TEST(testShutdownBlocking);
-      CPPUNIT_TEST(testShutdownNonBlocking);
+  //CPPUNIT_TEST(testShutdownNonBlocking);
       CPPUNIT_TEST_SUITE_END();
 
 public:
