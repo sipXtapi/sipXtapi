@@ -185,7 +185,7 @@
     </setting>
     <setting name="SIP_PRESENCE_LOG_LEVEL">
       <label>Presence Server Log Level</label>
-      <profileName>presence-config.in</profileName>
+      <profileName>sipxpresence-config.in</profileName>
       <type refid="loglevel"/>
       <value>NOTICE</value>
       <description>Monitoring presence events.</description>
