@@ -102,4 +102,21 @@ public class DialingRuleTest extends TestCase {
         assertTrue(availableGateways.contains(g2));
         assertFalse(availableGateways.contains(g3));
     }
+
+    public void testAddGateway() {
+        Gateway g = new Gateway();
+        g.setUniqueId();
+
+        DialingRule rule = new CustomDialingRule();
+        assertTrue(rule.addGateway(g));
+        List gateways = rule.getGateways();
+        assertEquals(1, gateways.size());
+        assertEquals(g, gateways.get(0));
+
+        // add the same gateway again
+        assertFalse(rule.addGateway(g));
+        gateways = rule.getGateways();
+        assertEquals(1, gateways.size());
+        assertEquals(g, gateways.get(0));
+    }
 }
