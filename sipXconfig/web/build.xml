@@ -4,11 +4,11 @@
   <property name="project.dir" value="web" />
   <import file="../ant-targets.xml" />
   <property name="test.war" value="${test.classes.dir}/war" />
-  <property name="wsdl.src.dir" value="${dist.dir}/wsdl-src"/>
-  <property name="wsdl.ruby.dir" value="${dist.dir}/wsdl-ruby"/>
-  <property name="wsdl.classes.dir" value="${dist.dir}/wsdl-classes"/>
+  <property name="server.bindings.src" value="${dist.dir}/server-bindings-src"/>
+  <property name="ruby.bindings.dir" value="${dist.dir}/ruby-bindings"/>
+  <property name="server.bindings.dir" value="${dist.dir}/server-bindings"/>
   <property name="ruby.debug" value=""/>
-  <property name="sipxconfig-wsdl-generated.jar" value="${dist.dir}/sipxconfig-wsdl-generated.jar"/>
+  <property name="server-bindings.jar" value="${dist.dir}/server-bindings.jar"/>
   <patternset id="test-ui.classes" includes="**/*TestUi.class" /> 
   
   <path id="axis.path">
@@ -38,7 +38,7 @@
     <pathelement path="${tapestry-contrib.jar}" />
     <pathelement path="${tapestry-checkboxes.jar}" />
     <pathelement path="${ognl.jar}" />
-	<pathelement location="${sipxconfig-wsdl-generated.jar}"/>
+	<pathelement location="${server-bindings.jar}"/>
   </path>
   <!-- 
             - common path unittests will need that interfaces w/sipxconfig lib 
@@ -136,7 +136,7 @@
       	<present present="srconly" targetdir="${ant.1.4.1}/src/main"/>      	
         <exclude name="**/TestPage.*" unless="include.testpage"/>
       </webinf>
-	  <webinf dir="${wsdl.src.dir}">
+	  <webinf dir="${server.bindings.src}">
 		<include name="server-config.wsdd"/>
 	  </webinf>
       <classes dir="${classes.dir}" />
@@ -146,7 +146,7 @@
         <include name="**/*.properties" />
       </classes>
       <lib dir="${dist.dir}">
-		  <include name="sipxconfig-wsdl-generated.jar"/>
+		  <include name="server-bindings.jar"/>
 	  </lib>
       <classes dir="etc">
         <include name="*.xml" />
@@ -225,18 +225,18 @@
 	
   <target name="run" depends="test-war" 
     description="Runs Jetty on current code, development purpose only">
+  	<echo/>
+    <echo>Web UI will be available at URL:</echo>
+  	<echo>  http://localhost:9999/sipxconfig/app?service=page/TestPage</echo>
+  	<echo/>
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
       <classpath refid="base.path" />
       <classpath refid="test.path" />
       <classpath location="${junit.jar}" />
       <classpath location="${log4j.jar}" />
+	  <classpath location="${server-bindings.jar}"/>
       <sysproperty key="basedir" value="${basedir}" />
     </java>
-  	<echo/>
-    <echo>Web UI available at URL:</echo>
-  	<echo>  http://localhost:9999/sipxconfig/app?service=page/TestPage</echo>
-  	<echo/>
-    <input>Press Enter/Return key to shutdown web server...</input>
   </target>
   <target name="test-all" depends="ant-targets.test-all,test-ui,test-api" />
   <target name="test-war" depends="default.deps,compile.test,war" 
@@ -292,8 +292,8 @@
   </taskdef>
 
   <target name="wsdl.init">
-	<mkdir dir="${wsdl.classes.dir}"/>
-	  <uptodate property="server-config.wsdd.uptodate" targetfile="${sipxconfig-wsdl-generated.jar}">
+	<mkdir dir="${server.bindings.dir}"/>
+	  <uptodate property="server-config.wsdd.uptodate" targetfile="${server-bindings.jar}">
 		  <srcfiles dir="${src.dir}">
 			  <include name="**/*.wsdl"/>
 		  </srcfiles>	  
@@ -310,13 +310,13 @@
   <!--
 	- Compile WSDL into java server-side bindings.
 	-->
-  <target name="compile.wsdl" 
+  <target name="server.bindings" 
 	  unless="server-config.wsdd.uptodate">
-    <delete dir="${wsdl.src.dir}"/>
-    <mkdir dir="${wsdl.src.dir}"/>
+    <delete dir="${server.bindings.src}"/>
+    <mkdir dir="${server.bindings.src}"/>
     <wsdl2java      
         url="${src.dir}/org/sipfoundry/sipxconfig/api/sipxconfig.wsdl"
-        output="${wsdl.src.dir}"
+        output="${server.bindings.src}"
         serverside="true"
         noWrapped="true">
         <mapping namespace="urn:ConfigService" 
@@ -324,41 +324,41 @@
     </wsdl2java>
     <!-- generted impl classes are just stubbed -->
     <delete>
-          <fileset dir="${wsdl.src.dir}">
+          <fileset dir="${server.bindings.src}">
         <include name="**/*BindingImpl.java"/>
           </fileset>
     </delete>
-    <sipx-javac srcdir="${wsdl.src.dir}"
-       destdir="${wsdl.classes.dir}"
+    <sipx-javac srcdir="${server.bindings.src}"
+       destdir="${server.bindings.dir}"
        classpathref="base.path">
       <classpath>
         <pathelement path="${classes.dir}"/>
       </classpath>
     </sipx-javac>   
-	<jar destfile="${sipxconfig-wsdl-generated.jar}"
-		basedir="${wsdl.classes.dir}"/>
+	<jar destfile="${server-bindings.jar}"
+		basedir="${server.bindings.dir}"/>
   </target>
 	
   <!-- 
 	- aggregate axis generated WSDD files into 1 server-config.wsdd 
 	-->
-  <target name="server-config-nospring.wsdd" depends="compile.wsdl" 
+  <target name="server-config-nospring.wsdd" depends="server.bindings" 
 	  unless="server-config.wsdd.uptodate">
      <java
       classname="org.apache.axis.utils.Admin"
       fork="true"
       failonerror="true"
-      dir="${wsdl.src.dir}">
+      dir="${server.bindings.src}">
         <classpath refid="axis.path"/>
         <classpath location="${log4j.jar}"/>
         <classpath location="${classes.dir}"/>
-		<classpath location="${sipxconfig-wsdl-generated.jar}"/>
+		<classpath location="${server-bindings.jar}"/>
         <arg value="server"/>
-        <arg file="${wsdl.src.dir}/org/sipfoundry/sipxconfig/api/deploy.wsdd" />
+        <arg file="${server.bindings.src}/org/sipfoundry/sipxconfig/api/deploy.wsdd" />
     </java>
 	<move 
-		file="${wsdl.src.dir}/server-config.wsdd" 
-		tofile="${wsdl.src.dir}/server-config-nospring.wsdd" 
+		file="${server.bindings.src}/server-config.wsdd" 
+		tofile="${server.bindings.src}/server-config-nospring.wsdd" 
 		overwrite="true"/>
   </target>
 	
@@ -372,16 +372,16 @@
 		- I have posted email to ant project to get feedback on this
 		-	http://thread.gmane.org/gmane.comp.jakarta.ant.user/34470
 		-->
-	<replace file="${wsdl.src.dir}/server-config-nospring.wsdd">
+	<replace file="${server.bindings.src}/server-config-nospring.wsdd">
 		<replacetoken><![CDATA[xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java"]]></replacetoken>
 	</replace>
 	<style
 		style="meta/server-config.xsl" 
-		in="${wsdl.src.dir}/server-config-nospring.wsdd" 
-		out="${wsdl.src.dir}/server-config.wsdd">	  
+		in="${server.bindings.src}/server-config-nospring.wsdd" 
+		out="${server.bindings.src}/server-config.wsdd">	  
 	</style>
         <!-- causing axis errors on startup -->
-	<replace file="${wsdl.src.dir}/server-config.wsdd">
+	<replace file="${server.bindings.src}/server-config.wsdd">
 		<replacetoken><![CDATA[xmlns=""]]></replacetoken>
 	</replace>
   </target>
@@ -392,17 +392,17 @@
   <target name="ruby-bindings" depends="server-config.wsdd" if="ruby-bindings-enabled"
 	description="Build ruby client stubs from WSDL file">
     <!-- Ruby client stubs -->
-    <delete dir="${wsdl.ruby.dir}"/>
-    <mkdir dir="${wsdl.ruby.dir}"/>
+    <delete dir="${ruby.bindings.dir}"/>
+    <mkdir dir="${ruby.bindings.dir}"/>
     <!-- HACK, wsdl2ruby only generates output to current dir, and
       - absolute path to wsdl confuses mswindows because of drive letter.
       - This may resolve itself when I copy wsdl's to war root for inclusion
       - in WAR
       -->
-    <copy todir="${wsdl.ruby.dir}" flatten="true">
+    <copy todir="${ruby.bindings.dir}" flatten="true">
       <fileset dir="${src.dir}" includes="**/*.wsdl"/>
     </copy>
-	<property name="wsdl2ruby-command" value="-C${wsdl.ruby.dir} ${wsdl2ruby} --force --type client --wsdl"/>
+	<property name="wsdl2ruby-command" value="-C${ruby.bindings.dir} ${wsdl2ruby} --force --type client --wsdl"/>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${wsdl2ruby-command} sipxconfig.wsdl"/>
     </exec>
@@ -417,7 +417,7 @@
       <classpath refid="test.path" />
       <classpath location="${junit.jar}" />
       <classpath location="${log4j.jar}" />
-      <classpath location="${sipxconfig-wsdl-generated.jar}" />
+      <classpath location="${server-bindings.jar}" />
       <sysproperty key="basedir" value="${basedir}" />
     </java>    	
   </target>	
@@ -429,7 +429,7 @@
       <classpath refid="test.path" />
       <classpath location="${junit.jar}" />
       <classpath location="${log4j.jar}" />
-      <classpath location="${sipxconfig-wsdl-generated.jar}" />
+      <classpath location="${server-bindings.jar}" />
       <sysproperty key="basedir" value="${basedir}" />
       <arg value="shutdown"/>
     </java>    
@@ -442,7 +442,7 @@
   <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
 	description="Test web services with starting webserver">	
 	<property name="webservice-unittest-command" 
-		value="-I${wsdl.ruby.dir} ${ruby.debug} ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
+		value="-I${ruby.bindings.dir} ${ruby.debug} ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unittest-command}/UserServiceTestApi.rb"/>
     </exec>    
