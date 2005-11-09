@@ -24,8 +24,8 @@ class UserServiceTestApi < Test::Unit::TestCase
 	    addUser.group = [ 'group1' ]
 		@userService.addUser(addUser)
 
-	    findUser = FindUser.new()
-	    findUser.byName = expected.userName
+	    findUser = FindUser.new(UserSearch.new())
+	    findUser.search.byUserName = expected.userName
 	    users = @userService.findUser(findUser).users
 	    
 	    assert_equal(1, users.length)
@@ -34,48 +34,71 @@ class UserServiceTestApi < Test::Unit::TestCase
     end
     
 	def test_findUser
-	    user1 = User.new('john', '1234')
+	    user1 = User.new('joe', '1234')
 		@userService.addUser(AddUser.new(user1))
-	    user2 = User.new('john-boy', '1234')
+	    user2 = User.new('joe-boy', '1234')
 		@userService.addUser(AddUser.new(user2))
-	    user2 = User.new('mary', '1234')
-		@userService.addUser(AddUser.new(user2))
+	    user3 = User.new('mary-joe', '1234')
+		@userService.addUser(AddUser.new(user3))
 
-	    findUser = FindUser.new('john')
+	    findUser = FindUser.new(UserSearch.new())
+	    findUser.search.byUserName = 'joe'
 	    users = @userService.findUser(findUser).users
-
-	    assert_equal(2, users.length)	    
+	    assert_equal(1, users.length)
     end
     
 	def test_deleteUser
 	    user1 = User.new('john', '1234')
 		@userService.addUser(AddUser.new(user1))
 
-	    findUser = FindUser.new('john')
-	    users = @userService.findUser(findUser).users
+		search = UserSearch.new();
+	    search.byUserName = 'john'
+	    users = @userService.findUser(FindUser.new(search)).users
 	    assert_equal(1, users.length)
 	    
-	    @userService.deleteUser(DeleteUser.new('john'))
+	    @userService.deleteUser(DeleteUser.new(search))
 	    
-	    users = @userService.findUser(findUser).users
+	    users = @userService.findUser(FindUser.new(search)).users
 	    assert_equal(0, users.length)
     end
 
 	def test_editUser
-	    user1 = User.new('john', '1234')
-	    user1.firstName = 'Johny'
-	    user1.lastName = 'Quest'
-		@userService.addUser(AddUser.new(user1))
-		
-		editUser = EditUser.new('john')
-		editUser.properties = [ Property.new('firstName', 'Secret'), 
-		    Property.new('lastName', 'Agent') ]
+    	addUser1 = AddUser.new(User.new('user1', '1234'))
+	    addUser1.user.firstName = 'Ali'
+	    addUser1.user.lastName = 'Baba'
+	    addUser1.group = [ 'group1', 'group2' ]
+		@userService.addUser(addUser1)
 
+	    addUser2 = AddUser.new(User.new('user2', '1234'))
+	    addUser2.user.firstName = 'Holy'
+	    addUser2.user.lastName = 'Mackerel'
+	    addUser2.group = [ 'group1', 'group3' ]
+		@userService.addUser(addUser2)
+
+	    addUser3 = AddUser.new(User.new('user3', '1234'))
+	    addUser3.user.firstName = 'Sim'
+	    addUser3.user.lastName = 'Salabim'
+	    addUser3.group = [ 'group2', 'group3' ]
+		@userService.addUser(addUser3)
+		
+	    search = UserSearch.new()
+	    search.byGroup = 'group3'
+		editUser = EditUser.new(search)
+		editUser.properties = [ 
+		    Property.new('firstName', 'Secret'), 
+		    Property.new('lastName', 'Agent') 
+		]
 	    users = @userService.editUser(editUser)	    
 	    
-	    findUser = FindUser.new('john')
-	    user = @userService.findUser(findUser).users[0]
-	    assert_equal('Secret', user.firstName)
-	    assert_equal('Agent', user.lastName)
+	    users = @userService.findUser(FindUser.new(nil)).users
+	    users.sort do |a, b|
+	      a.userName <=> b.userName
+	    end
+	    assert_equal('Ali', users[0].firstName)
+	    assert_equal('Baba', users[0].lastName)
+	    assert_equal('Secret', users[1].firstName)
+	    assert_equal('Agent', users[1].lastName)
+	    assert_equal('Secret', users[2].firstName)
+	    assert_equal('Agent', users[2].lastName)
     end
 end

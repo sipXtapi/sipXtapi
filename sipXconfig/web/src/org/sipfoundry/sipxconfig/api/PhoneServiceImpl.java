@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.api;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -60,11 +60,26 @@ public class PhoneServiceImpl implements PhoneService {
     }
     
     org.sipfoundry.sipxconfig.phone.Phone[] phoneSearch(PhoneSearch search) {
-        List phones = new ArrayList();
-        if (search != null && search.getBySerialNumber() != null) {
+        Collection phones = Collections.EMPTY_LIST;
+        if (search == null) {
+            phones = m_context.loadPhones();
+        } else if (search.getBySerialNumber() != null) {
             Integer id = m_context.getPhoneIdBySerialNumber(search.getBySerialNumber());
-            org.sipfoundry.sipxconfig.phone.Phone phone = m_context.loadPhone(id); 
-            phones.add(phone);
+            org.sipfoundry.sipxconfig.phone.Phone phone = m_context.loadPhone(id);
+            if (phone != null) {
+                phones = Collections.singleton(phone);                
+            }
+        } else if (search.getByGroup() != null) {
+            String resourceId = org.sipfoundry.sipxconfig.phone.Phone.GROUP_RESOURCE_ID;
+            Group g = m_settingDao.getGroupByName(resourceId, search.getByGroup());
+            if (g != null) {
+                phones = m_context.getPhonesByGroupId(g.getId());
+            }
+        } else if (search.getById() != null) {
+            org.sipfoundry.sipxconfig.phone.Phone phone = m_context.loadPhone(search.getById());
+            if (phone != null) {
+                phones = Collections.singleton(phone);
+            }
         }
         
         return (org.sipfoundry.sipxconfig.phone.Phone[])

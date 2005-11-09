@@ -55,12 +55,18 @@
 				<xsd:sequence>
 					<xsd:element name="bySerialNumber" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 					<xsd:element name="byGroup" type="xsd:string" minOccurs="0" maxOccurs="1"/>
-					<xsd:element name="byId" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+					<xsd:element name="byId" type="xsd:int" minOccurs="0" maxOccurs="1"/>
+				</xsd:sequence>
+			</xsd:complexType>
+			<xsd:complexType name="UserSearch">
+				<xsd:sequence>
+					<xsd:element name="byUserName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+					<xsd:element name="byFuzzyUserNameOrAlias" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+					<xsd:element name="byGroup" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+					<xsd:element name="byId" type="xsd:int" minOccurs="0" maxOccurs="1"/>
 				</xsd:sequence>
 			</xsd:complexType>
 
-			<!-- R E S P O N S E  / R E Q U E S T S -->
-			
 			<!-- P H O N E -->
 			<xsd:element name="FindPhoneResponse">
 				<xsd:complexType>
@@ -119,25 +125,27 @@
 		    <xsd:element name="DeleteUser">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>						
+						<xsd:element name="search" type="tns:UserSearch" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>		
 			<xsd:element name="FindUser">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element name="byName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="search" type="tns:UserSearch" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>
 			<xsd:element name="EditUser">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="search" type="tns:UserSearch" minOccurs="1" maxOccurs="1"/>
 						<xsd:element name="properties" type="tns:Property" maxOccurs="unbounded"/>
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>		    
+
+            <!-- T E S T -->
 		    <xsd:element name="ResetService">
 				<xsd:complexType>
 					<xsd:sequence>

@@ -7,6 +7,7 @@
   <property name="wsdl.src.dir" value="${dist.dir}/wsdl-src"/>
   <property name="wsdl.ruby.dir" value="${dist.dir}/wsdl-ruby"/>
   <property name="wsdl.classes.dir" value="${dist.dir}/wsdl-classes"/>
+  <property name="ruby.debug" value=""/>
   <property name="sipxconfig-wsdl-generated.jar" value="${dist.dir}/sipxconfig-wsdl-generated.jar"/>
   <patternset id="test-ui.classes" includes="**/*TestUi.class" /> 
   
@@ -439,9 +440,9 @@
 	description="Test web services"/>
   
   <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
-	description="Test web services with starting webserver">
+	description="Test web services with starting webserver">	
 	<property name="webservice-unittest-command" 
-		value="-I${wsdl.ruby.dir} ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
+		value="-I${wsdl.ruby.dir} ${ruby.debug} ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unittest-command}/UserServiceTestApi.rb"/>
     </exec>    
