@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.Phone;
 import org.springframework.context.ApplicationContext;
 
 public class SearchManagerImplTestDb extends TestCase {
@@ -76,4 +77,28 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals(1, collection.size());
         assertTrue(collection.remove(user));
     }
+
+    public void testSearchByClass() throws Exception {
+        User user = new User();
+        user.setFirstName("first");
+        user.setLastName("last");
+        user.setUserName("bongo");
+
+        m_coreContext.saveUser(user);
+
+        Collection collection = m_searchManager.search(User.class, "bon*");
+        assertEquals(1, collection.size());
+        assertTrue(collection.remove(user));
+
+        collection = m_searchManager.search(User.class, "userName:bongo");
+        assertEquals(1, collection.size());
+        assertTrue(collection.remove(user));
+
+        collection = m_searchManager.search(Phone.class, "userName:bongo");
+        assertEquals(0, collection.size());
+
+        collection = m_searchManager.search(User.class, "firstName:bongo");
+        assertEquals(0, collection.size());
+    }
+
 }

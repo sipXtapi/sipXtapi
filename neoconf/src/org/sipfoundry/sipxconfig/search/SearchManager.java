@@ -17,4 +17,6 @@ public interface SearchManager {
     String CONTEXT_BEAN_NAME = "searchManager";
 
     List search(String query);
+
+    List search(Class entityClass, String query);
 }

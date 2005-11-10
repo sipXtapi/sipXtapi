@@ -25,6 +25,8 @@ import org.apache.lucene.index.Term;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.Phone;
 
 public class DefaultBeanAdaptor implements BeanAdaptor {
     private static final Log LOG = LogFactory.getLog(DefaultBeanAdaptor.class);
@@ -32,6 +34,11 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     // keep it sorted - used in binary search
     private static final String[] FIELDS = {
         "extension", "firstName", "lastName", "name", "userName"
+    };
+
+    /** only those classes can be used to search by class */
+    private static final Class[] CLASSES = {
+        User.class, Phone.class
     };
 
     /**
@@ -47,7 +54,9 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
                 addToIndex = true;
             }
         }
-
+        if (addToIndex) {
+            indexClass(document, bean.getClass());
+        }
         return addToIndex;
     }
 
@@ -71,6 +80,15 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
             return true;
         }
         return false;
+    }
+
+    void indexClass(Document doc, Class beanClass) {
+        for (int i = 0; i < CLASSES.length; i++) {
+            Class klass = CLASSES[i];
+            if (klass.isAssignableFrom(beanClass)) {
+                doc.add(Field.Keyword(Indexer.CLASS_FIELD, klass.getName()));
+            }
+        }
     }
 
     private String getKeyword(Object bean, Serializable id) {

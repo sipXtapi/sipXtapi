@@ -17,6 +17,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.snom.SnomPhone;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
 
 public class DefaultBeanAdaptorTest extends TestCase {
@@ -65,5 +67,24 @@ public class DefaultBeanAdaptorTest extends TestCase {
         Term expectedTerm = new Term("id", "org.sipfoundry.sipxconfig.common.User:"
                 + user.getId());
         assertEquals(expectedTerm, identityTerm);
+    }
+
+    public void testIndexClass() {
+        DefaultBeanAdaptor adaptor = new DefaultBeanAdaptor();
+
+        Document doc = new Document();
+        adaptor.indexClass(doc, User.class);
+
+        assertEquals(User.class.getName(), doc.get(Indexer.CLASS_FIELD));
+
+        doc = new Document();
+        adaptor.indexClass(doc, SnomPhone.class);
+        // snom phone should be indexed as phone
+        assertEquals(Phone.class.getName(), doc.get(Indexer.CLASS_FIELD));
+
+        doc = new Document();
+        adaptor.indexClass(doc, String.class);
+
+        assertNull(doc.get(Indexer.CLASS_FIELD));
     }
 }
