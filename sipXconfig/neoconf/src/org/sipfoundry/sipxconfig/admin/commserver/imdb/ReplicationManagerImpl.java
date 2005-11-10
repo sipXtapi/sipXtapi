@@ -21,7 +21,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.nio.charset.Charset;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.IOUtils;
@@ -33,7 +32,6 @@ import org.dom4j.Element;
 
 public class ReplicationManagerImpl implements ReplicationManager {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
-    private static final Charset CHARSET_UTF8 = Charset.forName("UTF8");
 
     /**
      * sends payload data to all URLs
@@ -61,7 +59,12 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     private byte[] xmlToByteArray(Document doc) {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        Writer writer = new BufferedWriter(new OutputStreamWriter(stream, CHARSET_UTF8));
+        Writer writer;
+        try {
+            writer = new BufferedWriter(new OutputStreamWriter(stream, "UTF8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);  // should never happen
+        }
         try {
             doc.write(writer);
         } catch (IOException e) {
