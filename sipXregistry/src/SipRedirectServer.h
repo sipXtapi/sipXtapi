@@ -61,6 +61,10 @@ class SipRedirectServer : public OsServerTask
     * configDir, mediaServer, voicemailServer, localDomainHost -
     * configuration information.
     *
+    * proxyNormalPort - a port number, which if found on an AOR to register,
+    * will be removed, or PORT_NONE.  Usually the port the proxy is
+    * listening on.
+    *
     * configFileName - name of the sipXregistry configuration file.
     */
    UtlBoolean initialize(
@@ -69,6 +73,7 @@ class SipRedirectServer : public OsServerTask
       const UtlString& mediaServer,
       const UtlString& voicemailServer,
       const UtlString& localDomainHost,
+      int              proxyNormalPort,
       const char* configFileName);
 
    /**
@@ -115,6 +120,9 @@ class SipRedirectServer : public OsServerTask
    SipUserAgent* mpSipUserAgent;
    UrlMapping mFallback;
    OsStatus mFallbackRulesLoaded;
+   // A port number, which if found on an AOR to register,
+   // will be removed, or PORT_NONE
+   int mProxyNormalPort;
 
    // functions
    UtlBoolean handleMessage(OsMsg& eventMessage);

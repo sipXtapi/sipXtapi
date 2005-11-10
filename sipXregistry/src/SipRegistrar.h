@@ -104,13 +104,14 @@ private:
    UtlString mMediaServer;
    UtlString mVoicemailServer;
    UtlString mlocalDomainHost;
-
+   int       mProxyNormalPort;
 
    SipRegistrar( SipUserAgent* sipUserAgent,
                  PluginHooks* sipRegisterPlugins,
                  int maxExpiresTime,
                  const UtlString& defaultDomain,
                  const UtlString& domainAliases,
+                 int              proxyNormalPort,
                  const UtlString& defaultMinExpiresTime,
                  const UtlBoolean& useCredentialDB,
                  const UtlString& defaultAuthAlgorithm,

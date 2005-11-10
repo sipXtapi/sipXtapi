@@ -153,7 +153,9 @@ UpgradeRegistry() {
            UpgradeRegistry2_8To3_0
            ;;
 
-       2.9* | 3.0*)
+       2.9* | 3.0.0)
+           AddConfigLine ${SysConfDir}/sipxpbx/registrar-config.in \
+               SIP_REGISTRAR_PROXY_PORT '${PROXY_SERVER_SIP_PORT}'
            ;;
 
        '')
@@ -200,6 +202,8 @@ UpgradeRegistry2_6To2_8() {
 # Upgrade the registry from 2.8 to 3.0.
 UpgradeRegistry2_8To3_0() {
     # Add config lines to support new features.
+    AddConfigLine ${SysConfDir}/sipxpbx/registrar-config.in \
+        SIP_REGISTRAR_PROXY_PORT '${PROXY_SERVER_SIP_PORT}'
     AddConfigLine ${SysConfDir}/sipxpbx/registrar-config.in \
         SIP_REGISTRAR_GLOBAL_CALL_PICKUP_CODE ''
     AddConfigLine ${SysConfDir}/sipxpbx/registrar-config.in \

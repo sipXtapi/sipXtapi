@@ -52,6 +52,7 @@ public:
         const UtlString& minExpiresTime,
         const UtlString& defaultDomain,
         const UtlString& domainAliases,
+        int              proxyNormalPort,
         const UtlBoolean& useCredentialDB,
         const UtlString& realm);
 
@@ -88,6 +89,9 @@ protected:
     int mDefaultDomainPort;
     UtlString mDefaultDomainHost;
     UtlHashMap mValidDomains;
+    // A port number, which if found on an AOR to register,
+    // will be removed, or PORT_NONE
+    int mProxyNormalPort;
     
     SipNonceDb mNonceDb;
     long mNonceExpiration;
@@ -102,6 +106,7 @@ protected:
      * @return
      */
     RegisterStatus applyRegisterToDirectory(
+        const Url& toUrl,
         const int timeNow,
         const SipMessage& registerMessage );
 
@@ -121,6 +126,7 @@ protected:
      * @return
      */
     UtlBoolean isAuthorized(
+        const Url& toUrl,
         const SipMessage& message,
         SipMessage& responseMessage );
 
