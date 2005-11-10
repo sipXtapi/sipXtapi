@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
@@ -74,6 +75,8 @@ public abstract class TestPage extends BasePage {
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
     public abstract JobContext getJobContext();
+
+    public abstract IndexManager getIndexManager();
 
     public void resetDialPlans(IRequestCycle cycle_) {
         getDialPlanContext().clear();
@@ -188,6 +191,10 @@ public abstract class TestPage extends BasePage {
             User user = (User) iter.next();
             getCoreContext().deleteUser(user);
         }
+    }
+
+    public void indexAll(IRequestCycle cycle_) {
+        getIndexManager().indexAll();
     }
 
     public String getUnusedTestUserName() {
