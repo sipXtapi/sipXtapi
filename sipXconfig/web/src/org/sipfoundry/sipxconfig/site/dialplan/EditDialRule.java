@@ -167,13 +167,13 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     }
 
     /**
-     * Process submit request for gatewaysPanel component It would be better if we can make
-     * component to process it submit request but I did not find any way to do that.
+     * Process submit request for the gatewaysPanel component.  Would be better to make the
+     * component itself process the submit request but I did not find any way to do that.
      * 
      * @param cycle current request cycle
      */
     private void gatewaysPanelSubmit(IRequestCycle cycle) {
-        // NOTE: do not use getComponent("gatewayPanel") here - it throws exception if component
+        // NOTE: do not use getComponent("gatewaysPanel") here - it throws exception if component
         // is not present
         GatewaysPanel panel = (GatewaysPanel) getComponents().get("gatewaysPanel");
         if (null == panel) {
