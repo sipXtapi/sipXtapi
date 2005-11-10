@@ -83,7 +83,7 @@ public final class ApiBeanUtil {
     }
     
     public static void wrapPropertyException(String property, Exception e) {
-        throw new IllegalArgumentException("Error accessing property " + property + ": " + e.getMessage());                
+        throw new RuntimeException("Error accessing property " + property, e);                
     }
     
     public static Set getReadableProperties(Object o) {
