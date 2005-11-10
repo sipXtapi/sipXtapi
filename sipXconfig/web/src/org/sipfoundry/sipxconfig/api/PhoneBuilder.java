@@ -12,18 +12,22 @@
 package org.sipfoundry.sipxconfig.api;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
-public class PhoneBuilder extends SimpleBeanBuilder {
-    
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
+
+public class PhoneBuilder extends SimpleBeanBuilder {    
     private static final String MODEL_ID_PROP = "modelId"; 
+    private static final String GROUPS_PROP = "groups"; 
+    private static final String LINES_PROP = "lines"; 
     
-    private static final String[] IGNORE_LIST = { 
-        MODEL_ID_PROP 
+    private static final String[] CUSTOM_FIELDS = { 
+        MODEL_ID_PROP, GROUPS_PROP, LINES_PROP
     };
     
     public PhoneBuilder() {
-        getIgnoreList().addAll(Arrays.asList(IGNORE_LIST));        
+        getCustomFields().addAll(Arrays.asList(CUSTOM_FIELDS));        
     }
     
     public void toApiObject(Object apiObject, Object myObject, Set properties) {
@@ -32,6 +36,21 @@ public class PhoneBuilder extends SimpleBeanBuilder {
         org.sipfoundry.sipxconfig.phone.Phone otherPhone = (org.sipfoundry.sipxconfig.phone.Phone) myObject;
         if (properties.contains(MODEL_ID_PROP)) {
             phone.setModelId(otherPhone.getModelId());
+        }
+        if (properties.contains(GROUPS_PROP)) {
+            String[] groups = SipxCollectionUtils.toStringArray(otherPhone.getGroupsAsList());
+            phone.setGroups(groups);
+        }
+        if (properties.contains(LINES_PROP)) {
+            List myLines = otherPhone.getLines();
+            if (myLines.size() > 0) {
+                Line[] apiLines = (Line[]) ApiBeanUtil.newArray(Line.class, myLines.size());            
+                for (int i = 0; i < apiLines.length; i++) {
+                    org.sipfoundry.sipxconfig.phone.Line myLine = (org.sipfoundry.sipxconfig.phone.Line) myLines.get(i);
+                    apiLines[i].setUserName(myLine.getUser().getUserName());
+                }
+                phone.setLines(apiLines);
+            }
         }
     }
 

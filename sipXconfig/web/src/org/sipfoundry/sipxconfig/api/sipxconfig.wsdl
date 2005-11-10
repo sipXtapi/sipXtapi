@@ -35,6 +35,8 @@
 				<xsd:sequence>
 					<xsd:element name="serialNumber" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					<xsd:element name="modelId" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="groups" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+					<xsd:element name="lines" type="tns:Line" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 				</xsd:sequence>
 		    </xsd:complexType>				
 			<xsd:complexType name="ArrayOfPhone">
@@ -61,6 +63,11 @@
 					<xsd:element name="byGroup" type="xsd:string" minOccurs="0" maxOccurs="1"/>
 				</xsd:sequence>
 			</xsd:complexType>
+ 			<xsd:complexType name="Line">
+ 				<xsd:sequence>
+ 				    <xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+ 				</xsd:sequence>
+ 			</xsd:complexType>
 
 			<!-- P H O N E -->
 			<xsd:element name="FindPhoneResponse">
@@ -75,6 +82,7 @@
 					<xsd:sequence>
 						<xsd:element name="phone" type="tns:Phone" maxOccurs="1" minOccurs="1"/>
 						<xsd:element name="group" type="xsd:string" nillable="true" maxOccurs="unbounded"/>
+						<xsd:element name="pin" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
@@ -85,24 +93,21 @@
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>
-			<xsd:element name="EditPhone">
+			<xsd:element name="AdminPhone">
 				<xsd:complexType>
 					<xsd:sequence>
-						<xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
-						<xsd:element name="properties" type="tns:Property" maxOccurs="unbounded"/>
+  						<xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
+ 						<xsd:element name="edit" type="tns:Property" maxOccurs="unbounded"/>
+						<xsd:element name="addGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+ 						<xsd:element name="removeGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+ 						<xsd:element name="addLine" type="tns:Line" nillable="true" minOccurs="0" maxOccurs="1"/>
+ 						<xsd:element name="removeLine" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+  						<xsd:element name="generateProfiles" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+  						<xsd:element name="restart" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+ 						<xsd:element name="deletePhone" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>			
-		    <xsd:element name="ManagePhone">
-				<xsd:complexType>
-					<xsd:sequence>
-						<xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
-						<xsd:element name="generateProfiles" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
-						<xsd:element name="restart" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
-						<xsd:element name="doDelete" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
-					</xsd:sequence>
-				</xsd:complexType>
-		    </xsd:element>
 			
 			<!-- U S E R -->
 			<xsd:element name="FindUserResponse">
@@ -125,7 +130,7 @@
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="search" type="tns:UserSearch" minOccurs="1" maxOccurs="1"/>
-						<xsd:element name="doDelete" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="deleteUser" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>		
@@ -174,15 +179,10 @@
 	<message name="findPhoneRequest">
 		<part name="findPhone" element="tns:FindPhone"/>
 	</message>
-
-	<message name="managePhoneResponse"/>
-	<message name="managePhoneRequest">
-		<part name="managePhone" element="tns:ManagePhone"/>
-	</message>
 	
-	<message name="editPhoneResponse"/>
-	<message name="editPhoneRequest">
-		<part name="editPhone" element="tns:EditPhone"/>
+	<message name="adminPhoneResponse"/>
+	<message name="adminPhoneRequest">
+		<part name="adminPhone" element="tns:AdminPhone"/>
 	</message>
 
 	<portType name="PhoneService">
@@ -194,13 +194,9 @@
 			<input message="tns:findPhoneRequest"/>
 			<output message="tns:findPhoneResponse"/>
 		</operation>
-		<operation name="managePhone">
-			<input message="tns:managePhoneRequest"/>
-			<output message="tns:managePhoneResponse"/>
-		</operation>
-		<operation name="editPhone">
-			<input message="tns:editPhoneRequest"/>
-			<output message="tns:editPhoneResponse"/>
+		<operation name="adminPhone">
+			<input message="tns:adminPhoneRequest"/>
+			<output message="tns:adminPhoneResponse"/>
 		</operation>
 	</portType>	
 
@@ -224,16 +220,7 @@
 			</output>			
 			<soap:operation soapAction=""></soap:operation>						
 		</operation>
-		<operation name="managePhone">
- 			<input>
-				<soap:body use="literal" namespace="urn:ConfigService" />
-			</input>			
-			<output>
-				<soap:body use="literal" namespace="urn:ConfigService"/>
-			</output>			
-			<soap:operation soapAction=""></soap:operation>						
-		</operation>
-		<operation name="editPhone">
+		<operation name="adminPhone">
  			<input>
 				<soap:body use="literal" namespace="urn:ConfigService" />
 			</input>			

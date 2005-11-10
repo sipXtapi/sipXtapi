@@ -17,29 +17,37 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public class PhoneServiceImpl implements PhoneService {
-    
+
     private PhoneContext m_context;
-    
+
     private SettingDao m_settingDao;
-    
+
     private PhoneBuilder m_builder;
+
+    private CoreContext m_coreContext;
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
 
     public void setPhoneContext(PhoneContext context) {
         m_context = context;
     }
-    
+
     public void setPhoneBuilder(PhoneBuilder builder) {
         m_builder = builder;
     }
 
-    public void addPhone(AddPhone addPhone) throws RemoteException {        
-        Phone apiPhone = addPhone.getPhone(); 
+    public void addPhone(AddPhone addPhone) throws RemoteException {
+        Phone apiPhone = addPhone.getPhone();
         PhoneModel model = requireModelId(apiPhone.getModelId());
         org.sipfoundry.sipxconfig.phone.Phone phone = m_context.newPhone(model);
         ApiBeanUtil.toMyObject(m_builder, phone, apiPhone);
@@ -53,14 +61,15 @@ public class PhoneServiceImpl implements PhoneService {
     }
 
     public FindPhoneResponse findPhone(FindPhone findPhone) throws RemoteException {
-        FindPhoneResponse response = new FindPhoneResponse();        
+        FindPhoneResponse response = new FindPhoneResponse();
         org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(findPhone.getSearch());
-        Phone[] arrayOfPhones = (Phone[]) ApiBeanUtil.toApiArray(m_builder, myPhones, Phone.class);
+        Phone[] arrayOfPhones = (Phone[]) ApiBeanUtil
+                .toApiArray(m_builder, myPhones, Phone.class);
         response.setPhones(arrayOfPhones);
-        
+
         return response;
     }
-    
+
     org.sipfoundry.sipxconfig.phone.Phone[] phoneSearch(PhoneSearch search) {
         Collection phones = Collections.EMPTY_LIST;
         if (search == null) {
@@ -80,21 +89,9 @@ public class PhoneServiceImpl implements PhoneService {
                 phones = m_context.getPhonesByGroupId(g.getId());
             }
         }
-        
-        return (org.sipfoundry.sipxconfig.phone.Phone[])
-            phones.toArray(new org.sipfoundry.sipxconfig.phone.Phone[phones.size()]);
-    }
 
-    public void editPhone(EditPhone editPhone) throws RemoteException {
-        org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(editPhone.getSearch());
-        Set properties  = ApiBeanUtil.getSpecfiedProperties(editPhone.getProperties());
-        for (int i = 0; i < myPhones.length; i++) {
-            Phone apiPhone = new Phone();
-            ApiBeanUtil.setProperties(apiPhone, editPhone.getProperties());
-            m_builder.toMyObject(myPhones[i], apiPhone, properties);
-            // TODO: lines and groups
-            m_context.storePhone(myPhones[i]);
-        }
+        return (org.sipfoundry.sipxconfig.phone.Phone[]) phones
+                .toArray(new org.sipfoundry.sipxconfig.phone.Phone[phones.size()]);
     }
 
     public PhoneModel requireModelId(String modelId) {
@@ -109,17 +106,59 @@ public class PhoneServiceImpl implements PhoneService {
         m_settingDao = settingDao;
     }
 
-    public void managePhone(ManagePhone managePhone) throws RemoteException {
-        org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(managePhone.getSearch());
-        if (Boolean.TRUE.equals(managePhone.getGenerateProfiles())) {
-            m_context.generateProfilesAndRestart(Arrays.asList(myPhones));            
-        } else if (Boolean.TRUE.equals(managePhone.getRestart())) {
-            m_context.restart(Arrays.asList(myPhones));            
+    public void adminPhone(AdminPhone adminPhone) throws RemoteException {
+        org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(adminPhone.getSearch());
+        if (Boolean.TRUE.equals(adminPhone.getGenerateProfiles())) {
+            m_context.generateProfilesAndRestart(Arrays.asList(myPhones));
+        } else if (Boolean.TRUE.equals(adminPhone.getRestart())) {
+            m_context.restart(Arrays.asList(myPhones));
         } else {
             for (int i = 0; i < myPhones.length; i++) {
-                if (Boolean.TRUE.equals(managePhone.getDoDelete())) {
+
+                if (Boolean.TRUE.equals(adminPhone.getDeletePhone())) {
                     m_context.deletePhone(myPhones[i]);
+                    continue; // all other edits wouldn't make sense
                 }
+
+                if (adminPhone.getEdit() != null) {
+                    Phone apiPhone = new Phone();
+                    Set properties = ApiBeanUtil.getSpecfiedProperties(adminPhone.getEdit());
+                    ApiBeanUtil.setProperties(apiPhone, adminPhone.getEdit());
+                    m_builder.toMyObject(myPhones[i], apiPhone, properties);
+                }
+
+                if (adminPhone.getRemoveLine() != null) {
+                    String username = adminPhone.getRemoveLine();
+                    org.sipfoundry.sipxconfig.phone.Line l = myPhones[i].findByUsername(username);
+                    if (l != null) {
+                        myPhones[i].removeLine(l);
+                    }
+                }
+
+                if (adminPhone.getAddLine() != null) {
+                    String userName = adminPhone.getAddLine().getUserName();
+                    org.sipfoundry.sipxconfig.common.User u = m_coreContext
+                            .loadUserByUserName(userName);
+                    org.sipfoundry.sipxconfig.phone.Line l = myPhones[i].createLine();
+                    l.setUser(u);
+                    myPhones[i].addLine(l);
+                }
+
+                if (adminPhone.getAddGroup() != null) {
+                    String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
+                    Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, adminPhone
+                            .getAddGroup());
+                    myPhones[i].addGroup(g);
+                }
+
+                if (adminPhone.getRemoveGroup() != null) {
+                    String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
+                    Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, adminPhone
+                            .getAddGroup());
+                    DataCollectionUtil.removeByPrimaryKey(myPhones[i].getGroups(), g);
+                }
+
+                m_context.storePhone(myPhones[i]);
             }
         }
     }

@@ -117,7 +117,7 @@ public class UserServiceImpl implements UserService {
     public void manageUser(ManageUser manageUser) throws RemoteException {
         org.sipfoundry.sipxconfig.common.User[] myUsers = search(manageUser.getSearch());
         for (int i = 0; i < myUsers.length; i++) {
-            if (Boolean.TRUE.equals(manageUser.getDoDelete())) {
+            if (Boolean.TRUE.equals(manageUser.getDeleteUser())) {
                 m_coreContext.deleteUser(myUsers[i]);
             }
         }

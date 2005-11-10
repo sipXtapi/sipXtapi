@@ -55,7 +55,7 @@ class UserServiceTestApi < Test::Unit::TestCase
 	    assert_equal(1, users.length)
 	    
 	    deleteUser = ManageUser.new(search);
-	    deleteUser.doDelete = true
+	    deleteUser.deleteUser = true
 	    @userService.manageUser(deleteUser)
 	    
 	    users = @userService.findUser(FindUser.new(search)).users

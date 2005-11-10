@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -185,6 +186,21 @@ public class Phone extends BeanWithGroups {
         } finally {
             IOUtils.closeQuietly(wtr);
         }
+    }
+    
+    public Line findByUsername(String username) {
+        for (int i = 0; i < getLines().size(); i++) {
+            Line l = (Line) getLines().get(i);
+            if (username.equals(l.getUser().getUserName())) {
+                return l;
+            }
+        }
+        return null;
+    }
+
+    public void removeLine(Line line) {
+        getLines().remove(line);
+        DataCollectionUtil.updatePositions(getLines());            
     }
 
     /**

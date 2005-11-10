@@ -21,21 +21,21 @@ import java.util.Set;
 public class SimpleBeanBuilder implements ApiBeanBuilder {    
     public static final String ID_PROP = "id";
     
-    private Set m_ignoreList;
+    private Set m_customFields;
     
-    public Set getIgnoreList() {
-        if (m_ignoreList == null) {
-            m_ignoreList = new HashSet();
+    public Set getCustomFields() {
+        if (m_customFields == null) {
+            m_customFields = new HashSet();
         }
         
-        return m_ignoreList;
+        return m_customFields;
     }
     
     public void toApiObject(Object apiObject, Object myObject, Set properties) {
-        ApiBeanUtil.copyProperties(apiObject, myObject, properties, m_ignoreList);
+        ApiBeanUtil.copyProperties(apiObject, myObject, properties, m_customFields);
     }
     
     public void toMyObject(Object myObject, Object apiObject, Set properties) {
-        ApiBeanUtil.copyProperties(myObject, apiObject, properties, m_ignoreList);
+        ApiBeanUtil.copyProperties(myObject, apiObject, properties, m_customFields);
     }            
 }

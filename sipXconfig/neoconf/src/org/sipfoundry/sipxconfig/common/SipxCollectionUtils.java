@@ -50,4 +50,13 @@ public final class SipxCollectionUtils {
         String[] split = delmittedClean.split("\\s*,\\s*");
         return split;
     }
+    
+    public static String[] toStringArray(Collection c) {
+        String[] s = new String[c.size()];
+        Iterator x = c.iterator();
+        for (int i = 0; x.hasNext(); i++) {
+            s[i] = StringUtils.defaultString(x.next().toString());
+        }
+        return s;
+    }
 }

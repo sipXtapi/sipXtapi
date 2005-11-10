@@ -26,6 +26,12 @@ public final class DataCollectionUtil {
         // prevent creation
     }
 
+    public static Collection removeByPrimaryKey(Collection c, PrimaryKeySource primaryKey) {
+        return removeByPrimaryKey(c, new Object[] {
+            primaryKey 
+        });
+    }
+
     /**
      * Removes items from collections by their primary key and updates the positions on the items
      * 

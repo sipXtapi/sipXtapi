@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans default-autowire="byName">
 
 <bean id="UserService" class="org.sipfoundry.sipxconfig.api.UserServiceImpl">
 	<property name="coreContext" ref="coreContext"/>
@@ -15,12 +15,11 @@
 	<property name="settingDao" ref="settingDao"/>
 </bean>
 
-<bean id="TestService" class="org.sipfoundry.sipxconfig.api.TestServiceImpl" 
-	autowire="byName"/>
+<bean id="TestService" class="org.sipfoundry.sipxconfig.api.TestServiceImpl"/>
 
-<bean id="userBuilder" class="org.sipfoundry.sipxconfig.api.UserBuilder" autowire="byName"/>
+<bean id="userBuilder" class="org.sipfoundry.sipxconfig.api.UserBuilder"/>
 
-<bean id="phoneBuilder" class="org.sipfoundry.sipxconfig.api.PhoneBuilder" autowire="byName"/>
+<bean id="phoneBuilder" class="org.sipfoundry.sipxconfig.api.PhoneBuilder"/>
 
 </beans>
 

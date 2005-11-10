@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.phone;
 import java.io.File;
 import java.io.IOException;
 
+import org.sipfoundry.sipxconfig.common.User;
+
 import junit.framework.TestCase;
 
 public class PhoneTest extends TestCase {
@@ -58,5 +60,19 @@ public class PhoneTest extends TestCase {
         assertTrue(profile.exists());
         phone.removeProfiles();
         assertFalse(profile.exists());
+    }
+    
+    public void testFindByUsername() {
+        Phone phone = new Phone();
+        phone.setSerialNumber("123456789012");
+        Line l = phone.createLine();
+        User u = new User();
+        u.setUserName("foo");
+        l.setUser(u);
+        phone.addLine(l);
+        
+        assertSame(l, phone.findByUsername("foo"));
+        assertNull(phone.findByUsername("foox"));        
+        assertNull(phone.findByUsername("Foo"));        
     }
 }

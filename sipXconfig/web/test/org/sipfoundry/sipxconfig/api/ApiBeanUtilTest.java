@@ -46,7 +46,7 @@ public class ApiBeanUtilTest extends TestCase {
                 new Frick("c", "d")
         };
         SimpleBeanBuilder builder = new SimpleBeanBuilder();
-        builder.getIgnoreList().add("abode");
+        builder.getCustomFields().add("abode");
         Frack[] fracks = (Frack[]) ApiBeanUtil.toApiArray(builder, fricks, Frack.class);
         assertEquals("a", fracks[0].getName());
         assertEquals(null, fracks[0].getAbode());

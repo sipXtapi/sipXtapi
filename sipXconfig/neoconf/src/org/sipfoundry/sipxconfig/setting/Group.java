@@ -89,4 +89,8 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
     public void setPosition(int position) {
         m_weight = new Integer(position + 1);
     }
+    
+    public String toString() {
+        return getName();
+    }
 }

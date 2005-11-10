@@ -25,7 +25,7 @@ public class UserBuilder extends SimpleBeanBuilder {
     };
     
     public UserBuilder() {
-        getIgnoreList().addAll(Arrays.asList(IGNORE_LIST));
+        getCustomFields().addAll(Arrays.asList(IGNORE_LIST));
     }
     
     public void toApiObject(Object apiObject, Object myObject, Set properties) {
