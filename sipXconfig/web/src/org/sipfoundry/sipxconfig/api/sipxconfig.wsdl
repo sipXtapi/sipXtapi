@@ -118,7 +118,7 @@
 				</xsd:complexType>
 			</xsd:element>
             <xsd:element name="AddUser">
-				<xsd:complexType>
+            	<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="user" type="tns:User" maxOccurs="1" minOccurs="1"/>
 						<xsd:element name="pin" type="xsd:string" maxOccurs="1" minOccurs="1"/>
@@ -186,6 +186,10 @@
 	</message>
 
 	<portType name="PhoneService">
+		<documentation> 
+			Any change to phones requires generating profiles to get phone 
+			to update. See adminPhone.
+		</documentation>
 		<operation name="addPhone">
 			<input message="tns:addPhoneRequest"/>
 			<output message="tns:addPhoneResponse"/>
@@ -255,6 +259,9 @@
 	</message>
 
 	<portType name="UserService">
+		<documentation> 
+			Any change to edit to users updates all servers automatically and asynchronously.
+		</documentation>
 		<operation name="addUser">
 			<input message="tns:addUserRequest"/>
 			<output message="tns:addUserResponse"/>
@@ -275,12 +282,6 @@
 
 	<binding name="UserServiceSoapBinding" type="tns:UserService">
 		<soap:binding style="document"/>
-		<!-- 
-		  - Any change to users gets replicated in batches to sipx family 
-		  - of servers asynchronously.  Changes to phones does not happen
-		  - automatically so you will need to explicity send profiles to
-		  - rellevant phones.
-		  -->
 		<operation name="addUser">			
  			<input>
 				<soap:body use="literal" namespace="urn:ConfigService" />
