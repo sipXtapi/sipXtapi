@@ -87,6 +87,7 @@ SipRegistrarServer::initialize(
     const UtlString& minExpiresTime,
     const UtlString& defaultDomain,
     const UtlString& domainAliases,
+    int              proxyNormalPort,
     const UtlBoolean& useCredentialDB,
     const UtlString& realm)
 {
@@ -144,6 +145,8 @@ SipRegistrarServer::initialize(
         mRealm.append(realm);
     }
 
+    mProxyNormalPort = proxyNormalPort;
+    
     mIsCredentialDB = useCredentialDB;
     mpSipRegisterPlugins = sipRegisterPlugins;
     
@@ -164,7 +167,8 @@ SipRegistrarServer::initialize(
 /// Checks the message against the database, and if it is allowed by
 /// those checks, applies the requested changes.
 SipRegistrarServer::RegisterStatus
-SipRegistrarServer::applyRegisterToDirectory( const int timeNow
+SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
+                                             ,const int timeNow
                                              ,const SipMessage& registerMessage
                                              )
 {
@@ -173,7 +177,9 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
     UtlBoolean isExpiresheader = FALSE;
     int longestExpiration = -1; // for duration passed to hooks
     int commonExpires = -1;
-
+    UtlString registerToStr;
+    toUrl.getIdentity(registerToStr);
+    
     // get the expires header from the register message
     // this may be overridden by the expires parameter on each contact
     if ( registerMessage.getExpiresField( &commonExpires ) )
@@ -184,13 +190,6 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
     {
         commonExpires = mDefaultRegistryPeriod;
     }
-
-    // Get the header 'To' field from the REGISTER
-    // message and construct a URL from it.
-    // This is the Address Of Record that this registration is for.
-    UtlString registerToStr;
-    registerMessage.getToUri( &registerToStr );
-    Url toUrl( registerToStr );
 
     // get the header 'callid' from the register message
     UtlString registerCallidStr;
@@ -524,7 +523,7 @@ SipRegistrarServer::applyRegisterToDirectory( const int timeNow
                       "  To: '%s'\n"
                       "  Call-Id: '%s'\n"
                       "  Cseq: %d",
-                      toUrl.toString().data(), registerCallidStr.data(), registerCseqInt
+                      registerToStr.data(), registerCallidStr.data(), registerCseqInt
                      );
 
         returnStatus = REGISTER_OUT_OF_ORDER;
@@ -568,8 +567,39 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
         if ( isValidDomain( message, finalResponse ) )
         {
-            // check in credential database if authentication needed
-            if ( isAuthorized( message, finalResponse ) )
+           // get the header 'to' field from the register
+           // message and construct a URL with it
+           // this is also called the Address of record
+           UtlString registerToStr;
+           message.getToUri( &registerToStr );
+           Url toUrl( registerToStr );
+
+           /*
+            * Normalize the port in the Request URI
+            *   This is not strictly kosher, but it solves interoperability problems.
+            *   Technically, user@foo:5060 != user@foo , but many implementations
+            *   insist on including the explicit port even when they should not, and
+            *   it causes registration mismatches, so we normalize the URI when inserting
+            *   and looking up in the database so that if explicit port is the same as
+            *   the proxy listening port, then we remove it.
+            *   (Since our proxy has mProxyNormalPort open, no other SIP entity
+            *   can use sip:user@domain:mProxyNormalPort, so this normalization
+            *   cannot interfere with valid addresses.)
+            *
+            * For the strict rules, set the configuraiton parameter
+            *   SIP_REGISTRAR_PROXY_PORT : PORT_NONE
+            */
+           if (   mProxyNormalPort != PORT_NONE
+               && toUrl.getHostPort() == mProxyNormalPort
+               )
+           {
+              toUrl.setHostPort(PORT_NONE);
+           }
+           UtlString registeredIdentity;
+           toUrl.getIdentity(registeredIdentity);
+           
+           // check in credential database if authentication needed
+           if ( isAuthorized( toUrl, message, finalResponse ) )
             {
                 int port;
                 int tagNum = 0;
@@ -584,7 +614,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                 // add new contact values - update or insert
                 int timeNow = OsDateTime::getSecsSinceEpoch();
 
-                RegisterStatus applyStatus = applyRegisterToDirectory( timeNow, message );
+                RegisterStatus applyStatus
+                   = applyRegisterToDirectory( toUrl, timeNow, message );
+
                 switch (applyStatus)
                 {
                     case REGISTER_SUCCESS:
@@ -596,16 +628,12 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         //create response - 200 ok reseponse
                         finalResponse.setOkResponseData(&message);
 
-                        UtlString toField;
-                        message.getToUri(&toField);
-                        Url toFieldUri(toField);
-
                         //get all current contacts now for the response
                         ResultSet registrations;
 
                         RegistrationDB::getInstance()->
                             getUnexpiredContacts(
-                                toFieldUri, timeNow, registrations );
+                                toUrl, timeNow, registrations );
 
                         int numRegistrations = registrations.getSize();
                         for ( int i = 0 ; i<numRegistrations; i++ )
@@ -796,18 +824,19 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
 UtlBoolean
 SipRegistrarServer::isAuthorized (
+    const Url&  toUrl,
     const SipMessage& message,
     SipMessage& responseMessage )
 {
     UtlString fromUri;
-    UtlString toUri;
     UtlBoolean isAuthorized = FALSE;
 
     message.getFromUri(&fromUri);
     Url fromUrl(fromUri);
-    message.getToUri(&toUri) ;
-    Url toUrl(toUri) ; ;
 
+    UtlString identity;
+    toUrl.getIdentity(identity);
+    
     if ( !mIsCredentialDB )
     {
         OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized() "
@@ -821,7 +850,7 @@ SipRegistrarServer::isAuthorized (
         // check if we requested authentication and this is the req with
         // authorization,validate the authorization
         OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized()"
-                ": fromUri='%s', toUri='%s', realm='%s' \n", fromUri.data(), toUri.data(), mRealm.data() );
+                ": fromUri='%s', toUri='%s', realm='%s' \n", fromUri.data(), toUrl.toString().data(), mRealm.data() );
 
         UtlString requestNonce, requestRealm, requestUser, uriParam;
         int requestAuthIndex = 0;
@@ -889,14 +918,14 @@ SipRegistrarServer::isAuthorized (
                     {
                         OsSysLog::add(FAC_AUTH, PRI_ERR,
                                       "Unable to get credentials for '%s'\nrealm='%s'\nuser='%s'",
-                                      toUri.data(), mRealm.data(), requestUser.data());
+                                      identity.data(), mRealm.data(), requestUser.data());
                     }
                 }
                 else // nonce is not valid
                 {
                     OsSysLog::add(FAC_AUTH, PRI_ERR,
                                   "Invalid nonce for '%s'\nnonce='%s'\ncallId='%s'\nreqUri='%s'",
-                                  toUri.data(), requestNonce.data(), callId.data(), reqUri.data());
+                                  identity.data(), requestNonce.data(), callId.data(), reqUri.data());
                 }
             }
             requestAuthIndex++;

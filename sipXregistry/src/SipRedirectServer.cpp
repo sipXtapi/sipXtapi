@@ -133,6 +133,7 @@ SipRedirectServer::initialize(
    const UtlString& mediaServer,
    const UtlString& voicemailServer,
    const UtlString& localDomainHost,
+   int              proxyNormalPort,
    const char* configFileName)
 {
    if (!mIsStarted)
@@ -148,6 +149,8 @@ SipRedirectServer::initialize(
       return false;
    }
 
+   mProxyNormalPort = proxyNormalPort;
+   
    // Load the configuration file.
 
    OsConfigDb configDb;
@@ -317,12 +320,34 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
    UtlString stringUri;
    message->getRequestUri(&stringUri);
    // The requestUri is an addr-spec, not a name-addr.
-   const Url requestUri(stringUri, TRUE);
+   Url requestUri(stringUri, TRUE);
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectServer::processRedirect "
                  "Starting to process request URI '%s'",
                  stringUri.data());
 
+   /*
+    * Normalize the port in the Request URI
+    *   This is not strictly kosher, but it solves interoperability problems.
+    *   Technically, user@foo:5060 != user@foo , but many implementations
+    *   insist on including the explicit port even when they should not, and
+    *   it causes registration mismatches, so we normalize the URI when inserting
+    *   and looking up in the database so that if explicit port is the same as
+    *   the proxy listening port, then we remove it.
+    *   (Since our proxy has mProxyNormalPort open, no other SIP entity
+    *   can use sip:user@domain:mProxyNormalPort, so this normalization
+    *   cannot interfere with valid addresses.)
+    *
+    * For the strict rules, set the configuraiton parameter
+    *   SIP_REGISTRAR_PROXY_PORT : PORT_NONE
+    */
+   if (   mProxyNormalPort != PORT_NONE
+       && requestUri.getHostPort() == mProxyNormalPort
+       )
+   {
+      requestUri.setHostPort(PORT_NONE);
+   }
+    
    // Seize the lock that protects the list of suspend objects.
    OsLock lock(mMutex);
 

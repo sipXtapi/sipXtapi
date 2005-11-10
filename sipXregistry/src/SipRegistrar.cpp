@@ -52,6 +52,7 @@ SipRegistrar::SipRegistrar(SipUserAgent* sipUserAgent,
                            int maxExpiresTime,
                            const UtlString& defaultDomain,
                            const UtlString& domainAliases,
+                           int              proxyNormalPort,
                            const UtlString& defaultMinExpiresTime,
                            const UtlBoolean& useCredentialDB,
                            const UtlString& defaultAuthAlgorithm,
@@ -66,7 +67,8 @@ mRedirectServer(NULL),
 mRedirectMsgQ(NULL),
 mRedirectThreadInitialized(FALSE),
 mRegistrarThreadInitialized(FALSE),
-mSipRegisterPlugins(sipRegisterPlugins)
+mSipRegisterPlugins(sipRegisterPlugins),
+mProxyNormalPort(proxyNormalPort)
 {
    mConfigDirectory.remove(0);
    mConfigDirectory.append(configDir);
@@ -237,6 +239,8 @@ SipRegistrar::startRegistrar(
     int tcpPort = PORT_DEFAULT;
     int udpPort = PORT_DEFAULT;
     int tlsPort = PORT_DEFAULT;
+    int proxyNormalPort = PORT_DEFAULT;
+
     UtlString defaultMaxExpiresTime;
     UtlString defaultMinExpiresTime;
 
@@ -263,6 +267,7 @@ SipRegistrar::startRegistrar(
         configDb.set("SIP_REGISTRAR_UDP_PORT", "5070");
         configDb.set("SIP_REGISTRAR_TCP_PORT", "5070");
         configDb.set("SIP_REGISTRAR_TLS_PORT", "5071");
+        configDb.set("SIP_REGISTRAR_PROXY_PORT", "5060");
         configDb.set("SIP_REGISTRAR_MAX_EXPIRES", "");
         configDb.set("SIP_REGISTRAR_MIN_EXPIRES", "");
         configDb.set("SIP_REGISTRAR_DOMAIN_NAME", "");
@@ -301,6 +306,12 @@ SipRegistrar::startRegistrar(
     if (tlsPort == PORT_DEFAULT)
     {
        tlsPort = 5071;
+    }
+
+    proxyNormalPort = configDb.getPort("SIP_REGISTRAR_PROXY_PORT");
+    if (proxyNormalPort == PORT_DEFAULT)
+    {
+       proxyNormalPort = 5060;
     }
 
     configDb.get("SIP_REGISTRAR_MAX_EXPIRES", defaultMaxExpiresTime);
@@ -420,7 +431,7 @@ SipRegistrar::startRegistrar(
        sprintf(portBuf, ":%d", sipUserAgent->getUdpPort());
        domainAliases.append(portBuf);
     }
-    osPrintf("SIP_REGISTRAR_DOMAIN_ALIASES : %s\n", domainAliases.data());
+
     // Start the registrar.
     SipRegistrar* registrar =
         new SipRegistrar(
@@ -429,6 +440,7 @@ SipRegistrar::startRegistrar(
             maxExpiresTime ,
             domainName,
             domainAliases,
+            proxyNormalPort,
             defaultMinExpiresTime,
             isCredentialDB,
             authAlgorithm,
@@ -437,7 +449,8 @@ SipRegistrar::startRegistrar(
             workingDir,
             mediaServer,
             voicemailServer,
-            configFileName);
+            configFileName
+                         );
 
     registrar->start();
 
@@ -507,6 +520,7 @@ SipRegistrar::startRedirectServer(const char* configFileName)
                                     mMediaServer,
                                     mVoicemailServer,
                                     mlocalDomainHost,
+                                    mProxyNormalPort,
                                     configFileName) )
    {
       mRedirectMsgQ = mRedirectServer->getMessageQueue();
@@ -524,6 +538,7 @@ SipRegistrar::startRegistrarServer()
                                       mMinExpiresTime,
                                       mDefaultDomain,
                                       mDomainAliases,
+                                      mProxyNormalPort,
                                       mIsCredentialDB,
                                       mRealm) )
     {

@@ -92,55 +92,43 @@ class SipRedirector
     */
    virtual void finalize() = 0;
 
+   typedef enum LookUpStatus
+   {
+      // Start numbering status values from 1 so 0 is invalid.
+      LOOKUP_SUCCESS = 1,   ///< the redirector successfully finished its processing.
+      LOOKUP_ERROR_REQUEST, /**< the request was invalid in some way
+                             * (e.g., a call retrieve from an invalid orbit number)
+                             * and the request should get a 403 Forbidden response. */
+      LOOKUP_ERROR_SERVER,  /**< the redirector encountered an internal
+                             * error and the request should get a 500 response */
+      LOOKUP_SUSPEND        /**< the redirector needs the request to be suspended
+                             * for asynchronous processing. */
+   } LookUpStatus;
+
+   /// Look up redirections and add them to the response.
    /**
-    * Look up redirections and add them to the response.
+    * @return the LookUpStatus indication showing the outcome of processing
     *
-    * message is the incoming SIP message.
-    *
-    * requestString is the request URI from the SIP message as a UtlString.
-    *
-    * requestUri is the request URI from the SIP message as a Uri, for
-    * use in debugging messages.
-    *
-    * response is the response SIP message that we are in the process
-    * of building.
-    *
-    * privateStorage is the cell containing the pointer to the private
-    * storage object for this redirector.
-    *
-    * @return the success/error/suspend indication showing the outcome
-    * of processing:
-    * LOOKUP_SUCCESS means the redirector successfully finished its processing.
-    * LOOKUP_SUSPEND means the redirector needs the request to be suspended
-    * for asynchronous processing.
-    * LOOKUP_ERROR_REQUEST means that the request was invalid in some way
-    * (e.g., a call retrieve from an invalid orbit number) and the request
-    * should get a 403 Forbidden response.
-    * LOOKUP_ERROR_SERVER means that the redirector encountered an internal
-    * error and the request should get a 500 response
     * If it returns LOOKUP_ERROR, the redirector should most likely have
     * logged message(s) at ERR level giving the details of the problem.
     *
     * The SipRedirectServer will be holding mMutex while lookUp is called.
     * See ../doc/Redirection.txt for more details on how lookUp is called.
     */
-   typedef enum LookUpStatus
-   {
-      // Start numbering status values from 1 so 0 is invalid.
-      LOOKUP_SUCCESS = 1,
-      LOOKUP_ERROR_REQUEST,
-      LOOKUP_ERROR_SERVER,
-      LOOKUP_SUSPEND
-   } LookUpStatus;
    virtual LookUpStatus lookUp(
-      const SipMessage& message,
-      const UtlString& requestString,
-      const Url& requestUri,
+      const SipMessage& message,      ///< the incoming SIP message
+      const UtlString& requestString, /**< the request URI from the SIP message as a UtlString
+                                       *   ONLY for use in debugging messages; all comparisons
+                                       *   should be with requestUri */
+      const Url& requestUri,          ///< the request URI from the SIP message as a Uri,
       const UtlString& method,
-      SipMessage& response,
-      RequestSeqNo requestSeqNo,
-      int redirectorNo,
-      class SipRedirectorPrivateStorage*& privateStorage) = 0;
+      SipMessage& response,           ///< the response SIP message that we are building.
+      RequestSeqNo requestSeqNo,      ///< the request sequence number
+      int redirectorNo,               ///< the identifier for this redirector
+      class SipRedirectorPrivateStorage*& privateStorage /**< the cell containing the pointer
+                                                          * to the private storage object for
+                                                          * this redirector, for this request. */
+                               ) = 0;
 
    /**
     * Cancel processing of a request.
