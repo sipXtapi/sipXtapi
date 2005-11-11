@@ -61,11 +61,4 @@
     <property name="settingModel" ref="userSettingModel"/>
   </bean>
   
-  <!-- List SipxHibernateDaoSupport here strictly for unit testing -->
-  <bean id="sipxHibernateDaoSupport" class="org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>
-  </bean>
-  
 </beans>

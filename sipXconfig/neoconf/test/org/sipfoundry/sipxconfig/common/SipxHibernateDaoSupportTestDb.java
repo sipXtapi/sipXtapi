@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import org.hibernate.SessionFactory;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
@@ -22,9 +23,17 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
     private static final String COPY_OF = "CopyOf";
     private SipxHibernateDaoSupport m_dao;
 
+    public static SipxHibernateDaoSupport createDao() {
+        ApplicationContext app = TestHelper.getApplicationContext();
+        SessionFactory sessionFactory = (SessionFactory) app.getBean("sessionFactory");
+        SipxHibernateDaoSupport support = new SipxHibernateDaoSupport();
+        support.setSessionFactory(sessionFactory);
+        support.afterPropertiesSet();
+        return support;
+    }
+
     protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext(); 
-        m_dao = (SipxHibernateDaoSupport) app.getBean(SipxHibernateDaoSupport.CONTEXT_BEAN_NAME);
+        m_dao = createDao();
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -33,16 +42,16 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
         cg.setName(GROUP_NAME);
         HibernateTemplate hibernate = m_dao.getHibernateTemplate();
         hibernate.save(cg);
-        
+
         // Make a copy and look for the copyOf prefix in the new bean's name
         CallGroup cg2 = (CallGroup) m_dao.duplicateBean(cg, "callGroupIdsWithName");
         assertEquals(COPY_OF + GROUP_NAME, cg2.getName());
 
-        // Make another copy.  Since we haven't saved cg2 yet, the name should
+        // Make another copy. Since we haven't saved cg2 yet, the name should
         // be the same as cg2.
         CallGroup cg3 = (CallGroup) m_dao.duplicateBean(cg, "callGroupIdsWithName");
         assertEquals(COPY_OF + GROUP_NAME, cg3.getName());
-        
+
         // Make another copy after saving cg2.
         // This time the prefix should appear twice, so that
         // the name of the new bean will be unique.
@@ -50,10 +59,10 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
         CallGroup cg4 = (CallGroup) m_dao.duplicateBean(cg, "callGroupIdsWithName");
         assertEquals(COPY_OF + COPY_OF + GROUP_NAME, cg4.getName());
 
-        // Clean up just to be nice.  This isn't strictly necessary.
+        // Clean up just to be nice. This isn't strictly necessary.
         hibernate.delete(cg);
         hibernate.delete(cg2);
         hibernate.flush();
     }
-    
+
 }

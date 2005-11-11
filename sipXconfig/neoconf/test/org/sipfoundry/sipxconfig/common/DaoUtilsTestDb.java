@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.common;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class DaoUtilsTestDb extends SipxDatabaseTestCase {
@@ -21,8 +20,7 @@ public class DaoUtilsTestDb extends SipxDatabaseTestCase {
     private HibernateTemplate m_hibernate;
 
     protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext();
-        m_dao = (SipxHibernateDaoSupport) app.getBean(SipxHibernateDaoSupport.CONTEXT_BEAN_NAME);
+        m_dao = SipxHibernateDaoSupportTestDb.createDao();
         m_hibernate = m_dao.getHibernateTemplate();
         TestHelper.cleanInsert("ClearDb.xml");
     }
@@ -38,5 +36,4 @@ public class DaoUtilsTestDb extends SipxDatabaseTestCase {
         user.setUserName("wont find this guy");
         assertFalse(DaoUtils.checkDuplicates(m_hibernate, user, "userName", null));
     }
-
 }

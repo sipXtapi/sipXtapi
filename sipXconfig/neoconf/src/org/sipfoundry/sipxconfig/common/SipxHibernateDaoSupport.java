@@ -25,8 +25,6 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SipxHibernateDaoSupport extends HibernateDaoSupport {
-    public static final String CONTEXT_BEAN_NAME = "sipxHibernateDaoSupport";
-
     public Object load(Class c, Integer id) {
         return getHibernateTemplate().load(c, id);
     }
