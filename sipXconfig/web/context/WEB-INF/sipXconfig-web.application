@@ -71,6 +71,7 @@
     <page name="SelectUsers" specification-path="user/SelectUsers.page"/>
     <page name="ServerSettings" specification-path="admin/commserver/ServerSettings.page"/>    
     <page name="Services" specification-path="admin/commserver/Services.page"/>
+    <page name="SnapshotPage" specification-path="admin/SnapshotPage.page"/>
     <page name="UserCallForwarding" specification-path="user_portal/UserCallForwarding.page"/>
     <page name="UserGroups" specification-path="user/UserGroups.page"/>
     <page name="UserSettings" specification-path="user/UserSettings.page"/>    

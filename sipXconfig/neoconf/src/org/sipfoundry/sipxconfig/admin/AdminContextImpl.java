@@ -12,13 +12,11 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.List;
 import java.util.Timer;
 
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
-import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -26,14 +24,15 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * Backup provides Java interface to backup scripts
  */
-public class AdminContextImpl extends HibernateDaoSupport implements AdminContext, ApplicationListener {
+public class AdminContextImpl extends HibernateDaoSupport implements AdminContext,
+        ApplicationListener {
 
     private String m_binDirectory;
 
     private String m_backupDirectory;
-    
+
     private Timer m_timer;
-    
+
     public String getBackupDirectory() {
         return m_backupDirectory;
     }
@@ -50,7 +49,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         m_binDirectory = binDirectory;
     }
 
-    public BackupPlan getBackupPlan() {        
+    public BackupPlan getBackupPlan() {
         List plans = getHibernateTemplate().loadAll(BackupPlan.class);
         BackupPlan plan = (BackupPlan) DaoUtils.requireOneOrZero(plans, "all backup plans");
 
@@ -62,12 +61,12 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
         }
         return plan;
     }
-    
+
     public void storeBackupPlan(BackupPlan plan) {
         getHibernateTemplate().saveOrUpdate(plan);
         resetTimer(plan);
     }
-    
+
     public File[] performBackup(BackupPlan plan) {
         return plan.perform(m_backupDirectory, m_binDirectory);
     }
@@ -76,7 +75,7 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
      * start backup timers after app is initialized
      */
     public void onApplicationEvent(ApplicationEvent event) {
-        // No need to register listener, all beans that implement listener interface are 
+        // No need to register listener, all beans that implement listener interface are
         // automatically registered
         if (event instanceof ApplicationInitializedEvent) {
             resetTimer(getBackupPlan());
@@ -88,19 +87,16 @@ public class AdminContextImpl extends HibernateDaoSupport implements AdminContex
             m_timer.cancel();
         }
         m_timer = new Timer(false); // deamon, dies with main thread
-        plan.schedule(m_timer, m_backupDirectory, m_binDirectory); 
+        plan.schedule(m_timer, m_backupDirectory, m_binDirectory);
     }
-    
-    
+
     public String[] getInitializationTasks() {
         List l = getHibernateTemplate().findByNamedQuery("taskNames");
         return (String[]) l.toArray(new String[l.size()]);
     }
-    
+
     public void deleteInitializationTask(String task) {
-        Collection c = getHibernateTemplate().find("from " + InitializationTask.class.getName() 
-                + " t where t.task = '" + task + "'");
-        getHibernateTemplate().deleteAll(c);
+        List l = getHibernateTemplate().findByNamedQueryAndNamedParam("taskByName", "task", task);
+        getHibernateTemplate().deleteAll(l);
     }
 }
-

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.admin.SnapshotPage">
+
+    <description>Snapshot page</description>
+    
+    <property-specification name="snapshot" 
+    	type="org.sipfoundry.sipxconfig.admin.Snapshot" 
+    	initial-value="global.snapshot"/>
+        
+    <property-specification name="snapshotFile" type="java.io.File"/>
+
+     <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+        
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+    
+    <component id="errors" type="ErrorMsg"/>
+
+    <component id="logsPanel" type="FieldPanel">
+        <binding name="field" expression="components.logsCheck"/>
+        <message-binding name="label" key="label.logs"/>
+        <message-binding name="description" key="description.logs"/>        
+    </component>
+    <component id="logsCheck" type="Checkbox">
+        <binding name="selected" expression="snapshot.logs"/>
+    </component>
+
+    <component id="wwwPanel" type="FieldPanel">
+        <binding name="field" expression="components.wwwCheck"/>
+        <message-binding name="label" key="label.www"/>
+        <message-binding name="description" key="description.www"/>        
+    </component>
+    <component id="wwwCheck" type="Checkbox">
+        <binding name="selected" expression="snapshot.www"/>
+    </component>
+
+    <component id="credentialsPanel" type="FieldPanel">
+        <binding name="field" expression="components.credentialsCheck"/>
+        <message-binding name="label" key="label.credentials"/>
+        <message-binding name="description" key="description.credentials"/>        
+    </component>
+    <component id="credentialsCheck" type="Checkbox">
+        <binding name="selected" expression="snapshot.credentials"/>
+    </component>
+    
+    <component id="actions" type="FormActions">
+        <binding name="listener" expression="listeners.createSnapshot"/>
+        <message-binding name="successMessage" key="msg.success"/>
+    </component> 
+    
+    <component id="ifResultsPresent" type="Conditional">
+        <binding name="condition" expression="snapshotFile != null"/>
+        <static-binding name="element" value="p"/>
+    </component>    
+
+    <component id="snapshotLink" type="DownloadLink">
+        <binding name="fileName" expression="snapshotFile.name"/>
+        <binding name="dirName" expression="snapshotFile.parentFile.path"/>
+        <static-binding name="contentType" value="tar/x-gzip"/>
+    </component>
+    
+    <component id="linkText" type="InsertText">
+        <binding name="value" expression="snapshotFile.name"/>
+    </component>
+
+</page-specification>

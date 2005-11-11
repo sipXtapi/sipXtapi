@@ -13,4 +13,9 @@
     <![CDATA[select t.task from org.sipfoundry.sipxconfig.common.InitializationTask t]]>
   </query>
   
+  <query name="taskByName">
+    <![CDATA[from org.sipfoundry.sipxconfig.common.InitializationTask t where t.task = :task]]>
+  </query>
+  
+  
 </hibernate-mapping>
