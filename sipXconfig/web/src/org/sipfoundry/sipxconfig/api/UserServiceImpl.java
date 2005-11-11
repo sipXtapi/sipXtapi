@@ -28,6 +28,9 @@ public class UserServiceImpl implements UserService {
     /** TODO: Remove this when user loader uses lucene */
     private static final int PAGE_SIZE = 1000;
     
+    private static final String GROUP_RESOURCE_ID = 
+        org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
+    
     private static final String SORT_ORDER = "userName";
     
     private static final Log LOG = LogFactory.getLog(UserServiceImpl.class);
@@ -55,9 +58,8 @@ public class UserServiceImpl implements UserService {
         User apiUser = addUser.getUser();        
         ApiBeanUtil.toMyObject(m_userBuilder, myUser, apiUser);
         String[] groups = apiUser.getGroups();
-        String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
         for (int i = 0; groups != null && i < groups.length; i++) {
-            Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, groups[i]);
+            Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, groups[i]);
             myUser.addGroup(g);
         }
         myUser.setPin(addUser.getPin(), m_coreContext.getAuthorizationRealm());
@@ -87,8 +89,7 @@ public class UserServiceImpl implements UserService {
                     null, 0, PAGE_SIZE, SORT_ORDER, true);                
             warnIfOverflow(users, PAGE_SIZE);
         } else if (search.getByGroup() != null) {
-            String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
-            Group g = m_settingDao.getGroupByName(resourceId, search.getByGroup());
+            Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, search.getByGroup());
             users = m_coreContext.loadUsersByPage(null, g.getId(), 0, PAGE_SIZE, SORT_ORDER, true);
             warnIfOverflow(users, PAGE_SIZE);
         }
@@ -117,16 +118,14 @@ public class UserServiceImpl implements UserService {
                 m_userBuilder.toMyObject(myUsers[i], apiUser, properties);
             }
 
-            if (adminUser.getAddGroup() != null) {
-                String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
-                Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, adminUser
+            if (adminUser.getAddGroup() != null) {                
+                Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, adminUser
                         .getAddGroup());
                 myUsers[i].addGroup(g);
             }
 
             if (adminUser.getRemoveGroup() != null) {
-                String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
-                Group g = m_settingDao.getGroupByName(resourceId, adminUser.getRemoveGroup());
+                Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, adminUser.getRemoveGroup());
                 if (g != null) {
                     DataCollectionUtil.removeByPrimaryKey(myUsers[i].getGroups(), g.getPrimaryKey());
                 }

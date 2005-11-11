@@ -26,20 +26,58 @@ class PhoneServiceTestApi < Test::Unit::TestCase
 		reset.user = true;
 		@testService.resetService(reset)
     end
-
+    
 	def test_createPhone	    
 	    expected = Phone.new('000000000000', 'unmanagedPhone')
 	    expected.groups = [ 'group1' ]
 		@phoneService.addPhone(AddPhone.new(expected))
 
-	    findPhone = FindPhone.new(PhoneSearch.new())	  
-	    findPhone.search.bySerialNumber = expected.serialNumber
+	    findPhone = FindPhone.new(PhoneSearch.new(expected.serialNumber))	  
 	    phones = @phoneService.findPhone(findPhone).phones
 	    
 	    assert_equal(1, phones.length)
 	    assert_equal(expected.serialNumber, phones[0].serialNumber)	    
+	    assert_equal(1, phones[0].groups.length)
+	    assert_equal('group1', phones[0].groups[0])
     end
     
+    def test_deletePhone
+	    seedPhone()
+
+	    # ensure phone was created
+	    findPhone = FindPhone.new(PhoneSearch.new())	  
+	    findPhone.search.bySerialNumber = @seed.serialNumber
+	    assert_equal(1, @phoneService.findPhone(findPhone).phones.length)
+
+	    deletePhone = AdminPhone.new(PhoneSearch.new())
+	    deletePhone.search.bySerialNumber = @seed.serialNumber
+	    deletePhone.deletePhone = true
+	    @phoneService.adminPhone(deletePhone)
+	    
+	    # ensure phone was deleted
+	    assert_equal(0, @phoneService.findPhone(findPhone).phones.length)
+    end
+
+    def test_addRemoveGroup	
+        seedPhone()
+        
+	    search = PhoneSearch.new(@seed.serialNumber)
+
+        #add group
+        addGroup = AdminPhone.new(search)
+        addGroup.addGroup = 'group1'
+        @phoneService.adminPhone(addGroup)
+	    phones = @phoneService.findPhone(FindPhone.new(search)).phones;
+	    assert_equal('group1', phones[0].groups[0])
+	    
+	    #remove group
+        removeGroup = AdminPhone.new(search)
+        removeGroup.removeGroup = 'group1'
+        @phoneService.adminPhone(removeGroup)
+	    phones = @phoneService.findPhone(FindPhone.new(search)).phones;
+	    assert_nil(phones[0].groups)	    
+    end
+
     def seedPhone
 	    @seed = Phone.new('000000000000', 'unmanagedPhone')
 	    addPhone = AddPhone.new(@seed)
@@ -60,23 +98,9 @@ class PhoneServiceTestApi < Test::Unit::TestCase
 		assert_equal(phone.lines[0].userName, 'user1')
     end
     
-    def test_deletePhone
-	    seedPhone()
-
-	    # ensure phone was created
-	    findPhone = FindPhone.new(PhoneSearch.new())	  
-	    findPhone.search.bySerialNumber = @seed.serialNumber
-	    assert_equal(1, @phoneService.findPhone(findPhone).phones.length)
-
-	    deletePhone = AdminPhone.new(PhoneSearch.new())
-	    deletePhone.search.bySerialNumber = @seed.serialNumber
-	    deletePhone.deletePhone = true
-	    @phoneService.adminPhone(deletePhone)
-	    
-	    # ensure phone was deleted
-	    assert_equal(0, @phoneService.findPhone(findPhone).phones.length)
+    def test_phoneEdit
     end
-    
+        
     def test_phoneProfileAndRestart
     end
 end

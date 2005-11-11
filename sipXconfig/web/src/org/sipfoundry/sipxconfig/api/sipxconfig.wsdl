@@ -82,8 +82,6 @@
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="phone" type="tns:Phone" maxOccurs="1" minOccurs="1"/>
-						<xsd:element name="group" type="xsd:string" nillable="true" maxOccurs="unbounded"/>
-						<xsd:element name="pin" type="xsd:string" minOccurs="1" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>

@@ -26,6 +26,9 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public class PhoneServiceImpl implements PhoneService {
 
+    private static final String GROUP_RESOURCE_ID = 
+        org.sipfoundry.sipxconfig.phone.Phone.GROUP_RESOURCE_ID;
+    
     private PhoneContext m_context;
 
     private SettingDao m_settingDao;
@@ -51,10 +54,9 @@ public class PhoneServiceImpl implements PhoneService {
         PhoneModel model = requireModelId(apiPhone.getModelId());
         org.sipfoundry.sipxconfig.phone.Phone phone = m_context.newPhone(model);
         ApiBeanUtil.toMyObject(m_builder, phone, apiPhone);
-        String[] groups = addPhone.getGroup();
-        String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
+        String[] groups = apiPhone.getGroups();
         for (int i = 0; groups != null && i < groups.length; i++) {
-            Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, groups[i]);
+            Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, groups[i]);
             phone.addGroup(g);
         }
         m_context.storePhone(phone);
@@ -83,8 +85,7 @@ public class PhoneServiceImpl implements PhoneService {
                 }
             }
         } else if (search.getByGroup() != null) {
-            String resourceId = org.sipfoundry.sipxconfig.phone.Phone.GROUP_RESOURCE_ID;
-            Group g = m_settingDao.getGroupByName(resourceId, search.getByGroup());
+            Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, search.getByGroup());
             if (g != null) {
                 phones = m_context.getPhonesByGroupId(g.getId());
             }
@@ -145,17 +146,16 @@ public class PhoneServiceImpl implements PhoneService {
                 }
 
                 if (adminPhone.getAddGroup() != null) {
-                    String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
-                    Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, adminPhone
+                    Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, adminPhone
                             .getAddGroup());
                     myPhones[i].addGroup(g);
                 }
 
                 if (adminPhone.getRemoveGroup() != null) {
-                    String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
-                    Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, adminPhone
-                            .getRemoveGroup());
-                    DataCollectionUtil.removeByPrimaryKey(myPhones[i].getGroups(), g);
+                    Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, adminPhone.getRemoveGroup());
+                    if (g != null) {
+                        DataCollectionUtil.removeByPrimaryKey(myPhones[i].getGroups(), g.getPrimaryKey());
+                    }
                 }
 
                 m_context.storePhone(myPhones[i]);
