@@ -82,10 +82,10 @@ public final class TestUtil {
      * but when you need a filename use this. Example:
      * 
      * <pre>
-     *       
-     *        # Test file in same directory as JUnit test source file 
-     *        String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
-     *        
+     *          
+     *           # Test file in same directory as JUnit test source file 
+     *           String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
+     *           
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
@@ -140,6 +140,7 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.etc", etcDirectory);
         sysProps.setProperty("sysdir.data", outputDirectory);
         sysProps.setProperty("sysdir.share", outputDirectory);
+        sysProps.setProperty("sysdir.var", outputDirectory);
         sysProps.setProperty("sysdir.phone", outputDirectory);
         sysProps.setProperty("sysdir.tmp", outputDirectory);
         sysProps.setProperty("sysdir.log", outputDirectory);
@@ -157,6 +158,7 @@ public final class TestUtil {
                 + "/parkserver/music");
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
         sysProps.setProperty("whacker.enabled", Boolean.toString(false));
+        sysProps.setProperty("indexTrigger.enabled", Boolean.toString(false));
     }
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

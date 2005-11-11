@@ -35,6 +35,10 @@ public class SimpleIndexSource implements IndexSource {
 
     private Analyzer m_analyzer;
 
+    private int m_maxFieldLength = IndexWriter.DEFAULT_MAX_FIELD_LENGTH;
+
+    private int m_minMergeDocs = IndexWriter.DEFAULT_MIN_MERGE_DOCS;
+
     private Directory getDirectory() {
         try {
             Directory directory = createDirectory(m_indexDirectory, m_createDirectory);
@@ -64,6 +68,14 @@ public class SimpleIndexSource implements IndexSource {
         m_analyzer = analyzer;
     }
 
+    public void setMinMergeDocs(int minMergeDocs) {
+        m_minMergeDocs = minMergeDocs;
+    }
+
+    public void setMaxFieldLength(int maxFieldLength) {
+        m_maxFieldLength = maxFieldLength;
+    }
+
     public IndexReader getReader() throws IOException {
         ensureIndexExists();
         return IndexReader.open(getDirectory());
@@ -72,6 +84,8 @@ public class SimpleIndexSource implements IndexSource {
     public IndexWriter getWriter(boolean createNew) throws IOException {
         IndexWriter writer = new IndexWriter(getDirectory(), m_analyzer, createNew
                 || m_createIndex);
+        writer.maxFieldLength = m_maxFieldLength;
+        writer.minMergeDocs = m_minMergeDocs;
         m_createIndex = false;
         return writer;
     }

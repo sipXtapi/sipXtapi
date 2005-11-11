@@ -5,8 +5,10 @@
   <bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
   
   <bean id="indexSource" class="org.sipfoundry.sipxconfig.search.SimpleIndexSource">
-    <property name="indexDirectoryName" value="${sysdir.share}/sipxconfig/index"/>
+    <property name="indexDirectoryName" value="${sysdir.tmp}/index"/>
     <property name="analyzer" ref="analyzer"/>
+    <property name="maxFieldLength" value="255"/>
+    <property name="minMergeDocs" value="250"/>
   </bean>
   
   <bean id="fastIndexer" class="org.sipfoundry.sipxconfig.search.FastIndexer">
@@ -63,5 +65,12 @@
       <ref local="indexManagerImpl"/>
     </property>
   </bean>
+  
+  <bean id="indexTrigger" class="org.sipfoundry.sipxconfig.search.IndexTrigger">
+    <property name="indexDirectoryName" value="${sysdir.tmp}/index"/>
+    <property name="indexManager">
+      <ref local="indexManager"/>      
+    </property>
+  </bean>  
   
 </beans>

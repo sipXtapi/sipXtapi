@@ -11,36 +11,34 @@
  */
 package org.sipfoundry.sipxconfig.search;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.SessionFactory;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.conference.Bridge;
-import org.sipfoundry.sipxconfig.conference.Conference;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class IndexManagerImpl extends HibernateDaoSupport implements IndexManager {
-    // TODO: inject externally
-    private final Class[] m_indexedClasses = {
-        User.class, Phone.class, CallGroup.class, DialingRule.class, Bridge.class,
-        Conference.class, ParkOrbit.class
-    };
+    private static final Log LOG = LogFactory.getLog(IndexManagerImpl.class);
 
     private Indexer m_indexer;
+
+    private Class[] m_indexedClasses = DefaultBeanAdaptor.CLASSES;
 
     /**
      * Loads all entities to be indexed.
      */
     public void indexAll() {
-        m_indexer.open();
-        // load all classes that need to be indexed
-        for (int i = 0; i < m_indexedClasses.length; i++) {
-            getHibernateTemplate().loadAll(m_indexedClasses[i]);
+        try {
+            LOG.info("creating database index...");
+            m_indexer.open();
+            // load all classes that need to be indexed
+            for (int i = 0; i < m_indexedClasses.length; i++) {
+                getHibernateTemplate().loadAll(m_indexedClasses[i]);
+            }
+        } finally {
+            m_indexer.close();
+            LOG.info("index created");
         }
-        m_indexer.close();
     }
 
     public void setIndexer(Indexer indexer) {

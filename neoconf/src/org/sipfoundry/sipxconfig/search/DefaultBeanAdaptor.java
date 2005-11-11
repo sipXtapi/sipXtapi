@@ -24,11 +24,26 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.Term;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
+import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.conference.Bridge;
+import org.sipfoundry.sipxconfig.conference.Conference;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 public class DefaultBeanAdaptor implements BeanAdaptor {
+    /** only those classes can be used to search by class */
+    public static final Class[] CLASSES = {
+        // TODO: inject externally
+        User.class, Phone.class, Group.class, Gateway.class, CallGroup.class, DialingRule.class,
+        Bridge.class, Conference.class, ParkOrbit.class, AutoAttendant.class
+    };
+
     private static final Log LOG = LogFactory.getLog(DefaultBeanAdaptor.class);
 
     // keep it sorted - used in binary search
@@ -36,28 +51,22 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         "extension", "firstName", "lastName", "name", "userName"
     };
 
-    /** only those classes can be used to search by class */
-    private static final Class[] CLASSES = {
-        User.class, Phone.class
-    };
-
     /**
      * @return true if the document should be added to index
      */
     public boolean documentFromBean(Document document, Object bean, Serializable id,
             Object[] state, String[] fieldNames, Type[] types) {
-        boolean addToIndex = false;
+        if (!indexClass(document, bean.getClass())) {
+            return false;
+        }
         document.add(Field.Keyword(BeanWithId.ID_PROPERTY, getKeyword(bean, id)));
         for (int i = 0; i < fieldNames.length; i++) {
             Object value = state[i];
-            if (value != null && indexField(document, value, fieldNames[i], types[i])) {
-                addToIndex = true;
+            if (value != null) {
+                indexField(document, value, fieldNames[i], types[i]);
             }
         }
-        if (addToIndex) {
-            indexClass(document, bean.getClass());
-        }
-        return addToIndex;
+        return true;
     }
 
     private boolean indexField(Document document, Object state, String fieldName, Type type) {
@@ -82,13 +91,15 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         return false;
     }
 
-    void indexClass(Document doc, Class beanClass) {
+    boolean indexClass(Document doc, Class beanClass) {
         for (int i = 0; i < CLASSES.length; i++) {
             Class klass = CLASSES[i];
             if (klass.isAssignableFrom(beanClass)) {
                 doc.add(Field.Keyword(Indexer.CLASS_FIELD, klass.getName()));
+                return true;
             }
         }
+        return false;
     }
 
     private String getKeyword(Object bean, Serializable id) {

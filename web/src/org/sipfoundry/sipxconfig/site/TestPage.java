@@ -161,14 +161,16 @@ public abstract class TestPage extends BasePage {
 
     public void populateUsers(IRequestCycle cycle_) {
         long l = System.currentTimeMillis();
+        CoreContext coreContext = getCoreContext();
+        String authorizationRealm = coreContext.getAuthorizationRealm();
         for (int i = 0; i < MANY_USERS; i++) {
-            String firstName = TEST_USER_FIRSTNAME;
+            String firstName = TEST_USER_FIRSTNAME + i;
             User user = new User();
             user.setUserName("xuser" + (l + i));
             user.setFirstName(firstName);
             user.setLastName(TEST_USER_LASTNAME);
-            user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
-            getCoreContext().saveUser(user);
+            user.setPin(TEST_USER_PIN, authorizationRealm);
+            coreContext.saveUser(user);
         }
     }
 

@@ -22,25 +22,11 @@
     
     <property-specification name="results" type="java.util.Collection"/>
 
-    <property-specification name="users" type="java.util.Collection"/>
-
-    <property-specification name="userSelections" 
-        type="org.sipfoundry.sipxconfig.components.SelectMap"
-    	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
-    
-	<component id="userTable" type="UserSearchResults">
-        <binding name="users" expression="users"/>
-	</component>
-    
 	<component id="results" type="Foreach">
         <binding name="source" expression="results"/>
         <binding name="value" expression="resultItem"/>
 	</component>
         
-    <component id="ifRenderuserTable" type="contrib:FormConditional">
-        <binding name="condition" expression="users != null"/>
-    </component>
-    
     <component id="foundMsgText" type="Insert">
         <binding name="value" expression="foundMsg"/>        
     </component>
