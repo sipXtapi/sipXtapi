@@ -2,15 +2,24 @@ require 'test/unit'
 require 'ConfigServiceDriver.rb'
 
 SERVICE_ROOT = 'http://localhost:9999/sipxconfig/services'
+PHONE_SERVICE_WSDL = SERVICE_ROOT + '/PhoneService'
+USER_SERVICE_WSDL = SERVICE_ROOT + '/UserService'
+TEST_SERVICE_WSDL = SERVICE_ROOT + '/TestService'
+
+DUMMY_USER = "dummy user"
+DUMMY_PASSWORD = "dummy password"
 
 class PhoneServiceTestApi < Test::Unit::TestCase
 
     def setup
-		@phoneService = PhoneService.new(SERVICE_ROOT + '/PhoneService')
+		@phoneService = PhoneService.new(PHONE_SERVICE_WSDL)
 		@phoneService.wiredump_dev = STDOUT if $DEBUG
+        @phoneService.options["protocol.http.basic_auth"] << [PHONE_SERVICE_WSDL, DUMMY_USER, DUMMY_PASSWORD]
 
-		@userService = UserService.new(SERVICE_ROOT + '/UserService')
-		@testService = TestService.new(SERVICE_ROOT + '/TestService')
+		@userService = UserService.new(USER_SERVICE_WSDL)
+        @userService.options["protocol.http.basic_auth"] << [USER_SERVICE_WSDL, DUMMY_USER, DUMMY_PASSWORD]
+		@testService = TestService.new(TEST_SERVICE_WSDL)
+        @testService.options["protocol.http.basic_auth"] << [TEST_SERVICE_WSDL, DUMMY_USER, DUMMY_PASSWORD]
 		
 		reset = ResetService.new();
 		reset.phone = true;

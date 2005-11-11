@@ -124,7 +124,7 @@ public class DailyBackupSchedule extends BeanWithId {
 
         Date date = getTimerDate();
         long period = getTimerPeriod();
-        LOG.info("Setting backup timer for " + LOCAL_TIME_OF_DAY_FORMAT.format(date));
+        LOG.info("Setting timer for " + LOCAL_TIME_OF_DAY_FORMAT.format(date));
         timer.schedule(task, date, period);
     }
 }

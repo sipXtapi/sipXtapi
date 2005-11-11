@@ -19,7 +19,7 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
- * Override springs listener to send application initialized event
+ * Override Spring's listener to send application initialized event
  */
 public class ContextLoaderListener extends org.springframework.web.context.ContextLoaderListener {
 

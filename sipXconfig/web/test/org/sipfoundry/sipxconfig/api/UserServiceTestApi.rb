@@ -5,14 +5,19 @@ SERVICE_ROOT = 'http://localhost:9999/sipxconfig/services'
 USER_SERVICE_WSDL = SERVICE_ROOT + '/UserService'
 TEST_SERVICE_WSDL = SERVICE_ROOT + '/TestService'
 
+DUMMY_USER = "dummy user"
+DUMMY_PASSWORD = "dummy password"
+
 class UserServiceTestApi < Test::Unit::TestCase
 
     def setup
 		@userService = UserService.new(USER_SERVICE_WSDL)
 		@userService.wiredump_dev = STDOUT if $DEBUG
+        @userService.options["protocol.http.basic_auth"] << [USER_SERVICE_WSDL, DUMMY_USER, DUMMY_PASSWORD]
 
 		@testService = TestService.new(TEST_SERVICE_WSDL)
 		@testService.wiredump_dev = STDOUT if $DEBUG
+        @testService.options["protocol.http.basic_auth"] << [TEST_SERVICE_WSDL, DUMMY_USER, DUMMY_PASSWORD]
 		reset = ResetService.new();
 		reset.user = true;
 		@testService.resetService(reset)
