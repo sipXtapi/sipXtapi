@@ -28,7 +28,6 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.store.Directory;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -36,14 +35,14 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class SearchManagerImpl extends HibernateDaoSupport implements SearchManager {
     private static final Log LOG = LogFactory.getLog(SearchManagerImpl.class);
 
-    private Directory m_directory;
+    private IndexSource m_indexSource;
 
     private Analyzer m_analyzer;
 
     private BeanAdaptor m_beanAdaptor;
 
-    public void setDirectory(Directory directory) {
-        m_directory = directory;
+    public void setIndexSource(IndexSource indexSource) {
+        m_indexSource = indexSource;
     }
 
     public void setAnalyzer(Analyzer analyzer) {
@@ -57,8 +56,7 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
     public List search(String queryText) {
         try {
             Query query = parseUserQuery(queryText);
-            Hits hits = getHits(query);
-            return hits2beans(hits);
+            return search(query);
         } catch (IOException e) {
             LOG.error("search by user query error", e);
         } catch (ParseException e) {
@@ -75,14 +73,26 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
             BooleanQuery query = new BooleanQuery();
             query.add(classQuery, true, false);
             query.add(userQuery, true, false);
-            Hits hits = getHits(query);
-            return hits2beans(hits);
+            return search(query);
         } catch (IOException e) {
             LOG.error("search by class error", e);
         } catch (ParseException e) {
             LOG.info(e.getMessage());
         }
+
         return Collections.EMPTY_LIST;
+    }
+
+    private List search(Query query) throws IOException {
+        IndexSearcher searcher = null;
+        try {
+            searcher = m_indexSource.getSearcher();
+            Hits hits = searcher.search(query);
+            List found = hits2beans(hits);
+            return found;
+        } finally {
+            LuceneUtils.closeQuietly(searcher);
+        }
     }
 
     private List hits2beans(Hits hits) throws IOException {
@@ -99,16 +109,6 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
             results.add(found);
         }
         return results;
-    }
-
-    private Hits getHits(Query query) throws IOException {
-        IndexSearcher searcher = null;
-        try {
-            searcher = new IndexSearcher(m_directory);
-            return searcher.search(query);
-        } finally {
-            LuceneUtils.closeQuietly(searcher);
-        }
     }
 
     private Query parseUserQuery(String queryText) throws ParseException {

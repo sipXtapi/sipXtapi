@@ -2,24 +2,26 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <bean id="beanAdaptor" class="org.sipfoundry.sipxconfig.search.DefaultBeanAdaptor"/>
-  <bean id="indexDirectory" class="org.apache.lucene.store.RAMDirectory"/>
   <bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
   
-  <bean id="fastIndexer" class="org.sipfoundry.sipxconfig.search.FastIndexer">
-    <property name="directory" ref="indexDirectory"/>
+  <bean id="indexSource" class="org.sipfoundry.sipxconfig.search.SimpleIndexSource">
+    <property name="indexDirectoryName" value="${sysdir.share}/sipxconfig/index"/>
     <property name="analyzer" ref="analyzer"/>
+  </bean>
+  
+  <bean id="fastIndexer" class="org.sipfoundry.sipxconfig.search.FastIndexer">
+    <property name="indexSource" ref="indexSource"/>
     <property name="beanAdaptor" ref="beanAdaptor"/>
   </bean>
   
   <bean id="bulkIndexer" class="org.sipfoundry.sipxconfig.search.BulkIndexer">
-    <property name="directory" ref="indexDirectory"/>
-    <property name="analyzer" ref="analyzer"/>
+    <property name="indexSource" ref="indexSource"/>
     <property name="beanAdaptor" ref="beanAdaptor"/>
   </bean>
   
   <bean id="searchManagerImpl" class="org.sipfoundry.sipxconfig.search.SearchManagerImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="directory" ref="indexDirectory"/>
+    <property name="indexSource" ref="indexSource"/>
     <property name="analyzer" ref="analyzer"/>
     <property name="beanAdaptor" ref="beanAdaptor"/>
   </bean>

@@ -14,22 +14,16 @@ package org.sipfoundry.sipxconfig.search;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.store.Directory;
 import org.hibernate.type.Type;
 
 public class FastIndexer implements Indexer {
-    private Directory m_directory;
-
-    private Analyzer m_analyzer;
+    private IndexSource m_indexSource;
 
     private BeanAdaptor m_beanAdaptor;
-
-    private boolean m_createIndex = true;
 
     public void indexBean(Object bean, Serializable id, Object[] state, String[] fieldNames,
             Type[] types) {
@@ -40,8 +34,7 @@ public class FastIndexer implements Indexer {
         }
         IndexWriter writer = null;
         try {
-            writer = new IndexWriter(m_directory, m_analyzer, m_createIndex);
-            m_createIndex = false;
+            writer = m_indexSource.getWriter(false);
             writer.addDocument(document);
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -51,12 +44,9 @@ public class FastIndexer implements Indexer {
     }
 
     public void removeBean(Object bean, Serializable id) {
-        if (m_createIndex) {
-            return;
-        }
         IndexReader reader = null;
         try {
-            reader = IndexReader.open(m_directory);
+            reader = m_indexSource.getReader();
             Term idTerm = m_beanAdaptor.getIdentityTerm(bean, id);
             reader.delete(idTerm);
         } catch (IOException e) {
@@ -67,16 +57,12 @@ public class FastIndexer implements Indexer {
 
     }
 
-    public void setDirectory(Directory directory) {
-        m_directory = directory;
-    }
-
-    public void setAnalyzer(Analyzer analyzer) {
-        m_analyzer = analyzer;
-    }
-
     public void setBeanAdaptor(BeanAdaptor beanAdaptor) {
         m_beanAdaptor = beanAdaptor;
+    }
+
+    public void setIndexSource(IndexSource indexSource) {
+        m_indexSource = indexSource;
     }
 
     public void open() {

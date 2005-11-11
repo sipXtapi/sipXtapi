@@ -14,10 +14,8 @@ package org.sipfoundry.sipxconfig.search;
 import java.io.IOException;
 import java.io.Serializable;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.store.Directory;
 import org.hibernate.type.Type;
 
 /**
@@ -26,9 +24,7 @@ import org.hibernate.type.Type;
  * No support for removing beans.
  */
 public class BulkIndexer implements Indexer {
-    private Directory m_directory;
-
-    private Analyzer m_analyzer;
+    private IndexSource m_indexSource;
 
     private BeanAdaptor m_beanAdaptor;
 
@@ -39,12 +35,11 @@ public class BulkIndexer implements Indexer {
         try {
             Document document = new Document();
             if (m_beanAdaptor.documentFromBean(document, bean, id, state, fieldNames, types)) {
-                m_writer.addDocument(document, m_analyzer);
+                m_writer.addDocument(document);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
     }
 
     public void removeBean(Object bean_, Serializable id_) {
@@ -53,7 +48,7 @@ public class BulkIndexer implements Indexer {
 
     public void open() {
         try {
-            m_writer = new IndexWriter(m_directory, m_analyzer, true);
+            m_writer = m_indexSource.getWriter(true);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -61,18 +56,16 @@ public class BulkIndexer implements Indexer {
 
     public void close() {
         try {
-            m_writer.close();
+            m_writer.optimize();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            LuceneUtils.closeQuietly(m_writer);
         }
     }
 
-    public void setDirectory(Directory directory) {
-        m_directory = directory;
-    }
-
-    public void setAnalyzer(Analyzer analyzer) {
-        m_analyzer = analyzer;
+    public void setIndexSource(IndexSource indexSource) {
+        m_indexSource = indexSource;
     }
 
     public void setBeanAdaptor(BeanAdaptor beanAdaptor) {
