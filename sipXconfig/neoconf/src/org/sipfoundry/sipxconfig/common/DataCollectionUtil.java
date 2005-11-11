@@ -26,7 +26,7 @@ public final class DataCollectionUtil {
         // prevent creation
     }
 
-    public static Collection removeByPrimaryKey(Collection c, PrimaryKeySource primaryKey) {
+    public static Collection removeByPrimaryKey(Collection c, Object primaryKey) {
         return removeByPrimaryKey(c, new Object[] {
             primaryKey 
         });

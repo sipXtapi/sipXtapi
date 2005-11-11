@@ -23,6 +23,7 @@ class PhoneServiceTestApi < Test::Unit::TestCase
 		
 		reset = ResetService.new();
 		reset.phone = true;
+		reset.user = true;
 		@testService.resetService(reset)
     end
 

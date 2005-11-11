@@ -15,13 +15,14 @@ import java.util.Arrays;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 
-public class UserBuilder extends SimpleBeanBuilder {
-    
-    private static final String ALIASES_PROP = "aliases";
+public class UserBuilder extends SimpleBeanBuilder {    
+    private static final String ALIASES_PROP = "aliases";    
+    private static final String GROUPS_PROP = "groups";
     
     private static final String[] IGNORE_LIST = { 
-        ALIASES_PROP 
+        ALIASES_PROP, GROUPS_PROP 
     };
     
     public UserBuilder() {
@@ -34,6 +35,10 @@ public class UserBuilder extends SimpleBeanBuilder {
         User api = (User) apiObject;
         if (properties.contains(ALIASES_PROP) && !StringUtils.isBlank(my.getAliasesString())) {
             api.setAliases((String[]) my.getAliases().toArray(new String[0]));
+        }
+        if (properties.contains(GROUPS_PROP)) {
+            String[] groups = SipxCollectionUtils.toStringArray(my.getGroupsAsList());
+            api.setGroups(groups);
         }
     }
     

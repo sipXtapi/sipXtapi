@@ -19,12 +19,13 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public class UserServiceImpl implements UserService {
     
-    /** TODO: Remove this */
+    /** TODO: Remove this when user loader uses lucene */
     private static final int PAGE_SIZE = 1000;
     
     private static final String SORT_ORDER = "userName";
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
         org.sipfoundry.sipxconfig.common.User myUser = new org.sipfoundry.sipxconfig.common.User();
         User apiUser = addUser.getUser();        
         ApiBeanUtil.toMyObject(m_userBuilder, myUser, apiUser);
-        String[] groups = addUser.getGroup();
+        String[] groups = apiUser.getGroups();
         String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
         for (int i = 0; groups != null && i < groups.length; i++) {
             Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, groups[i]);
@@ -102,24 +103,36 @@ public class UserServiceImpl implements UserService {
         }        
     }
 
-    public void editUser(EditUser editUser) throws RemoteException {
-        org.sipfoundry.sipxconfig.common.User[] myUsers = search(editUser.getSearch());
-        Set properties  = ApiBeanUtil.getSpecfiedProperties(editUser.getProperties());
+    public void adminUser(AdminUser adminUser) throws RemoteException {
+        org.sipfoundry.sipxconfig.common.User[] myUsers = search(adminUser.getSearch());
         for (int i = 0; i < myUsers.length; i++) {
-            User apiUser = new User();
-            ApiBeanUtil.setProperties(apiUser, editUser.getProperties());
-            m_userBuilder.toMyObject(myUsers[i], apiUser, properties);
-            // TODO: lines and groups
-            m_coreContext.saveUser(myUsers[i]);
-        }
-    }
-
-    public void manageUser(ManageUser manageUser) throws RemoteException {
-        org.sipfoundry.sipxconfig.common.User[] myUsers = search(manageUser.getSearch());
-        for (int i = 0; i < myUsers.length; i++) {
-            if (Boolean.TRUE.equals(manageUser.getDeleteUser())) {
+            if (Boolean.TRUE.equals(adminUser.getDeleteUser())) {
                 m_coreContext.deleteUser(myUsers[i]);
+                continue; // no other edits make sense
             }
+            if (adminUser.getEdit() != null) {
+                User apiUser = new User();
+                Set properties  = ApiBeanUtil.getSpecfiedProperties(adminUser.getEdit());
+                ApiBeanUtil.setProperties(apiUser, adminUser.getEdit());
+                m_userBuilder.toMyObject(myUsers[i], apiUser, properties);
+            }
+
+            if (adminUser.getAddGroup() != null) {
+                String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
+                Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, adminUser
+                        .getAddGroup());
+                myUsers[i].addGroup(g);
+            }
+
+            if (adminUser.getRemoveGroup() != null) {
+                String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
+                Group g = m_settingDao.getGroupByName(resourceId, adminUser.getRemoveGroup());
+                if (g != null) {
+                    DataCollectionUtil.removeByPrimaryKey(myUsers[i].getGroups(), g.getPrimaryKey());
+                }
+            }
+            
+            m_coreContext.saveUser(myUsers[i]);
         }
     }
 }

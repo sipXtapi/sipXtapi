@@ -24,6 +24,7 @@
 					<xsd:element name="firstName" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="sipPassword" type="xsd:string" nillable="true" maxOccurs="1"/>
 					<xsd:element name="aliases" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+					<xsd:element name="groups" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 				</xsd:sequence>
 		    </xsd:complexType>
 			<xsd:complexType name="ArrayOfUser">
@@ -98,13 +99,13 @@
 					<xsd:sequence>
   						<xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
  						<xsd:element name="edit" type="tns:Property" maxOccurs="unbounded"/>
+						<xsd:element name="deletePhone" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
 						<xsd:element name="addGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
  						<xsd:element name="removeGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
  						<xsd:element name="addLine" type="tns:Line" nillable="true" minOccurs="0" maxOccurs="1"/>
  						<xsd:element name="removeLine" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
   						<xsd:element name="generateProfiles" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
   						<xsd:element name="restart" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
- 						<xsd:element name="deletePhone" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>			
@@ -122,15 +123,17 @@
 					<xsd:sequence>
 						<xsd:element name="user" type="tns:User" maxOccurs="1" minOccurs="1"/>
 						<xsd:element name="pin" type="xsd:string" maxOccurs="1" minOccurs="1"/>
-						<xsd:element name="group" type="xsd:string" nillable="true" maxOccurs="unbounded"/>
 					</xsd:sequence>
 				</xsd:complexType>
 			</xsd:element>
-		    <xsd:element name="ManageUser">
+		    <xsd:element name="AdminUser">
 				<xsd:complexType>
 					<xsd:sequence>
 						<xsd:element name="search" type="tns:UserSearch" minOccurs="1" maxOccurs="1"/>
+						<xsd:element name="edit" type="tns:Property" maxOccurs="unbounded"/>
 						<xsd:element name="deleteUser" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="addGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+						<xsd:element name="removeGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>		
@@ -141,14 +144,6 @@
 					</xsd:sequence>
 				</xsd:complexType>
 		    </xsd:element>
-			<xsd:element name="EditUser">
-				<xsd:complexType>
-					<xsd:sequence>
-						<xsd:element name="search" type="tns:UserSearch" minOccurs="1" maxOccurs="1"/>
-						<xsd:element name="properties" type="tns:Property" maxOccurs="unbounded"/>
-					</xsd:sequence>
-				</xsd:complexType>
-		    </xsd:element>		    
 
             <!-- T E S T -->
 		    <xsd:element name="ResetService">
@@ -248,16 +243,11 @@
 		<part name="findUser" element="tns:FindUser"/>
 	</message>
 
-	<message name="manageUserResponse"/>
-	<message name="manageUserRequest">
-		<part name="manageUser" element="tns:ManageUser"/>
+	<message name="adminUserResponse"/>
+	<message name="adminUserRequest">
+		<part name="adminUser" element="tns:AdminUser"/>
 	</message>
 	
-	<message name="editUserResponse"/>
-	<message name="editUserRequest">
-		<part name="editUser" element="tns:EditUser"/>
-	</message>
-
 	<portType name="UserService">
 		<documentation> 
 			Any change to edit to users updates all servers automatically and asynchronously.
@@ -270,13 +260,9 @@
 			<input message="tns:findUserRequest"/>
 			<output message="tns:findUserResponse"/>
 		</operation>
-		<operation name="manageUser">
-			<input message="tns:manageUserRequest"/>
-			<output message="tns:manageUserResponse"/>
-		</operation>
-		<operation name="editUser">
-			<input message="tns:editUserRequest"/>
-			<output message="tns:editUserResponse"/>
+		<operation name="adminUser">
+			<input message="tns:adminUserRequest"/>
+			<output message="tns:adminUserResponse"/>
 		</operation>
 	</portType>
 
@@ -300,16 +286,7 @@
 			</output>			
 			<soap:operation soapAction=""></soap:operation>						
 		</operation>
-		<operation name="manageUser">
- 			<input>
-				<soap:body use="literal" namespace="urn:ConfigService" />
-			</input>			
-			<output>
-				<soap:body use="literal" namespace="urn:ConfigService"/>
-			</output>			
-			<soap:operation soapAction=""></soap:operation>						
-		</operation>
-		<operation name="editUser">
+		<operation name="adminUser">
  			<input>
 				<soap:body use="literal" namespace="urn:ConfigService" />
 			</input>			

@@ -154,7 +154,7 @@ public class PhoneServiceImpl implements PhoneService {
                 if (adminPhone.getRemoveGroup() != null) {
                     String resourceId = org.sipfoundry.sipxconfig.common.User.GROUP_RESOURCE_ID;
                     Group g = m_settingDao.getGroupCreateIfNotFound(resourceId, adminPhone
-                            .getAddGroup());
+                            .getRemoveGroup());
                     DataCollectionUtil.removeByPrimaryKey(myPhones[i].getGroups(), g);
                 }
 
