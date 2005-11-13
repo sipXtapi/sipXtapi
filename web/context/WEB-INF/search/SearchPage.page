@@ -12,9 +12,9 @@
     	type="org.sipfoundry.sipxconfig.search.SearchManager"
     	initial-value="global.searchManager"/>
     
-    <property-specification name="coreContext"
-    	type="org.sipfoundry.sipxconfig.common.CoreContext"
-    	initial-value="global.coreContext"/>
+    <property-specification name="editPageProvider"
+    	type="org.sipfoundry.sipxconfig.site.search.EditPageProvider"
+    	initial-value="global.editPageProvider"/>
     
     <property-specification name="resultItem"/>
 
@@ -31,14 +31,16 @@
         <binding name="value" expression="foundMsg"/>        
     </component>
     
-    <component id="itemText" type="Insert">
-        <binding name="value" expression="'item' + resultItem.beanClass + ':' + resultItem.beanId"/>
-    </component>
     <component id="itemName" type="Insert">
         <binding name="value" expression="resultItem.name"/>        
     </component>
     <component id="itemDescription" type="Insert">
         <binding name="value" expression="resultItem.description"/>
+    </component>
+    
+    <component id="editLink" type="DirectLink">
+        <binding name="listener" expression="listeners.activateEditPage"/>
+        <binding name="parameters" expression="{resultItem.beanClass.getName(), resultItem.beanId}"/>
     </component>
 
 </page-specification>

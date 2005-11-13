@@ -16,16 +16,15 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IExternalPage;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
 public abstract class SearchPage extends BasePage implements IExternalPage, PageRenderListener {
-
     public static final String PAGE = "SearchPage";
 
     public abstract SearchManager getSearchManager();
@@ -38,7 +37,7 @@ public abstract class SearchPage extends BasePage implements IExternalPage, Page
 
     public abstract Collection getResults();
 
-    public abstract CoreContext getCoreContext();
+    public abstract EditPageProvider getEditPageProvider();
 
     public void activateExternalPage(Object[] parameters, IRequestCycle cycle_) {
         String query = (String) TapestryUtils.assertParameter(String.class, parameters, 0);
@@ -65,5 +64,15 @@ public abstract class SearchPage extends BasePage implements IExternalPage, Page
         Collection results = getResults();
         int foundCount = results != null ? results.size() : 0;
         return getMessages().format("msg.found", new Integer(foundCount));
+    }
+
+    public void activateEditPage(IRequestCycle cycle) {
+        Object[] params = cycle.getServiceParameters();
+        String klass = (String) TapestryUtils.assertParameter(String.class, params, 0);
+        Object id = TapestryUtils.assertParameter(Object.class, params, 1);
+        IPage page = getEditPageProvider().getPage(cycle, klass, id);
+        if (page != null) {
+            cycle.activate(page);
+        }
     }
 }
