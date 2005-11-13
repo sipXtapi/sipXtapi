@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,10 +47,25 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
 
     private static final Log LOG = LogFactory.getLog(DefaultBeanAdaptor.class);
 
-    // keep it sorted - used in binary search
-    private static final String[] FIELDS = {
-        "extension", "firstName", "lastName", "name", "userName"
+    private static final String[] DESCRIPTION_FIELDS = {
+        "description"
     };
+
+    private static final String[] NAME_FIELDS = {
+        "lastName", "firstName", "name", "extension", "userName"
+    };
+
+    /**
+     * Name of the fields that are stored in the index. All the remaining string fields are
+     * indexed, but not stored.
+     */
+
+    private static final String[] FIELDS;
+
+    static {
+        FIELDS = (String[]) ArrayUtils.addAll(NAME_FIELDS, DESCRIPTION_FIELDS);
+        Arrays.sort(FIELDS);
+    }
 
     /**
      * @return true if the document should be added to index
@@ -72,7 +88,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     private boolean indexField(Document document, Object state, String fieldName, Type type) {
         if (Arrays.binarySearch(FIELDS, fieldName) >= 0) {
             // index all fields we know about
-            document.add(Field.UnStored(fieldName, (String) state));
+            document.add(Field.Text(fieldName, (String) state));
             document.add(Field.UnStored(Indexer.DEFAULT_FIELD, (String) state));
             return true;
         } else if (type instanceof StringType) {
@@ -120,7 +136,10 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
             String[] ids = StringUtils.split(docId, ':');
             Class klass = Class.forName(ids[0]);
             Integer id = Integer.valueOf(ids[1]);
-            return new Identity(klass, id);
+            Identity ident = new Identity(klass, id);
+            ident.setName(fieldsToString(document, NAME_FIELDS));
+            ident.setDescription(fieldsToString(document, DESCRIPTION_FIELDS));
+            return ident;
         } catch (NumberFormatException e) {
             LOG.warn("invalid bean id", e);
             return null;
@@ -128,5 +147,21 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
             LOG.warn("invalid bean class", e);
             return null;
         }
+    }
+
+    private String fieldsToString(Document doc, String[] fields) {
+        StringBuffer buffer = new StringBuffer();
+        for (int i = 0; i < fields.length; i++) {
+            Field field = doc.getField(fields[i]);
+            if (field == null) {
+                continue;
+            }
+            if (buffer.length() > 0) {
+                buffer.append(", ");
+            }
+            buffer.append(field.stringValue());
+
+        }
+        return buffer.toString();
     }
 }

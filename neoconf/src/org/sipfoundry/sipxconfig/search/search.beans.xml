@@ -21,23 +21,12 @@
     <property name="beanAdaptor" ref="beanAdaptor"/>
   </bean>
   
-  <bean id="searchManagerImpl" class="org.sipfoundry.sipxconfig.search.SearchManagerImpl">
-    <property name="sessionFactory" ref="sessionFactory"/>
+  <bean id="searchManager" class="org.sipfoundry.sipxconfig.search.SearchManagerImpl">
     <property name="indexSource" ref="indexSource"/>
     <property name="analyzer" ref="analyzer"/>
     <property name="beanAdaptor" ref="beanAdaptor"/>
   </bean>
-  
-  <bean id="searchManager" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
-    <property name="proxyInterfaces">
-      <value>org.sipfoundry.sipxconfig.search.SearchManager</value>
-    </property>
-    <property name="target">
-      <ref local="searchManagerImpl"/>
-    </property>
-  </bean>
-  
+    
   <bean id="loadIndexingInterceptor"
     class="org.sipfoundry.sipxconfig.search.LoadIndexingInterceptor">
     <property name="sessionFactory" ref="sessionFactory"/>

@@ -13,10 +13,12 @@ package org.sipfoundry.sipxconfig.search;
 
 import java.util.List;
 
+import org.apache.commons.collections.Transformer;
+
 public interface SearchManager {
     String CONTEXT_BEAN_NAME = "searchManager";
 
-    List search(String query);
+    List search(String query, Transformer transformer);
 
-    List search(Class entityClass, String query);
+    List search(Class entityClass, String query, Transformer transformer);
 }

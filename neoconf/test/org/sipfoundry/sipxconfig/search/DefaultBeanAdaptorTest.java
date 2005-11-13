@@ -22,47 +22,45 @@ import org.sipfoundry.sipxconfig.phone.snom.SnomPhone;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
 
 public class DefaultBeanAdaptorTest extends TestCase {
-    public void testGetBeanIndentity() throws Exception {
-        DefaultBeanAdaptor adaptor = new DefaultBeanAdaptor();
+    private DefaultBeanAdaptor m_adaptor;
 
+    protected void setUp() throws Exception {
+        m_adaptor = new DefaultBeanAdaptor();
+    }
+
+    public void testGetBeanIndentity() throws Exception {
         // cannot mock documents
         Document doc = new Document();
         doc.add(Field.Keyword("id", "org.sipfoundry.sipxconfig.common.User:36"));
 
-        Identity beanIdentity = adaptor.getBeanIdentity(doc);
+        Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertSame(User.class, beanIdentity.getBeanClass());
         assertEquals(new Integer(36), beanIdentity.getBeanId());
     }
 
     public void testGetBeanIndentityWrongClass() throws Exception {
-        DefaultBeanAdaptor adaptor = new DefaultBeanAdaptor();
-
         // cannot mock documents
         Document doc = new Document();
         doc.add(Field.Keyword("id", "org.sipfoundry.sipxconfig.common.Xyz:36"));
 
-        Identity beanIdentity = adaptor.getBeanIdentity(doc);
+        Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertNull(beanIdentity);
     }
 
     public void testGetBeanIndentityWrongId() throws Exception {
-        DefaultBeanAdaptor adaptor = new DefaultBeanAdaptor();
-
         // cannot mock documents
         Document doc = new Document();
         doc.add(Field.Keyword("id", "org.sipfoundry.sipxconfig.common.User:aaa"));
 
-        Identity beanIdentity = adaptor.getBeanIdentity(doc);
+        Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertNull(beanIdentity);
     }
 
     public void testGetIndentityTerm() throws Exception {
-        DefaultBeanAdaptor adaptor = new DefaultBeanAdaptor();
-
         User user = new User();
         user.setUniqueId();
 
-        Term identityTerm = adaptor.getIdentityTerm(user, user.getId());
+        Term identityTerm = m_adaptor.getIdentityTerm(user, user.getId());
 
         Term expectedTerm = new Term("id", "org.sipfoundry.sipxconfig.common.User:"
                 + user.getId());
@@ -70,21 +68,32 @@ public class DefaultBeanAdaptorTest extends TestCase {
     }
 
     public void testIndexClass() {
-        DefaultBeanAdaptor adaptor = new DefaultBeanAdaptor();
-
         Document doc = new Document();
-        adaptor.indexClass(doc, User.class);
+        m_adaptor.indexClass(doc, User.class);
 
         assertEquals(User.class.getName(), doc.get(Indexer.CLASS_FIELD));
 
         doc = new Document();
-        adaptor.indexClass(doc, SnomPhone.class);
+        m_adaptor.indexClass(doc, SnomPhone.class);
         // snom phone should be indexed as phone
         assertEquals(Phone.class.getName(), doc.get(Indexer.CLASS_FIELD));
 
         doc = new Document();
-        adaptor.indexClass(doc, String.class);
+        m_adaptor.indexClass(doc, String.class);
 
         assertNull(doc.get(Indexer.CLASS_FIELD));
+    }
+
+    public void test() {
+        Document doc = new Document();
+        doc.add(Field.Text("name", "abc"));
+        doc.add(Field.Text("extension", "1234"));
+        doc.add(Field.Text("description", "bongo"));
+
+        doc.add(Field.Keyword("id", "org.sipfoundry.sipxconfig.common.User:36"));
+
+        Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
+        assertEquals("bongo", beanIdentity.getDescription());
+        assertEquals("abc, 1234", beanIdentity.getName());
     }
 }

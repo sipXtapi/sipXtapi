@@ -13,9 +13,11 @@ package org.sipfoundry.sipxconfig.search;
 
 import java.io.Serializable;
 
+import org.apache.commons.collections.Transformer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.hibernate.type.Type;
+import org.sipfoundry.sipxconfig.common.DataObjectSource;
 
 public interface BeanAdaptor {
 
@@ -32,6 +34,8 @@ public interface BeanAdaptor {
     public static class Identity {
         private Class m_klass;
         private Serializable m_id;
+        private String m_name;
+        private String m_description;
 
         public Identity(Class klass, Serializable id) {
             super();
@@ -46,6 +50,36 @@ public interface BeanAdaptor {
 
         public Class getBeanClass() {
             return m_klass;
+        }
+
+        public String getDescription() {
+            return m_description;
+        }
+
+        public void setDescription(String description) {
+            m_description = description;
+        }
+
+        public String getName() {
+            return m_name;
+        }
+
+        public void setName(String name) {
+            m_name = name;
+        }
+    }
+
+    public static class IdentityToBean implements Transformer {
+        private DataObjectSource m_source;
+
+        public IdentityToBean(DataObjectSource source) {
+            m_source = source;
+        }
+
+        public Object transform(Object identity) {
+            Identity i = (Identity) identity;
+            // FIXME: remove cast after DataObjectSource is fixed
+            return m_source.load(i.getBeanClass(), (Integer) i.getBeanId());
         }
     }
 }

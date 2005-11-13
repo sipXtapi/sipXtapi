@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -29,10 +31,8 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.TermQuery;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class SearchManagerImpl extends HibernateDaoSupport implements SearchManager {
+public class SearchManagerImpl implements SearchManager {
     private static final Log LOG = LogFactory.getLog(SearchManagerImpl.class);
 
     private IndexSource m_indexSource;
@@ -53,10 +53,10 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
         m_beanAdaptor = beanAdaptor;
     }
 
-    public List search(String queryText) {
+    public List search(String queryText, Transformer transformer) {
         try {
             Query query = parseUserQuery(queryText);
-            return search(query);
+            return search(query, transformer);
         } catch (IOException e) {
             LOG.error("search by user query error", e);
         } catch (ParseException e) {
@@ -65,7 +65,7 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
         return Collections.EMPTY_LIST;
     }
 
-    public List search(Class entityClass, String queryText) {
+    public List search(Class entityClass, String queryText, Transformer transformer) {
         try {
             Query userQuery = parseUserQuery(queryText);
             Term classTerm = new Term(Indexer.CLASS_FIELD, entityClass.getName());
@@ -73,7 +73,7 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
             BooleanQuery query = new BooleanQuery();
             query.add(classQuery, true, false);
             query.add(userQuery, true, false);
-            return search(query);
+            return search(query, transformer);
         } catch (IOException e) {
             LOG.error("search by class error", e);
         } catch (ParseException e) {
@@ -83,30 +83,30 @@ public class SearchManagerImpl extends HibernateDaoSupport implements SearchMana
         return Collections.EMPTY_LIST;
     }
 
-    private List search(Query query) throws IOException {
+    private List search(Query query, Transformer transformer) throws IOException {
         IndexSearcher searcher = null;
         try {
             searcher = m_indexSource.getSearcher();
             Hits hits = searcher.search(query);
-            List found = hits2beans(hits);
+            List found = hits2beans(hits, transformer);
             return found;
         } finally {
             LuceneUtils.closeQuietly(searcher);
         }
     }
 
-    private List hits2beans(Hits hits) throws IOException {
-        HibernateTemplate hibernate = getHibernateTemplate();
+    private List hits2beans(Hits hits, Transformer transformer) throws IOException {
         final int hitCount = hits.length();
         List results = new ArrayList(hitCount);
         for (int i = 0; i < hitCount; i++) {
             Document document = hits.doc(i);
             Identity identity = m_beanAdaptor.getBeanIdentity(document);
-            if (identity == null) {
-                continue;
+            if (identity != null) {
+                results.add(identity);
             }
-            Object found = hibernate.load(identity.getBeanClass(), identity.getBeanId());
-            results.add(found);
+        }
+        if (transformer != null) {
+            CollectionUtils.transform(results, transformer);
         }
         return results;
     }

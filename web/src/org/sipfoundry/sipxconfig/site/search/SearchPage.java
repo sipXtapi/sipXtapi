@@ -57,7 +57,7 @@ public abstract class SearchPage extends BasePage implements IExternalPage, Page
     }
 
     private void search(String query) {
-        List results = getSearchManager().search(query);
+        List results = getSearchManager().search(query, null);
         setResults(results);
     }
 

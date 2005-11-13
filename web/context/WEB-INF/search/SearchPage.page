@@ -32,7 +32,13 @@
     </component>
     
     <component id="itemText" type="Insert">
-        <binding name="value" expression="resultItem.getClass().getName() + ':' + resultItem.id"/>        
+        <binding name="value" expression="'item' + resultItem.beanClass + ':' + resultItem.beanId"/>
+    </component>
+    <component id="itemName" type="Insert">
+        <binding name="value" expression="resultItem.name"/>        
+    </component>
+    <component id="itemDescription" type="Insert">
+        <binding name="value" expression="resultItem.description"/>
     </component>
 
 </page-specification>
