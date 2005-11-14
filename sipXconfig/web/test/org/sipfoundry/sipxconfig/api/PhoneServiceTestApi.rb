@@ -84,23 +84,65 @@ class PhoneServiceTestApi < Test::Unit::TestCase
 		@phoneService.addPhone(addPhone)
     end
     
-    def test_addLine
+    def test_addRemoveLine
 	    seedPhone()
     	addUser1 = AddUser.new(User.new('user1'), '1234')
 		@userService.addUser(addUser1)
 
+        # add line
 		search = PhoneSearch.new(@seed.serialNumber)
-		edit = AdminPhone.new(search);
-		edit.addLine = Line.new('user1')
-		@phoneService.adminPhone(edit)
+		addLine = AdminPhone.new(search);
+		addLine.addLine = Line.new('user1')
+		@phoneService.adminPhone(addLine)
 		
 		phone = @phoneService.findPhone(FindPhone.new(search)).phones[0]
 		assert_equal(phone.lines[0].userName, 'user1')
+
+		#remove line		
+		removeLine = AdminPhone.new(search);
+		removeLine.removeLine = 'user1'
+		@phoneService.adminPhone(removeLine)
+		
+		phone = @phoneService.findPhone(FindPhone.new(search)).phones[0]
+		assert_nil(phone.lines)
     end
     
     def test_phoneEdit
+        seedPhone()
+
+		search = PhoneSearch.new(@seed.serialNumber)
+		edit = AdminPhone.new(search);
+		edit.edit = [ Property.new('description', 'hello') ]
+		@phoneService.adminPhone(edit)
+		
+		phone = @phoneService.findPhone(FindPhone.new(search)).phones[0]
+		assert_equal(phone.description, 'hello')       
     end
         
     def test_phoneProfileAndRestart
+    	addUser1 = AddUser.new(User.new('user1'), '1234')
+		@userService.addUser(addUser1)
+
+	    @seed = Phone.new('000000000000', 'polycom300')
+	    addPhone = AddPhone.new(@seed)
+	    @seed.lines = [ Line.new('user1') ]
+		@phoneService.addPhone(addPhone)
+		
+		generateProfiles = AdminPhone.new()
+		generateProfiles.generateProfiles = true
+		@phoneService.adminPhone(generateProfiles)
+		# this just excersizes code. does not verify profiles were generated
+		
+		restart = AdminPhone.new()
+		restart.restart = true
+		@phoneService.adminPhone(restart)
+		# this just excersizes code. does not verify restart message was sent	
+    end
+    
+    def test_phoneSearch
+        seedPhone()
+        all = @phoneService.findPhone(FindPhone.new()).phones
+        assert_equal(1, all.length)
+        assert_equal(@seed.serialNumber, all[0].serialNumber)        
     end
 end

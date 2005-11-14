@@ -35,7 +35,8 @@
 			<xsd:complexType name="Phone">
 				<xsd:sequence>
 					<xsd:element name="serialNumber" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-					<xsd:element name="modelId" type="xsd:string" nillable="true" maxOccurs="1"/>
+					<xsd:element name="modelId" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+					<xsd:element name="description" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
 					<xsd:element name="groups" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 					<xsd:element name="lines" type="tns:Line" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
 				</xsd:sequence>
