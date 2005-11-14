@@ -38,6 +38,6 @@ public class SnapshotPageTestUi extends WebTestCase {
         assertCheckboxNotSelected("credentialsCheck");
         clickButton("form:apply");
         SiteTestHelper.assertNoException(getTester());
-        SiteTestHelper.assertNoUserError(getTester());
+        SiteTestHelper.assertUserError(getTester());
     }
 }

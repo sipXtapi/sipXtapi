@@ -82,10 +82,10 @@ public final class TestUtil {
      * but when you need a filename use this. Example:
      * 
      * <pre>
-     *      
-     *       # Test file in same directory as JUnit test source file 
-     *       String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
-     *       
+     *        
+     *         # Test file in same directory as JUnit test source file 
+     *         String testFile = TestUtil.getTestSourceDirectory(getClass()) + &quot;/test-file&quot;;
+     *         
      * </pre>
      */
     public static String getTestSourceDirectory(Class testClass) {
@@ -136,11 +136,11 @@ public final class TestUtil {
         // HACK: sysdir.bin is not a real directory when testing
         final String domainName = "sipfoundry.org";
         final String realm = "realm";
-        sysProps.setProperty("sysdir.bin", "/opt/sipx/3.1/sipfoundry/bin");
+        sysProps.setProperty("sysdir.bin", outputDirectory + "/bin");
         sysProps.setProperty("sysdir.etc", etcDirectory);
         sysProps.setProperty("sysdir.data", outputDirectory);
         sysProps.setProperty("sysdir.phone", outputDirectory);
-        sysProps.setProperty("sysdir.tmp", outputDirectory);
+        sysProps.setProperty("sysdir.tmp", outputDirectory + "/tmp");
         sysProps.setProperty("sysdir.log", outputDirectory);
         sysProps.setProperty("phoneDefaults.outboundProxy", "proxy.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.registrationServer", "registrar.sipfoundry.org");
