@@ -28,7 +28,7 @@ public class LoadIndexingInterceptor extends SpringHibernateInstantiator {
 
     public boolean onLoad(Object entity, Serializable id, Object[] state, String[] propertyNames,
             Type[] types) {
-        m_indexer.indexBean(entity, id, state, propertyNames, types);
+        m_indexer.indexBean(entity, id, state, propertyNames, types, true);
         return false;
     }
 }

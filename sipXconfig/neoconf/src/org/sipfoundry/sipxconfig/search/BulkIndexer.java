@@ -31,7 +31,7 @@ public class BulkIndexer implements Indexer {
     private IndexWriter m_writer;
 
     public void indexBean(Object bean, Serializable id, Object[] state, String[] fieldNames,
-            Type[] types) {
+            Type[] types, boolean newInstance_) {
         try {
             Document document = new Document();
             if (m_beanAdaptor.documentFromBean(document, bean, id, state, fieldNames, types)) {

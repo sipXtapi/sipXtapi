@@ -19,7 +19,8 @@ public interface Indexer {
     public String DEFAULT_FIELD = "all";
     public String CLASS_FIELD = "class";
 
-    void indexBean(Object bean, Serializable id, Object[] state, String[] fieldNames, Type[] types);
+    void indexBean(Object bean, Serializable id, Object[] state, String[] fieldNames,
+            Type[] types, boolean newInstance);
 
     void removeBean(Object bean, Serializable id);
 
