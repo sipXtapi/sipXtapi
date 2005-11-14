@@ -146,8 +146,11 @@ public abstract class TestPage extends BasePage {
     }
 
     public void seedTestUser(IRequestCycle cycle_) {
-        // Create a test user that doesn't already exist
-        String userName = getUnusedTestUserName();
+        String userName = TEST_USER_USERNAME;
+        if (null != getCoreContext().loadUserByUserName(TEST_USER_USERNAME)) {
+            // we already have test user - get a unique name for a new one
+            userName = TEST_USER_USERNAME + System.currentTimeMillis();
+        }
         String firstName = TEST_USER_FIRSTNAME;
         User user = new User();
         user.setUserName(userName);
@@ -197,27 +200,6 @@ public abstract class TestPage extends BasePage {
 
     public void indexAll(IRequestCycle cycle_) {
         getIndexManager().indexAll();
-    }
-
-    public String getUnusedTestUserName() {
-        String userName = null;
-        int count = 0;
-        while (true) {
-            userName = TEST_USER_USERNAME + getUsernameSuffix(count);
-            User user = getCoreContext().loadUserByUserName(userName);
-            count++;
-            if (user == null) {
-                break; // found an unused username
-            }
-        }
-        return userName;
-    }
-
-    // Construct a username by appending a numeric suffix to the standard
-    // test username. Special case: when the count is 0, append the empty
-    // string rather than "0".
-    private String getUsernameSuffix(int i) {
-        return i != 0 ? Integer.toString(i) : EMPTY_STRING;
     }
 
     public void populateJobs(IRequestCycle cycle_) {
