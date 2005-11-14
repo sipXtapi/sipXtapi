@@ -21,7 +21,7 @@ import org.mortbay.http.UserRealm;
  * Currently any user is authenticated as "superadmin" with all the roles.
  * One can add other users to test if role-based authentication works correctly.
  */
-class JettyUserRealm implements UserRealm {
+class JettyTestUserRealm implements UserRealm {
     
     private static final class User implements Principal {
         private String[] m_roles;

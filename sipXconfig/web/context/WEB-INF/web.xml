@@ -104,29 +104,4 @@
     </mime-mapping>
     <!-- END AXIS -->
 
-	<!-- For info on how to set up security contraints, see
-		     http://e-docs.bea.com/workshop/docs81/doc/en/core/index.html
-		 and the section "Web Application Security" in http://jetty.mortbay.org/jetty/tut/Server.html .
-		 TODO: Consider following the Jetty "Security Recommendation" (see the above Jetty web page)
-		 of locking down all access by default. -->
-    <security-constraint>
-      <web-resource-collection>
-        <web-resource-name>SipXconfig Web Services</web-resource-name>
-        <url-pattern>/services/*</url-pattern>
-      </web-resource-collection>
-      <auth-constraint>
-        <role-name>admin</role-name>
-      </auth-constraint>
-    </security-constraint>
-	
-	<!-- Use HTTP Basic authentication. -->
-    <login-config>
-      <auth-method>BASIC</auth-method>
-      <realm-name>jetty realm</realm-name>
-    </login-config>
-
-    <security-role>
-      <role-name>admin</role-name>
-    </security-role>
-
 </web-app>
