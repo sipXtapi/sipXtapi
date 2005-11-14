@@ -27,11 +27,11 @@ public class FastIndexer implements Indexer {
 
     public void indexBean(Object bean, Serializable id, Object[] state, String[] fieldNames,
             Type[] types) {
-        removeBean(bean, id);
         Document document = new Document();
         if (!m_beanAdaptor.documentFromBean(document, bean, id, state, fieldNames, types)) {
             return;
         }
+        removeBean(bean, id);
         IndexWriter writer = null;
         try {
             writer = m_indexSource.getWriter(false);
