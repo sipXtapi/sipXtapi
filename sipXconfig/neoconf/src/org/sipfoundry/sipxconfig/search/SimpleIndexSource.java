@@ -39,8 +39,6 @@ public class SimpleIndexSource implements IndexSource {
 
     private int m_minMergeDocs = IndexWriter.DEFAULT_MIN_MERGE_DOCS;
 
-    private long m_writeLockTimeout = IndexWriter.WRITE_LOCK_TIMEOUT;
-
     private Directory getDirectory() {
         try {
             Directory directory = createDirectory(m_indexDirectory, m_createDirectory);
@@ -79,7 +77,7 @@ public class SimpleIndexSource implements IndexSource {
     }
 
     public void setWriteLockTimeout(long writeLockTimeout) {
-        m_writeLockTimeout = writeLockTimeout;
+        IndexWriter.WRITE_LOCK_TIMEOUT = writeLockTimeout;
     }
 
     public IndexReader getReader() throws IOException {
@@ -92,7 +90,6 @@ public class SimpleIndexSource implements IndexSource {
                 || m_createIndex);
         writer.maxFieldLength = m_maxFieldLength;
         writer.minMergeDocs = m_minMergeDocs;
-        writer.WRITE_LOCK_TIMEOUT = m_writeLockTimeout;
         m_createIndex = false;
         return writer;
     }
