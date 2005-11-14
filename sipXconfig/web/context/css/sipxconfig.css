@@ -136,7 +136,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 #banner-links
 {
 	float:right;
-	padding:0 50px 0 0;
+	padding:0 20px 0 0;
 }
 
 #banner-links a
@@ -410,6 +410,12 @@ div.help
 	border-style:solid;
 	padding:5px;
 	background:#fff;
+}
+
+div.search 
+{
+	float:right;
+	padding:0 20px 0 0;
 }
 
 fieldset

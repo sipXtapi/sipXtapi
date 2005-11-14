@@ -25,6 +25,7 @@
             classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml
             classpath*:/org/sipfoundry/sipxconfig/site/tapestry.xml 
             classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml
+            classpath*:/org/sipfoundry/sipxconfig/search/search.beans.xml
         </param-value>
     </context-param>
 

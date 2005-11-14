@@ -33,6 +33,12 @@
     <property-specification name="conferenceBridgeContext"
     	type="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext"
     	initial-value="global.conferenceBridgeContext"/>
+    <property-specification name="searchManager" 
+    	type="org.sipfoundry.sipxconfig.search.SearchManager" 
+    	initial-value="global.searchManager"/>
+    <property-specification name="indexManager" 
+    	type="org.sipfoundry.sipxconfig.search.IndexManager" 
+    	initial-value="global.indexManager"/>
 
     <component id="resetDialPlans" type="DirectLink">
         <binding name="listener" expression="listeners.resetDialPlans"/>
@@ -89,7 +95,11 @@
     </component>
     <component id="populateUsers" type="DirectLink">
         <binding name="listener" expression="listeners.populateUsers"/>
-    </component>    
+    </component>
+    <component id="searchBongo" type="ExternalLink">
+        <static-binding name="page" value="SearchPage"/>
+        <static-binding name="parameters" value="bongo"/>        
+    </component>
    
     <component id="RestartReminder" type="DirectLink">
         <binding name="listener" expression="listeners.goToRestartReminderPage"/>
@@ -98,6 +108,10 @@
     <component id="throwException" type="DirectLink">
         <binding name="listener" expression="listeners.throwException"/>
     </component>        
+    
+    <component id="indexAll" type="DirectLink">
+        <binding name="listener" expression="listeners.indexAll"/>
+    </component>
     
     <!-- generation of data sets -->    
     <property-specification name="dataSet" type="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet"/>

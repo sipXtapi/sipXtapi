@@ -23,7 +23,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="ListBridges" specification-path="conference/ListBridges.page"/>    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
+    <page name="SearchPage" specification-path="search/SearchPage.page"/>    <page name="ListBridges" specification-path="conference/ListBridges.page"/>    <page name="ActivateDialPlan" specification-path="dialplan/ActivateDialPlan.page"/>
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
     <page name="ChangePin" specification-path="user_portal/ChangePin.page"/>
@@ -86,6 +86,7 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
+    <component-type type="SearchPanel" specification-path="search/SearchPanel.jwc"/>
     <component-type type="AdminNavigation" specification-path="common/AdminNavigation.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="AssetSelectorPanel" specification-path="common/AssetSelectorPanel.jwc"/>

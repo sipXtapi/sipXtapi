@@ -46,7 +46,7 @@
     <delete file="${tmp.dir}/tasks.properties"/>
   </target>
 	
-  <target name="drop" description="drops database!">
+  <target name="drop" depends="drop-index" description="drops database!">
     <exec executable="dropdb" outputproperty="eatme">
       <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}"/>
     </exec>    
@@ -80,6 +80,14 @@
       <arg value="noexit"/>
     </java>
   </target>
+  
+  <!--
+    - Drop lucene index it'll get recreated when we restart the application
+    --> 
+  <target name="drop-index">
+      <delete dir="${tmp.dir}/index" failonerror="false"/>
+	</target>    
+  
 	
   <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version1" description="upgrade from version 1" unless="version2"

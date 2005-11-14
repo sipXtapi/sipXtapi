@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
@@ -74,6 +75,8 @@ public abstract class TestPage extends BasePage {
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
 
     public abstract JobContext getJobContext();
+
+    public abstract IndexManager getIndexManager();
 
     public void resetDialPlans(IRequestCycle cycle_) {
         getDialPlanContext().clear();
@@ -158,14 +161,16 @@ public abstract class TestPage extends BasePage {
 
     public void populateUsers(IRequestCycle cycle_) {
         long l = System.currentTimeMillis();
+        CoreContext coreContext = getCoreContext();
+        String authorizationRealm = coreContext.getAuthorizationRealm();
         for (int i = 0; i < MANY_USERS; i++) {
-            String firstName = TEST_USER_FIRSTNAME;
+            String firstName = TEST_USER_FIRSTNAME + i;
             User user = new User();
             user.setUserName("xuser" + (l + i));
             user.setFirstName(firstName);
             user.setLastName(TEST_USER_LASTNAME);
-            user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
-            getCoreContext().saveUser(user);
+            user.setPin(TEST_USER_PIN, authorizationRealm);
+            coreContext.saveUser(user);
         }
     }
 
@@ -188,6 +193,10 @@ public abstract class TestPage extends BasePage {
             User user = (User) iter.next();
             getCoreContext().deleteUser(user);
         }
+    }
+
+    public void indexAll(IRequestCycle cycle_) {
+        getIndexManager().indexAll();
     }
 
     public String getUnusedTestUserName() {
