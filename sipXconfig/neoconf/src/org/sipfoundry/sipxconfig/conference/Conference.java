@@ -11,9 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -39,18 +36,6 @@ public class Conference extends BeanWithSettings implements NamedObject {
     private String m_extension;
 
     private Bridge m_bridge;
-
-    private Set m_participants = new HashSet();
-
-    public void insertParticipant(Participant participant) {
-        getParticipants().add(participant);
-        participant.setConference(this);
-    }
-
-    public void removeParticipant(Participant participant) {
-        participant.setConference(null);
-        getParticipants().remove(participant);
-    }
 
     // trivial get/set
     public String getDescription() {
@@ -83,14 +68,6 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     public void setBridge(Bridge bridge) {
         m_bridge = bridge;
-    }
-
-    public Set getParticipants() {
-        return m_participants;
-    }
-
-    public void setParticipants(Set participants) {
-        m_participants = participants;
     }
 
     public String getExtension() {

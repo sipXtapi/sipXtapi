@@ -26,10 +26,10 @@ public interface ConferenceBridgeContext extends AliasOwner {
     void store(Bridge bridge);
 
     void store(Conference conference);
-    
+
     /**
-     * Check whether the conference is valid and can be stored.  If the conference
-     * is OK, then return.  If it's not OK, then throw UserException.
+     * Check whether the conference is valid and can be stored. If the conference is OK, then
+     * return. If it's not OK, then throw UserException.
      */
     void validate(Conference conference);
 
@@ -41,15 +41,9 @@ public interface ConferenceBridgeContext extends AliasOwner {
 
     void removeConferences(Collection conferencesIds);
 
-    void removeParticipants(Collection participantsIds);
-
-    void addParticipantsToConference(Serializable conferenceId, Collection usersIds);
-
     Bridge loadBridge(Serializable serverId);
 
     Conference loadConference(Serializable id);
-
-    Participant loadParticipant(Serializable id);
 
     List getAliases();
 

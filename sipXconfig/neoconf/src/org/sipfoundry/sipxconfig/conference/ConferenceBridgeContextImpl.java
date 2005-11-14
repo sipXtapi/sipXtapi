@@ -24,23 +24,18 @@ import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
-import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
         ConferenceBridgeContext {
-    private static final String USER = "user";
     private static final String CONFERENCE = "conference";
     private static final String VALUE = "value";
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
 
-    private CoreContext m_coreContext;
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
 
@@ -52,7 +47,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         getHibernateTemplate().saveOrUpdate(bridge);
     }
 
-    public void store(Conference conference) {        
+    public void store(Conference conference) {
         validate(conference);
         getHibernateTemplate().saveOrUpdate(conference);
     }
@@ -66,7 +61,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         if (extension == null) {
             throw new UserException("A conference must have an extension");
         }
-        
+
         final String conferenceTypeName = CONFERENCE;
         if (!m_aliasManager.canObjectUseAlias(conference, name)) {
             throw new NameInUseException(conferenceTypeName, name);
@@ -75,7 +70,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             throw new ExtensionInUseException(conferenceTypeName, extension);
         }
     }
-    
+
     public Bridge newBridge() {
         return (Bridge) m_beanFactory.getBean(Bridge.BEAN_NAME, Bridge.class);
     }
@@ -85,10 +80,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
                 Conference.class);
         conference.generateAccessCodes();
         return conference;
-    }
-
-    private Participant newParticipant() {
-        return (Participant) m_beanFactory.getBean(Participant.BEAN_NAME, Participant.class);
     }
 
     public void removeBridges(Collection bridgesIds) {
@@ -113,58 +104,12 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         getHibernateTemplate().saveOrUpdateAll(bridges);
     }
 
-    public void removeParticipants(Collection participantsIds) {
-        Set conferences = new HashSet();
-        for (Iterator i = participantsIds.iterator(); i.hasNext();) {
-            Serializable id = (Serializable) i.next();
-            Participant participant = loadParticipant(id);
-            Conference conference = participant.getConference();
-            conference.removeParticipant(participant);
-            conferences.add(conference);
-        }
-        getHibernateTemplate().saveOrUpdateAll(conferences);
-    }
-
-    public void addParticipantsToConference(Serializable conferenceId, Collection usersIds) {
-        Conference conference = loadConference(conferenceId);
-        for (Iterator i = usersIds.iterator(); i.hasNext();) {
-            Integer userId = (Integer) i.next();
-            User user = m_coreContext.loadUser(userId);
-            Participant participant = getParticipant(conference, user);
-            if (participant == null) {
-                participant = newParticipant();
-                participant.setUser(user);
-                conference.insertParticipant(participant);
-            }
-        }
-        getHibernateTemplate().update(conference);
-    }
-
-    private Participant getParticipant(Conference conference, User user) {
-        String[] params = {
-            CONFERENCE, USER
-        };
-        Object[] values = {
-            conference, user
-        };
-        List participants = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "participantForConferenceAndUser", params, values);
-        if (participants.isEmpty()) {
-            return null;
-        }
-        return (Participant) participants.get(0);
-    }
-
     public Bridge loadBridge(Serializable id) {
         return (Bridge) getHibernateTemplate().load(Bridge.class, id);
     }
 
     public Conference loadConference(Serializable id) {
         return (Conference) getHibernateTemplate().load(Conference.class, id);
-    }
-
-    public Participant loadParticipant(Serializable id) {
-        return (Participant) getHibernateTemplate().load(Participant.class, id);
     }
 
     public List getAliases() {
@@ -177,25 +122,9 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         getHibernateTemplate().deleteAll(bridges);
     }
 
-    public UserDeleteListener createUserDeleteListener() {
-        return new OnUserDelete();
-    }
-
-    private class OnUserDelete extends UserDeleteListener {
-        protected void onUserDelete(User user) {
-            List participantIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                    "participantIdForUser", USER, user);
-            removeParticipants(participantIds);
-        }
-    }
-
     // trivial get/set
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
-    }
-
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
     }
 
     public void setAliasManager(AliasManager aliasManager) {

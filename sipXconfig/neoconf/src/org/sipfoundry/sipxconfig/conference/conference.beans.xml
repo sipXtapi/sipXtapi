@@ -13,12 +13,6 @@
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
 
-  <bean id="participantSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel">
-  	<property name="resource" value="sipxconference/participant.xml"/>
-    <property name="modelFilesContext" ref="modelFilesContext"/>
-  </bean>
-      
-    
   <bean name="conferenceBridge" class="org.sipfoundry.sipxconfig.conference.Bridge"
     singleton="false">
     <property name="settingModel">
@@ -35,26 +29,14 @@
     </property>
   </bean>
   
-  <bean name="conferenceParticipant" class="org.sipfoundry.sipxconfig.conference.Participant"
-    singleton="false">
-    <property name="settingModel">
-      <ref local="participantSettingModel"/>      
-    </property>
-  </bean>
-  
   <bean id="conferenceBridgeContextImpl"
     class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="coreContext" ref="coreContextImpl"/>
     <property name="aliasManager" ref="aliasManager"/>
   </bean>
   
-  <bean id="conferenceBridgeContextUserDelete"
-    factory-bean="conferenceBridgeContextImpl" factory-method="createUserDeleteListener"/>
-  
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao"
-    depends-on="conferenceBridgeContextUserDelete">
+    parent="abstractDao">
     <property name="proxyInterfaces"
       value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext"/>
     <property name="target">

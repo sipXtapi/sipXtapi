@@ -25,18 +25,12 @@ public class ConferenceBeanTest extends TestCase {
 
     public void testConference() throws Exception {
         Conference conference = (Conference) m_applicationContext.getBean(Conference.BEAN_NAME,
-                Conference.class);        
+                Conference.class);
         assertNotNull(conference.getSettings());
     }
 
     public void testBridge() throws Exception {
         Bridge bridge = (Bridge) m_applicationContext.getBean(Bridge.BEAN_NAME, Bridge.class);
         assertNotNull(bridge.getSettings());
-    }
-
-    public void testParticipant() throws Exception {
-        Participant participant = (Participant) m_applicationContext.getBean(
-                Participant.BEAN_NAME, Participant.class);
-        assertNotNull(participant.getSettings());
     }
 }
