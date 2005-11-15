@@ -96,7 +96,7 @@ public abstract class ListWebTestCase extends WebTestCase {
     // common tests
     public void testDisplay() {
         SiteTestHelper.assertNoException(tester);
-        assertFormPresent(getFormId());
+        assertFormPresent();
         assertLinkPresent(buildId("add"));
         assertEquals(1, SiteTestHelper.getRowCount(tester, buildId("list")));
         assertButtonPresent(buildId("delete"));

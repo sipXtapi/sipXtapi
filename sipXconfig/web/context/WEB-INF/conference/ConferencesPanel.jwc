@@ -64,7 +64,7 @@
     </component>
 
     <component id="tableView" type="Table">
-        <static-binding name="columns" value="* name:name,extension:extension,description:description"/>
+        <static-binding name="columns" value="* name,enabled,extension,description"/>
         <binding name="source" expression="conferences"/>
 		<binding name="row" expression="currentRow"/>
         <binding name="selections" expression="selections"/>

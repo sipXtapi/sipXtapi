@@ -13,41 +13,28 @@ package org.sipfoundry.sipxconfig.site.conference;
 
 import junit.framework.Test;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-public class EditBridgeTestUi extends ListWebTestCase {
-
+public class ListBridgesTestUi extends ListWebTestCase {
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditBridgeTestUi.class);
+        return SiteTestHelper.webTestSuite(ListBridgesTestUi.class);
     }
 
-    public EditBridgeTestUi() {
-        super("EditBridge", "resetConferenceBridgeContext", "conference");
+    public ListBridgesTestUi() {
+        super("ListBridges", "resetConferenceBridgeContext", "bridge");
         setHasDuplicate(false);
-        setExactCheck(false);
-    }
-
-    public void setUp() {
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
-        clickLink("resetConferenceBridgeContext");
-        clickLink("EditBridge");
-        setWorkingForm("bridge:form");
-        setFormElement("name", "bridge_test");
-        clickButton("form:apply");
     }
 
     protected String[] getParamNames() {
         return new String[] {
-            "name", "extension", "description"
+            "name", "description"
         };
     }
 
     protected String[] getParamValues(int i) {
         return new String[] {
-            "conference" + i, "444" + i, "Description" + i
+            "bridge" + i, "Description" + i
         };
     }
 
@@ -56,6 +43,10 @@ public class EditBridgeTestUi extends ListWebTestCase {
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
-        return ArrayUtils.add(paramValues, 1, "false");
+        Object[] expected = new Object[3];
+        expected[0] = paramValues[0];
+        expected[1] = "false";
+        expected[2] = paramValues[1];
+        return expected;
     }
 }
