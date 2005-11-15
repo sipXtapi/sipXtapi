@@ -1,5 +1,5 @@
 require 'test/unit'
-require 'Tempfile'
+require 'tempfile'
 require 'stringio'
 load 'Setup.rb'
 
@@ -24,29 +24,53 @@ public
   end
 end
 
-class SetupTest < Test::Unit::TestCase
-public
-  def test_setup
-    installer = FileInstaller.new()
-    installer.system_root = SYSTEM_ROOT
-    installer.backup_dir = BACKUP_DIR
+class PropertiesTest < Test::Unit::TestCase
 
-    tftp = Setup.new()
-    tftp.installer = installer
-    tftp.setupTftp()
-    backup = BACKUP_DIR + '/tftp'
-    installed = SYSTEM_ROOT + '/etc/xinet.d/tftp'
-    assert(File.exists?(backup))
-    assert(FileUtils.compare_file(backup, installed))
+  def test_load
+    setup = Properties.new()
+    props = setup.load('test/sample.properties')
+    assert_equal('me', props['found'])
+    assert_equal('first = last', props['param-with-equals'])
   end
 
-  def test_setup_xinit
-    tftp = Setup.new()
+  def test_save
+    setup = Properties.new()
+    props = setup.load('test/sample.properties')
+    props['me'] = 'updated value'
+    props['new-key'] = 'new value'
+
+    actual_file = Dir::tmpdir + '/save.properties'
+    setup.save(actual_file)
+    assert(FileUtils.compare_file('test/expected-save.properties', actual_file))
+  end
+
+end
+
+class SetupTest < Test::Unit::TestCase
+public
+
+  def test_setup
+    installer = FileInstaller.new()
+    installer.backup_dir = BACKUP_DIR
+
+    setup = Setup.new()
+    expected = 'test/tftp.simple'
+    setup.options['sysdir.tftpConfig'] = expected
+    setup.options['sysdir.tmp'] = BACKUP_DIR
+    setup.setup_tftp()
+    backup_file = BACKUP_DIR + '/tftp.simple'
+    assert(File.exists?(backup_file))
+    assert(FileUtils.compare_file(expected, backup_file))
+  end
+
+  def test_setup_xinet
+    setup = Setup.new()
+    setup.options['sipxpbx.user'] = 'homer'
     out = StringIO.new();
-    repair = tftp.setup_xinet(File.open('test/tftp.orig'), out)
+    repair = setup.setup_xinet(File.open('test/tftp.orig'), out)
     out.seek(0)
     assert_file_equal(File.open('test/tftp.expected'), out)
-    assert_equal('/tftpboot', tftp.tftpRoot)
+    assert_equal('/tftpboot', setup.options['sysdir.tftpRoot'])
   end
 
   def assert_file_equal(expected, actual) 
