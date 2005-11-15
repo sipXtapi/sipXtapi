@@ -21,10 +21,10 @@ class PhoneServiceTestApi < Test::Unit::TestCase
 		@testService = TestService.new(TEST_SERVICE_WSDL)
         @testService.options["protocol.http.basic_auth"] << [TEST_SERVICE_WSDL, DUMMY_USER, DUMMY_PASSWORD]
 		
-		reset = ResetService.new();
+		reset = ResetServices.new();
 		reset.phone = true;
 		reset.user = true;
-		@testService.resetService(reset)
+		@testService.resetServices(reset)
     end
     
 	def test_createPhone	    

@@ -49,8 +49,8 @@ public class UserServiceImpl implements UserService {
         m_settingDao = settingDao;
     }
 
-    public void setUserBuilder(UserBuilder userTranslater) {
-        m_userBuilder = userTranslater;
+    public void setUserBuilder(UserBuilder userTranslator) {
+        m_userBuilder = userTranslator;
     }
     
     public void addUser(AddUser addUser) throws RemoteException {

@@ -18,9 +18,9 @@ class UserServiceTestApi < Test::Unit::TestCase
 		@testService = TestService.new(TEST_SERVICE_WSDL)
 		@testService.wiredump_dev = STDOUT if $DEBUG
         @testService.options["protocol.http.basic_auth"] << [TEST_SERVICE_WSDL, DUMMY_USER, DUMMY_PASSWORD]
-		reset = ResetService.new();
+		reset = ResetServices.new();
 		reset.user = true;
-		@testService.resetService(reset)
+		@testService.resetServices(reset)
     end
 
 	def test_createUser	    

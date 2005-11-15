@@ -450,6 +450,9 @@
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unittest-command}/PhoneServiceTestApi.rb"/>
     </exec>    
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unittest-command}/ParkOrbitServiceTestApi.rb"/>
+    </exec>    
   </target>
     
 </project>
