@@ -20,6 +20,8 @@
     </property>
     <property name="systemDefaults" ref="phoneDefaults"/>
     <property name="audioDirectory" value="${sysdir.phone}/conference"/>
+    <property name="host" value="localhost"/>
+    <property name="port" value="8201"/>
   </bean>
 
   <bean name="conferenceConference" class="org.sipfoundry.sipxconfig.conference.Conference"
@@ -33,6 +35,9 @@
     class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="aliasManager" ref="aliasManager"/>
+    <property name="provisioning">
+      <ref local="conferenceBridgeProvisioning"/>
+    </property>
   </bean>
   
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean"
@@ -42,5 +47,26 @@
     <property name="target">
       <ref local="conferenceBridgeContextImpl"/>
     </property>
-  </bean>  
+  </bean>
+  
+  
+  <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces"
+      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioning"/>
+    <property name="target">
+      <bean class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioningImpl">
+        <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+      </bean>
+    </property>
+  </bean>
+  
+  <bean id="conferenceBridgeProvisioning" class="org.sipfoundry.sipxconfig.conference.LazyConferenceBridgeProvisioningImpl" 
+    init-method="init">
+    <property name="target">
+      <ref local="eagerConferenceBridgeProvisioning"></ref>
+    </property>
+    <property name="sleepInterval" value="15000"/>
+  </bean>
+  
 </beans>

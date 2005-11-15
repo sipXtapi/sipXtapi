@@ -26,6 +26,8 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
         InitializingBean {
     private XmlRpcClient m_xmlRpcClient;
 
+    private String m_methodNamePrefix;
+
     /**
      * Intercepts method call and executes XML/RPC call instead.
      * 
@@ -42,7 +44,7 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
      * 
      */
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        XmlRpcClientRequest request = new Request(invocation);
+        XmlRpcClientRequest request = new Request(invocation, m_methodNamePrefix);
 
         try {
             Object result = m_xmlRpcClient.execute(request);
@@ -54,7 +56,7 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
             }
             return result;
         } catch (XmlRpcException e) {
-            // in cases execute throws exception - we still need  to translate
+            // in cases execute throws exception - we still need to translate
             throw new XmlRpcRemoteException(e);
         }
     }
@@ -68,13 +70,18 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
         }
         m_xmlRpcClient = new XmlRpcClient(getServiceUrl());
     }
-    
+
     /**
      * Mostly for testing - one can inject other XmlRpcClient implementations
+     * 
      * @param xmlRpcClient client that would be used to make remote calls
      */
     public void setXmlRpcClient(XmlRpcClient xmlRpcClient) {
         m_xmlRpcClient = xmlRpcClient;
+    }
+
+    public void setMethodNamePrefix(String methodNamePrefix) {
+        m_methodNamePrefix = methodNamePrefix;
     }
 
     static class Request implements XmlRpcClientRequest {
@@ -82,13 +89,19 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
 
         private Object[] m_args;
 
-        public Request(MethodInvocation invocation) {
+        private String m_methodNamePrefix;
+
+        public Request(MethodInvocation invocation, String methodNamePrefix) {
             m_method = invocation.getMethod();
             m_args = invocation.getArguments();
+            m_methodNamePrefix = methodNamePrefix;
         }
 
         public String getMethodName() {
-            return m_method.getName();
+            if (m_methodNamePrefix == null) {
+                return m_method.getName();
+            }
+            return m_methodNamePrefix + m_method.getName();
         }
 
         public int getParameterCount() {

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -38,6 +39,26 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     private PhoneDefaults m_systemDefaults;
 
     private String m_audioDirectory;
+
+    private int m_port;
+
+    private String m_host;
+
+    public String getHost() {
+        return m_host;
+    }
+
+    public void setHost(String host) {
+        m_host = host;
+    }
+
+    public int getPort() {
+        return m_port;
+    }
+
+    public void setPort(int port) {
+        m_port = port;
+    }
 
     public void insertConference(Conference conference) {
         getConferences().add(conference);
@@ -103,5 +124,12 @@ public class Bridge extends BeanWithSettings implements NamedObject {
                 fileType.setDirectory(m_audioDirectory);
             }
         }
+    }
+
+    public String getServiceUri() {
+        Object[] params = new Object[] {
+            m_host, Integer.toString(m_port)
+        };
+        return MessageFormat.format("https://{0}:{1}/RPC2", params);
     }
 }

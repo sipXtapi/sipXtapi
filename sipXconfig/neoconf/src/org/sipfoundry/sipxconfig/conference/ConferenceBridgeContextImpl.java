@@ -38,6 +38,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
+    private ConferenceBridgeProvisioning m_provisioning;
 
     public List getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
@@ -45,11 +46,17 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public void store(Bridge bridge) {
         getHibernateTemplate().saveOrUpdate(bridge);
+        if (bridge.isNew()) {
+            // need to make sure that ID is set
+            getHibernateTemplate().flush();
+        }
+        m_provisioning.deploy(bridge.getId());
     }
 
     public void store(Conference conference) {
         validate(conference);
         getHibernateTemplate().saveOrUpdate(conference);
+        m_provisioning.deploy(conference.getBridge().getId());
     }
 
     public void validate(Conference conference) {
@@ -129,6 +136,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
+    }
+
+    public void setProvisioning(ConferenceBridgeProvisioning provisioning) {
+        m_provisioning = provisioning;
     }
 
     public boolean isAliasInUse(String alias) {

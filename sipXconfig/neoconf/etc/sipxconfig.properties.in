@@ -23,6 +23,7 @@ adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
 vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
 vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
 orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
+conferenceBridge.host=${MY_FULL_HOSTNAME}
 
 # external aliases
 externalAliases.addinsDirectory=@sipxpbx.data.dir@

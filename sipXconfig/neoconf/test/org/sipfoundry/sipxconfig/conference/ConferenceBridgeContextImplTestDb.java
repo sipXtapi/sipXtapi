@@ -11,12 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
-import java.util.Collections;
-
-import org.dbunit.database.IDatabaseConnection;
+import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbParameter;
+import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbSettingAdaptor;
 
 public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
 
@@ -30,132 +29,25 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/users.db.xml");
     }
 
-    public void testGetBridges() throws Exception {
-        TestHelper.insertFlat("conference/participants.db.xml");
-        assertEquals(2, m_context.getBridges().size());
-    }
+    public void testDeploy() throws Exception {
+        MockControl dbCtrl = MockControl.createControl(ConfigDbParameter.class);
+        ConfigDbParameter db = (ConfigDbParameter) dbCtrl.getMock();
+        db.set("bbridge-conf", null);
+        // do not check params for now - we just verify that the function has been called once
+        dbCtrl.setMatcher(MockControl.ALWAYS_MATCHER);
+        dbCtrl.setReturnValue(10);
 
-    public void testStore() throws Exception {
-        IDatabaseConnection db = TestHelper.getConnection();
+        dbCtrl.replay();
 
-        Bridge bridge = new Bridge();
-        bridge.setName("b1");
-        Conference conference = new Conference();
-        conference.setName("c1");
-        bridge.insertConference(conference);
+        ConfigDbSettingAdaptor adaptor = new ConfigDbSettingAdaptor();
+        adaptor.setConfigDbParameter(db);
 
-        m_context.store(bridge);
-
-        assertEquals(1, db.getRowCount("meetme_bridge"));
-        assertEquals(1, db.getRowCount("meetme_conference"));
-    }
-
-    public void testRemoveBridges() throws Exception {
-        IDatabaseConnection db = TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
-        assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(3, db.getRowCount("meetme_conference"));
-
-        m_context.removeBridges(Collections.singleton(new Integer(2005)));
-
-        assertEquals(1, db.getRowCount("meetme_bridge"));
-        assertEquals(1, db.getRowCount("meetme_conference"));
-    }
-
-    public void testRemoveConferences() throws Exception {
-        IDatabaseConnection db = TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
-        assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(3, db.getRowCount("meetme_conference"));
-
-        m_context.removeConferences(Collections.singleton(new Integer(3002)));
-
-        assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(2, db.getRowCount("meetme_conference"));
-    }
-
-    public void testLoadBridge() throws Exception {
         TestHelper.insertFlat("conference/participants.db.xml");
         Bridge bridge = m_context.loadBridge(new Integer(2006));
 
-        assertEquals(1, bridge.getConferences().size());
-    }
+        ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
+        impl.deploy(bridge, adaptor);
 
-    public void testLoadConference() throws Exception {
-        TestHelper.insertFlat("conference/participants.db.xml");
-        Conference conference = m_context.loadConference(new Integer(3001));
-
-        assertEquals("conf_3001", conference.getName());
-    }
-
-    public void testClear() throws Exception {
-        IDatabaseConnection db = TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
-        assertTrue(0 < db.getRowCount("meetme_bridge"));
-        assertTrue(0 < db.getRowCount("meetme_conference"));
-
-        m_context.clear();
-
-        assertEquals(0, db.getRowCount("meetme_bridge"));
-        assertEquals(0, db.getRowCount("meetme_conference"));
-    }
-
-    public void testIsAliasInUse() throws Exception {
-        TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
-        // conference names are aliases
-        assertTrue(m_context.isAliasInUse("conf_3001"));
-        assertTrue(m_context.isAliasInUse("conf_3002"));
-        assertTrue(m_context.isAliasInUse("conf_3003"));
-
-        // conference extensions are aliases
-        assertTrue(m_context.isAliasInUse("1699"));
-        assertTrue(m_context.isAliasInUse("1700"));
-        assertTrue(m_context.isAliasInUse("1701"));
-
-        // we're not using this extension
-        assertFalse(m_context.isAliasInUse("1702"));
-    }
-
-    public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
-        TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
-        // conference names are aliases
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_3001").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_3002").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("conf_3003").size() == 1);
-
-        // conference extensions are aliases
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1699").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1700").size() == 1);
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1701").size() == 1);
-
-        // we're not using this extension
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1702").size() == 0);
-    }
-
-    public void testValidate() throws Exception {
-        TestHelper.getConnection();
-        TestHelper.insertFlat("conference/participants.db.xml");
-
-        // create a conference with a duplicate extension, should fail to validate
-        Conference conf = new Conference();
-        conf.setName("Appalachian");
-        conf.setExtension("1699");
-        try {
-            m_context.validate(conf);
-            fail("conference has duplicate extension but was validated anyway");
-        } catch (UserException e) {
-            // expected
-        }
-
-        // pick an unused extension, should be OK
-        conf.setExtension("1800");
-        m_context.validate(conf);
+        dbCtrl.verify();
     }
 }
