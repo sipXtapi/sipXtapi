@@ -12,6 +12,9 @@ LOCAL_SHELLSCRIPTS = \
 
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
+noinst_PROGRAMS = \
+	sipxconfigrpc
+
 install-exec-hook: localize_scripts
 
 .PHONY: localize_scripts
@@ -23,6 +26,19 @@ $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(DESTDIR)@SIPX_BINDIR@/$(sipxScript)
 $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
 	$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
+
+sipxconfigrpc_SOURCES = \
+	configrpc.cpp
+
+sipxconfigrpc_LDADD = \
+	../src/libsipXcommserver.la
+
+sipregistrar_CXXFLAGS = \
+	-I$(top_builddir)/config \
+	-I$(top_srcdir)/include \
+	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
+	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
+	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\"
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP

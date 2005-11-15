@@ -1,13 +1,13 @@
 // 
+// Copyright (C) 2005 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
 // Copyright (C) 2005 Jason Fischl, Dan Petrie
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // Copyright (C) 2005 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
-// 
 // Copyright (C) 2005 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
@@ -33,64 +33,56 @@
 #include "configrpc/ConfigRPC.h"
 #include "ConferenceUserAgent.h"
 
+#include "bbridge.h"
+
 // DEFINES
-#ifndef SIPX_VERSION
-#  include "config/bbridge-buildstamp.h"
-#  define SIPX_BBRIDGE_VERSION          bbridgeVersion
-#  define SIPX_BBRIDGE_VERSION_COMMENT  bbridgeBuildStamp
-#else
-#  define SIPX_BBRIDGE_VERSION          SIPX_VERSION
-#  define SIPX_BBRIDGE_VERSION_COMMENT  ""
-#endif
-
-#ifndef SIPX_LOGDIR
-#  define SIPX_LOGDIR "."
-#endif
-
-#ifndef SIPX_CONFDIR
-#  define SIPX_CONFDIR "."
-#endif
-
-#define CONFIG_SETTINGS_FILE          "bbridge.conf"
-#define CONFIG_ETC_DIR                SIPX_CONFDIR
-
-#define CONFIG_LOG_FILE               "bbridge.log"
-#define CONFIG_LOG_DIR                SIPX_LOGDIR
-
-#define LOG_FACILITY                  FAC_CONFERENCE
-
-#define CONFIG_SETTING_LOG_DIR        "BOSTON_BRIDGE_LOG_DIR"
-#define CONFIG_SETTING_LOG_LEVEL      "BOSTON_BRIDGE_LOG_LEVEL"
-#define CONFIG_SETTING_RESIP_LOG_LEVEL "BOSTON_BRIDGE_RESIP_LOG_LEVEL"
-#define CONFIG_SETTING_LOG_CONSOLE    "BOSTON_BRIDGE_LOG_CONSOLE"
-#define CONFIG_SETTING_UDP_PORT       "BOSTON_BRIDGE_UDP_PORT"
-#define CONFIG_SETTING_TCP_PORT       "BOSTON_BRIDGE_TCP_PORT"
-#define CONFIG_SETTING_TLS_PORT       "BOSTON_BRIDGE_TLS_PORT"
-#define CONFIG_SETTING_XMLRPC_PORT    "BOSTON_BRIDGE_XMLRPC_PORT"
-#define CONFIG_SETTING_RTP_START      "BOSTON_BRIDGE_RTP_START"
-#define CONFIG_SETTING_RTP_END        "BOSTON_BRIDGE_RTP_END"
-#define CONFIG_SETTING_ENTER_SOUND    "BOSTON_BRIDGE_ENTER_SOUND"
-#define CONFIG_SETTING_EXIT_SOUND     "BOSTON_BRIDGE_EXIT_SOUND"
-#define CONFIG_SETTING_HOLD_MUSIC     "BOSTON_BRIDGE_HOLD_MUSIC"
-
-#define CONFIG_SETTING_GATEWAY1_AOR   "BOSTON_BRIDGE_GATEWAY1_AOR"
-#define CONFIG_SETTING_GATEWAY1_USERNAME  "BOSTON_BRIDGE_GATEWAY1_USERNAME"
-#define CONFIG_SETTING_GATEWAY1_REALM  "BOSTON_BRIDGE_GATEWAY1_REALM"
-#define CONFIG_SETTING_GATEWAY1_PASSWORD  "BOSTON_BRIDGE_GATEWAY1_PASSWORD"
-#define CONFIG_SETTING_GATEWAY1_CONFERENCE  "BOSTON_BRIDGE_GATEWAY1_CONFERENCE"
-
-#define DEFAULT_UDP_PORT              5060       // Default UDP port
-#define DEFAULT_TCP_PORT              5060       // Default TCP port
-#define DEFAULT_TLS_PORT              5061       // Default TLS port
-#define DEFAULT_XMLRPC_PORT           8201
-#define DEFAULT_RTP_START             15000
-#define DEFAULT_RTP_END               20000
 
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 const char* ConfigurationDatasetName = CONFIG_SETTINGS_FILE;
+
+#define CONFIG_SETTING_PREFIX "BOSTON_BRIDGE"
+
+const char* CONFIG_SETTING_LOG_DIR           = CONFIG_SETTING_PREFIX "_LOG_DIR";
+const char* CONFIG_SETTING_LOG_LEVEL         = CONFIG_SETTING_PREFIX "_LOG_LEVEL";
+const char* CONFIG_SETTING_RESIP_LOG_LEVEL   = CONFIG_SETTING_PREFIX "_RESIP_LOG_LEVEL";
+const char* CONFIG_SETTING_LOG_CONSOLE       = CONFIG_SETTING_PREFIX "_LOG_CONSOLE";
+const char* CONFIG_SETTING_UDP_PORT          = CONFIG_SETTING_PREFIX "_UDP_PORT";
+const char* CONFIG_SETTING_TCP_PORT          = CONFIG_SETTING_PREFIX "_TCP_PORT";
+const char* CONFIG_SETTING_TLS_PORT          = CONFIG_SETTING_PREFIX "_TLS_PORT";
+const char* CONFIG_SETTING_XMLRPC_PORT       = CONFIG_SETTING_PREFIX "_XMLRPC_PORT";
+const char* CONFIG_SETTING_RTP_START         = CONFIG_SETTING_PREFIX "_RTP_START";
+const char* CONFIG_SETTING_RTP_END           = CONFIG_SETTING_PREFIX "_RTP_END";
+const char* CONFIG_SETTING_ENTER_SOUND       = CONFIG_SETTING_PREFIX "_ENTER_SOUND";
+const char* CONFIG_SETTING_EXIT_SOUND        = CONFIG_SETTING_PREFIX "_EXIT_SOUND";
+const char* CONFIG_SETTING_HOLD_MUSIC        = CONFIG_SETTING_PREFIX "_HOLD_MUSIC";
+const char* CONFIG_SETTING_PROXY             = CONFIG_SETTING_PREFIX "_PROXY";
+const char* CONFIG_SETTING_MAX_LEGS          = CONFIG_SETTING_PREFIX "_MAX_LEGS";
+const char* CONFIG_SETTING_SIP_DOMAIN        = CONFIG_SETTING_PREFIX "_SIP_DOMAIN";
+const char* CONFIG_SETTING_SIP_ALIASES       = CONFIG_SETTING_PREFIX "_SIP_ALIASES";
+const char* CONFIG_SETTING_COMMAND_MUTE      = CONFIG_SETTING_PREFIX "_COMMAND_MUTE";
+const char* CONFIG_SETTING_COMMAND_END       = CONFIG_SETTING_PREFIX "_COMMAND_END";
+
+const char* CONFIG_SETTING_CONFERENCE_STATUS = CONFIG_SETTING_PREFIX "_CONFERENCE_STATUS.";
+const char* CONFIG_SETTING_CONFERENCE_ACCESS = CONFIG_SETTING_PREFIX "_CONFERENCE_ACCESS.";
+
+const char* CONFERENCE_STATUS_CONFIGURE      = "CONFIGURE";
+const char* CONFERENCE_STATUS_AVAILABLE      = "AVAILABLE";
+
+const char* CONFERENCE_PARAM                 = CONFIG_SETTING_PREFIX "_CONFERENCE.";
+
+const char* CONFERENCE_AOR                   = ".AOR";
+
+const char* CONFERENCE_ACCESS                = ".ACCESS";
+const char* CONFERENCE_ACCESS_OPEN           = "OPEN";
+const char* CONFERENCE_ACCESS_REMOTE_ADMIT   = "REMOTE_ADMIT";
+
+const char* CONFERENCE_MAX_LEGS              = ".MAX_LEGS";
+const char* CONFERENCE_REGISTER_USERNAME     = ".REGISTER_USERNAME";
+const char* CONFERENCE_REGISTER_REALM        = ".REGISTER_REALM";
+const char* CONFERENCE_REGISTER_PASSWORD     = ".REGISTER_PASSWORD";
 
 // STRUCTSCONFIG_SETTING_RTP_START
 // TYPEDEFS
@@ -108,7 +100,6 @@ extern "C" {
 // STATIC VARIABLE INITIALIZATIONS
 // GLOBAL VARIABLE INITIALIZATIONS
 UtlBoolean    gShutdownFlag = FALSE;
-
 
 /* ============================ FUNCTIONS ================================= */
 
@@ -348,24 +339,33 @@ int main(int argc, char* argv[])
 
    if (configDb.loadFromFile(configFileName) != OS_SUCCESS)
    {
-      configDb.set(CONFIG_SETTING_LOG_DIR, "");
       configDb.set(CONFIG_SETTING_LOG_LEVEL, "INFO");
       configDb.set(CONFIG_SETTING_RESIP_LOG_LEVEL, "INFO");
       configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
+      configDb.set(CONFIG_SETTING_LOG_DIR, "");
+
       configDb.set(CONFIG_SETTING_UDP_PORT, DEFAULT_UDP_PORT);
       configDb.set(CONFIG_SETTING_TCP_PORT, DEFAULT_TCP_PORT);
       configDb.set(CONFIG_SETTING_TLS_PORT, DEFAULT_TLS_PORT);
       configDb.set(CONFIG_SETTING_XMLRPC_PORT, DEFAULT_XMLRPC_PORT);
       configDb.set(CONFIG_SETTING_RTP_START, DEFAULT_RTP_START);
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);
-      configDb.set(CONFIG_SETTING_GATEWAY1_AOR, "");
-      configDb.set(CONFIG_SETTING_GATEWAY1_USERNAME, "");
-      configDb.set(CONFIG_SETTING_GATEWAY1_REALM, "");
-      configDb.set(CONFIG_SETTING_GATEWAY1_PASSWORD, "");
-      configDb.set(CONFIG_SETTING_GATEWAY1_CONFERENCE, "");
+
+      configDb.set(CONFIG_SETTING_PROXY, "");
+      configDb.set(CONFIG_SETTING_MAX_LEGS, "0");
+
       configDb.set(CONFIG_SETTING_ENTER_SOUND, "");
       configDb.set(CONFIG_SETTING_EXIT_SOUND, "");
       configDb.set(CONFIG_SETTING_HOLD_MUSIC, "");
+
+      configDb.set(CONFIG_SETTING_SIP_DOMAIN, "");
+      configDb.set(CONFIG_SETTING_SIP_ALIASES, "");
+
+      configDb.set(CONFIG_SETTING_COMMAND_MUTE, "");
+      configDb.set(CONFIG_SETTING_COMMAND_END, "");
+
+      configDb.set(CONFIG_SETTING_CONFERENCE_ACCESS, "REMOTE_ADMIT");
+
       configDb.storeToFile(configFileName);
    }
    
@@ -415,7 +415,7 @@ int main(int argc, char* argv[])
                      //              these sources currently do not build nicely in Windows - disable for now  
 
    int XmlRpcPort = configDb.getPort(CONFIG_SETTING_XMLRPC_PORT);
-   if (PORT_DEFAULT == XmlRpcPort)
+   if (PORT_DEFAULT == XmlRpcPort) 
    {
       XmlRpcPort = DEFAULT_XMLRPC_PORT;
    }

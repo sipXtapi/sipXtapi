@@ -30,6 +30,10 @@ Global Configuration Parameters
      BOSTON_BRIDGE_UDP_PORT - Default 5060
      BOSTON_BRIDGE_TLS_PORT - Default 5061
 
+   Configuration Control port
+
+     BOSTON_BRIDGE_XMLRPC_PORT - Default 8201
+
    Minimum and maximum UDP port numbers to be used for RTP streams.
 
      BOSTON_BRIDGE_RTP_START  - Default 15000

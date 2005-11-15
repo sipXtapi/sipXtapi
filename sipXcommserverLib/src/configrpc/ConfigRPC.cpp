@@ -15,18 +15,27 @@
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
 #include "utl/UtlSListIterator.h"
+#include "utl/UtlHashMapIterator.h"
 #include "net/XmlRpcDispatch.h"
 #include "configrpc/ConfigRPC.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const char* MethodName[ConfigRPC_Callback::NumMethods] =
+{
+   "configurationParameter.version",
+   "configurationParameter.get",    
+   "configurationParameter.set",    
+   "configurationParameter.delete"
+};
 
 // STATICS
 
 OsRWMutex* ConfigRPC::spDatabaseLock = new OsRWMutex(OsBSem::Q_PRIORITY);
 UtlHashBag ConfigRPC::sDatabases;
 bool       ConfigRPC::sRegistered = false;
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -50,6 +59,7 @@ ConfigRPC::ConfigRPC( const char*         dbName     ///< dbName known to XMLRPC
 
    if ( ! sDatabases.find(this) )
    {
+      OsSysLog::add( FAC_KERNEL, PRI_INFO, "ConfigRPC:: register access to db name '%s'", dbName);
       sDatabases.insert(this);
    }
    else
@@ -106,18 +116,17 @@ XmlRpcMethod::ExecutionStatus ConfigRPC_Callback::accessAllowed(
    Method                    method
                                                                 )
 {
+   OsSysLog::add(FAC_KERNEL, PRI_INFO, "ConfigRPC default accessAllowed %s", MethodName[method]);
    return XmlRpcMethod::OK; // :TODO: should check request context and do something smarter
 }
 
 /// Invoked after the database has been modified
 void ConfigRPC_Callback::modified()
 {
+   // in the abstract base class this is a no-op 
+   OsSysLog::add(FAC_KERNEL, PRI_INFO, "ConfigRPC default modified");
 }
    
-/// Invoked after the database has been deleted
-void ConfigRPC_Callback::deleted()
-{
-}
 
 ConfigRPC_Callback::~ConfigRPC_Callback()
 {
@@ -189,91 +198,27 @@ protected:
       }
 };
 
-/// Implements the XML-RPC method configurationParameter.set method
-/**
- *  Parameters  Type      Name             Description
- *  Inputs:
- *              string    db_name          configuration data set name
- *              struct
- *                string  parameter      parameter name (key)
- *                string  value          parameter value
- *    ...
- *  Outputs:
- *     none
- *
- *  Sets each 'parameter' / 'value' pair in 'db_name'.  Either all
- *  sets are made or none are made.
- */
-class ConfigRPC_set : public XmlRpcMethod
-{
-public:
-   static XmlRpcMethod* get()
-      {
-         return new ConfigRPC_set();
-      }
 
-protected:
-   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
-                        UtlSList& params,                         ///< request param list
-                        void* userData,                           ///< user data
-                        XmlRpcResponse& response,                 ///< request response
-                        ExecutionStatus& status
-                        )
-      {
-         UtlString* dbName = dynamic_cast<UtlString*>(params.at(0));
-
-         if (dbName && !dbName->isNull())
-         {
-            OsReadLock lock(*ConfigRPC::spDatabaseLock);
-
-            ConfigRPC* db = ConfigRPC::find(*dbName);
-            if (db)
-            {
-               status = db->mCallback->accessAllowed(requestContext, ConfigRPC_Callback::Set);
-               if ( XmlRpcMethod::OK == status )
-               {
-                  // :TODO: actually get the database and set stuff
-               }
-            }
-            else
-            {
-               UtlString faultMsg;               
-               faultMsg.append("db lookup failed for '");
-               faultMsg.append(*dbName);
-               faultMsg.append("'");
-               response.setFault( XmlRpcResponse::UnregisteredMethod, faultMsg.data());
-               status = XmlRpcMethod::FAILED;
-            }
-         }
-         else
-         {
-            response.setFault( XmlRpcResponse::EmptyParameterValue
-                              ,"'dbname' parameter is missing or invalid type"
-                              );
-            status = XmlRpcMethod::FAILED;
-         }
-         
-         return true;
-      }
-};
-
+/// Implements the XML-RPC method configurationParameter.get
 /*
-  Method: configurationParameter.get
-
-  Parameters  Type      Name             Description
-  Inputs:
-              string    db_name          configuration data set name
-              array
-                string  parameter        name of parameter to return
-  Outputs:
-              struct
-                string  parameter      parameter name (key)
-                string  value          parameter value
-
-  Returns the name and value for each parameter in the input array
-  of parameter names.  If any parameter in the set is undefined, a
-  PARAMETER_UNDEFINED fault is returned.
-*/
+ * Parameters  Type      Name             Description
+ *  Inputs:
+ *             string    db_name          configuration data set name
+ *             array
+ *               string  parameter        name of parameter to return
+ *  Outputs:
+ *             struct
+ *               string  parameter        parameter name (key)
+ *               string  value            parameter value
+ *
+ * Returns the name and value for each parameter in the input array
+ * of parameter names.  If any parameter in the set is undefined, a
+ * PARAMETER_UNDEFINED fault is returned.
+ *
+ * To get all the parameters in the database, call this method with just the db_name.
+ * When called with just the db_name, if the dataset is empty (there are no parameters
+ * defined), a DATASET_EMPTY fault is returned.
+ */
 class ConfigRPC_get : public XmlRpcMethod
 {
 public:
@@ -297,27 +242,35 @@ protected:
          {
             OsReadLock lock(*ConfigRPC::spDatabaseLock);
 
+            // find the dataset registered with this name
             ConfigRPC* db = ConfigRPC::find(*dbName);
             if (db)
             {
+               // check with the application to see if this request is authorized on this dataset
                status = db->mCallback->accessAllowed(requestContext, ConfigRPC_Callback::Get);
                if ( XmlRpcMethod::OK == status )
                {
+                  // read in the dataset
                   OsConfigDb dataset;
                   OsStatus datasetStatus = db->load(dataset);
-
                   if ( OS_SUCCESS == datasetStatus )
                   {
+                     // get the list of names that the request is asking for 
                      UtlContainable* secondParam = params.at(1);
                      if ( secondParam )
                      {
                         UtlSList* nameList = dynamic_cast<UtlSList*>(secondParam);
-                        
                         if (nameList)
                         {
+                           /*
+                            * Iterate over the requested names
+                            * - All must be present or the request is an error
+                            * - For each name found, add the name and value to the
+                            *   selectedParams hash to be returned in a success response.
+                            */
                            UtlHashMap selectedParams;
                            UtlSListIterator requestedNames(*nameList);
-                           UtlString* requestedName;
+                           UtlString* requestedName = NULL;
                            bool allNamesFound = true;
                            
                            while (   allNamesFound
@@ -337,13 +290,15 @@ protected:
                                  delete paramValue;
                               }
                            }
+
                            if (allNamesFound)
                            {
+                              // all were found - return the name/value pairs
                               response.setResponse(&selectedParams);
                            }
                            else
                            {
-                              // The second parameter was not a list
+                              // at least one name was not found - return an error.
                               UtlString faultMsg;
                               faultMsg.append("parameter name '");
                               faultMsg.append(*requestedName);
@@ -351,6 +306,7 @@ protected:
                               response.setFault(ConfigRPC::nameNotFound, faultMsg.data());
                               status = XmlRpcMethod::FAILED;
                            }
+                           
                            selectedParams.destroyAll();
                         }
                         else
@@ -397,7 +353,179 @@ protected:
                            response.setResponse(&allParams);
                            allParams.destroyAll();
                         }
-                        //:TODO: empty response?
+                        else
+                        {
+                           // there is no way to send a well-formed but empty response,
+                           // so a 'get all' on an empty dataset returns a fault.
+                           UtlString faultMsg;               
+                           faultMsg.append("dataset '");
+                           faultMsg.append(*dbName);
+                           faultMsg.append("' has no parameters");
+                           response.setFault(ConfigRPC::emptyDataset, faultMsg);
+                           status = XmlRpcMethod::FAILED;
+                        }
+                     }
+                  }
+                  else
+                  {
+                     UtlString faultMsg("dataset load failed");
+                     response.setFault(ConfigRPC::loadFailed, faultMsg);
+                     status = XmlRpcMethod::FAILED;
+                  }
+               }
+            }
+            else
+            {
+               UtlString faultMsg;               
+               faultMsg.append("db lookup failed for '");
+               faultMsg.append(*dbName);
+               faultMsg.append("'");
+               response.setFault( XmlRpcResponse::UnregisteredMethod, faultMsg.data());
+               status = XmlRpcMethod::FAILED;
+            }
+         }
+         else
+         {
+            response.setFault( XmlRpcResponse::EmptyParameterValue
+                              ,"'dbname' parameter is missing or invalid type"
+                              );
+            status = XmlRpcMethod::FAILED;
+         }
+         
+         return true;
+      }
+};
+
+/// Implements the XML-RPC method configurationParameter.set method
+/**
+ *  Parameters  Type      Name             Description
+ *  Inputs:
+ *              string    db_name          configuration data set name
+ *              struct
+ *                string  parameter      parameter name (key)
+ *                string  value          parameter value
+ *    ...
+ *  Outputs:
+ *              integer                    number of values set
+ *
+ *  Sets each 'parameter' / 'value' pair in 'db_name'.  Either all
+ *  sets are made or none are made.
+ */
+class ConfigRPC_set : public XmlRpcMethod
+{
+public:
+   static XmlRpcMethod* get()
+      {
+         return new ConfigRPC_set();
+      }
+
+protected:
+   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status
+                        )
+      {
+         UtlString* dbName = dynamic_cast<UtlString*>(params.at(0));
+
+         if (dbName && !dbName->isNull())
+         {
+            OsReadLock lock(*ConfigRPC::spDatabaseLock);
+
+            ConfigRPC* db = ConfigRPC::find(*dbName);
+            if (db)
+            {
+               status = db->mCallback->accessAllowed(requestContext, ConfigRPC_Callback::Set);
+               if ( XmlRpcMethod::OK == status )
+               {
+                  // read in the dataset
+                  OsConfigDb dataset;
+                  OsStatus datasetStatus = db->load(dataset);
+                  if ( OS_SUCCESS == datasetStatus )
+                  {
+                     // get the list of names that the request is asking for 
+                     UtlContainable* secondParam = params.at(1);
+                     if ( secondParam )
+                     {
+                        UtlHashMap* paramList = dynamic_cast<UtlHashMap*>(secondParam);
+                        if (paramList)
+                        {
+                           /*
+                            * Iterate over the requested name/value pairs
+                            */
+                           UtlHashMapIterator params(*paramList);
+                           UtlContainable* nextParam = NULL;
+                           size_t paramsSet = 0;
+                           
+                           while (    XmlRpcMethod::OK == status
+                                  && (nextParam = params())
+                                  )
+                           {
+                              UtlString* name = dynamic_cast<UtlString*>(params.key());
+                              if ( name )
+                              {
+                                 UtlString* value = dynamic_cast<UtlString*>(params.value());
+                                 if (value)
+                                 {
+                                    dataset.set(*name, *value);
+                                    paramsSet++;
+                                 }
+                                 else
+                                 {
+                                    UtlString faultMsg;
+                                    faultMsg.append("parameter name '");
+                                    faultMsg.append(*name);
+                                    faultMsg.append("' value is not a string");
+                                    response.setFault(ConfigRPC::invalidType, faultMsg.data());
+                                    status = XmlRpcMethod::FAILED;
+                                 }
+                              }
+                              else
+                              {
+                                 UtlString faultMsg;
+                                 faultMsg.append("parameter number ");
+                                 char paramIndex[10];
+                                 sprintf(paramIndex,"%d", paramsSet + 1);
+                                 faultMsg.append(paramIndex);
+                                 faultMsg.append(" name is not a string");
+                                 response.setFault(ConfigRPC::invalidType, faultMsg.data());
+                                 status = XmlRpcMethod::FAILED;
+                              }
+                           }
+
+                           if ( XmlRpcMethod::OK == status )
+                           {
+                              if (OS_SUCCESS == db->store(dataset))
+                              {
+                                 UtlInt numberSet(paramList->entries());
+                                 response.setResponse(&numberSet);
+                              }
+                              else
+                              {
+                                 response.setFault( ConfigRPC::storeFailed
+                                                   ,"error storing dataset"
+                                                   );
+                                 status = XmlRpcMethod::FAILED;
+                              }
+                           }
+                        }
+                        else
+                        {
+                           // The second parameter was not a list
+                           response.setFault( ConfigRPC::invalidType
+                                             ,"second parameter is not a struct"
+                                             );
+                           status = XmlRpcMethod::FAILED;
+                        }
+                     }
+                     else // no parameter names specified
+                     {
+                        // No second parameter
+                        response.setFault( ConfigRPC::invalidType
+                                          ,"no second parameter of name/value pairs"
+                                          );
+                        status = XmlRpcMethod::FAILED;
                      }
                   }
                   else
@@ -445,18 +573,123 @@ protected:
   'parameter' to be undefined.  It is not an error to invoke the
   delete method on an undefined parameter.
 
-
-  Method: configurationParameter.datasetDelete
-
-  Parameters  Type      Name             Description
-  Inputs:
-  string    db_name          configuration data set name
-  Outputs:
-  (none)
-
-  Deletes the entire dataset; all parameters in the dataset become
-  undefined.
 */
+class ConfigRPC_delete : public XmlRpcMethod
+{
+public:
+   static XmlRpcMethod* get()
+      {
+         return new ConfigRPC_delete();
+      }
+
+protected:
+   virtual bool execute(const HttpRequestContext& requestContext, ///< request context
+                        UtlSList& params,                         ///< request param list
+                        void* userData,                           ///< user data
+                        XmlRpcResponse& response,                 ///< request response
+                        ExecutionStatus& status
+                        )
+      {
+         UtlString* dbName = dynamic_cast<UtlString*>(params.at(0));
+
+         if (dbName && !dbName->isNull())
+         {
+            OsReadLock lock(*ConfigRPC::spDatabaseLock);
+
+            ConfigRPC* db = ConfigRPC::find(*dbName);
+            if (db)
+            {
+               status = db->mCallback->accessAllowed(requestContext, ConfigRPC_Callback::Set);
+               if ( XmlRpcMethod::OK == status )
+               {
+                  // read in the dataset
+                  OsConfigDb dataset;
+                  OsStatus datasetStatus = db->load(dataset);
+                  if ( OS_SUCCESS == datasetStatus )
+                  {
+                     // get the list of names that the request is trying to delete
+                     UtlContainable* secondParam = params.at(1);
+                     if ( secondParam )
+                     {
+                        UtlSList* nameList = dynamic_cast<UtlSList*>(secondParam);
+                        if (nameList)
+                        {
+                           /*
+                            * Iterate over the names
+                            * - For each name found, delete it from the dataset and count it
+                            */
+                           UtlSListIterator deleteNames(*nameList);
+                           UtlString* deleteName = NULL;
+                           size_t deleted = 0;
+                           
+                           while (deleteName = dynamic_cast<UtlString*>(deleteNames()))
+                           {
+                              if (OS_SUCCESS == dataset.remove(*deleteName))
+                              {
+                                 deleted++;
+                              }
+                           }
+
+                           if (OS_SUCCESS == db->store(dataset))
+                           {
+                              status = XmlRpcMethod::OK;
+                              UtlInt deletedCount(deleted);
+                              response.setResponse(&deletedCount);
+                           }
+                           else
+                           {
+                              response.setFault( ConfigRPC::storeFailed
+                                                ,"error storing dataset"
+                                                );
+                              status = XmlRpcMethod::FAILED;
+                           }
+                        }
+                        else
+                        {
+                           // The second parameter was not a list
+                           response.setFault( ConfigRPC::invalidType
+                                             ,"namelist parameter is not an array"
+                                             );
+                           status = XmlRpcMethod::FAILED;
+                        }
+                     }
+                     else // No second parameter
+                     {
+                        response.setFault( ConfigRPC::invalidType
+                                          ,"no second parameter list of names to delete"
+                                          );
+                        status = XmlRpcMethod::FAILED;
+                     }
+                  }
+                  else
+                  {
+                     UtlString faultMsg("dataset load failed");
+                     response.setFault(ConfigRPC::loadFailed, faultMsg);
+                     status = XmlRpcMethod::FAILED;
+                  }
+               }
+            }
+            else
+            {
+               UtlString faultMsg;               
+               faultMsg.append("db lookup failed for '");
+               faultMsg.append(*dbName);
+               faultMsg.append("'");
+               response.setFault( XmlRpcResponse::UnregisteredMethod, faultMsg.data());
+               status = XmlRpcMethod::FAILED;
+            }
+         }
+         else
+         {
+            response.setFault( XmlRpcResponse::EmptyParameterValue
+                              ,"'dbname' parameter is missing or invalid type"
+                              );
+            status = XmlRpcMethod::FAILED;
+         }
+         
+         return true;
+      }
+};
 
 
 // Must be called once to connect the configurationParameter methods
@@ -466,9 +699,10 @@ void ConfigRPC::registerMethods(XmlRpcDispatch&     rpc /* xmlrpc dispatch servi
 
    if (!sRegistered)
    {
-      rpc.addMethod("configurationParameter.version", ConfigRPC_version::get, NULL);
-      rpc.addMethod("configurationParameter.get",     ConfigRPC_get::get,     NULL);
-      rpc.addMethod("configurationParameter.set",     ConfigRPC_set::get,     NULL);
+      rpc.addMethod(MethodName[ConfigRPC_Callback::Version], ConfigRPC_version::get, NULL);
+      rpc.addMethod(MethodName[ConfigRPC_Callback::Get],     ConfigRPC_get::get,     NULL);
+      rpc.addMethod(MethodName[ConfigRPC_Callback::Set],     ConfigRPC_set::get,     NULL);
+      rpc.addMethod(MethodName[ConfigRPC_Callback::Delete],  ConfigRPC_delete::get,  NULL);
 
       sRegistered = true;
    }

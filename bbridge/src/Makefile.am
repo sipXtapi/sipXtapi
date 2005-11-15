@@ -23,6 +23,7 @@ bbridge_CXXFLAGS = \
 bbridge_SOURCES =  \
     ../config/bbridge-buildstamp.h \
     ../config/bbridge-buildstamp.cpp \
+	 bbridge.h \
 	 bbridge.cpp \
 	 Conference.cpp \
 	 Conference.h \

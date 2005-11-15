@@ -18,6 +18,8 @@
 #include "rutil/Logger.hxx"
 #include "rutil/Logger.hxx"
 
+#include "bbridge.h"
+
 #include "ParticipantFactory.h"
 #include "Participant.h"
 #include "Conference.h"
@@ -29,10 +31,6 @@
 
 using namespace bbridge;
 using namespace std;
-
-#ifndef SIPX_CONFDIR
-#   define SIPX_CONFDIR "."
-#endif
 
 const char *CODEC_G711_PCMU="258";
 const char *CODEC_G711_PCMA="257";
@@ -86,7 +84,11 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
    mProfile->validateAcceptEnabled() = false;
    mProfile->validateContentEnabled() = false;
    mProfile->setDefaultFrom(myAor);
-   mProfile->setUserAgent("BostonBridge/0.1");
+
+   resip::Data uaId;
+   uaId += "BostonBridge/";
+   uaId += SIPX_BBRIDGE_VERSION;
+   mProfile->setUserAgent(uaId);
    
    std::auto_ptr<resip::AppDialogSetFactory> rfactory(new ParticipantFactory);
    mDum.setAppDialogSetFactory(rfactory);

@@ -121,38 +121,41 @@ Conference::shouldPlayMusic() const
 resip::Contents& Conference::makeNotice()
 {
    resip::Data d;
-   d += "<conference-info>\n";
-   d += "<conference-description>\n";
-   d += "<conf-uris>\n";
-   d += "<entry>\n";
-   d += "<uri>";
+   d +=
+      "<conference-info>\n"
+      "<conference-description>\n"
+      "<conf-uris>\n"
+      "<entry>\n"
+      "<uri>";
    d += getAor();
-   d += "</uri>\n";
-   d += "<purpose>participation</purpose>\n";
-   d += "</entry>\n";
-   d += "</conf-uris>\n";
-   d += "</conference-description>\n";
-   d += "<conference-state>\n<user-count>0</user-count>\n<active>true</active>\n<locked>false</locked></conference-state\n";
+   d += 
+      "</uri>\n"
+      "<purpose>participation</purpose>\n"
+      "</entry>\n"
+      "</conf-uris>\n"
+      "</conference-description>\n"
+      "<conference-state>\n"
+      "<user-count>0</user-count>\n"
+      "<active>true</active>\n"
+      "<locked>false</locked>"
+      "</conference-state\n"
+      "</conference-info>\n";
 
-#if 0
+/*
+ *   |-- users
+ *   |    |-- user
+ *   |    |    |-- endpoint
+ *   |    |    |    |-- media
+ *   |    |    |    |-- media
+ *   |    |    |    |-- call-info
+ *   |    |    |
+ *   |    |    |-- endpoint
+ *   |    |         |-- media
+ *   |    |-- user
+ *   |         |-- endpoint
+ *   |              |-- media
+ */
 
-     |-- users
-     |    |-- user
-     |    |    |-- endpoint
-     |    |    |    |-- media
-     |    |    |    |-- media
-     |    |    |    |-- call-info
-     |    |    |
-     |    |    |-- endpoint
-     |    |         |-- media
-     |    |-- user
-     |         |-- endpoint
-     |              |-- media
-#endif
-
-
-   d += "</conference-info>\n";
-   
    resip::Contents* c = new resip::PlainContents(d, mMime);
    return *c;
 }
