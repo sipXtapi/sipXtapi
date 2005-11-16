@@ -137,8 +137,7 @@ Notifier::sendNotifyForeachSubscription (
             // Make a copy of the message
             SipMessage notifyRequest(notify);
 
-            UtlString statusContact;
-            mpSipUserAgent->getContactUri(&statusContact);
+            UtlString statusContact = uri;
 
             UtlString subscriptionState(SIP_SUBSCRIPTION_ACTIVE ";expires=");
             char expStr[10];
