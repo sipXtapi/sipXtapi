@@ -11,25 +11,38 @@
 PATH=$PATH:/sbin
 
 Action=SNAPSHOT
-DoWebFiles=NO
+DoWebFiles=YES
 SaveCredentials=NO
-SaveLogs=NO
+SaveLogs=YES
 DeleteLogs=NO
 Tar=YES
 ToFile=
 
-DefaultTarFile="sipx-configuration.tar.gz"
+DefaultTarFile="sipx-configuration-`hostname -f`.tar.gz"
 
 while [ $# -ne 0 ]
 do
     case ${1} in
 
+        -v|--version)
+            echo @VERSION@
+            exit;
+            ;;
+
         -w|--www)
             DoWebFiles=YES
             ;;
 
+        -nw|--no-www)
+            DoWebFiles=NO
+            ;;
+
         -l|--logs)
             SaveLogs=YES
+            ;;
+
+        -nl|--no-logs)
+            SaveLogs=NO
             ;;
 
         -c|--credentials)
@@ -99,8 +112,8 @@ then
 Usage:
 
     sipx-snapshot [ -c | --credentials ]
-                  [ -w | --www ]
-                  [ -l | --logs ]
+                  [ -nw | --no-www ]
+                  [ -nl | --no-logs ]
                   [ -d | --delete-logs ]
                                        [ <tar-file-name> ]
 
@@ -108,8 +121,8 @@ Usage:
 
     sipx-snapshot [ -n | --notar ]
                   [ -c | --credentials ]
-                  [ -w | --www ]
-                  [ -l | --logs ]
+                  [ -nw | --no-www ]
+                  [ -nl | --no-logs ]
                   [ -d | --delete-logs ]
                                        [ <to-directory-name> ]
 
@@ -137,15 +150,14 @@ Usage:
     real credential information be included, the --credentials switch
     causes it to be left in.
 
-    The --www switch also saves the apache configuration files (these are
-    not needed for most problems).
+    The --no-www switch disables saving the apache configuration files.
 
-    The --logs switch causes the sipX and Apache logs to be included
-    in the snapshot.  Beware that the logs can be very large on production
-    systems, so use this with caution.  The --delete-logs switch deletes
-    the log files after they are included in the snapshot, which is often
-    handy when doing multiple runs to illustrate a problem.
-    --delete-logs should only be used if sipX is not running.
+    The --no-logs switch causes the sipX and Apache logs to be omitted
+    from the snapshot; the default is to include them.
+
+    The --delete-logs switch deletes the log files after they are included 
+    in the snapshot, which is often handy when doing multiple runs to illustrate 
+    a problem.  --delete-logs should only be used if sipX is not running.
 
 
 USAGE
@@ -168,28 +180,50 @@ cat > $Work.copy-files <<EOF
 @SIPX_CONFDIR@/WatchDog.xml
 @SIPX_CONFDIR@/authexception.xml
 @SIPX_CONFDIR@/authproxy-config
+@SIPX_CONFDIR@/authproxy-config.in
 @SIPX_CONFDIR@/authrules.xml
+@SIPX_CONFDIR@/authrules.xml.in
 @SIPX_CONFDIR@/config.defs
 @SIPX_CONFDIR@/destinations.xml
 @SIPX_CONFDIR@/fallbackrules.xml
+@SIPX_CONFDIR@/fallbackrules.xml.in
 @SIPX_CONFDIR@/forwardingrules.xml
+@SIPX_CONFDIR@/forwardingrules.xml.in
+@SIPX_CONFDIR@/httpd-sipxchange-common-ssl.conf
+@SIPX_CONFDIR@/httpd-sipxchange-common-ssl.conf.in
+@SIPX_CONFDIR@/httpd-sipxchange-common.conf
+@SIPX_CONFDIR@/httpd-sipxchange-common.conf.in
+@SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf
+@SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf.in
+@SIPX_CONFDIR@/httpd-sipxchange-mediaserver.conf
+@SIPX_CONFDIR@/httpd-sipxchange-mediaserver.conf.in
 @SIPX_CONFDIR@/mappingrules.xml
+@SIPX_CONFDIR@/mappingrules.xml.in
 @SIPX_CONFDIR@/mediaserver-config
-@SIPX_CONFDIR@/pgs.props
-@SIPX_CONFDIR@/profilewriter.props
+@SIPX_CONFDIR@/mediaserver-config.in
+@SIPX_CONFDIR@/orbits.xml
 @SIPX_CONFDIR@/proxy-config
+@SIPX_CONFDIR@/proxy-config.in
 @SIPX_CONFDIR@/registrar-config
+@SIPX_CONFDIR@/registrar-config.in
 @SIPX_CONFDIR@/resourcemap.xml
-@SIPX_CONFDIR@/sds-config
-@SIPX_CONFDIR@/sds.props
+@SIPX_CONFDIR@/resourcemap.xml
 @SIPX_CONFDIR@/security.policy
+@SIPX_CONFDIR@/sipxconfig.properties.in
+@SIPX_CONFDIR@/sipxpark-config
+@SIPX_CONFDIR@/sipxpark-config.in
+@SIPX_CONFDIR@/sipxpresence-config
+@SIPX_CONFDIR@/sipxpresence-config.in
+@SIPX_CONFDIR@/ssl/authorities
+@SIPX_CONFDIR@/ssl/ssl.crt
 @SIPX_CONFDIR@/status-config
+@SIPX_CONFDIR@/status-config.in
 @SIPX_CONFDIR@/status-plugin.xml
+@SIPX_CONFDIR@/status-plugin.xml.in
 @SIPX_CONFDIR@/statusserver-config-defs.xml
 @SIPX_CONFDIR@/topology.xml
 @SIPX_CONFDIR@/voicemail.xml
-@SIPX_CONFDIR@/ssl/ssl.crt
-@SIPX_CONFDIR@/ssl/authorities
+@SIPX_CONFDIR@/voicemail.xml.in
 @SIPX_DBDIR@/alias.xml
 @SIPX_DBDIR@/credential.xml
 @SIPX_DBDIR@/ext_alias.xml
@@ -198,27 +232,6 @@ cat > $Work.copy-files <<EOF
 @SIPX_DBDIR@/permission.xml
 @SIPX_DBDIR@/registration.xml
 @SIPX_DBDIR@/subscription.xml
-@SIPX_CONFDIR@/authproxy-config.in
-@SIPX_CONFDIR@/authrules.xml.in
-@SIPX_CONFDIR@/fallbackrules.xml.in
-@SIPX_CONFDIR@/forwardingrules.xml.in
-@SIPX_CONFDIR@/httpd-sipxchange-common-ssl.conf.in
-@SIPX_CONFDIR@/httpd-sipxchange-common.conf.in
-@SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf.in
-@SIPX_CONFDIR@/httpd-sipxchange-mediaserver.conf.in
-@SIPX_CONFDIR@/mappingrules.xml.in
-@SIPX_CONFDIR@/mediaserver-config.in
-@SIPX_CONFDIR@/proxy-config.in
-@SIPX_CONFDIR@/registrar-config.in
-@SIPX_CONFDIR@/resourcemap.xml
-@SIPX_CONFDIR@/sds-config.in
-@SIPX_CONFDIR@/status-config.in
-@SIPX_CONFDIR@/status-plugin.xml.in
-@SIPX_CONFDIR@/voicemail.xml.in
-@SIPX_CONFDIR@/httpd-sipxchange-common-ssl.conf
-@SIPX_CONFDIR@/httpd-sipxchange-common.conf
-@SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf
-@SIPX_CONFDIR@/httpd-sipxchange-mediaserver.conf
 /etc/host.conf
 /etc/resolv.conf
 /etc/hosts
@@ -230,11 +243,17 @@ if [ ${SaveLogs} = YES ]
 then
   cat > $Work.delete-files <<EOF
 @SIPX_LOGDIR@/dbmonitor.log
+@SIPX_LOGDIR@/httpd_access_log
+@SIPX_LOGDIR@/httpd_error_log
 @SIPX_LOGDIR@/mediaserver.log
+@SIPX_LOGDIR@/mediaserver_cgi.log
 @SIPX_LOGDIR@/sipauthproxy.log
 @SIPX_LOGDIR@/sipproxy.log
 @SIPX_LOGDIR@/sipregistrar.log
 @SIPX_LOGDIR@/sipstatus.log
+@SIPX_LOGDIR@/sipxconfig.log
+@SIPX_LOGDIR@/sipxpark.log
+@SIPX_LOGDIR@/sipxpresence.log
 @SIPX_LOGDIR@/vxmlengine.log
 @SIPX_LOGDIR@/watchdog.log
 EOF
@@ -274,9 +293,12 @@ else
     echo    "   Disabled"       >> ${SystemConfig}
 fi 
 echo ""                         >> ${SystemConfig}
-echo "SSL Configuration:" >> ${SystemConfig}
-ls -l @SIPX_CONFDIR@/ssl/ >> ${SystemConfig}
-echo ""                   >> ${SystemConfig}
+
+echo "SSL Configuration:"      >> ${SystemConfig}
+ls -lR @SIPX_CONFDIR@/ssl/     >> ${SystemConfig}
+echo "  Certificate Dump:"     >> ${SystemConfig}
+cat @SIPX_CONFDIR@/ssl/ssl.crt >> ${SystemConfig}
+echo ""
 
 # Get configuration information on sipX components
 for component in pbx config proxy registry publisher vxml commserverlib calllib medialib tacklib portlib
@@ -342,7 +364,7 @@ echo "======== IPTables:"       >> ${SystemConfig}
 for t in nat filter mangle
 do
   echo "=== $t table:"            >> ${SystemConfig}
-  iptables --table $t --list --verbose --numeric --line-numbers >> ${SystemConfig}
+  iptables --table $t --list --verbose --numeric --line-numbers >> ${SystemConfig} 2>&1
 done
 
 # Execute system monitoring commands
