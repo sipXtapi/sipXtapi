@@ -338,6 +338,10 @@ void OsSSL::logConnectParams(const OsSysLogFacility facility, ///< callers facil
       {
          delete subjectAltNameURI;
       }
+      if (peer_cert)
+      {
+         X509_free(peer_cert);
+      }
    }
    else
    {
