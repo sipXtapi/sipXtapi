@@ -49,16 +49,16 @@ public class Snapshot {
         File executable = new File(binDirectory, "sipx-snapshot");
         List cmds = new ArrayList();
         cmds.add(executable.getPath());
-        if (m_logs) {
-            cmds.add("--logs");
+        if (!m_logs) {
+            cmds.add("--no-logs");
 
         }
         if (m_credentials) {
             cmds.add("--credentials");
 
         }
-        if (m_www) {
-            cmds.add("--www");
+        if (!m_www) {
+            cmds.add("--no-www");
         }
         return (String[]) cmds.toArray(new String[cmds.size()]);
     }
