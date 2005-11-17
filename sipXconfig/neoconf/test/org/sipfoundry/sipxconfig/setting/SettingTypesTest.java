@@ -190,6 +190,13 @@ public class SettingTypesTest extends TestCase {
         assertSame(setting.getTypedValue(), Boolean.FALSE);
     }
 
+    public void testBooleanTypeWithLabels() {
+        Setting setting = group.getSetting("enabled_setting");
+        assertEquals(Boolean.FALSE, setting.getTypedValue());
+        setting.setValue("ENABLED");
+        assertEquals(Boolean.TRUE, setting.getTypedValue());
+    }
+
     public void testFileType() {
         Setting setting = group.getSetting("file_setting");
         SettingType type = setting.getType();

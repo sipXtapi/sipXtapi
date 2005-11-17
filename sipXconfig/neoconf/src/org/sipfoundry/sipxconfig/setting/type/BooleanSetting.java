@@ -11,14 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
-import org.apache.commons.beanutils.converters.BooleanConverter;
-
 /**
  * Setting is true or false, If you need true, false and not specified, use EnumSetting.
  */
 public class BooleanSetting implements SettingType {
-    private static final BooleanConverter CONVERTER = new BooleanConverter(null);
-
     private String m_trueValue = "1";
 
     private String m_falseValue = "0";
@@ -48,6 +44,9 @@ public class BooleanSetting implements SettingType {
     }
 
     public Object convertToTypedValue(Object value) {
-        return CONVERTER.convert(Boolean.class, value);
+        if (value == null) {
+            return null;
+        }
+        return Boolean.valueOf(value.equals(m_trueValue));
     }
 }
