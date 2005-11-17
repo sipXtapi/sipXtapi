@@ -1,15 +1,16 @@
 <project name="web" default="default">
-  <property name="test.src.dir" value="test" />
-  <property name="checkstyle.severity" value="error" />
-  <property name="project.dir" value="web" />
-  <import file="../ant-targets.xml" />
-  <property name="test.war" value="${test.classes.dir}/war" />
+  <property name="test.src.dir" value="test"/>
+  <property name="ruby-test.src.dir" value="${test.src.dir}/org/sipfoundry/sipxconfig/api"/>
+  <property name="checkstyle.severity" value="error"/>
+  <property name="project.dir" value="web"/>
+  <import file="../ant-targets.xml"/>
+  <property name="test.war" value="${test.classes.dir}/war"/>
   <property name="server.bindings.src" value="${dist.dir}/server-bindings-src"/>
   <property name="ruby.bindings.dir" value="${dist.dir}/ruby-bindings"/>
   <property name="server.bindings.dir" value="${dist.dir}/server-bindings"/>
   <property name="ruby.debug" value=""/>
   <property name="server-bindings.jar" value="${dist.dir}/server-bindings.jar"/>
-  <patternset id="test-ui.classes" includes="**/*TestUi.class" /> 
+  <patternset id="test-ui.classes" includes="**/*TestUi.class"/> 
   
   <path id="axis.path">
     <pathelement location="${jaxrpc.jar}"/>
@@ -25,10 +26,8 @@
     <pathelement path="${commons-logging.jar}" />
   </path>
   
-  <!-- 
-            - common path unittests will need that interfaces w/sipxconfig lib 
-            - all spring jars at this point
-            -->
+  <!-- common path unit tests need that interfaces w/sipXconfig lib 
+       all spring jars at this point -->
   <path id="compile.dependencies">
     <pathelement path="${sipxconfig.jar}" />
     <pathelement path="${spring.jar}" />
@@ -40,10 +39,9 @@
     <pathelement path="${ognl.jar}" />
 	<pathelement location="${server-bindings.jar}"/>
   </path>
-  <!-- 
-            - common path unittests will need that interfaces w/sipxconfig lib 
-            - all spring jars at this point
-            -->
+
+  <!-- common path unit tests need that interfaces w/sipXconfig lib 
+       all spring jars at this point -->
   <path id="runtime.dependencies">
     <pathelement path="${aopalliance.jar}" />
     <pathelement path="${asm.jar}" />
@@ -441,18 +439,20 @@
 	description="Test web services"/>
   
   <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
-	description="Test web services with starting webserver">	
-	<property name="webservice-unittest-command" 
-		value="-I${ruby.bindings.dir} ${ruby.debug} ${test.src.dir}/org/sipfoundry/sipxconfig/api/"/>
-    <exec executable="${ruby}" failonerror="true">
-      <arg line="${webservice-unittest-command}/UserServiceTestApi.rb"/>
-    </exec>    
-    <exec executable="${ruby}" failonerror="true">
-      <arg line="${webservice-unittest-command}/PhoneServiceTestApi.rb"/>
-    </exec>    
-    <exec executable="${ruby}" failonerror="true">
-      <arg line="${webservice-unittest-command}/ParkOrbitServiceTestApi.rb"/>
-    </exec>    
+		description="Test web services with starting webserver">	
+    <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>
+   	<property name="webservice-unit-test-command" 
+  		value="-I${ruby.bindings.dir}:${ruby.webservice-unit-test.src.dir}
+        ${ruby.debug} ${ruby.webservice-unit-test.src.dir}"/>
+      <exec executable="${ruby}" failonerror="true">
+        <arg line="${webservice-unit-test-command}/UserServiceTestApi.rb"/>
+      </exec>    
+      <exec executable="${ruby}" failonerror="true">
+        <arg line="${webservice-unit-test-command}/PhoneServiceTestApi.rb"/>
+      </exec>    
+      <exec executable="${ruby}" failonerror="true">
+        <arg line="${webservice-unit-test-command}/ParkOrbitServiceTestApi.rb"/>
+      </exec>    
   </target>
-    
+  
 </project>
