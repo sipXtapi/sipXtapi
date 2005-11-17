@@ -8,11 +8,11 @@ import org.dbunit.database.IDatabaseConnection;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
- * Special TestCase class that catches and prints additional info for SQL exceptions that
- * may happen during setUp, testXXX and tearDown.
+ * Special TestCase class that catches and prints additional info for SQL exceptions that may
+ * happen during setUp, testXXX and tearDown.
  * 
- * Alternatively we could just throw e.getNextException, but we may want to preserve the
- * original exception.
+ * Alternatively we could just throw e.getNextException, but we may want to preserve the original
+ * exception.
  */
 public class SipxDatabaseTestCase extends TestCase {
     public void runBare() throws Throwable {
@@ -38,11 +38,10 @@ public class SipxDatabaseTestCase extends TestCase {
     protected IDatabaseConnection getConnection() throws Exception {
         return TestHelper.getConnection();
     }
-    
+
     protected void tearDown() throws Exception {
         super.tearDown();
-        
+
         TestHelper.closeConnection();
     }
-
 }

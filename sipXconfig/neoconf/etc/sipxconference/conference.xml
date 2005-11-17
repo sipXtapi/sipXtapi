@@ -45,7 +45,7 @@
           </option>
         </enum>
       </type>
-      <value></value>
+      <value>CONFIGURE</value>
       <description> Controls the status of a conference; this may have the following values: CONFIGURE -
         Instantiates the name of the conference, but does start it - only configuration operations are allowed.
         In this state, the conference does not originate or accept any SIP signaling or RTP.

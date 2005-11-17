@@ -114,7 +114,7 @@
       <description>An 'outbound proxy' that should be used as the first hop in any request originated from the
         bridge.</description>
     </setting>
-    <setting name="BRIDGE_MAX_LEGS">
+    <setting name="BOSTON_BRIDGE_MAX_LEGS">
       <label>Maximum legs</label>
       <type>
         <integer required="yes"/>

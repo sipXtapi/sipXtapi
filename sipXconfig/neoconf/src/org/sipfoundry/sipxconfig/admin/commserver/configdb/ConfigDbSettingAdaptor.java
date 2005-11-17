@@ -17,8 +17,10 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 
 public class ConfigDbSettingAdaptor {
     private ConfigDbParameter m_configDbParameter;
@@ -53,7 +55,7 @@ public class ConfigDbSettingAdaptor {
         m_configDbParameter = configDbParameter;
     }
 
-    private static class ParamsCollector extends AbstractSettingVisitor {
+    static class ParamsCollector extends AbstractSettingVisitor {
         private final Map m_parameters;
 
         public ParamsCollector(Map parameters) {
@@ -61,9 +63,13 @@ public class ConfigDbSettingAdaptor {
         }
 
         public void visitSetting(Setting setting) {
-            Object value = setting.getTypedValue();
+            Object value = setting.getValue();
+            if (value == null && setting.getType() instanceof StringSetting) {
+                // null strings are translated to empty strings
+                value = StringUtils.EMPTY;
+            }
             if (value != null) {
-                // ignore null values - do not set them
+                // ignore null values - they are not supported by XML/RPC
                 m_parameters.put(setting.getProfileName(), value);
             }
         }
