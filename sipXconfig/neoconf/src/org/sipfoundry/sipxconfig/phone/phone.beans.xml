@@ -184,6 +184,12 @@
   <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl"/>
   <bean id="jobQueue" class="org.sipfoundry.sipxconfig.phone.JobQueue">
     <property name="jobContext" ref="jobContext"/>
-	</bean>		
+	</bean>	
+  <bean id="tftpFirmware" class="org.sipfoundry.sipxconfig.phone.TftpFirmware">
+    <property name="uploadDirectory" value="${sysdir.phone}/profile/tftproot"/>
+  </bean>
+  <bean id="httpFirmware" class="org.sipfoundry.sipxconfig.phone.HttpFirmware">
+    <property name="uploadDirectory" value="${sysdir.phone}/profile/docroot"/>
+  </bean>
 </beans>
       

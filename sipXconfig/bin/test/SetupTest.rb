@@ -5,6 +5,49 @@ load 'Setup.rb'
 
 SYSTEM_ROOT = 'test/system_root'
 BACKUP_DIR = Dir::tmpdir + '/test-setup-backup'
+UNITTEST=''
+
+class SetupTest < Test::Unit::TestCase
+public
+
+  def test_setup
+    installer = FileInstaller.new()
+    installer.backup_dir = BACKUP_DIR
+
+    setup = Setup.new()
+    expected = 'test/tftp.simple'
+    setup.options['sysdir.tftpConfig'] = expected
+    setup.options['sysdir.tmp'] = BACKUP_DIR
+    setup.options['sipxpbx.user'] = 'homer'
+    setup.setup_tftp()
+    backup_file = BACKUP_DIR + '/tftp.simple'
+    assert(File.exists?(backup_file))
+    assert(FileUtils.compare_file(expected, backup_file))
+  end
+
+  def test_setup_xinet
+    setup = Setup.new()
+    setup.options['sipxpbx.user'] = 'homer'
+    out = StringIO.new();
+    repair = setup.setup_xinet(File.open('test/tftp.orig'), out)
+    out.seek(0)
+    assert_file_equal(File.open('test/tftp.expected'), out)
+    assert_equal('/tftpboot', setup.options['sysdir.tftpRoot'])
+  end
+
+  def test_read_xinetd
+    setup = Setup.new()
+    repair = setup.read_xinet(File.open('test/tftp.orig'))
+    assert_equal('/tftpboot', setup.options['sysdir.tftpRoot'])
+  end
+
+  def assert_file_equal(expected, actual) 
+    while line = expected.gets
+      assert_equal(line, actual.gets)
+    end
+  end
+
+end
 
 class FileInstallerTest < Test::Unit::TestCase
 public
@@ -46,37 +89,3 @@ class PropertiesTest < Test::Unit::TestCase
 
 end
 
-class SetupTest < Test::Unit::TestCase
-public
-
-  def test_setup
-    installer = FileInstaller.new()
-    installer.backup_dir = BACKUP_DIR
-
-    setup = Setup.new()
-    expected = 'test/tftp.simple'
-    setup.options['sysdir.tftpConfig'] = expected
-    setup.options['sysdir.tmp'] = BACKUP_DIR
-    setup.setup_tftp()
-    backup_file = BACKUP_DIR + '/tftp.simple'
-    assert(File.exists?(backup_file))
-    assert(FileUtils.compare_file(expected, backup_file))
-  end
-
-  def test_setup_xinet
-    setup = Setup.new()
-    setup.options['sipxpbx.user'] = 'homer'
-    out = StringIO.new();
-    repair = setup.setup_xinet(File.open('test/tftp.orig'), out)
-    out.seek(0)
-    assert_file_equal(File.open('test/tftp.expected'), out)
-    assert_equal('/tftpboot', setup.options['sysdir.tftpRoot'])
-  end
-
-  def assert_file_equal(expected, actual) 
-    while line = expected.gets
-      assert_equal(line, actual.gets)
-    end
-  end
-
-end

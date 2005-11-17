@@ -339,4 +339,24 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         }
         storePhone(phone);
     }
+
+    public Firmware loadFirmware(Integer firmwareId) {
+        return (Firmware) getHibernateTemplate().load(Firmware.class, firmwareId);
+    }
+
+    public void saveFirmware(Firmware firmware) {
+        getHibernateTemplate().save(firmware);
+    }
+
+    public void deleteFirmware(Firmware firmware) {
+        getHibernateTemplate().delete(firmware);
+    }
+
+    public List getUnspecifiedFirmare() {
+        return null;
+    }
+    
+    public List getSpecifiedFirmare() {
+        return getHibernateTemplate().loadAll(Firmware.class);
+    }
 }

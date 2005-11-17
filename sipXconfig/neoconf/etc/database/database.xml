@@ -92,7 +92,8 @@
   <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version1" description="upgrade from version 1" unless="version2"
     depends="
-  	  conference_name_uniqueness
+  	  conference_name_uniqueness,
+      firmware
 	  "/>
 
   <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
@@ -101,7 +102,19 @@
     </sipx-sql>
   	<mark-patch-applied patch="conference_name_uniqueness"/>
   </target>  
-
+  
+  <!-- this patch uninstalls itself each time until firmware is a bit more frozen-->
+  <target name="drop-firmware" if="firmware">
+    <sipx-sql>
+      drop table firmware;
+      drop sequence firmware_seq;
+      delete from patch where name = 'firmware';
+    </sipx-sql>
+  </target>  
+  <target name="firmware" depends="drop-firmware">
+    <db-patch patch="firmware"/>
+  </target>  
+  
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>

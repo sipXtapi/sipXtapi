@@ -11,6 +11,10 @@ class Setup
   # setup tftp to work with sipXconfig
   def setup()
     setup_tftp()
+  end
+
+  def read()
+    read_tftp()
     save()
   end
 
@@ -46,27 +50,41 @@ class Setup
 
   def require_property(key)
     value = @options[key]
-    if (value == nil)
+    if (!value)
       raise TypeError.new("missing, required property : `#{key}'")
     end
     return value
   end
-    
+
+  TFTP_ROOT_REGEXP = /^\s*server_args\s*=.*-s\s*([^\s]+)/
+
   # enable TFTP and make it run as proper user
   def setup_xinet(infile, outfile)
     infile.each_line do |line|
       outfile.puts case line
         when /disable\s*=\s*yes/x then
           line.sub("yes", "no")
-        when /user\s*=\s*root/x then
-          user = require_property('sipxpbx.user')
-          line.sub("root", user)
-        when /^\s*server_args\s*=.*-s\s*([^\s]+)/ then
+        when TFTP_ROOT_REGEXP then
           @options['sysdir.tftpRoot'] = $1
           line
         else line
       end
     end
+
+    # sipxpbx user needs to write to tftp root
+    user = require_property('sipxpbx.user')
+    # nice to find way to unittest this
+    FileUtils.chown(user, nil, @options['sysdir.tftpRoot']) if defined? $UNITTEST
+
+  end
+
+  def read_xinet(infile)
+    infile.each_line do |line|
+      case line
+        when TFTP_ROOT_REGEXP then
+          @options['sysdir.tftpRoot'] = $1
+      end
+    end    
   end
 
 end
@@ -76,7 +94,7 @@ end
 # edit will not persist until all edits complete.
 #
 # NOTE: This could probably be written better by allowing
-# called to do this
+# caller to do this
 #
 #   FileInstaller.install(in, [backupdir]) { |infile, outfile|
 #       custom code here, closes streams on closure exit

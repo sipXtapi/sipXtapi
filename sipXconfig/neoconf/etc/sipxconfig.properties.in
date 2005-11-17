@@ -40,3 +40,4 @@ sysdir.tmp=@sipxpbx.tmp.dir@
 sysdir.version=@version@
 sysdir.build_number=0000
 sysdir.comment=opendev
+sysdir.user=@sipxpbx.user@

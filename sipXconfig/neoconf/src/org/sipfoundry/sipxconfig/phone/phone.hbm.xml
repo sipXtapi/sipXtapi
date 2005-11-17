@@ -45,7 +45,16 @@
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set -->
   </class>
-  
+
+  <class name="Firmware" table="firmware" discriminator-value="unmanagedPhone">
+    <id name="id" column="firmware_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">firmware_seq</param>
+      </generator>
+    </id>
+    <property name="name"/>
+    <property name="description"/>
+  </class>
   <query name="phoneIdsWithSerialNumber">
     <![CDATA[select p.id from Phone p where p.serialNumber = :value]]>        
   </query>  

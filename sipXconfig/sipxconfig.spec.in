@@ -26,7 +26,12 @@ Source: %name-%version.tar.gz
 
 Requires: sipxtacklib >= 3.1
 Requires: sipxcommserverlib >= 3.1
+
+# Check RHE availablity before changing these versions, can be 
+# surprisingly older versions
 Requires: postgresql-server >= 7.3
+Requires: tftp-server >= 0.39
+Requires: ruby >= 1.8.1
 
 # to serve profile/catalog/apps.  These can be served from
 # tomcat eventually to improve scalability by reducing server
