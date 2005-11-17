@@ -26,31 +26,21 @@ public class ValueStorage extends AbstractStorage implements Storage {
         setDelegate(delegate);
     }
 
-    public void decorate(Setting setting) {        
-        setting.acceptVisitor(new Decorator(setting));
+    public void decorate(Setting setting) {
+        setting.acceptVisitor(new Decorator(setting, this));
     }
 
-    
-    class Decorator implements SettingVisitor {
-        
-        private Setting m_root;
-        
-        Decorator(Setting root) {
-            m_root = root;
-        }
-        
-        public void visitSetting(Setting setting) {
-            Setting decorated = new SettingValue(ValueStorage.this, setting);
-            String parentPath = setting.getParentPath();
-            if (parentPath == null) {
-                m_root.addSetting(decorated);
-            } else {
-                SettingUtil.getSettingFromRoot(m_root, parentPath).addSetting(decorated);
-            }
+    public static class Decorator extends DecoratingVisitor {
+
+        private Storage m_storage;
+
+        public Decorator(Setting root, Storage storage) {
+            super(root);
+            m_storage = storage;
         }
 
-        public void visitSettingGroup(Setting group_) {
-            // nothing to do for group
+        public Setting decorate(Setting setting) {
+            return new SettingValue(m_storage, setting);
         }
     }
 }

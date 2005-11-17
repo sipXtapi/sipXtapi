@@ -23,6 +23,12 @@ public class SettingValue extends SettingDecorator {
         m_storage = storage;
     }
 
+    /**
+     * Default value of the decorated setting is taken from a value of the delegate. It endures
+     * that we can decorate the setting and still have access to the default values that are in
+     * the model.
+     * 
+     */
     public String getDefaultValue() {
         return getDelegate().getValue();
     }
@@ -47,5 +53,5 @@ public class SettingValue extends SettingDecorator {
     public String getValue() {
         String value = (String) m_storage.getValue(getDelegate());
         return value == null ? getDefaultValue() : value;
-    }    
+    }
 }

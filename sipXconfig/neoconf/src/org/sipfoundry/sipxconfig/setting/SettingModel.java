@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.setting;
 public class SettingModel extends SettingDecorator {
 
     private String m_resource;
-    
+
     private String m_root;
 
     public SettingModel() {
@@ -26,7 +26,9 @@ public class SettingModel extends SettingDecorator {
     }
 
     /**
-     * Specify which setting the model start with, Only used if a model doesn't start at the top-most setting
+     * Specify which setting the model start with, Only used if a model doesn't start at the
+     * top-most setting
+     * 
      * @param root
      */
     public void setRoot(String root) {
@@ -53,10 +55,5 @@ public class SettingModel extends SettingDecorator {
     // FIXME: temporary - SettingModel should not be a decorator
     public Setting getRealSetting() {
         return getDelegate();
-    }
-    
-    public String getDefaultValue() {
-        // not really used, but delegate anyway
-        return getDelegate().getDefaultValue();
     }
 }

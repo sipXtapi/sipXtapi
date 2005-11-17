@@ -97,6 +97,20 @@
       </type>
       <value>false</value>
     </setting>
+    <setting name="enabled_setting">
+      <label>Modified boolean type</label>
+      <type>
+        <boolean>
+          <true>
+            <value>ENABLED</value>
+          </true>
+          <false>
+            <value>DISABLED</value>
+          </false>
+        </boolean>
+      </type>
+      <value>DISABLED</value>
+    </setting>
     <setting name="file_setting">
       <label>File setting label</label>
       <type>

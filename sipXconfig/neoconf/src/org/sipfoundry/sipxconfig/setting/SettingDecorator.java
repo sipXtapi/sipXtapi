@@ -83,6 +83,10 @@ public abstract class SettingDecorator implements Setting, Cloneable {
         return getType().convertToTypedValue(getValue());
     }
 
+    public String getDefaultValue() {
+        return m_delegate.getDefaultValue();
+    }
+
     public void setValue(String value) {
         m_delegate.setValue(value);
     }
@@ -142,7 +146,7 @@ public abstract class SettingDecorator implements Setting, Cloneable {
     }
 
     public Setting copy() {
-        SettingDecorator copy = (SettingDecorator) clone(); 
+        SettingDecorator copy = (SettingDecorator) clone();
         copy.m_delegate = m_delegate.copy();
         return copy;
     }
