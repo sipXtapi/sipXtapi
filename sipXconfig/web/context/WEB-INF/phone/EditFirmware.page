@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.EditFirmware">
+    <description>add a description</description>
+    
+    <property-specification name="firmware"
+        type="org.sipfoundry.sipxconfig.phone.Firmware"/>
+    <property-specification name="firmwareId"
+        type="java.lang.Integer"
+        persistent="yes"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>
+    
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+ 
+    <component id="firmwareForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>    
+    <component id="nameDescriptionEdit" type="ItemCommon">
+        <static-binding name="useExtension" value="false"/>
+        <static-binding name="useEnabled" value="false"/>
+        <binding name="item" expression="firmware"/>
+    </component>    
+    <component id="applyOkCancel" type="FormActions">
+        <binding name="listener" expression="listeners.onSave"/>
+        <binding name="callback" expression="callback"/>
+    </component>
+    
+</page-specification>

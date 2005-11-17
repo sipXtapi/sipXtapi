@@ -1,0 +1,29 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+        <h2>Firmware</h2>
+        <span jwcid="@ErrorMsg"/>
+		<form jwcid="firmwareManagement">
+			<ul class="component-links">
+				<li>
+					<a href="#" jwcid="addFirmwareLink">Add Firmware</a>
+				</li>
+			</ul>
+			<table jwcid="firmwareTable" id="firmware:list">
+                <span jwcid="NameColumnValue">
+                    <a href="#" jwcid="editFirmwareLink"><span jwcid="firmwareLabel">firmware</span></a>
+                </span>
+			</table>
+			<ul class="component-submit">
+				<li>
+					<input id="phone:delete" jwcid="delete" value="Delete"
+                       onclick="return confirm('Are you sure you want to delete selected firmware items?')"/>
+				</li>
+			</ul>
+		</form>
+	</div>
+</body>
+</html>
