@@ -14,6 +14,10 @@ AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 
 # Checks for programs.
+AC_PROG_CXX 	 
+AC_PATH_PROG([PERL],[perl]) 	 
+AC_PATH_PROG([OPENSSL],[openssl])
+
 # Checks for libraries.
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
