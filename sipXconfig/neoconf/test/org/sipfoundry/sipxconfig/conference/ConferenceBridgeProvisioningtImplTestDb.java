@@ -17,10 +17,12 @@ import java.util.Map;
 
 import org.easymock.AbstractMatcher;
 import org.easymock.MockControl;
+import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbParameter;
 import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbSettingAdaptor;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCase {
 
@@ -50,10 +52,18 @@ public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCas
         TestHelper.insertFlat("conference/participants.db.xml");
         Bridge bridge = m_context.loadBridge(new Integer(2005));
 
+        MockControl hibernateCtrl = MockClassControl.createControl(HibernateTemplate.class);
+        HibernateTemplate hibernate = (HibernateTemplate) hibernateCtrl.getMock();
+        hibernate.saveOrUpdateAll(bridge.getConferences());
+        hibernateCtrl.replay();
+
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
+        impl.setHibernateTemplate(hibernate);
+
         impl.deploy(bridge, adaptor);
 
         dbCtrl.verify();
+        hibernateCtrl.verify();
     }
 
     static class SettingMatcher extends AbstractMatcher {

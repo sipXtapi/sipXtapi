@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<conferences>
+  <conference>
+    <id>sales</id>
+    <extension>400</extension>
+    <value>400AAA</value>
+    <organizer-access-code>400111</organizer-access-code>
+    <participant-access-code>400222</participant-access-code>
+    <bridge-url>sip:bridge@host.sipfoundry.org</bridge-url>
+  </conference>
+  <conference>
+    <id>marketing</id>
+    <extension>500</extension>
+    <value>500AAA</value>
+    <organizer-access-code>500111</organizer-access-code>
+    <participant-access-code>500222</participant-access-code>
+    <bridge-url>sip:bridge@host.sipfoundry.org</bridge-url>
+  </conference>
+</conferences>

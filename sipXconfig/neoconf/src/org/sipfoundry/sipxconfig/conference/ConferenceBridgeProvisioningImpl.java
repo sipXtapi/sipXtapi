@@ -11,11 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -35,6 +37,8 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         ConferenceBridgeProvisioning {
     private SipxReplicationContext m_sipxReplicationContext;
 
+    private String m_configDirectory;
+
     public void deploy(Serializable bridgeId) {
         try {
             Bridge bridge = (Bridge) getHibernateTemplate().load(Bridge.class, bridgeId);
@@ -48,10 +52,21 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
             ConfigDbSettingAdaptor adaptor = new ConfigDbSettingAdaptor();
             adaptor.setConfigDbParameter(configDb);
             deploy(bridge, adaptor);
+            generateAdmissionData();
             m_sipxReplicationContext.generate(DataSet.ALIAS);
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
+    }
+
+    private void generateAdmissionData() throws IOException {
+        List conferences = getHibernateTemplate().loadAll(Conference.class);
+        ConferenceAdmission admission = new ConferenceAdmission();
+        admission.setConfigDirectory(m_configDirectory);
+        admission.generate(conferences);
+        admission.writeToFile();
     }
 
     void deploy(Bridge bridge, ConfigDbSettingAdaptor adaptor) {
@@ -64,16 +79,22 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         Set conferences = bridge.getConferences();
         for (Iterator i = conferences.iterator(); i.hasNext();) {
             Conference conference = (Conference) i.next();
+            conference.generateRemoteAdmitSecret();
             String conferenceName = conference.getName();
             ConferenceNameTransformer transformer = new ConferenceNameTransformer(conferenceName);
             Collection bbSettings = SettingUtil.filter(bbFilter, conference.getSettings());
             CollectionUtils.collect(bbSettings, transformer, allSettings);
         }
         adaptor.set("bbridge.conf", allSettings);
+        getHibernateTemplate().saveOrUpdateAll(conferences);
     }
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
+    }
+
+    public void setConfigDirectory(String configDirectory) {
+        m_configDirectory = configDirectory;
     }
 
     public static class BostonBridgeFilter implements SettingFilter {

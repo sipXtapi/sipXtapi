@@ -120,6 +120,9 @@
       <value>0</value>
       <description>The maximum number of call legs to be allowed by this bridge. 0 means
         unlimited.</description>
+    </setting>
+    <setting name="BOSTON_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET" hidden="yes">      
+			<description>Automatically generated value that is used by remote admittance control.</description>      
     </setting>    
   </group>  
 </model>

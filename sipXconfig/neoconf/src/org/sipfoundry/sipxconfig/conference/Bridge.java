@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -131,5 +132,9 @@ public class Bridge extends BeanWithSettings implements NamedObject {
             m_host, Integer.toString(m_port)
         };
         return MessageFormat.format("https://{0}:{1}/RPC2", params);
+    }
+
+    public String getAor() {
+        return SipUri.format(m_name, m_host, false);
     }
 }
