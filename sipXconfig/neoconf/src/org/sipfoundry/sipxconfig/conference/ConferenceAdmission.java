@@ -59,7 +59,7 @@ public class ConferenceAdmission extends XmlFile {
                     conference.getOrganizerAccessCode());
             confElem.addElement("participant-access-code").setText(
                     conference.getParticipantAccessCode());
-            confElem.addElement("bridge-url").setText(conference.getBridge().getAor());
+            confElem.addElement("conference-uri").setText(conference.getUri());
         }
     }
 

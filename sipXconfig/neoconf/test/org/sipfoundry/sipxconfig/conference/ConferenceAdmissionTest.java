@@ -27,20 +27,19 @@ public class ConferenceAdmissionTest extends XMLTestCase {
 
     private static String[][] DATA = {
         {
-            "disable", "101", "0000", "000", "000"
-        }, {
-            "sales", "400", "400111", "400222", "400AAA"
-        }, {
-            "marketing", "500", "500111", "500222", "500AAA"
+            "disable", "101", "0000", "000", "000", ""
+        },
+        {
+            "sales", "400", "400111", "400222", "400AAA", "sip:sales@bridge.sipfoundry.org"
+        },
+        {
+            "marketing", "500", "500111", "500222", "500AAA",
+            "sip:marketing@bridge.sipfoundry.org"
         }
     };
 
     protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
-
-        Bridge bridge = new Bridge();
-        bridge.setName("bridge");
-        bridge.setHost("host.sipfoundry.org");
 
         m_conferences = new ArrayList(DATA.length);
         for (int i = 0; i < DATA.length; i++) {
@@ -53,9 +52,6 @@ public class ConferenceAdmissionTest extends XMLTestCase {
             conference.getExtension();
             conferenceCtrl.setReturnValue(DATA[i][1]);
 
-            conference.getBridge();
-            conferenceCtrl.setReturnValue(bridge);
-
             conference.getOrganizerAccessCode();
             conferenceCtrl.setReturnValue(DATA[i][2]);
 
@@ -64,6 +60,9 @@ public class ConferenceAdmissionTest extends XMLTestCase {
 
             conference.getRemoteAdmitSecret();
             conferenceCtrl.setReturnValue(DATA[i][4]);
+
+            conference.getUri();
+            conferenceCtrl.setReturnValue(DATA[i][5]);
 
             // the first one is disabled
             conference.isEnabled();

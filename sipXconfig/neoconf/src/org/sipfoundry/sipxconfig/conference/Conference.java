@@ -13,7 +13,12 @@ package org.sipfoundry.sipxconfig.conference;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingUtil;
+import org.sipfoundry.sipxconfig.setting.SettingValue;
+import org.sipfoundry.sipxconfig.setting.Storage;
 
 public class Conference extends BeanWithSettings implements NamedObject {
     public static final String BEAN_NAME = "conferenceConference";
@@ -28,6 +33,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public static final String ORGANIZER_CODE = "bridge-conference/organizer-code";
     public static final String PARTICIPANT_CODE = "bridge-conference/participant-code";
     public static final String REMOTE_ADMIT_SECRET = "bridge-conference/BOSTON_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET";
+    public static final String AOR_RECORD = "bridge-conference/BOSTON_BRIDGE_CONFERENCE.AOR";
 
     private boolean m_enabled;
 
@@ -103,5 +109,39 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     public String getParticipantAccessCode() {
         return getSettingValue(PARTICIPANT_CODE);
+    }
+
+    public String getUri() {
+        return getSettingValue(AOR_RECORD);
+    }
+
+    protected void defaultSettings() {
+        super.defaultSettings();
+        Setting settings = getSettings();
+        Setting aorSetting = settings.getSetting(AOR_RECORD);
+        Setting aorParent = SettingUtil.getSettingFromRoot(settings, aorSetting.getParentPath());
+        SettingValue decorated = new SettingValue(new AorStorage(), aorSetting);
+        // replace old setting with a decorated version
+        aorParent.addSetting(decorated);
+    }
+
+    /**
+     * Used to retrieve AOR for this conference
+     */
+    private class AorStorage implements Storage {
+        public Object getValue(Setting setting_) {
+            String user = getName();
+            String host = getBridge().getHost();
+            return SipUri.format(user, host, false);
+        }
+
+        public Object setValue(Setting setting_, Object value_) {
+            throw new UnsupportedOperationException("cannot change AOR");
+        }
+
+        public Object revertToDefault(Setting setting) {
+            // same as getValue
+            return getValue(setting);
+        }
     }
 }

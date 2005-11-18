@@ -23,14 +23,17 @@ public class ConferenceNameDecoratorTest extends TestCase {
         MockControl settingCtrl = MockControl.createControl(Setting.class);
         Setting setting = (Setting) settingCtrl.getMock();
         setting.getProfileName();
-        settingCtrl.setReturnValue("BOSTON_BRIDGE_CONFERENCE_STATUS", 1);
-        settingCtrl.setReturnValue("BOSTON_BRIDGE_CONFERENCE.AOR", 1);
+        settingCtrl.setReturnValue("BOSTON_BRIDGE_CONFERENCE_STATUS");
+        settingCtrl.setReturnValue("BOSTON_BRIDGE_CONFERENCE.AOR");
+        settingCtrl.setReturnValue("BOSTON_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET");
         settingCtrl.replay();
 
         Setting decoratedSetting = new ConferenceNameDecorator(setting, "bongo");
 
         assertEquals("BOSTON_BRIDGE_CONFERENCE_STATUS.bongo", decoratedSetting.getProfileName());
         assertEquals("BOSTON_BRIDGE_CONFERENCE.bongo.AOR", decoratedSetting.getProfileName());
+        assertEquals("BOSTON_BRIDGE_CONFERENCE.bongo.REMOTE_ADMIT.SECRET", decoratedSetting
+                .getProfileName());
 
         settingCtrl.verify();
     }

@@ -119,11 +119,12 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         public String getProfileName() {
             String profileName = getDelegate().getProfileName();
             StringBuffer buffer = new StringBuffer(profileName);
-            int lastDotIndex = profileName.lastIndexOf(SEPARATOR);
-            if (lastDotIndex < 0) {
-                lastDotIndex = profileName.length();
+            int dotIndex = profileName.indexOf(SEPARATOR);
+            if (dotIndex > 0) {
+                buffer.insert(dotIndex, m_conferenceName);
+            } else {
+                buffer.append(m_conferenceName);
             }
-            buffer.insert(lastDotIndex, m_conferenceName);
             return buffer.toString();
         }
     }
