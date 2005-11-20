@@ -57,7 +57,7 @@
     </component>
         
     <component id="ringTable" type="UserRingTable">
-        <binding name="rings" expression="callGroup.calls"/>
+        <binding name="rings" expression="callGroup.rings"/>
     </component>
     
     <component id="formActions" type="FormActions">

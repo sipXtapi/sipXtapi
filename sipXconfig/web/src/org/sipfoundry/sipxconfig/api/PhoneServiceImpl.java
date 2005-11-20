@@ -123,7 +123,7 @@ public class PhoneServiceImpl implements PhoneService {
 
                 if (adminPhone.getEdit() != null) {
                     Phone apiPhone = new Phone();
-                    Set properties = ApiBeanUtil.getSpecfiedProperties(adminPhone.getEdit());
+                    Set properties = ApiBeanUtil.getSpecifiedProperties(adminPhone.getEdit());
                     ApiBeanUtil.setProperties(apiPhone, adminPhone.getEdit());
                     m_builder.toMyObject(myPhones[i], apiPhone, properties);
                 }

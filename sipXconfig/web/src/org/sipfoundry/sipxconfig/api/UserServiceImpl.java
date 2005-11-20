@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
             }
             if (adminUser.getEdit() != null) {
                 User apiUser = new User();
-                Set properties  = ApiBeanUtil.getSpecfiedProperties(adminUser.getEdit());
+                Set properties  = ApiBeanUtil.getSpecifiedProperties(adminUser.getEdit());
                 ApiBeanUtil.setProperties(apiUser, adminUser.getEdit());
                 m_userBuilder.toMyObject(myUsers[i], apiUser, properties);
             }

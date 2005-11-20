@@ -26,7 +26,9 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
  * CallSequence
  */
 public class AbstractCallSequence extends BeanWithId {
-    private List m_calls = new ArrayList();
+    public static final String RINGS_PROP = "rings";
+
+    private List m_rings = new ArrayList();
 
     public AbstractCallSequence() {
         // empty default constructor
@@ -37,40 +39,40 @@ public class AbstractCallSequence extends BeanWithId {
      */
     protected Object clone() throws CloneNotSupportedException {
         AbstractCallSequence clone = (AbstractCallSequence) super.clone();
-        clone.m_calls = new ArrayList(m_calls.size());
-        DataCollectionUtil.duplicate(m_calls, clone.m_calls);
+        clone.m_rings = new ArrayList(m_rings.size());
+        DataCollectionUtil.duplicate(m_rings, clone.m_rings);
         return clone;
     }
 
     protected void insertRing(AbstractRing ring) {
-        m_calls.add(ring);
-        DataCollectionUtil.updatePositions(m_calls);
+        m_rings.add(ring);
+        DataCollectionUtil.updatePositions(m_rings);
     }
 
     public void removeRings(Collection ids) {
-        DataCollectionUtil.removeByPrimaryKey(m_calls, ids.toArray());
+        DataCollectionUtil.removeByPrimaryKey(m_rings, ids.toArray());
     }
 
     public void moveRings(Collection ids, int step) {
-        DataCollectionUtil.moveByPrimaryKey(m_calls, ids.toArray(), step);
+        DataCollectionUtil.moveByPrimaryKey(m_rings, ids.toArray(), step);
     }
 
     public void removeRing(AbstractRing ringToRemove) {
         Object[] keys = new Object[] {
             ringToRemove.getId()
         };
-        DataCollectionUtil.removeByPrimaryKey(m_calls, keys);
+        DataCollectionUtil.removeByPrimaryKey(m_rings, keys);
     }
 
     protected void clearRings() {
-        m_calls.clear();
+        m_rings.clear();
     }
 
     public boolean moveRingUp(AbstractRing ring) {
         Object[] keys = new Object[] {
             ring.getId()
         };
-        DataCollectionUtil.moveByPrimaryKey(m_calls, keys, -1);
+        DataCollectionUtil.moveByPrimaryKey(m_rings, keys, -1);
         return true;
     }
 
@@ -78,16 +80,16 @@ public class AbstractCallSequence extends BeanWithId {
         Object[] keys = new Object[] {
             ring.getId()
         };
-        DataCollectionUtil.moveByPrimaryKey(m_calls, keys, 1);
+        DataCollectionUtil.moveByPrimaryKey(m_rings, keys, 1);
         return true;
     }
 
-    public List getCalls() {
-        return m_calls;
+    public List getRings() {
+        return m_rings;
     }
 
-    public void setCalls(List calls) {
-        m_calls = calls;
+    public void setRings(List rings) {
+        m_rings = rings;
     }
 
     /**
@@ -101,10 +103,10 @@ public class AbstractCallSequence extends BeanWithId {
      * @return list of AliasMapping objects
      */
     protected List generateAliases(String identity, String domain, boolean neverRouteToVoicemail) {
-        List calls = getCalls();
-        List aliases = new ArrayList(calls.size());
-        ForkQueueValue q = new ForkQueueValue(calls.size());
-        for (Iterator i = calls.iterator(); i.hasNext();) {
+        List rings = getRings();
+        List aliases = new ArrayList(rings.size());
+        ForkQueueValue q = new ForkQueueValue(rings.size());
+        for (Iterator i = rings.iterator(); i.hasNext();) {
             AbstractRing r = (AbstractRing) i.next();
             if (StringUtils.isEmpty(r.getUserPart().toString())) {
                 continue;
@@ -119,9 +121,9 @@ public class AbstractCallSequence extends BeanWithId {
     }
 
     /**
-     * Clear all calls for this sequence
+     * Clear all rings for this sequence
      */
     public void clear() {
-        m_calls.clear();
+        m_rings.clear();
     }
 }

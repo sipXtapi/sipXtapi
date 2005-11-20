@@ -16,11 +16,12 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 
 public class UserBuilder extends SimpleBeanBuilder {    
-    private static final String ALIASES_PROP = "aliases";    
-    private static final String GROUPS_PROP = "groups";
-    
+    private static final String ALIASES_PROP = org.sipfoundry.sipxconfig.common.User.ALIASES_PROP; 
+    private static final String GROUPS_PROP = BeanWithGroups.GROUPS_PROP;
+
     private static final String[] IGNORE_LIST = { 
         ALIASES_PROP, GROUPS_PROP 
     };

@@ -21,6 +21,8 @@ import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 public abstract class AbstractRing extends BeanWithId implements DataCollectionItem {
+    public static final String TYPE_PROP = "type";
+    
     private static final int DEFAULT_EXPIRATION = 30;
     private static final String FORMAT = "<sip:{0}@{1}{4}?expires={2}>;{3}"; 
     private static final String IGNORE_VOICEMAIL_FIELD_PARAM = ";sipx-noroute=Voicemail";
@@ -59,6 +61,10 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
 
         public Type(String name) {
             super(name);
+        }
+        
+        public static Type getEnum(String type) {
+            return (Type) getEnum(Type.class, type);
         }
     }
 

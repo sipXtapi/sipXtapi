@@ -42,7 +42,7 @@ public class CallSequenceTest extends TestCase {
 
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
-        sequence.setCalls(rings);
+        sequence.setRings(rings);
 
         List aliases = sequence.generateAliases("sipfoundry.org");
         assertEquals(N, aliases.size());
@@ -67,7 +67,7 @@ public class CallSequenceTest extends TestCase {
 
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
-        sequence.setCalls(rings);
+        sequence.setRings(rings);
 
         List authExceptions = sequence.generateAuthExceptions();
         assertEquals(N, authExceptions.size());
@@ -97,11 +97,11 @@ public class CallSequenceTest extends TestCase {
         calls.add(ring1.setUniqueId());
         calls.add(ring2.setUniqueId());
 
-        callSequence.setCalls(calls);
+        callSequence.setRings(calls);
         assertTrue(callSequence.moveRingDown(ring0));
         assertTrue(callSequence.moveRingDown(ring0));
         assertTrue(callSequence.moveRingUp(ring2));
-        calls = callSequence.getCalls();
+        calls = callSequence.getRings();
 
         assertSame(ring2, calls.get(0));
         assertSame(ring1, calls.get(1));

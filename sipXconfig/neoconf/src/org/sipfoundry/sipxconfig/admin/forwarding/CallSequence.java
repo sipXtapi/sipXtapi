@@ -38,7 +38,7 @@ public class CallSequence extends AbstractCallSequence {
     CallSequence(List calls, User user, boolean withVoicemail) {
         m_user = user;
         m_withVoicemail = withVoicemail;
-        setCalls(calls);
+        setRings(calls);
     }
 
     public Ring insertRing() {
@@ -55,7 +55,7 @@ public class CallSequence extends AbstractCallSequence {
     }
 
     public List generateAuthExceptions() {
-        List calls = getCalls();
+        List calls = getRings();
         List authExceptions = new ArrayList();
         for (Iterator i = calls.iterator(); i.hasNext();) {
             Ring r = (Ring) i.next();

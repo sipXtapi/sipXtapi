@@ -129,9 +129,9 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         String signOutCode = getSettingValue(ServerSettings.PRESENCE_SIGN_OUT_CODE);
         String presenceServer = getPresenceServerLocation();
 
-        aliases.add(createPresenceAliaseMapping(signInCode.trim(), domainName, presenceServer,
+        aliases.add(createPresenceAliasMapping(signInCode.trim(), domainName, presenceServer,
                 presencePort));
-        aliases.add(createPresenceAliaseMapping(signOutCode.trim(), domainName, presenceServer,
+        aliases.add(createPresenceAliasMapping(signOutCode.trim(), domainName, presenceServer,
                 presencePort));
 
         return aliases;
@@ -146,7 +146,7 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
                 .intValue();
     }
 
-    private AliasMapping createPresenceAliaseMapping(String code, String domainName,
+    private AliasMapping createPresenceAliasMapping(String code, String domainName,
             String presenceServer, int port) {
         AliasMapping mapping = new AliasMapping();
         mapping.setIdentity(AliasMapping.createUri(code, domainName));

@@ -16,6 +16,50 @@
     <xsd:schema targetNamespace="urn:ConfigService">
 
       <!-- B U S I N E S S  O B J E C T S -->
+      <xsd:simpleType name="RingType">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="delayed">
+            <xsd:annotation>
+              <xsd:documentation>If no response</xsd:documentation>
+            </xsd:annotation>
+					</xsd:enumeration>
+          <xsd:enumeration value="immediate">
+            <xsd:annotation>
+              <xsd:documentation>At the same time</xsd:documentation>
+            </xsd:annotation>
+					</xsd:enumeration>
+        </xsd:restriction>
+      </xsd:simpleType>      
+      <xsd:complexType name="AbstractRing">
+        <xsd:sequence>
+          <xsd:element name="expiration" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="type" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="position" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="UserRing">
+        <xsd:complexContent>
+        	<xsd:extension base="tns:AbstractRing">
+		        <xsd:sequence>
+    	      	<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+            </xsd:sequence>
+        	</xsd:extension>
+        </xsd:complexContent>
+      </xsd:complexType>
+      <xsd:complexType name="CallGroup">
+        <xsd:sequence>
+          <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="extension" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+          <xsd:element name="description" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+          <xsd:element name="enabled" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+          <xsd:element name="rings" type="tns:UserRing" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:complexType name="ArrayOfCallGroups">
+        <xsd:sequence>
+          <xsd:element name="callGroup" type="tns:CallGroup" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
       <xsd:complexType name="User">
         <xsd:sequence>
           <xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
@@ -26,12 +70,12 @@
           <xsd:element name="aliases" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
           <xsd:element name="groups" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
-        </xsd:complexType>
-      <xsd:complexType name="ArrayOfUser">
+      </xsd:complexType>
+      <xsd:complexType name="ArrayOfUsers">
         <xsd:sequence>
           <xsd:element name="user" type="tns:User" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
-        </xsd:complexType>
+      </xsd:complexType>
       <xsd:complexType name="Phone">
         <xsd:sequence>
           <xsd:element name="serialNumber" type="xsd:string" minOccurs="1" maxOccurs="1"/>
@@ -40,12 +84,12 @@
           <xsd:element name="groups" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
           <xsd:element name="lines" type="tns:Line" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
-        </xsd:complexType>        
-      <xsd:complexType name="ArrayOfPhone">
+      </xsd:complexType>        
+      <xsd:complexType name="ArrayOfPhones">
         <xsd:sequence>
           <xsd:element name="user" type="tns:Phone" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
-        </xsd:complexType>
+      </xsd:complexType>
       <xsd:complexType name="Property">
         <xsd:all>
           <xsd:element name="property" type="xsd:string" minOccurs="1" maxOccurs="1"/>
@@ -65,11 +109,11 @@
           <xsd:element name="byGroup" type="xsd:string" minOccurs="0" maxOccurs="1"/>
         </xsd:sequence>
       </xsd:complexType>
-       <xsd:complexType name="Line">
-         <xsd:sequence>
-             <xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-         </xsd:sequence>
-       </xsd:complexType>
+      <xsd:complexType name="Line">
+        <xsd:sequence>
+          <xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+        </xsd:sequence>
+      </xsd:complexType>
       <xsd:complexType name="ParkOrbit">
         <xsd:sequence>
           <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1"/>
@@ -78,18 +122,34 @@
           <xsd:element name="enabled" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
           <xsd:element name="music" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
         </xsd:sequence>
-        </xsd:complexType>
-      <xsd:complexType name="ArrayOfParkOrbit">
+      </xsd:complexType>
+      <xsd:complexType name="ArrayOfParkOrbits">
         <xsd:sequence>
           <xsd:element name="parkOrbit" type="tns:ParkOrbit" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
         </xsd:sequence>
       </xsd:complexType>
       
+      <!-- C A L L   G R O U P -->
+      <xsd:element name="GetCallGroupsResponse">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="callGroups" type="tns:ArrayOfCallGroups" minOccurs="1" maxOccurs="1"/>            
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      <xsd:element name="AddCallGroup">
+        <xsd:complexType>
+          <xsd:sequence>
+            <xsd:element name="callGroup" type="tns:CallGroup" minOccurs="1" maxOccurs="1"/>
+          </xsd:sequence>
+        </xsd:complexType>
+      </xsd:element>
+      
       <!-- P A R K   O R B I T -->
       <xsd:element name="GetParkOrbitsResponse">
         <xsd:complexType>
           <xsd:sequence>
-            <xsd:element name="parkOrbits" type="tns:ArrayOfParkOrbit" minOccurs="1" maxOccurs="1"/>            
+            <xsd:element name="parkOrbits" type="tns:ArrayOfParkOrbits" minOccurs="1" maxOccurs="1"/>            
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
@@ -105,7 +165,7 @@
       <xsd:element name="FindPhoneResponse">
         <xsd:complexType>
           <xsd:sequence>
-            <xsd:element name="phones" type="tns:ArrayOfPhone" minOccurs="1" maxOccurs="1"/>            
+            <xsd:element name="phones" type="tns:ArrayOfPhones" minOccurs="1" maxOccurs="1"/>            
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
@@ -143,7 +203,7 @@
       <xsd:element name="FindUserResponse">
         <xsd:complexType>
           <xsd:sequence>
-            <xsd:element name="users" type="tns:ArrayOfUser" minOccurs="1" maxOccurs="1"/>            
+            <xsd:element name="users" type="tns:ArrayOfUsers" minOccurs="1" maxOccurs="1"/>            
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
@@ -179,9 +239,10 @@
         <xsd:complexType>
           <!-- A flag for each service indicating whether it should be reset -->
           <xsd:sequence>
+            <xsd:element name="callGroup" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+            <xsd:element name="parkOrbit" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="phone" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="user" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
-            <xsd:element name="parkOrbit" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>        
@@ -190,8 +251,98 @@
   
   <!-- 
     - BOILER PLATE SECTION
-    - Much of this section is redundant, cutting and pasting.  Automation is imminent
+    - Much of this section is redundant, cutting and pasting.  Automation is imminent.
       -->
+  
+  <!-- C A L L   G R O U P   S E R V I C E -->
+  <message name="addCallGroupResponse"/>
+  <message name="addCallGroupRequest">
+    <part name="addCallGroup" element="tns:AddCallGroup"/>
+  </message>
+  <message name="getCallGroupsResponse">
+    <part name="getCallGroups" element="tns:GetCallGroupsResponse"/>
+  </message>
+  <message name="getCallGroupsRequest"/>
+  <portType name="CallGroupService">
+    <documentation> 
+      Any change to call groups updates all servers automatically and asynchronously.
+    </documentation>
+    <operation name="addCallGroup">
+      <input message="tns:addCallGroupRequest"/>
+      <output message="tns:addCallGroupResponse"/>
+    </operation>
+    <operation name="getCallGroups">
+      <input message="tns:getCallGroupsRequest"/>
+      <output message="tns:getCallGroupsResponse"/>
+    </operation>
+  </portType>
+
+  <binding name="CallGroupServiceSoapBinding" type="tns:CallGroupService">
+    <soap:binding style="document"/>
+    <operation name="addCallGroup">
+       <input>
+        <soap:body use="literal" namespace="urn:ConfigService" />
+      </input>      
+      <output>
+        <soap:body use="literal" namespace="urn:ConfigService"/>
+      </output>      
+      <soap:operation soapAction=""/>      
+    </operation>    
+    <operation name="getCallGroups">      
+       <input>
+        <soap:body use="literal" namespace="urn:ConfigService" />
+      </input>      
+      <output>
+        <soap:body use="literal" namespace="urn:ConfigService"/>
+      </output>      
+      <soap:operation soapAction=""/>      
+    </operation>
+  </binding>
+
+  <!-- P A R K   O R B I T   S E R V I C E -->
+  <message name="addParkOrbitResponse"/>
+  <message name="addParkOrbitRequest">
+    <part name="addParkOrbit" element="tns:AddParkOrbit"/>
+  </message>
+  <message name="getParkOrbitsResponse">
+    <part name="getParkOrbits" element="tns:GetParkOrbitsResponse"/>
+  </message>
+  <message name="getParkOrbitsRequest"/>
+  <portType name="ParkOrbitService">
+    <documentation> 
+      Any change to park orbits updates all servers automatically and asynchronously.
+    </documentation>
+    <operation name="addParkOrbit">
+      <input message="tns:addParkOrbitRequest"/>
+      <output message="tns:addParkOrbitResponse"/>
+    </operation>
+    <operation name="getParkOrbits">
+      <input message="tns:getParkOrbitsRequest"/>
+      <output message="tns:getParkOrbitsResponse"/>
+    </operation>
+  </portType>
+
+  <binding name="ParkOrbitServiceSoapBinding" type="tns:ParkOrbitService">
+    <soap:binding style="document"/>
+    <operation name="addParkOrbit">
+       <input>
+        <soap:body use="literal" namespace="urn:ConfigService" />
+      </input>      
+      <output>
+        <soap:body use="literal" namespace="urn:ConfigService"/>
+      </output>      
+      <soap:operation soapAction=""/>      
+    </operation>    
+    <operation name="getParkOrbits">      
+       <input>
+        <soap:body use="literal" namespace="urn:ConfigService" />
+      </input>      
+      <output>
+        <soap:body use="literal" namespace="urn:ConfigService"/>
+      </output>      
+      <soap:operation soapAction=""/>      
+    </operation>
+  </binding>
   
   <!-- P H O N E  S E R V I C E -->
   <message name="addPhoneResponse"/>
@@ -261,7 +412,33 @@
     </operation>
   </binding>
 
-    <!-- U S E R   S E R V I C E -->
+  <!-- T E S T  S E R V I C E -->  
+  <message name="resetServicesResponse"/>
+  <message name="resetServicesRequest">
+    <part name="resetServices" element="tns:ResetServices"/>
+  </message>
+
+  <portType name="TestService">
+    <operation name="resetServices">
+      <input message="tns:resetServicesRequest"/>
+      <output message="tns:resetServicesResponse"/>
+    </operation>
+  </portType>
+  
+  <binding name="TestServiceSoapBinding" type="tns:TestService">
+    <soap:binding style="document"/>
+    <operation name="resetServices">      
+       <input name="resetServicesRequest">
+        <soap:body use="literal" namespace="urn:TestService"/>
+      </input>      
+      <output name="resetServicesResponse">
+        <soap:body use="literal" namespace="urn:TestService"/>
+      </output>      
+      <soap:operation soapAction=""/>      
+    </operation>
+  </binding>
+  
+  <!-- U S E R   S E R V I C E -->
   <message name="addUserResponse"/>
   <message name="addUserRequest">
     <part name="addUser" element="tns:AddUser"/>
@@ -281,6 +458,7 @@
   
   <portType name="UserService">
     <documentation> 
+      To get all users, call findUser with an empty search argument.
       Any change to users updates all servers automatically and asynchronously.
     </documentation>
     <operation name="addUser">
@@ -327,95 +505,28 @@
       <soap:operation soapAction=""/>            
     </operation>
   </binding>
-
-  <!-- P A R K   O R B I T   S E R V I C E -->
-  <message name="addParkOrbitResponse"/>
-  <message name="addParkOrbitRequest">
-    <part name="addParkOrbit" element="tns:AddParkOrbit"/>
-  </message>
-  <message name="getParkOrbitsResponse">
-    <part name="getParkOrbits" element="tns:GetParkOrbitsResponse"/>
-  </message>
-  <message name="getParkOrbitsRequest"/>
-  <portType name="ParkOrbitService">
-    <documentation> 
-      Any change to park orbits updates all servers automatically and asynchronously.
-    </documentation>
-    <operation name="addParkOrbit">
-      <input message="tns:addParkOrbitRequest"/>
-      <output message="tns:addParkOrbitResponse"/>
-    </operation>
-    <operation name="getParkOrbits">
-      <input message="tns:getParkOrbitsRequest"/>
-      <output message="tns:getParkOrbitsResponse"/>
-    </operation>
-  </portType>
-
-  <binding name="ParkOrbitServiceSoapBinding" type="tns:ParkOrbitService">
-    <soap:binding style="document"/>
-    <operation name="addParkOrbit">
-       <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
-      </input>      
-      <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
-      </output>      
-      <soap:operation soapAction=""/>      
-    </operation>    
-    <operation name="getParkOrbits">      
-       <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
-      </input>      
-      <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
-      </output>      
-      <soap:operation soapAction=""/>      
-    </operation>
-  </binding>
-
-    <!-- T E S T  S E R V I C E -->  
-  <message name="resetServicesResponse"/>
-  <message name="resetServicesRequest">
-    <part name="resetServices" element="tns:ResetServices"/>
-  </message>
-
-  <portType name="TestService">
-    <operation name="resetServices">
-      <input message="tns:resetServicesRequest"/>
-      <output message="tns:resetServicesResponse"/>
-    </operation>
-  </portType>
-  
-  <binding name="TestServiceSoapBinding" type="tns:TestService">
-    <soap:binding style="document"/>
-    <operation name="resetServices">      
-       <input name="resetServicesRequest">
-        <soap:body use="literal" namespace="urn:TestService"/>
-      </input>      
-      <output name="resetServicesResponse">
-        <soap:body use="literal" namespace="urn:TestService"/>
-      </output>      
-      <soap:operation soapAction=""/>      
-    </operation>
-  </binding>  
     
     <!-- S E R V I C E S -->  
   <service name="ConfigImplService">
-    <port name="PhoneService" binding="tns:PhoneServiceSoapBinding">
+    <port name="CallGroupService" binding="tns:CallGroupServiceSoapBinding">
       <soap:address 
-        location="http://localhost:9999/sipxconfig/services/PhoneService"/>
-    </port>
-    <port name="UserService" binding="tns:UserServiceSoapBinding">
-      <soap:address 
-        location="http://localhost:9999/sipxconfig/services/UserService"/>
+        location="http://localhost:9999/sipxconfig/services/CallGroupService"/>
     </port>
     <port name="ParkOrbitService" binding="tns:ParkOrbitServiceSoapBinding">
       <soap:address 
         location="http://localhost:9999/sipxconfig/services/ParkOrbitService"/>
     </port>
+    <port name="PhoneService" binding="tns:PhoneServiceSoapBinding">
+      <soap:address 
+        location="http://localhost:9999/sipxconfig/services/PhoneService"/>
+    </port>
     <port name="TestService" binding="tns:TestServiceSoapBinding">
       <soap:address 
         location="http://localhost:9999/sipxconfig/services/TestService"/>
+    </port>
+    <port name="UserService" binding="tns:UserServiceSoapBinding">
+      <soap:address 
+        location="http://localhost:9999/sipxconfig/services/UserService"/>
     </port>
   </service>
   

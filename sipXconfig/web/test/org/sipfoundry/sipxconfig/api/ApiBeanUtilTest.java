@@ -48,9 +48,35 @@ public class ApiBeanUtilTest extends TestCase {
         SimpleBeanBuilder builder = new SimpleBeanBuilder();
         builder.getCustomFields().add("abode");
         Frack[] fracks = (Frack[]) ApiBeanUtil.toApiArray(builder, fricks, Frack.class);
+        checkFracks(fracks);
+        fracks = (Frack[]) ApiBeanUtil.toApiArray(builder, Arrays.asList(fricks), Frack.class);
+        checkFracks(fracks);
+    }
+    
+    private void checkFracks(Frack[] fracks) {
         assertEquals("a", fracks[0].getName());
         assertEquals(null, fracks[0].getAbode());
         assertEquals("c", fracks[1].getName());
-        assertEquals(null, fracks[1].getAbode());
+        assertEquals(null, fracks[1].getAbode());        
+    }
+    
+    public void testToMyArray() {
+        Frack[] fracks = new Frack[] {
+                new Frack("a", "b"),
+                new Frack("c", "d")
+        };
+        SimpleBeanBuilder builder = new SimpleBeanBuilder();
+        builder.getCustomFields().add("abode");
+        Frick[] fricks = (Frick[]) ApiBeanUtil.toMyArray(builder, fracks, Frick.class);
+        checkFricks(fricks);
+        fricks = (Frick[]) ApiBeanUtil.toMyArray(builder, Arrays.asList(fracks), Frick.class);
+        checkFricks(fricks);
+    }
+
+    public void checkFricks(Frick[] fricks) {
+        assertEquals("a", fricks[0].getName());
+        assertEquals(null, fricks[0].getAddress());
+        assertEquals("c", fricks[1].getName());
+        assertEquals(null, fricks[1].getAddress());                
     }
 }

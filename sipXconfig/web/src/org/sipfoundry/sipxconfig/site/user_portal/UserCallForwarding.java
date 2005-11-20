@@ -116,7 +116,7 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
      */
     private ListEditMap createListEditMap(CallSequence callSequence) {
         ListEditMap map = new ListEditMap();
-        Collection calls = callSequence.getCalls();
+        Collection calls = callSequence.getRings();
         for (Iterator i = calls.iterator(); i.hasNext();) {
             BeanWithId bean = (BeanWithId) i.next();
             map.add(bean.getId(), bean);

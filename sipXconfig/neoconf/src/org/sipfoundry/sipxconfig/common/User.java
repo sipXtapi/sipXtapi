@@ -32,10 +32,10 @@ public class User extends BeanWithGroups {
     public static final String GROUP_RESOURCE_ID = "user";
 
     // property names
-    public static final String ALIASES_PROPERTY = "aliases";
-    public static final String FIRST_NAME_PROPERTY = "firstName";
-    public static final String LAST_NAME_PROPERTY = "lastName";
-    public static final String USER_NAME_PROPERTY = "userName";
+    public static final String ALIASES_PROP = "aliases";
+    public static final String FIRST_NAME_PROP = "firstName";
+    public static final String LAST_NAME_PROP = "lastName";
+    public static final String USER_NAME_PROP = "userName";
     
     // Reserved name for the special superadmin user.  In principle, this name could now be
     // anything, it's just "superadmin" by current convention.

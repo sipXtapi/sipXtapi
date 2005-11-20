@@ -13,13 +13,17 @@ package org.sipfoundry.sipxconfig.api;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.beanutils.PropertyUtils;
+import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 
 public final class ApiBeanUtil {
     
@@ -42,7 +46,7 @@ public final class ApiBeanUtil {
         }        
     }
     
-    public static Set getSpecfiedProperties(Property[] properties) {
+    public static Set getSpecifiedProperties(Property[] properties) {
         Set props = new HashSet(properties.length);
         for (int i = 0; i < properties.length; i++) {
             props.add(properties[i].getProperty());
@@ -53,30 +57,82 @@ public final class ApiBeanUtil {
     public static Object[] newArray(Class elementClass, int size) {
         Object[] to = (Object[]) Array.newInstance(elementClass, size);
         for (int i = 0; i < size; i++) {
-            try {                
-                to[i] = elementClass.newInstance();
-            } catch (InstantiationException impossible1) {
-                wrapImpossibleException(impossible1);
-            } catch (IllegalAccessException impossible2) {
-                wrapImpossibleException(impossible2);
-            }
+            to[i] = newInstance(elementClass);
         }
         
         return to;        
     }
     
+    /** 
+     * Convert an array of server objects to an array of equivalent SOAP API objects (instances
+     * of apiClass), using the supplied bean builder.  Return the array of API objects.
+     */
     public static Object[] toApiArray(ApiBeanBuilder builder, Object[] myObjects, Class apiClass) {
-        Object[] apiArray = ApiBeanUtil.newArray(apiClass, myObjects.length);
-        if (myObjects.length == 0) {
+        int numObjects = myObjects != null ? myObjects.length : 0;
+        Object[] apiArray = ApiBeanUtil.newArray(apiClass, numObjects);
+        if (numObjects == 0) {
             return apiArray; 
         }
         Set properties = ApiBeanUtil.getReadableProperties(apiArray[0]);
-        for (int i = 0; i < myObjects.length; i++) {
+        for (int i = 0; i < numObjects; i++) {
             builder.toApiObject(apiArray[i], myObjects[i], properties);
         }
         return apiArray;
     }
     
+    public static Object[] toApiArray(ApiBeanBuilder builder, Collection myObjects, Class apiClass) {
+        int numObjects = SipxCollectionUtils.safeSize(myObjects);
+        if (numObjects == 0) {
+            return new Object[0];
+        }
+
+        // For some reason myObjects is sometimes filled with a bunch of nulls.  Ideally figure out
+        // why this is happening, but in the interim let's discard them.
+        numObjects = 0;
+        List myRealObjects = new ArrayList();
+        for (Iterator iter = myObjects.iterator(); iter.hasNext();) {
+            Object next = iter.next();
+            if (next != null) {
+                myRealObjects.add(next);
+                numObjects++;
+            }
+        }
+        if (numObjects == 0) {
+            return new Object[0];
+        }
+        
+        Object[] myArray = newArray(myRealObjects.iterator().next().getClass(), numObjects);
+        myArray = myRealObjects.toArray(myArray);
+        return toApiArray(builder, myArray, apiClass);
+    }
+    
+    /** 
+     * Convert an array of SOAP API objects to an array of equivalent server objects (instances
+     * of myClass), using the supplied bean builder.  Return the array of server objects.
+     */
+    public static Object[] toMyArray(ApiBeanBuilder builder, Object[] apiObjects, Class myClass) {
+        int numObjects = apiObjects != null ? apiObjects.length : 0;
+        Object[] myArray = newArray(myClass, numObjects);
+        if (numObjects == 0) {
+            return myArray; 
+        }
+        for (int i = 0; i < apiObjects.length; i++) {
+            Object myObj = newInstance(myClass);
+            toMyObject(builder, myObj, apiObjects[i]);
+            myArray[i] = myObj;
+        }
+        return myArray;
+    }
+    
+    public static Object[] toMyArray(ApiBeanBuilder builder, Collection apiObjects, Class myClass) {
+        int numObjects = SipxCollectionUtils.safeSize(apiObjects);
+        if (numObjects == 0) {
+            return new Object[0];
+        }
+        Object[] apiArray = (Object[]) Array.newInstance(apiObjects.iterator().next().getClass(), numObjects);
+        apiArray = apiObjects.toArray(apiArray);
+        return toMyArray(builder, apiArray, myClass);
+    }
     
     public static void wrapImpossibleException(Exception e) {
         throw new RuntimeException("Unexpected bean error", e);        
@@ -103,7 +159,7 @@ public final class ApiBeanUtil {
     }
     
     public static void copyProperties(Object to, Object from, Set properties, Set ignoreList) {
-        Iterator i = properties.iterator();
+        Iterator i = SipxCollectionUtils.safeIterator(properties);
         while (i.hasNext()) {
             String name = (String) i.next();
             if (ignoreList != null && ignoreList.contains(name)) {
@@ -132,4 +188,17 @@ public final class ApiBeanUtil {
             ApiBeanUtil.wrapPropertyException(property, ite);
         }
     }    
+    
+    /** Like Class.newInstance, but convert checked exceptions to runtime exceptions */
+    public static Object newInstance(Class klass) {
+        Object obj = null;
+        try {                
+            obj = klass.newInstance();
+        } catch (InstantiationException impossible1) {
+            wrapImpossibleException(impossible1);
+        } catch (IllegalAccessException impossible2) {
+            wrapImpossibleException(impossible2);
+        }
+        return obj;
+    }
 }

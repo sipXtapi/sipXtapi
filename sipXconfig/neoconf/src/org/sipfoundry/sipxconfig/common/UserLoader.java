@@ -108,7 +108,7 @@ public class UserLoader {
 
         // sort the results
         m_queryBuf.append("order by " + USER_ALIAS + DOT);
-        m_queryBuf.append(StringUtils.defaultIfEmpty(orderBy, User.LAST_NAME_PROPERTY));
+        m_queryBuf.append(StringUtils.defaultIfEmpty(orderBy, User.LAST_NAME_PROP));
         m_queryBuf.append(SPACE);
         m_queryBuf.append(orderAscending ? "asc" : "desc");
                         
@@ -127,7 +127,7 @@ public class UserLoader {
     private void handleSearchConstraint(String search) {
         if (!StringUtils.isEmpty(search)) {
             // append "left outer join u.aliases alias "
-            m_queryBuf.append("left outer join " + USER_ALIAS + DOT + User.ALIASES_PROPERTY
+            m_queryBuf.append("left outer join " + USER_ALIAS + DOT + User.ALIASES_PROP
                     + SPACE + ALIASES_ALIAS + SPACE);
             m_outerJoin = true;
             
@@ -139,7 +139,7 @@ public class UserLoader {
             final String likeSearch = ") like :" + PARAM_SEARCH;
             final String lower = "lower(";
             final String or = " or ";
-            m_queryBuf.append("(" + lower + USER_ALIAS + DOT + User.USER_NAME_PROPERTY + likeSearch);
+            m_queryBuf.append("(" + lower + USER_ALIAS + DOT + User.USER_NAME_PROP + likeSearch);
             
             // query aliases
             // append " or lower(alias) like :search "
@@ -147,11 +147,11 @@ public class UserLoader {
             
             // query firstName
             // append " or lower(u.firstName) like :search "
-            m_queryBuf.append(or + lower + USER_ALIAS + DOT + User.FIRST_NAME_PROPERTY + likeSearch);
+            m_queryBuf.append(or + lower + USER_ALIAS + DOT + User.FIRST_NAME_PROP + likeSearch);
             
             // query lastName and close paren
             // append " or lower(u.lastName) like :search "
-            m_queryBuf.append(or + lower + USER_ALIAS + DOT + User.LAST_NAME_PROPERTY + likeSearch + ")"
+            m_queryBuf.append(or + lower + USER_ALIAS + DOT + User.LAST_NAME_PROP + likeSearch + ")"
                     + SPACE);
             
             m_paramNames.add(PARAM_SEARCH);
@@ -170,7 +170,7 @@ public class UserLoader {
             }
             
             // append "u.groups.id = :groupId"
-            m_queryBuf.append(USER_ALIAS + DOT + BeanWithGroups.GROUPS_PROPERTY + DOT + "id = :"
+            m_queryBuf.append(USER_ALIAS + DOT + BeanWithGroups.GROUPS_PROP + DOT + "id = :"
                     + PARAM_GROUP_ID + SPACE);
             
             m_paramNames.add(PARAM_GROUP_ID);
@@ -272,10 +272,10 @@ public class UserLoader {
         if (!StringUtils.isEmpty(userTemplate.getFirstName())) {
             startQueryConstraint();
             m_queryBuf.append("u.firstName like :");
-            m_queryBuf.append(User.FIRST_NAME_PROPERTY);
+            m_queryBuf.append(User.FIRST_NAME_PROP);
             m_queryBuf.append(SPACE);
 
-            m_paramNames.add(User.FIRST_NAME_PROPERTY);
+            m_paramNames.add(User.FIRST_NAME_PROP);
             addWildParamValue_(userTemplate.getFirstName());
         }
     }
@@ -287,10 +287,10 @@ public class UserLoader {
         if (!StringUtils.isEmpty(userTemplate.getLastName())) {
             startQueryConstraint();
             m_queryBuf.append("u.lastName like :");
-            m_queryBuf.append(User.LAST_NAME_PROPERTY);
+            m_queryBuf.append(User.LAST_NAME_PROP);
             m_queryBuf.append(SPACE);
 
-            m_paramNames.add(User.LAST_NAME_PROPERTY);
+            m_paramNames.add(User.LAST_NAME_PROP);
             addWildParamValue_(userTemplate.getLastName());
         }
     }

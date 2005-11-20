@@ -28,7 +28,7 @@
 			</generator>
 		</id>        
         <one-to-one name="user" class="org.sipfoundry.sipxconfig.common.User" constrained="true"/>
-        <list name="calls" inverse="true" cascade="all-delete-orphan">
+        <list name="rings" inverse="true" cascade="all-delete-orphan">
             <key column="user_id"/>
             <index column="position"/>
             <one-to-many class="Ring"/>

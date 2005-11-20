@@ -26,7 +26,7 @@ public class CallGroupTest extends TestCase {
         CallGroup group = new CallGroup();
         UserRing ring = group.insertRing(u);
         assertSame(u, ring.getUser());
-        List calls = group.getCalls();
+        List calls = group.getRings();
         assertEquals(1, calls.size());
         assertSame(ring, calls.get(0));
         assertTrue(ring.isFirst());
@@ -77,12 +77,12 @@ public class CallGroupTest extends TestCase {
             u.setUserName("testUser" + i);
             group.insertRing(u);
         }
-        assertEquals(ringsLen, group.getCalls().size());
+        assertEquals(ringsLen, group.getRings().size());
 
         CallGroup clonedGroup = (CallGroup) group.duplicate();
         assertEquals("sales", clonedGroup.getName());
         assertEquals("401", clonedGroup.getExtension());
-        List clonedCalls = clonedGroup.getCalls();
+        List clonedCalls = clonedGroup.getRings();
         assertEquals(ringsLen, clonedCalls.size());
         for (int i = 0; i < ringsLen; i++) {
             UserRing ring = (UserRing) clonedCalls.get(i);

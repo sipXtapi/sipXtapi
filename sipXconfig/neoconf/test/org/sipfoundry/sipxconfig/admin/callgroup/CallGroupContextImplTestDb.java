@@ -60,7 +60,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testLoadUserRing() throws Exception {
         CallGroup callGroup = m_context.loadCallGroup(new Integer(1002));
-        List userRings = callGroup.getCalls();
+        List userRings = callGroup.getRings();
         assertEquals(1, userRings.size());
         UserRing ring = (UserRing) userRings.get(0);
         assertSame(ring.getCallGroup(), callGroup);
@@ -153,7 +153,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         final Integer testExpiration = new Integer(12);
 
         CallGroup callGroup = m_context.loadCallGroup(new Integer(1002));
-        List userRings = callGroup.getCalls();
+        List userRings = callGroup.getRings();
         assertEquals(1, userRings.size());
         UserRing ring = (UserRing) userRings.get(0);
         ring.setExpiration(testExpiration.intValue());
@@ -179,7 +179,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
 
     public void testRemoveUser() throws Exception {
         CallGroup callGroup = m_context.loadCallGroup(new Integer(1002));
-        List userRings = callGroup.getCalls();
+        List userRings = callGroup.getRings();
         assertEquals(1, userRings.size());
 
         UserRing ring = (UserRing) userRings.get(0);
@@ -187,7 +187,7 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         m_context.removeUser(ring.getUser().getId());
 
         callGroup = m_context.loadCallGroup(new Integer(1002));
-        userRings = callGroup.getCalls();
+        userRings = callGroup.getRings();
         assertTrue(userRings.isEmpty());
     }
 

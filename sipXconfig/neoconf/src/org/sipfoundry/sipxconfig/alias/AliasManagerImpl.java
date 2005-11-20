@@ -31,8 +31,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 
-// DO_NOW: Change all alias-assigning code to check with the AliasManagerImpl before assigning an
-// alias.
 // DO_NEXT: Move extension-related classes into this package and move any bean definitions into
 // this beans.xml.
 

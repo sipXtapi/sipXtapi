@@ -46,7 +46,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         User user = m_coreContext.loadUser(testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
         assertEquals(user.getId(), callSequence.getUser().getId());
-        List calls = callSequence.getCalls();
+        List calls = callSequence.getRings();
         assertEquals(3, calls.size());
         // test data: id, number: "23id", expiration "40(id-1000)", type - always delayed
         // ids are in reverse order staring from 1004
@@ -73,7 +73,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     public void testSave() throws Exception {
         User user = m_coreContext.loadUser(testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
-        List calls = callSequence.getCalls();
+        List calls = callSequence.getRings();
 
         Ring ring0 = (Ring) calls.get(0);
         ring0.setType(Ring.Type.IMMEDIATE);
@@ -103,7 +103,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
     public void testMove() throws Exception {
         User user = m_coreContext.loadUser(testUserId);
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
-        List calls = callSequence.getCalls();
+        List calls = callSequence.getRings();
 
         Ring ring0 = (Ring) calls.get(0);
         Ring ring2 = (Ring) calls.get(2);
@@ -176,9 +176,9 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         CallSequence callSequence = m_context.getCallSequenceForUser(user);
 
         ITable ringTable = TestHelper.getConnection().createDataSet().getTable("ring");
-        assertFalse(callSequence.getCalls().isEmpty());
+        assertFalse(callSequence.getRings().isEmpty());
 
-        int remainingRingCount = ringTable.getRowCount() - callSequence.getCalls().size();
+        int remainingRingCount = ringTable.getRowCount() - callSequence.getRings().size();
 
         m_context.removeCallSequenceForUserId(user.getId());
 
