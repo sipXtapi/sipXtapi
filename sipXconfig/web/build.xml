@@ -440,10 +440,13 @@
   
   <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
 		description="Test web services with starting webserver">	
-    <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>
-    <property name="webservice-unit-test-command" 
-      value="-I${ruby.bindings.dir}:${ruby.webservice-unit-test.src.dir}
-      ${ruby.debug} ${ruby.webservice-unit-test.src.dir}"/>
+    <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>    
+    <pathconvert property="ruby.include.path">
+      <path location="${ruby.bindings.dir}"/>
+      <path location="${ruby.webservice-unit-test.src.dir}"/>
+    </pathconvert>
+   	<property name="webservice-unit-test-command" 
+  		value="-I${ruby.include.path} ${ruby.debug} ${ruby.webservice-unit-test.src.dir}"/>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/CallGroupServiceTestApi.rb"/>
     </exec>

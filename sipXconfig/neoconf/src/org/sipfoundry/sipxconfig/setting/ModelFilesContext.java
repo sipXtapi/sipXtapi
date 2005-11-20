@@ -16,7 +16,9 @@ import java.io.File;
 public interface ModelFilesContext {
     public Setting loadModelFile(String basename);
 
-    public Setting loadModelFile(String manufacturer, String basename);
+    public Setting loadModelFile(String basename, String manufacturer);
+
+    public Setting loadModelFile(String basename, String manufacturer, String[] details);
     
-    public File getModelFile(String manufacturer, String basename);
+    public File getModelFile(String basename, String manufacturer);
 }

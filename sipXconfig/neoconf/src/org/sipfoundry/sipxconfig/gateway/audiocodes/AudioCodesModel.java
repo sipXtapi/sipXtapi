@@ -19,10 +19,8 @@ import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 public class AudioCodesModel extends PhoneModel {
     private String m_iniFileName;
     private String m_proxyNameSetting;
-    private String m_proxyIpSetting;
-    
-    private ModelFilesContext m_modelFilesContext;
-    
+    private String m_proxyIpSetting;    
+    private ModelFilesContext m_modelFilesContext;    
     
     public AudioCodesModel(String beanId, String modelId, String label, String iniFileName) {
         super(beanId, modelId, label, 0);
@@ -30,7 +28,7 @@ public class AudioCodesModel extends PhoneModel {
     }
     
     public File getIniFileTemplate() {
-        return m_modelFilesContext.getModelFile("audiocodes", m_iniFileName);        
+        return m_modelFilesContext.getModelFile(m_iniFileName, "audiocodes");        
     }
     
     public void setModelFilesContext(ModelFilesContext modelFilesContext) {

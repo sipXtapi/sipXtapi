@@ -18,6 +18,7 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
@@ -31,7 +32,7 @@ public class XmlModelBuilderTest extends TestCase {
 
     public void testSettingPropertySetters() throws IOException {
         InputStream in = getClass().getResourceAsStream("simplemodel.xml");
-        SettingSet root = m_builder.buildModel(in);
+        SettingSet root = m_builder.buildModel(in, null);
         Setting group = root.getSetting("group");
         assertEquals("Group Profile Name", group.getProfileName());
         assertEquals("Group Label", group.getLabel());
@@ -46,7 +47,7 @@ public class XmlModelBuilderTest extends TestCase {
 
     public void testReadingGames() throws IOException {
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingSet games = m_builder.buildModel(in);
+        SettingSet games = m_builder.buildModel(in, null);
         assertEquals("", games.getName());
         assertEquals(2, games.getValues().size());
 
@@ -83,7 +84,7 @@ public class XmlModelBuilderTest extends TestCase {
      */
     public void testIteration() throws IOException {
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingSet games = m_builder.buildModel(in);
+        SettingSet games = m_builder.buildModel(in, null);
 
         Iterator i = games.getValues().iterator();
         while (i.hasNext()) {
@@ -93,7 +94,7 @@ public class XmlModelBuilderTest extends TestCase {
 
     public void testInheritance() throws IOException {
         InputStream in = getClass().getResourceAsStream("genders.xml");
-        SettingSet root = m_builder.buildModel(in);
+        SettingSet root = m_builder.buildModel(in, null);
 
         Setting human = root.getSetting("human");
         assertEquals("Human", human.getLabel());
@@ -123,7 +124,7 @@ public class XmlModelBuilderTest extends TestCase {
 
     public void testFlags() throws Exception {
         InputStream in = getClass().getResourceAsStream("genders.xml");
-        SettingSet root = m_builder.buildModel(in);
+        SettingSet root = m_builder.buildModel(in, null);
         Setting reason = root.getSetting("man/reason");
         assertFalse(reason.isAdvanced());
         assertTrue(reason.isHidden());
@@ -134,7 +135,29 @@ public class XmlModelBuilderTest extends TestCase {
     
     public void testNullValue() throws Exception {
         InputStream in = getClass().getResourceAsStream("simplemodel.xml");
-        SettingSet root = m_builder.buildModel(in);
+        SettingSet root = m_builder.buildModel(in, null);
         assertNull(root.getSetting("group/setting").getValue());
+    }
+    
+    public void testLoadModelFileWithDetails() throws Exception {
+        InputStream inBase = getClass().getResourceAsStream("basename.xml");
+        SettingSet base = m_builder.buildModel(inBase, null);
+        IOUtils.closeQuietly(inBase);
+        
+        InputStream inModel = getClass().getResourceAsStream("basename_model.xml");
+        SettingSet model = m_builder.buildModel(inModel, base);
+        IOUtils.closeQuietly(inModel);
+        
+        assertNotNull(model.getSetting("car/color"));
+        assertNotNull(model.getSetting("car/model"));
+
+        InputStream inVersion = getClass().getResourceAsStream("basename_model_version.xml");
+        SettingSet version = m_builder.buildModel(inVersion, model);
+        IOUtils.closeQuietly(inVersion);
+
+        assertNotNull(version.getSetting("car/color"));
+        assertNotNull(version.getSetting("car/model"));
+        assertNotNull(version.getSetting("car/doodad"));
+        assertNull(model.getSetting("car/doodad"));
     }
 }

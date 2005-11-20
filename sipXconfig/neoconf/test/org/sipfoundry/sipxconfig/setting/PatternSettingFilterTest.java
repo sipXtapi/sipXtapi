@@ -23,7 +23,7 @@ public class PatternSettingFilterTest extends TestCase {
     public void testPatternFilter() throws IOException {
         ModelBuilder builder = new XmlModelBuilder("etc");
         InputStream in = getClass().getResourceAsStream("games.xml");
-        SettingSet games = builder.buildModel(in);
+        SettingSet games = builder.buildModel(in, null);
 
         PatternSettingFilter filter = new PatternSettingFilter();
         filter.addExcludes("/cards.*$");

@@ -17,8 +17,8 @@ import java.io.InputStream;
 
 public interface ModelBuilder {
 
-    public abstract SettingSet buildModel(File modelFile);
+    public abstract SettingSet buildModel(File modelFile, Setting parent);
 
-    public abstract SettingSet buildModel(InputStream is) throws IOException;
+    public abstract SettingSet buildModel(InputStream is, Setting parent) throws IOException;
 
 }

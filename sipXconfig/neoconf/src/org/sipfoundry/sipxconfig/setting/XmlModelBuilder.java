@@ -53,17 +53,16 @@ public class XmlModelBuilder implements ModelBuilder {
     public XmlModelBuilder(String configDirectory) {
         this(new File(configDirectory));
     }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.sipfoundry.sipxconfig.setting.ModelBuilder#buildModel(java.io.File)
-     */
+    
     public SettingSet buildModel(File modelFile) {
+        return buildModel(modelFile, null);
+    }
+
+    public SettingSet buildModel(File modelFile, Setting parent) {
         FileInputStream is = null;
         try {
             is = new FileInputStream(modelFile);
-            return buildModel(is);
+            return buildModel(is, parent);
 
         } catch (IOException e) {
             throw new RuntimeException("Cannot parse model definitions file "
@@ -78,16 +77,20 @@ public class XmlModelBuilder implements ModelBuilder {
      * 
      * @see org.sipfoundry.sipxconfig.setting.ModelBuilder#buildModel(java.io.InputStream)
      */
-    public SettingSet buildModel(InputStream is) throws IOException {
+    public SettingSet buildModel(InputStream is, Setting parent) throws IOException {
         Digester digester = new Digester();
 
-        // JBoss uses digester and therefore, preloaded, and therefore it's
-        // classloader cannot find classes inside deployment containers
+        // setting classloader ensures classes are searched for in this classloader
+        // instead of parent's classloader is digister was loaded there.
         digester.setClassLoader(this.getClass().getClassLoader());
 
         digester.setValidating(false);
         digester.setEntityResolver(m_entityResolver);
-        digester.push(new SettingSet());
+        if (parent != null) {
+            digester.push(parent.copy());
+        } else {
+            digester.push(new SettingSet());
+        }
         addSettingTypes(digester, "model/type/");
 
         String groupPattern = "*/group";

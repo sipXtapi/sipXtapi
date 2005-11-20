@@ -35,7 +35,7 @@ public class IniFileWriterTest extends TestCase {
         ModelBuilder builder = new XmlModelBuilder(TestHelper.getSysDirProperties()
                 .getProperty("sysdir.etc"));
         InputStream stream = getClass().getResourceAsStream("IniFileWriter.test.xml");
-        m_setting = builder.buildModel(stream).copy();
+        m_setting = builder.buildModel(stream, null).copy();
         stream.close();
     }
 
