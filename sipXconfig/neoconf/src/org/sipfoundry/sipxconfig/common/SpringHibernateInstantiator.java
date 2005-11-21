@@ -12,7 +12,11 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.commons.collections.Transformer;
+import org.apache.commons.collections.map.LazyMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.EmptyInterceptor;
@@ -34,6 +38,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     private static final Log LOG = LogFactory.getLog(SpringHibernateInstantiator.class);
     private ListableBeanFactory m_beanFactory;
     private SessionFactory m_sessionFactory;
+    private Map m_beanNamesCache;
 
     /**
      * This implementation only supports BeanWithId objects with integer ids
@@ -45,19 +50,39 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     }
 
     Object instantiate(Class clazz, Serializable id) {
-        ListableBeanFactory beanFactory = (ListableBeanFactory) getBeanFactory();
-        String[] beanDefinitionNames = beanFactory.getBeanNamesForType(clazz);
-        LOG.debug(beanDefinitionNames.length + " beans registered for class: " + clazz.getName());
-        for (int i = 0; i < beanDefinitionNames.length; i++) {
-            BeanWithId bean = (BeanWithId) beanFactory.getBean(beanDefinitionNames[i],
-                    BeanWithId.class);
-            // only return the bean if class matches exactly (do not return subclasses
-            if (clazz == bean.getClass()) {
-                bean.setId((Integer) id);
-                return bean;
-            }
+        String beanName = (String) m_beanNamesCache.get(clazz);
+        if (beanName == null) {
+            return null;
         }
-        return null;
+
+        BeanWithId bean = (BeanWithId) m_beanFactory.getBean(beanName, BeanWithId.class);
+        bean.setId((Integer) id);
+        return bean;
+    }
+
+    private static class ClassToBeanName implements Transformer {
+        private ListableBeanFactory m_beanFactory;
+
+        ClassToBeanName(ListableBeanFactory beanFactory) {
+            m_beanFactory = beanFactory;
+        }
+
+        public Object transform(Object input) {
+            Class clazz = (Class) input;
+            String[] beanDefinitionNames = m_beanFactory.getBeanNamesForType(clazz);
+            LOG.debug(beanDefinitionNames.length + " beans registered for class: "
+                    + clazz.getName());
+            for (int i = 0; i < beanDefinitionNames.length; i++) {
+                Object bean = m_beanFactory.getBean(beanDefinitionNames[i]);
+
+                if (clazz == bean.getClass()) {
+                    // only return the bean name if class matches exactly - no
+                    // subclasses
+                    return beanDefinitionNames[i];
+                }
+            }
+            return null;
+        }
     }
 
     /**
@@ -65,6 +90,8 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
      */
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = (ListableBeanFactory) beanFactory;
+        Transformer transformer = new ClassToBeanName(m_beanFactory);
+        m_beanNamesCache = LazyMap.decorate(new HashMap(), transformer);
     }
 
     public BeanFactory getBeanFactory() {

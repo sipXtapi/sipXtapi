@@ -36,6 +36,8 @@ public class SpringHibernateInstantiatorTest extends TestCase {
         BeanWithId bean = (BeanWithId) m_instantiator.instantiate(Gateway.class, id);
         assertSame(Gateway.class, bean.getClass());
         assertSame(id, bean.getId());
+        BeanWithId bean2 = (BeanWithId) m_instantiator.instantiate(Gateway.class, id);
+        assertNotSame(bean2, bean);
     }
 
     public void testInstantiateSubclass() {
@@ -50,5 +52,7 @@ public class SpringHibernateInstantiatorTest extends TestCase {
         // there is a good chance we will not have StringUtils in beanFactory
         Object bean = m_instantiator.instantiate(StringUtils.class, id);
         assertNull(bean);
+        Object bean2 = m_instantiator.instantiate(StringUtils.class, id);
+        assertNull(bean2);
     }
 }
