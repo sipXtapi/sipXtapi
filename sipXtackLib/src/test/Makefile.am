@@ -43,7 +43,7 @@ testsuite_SOURCES = \
 EXTRA_DIST = \
     net/SipSrvLookupTest.named.zone
 
-# [DEBUG ASSISTANT] List a single unittest to isoloate a unittest for
+# [DEBUG ASSISTANT] List a single unittest to isolate a unittest for
 # debugging or when developing a new unittest. As courtesy remove all
 # unittests before checking in, although forgetting to has no ill
 # effects.

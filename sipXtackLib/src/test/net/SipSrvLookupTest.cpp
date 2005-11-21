@@ -51,9 +51,7 @@ const char* printable_proto(OsSocket::IpProtocolSocketType type);
 class SipSrvLookupTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(SipSrvLookupTest);
-#if 0
    CPPUNIT_TEST(lookup);
-#endif
    CPPUNIT_TEST_SUITE_END();
 
 public:
