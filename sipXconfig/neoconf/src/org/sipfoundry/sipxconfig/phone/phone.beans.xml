@@ -17,6 +17,11 @@
     <property name="phoneDefaults">
       <ref local="phoneDefaults"/>
     </property>
+    <property name="firmwareManufacturerIds">
+      <list>
+        <value>polycom</value>
+      </list>
+    </property>
     <property name="availablePhoneModels">
       <list>
         <!-- TODO: alphabetize.  right now certain unittests are selecting the Nth
@@ -59,6 +64,11 @@
       </list>
     </property>
   </bean>
+  
+  <bean id="firmware" class="org.sipfoundry.sipxconfig.phone.Firmware">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+  
   <!--
   - P H O N E  C O N T E X T
   -->

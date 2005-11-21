@@ -55,6 +55,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private BeanFactory m_beanFactory;
 
     private List m_availableModels;
+    
+    private List m_firmwareManufacturerIds;
 
     private JobQueue m_jobQueue;
 
@@ -352,11 +354,15 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         getHibernateTemplate().delete(firmware);
     }
 
-    public List getUnspecifiedFirmare() {
-        return null;
+    public List getFirmwareManufacturerIds() {
+        return m_firmwareManufacturerIds;
     }
     
-    public List getSpecifiedFirmare() {
+    public void setFirmwareManufacturerIds(List firmwareManufacturerIds) {
+        m_firmwareManufacturerIds = firmwareManufacturerIds;
+    }
+    
+    public List getFirmware() {
         return getHibernateTemplate().loadAll(Firmware.class);
     }
 }

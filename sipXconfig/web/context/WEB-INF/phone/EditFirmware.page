@@ -14,6 +14,9 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback" 
+    	persistent="yes"/>
     
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
  

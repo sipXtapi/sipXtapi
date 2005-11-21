@@ -41,6 +41,7 @@
   <table name="line"/>
   <table name="phone_group"/>
   <table name="line_group"/>
+  <table name="firmware"/>
     
   <table name="gateway"/>  
   <table name="extension_pool"/>  

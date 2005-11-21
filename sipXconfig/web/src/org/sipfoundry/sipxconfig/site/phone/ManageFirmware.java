@@ -41,7 +41,7 @@ public abstract class ManageFirmware extends BasePage implements PageRenderListe
     public void addFirmware(IRequestCycle cycle) {
         EditFirmware page = (EditFirmware) cycle.getPage(EditFirmware.PAGE);
         page.setFirmwareId(null);
-        cycle.activate(page);      
+        page.activatePageWithCallback(PAGE, cycle);
     }
     
     public void deleteFirmware(IRequestCycle cycle_) {
@@ -50,7 +50,7 @@ public abstract class ManageFirmware extends BasePage implements PageRenderListe
     public void pageBeginRender(PageEvent event_) {
         Collection firmware = getFirmware();        
         if (firmware == null) {            
-            firmware = getPhoneContext().getSpecifiedFirmare(); 
+            firmware = getPhoneContext().getFirmware(); 
             setFirmware(firmware);            
         }
     }

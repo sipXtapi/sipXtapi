@@ -103,7 +103,7 @@ public interface PhoneContext extends DataObjectSource {
     
     public void deleteFirmware(Firmware firmware);
     
-    public List getUnspecifiedFirmare();
+    public List getFirmwareManufacturerIds();
 
-    public List getSpecifiedFirmare();
+    public List getFirmware();
 }
