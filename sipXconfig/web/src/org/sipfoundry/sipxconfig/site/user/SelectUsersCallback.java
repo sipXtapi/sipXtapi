@@ -52,7 +52,7 @@ public class SelectUsersCallback implements ICallback {
     /**
      * Overwrite to set additional page properties
      * 
-     * @param page to be activated
+     * @param page_ to be activated
      */
     protected void beforeActivation(AbstractPage page_) {
         // do nothing by default
