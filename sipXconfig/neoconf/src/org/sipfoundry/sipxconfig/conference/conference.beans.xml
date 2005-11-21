@@ -20,8 +20,11 @@
     </property>
     <property name="systemDefaults" ref="phoneDefaults"/>
     <property name="audioDirectory" value="${sysdir.phone}/conference"/>
+    <!-- default value - overridden in sipxconfig.properties -->
     <property name="host" value="localhost"/>
     <property name="port" value="8201"/>
+    <!-- default value - overridden in sipxconfig.properties -->
+    <property name="admissionServer" value="localhost:5100"/>
   </bean>
 
   <bean name="conferenceConference" class="org.sipfoundry.sipxconfig.conference.Conference"
@@ -29,12 +32,15 @@
     <property name="settingModel">
       <ref local="conferenceSettingModel"/>      
     </property>
+    <!-- default value - overridden in sipxconfig.properties -->
+    <property name="admissionScriptServer" value="localhost:8091"/>
   </bean>
   
   <bean id="conferenceBridgeContextImpl"
     class="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="aliasManager" ref="aliasManager"/>
+    <property name="coreContext" ref="coreContext"/>
     <property name="provisioning">
       <ref local="conferenceBridgeProvisioning"/>
     </property>
@@ -43,7 +49,8 @@
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean"
     parent="abstractDao">
     <property name="proxyInterfaces"
-      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext"/>
+      value="org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext,
+      	org.sipfoundry.sipxconfig.admin.commserver.AliasProvider"/>
     <property name="target">
       <ref local="conferenceBridgeContextImpl"/>
     </property>

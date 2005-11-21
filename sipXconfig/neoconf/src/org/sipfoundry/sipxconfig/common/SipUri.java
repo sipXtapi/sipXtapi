@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.text.MessageFormat;
+import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -26,16 +28,16 @@ public class SipUri {
         String uri = format(userName, domain, port);
         m_uri = uri;
     }
-    
+
     public SipUri(String domain, int port) {
         String uri = format(domain, port);
         m_uri = uri;
-    }    
+    }
 
     public SipUri(String userName, String domain, boolean quote) {
         m_uri = format(userName, domain, quote);
     }
-    
+
     public static String format(User user, String domainName) {
         StringBuffer uri = new StringBuffer();
         boolean needsWrapping = false;
@@ -48,9 +50,9 @@ public class SipUri {
 
         String uriProper = format(user.getUserName(), domainName, needsWrapping);
         uri.append(uriProper);
-        return uri.toString();        
+        return uri.toString();
     }
-    
+
     public static String format(String userName, String domainName, int port) {
         Object[] params = {
             userName, domainName, Integer.toString(port)
@@ -58,20 +60,39 @@ public class SipUri {
         String uri = MessageFormat.format("sip:{0}@{1}:{2}", params);
         return uri;
     }
-    
+
     public static String format(String domainName, int port) {
         Object[] params = {
             domainName, Integer.toString(port)
         };
         String uri = MessageFormat.format("sip:{0}:{1}", params);
         return uri;
-    }    
-    
+    }
+
     public static String format(String userName, String domain, boolean quote) {
         Object[] params = {
             quote ? "<" : StringUtils.EMPTY, userName, domain, quote ? ">" : StringUtils.EMPTY
         };
         return MessageFormat.format("{0}sip:{1}@{2}{3}", params);
+    }
+
+    public static String format(String name, String domain, Map urlParams) {
+        StringBuffer paramsBuffer = new StringBuffer();
+        for (Iterator i = urlParams.entrySet().iterator(); i.hasNext();) {
+            Map.Entry entry = (Map.Entry) i.next();
+            paramsBuffer.append(';');
+            paramsBuffer.append(entry.getKey());
+            Object value = entry.getValue();
+            if (value != null) {
+                paramsBuffer.append('=');
+                paramsBuffer.append(value);
+            }
+        }
+
+        Object[] params = {
+            name, domain, paramsBuffer
+        };
+        return MessageFormat.format("<sip:{0}@{1}{2}>", params);
     }
 
     public String toString() {

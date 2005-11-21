@@ -44,6 +44,9 @@ public class Bridge extends BeanWithSettings implements NamedObject {
 
     private String m_host;
 
+    /** location - host:port of the admission server */
+    private String m_admissionServer;
+
     public String getHost() {
         return m_host;
     }
@@ -68,6 +71,14 @@ public class Bridge extends BeanWithSettings implements NamedObject {
     public void removeConference(Conference conference) {
         conference.setBridge(null);
         getConferences().remove(conference);
+    }
+
+    public void setAdmissionServer(String admissionServer) {
+        m_admissionServer = admissionServer;
+    }
+
+    public String getAdmissionServer() {
+        return m_admissionServer;
     }
 
     // trivial get/set

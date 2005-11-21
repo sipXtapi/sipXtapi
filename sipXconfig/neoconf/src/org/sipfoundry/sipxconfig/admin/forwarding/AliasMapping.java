@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**
@@ -54,6 +56,24 @@ public class AliasMapping {
         builder.append("identity", m_identity);
         builder.append("contact", m_contact);
         return builder.toString();
+    }
+
+    public boolean equals(Object obj) {
+        if (!(obj instanceof AliasMapping)) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+        AliasMapping rhs = (AliasMapping) obj;
+        EqualsBuilder builder = new EqualsBuilder();
+        builder.append(m_identity, rhs.m_identity);
+        builder.append(m_contact, rhs.m_contact);
+        return builder.isEquals();
+    }
+
+    public int hashCode() {
+        return new HashCodeBuilder().append(m_identity).append(m_contact).toHashCode();
     }
 
     public static String createUri(String user, String domain) {

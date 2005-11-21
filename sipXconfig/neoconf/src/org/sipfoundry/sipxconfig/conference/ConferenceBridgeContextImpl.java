@@ -22,8 +22,10 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
+import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
@@ -31,7 +33,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
-        ConferenceBridgeContext {
+        ConferenceBridgeContext, AliasProvider {
     private static final String CONFERENCE = "conference";
     private static final String VALUE = "value";
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
@@ -39,6 +41,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private ConferenceBridgeProvisioning m_provisioning;
+    private CoreContext m_coreContext;
 
     public List getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
@@ -142,6 +145,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         m_provisioning = provisioning;
     }
 
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
     public boolean isAliasInUse(String alias) {
         List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 CONFERENCE_IDS_WITH_ALIAS, VALUE, alias);
@@ -155,4 +162,13 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return bids;
     }
 
+    public Collection getAliasMappings() {
+        List conferences = getHibernateTemplate().loadAll(Conference.class);
+        final ArrayList list = new ArrayList();
+        for (Iterator i = conferences.iterator(); i.hasNext();) {
+            Conference conference = (Conference) i.next();
+            list.addAll(conference.generateAliases(m_coreContext.getDomainName()));
+        }
+        return list;
+    }
 }

@@ -11,9 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 
 public class ConferenceTest extends TestCase {
     private Conference m_conf;
@@ -49,4 +52,40 @@ public class ConferenceTest extends TestCase {
         assertTrue(m_conf.getRemoteAdmitSecret().length() > 0);
     }
 
+    public void testGenerateAliases() {
+        Bridge bridge = new Bridge();
+        bridge.setAdmissionServer("media.sipfoundry.org:5100");
+
+        bridge.insertConference(m_conf);
+        // empty for disabled conference
+        m_conf.setName("conf1");
+        m_conf.setAdmissionScriptServer("localhost:8091");
+        List aliasMappings = m_conf.generateAliases("sipfoundry.org");
+
+        assertTrue(aliasMappings.isEmpty());
+
+        // 1 alias for conference without extension
+        m_conf.setEnabled(true);
+        aliasMappings = m_conf.generateAliases("sipfoundry.org");
+        assertEquals(1, aliasMappings.size());
+
+        AliasMapping am = (AliasMapping) aliasMappings.get(0);
+        assertEquals("conf1@sipfoundry.org", am.getIdentity());
+        assertEquals("<sip:conf1@media.sipfoundry.org:5100;"
+                + "play=https%3A%2F%2Flocalhost%3A8091%2Fcgi-bin%2Fcbadmission%2Fcbadmission.cgi"
+                + "%3F" + "action%3Dconferencebridge" + "%26" + "confid%3Dconf1" + "%26"
+                + "name%3Dcbadmission>", am.getContact());
+
+        // 2 aliases for conference with extension
+        m_conf.setExtension("1111");
+        aliasMappings = m_conf.generateAliases("sipfoundry.org");
+        assertEquals(2, aliasMappings.size());
+
+        AliasMapping am0 = (AliasMapping) aliasMappings.get(0);
+        assertEquals("1111@sipfoundry.org", am0.getIdentity());
+        assertEquals("sip:conf1@sipfoundry.org", am0.getContact());
+
+        AliasMapping am1 = (AliasMapping) aliasMappings.get(1);
+        assertEquals(am1, am);
+    }
 }

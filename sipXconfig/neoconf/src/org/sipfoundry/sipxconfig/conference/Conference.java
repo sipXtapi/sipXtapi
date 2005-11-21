@@ -11,7 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -35,6 +46,9 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public static final String REMOTE_ADMIT_SECRET = "bridge-conference/BOSTON_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET";
     public static final String AOR_RECORD = "bridge-conference/BOSTON_BRIDGE_CONFERENCE.AOR";
 
+    private static final String ADMISSION_SCRIPT_URL = "https://{0}/cgi-bin/cbadmission/cbadmission.cgi"
+            + "?action=conferencebridge&confid={1}&name=cbadmission";
+
     private boolean m_enabled;
 
     private String m_name;
@@ -44,6 +58,9 @@ public class Conference extends BeanWithSettings implements NamedObject {
     private String m_extension;
 
     private Bridge m_bridge;
+
+    /** location - host:port of the conference scripts that admission server needs to retrieve */
+    private String m_admissionScriptServer;
 
     // trivial get/set
     public String getDescription() {
@@ -115,6 +132,10 @@ public class Conference extends BeanWithSettings implements NamedObject {
         return getSettingValue(AOR_RECORD);
     }
 
+    public void setAdmissionScriptServer(String admissionScriptServer) {
+        m_admissionScriptServer = admissionScriptServer;
+    }
+
     protected void defaultSettings() {
         super.defaultSettings();
         Setting settings = getSettings();
@@ -142,6 +163,49 @@ public class Conference extends BeanWithSettings implements NamedObject {
         public Object revertToDefault(Setting setting) {
             // same as getValue
             return getValue(setting);
+        }
+    }
+
+    /**
+     * Generates two alias mappings for a conference:
+     * 
+     * extension@domain ==> name@domainm and name@domain ==>> media server
+     * 
+     * @param domainName
+     * 
+     * @return list of aliase mappings, empty list if conference is disabled
+     */
+    public List generateAliases(String domainName) {
+        if (!isEnabled()) {
+            return Collections.EMPTY_LIST;
+        }
+        ArrayList aliases = new ArrayList();
+        if (StringUtils.isNotBlank(m_extension)) {
+            // add extension mapping
+            String extensionUri = AliasMapping.createUri(m_extension, domainName);
+            String identityUri = SipUri.format(m_name, domainName, false);
+            AliasMapping extensionAlias = new AliasMapping(extensionUri, identityUri);
+            aliases.add(extensionAlias);
+        }
+        aliases.add(createAdmissionAlias(domainName));
+        return aliases;
+    }
+
+    private AliasMapping createAdmissionAlias(String domainName) {
+        try {
+            Object[] params = {
+                m_admissionScriptServer, m_name
+            };
+            String admissionScriptUrl = MessageFormat.format(ADMISSION_SCRIPT_URL, params);
+            admissionScriptUrl = URLEncoder.encode(admissionScriptUrl, "UTF-8");
+            Map urlParams = new HashMap();
+            urlParams.put("play", admissionScriptUrl);
+            String admission = SipUri.format(m_name, getBridge().getAdmissionServer(), urlParams);
+            String identity = AliasMapping.createUri(m_name, domainName);
+
+            return new AliasMapping(identity, admission);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
         }
     }
 }
