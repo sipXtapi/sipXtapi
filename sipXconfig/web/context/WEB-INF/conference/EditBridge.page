@@ -32,7 +32,33 @@
     <component id="itemCommon" type="ItemCommon">
         <binding name="item" expression="bridge"/>
         <binding name="useEnabled" expression="true"/>
-        <binding name="useExtension" expression="false"/>        
+        <binding name="useExtension" expression="false"/>
+        <binding name="useFieldset" expression="false"/>
+    </component>
+    
+    <component id="hostPanel" type="FieldPanel">
+        <binding name="field" expression="components.host"/>
+        <message-binding name="label" key="label.host"/>
+        <message-binding name="description" key="description.host"/>
+    </component>
+    <component id="host" type="ValidField">
+        <binding name="value" expression="bridge.host"/>
+        <binding name="validator" expression="global.validHostOrIp"/>
+        <message-binding name="displayName" key="label.host"/>
+    </component>
+    
+    <component id="portPanel" type="FieldPanel">
+        <binding name="field" expression="components.port"/>
+        <message-binding name="label" key="label.port"/>
+        <message-binding name="description" key="description.port"/>
+    </component>
+    <component id="port" type="contrib:NumericField">
+        <binding name="value" expression="bridge.port"/>
+        <binding name="minimum" expression="1024"/>
+        <binding name="maximum" expression="65534"/>
+        <message-binding name="displayName" key="label.port"/>
+        <binding name="required" expression="true"/>
+        <static-binding name="type" value="int"/>
     </component>
     
     <component id="settingsFieldset" type="SettingsFieldset">

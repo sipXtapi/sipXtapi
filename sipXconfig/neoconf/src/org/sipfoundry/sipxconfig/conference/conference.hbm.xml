@@ -12,6 +12,8 @@
     <property name="enabled"/>
     <property name="name"/>
     <property name="description"/>
+    <property name="host"/>
+    <property name="port"/>
     
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"

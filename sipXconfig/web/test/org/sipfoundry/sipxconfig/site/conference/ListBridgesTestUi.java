@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.conference;
 
 import junit.framework.Test;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
@@ -28,13 +29,13 @@ public class ListBridgesTestUi extends ListWebTestCase {
 
     protected String[] getParamNames() {
         return new String[] {
-            "name", "description"
+            "name", "host", "description"
         };
     }
 
     protected String[] getParamValues(int i) {
         return new String[] {
-            "bridge" + i, "Description" + i
+            "bridge" + i, "host" + i + ".com", "Description" + i
         };
     }
 
@@ -43,10 +44,6 @@ public class ListBridgesTestUi extends ListWebTestCase {
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
-        Object[] expected = new Object[3];
-        expected[0] = paramValues[0];
-        expected[1] = "false";
-        expected[2] = paramValues[1];
-        return expected;
+        return ArrayUtils.add(paramValues, 1, "false");
     }
 }
