@@ -13,7 +13,7 @@
     <Call name="getInstance">
       <Arg/>
       <Call name="reset"/>
-      <Set name="debug">true</Set>
+      <!-- Set name="debug">true</Set -->
       <!--
         -   Verbose levels
         - ====================
@@ -21,7 +21,7 @@
         -  0  = INFO
         -  1  = TRACE
         -->
-      <Set name="verbose">1</Set>
+      <Set name="verbose">-1</Set>
       <Call name="add">
         <Arg>
           <New class="org.mortbay.log.OutputStreamLogSink">
