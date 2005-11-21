@@ -44,10 +44,10 @@ public class XmlModelBuilder implements ModelBuilder {
     private static final String EL_LABEL = "/label";
 
     private final Map m_types = new HashMap();
-    private final EntityResolver m_entityResolver;
+    private final File m_configDirectory;
 
     public XmlModelBuilder(File configDirectory) {
-        m_entityResolver = new ModelEntityResolver(configDirectory);
+        m_configDirectory = configDirectory;
     }
 
     public XmlModelBuilder(String configDirectory) {
@@ -57,12 +57,12 @@ public class XmlModelBuilder implements ModelBuilder {
     public SettingSet buildModel(File modelFile) {
         return buildModel(modelFile, null);
     }
-
+    
     public SettingSet buildModel(File modelFile, Setting parent) {
         FileInputStream is = null;
         try {
             is = new FileInputStream(modelFile);
-            return buildModel(is, parent);
+            return buildModel(is, parent, modelFile.getParentFile());
 
         } catch (IOException e) {
             throw new RuntimeException("Cannot parse model definitions file "
@@ -72,20 +72,23 @@ public class XmlModelBuilder implements ModelBuilder {
         }
     }
 
+    public SettingSet buildModel(InputStream is, Setting parent) throws IOException {
+        return buildModel(is, parent, null);
+    }
     /*
      * (non-Javadoc)
      * 
      * @see org.sipfoundry.sipxconfig.setting.ModelBuilder#buildModel(java.io.InputStream)
      */
-    public SettingSet buildModel(InputStream is, Setting parent) throws IOException {
+    public SettingSet buildModel(InputStream is, Setting parent, File baseSystemId) throws IOException {
         Digester digester = new Digester();
 
         // setting classloader ensures classes are searched for in this classloader
         // instead of parent's classloader is digister was loaded there.
         digester.setClassLoader(this.getClass().getClassLoader());
-
         digester.setValidating(false);
-        digester.setEntityResolver(m_entityResolver);
+        EntityResolver entityResolver = new ModelEntityResolver(m_configDirectory, baseSystemId);
+        digester.setEntityResolver(entityResolver);
         if (parent != null) {
             digester.push(parent.copy());
         } else {
@@ -308,13 +311,32 @@ public class XmlModelBuilder implements ModelBuilder {
         private static final String DTD = "setting.dtd";
 
         private File m_dtd;
+        private File m_baseSystemId;               
 
-        ModelEntityResolver(File file) {
-            m_dtd = new File(file, DTD);
+        ModelEntityResolver(File configDirectory, File baseSystemId) {
+            m_dtd = new File(configDirectory, DTD);
+            m_baseSystemId = baseSystemId;
         }
 
-        public InputSource resolveEntity(String publicId_, String systemId_) throws IOException {
-            return new InputSource(new FileInputStream(m_dtd));
+        public InputSource resolveEntity(String publicId, String systemId) throws IOException {
+            if (publicId != null) {
+                if (publicId.startsWith("-//SIPFoundry//sipXconfig//Model specification ")) {
+                    return new InputSource(new FileInputStream(m_dtd));
+                }
+            } else if (systemId != null && m_baseSystemId != null) {
+                //
+                // LIMITATION: All files loaded as ENTITYies defined as SYSTEM
+                // must live in same directory as XML file
+                //
+                // HACK: Xerces 2.7.0 has a propensity to expand systemId to full path
+                // which makes it hard to determine original relative URI. Tricks to use 
+                // systemId on inputsource and using file:// failed. 
+                String name = new File(systemId).getName();
+                File f = new File(m_baseSystemId, name);
+                return new InputSource(new FileInputStream(f));                    
+            }
+                
+            return null;
         }
     }
 }

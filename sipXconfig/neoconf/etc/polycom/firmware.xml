@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="files">	    
+	  <setting name="bootrom.ld">
+	    <label>Boot ROM</label>
+      <type><file/></type>
+	    <description>bootrom.ld file. 2.6.2 is recommended. 3.x is </description>
+	  </setting>
+ </group>
+</model>

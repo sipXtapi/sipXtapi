@@ -104,7 +104,7 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     private void init() {
-        setPhoneTemplate("cisco/cisco-ata.vm");
+        setPhoneTemplate("ciscoAta/cisco-ata.vm");
     }
 
     public String getCfgPrefix() {
@@ -125,7 +125,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         if (m_ptagDat != null) {
             return m_ptagDat;
         }
-        return getPhoneContext().getSystemDirectory() + "/cisco/" + getCfgPrefix() + "-ptag.dat";
+        return getPhoneContext().getSystemDirectory() + "/ciscoAta/" + getCfgPrefix() + "-ptag.dat";
     }
 
     public void setCfgfmtUtility(String cfgfmtUtility) {
@@ -139,7 +139,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         if (m_cfgfmtUtility != null) {
             return m_cfgfmtUtility;
         }
-        return getPhoneContext().getSystemDirectory() + "/cisco/cfgfmt";
+        return getPhoneContext().getSystemDirectory() + "/ciscoAta/cfgfmt";
     }
 
     public String getBinDir() {

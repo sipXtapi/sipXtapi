@@ -35,7 +35,7 @@ public class SipConfigurationTest  extends XMLTestCase {
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
         phone = new PolycomPhone(PolycomModel.MODEL_600);
-        tester = new PhoneTestDriver(phone, "polycom/phone.xml");        
+        tester = new PhoneTestDriver(phone);        
     }
     
     public void testGenerateProfile() throws Exception {

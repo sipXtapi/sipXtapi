@@ -29,7 +29,7 @@ public class PolycomPhoneTest extends TestCase {
 
     protected void setUp() {
         m_phone = new PolycomPhone(PolycomModel.MODEL_600);
-        m_tester = new PhoneTestDriver(m_phone, "polycom/phone.xml");
+        m_tester = new PhoneTestDriver(m_phone);
     }
 
     public void testGenerateProfiles() throws Exception {

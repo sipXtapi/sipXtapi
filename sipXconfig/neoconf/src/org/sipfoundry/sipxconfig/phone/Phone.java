@@ -21,12 +21,12 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -51,6 +51,8 @@ public class Phone extends BeanWithGroups {
     private List m_lines = Collections.EMPTY_LIST;
 
     private PhoneContext m_phoneContext;
+    
+    private ModelFilesContext m_modelFilesContext; 
 
     private String m_tftpRoot;
 
@@ -131,33 +133,20 @@ public class Phone extends BeanWithGroups {
     }
 
     public Setting getSettingModel() {
-        Setting model = super.getSettingModel();
-        if (model == null) {
-            return null;
+        Setting settingModel = super.getSettingModel();
+        if (settingModel == null) {
+            settingModel = loadModelFile("phone.xml");
+            setSettingModel(settingModel);
         }
-
-        String name = getModel().getName();
-        Setting modelType = model.getSetting(name);
-        Setting phoneModel = modelType.getSetting(PHONE_CONSTANT);
-        phoneModel.setName(StringUtils.EMPTY);
-        phoneModel.setParentPath(null); // detach
-
-        return phoneModel;
+        
+        return settingModel;
     }
-
-    public Setting getLineSettingModel() {
-        Setting model = super.getSettingModel();
-        if (model == null) {
-            return null;
-        }
-
-        String name = getModel().getName();
-        Setting modelType = model.getSetting(name);
-        Setting lineModel = modelType.getSetting("line");
-        lineModel.setName(StringUtils.EMPTY);
-        lineModel.setParentPath(null); // detach
-
-        return lineModel;
+    
+    Setting loadModelFile(String basename) {
+        String[] details = new String[] {
+                getModel().getModelId()
+        };
+        return m_modelFilesContext.loadModelFile(basename, getBeanId(), details);        
     }
 
     /**
@@ -367,5 +356,9 @@ public class Phone extends BeanWithGroups {
         Line line = new Line();
         line.setPhone(this);
         return line;
+    }
+
+    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
+        m_modelFilesContext = modelFilesContext;
     }
 }

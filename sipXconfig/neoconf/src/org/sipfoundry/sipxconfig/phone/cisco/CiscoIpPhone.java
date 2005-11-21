@@ -40,7 +40,7 @@ public class CiscoIpPhone extends CiscoPhone {
     }
 
     private void init() {
-        setPhoneTemplate("cisco/cisco-ip.vm");
+        setPhoneTemplate("ciscoIp/cisco-ip.vm");
     }
 
     public String getPhoneFilename() {

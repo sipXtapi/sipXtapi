@@ -1,0 +1,116 @@
+<?xml version="1.0" ?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <group name="handytone">
+    <label>HandyTone Specific</label>
+    <setting name="P86">
+      <label>FXS Impedence</label>
+      <type>
+        <enum>
+          <option>
+            <label>600 Ohm (North America)</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>900 Ohm</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>600 Ohm + 2.16 uF</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>900 Ohm + 2.16 uF</label>
+            <value>3</value>
+          </option>
+          <option>
+            <label>CTR21</label>
+            <value>4</value>
+          </option>
+          <option>
+            <label>Australia/New Zealand #1</label>
+            <value>5</value>
+          </option>
+          <option>
+            <label>Slovakia/Slovenia/South Africa</label>
+            <value>6</value>
+          </option>
+          <option>
+            <label>New Zealand #2</label>
+            <value>7</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="P200">
+      <label>Caller ID Scheme</label>
+      <type>
+        <enum>
+          <option>
+            <label>Bellcore (North America)</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>ETSI-FSK (F, D, N, TW, UK-CCA)</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>ETSI-DTMF (FIN, S)</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>Denmark-DTMF</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="P206">
+      <label>Onhook Voltage</label>
+      <type>
+        <enum>
+          <option>
+            <label>18V</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>24V</label>
+            <value>5</value>
+          </option>
+          <option>
+            <label>36V</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>48V</label>
+            <value>3</value>
+          </option>
+          <option>
+            <label>51V</label>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="P205">
+      <label>Polarity Reversal</label>
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>Enable polarity reversal.</description>
+    </setting>
+    <setting name="P228">
+      <label>Pass Through FAX Mode</label>
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>Enable Pass Through FAX Mode, otherwise use T.38 (Auto Detect)</description>
+    </setting>
+  </group>
+</model>

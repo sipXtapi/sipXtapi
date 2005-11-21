@@ -27,7 +27,7 @@ public class GrandstreamPhoneTest extends TestCase {
     
     protected void setUp() {
         phone = new GrandstreamPhone(GrandstreamModel.MODEL_BUDGETONE);
-        tester = new PhoneTestDriver(phone, "grandstream/phone.xml");
+        tester = new PhoneTestDriver(phone);
     }
 
     public void testGenerateTextProfiles() throws Exception {

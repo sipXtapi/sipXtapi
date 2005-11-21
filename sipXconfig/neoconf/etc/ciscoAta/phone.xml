@@ -1,0 +1,551 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ] >
+<model>
+  &types;
+  <group name="network">
+    <label>Network Parameters</label>
+    <setting name="UIPassword">
+      <type>
+        <string maxLen="9"/>
+      </type>
+      <value>0</value>
+      <description>Password for HTTP configuration interface (0 = disabled).</description>
+    </setting>
+    <setting name="UseTFTP">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>Enable TFTP server for ATA configuration.</description>
+    </setting>
+    <setting name="TftpURL">
+      <value>0</value>
+      <description>Specify IP address or URL of the TFTP server.</description>
+    </setting>
+    <setting name="CfgInterval">
+      <type>
+        <integer min="60" max="2147483647"/>
+      </type>
+      <value>3600</value>
+      <description>Period to check for updates to configuration. Random number from 1-1800 is 
+        added.</description>
+    </setting>
+    <setting name="DHCP">
+      <label>Enable DHCP</label>
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>If 1, enable DHCP.</description>
+    </setting>
+    <setting name="StaticIP">
+      <type>
+        <ipaddr/>
+      </type>
+      <value>0.0.0.0</value>
+      <description>Statically assigned IP address.</description>
+    </setting>
+    <setting name="StaticRoute">
+      <type>
+        <ipaddr/>
+      </type>
+      <value>0.0.0.0</value>
+      <description>Statically assigned default router IP address.</description>
+    </setting>
+    <setting name="StaticNetMask">
+      <type>
+        <ipaddr/>
+      </type>
+      <value>255.255.255.0</value>
+      <description>Statically assigned IP subnet mask.</description>
+    </setting>
+    <setting name="DNS1IP">
+      <type>
+        <ipaddr/>
+      </type>
+      <value>0.0.0.0</value>
+      <description>Statically assigned primary DNS server address.</description>
+    </setting>
+    <setting name="DNS2IP">
+      <type>
+        <ipaddr/>
+      </type>
+      <value>0.0.0.0</value>
+      <description>Statically assigned secondary DNS server address.</description>
+    </setting>
+    <setting name="NTPIP">
+      <type>
+        <ipaddr/>
+      </type>
+      <value>0.0.0.0</value>
+      <description>Statically assigned NTP server IP address.</description>
+    </setting>
+    <setting name="AltNTPIP">
+      <type>
+        <ipaddr/>
+      </type>
+      <value>0.0.0.0</value>
+      <description>Statically assigned alternate NTP server IP address.</description>
+    </setting>
+    <setting name="L2KeepAlive">
+      <type>
+        <integer/>
+      </type>
+      <value>0</value>
+      <description>(no documentation found)</description>
+    </setting>
+    <setting name="NATIP">
+      <type>
+        <ipaddr/>
+      </type>
+      <value>0.0.0.0</value>
+      <description>WAN IP address of the attached router/NAT (SIP behind a NAT).</description>
+    </setting>
+    <setting name="NatServer">
+      <!-- IP address or FQDN -->
+      <type>
+        <string/>
+      </type>
+      <value>0</value>
+      <description>Server to which dummy UDP packets are sent to maintain a NAT translation for 
+        a session.</description>
+    </setting>
+    <group name="vlansettinggroup">
+      <label>VLANSetting</label>
+      <setting name="VLANSetting" hidden="yes">
+        <type refid="bitmap"/>
+        <value>0x0</value>
+        <description>VLAN-related settings.</description>
+      </setting>
+      <setting name="__VLANSetting.0" advanced="yes">
+        <label>CoS value for signaling</label>
+        <type>
+          <integer min="0" max="7"/>
+        </type>
+        <value>3</value>
+        <description>802.1P priority</description>
+      </setting>
+      <setting name="__VLANSetting.3" advanced="yes">
+        <label>CoS value for voice</label>
+        <type>
+          <integer min="0" max="7"/>
+        </type>
+        <value>5</value>
+        <description>802.1P priority</description>
+      </setting>
+      <setting name="__VLANSetting.18" advanced="yes">
+        <label>802.1Q VLAN ID</label>
+        <type>
+          <integer min="0" max="4095"/>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="tosgroup">
+      <label>Type of Service (TOS)</label>
+      <setting name="TOS" hidden="yes">
+        <type refid="bitmap"/>
+        <value>0x0</value>
+        <description>Type of Service configuration.</description>
+      </setting>
+      <setting name="__TOS.0" advanced="yes">
+        <label>ToS for audio</label>
+        <type>
+          <integer min="0" max="255"/>
+        </type>
+        <value>184</value>
+        <description>Type of Service.</description>
+      </setting>
+      <setting name="__TOS.8" advanced="yes">
+        <label>ToS for signaling</label>
+        <type>
+          <integer min="0" max="255"/>
+        </type>
+        <value>104</value>
+        <description>Type of Service.</description>
+      </setting>
+    </group>
+  </group>
+  <group name="sip">
+    <label>SIP Parameters</label>
+    <setting name="UseLoginID">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>Use LoginID as the authentication ID, otherwise use UID.</description>
+    </setting>
+    <setting name="SIPRegOn">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>Enable SIP registration.</description>
+    </setting>
+    <setting name="SIPRegInterval">
+      <type>
+        <integer min="1" max="86400"/>
+      </type>
+      <value>900</value>
+      <description>SIP registration renewal interval in seconds.</description>
+    </setting>
+    <setting name="Proxy">
+      <type>
+        <string maxLen="31"/>
+      </type>
+      <value>0</value>
+      <description>Proxy or registrar address (0 = disabled).</description>
+    </setting>
+    <setting name="SecProxy">
+      <type>
+        <string maxLen="31"/>
+      </type>
+      <value>0</value>
+      <description>Backup proxy address (0 = disabled).</description>
+    </setting>
+    <setting name="SecProxyTimeOut">
+      <type>
+        <integer min="0" max="2147483647"/>
+      </type>
+      <value>0</value>
+      <description>Timeout before failing back to primary proxy server (0 = not until backup 
+        fails).</description>
+    </setting>
+    <setting name="SipOutBoundProxy">
+      <label>OutBoundProxy</label>
+      <type>
+        <string maxLen="31"/>
+      </type>
+      <value>0</value>
+      <description>SIP proxy server to which all outgoing SIP requests are sent.</description>
+    </setting>
+    <setting name="SIPPort">
+      <type>
+        <integer min="1" max="65535"/>
+      </type>
+      <value>5060</value>
+      <description>The port for SIP requests.</description>
+    </setting>
+    <setting name="MediaPort">
+      <!-- even values only -->
+      <type>
+        <integer min="2" max="65534"/>
+      </type>
+      <value>16384</value>
+      <description>The base port for RTP media.</description>
+    </setting>
+    <setting name="MAXRedirect">
+      <type>
+        <integer min="0" max="10"/>
+      </type>
+      <value>5</value>
+      <description>Maximum number of forwards for a call.</description>
+    </setting>
+    <setting name="SessionInterval">
+      <type>
+        <integer min="60" max="86400"/>
+      </type>
+      <value>1800</value>
+      <description>Interval between SIP session refreshes (seconds).</description>
+    </setting>
+    <setting name="MinSessionInterval">
+      <type>
+        <integer min="60" max="86400"/>
+      </type>
+      <value>1800</value>
+      <description>Minimum required interval between SIP session refreshes.</description>
+    </setting>
+    <group name="msgretrylimitsgroup">
+      <label>MsgRetryLimits</label>
+      <setting name="MsgRetryLimits" hidden="yes">
+        <type refid="bitmap"/>
+        <value>0x0</value>
+        <description>Configure retry limits.</description>
+      </setting>
+      <setting name="__MsgRetryLimits.0" advanced="yes">
+        <label>Retransmit SIP requests</label>
+        <type>
+          <integer min="0" max="15"/>
+        </type>
+        <value>0</value>
+        <description>Except those listed below and final response to INVITE. 0 = default 
+          values, NOTIFY 6, PRACK 5, response to INVITE 7</description>
+      </setting>
+      <setting name="__MsgRetryLimits.4" advanced="yes">
+        <label>Retransmit REGISTER requests</label>
+        <type>
+          <integer min="0" max="15"/>
+        </type>
+        <value>0</value>
+        <description>0 = default value (10 times)</description>
+      </setting>
+      <setting name="__MsgRetryLimits.8" advanced="yes">
+        <label>Retransmit INVITE request</label>
+        <type>
+          <integer min="0" max="15"/>
+        </type>
+        <value>0</value>
+        <description>0 = default value (2 times)</description>
+      </setting>
+      <setting name="__MsgRetryLimits.12" advanced="yes">
+        <label>Retransmit BYE request</label>
+        <type>
+          <integer min="0" max="15"/>
+        </type>
+        <value>0</value>
+        <description>0 = default value (4 times)</description>
+      </setting>
+      <setting name="__MsgRetryLimits.16" advanced="yes">
+        <label>Retransmit CANCEL request</label>
+        <type>
+          <integer min="0" max="15"/>
+        </type>
+        <value>0</value>
+        <description>0 = default value (4 times)</description>
+      </setting>
+      <setting name="__MsgRetryLimits.20" advanced="yes">
+        <label>Retransmit REFER request</label>
+        <type>
+          <integer min="0" max="15"/>
+        </type>
+        <value>0</value>
+        <description>0 = default value (5 times)</description>
+      </setting>
+    </group>
+  </group>
+  <group name="service">
+    <label>Service Parameters</label>
+    <setting name="CallCmd" advanced="yes">
+      <type>
+        <string maxLen="248"/>
+      </type>
+      <value> 
+        Af;AH;BS;NA;CS;NA;Df;EB;Ff;EP;Kf;EFh;HH;Jf;AFh;HQ;I*67;gA*82;fA#90v#;OI;H#72v#;bA#74v#;cA#75v#;dA#73;eA*67;gA*82;fA*70;iA*69;DA*99;xA;Uh;GQ;</value>
+      <description>Call command control table (see ATA administration guide).</description>
+    </setting>
+    <setting name="TimeZone">
+      <type>
+        <enum>
+          <option>
+            <label>GMT</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>GMT+1</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>GMT+2</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>GMT+3</label>
+            <value>3</value>
+          </option>
+          <option>
+            <label>GMT+4</label>
+            <value>4</value>
+          </option>
+          <option>
+            <label>GMT+5</label>
+            <value>5</value>
+          </option>
+          <option>
+            <label>GMT+6</label>
+            <value>6</value>
+          </option>
+          <option>
+            <label>GMT+7</label>
+            <value>7</value>
+          </option>
+          <option>
+            <label>GMT+8</label>
+            <value>8</value>
+          </option>
+          <option>
+            <label>GMT+9</label>
+            <value>9</value>
+          </option>
+          <option>
+            <label>GMT+10</label>
+            <value>10</value>
+          </option>
+          <option>
+            <label>GMT+11</label>
+            <value>11</value>
+          </option>
+          <option>
+            <label>GMT+12</label>
+            <value>12</value>
+          </option>
+          <option>
+            <label>GMT-12</label>
+            <value>13</value>
+          </option>
+          <option>
+            <label>GMT-11</label>
+            <value>14</value>
+          </option>
+          <option>
+            <label>GMT-10</label>
+            <value>15</value>
+          </option>
+          <option>
+            <label>GMT-9</label>
+            <value>16</value>
+          </option>
+          <option>
+            <label>GMT-8</label>
+            <value>17</value>
+          </option>
+          <option>
+            <label>GMT-7</label>
+            <value>18</value>
+          </option>
+          <option>
+            <label>GMT-6</label>
+            <value>19</value>
+          </option>
+          <option>
+            <label>GMT-5</label>
+            <value>20</value>
+          </option>
+          <option>
+            <label>GMT-4</label>
+            <value>21</value>
+          </option>
+          <option>
+            <label>GMT-3</label>
+            <value>22</value>
+          </option>
+          <option>
+            <label>GMT-2</label>
+            <value>23</value>
+          </option>
+          <option>
+            <label>GMT-1</label>
+            <value>24</value>
+          </option>
+          <option>
+            <label>GMT+3:30</label>
+            <value>210</value>
+          </option>
+          <option>
+            <label>GMT+4:30</label>
+            <value>270</value>
+          </option>
+          <option>
+            <label>GMT+5:30</label>
+            <value>330</value>
+          </option>
+          <option>
+            <label>GMT+5:45</label>
+            <value>345</value>
+          </option>
+          <option>
+            <label>GMT+6:30</label>
+            <value>390</value>
+          </option>
+          <option>
+            <label>GMT+9:30</label>
+            <value>570</value>
+          </option>
+          <option>
+            <label>GMT-3:30</label>
+            <value>-210</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description>Timezone.</description>
+    </setting>
+    <setting name="IPDialPlan">
+      <type>
+        <enum>
+          <option>
+            <label>Disable IP dialing</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>IP dialing if 2x. seen</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>IP dialing if 3x. seen</label>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+      <description>Allow IP-like destination address in DialPlan.</description>
+    </setting>
+    <setting name="DialPlan">
+      <type>
+        <string maxLen="199"/>
+      </type>
+      <value>*St4-|#St4-|911|1&gt;#t8.r9t2-|0&gt;#t811.rat4-|^1t4&gt;#.-</value>
+      <description>The programmable dial plan (see ATA administration guide).</description>
+    </setting>
+    <setting name="DialPlanEx">
+      <type>
+        <string maxLen="499"/>
+      </type>
+      <value>0</value>
+      <description>The programmable dial plan (see ATA administration guide).</description>
+    </setting>
+    <setting name="ACRDN">
+      <type>
+        <string maxLen="8"/>
+      </type>
+      <value>0</value>
+      <description>Anonymous call rejection directory number.</description>
+    </setting>
+  </group>
+  <group name="debug">
+    <label>Debug Parameters</label>
+    <setting name="NPrintf">
+      <type>
+        <!-- extended IP address -->
+      </type>
+      <value>0</value>
+      <description>Set host for debugging messages.</description>
+    </setting>
+    <setting name="SyslogIP">
+      <type>
+        <!-- extended IP address -->
+      </type>
+      <value>0.0.0.0.514</value>
+      <description>Syslog server address.</description>
+    </setting>
+    <setting name="SyslogCtrl">
+      <type refid="bitmap"/>
+      <value>0x00000000</value>
+      <description>Turn on specific syslog traces.</description>
+    </setting>
+    <group name="traceflagsgroup">
+      <label>TraceFlags</label>
+      <setting name="TraceFlags" hidden="yes">
+        <type refid="bitmap"/>
+        <value>0x0</value>
+        <description>Set trace features for diagnostic use.</description>
+      </setting>
+      <setting name="__TraceFlags.0" advanced="yes">
+        <label>SIP Debug Level</label>
+        <type>
+          <integer min="0" max="3"/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="__TraceFlags.8" advanced="yes">
+        <label>RTP Statistics Log</label>
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+  </group>
+</model>

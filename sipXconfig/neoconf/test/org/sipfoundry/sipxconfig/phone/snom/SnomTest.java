@@ -13,7 +13,7 @@ public class SnomTest extends TestCase {
 
     protected void setUp() {
         m_phone = new SnomPhone(SnomModel.MODEL_360);
-        new PhoneTestDriver(m_phone, "snom/phone.xml");
+        new PhoneTestDriver(m_phone);
     }
 
     public void testGenerateProfiles() throws Exception {

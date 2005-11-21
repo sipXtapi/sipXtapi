@@ -26,7 +26,7 @@ public class KPhoneTest extends TestCase {
 
         // call this method purely for the side effect of modifying the phone, and
         // discard the resulting PhoneTestDriver object
-        new PhoneTestDriver(phone, "kphone/phone.xml");
+        new PhoneTestDriver(phone);
         
         StringWriter actualWriter = new StringWriter();
         phone.generateProfile(actualWriter);

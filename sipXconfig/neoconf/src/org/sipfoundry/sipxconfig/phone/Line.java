@@ -49,8 +49,13 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
     }
     
     public Setting getSettingModel() {
-        Setting model = getPhone().getLineSettingModel();
-        return model != null ? model.copy() : null;
+        Setting settingModel = super.getSettingModel();
+        if (settingModel == null) {
+            settingModel = getPhone().loadModelFile("line.xml");
+            setSettingModel(settingModel);
+        }
+        
+        return settingModel;
     }
     
     public Set getGroups() {

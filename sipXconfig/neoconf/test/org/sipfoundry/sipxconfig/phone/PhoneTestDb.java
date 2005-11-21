@@ -91,8 +91,8 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
 
-        Setting model = TestHelper.loadSettings("phone-settings.xml");        
-        model.getSetting("unmanagedPhone/phone").addSetting(new SettingImpl("foo"));
+        Setting model = TestHelper.loadSettings("unmanagedPhone/phone.xml");        
+        model.addSetting(new SettingImpl("foo"));
 
         Phone p = context.loadPhone(new Integer(1000));        
         p.setSettingModel(model);

@@ -81,8 +81,8 @@
 			<fileset dir="etc">
 				<include name="**/*"/>
 				<!-- goes into tftp root, see below -->
-				<exclude name="cisco/syncinfo.xml"/> 
-				<exclude name="cisco/sipx7912.logo"/>
+				<exclude name="ciscoIp/syncinfo.xml"/> 
+				<exclude name="ciscoAta/sipx7912.logo"/>
 		    </fileset>
 	    </copy>    	
 
@@ -152,8 +152,8 @@
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot"/>
     <mkdir dir="${dest.dir}${sipxpbx.log.dir}"/>	
 	
-	<copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/cisco/syncinfo.xml"/>
-  	<copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/cisco/sipx7912.logo"/>
+	<copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoIp/syncinfo.xml"/>
+  	<copy todir="${dest.dir}${sipxconfig.phone.dir}/profile/tftproot" file="etc/ciscoAta/sipx7912.logo"/>
 
     </target>
 	
@@ -196,19 +196,23 @@
     	</junit>
      	<fail if="junit.failed"/>   
 	</target>
-	
-	<target name="test-models">
+
+	<target name="test-models">    
 		<xmlvalidate description="validate setting description files">
-			<fileset dir="etc/audiocodes" includes="**/*.xml"></fileset>
-			<fileset dir="etc/cisco" includes="**/*.xml" excludes="syncinfo.xml"></fileset>
-			<fileset dir="etc/commserver" includes="**/*.xml"></fileset>
-			<fileset dir="etc/kphone" includes="**/*.xml"></fileset>
-			<fileset dir="etc/polycom" includes="**/*.xml"></fileset>
-			<fileset dir="etc/snom" includes="**/*.xml"></fileset>
-			<fileset dir="etc/grandstream" includes="**/*.xml"></fileset>
+			<fileset dir="etc/audiocodes" includes="**/*.xml" excludes="types.xml"></fileset>
+			<fileset dir="etc/cisco">
+        <include name="**/*.xml"/>
+        <exclude name="syncinfo.xml"/>
+        <exclude name="types.xml"/>          
+      </fileset>
+			<fileset dir="etc/commserver" includes="**/*.xml" excludes="types.xml"></fileset>
+			<fileset dir="etc/kphone" includes="**/*.xml" excludes="types.xml"></fileset>
+			<fileset dir="etc/polycom" includes="**/*.xml" excludes="types.xml"></fileset>
+			<fileset dir="etc/snom" includes="**/*.xml" excludes="types.xml"></fileset>
+			<fileset dir="etc/grandstream" includes="**/*.xml" excludes="types.xml"></fileset>
 			<fileset dir="etc/sipxconference" includes="**/*.xml"></fileset>
 			<fileset file="etc/user-settings.xml"/>
-			<dtd publicid="-//SIPFoundry//sipXconfig//Model specification 1.0//EN" location="etc/setting.dtd"/>
+      <dtd publicid="-//SIPFoundry//sipXconfig//Model specification 1.0//EN" location="etc/setting.dtd"/>
 		</xmlvalidate>
 	</target>
 	

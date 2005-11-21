@@ -14,7 +14,8 @@ package org.sipfoundry.sipxconfig.phone;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
+import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
 public class PhoneTestDriver {
 
@@ -38,7 +39,7 @@ public class PhoneTestDriver {
     
     public PhoneDefaults defaults;
 
-    public PhoneTestDriver(Phone _phone, String settingModel) {
+    public PhoneTestDriver(Phone _phone) {
         
         defaults = new PhoneDefaults();
         defaults.setDomainName("sipfoundry.org");
@@ -60,8 +61,12 @@ public class PhoneTestDriver {
         user.setSipPassword("1234");
 
         this.phone = _phone;
-        Setting model = TestHelper.loadSettings(settingModel);
-        _phone.setSettingModel(model);
+                
+        ModelFilesContextImpl mfContext = new ModelFilesContextImpl();
+        mfContext.setConfigDirectory(sysdir);
+        mfContext.setModelBuilder(new XmlModelBuilder(sysdir));
+        _phone.setModelFilesContext(mfContext);
+        
         _phone.setTftpRoot(TestHelper.getTestDirectory());
         _phone.setSerialNumber(serialNumber);
         _phone.setPhoneContext(phoneContext);        

@@ -27,7 +27,7 @@ public class CiscoAtaPhoneTest extends TestCase {
 
     protected void setUp() {
         phone = new CiscoAtaPhone(CiscoModel.MODEL_ATA18X);
-        tester = new PhoneTestDriver(phone, "cisco/ata-phone.xml");
+        tester = new PhoneTestDriver(phone);
 
         String testDir = TestUtil.getTestSourceDirectory(getClass());
         phone.setCfgfmtUtility(testDir + "/cfgfmt");
