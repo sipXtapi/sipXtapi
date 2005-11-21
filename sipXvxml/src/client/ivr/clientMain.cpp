@@ -787,6 +787,9 @@ int main(int argc, char *argv[])
    {
       maxFlowGraphs = VXIIntegerValue(value);
    }
+   
+   OsConfigDb configDb;
+   configDb.set("PHONESET_MAX_ACTIVE_CALLS_ALLOWED", maxFlowGraphs);
 
    MpMediaTask* pMedia = MpMediaTask::getMediaTask(maxFlowGraphs);
    mpStartUp(8000, 80, 3 * maxFlowGraphs, NULL);
@@ -825,7 +828,7 @@ int main(int argc, char *argv[])
                       CP_MAXIMUM_RINGING_EXPIRE_SECONDS, // inviteExpiresSeconds
                       QOS_LAYER3_LOW_DELAY_IP_TOS,       // expeditedIpTos
                       maxFlowGraphs,                     // maxCalls
-                      sipXmediaFactoryFactory(NULL)      // CpMediaInterfaceFactory
+                      sipXmediaFactoryFactory(&configDb) // CpMediaInterfaceFactory
          );
          
    pCallMgr->setDelayInDeleteCall(CALL_DELETE_DELAY_SECS);
