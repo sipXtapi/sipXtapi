@@ -91,6 +91,9 @@ sipXmediaFactoryImpl::sipXmediaFactoryImpl(OsConfigDb* pConfigDb)
         pConfigDb->get(CONFIG_PHONESET_SEND_INBAND_DTMF, strInBandDTMF) ;
         strInBandDTMF.toUpper() ;
 
+        OsSysLog::add(FAC_MP, PRI_DEBUG, 
+                      "sipXmediaFactoryImpl::sipXmediaFactoryImpl maxFlowGraph = %d",
+                      maxFlowGraph);
     }
 
     // Max Flow graphs
