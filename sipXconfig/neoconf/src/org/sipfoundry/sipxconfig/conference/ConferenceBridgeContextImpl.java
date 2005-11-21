@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.conference;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -120,11 +119,6 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public Conference loadConference(Serializable id) {
         return (Conference) getHibernateTemplate().load(Conference.class, id);
-    }
-
-    public List getAliases() {
-        // TODO generate real aliases
-        return Collections.EMPTY_LIST;
     }
 
     public void clear() {

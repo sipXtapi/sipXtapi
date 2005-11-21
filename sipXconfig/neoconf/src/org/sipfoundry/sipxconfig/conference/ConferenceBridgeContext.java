@@ -45,7 +45,5 @@ public interface ConferenceBridgeContext extends AliasOwner {
 
     Conference loadConference(Serializable id);
 
-    List getAliases();
-
     void clear();
 }
