@@ -12,59 +12,47 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
+public abstract class UserSearch extends BaseComponent {
 
-public abstract class UserSearch extends BaseComponent implements PageRenderListener {
-    
     public static final String COMPONENT = "UserSearch";
-    
+
     public abstract User getUser();
 
     public abstract void setUser(User user);
-        
+
     public abstract List getUsers();
-    
+
     public abstract void setUsers(List users);
-    
+
     public abstract CoreContext getCoreContext();
-    
-    public abstract boolean isFirstRender();
-    
-    public abstract void setFirstRender(boolean firstRender);
-    
+
     public void search(IRequestCycle cycle_) {
-        // keep original collection, reference has already been given to other
-        // components.  
-        getUsers().clear();        
-        List results = getCoreContext().loadUserByTemplateUser(getUser());
-        getUsers().addAll(results);
+        User user = getUser();
+        if (user != null) {
+            List results = getCoreContext().loadUserByTemplateUser(getUser());
+            // keep original collection, reference has already been given to other
+            // components.
+            setUsers(new ArrayList(results));
+        }
     }
-    
-    public void pageBeginRender(PageEvent event) {
-        // Initialize the user and users properties if necessary
-        if (getUser() == null) {        
+
+    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
+        if (getUsers() == null) {
+            setUsers(Collections.EMPTY_LIST);
+        }
+        if (getUser() == null) {
             setUser(new User());
         }
-        if (getUsers() == null) {
-            setUsers(new ArrayList());
-        }        
-        
-        // On navigating to this page and rendering for the first time, we don't
-        // want to perform a search, because the user hasn't entered any search
-        // criteria yet.
-        if (isFirstRender()) {
-            getUsers().clear();     // clear any results from previous searches
-            setFirstRender(false);
-        } else {
-            search(event.getRequestCycle());
-        }
+
+        super.renderComponent(writer, cycle);
     }
 }

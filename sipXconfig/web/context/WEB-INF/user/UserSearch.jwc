@@ -25,10 +25,7 @@
 	<property-specification name="user" 
 		type="org.sipfoundry.sipxconfig.common.User"/>   
 	<property-specification name="users" 
-		type="java.util.List"
-    	persistent="yes"/>
-    <property-specification name="firstRender"
-        type="boolean" initial-value="true"/>
+		type="java.util.List"/>
 
     <!--
       - C O M P O N E N T S
@@ -62,7 +59,4 @@
     <component id="cancel" type="Submit">
         <binding name="listener" expression="cancelListener"/>
     </component>    
-    <component id="firstRender" type="Hidden">
-        <binding name="value" expression="firstRender"/>
-    </component>
 </component-specification>
