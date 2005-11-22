@@ -125,6 +125,7 @@
       <list>
         <value>gwGeneric</value>
         <value>unmanagedPhone</value>
+        <value>firmware</value>
       </list>
     </property>
     

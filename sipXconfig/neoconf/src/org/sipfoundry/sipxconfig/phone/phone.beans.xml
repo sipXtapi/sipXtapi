@@ -17,9 +17,15 @@
     <property name="phoneDefaults">
       <ref local="phoneDefaults"/>
     </property>
-    <property name="firmwareManufacturerIds">
+    <property name="firmwareManufacturers">
       <list>
-        <value>polycom</value>
+        <bean id="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer.UNMANAGED"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        <bean class="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer">
+          <constructor-arg value="polycom"/>
+          <property name="label" value="Polycom Soundpoint"/>
+          <property name="preferredDeliveryId" value="tftp"/>
+        </bean>
       </list>
     </property>
     <property name="availablePhoneModels">

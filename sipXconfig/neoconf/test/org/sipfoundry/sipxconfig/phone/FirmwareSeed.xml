@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+    <firmware 
+        firmware_id="1000" 		
+        name="test firmware"
+		    manufacturer_id="unmanagedPhone"
+        description="unittest firmware"
+        delivery_id="unmanagedPhone"
+        model_id="yaya"
+        version_id="1.3.2"/>
+</dataset>

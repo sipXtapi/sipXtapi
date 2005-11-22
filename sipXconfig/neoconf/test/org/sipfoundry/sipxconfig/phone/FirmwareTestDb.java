@@ -17,6 +17,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 public class FirmwareTestDb extends SipxDatabaseTestCase {
 
@@ -31,7 +32,7 @@ public class FirmwareTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         Firmware f = new Firmware();
         f.setName("bezerk");
-        f.setManufacturerId("unmanagedPhone");
+        f.setManufacturer(FirmwareManufacturer.UNMANAGED);
         f.setDeliveryId("tftp");
         m_phoneContext.saveFirmware(f);
         
@@ -43,5 +44,25 @@ public class FirmwareTestDb extends SipxDatabaseTestCase {
         ITable actual = TestHelper.getConnection().createDataSet().getTable("firmware");
 
         Assertion.assertEquals(expected, actual);
+    }
+    
+    public void testLoadAndDelete() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/FirmwareSeed.xml");
+        Firmware f = m_phoneContext.loadFirmware(new Integer(1000));
+        assertEquals("test firmware", f.getName());
+        assertSame(FirmwareManufacturer.UNMANAGED, f.getManufacturer());
+        
+        Integer id = f.getId();        
+        m_phoneContext.deleteFirmware(f);
+        try {
+            m_phoneContext.loadFirmware(id);
+            fail();
+        } catch (HibernateObjectRetrievalFailureException x) {
+            assertTrue(true);
+        }
+
+        IDataSet actual = TestHelper.getConnection().createDataSet();        
+        assertEquals(0, actual.getTable("firmware").getRowCount());        
     }
 }

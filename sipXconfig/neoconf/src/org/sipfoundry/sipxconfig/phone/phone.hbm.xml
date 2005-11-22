@@ -53,7 +53,8 @@
       </generator>
     </id>
     <property name="name"/>
-    <property name="manufacturerId"/>
+    <property name="manufacturer" column="manufacturer_id" 
+      type="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer$UserType"/>
     <property name="deliveryId"/>
     <property name="modelId"/>
     <property name="description"/>

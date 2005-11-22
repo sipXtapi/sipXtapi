@@ -22,21 +22,22 @@ public class Firmware extends BeanWithSettings {
     private String m_name;
     private String m_description;
     private String m_deliveryId;
-    private String m_manufacturerId;
+    private FirmwareManufacturer m_manufacturer;
     private String m_modelId;
     private String m_versionId;
     private ModelFilesContext m_modelFilesContext;
-    
+
     public Setting getSettingModel() {
         Setting model = super.getSettingModel();
         if (model == null) {
             // TODO: Details
-            model = m_modelFilesContext.loadModelFile("firmware.xml", getManufacturerId(), null);
+            model = m_modelFilesContext.loadModelFile("firmware.xml", m_manufacturer
+                    .getManufacturerId(), null);
             setSettingModel(model);
         }
         return model;
     }
-    
+
     public String getName() {
         return m_name;
     }
@@ -48,36 +49,47 @@ public class Firmware extends BeanWithSettings {
     public String getDescription() {
         return m_description;
     }
+
     public void setDescription(String description) {
         m_description = description;
     }
-    public String getManufacturerId() {
-        return m_manufacturerId;
+
+    public FirmwareManufacturer getManufacturer() {
+        return m_manufacturer;
     }
-    public void setManufacturerId(String manufacturerId) {
-        m_manufacturerId = manufacturerId;
+
+    public void setManufacturer(FirmwareManufacturer manufacturer) {
+        m_manufacturer = manufacturer;
     }
+
     public String getModelId() {
         return m_modelId;
     }
+
     public void setModelId(String modelId) {
         m_modelId = modelId;
     }
+
     public String getVersionId() {
         return m_versionId;
     }
+
     public void setVersionId(String versionId) {
         m_versionId = versionId;
     }
+
     public String getDeliveryId() {
         return m_deliveryId;
     }
+
     public void setDeliveryId(String deliveryId) {
         m_deliveryId = deliveryId;
     }
+
     public ModelFilesContext getModelFilesContext() {
         return m_modelFilesContext;
     }
+
     public void setModelFilesContext(ModelFilesContext modelFilesContext) {
         m_modelFilesContext = modelFilesContext;
     }
