@@ -333,19 +333,29 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
     UtlString cseqStr = *((UtlString*)nvPairs.findValue(&gCseqKey));
     int cseq = (int) atoi( cseqStr );
 
-    // If the IMDB does not specify a Q-Value % will be found here (represengint a null IMDB column)
+    // If the IMDB does not specify a Q-Value % will be found here
+    // (represengint a null IMDB column)
     UtlString qvalue = *((UtlString*)nvPairs.findValue(&gQvalueKey));
+
+    // Get the remaining fields so that we can substitute the null string
+    // if the fetched value is 0 (the null pointer) because the field
+    // is not present in the disk file.
+    static UtlString nullString("");
+    UtlString* contact = (UtlString*) nvPairs.findValue(&gContactKey);
+    UtlString* callId = (UtlString*) nvPairs.findValue(&gCallidKey);
+    UtlString* instanceId = (UtlString*) nvPairs.findValue(&gInstanceIdKey);
+    UtlString* gruu = (UtlString*) nvPairs.findValue(&gGruuKey);
 
     // Note: identity inferred from the uri
     updateBinding (
         Url(*((UtlString*)nvPairs.findValue(&gUriKey))),
-        *((UtlString*)nvPairs.findValue(&gContactKey)),
+        *(contact ? contact : &nullString),
         qvalue,
-        *((UtlString*)nvPairs.findValue(&gCallidKey)),
+        *(callId ? callId : &nullString),
         cseq,
         expires,
-        *((UtlString*)nvPairs.findValue(&gInstanceIdKey)),
-        *((UtlString*)nvPairs.findValue(&gGruuKey))
+        *(instanceId ? instanceId : &nullString),
+        *(gruu ? gruu : &nullString)
                    );
 }
 
