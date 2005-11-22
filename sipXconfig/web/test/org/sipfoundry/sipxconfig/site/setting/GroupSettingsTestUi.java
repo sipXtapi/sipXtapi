@@ -17,7 +17,7 @@ import net.sourceforge.jwebunit.WebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class GroupSettingsTestUi extends WebTestCase {
-    
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(GroupSettingsTestUi.class);
     }
@@ -28,18 +28,18 @@ public class GroupSettingsTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("resetCoreContext");
     }
-    
+
     public void testDisplay() {
         seedGroup(1);
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
         SiteTestHelper.assertNoException(getTester());
     }
-    
+
     public void seedGroup(int count) {
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", count);
     }
-    
+
     public void testEditGroup() {
         seedGroup(1);
         clickLink("UserGroups");
@@ -48,8 +48,8 @@ public class GroupSettingsTestUi extends WebTestCase {
         assertFormElementEquals("name", "seedGroup0");
         // Pick a group name that is very unlikely to collide with any previous names
         setFormElement("name", "edit seed test " + System.currentTimeMillis());
-        clickButton("group:ok");
+        clickButton("form:ok");
         SiteTestHelper.assertNoException(getTester());
-        assertLinkPresent("group:edit");        
+        assertLinkPresent("group:edit");
     }
 }

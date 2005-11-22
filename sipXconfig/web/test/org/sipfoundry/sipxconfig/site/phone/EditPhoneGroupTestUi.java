@@ -12,10 +12,9 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.WebTestCase;
 
 public class EditPhoneGroupTestUi extends WebTestCase {
 
@@ -24,9 +23,9 @@ public class EditPhoneGroupTestUi extends WebTestCase {
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditPhoneGroupTestUi.class);
     }
-    
+
     protected void setUp() throws Exception {
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         tester = new PhoneTestHelper(getTester());
     }
 
@@ -35,13 +34,15 @@ public class EditPhoneGroupTestUi extends WebTestCase {
         clickLink("NewPhoneGroup");
         setFormElement("name", "editPhoneGroupTestUi");
         setFormElement("description", "test description text");
-        clickButton("group:ok");
+        clickButton("form:ok");
         SiteTestHelper.assertNoException(getTester());
         clickLink("PhoneGroups");
         String[][] table = new String[][] {
-            { "editPhoneGroupTestUi" },                
+            {
+                "editPhoneGroupTestUi"
+            },
         };
-        assertTextInTable("group:list", table[0]);        
+        assertTextInTable("group:list", table[0]);
     }
 
     public void testDuplicateNameUserError() {
@@ -49,7 +50,7 @@ public class EditPhoneGroupTestUi extends WebTestCase {
         tester.seedGroup(1);
         clickLink("NewPhoneGroup");
         setFormElement("name", "seedGroup0");
-        clickButton("group:ok");
-        assertTextPresent("A group with name: seedGroup0 already exists");        
+        clickButton("form:ok");
+        assertTextPresent("A group with name: seedGroup0 already exists");
     }
 }

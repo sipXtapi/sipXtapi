@@ -356,7 +356,7 @@ public class SiteTestHelper {
         for (int i = 0; i < count; i++) {
             tester.clickLink(pageLinkId);
             tester.setFormElement("name", "seedGroup" + i);
-            tester.clickButton("group:ok");
+            tester.clickButton("form:ok");
             SiteTestHelper.home(tester);
         }
     }

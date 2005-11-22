@@ -12,10 +12,9 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.WebTestCase;
 
 public class PhoneModelsTestUi extends WebTestCase {
     PhoneTestHelper tester;
@@ -23,15 +22,15 @@ public class PhoneModelsTestUi extends WebTestCase {
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(PhoneModelsTestUi.class);
     }
-    
+
     protected void setUp() throws Exception {
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());        
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         tester = new PhoneTestHelper(getTester());
     }
 
     public void testDisplay() {
         tester.reset();
-        tester.seedGroup(1);        
+        tester.seedGroup(1);
         clickLink("PhoneGroups");
         clickLinkWithText("seedGroup0");
         SiteTestHelper.assertNoException(getTester());
@@ -41,14 +40,14 @@ public class PhoneModelsTestUi extends WebTestCase {
 
     public void testEditGroup() {
         tester.reset();
-        tester.seedGroup(1);        
+        tester.seedGroup(1);
         clickLink("PhoneGroups");
         clickLinkWithText("seedGroup0");
         SiteTestHelper.assertNoException(getTester());
         clickLink("group:edit");
         SiteTestHelper.assertNoException(getTester());
         assertFormElementEquals("name", "seedGroup0");
-        clickButton("group:ok");
+        clickButton("form:ok");
         assertLinkPresentWithText("Polycom SoundPoint IP 300");
     }
 
