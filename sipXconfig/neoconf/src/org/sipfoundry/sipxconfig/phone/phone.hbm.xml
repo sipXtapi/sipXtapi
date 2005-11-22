@@ -71,4 +71,8 @@
     <![CDATA[from Phone p where p.lines.user.id = :userId]]>
   </query>
   
+  <query name="firmware">
+    <![CDATA[from Firmware f order by f.name]]>
+  </query>
+  
 </hibernate-mapping>

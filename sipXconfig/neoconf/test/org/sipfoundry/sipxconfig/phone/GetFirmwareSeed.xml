@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+    <firmware 
+        firmware_id="1000" 		
+        name="ozzie"
+		    manufacturer_id="unmanagedPhone"
+        delivery_id="tftp"/>
+    <firmware 
+        firmware_id="1001" 		
+        name="harriot"
+		    manufacturer_id="unmanagedPhone"
+        delivery_id="tftp"/>
+</dataset>

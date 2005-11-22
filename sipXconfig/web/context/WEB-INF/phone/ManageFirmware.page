@@ -17,18 +17,29 @@
     	initial-value="global.phoneContext"/>
     <property-specification name="firmware"
         type="java.util.Collection"/>
+    <property-specification name="selectedManufacturer"
+        type="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer"/>
     
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     <bean name="idConverter" class="org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer">
         <set-property name="class" expression="@org.sipfoundry.sipxconfig.phone.Firmware@class"/>
         <set-property name="source" expression="global.phoneContext"/>
     </bean>
+    <bean name="manufacturers" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+        <set-property name="collection" expression="phoneContext.firmwareManufacturers"/>
+        <set-property name="labelExpression" expression="'label'"/>
+    </bean>
+    <bean name="manufacturerSelection" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
+        <set-property name="model" expression="beans.manufacturers"/> 
+        <set-property name="extraLabel" expression="'Add firmware...'"/>
+        <set-property name="extraOption" expression="null"/>
+    </bean>
     
     <component id="firmwareManagement" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>   
     <component id="firmwareTable" type="Table">
-        <static-binding name="columns" value="* Name:name,Description:description"/>
+        <static-binding name="columns" value="* Name:name,Firmware:manufacturer.label,Description:description"/>
         <binding name="source" expression="firmware"/>
 		<binding name="row" expression="currentRow"/>
         <binding name="convertor" expression="beans.idConverter"/>
@@ -47,5 +58,10 @@
     </component>
     <component id="delete" type="Submit">
         <binding name="listener" expression="listeners.deleteFirmware"/>
+    </component>
+    <component id="selectManufacturer" type="PropertySelection">
+        <binding name="value" expression="selectedManufacturer"/>
+        <binding name="model" expression="beans.manufacturerSelection"/>
+        <binding name="submitOnChange" expression="true"/>
     </component>
 </page-specification>

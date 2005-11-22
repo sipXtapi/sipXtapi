@@ -16,6 +16,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.phone.Firmware;
+import org.sipfoundry.sipxconfig.phone.FirmwareManufacturer;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public abstract class EditFirmware extends PageWithCallback implements PageRenderListener {
@@ -30,6 +31,10 @@ public abstract class EditFirmware extends PageWithCallback implements PageRende
     
     public abstract void setFirmwareId(Integer id);
     
+    public abstract FirmwareManufacturer getManufacturer();
+    
+    public abstract void setManufacturer(FirmwareManufacturer manufacturer);
+    
     public abstract PhoneContext getPhoneContext();
 
     public void pageBeginRender(PageEvent event_) {
@@ -38,6 +43,9 @@ public abstract class EditFirmware extends PageWithCallback implements PageRende
             Integer id = getFirmwareId();
             if (id == null) {
                 firmware = new Firmware();
+                FirmwareManufacturer manufacturer = getManufacturer();  
+                firmware.setManufacturer(manufacturer);
+                firmware.setDeliveryId(manufacturer.getPreferredDeliveryId());
             } else {
                 firmware = getPhoneContext().loadFirmware(id);
             }

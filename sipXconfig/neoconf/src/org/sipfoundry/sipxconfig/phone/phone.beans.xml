@@ -71,13 +71,13 @@
     </property>
   </bean>
   
-  <bean id="firmware" class="org.sipfoundry.sipxconfig.phone.Firmware">
+  <bean id="firmware" class="org.sipfoundry.sipxconfig.phone.Firmware" singleton="false">
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
   
   <!--
-  - P H O N E  C O N T E X T
-  -->
+    - P H O N E  C O N T E X T
+    -->
   <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean"
      parent="abstractDao">
     <property name="proxyInterfaces">

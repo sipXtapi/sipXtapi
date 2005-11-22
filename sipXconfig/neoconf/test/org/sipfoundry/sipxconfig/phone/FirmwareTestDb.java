@@ -65,4 +65,13 @@ public class FirmwareTestDb extends SipxDatabaseTestCase {
         IDataSet actual = TestHelper.getConnection().createDataSet();        
         assertEquals(0, actual.getTable("firmware").getRowCount());        
     }
+    
+    public void testGetFirmware() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/GetFirmwareSeed.xml");
+        Firmware[] f = (Firmware[]) m_phoneContext.getFirmware().toArray(new Firmware[0]);
+        assertEquals(2, f.length);
+        assertEquals("harriot", f[0].getName());        
+        assertEquals("ozzie", f[1].getName());
+    }
 }

@@ -11,6 +11,9 @@
     <property-specification name="firmwareId"
         type="java.lang.Integer"
         persistent="yes"/>
+    <property-specification name="manufacturer"
+        type="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer"
+        persistent="yes"/>
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>

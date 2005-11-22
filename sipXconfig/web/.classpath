@@ -30,7 +30,7 @@
 	</classpathentry>
 	<classpathentry sourcepath="LIB_SRC/tapestry/3.0.3/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-3.0.3.jar">
 		<attributes>
-			<attribute value="http://jakarta.apache.org/tapestry/doc/api" name="javadoc_location"/>
+			<attribute value="http://jakarta.apache.org/tapestry/3.0.3/doc/api" name="javadoc_location"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry sourcepath="LIB_SRC/tapestry/3.0.3/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-3.0.3.jar"/>

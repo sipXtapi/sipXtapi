@@ -18,6 +18,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.phone.FirmwareManufacturer;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public abstract class ManageFirmware extends BasePage implements PageRenderListener {
@@ -30,6 +31,8 @@ public abstract class ManageFirmware extends BasePage implements PageRenderListe
     
     public abstract PhoneContext getPhoneContext();
     
+    public abstract FirmwareManufacturer getSelectedManufacturer();
+    
     public void editFirmware(IRequestCycle cycle) {
         Integer firmwareId = (Integer) TapestryUtils.assertParameter(Integer.class, 
                 cycle.getServiceParameters(), 0);
@@ -41,17 +44,23 @@ public abstract class ManageFirmware extends BasePage implements PageRenderListe
     public void addFirmware(IRequestCycle cycle) {
         EditFirmware page = (EditFirmware) cycle.getPage(EditFirmware.PAGE);
         page.setFirmwareId(null);
+        page.setManufacturer(getSelectedManufacturer());
         page.activatePageWithCallback(PAGE, cycle);
     }
     
     public void deleteFirmware(IRequestCycle cycle_) {
     }
 
+    /** stub: side-effect of PageRenderListener */
     public void pageBeginRender(PageEvent event_) {
-        Collection firmware = getFirmware();        
-        if (firmware == null) {            
-            firmware = getPhoneContext().getFirmware(); 
-            setFirmware(firmware);            
+        if (getFirmware() == null) {
+            setFirmware(getPhoneContext().getFirmware());
+        }
+    }
+    
+    public void pageEndRender(PageEvent event) { 
+        if (getSelectedManufacturer() != null) {
+            addFirmware(event.getRequestCycle());
         }
     }
 }

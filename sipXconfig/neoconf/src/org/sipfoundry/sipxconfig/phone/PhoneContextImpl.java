@@ -364,6 +364,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
     
     public List getFirmware() {
-        return getHibernateTemplate().loadAll(Firmware.class);
+        return getHibernateTemplate().findByNamedQuery("firmware");
     }
 }
