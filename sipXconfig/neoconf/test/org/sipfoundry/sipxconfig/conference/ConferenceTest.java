@@ -38,7 +38,7 @@ public class ConferenceTest extends TestCase {
 
         Bridge bridge = new Bridge();
         bridge.setHost("bridge1.sipfoundry.org");
-        bridge.insertConference(m_conf);
+        bridge.addConference(m_conf);
 
         assertEquals("sip:weekly.marketing@bridge1.sipfoundry.org", m_conf.getUri());
 
@@ -56,7 +56,7 @@ public class ConferenceTest extends TestCase {
         Bridge bridge = new Bridge();
         bridge.setAdmissionServer("media.sipfoundry.org:5100");
 
-        bridge.insertConference(m_conf);
+        bridge.addConference(m_conf);
         // empty for disabled conference
         m_conf.setName("conf1");
         m_conf.setAdmissionScriptServer("localhost:8091");

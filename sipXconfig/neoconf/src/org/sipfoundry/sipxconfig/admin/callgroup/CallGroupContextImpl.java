@@ -192,7 +192,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         for (Iterator i = ids.iterator(); i.hasNext();) {
             Integer userId = (Integer) i.next();
             User user = m_coreContext.loadUser(userId);
-            callGroup.insertRing(user);
+            callGroup.insertRingForUser(user);
         }
         storeCallGroup(callGroup);
     }

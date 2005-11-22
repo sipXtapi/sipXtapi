@@ -61,10 +61,7 @@ public class CallGroupBuilder extends SimpleBeanBuilder {
                     (org.sipfoundry.sipxconfig.admin.callgroup.UserRing[])
                     ApiBeanUtil.toMyArray(new UserRingBuilder(m_coreContext), apiRings,
                             org.sipfoundry.sipxconfig.admin.callgroup.UserRing.class);
-                my.setRings(Arrays.asList(myRings));
-                for (int i = 0; i < myRings.length; i++) {
-                    myRings[i].setCallGroup(my);
-                }
+                my.insertRings(Arrays.asList(myRings));
             }
         }
     }

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -78,12 +79,12 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     }
 
     /**
-     * inserts a new ring for a specific user
+     * Inserts a new ring for a specific user
      * 
      * @param user
      * @return newly created user ring
      */
-    public UserRing insertRing(User user) {
+    public UserRing insertRingForUser(User user) {
         UserRing ring = new UserRing();
         ring.setCallGroup(this);
         ring.setUser(user);
@@ -91,6 +92,14 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         return ring;
     }
 
+    public void insertRings(Collection rings) {
+        super.insertRings(rings);
+        for (Iterator iter = rings.iterator(); iter.hasNext();) {
+            UserRing ring = (UserRing) iter.next();
+            ring.setCallGroup(this);
+        }
+    }
+    
     /**
      * Create list of aliases that descibe forwarding for this group. All aliases have the form
      * group_name@domain => user_name@domain with the specific q value In addtion alias extension =>
@@ -112,4 +121,5 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         }
         return aliases;
     }
+
 }

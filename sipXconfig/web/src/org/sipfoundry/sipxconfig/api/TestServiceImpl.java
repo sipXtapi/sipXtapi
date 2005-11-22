@@ -16,16 +16,22 @@ import java.rmi.RemoteException;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class TestServiceImpl implements TestService {    
     private CallGroupContext m_callGroupContext;
+    private ConferenceBridgeContext m_conferenceBridgeContext;
     private CoreContext m_coreContext;
     private ParkOrbitContext m_parkOrbitContext;
     private PhoneContext m_phoneContext; 
 
     public void setCallGroupContext(CallGroupContext callGroupContext) {
         m_callGroupContext = callGroupContext;
+    }
+
+    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
+        m_conferenceBridgeContext = conferenceBridgeContext;
     }
 
     public void setCoreContext(CoreContext coreContext) {
@@ -47,6 +53,9 @@ public class TestServiceImpl implements TestService {
         if (Boolean.TRUE.equals(resetServices.getCallGroup())
             || Boolean.TRUE.equals(resetServices.getUser())) {
             m_callGroupContext.clear();
+        }
+        if (Boolean.TRUE.equals(resetServices.getConferenceBridge())) {
+            m_conferenceBridgeContext.clear();
         }
         if (Boolean.TRUE.equals(resetServices.getParkOrbit())) {
             m_parkOrbitContext.clear();

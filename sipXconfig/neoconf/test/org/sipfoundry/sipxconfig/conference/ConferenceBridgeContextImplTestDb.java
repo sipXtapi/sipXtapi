@@ -42,7 +42,7 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         bridge.setName("b1");
         Conference conference = new Conference();
         conference.setName("c1");
-        bridge.insertConference(conference);
+        bridge.addConference(conference);
 
         m_context.store(bridge);
 

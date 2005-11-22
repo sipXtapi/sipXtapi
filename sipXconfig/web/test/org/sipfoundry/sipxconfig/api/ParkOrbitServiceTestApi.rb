@@ -29,9 +29,9 @@ class ParkOrbitServiceTestApi < ApiTestCase
   def test_createAndGetParkOrbits
     # Create two ParkOrbits
     # ParkOrbit properties are name, extension, description, enabled, music
-    expected1 = ParkOrbit.new('orbit1', 'ext1', 'test orbit1', true, 'love supreme');
+    expected1 = ParkOrbit.new('orbit1', 'orbit ext1', 'test orbit1', true, 'love supreme');
     @park_orbit_service.addParkOrbit(AddParkOrbit.new(expected1))
-    expected2 = ParkOrbit.new('orbit2', 'ext2', 'test orbit2', true, 'walk like a tunisian');
+    expected2 = ParkOrbit.new('orbit2', 'orbit ext2', 'test orbit2', true, 'walk like a tunisian');
     @park_orbit_service.addParkOrbit(AddParkOrbit.new(expected2))
     
     # Get ParkOrbits and verify that they are right

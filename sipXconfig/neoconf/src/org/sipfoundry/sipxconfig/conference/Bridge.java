@@ -12,7 +12,9 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.NamedObject;
@@ -25,7 +27,10 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 public class Bridge extends BeanWithSettings implements NamedObject {
     public static final String BEAN_NAME = "conferenceBridge";
-
+    
+    public static final String CONFERENCES_PROP = "conferences";
+    public static final String SERVICE_URI_PROP = "serviceUri";
+    
     public static final String SIP_DOMAIN = "bridge-bridge/BOSTON_BRIDGE_SIP_DOMAIN";
 
     private boolean m_enabled;
@@ -63,9 +68,16 @@ public class Bridge extends BeanWithSettings implements NamedObject {
         m_port = port;
     }
 
-    public void insertConference(Conference conference) {
+    public void addConference(Conference conference) {
         getConferences().add(conference);
         conference.setBridge(this);
+    }
+
+    public void addConferences(Collection conferences) {
+        for (Iterator iter = conferences.iterator(); iter.hasNext();) {
+            Conference conf = (Conference) iter.next();
+            addConference(conf);
+        }
     }
 
     public void removeConference(Conference conference) {

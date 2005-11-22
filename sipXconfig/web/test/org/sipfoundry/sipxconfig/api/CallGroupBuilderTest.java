@@ -50,7 +50,7 @@ public class CallGroupBuilderTest extends TestCase {
         // Create a test UserRing
         UserRing apiRing = new UserRing();
         apiRing.setExpiration(19);
-        apiRing.setPosition(5);
+        apiRing.setPosition(0);     // must be zero, this is its position in the list
         apiRing.setType(AbstractRingBuilder.TYPE_IMMEDIATE);
         apiRing.setUserName(USER_NAME);
         UserRing[] apiRings = new UserRing[1];
@@ -72,7 +72,7 @@ public class CallGroupBuilderTest extends TestCase {
         org.sipfoundry.sipxconfig.admin.callgroup.UserRing myRing = 
             (org.sipfoundry.sipxconfig.admin.callgroup.UserRing) myRings.get(0);
         assertEquals(19, myRing.getExpiration());
-        assertEquals(5, myRing.getPosition());
+        assertEquals(0, myRing.getPosition());
         assertEquals(org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type.IMMEDIATE, myRing.getType());
     }
 

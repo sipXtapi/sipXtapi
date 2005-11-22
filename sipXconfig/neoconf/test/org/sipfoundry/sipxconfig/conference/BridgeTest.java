@@ -27,7 +27,7 @@ public class BridgeTest extends TestCase {
 
         Bridge bridge = new Bridge();
         assertTrue(bridge.getConferences().isEmpty());
-        bridge.insertConference(c);
+        bridge.addConference(c);
 
         assertEquals(1, bridge.getConferences().size());
         assertSame(c, bridge.getConferences().iterator().next());
@@ -44,7 +44,7 @@ public class BridgeTest extends TestCase {
 
         Bridge bridge = new Bridge();
         assertTrue(bridge.getConferences().isEmpty());
-        bridge.insertConference(c);
+        bridge.addConference(c);
 
         bridge.removeConference(c1);
         assertEquals(1, bridge.getConferences().size());

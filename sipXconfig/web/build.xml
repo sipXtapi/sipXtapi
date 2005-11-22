@@ -9,6 +9,7 @@
   <property name="ruby.bindings.dir" value="${dist.dir}/ruby-bindings"/>
   <property name="server.bindings.dir" value="${dist.dir}/server-bindings"/>
   <property name="ruby.debug" value=""/>
+  <property name="ruby.flags" value="-w ${ruby.debug}"/>
   <property name="server-bindings.jar" value="${dist.dir}/server-bindings.jar"/>
   <patternset id="test-ui.classes" includes="**/*TestUi.class"/> 
   
@@ -437,16 +438,19 @@
   <target name="test-api" depends="start-web-server,test-api-run,stop-web-server" 
 	if="ruby-bindings-enabled"
 	description="Test web services"/>
-  
+
   <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
 		description="Test web services with starting webserver">	
     <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>    
     <property name="ruby.include.path"
       value="${ruby.bindings.dir}${path.separator}${ruby.webservice-unit-test.src.dir}"/>
     <property name="webservice-unit-test-command" 
-  		value="-I${ruby.include.path} ${ruby.debug} ${ruby.webservice-unit-test.src.dir}"/>
+  		value="-I${ruby.include.path} ${ruby.flags} ${ruby.webservice-unit-test.src.dir}"/>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/CallGroupServiceTestApi.rb"/>
+    </exec>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/ConferenceBridgeServiceTestApi.rb"/>
     </exec>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/ParkOrbitServiceTestApi.rb"/>

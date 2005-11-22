@@ -13,11 +13,9 @@ package org.sipfoundry.sipxconfig.api;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -85,24 +83,8 @@ public final class ApiBeanUtil {
         if (numObjects == 0) {
             return new Object[0];
         }
-
-        // For some reason myObjects is sometimes filled with a bunch of nulls.  Ideally figure out
-        // why this is happening, but in the interim let's discard them.
-        numObjects = 0;
-        List myRealObjects = new ArrayList();
-        for (Iterator iter = myObjects.iterator(); iter.hasNext();) {
-            Object next = iter.next();
-            if (next != null) {
-                myRealObjects.add(next);
-                numObjects++;
-            }
-        }
-        if (numObjects == 0) {
-            return new Object[0];
-        }
-        
-        Object[] myArray = newArray(myRealObjects.iterator().next().getClass(), numObjects);
-        myArray = myRealObjects.toArray(myArray);
+        Object[] myArray = newArray(myObjects.iterator().next().getClass(), numObjects);
+        myArray = myObjects.toArray(myArray);
         return toApiArray(builder, myArray, apiClass);
     }
     

@@ -49,6 +49,14 @@ public class AbstractCallSequence extends BeanWithId {
         DataCollectionUtil.updatePositions(m_rings);
     }
 
+    protected void insertRings(Collection rings) {
+        for (Iterator iter = rings.iterator(); iter.hasNext();) {
+            AbstractRing ring = (AbstractRing) iter.next();
+            m_rings.add(ring);
+        }
+        DataCollectionUtil.updatePositions(m_rings);
+    }
+
     public void removeRings(Collection ids) {
         DataCollectionUtil.removeByPrimaryKey(m_rings, ids.toArray());
     }
@@ -84,6 +92,11 @@ public class AbstractCallSequence extends BeanWithId {
         return true;
     }
 
+    /**
+     * Return the list of rings.
+     * Don't alter the list directly, always call a method on this interface (or a derived class)
+     * to change the rings list.
+     */
     public List getRings() {
         return m_rings;
     }

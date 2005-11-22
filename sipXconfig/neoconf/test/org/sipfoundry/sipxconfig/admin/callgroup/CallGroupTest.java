@@ -24,7 +24,7 @@ public class CallGroupTest extends TestCase {
         User u = new User();
         u.setUserName("testUser");
         CallGroup group = new CallGroup();
-        UserRing ring = group.insertRing(u);
+        UserRing ring = group.insertRingForUser(u);
         assertSame(u, ring.getUser());
         List calls = group.getRings();
         assertEquals(1, calls.size());
@@ -41,7 +41,7 @@ public class CallGroupTest extends TestCase {
         for (int i = 0; i < ringsLen; i++) {
             User u = new User();
             u.setUserName("testUser" + i);
-            group.insertRing(u);
+            group.insertRingForUser(u);
         }
 
         List aliases = group.generateAliases("kuku");
@@ -75,7 +75,7 @@ public class CallGroupTest extends TestCase {
         for (int i = 0; i < ringsLen; i++) {
             User u = new User();
             u.setUserName("testUser" + i);
-            group.insertRing(u);
+            group.insertRingForUser(u);
         }
         assertEquals(ringsLen, group.getRings().size());
 

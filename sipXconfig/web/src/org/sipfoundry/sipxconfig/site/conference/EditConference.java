@@ -72,7 +72,7 @@ public abstract class EditConference extends PageWithCallback implements PageRen
         if (conference.isNew()) {
             // associate with bridge
             Bridge bridge = getConferenceBridgeContext().loadBridge(getBridgeId());
-            bridge.insertConference(conference);
+            bridge.addConference(conference);
             getConferenceBridgeContext().store(bridge);
             Integer id = conference.getId();
             setConferenceId(id);

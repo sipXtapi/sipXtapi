@@ -7,6 +7,11 @@
 	<property name="callGroupContext" ref="callGroupContext"/>
 	<property name="callGroupBuilder" ref="callGroupBuilder"/>  
 </bean>
+  
+<bean id="ConferenceBridgeService" class="org.sipfoundry.sipxconfig.api.ConferenceBridgeServiceImpl">
+	<property name="conferenceBridgeContext" ref="conferenceBridgeContext"/>
+	<property name="conferenceBridgeBuilder" ref="conferenceBridgeBuilder"/>  
+</bean>
 
 <bean id="ParkOrbitService" class="org.sipfoundry.sipxconfig.api.ParkOrbitServiceImpl">
 	<property name="parkOrbitContext" ref="parkOrbitContext"/>
@@ -30,6 +35,8 @@
 <bean id="callGroupBuilder" class="org.sipfoundry.sipxconfig.api.CallGroupBuilder">
  	<property name="coreContext" ref="coreContext"/>
 </bean>
+  
+<bean id="conferenceBridgeBuilder" class="org.sipfoundry.sipxconfig.api.ConferenceBridgeBuilder"/>
 
 <bean id="parkOrbitBuilder" class="org.sipfoundry.sipxconfig.api.SimpleBeanBuilder"/>
 
