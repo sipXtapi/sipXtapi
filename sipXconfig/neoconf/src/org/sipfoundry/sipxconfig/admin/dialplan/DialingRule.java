@@ -29,9 +29,9 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 /**
  * DialingRule At some point it will be replaced by the IDialingRule interface or made abstract.
  */
-public abstract class DialingRule extends BeanWithId
-    implements IDialingRule, DataCollectionItem, NamedObject {
-    
+public abstract class DialingRule extends BeanWithId implements IDialingRule, DataCollectionItem,
+        NamedObject {
+
     private boolean m_enabled;
     private String m_name;
     private String m_description;
@@ -47,7 +47,7 @@ public abstract class DialingRule extends BeanWithId
     protected Object clone() throws CloneNotSupportedException {
         DialingRule clone = (DialingRule) super.clone();
         clone.m_gateways = new ArrayList(m_gateways);
-        return clone;        
+        return clone;
     }
 
     public String getDescription() {
@@ -94,11 +94,9 @@ public abstract class DialingRule extends BeanWithId
     }
 
     public boolean addGateway(Gateway gateway) {
-        if (!m_gateways.remove(gateway)) {
-            m_gateways.add(gateway);
-            return true;
-        }
-        return false;
+        boolean existed = !m_gateways.remove(gateway);
+        m_gateways.add(gateway);
+        return existed;
     }
 
     public void removeGateways(Collection selectedGateways) {
@@ -134,26 +132,26 @@ public abstract class DialingRule extends BeanWithId
         gateways.removeAll(ruleGateways);
         return gateways;
     }
-    
+
     public void moveGateways(Collection ids, int step) {
         DataCollectionUtil.moveByPrimaryKey(m_gateways, ids.toArray(), step, false);
     }
-    
+
     public int getPosition() {
         return m_position;
     }
 
     public void setPosition(int position) {
-        m_position = position;        
+        m_position = position;
     }
 
     public Object getPrimaryKey() {
         return getId();
     }
-    
+
     /**
-     * Attempts to apply standard transformations to patterns. It is used when generating authorization rules
-     * For example 9xxxx -> 7{digits} results in 97xxxx
+     * Attempts to apply standard transformations to patterns. It is used when generating
+     * authorization rules For example 9xxxx -> 7{digits} results in 97xxxx
      * 
      * Default implementation does not attempt any transformation
      */

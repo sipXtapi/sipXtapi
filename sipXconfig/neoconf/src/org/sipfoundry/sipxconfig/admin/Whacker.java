@@ -21,6 +21,7 @@ import java.util.TimerTask;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -32,16 +33,16 @@ public class Whacker implements ApplicationListener {
             m_processContext.manageServices(SERVICE_NAMES, SipxProcessContext.Command.RESTART);
         }
     }
-    
-    static final String TEST_DATE_FORMAT = "HH:mm:ss:SS a";    // for testing only
-    static final String[] SERVICE_NAMES = {
-        SipxProcessContext.Process.MEDIA_SERVER_NAME,
-        SipxProcessContext.Process.STATUS_SERVER_NAME
+
+    static final String TEST_DATE_FORMAT = "HH:mm:ss:SS a"; // for testing only
+    static final Process[] SERVICE_NAMES = {
+        Process.MEDIA_SERVER, Process.STATUS
     };
+
     private SipxProcessContext m_processContext;
-    
+
     private boolean m_enabled = true;
-    private String m_timeOfDay = "3:42 AM";     // in the local timezone
+    private String m_timeOfDay = "3:42 AM"; // in the local timezone
     private String m_scheduledDay = "Sunday";
     private Timer m_timer;
 
@@ -60,7 +61,7 @@ public class Whacker implements ApplicationListener {
     public String getScheduledDay() {
         return m_scheduledDay;
     }
-    
+
     public void setScheduledDay(String scheduledDay) {
         m_scheduledDay = scheduledDay;
     }
@@ -74,7 +75,7 @@ public class Whacker implements ApplicationListener {
     }
 
     public void onApplicationEvent(ApplicationEvent event) {
-        // No need to register listener, all beans that implement listener interface are 
+        // No need to register listener, all beans that implement listener interface are
         // automatically registered
         if (event instanceof ApplicationInitializedEvent) {
             resetTimer();
@@ -88,7 +89,7 @@ public class Whacker implements ApplicationListener {
         if (!isEnabled()) {
             return;
         }
-        m_timer = new Timer(false);     // daemon, dies with main thread
+        m_timer = new Timer(false); // daemon, dies with main thread
         scheduleTask();
     }
 
@@ -99,7 +100,7 @@ public class Whacker implements ApplicationListener {
         DailyBackupSchedule sched = new DailyBackupSchedule();
         sched.setEnabled(true);
         sched.setScheduledDay(getScheduledDayEnum());
-        sched.setTimeOfDay(getTimeOfDayValue());        
+        sched.setTimeOfDay(getTimeOfDayValue());
         sched.schedule(m_timer, new WhackerTask());
     }
 
@@ -107,24 +108,25 @@ public class Whacker implements ApplicationListener {
     ScheduledDay getScheduledDayEnum() {
         ScheduledDay day = ScheduledDay.getScheduledDay(getScheduledDay());
         if (day == null) {
-            throw new RuntimeException("Whacker: unrecognized scheduled day: " + getScheduledDay());
+            throw new RuntimeException("Whacker: unrecognized scheduled day: "
+                    + getScheduledDay());
         }
         return day;
     }
-    
+
     /**
-     * Convert the time-of-day string to a Date, expressed in Universal Time because
-     * that is what DailyBackupSchedule is expecting.
+     * Convert the time-of-day string to a Date, expressed in Universal Time because that is what
+     * DailyBackupSchedule is expecting.
      */
-    private Date getTimeOfDayValue() {        
+    private Date getTimeOfDayValue() {
         DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
-        
+
         // Purely for testing purposes, allow strings that specify time with great precision.
         // Do so by counting colons, which is locale-specific, but that's OK for testing.
         if (StringUtils.countMatches(getTimeOfDay(), ":") > 1) {
             df = new SimpleDateFormat(TEST_DATE_FORMAT);
         }
-        
+
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date date = null;
         try {

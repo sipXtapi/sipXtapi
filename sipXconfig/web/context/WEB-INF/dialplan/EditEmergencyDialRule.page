@@ -38,7 +38,7 @@
      -->
     <component id="form" type="Form">
         <binding name="delegate" expression="beans.validator"/>
-        <binding name="listener" expression="listeners.formSubmit"/>
+        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
     </component>
     
 	<component id="common" type="ItemCommon">

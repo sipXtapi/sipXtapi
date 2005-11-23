@@ -120,6 +120,12 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
         return null;
     }
 
+    public void manageServices(Process[] services, Command command) {
+        for (int i = 0; i < services.length; i++) {
+            manageService(services[i], command);
+        }
+    }
+
     public void manageServices(String[] serviceNames, Command command) {
         for (int i = 0; i < serviceNames.length; i++) {
             String serviceName = serviceNames[i];
@@ -127,7 +133,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
         }
     }
 
-    public void manageService(String serviceName, Command command) {
+    private void manageService(String serviceName, Command command) {
         // Construct command URLs to invoke the specified command on the named service.
         String[] commandUrls = constructCommandUrls(serviceName, command);
 
