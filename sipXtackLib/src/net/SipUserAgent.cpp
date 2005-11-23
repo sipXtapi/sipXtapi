@@ -2597,8 +2597,8 @@ void SipUserAgent::garbageCollection()
     {
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                      "SipUserAgent::garbageCollection"
-                     " bootime: %d then: %d tcpThen: %d"
-                     " oldTransaction: %d oldInviteTransaction: %d",
+                     " bootime: %ld then: %ld tcpThen: %ld"
+                     " oldTransaction: %ld oldInviteTransaction: %ld",
                      bootime, then, tcpThen, oldTransaction,
                      oldInviteTransaction);
 

@@ -1428,13 +1428,7 @@ int HttpMessage::read(OsSocket* inSocket, int bufferSize,
                {
                   byteCapacity = headerEnd + contentLength + 100;
 
-                  int newCap =
-                     allBytes->capacity(headerEnd + contentLength + 100);
-#ifdef TEST_PRINT
-                  //osPrintf("Setting new capacity to %d bytes \n",newCap);
-                  osPrintf("HttpMessage::setting buffer capacity: %d new cap: %d getCap: %d\n",
-                           headerEnd + contentLength + 100, newCap, allBytes->capacity());
-#endif
+                  allBytes->capacity(headerEnd + contentLength + 100);
                }
             }
          }
