@@ -1,0 +1,941 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
+<meta http-equiv="Expires" content="Wed, 23 Nov 2005 22:21:28 +0000">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="description" content="sipXpbx High Availability">
+<meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
+<style type='text/css'>
+<!--
+    body {
+        font-family: verdana, charcoal, helvetica, arial, sans-serif;
+        margin: 2em;
+        font-size: small ; color: #000000 ; background-color: #ffffff ; }
+    .title { color: #990000; font-size: x-large ;
+        font-weight: bold; text-align: right;
+        font-family: helvetica, monaco, "MS Sans Serif", arial, sans-serif;
+        background-color: transparent; }
+    .filename { color: #666666; font-size: 18px; line-height: 28px;
+        font-weight: bold; text-align: right;
+        font-family: helvetica, arial, sans-serif;
+        background-color: transparent; }
+    td.rfcbug { background-color: #000000 ; width: 30px ; height: 30px ;
+        text-align: justify; vertical-align: middle ; padding-top: 2px ; }
+    td.rfcbug span.RFC { color: #666666; font-weight: bold; text-decoration: none;
+        background-color: #000000 ;
+        font-family: monaco, charcoal, geneva, "MS Sans Serif", helvetica, verdana, sans-serif;
+        font-size: x-small ; }
+    td.rfcbug span.hotText { color: #ffffff; font-weight: normal; text-decoration: none;
+        text-align: center ;
+        font-family: charcoal, monaco, geneva, "MS Sans Serif", helvetica, verdana, sans-serif;
+        font-size: x-small ; background-color: #000000; }
+    /* info code from SantaKlauss at http://www.madaboutstyle.com/tooltip2.html */
+    div#counter{margin-top: 100px}
+
+    a.info{
+        position:relative; /*this is the key*/
+        z-index:24;
+        text-decoration:none}
+
+    a.info:hover{z-index:25; background-color:#990000 ; color: #ffffff ;}
+
+    a.info span{display: none}
+
+    a.info:hover span.info{ /*the span will display just on :hover state*/
+        display:block;
+        position:absolute;
+        font-size: smaller ;
+        top:2em; left:2em; width:15em;
+        padding: 2px ;
+        border:1px solid #333333;
+        background-color:#eeeeee; color:#990000;
+        text-align: left ;}
+
+     A { font-weight: bold; }
+     A:link { color: #990000; background-color: transparent ; }
+     A:visited { color: #333333; background-color: transparent ; }
+     A:active { color: #333333; background-color: transparent ; }
+
+    p { margin-left: 2em; margin-right: 2em; }
+    p.copyright { font-size: x-small ; }
+    p.toc { font-size: small ; font-weight: bold ; margin-left: 3em ;}
+    table.toc { margin: 0 0 0 3em; padding: 0; border: 0; vertical-align: text-top; }
+    td.toc { font-size: small; font-weight: bold; vertical-align: text-top; }
+
+    span.emph { font-style: italic; }
+    span.strong { font-weight: bold; }
+    span.verb, span.vbare { font-family: "Courier New", Courier, monospace ; }
+
+    span.vemph { font-style: italic; font-family: "Courier New", Courier, monospace ; }
+    span.vstrong { font-weight: bold; font-family: "Courier New", Courier, monospace ; }
+    span.vdeluxe { font-weight: bold; font-style: italic; font-family: "Courier New", Courier, monospace ; }
+
+    ol.text { margin-left: 2em; margin-right: 2em; }
+    ul.text { margin-left: 2em; margin-right: 2em; }
+    li { margin-left: 3em;  }
+
+    pre { margin-left: 3em; color: #333333;  background-color: transparent;
+        font-family: "Courier New", Courier, monospace ; font-size: small ;
+        text-align: left;
+        }
+
+    h3 { color: #333333; font-size: medium ;
+        font-family: helvetica, arial, sans-serif ;
+        background-color: transparent; }
+    h4 { font-size: small; font-family: helvetica, arial, sans-serif ; }
+
+    table.bug { width: 30px ; height: 15px ; }
+    td.bug { color: #ffffff ; background-color: #990000 ;
+        text-align: center ; width: 30px ; height: 15px ;
+         }
+    td.bug A.link2 { color: #ffffff ; font-weight: bold;
+        text-decoration: none;
+        font-family: monaco, charcoal, geneva, "MS Sans Serif", helvetica, sans-serif;
+        font-size: x-small ; background-color: transparent }
+
+    td.header { color: #ffffff; font-size: x-small ;
+        font-family: arial, helvetica, sans-serif; vertical-align: top;
+        background-color: #666666 ; width: 33% ; }
+    td.author { font-weight: bold; margin-left: 4em; font-size: x-small ; }
+    td.author-text { font-size: x-small; }
+    table.full { vertical-align: top ; border-collapse: collapse ;
+        border-style: solid solid solid solid ;
+        border-color: black black black black ;
+        font-size: small ; text-align: center ; }
+    table.headers, table.none { vertical-align: top ; border-collapse: collapse ;
+        border-style: none;
+        font-size: small ; text-align: center ; }
+    table.full th { font-weight: bold ;
+        border-style: solid ;
+        border-color: black black black black ; }
+    table.headers th { font-weight: bold ;
+        border-style: none none solid none;
+        border-color: black black black black ; }
+    table.none th { font-weight: bold ;
+        border-style: none; }
+    table.full td {
+        border-style: solid solid solid solid ;
+        border-color: #333333 #333333 #333333 #333333 ; }
+    table.headers td, table.none td { border-style: none; }
+
+    hr { height: 1px }
+-->
+</style>
+</head>
+<body>
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<div align="right"><span class="title"><br />sipXpbx High Availability</span></div>
+<a name="toc"></a><br /><hr />
+<h3>Table of Contents</h3>
+<p class="toc">
+<a href="#anchor1">1.</a>&nbsp;
+Motivation and Overview<br />
+<a href="#anchor2">2.</a>&nbsp;
+Terminology<br />
+<a href="#arch">3.</a>&nbsp;
+High Availability Architecture<br />
+<a href="#anchor3">4.</a>&nbsp;
+Current Registry/Redirect Database Management<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor4">4.1.</a>&nbsp;
+Registry Updates<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor5">4.2.</a>&nbsp;
+Locking<br />
+<a href="#anchor6">5.</a>&nbsp;
+Changes<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor7">5.1.</a>&nbsp;
+Configuration<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#dbcolumns">5.2.</a>&nbsp;
+Additional DB columns<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#xmlrpcsync">5.3.</a>&nbsp;
+XML-RPC Registry DB Replication<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor8">5.3.1.</a>&nbsp;
+Registry Syncronization State<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#regproc">5.3.2.</a>&nbsp;
+Register Message Processing<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor9">5.3.2.1.</a>&nbsp;
+registrySync.updateContacts<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#regtest">5.3.3.</a>&nbsp;
+Peer Reachability<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor11">5.3.3.1.</a>&nbsp;
+registrySync.Check<br />
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#startup">5.3.4.</a>&nbsp;
+Startup Syncronization<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#locking">5.4.</a>&nbsp;
+Registry DB Locking<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#xmlrpcsec">5.5.</a>&nbsp;
+XML-RPC Security<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor12">5.6.</a>&nbsp;
+HTTP Persistent Connections<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#authrrsv">5.7.</a>&nbsp;
+Authorization Proxy Record-Route<br />
+<a href="#rfc.authors">&#167;</a>&nbsp;
+Authors' Addresses<br />
+</p>
+<br clear="all" />
+
+<a name="anchor1"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.1"></a><h3>1.&nbsp;Motivation and Overview</h3>
+
+<p>
+        In large systems, high availability (HA) is essential; a PBX with
+        more than a few dozen users generally must not have any unexpected
+        outages for basic calling.  It does seem to be true that voice mail
+        and perhaps some other services do not have the same availability
+        requirement.  In sipXpbx, basic calling depends on three
+        components: the two proxies and the registry/redirect service.  The
+        proxies can be replicated using DNS SRV records to share load and
+        provide for failover.  The registry/redirect service, however, can
+        not currently be deployed on multiple servers because the 'soft'
+        state in the registry database (mappings from registered Addresses
+        to Contacts) cannot be shared.  While replicating the proxies alone
+        does help with scaling, the registry is a single point of failure
+        for basic calling service.
+      
+</p>
+<p>
+        This memo describes a system architecture to provide high
+        availability service for basic calling, and a design for adding the
+        required replication of registration information
+      
+</p>
+<p>
+        <span class="strong">
+          In order to make the basic HA capability available as quickly as
+          possible, the plan is to implement those features that are
+          absolutely required, but not support an automated installation.
+          Some custom, manual configuration will be required. Release 3.2
+          will support only 2 registrars.
+        </span>
+      
+</p>
+<a name="anchor2"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.2"></a><h3>2.&nbsp;Terminology</h3>
+
+<blockquote class="text"><dl>
+<dt>Server</dt>
+<dd>
+          A physical computer system.
+        
+</dd>
+<dt>Service</dt>
+<dd>
+          A process or processes running on a Server that performs a
+          particular function.
+        
+</dd>
+<dt>Primary Registrar</dt>
+<dd>
+          For a particular REGISTER request, the registrar that receives it
+          and performs initial processing for it.
+          Note that the primary registrar may not be the
+          same for successive REGISTER requests, even from one UA.
+        
+</dd>
+<dt>Replicated Registrar</dt>
+<dd>
+          For a particular REGISTER request,
+          any registrar other than its Primary Registrar to which 
+          its information is replicated.
+        
+</dd>
+</dl></blockquote>
+<a name="arch"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3"></a><h3>3.&nbsp;High Availability Architecture</h3>
+
+<p>
+        In an HA configuration, there are at least two types of Server:
+      
+</p>
+<blockquote class="text">
+<li>one Master Server running:
+</li>
+<blockquote class="text">
+<li>sipXconfig service
+</li>
+<li>optionally, also a set of the processes from a
+             Distributed Server
+</li>
+</blockquote>
+<li>one or more Distributed Servers, each running
+</li>
+<blockquote class="text">
+<li>one forking proxy
+</li>
+<li>one authentication proxy
+</li>
+<li>one registry/redirect service
+</li>
+</blockquote>
+</blockquote>
+<p>
+        Other PBX Services may be distributed among the above Servers,
+        or run on other Servers:
+      
+</p>
+<blockquote class="text">
+<li>sipXvxml service with applications
+</li>
+<li>sipXpublisher (status server)
+</li>
+<li>sipXpresence
+</li>
+<li>sipXacd
+</li>
+</blockquote>
+<p>
+        <span class="strong">
+          In Release 3.2, only one configuration will be supported: one
+          Distributed Server running only the proxies and registry/redirect
+          service, and one Master Server running all Services.
+        </span>
+      
+</p>
+<p>
+        In order to provide load sharing and failover, all SIP message
+        routing to any redundant element in an HA configuration uses DNS
+        SRV records.  The following SRV records are required:
+      
+</p>
+<blockquote class="text"><dl>
+<dt>domain</dt>
+<dd>
+          In a single-system installation, an SRV record that maps the SIP
+          domain name to the Server host name is recommended.  In an HA
+          installation, multiple SRV records for the SIP domain name are
+          required, mapping to the Server names/ports that run the forking proxy
+          service.  There are domain SRV records specifying both TCP and
+          UDP.  For example:
+        
+</dd><pre>
+      $ORIGIN example.com.
+
+      _sip._tcp IN SRV 1 50 5060 sipxpbx1
+      _sip._tcp IN SRV 1 50 5060 sipxpbx2
+
+      _sip._udp IN SRV 2 50 5060 sipxpbx1
+      _sip._udp IN SRV 2 50 5060 sipxpbx2
+</pre>
+<dt>registry</dt>
+<dd>
+          The <span class="verb">forwardingrules.xml</span> for each
+          forking proxy service specifies the registry using an SRV name
+          that maps first to the registry instance on the same Server as
+          the proxy (which is quicker to reach and more likely to be
+          operational), and then to the registry instance on the other
+          Server (for failover).
+          
+          The registry
+          service SRV records specify only TCP, because TCP has better
+          failure detection and performance characteristics and
+          compatibility with User Agents is not required.  
+        
+</dd><pre>
+     _sip._tcp.sipxregistry1 IN SRV 1 50 5070 sipxpbx1
+     _sip._tcp.sipxregistry1 IN SRV 2 50 5070 sipxpbx2
+
+     _sip._tcp.sipxregistry2 IN SRV 1 50 5070 sipxpbx2
+     _sip._tcp.sipxregistry2 IN SRV 2 50 5070 sipxpbx1
+</pre>
+<dt></dt>
+<dd>
+         In the example above, the proxy on
+         <span class="verb">sipxpbx1</span> would
+         be configured to use <span class="verb">sipxregistry1</span>, which
+         preferentially routes to <span class="verb">sipxpbx1:5070</span>
+         and fails over to
+         <span class="verb">sipxpbx2:5070</span>.
+         The proxy on <span class="verb">sipxpbx2</span> is configured to use
+         <span class="verb">sipxregistry2</span>,
+         which uses the two services in the reverse order.
+       
+</dd>
+<dt>authproxy</dt>
+<dd>
+          The <span class="verb">forwardingrules.xml</span> for each
+          forking proxy service specifies the authorization proxy
+          using an SRV name configured similarly to the registry.
+          The
+          authorization proxy SRV records specify both TCP and UDP,
+          preferring TCP, but allowing UDP for compatibility with User
+          Agents that require it.  (The authorization proxy may be
+          Record-Routed in dialogs.)
+        
+</dd><pre>
+      _sip._tcp.sipxauthproxy1 IN SRV   1 50 5080 sipxpbx1
+      _sip._tcp.sipxauthproxy1 IN SRV   2 50 5080 sipxpbx2
+      _sip._udp.sipxauthproxy1 IN SRV 101 50 5080 sipxpbx1
+      _sip._udp.sipxauthproxy1 IN SRV 102 50 5080 sipxpbx2
+
+      _sip._tcp.sipxauthproxy2 IN SRV   1 50 5080 sipxpbx2
+      _sip._tcp.sipxauthproxy2 IN SRV   2 50 5080 sipxpbx1
+      _sip._udp.sipxauthproxy2 IN SRV 101 50 5080 sipxpbx2
+      _sip._udp.sipxauthproxy2 IN SRV 102 50 5080 sipxpbx1
+</pre>
+<dt></dt>
+<dd>
+         The selection technique used to create a preference order for
+         registrars is also used for the authproxy, except that SRV
+         records for UDP access are also provided, at lower priority
+         than all the SRV records for TCP access.
+       
+</dd>
+<dt></dt>
+<dd>
+         <span class="strong">
+           Currently, when the authproxy Record-Routes itself, it
+           specifies its IP address in the Record-Route header.
+           The authproxy could insert a Record-Route that specifies its SRV
+           name (as detailed above); doing so would allow
+           the processing of in-dialog requests to fail over 
+           from one instance to another.
+           Whether or not the authproxy should do this depends on
+           whether or not user agents support DNS names in Route
+           headers.
+           Testing is required to determine the best method for Record-Routing.
+         </span>
+       
+</dd>
+</dl></blockquote>
+<a name="anchor3"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4"></a><h3>4.&nbsp;Current Registry/Redirect Database Management</h3>
+
+<p>
+        This section describes the operation of the registry in
+        sipXpbx version 3.0; it does not
+        include description of the HA changes, or the changes for GRUU
+        support..
+      
+</p>
+<a name="anchor4"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.1"></a><h3>4.1.&nbsp;Registry Updates</h3>
+
+<p>
+          The updating of the registry is handled by the routine
+          SipRegistrarServer::applyRegisterToDirectory and the sibdb
+          RegistrationDB class.  The applyRegisterToDirectory method is called
+          after the REGISTER request has been authenticated; it validates the
+          registration by checking to see if the call-id and cseq are in
+          sequence by calling RegistrationDB::isOutOfSequence.
+        
+</p>
+<p>
+          applyRegisterToDirectory then parses and validates the contacts
+          and expiration time in the
+          request and converts them to an internal list.
+        
+</p>
+<p>
+          If the request is valid, there are two cases: expiring all
+          contacts, and updating contacts.
+        
+</p>
+<blockquote class="text"><dl>
+<dt>Expiring All Contacts</dt>
+<dd>
+            If the REGISTER request had an
+            '<span class="verb">Expire:&nbsp;0</span>' header and 
+            just a '<span class="verb">Contact:&nbsp;*</span>' header
+            then it is requesting that all contacts for this Address
+            Of Record (not just those from this
+            call-id) be expired.  This is done using a single call to:
+          
+</dd><pre>
+       RegistrationDB::expireAllBindings( aor, callid, cseq, timeNow )
+</pre>
+<dt></dt>
+<dd>
+            The last three arguments to expireAllBindings are not used
+            to select which bindings to operate on.  (All bindings for
+            the given AOR are expired.)  Rather, they are used for
+            marking the bindings as expired -- Bindings are expired by
+            setting their expiration time to "timeNow minus 1 second", and
+            setting their "last updated by" information to the call-id
+            and cseq specified.
+          
+</dd>
+<dt>Updating Contacts</dt>
+<dd>
+            The other case is when there are real contacts in the
+            set.  All contacts which are listed are
+            to have their expiration times updated, and all other
+            contacts which have last been updated with by REGISTERs
+            with this call-id are to be expired.
+          
+</dd>
+<dt></dt>
+<dd>
+            The listed contacts are updated by calling
+            RegistrationDB::updateBinding on each contact:
+          
+</dd><pre>
+      RegistrationDB::updateBinding( toUrl,
+                                     contact,
+                                     qvalue,
+                                     registerCallidStr,
+                                     registerCseqInt,
+                                     expirationTime
+                                     )
+</pre>
+<dt></dt>
+<dd>
+            Each contact has its q-value and expiration time set, and the
+            call-id and cseq are recorded as its "last updated by" information.
+          
+</dd>
+<dt></dt>
+<dd>
+            After all the contacts in the REGISTER message have been updated,
+            any contacts that have the same callid but an earlier cseq
+            number are expired by a single call to:
+          
+</dd><pre>
+              RegistrationDB::expireOldBindings( toUrl,
+                                                 registerCallidStr,
+                                                 registerCseqInt,
+                                                 timeNow
+                                                 )
+</pre>
+</dl></blockquote>
+<a name="anchor5"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.4.2"></a><h3>4.2.&nbsp;Locking</h3>
+
+<p>
+          Other than the locks internal to fastdb, there are no locks on
+          any of the above operations.  This works because only the single
+          SipRegistrarServer thread ever writes to the Registry database.
+        
+</p>
+<a name="anchor6"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5"></a><h3>5.&nbsp;Changes</h3>
+
+<p>
+        The following sections detail the changes needed to implement the
+        above architecture.
+      
+</p>
+<a name="anchor7"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.1"></a><h3>5.1.&nbsp;Configuration</h3>
+
+<p>
+        An HA Registrar has two additional configuration parameters:
+      
+</p>
+<blockquote class="text"><dl>
+<dt>SIP_REGISTRAR_SYNC_TO</dt>
+<dd>
+          The host name of the other registrar to sync to.  (<span class="emph">In future versions, this may allow a comma-separated
+          list of Servers.</span>)
+        
+</dd>
+<dt>SIP_REGISTRAR_XMLRPC_PORT</dt>
+<dd>
+          The port number used by all Servers to listen for XML-RPC registry
+          syncronization requests. 
+        
+</dd>
+</dl></blockquote>
+<p>
+        <span class="emph">The set of configuration parameters may be
+        changed in future versions of the HA system.  Compatibility
+        is only guaranteed with those sipXconfig versions which support
+        HA.</span>
+      
+</p>
+<a name="dbcolumns"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.2"></a><h3>5.2.&nbsp;Additional DB columns</h3>
+
+<p>
+        Each row in the registration database (which corresponds to a
+        binding of a contact URI to an AOR) will have two additional
+        data items:
+      
+</p>
+<blockquote class="text"><dl>
+<dt>Primary</dt>
+<dd>
+            True if this registrar is the Primary Registrar for this binding
+            (the binding was installed by a REGISTER received by this
+            registrar), and false otherwise (the binding was installed by
+            an XML-RPC from another registrar).
+          
+</dd>
+<dt>DbUpdateNumber</dt>
+<dd>
+            If Primary is true, the value of DbUpdateNumber (see below)
+            of the update which inserted or last modified this row.
+          
+</dd>
+</dl></blockquote>
+<a name="xmlrpcsync"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.3"></a><h3>5.3.&nbsp;XML-RPC Registry DB Replication</h3>
+
+<a name="anchor8"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.3.1"></a><h3>5.3.1.&nbsp;Registry Syncronization State</h3>
+
+<p>
+          The Registry Service maintains persistent state for syncronization purposes:
+        
+</p>
+<blockquote class="text"><dl>
+<dt>InitialSyncDone</dt>
+<dd>
+            A boolean value, initially <span class="verb">false</span>
+            indicating whether or not the local database has been
+            syncronized with the peer registry (see <a class="info" href="#startup">Section&nbsp;5.3.4<span> (</span><span class="info">Startup Syncronization</span><span>)</span></a>).
+          
+</dd>
+<dt>DbUpdateNumber</dt>
+<dd>
+            A circular counter of successful update operations to its own
+            registry database.  This value persists across restarts.
+          
+</dd>
+<dt></dt>
+<dd>
+            In addition to recording its own update number, the registry
+            service maintains a record of the last value of DbUpdateNumber
+            sent to the syncronization peer, and the last value of
+            DbUpdateNumber received from that peer.
+          
+</dd>
+<dt>SyncronizationBaseTime</dt>
+<dd>
+            The SyncronizationBaseTime is the epoch time at which the
+            registry last started with no prior registration state.  Since
+            registration state is preserved across restarts, this value will
+            often not be the same as the start time for the current registry instance.
+            When the registry service starts, it attempts to read its own persistent
+            registry store.  If there is no persistent registry store, it records
+            the current time as its own SyncronizationBaseTime and sets its
+            own DbUpdateNumber to zero.  The SyncronizationBaseTime value
+            is always passed with the DbUpdateNumber, and the
+            SyncronizationBaseTime value from each peer is also recorded.
+            This allows each registry service to detect when a peer has
+            restarted and lost syncronization state.
+          
+</dd>
+</dl></blockquote>
+<p>
+          Together, the SyncronizationBaseTime and DbUpdateNumber are
+          referred to below as the "local syncronization data".
+        
+</p>
+<p>
+          The relationship of the local registry with the peer registry is
+          maintained in three values: 
+        
+</p>
+<blockquote class="text"><dl>
+<dt>PeerReachable</dt>
+<dd>
+            This is a boolean that indicates whether or not the peer
+            is believed to be reachable.  This is 'soft' state - it is
+            initialized on startup to 'false', indicating that the peer is
+            not known to be reachable.  This is reset by the RegisterTest
+            thread (see <a class="info" href="#regtest">Section&nbsp;5.3.3<span> (</span><span class="info">Peer Reachability</span><span>)</span></a>).
+          
+</dd>
+<dt>PeerSyncronizationBaseTime</dt>
+<dd>
+            The most recently received SyncronizationBaseTime from the peer.
+          
+</dd>
+<dt>PeerDbUpdateNumber</dt>
+<dd>
+            The most recently received DbUpdateNumber from the peer.
+          
+</dd>
+</dl></blockquote>
+<a name="regproc"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.3.2"></a><h3>5.3.2.&nbsp;Register Message Processing</h3>
+
+<p>
+          When a register message has been determined to be valid, the local
+          DbUpdateNumber is incremented, and the changes applied to the local
+          registry database.  The local DbUpdateNumber value is recorded in
+          each updated row in the registry database.  The SipRegistrarServer
+          thread then sends a PushRegistryUpdate OsMessage to the
+          RegisterSync thread to trigger replication to the peer registry.
+        
+</p>
+<p>
+          The RegistrySync thread is responsible for propogating updates to
+          the peer registry <span class="emph">(when multiple peers are
+          supported, there may be one thread per peer or just one for all
+          peers - this is a subject for future study)</span>.  
+        
+</p>
+<p>
+          When the RegistrySync thread receives a PushRegistryUpdate message,
+          it checks the PeerReachable value: if it is <span class="verb">true</span>, then the
+          registrySync.updateContacts XML-RPC method is used to propogate any
+          updates that have not been sent to that peer (one invocation per
+          unsent transaction).
+        
+</p>
+<a name="anchor9"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.3.2.1"></a><h3>5.3.2.1.&nbsp;registrySync.updateContacts</h3>
+
+<p>
+            The replicated registrar validates that the local database does
+            not have more recent information using the callid and cseq values
+            and if not, applies each update to its own database.
+          
+</p>
+<p>Inputs:
+</p><pre>
+     int     updatenumber
+     array   updates
+       struct
+         string  uri
+         string  callid
+         int     cseq
+         string  contact
+         int     expires
+         string  qvalue
+         string  instance_id
+         string  gruu
+</pre>
+<p>Ouputs:
+</p><pre>
+           struct
+     int  SyncronizationBaseTime  the time when the server last
+                                  initialized its syncronization data
+     int  DbUpdateNumber          the current value of the servers
+                                  update counter
+</pre>
+<p>
+            On a successful return from registrySync.updateContacts, the caller
+            updates its record of the last DbUpdateNumber sent to the peer.
+            This allows the registry to know what has been pushed to the peer.
+             
+          
+</p>
+<p>
+            On any registrySync.updateContacts failure, the PeerReachable value
+            is set to <span class="verb">false</span>, and a PeerUnReachable
+            OsMessage is sent to the RegisterTest thread.
+          
+</p>
+<p>
+            Whenever it is invoked, the registrySync.updateContacts also
+            checks the PeerReachable status of the client; if it is <span class="verb">false</span>, then a PushRegistryUpdate OsMessage
+            is sent to the RegistrySync thread, and the PeerReachable status
+            is set to <span class="verb">true</span>.
+          
+</p>
+<a name="regtest"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.3.3"></a><h3>5.3.3.&nbsp;Peer Reachability</h3>
+
+<p>
+          The RegisterTest thread is responsible for determining whether or
+          not a previously unreachable peer has become reachable.  It is
+          started initially by receipt of a PeerUnReachable OsMessage.
+          This causes it to start a timer <span class="emph">(duration to
+          be determined)</span>; when the timer expires, it checks the
+          PeerReachable value for the peer; if it is still <span class="verb">false</span>, then the registrySync.Check method is
+          attempted to test whether or not the peer can now be reached.
+        
+</p>
+<a name="anchor11"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.3.3.1"></a><h3>5.3.3.1.&nbsp;registrySync.Check</h3>
+
+<p>
+            This is used to test whether or not a peer registrar is reachable,
+            to pass the local syncronization data to the peer, and to
+            retrieve the syncronization data from the peer.
+          
+</p>
+<p>Inputs:
+</p><pre>
+  string  Name                    The senders host name
+     int  SyncronizationBaseTime  The time when the sender last
+                                  initialized its syncronization data
+     int  DbUpdateNumber          The current value of the senders
+                                  update counter.
+</pre>
+<p>Ouputs:
+</p><pre>
+   struct
+     int  SyncronizationBaseTime  the time when the recipient last
+                                  initialized its syncronization data
+     int  DbUpdateNumber          the current value of the recipients
+                                  update counter.
+</pre>
+<p>
+            On a successful return, the caller sets the
+            PeerSyncronizationBaseTime and PeerDbUpdateNumber from the
+            response, and set the PeerReachable value to <span class="verb">true</span>.  It then sends a PushRegistryUpdate
+            OsMessage to the RegistrySync thread to restart updates to the
+            peer.
+          
+</p>
+<p>
+            Likewise, when this method is invoked, it sets the
+            PeerSyncronizationBaseTime and PeerDbUpdateNumber from the
+            input values, and checks the PeerReachable value.  If it is
+            <span class="verb">false</span>, it is reset to <span class="verb">true</span>, and a PushRegistryUpdate
+            OsMessage is sent to the RegistrySync thread to restart updates.
+          
+</p>
+<p>
+            On failure, the RegisterTest thread restarts the timer for the
+            peer, using standard exponential backoff to a maximum interval
+            of one eigth of the maximum registration interval.  This
+            prevents useless and possibly harmful traffic being injected
+            into the network in the event that the loss of connectivity is
+            traffic related.  If the peer is actually down, then it will
+            reset the state by making its initial syncronization queries.
+          
+</p>
+<a name="startup"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.3.4"></a><h3>5.3.4.&nbsp;Startup Syncronization</h3>
+
+<p>
+          At startup, the server needs to quickly discover whether or not the
+          local registry is the best available source of contact
+          information.  Before this is determined, the server does not open
+          its SIP port, so that clients will consider it to be down and
+          fail over to another server.  
+        
+</p>
+<p>
+          In order to discover whether the local registry is the best
+          available, the registry sets InitialSyncDone to <span class="verb">false</span> and makes a registrySync.Check request
+          to the peer. 
+        
+</p>
+<blockquote class="text">
+<li>
+            If this request fails, then there is no known
+            better source of contact data, so InitialSyncDone is set to <span class="verb">true</span>, the PeerReachable state is set to <span class="verb">false</span>, the reachability retry timer is
+            started at its initial value to trigger the RegisterTest thread,
+            and the SIP port is opened.
+          
+</li>
+<li>
+            If this request succeeds, then the PeerReachable state is set to <span class="verb">true</span> and the remote syncronization state
+            is compared to the peer syncronization data.
+          
+</li>
+<blockquote class="text">
+<li>
+              If the remote syncronization values
+              indicate that all updates from the peer have been received,
+              then InitialSyncDone is set to <span class="verb">true</span> and the SIP port is opened.
+            
+</li>
+<li>
+              If the remote syncronization values
+              indicate that the registries are not syncronized, then a
+              PushRegistryUpdate message is sent to the RegistrySync thread
+              to push any updates to the peer, and we wait for the peer to
+              push any updates it has before opening the local SIP port.
+            
+</li>
+</blockquote>
+</blockquote>
+<a name="locking"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.4"></a><h3>5.4.&nbsp;Registry DB Locking</h3>
+
+<p>
+        Registry database updates are protected by an OsMutex; it is taken
+        by applyRegisterToDirectory and by each of the registrySync XML-RPC
+        methods.  This serializes all the checks for cseq correctness, and
+        also protects the syncronization state variables.
+      
+</p>
+<p>
+        <span class="emph">
+          There is no locking between updates to the registry database and
+          reads from it; the fastdb ensures sufficient integrity that none
+          is needed.
+        </span>
+      
+</p>
+<a name="xmlrpcsec"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.5"></a><h3>5.5.&nbsp;XML-RPC Security</h3>
+
+<p>
+        Registry syncronization requests require that the RPC connection be
+        SSL authenticated as a Server in the same SIP domain.
+      
+</p>
+<p>
+        <span class="strong">
+          Initially, all syncronized Servers will use the same key and certificate.
+        </span>
+      
+</p>
+<a name="anchor12"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.6"></a><h3>5.6.&nbsp;HTTP Persistent Connections</h3>
+
+<p>
+        Because these updates will be quite frequent compared to any
+        previous use of XML-RPC, and because they must be over SSL
+        connections, we may need to modify our HTTP to support persistent
+        connections.  We have a design for this based on how SIP TCP
+        connections are done.  <span class="emph">Whether or not this will
+        be included in the 3.2 release depends on available time and the
+        results of performance testing once syncronization is
+        working.</span>
+      
+</p>
+<a name="authrrsv"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.7"></a><h3>5.7.&nbsp;Authorization Proxy Record-Route</h3>
+
+<p>
+        Ideally, the authproxy Record-Routes should use the SRV record
+        name as
+        described in <a class="info" href="#arch">Section&nbsp;3<span> (</span><span class="info">High Availability Architecture</span><span>)</span></a>.  Using that mechanism, and
+        assuming the  phones support SRV record names in Record-Routes
+        correctly, then in-dialog requests (like 'on/off hold')
+        would fail over from one authproxy to another.  <span class="strong">But phones that could not process an SRV name in a
+        Record-Route would be unable to perform any in-dialog
+        requests.</span> 
+      
+</p>
+<p>
+        <span class="emph">At this time, the plan is to not change how
+        the Record-Route is constructed (continue using the IP address rather
+        than use the SRV name).</span>
+      
+</p>
+<a name="rfc.authors"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<h3>Authors' Addresses</h3>
+<table width="99%" border="0" cellpadding="0" cellspacing="0">
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Scott Lawrence</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Pingtel Corp.</td></tr>
+<tr><td class="author" align="right">Email:&nbsp;</td>
+<td class="author-text"><a href="mailto:slawrence@pingtel.com">slawrence@pingtel.com</a></td></tr>
+<tr cellpadding="3"><td>&nbsp;</td><td>&nbsp;</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Dale Worley</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Pingtel Corp.</td></tr>
+<tr><td class="author" align="right">Email:&nbsp;</td>
+<td class="author-text"><a href="mailto:dworley@pingtel.com">dworley@pingtel.com</a></td></tr>
+</table>
+</body></html>
