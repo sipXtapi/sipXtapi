@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.search;
 
 import java.util.Collection;
+import java.util.List;
 
 import junit.framework.TestCase;
 
@@ -122,4 +123,56 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals("last, first, bongo", ident.getName());
     }
 
+    public void testSorting() throws Exception {
+        final String[] names = {
+            "aa", "bb", "ee", "zz"
+        };
+
+        for (int i = 0; i < names.length; i++) {
+            User user = new User();
+            user.setFirstName("first");
+            user.setLastName("last");
+            user.setUserName(names[i]);
+
+            m_coreContext.saveUser(user);
+        }
+
+        // ascending
+        List collection = m_searchManager.search(User.class, "first*", 0, -1, "userName", true,
+                m_identityToBean);
+        assertEquals(names.length, collection.size());
+        User user = (User) collection.get(0);
+        assertEquals(names[0], user.getUserName());
+        user = (User) collection.get(names.length - 1);
+        assertEquals(names[names.length - 1], user.getUserName());
+
+        // descending
+        collection = m_searchManager.search(User.class, "first*", 0, -1, "userName", false,
+                m_identityToBean);
+        assertEquals(names.length, collection.size());
+        user = (User) collection.get(names.length - 1);
+        assertEquals(names[0], user.getUserName());
+        user = (User) collection.get(0);
+        assertEquals(names[names.length - 1], user.getUserName());
+
+        // do not return first item - descending order
+        collection = m_searchManager.search(User.class, "first*", 1, -1, "userName", false,
+                m_identityToBean);
+        int size = collection.size();
+        assertEquals(names.length - 1, size);
+        user = (User) collection.get(0);
+        assertEquals(names[names.length - 2], user.getUserName());
+        user = (User) collection.get(size - 1);
+        assertEquals(names[0], user.getUserName());
+
+        // only return 2 items starting from first - ascending order
+        int pageSize = 2;
+        collection = m_searchManager.search(User.class, "first*", 1, pageSize, "userName", true,
+                m_identityToBean);
+        assertEquals(pageSize, collection.size());
+        user = (User) collection.get(0);
+        assertEquals(names[1], user.getUserName());
+        user = (User) collection.get(1);
+        assertEquals(names[2], user.getUserName());
+    }
 }

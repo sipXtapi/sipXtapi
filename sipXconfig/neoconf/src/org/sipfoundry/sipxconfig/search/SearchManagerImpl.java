@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -29,6 +30,7 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TermQuery;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
 
@@ -56,7 +58,7 @@ public class SearchManagerImpl implements SearchManager {
     public List search(String queryText, Transformer transformer) {
         try {
             Query query = parseUserQuery(queryText);
-            return search(query, transformer);
+            return search(query, 0, -1, null, transformer);
         } catch (IOException e) {
             LOG.error("search by user query error", e);
         } catch (ParseException e) {
@@ -66,39 +68,29 @@ public class SearchManagerImpl implements SearchManager {
     }
 
     public List search(Class entityClass, String queryText, Transformer transformer) {
-        try {
-            Query userQuery = parseUserQuery(queryText);
-            Term classTerm = new Term(Indexer.CLASS_FIELD, entityClass.getName());
-            TermQuery classQuery = new TermQuery(classTerm);
-            BooleanQuery query = new BooleanQuery();
-            query.add(classQuery, true, false);
-            query.add(userQuery, true, false);
-            return search(query, transformer);
-        } catch (IOException e) {
-            LOG.error("search by class error", e);
-        } catch (ParseException e) {
-            LOG.info(e.getMessage());
-        }
-
-        return Collections.EMPTY_LIST;
+        return search(entityClass, queryText, 0, -1, null, false, transformer);
     }
 
-    private List search(Query query, Transformer transformer) throws IOException {
+    private List search(Query query, int firstItem, int pageSize, Sort sort,
+            Transformer transformer) throws IOException {
         IndexSearcher searcher = null;
         try {
             searcher = m_indexSource.getSearcher();
-            Hits hits = searcher.search(query);
-            List found = hits2beans(hits, transformer);
+            Hits hits = searcher.search(query, sort);
+            List found = hits2beans(hits, transformer, firstItem, pageSize);
             return found;
         } finally {
             LuceneUtils.closeQuietly(searcher);
         }
     }
 
-    private List hits2beans(Hits hits, Transformer transformer) throws IOException {
+    private List hits2beans(Hits hits, Transformer transformer, int firstItem,
+            int pageSize) throws IOException {
         final int hitCount = hits.length();
         List results = new ArrayList(hitCount);
-        for (int i = 0; i < hitCount; i++) {
+        int from = firstItem < 0 ? 0 : firstItem;
+        int to = pageSize < 0 ? hitCount : Math.min(hitCount, firstItem + pageSize);
+        for (int i = from; i < to; i++) {
             Document document = hits.doc(i);
             Identity identity = m_beanAdaptor.getBeanIdentity(document);
             if (identity != null) {
@@ -114,5 +106,28 @@ public class SearchManagerImpl implements SearchManager {
     private Query parseUserQuery(String queryText) throws ParseException {
         QueryParser parser = new QueryParser(Indexer.DEFAULT_FIELD, m_analyzer);
         return parser.parse(queryText);
+    }
+
+    public List search(Class entityClass, String queryText, int firstResult, int pageSize,
+            String sortField, boolean orderAscending, Transformer transformer) {
+        try {
+            Query userQuery = parseUserQuery(queryText);
+            Term classTerm = new Term(Indexer.CLASS_FIELD, entityClass.getName());
+            TermQuery classQuery = new TermQuery(classTerm);
+            BooleanQuery query = new BooleanQuery();
+            query.add(classQuery, true, false);
+            query.add(userQuery, true, false);
+            Sort sort = null;
+            if (StringUtils.isNotBlank(sortField)) {
+                sort = new Sort(sortField, !orderAscending);
+            }
+            return search(query, firstResult, pageSize, sort, transformer);
+        } catch (IOException e) {
+            LOG.error("search by class error", e);
+        } catch (ParseException e) {
+            LOG.info(e.getMessage());
+        }
+
+        return Collections.EMPTY_LIST;
     }
 }
