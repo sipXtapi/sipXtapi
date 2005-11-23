@@ -6,11 +6,16 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.EditFirmware">
     <description>add a description</description>
     
+    <!-- 
+      - making firmware persistent for upload directory stays the same
+      - while creating new firmware entries
+      -->    
     <property-specification name="firmware"
-        type="org.sipfoundry.sipxconfig.phone.Firmware"/>
-    <property-specification name="firmwareId"
-        type="java.lang.Integer"
+        type="org.sipfoundry.sipxconfig.phone.Firmware"
         persistent="yes"/>
+    
+    <property-specification name="firmwareId"
+        type="java.lang.Integer"/>
     <property-specification name="manufacturer"
         type="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer"
         persistent="yes"/>

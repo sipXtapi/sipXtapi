@@ -52,9 +52,5 @@ public abstract class EditFirmware extends PageWithCallback implements PageRende
     
     public void onSave(IRequestCycle cycle_) {
         getPhoneContext().saveFirmware(getFirmware());
-    }
-    
-    public void onDelete(IRequestCycle cycle_) {
-        getPhoneContext().saveFirmware(getFirmware());
-    }
+    }    
 }

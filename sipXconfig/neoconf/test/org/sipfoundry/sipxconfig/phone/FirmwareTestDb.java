@@ -17,6 +17,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 public class FirmwareTestDb extends SipxDatabaseTestCase {
@@ -27,12 +28,26 @@ public class FirmwareTestDb extends SipxDatabaseTestCase {
         m_phoneContext = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
     }
+    
+    public void testLoadSettings() throws Exception {
+        Firmware f = m_phoneContext.newFirmware(FirmwareManufacturer.getManufacturerById("polycom"));
+        f.getSettings();
+    }
+    
+    public void testUniqueUploadId() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        Firmware f = m_phoneContext.newFirmware(FirmwareManufacturer.UNMANAGED);
+        f.setName("bezerk");
+        assertSame(BeanWithId.UNSAVED_ID, f.getId());
+        assertNotNull(f.getUniqueUploadId());
+        m_phoneContext.saveFirmware(f);
+        assertEquals(f.getUniqueUploadId(), f.getId());        
+    }
         
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        Firmware f = new Firmware();
+        Firmware f = m_phoneContext.newFirmware(FirmwareManufacturer.UNMANAGED);
         f.setName("bezerk");
-        f.setManufacturer(FirmwareManufacturer.UNMANAGED);
         f.setDeliveryId("tftp");
         m_phoneContext.saveFirmware(f);
         

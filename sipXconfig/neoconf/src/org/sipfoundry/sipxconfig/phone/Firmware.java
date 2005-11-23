@@ -29,7 +29,8 @@ public class Firmware extends BeanWithSettings {
     private String m_modelId;
     private String m_versionId;
     private ModelFilesContext m_modelFilesContext;
-    private String m_uploadDirectory;
+    private Integer m_uniqueUploadId;
+    private String m_uploadParentDirectory;
 
     public Setting getSettingModel() {
         Setting model = super.getSettingModel();
@@ -51,7 +52,7 @@ public class Firmware extends BeanWithSettings {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {
                 FileSetting fileType = (FileSetting) type;
-                fileType.setDirectory(m_uploadDirectory);
+                fileType.setDirectory(getUploadDirectory());
             }
         }
     }
@@ -67,7 +68,7 @@ public class Firmware extends BeanWithSettings {
     public String getDescription() {
         return m_description;
     }
-
+    
     public void setDescription(String description) {
         m_description = description;
     }
@@ -111,12 +112,34 @@ public class Firmware extends BeanWithSettings {
     public void setModelFilesContext(ModelFilesContext modelFilesContext) {
         m_modelFilesContext = modelFilesContext;
     }
-
+    
+    /**
+     * Where uploads exists for this firmware instance
+     */
     public String getUploadDirectory() {
-        return m_uploadDirectory;
+        return getUploadParentDirectory() + '/' + getUniqueUploadId();
+    }
+    
+    /**
+     * Parent uploads exists for this firmware instance
+     */
+    public String getUploadParentDirectory() {
+        return m_uploadParentDirectory;
     }
 
-    public void setUploadDirectory(String uploadDirectory) {
-        m_uploadDirectory = uploadDirectory;
+    public void setUploadParentDirectory(String uploadParentDirectory) {
+        m_uploadParentDirectory = uploadParentDirectory;
     }
+
+    public Integer getUniqueUploadId() {
+        return isNew() ? m_uniqueUploadId : getId();
+    }
+
+    public void setUniqueUploadId(Integer uniqueUploadId) {
+        m_uniqueUploadId = uniqueUploadId;
+    }
+    
+    public void setIdToUniqueUploadId() {
+        super.setIdWithProtectedAccess(getUniqueUploadId());
+    }    
 }

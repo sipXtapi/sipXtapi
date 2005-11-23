@@ -46,6 +46,12 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
     public abstract String getErrorMsg();
     
     public abstract String getContentType();
+    
+    public abstract boolean getSelectable();
+    
+    public abstract String getDeleteAsset();
+
+    public abstract void setDeleteAsset(String asset);
 
     private static boolean isUploadFileSpecified(IUploadFile file) {
         boolean isSpecified = file != null && !StringUtils.isBlank(file.getFilePath());
@@ -65,11 +71,7 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
         return localized;
     }
     
-    public void deleteAsset(IRequestCycle cycle_) {
-        // TODO
-    }
-
-    private IPropertySelectionModel createModel() {
+    private IPropertySelectionModel createSelectableAssetModel() {
         File assetDir = new File(getAssetDir());
         // make sure it exists
         assetDir.mkdirs();
@@ -79,9 +81,9 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
         }
         return new StringPropertySelectionModel(assets);
     }
-
+    
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        IPropertySelectionModel model = createModel();
+        IPropertySelectionModel model = createSelectableAssetModel();
         setAssetSelectionModel(model);
         super.renderComponent(writer, cycle);
         if (!cycle.isRewinding()) {
@@ -92,8 +94,18 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
         validateNotEmpty(validator, getErrorMsg());
         TapestryUtils.isValid(page);
         checkFileUpload();
+        checkDeleteAsset();        
     }
-
+    
+    private void checkDeleteAsset() {
+        if (getDeleteAsset() != null) {
+            File assetFile = new File(getAssetDir(), getDeleteAsset());
+            assetFile.delete();
+            setAsset(null);
+            setDeleteAsset(null);
+        }
+    }
+    
     private void checkFileUpload() {
         IUploadFile upload = getUploadAsset();
         if (!isUploadFileSpecified(upload)) {

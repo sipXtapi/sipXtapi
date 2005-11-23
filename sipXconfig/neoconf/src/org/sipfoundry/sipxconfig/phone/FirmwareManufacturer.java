@@ -47,4 +47,7 @@ public class FirmwareManufacturer extends Enum {
             super(FirmwareManufacturer.class);
         }
     }
+    public static FirmwareManufacturer getManufacturerById(String id) {
+        return (FirmwareManufacturer) Enum.getEnum(FirmwareManufacturer.class, id);
+    }
 }
