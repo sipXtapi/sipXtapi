@@ -28,10 +28,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-//: Implements TCP server for accepting TCP connections
-// This class provides the implementation of the UDP datagram-based 
-// socket class which may be instantiated. 
-
+/// Implements Server for accepting TLS/SSL connections
 class OsSSLServerSocket : public OsServerSocket
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

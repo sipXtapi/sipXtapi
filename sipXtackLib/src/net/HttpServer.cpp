@@ -217,7 +217,7 @@ int HttpServer::run(void* runArg)
             if( processRequestIpAddr(remoteIp, request, response))
             {
                // If the request is authorized
-               processRequest(request, response);
+               processRequest(request, response, requestSocket);
             }
 
             if(response)
@@ -474,7 +474,9 @@ UtlBoolean HttpServer::processRequestIpAddr(const UtlString& remoteIp,
 }
 
 void HttpServer::processRequest(const HttpMessage& request,
-                                HttpMessage*& response)
+                                HttpMessage*& response,
+                                const OsConnectionSocket* connection
+                                )
 {
     UtlString method;
     response = NULL;
@@ -520,9 +522,13 @@ void HttpServer::processRequest(const HttpMessage& request,
                       method.data(), uriFileName.data(), mappedUriFileName.data());
 
         // Build the request context
-        HttpRequestContext requestContext(method.data(), uri.data(),
-            mappedUriFileName.data(), NULL,
-            !userId.isNull() ? userId.data() : NULL);
+        HttpRequestContext requestContext(method.data(),
+                                          uri.data(),
+                                          mappedUriFileName.data(),
+                                          NULL,
+                                          !userId.isNull() ? userId.data() : NULL,
+                                          connection
+                                          );
 
         if(method.compareTo(HTTP_POST_METHOD) == 0)
         {

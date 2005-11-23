@@ -11,7 +11,8 @@
 #include <assert.h>
 
 // APPLICATION INCLUDES
-#include <utl/UtlDListIterator.h>
+#include <utl/UtlSListIterator.h>
+#include <os/OsServerSocket.h>
 #include <net/HttpRequestContext.h>
 #include <net/HttpMessage.h>
 #include <net/NameValueTokenizer.h>
@@ -36,8 +37,12 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
                                        const char* rawUrl,
                                        const char* mappedFile,
                                        const char* serverName,
-                                       const char* userId) :
-   mUsingInsensitive(false)
+                                       const char* userId,
+                                       const OsConnectionSocket* connection
+                                       )
+   : mUsingInsensitive(false),
+     mConnectionEncrypted(false),
+     mPeerCertTrusted(false)
 {
    if(requestMethod)
    {
@@ -73,6 +78,19 @@ HttpRequestContext::HttpRequestContext(const char* requestMethod,
    {
        mEnvironmentVars[HTTP_ENV_USER].append(userId);
    }
+
+   if (connection)
+   {
+      mConnectionEncrypted = connection->isEncrypted();
+      mPeerCertTrusted = connection->peerIdentity(&mPeerIdentities);
+#     ifdef TEST_DEBUG
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "HttpRequestContext::_( connection=%p ) %s",
+                    connection, mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted"
+                    );
+#     endif
+
+   }
 }
 
 // Copy constructor
@@ -91,7 +109,7 @@ HttpRequestContext::HttpRequestContext(const HttpRequestContext& rHttpRequestCon
            }
         }
 
-   // delete the old values in the UtlDList
+   // delete the old values in the UtlSList
    if(!mCgiVariableList.isEmpty())
    {
       mCgiVariableList.destroyAll();
@@ -99,7 +117,7 @@ HttpRequestContext::HttpRequestContext(const HttpRequestContext& rHttpRequestCon
 
    //copy mCgiVariableList memebers individually
    mUsingInsensitive = rHttpRequestContext.mUsingInsensitive;
-        UtlDListIterator iterator((UtlDList&)rHttpRequestContext.mCgiVariableList);
+        UtlSListIterator iterator((UtlSList&)rHttpRequestContext.mCgiVariableList);
         NameValuePair* nameValuePair = NULL;
    UtlString value;
    UtlString name;
@@ -120,12 +138,25 @@ HttpRequestContext::HttpRequestContext(const HttpRequestContext& rHttpRequestCon
       }
    }
    while (nameValuePair != NULL);
+
+   mConnectionEncrypted = rHttpRequestContext.mConnectionEncrypted;
+   mPeerCertTrusted = rHttpRequestContext.mPeerCertTrusted;
+   if ( mPeerCertTrusted )
+   {
+      UtlSListIterator rPeerNames(rHttpRequestContext.mPeerIdentities);
+      UtlString* peerName;
+      while ( (peerName = dynamic_cast<UtlString*>(rPeerNames())) )
+      {
+         mPeerIdentities.append(new UtlString(*peerName));
+      }
+   }
 }
 
 // Destructor
 HttpRequestContext::~HttpRequestContext()
 {
         mCgiVariableList.destroyAll();
+        mPeerIdentities.destroyAll();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -151,14 +182,14 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
               }
            }
 
-      // delete the old values in the UtlDList
+      // delete the old values in the UtlSList
       if(!mCgiVariableList.isEmpty())
       {
          mCgiVariableList.destroyAll();
       }
       //copy mCgiVariableList memebers individually
       mUsingInsensitive = rhs.mUsingInsensitive;
-      UtlDListIterator iterator((UtlDList&)rhs.mCgiVariableList);
+      UtlSListIterator iterator((UtlSList&)rhs.mCgiVariableList);
       NameValuePair* nameValuePair = NULL;
       UtlString value;
       UtlString name;
@@ -183,6 +214,19 @@ HttpRequestContext::operator=(const HttpRequestContext& rhs)
       }
       while (nameValuePair != NULL);
    }
+
+   mConnectionEncrypted = rhs.mConnectionEncrypted;
+   mPeerCertTrusted = rhs.mPeerCertTrusted;
+   if ( mPeerCertTrusted )
+   {
+      UtlSListIterator rPeerNames(rhs.mPeerIdentities);
+      UtlString* peerName;
+      while ( (peerName = dynamic_cast<UtlString*>(rPeerNames())) )
+      {
+         mPeerIdentities.append(new UtlString(*peerName));
+      }
+   }
+
    return *this;
 }
 
@@ -215,7 +259,7 @@ UtlBoolean HttpRequestContext::getCgiVariable(const char* name,
                                              UtlString& value,
                                              int occurance) const
 {
-   UtlDListIterator iterator((UtlDList&)mCgiVariableList);
+   UtlSListIterator iterator((UtlSList&)mCgiVariableList);
    NameValuePair* nameValuePair = NULL;
    int fieldIndex = 0;
    UtlString upperCaseName;
@@ -429,4 +473,40 @@ void HttpRequestContext::parseCgiVariables(const char* queryString,
    } while(nameAndValuePtr &&
            nameAndValueLength > 0 &&
            queryString[lastCharIndex] != '\0');
+}
+
+/// Test whether or not the client connection is encrypted.
+bool HttpRequestContext::isEncrypted() const
+{
+   return mConnectionEncrypted;
+}
+
+
+/// Test whether or not the given name is the SSL client that sent this request.
+bool HttpRequestContext::isTrustedPeer( const UtlString& peername ) const
+{
+   /*
+    * This tests the host identity provided by the SSL handshake; it does not
+    * test the HTTP user identity.
+    * @returns
+    * - true if the connection is SSL and the peername matches a name in the peer certificate.
+    * - false if not.
+    */
+#  ifdef TEST_DEBUG
+   UtlSListIterator peers(mPeerIdentities);
+   UtlString peerNames("Peers: ");
+   UtlString* peer;
+   while((peer = dynamic_cast<UtlString*>(peers())))
+   {
+      peerNames.append(" '");
+      peerNames.append(*peer);
+      peerNames.append("'");
+   }
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "HttpRequestContext::isTrustedPeer('%s')\n %s %s",
+                 peername.data(), mPeerCertTrusted ? "Cert Trusted" : "Cert Not Trusted",
+                 peerNames.data()
+                 );
+#  endif
+   return mPeerCertTrusted && mPeerIdentities.contains(&peername);
 }

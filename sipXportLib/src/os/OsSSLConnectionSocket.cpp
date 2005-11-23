@@ -251,6 +251,26 @@ OsSocket::IpProtocolSocketType OsSSLConnectionSocket::getIpProtocol() const
     return(OsSocket::SSL_SOCKET);
 }
 
+/// Is this connection encrypted using TLS/SSL?
+bool OsSSLConnectionSocket::isEncrypted() const
+{
+   return false;
+}
+
+   
+/// Get any authenticated peer host names.
+bool OsSSLConnectionSocket::peerIdentity( UtlSList* altNames
+                                         ,UtlString* commonName
+                                         ) const
+{
+   /*
+    * - true if the connection is TLS/SSL and the peer has presented
+    *        a certificate signed by a trusted certificate authority
+    * - false if not
+    */
+   return OsSSL::peerIdentity( mSSL, altNames, commonName );
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

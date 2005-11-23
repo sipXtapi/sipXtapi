@@ -32,6 +32,7 @@
 class HttpMessage;
 class HttpBody;
 class OsServerSocket;
+class OsConnectionSocket;
 class HttpRequestContext;
 class HttpService;
 
@@ -131,7 +132,10 @@ public:
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
-    void processRequest(const HttpMessage& request, HttpMessage*& response);
+    void processRequest(const HttpMessage& request,          ///< request to be dispatched
+                        HttpMessage*& response,              ///< build response in this message
+                        const OsConnectionSocket* connection ///< for access to security info
+                        );
 
     UtlBoolean processRequestIpAddr(const UtlString& remoteIp,
        const HttpMessage& request,

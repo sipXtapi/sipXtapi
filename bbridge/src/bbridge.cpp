@@ -195,7 +195,8 @@ void initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
+                       CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
       else
       {
@@ -204,7 +205,8 @@ void initSysLog(OsConfigDb* pConfig)
          path.getNativePath(workingDirectory);
 
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_DIR, workingDirectory.data());
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
+                       CONFIG_SETTING_LOG_DIR, workingDirectory.data());
       }
 
       fileTarget = workingDirectory +
@@ -242,7 +244,8 @@ void initSysLog(OsConfigDb* pConfig)
       {
          priority = lkupTable[i].ePriority;
          osPrintf("%s : %s\n", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
+         OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                       "%s : %s", CONFIG_SETTING_LOG_LEVEL, lkupTable[i].pIdentity);
          break;
       }
    }
@@ -262,12 +265,15 @@ void initSysLog(OsConfigDb* pConfig)
       }
    }
 
-   osPrintf("%s : %s\n", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
-   OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s", CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   osPrintf("%s : %s\n",
+            CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
+   OsSysLog::add(LOG_FACILITY, PRI_INFO, "%s : %s",
+                 CONFIG_SETTING_LOG_CONSOLE, bConsoleLoggingEnabled ? "ENABLE" : "DISABLE") ;
 
    if (bSpecifiedDirError)
    {
-      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.", CONFIG_SETTING_LOG_DIR);
+      OsSysLog::add(FAC_LOG, PRI_CRIT, "Cannot access %s directory; please check configuration.",
+                    CONFIG_SETTING_LOG_DIR);
    }
 }
 
@@ -411,6 +417,16 @@ int main(int argc, char* argv[])
       configDb.set(CONFIG_SETTING_RTP_END, DEFAULT_RTP_END);;
    }
 
+   UtlString sipDomain;
+   if (configDb.get(CONFIG_SETTING_SIP_DOMAIN, sipDomain) != OS_SUCCESS)
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "No value configured for %s", CONFIG_SETTING_SIP_DOMAIN
+                    );
+      osPrintf("No value configured for %s\n", CONFIG_SETTING_SIP_DOMAIN );
+      exit(1);
+   }
+
 #if !defined(WIN32)  // !slg! Note:  ConfigRPC stuff brings in a bunch of OpenSSL source files from sipX - 
                      //              these sources currently do not build nicely in Windows - disable for now  
 
@@ -430,7 +446,7 @@ int main(int argc, char* argv[])
       rpc = new XmlRpcDispatch(XmlRpcPort, true /* use https */);
 
       // create the connector between the OsConfigDb and XmlRpc
-      defaultCallbacks = new ConfigRPC_Callback();
+      defaultCallbacks = new ConfigRPC_InDomainCallback(sipDomain);
       configRPC        = new ConfigRPC( ConfigurationDatasetName
                                        ,bbridgeVersion
                                        ,configFileName

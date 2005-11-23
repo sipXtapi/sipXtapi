@@ -114,10 +114,13 @@ ConfigRPC_Callback::ConfigRPC_Callback()
 XmlRpcMethod::ExecutionStatus ConfigRPC_Callback::accessAllowed(
    const HttpRequestContext& requestContext,
    Method                    method
-                                                                )
+                                                                ) const
 {
-   OsSysLog::add(FAC_KERNEL, PRI_INFO, "ConfigRPC default accessAllowed %s", MethodName[method]);
-   return XmlRpcMethod::OK; // :TODO: should check request context and do something smarter
+   OsSysLog::add(FAC_KERNEL, PRI_INFO,
+                 "ConfigRPC default accessAllowed for %s",
+                 MethodName[method]
+                 );
+   return XmlRpcMethod::OK;
 }
 
 /// Invoked after the database has been modified
@@ -131,6 +134,39 @@ void ConfigRPC_Callback::modified()
 ConfigRPC_Callback::~ConfigRPC_Callback()
 {
 }
+
+/// Instantiate this to allow configuration from hosts in the same SIP domain
+ConfigRPC_InDomainCallback::ConfigRPC_InDomainCallback(const UtlString& domain ///< to allow
+                                                       )
+   :mAllowedDomain(domain)
+{
+}
+
+
+/// Access check function 
+XmlRpcMethod::ExecutionStatus ConfigRPC_InDomainCallback::accessAllowed(
+   const HttpRequestContext&  requestContext,
+   ConfigRPC_Callback::Method method
+                                                                        ) const
+{
+   XmlRpcMethod::ExecutionStatus isAllowed = (  requestContext.isTrustedPeer(mAllowedDomain)
+                                              ? XmlRpcMethod::OK
+                                              : XmlRpcMethod::FAILED
+                                              );
+   /*
+    * - XmlRpcMethod::OK if allowed
+    * - XmlRpcMethod::FAILED if not allowed,
+    * - XmlRpcMethod::REQUIRE_AUTHENTICATION if authentication is missing or invalid.
+    */
+   if (XmlRpcMethod::FAILED == isAllowed)
+   {
+      OsSysLog::add(FAC_KERNEL, PRI_WARNING,
+                    "ConfigRPC_InDomainCallback disallowed configuration from untrusted peer"
+                    );
+   }
+   return isAllowed;
+}
+
 
 
 /// Implements the XML-RPC method configurationParameter.version
@@ -174,6 +210,11 @@ protected:
                if ( XmlRpcMethod::OK == status )
                {
                   response.setResponse(&db->mVersion);
+               }
+               else
+               {
+                  UtlString faultMsg("Access Denied");
+                  response.setFault(XmlRpcMethod::FAILED, faultMsg.data());
                }
             }
             else
@@ -373,6 +414,11 @@ protected:
                      status = XmlRpcMethod::FAILED;
                   }
                }
+               else
+               {
+                  UtlString faultMsg("Access Denied");
+                  response.setFault(XmlRpcMethod::FAILED, faultMsg.data());
+               }
             }
             else
             {
@@ -535,6 +581,11 @@ protected:
                      status = XmlRpcMethod::FAILED;
                   }
                }
+               else
+               {
+                  UtlString faultMsg("Access Denied");
+                  response.setFault(XmlRpcMethod::FAILED, faultMsg.data());
+               }
             }
             else
             {
@@ -667,6 +718,11 @@ protected:
                      response.setFault(ConfigRPC::loadFailed, faultMsg);
                      status = XmlRpcMethod::FAILED;
                   }
+               }
+               else
+               {
+                  UtlString faultMsg("Access Denied");
+                  response.setFault(XmlRpcMethod::FAILED, faultMsg.data());
                }
             }
             else

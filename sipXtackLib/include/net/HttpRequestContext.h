@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
-#include "utl/UtlDList.h"
+#include "utl/UtlSList.h"
 #include "net/HttpMessage.h"
 
 // DEFINES
@@ -53,9 +53,14 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   HttpRequestContext(const char* requestMethod = NULL, const char* rawUrl = NULL,
-       const char* mappedFile = NULL, const char* serverName = NULL,
-       const char* userId = NULL);
+   /// Construct the context for an HTTP request.
+   HttpRequestContext( const char* requestMethod = NULL
+                      ,const char* rawUrl = NULL
+                      ,const char* mappedFile = NULL
+                      ,const char* serverName = NULL
+                      ,const char* userId = NULL
+                      ,const OsConnectionSocket* connection = NULL
+                      );
      //:Default constructor
 
 
@@ -99,6 +104,19 @@ public:
    UtlBoolean getCgiVariable(int index, UtlString& name, UtlString& value) const;
    //: Get the name and value of the variable at the given index
 
+   /// Test whether or not the client connection is encrypted.
+   bool isEncrypted() const;
+
+   /// Test whether or not the given name is the SSL client that sent this request.
+   bool isTrustedPeer( const UtlString& peername ) const;
+   /**<
+    * This tests the host identity provided by the SSL handshake; it does not
+    * test the HTTP user identity.
+    * @returns
+    * - true if the connection is SSL and the peername matches a name in the peer certificate.
+    * - false if not.
+    */
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -110,10 +128,13 @@ private:
    void parseCgiVariables(const char* queryString);
    //: Parse the CGI/form variables from the &,= delineated name, value pairs and unescape the name and values.
 
-   UtlDList mCgiVariableList;
+   UtlSList mCgiVariableList;
    bool     mUsingInsensitive;
    UtlString mEnvironmentVars[HTTP_ENV_LAST];
-
+   bool     mConnectionEncrypted;
+   bool     mPeerCertTrusted;
+   UtlSList mPeerIdentities;
+   
 };
 
 /* ============================ INLINE METHODS ============================ */

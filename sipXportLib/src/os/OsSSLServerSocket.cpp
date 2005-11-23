@@ -116,11 +116,6 @@ OsConnectionSocket* OsSSLServerSocket::accept()
          SSL* pSSL = OsSharedSSL::get()->getServerConnection();
          if (pSSL)
          {
-#           if 1 // TBD
-            OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
-                          "OsSSLServerSocket::accept got connections ssl %p sock %d",
-                          pSSL, clientSocket);
-#           endif
             SSL_set_fd (pSSL, clientSocket);
 
             newSocket = new OsSSLConnectionSocket(pSSL,clientSocket);

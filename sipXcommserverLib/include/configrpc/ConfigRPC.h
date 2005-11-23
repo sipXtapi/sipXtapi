@@ -131,8 +131,12 @@ class ConfigRPC : public UtlString
  * The facility whose configuration is being accessed using XML-RPC through ConfigRPC
  * may derive a class from this that implements additional actions.
  *
- * The default actions provided by the base class are to allow all access (:TODO: this will chnage)
+ * The default actions provided by the base class are to allow no access
  * and no-ops for the modified and deleted callbacks.
+ *
+ * @note
+ * This base class may be useful during debugging, because it imposes no security,
+ * but it should not be used in released code.
  */
 class ConfigRPC_Callback
 {
@@ -153,7 +157,7 @@ class ConfigRPC_Callback
    /// Access check function 
    virtual XmlRpcMethod::ExecutionStatus accessAllowed( const HttpRequestContext& requestContext
                                                        ,Method                    method
-                                                       );
+                                                       ) const;
    /**<
     * @returns
     * - XmlRpcMethod::OK if allowed
@@ -176,6 +180,43 @@ class ConfigRPC_Callback
 
    /// no assignment operator
    ConfigRPC_Callback& operator=(const ConfigRPC_Callback& noassignment);
+   
+};
+
+/// Default Callbacks from ConfigRPC that allow configuration only from within the domain
+/**
+ * This is a default set of callbacks that allow access only to callers in the same domain.
+ * and no-ops for the modified and deleted callbacks.
+ */
+class ConfigRPC_InDomainCallback : public ConfigRPC_Callback
+{
+  public:
+
+   /// Instantiate this to allow configuration from hosts in the same SIP domain
+   ConfigRPC_InDomainCallback(const UtlString& domain ///< domain name to allow
+                              );
+
+   /// Access check function 
+   virtual XmlRpcMethod::ExecutionStatus accessAllowed( const HttpRequestContext&  requestContext
+                                                       ,ConfigRPC_Callback::Method method
+                                                       ) const;
+   /**<
+    * @returns
+    * - XmlRpcMethod::OK if allowed
+    * - XmlRpcMethod::FAILED if not allowed,
+    * - XmlRpcMethod::REQUIRE_AUTHENTICATION if authentication is missing or invalid.
+    */
+
+  protected:
+
+   UtlString mAllowedDomain;
+   
+  private:
+   /// no copy constructor
+   ConfigRPC_InDomainCallback(const ConfigRPC_InDomainCallback& nocopy);
+
+   /// no assignment operator
+   ConfigRPC_InDomainCallback& operator=(const ConfigRPC_InDomainCallback& noassignment);
    
 };
 
