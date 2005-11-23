@@ -19,6 +19,7 @@ public class FirmwareManufacturer extends Enum {
 
     private String m_label;
     private String m_preferredDeliveryId;
+    private FileDelivery m_fileDelivery;
     public FirmwareManufacturer(String manfacturerId) {
         super(manfacturerId);
     }    
@@ -49,5 +50,11 @@ public class FirmwareManufacturer extends Enum {
     }
     public static FirmwareManufacturer getManufacturerById(String id) {
         return (FirmwareManufacturer) Enum.getEnum(FirmwareManufacturer.class, id);
+    }
+    public void setFileDelivery(FileDelivery fileDelivery) {
+        m_fileDelivery = fileDelivery;        
+    }
+    public FileDelivery getFileDelivery() {
+        return m_fileDelivery;
     }
 }

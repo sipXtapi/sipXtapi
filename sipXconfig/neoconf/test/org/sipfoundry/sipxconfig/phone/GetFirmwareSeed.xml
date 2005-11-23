@@ -4,11 +4,9 @@
     <firmware 
         firmware_id="1000" 		
         name="ozzie"
-		    manufacturer_id="unmanagedPhone"
-        delivery_id="tftp"/>
+		    manufacturer_id="unmanagedPhone"/>
     <firmware 
         firmware_id="1001" 		
         name="harriot"
-		    manufacturer_id="unmanagedPhone"
-        delivery_id="tftp"/>
+		    manufacturer_id="unmanagedPhone"/>
 </dataset>

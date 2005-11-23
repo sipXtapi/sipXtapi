@@ -4,10 +4,7 @@
     <firmware 
 		name="bezerk" 		
 		firmware_id="[firmware_id]"
-		delivery_id="tftp"
     manufacturer_id="unmanagedPhone"
     description="[null]"
-    model_id="[null]"
-    value_storage_id="[null]"
-    version_id="[null]"/> 
+    value_storage_id="[null]"/> 
 </dataset>

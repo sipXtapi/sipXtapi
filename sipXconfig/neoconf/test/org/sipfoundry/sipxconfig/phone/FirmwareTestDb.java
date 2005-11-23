@@ -48,7 +48,6 @@ public class FirmwareTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         Firmware f = m_phoneContext.newFirmware(FirmwareManufacturer.UNMANAGED);
         f.setName("bezerk");
-        f.setDeliveryId("tftp");
         m_phoneContext.saveFirmware(f);
         
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/SaveFirmwareExpected.xml");

@@ -24,10 +24,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 public class Firmware extends BeanWithSettings {
     private String m_name;
     private String m_description;
-    private String m_deliveryId;
     private FirmwareManufacturer m_manufacturer;
-    private String m_modelId;
-    private String m_versionId;
     private ModelFilesContext m_modelFilesContext;
     private Integer m_uniqueUploadId;
     private String m_uploadParentDirectory;
@@ -35,7 +32,6 @@ public class Firmware extends BeanWithSettings {
     public Setting getSettingModel() {
         Setting model = super.getSettingModel();
         if (model == null) {
-            // TODO: Details
             model = m_modelFilesContext.loadModelFile("firmware.xml", m_manufacturer
                     .getManufacturerId(), null);
             setSettingModel(model);
@@ -81,30 +77,6 @@ public class Firmware extends BeanWithSettings {
         m_manufacturer = manufacturer;
     }
 
-    public String getModelId() {
-        return m_modelId;
-    }
-
-    public void setModelId(String modelId) {
-        m_modelId = modelId;
-    }
-
-    public String getVersionId() {
-        return m_versionId;
-    }
-
-    public void setVersionId(String versionId) {
-        m_versionId = versionId;
-    }
-
-    public String getDeliveryId() {
-        return m_deliveryId;
-    }
-
-    public void setDeliveryId(String deliveryId) {
-        m_deliveryId = deliveryId;
-    }
-
     public ModelFilesContext getModelFilesContext() {
         return m_modelFilesContext;
     }
@@ -141,5 +113,48 @@ public class Firmware extends BeanWithSettings {
     
     public void setIdToUniqueUploadId() {
         super.setIdWithProtectedAccess(getUniqueUploadId());
+    }
+    
+    public void deliver() {
     }    
+
+    public void remove() {
+    }    
+    
+    /* Work in progress
+    public void deliver() {
+        FileDelivery delivery = getManufacturer().getFileDelivery();
+        File[] files = getFiles();
+        File directory = new File(getUploadDirectory());
+        for (int i = 0; i < files.length; i++) {
+            delivery.deliverFile(directory, files[i]);
+        }
+    }
+    
+    File[] getFiles() {
+        FileLister lister = new FileLister();
+        getSettings().acceptVisitor(lister);
+        File[] files = (File[]) lister.m_files.toArray(new File[0]);
+        return files;
+    }
+    
+    public void remove() {
+        FileDelivery delivery = getManufacturer().getFileDelivery();
+        File[] files = getFiles();
+        File directory = new File(getUploadDirectory());
+        for (int i = 0; i < files.length; i++) {
+            delivery.removeFile(directory, files[i]);
+        }
+    }
+
+    private class FileLister extends AbstractSettingVisitor {
+        private List m_files = new ArrayList();
+        public void visitSetting(Setting setting) {
+            SettingType type = setting.getType();
+            if (type instanceof FileSetting && setting.getValue() != null) {
+                m_files.add(new File(setting.getValue()));
+            }
+        }
+    }
+    */
 }

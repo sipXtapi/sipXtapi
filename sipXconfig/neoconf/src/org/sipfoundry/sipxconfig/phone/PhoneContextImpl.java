@@ -354,9 +354,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         } else {
             getHibernateTemplate().update(firmware);
         }
+        firmware.deliver();
     }
 
     public void deleteFirmware(Firmware firmware) {
+        firmware.remove();
         getHibernateTemplate().delete(firmware);
     }
 
@@ -388,7 +390,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public Firmware newFirmware(FirmwareManufacturer manufacturer) {       
         Firmware f = (Firmware) m_beanFactory.getBean("uploader");
         f.setManufacturer(manufacturer);
-        f.setDeliveryId(manufacturer.getPreferredDeliveryId());
         f.setUniqueUploadId(generateFirmwareSystemId());
         return f;
     }

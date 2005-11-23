@@ -24,7 +24,7 @@
         <bean class="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer">
           <constructor-arg value="polycom"/>
           <property name="label" value="Polycom Soundpoint"/>
-          <property name="preferredDeliveryId" value="tftp"/>
+          <property name="fileDelivery" ref="localTftp"/>
         </bean>
       </list>
     </property>
@@ -74,6 +74,10 @@
   <bean id="uploader" class="org.sipfoundry.sipxconfig.phone.Firmware" singleton="false">
     <property name="modelFilesContext" ref="modelFilesContext"/>
     <property name="uploadParentDirectory" value="${sysdir.tmp}/uploads"/>
+  </bean>
+  
+  <bean id="localTftp" class="org.sipfoundry.sipxconfig.phone.LocalFileSystemDelivery">
+    <property name="rootDirectory" value="${sysdir.phone}/profile/tftproot"/>
   </bean>
   
   <!--
