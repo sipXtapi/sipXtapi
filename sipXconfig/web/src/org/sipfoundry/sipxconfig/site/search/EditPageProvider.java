@@ -18,5 +18,5 @@ import org.apache.tapestry.IRequestCycle;
  * Strategy for locating pages based on object class and id.
  */
 public interface EditPageProvider {
-    IPage getPage(IRequestCycle cycle, String klass, Object id);
+    IPage getPage(IRequestCycle cycle, Class klass, Object id);
 }

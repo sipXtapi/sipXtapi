@@ -107,8 +107,11 @@
 
     <component id="throwException" type="DirectLink">
         <binding name="listener" expression="listeners.throwException"/>
+    </component>
+    <component id="validateEditPageProvider" type="DirectLink">
+        <binding name="listener" expression="listeners.validateEditPageProvider"/>
     </component>        
-    
+
     <component id="indexAll" type="DirectLink">
         <binding name="listener" expression="listeners.indexAll"/>
     </component>

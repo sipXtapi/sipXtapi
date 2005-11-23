@@ -74,9 +74,13 @@ public abstract class SearchPage extends BasePage implements IExternalPage, Page
         Object[] params = cycle.getServiceParameters();
         String klass = (String) TapestryUtils.assertParameter(String.class, params, 0);
         Object id = TapestryUtils.assertParameter(Object.class, params, 1);
-        IPage page = getEditPageProvider().getPage(cycle, klass, id);
-        if (page != null) {
-            cycle.activate(page);
+        try {
+            IPage page = getEditPageProvider().getPage(cycle, Class.forName(klass), id);
+            if (page != null) {
+                cycle.activate(page);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

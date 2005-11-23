@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.search;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -96,22 +97,48 @@ public class EnumEditPageProvider implements EditPageProvider {
         m_classToPageInfo = new HashMap(PAGES.length / 2);
         for (int i = 0; i < PAGES.length; i = i + 2) {
             Class klass = (Class) PAGES[i];
-            m_classToPageInfo.put(klass.getName(), PAGES[i + 1]);
+            m_classToPageInfo.put(klass, PAGES[i + 1]);
         }
     }
 
-    public IPage getPage(IRequestCycle cycle, String klass, Object id) {
+    /**
+     * This is used only in unit tests. We are making sure that all the pages that we reference
+     * are actually available and that they have settebale "id" field.
+     */
+    public void validatePages(IRequestCycle cycle) {
+        for (Iterator i = m_classToPageInfo.values().iterator(); i.hasNext();) {
+            String[] pageInfo = (String[]) i.next();
+            getEditPage(cycle, null, pageInfo, false);
+        }
+    }
+
+    public IPage getPage(IRequestCycle cycle, Class klass, Object id) {
+        for (Class k = klass; k != Object.class; k = k.getSuperclass()) {
+            String[] pageInfo = (String[]) m_classToPageInfo.get(k);
+            if (pageInfo != null) {
+                return getEditPage(cycle, id, pageInfo, true);
+            }
+        }
+        return null;
+    }
+
+    private IPage getEditPage(IRequestCycle cycle, Object id, String[] pageInfo,
+            boolean ignoreExceptions) {
+        Exception exception = null;
         try {
-            String[] pageInfo = (String[]) m_classToPageInfo.get(klass);
             IPage page = cycle.getPage(pageInfo[0]);
             BeanUtils.setProperty(page, pageInfo[1], id);
             return page;
         } catch (IllegalAccessException e) {
-            LOG.error(e);
-            return null;
+            exception = e;
         } catch (InvocationTargetException e) {
-            LOG.error(e);
-            return null;
+            exception = e;
         }
+        if (!ignoreExceptions) {
+            throw new RuntimeException(exception);
+        }
+        // if silent we only log it
+        LOG.error(exception);
+        return null;
     }
 }

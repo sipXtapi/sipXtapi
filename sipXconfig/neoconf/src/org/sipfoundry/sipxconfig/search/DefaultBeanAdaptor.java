@@ -52,7 +52,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     };
 
     private static final String[] NAME_FIELDS = {
-        "lastName", "firstName", "name", "extension", "userName"
+        "lastName", "firstName", "name", "extension", "userName", "serialNumber"
     };
 
     /**
