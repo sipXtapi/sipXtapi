@@ -46,7 +46,7 @@
     </string>
   </type>
   <type id="upload-music">
-    <file/>
+    <file variable="yes"/>
   </type>
   
   <group name="bridge-bridge">

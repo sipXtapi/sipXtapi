@@ -71,8 +71,9 @@
     </property>
   </bean>
   
-  <bean id="firmware" class="org.sipfoundry.sipxconfig.phone.Firmware" singleton="false">
+  <bean id="uploader" class="org.sipfoundry.sipxconfig.phone.Firmware" singleton="false">
     <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="uploadDirectory" value="${sysdir.tmp}/uploads"/>
   </bean>
   
   <!--

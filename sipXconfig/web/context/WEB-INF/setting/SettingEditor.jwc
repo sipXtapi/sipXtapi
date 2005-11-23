@@ -69,6 +69,7 @@
         <binding name="id" expression="'setting:' + setting.name"/>
         <binding name="asset" expression="setting.value"/>
         <binding name="assetDir" expression="setting.type.directory"/>
+        <binding name="selectable" expression="setting.type.variable"/>
         <binding name="contentType" expression="setting.type.contentType"/>
         <binding name="submitOnChange" expression="false"/>
     </component>

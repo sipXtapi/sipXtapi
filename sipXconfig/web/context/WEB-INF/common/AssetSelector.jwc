@@ -21,6 +21,7 @@
     <parameter name="submitOnChange" type="boolean" direction="in" default-value="true"/>
     
     <parameter name="contentType" type="java.lang.String" direction="in"/>
+    <parameter name="selectable" type="boolean" direction="in" default-value="false"/>
 
     <!-- P R O P E R T I E S -->    
 	<property-specification name="uploadAsset" type="org.apache.tapestry.request.IUploadFile"/>
@@ -38,9 +39,19 @@
     <component id="promptUpload" type="Upload">
         <binding name="file" expression="uploadAsset"/>
     </component>    
-    <component id="listenLink" type="DownloadLink">
+    <component id="downloadLink" type="DownloadLink">
         <binding name="dirName" expression="assetDir"/>
         <binding name="fileName" expression="asset"/>
         <inherited-binding name="contentType" parameter-name="contentType"/>
+    </component>
+    <component id="downloadLabel" type="Insert">
+        <binding name="value" expression="downloadLabel"/>
+    </component>
+    <component id="assetLabel" type="Insert">
+        <binding name="value" expression="asset"/>
+    </component>
+    <component id="deleteAsset" type="Submit">
+        <binding name="listener" expression="listeners.deleteAsset"/>
+        <static-binding name="label" value="Delete"/>
     </component>
 </component-specification>

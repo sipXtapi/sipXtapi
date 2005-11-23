@@ -2,16 +2,23 @@
     <table>
         <tr>
             <td>
-                <input type="text" jwcid="prompt" id="attendant:prompt"/>
+                <span jwcid="@Conditional" condition="ognl:!selectable">
+                  <span jwcid="@Conditional" condition="ognl:assetExists">
+                    <span jwcid="assetLabel"/> <submit jwcid="deleteAsset"/>
+                  </span>
+                </span>
+                <span jwcid="@Conditional" condition="ognl:selectable">
+                  <input type="text" jwcid="prompt" id="asset:prompt"/>
+                </span>
             </td>
-            <td>
-        	    <a jwcid="listenLink" id="attendant:listen" href="#">Listen</a>
-            </td>
+                <td>
+                    <a jwcid="downloadLink" id="asset:download" href="#"><span jwcid="downloadLabel"/></a>
+                </td>
         </tr>
         <tr>            
             <td colspan="2">
                 <input type="file" jwcid="promptUpload" 
-                    id="attendant:promptUpload"/>
+                    id="asset:promptUpload"/>
             </td>
         </tr>
     </table>

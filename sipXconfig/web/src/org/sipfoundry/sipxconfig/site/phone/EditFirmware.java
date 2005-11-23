@@ -42,10 +42,7 @@ public abstract class EditFirmware extends PageWithCallback implements PageRende
         if (firmware == null) {
             Integer id = getFirmwareId();
             if (id == null) {
-                firmware = new Firmware();
-                FirmwareManufacturer manufacturer = getManufacturer();  
-                firmware.setManufacturer(manufacturer);
-                firmware.setDeliveryId(manufacturer.getPreferredDeliveryId());
+                firmware = getPhoneContext().newFirmware(getManufacturer());
             } else {
                 firmware = getPhoneContext().loadFirmware(id);
             }

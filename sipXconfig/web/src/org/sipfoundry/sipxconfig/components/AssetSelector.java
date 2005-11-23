@@ -44,10 +44,29 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
     public abstract String getAsset();
 
     public abstract String getErrorMsg();
+    
+    public abstract String getContentType();
 
     private static boolean isUploadFileSpecified(IUploadFile file) {
         boolean isSpecified = file != null && !StringUtils.isBlank(file.getFilePath());
         return isSpecified;
+    }
+    
+    public boolean getAssetExists() {
+        return StringUtils.isNotBlank(getAsset());
+    }
+
+    public String getDownloadLabel() {
+        String key = "download.general";
+        if (getContentType().startsWith("audio/")) {
+            key = "download.audio";
+        }
+        String localized = getMessages().getMessage(key);
+        return localized;
+    }
+    
+    public void deleteAsset(IRequestCycle cycle_) {
+        // TODO
     }
 
     private IPropertySelectionModel createModel() {

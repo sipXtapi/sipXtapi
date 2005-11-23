@@ -35,6 +35,8 @@ import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.springframework.beans.factory.access.BeanFactoryLocator;
@@ -74,12 +76,18 @@ public final class TestHelper {
 
         return s_appContext;
     }
+    
+    public static ModelFilesContext getModelFilesContext() {
+        ModelFilesContextImpl mfc = new ModelFilesContextImpl();
+        String sysdir = getSysDirProperties().getProperty("sysdir.etc");
+        mfc.setConfigDirectory(sysdir);        
+        XmlModelBuilder builder = new XmlModelBuilder(sysdir);
+        mfc.setModelBuilder(builder);
+        return mfc;        
+    }
 
     public static Setting loadSettings(String path) {
-        String sysdir = getSysDirProperties().getProperty("sysdir.etc");
-        XmlModelBuilder builder = new XmlModelBuilder(sysdir);
-        Setting settings = builder.buildModel(new File(sysdir + "/" + path));
-
+        Setting settings = getModelFilesContext().loadModelFile(path);
         return settings;
     }
 

@@ -26,6 +26,10 @@
     <component id="firmwareForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>    
+    <component id="settingsFieldset" type="SettingsFieldset">
+        <binding name="settings" expression="firmware.settings"/>
+        <binding name="renderGroupTitle" expression="false"/>
+    </component>
     <component id="nameDescriptionEdit" type="ItemCommon">
         <static-binding name="useExtension" value="false"/>
         <static-binding name="useEnabled" value="false"/>

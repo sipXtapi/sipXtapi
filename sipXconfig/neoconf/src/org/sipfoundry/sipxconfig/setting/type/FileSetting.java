@@ -16,6 +16,7 @@ package org.sipfoundry.sipxconfig.setting.type;
  */
 public class FileSetting implements SettingType {
     private boolean m_required;
+    private boolean m_variable;
 
     /** Directory in which downloaded files are stored */
     private String m_directory;
@@ -29,6 +30,14 @@ public class FileSetting implements SettingType {
 
     public void setRequired(boolean required) {
         m_required = required;
+    }
+    
+    public boolean isVariable() {
+        return m_variable;
+    }
+    
+    public void setVariable(boolean variable) {
+        m_variable = variable;
     }
 
     public String getDirectory() {

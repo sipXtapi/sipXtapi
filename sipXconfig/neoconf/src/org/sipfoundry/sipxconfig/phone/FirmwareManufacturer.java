@@ -17,7 +17,6 @@ public class FirmwareManufacturer extends Enum {
     public static final FirmwareManufacturer UNMANAGED = new FirmwareManufacturer("unmanagedPhone",
             "Unmanaged TFTP", "tftp");
 
-    private String m_manufacturerId;
     private String m_label;
     private String m_preferredDeliveryId;
     public FirmwareManufacturer(String manfacturerId) {
@@ -35,10 +34,7 @@ public class FirmwareManufacturer extends Enum {
         m_label = label;
     }
     public String getManufacturerId() {
-        return m_manufacturerId;
-    }
-    public void setManufacturerId(String manfacturerId) {
-        m_manufacturerId = manfacturerId;
+        return getName();
     }
     public String getPreferredDeliveryId() {
         return m_preferredDeliveryId;

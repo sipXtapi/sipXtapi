@@ -11,9 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.FileSetting;
+import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 /**
  * Describing the files required to track and manage a vendor's firmware files
@@ -26,6 +29,7 @@ public class Firmware extends BeanWithSettings {
     private String m_modelId;
     private String m_versionId;
     private ModelFilesContext m_modelFilesContext;
+    private String m_uploadDirectory;
 
     public Setting getSettingModel() {
         Setting model = super.getSettingModel();
@@ -36,6 +40,20 @@ public class Firmware extends BeanWithSettings {
             setSettingModel(model);
         }
         return model;
+    }
+
+    protected void defaultSettings() {
+        getSettings().acceptVisitor(new FirmwareDirectorySetter());
+    }
+
+    private class FirmwareDirectorySetter extends AbstractSettingVisitor {
+        public void visitSetting(Setting setting) {
+            SettingType type = setting.getType();
+            if (type instanceof FileSetting) {
+                FileSetting fileType = (FileSetting) type;
+                fileType.setDirectory(m_uploadDirectory);
+            }
+        }
     }
 
     public String getName() {
@@ -92,5 +110,13 @@ public class Firmware extends BeanWithSettings {
 
     public void setModelFilesContext(ModelFilesContext modelFilesContext) {
         m_modelFilesContext = modelFilesContext;
+    }
+
+    public String getUploadDirectory() {
+        return m_uploadDirectory;
+    }
+
+    public void setUploadDirectory(String uploadDirectory) {
+        m_uploadDirectory = uploadDirectory;
     }
 }

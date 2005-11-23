@@ -62,7 +62,8 @@
 
 <!ELEMENT file (directory?,contentType?)>
 <!ATTLIST file
-    required %flag; "no">
+    required %flag; "no"
+    variable %flag; "no">
 
 <!ELEMENT directory (#PCDATA)>
 <!ELEMENT contentType (#PCDATA)>

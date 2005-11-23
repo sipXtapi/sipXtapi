@@ -21,6 +21,9 @@
 
     <parameter name="errorMsg" type="java.lang.String" 
         direction="in"/>
+
+    <parameter name="selectable" required="no" 
+       type="boolean" direction="in" default-value="true"/>
     
     <parameter name="submitOnChange" type="boolean" direction="in" default-value="true"/>
     
@@ -41,6 +44,7 @@
         <inherited-binding name="asset" parameter-name="asset"/>
         <inherited-binding name="assetDir" parameter-name="assetDir"/>
         <inherited-binding name="errorMsg" parameter-name="errorMsg"/>
+        <inherited-binding name="selectable" parameter-name="selectable"/>
         <inherited-binding name="submitOnChange" parameter-name="submitOnChange"/>
         <inherited-binding name="contentType" parameter-name="contentType"/>
     </component>

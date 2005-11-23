@@ -2,6 +2,16 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="required-binary">
+    <file required="yes">
+      <contentType>application/binary</contentType>
+    </file>
+  </type>
+  <type id="binary">
+    <file>
+      <contentType>application/binary</contentType>
+    </file>
+  </type>
   <group name="files">
     <label>Files</label>
     <description>Polycom Support only distributes firmware upgrades to certified resellers. It 
@@ -9,24 +19,18 @@
       contact your local reseller.</description>
     <setting name="sip.ld">
       <label>sip.ld</label>
-      <type>
-        <file required="yes"/>
-      </type>
+      <type refid="required-binary"/>
       <description>SIP Firmware. Avoid version 1.6.1. Versions 1.5.3 or 1.6.2 are 
         fine.</description>
     </setting>
     <setting name="sip.ver">
       <label>sip.ver</label>
-      <type>
-        <file required="yes"/>
-      </type>
+      <type refid="required-binary"/>
       <description>Required file that accompanies the sip.ld file.</description>
     </setting>
     <setting name="bootrom.ld">
       <label>bootrom.ld</label>
-      <type>
-        <file/>
-      </type>
+      <type refid="binary"/>
       <description>bootrom.ld file. The new BootROM 3.x supports HTTP, HTTPS, and FTPS boot 
         server protocols, but once upgraded to this release the phone cannot be downgraded 
         again to prior versions. If you do not require these additional boot protocols, do not 
@@ -34,9 +38,7 @@
     </setting>
     <setting name="bootrom.ver">
       <label>bootrom.ver</label>
-      <type>
-        <file/>
-      </type>
+      <type refid="binary"/>
       <description>If using BootROM version prior to 2.6.1 you will also need the file 
         bootrom.ver.</description>
     </setting>

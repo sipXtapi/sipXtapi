@@ -106,4 +106,6 @@ public interface PhoneContext extends DataObjectSource {
     public List getFirmwareManufacturers();
 
     public List getFirmware();
+    
+    public Firmware newFirmware(FirmwareManufacturer manufacturer);
 }

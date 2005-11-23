@@ -366,4 +366,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public List getFirmware() {
         return getHibernateTemplate().findByNamedQuery("firmware");
     }
+    
+    public Firmware newFirmware(FirmwareManufacturer manufacturer) {       
+        Firmware f = (Firmware) m_beanFactory.getBean("uploader");
+        f.setManufacturer(manufacturer);
+        f.setDeliveryId(manufacturer.getPreferredDeliveryId());
+        return f;
+    }
 }
