@@ -16,7 +16,7 @@
     	type="org.sipfoundry.sipxconfig.site.search.EditPageProvider"
     	initial-value="global.editPageProvider"/>
     
-    <property-specification name="resultItem"/>
+    <property-specification name="resultItem" type="org.sipfoundry.sipxconfig.search.BeanAdaptor$Identity"/>
 
     <property-specification name="query" type="java.lang.String"/>
     
@@ -34,6 +34,9 @@
     <component id="itemName" type="Insert">
         <binding name="value" expression="resultItem.name"/>        
     </component>
+    <component id="itemType" type="Insert">
+        <binding name="value" expression="resultItemType"/>
+    </component>    
     <component id="itemDescription" type="Insert">
         <binding name="value" expression="resultItem.description"/>
     </component>
