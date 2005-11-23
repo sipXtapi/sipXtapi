@@ -1,0 +1,694 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
+    <!ENTITY rfc2119 PUBLIC ""
+      "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+]>
+
+<?xml-stylesheet type="text/xsl" href="rfc2629.xslt" ?>
+
+<?rfc private="SIPfoundry sipXpbx" ?>
+<?rfc toc="yes" ?>
+<?rfc tocdepth="4" ?>
+<?rfc topblock="no" ?>
+<?rfc symrefs="yes" ?>
+<?rfc sortrefs="yes"?>
+<?rfc iprnotified="yes" ?>
+<?rfc compact="yes" ?>
+<!--<?rfc strict="yes" ?>-->
+
+<rfc category="std" ipr="none" docName="sync-design">
+  <front>
+    <title abbrev="sipXpbx HA">sipXpbx High Availability</title>
+    <author initials="S." surname="Lawrence" fullname="Scott Lawrence">
+    <organization>Pingtel Corp.</organization>
+    <address>
+      <email>slawrence@pingtel.com</email>
+    </address>
+    </author>
+    <author initials="D." surname="Worley" fullname="Dale Worley">
+    <organization>Pingtel Corp.</organization>
+    <address>
+      <email>dworley@pingtel.com</email>
+    </address>
+    </author>
+    <date day="23" month="November" year="2005"/>
+    <area>sipXregistry</area>
+
+  </front>
+
+  <middle>
+
+    <section title="Motivation and Overview">
+      <t>
+        In large systems, high availability (HA) is essential; a PBX with
+        more than a few dozen users generally must not have any unexpected
+        outages for basic calling.  It does seem to be true that voice mail
+        and perhaps some other services do not have the same availability
+        requirement.  In sipXpbx, basic calling depends on three
+        components: the two proxies and the registry/redirect service.  The
+        proxies can be replicated, using DNS SRV records to share load and
+        provide for failover.  The registry/redirect service, however, can
+        not currently be deployed on multiple servers because the 'soft'
+        state in the registry database (mappings from registered Addresses
+        to Contacts) cannot be shared.  While replicating the proxies alone
+        does help with scaling, the registry is a single point of failure
+        for basic calling service.
+      </t>
+      <t>
+        This memo describes a system architecture to provide high
+        availability service for basic calling, and a design for adding the
+        required replicatation of registration information
+      </t>
+      <t>
+        <spanx style='strong'>
+          In order to make the basic HA capability available as quickly as
+          possible, the plan is to implement those features that are
+          absolutely required, but not support an automated installation.
+          Some manual custom configuration will be required. Release 3.2
+          will support only 2 registrars.
+        </spanx>
+      </t>
+
+    </section>
+
+    <section title="Terminology">
+      <list style='hanging'>
+        <t hangText='Server'>
+          A physical computer system.
+        </t>
+        <t hangText='Service'>
+          A process or processes running on a Server that performs a
+          particular function.
+        </t>
+        <t hangText='Primary Registrar'>
+          the registrar that actually receives a given
+          REGISTER request.  Note that this may not be the
+          same for each request, even from a specific UA.
+        </t>
+        <t hangText='Replicated Registrar'>
+          this refers to any other registrar to which 
+          the registry information is replicated.
+        </t>
+      </list>
+    </section>
+
+    <section title='High Availability Architecture' anchor='arch'>
+      
+      <t>
+        In an HA configuration, there are at least two types of server:
+      </t>
+      <list style='bullet'>
+        <t>One Master Server running:</t>
+        <list style='bullet'>
+          <t>sipXconfig service</t>
+          <t>optionally, also a set of the processes from a Distributed Server</t>
+        </list>
+        <t>some number of Distributed Servers, each running</t>
+        <list style='bullet'>
+          <t>one forking proxy</t>
+          <t>one authentication proxy</t>
+          <t>one registry/redirect service</t>
+        </list>
+      </list>
+      <t>
+        Other PBX services may be distributed among the above Servers, or run on dedicated Servers:
+      </t>
+      <list style='bullet'>
+        <t>sipXvxml service with applications</t>
+        <t>sipXpublisher (status server)</t>
+        <t>sipXpresence</t>
+        <t>sipXacd</t>
+      </list>
+      
+      <t>
+        <spanx style='strong'>
+          In Release 3.2, only one configuration will be supported: one
+          Distributed Server running only the proxies and registry/redirect
+          service, and one Master Server running all Services.
+        </spanx>
+      </t>
+
+      <t>
+        In order to provide load sharing and failover, all SIP message
+        routing to any redundant element in an HA configuration uses DNS
+        SRV.  The following SRV records are required:
+      </t>
+
+      <list style='hanging'>
+        <t hangText='domain'>
+          In a single-system installation, an SRV record that maps the SIP
+          domain name to the server host name is recommended.  In an HA
+          installation, multiple SRV records for the SIP domain name are
+          required, mapping to the server names that run the forking proxy
+          service.  There are domain SRV records specifying both TCP and
+          UDP.  For example:
+        </t>
+       <figure>
+         <artwork>
+      _sip._tcp IN SRV 1 50 5060 sipxpbx1
+      _sip._tcp IN SRV 1 50 5060 sipxpbx2
+
+      _sip._udp IN SRV 2 50 5060 sipxpbx1
+      _sip._udp IN SRV 2 50 5060 sipxpbx2
+         </artwork>
+       </figure>
+
+        <t hangText='registry'>
+          The registry is identified by an SRV record, allowing
+          failover should a registry/redirect service instance fail.  The registry
+          service SRV records specify only TCP, because it has better
+          failure detection and performance characteristics and
+          compatibility with User Agents is not required.  
+        </t>
+       <figure>
+         <artwork>
+     _sip._tcp.sipxregistry1 IN SRV 1 0 5070 sipxpbx1
+     _sip._tcp.sipxregistry1 IN SRV 2 0 5070 sipxpbx2
+
+     _sip._tcp.sipxregistry2 IN SRV 1 0 5070 sipxpbx2
+     _sip._tcp.sipxregistry2 IN SRV 2 0 5070 sipxpbx1
+         </artwork>
+       </figure>
+       <t>
+         The <spanx style='verb'>forwardingrules.xml</spanx> for each
+         forking proxy service specifies the registry using an SRV name
+         that maps first to the same server as the proxy, and then to the
+         other server.  In the example above, the proxy on sipxpbx1 would
+         be configured to use <span
+         style='verb'>sipxregistry1</span>, which fails over to
+         sipxregistry2, and the proxy on sipxpbx2 is configured to use
+         sipxregistry2 so that the order is reversed.
+       </t>
+
+       <t hangText='authproxy'>
+          The authorization proxy is identified by an SRV record of its
+          own, allowing failover should a service instance fail.  The
+          authorization proxy SRV records specify both TCP and UDP,
+          prefering TCP, but allowing UDP for compatibility with User
+          Agents that require it.  
+        </t>
+       <figure>
+         <artwork>
+      _sip._tcp.sipxauthproxy1 IN SRV 1 0 5080 sipxpbx1
+      _sip._tcp.sipxauthproxy1 IN SRV 2 0 5080 sipxpbx2
+      _sip._udp.sipxauthproxy1 IN SRV 3 0 5080 sipxpbx1
+      _sip._udp.sipxauthproxy1 IN SRV 4 0 5080 sipxpbx2
+
+      _sip._tcp.sipxauthproxy2 IN SRV 1 0 5080 sipxpbx2
+      _sip._tcp.sipxauthproxy2 IN SRV 2 0 5080 sipxpbx1
+      _sip._udp.sipxauthproxy2 IN SRV 3 0 5080 sipxpbx2
+      _sip._udp.sipxauthproxy2 IN SRV 4 0 5080 sipxpbx1
+         </artwork>
+       </figure>
+       <t>
+         The selection technique used to create a preference order for
+         registrars is also used for the authproxy, as shown above.
+       </t>
+
+       <t>
+         <span style='strong'>
+           The authproxy could insert a Record-Route that specifies its SRV
+           name (as opposed to its IP address); doing so would allow
+           in-dialog requests to fail over from one instance to another.
+           Whether or not it should do this depends on whether or not user
+           agents support this correctly; testing is required to determine
+           the best configuration for this.
+         </span>
+       </t>
+      </list>
+    </section>
+
+    <section title='Current Registry/Redirect Database Management'>
+
+      <t>
+        This section describes the 3.0 operation of the registry; it does not
+        include description of any changes or new capabilities.
+      </t>
+
+      <section title='Registry Updates'>
+
+        <t>
+          The actual updating of the registry is handled by the routine
+          SipRegistrarServer::applyRegisterToDirectory and the sibdb
+          RegistrationDB class.  The applyRegisterToDirectory method is called
+          after the REGISTER request has been authenticated; it validates the
+          registration by checking to see if the call-id and cseq are in
+          sequence by calling RegistrationDB::isOutOfSequence.
+        </t>
+
+        <t>
+          applyRegisterToDirectory then validates all contacts in the
+          request and builds up a ResultSet (a list) named 'registrations'.
+          Each element of the ResultSet is a struct:
+        </t>
+        <figure>
+          <artwork>
+            UtlString  contact
+            UtlInt     expires 
+            UtlString  qvalue
+          </artwork>
+        </figure>
+        <t>
+          The 'expires' value is not just the requested value; it has been
+          set to fall within the configured limits for the registrar.  It is
+          either zero (an unregister request) or some positive number of
+          seconds .
+        </t>
+        <t>
+          If there are valid contacts, then there are two cases: expiring all
+          contacts, and updating contacts.
+        </t>
+        <list style='hanging'>
+
+          <t hangText='Expire All Contacts' anchor='expall'>
+            If the REGISTER request had an
+            '<span style='verb'>Expire:&nbsp;0</span>' header and 
+            a '<span style='verb'>Contact:&nbsp;*</span>' header
+            then it is requesting that all contacts (not just those from this
+            call-id) be expired.  This is done using a single call to:
+          </t>
+          <figure>
+            <artwork>
+       RegistrationDB::expireAllBindings( uri, callid, cseq, time )
+            </artwork>
+          </figure>
+
+          <t hangText='Updating Contacts' anchor='upCont'>
+            When contacts are in the set, they are modified in the database
+            by calling:
+          </t>
+          <figure>
+            <artwork>
+      RegistrationDB::updateBinding( toUrl, 
+                                     contact,     
+                                     qvalue,
+                                     registerCallidStr, 
+                                     registerCseqInt,
+                                     expirationTime 
+                                     )
+            </artwork>
+          </figure>
+          <t>
+            When the contact is being canceled, the expiration time is set to
+            the current time minus 1; otherwise it is set to the current time
+            plus the time assigned by the registration (the calculation of
+            which is done during validation, and is not important here).
+          </t>
+          <t>
+            After all the contacts in the REGISTER message have been updated,
+            any contacts that have the same callid but an earlier cseq number are expired by calling:
+          </t>
+          <figure>
+            <artwork>
+              RegistrationDB::expireOldBindings( toUrl, 
+                                                 registerCallidStr,
+                                                 registerCseqInt, 
+                                                 timeNow
+                                                 )
+            </artwork>
+          </figure>
+        </list>
+
+        <section title='Locking'>
+          <t>
+            Other than the locks internal to fastdb, there are no locks on
+            any of the above.  This works because only the single
+            SipRegistrarServer thread ever writes to the Registry database.
+          </t>
+        </section>
+      </section>
+    </section>
+
+    <section title='Changes'>
+
+      <t>
+        The following sections detail the changes needed to implement the
+        above architecture.
+      </t>
+
+    <section title='Configuration'>
+      <t>
+        An HA Registrar has an additional configuration parameter:
+      </t>
+      <list style='hanging'>
+        <t hangText='SIP_REGISTRAR_SYNC_TO'>
+          The host name of the other registrar to sync to.  <spanx
+          style='emph'>In future versions, this may allow a comma-separated
+          list of servers.</spanx>
+        </t>
+      </list>
+      <t>
+        The syncronization is done using XML-RPC (see <xref target='xmlrpcsync'/>).  The XML-RPC URI always uses https (see <xref target='xmlrpcsec'/>), the SIP_REGISTRAR_SYNC_TO host name, and the fixed path '/RPC2'.
+      </t>
+
+      <list style='hanging'>
+        <t hangText='SIP_REGISTRAR_XMLRPC_PORT'>
+          the port number used by all Servers to listen for registry syncronization requests. 
+        </t>
+      </list>
+
+    </section>
+
+    <section title='XML-RPC Registry DB Replication' anchor='xmlrpcsync'>
+
+      <section title='Registry Syncronization State'>
+        <t>
+          The Registry Service maintains persistent state for syncronization purposes:
+        </t>
+        <list style='hanging'>
+
+          <t hangText='InitialSyncDone'>
+            A boolean value, initially <spanx style='verb'>false</spanx>
+            indicating whether or not the local database has been
+            syncronized with the peer registry (see <xref
+            target='startup'/>).
+          </t>
+
+          <t hangText='DbUpdateNumber'>
+            A circular counter of successful update operations to its own
+            registry database.  This value persists across restarts.
+          </t>
+          <t>
+            In addition to recording its own update number, the registry
+            service maintains a record of the last value of DbUpdateNumber
+            sent to the syncronization peer, and the last value of
+            DbUpdateNumber received from that peer.
+          </t>
+
+          <t hangText='SyncronizationBaseTime'>
+            The SyncronizationBaseTime is the epoch time at which the
+            registry last started with no prior registration state.  Since
+            registration state is preserved across restarts, this value will
+            often not be the same as the start time for the current registry instance.
+            When the registry service starts, it attempts to read its own persistent
+            registry store.  If there is no persistent registry store, it records
+            the current time as its own SyncronizationBaseTime and sets its
+            own DbUpdateNumber to zero.  The SyncronizationBaseTime value
+            is always passed with the DbUpdateNumber, and the
+            SyncronizationBaseTime value from each peer is also recorded.
+            This allows each registry service to detect when a peer has
+            restarted and lost syncronization state.
+          </t>
+
+        </list>
+        <t>
+          Together, the SyncronizationBaseTime and DbUpdateNumber are
+          referred to below as the "local syncronization data".
+        </t>
+
+        <t>
+          The relationship of the local registry with the peer registry is
+          maintained in three values: 
+        </t>
+
+        <list style='hanging'>
+          <t hangText='PeerReachable'>
+            This is a boolean that indicates whether or not the peer
+            is believed to be reachable.  This is 'soft' state - it is
+            initialized on startup to 'false', indicating that the peer is
+            not known to be reachable.  This is reset by the RegisterTest
+            thread (see <xref target='regtest'/>).
+          </t>
+
+          <t hangText='PeerSyncronizationBaseTime'>
+            The most recently received SyncronizationBaseTime from the peer.
+          </t>
+
+          <t hangText='PeerDbUpdateNumber'>
+            The most recently received DbUpdateNumber from the peer.
+          </t>
+        </list>
+
+      </section>
+
+      <section title='Register Message Processing' anchor='regproc'>
+        <t>
+          When a register message has been determined to be valid, the local
+          DbUpdateNumber is incremented, and the changes applied to the local
+          registry database.  The local DbUpdateNumber value is recorded in
+          each updated row in the registry database.  The SipRegistrarServer
+          thread then sends a PushRegistryUpdate OsMessage to the
+          RegisterSync thread to trigger replication to the peer registry.
+        </t>
+
+        <t>
+          The RegistrySync thread is responsible for propogating updates to
+          the peer registry <spanx style='emph'>(when multiple peers are
+          supported, there may be one thread per peer or just one for all
+          peers - this is a subject for future study)</spanx>.  
+        </t>
+        <t>
+          When the RegistrySync thread receives a PushRegistryUpdate message,
+          it checks the PeerReachable value: if it is <spanx style='verb'>true</spanx>, then the
+          registrySync.updateContacts XML-RPC method is used to propogate any
+          updates that have not been sent to that peer (one invocation per
+          unsent transaction).
+        </t>
+        
+        <section title='registrySync.updateContacts'>
+          <t>
+            The replicated registrar validates that the local database does
+            not have more recent information using the callid and cseq values
+            and if not, applies each update to its own database.
+          </t>
+          <t>Inputs:</t>
+          <figure>
+            <artwork>
+     int     updatenumber
+     array   updates
+       struct
+         string  uri
+         string  callid
+         int     cseq
+         string  contact 
+         int     expires
+         string  qvalue
+         string  instance_id
+         string  gruu
+            </artwork>
+          </figure>
+          <t>Ouputs:</t>
+          <figure>
+            <artwork>
+           struct
+     int  SyncronizationBaseTime  the time when the server last
+                                  initialized its syncronization data
+     int  DbUpdateNumber          the current value of the servers 
+                                  update counter
+            </artwork>
+          </figure>
+
+          <t>
+            On a successful return from registrySync.updateContacts, the caller
+            updates its record of the last DbUpdateNumber sent to the peer.
+            This allows the registry to know what has been pushed to the peer.
+            <cref>TBD - The intent of return values was to inform the
+            caller that there were unpropogated updates, but I'm not sure that
+            there is anything the caller would actually do with that
+            information, so perhaps this should just return the value of
+            DbUpdateNumber passed in the transaction (as an
+            acknowledgement).</cref> 
+          </t>
+
+          <t>
+            On any registrySync.updateContacts failure, the PeerReachable value
+            is set to <spanx style='verb'>false</spanx>, and a PeerUnReachable
+            OsMessage is sent to the RegisterTest thread.
+          </t>
+
+          <t>
+            Whenever it is invoked, the registrySync.updateContacts also
+            checks the PeerReachable status of the client; if it is <spanx
+            style='verb'>false</spanx>, then a PushRegistryUpdate OsMessage
+            is sent to the RegistrySync thread, and the PeerReachable status
+            is set to <spanx style='verb'>true</spanx>.
+          </t>
+
+        </section>
+      </section>
+
+      <section title='Peer Reachability' anchor='regtest'>
+
+        <t>
+          The RegisterTest thread is responsible for determining whether or
+          not a previously unreachable peer has become reachable.  It is
+          started initially by receipt of a PeerUnReachable OsMessage.
+          This causes it to start a timer <spanx style='emph'>(duration to
+          be determined)</spanx>; when the timer expires, it checks the
+          PeerReachable value for the peer; if it is still <span
+          style='verb'>false</span>, then the registrySync.Check method is
+          attempted to test whether or not the peer can now be reached.
+        </t>
+
+        <section title='registrySync.Check'>
+          <t>
+            This is used to test whether or not a peer registrar is reachable,
+            to pass the local syncronization data to the peer, and to
+            retrieve the syncronization data from the peer.
+          </t>
+          <t>Inputs:</t>
+          <figure>
+            <artwork>
+  string  Name                    The senders host name
+     int  SyncronizationBaseTime  The time when the sender last
+                                  initialized its syncronization data
+     int  DbUpdateNumber          The current value of the senders 
+                                  update counter.
+            </artwork>
+          </figure>
+          <t>Ouputs:</t>
+          <figure>
+            <artwork>
+   struct
+     int  SyncronizationBaseTime  the time when the recipient last
+                                  initialized its syncronization data
+     int  DbUpdateNumber          the current value of the recipients 
+                                  update counter.
+            </artwork>
+          </figure>
+          <t>
+            On a successful return, the caller sets the
+            PeerSyncronizationBaseTime and PeerDbUpdateNumber from the
+            response, and set the PeerReachable value to <spanx
+            style='verb'>true</spanx>.  It then sends a PushRegistryUpdate
+            OsMessage to the RegistrySync thread to restart updates to the
+            peer.
+          </t>
+          <t>
+            Likewise, when this method is invoked, it sets the
+            PeerSyncronizationBaseTime and PeerDbUpdateNumber from the
+            input values, and checks the PeerReachable value.  If it is
+            <spanx style='verb'>false</spanx>, it is reset to <spanx
+            style='verb'>true</spanx>, and a PushRegistryUpdate
+            OsMessage is sent to the RegistrySync thread to restart updates.
+          </t>
+          <t>
+            On failure, the RegisterTest thread restarts the timer for the
+            peer, using standard exponential backoff to a maximum interval
+            of one eigth of the maximum registration interval.  This
+            prevents useless and possibly harmful traffic being injected
+            into the network in the event that the loss of connectivity is
+            traffic related.  If the peer is actually down, then it will
+            reset the state by making its initial syncronization queries.
+          </t>
+        </section>
+      </section>
+
+      <section title='Startup Syncronization' anchor='startup'>
+
+        <t>
+          At startup, the server needs to quickly discover whether or not the
+          local registry is the best available source of contact
+          information.  Before this is determined, the server does not open
+          its SIP port, so that clients will consider it to be down and
+          fail over to another server.  
+        </t>
+
+        <t>
+          In order to discover whether the local registry is the best
+          available, the registry sets InitialSyncDone to <spanx
+          style='verb'>false</spanx> and makes a registrySync.Check request
+          to the peer. 
+        </t>
+        <list style='bullet'>
+          <t>
+            If this request fails, then there is no known
+            better source of contact data, so InitialSyncDone is set to <spanx
+            style='verb'>true</spanx>, the PeerReachable state is set to <spanx
+            style='verb'>false</spanx>, the reachability retry timer is
+            started at its initial value to trigger the RegisterTest thread,
+            and the SIP port is opened.
+          </t>
+          <t>
+            If this request succeeds, then the PeerReachable state is set to <spanx
+              style='verb'>true</spanx> and the remote syncronization state
+            is compared to the peer syncronization data.
+          </t>
+          <list style='bullet'>
+            <t>
+              If the remote syncronization values
+              indicate that all updates from the peer have been received,
+              then InitialSyncDone is set to <spanx
+              style='verb'>true</spanx> and the SIP port is opened.
+            </t>
+            <t>
+              If the remote syncronization values
+              indicate that the registries are not syncronized, then a
+              PushRegistryUpdate message is sent to the RegistrySync thread
+              to push any updates to the peer, and we wait for the peer to
+              push any updates it has before opening the local SIP port.
+            </t>
+          </list>
+        </list>
+      </section>
+
+    </section>
+
+    <section title='Registry DB Locking' anchor='locking'>
+      <t>
+        Registry database updates are protected by an OsMutex; it is taken
+        by applyRegisterToDirectory and by each of the registrySync XML-RPC
+        methods.  This serializes all the checks for cseq correctness, and
+        also protects the syncronization state variables.
+      </t>
+      <t>
+        <spanx style='emph'>
+          There is no locking between updates to the registry database and
+          reads from it; the fastdb ensures sufficient integrity that none
+          is needed.
+        </spanx>
+      </t>
+    </section>
+
+    <section title='XML-RPC Security' anchor='xmlrpcsec'>
+      <t>
+        Registry syncronization requests require that the RPC connection be
+        SSL authenticated as a server in the same SIP domain.
+      </t>
+      <t>
+        <span style='strong'>
+          Initially, all syncronized servers will use the same key and certificate.
+        </span>
+      </t>
+
+    </section>
+
+    <section title='HTTP Persistent Connections'>
+
+      <t>
+        Because these updates will be quite frequent compared to any
+        previous use of XML-RPC, and because they must be over SSL
+        connections, we may need to modify our HTTP to support persistent
+        connections.  We have a design for this based on how SIP TCP
+        connections are done.  <spanx style='emph'>Whether or not this will
+        be included in the 3.2 release depends on available time and the
+        results of performance testing once syncronization is
+        working.</spanx>
+      </t>
+
+    </section>
+
+    <section title='Authorization Proxy Record-Route' anchor='authrrsv'>
+      <t>
+        Ideally, the authproxy record-routes should use the SRV record as
+        described in <xref target='arch'/>.  If phones actually did this
+        correctly, then this would allow in-dialog requests like 'on hold'
+        to fail over from one authproxy to another;  <spanx
+        style='strong'>if phones do not use an SRV name in a Record-Route
+        correctly, then these requests will probably cause calls to fail.</spanx> 
+      </t>
+      <t>
+        <spanx style='emph'>At this time, the plan is to not change how
+        the Record-Route is constructed (continue using the IP address rather
+        than use the SRV name).</spanx>
+      </t>
+    </section>
+
+  </section>
+
+</middle>
+<back>
+</back>
+
+</rfc>
+
