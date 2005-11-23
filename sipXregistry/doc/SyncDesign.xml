@@ -174,8 +174,8 @@
          forking proxy service specifies the registry using an SRV name
          that maps first to the same server as the proxy, and then to the
          other server.  In the example above, the proxy on sipxpbx1 would
-         be configured to use <span
-         style='verb'>sipxregistry1</span>, which fails over to
+         be configured to use <spanx
+         style='verb'>sipxregistry1</spanx>, which fails over to
          sipxregistry2, and the proxy on sipxpbx2 is configured to use
          sipxregistry2 so that the order is reversed.
        </t>
@@ -206,14 +206,14 @@
        </t>
 
        <t>
-         <span style='strong'>
+         <spanx style='strong'>
            The authproxy could insert a Record-Route that specifies its SRV
            name (as opposed to its IP address); doing so would allow
            in-dialog requests to fail over from one instance to another.
            Whether or not it should do this depends on whether or not user
            agents support this correctly; testing is required to determine
            the best configuration for this.
-         </span>
+         </spanx>
        </t>
       </list>
     </section>
@@ -262,8 +262,8 @@
 
           <t hangText='Expire All Contacts' anchor='expall'>
             If the REGISTER request had an
-            '<span style='verb'>Expire:&nbsp;0</span>' header and 
-            a '<span style='verb'>Contact:&nbsp;*</span>' header
+            '<spanx style='verb'>Expire:&nbsp;0</spanx>' header and 
+            a '<spanx style='verb'>Contact:&nbsp;*</spanx>' header
             then it is requesting that all contacts (not just those from this
             call-id) be expired.  This is done using a single call to:
           </t>
@@ -515,8 +515,8 @@
           started initially by receipt of a PeerUnReachable OsMessage.
           This causes it to start a timer <spanx style='emph'>(duration to
           be determined)</spanx>; when the timer expires, it checks the
-          PeerReachable value for the peer; if it is still <span
-          style='verb'>false</span>, then the registrySync.Check method is
+          PeerReachable value for the peer; if it is still <spanx
+          style='verb'>false</spanx>, then the registrySync.Check method is
           attempted to test whether or not the peer can now be reached.
         </t>
 
@@ -646,9 +646,9 @@
         SSL authenticated as a server in the same SIP domain.
       </t>
       <t>
-        <span style='strong'>
+        <spanx style='strong'>
           Initially, all syncronized servers will use the same key and certificate.
-        </span>
+        </spanx>
       </t>
 
     </section>
@@ -691,4 +691,3 @@
 </back>
 
 </rfc>
-
