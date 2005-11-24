@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.upload;
 
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
@@ -18,39 +18,41 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.upload.Firmware;
+import org.sipfoundry.sipxconfig.upload.FirmwareManufacturer;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 public class FirmwareTestDb extends SipxDatabaseTestCase {
 
-    private PhoneContext m_phoneContext;
+    private UploadManager m_manager;
     
     protected void setUp() throws Exception {
-        m_phoneContext = (PhoneContext) TestHelper.getApplicationContext().getBean(
-                PhoneContext.CONTEXT_BEAN_NAME);
+        m_manager = (UploadManager) TestHelper.getApplicationContext().getBean(
+                UploadManager.CONTEXT_BEAN_NAME);
     }
     
     public void testLoadSettings() throws Exception {
-        Firmware f = m_phoneContext.newFirmware(FirmwareManufacturer.getManufacturerById("polycom"));
+        Firmware f = m_manager.newFirmware(FirmwareManufacturer.getManufacturerById("polycom"));
         f.getSettings();
     }
     
     public void testUniqueUploadId() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        Firmware f = m_phoneContext.newFirmware(FirmwareManufacturer.UNMANAGED);
+        Firmware f = m_manager.newFirmware(FirmwareManufacturer.UNMANAGED);
         f.setName("bezerk");
         assertSame(BeanWithId.UNSAVED_ID, f.getId());
         assertNotNull(f.getUniqueUploadId());
-        m_phoneContext.saveFirmware(f);
+        m_manager.saveFirmware(f);
         assertEquals(f.getUniqueUploadId(), f.getId());        
     }
         
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        Firmware f = m_phoneContext.newFirmware(FirmwareManufacturer.UNMANAGED);
+        Firmware f = m_manager.newFirmware(FirmwareManufacturer.UNMANAGED);
         f.setName("bezerk");
-        m_phoneContext.saveFirmware(f);
+        m_manager.saveFirmware(f);
         
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/SaveFirmwareExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("upload/SaveFirmwareExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[null]", null);
         expectedRds.addReplacementObject("[firmware_id]", f.getPrimaryKey());
@@ -62,15 +64,15 @@ public class FirmwareTestDb extends SipxDatabaseTestCase {
     
     public void testLoadAndDelete() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/FirmwareSeed.xml");
-        Firmware f = m_phoneContext.loadFirmware(new Integer(1000));
+        TestHelper.cleanInsertFlat("upload/FirmwareSeed.xml");
+        Firmware f = m_manager.loadFirmware(new Integer(1000));
         assertEquals("test firmware", f.getName());
         assertSame(FirmwareManufacturer.UNMANAGED, f.getManufacturer());
         
         Integer id = f.getId();        
-        m_phoneContext.deleteFirmware(f);
+        m_manager.deleteFirmware(f);
         try {
-            m_phoneContext.loadFirmware(id);
+            m_manager.loadFirmware(id);
             fail();
         } catch (HibernateObjectRetrievalFailureException x) {
             assertTrue(true);
@@ -82,8 +84,8 @@ public class FirmwareTestDb extends SipxDatabaseTestCase {
     
     public void testGetFirmware() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("phone/GetFirmwareSeed.xml");
-        Firmware[] f = (Firmware[]) m_phoneContext.getFirmware().toArray(new Firmware[0]);
+        TestHelper.cleanInsertFlat("upload/GetFirmwareSeed.xml");
+        Firmware[] f = (Firmware[]) m_manager.getFirmware().toArray(new Firmware[0]);
         assertEquals(2, f.length);
         assertEquals("harriot", f[0].getName());        
         assertEquals("ozzie", f[1].getName());

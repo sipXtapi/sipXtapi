@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.upload" default-lazy="false">
+  
+  <class name="Firmware" table="firmware">
+    <id name="id" column="firmware_id" type="int"/>
+    <property name="name"/>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+    <property name="manufacturer" column="manufacturer_id" 
+      type="org.sipfoundry.sipxconfig.upload.FirmwareManufacturer$UserType"/>
+    <property name="description"/>
+  </class>
+
+  <!-- used to find next firmware id w/o saving -->
+  <class name="UploadManagerImpl$UniqueUploadId" table="upload_id">
+    <id name="id" column="upload_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">firmware_seq</param>
+      </generator>
+    </id>
+  </class>
+
+  <query name="firmware">
+    <![CDATA[from Firmware f order by f.name]]>
+  </query>
+  
+</hibernate-mapping>

@@ -17,17 +17,6 @@
     <property name="phoneDefaults">
       <ref local="phoneDefaults"/>
     </property>
-    <property name="firmwareManufacturers">
-      <list>
-        <bean id="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer.UNMANAGED"
-          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
-        <bean class="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer">
-          <constructor-arg value="polycom"/>
-          <property name="label" value="Polycom Soundpoint"/>
-          <property name="fileDelivery" ref="localTftp"/>
-        </bean>
-      </list>
-    </property>
     <property name="availablePhoneModels">
       <list>
         <!-- TODO: alphabetize.  right now certain unittests are selecting the Nth
@@ -69,15 +58,6 @@
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
       </list>
     </property>
-  </bean>
-  
-  <bean id="uploader" class="org.sipfoundry.sipxconfig.phone.Firmware" singleton="false">
-    <property name="modelFilesContext" ref="modelFilesContext"/>
-    <property name="uploadParentDirectory" value="${sysdir.tmp}/uploads"/>
-  </bean>
-  
-  <bean id="localTftp" class="org.sipfoundry.sipxconfig.phone.LocalFileSystemDelivery">
-    <property name="rootDirectory" value="${sysdir.phone}/profile/tftproot"/>
   </bean>
   
   <!--

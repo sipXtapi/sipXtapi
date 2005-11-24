@@ -22,6 +22,7 @@
         <value>classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/search/search.beans.xml</value>        
+        <value>classpath*:/org/sipfoundry/sipxconfig/upload/upload.beans.xml</value>        
       </list>
     </constructor-arg>
   </bean>

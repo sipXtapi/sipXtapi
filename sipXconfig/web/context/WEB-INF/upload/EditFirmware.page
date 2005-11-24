@@ -3,7 +3,7 @@
   "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
-<page-specification class="org.sipfoundry.sipxconfig.site.phone.EditFirmware">
+<page-specification class="org.sipfoundry.sipxconfig.site.upload.EditFirmware">
     <description>add a description</description>
     
     <!-- 
@@ -11,16 +11,16 @@
       - while creating new firmware entries
       -->    
     <property-specification name="firmware"
-        type="org.sipfoundry.sipxconfig.phone.Firmware"
+        type="org.sipfoundry.sipxconfig.upload.Firmware"
         persistent="yes"/>
     
     <property-specification name="firmwareId"
         type="java.lang.Integer"/>
     <property-specification name="manufacturer"
-        type="org.sipfoundry.sipxconfig.phone.FirmwareManufacturer"
+        type="org.sipfoundry.sipxconfig.upload.FirmwareManufacturer"
         persistent="yes"/>
 	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+		type="org.sipfoundry.sipxconfig.upload.UploadManager" 
     	initial-value="global.phoneContext"/>
     <property-specification name="callback" 
     	type="org.apache.tapestry.callback.ICallback" 

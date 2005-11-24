@@ -9,15 +9,15 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.phone;
+package org.sipfoundry.sipxconfig.site.upload;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
-import org.sipfoundry.sipxconfig.phone.Firmware;
-import org.sipfoundry.sipxconfig.phone.FirmwareManufacturer;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.upload.Firmware;
+import org.sipfoundry.sipxconfig.upload.FirmwareManufacturer;
+import org.sipfoundry.sipxconfig.upload.UploadManager;
 
 public abstract class EditFirmware extends PageWithCallback implements PageRenderListener {
     
@@ -35,22 +35,22 @@ public abstract class EditFirmware extends PageWithCallback implements PageRende
     
     public abstract void setManufacturer(FirmwareManufacturer manufacturer);
     
-    public abstract PhoneContext getPhoneContext();
+    public abstract UploadManager getUploadManager();
 
     public void pageBeginRender(PageEvent event_) {
         Firmware firmware = getFirmware();
         if (firmware == null) {
             Integer id = getFirmwareId();
             if (id == null) {
-                firmware = getPhoneContext().newFirmware(getManufacturer());
+                firmware = getUploadManager().newFirmware(getManufacturer());
             } else {
-                firmware = getPhoneContext().loadFirmware(id);
+                firmware = getUploadManager().loadFirmware(id);
             }
             setFirmware(firmware);
         }
     }
     
     public void onSave(IRequestCycle cycle_) {
-        getPhoneContext().saveFirmware(getFirmware());
+        getUploadManager().saveFirmware(getFirmware());
     }    
 }

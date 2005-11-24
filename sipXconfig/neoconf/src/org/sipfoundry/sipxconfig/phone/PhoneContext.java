@@ -96,16 +96,4 @@ public interface PhoneContext extends DataObjectSource {
     public void removeFromGroup(Integer groupId, Collection ids);
 
     public void addUsersToPhone(Integer phoneId, Collection ids);
-    
-    public Firmware loadFirmware(Integer firmwareId);
-    
-    public void saveFirmware(Firmware firmware);
-    
-    public void deleteFirmware(Firmware firmware);
-    
-    public List getFirmwareManufacturers();
-
-    public List getFirmware();
-    
-    public Firmware newFirmware(FirmwareManufacturer manufacturer);
 }

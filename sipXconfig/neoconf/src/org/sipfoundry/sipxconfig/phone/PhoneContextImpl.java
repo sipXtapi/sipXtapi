@@ -52,12 +52,10 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private SettingDao m_settingDao;
 
-    private BeanFactory m_beanFactory;
-
     private List m_availableModels;
-    
-    private List m_firmwareManufacturers;
 
+    private BeanFactory m_beanFactory;
+    
     private JobQueue m_jobQueue;
 
     private String m_systemDirectory;
@@ -341,64 +339,5 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
             phone.addLine(line);
         }
         storePhone(phone);
-    }
-
-    public Firmware loadFirmware(Integer firmwareId) {
-        return (Firmware) getHibernateTemplate().load(Firmware.class, firmwareId);
-    }
-
-    public void saveFirmware(Firmware firmware) {
-        if (firmware.isNew()) {
-            firmware.setIdToUniqueUploadId();
-            getHibernateTemplate().save(firmware);            
-        } else {
-            getHibernateTemplate().update(firmware);
-        }
-        firmware.deliver();
-    }
-
-    public void deleteFirmware(Firmware firmware) {
-        firmware.remove();
-        getHibernateTemplate().delete(firmware);
-    }
-
-    public List getFirmwareManufacturers() {
-        return m_firmwareManufacturers;
-    }
-    
-    public void setFirmwareManufacturers(List firmwareManufacturers) {
-        m_firmwareManufacturers = firmwareManufacturers;
-    }
-    
-    public List getFirmware() {
-        return getHibernateTemplate().findByNamedQuery("firmware");
-    }
-        
-    /**
-     * Used to find a unique ID that matches the beanId after this bean is saved
-     */
-    public static class UniqueUploadId {
-        private Integer m_id;
-        public Integer getId() {
-            return m_id;
-        }
-        public void setId(Integer id) {
-            m_id = id;
-        }
-    }
-    
-    public Firmware newFirmware(FirmwareManufacturer manufacturer) {       
-        Firmware f = (Firmware) m_beanFactory.getBean("uploader");
-        f.setManufacturer(manufacturer);
-        f.setUniqueUploadId(generateFirmwareSystemId());
-        return f;
-    }
-    
-    Integer generateFirmwareSystemId() {
-        UniqueUploadId uui = new UniqueUploadId();
-        getHibernateTemplate().save(uui);
-        Integer id = uui.getId();
-        getHibernateTemplate().delete(uui);
-        return id;
     }
 }

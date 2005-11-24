@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.upload;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 

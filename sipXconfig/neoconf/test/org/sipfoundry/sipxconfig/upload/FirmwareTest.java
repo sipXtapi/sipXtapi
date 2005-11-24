@@ -9,11 +9,13 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.upload;
 
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.upload.Firmware;
+import org.sipfoundry.sipxconfig.upload.FirmwareManufacturer;
 
 public class FirmwareTest extends TestCase {
     
