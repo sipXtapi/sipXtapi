@@ -34,12 +34,11 @@
   <bean id="uploader" class="org.sipfoundry.sipxconfig.upload.Firmware"
     singleton="false">
     <property name="modelFilesContext" ref="modelFilesContext"/>
-    <property name="uploadParentDirectory" value="${sysdir.tmp}/uploads"/>
   </bean>
   
   <bean id="localTftp"
     class="org.sipfoundry.sipxconfig.upload.LocalFileSystemDelivery">
-    <property name="rootDirectory" value="${sysdir.phone}/profile/tftproot"/>
+    <property name="uploadDirectory" value="${sysdir.phone}/profile/tftproot"/>
   </bean>
   
 </beans>

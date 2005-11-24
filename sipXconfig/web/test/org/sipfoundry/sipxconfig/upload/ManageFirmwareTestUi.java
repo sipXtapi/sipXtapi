@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.site.phone;
+package org.sipfoundry.sipxconfig.upload;
 
 import junit.framework.Test;
 

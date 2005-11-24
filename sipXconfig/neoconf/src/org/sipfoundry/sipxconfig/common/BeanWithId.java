@@ -48,10 +48,6 @@ public class BeanWithId implements Cloneable, PrimaryKeySource {
     void setId(Integer id) {
         m_id = id;
     }
-    
-    protected void setIdWithProtectedAccess(Integer id) {
-        setId(id);
-    }
 
     public Integer getId() {
         return m_id;

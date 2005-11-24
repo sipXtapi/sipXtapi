@@ -13,7 +13,9 @@ package org.sipfoundry.sipxconfig.upload;
 
 import java.util.List;
 
-public interface UploadManager {
+import org.sipfoundry.sipxconfig.common.DataObjectSource;
+
+public interface UploadManager extends DataObjectSource {
     
     public static final String CONTEXT_BEAN_NAME = "uploadManager";
     

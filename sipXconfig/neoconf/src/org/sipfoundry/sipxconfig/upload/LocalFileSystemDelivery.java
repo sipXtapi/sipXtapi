@@ -11,42 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import org.apache.commons.io.CopyUtils;
-import org.apache.commons.io.IOUtils;
-
 /**
  * Copy files to local filesystem into directory.  
  */
 public class LocalFileSystemDelivery implements FileDelivery {
     
-    private File m_rootDirectory;
+    private String m_uploadDirectory;
         
-    public void deliverFile(File directory, File file) {
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-            in = new FileInputStream(new File(directory, file.getPath()));
-            out = new FileOutputStream(new File(m_rootDirectory, file.getPath()));
-            CopyUtils.copy(in, out);
-        } catch (IOException e) {            
-            IOUtils.closeQuietly(in);
-            IOUtils.closeQuietly(out);
-            throw new RuntimeException("Could not deliver file to TFTP directory", e);
-        } 
+    public String getUploadDirectory() {
+        return m_uploadDirectory;
     }
     
-    public void removeFile(File directory_, File file) {
-        new File(m_rootDirectory, file.getPath()).delete();
-    }
-    
-    public void setRootDirectory(String tftpRoot) {
-        m_rootDirectory = new File(tftpRoot);
+    public void setUploadDirectory(String uploadDirectory) {
+        m_uploadDirectory = uploadDirectory;
     }
 }

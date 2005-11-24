@@ -34,13 +34,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
     }
 
     public void saveFirmware(Firmware firmware) {
-        if (firmware.isNew()) {
-            firmware.setIdToUniqueUploadId();
-            getHibernateTemplate().save(firmware);            
-        } else {
-            getHibernateTemplate().update(firmware);
-        }
-        firmware.deliver();
+        getHibernateTemplate().saveOrUpdate(firmware);            
     }
 
     public void deleteFirmware(Firmware firmware) {
@@ -60,31 +54,9 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
         return getHibernateTemplate().findByNamedQuery("firmware");
     }
         
-    /**
-     * Used to find a unique ID that matches the beanId after this bean is saved
-     */
-    public static class UniqueUploadId {
-        private Integer m_id;
-        public Integer getId() {
-            return m_id;
-        }
-        public void setId(Integer id) {
-            m_id = id;
-        }
-    }
-    
     public Firmware newFirmware(FirmwareManufacturer manufacturer) {       
         Firmware f = (Firmware) m_beanFactory.getBean("uploader");
         f.setManufacturer(manufacturer);
-        f.setUniqueUploadId(generateFirmwareSystemId());
         return f;
-    }
-    
-    Integer generateFirmwareSystemId() {
-        UniqueUploadId uui = new UniqueUploadId();
-        getHibernateTemplate().save(uui);
-        Integer id = uui.getId();
-        getHibernateTemplate().delete(uui);
-        return id;
     }
 }

@@ -26,8 +26,6 @@ public class Firmware extends BeanWithSettings {
     private String m_description;
     private FirmwareManufacturer m_manufacturer;
     private ModelFilesContext m_modelFilesContext;
-    private Integer m_uniqueUploadId;
-    private String m_uploadParentDirectory;
 
     public Setting getSettingModel() {
         Setting model = super.getSettingModel();
@@ -48,7 +46,8 @@ public class Firmware extends BeanWithSettings {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {
                 FileSetting fileType = (FileSetting) type;
-                fileType.setDirectory(getUploadDirectory());
+                String uploadDir = getManufacturer().getFileDelivery().getUploadDirectory();
+                fileType.setDirectory(uploadDir);
             }
         }
     }
@@ -85,76 +84,7 @@ public class Firmware extends BeanWithSettings {
         m_modelFilesContext = modelFilesContext;
     }
     
-    /**
-     * Where uploads exists for this firmware instance
-     */
-    public String getUploadDirectory() {
-        return getUploadParentDirectory() + '/' + getUniqueUploadId();
-    }
-    
-    /**
-     * Parent uploads exists for this firmware instance
-     */
-    public String getUploadParentDirectory() {
-        return m_uploadParentDirectory;
-    }
-
-    public void setUploadParentDirectory(String uploadParentDirectory) {
-        m_uploadParentDirectory = uploadParentDirectory;
-    }
-
-    public Integer getUniqueUploadId() {
-        return isNew() ? m_uniqueUploadId : getId();
-    }
-
-    public void setUniqueUploadId(Integer uniqueUploadId) {
-        m_uniqueUploadId = uniqueUploadId;
-    }
-    
-    public void setIdToUniqueUploadId() {
-        super.setIdWithProtectedAccess(getUniqueUploadId());
-    }
-    
-    public void deliver() {
-    }    
-
     public void remove() {
-    }    
-    
-    /* Work in progress
-    public void deliver() {
-        FileDelivery delivery = getManufacturer().getFileDelivery();
-        File[] files = getFiles();
-        File directory = new File(getUploadDirectory());
-        for (int i = 0; i < files.length; i++) {
-            delivery.deliverFile(directory, files[i]);
-        }
+        // delete all files   
     }
-    
-    File[] getFiles() {
-        FileLister lister = new FileLister();
-        getSettings().acceptVisitor(lister);
-        File[] files = (File[]) lister.m_files.toArray(new File[0]);
-        return files;
-    }
-    
-    public void remove() {
-        FileDelivery delivery = getManufacturer().getFileDelivery();
-        File[] files = getFiles();
-        File directory = new File(getUploadDirectory());
-        for (int i = 0; i < files.length; i++) {
-            delivery.removeFile(directory, files[i]);
-        }
-    }
-
-    private class FileLister extends AbstractSettingVisitor {
-        private List m_files = new ArrayList();
-        public void visitSetting(Setting setting) {
-            SettingType type = setting.getType();
-            if (type instanceof FileSetting && setting.getValue() != null) {
-                m_files.add(new File(setting.getValue()));
-            }
-        }
-    }
-    */
 }

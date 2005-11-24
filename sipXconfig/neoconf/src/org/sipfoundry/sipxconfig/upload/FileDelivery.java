@@ -11,13 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
-import java.io.File;
-
 public interface FileDelivery {
-
-    public void deliverFile(File directory, File file);
-    
-    public void removeFile(File directory, File file);
-    
+    public String getUploadDirectory();
 }
     

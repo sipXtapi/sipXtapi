@@ -52,5 +52,6 @@ public abstract class EditFirmware extends PageWithCallback implements PageRende
     
     public void onSave(IRequestCycle cycle_) {
         getUploadManager().saveFirmware(getFirmware());
+        setFirmwareId(getFirmware().getId());
     }    
 }
