@@ -1,8 +1,8 @@
 class ApiTestCase < Test::Unit::TestCase
   SERVICE_ROOT = 'http://localhost:9999/sipxconfig/services/'
 
-  DUMMY_USER = "dummy user"
-  DUMMY_PASSWORD = "dummy password"
+  DUMMY_USER = "dummyAdminUserNameForTestingOnly"
+  DUMMY_PASSWORD = "dummyAdminUserPasswordCanBeAnything"
 
   def setup
     super

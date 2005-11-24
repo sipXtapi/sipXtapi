@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.login;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
-import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class LoginContextImpl implements LoginContext {
@@ -32,9 +31,7 @@ public class LoginContextImpl implements LoginContext {
         
         String userName = user.getUserName();
         String pintoken = user.getPintoken();
-
-        String encodedPassword = Md5Encoder.digestPassword(
-                userName, m_coreContext.getAuthorizationRealm(), password);
+        String encodedPassword = getEncodedPassword(userName, password);
         
         // Real match
         if (encodedPassword.equals(pintoken)) {
@@ -51,6 +48,10 @@ public class LoginContextImpl implements LoginContext {
         return null;
     }
 
+    public String getEncodedPassword(String userName, String password) {
+        return Md5Encoder.digestPassword(userName, m_coreContext.getAuthorizationRealm(), password);
+    }
+    
     public boolean isAdmin(Integer userId) {
         User user = m_coreContext.loadUser(userId);
         return isAdmin(user);
@@ -60,9 +61,7 @@ public class LoginContextImpl implements LoginContext {
         if (user == null) {
             return false;
         }
-        
-        boolean superadmin = user.hasPermission(Permission.SUPERADMIN);
-        return superadmin;
+        return user.isAdmin();
     }
     
     public void setCoreContext(CoreContext coreContext) {

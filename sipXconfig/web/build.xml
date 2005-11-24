@@ -44,6 +44,7 @@
   <!-- common path unit tests need that interfaces w/sipXconfig lib 
        all spring jars at this point -->
   <path id="runtime.dependencies">
+    <pathelement path="${acegi-security.jar}"/>
     <pathelement path="${aopalliance.jar}"/>
     <pathelement path="${asm.jar}"/>
     <pathelement path="${bsf.jar}"/>

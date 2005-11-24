@@ -1,4 +1,4 @@
-# used in applicationContext-sipxconfig.xml to set system properies
+# used in system.beans.xml to set system properies
 sip.proxyHost=${PROXY_SERVER_ADDR}
 sip.proxyPort=${PROXY_SERVER_SIP_PORT}
 # BEGIN: do not use

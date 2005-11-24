@@ -6,7 +6,7 @@
     class="org.springframework.context.support.ClassPathXmlApplicationContext">
     <constructor-arg>
       <list>
-        <value>classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml</value>
+        <value>classpath*:/org/sipfoundry/sipxconfig/system.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/admin.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml</value>

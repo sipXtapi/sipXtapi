@@ -28,9 +28,12 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
 public class User extends BeanWithGroups {
-
     public static final String GROUP_RESOURCE_ID = "user";
 
+    // security roles
+    public static final String ROLE_USER = "ROLE_USER";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+    
     // property names
     public static final String ALIASES_PROP = "aliases";
     public static final String FIRST_NAME_PROP = "firstName";
@@ -211,5 +214,9 @@ public class User extends BeanWithGroups {
         }
         boolean enabled = Permission.isEnabled(setting.getValue());
         return enabled;
+    }
+    
+    public boolean isAdmin() {
+        return hasPermission(Permission.SUPERADMIN);
     }
 }

@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 
 import org.mortbay.jetty.Server;
 import org.mortbay.util.InetAddrPort;
+import org.sipfoundry.sipxconfig.security.AuthenticationDaoImpl;
 
 /**
  * Assumes you've run ant to build test war file first ant build-test-war
@@ -59,8 +60,13 @@ public class JettyTestSetup extends TestSetup {
         m_server = new Server();
         m_server.addListener(new InetAddrPort(m_port));
 
+        // add the sipXconfig web application
         String war = SiteTestHelper.getBuildDirectory() + "/tests/war";
         m_server.addWebApplication("/sipxconfig", war);
+        
+        // enable dummy admin user for unit testing
+        AuthenticationDaoImpl.setDummyAdminUserEnabled(true);
+        
         m_server.start();
     }
     

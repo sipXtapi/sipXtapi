@@ -61,5 +61,6 @@
 			<attribute value="http://lucene.apache.org/java/docs/api/" name="javadoc_location"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry sourcepath="/LIB_SRC/acegi-security/src.zip" kind="var" path="SIPX_CONFIG/lib/acegi-security-0.9.0.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

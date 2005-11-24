@@ -16,7 +16,8 @@ import org.sipfoundry.sipxconfig.common.User;
 public interface LoginContext {
     
     public User checkCredentials(String userName, String password);
-    
+    public String getEncodedPassword(String userName, String password);
+
     public boolean isAdmin(Integer userId);
     public boolean isAdmin(User user);
 }
