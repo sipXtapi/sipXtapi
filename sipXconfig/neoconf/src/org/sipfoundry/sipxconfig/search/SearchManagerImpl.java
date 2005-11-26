@@ -31,6 +31,7 @@ import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
 
@@ -119,7 +120,8 @@ public class SearchManagerImpl implements SearchManager {
             query.add(userQuery, true, false);
             Sort sort = null;
             if (StringUtils.isNotBlank(sortField)) {
-                sort = new Sort(sortField, !orderAscending);
+                SortField field = new SortField(sortField, SortField.STRING, !orderAscending);
+                sort = new Sort(field);
             }
             return search(query, firstResult, pageSize, sort, transformer);
         } catch (IOException e) {

@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
@@ -30,6 +31,7 @@ import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
 
@@ -56,8 +58,17 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public abstract void setActionModel(IPropertySelectionModel model);
 
+    public abstract String getQueryText();
+
+    public abstract SearchManager getSearchManager();
+
     public IBasicTableModel getTableModel() {
-        return new PhoneTableModel(getPhoneContext(), getGroupId());
+        String queryText = getQueryText();
+        if (StringUtils.isBlank(queryText)) {
+            return new PhoneTableModel(getPhoneContext(), getGroupId());
+        }
+        ObjectSourceDataSqueezer squeezer = new PhoneDataSqueezer(getPhoneContext());
+        return new SearchPhoneTableModel(getSearchManager(), queryText, squeezer);
     }
 
     /**

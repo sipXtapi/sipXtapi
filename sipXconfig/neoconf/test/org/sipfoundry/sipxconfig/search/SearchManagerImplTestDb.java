@@ -175,4 +175,10 @@ public class SearchManagerImplTestDb extends TestCase {
         user = (User) collection.get(1);
         assertEquals(names[2], user.getUserName());
     }
+    
+    public void testSortingIllegalFieldName() throws Exception {
+        List collection = m_searchManager.search(User.class, "first*", 0, -1, "bongo", true,
+                m_identityToBean);
+        assertEquals(0, collection.size());
+    }
 }

@@ -10,6 +10,9 @@
 	<property-specification name="groupId"
         persistent="yes" 
 		type="java.lang.Integer"/>
+	<property-specification name="queryText"
+        persistent="yes" 
+		type="java.lang.String"/>    
 	<property-specification name="currentLine" 
 		type="org.sipfoundry.sipxconfig.phone.Line"/>
    	<property-specification name="selections" 
@@ -19,6 +22,9 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>
+    <property-specification name="searchManager"
+    	type="org.sipfoundry.sipxconfig.search.SearchManager"
+    	initial-value="global.searchManager"/>
     <property-specification name="actionModel" 
     	type="org.apache.tapestry.form.IPropertySelectionModel"/>
 	<!--
@@ -81,7 +87,10 @@
     <component id="groupFilter" type="GroupFilter">
         <binding name="selectedGroupId" expression="groupId"/>
         <binding name="groups" expression="phoneContext.groups"/>
-    </component>    
+    </component>
+    <component id="queryText" type="TextField">
+        <binding name="value" expression="queryText"/>
+    </component>
     <component id="groupActions" type="GroupActions">
         <binding name="selectedIds" expression="selections.allSelected"/>
         <binding name="actionModel" expression="actionModel"/>
