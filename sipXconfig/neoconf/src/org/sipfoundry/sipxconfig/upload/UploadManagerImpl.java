@@ -20,7 +20,7 @@ import org.springframework.beans.factory.BeanFactoryAware;
 public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFactoryAware, UploadManager {
     private BeanFactory m_beanFactory;
     
-    private List m_firmwareManufacturers;
+    private List m_uploadSpecifications;
 
     /**
      * Callback that supplies the owning factory to a bean instance.
@@ -29,34 +29,34 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
         m_beanFactory = beanFactory;
     }
 
-    public Firmware loadFirmware(Integer firmwareId) {
-        return (Firmware) getHibernateTemplate().load(Firmware.class, firmwareId);
+    public Upload loadUpload(Integer uploadId) {
+        return (Upload) getHibernateTemplate().load(Upload.class, uploadId);
     }
 
-    public void saveFirmware(Firmware firmware) {
-        getHibernateTemplate().saveOrUpdate(firmware);            
+    public void saveUpload(Upload upload) {
+        getHibernateTemplate().saveOrUpdate(upload);            
     }
 
-    public void deleteFirmware(Firmware firmware) {
-        firmware.remove();
-        getHibernateTemplate().delete(firmware);
+    public void deleteUpload(Upload upload) {
+        upload.remove();
+        getHibernateTemplate().delete(upload);
     }
 
-    public List getFirmwareManufacturers() {
-        return m_firmwareManufacturers;
+    public List getUploadSpecifications() {
+        return m_uploadSpecifications;
     }
     
-    public void setFirmwareManufacturers(List firmwareManufacturers) {
-        m_firmwareManufacturers = firmwareManufacturers;
+    public void setUploadSpecifications(List uploadSpecifications) {
+        m_uploadSpecifications = uploadSpecifications;
     }
     
-    public List getFirmware() {
-        return getHibernateTemplate().findByNamedQuery("firmware");
+    public List getUpload() {
+        return getHibernateTemplate().findByNamedQuery("upload");
     }
         
-    public Firmware newFirmware(FirmwareManufacturer manufacturer) {       
-        Firmware f = (Firmware) m_beanFactory.getBean("uploader");
-        f.setManufacturer(manufacturer);
+    public Upload newUpload(UploadSpecification specification) {       
+        Upload f = (Upload) m_beanFactory.getBean("uploader");
+        f.setSpecification(specification);
         return f;
     }
 }

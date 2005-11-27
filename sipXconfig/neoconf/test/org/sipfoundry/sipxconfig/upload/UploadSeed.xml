@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+    <upload 
+        upload_id="1000" 		
+        name="test upload"
+		    specification_id="unmanagedPhone"
+        description="unittest upload"/>
+</dataset>

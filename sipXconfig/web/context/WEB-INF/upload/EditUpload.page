@@ -3,16 +3,16 @@
   "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
-<page-specification class="org.sipfoundry.sipxconfig.site.upload.EditFirmware">
+<page-specification class="org.sipfoundry.sipxconfig.site.upload.EditUpload">
     <description>add a description</description>
     
-    <property-specification name="firmware"
-        type="org.sipfoundry.sipxconfig.upload.Firmware"/>    
-    <property-specification name="firmwareId"
+    <property-specification name="upload"
+        type="org.sipfoundry.sipxconfig.upload.Upload"/>    
+    <property-specification name="uploadId"
         type="java.lang.Integer"
         persistent="yes"/>
-    <property-specification name="manufacturer"
-        type="org.sipfoundry.sipxconfig.upload.FirmwareManufacturer"
+    <property-specification name="uploadSpecification"
+        type="org.sipfoundry.sipxconfig.upload.UploadSpecification"
         persistent="yes"/>
 	<property-specification name="uploadManager" 
 		type="org.sipfoundry.sipxconfig.upload.UploadManager" 
@@ -23,17 +23,17 @@
     
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
  
-    <component id="firmwareForm" type="Form">
+    <component id="uploadForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>    
     <component id="settingsFieldset" type="SettingsFieldset">
-        <binding name="settings" expression="firmware.settings"/>
+        <binding name="settings" expression="upload.settings"/>
         <binding name="renderGroupTitle" expression="false"/>
     </component>
     <component id="nameDescriptionEdit" type="ItemCommon">
         <static-binding name="useExtension" value="false"/>
         <static-binding name="useEnabled" value="false"/>
-        <binding name="item" expression="firmware"/>
+        <binding name="item" expression="upload"/>
     </component>    
     <component id="applyOkCancel" type="FormActions">
         <binding name="listener" expression="listeners.onSave"/>

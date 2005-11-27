@@ -19,16 +19,16 @@ public interface UploadManager extends DataObjectSource {
     
     public static final String CONTEXT_BEAN_NAME = "uploadManager";
     
-    public Firmware loadFirmware(Integer firmwareId);
+    public Upload loadUpload(Integer uploadId);
     
-    public void saveFirmware(Firmware firmware);
+    public void saveUpload(Upload upload);
     
-    public void deleteFirmware(Firmware firmware);
+    public void deleteUpload(Upload upload);
     
-    public List getFirmwareManufacturers();
+    public List getUploadSpecifications();
 
-    public List getFirmware();
+    public List getUpload();
     
-    public Firmware newFirmware(FirmwareManufacturer manufacturer);
+    public Upload newUpload(UploadSpecification manufacturer);
 
 }

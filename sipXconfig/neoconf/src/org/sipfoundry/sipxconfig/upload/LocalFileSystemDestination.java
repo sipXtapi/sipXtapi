@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.upload;
 /**
  * Copy files to local filesystem into directory.  
  */
-public class LocalFileSystemDelivery implements FileDelivery {
+public class LocalFileSystemDestination implements UploadDestination {
     
     private String m_uploadDirectory;
         

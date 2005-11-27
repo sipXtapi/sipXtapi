@@ -6,12 +6,12 @@
   <bean id="uploadManagerImpl"
     class="org.sipfoundry.sipxconfig.upload.UploadManagerImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
-    <property name="firmwareManufacturers">
+    <property name="uploadSpecifications">
       <list>
         <bean
-          id="org.sipfoundry.sipxconfig.upload.FirmwareManufacturer.UNMANAGED"
+          id="org.sipfoundry.sipxconfig.upload.UploadSpecification.UNMANAGED"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
-        <bean class="org.sipfoundry.sipxconfig.upload.FirmwareManufacturer">
+        <bean class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
           <constructor-arg value="polycom"/>
           <property name="label" value="Polycom Soundpoint"/>
           <property name="fileDelivery" ref="localTftp"/>
@@ -31,13 +31,13 @@
     </property>
   </bean>
   
-  <bean id="uploader" class="org.sipfoundry.sipxconfig.upload.Firmware"
+  <bean id="uploader" class="org.sipfoundry.sipxconfig.upload.Upload"
     singleton="false">
     <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
   
   <bean id="localTftp"
-    class="org.sipfoundry.sipxconfig.upload.LocalFileSystemDelivery">
+    class="org.sipfoundry.sipxconfig.upload.LocalFileSystemDestination">
     <property name="uploadDirectory" value="${sysdir.phone}/profile/tftproot"/>
   </bean>
   

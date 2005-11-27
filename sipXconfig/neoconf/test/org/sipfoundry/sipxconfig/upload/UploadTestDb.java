@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
-public class FirmwareTestDb extends SipxDatabaseTestCase {
+public class UploadTestDb extends SipxDatabaseTestCase {
 
     private UploadManager m_manager;
     
@@ -29,50 +29,50 @@ public class FirmwareTestDb extends SipxDatabaseTestCase {
     }
     
     public void testLoadSettings() throws Exception {
-        Firmware f = m_manager.newFirmware(FirmwareManufacturer.getManufacturerById("polycom"));
+        Upload f = m_manager.newUpload(UploadSpecification.getManufacturerById("polycom"));
         f.getSettings();
     }
     
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        Firmware f = m_manager.newFirmware(FirmwareManufacturer.UNMANAGED);
+        Upload f = m_manager.newUpload(UploadSpecification.UNMANAGED);
         f.setName("bezerk");
-        m_manager.saveFirmware(f);
+        m_manager.saveUpload(f);
         
-        IDataSet expectedDs = TestHelper.loadDataSetFlat("upload/SaveFirmwareExpected.xml");
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("upload/SaveUploadExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[null]", null);
-        expectedRds.addReplacementObject("[firmware_id]", f.getPrimaryKey());
-        ITable expected = expectedRds.getTable("firmware");
-        ITable actual = TestHelper.getConnection().createDataSet().getTable("firmware");
+        expectedRds.addReplacementObject("[upload_id]", f.getPrimaryKey());
+        ITable expected = expectedRds.getTable("Upload");
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("Upload");
 
         Assertion.assertEquals(expected, actual);
     }
     
     public void testLoadAndDelete() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("upload/FirmwareSeed.xml");
-        Firmware f = m_manager.loadFirmware(new Integer(1000));
-        assertEquals("test firmware", f.getName());
-        assertSame(FirmwareManufacturer.UNMANAGED, f.getManufacturer());
+        TestHelper.cleanInsertFlat("upload/UploadSeed.xml");
+        Upload f = m_manager.loadUpload(new Integer(1000));
+        assertEquals("test upload", f.getName());
+        assertSame(UploadSpecification.UNMANAGED, f.getSpecification());
         
         Integer id = f.getId();        
-        m_manager.deleteFirmware(f);
+        m_manager.deleteUpload(f);
         try {
-            m_manager.loadFirmware(id);
+            m_manager.loadUpload(id);
             fail();
         } catch (HibernateObjectRetrievalFailureException x) {
             assertTrue(true);
         }
 
         IDataSet actual = TestHelper.getConnection().createDataSet();        
-        assertEquals(0, actual.getTable("firmware").getRowCount());        
+        assertEquals(0, actual.getTable("Upload").getRowCount());        
     }
     
-    public void testGetFirmware() throws Exception {
+    public void testGetUpload() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("upload/GetFirmwareSeed.xml");
-        Firmware[] f = (Firmware[]) m_manager.getFirmware().toArray(new Firmware[0]);
+        TestHelper.cleanInsertFlat("upload/GetUploadSeed.xml");
+        Upload[] f = (Upload[]) m_manager.getUpload().toArray(new Upload[0]);
         assertEquals(2, f.length);
         assertEquals("harriot", f[0].getName());        
         assertEquals("ozzie", f[1].getName());

@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
-public interface FileDelivery {
+public interface UploadDestination {
     public String getUploadDirectory();
 }
     

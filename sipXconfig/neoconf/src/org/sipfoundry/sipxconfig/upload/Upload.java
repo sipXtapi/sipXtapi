@@ -21,16 +21,16 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 /**
  * Describing the files required to track and manage a vendor's firmware files
  */
-public class Firmware extends BeanWithSettings {
+public class Upload extends BeanWithSettings {
     private String m_name;
     private String m_description;
-    private FirmwareManufacturer m_manufacturer;
+    private UploadSpecification m_specification;
     private ModelFilesContext m_modelFilesContext;
 
     public Setting getSettingModel() {
         Setting model = super.getSettingModel();
         if (model == null) {
-            model = m_modelFilesContext.loadModelFile("firmware.xml", m_manufacturer
+            model = m_modelFilesContext.loadModelFile("upload.xml", m_specification
                     .getManufacturerId(), null);
             setSettingModel(model);
         }
@@ -38,15 +38,15 @@ public class Firmware extends BeanWithSettings {
     }
 
     protected void defaultSettings() {
-        getSettings().acceptVisitor(new FirmwareDirectorySetter());
+        getSettings().acceptVisitor(new UploadDirectorySetter());
     }
 
-    private class FirmwareDirectorySetter extends AbstractSettingVisitor {
+    private class UploadDirectorySetter extends AbstractSettingVisitor {
         public void visitSetting(Setting setting) {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {
                 FileSetting fileType = (FileSetting) type;
-                String uploadDir = getManufacturer().getFileDelivery().getUploadDirectory();
+                String uploadDir = getSpecification().getFileDelivery().getUploadDirectory();
                 fileType.setDirectory(uploadDir);
             }
         }
@@ -68,12 +68,12 @@ public class Firmware extends BeanWithSettings {
         m_description = description;
     }
 
-    public FirmwareManufacturer getManufacturer() {
-        return m_manufacturer;
+    public UploadSpecification getSpecification() {
+        return m_specification;
     }
 
-    public void setManufacturer(FirmwareManufacturer manufacturer) {
-        m_manufacturer = manufacturer;
+    public void setSpecification(UploadSpecification specification) {
+        m_specification = specification;
     }
 
     public ModelFilesContext getModelFilesContext() {

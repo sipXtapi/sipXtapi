@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+    <upload 
+        upload_id="1000" 		
+        name="ozzie"
+		    specification_id="unmanagedPhone"/>
+    <upload 
+        upload_id="1001" 		
+        name="harriot"
+		    specification_id="unmanagedPhone"/>
+</dataset>

@@ -9,6 +9,7 @@
   <table name="daily_backup_schedule"/>
   <table name="patch"/>
   <table name="initialization_task"/>
+  <table name="upload"/>
   
   <!-- dial plans related -->  
   <table name="auto_attendant"/>
@@ -41,7 +42,6 @@
   <table name="line"/>
   <table name="phone_group"/>
   <table name="line_group"/>
-  <table name="firmware"/>
     
   <table name="gateway"/>  
   <table name="extension_pool"/>  

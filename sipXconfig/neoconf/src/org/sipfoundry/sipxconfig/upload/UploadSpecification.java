@@ -13,17 +13,18 @@ package org.sipfoundry.sipxconfig.upload;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
-public class FirmwareManufacturer extends Enum {
-    public static final FirmwareManufacturer UNMANAGED = new FirmwareManufacturer("unmanagedPhone",
+public class UploadSpecification extends Enum {
+
+    public static final UploadSpecification UNMANAGED = new UploadSpecification("unmanagedPhone",
             "Unmanaged TFTP", "tftp");
 
     private String m_label;
     private String m_preferredDeliveryId;
-    private FileDelivery m_fileDelivery;
-    public FirmwareManufacturer(String manfacturerId) {
+    private UploadDestination m_fileDelivery;
+    public UploadSpecification(String manfacturerId) {
         super(manfacturerId);
     }    
-    public FirmwareManufacturer(String manfacturerId, String label, String preferredDeliveryId) {
+    public UploadSpecification(String manfacturerId, String label, String preferredDeliveryId) {
         this(manfacturerId);
         setLabel(label);
         setPreferredDeliveryId(preferredDeliveryId);
@@ -45,16 +46,16 @@ public class FirmwareManufacturer extends Enum {
     }
     public static class UserType extends EnumUserType {
         public UserType() {
-            super(FirmwareManufacturer.class);
+            super(UploadSpecification.class);
         }
     }
-    public static FirmwareManufacturer getManufacturerById(String id) {
-        return (FirmwareManufacturer) Enum.getEnum(FirmwareManufacturer.class, id);
+    public static UploadSpecification getManufacturerById(String id) {
+        return (UploadSpecification) Enum.getEnum(UploadSpecification.class, id);
     }
-    public void setFileDelivery(FileDelivery fileDelivery) {
+    public void setFileDelivery(UploadDestination fileDelivery) {
         m_fileDelivery = fileDelivery;        
     }
-    public FileDelivery getFileDelivery() {
+    public UploadDestination getFileDelivery() {
         return m_fileDelivery;
     }
 }

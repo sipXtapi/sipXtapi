@@ -93,7 +93,7 @@
   <target name="version1" description="upgrade from version 1" unless="version2"
     depends="
   	  conference_name_uniqueness,
-      firmware
+      upload
 	  "/>
 
   <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
@@ -103,16 +103,16 @@
   	<mark-patch-applied patch="conference_name_uniqueness"/>
   </target>  
   
-  <!-- this patch uninstalls itself each time until firmware is a bit more frozen-->
-  <target name="drop-firmware" if="firmware">
+  <!-- this patch uninstalls itself each time until upload is a bit more frozen-->
+  <target name="drop-upload" if="upload">
     <sipx-sql>
-      drop table firmware;
-      drop sequence firmware_seq;
-      delete from patch where name = 'firmware';
+      drop table upload;
+      drop sequence upload_seq;
+      delete from patch where name = 'upload';
     </sipx-sql>
   </target>  
-  <target name="firmware" depends="drop-firmware">
-    <db-patch patch="firmware"/>
+  <target name="upload" depends="drop-upload">
+    <db-patch patch="upload"/>
   </target>  
   
   <target name="schema" unless="schema">
