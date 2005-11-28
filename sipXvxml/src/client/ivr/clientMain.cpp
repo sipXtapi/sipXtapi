@@ -226,7 +226,14 @@ sigHandler(int sig_num)
    sInSigHandler = TRUE;
 
    // Log receiving the signal.
-   OsSysLog::add(FAC_MEDIASERVER_VXI, PRI_CRIT, "sigHandler: caught signal %d", sig_num);
+   if (SIGTERM == sig_num)
+   {
+      OsSysLog::add( FAC_MEDIASERVER_VXI, PRI_INFO, "sigHandler: terminate signal received.");
+   }
+   else
+   {
+      OsSysLog::add( FAC_MEDIASERVER_VXI, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
+   }
 
    // Flush the log to disk.
    OsSysLog::flush();

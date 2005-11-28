@@ -144,7 +144,14 @@ sigHandler( int sig_num )
     pt_signal( sig_num, SIG_DFL );
 
     // Minimize the chance that we loose log data
-    OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SIPXAuthHandler::sigHandler: caught signal: %d", sig_num );
+    if (SIGTERM == sig_num)
+    {
+       OsSysLog::add( LOG_FACILITY, PRI_INFO, "sigHandler: terminate signal received.");
+    }
+    else
+    {
+       OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
+    }
     OsSysLog::flush();
 }
 

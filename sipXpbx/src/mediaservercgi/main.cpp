@@ -175,7 +175,14 @@ sigHandler( int sig_num )
         if (!gInSigHandler)
         {
                 gInSigHandler = TRUE;
-                OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
+                if (SIGTERM == sig_num)
+                {
+                   OsSysLog::add( LOG_FACILITY, PRI_INFO, "sigHandler: terminate signal received.");
+                }
+                else
+                {
+                   OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: caught signal: %d", sig_num );
+                }
                 OsSysLog::add( LOG_FACILITY, PRI_CRIT, "sigHandler: closing IMDB connections" );
                 OsSysLog::flush();
         }
