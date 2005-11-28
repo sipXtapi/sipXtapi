@@ -10,52 +10,39 @@
  * $
  */
 package org.sipfoundry.sipxconfig.upload;
+import java.util.List;
+
 import org.apache.commons.lang.enums.Enum;
+import org.sipfoundry.sipxconfig.common.BeanEnum;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
-public class UploadSpecification extends Enum {
 
-    public static final UploadSpecification UNMANAGED = new UploadSpecification("unmanagedPhone",
-            "Unmanaged TFTP", "tftp");
+/**
+ * One UploadSpecification instance for all types of uploads
+ */
+public class UploadSpecification extends BeanEnum {
 
-    private String m_label;
-    private String m_preferredDeliveryId;
-    private UploadDestination m_fileDelivery;
-    public UploadSpecification(String manfacturerId) {
-        super(manfacturerId);
+    public static final UploadSpecification UNMANAGED = new UploadSpecification("upload", 
+            "unmanagedPhone", "Unmanaged TFTP");
+
+    public UploadSpecification(String beanId, String label) {
+        super(beanId, label);
     }    
-    public UploadSpecification(String manfacturerId, String label, String preferredDeliveryId) {
-        this(manfacturerId);
-        setLabel(label);
-        setPreferredDeliveryId(preferredDeliveryId);
+    public UploadSpecification(String beanId, String specificationId, String label) {
+        super(beanId, specificationId, label);
     }
-    public String getLabel() {
-        return m_label;
-    }
-    public void setLabel(String label) {
-        m_label = label;
-    }
-    public String getManufacturerId() {
-        return getName();
-    }
-    public String getPreferredDeliveryId() {
-        return m_preferredDeliveryId;
-    }
-    public void setPreferredDeliveryId(String preferredDeliveryId) {
-        m_preferredDeliveryId = preferredDeliveryId;
+    public String getSpecificationId() {
+        return getEnumId();
     }
     public static class UserType extends EnumUserType {
         public UserType() {
             super(UploadSpecification.class);
         }
     }
-    public static UploadSpecification getManufacturerById(String id) {
+    public static UploadSpecification getSpecificationById(String id) {
         return (UploadSpecification) Enum.getEnum(UploadSpecification.class, id);
     }
-    public void setFileDelivery(UploadDestination fileDelivery) {
-        m_fileDelivery = fileDelivery;        
-    }
-    public UploadDestination getFileDelivery() {
-        return m_fileDelivery;
+    public static List getSpecifications() {
+        return Enum.getEnumList(UploadSpecification.class);
     }
 }

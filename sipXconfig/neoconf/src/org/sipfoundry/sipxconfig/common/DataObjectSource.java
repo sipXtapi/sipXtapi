@@ -19,5 +19,4 @@ public interface DataObjectSource {
     /** Read object from data source by class and object id */
     // FIXME: change second parameter to serializable
     public Object load(Class c, Integer serializable);
-
 }

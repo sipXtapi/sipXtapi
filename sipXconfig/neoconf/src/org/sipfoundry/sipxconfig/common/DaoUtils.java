@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -172,6 +173,20 @@ public final class DaoUtils {
             Collection ids) {
         IdToBean idToBean = new IdToBean(hibernate, klass);
         return CollectionUtils.collect(ids, idToBean);
+    }
+
+    /**
+     * Returns array of beans loaded thru DataObjectSource
+     */
+    public static Object[] loadBeansArrayByIds(DataObjectSource source, Class beanClass, Collection ids) {
+        Object[] beans = (Object[]) Array.newInstance(beanClass, ids.size());
+        Iterator idsIterator = ids.iterator();
+        for (int i = 0; idsIterator.hasNext(); i++) {
+            Integer id = (Integer) idsIterator.next();
+            beans[i] = source.load(beanClass, id);
+        }
+        
+        return beans;
     }
 
     /**

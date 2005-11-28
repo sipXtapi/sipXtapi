@@ -29,7 +29,7 @@ public class UploadTestDb extends SipxDatabaseTestCase {
     }
     
     public void testLoadSettings() throws Exception {
-        Upload f = m_manager.newUpload(UploadSpecification.getManufacturerById("polycom"));
+        Upload f = m_manager.newUpload(UploadSpecification.getSpecificationById("uploadpolycom"));
         f.getSettings();
     }
     

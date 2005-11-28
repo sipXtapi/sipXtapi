@@ -36,6 +36,9 @@ import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
+import org.sipfoundry.sipxconfig.site.upload.EditUpload;
+import org.sipfoundry.sipxconfig.upload.UploadManager;
+import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 
 /**
  * TestPage page
@@ -69,6 +72,8 @@ public abstract class TestPage extends BasePage {
 
     public abstract ParkOrbitContext getParkOrbitContext();
 
+    public abstract UploadManager getUploadManager();
+    
     public abstract CoreContext getCoreContext();
 
     public abstract SipxReplicationContext getSipxReplicationContext();
@@ -253,6 +258,17 @@ public abstract class TestPage extends BasePage {
     public void validateEditPageProvider(IRequestCycle cycle) {
         EnumEditPageProvider provider = new EnumEditPageProvider();
         provider.validatePages(cycle);
+    }
+    
+    public void newUpload(IRequestCycle cycle) {
+        EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
+        page.setUploadId(null);
+        page.setUploadSpecification(UploadSpecification.UNMANAGED);
+        page.activatePageWithCallback(PAGE, cycle);
+    }
+    
+    public void resetUploadManager(IRequestCycle cycle_) {
+        getUploadManager().clear();
     }
 
 }

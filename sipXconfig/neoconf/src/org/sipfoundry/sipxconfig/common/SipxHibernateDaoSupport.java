@@ -21,6 +21,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -108,4 +109,8 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
         template.deleteAll(entities);
     }
 
+    protected ValueStorage clearUnsavedValueStorage(ValueStorage vs) {
+        // If no settings don't bother saving anything.
+        return vs != null && vs.isNew() && vs.size() == 0 ? null : vs;
+    }
 }

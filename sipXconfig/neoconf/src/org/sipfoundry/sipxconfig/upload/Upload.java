@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
+import java.io.File;
+
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
@@ -26,12 +29,54 @@ public class Upload extends BeanWithSettings {
     private String m_description;
     private UploadSpecification m_specification;
     private ModelFilesContext m_modelFilesContext;
+    private String m_beanId;
+    private UploadDestination m_destination;
+
+    public Upload() {
+        this(UploadSpecification.UNMANAGED);
+    }
+
+    protected Upload(String beanId) {
+        m_beanId = beanId;
+    }
+
+    protected Upload(UploadSpecification specification) {
+        m_beanId = specification.getBeanId();
+        m_specification = specification;
+    }
+
+    public UploadSpecification getSpecification() {
+        return m_specification;
+    }
+
+    /**
+     * @return ids used in PhoneFactory
+     */
+    public String getBeanId() {
+        return m_beanId;
+    }
+
+    /**
+     * Internal, do not call this method. Hibnerate property declared update=false, but still
+     * required method be defined.
+     */
+    public void setBeanId(String illegal_) {
+    }
+
+    public String getSpecificationId() {
+        return m_specification.getSpecificationId();
+    }
+    
+    public void setSpecificationId(String specificationId) {
+        m_specification = UploadSpecification.getSpecificationById(getBeanId() 
+                + StringUtils.defaultString(specificationId));
+    }
 
     public Setting getSettingModel() {
         Setting model = super.getSettingModel();
         if (model == null) {
             model = m_modelFilesContext.loadModelFile("upload.xml", m_specification
-                    .getManufacturerId(), null);
+                    .getSpecificationId(), m_specification.getDetails());
             setSettingModel(model);
         }
         return model;
@@ -46,7 +91,7 @@ public class Upload extends BeanWithSettings {
             SettingType type = setting.getType();
             if (type instanceof FileSetting) {
                 FileSetting fileType = (FileSetting) type;
-                String uploadDir = getSpecification().getFileDelivery().getUploadDirectory();
+                String uploadDir = getDestination().getUploadDirectory();
                 fileType.setDirectory(uploadDir);
             }
         }
@@ -68,14 +113,6 @@ public class Upload extends BeanWithSettings {
         m_description = description;
     }
 
-    public UploadSpecification getSpecification() {
-        return m_specification;
-    }
-
-    public void setSpecification(UploadSpecification specification) {
-        m_specification = specification;
-    }
-
     public ModelFilesContext getModelFilesContext() {
         return m_modelFilesContext;
     }
@@ -84,7 +121,29 @@ public class Upload extends BeanWithSettings {
         m_modelFilesContext = modelFilesContext;
     }
     
-    public void remove() {
-        // delete all files   
+    public void setDestination(UploadDestination destination) {
+        m_destination = destination;
     }
+    
+    public UploadDestination getDestination() {
+        return m_destination;
+    }
+
+    /**
+     * delete all files
+     */       
+    public void remove() {
+        getSettings().acceptVisitor(new DeleteUpload());
+    }
+    
+    private class DeleteUpload extends AbstractSettingVisitor {
+        public void visitSetting(Setting setting) {
+            SettingType type = setting.getType();
+            if (type instanceof FileSetting && setting.getValue() != null) {
+                String uploadDir = getDestination().getUploadDirectory();
+                File file = new File(uploadDir + File.separator + setting.getValue());
+                file.delete();
+            }
+        }
+    }    
 }

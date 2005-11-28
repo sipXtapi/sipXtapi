@@ -30,7 +30,6 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -153,11 +152,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void deleteLine(Line line) {
         line.setValueStorage(clearUnsavedValueStorage(line.getValueStorage()));
         getHibernateTemplate().delete(line);
-    }
-
-    ValueStorage clearUnsavedValueStorage(ValueStorage vs) {
-        // If no settings don't bother saving anything.
-        return vs != null && vs.isNew() && vs.size() == 0 ? null : vs;
     }
 
     public Line loadLine(Integer id) {

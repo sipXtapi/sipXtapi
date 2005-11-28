@@ -12,8 +12,10 @@
 package org.sipfoundry.sipxconfig.site;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.Properties;
 
@@ -293,12 +295,34 @@ public class SiteTestHelper {
         TestUtil.setSysDirProperties(sysProps, etcDirectory, args[2]);
 
         // overwrite several properties that have to have "real" values
+        sysProps.setProperty("localTftp.uploadDirectory", systemDirectory + "/tftproot");
         sysProps.setProperty("vxml.promptsDirectory", systemDirectory + "/prompts");
         sysProps.setProperty("vxml.scriptsDirectory", systemDirectory + "/aa_vxml");
         sysProps.setProperty("orbitsGenerator.audioDirectory", systemDirectory
                 + "/parkserver/music");
 
         TestUtil.saveSysDirProperties(sysProps, args[0]);
+    }
+    
+    private static Properties s_sysProps;
+    
+    public static String getTftpDirectory() {
+        return getSystemProperties().getProperty("localTftp.uploadDirectory");
+    }
+    
+    private static Properties getSystemProperties() {
+        if (s_sysProps == null) {
+            s_sysProps = new Properties();
+            File sipxconfig = new File(getBuildDirectory() 
+                    + "/tests/war/WEB-INF/classes/sipxconfig.properties");
+            try {
+                InputStream sipxconfigSteam = new FileInputStream(sipxconfig);
+                    s_sysProps.load(sipxconfigSteam);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return s_sysProps;
     }
 
     /**

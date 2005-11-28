@@ -30,5 +30,9 @@ public interface UploadManager extends DataObjectSource {
     public List getUpload();
     
     public Upload newUpload(UploadSpecification manufacturer);
-
+    
+    /**
+     * testing only
+     */
+    public void clear();
 }

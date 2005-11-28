@@ -4,6 +4,7 @@
     <upload 
         upload_id="1000" 		
         name="test upload"
+        bean_id="upload"
 		    specification_id="unmanagedPhone"
         description="unittest upload"/>
 </dataset>

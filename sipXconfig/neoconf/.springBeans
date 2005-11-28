@@ -11,6 +11,7 @@
 		<config>src/org/sipfoundry/sipxconfig/conference/conference.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/search/search.beans.xml</config>
+		<config>src/org/sipfoundry/sipxconfig/upload/upload.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/common/common.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/login/login.beans.xml</config>
 		<config>src/org/sipfoundry/sipxconfig/job/job.beans.xml</config>

@@ -39,6 +39,9 @@
     <property-specification name="indexManager" 
     	type="org.sipfoundry.sipxconfig.search.IndexManager" 
     	initial-value="global.indexManager"/>
+    <property-specification name="uploadManager" 
+    	type="org.sipfoundry.sipxconfig.upload.UploadManager" 
+    	initial-value="global.uploadManager"/>
 
     <component id="resetDialPlans" type="DirectLink">
         <binding name="listener" expression="listeners.resetDialPlans"/>
@@ -62,6 +65,12 @@
         <binding name="listener" expression="listeners.newGroup"/>
         <static-binding name="parameters" value="phone"/>
     </component> 
+    <component id="newUpload" type="DirectLink">
+        <binding name="listener" expression="listeners.newUpload"/>
+    </component>
+    <component id="resetUpload" type="DirectLink">
+        <binding name="listener" expression="listeners.resetUploadManager"/>
+    </component>
     <component id="newUserGroup" type="DirectLink">
         <binding name="listener" expression="listeners.newGroup"/>
         <static-binding name="parameters" value="user"/>

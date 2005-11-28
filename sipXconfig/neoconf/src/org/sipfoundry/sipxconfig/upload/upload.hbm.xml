@@ -3,17 +3,18 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.upload" default-lazy="false">
   
-  <class name="Upload" table="upload">
+  <class name="Upload" table="upload" discriminator-value="upload">
     <id name="id" column="upload_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">upload_seq</param>
       </generator>
     </id>
+    <discriminator column="bean_id"/>
     <property name="name"/>
+    <property name="beanId" insert="false" update="false"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-    <property name="specification" column="specification_id" 
-      type="org.sipfoundry.sipxconfig.upload.UploadSpecification$UserType"/>
+    <property name="specificationId"/>
     <property name="description"/>
   </class>
 

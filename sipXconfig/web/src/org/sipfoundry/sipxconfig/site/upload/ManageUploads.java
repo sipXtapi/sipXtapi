@@ -17,7 +17,10 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.upload.Upload;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 
@@ -32,6 +35,8 @@ public abstract class ManageUploads extends BasePage implements PageRenderListen
     public abstract UploadManager getUploadManager();
     
     public abstract UploadSpecification getSelectedSpecification();
+    
+    public abstract SelectMap getSelections();
     
     public void editUpload(IRequestCycle cycle) {
         Integer uploadId = (Integer) TapestryUtils.assertParameter(Integer.class, 
@@ -49,6 +54,13 @@ public abstract class ManageUploads extends BasePage implements PageRenderListen
     }
     
     public void deleteUpload(IRequestCycle cycle_) {
+        Upload[] uploads = (Upload[]) DaoUtils.loadBeansArrayByIds(getUploadManager(), Upload.class, 
+                getSelections().getAllSelected());
+        for (int i = 0; i < uploads.length; i++) {
+            getUploadManager().deleteUpload(uploads[i]);
+        }
+        // force reload
+        setUpload(null);
     }
 
     /** stub: side-effect of PageRenderListener */

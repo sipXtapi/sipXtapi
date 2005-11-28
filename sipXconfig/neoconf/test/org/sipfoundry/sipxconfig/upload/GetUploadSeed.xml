@@ -4,9 +4,11 @@
     <upload 
         upload_id="1000" 		
         name="ozzie"
+        bean_id="upload"
 		    specification_id="unmanagedPhone"/>
     <upload 
         upload_id="1001" 		
         name="harriot"
+        bean_id="upload"
 		    specification_id="unmanagedPhone"/>
 </dataset>

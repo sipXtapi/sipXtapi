@@ -116,6 +116,12 @@
     singleton="false" 
     parent="unmanagedPhone">
   </bean>
+  <bean id="polycomFirmware"
+    class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <constructor-arg value="upload"/>
+    <constructor-arg value="polycom"/>
+    <constructor-arg value="Polycom Soundpoint Firmware"/>
+  </bean>
   <!-- Cisco 7940, 7960 -->
   <bean id="ciscoIp" 
     class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" 
