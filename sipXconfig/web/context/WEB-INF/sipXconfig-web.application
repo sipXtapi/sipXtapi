@@ -12,6 +12,11 @@
     
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
     <library id="checkboxes" specification-path="/org/mb/tapestry/checkboxes/checkboxes.library"/>
+	<extension name="org.apache.tapestry.multipart-decoder"
+			class="org.apache.tapestry.multipart.DefaultMultipartDecoder">
+		<!-- 20MB for no particular reason. Polycom firmware was 11MB -->
+		<configure property-name="maxSize" type="double" value="20480000"/>
+	</extension>
 
     <!--
       -  P A G E S 
