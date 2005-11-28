@@ -74,6 +74,8 @@ public:
      */
     virtual UtlContainableType getContainableType() const;
          
+    static UtlContainableType TYPE ;    /**< Class type used for runtime checking */ 
+
 /* ============================ INQUIRY =================================== */
 
     /**
@@ -84,10 +86,8 @@ public:
      */
     virtual int compareTo(UtlContainable const *) const ;    
 
-
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    static UtlContainableType TYPE ;    /** < Class type used for runtime checking */ 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

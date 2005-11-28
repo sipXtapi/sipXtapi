@@ -46,6 +46,8 @@ public:
      */
     virtual UtlContainableType getContainableType() const = 0 ;
 
+    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
+
     /// Calculate a hash code for this object.
     virtual unsigned hash() const = 0 ;
     /**<
@@ -148,7 +150,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    static const UtlContainableType TYPE ;    /** < Class type used for runtime checking */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

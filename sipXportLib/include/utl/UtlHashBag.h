@@ -123,6 +123,8 @@ class UtlHashBag : public UtlContainer
     */
    virtual UtlContainableType getContainableType() const;
 
+   static UtlContainableType TYPE; ///< the type constant for this class
+
    /// The current number of buckets in the hash.
    size_t numberOfBuckets() const
       {
@@ -158,8 +160,6 @@ class UtlHashBag : public UtlContainer
    size_t    mElements;   ///< number of UtlContainable objects in this UtlHashMap
    size_t    mBucketBits; ///< number of bits used to index the buckets
    UtlChain* mpBucket;    ///< an array of 2**n UtlChain elements, each used as a list header.
-
-   static UtlContainableType TYPE;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
