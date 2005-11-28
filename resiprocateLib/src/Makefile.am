@@ -6,7 +6,9 @@ include $(top_builddir)/config/sipXcommon.mak
 
 lib_LTLIBRARIES = libsipXresiprocateLib.la
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = \
+	-I$(top_builddir)/include \
+	-I$(top_srcdir)/include
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
