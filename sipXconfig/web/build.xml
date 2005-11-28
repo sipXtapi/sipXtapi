@@ -221,6 +221,7 @@
       <fileset file="${commons-discovery.jar}"/>
       <fileset file="${activation.jar}"/>
       <fileset file="${axis-schema.jar}"/>
+      <fileset file="${acegi-security.jar}"/>
     </copy>
   </target>	
 	
