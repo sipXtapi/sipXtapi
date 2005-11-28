@@ -21,6 +21,7 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define TEST_DEBUG
 const char* defaultPublicCertificateFile = SIPX_CONFDIR "/ssl/ssl.crt";
 const char* defaultPrivateKeyFile        = SIPX_CONFDIR "/ssl/ssl.key";
 
@@ -369,6 +370,11 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
                          )
 {
    bool peerCertTrusted = false;
+
+#  ifdef TEST_DEBUG
+   UtlString debugMsg;
+#  endif
+
    if (altNames)
    {
       altNames->destroyAll();
@@ -391,16 +397,25 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
          {
             peerCertTrusted = true;
          
-            if (commonName)
-            {
-               char* subjectStr = X509_NAME_oneline(X509_get_subject_name(peer_cert),NULL,0);
+            char* subjectStr = X509_NAME_oneline(X509_get_subject_name(peer_cert),NULL,0);
 
-               if (subjectStr)
+#           ifdef TEST_DEBUG
+            debugMsg.append("OsSSL::peerIdentity verified");
+#           endif
+            if (subjectStr)
+            {
+               // this should always be true, I think...
+               if (commonName)
                {
-                  // this should always be true, I think...
                   commonName->append(subjectStr);
-                  OPENSSL_free(subjectStr);               
                }
+
+#              ifdef TEST_DEBUG
+               debugMsg.append(" '");
+               debugMsg.append(subjectStr);
+               debugMsg.append("'");
+#              endif
+               OPENSSL_free(subjectStr);               
             }
             
             if (altNames)
@@ -408,6 +423,7 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
                // Look for the subjectAltName attributes      
                GENERAL_NAMES* names;
                names = (GENERAL_NAMES*)X509_get_ext_d2i(peer_cert, NID_subject_alt_name, NULL, NULL);
+
                for(int i = 0; i < sk_GENERAL_NAME_num(names); i++)
                {  
                   GENERAL_NAME* name = sk_GENERAL_NAME_value(names, i);
@@ -419,6 +435,11 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
                   case GEN_URI:
                      uri = name->d.uniformResourceIdentifier;
                      altNames->append(new UtlString((const char*)(uri->data),uri->length));
+#                    ifdef TEST_DEBUG
+                     debugMsg.append(" '");
+                     debugMsg.append((const char*)(uri->data),uri->length);
+                     debugMsg.append("'");
+#                    endif
                      break;
 
                   default:
@@ -426,11 +447,22 @@ bool OsSSL::peerIdentity( SSL*       connection ///< SSL connection to be descri
                      break;
                   }
                }
-               sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free);
+            sk_GENERAL_NAME_pop_free(names, GENERAL_NAME_free);
             }
+#           ifdef TEST_DEBUG
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "%s", debugMsg.data());
+#           endif
+         }
+         else
+         {
+            OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSL::peerIdentity peer not validated");
          }
 
          X509_free(peer_cert);
+      }
+      else
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSL::peerIdentity no peer certificate");
       }
    }
    else

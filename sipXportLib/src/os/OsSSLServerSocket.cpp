@@ -101,14 +101,17 @@ OsConnectionSocket* OsSSLServerSocket::accept()
       if (clientSocket < 0)
       {
          int error = OsSocketGetERRNO();
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, 
-                       "OsSSLServerSocket: accept call failed with error: %d=%x",
-                       error, error);
-         socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+         if (0 != error)
+         {
+            OsSysLog::add(FAC_KERNEL, PRI_ERR, 
+                          "OsSSLServerSocket: accept call failed with error: %d=%x",
+                          error, error);
+            socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+         }
       }
       else
       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, 
+         OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
                        "OsSSLServerSocket::accept socket accepted: %d",
                        clientSocket);
 
