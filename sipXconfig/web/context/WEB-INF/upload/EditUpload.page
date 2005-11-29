@@ -23,12 +23,15 @@
     
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
  
+    <component id="pageLabel" type="Insert">
+        <binding name="value" expression="upload.specification.label"/>
+    </component>
     <component id="uploadForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>    
     <component id="settingsFieldset" type="SettingsFieldset">
         <binding name="settings" expression="upload.settings"/>
-        <binding name="renderGroupTitle" expression="false"/>
+        <binding name="renderGroupTitle" expression="true"/>
     </component>
     <component id="nameDescriptionEdit" type="ItemCommon">
         <static-binding name="useExtension" value="false"/>

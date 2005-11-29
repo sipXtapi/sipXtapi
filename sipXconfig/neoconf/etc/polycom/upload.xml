@@ -12,8 +12,13 @@
       <contentType>application/binary</contentType>
     </file>
   </type>
-  <group name="files">
-    <label>Files</label>
+  <type id="xml">
+    <file>
+      <contentType>text/xml</contentType>
+    </file>
+  </type>
+  <group name="firmware">
+    <label>Firmware</label>
     <description>Polycom Support only distributes firmware upgrades to certified resellers. It 
       might be possible though to find the necessary files on the Internet. Otherwise, please 
       contact your local reseller.</description>
@@ -41,6 +46,15 @@
       <type refid="binary"/>
       <description>If using BootROM version prior to 2.6.1 you will also need the file 
         bootrom.ver.</description>
+    </setting>
+  </group>
+  <group name="dialing">
+    <label>Dialing</label>
+    <setting name="directory.xml">
+      <label>directory.xml</label>
+      <type refid="xml"/>
+      <description>Directory of common numbers to dial. See Polycom manual for file format
+        details.</description>
     </setting>
   </group>
 </model>
