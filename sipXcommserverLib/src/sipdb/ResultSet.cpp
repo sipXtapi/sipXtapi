@@ -13,8 +13,8 @@
 
 
 // APPLICATION INCLUDES
-#include "sipdb/ResultSet.h"
 #include "utl/UtlHashMapIterator.h"
+#include "sipdb/ResultSet.h"
 
 // DEFINES
 // MACROS
@@ -38,7 +38,7 @@ ResultSet::~ResultSet()
 int
 ResultSet::getSize() const
 {
-    return mCachedRows.entries();
+    return entries();
 }
 
 void
@@ -46,19 +46,19 @@ ResultSet::destroyAll()
 {
     // the pRecord is actually a UtlHashMap
     UtlHashMap* pRecord;
-    while ( mCachedRows.entries() > 0 )
+    while (pRecord = dynamic_cast<UtlHashMap*>(get()))
     {
-        pRecord = (UtlHashMap*)mCachedRows.first();
         pRecord->destroyAll();
-        mCachedRows.destroy( pRecord );
+        delete pRecord;
     }
 }
 
 void
 ResultSet::clear()
 {
-    // finally empty the list
-    mCachedRows.removeAll();
+   // I think this would actually be a bug if there was ever anything here to clear,
+   // so I'm going to treat is as a check rather than clearing it out.
+   assert(isEmpty());
 }
 
 OsStatus 
@@ -68,12 +68,13 @@ ResultSet::getIndex(
 {
     // empty out the record before populating it
     // they are not mine to destroy so don't destry them
-    rRecord.removeAll();
+    assert(rRecord.isEmpty());
+    // :TODO: rRecord.removeAll();
 
     OsStatus result = OS_FAILED;
-    if ((index >= 0) && (index < ((int)(mCachedRows.entries()))))
+    UtlHashMap *m;
+    if (m = dynamic_cast<UtlHashMap*>(at(index)))
     {
-        UtlHashMap *m = (UtlHashMap*)mCachedRows.at(index);
         m->copyInto(rRecord);
         result = OS_SUCCESS;
     }
@@ -92,5 +93,5 @@ ResultSet::addValue( const UtlHashMap& record )
     {
         pNewRecord->insertKeyAndValue(itor.key(), itor.value()) ;
     }
-    mCachedRows.append(pNewRecord) ;
+    append(pNewRecord) ;
 }

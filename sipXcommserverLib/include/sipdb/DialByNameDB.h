@@ -32,7 +32,7 @@ class dbDatabase;
 class dbFieldDescriptor;
 class UtlHashMap;
 class ResultSet;
-class UtlDList;
+class UtlSList;
 
 /**
  * This class implements the DialByName database abstract class
@@ -79,7 +79,7 @@ protected:
 
     UtlBoolean getDigitStrings (
         const UtlString& displayName,
-        UtlDList& dtmfStrings ) const;
+        UtlSList& dtmfStrings ) const;
 
     // implicit loader
     OsStatus load() const;

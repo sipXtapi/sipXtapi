@@ -225,7 +225,7 @@ DialByNameDB::insertRow ( const Url& contact ) const
         // a contactIdentity and a contactDisplayName
         if ( !identity.isNull() && !displayName.isNull() )
         {
-            UtlDList dtmfStrings;
+            UtlSList dtmfStrings;
             getDigitStrings ( displayName, dtmfStrings );
             if ( !dtmfStrings.isEmpty() )
             {
@@ -268,14 +268,14 @@ DialByNameDB::insertRow ( const Url& contact ) const
 UtlBoolean 
 DialByNameDB::getDigitStrings (
     const UtlString& displayName, 
-    UtlDList& rDTMFStrings ) const
+    UtlSList& rDTMFStrings ) const
 {
     UtlString lowerString = displayName;
     lowerString.toLower();
     lowerString = lowerString.strip(UtlString::both, '"');
     UtlTokenizer next( lowerString );
     UtlString token;
-    UtlDList names;
+    UtlSList names;
 
     // Parse the Display name into a list of names
     // The algorithm for breaking up the string is as follows

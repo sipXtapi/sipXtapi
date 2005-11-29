@@ -34,6 +34,7 @@ const int XML_RPC_TIMEOUT = 20*1000;
 // TYPEDEFS
 
 // FORWARD DECLARATIONS
+class ResultSetRpcTest; // unit test - see sipXcommserverLib/src/test/ResultSetRpcTest.cpp
 
 /**
  * This object is used to create a XML-RPC request to a specific remote XML-RPC
@@ -106,7 +107,8 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-
+   friend class ResultSetRpcTest;
+   
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 

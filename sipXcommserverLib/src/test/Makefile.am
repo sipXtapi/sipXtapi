@@ -14,6 +14,7 @@ testsuite_LDADD = \
    ../libsipXcommserver.la
 
 testsuite_SOURCES = \
+    ResultSetRpcTest.cpp \
     UrlMappingTest.cpp
 
 EXTRA_DIST = \
