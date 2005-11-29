@@ -33,6 +33,7 @@
       <binding name="value" expression="selectedAction"/>
       <binding name="renderer" expression="beans.propertyRenderer"/>
   </component>
+  
   <component id="ifRenderActions" type="contrib:FormConditional">
       <binding name="condition" expression="actionModel.optionCount > 0"/>
   </component>

@@ -35,7 +35,6 @@ public class ManagePhonesTestUi extends WebTestCase {
         m_helper.seedPhone(1);
 
         clickLink("ManagePhones");
-        dumpResponse(System.err);
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         checkCheckbox("checkbox");
         clickButton("phone:sendProfiles");
@@ -74,14 +73,14 @@ public class ManagePhonesTestUi extends WebTestCase {
         int allTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
 
         // empty group, no users
-        setFormElement("groupFilter", "0");
+        selectOption("groupFilter", "seedGroup0");
         SiteTestHelper.submitNoButton(tester);
         SiteTestHelper.assertNoException(tester);
         int emptyTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
         assertTrue(allTableCount > emptyTableCount);
 
         // back to all users
-        setFormElement("groupFilter", "");
+        selectOption("groupFilter", "- all -");
         SiteTestHelper.submitNoButton(tester);
         int allTableCountAgain = SiteTestHelper.getRowCount(tester, "phone:list");
         assertEquals(allTableCount, allTableCountAgain);

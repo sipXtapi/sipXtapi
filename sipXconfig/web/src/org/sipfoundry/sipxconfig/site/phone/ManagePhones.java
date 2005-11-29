@@ -60,11 +60,13 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public abstract String getQueryText();
 
+    public abstract boolean getSearchMode();
+
     public abstract SearchManager getSearchManager();
 
     public IBasicTableModel getTableModel() {
-        String queryText = getQueryText();
-        if (StringUtils.isBlank(queryText)) {
+        String queryText = getQueryText();        
+        if (!getSearchMode() || StringUtils.isBlank(queryText)) {
             return new PhoneTableModel(getPhoneContext(), getGroupId());
         }
         ObjectSourceDataSqueezer squeezer = new PhoneDataSqueezer(getPhoneContext());

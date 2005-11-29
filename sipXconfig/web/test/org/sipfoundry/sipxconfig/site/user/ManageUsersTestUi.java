@@ -48,21 +48,21 @@ public class ManageUsersTestUi extends WebTestCase {
     
     public void testGroupFilter() throws Exception {
         SiteTestHelper.seedUser(tester);
-        SiteTestHelper.seedGroup(tester, "NewPhoneGroup", 1);
+        SiteTestHelper.seedGroup(tester, "NewUserGroup", 1);
         clickLink("ManageUsers");
         
         // all users
         int allTableCount = SiteTestHelper.getRowCount(tester, "user:list");
         
         // empty group, no users
-        setFormElement("groupFilter", "0");
+        selectOption("groupFilter", "seedGroup0");
         SiteTestHelper.submitNoButton(tester);
         SiteTestHelper.assertNoException(tester);
         int emptyTableCount = SiteTestHelper.getRowCount(tester, "user:list");
         assertTrue(allTableCount > emptyTableCount);
 
         // back to all users
-        setFormElement("groupFilter", "");
+        selectOption("groupFilter", "- all -");
         SiteTestHelper.submitNoButton(tester);
         int allTableCountAgain = SiteTestHelper.getRowCount(tester, "user:list");
         assertEquals(allTableCount, allTableCountAgain);

@@ -18,6 +18,12 @@
 	<property-specification name="searchString"
         persistent="yes" 
 		type="java.lang.String"/>
+	<property-specification name="queryText"
+        persistent="yes" 
+		type="java.lang.String"/>
+	<property-specification name="searchMode"
+        persistent="yes" 
+		type="boolean"/>
 
     <!--
 	  - B E A N S
@@ -65,6 +71,8 @@
     <component id="groupFilter" type="GroupFilter">
         <binding name="selectedGroupId" expression="groupId"/>
         <binding name="groups" expression="coreContext.groups"/>
+		<binding name="queryText" expression="queryText"/>
+        <binding name="searchMode" expression="searchMode"/>        
     </component>
 	<component id="userTable" type="UserTable">
         <binding name="userListener" expression="listeners.editUser"/>

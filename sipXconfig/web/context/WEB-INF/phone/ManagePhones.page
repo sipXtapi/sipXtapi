@@ -11,8 +11,12 @@
         persistent="yes" 
 		type="java.lang.Integer"/>
 	<property-specification name="queryText"
-        persistent="yes" 
-		type="java.lang.String"/>    
+    	persistent="yes"
+		type="java.lang.String"/>
+	<property-specification name="searchMode"
+    	persistent="yes"
+		type="boolean"
+    	initial-value="false"/>    
 	<property-specification name="currentLine" 
 		type="org.sipfoundry.sipxconfig.phone.Line"/>
    	<property-specification name="selections" 
@@ -31,7 +35,6 @@
 	  - B E A N S
 	  -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    
 	<!--
 	  - C O M P O N E N T S
 	  -->
@@ -87,9 +90,8 @@
     <component id="groupFilter" type="GroupFilter">
         <binding name="selectedGroupId" expression="groupId"/>
         <binding name="groups" expression="phoneContext.groups"/>
-    </component>
-    <component id="queryText" type="TextField">
-        <binding name="value" expression="queryText"/>
+        <binding name="queryText" expression="queryText"/>
+        <binding name="searchMode" expression="searchMode"/>
     </component>
     <component id="groupActions" type="GroupActions">
         <binding name="selectedIds" expression="selections.allSelected"/>
