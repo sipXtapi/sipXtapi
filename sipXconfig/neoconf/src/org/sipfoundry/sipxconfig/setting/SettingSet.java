@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -19,7 +20,7 @@ import java.util.LinkedHashMap;
  * Meta information about a group of settings, can contain nested SettingModels. Order is
  * preserved
  */
-public class SettingSet extends SettingImpl implements Cloneable {
+public class SettingSet extends SettingImpl implements Cloneable, Serializable {
 
     private LinkedHashMap m_children = new LinkedHashMap();
 

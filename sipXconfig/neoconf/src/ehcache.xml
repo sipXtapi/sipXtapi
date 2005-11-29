@@ -10,4 +10,10 @@
         timeToLiveSeconds="120"
         diskPersistent="false"
         diskExpiryThreadIntervalSeconds="120"/>
+    <cache name="org.taha.cache.METHOD_CACHE"
+        maxElementsInMemory="30"
+        eternal="false"
+        timeToIdleSeconds="300"
+        timeToLiveSeconds="300"
+        overflowToDisk="false"/>
 </ehcache>
