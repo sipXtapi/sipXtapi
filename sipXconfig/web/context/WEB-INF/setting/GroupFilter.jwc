@@ -43,6 +43,11 @@
         <binding name="value" expression="queryText"/>
     </component>
     
+    <component id="searchButton" type="Submit">
+        <message-binding name="label" key="button.search"/>
+	</component>        
+    
+    
     <component id="renderQuery" type="contrib:FormConditional">
         <binding name="condition" expression="searchMode"/>
     </component>

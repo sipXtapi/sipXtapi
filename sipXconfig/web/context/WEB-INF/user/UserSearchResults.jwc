@@ -26,6 +26,11 @@
         required="no" 
         direction="in"
         default-value="null"/>
+    <parameter name="searchMode" 
+        type="boolean"
+        required="no" 
+        direction="in"
+        default-value="false"/>    
     
     <!--
       - P R O P E R T I E S

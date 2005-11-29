@@ -36,18 +36,6 @@ public abstract class ManageUsers extends BasePage {
 
     public abstract void setGroupId(Integer groupId);
 
-    public abstract String getSearchString();
-
-    public abstract void setSearchString(String searchString);
-
-    public void searchUsers(IRequestCycle cycle_) {
-        // do nothing, page should refresh when rendering
-    }
-
-    public void clearSearch(IRequestCycle cycle_) {
-        setSearchString(null);
-    }
-
     public void addUser(IRequestCycle cycle) {
         // Prep the NewUser page with a null userId so a new user will be created
         NewUser page = (NewUser) cycle.getPage(NewUser.PAGE);
@@ -102,5 +90,4 @@ public abstract class ManageUsers extends BasePage {
         model.setCollection(actions);
         return model;
     }
-
 }

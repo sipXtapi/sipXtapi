@@ -15,9 +15,6 @@
 	<property-specification name="groupId"
         persistent="yes" 
 		type="java.lang.Integer"/>
-	<property-specification name="searchString"
-        persistent="yes" 
-		type="java.lang.String"/>
 	<property-specification name="queryText"
         persistent="yes" 
 		type="java.lang.String"/>
@@ -46,25 +43,6 @@
 	<component id="userManagement" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>
-    <component id="searchLabel" type="Insert">
-        <message-binding name="value" key="label.searchField"/>
-    </component>
-    <component id="searchField" type="ValidField">
-        <binding name="value" expression="searchString"/>
-        <binding name="validator" expression="beans.noopValidator"/>
-        <message-binding name="displayName" key="label.search"/>
-    </component>
-    <component id="searchDescription" type="Insert">
-        <message-binding name="value" key="description.searchField"/>
-    </component>
-    <component id="search" type="Submit">
-        <binding name="listener" expression="listeners.searchUsers"/>
-        <message-binding name="label" key="label.search"/>        
-    </component>
-    <component id="clearSearch" type="Submit">
-        <binding name="listener" expression="listeners.clearSearch"/>
-        <message-binding name="label" key="label.clearSearch"/>        
-    </component>
     <component id="groupLabel" type="Insert">
         <message-binding name="value" key="label.group"/>
     </component>
@@ -77,7 +55,8 @@
 	<component id="userTable" type="UserTable">
         <binding name="userListener" expression="listeners.editUser"/>
         <binding name="groupId" expression="groupId"/>
-        <binding name="searchString" expression="searchString"/>
+        <binding name="searchString" expression="queryText"/>
+        <binding name="searchMode" expression="searchMode"/>
 	</component>
     <component id="delete" type="Submit">
         <binding name="listener" expression="listeners.deleteUsers"/>
