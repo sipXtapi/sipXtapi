@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import junit.framework.AssertionFailedError;
@@ -40,14 +39,18 @@ public class WhackerTest extends TestCase {
     }
 
     public void testWhacker() throws Exception {
-        // Set the WhackerTask to run very soon so we don't get bored waiting for it
+        // Set the WhackerTask to run right away so we don't get bored waiting for it.
+        // Use the allowStaleDate test hack, otherwise the date will land in the past 
+        // and get pushed to the future.
         Date date = new Date();
-        date.setTime(date.getTime() + 500);    // add 1/2 second
-        DateFormat df = new SimpleDateFormat(Whacker.TEST_DATE_FORMAT);
+        date.setTime(date.getTime());
+        DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
         m_whacker.setTimeOfDay(df.format(date));
+        m_whacker.setAllowStaleDate(true);
         
         // Run the Whacker, simulating app startup
         m_whacker.setEnabled(true);            // in case it is disabled via properties file
+        m_whacker.setScheduledDay(ScheduledDay.EVERYDAY.getName());
         m_whacker.onApplicationEvent(new ApplicationInitializedEvent(this));
         
         // Wait for a second to make sure the task has run, then verify

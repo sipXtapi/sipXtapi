@@ -32,13 +32,15 @@ public class DailyBackupSchedule extends BeanWithId {
     public static final DateFormat LOCAL_TIME_OF_DAY_FORMAT = DateFormat
             .getTimeInstance(DateFormat.SHORT);
 
+    static final long ONCE_A_DAY = 1000 * 60 * 60 * 24;
+
+    static final int DAYS_PER_WEEK = 7;
+    
+    static final long ONCE_A_WEEK = ONCE_A_DAY * DAYS_PER_WEEK;
+
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
 
     private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
-
-    private static final long ONCE_A_DAY = 1000 * 60 * 60 * 24;
-    
-    private static final long ONCE_A_WEEK = ONCE_A_DAY * 7;
 
     private boolean m_enabled;
 
@@ -47,6 +49,8 @@ public class DailyBackupSchedule extends BeanWithId {
     private ScheduledDay m_day = ScheduledDay.EVERYDAY;
 
     private BackupPlan m_backupPlan;
+    
+    private boolean m_allowStaleDate;     // for testing only
     
     static {
         // Storing dates in GMT keeps times consistent if timezones change
@@ -87,6 +91,11 @@ public class DailyBackupSchedule extends BeanWithId {
         m_timeOfDay = timeOfDay;
     }
     
+    // for testing only
+    void setAllowStaleDate(boolean allowStaleDate) {
+        m_allowStaleDate = allowStaleDate;
+    }
+    
     Date getTimerDate() {
         
         // convert thru string because setting timezone just shift time and
@@ -107,7 +116,16 @@ public class DailyBackupSchedule extends BeanWithId {
                 when.set(Calendar.DAY_OF_WEEK, getScheduledDay().getDayOfWeek());
             }
             
-            return when.getTime();        
+            // Ensure that the scheduled time is in the future, not the past.
+            // Otherwise the timer will fire immediately, not at the desired time.
+            // (The allowStaleDate flag suppresses this behavior, only for testing purposes.)
+            Date timerDate = when.getTime();
+            if (timerDate.getTime() < System.currentTimeMillis() && !m_allowStaleDate) {
+                // The scheduled time is in the past.  Add one timer period to push it into the future.
+                timerDate.setTime(timerDate.getTime() + getTimerPeriod());
+            }
+            
+            return timerDate;        
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }        

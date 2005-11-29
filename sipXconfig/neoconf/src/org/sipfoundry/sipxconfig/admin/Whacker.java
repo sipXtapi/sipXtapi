@@ -13,13 +13,13 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
@@ -30,21 +30,22 @@ import org.springframework.context.ApplicationListener;
 public class Whacker implements ApplicationListener {
     class WhackerTask extends TimerTask {
         public void run() {
+            LOG.info("Restarting the media server");
             m_processContext.manageServices(SERVICE_NAMES, SipxProcessContext.Command.RESTART);
         }
     }
 
-    static final String TEST_DATE_FORMAT = "HH:mm:ss:SS a"; // for testing only
     static final Process[] SERVICE_NAMES = {
-        Process.MEDIA_SERVER, Process.STATUS
+        Process.MEDIA_SERVER
     };
+    private static final Log LOG = LogFactory.getLog(Whacker.class);
 
     private SipxProcessContext m_processContext;
-
     private boolean m_enabled = true;
     private String m_timeOfDay = "3:42 AM"; // in the local timezone
     private String m_scheduledDay = "Sunday";
     private Timer m_timer;
+    private boolean m_allowStaleDate;       // for testing only
 
     public void setProcessContext(SipxProcessContext processContext) {
         m_processContext = processContext;
@@ -73,6 +74,11 @@ public class Whacker implements ApplicationListener {
     public void setTimeOfDay(String timeOfDay) {
         m_timeOfDay = timeOfDay;
     }
+    
+    // for testing only
+    void setAllowStaleDate(boolean allowStaleDate) {
+        m_allowStaleDate = allowStaleDate;
+    }
 
     public void onApplicationEvent(ApplicationEvent event) {
         // No need to register listener, all beans that implement listener interface are
@@ -87,6 +93,7 @@ public class Whacker implements ApplicationListener {
             m_timer.cancel();
         }
         if (!isEnabled()) {
+            LOG.info("Whacker is disabled");
             return;
         }
         m_timer = new Timer(false); // daemon, dies with main thread
@@ -101,7 +108,9 @@ public class Whacker implements ApplicationListener {
         sched.setEnabled(true);
         sched.setScheduledDay(getScheduledDayEnum());
         sched.setTimeOfDay(getTimeOfDayValue());
+        sched.setAllowStaleDate(m_allowStaleDate);  // for testing only
         sched.schedule(m_timer, new WhackerTask());
+        LOG.info("Whacker is scheduled: " + sched.getScheduledDay().getName() + ", " + getTimeOfDay());
     }
 
     /** Convert the ScheduledDayName string to a ScheduledDay and return it */
@@ -120,13 +129,6 @@ public class Whacker implements ApplicationListener {
      */
     private Date getTimeOfDayValue() {
         DateFormat df = DateFormat.getTimeInstance(DateFormat.SHORT);
-
-        // Purely for testing purposes, allow strings that specify time with great precision.
-        // Do so by counting colons, which is locale-specific, but that's OK for testing.
-        if (StringUtils.countMatches(getTimeOfDay(), ":") > 1) {
-            df = new SimpleDateFormat(TEST_DATE_FORMAT);
-        }
-
         df.setTimeZone(TimeZone.getTimeZone("GMT"));
         Date date = null;
         try {

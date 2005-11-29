@@ -82,21 +82,31 @@ public class BackupPlanTest extends TestCase {
         assertEquals("20050501", m_backup.getOldestPurgableBackup(new String[] { "20050501", "20050502"}));        
     }
     
-    public void testTimer() throws Exception {        
+    public void testDailyTimer() throws Exception {
+        checkTimer(ScheduledDay.EVERYDAY, DailyBackupSchedule.ONCE_A_DAY);
+    }
+    
+    public void testWeeklyTimer() throws Exception {
+        checkTimer(ScheduledDay.SUNDAY, DailyBackupSchedule.ONCE_A_WEEK);
+    }
+    
+    private void checkTimer(ScheduledDay day, long timerPeriod) {
         BackupPlan plan = new BackupPlan();
         DailyBackupSchedule schedule = new DailyBackupSchedule();
         schedule.setEnabled(true);
+        schedule.setScheduledDay(day);
         plan.addSchedule(schedule);
         TimerTask task = plan.getTask("root", "bin");
         
         MockControl timerControl = MockClassControl.createStrictControl(Timer.class);
         Timer timer = (Timer) timerControl.getMock();
-        Date d = schedule.getTimerDate();        
-        timer.schedule(task, d, 1000 * 60 * 60 * 24);
+        Date d = schedule.getTimerDate();
+        assertTrue(d.getTime() > System.currentTimeMillis());   // must be scheduled in the future
+        timer.schedule(task, d, timerPeriod);
         timerControl.replay();
 
         plan.schedule(timer, task);
         
-        timerControl.verify();
+        timerControl.verify();        
     }
 }

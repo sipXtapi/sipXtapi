@@ -66,11 +66,11 @@ public class AbstractRingBuilder extends SimpleBeanBuilder {
             // Ideally we would just retrieve the enum value by name, e.g.
             //     org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type.getEnum(api.getType())
             // but we can't do that yet.  See XCF-794.
-            my.setType(apiTypeToMyType(api.getType()));
+            my.setType(apiTypeToMyType_(api.getType()));
         }
     }
 
-    private Type apiTypeToMyType(String type) {
+    private Type apiTypeToMyType_(String type) {
         if (type.equals(TYPE_DELAYED)) {
             return Type.DELAYED;
         } else if (type.equals(TYPE_IMMEDIATE)) {
