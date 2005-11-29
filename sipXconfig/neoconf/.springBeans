@@ -30,7 +30,6 @@
 				<config>src/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/alias/alias.beans.xml</config>
-				<config>src/org/sipfoundry/sipxconfig/system.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/common/common.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/conference/conference.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml</config>
@@ -39,6 +38,8 @@
 				<config>src/org/sipfoundry/sipxconfig/phone/phone.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/search/search.beans.xml</config>
 				<config>src/org/sipfoundry/sipxconfig/setting/setting.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/system.beans.xml</config>
+				<config>src/org/sipfoundry/sipxconfig/upload/upload.beans.xml</config>
 			</configs>
 		</configSet>
 	</configSets>
