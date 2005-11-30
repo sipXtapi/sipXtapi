@@ -29,7 +29,7 @@ public class AuthenticationDaoImpl implements AuthenticationDao {
     private static final GrantedAuthority AUTH_USER = new GrantedAuthorityImpl(User.ROLE_USER);
     private static final GrantedAuthority AUTH_ADMIN = new GrantedAuthorityImpl(User.ROLE_ADMIN);
     private static final GrantedAuthority[] AUTH_USER_ARRAY = new GrantedAuthority[] {AUTH_USER};
-    private static final GrantedAuthority[] AUTH_USER_AND_ADMIN_ARRAY =
+    static final GrantedAuthority[] AUTH_USER_AND_ADMIN_ARRAY =
         new GrantedAuthority[] {AUTH_USER, AUTH_ADMIN};
     
     private CoreContext m_coreContext;
