@@ -3,6 +3,31 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+
+Version 3.1.1
+** Bug
+    * [XCF-598] - Ensure that no two aliases/extensions (no matter which feature) are duplicated
+    * [XCF-793] - When Call forward ring for is set to blank , gives an exception page instead of an error page. 
+    * [XCF-798] - media server and status server are restarting soon after PBX starts, every time
+    * [XCF-800] - trying to access config server returns 404
+
+** New Feature
+    * [XCF-405] - download sipx-snapshot result from sipXconfig
+    * [XCF-756] - global search
+    * [XCF-758] - support for conference bridge configuration
+    * [XCF-766] - SOAP support for listing park orbits, conferences, and call groups
+    * [XCF-767] - phone/gateway firmware management
+
+** Task
+    * [XCF-757] - table with selections component
+
+** Improvement
+    * [XCF-305] - JBOSS-To-TapSprHib: SOAP/ XMLRPC support
+    * [XCF-702] - bulk group tagging operations
+    * [XCF-713] - make it easier to find a user on the Users page, when there are many users
+    * [XCF-729] - search phones
+    * [XCF-795] - UserSearch component relies on permanent properties
+
 Version 3.0
 ** Bug
     * [XCF-27] - Data base creation warnning 
