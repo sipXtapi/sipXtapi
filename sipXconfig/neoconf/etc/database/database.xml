@@ -61,19 +61,18 @@
   </target>
   
   <!-- Resets database for unit testing -->
-  <target name="unittest-reset" depends="drop,createdb,schema,version1"/>
+  <target name="unittest-reset" depends="drop,create,upgrade-no-init"/>
   
   <!-- 
-    - NOTE: Creating a database runs all the patches.
+    - NOTE: Creating a database and apply schema. Does not run any patches or initialize task.
     -->
-  <target name="create-no-init" depends="createdb,schema,patches,version1">    
-  </target>  
-  <target name="create" depends="create-no-init,initialize"
-    description="create database with schema">    
-  </target>  
+  <target name="create" depends="createdb,schema"
+    description="create database with schema"/>
 
-  <target name="upgrade" description="applied all patches that need to be applied"
-    depends="patches,version1,initialize"/>
+  <target name="upgrade-no-init" depends="patches,version1"/>
+	
+  <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks"
+    depends="upgrade-no-init,initialize"/>
     	
   <target name="initialize" depends="tasks" if="initialize">
     <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null">
@@ -82,7 +81,7 @@
   </target>
   
   <!--
-    - Drop lucene index it'll get recreated when we restart the application
+    - Drop lucene index. It'll get recreated when we restart the application
     --> 
   <target name="drop-index">
       <delete dir="${tmp.dir}/index" failonerror="false"/>
@@ -171,7 +170,7 @@
       <transaction src="${dblink.sql}"/>
     </sipx-sql>
   </target>
-  <target name="migrate-2.8-run" depends="drop,create-no-init,migrate-2.8-setup">
+  <target name="migrate-2.8-run" depends="drop,create,upgrade-no-init,migrate-2.8-setup">
     <echo>see migration log file for errors or warnings about potential data loss:</echo>
     <echo>  ${migration.log}</echo>
     <exec executable="psql" output="${migration.log}" failonerror="true">
