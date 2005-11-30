@@ -90,7 +90,7 @@ CHECK_GIPSNEQ
 ## Common flags for pingtel related source
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([config/sipXcommon.mak])
+AC_CONFIG_FILES([config/localize-sipX.sh])
 AC_CONFIG_FILES([js/Makefile])
 AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([src/Makefile])

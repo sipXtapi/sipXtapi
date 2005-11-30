@@ -57,7 +57,7 @@ AC_DEFUN([ADD_SIPX_INCL_LIB],
 SFAC_LIB_CALL
 
 AC_CONFIG_FILES([
-   config/sipXcommon.mak
+   config/localize-sipX.sh
    Makefile
    src/Makefile
    include/Makefile

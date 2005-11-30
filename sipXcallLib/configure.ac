@@ -49,7 +49,7 @@ SFAC_FEATURE_SIPX_EZPHONE
 AC_CONFIG_FILES([
   Makefile 
   bin/Makefile
-  config/sipXcommon.mak
+  config/localize-sipX.sh
   doc/Makefile
   examples/CallScript/src/Makefile
   examples/Makefile 

@@ -59,7 +59,7 @@ CHECK_NAMED
 
 AC_CONFIG_FILES([
   Makefile 
-  config/sipXcommon.mak
+  config/localize-sipX.sh
   include/Makefile 
   src/Makefile 
   bin/Makefile 

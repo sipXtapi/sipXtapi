@@ -39,7 +39,7 @@ SFAC_LIB_STACK
 CHECK_GIPSNEQ
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([config/sipXcommon.mak])
+AC_CONFIG_FILES([config/localize-sipX.sh])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([doc/developer/Makefile.config])
 AC_CONFIG_FILES([etc/Makefile])

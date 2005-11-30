@@ -48,7 +48,7 @@ fi
 
 AC_CONFIG_FILES([
     Makefile
-    config/sipXcommon.mak
+    config/localize-sipX.sh
     bin/Makefile
     neoconf/Makefile
     web/Makefile

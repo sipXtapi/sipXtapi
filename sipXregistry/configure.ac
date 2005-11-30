@@ -30,7 +30,7 @@ SFAC_LIB_COMMSERVER
 SFAC_FEATURE_SIP_TLS
 
 AC_CONFIG_FILES([Makefile])
-AC_CONFIG_FILES([config/sipXcommon.mak])
+AC_CONFIG_FILES([config/localize-sipX.sh])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
 AC_CONFIG_FILES([bin/Makefile])
