@@ -19,7 +19,7 @@ Doxyfile: $(srcdir)/Doxyfile.in
 		-e 's,@enable_dot\@,@enable_dot@,g' \
 		-e 's,@srcdir\@,$(srcdir),g' \
 		-e 's,@top_srcdir\@,$(top_srcdir),g' \
-	$(srcdir)/Doxyfile.in > Doxyfile
+	< $(srcdir)/Doxyfile.in > Doxyfile
 
 install: install-doc
 

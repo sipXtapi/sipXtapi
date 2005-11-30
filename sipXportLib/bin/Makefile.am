@@ -18,7 +18,7 @@ EXTRA_DIST = \
 install-exec-hook :
 
 sipx-upgrade: $(srcdir)/sipx-upgrade.in
-	$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade.in > sipx-upgrade
+	$(LocalizeSipXconfig) < $(srcdir)/sipx-upgrade.in > sipx-upgrade
 
 shell-unit: $(srcdir)/shell-unit.in
 	cp $(srcdir)/shell-unit.in shell-unit
@@ -27,7 +27,7 @@ $(DESTDIR)$(bindir)/sipx-upgrade: sipx-upgrade
 	$(INSTALL) -D -m 755 $(srcdir)/sipx-upgrade $(DESTDIR)$(bindir)/sipx-upgrade
 
 sipx-upgrade-testsuite: sipx-upgrade shell-unit $(srcdir)/sipx-upgrade-testsuite.in
-	$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade-testsuite.in > $@
+	$(LocalizeSipXconfig) < $(srcdir)/sipx-upgrade-testsuite.in > $@
 	chmod +x $@
 
 $(top_builddir)/BUILDSTAMP:
@@ -36,7 +36,7 @@ $(top_builddir)/BUILDSTAMP:
 ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
 	BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
 	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
-	    $(top_srcdir)/config/sipX-config.in \
+	  < $(top_srcdir)/config/sipX-config.in \
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
 
