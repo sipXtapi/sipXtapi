@@ -49,6 +49,7 @@
         <binding name="value" expression="ring.expiration"/>
         <binding name="minimum" expression="1"/>
         <binding name="maximum" expression="999"/>
+        <binding name="required" expression="true"/>
         <static-binding name="type" value="int"/>
         <message-binding name="displayName" key="label.ring"/>
     </component>
