@@ -46,12 +46,12 @@ BUILDSTAMP: SVN-VERSION
 	${LocalizeSipXconfig} \
 		-e "s/@SIPX_BUILDSTAMP\@/$${SIPX_BUILDSTAMP}/" \
 		-e "s/sipx/SipX/" \
-	    $(srcdir)/config/sipX-buildstamp.cpp.in \
+	< $(srcdir)/config/sipX-buildstamp.cpp.in \
 	> config/@PACKAGE@-buildstamp.cpp ; \
 	${LocalizeSipXconfig} \
 		-e "s/@SIPX_BUILDSTAMP\@/$${SIPX_BUILDSTAMP}/" \
 		-e "s/sipx/SipX/" \
-	    $(srcdir)/config/sipX-buildstamp.h.in \
+	< $(srcdir)/config/sipX-buildstamp.h.in \
 	> config/@PACKAGE@-buildstamp.h
 
 .PHONY : rpm
@@ -66,7 +66,7 @@ rpm : dist
 
 # RPM Spec file
 @PACKAGE@.spec : @PACKAGE@.spec.in
-	$(LocalizeSipXconfig) $(srcdir)/@PACKAGE@.spec.in > @PACKAGE@.spec
+	$(LocalizeSipXconfig) < $(srcdir)/@PACKAGE@.spec.in > @PACKAGE@.spec
 
 dist-hook : $(distdir)/@PACKAGE@.spec
 
