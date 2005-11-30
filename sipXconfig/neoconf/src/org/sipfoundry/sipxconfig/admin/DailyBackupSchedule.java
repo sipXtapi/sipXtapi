@@ -107,7 +107,15 @@ public class DailyBackupSchedule extends BeanWithId {
                 when.set(Calendar.DAY_OF_WEEK, getScheduledDay().getDayOfWeek());
             }
             
-            return when.getTime();        
+            // Ensure that the scheduled time is in the future, not the past.
+            // Otherwise the timer will fire immediately, not at the desired time.
+            Date timerDate = when.getTime();
+            if (timerDate.getTime() < System.currentTimeMillis()) {
+                // The scheduled time is in the past.  Add one timer period to push it into the future.
+                timerDate.setTime(timerDate.getTime() + getTimerPeriod());
+            }
+            
+            return timerDate;        
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }        

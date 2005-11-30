@@ -36,7 +36,7 @@ public class Whacker implements ApplicationListener {
 
     static final String TEST_DATE_FORMAT = "HH:mm:ss:SS a"; // for testing only
     static final Process[] SERVICE_NAMES = {
-        Process.MEDIA_SERVER, Process.STATUS
+        Process.MEDIA_SERVER
     };
 
     private SipxProcessContext m_processContext;
