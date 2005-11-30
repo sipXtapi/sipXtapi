@@ -1,12 +1,9 @@
-# -*-makefile-*-
+#! /bin/sh
 
-ConfigureArgs=$(shell sed \
-	-e '/^ *\$$ .*\/configure/!d' \
-	-e 's/^ *\$$ .*\/configure *//' \
-	$(top_builddir)/config.log \
-	)
+# Filter that localizes files that use @-variables.
 
-LocalizeSipXconfig = sed \
+# The user can provide additional -e arguments as arguments to this script.
+sed \
 		  -e 's,@PACKAGE\@,@PACKAGE@,g' \
 		  -e 's,@VERSION\@,@VERSION@,g' \
 		  -e 's,@abs_builddir\@,@abs_builddir@,g' \
@@ -58,4 +55,5 @@ LocalizeSipXconfig = sed \
 		  -e 's,@SIPXPHONEDATA\@,@SIPXPHONEDATA@,g' \
 		  -e 's,@SIPXPHONECONF\@,@SIPXPHONECONF@,g' \
 		  -e 's,@NAMED_PROGRAM\@,@NAMED_PROGRAM@,g' \
-		  -e 's,@SELINUX_GETENFORCE\@,@SELINUX_GETENFORCE@,g'
+		  -e 's,@SELINUX_GETENFORCE\@,@SELINUX_GETENFORCE@,g' \
+                  "$@"

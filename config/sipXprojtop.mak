@@ -43,16 +43,14 @@ BUILDSTAMP: SVN-VERSION
 	sipxBuildHost=`hostname --short` ; \
 	SIPX_BUILDSTAMP="$${sipxSvnVersion} $${sipxBuildTime} $${sipxBuildHost}" ; \
 	echo "$${SIPX_BUILDSTAMP}" > BUILDSTAMP ; \
-	${LocalizeSipXconfig} \
-		-e "s/@SIPX_BUILDSTAMP\@/$${SIPX_BUILDSTAMP}/" \
-		-e "s/sipx/SipX/" \
-	    $(srcdir)/config/sipX-buildstamp.cpp.in \
-	> config/@PACKAGE@-buildstamp.cpp ; \
-	${LocalizeSipXconfig} \
-		-e "s/@SIPX_BUILDSTAMP\@/$${SIPX_BUILDSTAMP}/" \
-		-e "s/sipx/SipX/" \
-	    $(srcdir)/config/sipX-buildstamp.h.in \
-	> config/@PACKAGE@-buildstamp.h
+	${LocalizeSipXconfig} < $(srcdir)/config/sipX-buildstamp.cpp.in \
+		      -e "s/@SIPX_BUILDSTAMP\@/$${SIPX_BUILDSTAMP}/" \
+		      -e "s/sipx/SipX/" \
+		> config/@PACKAGE@-buildstamp.cpp ; \
+	${LocalizeSipXconfig} < $(srcdir)/config/sipX-buildstamp.h.in \
+		      -e "s/@SIPX_BUILDSTAMP\@/$${SIPX_BUILDSTAMP}/" \
+		      -e "s/sipx/SipX/" \
+		> config/@PACKAGE@-buildstamp.h
 
 .PHONY : rpm
 # Where rpmbuild will do its work.
@@ -66,7 +64,7 @@ rpm : dist
 
 # RPM Spec file
 @PACKAGE@.spec : @PACKAGE@.spec.in
-	$(LocalizeSipXconfig) $(srcdir)/@PACKAGE@.spec.in > @PACKAGE@.spec
+	$(LocalizeSipXconfig) < $(srcdir)/@PACKAGE@.spec.in > @PACKAGE@.spec
 
 dist-hook : $(distdir)/@PACKAGE@.spec
 
