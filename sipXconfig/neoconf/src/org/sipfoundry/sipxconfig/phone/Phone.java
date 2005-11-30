@@ -146,7 +146,12 @@ public class Phone extends BeanWithGroups {
         String[] details = new String[] {
                 getModel().getModelId()
         };
-        return m_modelFilesContext.loadModelFile(basename, getBeanId(), details);        
+        Setting model = null;
+        Setting master = m_modelFilesContext.loadModelFile(basename, getBeanId(), details);
+        if (master != null) {
+            model = master.copy();            
+        }
+        return model;
     }
 
     /**
