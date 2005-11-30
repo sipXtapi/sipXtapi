@@ -19,9 +19,7 @@
   </type>
   <group name="firmware">
     <label>Firmware</label>
-    <description>Polycom Support only distributes firmware upgrades to certified resellers. It 
-      might be possible though to find the necessary files on the Internet. Otherwise, please 
-      contact your local reseller.</description>
+    <description>Polycom Support only distributes firmware upgrades to certified resellers.</description>
     <setting name="sip.ld">
       <label>sip.ld</label>
       <type refid="required-binary"/>

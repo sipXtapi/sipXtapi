@@ -57,11 +57,6 @@
         after matching. Otherwise user must press dial button after entering in numbers. See
         Cisco manual for format.</description>
     </setting>
-    <setting name="directory.html">
-      <label>directory.html</label>
-      <type refid="xml"/>
-      <description>Speeddial numbers. See Cisco manual for format.</description>
-    </setting>
   </group>
   <group name="ring">
     <label>Ringtones</label>
