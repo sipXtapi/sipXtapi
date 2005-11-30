@@ -21,16 +21,16 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class AuthenticationDaoImpl implements AuthenticationDao {
+    // granted authorities
+    static final GrantedAuthority AUTH_USER = new GrantedAuthorityImpl(User.ROLE_USER);
+    static final GrantedAuthority AUTH_ADMIN = new GrantedAuthorityImpl(User.ROLE_ADMIN);
+    static final GrantedAuthority[] AUTH_USER_ARRAY = new GrantedAuthority[] {AUTH_USER};    
+    static final GrantedAuthority[] AUTH_USER_AND_ADMIN_ARRAY =
+        new GrantedAuthority[] {AUTH_USER, AUTH_ADMIN};
+    
     /** Whether dummy admin user is enabled. For use only by unit tests! */
     private static boolean s_dummyAdminUserEnabled;
     private static final String DUMMY_ADMIN_USER_NAME = "dummyAdminUserNameForTestingOnly";
-    
-    // granted authorities
-    private static final GrantedAuthority AUTH_USER = new GrantedAuthorityImpl(User.ROLE_USER);
-    private static final GrantedAuthority AUTH_ADMIN = new GrantedAuthorityImpl(User.ROLE_ADMIN);
-    private static final GrantedAuthority[] AUTH_USER_ARRAY = new GrantedAuthority[] {AUTH_USER};
-    static final GrantedAuthority[] AUTH_USER_AND_ADMIN_ARRAY =
-        new GrantedAuthority[] {AUTH_USER, AUTH_ADMIN};
     
     private CoreContext m_coreContext;
 
