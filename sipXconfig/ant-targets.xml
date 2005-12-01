@@ -46,7 +46,8 @@
   </target>
 
   <!-- Default pattern for unittest naming schema -->
-  <patternset id="test.classes" includes="**/*Test.class" />
+  <property name="test.name" value="*Test"/>
+  <patternset id="test.classes" includes="**/${test.name}.class" />
 
   <!--
     - T A S K   D E F I N I T I O N S

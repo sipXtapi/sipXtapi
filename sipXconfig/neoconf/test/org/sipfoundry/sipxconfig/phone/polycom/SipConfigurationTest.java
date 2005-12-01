@@ -46,17 +46,18 @@ public class SipConfigurationTest  extends XMLTestCase {
         endpointSettings.getSetting("log/sip/level.change.sip").setValue("3");
         endpointSettings.getSetting("call/rejectBusyOnDnd").setValue("0");
         endpointSettings.getSetting("voIpProt.SIP/local/port").setValue("5061");
+        endpointSettings.getSetting("call/rejectBusyOnDnd").setValue("0");
 
         Setting lineSettings = tester.line.getSettings();
         lineSettings.getSetting("call/serverMissedCall/enabled").setValue("1");
         
-        VelocityProfileGenerator cfg = new VelocityProfileGenerator(phone);
+        VelocityProfileGenerator cfg = new SipConfiguration(phone);
         cfg.setVelocityEngine(TestHelper.getVelocityEngine());
         
         CharArrayWriter out = new CharArrayWriter();
         cfg.generateProfile(phone.getSipTemplate(), out);       
         
-        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sip.cfg");
+        InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-sip.cfg.xml");
         Reader expectedXml = new InputStreamReader(expectedPhoneStream);            
         Reader generatedXml = new CharArrayReader(out.toCharArray());
 

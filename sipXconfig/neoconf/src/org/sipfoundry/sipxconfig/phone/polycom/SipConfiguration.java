@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.setting.SettingUtil;
 /**
  * Responsible for generating ipmid.cfg
  */
-public class CoreConfiguration extends VelocityProfileGenerator {
+public class SipConfiguration extends VelocityProfileGenerator {
     
     private static PatternSettingFilter s_callSettings = new PatternSettingFilter();
     static {
@@ -28,7 +28,7 @@ public class CoreConfiguration extends VelocityProfileGenerator {
         s_callSettings.addExcludes("/call/shared.*$");
     }
     
-    public CoreConfiguration(PolycomPhone phone) {
+    public SipConfiguration(PolycomPhone phone) {
         super(phone);
     }
     

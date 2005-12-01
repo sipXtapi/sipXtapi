@@ -59,6 +59,24 @@
         non-empty, will override the 'Reg Password' parameter entered into the Authentication 
         submenu off of the Settings menu on the phone. </description>
     </setting>
+    <setting name="ringType">
+      <type><integer min="1" max="22"/></type>
+      <value>2</value>
+      <description>The ring type for each registration can be configured. Note: ring type number
+        1 is silent ring. </description>
+    </setting>
+    <setting name="lineKeys">
+      <type><integer min="1" max="6"/></type>
+      <value></value>
+      <description>The number of line keys on the phone to be associated with registration. 
+      Only set to maximum number of lines. If not specified, value is 1</description>
+    </setting>
+    <setting name="callsPerLineKey">
+      <type><integer min="1" max="6"/></type>
+      <value/>
+      <description>The number of calls or conferences which may be active or on hold per
+      line key for a specific registration on the phone.</description>
+    </setting>
     <group name="server">
       <label>Registration server</label>
       <group name="1">
@@ -81,7 +99,7 @@
         <setting name="transport">
           <profileName>server.1.transport</profileName>
           <type></type>
-          <value/>
+          <value>DNSnaptr</value>
           <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address 
             is a hostname and Port is 0 or empty, do NAPTR then SRV look-ups to try to discover 
             the transport, ports and servers, as per RFC 3263. If Address is an IP address, or 
@@ -150,7 +168,7 @@
           <type>
             <string/>
           </type>
-          <value/>
+          <value>DNSnaptr</value>
           <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address 
             is a hostname and Port is 0 or empty, do NAPTR then SRV look-ups to try to discover 
             the transport, ports and servers, as per RFC 3263. If Address is an IP address, or 

@@ -324,12 +324,11 @@ public class XmlModelBuilder implements ModelBuilder {
                     return new InputSource(new FileInputStream(m_dtd));
                 }
             } else if (systemId != null && m_baseSystemId != null) {
-                //
                 // LIMITATION: All files loaded as ENTITYies defined as SYSTEM
                 // must live in same directory as XML file
                 //
                 // HACK: Xerces 2.7.0 has a propensity to expand systemId to full path
-                // which makes it hard to determine original relative URI. Tricks to use 
+                // which makes it impossible to determine original relative URI. Tricks to use 
                 // systemId on inputsource and using file:// failed. 
                 String name = new File(systemId).getName();
                 File f = new File(m_baseSystemId, name);

@@ -811,7 +811,7 @@
     </setting>
     <setting name="offeringTimeOut">
       <type>
-        <integer min="1"/>
+        <integer min="0"/>
       </type>
       <value>60</value>
       <description>Time in seconds to allow an incoming call to ring before dropping the call, 
@@ -819,7 +819,7 @@
     </setting>
     <setting name="ringBackTimeOut">
       <type>
-        <integer min="1"/>
+        <integer min="0"/>
       </type>
       <value>60</value>
       <description>Time in seconds to allow an outgoing call to remain in the ringback state 
@@ -832,6 +832,16 @@
       <value>*69</value>
       <description>The string sent to the server when the user selects the 'last call return' 
         action.</description>
+    </setting>
+    <setting name="callsPerLineKey">
+      <type>
+        <!-- TODO 24 for 600 -->
+        <integer min="1" max="8"/>
+      </type>
+      <!-- TODO 24 for 600 -->
+      <value>8</value>
+      <description>The number of calls or conferences which may be active or on hold per line 
+        key on the phone.</description>
     </setting>
     <group name="shared">
       <label>Shared Lines</label>
@@ -860,7 +870,8 @@
           then the first one will be selected and resumed automatically. If set to 0, pressing 
           the shared line will bring up a list of the calls on that line and the user can 
           select which call the next action should be applied to. The call diversion, no answer 
-          feature will take precedence over this feature if enabled.</description>
+          feature will take precedence over this feature if enabled. 
+          </description>
       </setting>
     </group>
   </group>
@@ -915,13 +926,6 @@
         <description>This attribute controls the logging detail level for the SIP component. 
           These are the input filters for the internal memory-based log system.</description>
       </setting>
-      <!--
-	      - XCF-284 No idea what this setting does so hesitant to expose it				
-	      setting name="level.change.sip.obs">
-	      <type><integer min="0" max="5"/></type>
-	      <value>5</value>
-	      <description></description>
-	      </setting -->
     </group>
     <group name="render">
       <label>Log Rendering</label>
@@ -1185,7 +1189,7 @@
         <type>
           <boolean/>
         </type>
-        <value>1</value>
+        <value>0</value>
         <description>If checked, use the obsolete c=0.0.0.0 RFC2543 technique, otherwise, use 
           SDP media direction attributes (such as a=sendonly) per RFC 3264 when initiating 
           hold. In either case, the phone processes incoming hold signaling in either format. 

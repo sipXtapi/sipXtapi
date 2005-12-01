@@ -89,14 +89,11 @@ public class PolycomPhone extends Phone {
         ApplicationConfiguration app = new ApplicationConfiguration(this);
         generateProfile(app, getApplicationTemplate(), app.getAppFilename());
 
-        CoreConfiguration core = new CoreConfiguration(this);
-        generateProfile(core, getCoreTemplate(), app.getCoreFilename());
+        SipConfiguration sip = new SipConfiguration(this);
+        generateProfile(sip, getSipTemplate(), app.getSipFilename());
 
         PhoneConfiguration phone = new PhoneConfiguration(this);
         generateProfile(phone, getPhoneTemplate(), app.getPhoneFilename());
-
-        VelocityProfileGenerator sip = new VelocityProfileGenerator(this);
-        generateProfile(sip, getSipTemplate(), app.getSipFilename());
 
         app.deleteStaleDirectories();
     }
