@@ -14,11 +14,12 @@ edit = $(LocalizeSipXconfig) \
 SUBDIRS = . bin neoconf web $(doc_SUBDIRS)
 
 EXTRA_DIST = \
-    config/sipX-config.in \
+    config/localize-sipX.sh.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
+    config/sipX-config.in \
+    config/sipXcommon.mak \
     config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
     ant-targets.am \
     ant-targets.xml \
     build.xml \

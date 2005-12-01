@@ -11,14 +11,15 @@ SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 RELEASE = 1
 
 EXTRA_DIST = \
+    config/localize-sipX.sh.in \
+    config/sipX-buildstamp.cpp.in \
+    config/sipX-buildstamp.h.in \
+    config/sipX-config.in \
+    config/sipXcommon.mak \
+    config/sipXprojtop.mak \
     CONTRIBUTORS \
     BUILDSTAMP \
     SVN-EXPORT-VERSION \
-    config/sipX-config.in \
-    config/sipX-buildstamp.cpp.in \
-    config/sipX-buildstamp.h.in \
-    config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
     sipxregistry.spec
 
 DISTCLEANFILES = \

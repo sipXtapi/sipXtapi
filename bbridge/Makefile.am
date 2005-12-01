@@ -11,13 +11,14 @@ SUBDIRS = $(unconditional_SUBDIRS)
 RELEASE = 1
 
 EXTRA_DIST = \
-    BUILDSTAMP \
-	 SVN-EXPORT-VERSION \
-    config/sipX-config.in \
+    config/localize-sipX.sh.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
+    config/sipX-config.in \
+    config/sipXcommon.mak \
     config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
+    BUILDSTAMP \
+    SVN-EXPORT-VERSION \
     bbridge.spec
 
 DISTCLEANFILES = \

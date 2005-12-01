@@ -10,17 +10,18 @@ SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
 INSTALL = @INSTALL@
 
 EXTRA_DIST = \
+    config/apache_version.awk \
+    config/localize-sipX.sh.in \
+    config/sipX-buildstamp.cpp.in \
+    config/sipX-buildstamp.h.in \
+    config/sipX-config.in \
+    config/sipXcommon.mak \
+    config/sipXprojtop.mak \
     BUILDSTAMP \
     CONTRIBUTORS \
     LICENSE \
     SVN-EXPORT-VERSION \
     bin/httpd-sipxchange-config.sh.in \
-    config/apache_version.awk \
-    config/sipX-buildstamp.cpp.in \
-    config/sipX-buildstamp.h.in \
-    config/sipX-config.in \
-    config/sipXcommon.mak.in \
-    config/sipXprojtop.mak \
     sipxpbx.spec
 
 install-exec-hook :

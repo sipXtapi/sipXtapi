@@ -18,14 +18,15 @@ editscripts :
 	done
 
 EXTRA_DIST = \
-    CONTRIBUTORS \
-    BUILDSTAMP \
-	 SVN-EXPORT-VERSION \
-    config/sipX-config.in \
+    config/localize-sipX.sh.in \
     config/sipX-buildstamp.cpp.in \
     config/sipX-buildstamp.h.in \
+    config/sipX-config.in \
+    config/sipXcommon.mak \
     config/sipXprojtop.mak \
-    config/sipXcommon.mak.in \
+    CONTRIBUTORS \
+    BUILDSTAMP \
+    SVN-EXPORT-VERSION \
     sipxpublisher.spec
 
 include $(srcdir)/config/sipXprojtop.mak
