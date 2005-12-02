@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.user.UserForm"
+    allow-body="no"
+    allow-informal-parameters="no">    
+    <description>UserForm shows/edits a User</description>
+    
+	<parameter name="user" 
+		type="org.sipfoundry.sipxconfig.common.User" 
+    	required="yes"
+    	direction="auto"/>    
+        
+    <!--
+      - P R O P E R T I E S
+      -->
+    
+    <property-specification name="coreContext"
+        type="org.sipfoundry.sipxconfig.common.CoreContext"
+        initial-value="page.global.coreContext"/>
+    
+    <property-specification name="extensionPoolContext"
+        type="org.sipfoundry.sipxconfig.common.ExtensionPoolContext"
+        initial-value="page.global.extensionPoolContext"/>
+    
+    <property-specification name="pin" type="java.lang.String"/>
+    
+    <property-specification name="showSipPassword" type="boolean" persistent="yes"/>
+    
+	<!-- comma-delimited list of aliases -->
+    <property-specification name="aliasesString" type="java.lang.String"/>
+
+    <!--
+      - B E A N S 
+      -->
+    <bean name="userGroupSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    	<set-property name="collection" expression="coreContext.groups"/>
+    	<set-property name="labelExpression" expression="'name'"/>        
+    </bean>
+     
+    <!--
+      - C O M P O N E N T S
+      -->
+    
+    <component id="firstNamePanel" type="FieldPanel">
+        <binding name="field" expression="components.firstName"/>
+	    <message-binding name="label" key="label.firstName"/>
+    </component>
+    <component id="firstName" type="TextField">
+	    <binding name="value" expression="user.firstName"/>
+    </component>
+    <component id="lastNamePanel" type="FieldPanel">
+        <binding name="field" expression="components.lastName"/>
+	    <message-binding name="label" key="label.lastName"/>
+    </component>
+    <component id="lastName" type="TextField">
+	    <binding name="value" expression="user.lastName"/>
+    </component>
+    <component id="userIdPanel" type="FieldPanel">
+        <binding name="field" expression="components.userId"/>
+	    <message-binding name="label" key="label.userId"/>
+	    <message-binding name="description" key="description.userId"/>
+    </component>
+    <component id="userId" type="ValidField">
+	    <binding name="value" expression="user.userName"/>
+    	<binding name="validator" expression="page.global.validSipNameRequired"/>
+	    <message-binding name="displayName" key="label.userId"/>
+    </component>
+	<component id="pin" type="ConfirmPassword">
+        <binding name="password" expression="pin"/>
+        <message-binding name="passwordDisplayName" key="label.pin"/>
+        <message-binding name="passwordDescription" key="description.pin"/>
+        <message-binding name="confirmPasswordDisplayName" key="label.pin2"/>
+        <message-binding name="passwordMismatchMessage" key="message.pinMismatch"/>
+        <binding name="passwordValidator" expression="page.global.validPinRequired"/>
+    </component>
+    <component id="sipPasswordPanel" type="FieldPanel">
+        <binding name="field" expression="components.sipPassword"/>
+	    <message-binding name="label" key="label.sipPassword"/>
+	    <message-binding name="description" key="description.sipPassword"/>
+    </component>
+    <component id="sipPassword" type="TextField">
+	    <binding name="value" expression="user.sipPassword"/>
+    </component>
+    <component id="groupSelect" type="contrib:Palette">
+        <binding name="selected" expression="user.groupsAsList"/>
+        <binding name="model" expression="beans.userGroupSelectionModel"/>
+        <binding name="sort" expression="@org.apache.tapestry.contrib.palette.SortMode@LABEL"/>
+        <binding name="rows" expression="3"/>
+    </component>
+    <component id="aliasesPanel" type="FieldPanel">
+        <binding name="field" expression="components.aliases"/>
+	    <message-binding name="label" key="label.aliases"/>
+	    <message-binding name="description" key="description.aliases"/>     
+    </component>
+    <component id="aliases" type="ValidField">
+	    <binding name="value" expression="aliasesString"/>
+        <binding name="validator" expression="page.global.validUsernamePatternSequence"/>
+	    <message-binding name="displayName" key="label.aliases"/>
+    </component>
+    
+    <component id="ifRenderSipPassword" type="contrib:FormConditional">
+        <binding name="condition" expression="showSipPassword"/>
+    </component>
+    
+    <component id="toggleShowSipPassword" type="ToggleLink">
+        <binding name="toggle" expression="showSipPassword"/>
+    </component>
+</component-specification>

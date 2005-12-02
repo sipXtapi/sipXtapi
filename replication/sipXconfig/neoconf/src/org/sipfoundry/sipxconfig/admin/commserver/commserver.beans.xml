@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer">
+		<property name="configDirectory">
+			<value>${sysdir.etc}</value>
+		</property>
+		<property name="settingModel">
+			<bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
+				<property name="resource" value="commserver/server.xml"/>
+				<property name="modelFilesContext">
+					<ref bean="modelFilesContext"/>
+				</property>
+			</bean>
+		</property>
+		<property name="coreContext" ref="coreContext"/>
+		<property name="phoneDefaults" ref="phoneDefaults"/>
+		<property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+	</bean>	
+	<bean id="sipxReplicationContextImpl" abstract="true"
+		class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
+		<property name="configDirectory" value="${sysdir.etc}"/>
+		<property name="replicationManager">
+			<bean class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl"/>
+		</property>
+		<property name="jobContext" ref="jobContext"/>
+	</bean>
+	
+	<bean id="sipxProcessContext" parent="sipxReplicationContextImpl"
+		class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
+	</bean>
+	
+	<bean id="backgroundTaskInterceptor"
+		class="org.sipfoundry.sipxconfig.common.BackgroundTaskInterceptor"/>
+	
+	<bean id="sipxReplicationContext"
+		class="org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl"
+		init-method="init">
+		<property name="target">
+			<ref local="sipxProcessContext"></ref>
+		</property>
+	</bean>
+	
+	<bean id="dataSetGenerator" abstract="true"
+		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
+		<property name="coreContext" ref="coreContext"/>
+	</bean>
+	
+	<!-- list of files and directory in shich they are located can be changed in sipxconfig.properties -->
+	<bean id="externalAliases" class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases"/>
+	
+	<!-- aliasCoollector needs to be a named bean - it listens to application events -->
+	<bean id="aliasCollector" class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
+		<property name="aliasProviderBeanIds">
+			<list>
+				<value>sipxServer</value>
+				<value>externalAliases</value>
+			</list>			
+		</property>
+	</bean>
+	
+	<bean id="extensionDataSet" parent="dataSetGenerator"
+		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Extensions"/>
+	<bean id="aliasDataSet" parent="dataSetGenerator"
+		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"
+		dependency-check="objects">
+		<property name="aliasProvider">
+			<ref local="aliasCollector"/>
+		</property>
+	</bean>
+	<bean id="credentialDataSet" parent="dataSetGenerator"
+		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials"/>
+	<bean id="permissionDataSet" parent="dataSetGenerator"
+		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions"/>
+	<bean id="authexceptionDataSet" parent="dataSetGenerator"
+		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.AuthExceptions">
+		<property name="forwardingContext" ref="forwardingContext"/>
+	</bean>
+	
+	<bean id="replicationTrigger"
+		class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
+		<property name="replicationContext" ref="sipxReplicationContext"/>
+	</bean>
+	
+	<bean id="registrationContext"
+		class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl">		
+	</bean>
+</beans>

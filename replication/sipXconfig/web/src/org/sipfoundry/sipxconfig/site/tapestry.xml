@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- global beans used by tapestry pages -->
+<beans>
+  <!-- V A L I D A T O R S -->
+  <!-- phone validator - only digits, at least one -->
+  <bean name="validPhone" class="org.apache.tapestry.valid.PatternValidator">
+    <property name="patternString">
+      <value>^\d+$</value>
+    </property>
+    <property name="patternNotMatchedMessage">
+      <value>Please enter digits only, for example: 123</value>
+    </property>
+  </bean>
+  <bean name="validPhoneRequired" parent="validPhone">
+    <property name="required">
+      <value>true</value>
+    </property>
+  </bean>
+  <bean name="validHostOrIp" class="org.apache.tapestry.valid.PatternValidator">
+    <property name="patternString">
+      <value>^((\d{1,3}\.){3}\d{1,3})|(\S*[a-zA-Z]\S*)$</value>
+    </property>
+    <property name="patternNotMatchedMessage">
+      <value>Please enter valid DNS host name or IP address, for example server.domain.org, 10.1.1.25</value>
+    </property>
+  </bean>  
+  <bean name="validHostOrIpRequired" parent="validHostOrIp">
+    <property name="required">
+      <value>true</value>
+    </property>
+  </bean>
+  <!-- phone sequence validator - comma-separated list of area codes, can be empty -->
+  <bean name="validPhoneSequence" class="org.apache.tapestry.valid.PatternValidator">
+    <property name="patternString">
+      <value>^(\d+(\s*,?\s*))*$</value>
+    </property>
+    <property name="patternNotMatchedMessage">
+      <value>Please enter a comma-separated list of numbers, for example: 508, 212, 333</value>
+    </property>
+  </bean>
+  <!-- Username sequence validator - comma-separated list of usernames, can be empty -->
+  <!-- FIXME this is wrong, see bug entry XCF-245 (and we can't use a comma delimiter!) -->
+  <bean name="validUsernamePatternSequence" class="org.apache.tapestry.valid.PatternValidator">
+    <property name="patternString">
+      <value>^(([a-zA-Z0-9!#$%&amp;'*+\-/=?^_`{|}~]+)(\s*,?\s*))*$</value>
+    </property>
+    <property name="patternNotMatchedMessage">
+      <value>Please enter a comma-separated list of numbers or names, for example: joe, 508</value>
+    </property>
+  </bean>
+  <bean name="validPin" class="org.apache.tapestry.valid.StringValidator">
+    <property name="required">
+      <value>false</value>
+    </property>
+  </bean>
+  <bean name="validPinRequired" parent="validPin">
+    <property name="required">
+      <value>true</value>
+    </property>
+    <property name="minimumLength">
+      <value>1</value>
+    </property>
+  </bean>
+  <bean name="validPhoneSequenceRequired" parent="validPhoneSequence">
+    <property name="required">
+      <value>true</value>
+    </property>
+  </bean>
+  <bean name="serialNumberValidator" class="org.apache.tapestry.valid.PatternValidator">
+    <property name="patternString">
+      <value>^([a-f]|:|\d){12}?$</value>
+    </property>
+    <property name="patternNotMatchedMessage">
+      <value>Please enter exactly 12 hexadecimal digits (0-9 and a-f), for example: 0040214131fa</value>
+    </property>
+  </bean>
+  <bean name="serialNumberValidatorRequired" parent="serialNumberValidator">
+    <property name="required">
+      <value>true</value>
+    </property>
+  </bean>
+  <bean name="validSerialNumber"
+    class="org.sipfoundry.sipxconfig.components.valid.ToLowerCaseDecorator">
+    <property name="delegate">
+      <ref bean="serialNumberValidatorRequired"/>
+    </property>
+  </bean>
+  <bean name="optionalSerialNumber"
+    class="org.sipfoundry.sipxconfig.components.valid.ToLowerCaseDecorator">
+    <property name="delegate">
+      <ref bean="serialNumberValidator"/>
+    </property>
+  </bean>
+  <bean name="validTime" class="org.apache.tapestry.valid.DateValidator">
+    <property name="format">
+      <bean id="org.sipfoundry.sipxconfig.admin.DailyBackupSchedule.GMT_TIME_OF_DAY_FORMAT"
+        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+    </property>
+  </bean>
+  <bean name="validSipUrlUser" class="org.apache.tapestry.valid.PatternValidator">
+    <property name="required" value="false"/>
+    <property name="patternString">
+      <value>^([a-zA-Z0-9_.!~*'\(\)&amp;=+$,;?/-]|%[0-9a-fA-F]{2})+$</value>
+    </property>
+    <property name="patternNotMatchedMessage">
+      <value>Only a limited set of characters is valid in SIP URLs, for example: 321, joedoe, joe!?~*222</value>
+    </property>
+  </bean>
+	<!-- used in item common - most names in sipXconfig have the same limitation as user URL -->
+	<bean name="validSipNameRequired" parent="validSipUrlUser">
+		<property name="required" value="true"/>
+    <property name="patternNotMatchedMessage">
+      <value>Only a limited set of characters is valid in names. Spaces and some special characters are not allowed.</value>
+    </property>		
+  </bean>
+  <bean name="validRule" class="org.sipfoundry.sipxconfig.site.dialplan.RuleValidator">
+    <property name="gatewaysRequiredMessage">
+      <value>Add at least one gateway before enabling the rule.</value>
+    </property>
+  </bean>
+  <bean id="limitedBackupCountModelPart1"
+    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    <property name="collection">
+      <bean id="org.sipfoundry.sipxconfig.site.admin.BackupPage.BACKUP_LIMIT_MODEL"
+        class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+    </property>
+    <property name="labelExpression">
+      <value>toString()</value>
+    </property>
+  </bean>
+  <bean name="limitedBackupCountModel"
+    class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
+    <property name="model">
+      <ref local="limitedBackupCountModelPart1"/>
+    </property>
+    <property name="extraOption">
+      <null/>
+    </property>
+    <property name="extraLabel">
+      <value>Unlimited</value>
+    </property>
+  </bean>
+  <!-- prototype for a visit object -->
+  <bean id="visit" class="org.sipfoundry.sipxconfig.site.Visit" singleton="false">
+    <property name="tablePageSize" value="20"/>    
+  </bean>
+  <!-- tapestry utilities -->
+  <bean name="tapestry" class="org.sipfoundry.sipxconfig.components.TapestryContext"/>
+</beans>

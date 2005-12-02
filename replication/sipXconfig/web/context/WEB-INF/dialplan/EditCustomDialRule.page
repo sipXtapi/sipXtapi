@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanContext" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
+    
+    <property-specification name="ruleId" 
+		type="java.lang.Integer"
+        persistent="yes">
+    </property-specification>    
+    
+    <property-specification name="rule" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule"
+        persistent="yes">
+    </property-specification>    
+
+    <!-- used by removeGateways submit button-->
+	<property-specification name="removeGateways" 
+		type="java.lang.String"/>    
+
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"
+     	persistent="yes"/>
+
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    
+    <bean name="permissionsModel" 
+        class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
+        lifecycle="page">
+        <set-property name="options" expression="callHandlingPermissions"/>
+    </bean>
+    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+    </component>
+    
+	<component id="common" type="ItemCommon">
+        <binding name="item" expression="rule"/>
+    </component>
+    
+    <component id="permissions" type="contrib:MultiplePropertySelection">
+        <binding name="selectedList" expression="rule.permissions"/>
+        <binding name="model" expression="beans.permissionsModel"/>
+    </component>
+    
+    <component id="patterns" type="PatternsEditor">
+        <binding name="patterns" expression="rule.dialPatterns"/>
+    </component>
+    
+    <component id="call_pattern" type="CallPatternEditor">
+        <binding name="pattern" expression="rule.callPattern"/>
+    </component>
+
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
+    </component>    
+    
+    <!-- gateways configuration -->
+    
+    <component id="gatewaysPanel" type="GatewaysPanel">
+        <binding name="rule" expression="rule"/>
+        <binding name="addGatewayListener" expression="listeners.addGateway"/>
+        <binding name="selectGatewayListener" expression="listeners.selectGateway"/>
+    </component>
+    <!--
+	 - A S S E T S
+	 -->	
+</page-specification>

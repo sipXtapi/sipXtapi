@@ -1,0 +1,71 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2005 SIPfoundry Inc.
+ * Licensed by SIPfoundry under the LGPL license.
+ * 
+ * Copyright (C) 2005 Pingtel Corp.
+ * Licensed to SIPfoundry under a Contributor Agreement.
+ * 
+ * $
+ */
+package org.sipfoundry.sipxconfig.login;
+
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Md5Encoder;
+import org.sipfoundry.sipxconfig.common.Permission;
+import org.sipfoundry.sipxconfig.common.User;
+
+public class LoginContextImpl implements LoginContext {
+    private CoreContext m_coreContext;
+
+    /**
+     * Returns user if credentials check out.
+     * Return null if the user does not exist or the password is wrong.
+     * The userId may be either the userName or an alias.
+     */
+    public User checkCredentials(String userNameOrAlias, String password) {
+        User user = m_coreContext.loadUserByUserNameOrAlias(userNameOrAlias);
+        if (user == null) {
+            return null;
+        }
+        
+        String userName = user.getUserName();
+        String pintoken = user.getPintoken();
+
+        String encodedPassword = Md5Encoder.digestPassword(
+                userName, m_coreContext.getAuthorizationRealm(), password);
+        
+        // Real match
+        if (encodedPassword.equals(pintoken)) {
+            return user;
+        }
+        
+        // Special case: if the password is empty and the pintoken is empty, then declare a match.
+        // We have publicized the ability for admins to reset users to have an empty password by
+        // zeroing out the pintoken entry in the database.
+        if (password.length() == 0 && pintoken.length() == 0) {
+            return user;
+        }
+
+        return null;
+    }
+
+    public boolean isAdmin(Integer userId) {
+        User user = m_coreContext.loadUser(userId);
+        return isAdmin(user);
+    }
+
+    public boolean isAdmin(User user) {
+        if (user == null) {
+            return false;
+        }
+        
+        boolean superadmin = user.hasPermission(Permission.SUPERADMIN);
+        return superadmin;
+    }
+    
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+}

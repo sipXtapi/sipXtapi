@@ -1,0 +1,1943 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 1.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_1_0.dtd">
+<model>
+  <type id="on-off">
+    <boolean>
+      <true>
+        <value>on</value>
+      </true>
+      <false>
+        <value>off</value>
+      </false>
+    </boolean>
+  </type>
+  <type id="codec">
+    <enum>
+      <option>
+        <label>G.711u</label>
+        <value>0</value>
+      </option>
+      <option>
+        <label>G.726-32</label>
+        <value>2</value>
+      </option>
+      <option>
+        <label>GSM FR</label>
+        <value>3</value>
+      </option>
+      <option>
+        <label>G.723.1</label>
+        <value>4</value>
+      </option>
+      <option>
+        <label>G.711a</label>
+        <value>8</value>
+      </option>
+      <option>
+        <label>G.722</label>
+        <value>9</value>
+      </option>
+      <option>
+        <label>G.729A</label>
+        <value>18</value>
+      </option>
+    </enum>
+  </type>
+  <group name="snom">
+    <group name="phone">
+      <group name="preferences">
+        <label>Preferences</label>
+        <setting name="web_language">
+          <label>web_language</label>
+          <type>
+            <enum>
+              <option>
+                <value>English</value>
+              </option>
+              <option>
+                <value>Espanol</value>
+              </option>
+              <option>
+                <value>Deutsch</value>
+              </option>
+              <option>
+                <value>Francais</value>
+              </option>
+              <option>
+                <value>Italiano</value>
+              </option>
+              <option>
+                <value>Nederlands</value>
+              </option>
+              <option>
+                <value>Portugues</value>
+              </option>
+              <option>
+                <value>Suomi</value>
+              </option>
+              <option>
+                <value>Svenska</value>
+              </option>
+              <option>
+                <value>Dansk</value>
+              </option>
+              <option>
+                <value>Norsk</value>
+              </option>
+            </enum>
+          </type>
+          <value>English</value>
+          <description>The language for the web interface.</description>
+        </setting>
+        <setting name="language">
+          <label>language</label>
+          <type>
+            <enum>
+              <option>
+                <value>English(UK)</value>
+              </option>
+              <option>
+                <value>Espanol</value>
+              </option>
+              <option>
+                <value>Deutsch</value>
+              </option>
+              <option>
+                <value>Francais</value>
+              </option>
+              <option>
+                <value>Italiano</value>
+              </option>
+              <option>
+                <value>Cestina</value>
+              </option>
+              <option>
+                <value>Nederlands</value>
+              </option>
+              <option>
+                <value>Polski</value>
+              </option>
+              <option>
+                <value>Portugues</value>
+              </option>
+              <option>
+                <value>Slovencina</value>
+              </option>
+              <option>
+                <value>Suomi</value>
+              </option>
+              <option>
+                <value>Svenska</value>
+              </option>
+              <option>
+                <value>Dansk</value>
+              </option>
+              <option>
+                <value>Norsk</value>
+              </option>
+            </enum>
+          </type>
+          <value>English</value>
+          <description>The language for the display of the phone.</description>
+        </setting>
+        <setting name="display_method">
+          <label>display_method</label>
+          <type>
+            <enum>
+              <option>
+                <label>Full Contact</label>
+                <value>full_contact</value>
+              </option>
+              <option>
+                <label>Name</label>
+                <value>display_name</value>
+              </option>
+              <option>
+                <label>Number</label>
+                <value>display_number</value>
+              </option>
+              <option>
+                <label>Name + Number</label>
+                <value>display_name_number</value>
+              </option>
+            </enum>
+          </type>
+          <value>display_name</value>
+          <description>The style how numbers are displayed to the 
+            user.</description>
+        </setting>
+        <setting name="tone_scheme">
+          <label>tone_scheme</label>
+          <type>
+            <enum>
+              <option>
+                <label>Australia</label>
+                <value>AUS</value>
+              </option>
+              <option>
+                <label>China</label>
+                <value>CHN</value>
+              </option>
+              <option>
+                <label>Denmark</label>
+                <value>DNK</value>
+              </option>
+              <option>
+                <label>Germany</label>
+                <value>GER</value>
+              </option>
+              <option>
+                <label>India</label>
+                <value>IND</value>
+              </option>
+              <option>
+                <label>Japan</label>
+                <value>JPN</value>
+              </option>
+              <option>
+                <label>Mexico</label>
+                <value>MEX</value>
+              </option>
+              <option>
+                <label>Sweden</label>
+                <value>SWE</value>
+              </option>
+              <option>
+                <label>Switzerland</label>
+                <value>SWI</value>
+              </option>
+              <option>
+                <label>United Kingdom</label>
+                <value>GBR</value>
+              </option>
+              <option>
+                <label>United States</label>
+                <value>USA</value>
+              </option>
+            </enum>
+          </type>
+          <value>USA</value>
+          <description>The tone scheme for audible feedback.</description>
+        </setting>
+        <setting name="mwi_notification">
+          <label>mwi_notification</label>
+          <type>
+            <enum>
+              <option>
+                <value>silent</value>
+              </option>
+              <option>
+                <value>beep</value>
+              </option>
+              <option>
+                <value>reminder</value>
+              </option>
+            </enum>
+          </type>
+          <value>silent</value>
+          <description>Message Waiting Indication Notification</description>
+        </setting>
+        <setting name="mwi_dialtone">
+          <label>mwi_dialtone</label>
+          <type>
+            <enum>
+              <option>
+                <value>normal</value>
+              </option>
+              <option>
+                <value>stutter</value>
+              </option>
+            </enum>
+          </type>
+          <value>stutter</value>
+          <description>Message Waiting Indiccation Dial Tone</description>
+        </setting>
+        <setting name="headset_device">
+          <label>headset_device</label>
+          <type>
+            <enum>
+              <option>
+                <label>None</label>
+                <value>none</value>
+              </option>
+              <option>
+                <label>RJ connector</label>
+                <value>headset_rj</value>
+              </option>
+            </enum>
+          </type>
+          <value>none</value>
+          <description>Use Headset Device</description>
+        </setting>
+        <setting name="use_backlight">
+          <label>use_backlight</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description>Use Backlight.</description>
+        </setting>
+        <setting name="date_us_format">
+          <label>date_us_format</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description>US date format (mm/dd).</description>
+        </setting>
+        <setting name="time_24_format">
+          <label>time_24_format</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description>24 hour clock.</description>
+        </setting>
+        <setting name="with_flash">
+          <label>with_flash</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Use Flash Plugin.</description>
+        </setting>
+        <setting name="redirect_event">
+          <label>redirect_event</label>
+          <type>
+            <enum>
+              <option>
+                <label>Never</label>
+                <value>none</value>
+              </option>
+              <option>
+                <label>Always</label>
+                <value>all</value>
+              </option>
+              <option>
+                <label>On busy</label>
+                <value>busy</value>
+              </option>
+              <option>
+                <label>After timeout</label>
+                <value>time</value>
+              </option>
+            </enum>
+          </type>
+          <value>none</value>
+          <description>Redirect when.</description>
+        </setting>
+        <setting name="redirect_time">
+          <label>redirect_time</label>
+          <type>
+            <integer min="0"/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="redirect_number">
+          <label>redirect_number</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Destination Number or URI for redirection.</description>
+        </setting>
+        <setting name="redirect_busy_number">
+          <label>redirect_busy_number</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Destination Number or URI for rediretion on 
+            busy.</description>
+        </setting>
+        <setting name="ringer_headset_device">
+          <label>ringer_headset_device</label>
+          <type>
+            <enum>
+              <option>
+                <label>Use Speaker</label>
+                <value>speaker</value>
+              </option>
+              <option>
+                <label>Use Headeset</label>
+                <value>headset</value>
+              </option>
+            </enum>
+          </type>
+          <value>speaker</value>
+          <description>Ringer Device for Headset.</description>
+        </setting>
+        <setting name="ring_sound">
+          <label>ring_sound</label>
+          <type>
+            <enum>
+              <option>
+                <value>Ringer1</value>
+              </option>
+              <option>
+                <value>Ringer2</value>
+              </option>
+              <option>
+                <value>Ringer3</value>
+              </option>
+              <option>
+                <value>Ringer4</value>
+              </option>
+              <option>
+                <value>Ringer5</value>
+              </option>
+              <option>
+                <value>Ringer6</value>
+              </option>
+              <option>
+                <value>Ringer7</value>
+              </option>
+              <option>
+                <value>Ringer8</value>
+              </option>
+              <option>
+                <value>Silent</value>
+              </option>
+            </enum>
+          </type>
+          <value>Ringer1</value>
+          <description>Default Ringer.</description>
+        </setting>
+        <setting name="friends_ring_sound">
+          <label>friends_ring_sound</label>
+          <type>
+            <enum>
+              <option>
+                <value>Ringer1</value>
+              </option>
+              <option>
+                <value>Ringer2</value>
+              </option>
+              <option>
+                <value>Ringer3</value>
+              </option>
+              <option>
+                <value>Ringer4</value>
+              </option>
+              <option>
+                <value>Ringer5</value>
+              </option>
+              <option>
+                <value>Ringer6</value>
+              </option>
+              <option>
+                <value>Ringer7</value>
+              </option>
+              <option>
+                <value>Ringer8</value>
+              </option>
+              <option>
+                <value>Silent</value>
+              </option>
+            </enum>
+          </type>
+          <value>Ringer1</value>
+          <description>Ringer for Addressbook Category Friends.</description>
+        </setting>
+        <setting name="family_ring_sound">
+          <label>family_ring_sound</label>
+          <type>
+            <enum>
+              <option>
+                <value>Ringer1</value>
+              </option>
+              <option>
+                <value>Ringer2</value>
+              </option>
+              <option>
+                <value>Ringer3</value>
+              </option>
+              <option>
+                <value>Ringer4</value>
+              </option>
+              <option>
+                <value>Ringer5</value>
+              </option>
+              <option>
+                <value>Ringer6</value>
+              </option>
+              <option>
+                <value>Ringer7</value>
+              </option>
+              <option>
+                <value>Ringer8</value>
+              </option>
+              <option>
+                <value>Silent</value>
+              </option>
+            </enum>
+          </type>
+          <value>Ringer1</value>
+          <description>Ringer for Addressbook Category Family.</description>
+        </setting>
+        <setting name="colleagues_ring_sound">
+          <label>colleagues_ring_sound</label>
+          <type>
+            <enum>
+              <option>
+                <value>Ringer1</value>
+              </option>
+              <option>
+                <value>Ringer2</value>
+              </option>
+              <option>
+                <value>Ringer3</value>
+              </option>
+              <option>
+                <value>Ringer4</value>
+              </option>
+              <option>
+                <value>Ringer5</value>
+              </option>
+              <option>
+                <value>Ringer6</value>
+              </option>
+              <option>
+                <value>Ringer7</value>
+              </option>
+              <option>
+                <value>Ringer8</value>
+              </option>
+              <option>
+                <value>Silent</value>
+              </option>
+            </enum>
+          </type>
+          <value>Ringer1</value>
+          <description>Ringer for Addressbook Category Colleagues.</description>
+        </setting>
+        <setting name="vip_ring_sound">
+          <label>vip_ring_sound</label>
+          <type>
+            <enum>
+              <option>
+                <value>Ringer1</value>
+              </option>
+              <option>
+                <value>Ringer2</value>
+              </option>
+              <option>
+                <value>Ringer3</value>
+              </option>
+              <option>
+                <value>Ringer4</value>
+              </option>
+              <option>
+                <value>Ringer5</value>
+              </option>
+              <option>
+                <value>Ringer6</value>
+              </option>
+              <option>
+                <value>Ringer7</value>
+              </option>
+              <option>
+                <value>Ringer8</value>
+              </option>
+              <option>
+                <value>Silent</value>
+              </option>
+            </enum>
+          </type>
+          <value>Ringer1</value>
+          <description>Ringer for Addressbook Category VIP.</description>
+        </setting>
+        <setting name="custom_melody_url">
+          <label>custom_melody_url</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>HTTP URL to an WAV file for a Custom 
+            Melody.</description>
+        </setting>
+        <setting name="auto_connect_indication">
+          <label>auto_connect_indication</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description>Auto Answer Indication.</description>
+        </setting>
+        <setting name="auto_connect_type">
+          <label>auto_connect_type</label>
+          <type>
+            <enum>
+              <option>
+                <label>Handsfree</label>
+                <value>auto_connect_type_handsfree</value>
+              </option>
+              <option>
+                <label>Handset</label>
+                <value>auto_connect_type_handset</value>
+              </option>
+              <option>
+                <label>Headset</label>
+                <value>auto_connect_type_headset</value>
+              </option>
+            </enum>
+          </type>
+          <value>auto_connect_type_handsfree</value>
+          <description>Auto Answering Type.</description>
+        </setting>
+        <setting name="privacy_in">
+          <label>privacy_in</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Call Line Identification Presentation 
+            (CLIP)</description>
+        </setting>
+        <setting name="privacy_out">
+          <label>privacy_out</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Call Line Identification Restriction (CLIR)</description>
+        </setting>
+      </group>
+      <group name="phonebehavior">
+        <label>Phone Behavior</label>
+        <setting name="challenge_response">
+          <label>Challenge Response on phone</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Show password dialog for challenges</description>
+        </setting>
+        <setting name="cmc_feature">
+          <label>CMC Feature</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Client Matter Code Feature</description>
+        </setting>
+        <setting name="preselection_nr">
+          <label>Preselection Prefix</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="auto_dial">
+          <label>Auto Dial</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description/>
+        </setting>
+        <setting name="logon_wizard">
+          <label>Login Wizard</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="guess_number">
+          <label>Number Guessing</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description/>
+        </setting>
+        <setting name="call_completion">
+          <label>Call Completion</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="callpickup_dialoginfo">
+          <label>Dialog-Info Call Pickup</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description>Show possible Pickup Informations on the 
+            screen</description>
+        </setting>
+        <setting name="call_join_xfer">
+          <label>Call join on XFER (2 calls)</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Join two calls directly when pressing the transfer 
+            key</description>
+        </setting>
+        <setting name="call_waiting">
+          <label>Call Waiting Indication</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="cw_dialtone">
+          <label>Dialtone during Hold</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="ethernet_detect">
+          <label>Detect Ethernet Cable Unplug</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="ethernet_replug">
+          <label>Action on Ethernet cable replug</label>
+          <type>
+            <enum>
+              <option>
+                <label>Ignore</label>
+                <value>nothing</value>
+              </option>
+              <option>
+                <label>Reboot</label>
+                <value>reboot</value>
+              </option>
+            </enum>
+          </type>
+          <value>nothing</value>
+          <description/>
+        </setting>
+        <setting name="no_dnd">
+          <label>Block DND</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description/>
+        </setting>
+        <setting name="conf_hangup">
+          <label>Disconnect on Hook</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="block_url_dialing">
+          <label>Block URL Dialing</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description/>
+        </setting>
+        <setting name="release_sound">
+          <label>Call Release Notification</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="deny_all_feature">
+          <label>Deny All Feature</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description>Show button for always dening call from that 
+            caller</description>
+        </setting>
+        <setting name="transfer_on_hangup">
+          <label>Transfer on Onhook</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Join two calls when going onhook</description>
+        </setting>
+        <setting name="holding_reminder">
+          <label>Holding Reminder</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="contrast">
+          <label>Display Contrast</label>
+          <type>
+            <integer min="1" max="30"/>
+          </type>
+          <value>14</value>
+          <description/>
+        </setting>
+        <setting name="audio_device_indicator">
+          <label>Audio Device Indicator</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+      </group>
+      <group name="audio">
+        <label>Audio</label>
+        <setting name="vol_speaker">
+          <label>Speaker Volume</label>
+          <type>
+            <integer min="1" max="15"/>
+          </type>
+          <value>7</value>
+          <description/>
+        </setting>
+        <setting name="vol_handset">
+          <label>Handset Volume</label>
+          <type>
+            <integer min="1" max="15"/>
+          </type>
+          <value>11</value>
+          <description/>
+        </setting>
+        <setting name="vol_headset">
+          <label>Headset Volume</label>
+          <type>
+            <integer min="1" max="15"/>
+          </type>
+          <value>10</value>
+          <description/>
+        </setting>
+        <setting name="vol_speaker_mic">
+          <label>Handsfree Microphone Volume</label>
+          <type>
+            <integer min="1" max="8"/>
+          </type>
+          <value>5</value>
+          <description/>
+        </setting>
+        <setting name="vol_handset_mic">
+          <label>Handset Microphone Volume</label>
+          <type>
+            <integer min="1" max="8"/>
+          </type>
+          <value>5</value>
+          <description/>
+        </setting>
+        <setting name="vol_headset_mic">
+          <label>Headset Microphone Volume</label>
+          <type>
+            <integer min="1" max="8"/>
+          </type>
+          <value>7</value>
+          <description/>
+        </setting>
+        <setting name="silence_compression">
+          <label>Silence Suppresion</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="disable_speaker">
+          <label>Disable Casing Speaker</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description/>
+        </setting>
+        <setting name="keytones">
+          <label>Keytones</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="ringing_time">
+          <label>Ringing Time</label>
+          <type>
+            <integer/>
+          </type>
+          <value>60</value>
+          <description/>
+        </setting>
+        <setting name="dtmf_speaker_phone">
+          <label>DTMF echo on Speaker Phone</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+      </group>
+      <group name="network">
+        <label>Network</label>
+        <!-- 
+          - Phone will reboot infinitely if you try to 
+          - set these settings.  If admin is using static IP
+          - these will be maintaining those setting from phone 
+          - itself.
+          -->
+        <!-- setting name="dhcp">
+          <label>DHCP</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="ip_adr">
+          <label>IP address</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="netmask">
+          <label>Netmask</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="dns_domain">
+          <label>DNS Domain</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="dns_server1">
+          <label>DNS Server 1</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="dns_server2">
+          <label>DNS Server 2</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="gateway">
+          <label>IP Gateway</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Default gateway for the IP layer</description>
+        </setting>
+        <setting name="phone_name">
+          <label>Phone name</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting -->
+        <setting name="ntp_server">
+          <label>NTP Server</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="timezone">
+          <label>Timezone</label>
+          <type>
+            <enum>
+              <option>
+                <value>USA-10</value>
+              </option>
+              <option>
+                <value>USA-9</value>
+              </option>
+              <option>
+                <value>CAN-8</value>
+              </option>
+              <option>
+                <value>MEX-8</value>
+              </option>
+              <option>
+                <value>USA-8</value>
+              </option>
+              <option>
+                <value>CAN-7</value>
+              </option>
+              <option>
+                <value>MEX-7</value>
+              </option>
+              <option>
+                <value>USA-7</value>
+              </option>
+              <option>
+                <value>CAN-6</value>
+              </option>
+              <option>
+                <value>CHL-6</value>
+              </option>
+              <option>
+                <value>MEX-6</value>
+              </option>
+              <option>
+                <value>USA-6</value>
+              </option>
+              <option>
+                <value>BHS-5</value>
+              </option>
+              <option>
+                <value>CAN-5</value>
+              </option>
+              <option>
+                <value>CUB-5</value>
+              </option>
+              <option>
+                <value>USA-5</value>
+              </option>
+              <option>
+                <value>CAN-4</value>
+              </option>
+              <option>
+                <value>CHL-4</value>
+              </option>
+              <option>
+                <value>PRY-4</value>
+              </option>
+              <option>
+                <value>BMU-4</value>
+              </option>
+              <option>
+                <value>FLK-4</value>
+              </option>
+              <option>
+                <value>CAN-3.5</value>
+              </option>
+              <option>
+                <value>GRL-3</value>
+              </option>
+              <option>
+                <value>PRT-1</value>
+              </option>
+              <option>
+                <value>FRO-0</value>
+              </option>
+              <option>
+                <value>IRL-0</value>
+              </option>
+              <option>
+                <value>PRT-0</value>
+              </option>
+              <option>
+                <value>ESP-0</value>
+              </option>
+              <option>
+                <value>GBR-0</value>
+              </option>
+              <option>
+                <value>ALB+1</value>
+              </option>
+              <option>
+                <value>AUT+1</value>
+              </option>
+              <option>
+                <value>BEL+1</value>
+              </option>
+              <option>
+                <value>CAI+1</value>
+              </option>
+              <option>
+                <value>CHA+1</value>
+              </option>
+              <option>
+                <value>HRV+1</value>
+              </option>
+              <option>
+                <value>CZE+1</value>
+              </option>
+              <option>
+                <value>DNK+1</value>
+              </option>
+              <option>
+                <value>FRA+1</value>
+              </option>
+              <option>
+                <value>GER+1</value>
+              </option>
+              <option>
+                <value>HUN+1</value>
+              </option>
+              <option>
+                <value>ITA+1</value>
+              </option>
+              <option>
+                <value>LUX+1</value>
+              </option>
+              <option>
+                <value>MAK+1</value>
+              </option>
+              <option>
+                <value>NLD+1</value>
+              </option>
+              <option>
+                <value>NAM+1</value>
+              </option>
+              <option>
+                <value>NOR+1</value>
+              </option>
+              <option>
+                <value>POL+1</value>
+              </option>
+              <option>
+                <value>SVK+1</value>
+              </option>
+              <option>
+                <value>ESP+1</value>
+              </option>
+              <option>
+                <value>SWE+1</value>
+              </option>
+              <option>
+                <value>CHE+1</value>
+              </option>
+              <option>
+                <value>GIB+1</value>
+              </option>
+              <option>
+                <value>YUG+1</value>
+              </option>
+              <option>
+                <value>BLR+2</value>
+              </option>
+              <option>
+                <value>BGR+2</value>
+              </option>
+              <option>
+                <value>CYP+2</value>
+              </option>
+              <option>
+                <value>EGY+2</value>
+              </option>
+              <option>
+                <value>EST+2</value>
+              </option>
+              <option>
+                <value>FIN+2</value>
+              </option>
+              <option>
+                <value>GAZ+2</value>
+              </option>
+              <option>
+                <value>GRC+2</value>
+              </option>
+              <option>
+                <value>ISR+2</value>
+              </option>
+              <option>
+                <value>JOR+2</value>
+              </option>
+              <option>
+                <value>LVA+2</value>
+              </option>
+              <option>
+                <value>LBN+2</value>
+              </option>
+              <option>
+                <value>MDA+2</value>
+              </option>
+              <option>
+                <value>RUS+2</value>
+              </option>
+              <option>
+                <value>ROU+2</value>
+              </option>
+              <option>
+                <value>SYR+2</value>
+              </option>
+              <option>
+                <value>TUR+2</value>
+              </option>
+              <option>
+                <value>UKR+2</value>
+              </option>
+              <option>
+                <value>IRQ+3</value>
+              </option>
+              <option>
+                <value>RUS+3</value>
+              </option>
+              <option>
+                <value>IRN+3.5</value>
+              </option>
+              <option>
+                <value>ARM+4</value>
+              </option>
+              <option>
+                <value>AZE+4</value>
+              </option>
+              <option>
+                <value>GEO+4</value>
+              </option>
+              <option>
+                <value>KAZ+4</value>
+              </option>
+              <option>
+                <value>RUS+4</value>
+              </option>
+              <option>
+                <value>KAZ+5</value>
+              </option>
+              <option>
+                <value>KGZ+5</value>
+              </option>
+              <option>
+                <value>PAK+5</value>
+              </option>
+              <option>
+                <value>RUS+5</value>
+              </option>
+              <option>
+                <value>IND+5.5</value>
+              </option>
+              <option>
+                <value>KAZ+6</value>
+              </option>
+              <option>
+                <value>RUS+6</value>
+              </option>
+              <option>
+                <value>CHN+7</value>
+              </option>
+              <option>
+                <value>RUS+7</value>
+              </option>
+              <option>
+                <value>SGP+8</value>
+              </option>
+              <option>
+                <value>KOR+8</value>
+              </option>
+              <option>
+                <value>JPN+9</value>
+              </option>
+              <option>
+                <value>AUS+9.5</value>
+              </option>
+              <option>
+                <value>AUS+10</value>
+              </option>
+              <option>
+                <value>AUS2+10</value>
+              </option>
+              <option>
+                <value>RUS+10</value>
+              </option>
+              <option>
+                <value>AUS+10.5</value>
+              </option>
+              <option>
+                <value>NZL+12</value>
+              </option>
+              <option>
+                <value>RUS+12</value>
+              </option>
+              <option>
+                <value>NZL+12.75</value>
+              </option>
+              <option>
+                <value>TON+13</value>
+              </option>
+            </enum>
+          </type>
+          <value>USA-5</value>
+          <description/>
+        </setting>
+        <setting name="http_proxy">
+          <label>HTTP Proxy</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="http_port">
+          <label>HTTP Port</label>
+          <type>
+            <integer min="1" max="65535"/>
+          </type>
+          <value>80</value>
+          <description>Port of the phones HTTP server</description>
+        </setting>
+        <setting name="http_user">
+          <label>HTTP User</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Username for the authentication at the webinterface of 
+            the phone</description>
+        </setting>
+        <setting name="http_pass">
+          <label>HTTP Password</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Password for the authentication at the webinterface of 
+            the phone</description>
+        </setting>
+        <setting name="http_scheme">
+          <label>Digest Authentication Scheme</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Digest or Basic HTTP Authentication Scheme</description>
+        </setting>
+        <setting name="https_port">
+          <label>HTTPS Port</label>
+          <type>
+            <integer min="1" max="65535"/>
+          </type>
+          <value>443</value>
+          <description>Port of the phones HTTPS server</description>
+        </setting>
+        <setting name="webserver_type">
+          <label>Webserver connection type</label>
+          <type>
+            <enum>
+              <option>
+                <label>HTTP only</label>
+                <value>http</value>
+              </option>
+              <option>
+                <label>HTTPS only</label>
+                <value>https</value>
+              </option>
+              <option>
+                <label>HTTP or HTTPS</label>
+                <value>http_https</value>
+              </option>
+              <option>
+                <label>off</label>
+                <value>off</value>
+              </option>
+            </enum>
+          </type>
+          <value>http_https</value>
+          <description/>
+        </setting>
+      </group>
+      <group name="advancednetwork">
+        <label>Advanced Network</label>
+        <setting name="user_phone">
+          <label>Use user=phone</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description/>
+        </setting>
+        <setting name="codec_tos">
+          <label>Type Of Server (TOS)</label>
+          <type>
+            <integer min="0"/>
+          </type>
+          <value>160</value>
+          <description/>
+        </setting>
+        <setting name="sip_retry_t1">
+          <label>SIP T1(ms)</label>
+          <type>
+            <integer min="0"/>
+          </type>
+          <value>500</value>
+          <description>SIP retransmission timer value T1</description>
+        </setting>
+        <setting name="session_timer">
+          <label>SIP Session Timer</label>
+          <type>
+            <integer min="0"/>
+          </type>
+          <value>3600</value>
+          <description>Default value for SIP session timer</description>
+        </setting>
+        <setting name="network_id_port">
+          <label>Network Identity Port</label>
+          <type>
+            <integer min="1" max="65535"/>
+          </type>
+          <value/>
+          <description>The local SIP port at the phone</description>
+        </setting>
+        <setting name="max_forwards">
+          <label>SIP Max Forwards</label>
+          <type>
+            <integer min="0" max="255"/>
+          </type>
+          <value>70</value>
+          <description>Default value for the SIP Max-Forwards 
+            header</description>
+        </setting>
+        <setting name="refer_brackets">
+          <label>Refer-To Brackets</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Enclose the Refer-To header in brackets</description>
+        </setting>
+        <setting name="register_http_contact">
+          <label>Register HTTP Contact</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Include HTTP Contacts in REGISTER requests</description>
+        </setting>
+        <setting name="filter_registrar">
+          <label>Filter Packets from Registrar</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Accept incoming requests only from the 
+            proxies</description>
+        </setting>
+        <setting name="challenge_reboot">
+          <label>Authentication for SIP Reboot</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Authentication required for NOTIFYs with event 
+            reboot</description>
+        </setting>
+        <setting name="challenge_checksync">
+          <label>Authentication for SIP Check-Sync</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Authentication required for NOTIFYs with event 
+            check-sync. WARNING breaks provisioning with sipXconfig if turend 
+            on!</description>
+        </setting>
+        <setting name="aoc_amount_display">
+          <label>AOC Amount Display</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Show AOC information if available</description>
+        </setting>
+        <setting name="aoc_pulse_currency">
+          <label>AOC Pulse Currency</label>
+          <type>
+            <string/>
+          </type>
+          <value>$</value>
+          <description/>
+        </setting>
+        <setting name="aoc_cost_pulse">
+          <label>AOC Cost/Pulse</label>
+          <type>
+            <real min="0.001"/>
+          </type>
+          <value>1</value>
+          <description>Cost per pulse</description>
+        </setting>
+        <setting name="rtp_port_start">
+          <label>Dynamic RTP Port Start</label>
+          <type>
+            <integer min="1024" max="65535"/>
+          </type>
+          <value>49152</value>
+          <description/>
+        </setting>
+        <setting name="rtp_port_end">
+          <label>Dynamic RTP Port Stop</label>
+          <type>
+            <integer min="1024" max="65535"/>
+          </type>
+          <value>65534</value>
+          <description/>
+        </setting>
+        <setting name="dtmf_payload_type">
+          <label>DTMF Payload Type</label>
+          <type>
+            <integer min="96" max="127"/>
+          </type>
+          <value>101</value>
+          <description>Default dynamic payload type for DTMF 
+            events</description>
+        </setting>
+        <setting name="admin_mode">
+          <label>Administrator Mode</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description>Several settings are only available for 
+            administrator</description>
+        </setting>
+        <setting name="admin_mode_password">
+          <label>Administrator Password</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Password to change from user to admin mode</description>
+        </setting>
+        <setting name="snmp_trusted_addresses">
+          <label>SNMP Trusted Address</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="snmp_port">
+          <label>SNMP Port</label>
+          <type>
+            <integer min="1" max="65535"/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="vlan_id">
+          <label>VLAN ID</label>
+          <type>
+            <integer/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="vlan_qos">
+          <label>VLAN Priority</label>
+          <type>
+            <integer/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="require_prack">
+          <label>Require PRACK</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="offer_gruu">
+          <label>Offer GRUU</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="offer_mpo">
+          <label>Offer MPO</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="dirty_host_ttl">
+          <label>SIP Dirty Host TTL</label>
+          <type>
+            <integer/>
+          </type>
+          <value/>
+          <description/>
+        </setting>
+        <setting name="short_form">
+          <label>SIP Compact Headers</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description/>
+        </setting>
+        <setting name="syslog_server">
+          <label>Syslog Server</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Address of the syslog server for remote 
+            logging</description>
+        </setting>
+        <setting name="log_level">
+          <label>Log Level</label>
+          <type>
+            <integer min="0" max="9"/>
+          </type>
+          <value>5</value>
+          <description/>
+        </setting>
+        <setting name="enum_suffix">
+          <label>ENUM Suffix</label>
+          <type>
+            <string/>
+          </type>
+          <value>e164.arpa</value>
+          <description/>
+        </setting>
+        <setting name="publish_presence">
+          <label>Publish Presence</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description/>
+        </setting>
+        <setting name="presence_timeout">
+          <label>Presence Timeout</label>
+          <type>
+            <integer/>
+          </type>
+          <value>15</value>
+          <description/>
+        </setting>
+        <setting name="intercom_enabled">
+          <label>Intercom Enabled</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description>Allow incoming intercom calls</description>
+        </setting>
+        <setting name="support_idna">
+          <label>Support IDNA</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+        <setting name="alert_info_playback">
+          <label>Alert Info playback</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description/>
+        </setting>
+      </group>
+      <group name="update">
+        <label>Updates</label>
+        <setting name="setting_server">
+          <label>Setting URL</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>URL from where the phone loads its settings during 
+            startup</description>
+        </setting>
+        <setting name="subscribe_config">
+          <label>Subscribe Config</label>
+          <type refid="on-off"/>
+          <value>off</value>
+          <description/>
+        </setting>
+        <setting name="firmware_status">
+          <label>Firmware Status URL</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>URL which will be checked regularly for a new firmware 
+            URL</description>
+        </setting>
+        <setting name="firmware_interval">
+          <label>Firmware Interval</label>
+          <type>
+            <integer/>
+          </type>
+          <value/>
+          <description>After how many seconds the Firmware Status URL will be 
+            checked again</description>
+        </setting>
+        <setting name="firmware">
+          <label>Firmware URL</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>URL for downloading a new firmware</description>
+        </setting>
+        <setting name="update_policy">
+          <label>Update Policy</label>
+          <type>
+            <enum>
+              <option>
+                <label>Update automatically</label>
+                <value>auto_update</value>
+              </option>
+              <option>
+                <label>Ask for update</label>
+                <value>ask_for_update</value>
+              </option>
+              <option>
+                <label>Ask for updating bootloader only</label>
+                <value>never_update_firm</value>
+              </option>
+              <option>
+                <label>Ask for updating firmware only</label>
+                <value>never_update_boot</value>
+              </option>
+              <option>
+                <label>Never update, load settings only</label>
+                <value>settings_only</value>
+              </option>
+              <option>
+                <label>Never update, do not load settings</label>
+                <value>never_update</value>
+              </option>
+            </enum>
+          </type>
+          <value>auto_update</value>
+          <description>How should new settings and/or new firmware be 
+            handled</description>
+        </setting>
+        <setting name="license_url">
+          <label>License URL</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>URL where the license for the phone can be 
+            downloaded</description>
+        </setting>
+      </group>
+    </group>
+    <group name="line">
+      <group name="line">
+        <label>Registration</label>
+        <setting name="user_active">
+          <label>Line active</label>
+          <type refid="on-off"/>
+          <value>on</value>
+          <description>Active (registered) line or not.</description>
+        </setting>
+        <setting name="user_realname">
+          <label>Displayname</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Caller ID value.</description>
+        </setting>
+        <setting name="user_name">
+          <label>Account</label>
+          <type>
+            <string required="yes"/>
+          </type>
+          <value/>
+          <description>Number or name which is used for 
+            registration.</description>
+        </setting>
+        <setting name="user_host">
+          <label>Registrar</label>
+          <type>
+            <string required="yes"/>
+          </type>
+          <value/>
+          <description>FQDN name of the domain or registrar.</description>
+        </setting>
+        <setting name="user_pname">
+          <label>Authentication Username</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Username for the authentication if it differs from 
+            username.</description>
+        </setting>
+        <setting name="user_pass">
+          <label>Password</label>
+          <type>
+            <string required="yes"/>
+          </type>
+          <value/>
+          <description>Password for authentication against the 
+            server.</description>
+        </setting>
+        <setting name="user_mailbox">
+          <label>Mailbox</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+          <description>Number to internal voice mail system.</description>
+        </setting>
+      </group>
+      <group name="sip">
+        <label>SIP</label>
+        <setting name="user_outbound">
+          <label>Outbound Proxy</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+        </setting>
+        <setting name="user_moh">
+          <label>Music on hold server</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+        </setting>
+        <setting name="user_alert_info">
+          <label>Alert Info URL</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+        </setting>
+        <setting name="user_pic">
+          <label>User picture URL</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+        </setting>
+        <setting name="user_stream">
+          <label>Music on hold Streaming URL</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+        </setting>
+        <setting name="user_dp_str">
+          <label>Dial-Plan String</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+        </setting>
+        <setting name="user_q">
+          <label>Q-Value</label>
+          <type>
+            <enum>
+              <option>
+                <value>1.0</value>
+              </option>
+              <option>
+                <value>0.9</value>
+              </option>
+              <option>
+                <value>0.8</value>
+              </option>
+              <option>
+                <value>0.7</value>
+              </option>
+              <option>
+                <value>0.6</value>
+              </option>
+              <option>
+                <value>0.5</value>
+              </option>
+              <option>
+                <value>0.4</value>
+              </option>
+              <option>
+                <value>0.3</value>
+              </option>
+              <option>
+                <value>0.2</value>
+              </option>
+              <option>
+                <value>0.1</value>
+              </option>
+              <option>
+                <value>0.0</value>
+              </option>
+            </enum>
+          </type>
+          <value>1.0</value>
+        </setting>
+        <setting name="user_expiry">
+          <label>Proposed Expiry</label>
+          <type>
+            <enum>
+              <option>
+                <label>1 day</label>
+                <value>86400</value>
+              </option>
+              <option>
+                <label>8 hours</label>
+                <value>28800</value>
+              </option>
+              <option>
+                <label>2 hours</label>
+                <value>7200</value>
+              </option>
+              <option>
+                <label>1 hour</label>
+                <value>3600</value>
+              </option>
+              <option>
+                <label>10 mins</label>
+                <value>600</value>
+              </option>
+              <option>
+                <label>1 min</label>
+                <value>60</value>
+              </option>
+            </enum>
+          </type>
+          <value>3600</value>
+        </setting>
+        <setting name="user_auto_connect">
+          <label>Auto Answer</label>
+          <type refid="on-off"/>
+          <value>off</value>
+        </setting>
+        <setting name="user_descr_contact">
+          <label>Long SIP-Contact (RFC3840)</label>
+          <type refid="on-off"/>
+          <value>on</value>
+        </setting>
+        <setting name="user_sipusername_as_line">
+          <label>Support broken Registrar</label>
+          <type refid="on-off"/>
+          <value>off</value>
+        </setting>
+      </group>
+      <group name="nat">
+        <label>NAT</label>
+        <setting name="user_ice">
+          <label>Offer ICE</label>
+          <type refid="on-off"/>
+          <value>off</value>
+        </setting>
+        <setting name="stun_server">
+          <label>STUN server (IP-addr:port)</label>
+          <type><string/></type>
+          <value/>
+        </setting>
+        <setting name="stun_binding_interval">
+          <label>STUN interval (seconds)</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+        </setting>
+        <setting name="keepalive_interval">
+          <label>Keepalive interval (seconds)</label>
+          <type>
+            <string/>
+          </type>
+          <value/>
+        </setting>
+        <setting name="user_symmetrical_rtp">
+          <label>Symmetrical RTP</label>
+          <type refid="on-off"/>
+          <value>off</value>
+        </setting>
+      </group>
+      <group name="rtp">
+        <label>RTP</label>
+        <setting name="codec1_name">
+          <label>Codec 1</label>
+          <type refid="codec"/>
+          <value>0</value>
+        </setting>
+        <setting name="codec2_name">
+          <label>Codec 2</label>
+          <type refid="codec"/>
+          <value>8</value>
+        </setting>
+        <setting name="codec3_name">
+          <label>Codec 3</label>
+          <type refid="codec"/>
+          <value>9</value>
+        </setting>
+        <setting name="codec4_name">
+          <label>Codec 4</label>
+          <type refid="codec"/>
+          <value>2</value>
+        </setting>
+        <setting name="codec5_name">
+          <label>Codec 5</label>
+          <type refid="codec"/>
+          <value>3</value>
+        </setting>
+        <setting name="codec6_name">
+          <label>Codec 6</label>
+          <type refid="codec"/>
+          <value>18</value>
+        </setting>
+        <setting name="codec7_name">
+          <label>Codec 7</label>
+          <type refid="codec"/>
+          <value>4</value>
+        </setting>
+        <setting name="codec_size">
+          <label>Packet Size</label>
+          <type>
+            <enum>
+              <option>
+                <label>20ms</label>
+                <value>20</value>
+              </option>
+              <option>
+                <label>30ms</label>
+                <value>30</value>
+              </option>
+              <option>
+                <label>40ms</label>
+                <value>40</value>
+              </option>
+              <option>
+                <label>60ms</label>
+                <value>60</value>
+              </option>
+            </enum>
+          </type>
+          <value>20</value>
+        </setting>
+        <setting name="user_srtp">
+          <label>RTP Encryption</label>
+          <type refid="on-off"/>
+          <value>off</value>
+        </setting>
+      </group>
+    </group>
+  </group>
+  <group name="snom360" copy-of="snom"/>
+  <group name="snom320" copy-of="snom"/>
+</model>

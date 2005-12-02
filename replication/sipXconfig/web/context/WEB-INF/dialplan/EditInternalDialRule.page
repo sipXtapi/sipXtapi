@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanContext" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
+
+    <property-specification name="ruleId" 
+		type="java.lang.Integer"
+        persistent="yes">
+    </property-specification>    
+    
+    <property-specification name="rule" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
+    </property-specification>
+    
+    <!-- not used on this page -->
+	<property-specification name="removeGateways" 
+		type="java.lang.String"/>
+
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"
+     	persistent="yes"/>
+    
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    
+    <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+        <set-property name="collection" expression="dialPlanContext.autoAttendants"/>
+        <set-property name="labelExpression" expression="'name'"/>            
+    </bean>    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+    </component>
+    
+	<component id="common" type="ItemCommon">
+        <binding name="item" expression="rule"/>
+        <binding name="nameValidator" expression="global.validSipNameRequired"/>
+    </component>
+    
+    <component id="extensionLenLabel" type="FieldLabel">
+        <binding name="field" expression="components.extensionLen"/>
+    </component>
+    <component id="extensionLen" type="contrib:NumericField">
+        <binding name="value" expression="rule.localExtensionLen"/>
+        <binding name="minimum" expression="1"/>
+        <binding name="maximum" expression="99"/>
+        <binding name="required" expression="true"/>
+        <static-binding name="type" value="int"/>
+        <message-binding name="displayName" key="label.extensionLen"/>
+    </component>
+    
+    <component id="autoAttendantLabel" type="FieldLabel">
+        <binding name="field" expression="components.autoAttendant"/>
+        <message-binding name="displayName" key="label.autoAttendant"/>
+    </component>
+    <component id="autoAttendant" type="PropertySelection">
+        <binding name="value" expression="rule.autoAttendant"/>
+        <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    </component>    
+
+    <component id="autoAttendantAliasesLabel" type="FieldLabel">
+        <binding name="field" expression="components.autoAttendantAliases"/>
+    </component>
+    <component id="autoAttendantAliases" type="ValidField">
+        <binding name="value" expression="rule.aaAliases"/>
+        <binding name="validator" expression="global.validUsernamePatternSequence"/>
+        <message-binding name="displayName" key="label.autoAttendantAliases"/>
+    </component>
+
+    <component id="voiceMailLabel" type="FieldLabel">
+        <binding name="field" expression="components.voiceMail"/>
+    </component>
+    <component id="voiceMail" type="ValidField">
+        <binding name="value" expression="rule.voiceMail"/>
+        <binding name="validator" expression="global.validPhone"/>
+        <message-binding name="displayName" key="label.voiceMail"/>
+    </component>
+        
+    <component id="voiceMailPrefixLabel" type="FieldLabel">
+        <binding name="field" expression="components.voiceMailPrefix"/>
+    </component>
+    <component id="voiceMailPrefix" type="ValidField">
+        <binding name="value" expression="rule.voiceMailPrefix"/>
+        <binding name="validator" expression="global.validPhone"/>
+        <message-binding name="displayName" key="label.voiceMailPrefix"/>
+    </component>
+
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
+    </component>    
+
+</page-specification>

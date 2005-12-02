@@ -1,0 +1,23 @@
+# Use delay-compressed logfiles
+compress
+delaycompress
+
+# Keep 14 days of logs
+daily
+rotate 14
+
+# It's OK if the files aren't there
+missingok
+
+# Now we list the files
+
+/var/log/sipxpbx/*.log {
+}
+
+/var/log/sipxpbx/httpd_error_log /var/log/sipxpbx/httpd_access_log {
+    notifempty
+    sharedscripts
+    postrotate
+        /bin/kill -USR1 `cat /var/run/sipxpbx/httpd.pid 2>/dev/null` 2> /dev/null || true
+    endscript
+}

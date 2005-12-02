@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app 
+   xmlns="http://java.sun.com/xml/ns/j2ee" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" 
+   version="2.4">
+
+    <display-name>sipXconfig-web</display-name>
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>
+            classpath*:/org/sipfoundry/sipxconfig/applicationContext-sipxconfig.xml
+            classpath*:/org/sipfoundry/sipxconfig/admin/admin.beans.xml
+            classpath*:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml
+            classpath*:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml
+            classpath*:/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml
+						classpath*:/org/sipfoundry/sipxconfig/conference/conference.beans.xml          
+						classpath*:/org/sipfoundry/sipxconfig/job/job.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/login/login.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/phone/phone.beans.xml          
+            classpath*:/org/sipfoundry/sipxconfig/setting/setting.beans.xml
+            classpath*:/org/sipfoundry/sipxconfig/site/tapestry.xml 
+            classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml
+            </param-value>
+    </context-param>
+    <filter>
+        <filter-name>redirect</filter-name>
+        <filter-class>org.apache.tapestry.RedirectFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>redirect</filter-name>
+        <url-pattern>/</url-pattern>
+    </filter-mapping>
+    <listener>
+        <listener-class>
+            org.sipfoundry.sipxconfig.site.ContextLoaderListener</listener-class>
+    </listener>
+    <servlet>
+        <servlet-name>sipXconfig-web</servlet-name>
+        <servlet-class>org.apache.tapestry.ApplicationServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+	<servlet>
+		<servlet-name>change-pintoken</servlet-name>
+		<servlet-class>org.sipfoundry.sipxconfig.site.user.PinTokenChangeServlet</servlet-class>	    
+	</servlet>
+    <servlet-mapping>
+        <servlet-name>sipXconfig-web</servlet-name>
+        <url-pattern>/app</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>change-pintoken</servlet-name>
+        <url-pattern>/api/change-pintoken</url-pattern>
+    </servlet-mapping>
+    <!-- Explicitly set session timeout to 15 minutes -->
+    <session-config>
+        <session-timeout>15</session-timeout>
+    </session-config>
+</web-app>

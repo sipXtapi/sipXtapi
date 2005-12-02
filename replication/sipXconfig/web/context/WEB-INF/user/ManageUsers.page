@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.user.ManageUsers">
+    <description>add a description</description>
+    
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="coreContext" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="global.coreContext"/> 
+	<property-specification name="groupId"
+        persistent="yes" 
+		type="java.lang.Integer"/>
+
+    <!--
+	  - B E A N S
+	  -->
+        
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    
+	<!--
+	  - C O M P O N E N T S
+	  -->
+    
+	<component id="userManagement" type="Form"/>
+    <component id="addUser" type="DirectLink">
+        <binding name="listener" expression="listeners.addUser"/>
+    </component>
+	<component id="userTable" type="UserTable">
+        <binding name="userListener" expression="listeners.editUser"/>
+        <binding name="groupId" expression="groupId"/>
+	</component>
+    <component id="delete" type="Submit">
+        <binding name="listener" expression="listeners.deleteUsers"/>
+    </component>
+    <component id="groupFilter" type="GroupFilter">
+        <binding name="selectedGroupId" expression="groupId"/>
+        <binding name="groups" expression="coreContext.groups"/>
+    </component>
+            
+</page-specification>

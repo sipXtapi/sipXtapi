@@ -1,0 +1,86 @@
+<html title="sipXconfig">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border" restricted="false" loginRequired="false">
+        <h2>Web Unittest Interface</h2>
+        <p>Links here are generally driven by unittests, but you may interact with them
+            manually as well.</p>
+<div id="col1">
+        <h3>Users</h3>
+	    <ul>
+		    <li><strong><a jwcid="login" id="login" href="#">Login</a></strong></li>
+		    <li><a href="#" jwcid="@PageLink" id="LoginPage" page="LoginPage">Login Page</a></li>
+		    <li><a href="#" jwcid="toggleNavigation" id="toggleNavigation">Toggle navigation</a></li>
+		    <li><a href="#" jwcid="hideNavigation" id="hideNavigation">Hide navigation</a></li>
+		    <li><a href="#" jwcid="toggleAdmin" id="toggleAdmin">Toggle admin/user mode</a></li>
+		    <li><a href="#" jwcid="seedTestUser" id="seedTestUser">Create test user</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="NewUser" page="NewUser">New User</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="ManageUsers" page="ManageUsers">Manage Users</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="UserGroups" page="UserGroups">User Groups</a></li>
+		    <li><a href="#" jwcid="newUserGroup" id="NewUserGroup">New User Group</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="ChangePin" page="ChangePin">Change Pin</a></li>
+		    <li><a href="#" jwcid="loginFirstTestUser" id="loginFirstTestUser">Log in the first test user</a></li>
+		    <li><a href="#" jwcid="deleteAllUsers" id="deleteAllUsers">Delete all users</a></li>
+	    </ul>    
+        
+	    <h3>Phones</h3>
+	    <ul>
+	        <li><a href="#" jwcid="@PageLink" id="ManagePhones" page="ManagePhones">List Phones</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="PhoneGroups" page="PhoneGroups">Phone Groups</a></li>
+		    <li><a href="#" jwcid="newPhoneGroup" id="NewPhoneGroup">New Phone Group</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="NewPhone" page="NewPhone">New Phone</a></li>
+	    </ul>
+    
+	    <h3>Call Groups</h3>
+	    <ul>
+		    <li><a href="#" jwcid="@PageLink" id="NewCallGroup" page="EditCallGroup">New call group</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="ListCallGroups" page="ListCallGroups">Call groups</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="NewParkOrbit" page="EditParkOrbit">New Call Park Extension</a></li>       
+		    <li><a href="#" jwcid="@PageLink" id="ListParkOrbits" page="ListParkOrbits">Call Parking</a></li>
+	    </ul>
+</div>        
+<div id="col2">
+    
+	    <h3>Dial Plans</h3>
+	    <ul>
+		    <li><a href="#" jwcid="@PageLink" id="ListGateways" page="ListGateways">List Gateways</a></li> 
+	        <li><a href="#" jwcid="@PageLink" id="NewAutoAttendant" page="EditAutoAttendant">New Auto Attendant</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="ManageAttendants" page="ManageAttendants">List Auto Attendants</a></li>    
+		    <li><a href="#" jwcid="@PageLink" id="FlexibleDialPlan" page="EditFlexibleDialPlan">Dial Plan</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="EmergencyRouting" page="EditEmergencyRouting">911 Routing</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="UserCallForwarding" page="UserCallForwarding">Call Forwarding</a></li>
+		    <li><a href="#" jwcid="@PageLink" id="BackupPage" page="BackupPage">Backup</a></li>
+	    </ul>
+        
+        <h3>System</h3>
+        <ul>
+            <li><a href="#" jwcid="@PageLink" id="ExtensionPools" page="ExtensionPools">User Extension Pool</a></li>
+            <li><a href="#" jwcid="@PageLink" id="ServerSettings" page="ServerSettings">Server Settings</a></li>
+            <li><a href="#" jwcid="RestartReminder" id="RestartReminder">Restart Reminder</a></li>
+            <li><a href="#" jwcid="@PageLink" id="LoginPage" page="LoginPage">Login Page</a></li>
+            <li><a href="#" jwcid="@PageLink" id="JobStatusPage" page="JobStatusPage">Job Status</a></li>
+            <li><a href="#" jwcid="populateJobs" id="jobs:populate">Populate Jobs</a></li>            
+            <li><a href="#" jwcid="@PageLink" id="Services" page="Services">Services</a></li>
+            <li><a href="#" jwcid="@PageLink" id="Registrations" page="Registrations">Registrations</a></li>
+            <li><a href="#" jwcid="throwException" id="ShowExceptionPage">Show Exception Page</a></li>
+        </ul>
+        
+        <h3>Reset</h3>
+        <ul>
+		    <li><a href="#" jwcid="resetCoreContext" id="resetCoreContext">Reset core context</a></li>
+		    <li><a href="#" jwcid="resetDialPlans" id="resetDialPlans">Reset dial plans</a></li>
+		    <li><a href="#" jwcid="resetPhoneContext" id="resetPhoneContext">Reset phone management</a></li>
+		    <li><a href="#" jwcid="resetCallGroupContext" id="resetCallGroupContext">Reset call group context</a></li>
+        </ul>
+        
+        <h3>Dataset Generation</h3>
+        <ul jwcid="generateLinks">
+            <li><a jwcid="generateLink"><span jwcid="generateLinkLabel"/></a></li>
+		</ul>            
+        
+</div>	  
+    </div>
+</body>
+</html>

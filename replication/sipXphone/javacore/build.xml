@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- $Id: $ -->
+
+<!--
+  - Phone core libs and GUI, See softphone for executable
+  --> 
+<project name="javacore" default="jar" basedir="." >
+
+  <!--
+    - T E S T S
+    -->
+  <patternset id="test.classes">
+    <include name="AppClassLoaderTest.class"/>
+  </patternset>
+
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/javacore"/>
+
+  <import file="${top.src.dir}/ant-targets.xml"/>
+
+  <path id="base.path" >
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <property name="version.file" value="${classes.dir}/xpressa-version.properties"/>
+
+  <!--
+    - L I B   D E P E N D E N C I E S 
+    -->
+  
+  <!-- I N I T  -->
+  <target name="init" depends="ant-targets.init,version.properties"/>
+
+  <!-- I N S T A L L -->
+  <target name="install" depends="ant-targets.install">
+    <mkdir dir="${sipxphone.lib.dir}"/>
+    <copy file="${javacore.jar}" todir="${sipxphone.lib.dir}"/>
+  </target>
+
+  <!-- 
+   - C O M P I L E 
+   -->
+  <target name="compile" depends="init" unless="subdirs"
+      description="[internal] Compile all files in src directory">
+
+    <javac srcdir="${src.dir}"
+        destdir="${classes.dir}"
+        debug="${debug}"
+        deprecation="${deprecation}"
+        optimize="${optimize}"
+        includes="**/*.java"
+  	    excludes="test/**,com/**"/>
+  </target>
+
+
+  <!-- J A R -->
+  <target name="jar" depends="phone-javac,compile" description="create jar file">
+
+    <jar jarfile="${javacore.jar}">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+        <include name="**/*.properties" />
+      </fileset>
+
+      <fileset dir="meta/jar">
+        <include name="**/*"/>
+      </fileset>
+    </jar>
+
+  </target>
+
+
+</project>

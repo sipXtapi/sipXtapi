@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.user.UserTable"
+    allow-body="no"
+    allow-informal-parameters="no">
+    <description>add a description</description>    
+    <!--
+      - P A R A M E T E R S
+      -->    
+    <parameter name="userListener" 
+        type="org.apache.tapestry.IActionListener"
+        required="yes" 
+        direction="auto">
+    </parameter>
+    <parameter name="groupId" 
+        type="java.lang.Integer"
+        required="yes" 
+        direction="in">
+    </parameter>
+    <!--
+      - P R O P E R T I E S
+      -->
+    <property-specification name="selections" 
+        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+    <property-specification name="currentUser"
+        type="org.sipfoundry.sipxconfig.common.User"/>
+    <property-specification name="coreContext"
+        type="org.sipfoundry.sipxconfig.common.CoreContext"
+        initial-value="page.global.coreContext"/>
+    <property-specification name="tableModel"
+        type="org.sipfoundry.sipxconfig.site.user.UserTableModel"
+        persistent="yes"
+        initial-value="beans.userTableModel"/>
+	<!--
+	  - B E A N S
+	  -->
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    <bean name="userTableModel" class="org.sipfoundry.sipxconfig.site.user.UserTableModel" lifecycle="page">
+        <set-property name="coreContext" expression="page.global.coreContext"/>
+        <set-property name="pageSize" expression="page.visit.tablePageSize"/>
+        <set-property name="component" expression="getThis()"/>        
+    </bean>
+	<!--
+	  - C O M P O N E N T S
+	  -->
+	<component id="userTable" type="contrib:TableView">
+        <binding name="tableModel" expression="beans.userTableModel.wrappedTableModel"/>
+        <static-binding name="initialSortColumn" value="userName"/>
+	</component>
+	<component id="userColumns" type="contrib:TableColumns">
+	</component>
+	<component id="userRows" type="contrib:TableFormRows">
+		<binding name="row" expression="currentUser"/>
+        <binding name="convertor" expression="idConverter"/>
+		<binding name="class" expression="beans.rowClass.next"/>
+	</component>
+    <component id="userNameColumnValue" type="Block"/>
+    <component id="userNameAsLinkConditional" type="Conditional">
+        <binding name="condition" expression="userListener != null"/>
+    </component>
+    <component id="userNameAsTextConditional" type="Conditional">
+        <binding name="condition" expression="userListener == null"/>
+    </component>
+    <component id="userNameLink" type="DirectLink">
+        <binding name="listener" expression="userListener"/>
+        <binding name="parameters" expression="currentUser.id"/>
+    </component>
+    <component id="userName" type="Insert">
+        <binding name="value" expression="currentUser.userName"/>
+    </component>
+    <component id="userNameAsText" copy-of="userName"/>
+	<component id="userValues" type="contrib:TableValues">
+	</component>
+    <component id="selectedRow" type="checkboxes:ControlledCheckbox">
+        <binding name="selected" expression="selections.selected[currentUser.id]"/>
+    </component>    
+    <component id="tablePages" type="contrib:TableFormPages"/>
+</component-specification>

@@ -1,0 +1,120 @@
+<?xml version="1.0" standalone="yes"?>
+<!-- SIP Application Configuration File -->
+<!-- Revision: 1.57.2.1 Date: 2004/07/27 00:23:34 -->
+<sip>
+	<voIpProt>
+		<local 
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local'))
+#foreach ($setting in $cfg.getSettings($group))
+        voIpProt.local.${setting.ProfileName}="$!{setting.Value}"
+#end        
+        />
+		<server 
+    voIpProt.server.1.address=""
+    voIpProt.server.1.port="5060"
+    voIpProt.server.1.transport=""
+    voIpProt.server.1.expires=""
+    voIpProt.server.1.register="1"
+    voIpProt.server.1.retryTimeOut="0"
+    voIpProt.server.1.retryMaxCount="0"
+    voIpProt.server.1.expires.lineSeize="30"
+    voIpProt.server.2.address=""
+    voIpProt.server.2.port="5060"
+    voIpProt.server.2.transport=""
+    voIpProt.server.2.expires=""
+    voIpProt.server.2.register="1"
+    voIpProt.server.2.retryTimeOut="0"
+    voIpProt.server.2.retryMaxCount="0"
+    voIpProt.server.2.expires.lineSeize="30"
+          />
+		<SIP 
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('protocol'))  
+#foreach ($setting in $cfg.getSettings($group))
+        voIpProt.SIP.${setting.ProfileName}="$!{setting.Value}"
+#end	
+			>
+			<outboundProxy 
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt').getSetting('SIP.outboundProxy'))
+#foreach ($setting in $cfg.getSettings($group))
+    voIpProt.SIP.outboundProxy.${setting.ProfileName}="$!{setting.Value}"
+#end			
+				/>
+			<alertInfo 
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('alertInfo'))
+#foreach ($subgroup in $group.Values)
+#set ($parentProfileName = $subgroup.ProfileName)
+#foreach ($setting in $subgroup.Values)
+    voIpProt.SIP.alertInfo.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
+#end
+#end
+            />
+			<requestValidation 
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('requestValidation'))
+#foreach ($subgroup in $group.Values)
+#set ($parentProfileName = $subgroup.ProfileName)
+#foreach ($setting in $subgroup.Values)
+    voIpProt.SIP.requestValidation.${parentProfileName}.${setting.ProfileName}="$!{setting.Value}"
+#end			
+#end				>
+				<digest 
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('digest'))
+#foreach ($setting in $cfg.getRecursiveSettings($group))
+    voIpProt.SIP.requestValidation.digest.${setting.ProfileName}="$!{setting.Value}"
+#end			
+					/>
+			</requestValidation>
+			<specialEvent 
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('specialEvent'))
+#foreach ($setting in $cfg.getSettings($group))
+    voIpProt.SIP.specialEvent.${setting.ProfileName}="$!{setting.Value}"
+#end			
+			/>
+			<conference
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('conference'))
+#foreach ($setting in $cfg.getSettings($group))
+    voIpProt.SIP.conference.${setting.ProfileName}="$!{setting.Value}"
+#end						
+			/>
+		</SIP>
+	</voIpProt>
+
+## SIMILIAR DIALPLAN SECTION EXISTS IN phone.cfg.vm 
+## to control dialplans for each line
+
+	<dialplan 
+#set ($group = $cfg.EndpointSettings.getSetting('dialplan'))
+#foreach ($setting in $cfg.getSettings($group))
+    dialplan.${setting.ProfileName}="$!{setting.Value}"
+#end
+    >
+
+		<digitmap 
+#set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap'))
+#foreach ($setting in $cfg.getSettings($group))
+    dialplan.${setting.ProfileName}="$!{setting.Value}"
+#end
+        />
+		<routing>
+			<server 
+#set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap').getSetting('routing.1'))
+     dialplan.routing.server.1.address="$!{group.getSetting('address').Value}"
+     dialplan.routing.server.1.port="$!{group.getSetting('port').Value}"
+/>
+			<emergency 
+#set ($group = $cfg.EndpointSettings.getSetting('dialplan').getSetting('digitmap').getSetting('routing.1'))  
+     dialplan.routing.emergency.1.value="$!{group.getSetting('emergency.1.value').Value}"
+     dialplan.routing.emergency.1.server.1="1"
+            />
+		</routing>
+	</dialplan>
+
+	<logging>
+		<level>
+			<change 
+#set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('sip'))  			
+			log.level.change.sip="$!{group.getSetting('level.change.sip').Value}" 
+			log.level.change.sip.obs="5"
+			/>
+		</level>
+	</logging>
+</sip>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.apache.tapestry.BaseComponent" allow-body="no" allow-informal-parameters="no">
+    <!-- P A R A M E T E R S -->
+	<parameter name="item" 
+        required="yes"
+        type="java.lang.Object"        
+        direction="auto">
+    </parameter>    
+    
+    <parameter name="useEnabled" 
+        required="no" 
+        type="boolean" 
+        default-value="true" 
+        direction="in"/>
+    
+    <parameter name="useExtension" 
+        required="no" 
+        type="boolean" 
+        default-value="false" 
+        direction="in"/>
+    
+    <parameter name="useFieldset" 
+    	required="no"
+	    type="boolean"
+    	direction="in"
+    	default-value="true"/>
+    
+    <parameter name="nameValidator"
+    	required="no"
+	    type="org.apache.tapestry.valid.IValidator"
+    	direction="in"
+    	default-value="beans.nameValidator"/>
+    
+    <!-- P R O P E R T I E S -->
+    
+    <!-- B E A N S -->
+    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>
+    
+    <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator">
+        <set-property name="component" expression="components.description"/>
+    </bean>
+    
+    <!-- C O M P O N E N T S -->
+    <component id="ifUseEnabled" type="Conditional">
+        <binding name="condition" expression="useEnabled"/>
+    </component>
+
+    <component id="enabledLabel" type="FieldPanel">
+        <binding name="field" expression="components.enabled"/>
+        <static-binding name="label" value="Enabled"/>
+    </component>
+    <component id="enabled" type="Checkbox">
+        <binding name="selected" expression="item.enabled"/>
+    </component>
+        
+    <component id="nameLabel" type="FieldPanel">
+        <binding name="field" expression="components.name"/>
+        <static-binding name="label" value="Name"/>
+    </component>
+    <component id="name" type="ValidField">
+        <binding name="value" expression="item.name"/>
+        <static-binding name="displayName" value="Name"/>
+        <binding name="field" expression="components.name"/>
+        <binding name="validator" expression="nameValidator"/>
+    </component>
+    
+    <component id="ifUseExtension" type="Conditional">
+        <binding name="condition" expression="useExtension"/>
+    </component>
+    
+    <component id="extensionLabel" type="FieldPanel">
+        <binding name="field" expression="components.extension"/>
+	    <static-binding name="label" value="Extension"/>
+    </component>
+    <component id="extension" type="ValidField">
+	    <binding name="value" expression="item.extension"/>
+        <binding name="validator" expression="page.global.validPhoneRequired"/>
+	    <static-binding name="displayName" value="Extension"/>
+    </component>
+        
+    <component id="descriptionLabel" type="FieldPanel">
+        <binding name="field" expression="components.description"/>
+        <static-binding name="label" value="Description"/>
+    </component>
+    <component id="description" type="TextArea">
+        <binding name="value" expression="item.description"/>
+    </component>
+    
+    <component id="optFieldset" type="OptionalElement">
+        <binding name="element" expression="useFieldset ? 'fieldset' : null"/>
+    </component>
+    
+    <component id="optTable" type="OptionalElement">
+        <binding name="element" expression="useFieldset ? 'table' : null"/>
+    </component>
+    
+    <component id="optTbody" type="OptionalElement">
+        <binding name="element" expression="useFieldset ? 'tbody' : null"/>
+    </component>
+</component-specification>

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<identifier_lookup_table>
+   <host>
+       <filemap identifier="user-config"      location="@SIPX_DATADIR@" /> 
+       <filemap identifier="pinger-config"    location="@SIPX_DATADIR@" />
+   </host>
+   
+   <component id="MediaServer1">
+      <databasemap identifier="credential"     location="credential" />
+      <databasemap identifier="alias"          location="alias" />
+      <databasemap identifier="permission"     location="permission" />
+      <databasemap identifier="extension"      location="extension" />
+      <databasemap identifier="authexception"  location="authexception" />
+  </component>
+   
+   
+   <component id="CommServer1">
+       
+       <filemap identifier="registrar-config"    
+                location="@SIPX_CONFDIR@/registrar-config" /> 
+       
+       <filemap identifier="proxy-config"        
+                location="@SIPX_CONFDIR@/proxy-config" />
+       
+       <filemap identifier="authproxy-config"    
+                location="@SIPX_CONFDIR@/authproxy-config" />
+       
+       <filemap identifier="authrules.xml"       
+                location="@SIPX_CONFDIR@/authrules.xml" />
+       
+       <filemap identifier="mappingrules.xml"    
+                location="@SIPX_CONFDIR@/mappingrules.xml" />
+       
+       <filemap identifier="forwardingrules.xml" 
+                location="@SIPX_CONFDIR@/forwardingrules.xml" />
+       
+      <databasemap identifier="credential"      location="credential" />
+      <databasemap identifier="alias"           location="alias" />
+      <databasemap identifier="permission"      location="permission" />
+      <databasemap identifier="extension"       location="extension" />
+      <databasemap identifier="authexception"   location="authexception" />
+  </component>
+   
+   
+</identifier_lookup_table>

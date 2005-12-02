@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding">
+    
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="forwardingContext" 
+		type="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext" 
+    	initial-value="global.forwardingContext"/>
+        
+    <property-specification name="loginContext" 
+    	type="org.sipfoundry.sipxconfig.login.LoginContext" 
+    	initial-value="global.loginContext"/>
+        
+    <property-specification name="coreContext" 
+    	type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="global.coreContext"/>
+
+    <property-specification name="ringsMap" type="org.apache.tapestry.form.ListEditMap"/>
+    
+    <property-specification name="callSequence" type="org.sipfoundry.sipxconfig.admin.forwarding.CallSequence"/>
+    
+    <property-specification name="user" type="org.sipfoundry.sipxconfig.common.User"/>
+    
+    <property-specification name="ring" type="org.sipfoundry.sipxconfig.admin.forwarding.Ring"/>
+    
+    <property-specification name="action" type="java.lang.String"/>
+
+    <property-specification name="userId" type="java.lang.Integer" persistent="yes"/>
+    
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback"
+    	persistent="yes"/>
+    
+     <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    <bean name="delayModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" 
+        lifecycle="page">
+        <set-property name="enumClass" 
+        	expression="@org.sipfoundry.sipxconfig.admin.forwarding.Ring$Type@class"/>        
+	</bean>
+        
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="listeners.submit"/>
+    </component>
+
+    <component id="errors" type="ErrorMsg"/>
+    
+	<component id="rings" type="ListEdit">
+        <binding name="source" expression="ringsMap.keys"/>
+        <binding name="value" expression="ringsMap.key"/>
+        <binding name="listener" expression="listeners.synchronizeRing"/>
+    </component>
+    
+	<component id="ringEditor" type="RingEditor">
+        <binding name="deleteListener" expression="listeners.deleteRing"/>
+        <binding name="ring" expression="ring"/>
+    </component>
+    
+    <component id="addRingLink" type="LinkSubmit">
+        <binding name="selected" expression="action"/>        
+        <static-binding name="tag" value="add"/>
+    </component>
+    
+    <component id="formActions" type="FormActions">
+        <binding name="callback" expression="callback"/>
+        <binding name="listener" expression="listeners.commit"/>
+    </component>
+    
+    <component id="firstCall" type="InsertText">
+        <binding name="value" expression="firstCallMsg"/>
+    </component>
+    
+    <component id="renderVoicemail" type="Conditional">
+        <binding name="condition" expression="hasVoiceMail"/>
+    </component>
+</page-specification>

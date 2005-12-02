@@ -1,0 +1,60 @@
+End User License Agreement
+
+YOU SHOULD CAREFULLY READ THE FOLLOWING TERMS AND CONDITIONS BEFORE USING THE ENCLOSED PRODUCTS. 
+IT CONTAINS SOFTWARE, THE USE OF WHICH IS LICENSED BY PINGTEL CORP. ("PINGTEL(tm)") TO ITS CUSTOMERS FOR THEIR USE ONLY AS SET FORTH BELOW. IF YOU DO NOT AGREE TO THE TERMS AND CONDITIONS OF THIS LICENSE AGREEMENT, DO NOT USE THE SOFTWARE.
+USING ANY PART OF THE SOFTWARE OR PINGTEL PRODUCTS INDICATES THAT YOU ACCEPT AND AGREE TO THESE TERMS AND CONDITIONS.
+
+THE ENCLOSED PINGTEL PRODUCT MAY INCLUDE OR BE BUNDLED WITH THIRD PARTY SOFTWARE, THE USE OF WHICH IS GOVERNED BY A SEPARATE END USER LICENSE AGREEMENT.
+THIS LICENSE AGREEMENT SHALL NOT BE DEEMED TO APPLY TO ANY OTHER APPLICATIONS SOFTWARE LICENSED TO YOU BY THIRD PARTIES THAT IS INCLUDED IN THE PINGTEL PRODUCT BY WHATEVER MEANS IF THE OTHER SOFTWARE PROVIDES THAT THE USE OF THE OTHER SOFTWARE IS SUBJECT TO THE TERMS AND CONDITIONS OF THE THIRD PARTY'S LICENSE.
+
+License: Subject to the terms and restrictions set forth in this License Agreement, Pingtel grants you a personal, nontransferable, nonexclusive and non-sublicensable right to use the enclosed software program(s) and documentation (the "Software") only for your internal business purposes and not for any further resale, re-license or other use by third parties. You are not permitted to assign, transfer, lease, rent, distribute, sublicense or engage in any time-sharing of the Software.
+Except as expressly provided herein, this License Agreement does not grant you any rights to patents, copyrights, trade secrets, trademarks, or any other rights in respect to the Software.
+
+The Software is licensed to be used only on hardware products designated by Pingtel. 
+You may use such software only on one (1) hardware product.
+The Software may be copied only as essential for backup or archive purposes in support of your use of the Software as permitted hereunder.
+No proprietary, copyright, confidentiality or other notices or legends appearing on the Software may be removed and all such notices and legends must be reproduced and included on any copies of the Software that you make.
+
+The Software may incorporate other sub-component software or technologies licensed by Pingtel from third parties.
+Such other sub-component software or technology is licensed to you as part of the Software as a whole, subject to the terms and conditions of this License Agreement.
+A current listing of all the additional sub-component software or technologies incorporated in the Software and subject to this License Agreement can be found in the "Info" page of Pingtel software products.
+
+Except as expressly set forth above, no licenses of any kind are granted hereunder, whether by implication, estoppel, course of conduct or otherwise.
+
+No Assignment; No Reverse Engineering: You may not transfer or assign the Software or your rights under this License Agreement.
+Modification, reverse engineering, reverse compiling, reverse assembly, decompiling, disassembly, or other attempts to derive source code, the underlying ideas, algorithms, structure or organization of the Software is expressly prohibited.
+You may not create any derivative work of the Software.
+
+Export Restrictions: You agree that you will not export or re-export the Software or accompanying documentation (or any copies thereof) or any products utilizing the Software or such documentation in violation of any applicable laws or regulations of the United States or the country in which you obtained them.
+The Software covered by this agreement may contain software that cannot be exported outside of the U.S. or Canada.
+You agree that you will not export or re-export, either physically or electronically, the Software or accompanying documentation without obtaining written authorization from the U.S. Department of Commerce.
+
+Trade Secrets; Title: You acknowledge and agree that the Software and the structure, sequence and organization of the Software are valuable trade secrets of Pingtel and its licensors and that the Software contains confidential and proprietary information.
+You agree to use at least the same care and precaution in protecting such trade secrets and confidential and proprietary information as you use to protect your own trade secrets and confidential and proprietary information, and in no event less than reasonable care.
+You further acknowledge and agree that ownership of, and title to, the Software and all subsequent copies thereof regardless of the form or media are held by Pingtel and its licensors.
+Pingtel and its licensors reserve and retain all right, title and interest in all intellectual property rights embodied in and to the Software.
+
+United States Government Legend: Use, reproduction, modification or disclosure of  the Software, or any part thereof, including technical data, is restricted in accordance with FAR 12.212 for civilian agencies and DFARS 227.7202 for military agencies.  The Software is commercial in nature and developed solely at private expense. The Software is delivered as "Commercial Computer Software" as defined in DFARS 252.227-7014 (June 1995) or as a commercial item as defined in FAR 2.101(a) and as such is provided with only such rights as are provided in this License Agreement, which is Pingtel's standard commercial license for the Software. Technical data is provided with limited rights only as provided in DFAR 252.227-7015 (Nov. 1995) or FAR 52.227-14 (June 1987), whichever is applicable.
+
+Term and Termination: This License Agreement is effective until terminated. You may terminate it at anytime by destroying the Software and documentation together with all copies and merged portions in any form. It will also terminate immediately if you fail to comply with any term or condition of this License Agreement. Upon such termination you agree to destroy the Software and documentation, together with all copies and merged portions in any form.
+
+Governing Law: This License Agreement shall be governed by the laws of the Commonwealth of Massachusetts, excluding its conflicts of laws principles. The United Nations Convention on Contracts for the International Sale of Goods (1980) is hereby excluded in its entirety from application to this License Agreement.
+
+Limited Warranty; Limitation of Liability: All warranties and limitations of liability applicable to the Software are as stated in the Limited Warranty or in the product manual accompanying the Software. Such warranties and limitations of liability are incorporated herein in their entirety by this reference.
+
+Severability: In the event any provision of this License Agreement is found to be invalid, illegal or unenforceable, the validity, legality, and enforceability of any of the remaining provisions shall not in any way be affected or impaired and a valid, legal and enforceable provision of similar intent and economic impact shall be substituted therefore.
+
+Entire Agreement: This License Agreement sets forth the entire understanding and agreement between you and Pingtel and supersedes all prior agreements, whether written or oral, with respect to the Software, and may be amended only in writing signed by both parties.
+
+Additional Support information is made available by calling, writing or visiting Pingtel’s web site.
+Tel: +800-PINGTEL
+Fax: +781-938-9650
+info@pingtel.com
+www.pingtel.com
+
+400 W. Cummings Park, Suite 2200
+Woburn, MA 01801
+
+(c) 2001 Pingtel Corp.  All rights reserved. Information may change without notice.
+
+Pingtel, Pingtel SIP Softphone, and the Pingtel logo are trademarks of Pingtel Corp. All other products or services referenced may be trademarks or service marks of their respective companies or organizations.

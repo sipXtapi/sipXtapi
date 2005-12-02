@@ -1,0 +1,47 @@
+<span jwcid="$content$">
+	<span jwcid="@RenderBody"/>
+    <input type="hidden" jwcid="firstRender"/>
+	<fieldset>
+		<legend>User Search</legend>
+		<table>
+			<tr>
+				<td>
+                    <label for="userSearch:userNameOrAlias">
+						<span jwcid="userNameOrAliasLabel">User ID or alias</span>:
+                    </label>
+				</td>
+				<td>
+					<input jwcid="userNameOrAlias" id="userSearch:userNameOrAlias"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+                    <label for="userSearch:lastName">
+ 						<span jwcid="lastNameLabel">Last name</span>:
+                    </label>
+				</td>
+				<td>
+					<input jwcid="lastName" id="userSearch:lastName"/>
+				</td>
+			</tr>
+			<tr>
+				<td>
+                    <label for="userSearch:firstName">
+						<span jwcid="firstNameLabel">First name</span>:
+                    </label>
+				</td>
+				<td>
+					<input jwcid="firstName" id="userSearch:firstName"/>
+				</td>
+			</tr>
+		</table>
+	</fieldset>
+	<ul class="component-submit">
+		<li>
+			<input jwcid="search" id="user:search" value="Search"/>
+		</li>
+		<li>
+			<input jwcid="cancel" id="user:cancel" value="Cancel"/>
+		</li>
+	</ul>
+</span>

@@ -1,0 +1,31 @@
+#!/bin/sh
+
+echo "Starting sipXphone  / `uname -s`, please wait..."
+echo "Copyright (C) 2004-2005 SIPfoundry Corporation.  All rights reserved."
+echo "http://www.sipfoundry.org"
+
+runix()
+{
+    @JAVA@ -classpath $CLASSPATH -Dsoftphone.library.path=@bindir@/../lib/libsipXphone.so -Dsoftphone.skin.path=@pkgdatadir@/Skins/Default org.sipfoundry.sipxphone.testbed.TestbedFrame
+}
+
+CLASSPATH=@pkgdatalibdir@
+for jar in @pkgdatalibdir@/*.jar ; do
+   CLASSPATH=$CLASSPATH:$jar
+done
+
+# Create and populate local directory for prefs/data
+if [ ! -d ~/.sipxphone ]
+then
+    mkdir ~/.sipxphone
+    cp @pkgdatadir@/*.wav ~/.sipxphone/
+    cp @pkgdatadir@/*-config ~/.sipxphone/
+    cp @pkgdatadir@/*.pem ~/.sipxphone/
+fi
+
+# Look at return code before exiting -- 2 indicates restart
+runix
+while [ 2 == $? ]
+do
+  runix
+done

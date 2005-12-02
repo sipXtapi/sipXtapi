@@ -1,0 +1,142 @@
+==============================================================================
+                     s i p X p h o n e   R E A D M E 
+==============================================================================
+
+sipXphone is SIP soft phone client for Microsoft Windows and Linux.  The phone 
+client supports multiple simultaneous calls, hold, mute, client-mixed 
+conferencing, consultative transfer, multiple line appearances, 
+authentication, and an extensible java-based application environment.
+
+sipXphone is developed under open source and hosted as part of the sipX line 
+of projects available from SIPfoundry.  It is licensed under LGPL which 
+allows commercial usage of the project without the "viral infection" 
+associated with GPL.  Essentially, you may use the code as-is and build on
+top of it without exception, however, if you modify the existing code (e.g.
+bug fix), you must make changes available under LGPL.  
+
+For more information on open source licensing or SIPfoundry, please see 
+www.opensource.org or www.sipfoundry.org.
+
+If you have questions or problems, please consult the latest version of this 
+documen and the sipX user mailing list.  The sipX-user mailing list is 
+searchable - please search before posting your question.
+  
+  http://scm.sipfoundry.org/rep/sipXphone/main/README
+  http://list.sipfoundry.org/mailman/listinfo/sipx-user
+
+Contents:
+
+  Basic Configuration
+    Enabling browser-based configuration
+    Accessing browsed-based configuration
+    Defining your outbound SIP servers
+    Defining your SIP identity
+
+===================
+Basic Configuration
+===================
+
+The sipXphone is designed to be managed remotely through the use of the 
+sipXconfig configuration server or through a web browse interface.  For 
+information on the configuration server, please the sipXconfig project and 
+sipXpbx project documentation.  This section concentrates on browser-based 
+configuration.
+
+Enabling browser-based configuration
+------------------------------------
+
+For security reasons, the browser based configuration is disabled by default.
+In future versions, the browsers based configuration will be enabled by 
+restricted to use on the local machine (bound to localhost).
+
+To enable the "Web UI", please follow these steps:
+1.	Launch the sipXphone application
+2.	Press the "More" Button
+3.	Select "Prefs" followed by "mysip softphone Web"
+4.	If you have configured an admin password enter it next; otherwise, select 
+    "Ok"
+5.	Check "Enable Web Server" and select a port.  The default port is 80.
+
+Accessing browsed-based configuration
+-------------------------------------
+
+The sipXphone configuration user interface is accessed by launching a web 
+browser and entering the IP address or DNS hostname of the PC running 
+sipXphone.  If the sipXphone is running on the same computer, use "localhost"
+in place of the DNS hostname or IP address.  For example, enter 
+"http://localhost" as the browser URL .  If a different port is selected, the 
+general form for the URL is http://localhost:PORT.
+
+The browser based user interface will prompt for a username and password.  
+Enter "admin" as the username and a password if you have selected one.  This
+is the same password used to enable the Web Server from the sipXphone client.
+The default password is blank (enter nothing).
+
+NOTE: sipXphone must be running to access the browser-based configuration.
+
+Defining your outbound SIP servers
+----------------------------------
+
+If you intend to dial others by anything other than IP address or hostname, 
+you will need to define a proxy and/or directory server.  Generally, the same 
+server is often used for both settings.  
+
+Under the browsed-based configuration interface, select "Phone Configuration"
+from the "Administration" dropdown menu.  Next, scroll down to the 
+"SIP servers" section.  Your service provider or IT department should provide 
+you with server names for these settings.
+
+Directory Server (SIP_DIRECTORY_SERVERS)
+
+A directory server provides look up services and is used for digit-based 
+dialing.  When dialing by digits, sipXphone will send the call setup 
+request to "sip:DIGITS@directoryserver".
+
+Proxy Server (SIP_PROXY_SERVERS)
+
+Proxy servers provide a number of services ranging from call routing to 
+security enforcement to authentication to network based identity.  All 
+new SIP requests are sent to this server before reaching their final 
+destination.
+
+Defining your SIP identity
+--------------------------
+
+sipXphone provides a method to define lines (SIP identities).   Lines are 
+modeled after the LEDs found on key-system telephone handsets.  Generally, 
+lines represent both outside PSTN lines and inbound queues such as the sale 
+and support queue.  In sipXphone, lines are defined in terms of SIP 
+identities.  Each identity is optionally configured to register with a SIP 
+registrar.  The registration process allows the dynamic routing of calls to 
+your PC.  Authentication credentials are configured on a per line basis.
+
+Under the browsed-based configuration interface, select "Lines" from the 
+"Preferences" dropdown menu.  Next, scroll down to the "SIP servers" 
+section.  Your service provider or IT department should provide you with 
+server names for these settings.
+
+Next, select the "Add New Line" link and fill the appropriate settings.  
+Define the line, select "Save" and then optionally add authentication 
+credentials.
+
+The Sip URL parameter defines both the caller ID presented when placing 
+outbound calls and the name of the registrar server.
+
+The Allow Forwarding setting control whether call forwarding applies to calls
+placed on this line definition.  For example, a phone might not want to 
+forward calls instantly to a personal voicemail box if the caller dialed the 
+"sales" line.
+
+The Registration parameter defines whether the line identity should register 
+with a registrar or assume the registrar knows IP/hostname of the client 
+(provisioned).
+
+Authentication Credentials define a username, password, and realm for line 
+identities.  To avoid hijacking calls, most SIP servers require a unique 
+username and password for a SIP identity.
+
+
+
+Find a problem in these docs?  Have suggestions ... better yet a recommended
+change?  Please email sipX-user AT sipfoundry.org or 
+bandreasen AT pingtel.com.
