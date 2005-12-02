@@ -77,20 +77,16 @@ mProxyNormalPort(proxyNormalPort)
    mSipUserAgent = sipUserAgent;
    if ( sipUserAgent )
    {
-      sipUserAgent->addMessageConsumer(this);
+      sipUserAgent->addMessageObserver( *this->getMessageQueue(), NULL /* all methods */ );
+
+      // the above causes us to actually receive all methods
+      // the following sets what we send in Allow headers
       sipUserAgent->allowMethod(SIP_REGISTER_METHOD);
-      sipUserAgent->allowMethod(SIP_NOTIFY_METHOD);
       sipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD);
-      sipUserAgent->allowMethod(SIP_INVITE_METHOD);
-      sipUserAgent->allowMethod(SIP_INFO_METHOD);
       sipUserAgent->allowMethod(SIP_OPTIONS_METHOD);
-      sipUserAgent->allowMethod(SIP_BYE_METHOD);
-      sipUserAgent->allowMethod(SIP_ACK_METHOD);
-      sipUserAgent->allowMethod(SIP_REFER_METHOD);
       sipUserAgent->allowMethod(SIP_CANCEL_METHOD);
 
       sipUserAgent->allowExtension("sip-cc-01");
-      sipUserAgent->allowExtension("timer");
       sipUserAgent->allowExtension("gruu");
    }
 
@@ -412,7 +408,9 @@ SipRegistrar::startRegistrar(
         SIP_DEFAULT_RTT, // first resend timeout
         TRUE,   // default to UA transaction
         SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
-        SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE // OsServerTask message queue size
+        SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
+        FALSE,  // use next available port                                                  
+        FALSE   // do not do UA message checks for METHOD, requires, etc...
         );
 
     PluginHooks* sipRegisterPlugins = new PluginHooks( RegisterPlugin::Factory

@@ -218,6 +218,12 @@ public:
      *        ports, select the next available port if the supplied
      *        port is busy.  If enable, this will attempt at most
      *        10 sequential ports.
+     * \param doUaMessageChecks - check the acceptability of method,
+     *        extensions, and encoding.  The default is TRUE; it may 
+     *        be set to false in applications such as a redirect server
+     *        that will never actually send a 2xx response, so the
+     *        checks might cause errors that the application should
+     *        never generate.
      */
     SipUserAgent(int sipTcpPort = SIP_PORT,
                 int sipUdpPort = SIP_PORT,
@@ -241,7 +247,9 @@ public:
                 UtlBoolean defaultToUaTransactions = TRUE,
                 int readBufferSize = -1,
                 int queueSize = OsServerTask::DEF_MAX_MSGS,
-                UtlBoolean bUseNextAvailablePort = FALSE);
+                UtlBoolean bUseNextAvailablePort = FALSE,
+                UtlBoolean doUaMessageChecks = TRUE
+                 );
 
     //! Destructor
     virtual
@@ -306,8 +314,6 @@ public:
                               SipSession* pSession = NULL,
                               void* observerData = NULL);
 
-    //void removeMessageConsumer(OsServerTask* messageConsumer);
-    //: Remove a SIP message recipient
 
     //! Removes all SIP message observers for the given message/queue
     //! observer
@@ -511,7 +517,7 @@ public:
     virtual UtlBoolean waitUntilReady();
     //: Block and wait until the UA is started and initialized
 
-    UtlBoolean isMethodAllowed(const char* method) const;
+    UtlBoolean isMethodAllowed(const char* method);
 
     UtlBoolean isExtensionAllowed(const char* extension) const;
 
@@ -662,6 +668,13 @@ private:
     UtlBoolean mbUseRport;
     bool mbIncludePlatformInUserAgentName;  // whether or not the platform name should
                                             // be appended to the user agent name
+
+    /** check the acceptability of method, extensions, and encoding.
+     * The default is TRUE; it may be set to false in applications such as a redirect server
+     * that will never actually send a 2xx response, so the checks might cause errors that
+     * the application should never generate.
+     */
+    UtlBoolean mDoUaMessageChecks;
 
     void garbageCollection();
 

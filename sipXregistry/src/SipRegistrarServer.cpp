@@ -47,6 +47,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const RegEx RegQValue("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); // syntax for a valid q parameter value
+
 // STRUCTS
 // TYPEDEFS
 #define MIN_EXPIRES_TIME 300
@@ -662,9 +664,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             {
                                OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage - "
                                "adding q '%s'", qvalue.data());
-                               // :TODO: (XPL-3) need a RegEx copy constructor here
+
                                //check if q value is numeric and between the range 0.0 and 1.0
-                               static RegEx qValueValid("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); 
+                               RegEx qValueValid(RegQValue); 
                                if (qValueValid.Search(qvalue.data()))
                                {
                                   contactUri.setFieldParameter(SIP_Q_FIELD, qvalue);
@@ -733,90 +735,27 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                 {
                     finalResponse.setToFieldTag(tagNum);
                 }
-
-                UtlString finalMessageStr;
-                int finalMessageLen;
-                finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
-                OsSysLog::add( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
-                        "Sending final response\n%s\n", finalMessageStr.data());
-                mSipUserAgent->send(finalResponse);
-
-            } else
-            {   //authentication error
-                mSipUserAgent->send(finalResponse);
             }
-        } else   // Invalid domain for registration
-        {
-            UtlString requestUri;
-            message.getRequestUri(&requestUri);
-            Url reqUri(requestUri);
-
-            Url routeUrlParser(requestUri, TRUE);
-            UtlString dummyValue;
-            UtlBoolean previousHopStrictRoutes = routeUrlParser.getUrlParameter("lr", dummyValue, 0);
-            //act as a proxy server and forward the request to the addresses domain
-            UtlString lastViaAddress;
-            int lastViaPort;
-            UtlString protocol;
-            int receivedPort;
-            UtlBoolean receivedSet;
-            UtlBoolean maddrSet;
-            UtlBoolean receivedPortSet;
-            message.getLastVia(
-                &lastViaAddress,
-                &lastViaPort,
-                &protocol,
-                &receivedPort,
-                &receivedSet,
-                &maddrSet,
-                &receivedPortSet);
-
-            UtlString localContactUriString;
-            mSipUserAgent->getContactUri(&localContactUriString);
-            Url localContactUrl(localContactUriString);
-            UtlString contactAddress;
-            int contactPort;
-            localContactUrl.getHostAddress(contactAddress);
-            contactPort = localContactUrl.getHostPort();
-
-            // Simple loop detection
-            if ( !receivedSet &&
-                 lastViaAddress.compareTo(contactAddress, UtlString::ignoreCase) == 0 &&
-                 lastViaPort == contactPort )
+           else
             {
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "Loop Detected while forwarding the request\n");
-                //osPrintf("Loop Detected while forwarding the request\n");
-                finalResponse.setResponseData(
-                    &message, SIP_LOOP_DETECTED_CODE, SIP_LOOP_DETECTED_TEXT);
-                mSipUserAgent->send(finalResponse);
-            } else
-            {
-                if ( !previousHopStrictRoutes )
-                {
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "Forwarded invalid domain request to correct domain\n");
-                    //osPrintf("Forwarded invalid domain request to correct domain\n");
-                    // Forward the register onward to the destination proxy
-                    // When the SIP Registrar receives a REGISTER request for a domain
-                    // not supported by the Registrar, it should remove the louse route that the
-                    // forking proxy added.
-                    // THis is a loose router pop my route off
-                    UtlString routeUri;
-                    SipMessage forwardedMessage(message);
-                    forwardedMessage.removeRouteUri(0, &routeUri);
-                    // Decrement max forwards
-                    int maxForwards;
-                    if ( forwardedMessage.getMaxForwards(maxForwards) )
-                    {
-                        maxForwards--;
-                    } else
-                    {
-                        maxForwards = mSipUserAgent->getMaxForwards();
-                    }
-                    forwardedMessage.setMaxForwards(maxForwards);
-                    mSipUserAgent->send(forwardedMessage);
-                }
+               // authentication error - response data was set in isAuthorized
             }
         }
+        else   
+        {
+           // Invalid domain for registration - response data was set in isValidDomain
+        }
+
+        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+        {
+           UtlString finalMessageStr;
+           int finalMessageLen;
+           finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
+           OsSysLog::add( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
+                         "Sending final response\n%s\n", finalMessageStr.data());
+        }
+        
+        mSipUserAgent->send(finalResponse);
     }
     return TRUE;
 }
@@ -974,6 +913,8 @@ SipRegistrarServer::isValidDomain(
     const SipMessage& message,
     SipMessage& responseMessage )
 {
+    UtlBoolean isValid;
+   
     // Fetch the domain and port from the request URI
     UtlString lookupDomain, requestUri;
     message.getRequestUri( &requestUri );
@@ -998,12 +939,26 @@ SipRegistrarServer::isValidDomain(
         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                       "SipRegistrarServer::isValidDomain(%s) VALID\n",
                       lookupDomain.data()) ;
-        return TRUE;
+        isValid = TRUE;
     }
-    OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                  "SipRegistrarServer::isValidDomain(%s) INVALID\n",
-                  lookupDomain.data()) ;
-    return FALSE;
+    else
+    {
+       UtlString requestedDomain;
+       reqUri.getHostAddress(requestedDomain);
+
+       OsSysLog::add(FAC_AUTH, PRI_WARNING,
+                     "SipRegistrarServer::isValidDomain('%s' == '%s') Invalid\n",
+                     requestedDomain.data(), lookupDomain.data()) ;
+
+       UtlString responseText;
+       responseText.append("Domain '");
+       responseText.append(requestedDomain);
+       responseText.append("' is not valid at this registrar");
+       responseMessage.setResponseData(&message, SIP_NOT_FOUND_CODE, responseText.data() );
+       isValid = FALSE;
+    }
+
+    return isValid;
 }
 
 SipRegistrarServer::~SipRegistrarServer()

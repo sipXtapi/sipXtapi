@@ -118,7 +118,9 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            UtlBoolean defaultToUaTransactions,
                            int readBufferSize,
                            int queueSize,
-                           UtlBoolean bUseNextAvailablePort) 
+                           UtlBoolean bUseNextAvailablePort,
+                           UtlBoolean doUaMessageChecks
+                           ) 
         : SipUserAgentBase(sipTcpPort, sipUdpPort, sipTlsPort, queueSize)
         , mSipTcpServer(NULL)
         , mSipUdpServer(NULL)
@@ -130,6 +132,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mpLineMgr(NULL)
         , mbUseRport(FALSE)
         , mbIncludePlatformInUserAgentName(TRUE)
+        , mDoUaMessageChecks(doUaMessageChecks)
         , mbShuttingDown(FALSE)
         , mbShutdownDone(FALSE)
 {
@@ -267,12 +270,20 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         int numAddresses = 0;
         memset(addresses, 0, sizeof(addresses));
         getAllLocalHostIps(addresses, numAddresses);
-        assert(numAddresses > 0);
-        // Bind to the first address in the list.
-        defaultSipAddress = (char*)addresses[0]->mAddress.data();
-        // Now free up the list.
-        for (int i = 0; i < numAddresses; i++)
-        delete addresses[i];       
+        if (numAddresses > 0)
+        {
+           // Bind to the first address in the list.
+           defaultSipAddress = (char*)addresses[0]->mAddress.data();
+           // Now free up the list.
+           for (int i = 0; i < numAddresses; i++)
+           {
+              delete addresses[i];       
+           }
+        }
+        else
+        {
+           OsSysLog::add(FAC_SIP, PRI_WARNING, "SipUserAgent::_ no IP addresses found.");
+        }
     }
     else
     {
@@ -593,16 +604,6 @@ UtlBoolean SipUserAgent::removeMessageObserver(OsMsgQ& messageQueue, void* pObse
 
     return bRemovedObservers ;
 }
-
-//void SipUserAgent::removeMessageConsumer(OsServerTask* messageEventListener)
-//{
-        // Need to do the real thing by keeping a list of consumers
-        // and putting a mutex around the add to list
-//      if(messageListener == messageEventListener)
-//      {
-//              messageListener = NULL;
-//      }
-//}
 
 void SipUserAgent::allowMethod(const char* methodName, const bool bAllow)
 {
@@ -1737,8 +1738,9 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             message->getCallIdField(&callIdField);
 
             // Check if the method is supported
-            if(isUaTransaction &&
-               !isMethodAllowed(method.data()))
+            if(   isUaTransaction
+               && !isMethodAllowed(method.data())
+               )
             {
                response = new SipMessage();
 
@@ -1746,8 +1748,10 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             }
 
             // Check if the extensions are supported
-            else if(isUaTransaction &&
-                    !disallowedExtensions.isNull())
+            else if(   mDoUaMessageChecks
+                    && isUaTransaction
+                    && !disallowedExtensions.isNull()
+                    )
             {
                response = new SipMessage();
                response->setRequestBadExtension(message,
@@ -1756,8 +1760,10 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 
             // Check if the encoding is supported
             // i.e. no encoding
-            else if(isUaTransaction &&
-                    !contentEncoding.isNull())
+            else if(   mDoUaMessageChecks
+                    && isUaTransaction
+                    && !contentEncoding.isNull()
+                    )
             {
                response = new SipMessage();
                response->setRequestBadContentEncoding(message,"");
@@ -1811,7 +1817,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
 #endif //TEST_PRINT
             }
 
-            // Process Options requests
+            // Process Options requests :TODO: - in the redirect server does this route?
             else if(isUaTransaction &&
                     !message->isResponse() &&
                     method.compareTo(SIP_OPTIONS_METHOD) == 0)
@@ -3226,10 +3232,23 @@ int SipUserAgent::getTlsPort() const
 
 /* ============================ INQUIRY =================================== */
 
-UtlBoolean SipUserAgent::isMethodAllowed(const char* method) const
+UtlBoolean SipUserAgent::isMethodAllowed(const char* method)
 {
         UtlString methodName(method);
-        return(allowedSipMethods.occurrencesOf(&methodName) > 0);
+        UtlBoolean isAllowed = (allowedSipMethods.occurrencesOf(&methodName) > 0);
+
+        if (!isAllowed)
+        {
+           /* The method was not explicitly requested, but check for whether the 
+            * application has registered for the wildcard.  If so, the method is 
+            * allowed, but we do not advertise that fact in the Allow header.*/
+           UtlString wildcardMethod;
+           
+           OsReadLock lock(mObserverMutex);
+           isAllowed = mMessageObservers.contains(&wildcardMethod);
+        }
+        
+        return(isAllowed);
 }
 
 UtlBoolean SipUserAgent::isExtensionAllowed(const char* extension) const
