@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone.polycom;
 
+import java.util.Collection;
+
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.PatternSettingFilter;
@@ -36,7 +38,8 @@ public class SipConfiguration extends VelocityProfileGenerator {
         super.addContext(context);
         Setting endpointSettings = getPhone().getSettings();
         Setting call = endpointSettings.getSetting(PolycomPhone.CALL);
-        context.put(PolycomPhone.CALL, SettingUtil.filter(s_callSettings, call));
+        Collection items = SettingUtil.filter(s_callSettings, call);
+        context.put(PolycomPhone.CALL, items);
     }
 }
 

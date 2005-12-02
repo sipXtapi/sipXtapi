@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -26,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -149,7 +152,10 @@ public class Phone extends BeanWithGroups {
         Setting model = null;
         Setting master = m_modelFilesContext.loadModelFile(basename, getBeanId(), details);
         if (master != null) {
-            model = master.copy();            
+            ConditionalSet conditional = (ConditionalSet) master;
+            Set defines = new HashSet();
+            defines.add(getModel().getModelId());
+            model = conditional.evaluate(defines);
         }
         return model;
     }

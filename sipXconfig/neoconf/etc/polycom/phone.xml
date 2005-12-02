@@ -833,15 +833,21 @@
       <description>The string sent to the server when the user selects the 'last call return' 
         action.</description>
     </setting>
-    <setting name="callsPerLineKey">
+    <setting name="callsPerLineKey" unless="600">
+      <label>Calls Per Line Key</label>
       <type>
-        <!-- TODO 24 for 600 -->
         <integer min="1" max="8"/>
       </type>
-      <!-- TODO 24 for 600 -->
       <value>8</value>
       <description>The number of calls or conferences which may be active or on hold per line 
         key on the phone.</description>
+    </setting>
+    <setting name="callsPerLineKey_600" if="600" copy-of="callsPerLineKey">
+      <profileName>callsPerLineKey</profileName>
+      <type>
+        <integer min="1" max="24"/>
+      </type>
+      <value>24</value>
     </setting>
     <group name="shared">
       <label>Shared Lines</label>

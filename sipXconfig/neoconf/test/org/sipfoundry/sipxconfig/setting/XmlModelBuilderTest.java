@@ -88,7 +88,7 @@ public class XmlModelBuilderTest extends TestCase {
 
         Iterator i = games.getValues().iterator();
         while (i.hasNext()) {
-            assertTrue(i.next().getClass().isAssignableFrom(SettingSet.class));
+            assertTrue(SettingSet.class.isAssignableFrom(i.next().getClass()));
         }
     }
 

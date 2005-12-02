@@ -92,16 +92,16 @@ public class XmlModelBuilder implements ModelBuilder {
         if (parent != null) {
             digester.push(parent.copy());
         } else {
-            digester.push(new SettingSet());
+            digester.push(new ConditionalSet());
         }
         addSettingTypes(digester, "model/type/");
 
         String groupPattern = "*/group";
-        SettingRuleSet groupRule = new SettingRuleSet(groupPattern, SettingSet.class);
+        SettingRuleSet groupRule = new SettingRuleSet(groupPattern, ConditionalSet.class);
         digester.addRuleSet(groupRule);
 
         String settingPattern = "*/setting";
-        SettingRuleSet settingRule = new SettingRuleSet(settingPattern, SettingImpl.class);
+        SettingRuleSet settingRule = new SettingRuleSet(settingPattern, ConditionalSettingImpl.class);
         digester.addRuleSet(settingRule);
 
         try {
@@ -144,7 +144,7 @@ public class XmlModelBuilder implements ModelBuilder {
                 digester.addBeanPropertySetter(m_pattern + properties[i]);
             }
             addSettingTypes(digester, m_pattern + "/type/");
-            digester.addSetNext(m_pattern, "addSetting", SettingImpl.class.getName());
+            digester.addSetNext(m_pattern, "addSetting", ConditionalSettingImpl.class.getName());
         }
     }
 
@@ -174,6 +174,13 @@ public class XmlModelBuilder implements ModelBuilder {
                 Setting copyOf = parent.getSetting(copyOfName);
                 Setting copy = copyOf.copy();
                 copy.setName(copyTo.getName());
+                
+                // copies will explicitly not inherit if/unless
+                // i think it's against intuition
+                ConditionalSetting s = (ConditionalSetting) copy;
+                s.setIf(null);
+                s.setUnless(null);
+                
                 getDigester().push(copy);
             }
         }

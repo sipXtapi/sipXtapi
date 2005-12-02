@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 /**
  * Base class for all items describing and using setting.
  */
-public interface Setting {
+public interface Setting extends Cloneable {
 
     public static final String NULL_VALUE = new String();
     

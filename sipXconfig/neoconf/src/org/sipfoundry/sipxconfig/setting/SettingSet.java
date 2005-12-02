@@ -38,14 +38,19 @@ public class SettingSet extends SettingImpl implements Cloneable, Serializable {
      * includes deep copy of all childen
      */
     public Setting copy() {
-        SettingSet copy = (SettingSet) super.copy();
-        copy.m_children = new LinkedHashMap();
+        SettingSet copy = (SettingSet) shallowCopy();
         Iterator i = m_children.values().iterator();
         while (i.hasNext()) {
             Setting child = (Setting) i.next();
             copy.addSetting(child.copy());
         }
 
+        return copy;
+    }
+    
+    protected Setting shallowCopy() {
+        SettingSet copy = (SettingSet) super.copy();
+        copy.m_children = new LinkedHashMap();
         return copy;
     }
 

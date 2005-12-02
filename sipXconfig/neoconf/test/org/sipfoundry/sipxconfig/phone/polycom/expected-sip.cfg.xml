@@ -2394,7 +2394,7 @@
     call.ringBackTimeOut="60" 
     call.lastCallReturnString="*69" 
     call.callWaiting.prompt="0" 
-    call.callsPerLineKey="8">
+    call.callsPerLineKey="24">
     
       <shared 
       call.shared.disableDivert="1" 
