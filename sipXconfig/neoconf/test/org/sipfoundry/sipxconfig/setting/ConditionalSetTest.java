@@ -33,14 +33,14 @@ public class ConditionalSetTest extends TestCase {
         ConditionalSet conditional = (ConditionalSet) root;
         
         Set defines = new HashSet();
-        defines.add("american");
+        defines.add("hairy");
         
         Setting actual = conditional.evaluate(defines);
-        assertNotNull(actual.getSetting("woman/shave"));
+        assertNotNull(actual.getSetting("man/shave"));
         
-        defines.add("european");
+        defines.add("neandrathal");
         Setting actual2 = conditional.evaluate(defines);
-        assertNull(actual2.getSetting("woman/shave"));
+        assertNull(actual2.getSetting("man/shave"));
         
         defines.add("vegitarian");
         Setting actual3 = conditional.evaluate(defines);

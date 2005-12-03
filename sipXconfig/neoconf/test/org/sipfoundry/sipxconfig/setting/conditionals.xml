@@ -18,16 +18,16 @@
 	</group>
 	<group name="man" copy-of="human">
 		<label>Man</label>
-		<setting name="shave" unless="neandrathal">
+		<setting name="shave" unless="neandrathal" if="hairy">
 			<value>face</value>
 		</setting>
 		<setting name="reason" hidden="yes"/>
 	</group>
 	<group name="woman" copy-of="human">
 		<label>Woman</label>
-		<setting name="shave" unless="european">
+		<setting name="shave">
 			<value>legs</value>
 		</setting>
-		<setting name="giveBirth" advanced="yes" if="old-enough" unless="menopause"/>
+		<setting name="giveBirth" advanced="yes"/>
 	</group>  
 </model>
