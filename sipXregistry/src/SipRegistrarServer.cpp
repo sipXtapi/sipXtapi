@@ -177,7 +177,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     RegisterStatus returnStatus = REGISTER_SUCCESS;
     UtlBoolean removeAll = FALSE;
     UtlBoolean isExpiresheader = FALSE;
-    int longestExpiration = -1; // for duration passed to hooks
+    int longestRequested = -1; // for calculating the spread expiration time
     int commonExpires = -1;
     UtlString registerToStr;
     toUrl.getIdentity(registerToStr);
@@ -293,6 +293,13 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         // Get the Instance ID (if any) from the REGISTER message Contact field.
                         UtlString instanceId;
                         registerContactURL.getFieldParameter( "+sip.instance", instanceId );
+
+                        // track longest expiration requested in the set
+                        if ( expires > longestRequested )
+                        {
+                           longestRequested = expires;
+                        }
+
                         // See if the Contact field has a "gruu" URI field..
                         // :TODO: Have to check whether the gruu URI parameter
                         // is still favored.  And what exactly this check is about.
@@ -396,6 +403,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
             }
             else
             {
+               int spreadExpirationTime = 0;
+
                 if ( removeAll )
                 {
                     // Contact: * special case
@@ -427,6 +436,35 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     // act on each valid contact
                     if ( numRegistrations > 0 )
                     {
+                        /*
+                         * Calculate the maximum expiration time for this set.
+                         * The idea is to spread registrations by choosing a random
+                         * expiration time.
+                         */
+                       int spreadFloor = mMinExpiresTimeint*2;
+                       if ( longestRequested > spreadFloor )
+                        {
+                           // a normal (long) registration
+                           // - spread it between twice the min and the longest they asked for
+                           spreadExpirationTime = (  (rand() % (longestRequested - spreadFloor))
+                                                   + spreadFloor);
+                        }
+                        else if ( longestRequested > mMinExpiresTimeint )
+                        {
+                           // a short but not minimum registration
+                           // - spread it between the min and the longest they asked for
+                           spreadExpirationTime = (  (rand()
+                                                      % (longestRequested - mMinExpiresTimeint)
+                                                      )
+                                                   + mMinExpiresTimeint
+                                                   );
+                        }
+                        else // longestExpiration == mMinExpiresTimeint
+                        {
+                           // minimum - can't randomize because we can't shorten or lengthen it
+                           spreadExpirationTime = mMinExpiresTimeint;
+                        }
+
                         for ( int i = 0; i<numRegistrations; i++ )
                         {
                             UtlHashMap record;
@@ -460,7 +498,10 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             else
                             {
                                 // expires > 0, so add the registration
-                                expirationTime = expires + timeNow;
+                                expirationTime = (  expires < spreadExpirationTime
+                                                  ? expires
+                                                  : spreadExpirationTime
+                                                  ) + timeNow;
 
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                        "SipRegistrarServer::applyRegisterToDirectory - Adding map %s->%s\n",
@@ -477,12 +518,6 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                 ,instance_id
                                                 ,gruu
                                                 );
-
-                            // track longest expirations for doing implied subscriptions
-                            if ( expires > longestExpiration )
-                            {
-                                longestExpiration = expires;
-                            }
 
                         } // iterate over good contact entries
 
@@ -512,7 +547,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     RegisterPlugin* plugin;
                     while(plugin = static_cast<RegisterPlugin*>(plugins.next()))
                     {
-                       plugin->takeAction(registerMessage, longestExpiration, mSipUserAgent );
+                       plugin->takeAction(registerMessage, spreadExpirationTime, mSipUserAgent );
                     }
                 }
             }
