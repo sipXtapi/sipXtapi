@@ -2601,23 +2601,27 @@ void SipUserAgent::garbageCollection()
 
     if(mLastCleanUpTime < then)
     {
+#      ifdef LOG_TIME
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                      "SipUserAgent::garbageCollection"
                      " bootime: %ld then: %ld tcpThen: %ld"
                      " oldTransaction: %ld oldInviteTransaction: %ld",
                      bootime, then, tcpThen, oldTransaction,
                      oldInviteTransaction);
-
+#      endif
        mSipTransactions.removeOldTransactions(oldTransaction,
                                               oldInviteTransaction);
-
+#      ifdef LOG_TIME
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                      "SipUserAgent::garbageCollection starting removeOldClients(udp)");
+#      endif
        mSipUdpServer->removeOldClients(then);
        if (mSipTcpServer)
        {
+#         ifdef LOG_TIME
           OsSysLog::add(FAC_SIP, PRI_DEBUG,
                         "SipUserAgent::garbageCollection starting removeOldClients(tcp)");
+#         endif
           mSipTcpServer->removeOldClients(tcpThen);
        }
 #if 0 // def SIP_TLS
@@ -2628,9 +2632,10 @@ void SipUserAgent::garbageCollection()
           mSipTlsServer->removeOldClients(tcpThen);
        }
 #endif
+#      ifdef LOG_TIME
        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                      "SipUserAgent::garbageCollection done");
-
+#      endif
        mLastCleanUpTime = bootime;
     }
 }

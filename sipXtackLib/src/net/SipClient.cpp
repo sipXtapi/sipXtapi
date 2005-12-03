@@ -209,10 +209,12 @@ int SipClient::run(void* runArg)
             // clientSocket shouldn't be null
             // in this case some sort of race with the destructor.  This should
             // not actually ever happen.
+#ifdef TEST_SOCKET
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipClient::run readAMessage = %d, "
                           "buffer.length() = %d, clientSocket = %p",
                           readAMessage, buffer.length(), clientSocket);
+#endif
             if (clientSocket
                 && ((readAMessage
                      && buffer.length() >= MINIMUM_SIP_MESSAGE_SIZE)
