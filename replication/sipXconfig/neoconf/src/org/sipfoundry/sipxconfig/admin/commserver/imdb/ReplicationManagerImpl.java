@@ -48,6 +48,7 @@ public class ReplicationManagerImpl implements ReplicationManager {
         boolean success = true;
         for (int i = 0; i < locations.length; i++) {
             try {
+                generator.setSipDomain(locations[i].getSipDomain());
                 Document payload = generator.generate();
                 byte[] payloadBytes = xmlToByteArray(payload);
                 Document xml = generateXMLDataToPost(payloadBytes, type);
