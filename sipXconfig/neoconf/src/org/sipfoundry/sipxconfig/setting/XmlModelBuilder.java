@@ -163,11 +163,14 @@ public class XmlModelBuilder implements ModelBuilder {
     }
 
     static class CopyOfRule extends Rule {
-
+       
         public void begin(String namespace_, String name_, Attributes attributes) {
+            // warning, this is called TWICE by digester! and I do not know why.  Stack
+            // is identical so i think it's coming from SAXParser.  Code here works fine, 
+            // but heed warning
             String copyOfName = attributes.getValue("copy-of");
             if (copyOfName != null) {
-                Setting copyTo = (Setting) getDigester().pop();
+                ConditionalSetting copyTo = (ConditionalSetting) getDigester().pop();
                 Setting parent = (Setting) getDigester().peek();
                 // setting to be copied must be defined in file before setting
                 // attempting to copy
@@ -176,10 +179,10 @@ public class XmlModelBuilder implements ModelBuilder {
                 copy.setName(copyTo.getName());
                 
                 // copies will explicitly not inherit if/unless
-                // i think it's against intuition
+                // i think it's against intuition -- DLH 12/03/05
                 ConditionalSetting s = (ConditionalSetting) copy;
-                s.setIf(null);
-                s.setUnless(null);
+                s.setIf(copyTo.getIf());
+                s.setUnless(copyTo.getUnless());
                 
                 getDigester().push(copy);
             }

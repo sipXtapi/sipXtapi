@@ -44,7 +44,7 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting {
     }
 
     /**
-     * Handle if/unless expression with customer evaluator
+     * Handle if/unless expression with custom evaluator
      */
     public Setting evaluate(SettingExpressionEvaluator evaluator) {
         Setting settings = new ExpressionEvaluatorRunner().evaluate(evaluator, this);

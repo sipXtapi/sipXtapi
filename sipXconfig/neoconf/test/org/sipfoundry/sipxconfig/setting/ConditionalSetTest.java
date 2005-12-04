@@ -20,31 +20,38 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import junit.framework.TestCase;
 
 public class ConditionalSetTest extends TestCase {
-    private ModelBuilder m_builder;
+    private ConditionalSet m_root;
+    private Set m_definitions;
+    
 
     protected void setUp() throws Exception {
-        m_builder = new XmlModelBuilder(TestHelper.getSettingModelContextRoot());
+        XmlModelBuilder builder = new XmlModelBuilder(TestHelper.getSettingModelContextRoot());
+        InputStream in = getClass().getResourceAsStream("conditionals.xml");
+        m_root = (ConditionalSet) builder.buildModel(in, null);
+        m_definitions = new HashSet();
     }
     
     public void testIf() throws Exception {
-        InputStream in = getClass().getResourceAsStream("conditionals.xml");
-        SettingSet root = m_builder.buildModel(in, null);
-        assertTrue(root instanceof ConditionalSet);
-        ConditionalSet conditional = (ConditionalSet) root;
-        
-        Set defines = new HashSet();
-        defines.add("hairy");
-        
-        Setting actual = conditional.evaluate(defines);
+        m_definitions.add("hairy");        
+        Setting actual = m_root.evaluate(m_definitions);
         assertNotNull(actual.getSetting("man/shave"));
         
-        defines.add("neandrathal");
-        Setting actual2 = conditional.evaluate(defines);
+        m_definitions.add("neandrathal");
+        Setting actual2 = m_root.evaluate(m_definitions);
         assertNull(actual2.getSetting("man/shave"));
         
-        defines.add("vegitarian");
-        Setting actual3 = conditional.evaluate(defines);
+        m_definitions.add("vegitarian");
+        Setting actual3 = m_root.evaluate(m_definitions);
         assertNull(actual3.getSetting("human/eat/hamburger"));
         assertNotNull(actual3.getSetting("human/eat/vegiburger"));
+    }
+    
+    public void testGroupIf() throws Exception {
+        Setting actual = m_root.evaluate(m_definitions);
+        assertNull(actual.getSetting("alien"));
+        
+        m_definitions.add("borg");
+        Setting actual2 = m_root.evaluate(m_definitions);
+        assertNotNull(actual2.getSetting("alien"));
     }
 }
