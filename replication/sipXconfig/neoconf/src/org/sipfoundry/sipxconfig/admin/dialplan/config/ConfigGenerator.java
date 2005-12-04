@@ -26,27 +26,42 @@ import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
  * ConfigGenerator
  */
 public class ConfigGenerator {
+    public static final String BEAN_NAME = "dialPlanConfigGenerator";
+    
     private static final String SUFFIX = ".in";
 
-    private MappingRules m_mapping;
-    private AuthRules m_auth;
-    private FallbackRules m_fallback;
+    private MappingRules m_mappingRules;
+    private AuthRules m_authRules;
+    private FallbackRules m_fallbackRules;
     private Map m_files = new HashMap();
 
     public ConfigGenerator() {
-        m_mapping = new MappingRules();
-        m_auth = new AuthRules();
-        m_fallback = new FallbackRules();
-        m_files.put(ConfigFileType.MAPPING_RULES, m_mapping);
-        m_files.put(ConfigFileType.FALLBACK_RULES, m_fallback);
-        m_files.put(ConfigFileType.AUTH_RULES, m_auth);
+        // this is usually overwritten by spring configuration file
+        setMappingRules(new MappingRules());
+        setAuthRules(new AuthRules());
+        setFallbackRules(new FallbackRules());
     }
-
+    
+    public void setAuthRules(AuthRules authRules) {
+        m_authRules = authRules;
+        m_files.put(ConfigFileType.AUTH_RULES, m_authRules);
+    }
+    
+    public void setMappingRules(MappingRules mappingRules) {
+        m_mappingRules = mappingRules;
+        m_files.put(ConfigFileType.MAPPING_RULES, mappingRules);
+    }
+    
+    public void setFallbackRules(FallbackRules fallbackRules) {
+        m_fallbackRules = fallbackRules;
+        m_files.put(ConfigFileType.FALLBACK_RULES, m_fallbackRules);
+    }
+    
     public void generate(EmergencyRouting er) {
         List rules = er.asDialingRulesList();
         for (Iterator i = rules.iterator(); i.hasNext();) {
             IDialingRule rule = (IDialingRule) i.next();
-            m_auth.generate(rule);
+            m_authRules.generate(rule);
         }                
     }
     
@@ -55,13 +70,13 @@ public class ConfigGenerator {
 
         for (Iterator i = rules.iterator(); i.hasNext();) {
             IDialingRule rule = (IDialingRule) i.next();
-            m_mapping.generate(rule);
-            m_auth.generate(rule);
-            m_fallback.generate(rule);
+            m_mappingRules.generate(rule);
+            m_authRules.generate(rule);
+            m_fallbackRules.generate(rule);
         }
-        m_mapping.end();
-        m_auth.end();
-        m_fallback.end();
+        m_mappingRules.end();
+        m_authRules.end();
+        m_fallbackRules.end();
     }
 
     /**

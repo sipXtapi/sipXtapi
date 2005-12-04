@@ -256,7 +256,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     public ConfigGenerator generateDialPlan() {
-        ConfigGenerator generator = new ConfigGenerator();
+        ConfigGenerator generator = (ConfigGenerator) m_beanFactory.getBean(
+                ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
         generator.generate(getEmergencyRouting());
         generator.generate(this);
         m_generator = generator;

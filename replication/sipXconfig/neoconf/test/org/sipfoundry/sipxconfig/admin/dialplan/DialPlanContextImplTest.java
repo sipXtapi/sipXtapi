@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
+import org.springframework.beans.factory.BeanFactory;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 /**
@@ -26,7 +27,15 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 public class DialPlanContextImplTest extends TestCase {
 
     public void testActivateDialPlan() throws Exception {
+        MockControl bfCtrl = MockControl.createControl(BeanFactory.class);
+        BeanFactory bf = (BeanFactory) bfCtrl.getMock();
+        bf.getBean(ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
+        bfCtrl.setReturnValue(new ConfigGenerator());        
+        bfCtrl.setReturnValue(new ConfigGenerator());        
+        bfCtrl.replay();
+
         DialPlanContextImpl manager = new MockDialPlanContextImpl(new DialPlan());
+        manager.setBeanFactory(bf);
 
         final ConfigGenerator g1 = manager.getGenerator();
         final ConfigGenerator g2 = manager.generateDialPlan();
@@ -35,6 +44,8 @@ public class DialPlanContextImplTest extends TestCase {
         assertNotNull(g2);
         assertNotSame(g1, g2);
         assertSame(g2, g3);
+
+        bfCtrl.verify();        
     }
 
     public void testMoveRules() throws Exception {
