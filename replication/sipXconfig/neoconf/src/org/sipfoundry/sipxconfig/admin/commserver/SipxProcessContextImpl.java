@@ -186,6 +186,15 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
         return formatUrls(urls, urlFormat, params);
     }
 
+    String[] getProcessMonitorUrls() {
+        Location[] locations = getLocations();        
+        String[] urls = new String[locations.length];
+        for (int i = 0; i < locations.length; i++) {
+            urls[i] = locations[i].getProcessMonitorUrl();            
+        }
+        return urls;
+    }
+
     private String[] formatUrls(String[] urls, String urlFormat, Object[] params) {
         int len = urls.length;
         if (ONE_SERVER_ONLY && len > 0) {

@@ -23,6 +23,7 @@ public abstract class DataSetGenerator {
 
     private static final DocumentFactory FACTORY = DocumentFactory.getInstance();
     private CoreContext m_coreContext;
+    private String m_sipDomain;
 
     protected final Element createItemsElement(DataSet dataSet) {
         Document document = FACTORY.createDocument();
@@ -41,6 +42,14 @@ public abstract class DataSetGenerator {
     
     protected CoreContext getCoreContext() {
         return m_coreContext;
+    }
+    
+    public void setSipDomain(String sipDomain) {
+        m_sipDomain = sipDomain;
+    }
+    
+    protected String getSipDomain() {
+        return m_sipDomain;
     }
     
     public Document generate() {

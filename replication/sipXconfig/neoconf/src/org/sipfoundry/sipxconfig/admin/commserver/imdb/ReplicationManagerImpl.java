@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl.Location;
 
 public class ReplicationManagerImpl implements ReplicationManager {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
@@ -42,15 +43,16 @@ public class ReplicationManagerImpl implements ReplicationManager {
      * detect it. We could throw exceptions from here but it would mean that a single IO failure
      * dooms entire replication process.
      */
-    public boolean replicateData(String[] urls, Document payload, DataSet type) {
-        byte[] payloadBytes = xmlToByteArray(payload);
-        Document xml = generateXMLDataToPost(payloadBytes, type);
-        byte[] data = xmlToByteArray(xml);
+    public boolean replicateData(Location[] locations, DataSetGenerator generator, DataSet type) {
 
         boolean success = true;
-        for (int i = 0; i < urls.length; i++) {
+        for (int i = 0; i < locations.length; i++) {
             try {
-                postData(urls[i], data);
+                Document payload = generator.generate();
+                byte[] payloadBytes = xmlToByteArray(payload);
+                Document xml = generateXMLDataToPost(payloadBytes, type);
+                byte[] data = xmlToByteArray(xml);
+                postData(locations[i].getReplicationUrl(), data);
             } catch (IOException e) {
                 success = false;
                 LOG.error("Replication failed: " + type.getName(), e);
