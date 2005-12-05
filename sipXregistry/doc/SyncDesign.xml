@@ -1,4 +1,4 @@
-<?xml encoding="ISO-8859-1"?>
+<?xml version="1.0" encoding="iso-8859-1"?>
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
     <!ENTITY rfc2119 PUBLIC ""
       "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
@@ -97,28 +97,22 @@
       <list style='bullet'>
         <t>one Master Server running:</t>
         <list style='bullet'>
-          <t>sipXconfig service</t>
-          <t>optionally, also the set of the processes of a
-             Distributed Server</t>
+          <t>forking proxy</t>
+          <t>authentication proxy</t>
+          <t>registrar/redirect service</t>
+          <t>config service</t>
+          <t>vxml service with applications</t>
+          <t>publisher (status server)</t>
+          <t>presence</t>
         </list>
         <t>one or more Distributed Servers, each running:</t>
         <list style='bullet'>
-          <t>one forking proxy</t>
-          <t>one authentication proxy</t>
-          <t>one registrar/redirect service</t>
         </list>
       </list>
       <t>
         Other PBX Services may be distributed among the above Servers,
         or run on other Servers:
       </t>
-      <list style='bullet'>
-        <t>sipXvxml service with applications</t>
-        <t>sipXpublisher (status server)</t>
-        <t>sipXpresence</t>
-        <t>sipXacd</t>
-      </list>
-      
       <t>
         <spanx style='strong'>
           In Release 3.2, only one configuration will be supported: one
@@ -568,9 +562,11 @@
           Replicated Registrars quickly. </t>
         
         <t> The only way a Replicated Registrar can transition from being "dead" to being
-          "live" (in the eyes of its Primary Registrar) is through an XML-RPC that
-          communicates from the Replicated Registrar to the Primary Registrar the update
-          from which updates should commence being sent. </t>
+          "live" (in the eyes of its Primary Registrar) is through an
+          XML-RPC from the Replicated Registrar to the Primary Registrar
+          that provides a PeerReceivedDbUpdateNumber for that Replicated
+          Registrar.
+          . </t>
         
         <t> Processing is done by a number of interlocking operations which are detailed
           below. Synchronization between registrars is done using XML-RPC (see
@@ -604,7 +600,10 @@
             will produce the same result regardless of the order in which they are
             processed). Even in cases where the RFC 3261 result is not produced, the result is
             always the same as would be produced by the same messages if they were received
-            with certain small changes in their arrival times. </t>
+            with certain small changes in their arrival times. In other
+            words, the race condition already exists in 3261, and the
+            registry replication does not introduce any problems that were
+            not already there.</t>
           
         </section>
         
@@ -664,7 +663,7 @@
               request successfully. </t>
             
             <t> The server also checks its PeerReachable status for the client; if it is
-              <spanx style='verb'>false</spanx>, then the server knows that the peer is no
+              <spanx style='verb'>false</spanx>, then the server knows that the peer is now
               reachable again, and so it sets its PeerReachable status for the client to
               <spanx style='verb'>true</spanx> and sends a PushRegistryUpdate
               OsMessage to its RegistrySync thread. </t>

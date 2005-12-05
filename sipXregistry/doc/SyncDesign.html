@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Mon, 05 Dec 2005 21:05:09 +0000">
+<meta http-equiv="Expires" content="Mon, 05 Dec 2005 23:09:01 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -257,21 +257,24 @@ Authors' Addresses<br />
 <li>one Master Server running:
 </li>
 <blockquote class="text">
-<li>sipXconfig service
+<li>forking proxy
 </li>
-<li>optionally, also the set of the processes of a
-             Distributed Server
+<li>authentication proxy
+</li>
+<li>registrar/redirect service
+</li>
+<li>config service
+</li>
+<li>vxml service with applications
+</li>
+<li>publisher (status server)
+</li>
+<li>presence
 </li>
 </blockquote>
 <li>one or more Distributed Servers, each running:
 </li>
 <blockquote class="text">
-<li>one forking proxy
-</li>
-<li>one authentication proxy
-</li>
-<li>one registrar/redirect service
-</li>
 </blockquote>
 </blockquote>
 <p>
@@ -279,16 +282,6 @@ Authors' Addresses<br />
         or run on other Servers:
       
 </p>
-<blockquote class="text">
-<li>sipXvxml service with applications
-</li>
-<li>sipXpublisher (status server)
-</li>
-<li>sipXpresence
-</li>
-<li>sipXacd
-</li>
-</blockquote>
 <p>
         <span class="strong">
           In Release 3.2, only one configuration will be supported: one
@@ -796,9 +789,11 @@ Authors' Addresses<br />
           Replicated Registrars quickly. 
 </p>
 <p> The only way a Replicated Registrar can transition from being "dead" to being
-          "live" (in the eyes of its Primary Registrar) is through an XML-RPC that
-          communicates from the Replicated Registrar to the Primary Registrar the update
-          from which updates should commence being sent. 
+          "live" (in the eyes of its Primary Registrar) is through an
+          XML-RPC from the Replicated Registrar to the Primary Registrar
+          that provides a PeerReceivedDbUpdateNumber for that Replicated
+          Registrar.
+          . 
 </p>
 <p> Processing is done by a number of interlocking operations which are detailed
           below. Synchronization between registrars is done using XML-RPC (see
@@ -833,7 +828,10 @@ Authors' Addresses<br />
             will produce the same result regardless of the order in which they are
             processed). Even in cases where the RFC 3261 result is not produced, the result is
             always the same as would be produced by the same messages if they were received
-            with certain small changes in their arrival times. 
+            with certain small changes in their arrival times. In other
+            words, the race condition already exists in 3261, and the
+            registry replication does not introduce any problems that were
+            not already there.
 </p>
 <a name="anchor13"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
@@ -895,7 +893,7 @@ Authors' Addresses<br />
               request successfully. 
 </p>
 <p> The server also checks its PeerReachable status for the client; if it is
-              <span class="verb">false</span>, then the server knows that the peer is no
+              <span class="verb">false</span>, then the server knows that the peer is now
               reachable again, and so it sets its PeerReachable status for the client to
               <span class="verb">true</span> and sends a PushRegistryUpdate
               OsMessage to its RegistrySync thread. 
