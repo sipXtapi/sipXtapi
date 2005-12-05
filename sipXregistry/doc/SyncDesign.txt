@@ -9,24 +9,30 @@ Table of Contents
    1.  Motivation and Overview  . . . . . . . . . . . . . . . . . . .  2
    2.  Terminology  . . . . . . . . . . . . . . . . . . . . . . . . .  2
    3.  High Availability Architecture . . . . . . . . . . . . . . . .  2
-   4.  Current Registry/Redirect Database Management  . . . . . . . .  4
-     4.1.  Registry Updates . . . . . . . . . . . . . . . . . . . . .  4
+   4.  Current Registrar/Redirect Database Management . . . . . . . .  4
+     4.1.  Registry Updates . . . . . . . . . . . . . . . . . . . . .  5
      4.2.  Locking  . . . . . . . . . . . . . . . . . . . . . . . . .  6
    5.  Changes  . . . . . . . . . . . . . . . . . . . . . . . . . . .  6
      5.1.  Configuration  . . . . . . . . . . . . . . . . . . . . . .  6
-     5.2.  Additional DB columns  . . . . . . . . . . . . . . . . . .  6
-     5.3.  XML-RPC Registry DB Replication  . . . . . . . . . . . . .  6
-       5.3.1.  Registry Syncronization State  . . . . . . . . . . . .  6
-       5.3.2.  Register Message Processing  . . . . . . . . . . . . .  7
-         5.3.2.1.  registrySync.updateContacts  . . . . . . . . . . .  8
-       5.3.3.  Peer Reachability  . . . . . . . . . . . . . . . . . .  9
-         5.3.3.1.  registrySync.Check . . . . . . . . . . . . . . . .  9
-       5.3.4.  Startup Syncronization . . . . . . . . . . . . . . . . 10
-     5.4.  Registry DB Locking  . . . . . . . . . . . . . . . . . . . 10
-     5.5.  XML-RPC Security . . . . . . . . . . . . . . . . . . . . . 10
-     5.6.  HTTP Persistent Connections  . . . . . . . . . . . . . . . 11
-     5.7.  Authorization Proxy Record-Route . . . . . . . . . . . . . 11
-   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 12
+     5.2.  Registry Synchronization State . . . . . . . . . . . . . .  6
+     5.3.  Registration Database  . . . . . . . . . . . . . . . . . .  8
+       5.3.1.  Additional DB Columns  . . . . . . . . . . . . . . . .  8
+       5.3.2.  Overall DB Structure . . . . . . . . . . . . . . . . .  8
+     5.4.  Thread Structure and Locking . . . . . . . . . . . . . . .  9
+     5.5.  Primary and Secondary Registrars . . . . . . . . . . . . . 10
+     5.6.  Processing . . . . . . . . . . . . . . . . . . . . . . . . 10
+       5.6.1.  RegisterServer -- Register Message Processing  . . . . 10
+       5.6.2.  RegisterSync -- Sending Updates to the Peer Server . . 11
+         5.6.2.1.  Detailed Operation . . . . . . . . . . . . . . . . 11
+         5.6.2.2.  registrySync.pushUpdates method  . . . . . . . . . 13
+         5.6.2.3.  registrySync.pullUpdates method  . . . . . . . . . 14
+       5.6.3.  RegisterTest -- Peer Reachability  . . . . . . . . . . 15
+         5.6.3.1.  registrySync.Check method  . . . . . . . . . . . . 15
+       5.6.4.  Startup Processing . . . . . . . . . . . . . . . . . . 16
+     5.7.  XML-RPC Security . . . . . . . . . . . . . . . . . . . . . 17
+     5.8.  HTTP Persistent Connections  . . . . . . . . . . . . . . . 17
+     5.9.  Authorization Proxy Record-Route . . . . . . . . . . . . . 17
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 18
 
 
 
@@ -46,42 +52,39 @@ Table of Contents
 
 
 
-
-
-
-
-
-
-Lawrence & Worley                                               [Page 1]
+Lawrence, et al.                                                [Page 1]
 
-                               sipXpbx HA                  November 2005
+                               sipXpbx HA                  December 2005
 
 
 1.  Motivation and Overview
 
-   In large systems, high availability (HA) is essential; a PBX with
-   more than a few dozen users generally must not have any unexpected
-   outages for basic calling.  It does seem to be true that voice mail
-   and perhaps some other services do not have the same availability
-   requirement.  In sipXpbx, basic calling depends on three components:
-   the two proxies and the registry/redirect service.  The proxies can
-   be replicated using DNS SRV records to share load and provide for
-   failover.  The registry/redirect service, however, can not currently
-   be deployed on multiple servers because the 'soft' state in the
-   registry database (mappings from registered Addresses to Contacts)
-   cannot be shared.  While replicating the proxies alone does help with
-   scaling, the registry is a single point of failure for basic calling
-   service.
+   For large systems, defined as PBXs with more than a few dozen users,
+   high availability (HA) for basic calling is essential: users should
+   be able to make and receive phone calls reliably at all times.  HA
+   for voice mail, and perhaps some other services, is a lower priority
+   although still important.
+
+   * In order to deliver HA as quickly as possible, we will start by
+   implementing only those features that are absolutely required.  The
+   first HA implementation in sipXpbx release 3.2 will only address
+   basic calling.  Automated installation will not be supported; some
+   custom, manual configuration will be required.  No more than 2
+   registrars will be allowed. *
+
+   In sipXpbx, basic calling depends on three components: the two
+   proxies and the registrar/redirect service.  The proxies can be
+   replicated and DNS SRV records can be used to share load and provide
+   for failover.  The registrar/redirect service, however, cannot
+   currently be deployed on multiple servers because the 'soft' state in
+   the registry database (mappings from registered Addresses to
+   Contacts) cannot be shared.  While replicating the proxies alone does
+   help with scaling, the registrar is a single point of failure for
+   basic calling service.
 
    This memo describes a system architecture to provide high
-   availability service for basic calling, and a design for adding the
-   required replication of registration information
-
-   * In order to make the basic HA capability available as quickly as
-   possible, the plan is to implement those features that are absolutely
-   required, but not support an automated installation.  Some custom,
-   manual configuration will be required.  Release 3.2 will support only
-   2 registrars. *
+   availability service for basic calling, by adding the required
+   replication of registration information.
 
 
 2.  Terminology
@@ -90,7 +93,7 @@ Lawrence & Worley                                               [Page 1]
       particular function.
    Primary Registrar For a particular REGISTER request, the registrar
       that receives it and performs initial processing for it.  Note
-      that the primary registrar may not be the same for successive
+      that the Primary Registrar may not be the same for successive
       REGISTER requests, even from one UA.
    Replicated Registrar For a particular REGISTER request, any registrar
       other than its Primary Registrar to which its information is
@@ -100,23 +103,24 @@ Lawrence & Worley                                               [Page 1]
 3.  High Availability Architecture
 
    In an HA configuration, there are at least two types of Server:
+
+
+
+
+
+Lawrence, et al.                                                [Page 2]
+
+                               sipXpbx HA                  December 2005
+
+
       one Master Server running:
          sipXconfig service
-         optionally, also a set of the processes from a Distributed
+         optionally, also the set of the processes of a Distributed
          Server
-
-
-
-
-Lawrence & Worley                                               [Page 2]
-
-                               sipXpbx HA                  November 2005
-
-
-      one or more Distributed Servers, each running
+      one or more Distributed Servers, each running:
          one forking proxy
          one authentication proxy
-         one registry/redirect service
+         one registrar/redirect service
 
    Other PBX Services may be distributed among the above Servers, or run
    on other Servers:
@@ -126,7 +130,7 @@ Lawrence & Worley                                               [Page 2]
       sipXacd
 
    * In Release 3.2, only one configuration will be supported: one
-   Distributed Server running only the proxies and registry/redirect
+   Distributed Server running only the proxies and registrar/redirect
    service, and one Master Server running all Services. *
 
    In order to provide load sharing and failover, all SIP message
@@ -137,49 +141,52 @@ Lawrence & Worley                                               [Page 2]
       installation, multiple SRV records for the SIP domain name are
       required, mapping to the Server names/ports that run the forking
       proxy service.  There are domain SRV records specifying both TCP
-      and UDP.  For example:
+      and UDP (with TCP given preference).  For example:
 
          $ORIGIN example.com.
 
-         _sip._tcp IN SRV 1 50 5060 sipxpbx1
-         _sip._tcp IN SRV 1 50 5060 sipxpbx2
+         _sip._tcp IN SRV   1 50 5060 sipxpbx1
+         _sip._tcp IN SRV   1 50 5060 sipxpbx2
 
-         _sip._udp IN SRV 2 50 5060 sipxpbx1
-         _sip._udp IN SRV 2 50 5060 sipxpbx2
+         _sip._udp IN SRV 101 50 5060 sipxpbx1
+         _sip._udp IN SRV 101 50 5060 sipxpbx2
 
-   registry The "forwardingrules.xml" for each forking proxy service
-      specifies the registry using an SRV name that maps first to the
-      registry instance on the same Server as the proxy (which is
+   registrar The "forwardingrules.xml" for each forking proxy service
+      specifies the registrar using an SRV name that maps first to the
+      registrar instance on the same Server as the proxy (which is
       quicker to reach and more likely to be operational), and then to
-      the registry instance on the other Server (for failover).  The
-      registry service SRV records specify only TCP, because TCP has
+      the registrar instance on the other Server (for failover).  The
+      registrar service SRV records specify only TCP, because TCP has
       better failure detection and performance characteristics and
       compatibility with User Agents is not required.
 
-        _sip._tcp.sipxregistry1 IN SRV 1 50 5070 sipxpbx1
-        _sip._tcp.sipxregistry1 IN SRV 2 50 5070 sipxpbx2
-
-        _sip._tcp.sipxregistry2 IN SRV 1 50 5070 sipxpbx2
-        _sip._tcp.sipxregistry2 IN SRV 2 50 5070 sipxpbx1
 
 
 
-Lawrence & Worley                                               [Page 3]
+
+Lawrence, et al.                                                [Page 3]
 
-                               sipXpbx HA                  November 2005
+                               sipXpbx HA                  December 2005
 
 
-      In the example above, the proxy on "sipxpbx1" would be configured
-      to use "sipxregistry1", which preferentially routes to
-      "sipxpbx1:5070" and fails over to "sipxpbx2:5070".  The proxy on
-      "sipxpbx2" is configured to use "sipxregistry2", which uses the
-      two services in the reverse order.
+        _sip._tcp.sipxregistrar1 IN SRV 1 50 5070 sipxpbx1
+        _sip._tcp.sipxregistrar1 IN SRV 2 50 5070 sipxpbx2
+
+        _sip._tcp.sipxregistrar2 IN SRV 1 50 5070 sipxpbx2
+        _sip._tcp.sipxregistrar2 IN SRV 2 50 5070 sipxpbx1
+
+      In the example above, the forking proxy on "sipxpbx1" would be
+      configured to use "sipxregistrar1", which preferentially routes to
+      "sipxpbx1:5070" and fails over to "sipxpbx2:5070".  The forking
+      proxy on "sipxpbx2" is configured to use "sipxregistrar2", which
+      uses the two Services in the reverse order.
    authproxy The "forwardingrules.xml" for each forking proxy service
-      specifies the authorization proxy using an SRV name configured
-      similarly to the registry.  The authorization proxy SRV records
-      specify both TCP and UDP, preferring TCP, but allowing UDP for
-      compatibility with User Agents that require it.  (The
-      authorization proxy may be Record-Routed in dialogs.)
+      specifies the authorization proxy using a specialized SRV name
+      configured similarly to the SRV name for the registrar.  The
+      authorization proxy SRV records specify both TCP and UDP,
+      preferring TCP, but allowing UDP for compatibility with User
+      Agents that require it.  (The authorization proxy may be Record-
+      Routed in dialogs.)
 
          _sip._tcp.sipxauthproxy1 IN SRV   1 50 5080 sipxpbx1
          _sip._tcp.sipxauthproxy1 IN SRV   2 50 5080 sipxpbx2
@@ -205,28 +212,27 @@ Lawrence & Worley                                               [Page 3]
       determine the best method for Record-Routing. *
 
 
-4.  Current Registry/Redirect Database Management
+4.  Current Registrar/Redirect Database Management
 
-   This section describes the operation of the registry in sipXpbx
-   version 3.0; it does not include description of the HA changes, or
-   the changes for GRUU support..
+   This section describes the operation of the registrar in sipXpbx
+   version 3.0.  It does not describe HA changes, or the changes for
+   GRUU support.
+
+
+
+Lawrence, et al.                                                [Page 4]
+
+                               sipXpbx HA                  December 2005
+
 
 4.1.  Registry Updates
 
-   The updating of the registry is handled by the routine
-   SipRegistrarServer::applyRegisterToDirectory and the sibdb
-   RegistrationDB class.  The applyRegisterToDirectory method is called
-   after the REGISTER request has been authenticated; it validates the
-
-
-
-Lawrence & Worley                                               [Page 4]
-
-                               sipXpbx HA                  November 2005
-
-
-   registration by checking to see if the call-id and cseq are in
-   sequence by calling RegistrationDB::isOutOfSequence.
+   Updating the registry is handled by the routine SipRegistrarServer::
+   applyRegisterToDirectory and the sibdb RegistrationDB class.  The
+   applyRegisterToDirectory method is called after the REGISTER request
+   has been authenticated; it validates the registration by checking to
+   see if the Call-ID and CSeq are in sequence by calling
+   RegistrationDB::isOutOfSequence.
 
    applyRegisterToDirectory then parses and validates the contacts and
    expiration time in the request and converts them to an internal list.
@@ -236,7 +242,7 @@ Lawrence & Worley                                               [Page 4]
    Expiring All Contacts If the REGISTER request had an '"Expire: 0"'
       header and just a '"Contact: *"' header then it is requesting that
       all contacts for this Address Of Record (not just those from this
-      call-id) be expired.  This is done using a single call to:
+      Call-ID) be expired.  This is done using a single call to:
 
           RegistrationDB::expireAllBindings( aor, callid, cseq, timeNow )
 
@@ -245,11 +251,11 @@ Lawrence & Worley                                               [Page 4]
       AOR are expired.)  Rather, they are used for marking the bindings
       as expired -- Bindings are expired by setting their expiration
       time to "timeNow minus 1 second", and setting their "last updated
-      by" information to the call-id and cseq specified.
+      by" information to the Call-ID and CSeq specified.
    Updating Contacts The other case is when there are real contacts in
       the set.  All contacts which are listed are to have their
       expiration times updated, and all other contacts which have last
-      been updated with by REGISTERs with this call-id are to be
+      been updated with by REGISTERs with this Call-ID are to be
       expired.
       The listed contacts are updated by calling RegistrationDB::
       updateBinding on each contact:
@@ -263,154 +269,441 @@ Lawrence & Worley                                               [Page 4]
                                         )
 
       Each contact has its q-value and expiration time set, and the
-      call-id and cseq are recorded as its "last updated by"
+      Call-ID and CSeq are recorded as its "last updated by"
       information.
+
+
+
+
+
+Lawrence, et al.                                                [Page 5]
+
+                               sipXpbx HA                  December 2005
+
+
       After all the contacts in the REGISTER message have been updated,
-      any contacts that have the same callid but an earlier cseq number
+      any contacts that have the same Call-ID but an earlier CSeq number
       are expired by a single call to:
 
                  RegistrationDB::expireOldBindings( toUrl,
                                                     registerCallidStr,
                                                     registerCseqInt,
                                                     timeNow
-
-
-
-Lawrence & Worley                                               [Page 5]
-
-                               sipXpbx HA                  November 2005
-
-
                                                     )
 
 4.2.  Locking
 
-   Other than the locks internal to fastdb, there are no locks on any of
+   Other than the locks internal to FastDB, there are no locks on any of
    the above operations.  This works because only the single
-   SipRegistrarServer thread ever writes to the Registry database.
+   SipRegistrarServer thread ever writes to the registry database.
 
 
 5.  Changes
 
    The following sections detail the changes needed to implement the
-   above architecture.
+   replicated registrar architecture.
 
 5.1.  Configuration
 
    An HA Registrar has two additional configuration parameters:
-   SIP_REGISTRAR_SYNC_TO The host name of the other registrar to sync
-      to. (_In future versions, this may allow a comma-separated list of
-      Servers._)
+   SIP_REGISTRAR_SYNC_WITH The host name of the other registrar to sync
+      to. ( _In future versions, this may allow a comma-separated list
+      of Servers._)
    SIP_REGISTRAR_XMLRPC_PORT The port number used by all Servers to
-      listen for XML-RPC registry syncronization requests.
+      listen for XML-RPC registry synchronization requests.
 
    _The set of configuration parameters may be changed in future
    versions of the HA system.  Compatibility is only guaranteed with
    those sipXconfig versions which support HA._
 
-5.2.  Additional DB columns
+5.2.  Registry Synchronization State
+
+   The Registrar Service maintains persistent (across start-ups) state
+   for synchronization purposes:
+   DbUpdateNumber A numeric ID for update operations to its own registry
+      database.  DbUpdateNumber is updated only for registrations for
+      which this registrar is the Primary Registrar.
+
+   DbUpdateNumber is a positive, signed, 64-bit number composed of two
+   parts:
+
+
+
+
+
+
+Lawrence, et al.                                                [Page 6]
+
+                               sipXpbx HA                  December 2005
+
+
+   base time The "base time" component in the upper half of
+      DbUpdateNumber is a Unix time value, the number of seconds since
+      00:00 GMT, 1 January 1970.  It is the time at which the registrar
+      last initialized the counter component.  Since all Servers are
+      expected to have reliable, NTP-synchronized clocks, base times
+      created by a Service always increase.  Since initializations of
+      the update number are expected to be rare, all base times in a
+      system are unique.  The base time is a 32-bit, positive, signed
+      integer.
+   counter The "counter" component in the bottom half of DbUpdateNumber
+      is a 32-bit unsigned integer that is incremented on every update.
+
+   We need to be able to compare DbUpdateNumbers and decide which one is
+   more recent.  However, at 1,000 updates/second, a 32-bit counter will
+   wrap in 1.6 months.  Because registrations don't stay valid for very
+   long (typically 1 hour), the range of DbUpdateNumbers at any point in
+   time is pretty narrow, so we could treat DbUpdateNumbers as cyclic,
+   looking at the absolute value of the difference of two numbers to see
+   which one is larger.  But this gets complicated.  We can avoid this
+   cleverness using a simple trick: rather than wrapping the counter,
+   instead carry the overflow bit into the base time value, effectively
+   turning the 32-bit counter into a 64-bit counter that will wrap in
+   292,471,209 years -- not a problem.  Base time changes due to
+   overflow can easily be distinguished from base time resets due to
+   service restarts, which will increment the base time by much more
+   than a few seconds.
+
+   This design allows us to generate unique, monotonic DbUpdateNumbers
+   even if we've lost the history for a registry.  If that happens, then
+   we initialize the base time to the current time and the update number
+   to zero.  Since the new base time is both most significant and bigger
+   than any previous base times, the new DbUpdateNumbers will be bigger
+   than any previous DbUpdateNumbers.
+
+   A DbUpdateNumber is used to label the DB records that are modified by
+   a DB update, and can be used to designate a particular state of the
+   DB, namely, all record modifications with DbUpdateNumber less than or
+   equal to some specified DbUpdateNumber.
+
+   Since registration state is preserved across restarts, the base time
+   of the local DbUpdateNumber will usually not be the same as the start
+   time of the current registrar instance.  In general, the base time
+   will be the earliest start time from which registration state has
+   been kept.
+
+   For a given registrar, DbUpdateNumbers for registrations that it
+   handles as the primary registrar are referred to as "local".
+   DbUpdateNumbers for registrations handled by other registrars and
+
+
+
+Lawrence, et al.                                                [Page 7]
+
+                               sipXpbx HA                  December 2005
+
+
+   received via updates are referred to "peer".
+   PeerReceivedDbUpdateNumber The largest DbUpdateNumber received from
+      the peer.
+   PeerSentDbUpdateNumber The largest DbUpdateNumber sent to the peer.
+
+   The registrar service maintains additional state that is not
+   persistent:
+   PeerReachable This is a boolean that indicates whether or not the
+      peer is believed to be reachable.  It is initialized on startup to
+      "false", indicating that the peer is not known to be reachable.
+      It is set to "false" by most operations if they fail to reach the
+      peer, and is set to "true" the RegisterTest thread (see
+      Section 5.6.3) when it discovers that it can reach the peer.  When
+      it is "false", most operations do not attempt to contact the peer.
+
+5.3.  Registration Database
+
+5.3.1.  Additional DB Columns
 
    Each row in the registration database (which corresponds to a binding
-   of a contact URI to an AOR) will have two additional data items:
-   Primary True if this registrar is the Primary Registrar for this
-      binding (the binding was installed by a REGISTER received by this
-      registrar), and false otherwise (the binding was installed by an
-      XML-RPC from another registrar).
-   DbUpdateNumber If Primary is true, the value of DbUpdateNumber (see
-      below) of the update which inserted or last modified this row.
+   of a contact URI to an AOR) gains two columns:
+   Primary A string which is the identifier of the Primary Registrar for
+      this binding.  This identifier is selected by the Primary
+      Registrar, and will usually be the host name of its Server, but
+      the only requirement is that each registrar has a distinct
+      identifier.
+   UpdateNumber The DbUpdateNumber (of the Primary Registrar's DB) of
+      the update which inserted or last modified this row.
 
-5.3.  XML-RPC Registry DB Replication
+5.3.2.  Overall DB Structure
 
-5.3.1.  Registry Syncronization State
+   The entries in the registration database maintain the state for
+   registrations of contacts for Addresses Of Record.  Entries are
+   indexed by AOR, contact, and the Call-ID of the sequence of REGISTERs
+   (the registration quasi-dialog) that establish and maintain the
+   registration.
 
-   The Registry Service maintains persistent state for syncronization
-   purposes:
+   Entries are considered to have expired when the current time exceeds
+   the expiration time recorded in the entry.  The entry is not removed
+   at that time, so that the entry can maintain the "last CSeq seen"
+   value for that Call-ID, in case an out-of-sequence REGISTER arrives.
+   Entries are removed from the DB after one hour after they expire, as
+   we assume that is long enough that out-of-order REGISTERS will no
+   longer be in transit.
+
+   When a registration is to be expired in advance of its previously
+   scheduled expiration time (due to the processing of some REGISTER
+   message), its DB entry is modified by reducing its expiration time to
 
 
 
-
-
-
-
-Lawrence & Worley                                               [Page 6]
+Lawrence, et al.                                                [Page 8]
 
-                               sipXpbx HA                  November 2005
+                               sipXpbx HA                  December 2005
 
 
-   InitialSyncDone A boolean value, initially "false" indicating whether
-      or not the local database has been syncronized with the peer
-      registry (see Section 5.3.4).
-   DbUpdateNumber A circular counter of successful update operations to
-      its own registry database.  This value persists across restarts.
-      In addition to recording its own update number, the registry
-      service maintains a record of the last value of DbUpdateNumber
-      sent to the syncronization peer, and the last value of
-      DbUpdateNumber received from that peer.
-   SyncronizationBaseTime The SyncronizationBaseTime is the epoch time
-      at which the registry last started with no prior registration
-      state.  Since registration state is preserved across restarts,
-      this value will often not be the same as the start time for the
-      current registry instance.  When the registry service starts, it
-      attempts to read its own persistent registry store.  If there is
-      no persistent registry store, it records the current time as its
-      own SyncronizationBaseTime and sets its own DbUpdateNumber to
-      zero.  The SyncronizationBaseTime value is always passed with the
-      DbUpdateNumber, and the SyncronizationBaseTime value from each
-      peer is also recorded.  This allows each registry service to
-      detect when a peer has restarted and lost syncronization state.
+   one second before the current time.
 
-   Together, the SyncronizationBaseTime and DbUpdateNumber are referred
-   to below as the "local syncronization data".
+   Each entry contains the following fields.  (The fields for GRUU
+   support are not listed, but they do not affect any of the replication
+   algorithms.)
+   uri The AOR of this registration.
+   contact The contact of this registration.
+   qvalue The q-value of this registration.
+   callid The Call-ID of the REGISTERs that establish/maintain this
+      registration.
+   cseq The largest CSeq seen for REGISTERs for this registration.
+   instance_id The "+sip.instance" value that was provided with the
+      registration, or the null string.
+   gruu The GRUU that was assigned to this registration, or the null
+      string.
+   primary The name of the Primary Registrar for this registration.
+   update_number The DbUpdateNumber of the last modification of this
+      entry.
 
-   The relationship of the local registry with the peer registry is
-   maintained in three values:
-   PeerReachable This is a boolean that indicates whether or not the
-      peer is believed to be reachable.  This is 'soft' state - it is
-      initialized on startup to 'false', indicating that the peer is not
-      known to be reachable.  This is reset by the RegisterTest thread
-      (see Section 5.3.3).
-   PeerSyncronizationBaseTime The most recently received
-      SyncronizationBaseTime from the peer.
-   PeerDbUpdateNumber The most recently received DbUpdateNumber from the
-      peer.
+5.4.  Thread Structure and Locking
 
-5.3.2.  Register Message Processing
+   There are three threads in each registrar:
+   RegisterServer This thread processes incoming REGISTER messages,
+      applying the necessary updates to the DB, and notifying
+      RegisterSync thread that when it needs to propagate updates.
+   RegisterSync This thread is the XML-RPC client that sends updates to
+      the peer server.
+   RegisterTest This thread is the XML-RPC client that tests, when the
+      peer Service is thought to be down or unreachable, whether it is
+      now reachable.
+   HttpServer This thread is the XML-RPC server.  It must be a separate
+      from the XML-RPC client to avoid multi-Server XML-RPC deadlock
+      chains.
 
-   When a register message has been determined to be valid, the local
-   DbUpdateNumber is incremented, and the changes applied to the local
-   registry database.  The local DbUpdateNumber value is recorded in
+   Registry database updates are protected by an OsMutex; it is taken by
+   applyRegisterToDirectory and by each of the registrySync XML-RPC
+   server methods.  This serializes all the checks for CSeq correctness,
+   and also protects the synchronization state variables.
+
+   The XML-RPC client threads (RegisterSync and RegisterTest) will also
+   hold the lock when they are modifying the synchronization state, but
+   never while they are making XML-RPC calls, in order to avoid mult-
+   Server deadlocks.
+
+   _ There is no locking between updates to the registry database and
+   reads from it by the redirect service; the FastDB ensures sufficient
+   integrity that none is needed. _
+
+
+
+
+Lawrence, et al.                                                [Page 9]
+
+                               sipXpbx HA                  December 2005
+
+
+5.5.  Primary and Secondary Registrars
+
+   Every registrar has a unique name, known by all registrars, which
+   will usually be its host name.  Every REGISTER is processed by the
+   registrar that first receives it, which is called the Primary
+   Registrar for the REGISTER, and the Primary Registrar is said to
+   "own" that registration and the records describing it (in every
+   registrar database).  Each Primary Registrar has a set of Replicated
+   Registrars that should contain duplicates of all registrations owned
+   by that Primary Registrar.  Each registrar knows all of the
+   Replicated Registrars for the registrations it owns, and also all of
+   the Primary Registrars for which it is a Replicated Registrar.  In
+   addition, each registrar knows the list of its "sibling Replicated
+   Registrars", which includes the registrars listed above, and also the
+   registrars which are Replicated Registrars for a Primary Registrar
+   for which this registrar is a Replicated Registrar.
+
+5.6.  Processing
+
+   Registrar processing is performed in two stages -- startup and
+   operational.  During the startup stage, the registrar recovers its
+   local database (if possible), then pulls information from all of its
+   sibling registrars.  During the operational stage, the registrar
+   processes REGISTERs and pushes updates from siblings.
+
+   The central feature of this design is that during startup and
+   reconstruction of the database, the registrar pulls data, so that it
+   can tell when it has finished obtaining the data it desires.  But
+   during the operational phase, updates are pushed by the Primary
+   Registrar to ensure that they are propagated to the Replicated
+   Registrars quickly.
+
+   The only way a Replicated Registrar can transition from being "dead"
+   to being "live" (in the eyes of its Primary Registrar) is through an
+   XML-RPC that communicates from the Replicated Registrar to the
+   Primary Registrar the update from which updates should commence being
+   sent.
+
+   Processing is done by a number of interlocking operations which are
+   detailed below.  Synchronization between registrars is done using
+   XML-RPC (see Section 5.6).  The XML-RPC URI for these operations
+   always has scheme "https" (see Section 5.7), the host name specified
+   by the SIP_REGISTRAR_SYNC_WITH configuration item, and the fixed path
+   "/RPC2".
+
+5.6.1.  RegisterServer -- Register Message Processing
+
+   When a REGISTER message has been determined to be valid, the local DB
+
+
+
+Lawrence, et al.                                               [Page 10]
+
+                               sipXpbx HA                  December 2005
+
+
+   update number is incremented, and the changes are applied to the
+   local registry database.  The local DbUpdateNumber is recorded in
    each updated row in the registry database.  The SipRegistrarServer
    thread then sends a PushRegistryUpdate OsMessage to the RegisterSync
-   thread to trigger replication to the peer registry.
+   thread to trigger replication to the peer registrar.
 
-   The RegistrySync thread is responsible for propogating updates to the
-   peer registry _(when multiple peers are supported, there may be one
+   In all cases, the Primary Registrar first reduces the effect of the
+   REGISTER to the insertion/modification of a number of entries in the
+   DB.  The entries are then tagged with the Call-ID/CSeq of the
+   REGISTER request, and the local DbUpdateNumber of the new version of
+   the DB.  It is these records that are then propagated to the
+   Replicated Registrar.
+
+   This transformation of the REGISTER before propagation is not
+   absolutely correct according to RFC 3261, as it does not process
+   "expire all" operations correctly in certain uncommon race
+   situations, but it ensures that the results of replication are
+   accurately defined (since the processing of the DB updates will
+   produce the same result regardless of the order in which they are
+   processed).  Even in cases where the RFC 3261 result is not produced,
+   the result is always the same as would be produced by the same
+   messages if they were received with certain small changes in their
+   arrival times.
+
+5.6.2.  RegisterSync -- Sending Updates to the Peer Server
+
+   The RegisterSync thread is responsible for propagating updates to the
+   peer registrar. _(When multiple peers are supported, there may be one
+   thread per peer or just one for all peers -- this is a subject for
+   future study.)_
+
+   When the RegisterSync thread receives a PushRegistryUpdate message,
+   it checks the peer state: If PeerReachable is "true", and if the
+   local DbUpdateNumber is greater than the PeerSent DbUpdateNumber,
+   then registerSync.pushUpdates XML-RPC method is used to propagate all
+   updates that have not been sent to the peer (one invocation per
+   unsent transaction).  After a successful return of the XML-RPC, the
+   PeerSent DbUpdateNumber is updated.
+
+5.6.2.1.  Detailed Operation
+
+   registrySync.pushUpdates is used by one Registrar to push updates to
+   its peer registrar.  It is initiated by the RegisterSync thread when
+   it is notified that there are (may be) updates in the local DB for
+   which it is the Primary Registrar and which have not been propagated
+   to the peer registrar.
+
+   First, RegisterSync checks the peer state: If PeerReachable is
 
 
 
-Lawrence & Worley                                               [Page 7]
+Lawrence, et al.                                               [Page 11]
 
-                               sipXpbx HA                  November 2005
+                               sipXpbx HA                  December 2005
 
 
-   thread per peer or just one for all peers - this is a subject for
-   future study)_.
+   "false", it immediately terminates processing the PushRegistryUpdate
+   message.  (The updates that need to be sent will be sent when
+   RegisterTest detects that the peer registry is reachable.)
 
-   When the RegistrySync thread receives a PushRegistryUpdate message,
-   it checks the PeerReachable value: if it is "true", then the
-   registrySync.updateContacts XML-RPC method is used to propogate any
-   updates that have not been sent to that peer (one invocation per
-   unsent transaction).
+   Next, the RegisterSync thread checks that the local DbUpdateNumber is
+   greater than the PeerSent DbUpdateNumber.  If not, there are no
+   updates to propagate, and the thread terminates processing the
+   message.
 
-5.3.2.1.  registrySync.updateContacts
+   If there are updates to propagate, the RegisterSync thread extracts
+   all records in the local DB that were updated by this registrar as
+   the Primary Register, and whose DbUpdateNumbers are greater than the
+   PeerSent DbUpdateNumber.  These records are packaged into one or more
+   registrySync.pushUpdates XML-RPC calls which are sent in succession
+   to the peer registrar.
 
-   The replicated registrar validates that the local database does not
-   have more recent information using the callid and cseq values and if
-   not, applies each update to its own database.
+   The XML-RPC server of the peer registrar -- which must be the
+   Replicated Registrar for these updates -- first validates that the
+   DbUpdateNumber in the XML-RPC is greater than its PeerReceived
+   DbUpdateNumber.  If not, this XML-RPC is a duplicate of one received
+   previously, and the call can be returned successfully without any
+   further work.
+
+   The server then applies the updates to its DB in the standard manner.
+   That is, it validates that the local database does not have more
+   recent information (using the Call-ID and CSeq values) and if not,
+   applies each update to its own database.  These updates do not
+   increment the local DB update number (since they do not need to be
+   identified), and there is no need to trigger this registrar's
+   RegisterSync thread to propagate the updates further.
+
+   The server then updates its PeerReceived DbUpdateNumber and returns
+   the request successfully.
+
+   The server also checks its PeerReachable status for the client; if it
+   is "false", then the server knows that the peer is no reachable
+   again, and so it sets its PeerReachable status for the client to
+   "true" and sends a PushRegistryUpdate OsMessage to its RegistrySync
+   thread.
+
+   When the XML-RPC returns, the client updates its PeerSent
+   DbUpdateNumber, and continues with the next set of updates to be
+   sent, or finishes with the PushRegistryUpdate message.  This allows
+   the registrar to know reliably what has been pushed to the peer,
+   since a lost response will cause the update to be re-sent.
+
+   On any registrySync.pushUpdates failure, the client sets its
+   PeerReachable value to "false", and sends a PeerUnReachable OsMessage
+
+
+
+Lawrence, et al.                                               [Page 12]
+
+                               sipXpbx HA                  December 2005
+
+
+   to the RegisterTest thread.
+
+5.6.2.2.  registrySync.pushUpdates method
+
+   This XML-RPC is used by a registrar during operation to send one or
+   more updates that it owns to a Replicated Registrar.
+
+   If this XML-RPC fails, the client will mark the server as being
+   "dead".
+
+   Alternatively, if the server is in the first startup stage, it will
+   return an indication, and the client will also mark the server as
+   being "dead" to avoid sending further updates which cannot be
+   effectively processed during the first startup stage.
+
+   It is not yet decided whether a Push Updates can contain updates with
+   more than one update number.
+
+   The server registrar will apply the updates to its database, and if
+   its Last Update Number Received is no less than the starting update
+   number, will set its Last Update Number Received to the ending update
+   number.
+
+   If the server registrar has the client registrar marked "dead", it
+   will mark it "live" and queue a Push Updates operation for it.
 
    Inputs:
 
-        int     updatenumber
+        String  registrar_name          Calling registrar name
+        int     start_update_number     Update number for first update sent
+        int     end_update_number       Update number for last update sent
         array   updates
           struct
             string  uri
@@ -421,162 +714,223 @@ Lawrence & Worley                                               [Page 7]
             string  qvalue
             string  instance_id
             string  gruu
+            string  primary
+            long long int update_number
 
-   Ouputs:
+   Outputs:
 
-              struct
-        int  SyncronizationBaseTime  the time when the server last
-                                     initialized its syncronization data
-        int  DbUpdateNumber          the current value of the servers
-                                     update counter
-
-   On a successful return from registrySync.updateContacts, the caller
-   updates its record of the last DbUpdateNumber sent to the peer.  This
-   allows the registry to know what has been pushed to the peer.
-
-   On any registrySync.updateContacts failure, the PeerReachable value
-   is set to "false", and a PeerUnReachable OsMessage is sent to the
-   RegisterTest thread.
-
-   Whenever it is invoked, the registrySync.updateContacts also checks
-   the PeerReachable status of the client; if it is "false", then a
-   PushRegistryUpdate OsMessage is sent to the RegistrySync thread, and
+        none
 
 
 
-Lawrence & Worley                                               [Page 8]
+
+Lawrence, et al.                                               [Page 13]
 
-                               sipXpbx HA                  November 2005
+                               sipXpbx HA                  December 2005
 
 
-   the PeerReachable status is set to "true".
+   TBD -- The intent of return values was to inform the caller that
+   there were unpropagated updates, but I'm not sure that there is
+   anything the caller would actually do with that information, so
+   perhaps this should just return the value of DbUpdateNumber passed in
+   the transaction (as an acknowledgment).
 
-5.3.3.  Peer Reachability
+5.6.2.3.  registrySync.pullUpdates method
+
+   This XML-RPC requests from a registrar all records it holds that are
+   owned by the specified registrar whose update numbers are greater
+   than the specified starting number.  The returned records are all the
+   records that the server has with numbers greater than the starting
+   number and less than or equal to the ending number.
+
+   It is not yet decided whether the returned records will be only
+   records with one update number (in which case all records have the
+   same update number, the specified ending update number), or may
+   encompass several update numbers.
+
+   Alternatively, the call may return an indication that the server has
+   no records owned by the specified registrar with higher update
+   numbers.
+
+   During startup, a registrar uses a series of Pull Update calls to
+   download from the other registrars all DB records that it does not
+   already have.
+
+   If this XML-RPC fails, the client will mark the server as being
+   "dead".
+
+   Inputs:
+
+        String  registrar_name      Owning registrar name
+        int     update_number       This RPC contains all records with
+                                    update numbers greater than update_number
+
+   Outputs:
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lawrence, et al.                                               [Page 14]
+
+                               sipXpbx HA                  December 2005
+
+
+        array   updates
+          struct
+            string  uri
+            string  callid
+            int     cseq
+            string  contact
+            int     expires
+            string  qvalue
+            string  instance_id
+            string  gruu
+            string  primary
+            long long int update_number
+
+        long long int  update_number        ending update number (for last update in array)
+
+5.6.3.  RegisterTest -- Peer Reachability
+
+   _The exact implementation of this processing has not yet been fixed.
+   This discussion describes the approximate sequence and timing of the
+   operations; the mechanism for achieving them may be revised._
 
    The RegisterTest thread is responsible for determining whether or not
    a previously unreachable peer has become reachable.  It is started
    initially by receipt of a PeerUnReachable OsMessage.  This causes it
    to start a timer _(duration to be determined)_; when the timer
-   expires, it checks the PeerReachable value for the peer; if it is
-   still "false", then the registrySync.Check method is attempted to
-   test whether or not the peer can now be reached.
+   expires, it attempts the registrySync.Check method to test whether or
+   not the peer can now be reached.
 
-5.3.3.1.  registrySync.Check
+   On a successful return, the caller sets the PeerReachable value to
+   "true", and the PeerSent DbUpdateNumber from the response.  The
+   caller then sends a PushRegistryUpdate OsMessage to the RegistrySync
+   thread to restart updates to the peer.
 
-   This is used to test whether or not a peer registrar is reachable, to
-   pass the local syncronization data to the peer, and to retrieve the
-   syncronization data from the peer.
-
-   Inputs:
-
-     string  Name                    The senders host name
-        int  SyncronizationBaseTime  The time when the sender last
-                                     initialized its syncronization data
-        int  DbUpdateNumber          The current value of the senders
-                                     update counter.
-
-   Ouputs:
-
-      struct
-        int  SyncronizationBaseTime  the time when the recipient last
-                                     initialized its syncronization data
-        int  DbUpdateNumber          the current value of the recipients
-                                     update counter.
-
-   On a successful return, the caller sets the
-   PeerSyncronizationBaseTime and PeerDbUpdateNumber from the response,
-   and set the PeerReachable value to "true".  It then sends a
-   PushRegistryUpdate OsMessage to the RegistrySync thread to restart
-   updates to the peer.
-
-   Likewise, when this method is invoked, it sets the
-   PeerSyncronizationBaseTime and PeerDbUpdateNumber from the input
-   values, and checks the PeerReachable value.  If it is "false", it is
-   reset to "true", and a PushRegistryUpdate OsMessage is sent to the
+   Likewise, when this method is invoked, the server sets the
+   PeerReceived DbUpdateNumber the arguments, and checks the
+   PeerReachable value.  If PeerReachable is "false", it is reset to
+   "true", and a PushRegistryUpdate OsMessage is sent to the
    RegistrySync thread to restart updates.
 
    On failure, the RegisterTest thread restarts the timer for the peer,
-   using standard exponential backoff to a maximum interval of one eigth
+   using standard exponential backoff to a maximum interval of one
+   eighth of the maximum registration interval.  This prevents useless
+   and possibly harmful traffic being injected into the network in the
+   event that the loss of connectivity is traffic related.
+
+5.6.3.1.  registrySync.Check method
+
+   Inputs:
 
 
 
-Lawrence & Worley                                               [Page 9]
+Lawrence, et al.                                               [Page 15]
 
-                               sipXpbx HA                  November 2005
+                               sipXpbx HA                  December 2005
 
 
-   of the maximum registration interval.  This prevents useless and
-   possibly harmful traffic being injected into the network in the event
-   that the loss of connectivity is traffic related.  If the peer is
-   actually down, then it will reset the state by making its initial
-   syncronization queries.
+     string         Name                          The sender's identifier
+     long long int  PeerReceivedDbUpdateNumber    The current value of the sender's
+                                                  PeerReceivedDbUpdateNumber.
 
-5.3.4.  Startup Syncronization
+   Outputs:
 
-   At startup, the server needs to quickly discover whether or not the
+     long long int  PeerReceivedDbUpdateNumber    The current value of the recipient's
+                                                  PeerReceivedDbUpdateNumber
+
+   This XML-PRC is used by a client registrar during operation to
+   inquire of the server registar whether it is operational, and to
+   reset the peer's PeerSentDbUpdateNumber to match the client's input
+   argument PeerReceivedDbUpdateNumber.  If this XML-RPC fails, the
+   client will continue to consider the server as being "dead".  Also,
+   if the server is in the first startup stage, it will return an
+   indication, which the client will treat as failure.
+
+   If the server is operational, it will mark the client as "live", set
+   its PeerSentDbUpdateNumber for the client to the argument value, and
+   queue a Push Updates for the client if there are updates to send.
+   The server returns its PeerReceivedDbUpdateNumber for the client.
+
+   If this XML-RPC succeeds, the client marks the server as "live", sets
+   its Last Update Number Sent for the server to the return value, and
+   queues a Push Updates for the server.
+
+5.6.4.  Startup Processing
+
+   When the registrar service starts, it attempts to read its own
+   persistent registry store.  If successful, it restores all state
+   variables from the store.  If not, then it:
+      Initializes its local database DbUpdateNumber by setting the base
+      time in the upper word from the current time and the counter in
+      the lower word to zero.
+      Sets the PeerSent DbUpdateNumber and PeerReceived DbUpdateNumber
+      to zero.
+
+   Because the PeerReceived DbUpdateNumber includes the peer's base
+   time, a registrar service can detect when a peer has restarted and
+   lost synchronization state.
+
+   At startup, the server needs to discover quickly whether or not the
    local registry is the best available source of contact information.
-   Before this is determined, the server does not open its SIP port, so
-   that clients will consider it to be down and fail over to another
-   server.
-
-   In order to discover whether the local registry is the best
-   available, the registry sets InitialSyncDone to "false" and makes a
-   registrySync.Check request to the peer.
-      If this request fails, then there is no known better source of
-      contact data, so InitialSyncDone is set to "true", the
-      PeerReachable state is set to "false", the reachability retry
-      timer is started at its initial value to trigger the RegisterTest
-      thread, and the SIP port is opened.
-      If this request succeeds, then the PeerReachable state is set to
-      "true" and the remote syncronization state is compared to the peer
-      syncronization data.
-         If the remote syncronization values indicate that all updates
-         from the peer have been received, then InitialSyncDone is set
-         to "true" and the SIP port is opened.
-         If the remote syncronization values indicate that the
-         registries are not syncronized, then a PushRegistryUpdate
-         message is sent to the RegistrySync thread to push any updates
-         to the peer, and we wait for the peer to push any updates it
-         has before opening the local SIP port.
-
-5.4.  Registry DB Locking
-
-   Registry database updates are protected by an OsMutex; it is taken by
-   applyRegisterToDirectory and by each of the registrySync XML-RPC
-   methods.  This serializes all the checks for cseq correctness, and
-   also protects the syncronization state variables.
-
-   _ There is no locking between updates to the registry database and
-   reads from it; the fastdb ensures sufficient integrity that none is
-   needed. _
-
-5.5.  XML-RPC Security
-
-   Registry syncronization requests require that the RPC connection be
+   Before this is determined, the server does not open its redirector
+   SIP port, so that clients will consider it to be down and fail over
+   to another server.  A fairly elaborate process is needed to handle
+   this situation well.
 
 
 
-Lawrence & Worley                                              [Page 10]
+
+Lawrence, et al.                                               [Page 16]
 
-                               sipXpbx HA                  November 2005
+                               sipXpbx HA                  December 2005
 
 
-   SSL authenticated as a Server in the same SIP domain.
+   Declare the peer registrar to be "live" (until proven otherwise).
+   Make a Pull Updates request to the peer for records owned by the
+   peer, starting from PeerReceived DbUpdateNumber.  If this registrar
+   is restarting with no persistent state, then make a Pull Updates
+   request to the peer for records owned by this registrar, starting
+   from DbUpdateNumber = 0.  If either of these requests fails then mark
+   the peer as "dead".
 
-   * Initially, all syncronized Servers will use the same key and
+   At this point, the database contains all available registration
+   records for either registrar.  To finish startup processing
+      Set the operational live/dead indicators to "dead".
+      Queue a Check operation for the peer registrars.
+      Begin accepting Push Updates and Check XML-RPCs.
+      Begin accepting REGISTERs and redirection requests.
+
+5.7.  XML-RPC Security
+
+   Registry synchronization requests require that the RPC connection be
+   SSL-authenticated as coming from a Server in the same SIP domain.
+
+   * Initially, all synchronized Servers will use the same key and
    certificate. *
 
-5.6.  HTTP Persistent Connections
+5.8.  HTTP Persistent Connections
 
    Because these updates will be quite frequent compared to any previous
    use of XML-RPC, and because they must be over SSL connections, we may
    need to modify our HTTP to support persistent connections.  We have a
    design for this based on how SIP TCP connections are done. _Whether
    or not this will be included in the 3.2 release depends on available
-   time and the results of performance testing once syncronization is
+   time and the results of performance testing once synchronization is
    working._
 
-5.7.  Authorization Proxy Record-Route
+5.9.  Authorization Proxy Record-Route
 
    Ideally, the authproxy Record-Routes should use the SRV record name
    as described in Section 3.  Using that mechanism, and assuming the
@@ -594,27 +948,9 @@ Lawrence & Worley                                              [Page 10]
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Lawrence & Worley                                              [Page 11]
+Lawrence, et al.                                               [Page 17]
 
-                               sipXpbx HA                  November 2005
+                               sipXpbx HA                  December 2005
 
 
 Authors' Addresses
@@ -631,6 +967,10 @@ Authors' Addresses
    Email: dworley@pingtel.com
 
 
+   Walter Gillett
+   Pingtel Corp.
+
+   Email: walter_gillett@hotmail.com
 
 
 
@@ -664,9 +1004,5 @@ Authors' Addresses
 
 
 
-
-
-
-
-Lawrence & Worley                                              [Page 12]
+Lawrence, et al.                                               [Page 18]
 

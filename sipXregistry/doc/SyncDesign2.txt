@@ -1,3 +1,6 @@
+*** Merged into SyncDesign.xml on 12/5/05 *********
+*** but keep it around for now ********************
+
 Revisions to the sync design.
 
 
