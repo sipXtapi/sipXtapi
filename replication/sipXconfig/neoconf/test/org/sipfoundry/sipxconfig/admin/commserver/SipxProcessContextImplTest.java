@@ -62,7 +62,7 @@ public class SipxProcessContextImplTest extends TestCase {
                 + COMMAND.getName() + "&process=" + SERVICE_NAME;
 
         String[] urls = m_processContextImpl.constructCommandUrls(SERVICE_NAME, COMMAND);
-        assertEquals(1, urls.length);
+        assertEquals(2, urls.length);
         assertEquals(FIRST_URL, urls[0]);
     }
 

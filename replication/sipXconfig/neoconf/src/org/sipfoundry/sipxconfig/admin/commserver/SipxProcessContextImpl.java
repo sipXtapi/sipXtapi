@@ -29,7 +29,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 
 public class SipxProcessContextImpl extends SipxReplicationContextImpl implements
         BeanFactoryAware, SipxProcessContext {
-    /** if set to TRUE all operations are only performed on a single server */
+    /** if set to TRUE status operations are only performed on a single server */
+    /** commands operations do not use this by default - commands are sent to all servers */
     private static final boolean ONE_SERVER_ONLY = true;
 
     // for checkstyle compliance, keep only one copy of this string
@@ -168,7 +169,8 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             Object[] params = {
                 null, command.getName(), serviceId
             };
-            return formatUrls(urls, urlFormat, params);
+            // false means here - send command to all the servers
+            return formatUrls(urls, urlFormat, params, false);
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
@@ -183,7 +185,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             null, ACTION_STATUS
         };
         String urlFormat = COMMAND_URL_FORMAT;
-        return formatUrls(urls, urlFormat, params);
+        return formatUrls(urls, urlFormat, params, ONE_SERVER_ONLY);
     }
 
     String[] getProcessMonitorUrls() {
@@ -195,9 +197,9 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
         return urls;
     }
 
-    private String[] formatUrls(String[] urls, String urlFormat, Object[] params) {
+    private String[] formatUrls(String[] urls, String urlFormat, Object[] params, boolean oneServerOnly) {
         int len = urls.length;
-        if (ONE_SERVER_ONLY && len > 0) {
+        if (oneServerOnly && len > 0) {
             len = 1;
         }
         String[] commandUrls = new String[len];
