@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
-  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
 <model>
+  &types;
   <group name="lcl">
     <label>Date/Time</label>
     <group name="time">
@@ -421,6 +424,67 @@
             Jitter above this size will always cause lost packets. This parameter should be set 
             to the smallest possible value that will support the expected network 
             jitter</description>
+        </setting>
+      </group>
+      <group name="Lin16">
+        <label>Lin16</label>
+        <setting name="payloadSize">
+          <type>
+            <!-- 10, 20, 30, ...80 -->
+            <integer min="10" max="80"/>
+          </type>
+          <value>10</value>
+          <description>Preferred Tx payload size in milliseconds to be provided in SDP offers 
+            and used in the absence of ptime negotiations. This is also the range of supported 
+            Rx payload sizes.</description>
+        </setting>
+        <setting name="jitterBufferMin">
+          <!-- 40, 50, 60, ... (multiple of 10) -->
+          <type>
+            <integer min="20"/>
+          </type>
+          <value>20</value>
+          <description>The smallest jitter buffer depth (in milliseconds) that must be achieved 
+            before play out begins for the first time. Once this depth has been achieved 
+            initially, the depth may fall below this point and play out will still continue. 
+            This parameter should be set to the smallest possible value which is at least two 
+            packet payloads, and larger than the expected short term average 
+            jitter.</description>
+        </setting>
+        <setting name="jitterBufferShrink">
+          <type>
+            <!-- 10, 20, 30, ... (multiple of 10) -->
+            <integer min="10"/>
+          </type>
+          <value>500</value>
+          <description>The absolute minimum duration time (in milliseconds) of RTP packet Rx 
+            with no packet loss between jitter buffer size shrinks. Use smaller values (1000 
+            ms) to minimize the delay on known good networks. Use larger values to minimize 
+            packet loss on networks with large jitter (3000 ms).</description>
+        </setting>
+        <setting name="jitterBufferMax">
+          <!--  greater than jitterBufferMin, multiple of 10, less than or =500 for IP 500 and IP 600, less than or =
+	          160 for IP 300 -->
+          <type>
+            <integer min="10" max="500"></integer>
+          </type>
+          <value>100</value>
+          <description>The largest jitter buffer depth to be supported (in milliseconds). 
+            Jitter above this size will always cause lost packets. This parameter should be set 
+            to the smallest possible value that will support the expected network 
+            jitter</description>
+        </setting>
+        <setting name="frequency" advanced="yes">
+          <type>
+            <integer required="yes"/>
+          </type>
+          <value>16000</value>
+        </setting>
+        <setting name="payloadType" advanced="yes">
+          <type>
+            <integer required="yes"/>
+          </type>
+          <value>117</value>
         </setting>
       </group>
     </group>
@@ -1172,10 +1236,21 @@
         <value/>
         <description></description>
       </setting>
+      <setting name="transport">
+        <type refid="transport"/>
+        <value>DNSnaptr</value>
+        <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address 
+          is a hostname and Port is 0 or empty, do NAPTR then SRV look-ups to try to discover 
+          the transport, ports and servers, as per RFC 3263. If Address is an IP address, or 
+          a port is given, then UDP is used. If set to TCPpreferred: TCP is the preferred 
+          transport, UDP is used if TCP fails. If set to UDPonly: Only UDP will be 
+          used.</description>
+    </setting>
     </group>
   </group>
   <group name="voIpProt.SIP">
     <label>SIP</label>
+
     <group name="local">
       <label>Port</label>
       <setting name="port">
@@ -1190,6 +1265,7 @@
           advertised in the SIP signaling.</description>
       </setting>
     </group>
+    
     <group name="protocol">
       <setting name="useRFC2543hold">
         <type>
@@ -1239,6 +1315,23 @@
         <value/>
         <description></description>
       </setting>
+      <setting name="allowTransferOnProceeding">
+        <type>
+          <boolean/>
+        </type>
+        <value>1</value>
+        <description>If checked, A transfer can be completed during the proceeding
+          state of a consultation call.</description>
+      </setting>
+      <setting name="dialog.useSDP" advanced="yes">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>   
+        <description>Enable backward compatibility to send SDP in dialog
+          body. Otherwise, when unchecked, dialog event package 
+          IETF draft is used.</description>
+      </setting>      
     </group>
     <group name="alertInfo">
       <label>Alert Information</label>

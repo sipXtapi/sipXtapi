@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
-  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
 <model>
+  &types;
   <group name="reg">
     <label>Registration</label>
     <setting name="displayName">
@@ -98,7 +101,7 @@
         </setting>
         <setting name="transport">
           <profileName>server.1.transport</profileName>
-          <type></type>
+          <type refid="transport"/>
           <value>DNSnaptr</value>
           <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address 
             is a hostname and Port is 0 or empty, do NAPTR then SRV look-ups to try to discover 
@@ -165,9 +168,7 @@
         </setting>
         <setting name="transport">
           <profileName>server.2.transport</profileName>
-          <type>
-            <string/>
-          </type>
+          <type refid="transport"/>
           <value>DNSnaptr</value>
           <description>DNSnaptr, TCPpreferred or UDPonly. If empty or DNSnaptr and if Address 
             is a hostname and Port is 0 or empty, do NAPTR then SRV look-ups to try to discover 
