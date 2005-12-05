@@ -1906,10 +1906,14 @@
              />
 		</hold>
 	</call>
-	<directory dir.local.volatile.2meg="0" 
-		dir.local.nonVolatile.maxSize.2meg="20" dir.local.volatile.4meg="0" 
-		dir.local.nonVolatile.maxSize.4meg="50" 
-		dir.local.volatile.maxSize="100"/>
+
+	<directory 
+#set ($group = $cfg.EndpointSettings.getSetting('directory'))
+#foreach ($setting in $cfg.getRecursiveSettings($group))
+        ${setting.ProfileName}="$!{setting.Value}"
+#end
+    />		
+		
 	<font font.delimiter="">
 		<IP_500 font.IP_500.1.name=""/>
 		<IP_600 font.IP_600.1.name=""/>
@@ -3268,22 +3272,14 @@
 #end        
 		/>
 	</request>
-	<feature feature.1.name="presence" feature.1.enabled="0" 
-		feature.2.name="messaging" feature.2.enabled="0" 
-		feature.3.name="directory" feature.3.enabled="1" 
-		feature.4.name="calllist" feature.4.enabled="1" 
-		feature.5.name="ring-download" feature.5.enabled="1" 
-		feature.6.name="calllist-received" feature.6.enabled="1" 
-		feature.7.name="calllist-placed" feature.7.enabled="1" 
-		feature.8.name="calllist-missed" feature.8.enabled="1" 
-		feature.9.name="url-dialing" feature.9.enabled="1" 
-		feature.10.name="cpt-settings" feature.10.enabled="0" 
-		feature.11.name="call-park" feature.11.enabled="0" 
-		feature.12.name="group-call-pickup" feature.12.enabled="0" 
-		feature.13.name="directed-call-pickup" feature.13.enabled="0" 
-		feature.14.name="last-call-return" feature.14.enabled="0" 
-		feature.15.name="acd-login-logout" feature.15.enabled="0" 
-		feature.16.name="acd-agent-availability" feature.16.enabled="0"/>
+	<feature 
+#set ($group = $cfg.EndpointSettings.getSetting('feature'))
+#foreach ($setting in $cfg.getSettings($group))
+  #set ($i = $velocityCount)
+        feature.${i}.name="${setting.ProfileName}"
+        feature.${i}.enabled="$!{setting.Value}"
+#end        
+/>
 	<resource>
 		<finder res.finder.sizeLimit="300"/>
 		<quotas res.quotas.1.name="tone" res.quotas.1.value="2000" 

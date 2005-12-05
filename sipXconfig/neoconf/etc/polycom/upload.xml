@@ -48,7 +48,7 @@
   </group>
   <group name="dialing">
     <label>Dialing</label>
-    <setting name="directory.xml">
+    <setting name="000000000000-directory.xml">
       <label>directory.xml</label>
       <type refid="xml"/>
       <description>Directory of common numbers to dial. See Polycom manual for file format

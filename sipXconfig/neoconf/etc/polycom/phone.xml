@@ -970,6 +970,69 @@
       <description>Time in seconds to wait before the initial reminder.</description>
     </setting>
   </group>
+  <group name="directory"> 
+   <label>Directory Resources</label>
+    <group name="2mb">
+      <label>2MB Systems</label>
+      <description>Attribute applies to platforms with 2 Mbytes of flash memory.</description>
+		    <setting name="dir.local.volatile.2meg">
+		      <label>Directory in Volatile Memory</label>
+		      <type>
+		        <boolean/>        
+		      </type>
+		      <value>0</value>
+			    <description>Use volatile storage for phone-resident copy of the directory 
+			    to allow for larger size. </description> 
+		    </setting>
+		    <setting name="dir.local.nonVolatile.maxSize.2meg">
+		      <label>Non Volatile Entries</label>
+		      <type>
+		        <integer min="0"/>
+		      </type>
+		      <value>20</value>
+		      <description>If volatile storage is not used, maximum number of speed-dial 
+		        entries</description>      
+		    </setting>
+		</group>
+    <group name="4mb">
+      <label>4MB Systems</label>
+      <description>Attribute applies to platforms with 4 Mbytes of flash memory.</description>
+	    <setting name="dir.local.volatile.4meg">
+	      <label>Directory in Volatile Memory</label>
+	      <type>
+	        <boolean/>        
+	      </type>
+	      <value>0</value>
+			    <description>Use volatile storage for phone-resident copy of the directory 
+			    to allow for larger size. </description> 
+	    </setting>
+	    <setting name="dir.local.nonVolatile.maxSize.4meg">
+	      <label>Non Volatile Entries</label>
+	      <type>
+	        <integer min="0"/>
+	      </type>
+	      <value>50</value>
+		      <description>If volatile storage is not used, maximum number of speed-dial 
+		        entries</description>      
+	    </setting>	      
+    </group>
+    <group name="volatile">
+      <label>Volatile Memory</label>
+      <description>Applies only if you've enabled volatile memory on on your 2MB or
+        4MB system.</description>
+		  <setting name="dir.local.volatile.maxSize">
+	      <label>Max Size KBytes</label>
+	      <type>
+	        <integer min="0" max="100"/>
+	      </type>
+	      <value>100</value>
+	      <description>
+	      Maximum size in Kbytes of volatile storage that the directory will be permitted to
+	      consume.
+	      </description>
+	    </setting>        
+   </group>
+  </group>
   <group name="key">
     <label>Keys</label>
     <setting name="scrolling.timeout">
@@ -1139,6 +1202,118 @@
         'audio', a request can be executed as soon as there is no active audio on the phone, 
         independently of any call state. If set to 'call', a request can be executed as soon as 
         there are no calls in any state on the phone.</description>
+    </setting>
+  </group>
+  <group name="feature">
+    <label>Features</label>
+    <setting name="presence">
+      <type>
+        <boolean/>        
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="messaging">
+      <type>
+        <boolean/>        
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="directory">
+      <type>
+        <boolean/>        
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="calllist">
+      <label>Call List</label>
+      <type>
+        <boolean/>        
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="ring-download">
+      <type>
+        <boolean/>        
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="calllist-received">
+      <label>Call List Received</label>
+      <type>
+        <boolean/>        
+      </type>
+      <value>1</value>
+      <description>Call List must also be enabled</description>
+    </setting>
+    <setting name="calllist-placed">
+      <label>Call List Placed</label>
+      <type>
+        <boolean/>        
+      </type>
+      <value>1</value>
+      <description>Call List must also be enabled</description>
+    </setting>
+    <setting name="calllist-missed">
+      <label>Call List Missed</label>
+      <type>
+        <boolean/>        
+      </type>
+      <value>1</value>
+      <description>Call List must also be enabled</description>
+    </setting>
+    <setting name="url-dialing">
+      <type>
+        <boolean/>        
+      </type>
+      <value>1</value>
+      <description>Disable this to prevent unknown callers from
+        being identified on the display by an IP address.</description>
+    </setting>
+    <setting name="cpt-settings">
+      <label>Call Progress Tones Setting</label>
+      <type>
+        <boolean/>        
+      </type>
+      <value>0</value>
+      <description>Call progress tones can be selected can be selected by 
+        the phone user using the settings menu.</description>
+    </setting>
+    <setting name="call-park">
+      <type>
+        <boolean/>        
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="group-call-pickup">
+      <type>
+        <boolean/>        
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="directed-call-pickup">
+      <type>
+        <boolean/>        
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="last-call-return">
+      <type>
+        <boolean/>        
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="acd-login-logout">
+      <type>
+        <boolean/>        
+      </type>
+      <value>0</value>
+    </setting>
+    <!-- should be feature number 16 -->
+    <setting name="acd-agent-availability">
+      <type>
+        <boolean/>        
+      </type>
+      <value>0</value>
     </setting>
   </group>
   <group name="mb">
