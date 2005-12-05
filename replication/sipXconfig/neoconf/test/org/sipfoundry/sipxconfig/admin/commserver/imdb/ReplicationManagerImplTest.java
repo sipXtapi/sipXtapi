@@ -71,7 +71,7 @@ public class ReplicationManagerImplTest extends TestCase {
             15, 7, 123, -127, 126, 0
         };
 
-        Document document = impl.generateXMLDataToPost(data, DataSet.EXTENSION);
+        Document document = impl.generateXMLDataToPost(data, DataSet.EXTENSION.getName(), "database");
 
         org.w3c.dom.Document domDoc = XmlUnitHelper.getDomDoc(document);
 

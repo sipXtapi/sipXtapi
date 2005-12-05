@@ -163,9 +163,7 @@
     <property name="ruleFactory">
       <ref bean="dialRuleFactory"></ref>
     </property>
-    <property name="configDirectory">
-      <value>${sysdir.etc}</value>
-    </property>
+    <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
   </bean>
   
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -49,7 +50,7 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
     }
 
     public void generate(DataSet dataSet) {
-        Serializable jobId = m_jobContext.schedule("Replication: " + dataSet.getName());
+        Serializable jobId = m_jobContext.schedule("Data replication: " + dataSet.getName());
         boolean success = false;
         try {
             m_jobContext.start(jobId);
@@ -71,6 +72,22 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
         for (Iterator i = DataSet.iterator(); i.hasNext();) {
             DataSet dataSet = (DataSet) i.next();
             generate(dataSet);
+        }
+    }
+
+    public void replicate(XmlFile xmlFile) {
+        Serializable jobId = m_jobContext.schedule("File replication: " + xmlFile.getType().getName());
+        boolean success = false;
+        try {
+            m_jobContext.start(jobId);
+            success = m_replicationManager.replicateFile(getLocations(), xmlFile);
+        } finally {
+            if (success) {
+                m_jobContext.success(jobId);
+            } else {
+                // there is not really a good info here - advise user to consult log?
+                m_jobContext.failure(jobId, null, null);
+            }
         }
     }
 
@@ -154,7 +171,7 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
             m_sipDomain = sipDomain;
         }
     }
-    
+
     private static final class LocationDigester extends Digester {
         public static final String PATTERN = "topology/location";
 

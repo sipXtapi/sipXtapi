@@ -12,12 +12,12 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -51,8 +51,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
     }
 
-    private String m_configDirectory;
-
     private transient ConfigGenerator m_generator;
 
     private DialingRuleFactory m_ruleFactory;
@@ -60,6 +58,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private CoreContext m_coreContext;
 
     private BeanFactory m_beanFactory;
+
+    private SipxReplicationContext m_sipxReplicationContext;
 
     /**
      * Loads dial plan, creates a new one if none exist
@@ -266,21 +266,13 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     public void activateDialPlan() {
         ConfigGenerator generator = getGenerator();
-        try {
-            generator.activate(m_configDirectory);
-        } catch (IOException e) {
-            throw new RuntimeException("Activation of Dial Plan incomplete.", e);
-        }
+        generator.activate(m_sipxReplicationContext);
     }
 
     public void applyEmergencyRouting() {
-        try {
-            EmergencyRoutingRules rules = new EmergencyRoutingRules();
-            rules.generate(getEmergencyRouting(), m_coreContext.getDomainName());
-            rules.writeToFile(m_configDirectory);
-        } catch (IOException e) {
-            throw new RuntimeException("Application of emergency routing rules failed.", e);
-        }
+        EmergencyRoutingRules rules = new EmergencyRoutingRules();
+        rules.generate(getEmergencyRouting(), m_coreContext.getDomainName());
+        m_sipxReplicationContext.replicate(rules);
     }
 
     public void storeEmergencyRouting(EmergencyRouting emergencyRouting) {
@@ -319,8 +311,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         m_ruleFactory = ruleFactory;
     }
 
-    public void setConfigDirectory(String configDirectory) {
-        m_configDirectory = configDirectory;
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 
     public void setCoreContext(CoreContext coreContext) {

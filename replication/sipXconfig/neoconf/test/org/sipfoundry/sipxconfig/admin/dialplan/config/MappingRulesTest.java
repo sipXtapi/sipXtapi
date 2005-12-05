@@ -211,4 +211,15 @@ public class MappingRulesTest extends XMLTestCase {
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
         controlPlan.verify();
     }
+
+    public void testEquals() throws Exception {
+        XmlFile f1 = new MappingRules();
+        XmlFile f2 = new MappingRules();
+        XmlFile f3 = new FallbackRules();
+        assertEquals(f1, f2);
+        assertNotSame(f1, f2);
+        assertEquals(f1.hashCode(), f2.hashCode());
+        assertFalse(f1.equals(null));
+        assertFalse(f1.equals(f3));
+    }
 }

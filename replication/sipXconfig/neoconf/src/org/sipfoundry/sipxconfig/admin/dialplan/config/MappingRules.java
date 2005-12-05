@@ -145,4 +145,8 @@ public class MappingRules extends XmlFile implements ConfigFile {
     public void end() {
         // do nothing
     }
+
+    public ConfigFileType getType() {
+        return ConfigFileType.MAPPING_RULES;
+    }
 }

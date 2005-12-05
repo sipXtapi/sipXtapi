@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -165,14 +164,10 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
 
     public void activateParkOrbits() {
         m_replicationContext.generate(DataSet.ALIAS);
-        try {
-            Collection orbits = getParkOrbits();
-            BackgroundMusic defaultMusic = getBackgroundMusic();
-            m_orbitsGenerator.generate(defaultMusic, orbits);
-            m_orbitsGenerator.writeToFile();
-        } catch (IOException e) {
-            new RuntimeException("Activating call parking configuration failed.", e);
-        }
+        Collection orbits = getParkOrbits();
+        BackgroundMusic defaultMusic = getBackgroundMusic();
+        m_orbitsGenerator.generate(defaultMusic, orbits);
+        m_replicationContext.replicate(m_orbitsGenerator);
     }
 
     public String getDefaultMusicOnHold() {
