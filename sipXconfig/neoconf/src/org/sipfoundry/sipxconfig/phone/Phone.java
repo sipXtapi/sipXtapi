@@ -153,10 +153,15 @@ public class Phone extends BeanWithGroups {
         Setting master = m_modelFilesContext.loadModelFile(basename, getBeanId(), details);
         if (master != null) {
             ConditionalSet conditional = (ConditionalSet) master;
-            Set defines = new HashSet();
-            defines.add(getModel().getModelId());
-            model = conditional.evaluate(defines);
+            model = evaluateModel(conditional);
         }
+        return model;
+    }
+    
+    protected Setting evaluateModel(ConditionalSet conditional) {
+        Set defines = new HashSet();
+        defines.add(getModel().getModelId());
+        Setting model = conditional.evaluate(defines);        
         return model;
     }
 

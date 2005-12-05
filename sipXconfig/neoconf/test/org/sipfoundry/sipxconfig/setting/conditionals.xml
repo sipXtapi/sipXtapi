@@ -4,32 +4,27 @@
 <model>
   <group name="android"/>
   <group name="alien" copy-of="android" if="borg"/>
+
+  <!-- copy-of an element that might not be false -->
+  <group name="et" copy-of="alien"/>
+    
 	<group name="human">
 		<label>Human</label>		
-		<description>Earthlings</description>
 		<group name="eat">
 			<setting name="hamburger" unless="vegitarian"/>
 
       <!-- tests that unless is cleared from hamburger -->
 			<setting name="vegiburger" copy-of="hamburger"/>
-      
-			<group name="fruit">
-				<setting name="apple"/>
-			</group>
 		</group>
 	</group>
 	<group name="man" copy-of="human">
-		<label>Man</label>
 		<setting name="shave" unless="neandrathal" if="hairy">
 			<value>face</value>
 		</setting>
-		<setting name="reason" hidden="yes"/>
 	</group>
 	<group name="woman" copy-of="human">
-		<label>Woman</label>
 		<setting name="shave">
 			<value>legs</value>
 		</setting>
-		<setting name="giveBirth" advanced="yes"/>
 	</group>  
 </model>

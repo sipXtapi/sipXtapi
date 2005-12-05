@@ -48,7 +48,8 @@ public class ConditionalSetTest extends TestCase {
     
     public void testGroupIf() throws Exception {
         Setting actual = m_root.evaluate(m_definitions);
-        assertNull(actual.getSetting("alien"));
+        assertNull(actual.getSetting("alien"));        
+        assertNotNull(actual.getSetting("et"));
         
         m_definitions.add("borg");
         Setting actual2 = m_root.evaluate(m_definitions);
