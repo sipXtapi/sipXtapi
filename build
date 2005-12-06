@@ -12,10 +12,12 @@ FailFast=NO
 Sudo=""
 Check=CHECK
 Deps=DEPS
+MakeOptions=-s
 
-# Overrides ../configure commmand line 
-# may be added to by the meta/${BuildLabel}.configure-switches file
-ConfigureSwitches=""
+# Configuration switches for the ../configure commmand line 
+# May be added to by the meta/${BuildLabel}.configure-switches file
+# Also added to by the --configure option, which should be used sparingly.
+SpecialConfigureSwitches=""
 
 # Export is nec. to allow projects to use variable in their
 # ConfigureSwitchFile
@@ -82,7 +84,7 @@ RpmLibraryProjects="\
 ## for standard operation for optimal usablity.
 setConfigureSwitches()
 {
-    ConfigureSwitches=""
+    ConfigureSwitches="$SpecialConfigureSwitches"
     UsedLabels=""
     for bl in `echo ${BuildLabel} | sed 's/,/ /g'`
     do
@@ -130,11 +132,11 @@ incrementalBuild()
         cd build > /dev/null
         if ../configure $ConfigureSwitches --prefix $Destination
         then
-            if make -s 
+            if make $MakeOptions
             then
                 if test $Check != CHECK || make check
                 then
-                    if $Sudo make -s install
+                    if $Sudo make $MakeOptions install
                     then
                         Success=true
                     fi
@@ -152,13 +154,13 @@ incrementalBuild()
     else
         builderr "ERROR : $Project failed to build!!!"
 
-    	## Test if we're doing an incremental build and we're in the first try. Don't
-    	## set error condition on first try, only after retry.
-    	if [ "$AllowRetry" = "allow-retry" ]; then
-    	    echo "Not setting error condition on first try" 1>&2
-    	else
-    	    BuildReturn=-1
-    	fi
+        ## Test if we're doing an incremental build and we're in the first try. Don't
+        ## set error condition on first try, only after retry.
+        if [ "$AllowRetry" = "allow-retry" ]; then
+            echo "Not setting error condition on first try" 1>&2
+        else
+            BuildReturn=-1
+        fi
 
         echo ""
         return 1
@@ -184,7 +186,7 @@ tarBuild()
         cd build > /dev/null
         if ../configure $ConfigureSwitches --prefix $Destination
         then
-            if make -s dist
+            if make $MakeOptions dist
             then
                 Success=true
             fi
@@ -224,7 +226,7 @@ distributionBuild()
         cd build > /dev/null
         if ../configure $ConfigureSwitches --prefix $Destination
         then
-            if make -s dist
+            if make $MakeOptions dist
             then
 
                 # extract tarball into staging dir
@@ -237,11 +239,11 @@ distributionBuild()
                 # override install dir for apache modules to avoid need for sudo
                 if ./configure $ConfigureSwitches --prefix $Destination
                 then
-                    if make -s
+                    if make $MakeOptions
                     then
                         if test $Check != CHECK || make check
                         then
-                            if $Sudo make -s install
+                            if $Sudo make $MakeOptions install
                             then
                                 Success=true
                             fi
@@ -323,7 +325,7 @@ rpmBuild()
         cd build > /dev/null
         if ../configure $ConfigureSwitches
         then
-            if make -s rpm
+            if make $MakeOptions rpm
             then
             
                 ## Upgrade will install if RPM was not previsously installed
@@ -343,7 +345,7 @@ rpmBuild()
                     if [ "$Check" = "CHECK" ]; then
                         Success=false
 
-                        if make -s
+                        if make $MakeOptions
                             then
                             if make check
                             then
@@ -469,8 +471,17 @@ do
         ;;
 
         -l|--label)
-            shift
-            BuildLabel="${BuildLabel},${1}"
+        shift
+        BuildLabel="${BuildLabel},${1}"
+        ;;
+
+        -v|--verbose)
+        MakeOptions=
+        ;;
+
+        --configure)
+        shift
+        SpecialConfigureSwitches="$SpecialConfigureSwitches ${1}"
         ;;
 
         -*)
@@ -494,6 +505,11 @@ done
 if [ -z "$Destination" -a -n "$SIPX_INSTALLDIR" ]
 then
     Destination=$SIPX_INSTALLDIR
+fi
+# Make $Destination absolute if it is relative.
+if [[ -n "$Destination" ]] && [[ "$Destination" != /* ]]
+then
+    Destination="$(pwd)/$Destination"
 fi
 
 if [ -z "$Projects" ]
@@ -681,7 +697,9 @@ Usage:
                 [-rc|--rpmclean]
                 [-x|--exec]
                 [-r|--rpm]
-                [-l|--label <label> ]...
+                [-l|--label <label> ]
+                [-v|--verbose] 
+                [--configure xxx] ...
                 [{destination directory}]
 
 Options are:
@@ -755,6 +773,11 @@ Options are:
                        separated values ( --label foo,bar ).
                        The labels default to the environment variable \$BuildLabel 
                        if it is defined.
+
+     --verbose|-v      Do not add "-s" option to "make".
+
+     --configure xxx   Add "xxx" to the list of options to be passed to
+                       ./configure, as if it appeared in a --label file.
 USAGE
 
 exit
