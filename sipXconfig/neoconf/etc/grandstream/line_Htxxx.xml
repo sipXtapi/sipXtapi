@@ -1,0 +1,345 @@
+<?xml version="1.0" ?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+    &types;
+    <group name="port">
+        <label>Registration</label>
+        <setting name="P31-P731">
+            <label>Enable SIP Registration</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>1</value>
+        </setting>
+        <setting name="P3-P703">
+            <label>User Caller Name</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+        </setting>
+        <setting name="P35-P735">
+            <label>SIP User ID</label>
+            <type>
+                <string/>
+            </type>
+            <value>8000</value>
+        </setting>
+        <setting name="P36-P736">
+            <label>Authentication ID</label>
+            <type>
+                <string/>
+            </type>
+            <value>8000</value>
+        </setting>
+        <setting name="P34-P734">
+            <label>Authentication password</label>
+            <type>
+                <string/>
+            </type>
+            <value>0000</value>
+        </setting>
+        <setting name="P47-P747">
+            <label>SIP Server</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+        </setting>
+        <setting name="P103-P702">
+            <label>Use DNS SRV</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>1</value>
+        </setting>
+        <setting name="P48-P748">
+            <label>Outbound Proxy</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+        </setting>
+        <setting name="P63-P763">
+            <label>SIP User ID is phone number</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+        </setting>
+    </group>
+    <group name="opt">
+        <label>User options</label>
+        <setting name="P50-P750">
+            <label>Silence Suppression</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P72-P772">
+            <label>Use # as Dial Key</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>1</value>
+            <description>If checked, "#" will function as the "(Re-)Dial" key.</description>
+        </setting>
+        <setting name="P91-P791">
+            <label>Disable Call-Waiting</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>1</value>
+        </setting>
+    </group>
+    <group name="advanced">
+        <label>Advanced</label>
+        <setting name="P40-P740">
+            <label>Local SIP port</label>
+            <type>
+                <integer min="1024" max="65535"/>
+            </type>
+            <value>5060</value>
+            <description>Local SIP port (default 5060)</description>
+        </setting>
+        <setting name="P39-P739">
+            <label>Local RTP port</label>
+            <type>
+                <integer min="1024" max="65535"/>
+            </type>
+            <value>5004</value>
+            <description>Local RTP port (1024-65535, default 5004)</description>
+        </setting>
+        <setting name="P78-P778">
+            <label>Use Random Port</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P29-P729">
+            <label>Early Dial</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+            <description>Check only if proxy supports 484 response.</description>
+        </setting>
+        <setting name="P52-P752">
+            <label>Disable NAT Traversal</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>1</value>
+        </setting>
+        <setting name="P57-P757">
+            <label>First codec</label>
+            <type refid="gscodec"/>
+            <value>0</value>
+        </setting>
+        <setting name="P58-P748">
+            <label>Second codec</label>
+            <type refid="gscodec"/>
+            <value>2</value>
+        </setting>
+        <setting name="P59-P759">
+            <label>Third codec</label>
+            <type refid="gscodec"/>
+            <value>4</value>
+        </setting>
+        <setting name="P60-P760">
+            <label>Fourth codec</label>
+            <type refid="gscodec"/>
+            <value>8</value>
+        </setting>
+        <setting name="P61-P761">
+            <label>Fifth codec</label>
+            <type refid="gscodec"/>
+            <value>15</value>
+        </setting>
+        <setting name="P62-P762">
+            <label>Sixth codec</label>
+            <type refid="gscodec"/>
+            <value>18</value>
+        </setting>
+        <setting name="P46" if="Ht286|Ht486">
+            <label>Seventh codec</label>
+            <type refid="gscodec"/>
+            <value>2</value>
+        </setting>
+        <setting name="P37-P737">
+            <label>Voice Frames per TX</label>
+            <type>
+                <integer min="0" max="64"/>
+            </type>
+            <value>2</value>
+            <description>Voice Frames per TX (up to 10/20/32/64 frames for G711/G726/G723/other codecs
+                respectively)
+            </description>
+        </setting>
+        <setting name="P49-P749">
+            <label>G723 encoding rate</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>6.3kbps</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>5.3kbps</label><value>1</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P96-P704">
+            <label>iLBC payload type</label>
+            <type>
+                <integer min="96" max="127"/>
+            </type>
+            <value>97</value>
+            <description>iLBC payload type between 96 and 127</description>
+        </setting>
+        <setting name="P97-P705">
+            <label>iLBC Frame Size</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>20 ms</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>30 ms</label><value>1</value>
+                    </option>
+                </enum>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P65-P765">
+            <label>Send Anonymous</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+            <description>Caller ID will be blocked if checked.</description>
+        </setting>
+        <setting name="P66-P766">
+            <label>Dial Plan</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Prefix string added to called numbers.</description>
+        </setting>
+        <setting name="P71-P771">
+            <label>Offhook Auto-Dial</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>User ID/extension to dial automatically when offhook.</description>
+        </setting>
+        <setting name="P73-P773">
+            <label>Send DTMF</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>in audio</label><value>0</value>
+                    </option>
+                    <option>
+                        <label>via RTP</label><value>1</value>
+                    </option>
+                    <option>
+                        <label>via SIP INFO</label><value>2</value>
+                    </option>
+                </enum>
+            </type>
+            <value>1</value>
+        </setting>
+        <setting name="P74-P774">
+            <label>Send Flash Event</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+            <description>Flash will be sent as a DTMF event if checked.</description>
+        </setting>
+        <setting name="P79-P779">
+            <label>DTMF Payload Type</label>
+            <type refid="byte"/>
+            <value>101</value>
+        </setting>
+        <setting name="P81-P752">
+            <label>Unregister On Reboot</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P99-P709">
+            <label>SUBSCRIBE for MWI</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>1</value>
+            <description>SUBSCRIBE for MWI. Whether or not send SUBSCRIBE for Message Waiting Indication.</description>
+        </setting>
+        <setting name="P191-P751">
+            <label>Enable/Disable Call Features</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>1</value>
+            <description>Enable Call Features</description>
+        </setting>
+        <setting name="P197-P792">
+            <label>Proxy-Require</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+            <description>Proxy-Require (A SIP extension to enable firewall penetration)</description>
+        </setting>
+        <setting name="P228-P710">
+            <label>Pass Through FAX Mode</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+            <description>Enable Pass Through FAX Mode, otherwise use T.38 (Auto Detect)</description>
+        </setting>
+        <setting name="P32-P732" if="Ht386|Ht488|Ht496">
+            <label>Register Expiration</label>
+            <type>
+                <integer min="0" max="65535"/>
+            </type>
+            <value>60</value>
+            <description>Register Expiration (in minutes. default 1 hour, max 45 days)</description>
+        </setting>
+        <setting name="P198-P767" if="Ht386|Ht488|Ht496">
+            <label>Special Feature</label>
+            <type>
+                <enum>
+                    <option>
+                        <label>Standard</label><value>100</value>
+                    </option>
+                    <option>
+                        <label>Lucent FS5000 Simple Endpoint</label><value>105</value>
+                    </option>
+                </enum>
+            </type>
+            <value>100</value>
+        </setting>
+        <setting name="P259" if="Ht486">
+            <label>Home NPA</label>
+            <type>
+                <string/>
+            </type>
+            <value></value>
+        </setting>
+    </group>
+</model>
+

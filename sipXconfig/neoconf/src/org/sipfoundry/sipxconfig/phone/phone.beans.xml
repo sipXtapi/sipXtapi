@@ -49,9 +49,19 @@
         <bean id="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel.MODEL_7960"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
           
-        <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_BUDGETONE"
+        <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_PHONEBT"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
-        <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_HANDYTONE"
+        <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_PHONEGXP"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_HT286"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_HT386"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_HT486"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_HT488"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_HT496"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
 
         <bean id="org.sipfoundry.sipxconfig.phone.kphone.KPhone.MODEL"

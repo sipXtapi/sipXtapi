@@ -7,8 +7,8 @@
 <!ATTLIST group 
 	name NMTOKEN #REQUIRED
 	hidden %flag; "no"
-  if NMTOKEN #IMPLIED
-  unless NMTOKEN #IMPLIED
+  if CDATA #IMPLIED
+  unless CDATA #IMPLIED
   copy-of NMTOKEN #IMPLIED>
 <!ELEMENT label (#PCDATA)>
 <!ELEMENT model (type*,group+)>
@@ -18,8 +18,8 @@
   name NMTOKEN #REQUIRED
   advanced %flag; "no"
   hidden %flag; "no"
-  if NMTOKEN #IMPLIED
-  unless NMTOKEN #IMPLIED
+  if CDATA #IMPLIED
+  unless CDATA #IMPLIED
   copy-of NMTOKEN #IMPLIED>  
 
 <!ELEMENT value (#PCDATA)>

@@ -107,7 +107,9 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting {
 
         private void addCopy(Setting copy) {
             Setting parentCopy = SettingUtil.getSettingFromRoot(m_copy, copy.getParentPath());
-            parentCopy.addSetting(copy);
+            if (parentCopy != null) {
+                parentCopy.addSetting(copy);
+            }
         }
 
         private boolean isTrue(String ifExpression, String unlessExpression, Setting setting) {

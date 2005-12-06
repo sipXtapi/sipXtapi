@@ -23,10 +23,13 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.RestartException;
+import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
@@ -65,10 +68,12 @@ public class GrandstreamPhone extends Phone {
 
     public static final String ET = "&";
 
+    private static final String PARAM_DELIM = "-";
+
     private static final SettingFilter S_REALSETTINGS = new SettingFilter() {
         public boolean acceptSetting(Setting root_, Setting setting) {
             boolean isLeaf = setting.getValues().isEmpty();
-            boolean isVirtual = (setting.getName().startsWith("_"));
+            boolean isVirtual = (setting.getProfileName().startsWith("_"));
             return isLeaf && !isVirtual;
         }
     };
@@ -76,7 +81,7 @@ public class GrandstreamPhone extends Phone {
     private static final SettingFilter S_IPSETTINGS = new SettingFilter() {
         public boolean acceptSetting(Setting root_, Setting setting) {
             boolean isLeaf = setting.getValues().isEmpty();
-            boolean isBitmapped = (setting.getName().startsWith("__"));
+            boolean isBitmapped = (setting.getProfileName().startsWith("__"));
             return isLeaf && isBitmapped;
         }
     };
@@ -121,10 +126,6 @@ public class GrandstreamPhone extends Phone {
         if (c == PhoneSettings.class) {
             SettingBeanAdapter adapter = new SettingBeanAdapter(c);
             adapter.setSetting(getSettings());
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/P48");
-            adapter.addMapping(PhoneSettings.TFTP_SERVER, "upgrade/__TFTPServer-213");
-            adapter.addMapping(PhoneSettings.VOICE_MAIL_NUMBER, "misc/P33");
-
             o = adapter.getImplementation();
         } else {
             o = super.getAdapter(c);
@@ -133,22 +134,65 @@ public class GrandstreamPhone extends Phone {
         return o;
     }
 
+    public void setDefaultIfExists(Setting sroot, String param, String value) {
+        if (sroot.getSetting(param) != null) {
+            sroot.getSetting(param).setValue(value);
+        }
+    }
+    
+    protected void defaultSettings() { 
+        super.defaultSettings(); 
+        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+        Setting upgroot = getSettings().getSetting("upgrade");
+        setDefaultIfExists(upgroot, "__TFTPServer-213", defaults.getTftpServer());
+        setDefaultIfExists(upgroot, "__TFTPServerOld-41", defaults.getTftpServer());
+        setDefaultIfExists(upgroot, "P192", defaults.getTftpServer());
+        setDefaultIfExists(upgroot, "P237", defaults.getTftpServer());
+    } 
+
     public Object getLineAdapter(Line line, Class interfac) {
         Object impl;
         if (interfac == LineSettings.class) {
             SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
             adapter.setSetting(line.getSettings());
-            adapter.addMapping(LineSettings.AUTHORIZATION_ID, "port/P36");
-            adapter.addMapping(LineSettings.USER_ID, "port/P35");
-            adapter.addMapping(LineSettings.PASSWORD, "port/P34");
-            adapter.addMapping(LineSettings.DISPLAY_NAME, "port/P3");
-            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "sip/P47");
+
+            GrandstreamModel model = (GrandstreamModel) getModel();
+            int cfgtyp = model.getLineCfgType();
+            if (cfgtyp == GrandstreamModel.LINECFG_PHONE) {
+                adapter.addMapping(LineSettings.AUTHORIZATION_ID, "port/P36-P405-P505-P605");
+                adapter.addMapping(LineSettings.USER_ID, "port/P35-P404-P504-P604");
+                adapter.addMapping(LineSettings.PASSWORD, "port/P34-P406-P506-P606");
+                adapter.addMapping(LineSettings.DISPLAY_NAME, "port/P3-P407-P507-P607");
+                adapter.addMapping(LineSettings.REGISTRATION_SERVER, "port/P47-P402-P502-P602");
+            }
+            if (cfgtyp == GrandstreamModel.LINECFG_HT) {
+                adapter.addMapping(LineSettings.AUTHORIZATION_ID, "port/P36-P736");
+                adapter.addMapping(LineSettings.USER_ID, "port/P35-P735");
+                adapter.addMapping(LineSettings.PASSWORD, "port/P34-P734");
+                adapter.addMapping(LineSettings.DISPLAY_NAME, "port/P3-P703");
+                adapter.addMapping(LineSettings.REGISTRATION_SERVER, "port/P47-P747");
+            }
             impl = adapter.getImplementation();
         } else {
             impl = super.getAdapter(interfac);
         }
 
         return impl;
+    }
+
+    protected void defaultLineSettings(Line line) { 
+        super.defaultLineSettings(line); 
+        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+
+        GrandstreamModel model = (GrandstreamModel) getModel();
+        int cfgtyp = model.getLineCfgType();
+        if (cfgtyp == GrandstreamModel.LINECFG_PHONE) {
+            line.getSettings().getSetting("port/P48-P403-P503-P603").setValue(defaults.getOutboundProxy());
+            line.getSettings().getSetting("port/P33-P426-P526-P626").setValue(defaults.getVoiceMail());
+        }
+        if (cfgtyp == GrandstreamModel.LINECFG_HT) {
+            line.getSettings().getSetting("port/P48-P748").setValue(defaults.getOutboundProxy());
+        }
     }
 
     public Collection getProfileLines() {
@@ -199,18 +243,20 @@ public class GrandstreamPhone extends Phone {
         Iterator psi = phoneset.iterator();
         while (psi.hasNext()) {
             Setting pset = (Setting) psi.next();
-            writeProfileLine(wtr, pset.getName(), pset.getValue());
+            writeProfileLine(wtr, pset.getProfileName(), pset.getValue());
         }
 
         Collection lines = getProfileLines();
         Iterator lni = lines.iterator();
+        int lineno = 0;
         while (lni.hasNext()) {
             Collection lineset = getRealSettings((Setting) lni.next());
             Iterator lsi = lineset.iterator();
             while (lsi.hasNext()) {
                 Setting lset = (Setting) lsi.next();
-                writeProfileLine(wtr, lset.getName(), lset.getValue());
+                writeProfileLine(wtr, getLineParaName(lset.getProfileName(), lineno), lset.getValue());
             }
+            lineno++;
         }
     }
 
@@ -229,18 +275,20 @@ public class GrandstreamPhone extends Phone {
         Iterator psi = phoneset.iterator();
         while (psi.hasNext()) {
             Setting pset = (Setting) psi.next();
-            paras.append(pset.getName() + EQUALS + nonNull(pset.getValue()) + ET);
+            paras.append(pset.getProfileName() + EQUALS + nonNull(pset.getValue()) + ET);
         }
 
         Collection lines = getProfileLines();
         Iterator lni = lines.iterator();
+        int lineno = 0;
         while (lni.hasNext()) {
             Collection lineset = getRealSettings((Setting) lni.next());
             Iterator lsi = lineset.iterator();
             while (lsi.hasNext()) {
                 Setting lset = (Setting) lsi.next();
-                paras.append(lset.getName() + EQUALS + nonNull(lset.getValue()) + ET);
+                paras.append(getLineParaName(lset.getProfileName(), lineno) + EQUALS + nonNull(lset.getValue()) + ET);
             }
+            lineno++;
         }
 
         return paras.toString();
@@ -304,7 +352,7 @@ public class GrandstreamPhone extends Phone {
         Iterator bmi = bitmaps.iterator();
         while (bmi.hasNext()) {
             Setting bset = (Setting) bmi.next();
-            String bname = bset.getName();
+            String bname = bset.getProfileName();
             int bpoint = bname.indexOf('-');
 
             if (bpoint < KOLME || bpoint == bname.length() - 1) {
@@ -329,10 +377,38 @@ public class GrandstreamPhone extends Phone {
             }
         }
     }
+    
+    String getLineParaName(String pname, int lineno) {
+        if (pname.indexOf(PARAM_DELIM) == -1) {
+            return pname;
+        }
+        String[] ppn = pname.split(PARAM_DELIM);
+        
+        return ppn[lineno];
+    }
 
     public void restart() {
         // Grandstream does not let third-party software restart their phones
         throw new RestartException(
                 "Grandstream phones cannot be restarted remotely, except by Grandstream's GAPSLITE product");
+    }
+
+    public Setting evaluateModel(ConditionalSet conditional) {
+        GrandstreamSettingExpressionEvaluator gssee =
+            new GrandstreamSettingExpressionEvaluator(getModel().getModelId());
+        Setting model = conditional.evaluate(gssee);
+        return model;
+    }
+
+    static class GrandstreamSettingExpressionEvaluator implements SettingExpressionEvaluator {
+        private String m_model;
+
+        public GrandstreamSettingExpressionEvaluator(String model) {
+            m_model = model;
+        }
+        
+        public boolean isExpressionTrue(String expression, Setting setting_) {
+            return m_model.matches(expression);
+        }
     }
 }

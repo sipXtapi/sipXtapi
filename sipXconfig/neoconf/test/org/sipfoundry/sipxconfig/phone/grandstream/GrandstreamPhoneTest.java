@@ -26,7 +26,7 @@ public class GrandstreamPhoneTest extends TestCase {
     PhoneTestDriver tester;
     
     protected void setUp() {
-        phone = new GrandstreamPhone(GrandstreamModel.MODEL_BUDGETONE);
+        phone = new GrandstreamPhone(GrandstreamModel.MODEL_PHONEBT);
         tester = new PhoneTestDriver(phone);
     }
 
