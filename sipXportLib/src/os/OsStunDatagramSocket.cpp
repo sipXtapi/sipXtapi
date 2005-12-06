@@ -54,7 +54,7 @@ OsStunDatagramSocket::OsStunDatagramSocket(int remoteHostPortNum,
     mStunRefreshErrors = 0 ;     
     mKeepAlivePeriod = 0 ;
     mCurrentKeepAlivePeriod = 0 ;
-    mbTransparentStunRead = TRUE ;
+    mbTransparentStunRead = FALSE ;
     mDestAddress = mRemoteIpAddress ;
     miDestPort = remoteHostPort ;
     mcDestPriority = 0 ;
