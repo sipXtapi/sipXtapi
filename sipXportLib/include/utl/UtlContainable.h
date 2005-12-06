@@ -105,7 +105,7 @@ public:
      * </pre>
      */
 
-    /// Compare the this object to another object. 
+    /// Compare this object to another object. 
     virtual int compareTo(UtlContainable const *) const = 0  ;    
     /**<
      * Results of comparison to an object not of the same UtlContainableType

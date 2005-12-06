@@ -30,6 +30,7 @@ testsuite_SOURCES = \
     utl/UtlContainableTestStub.h \
     utl/UtlVoidPtr.cpp \
     utl/UtlInt.cpp \
+    utl/UtlLongLongInt.cpp \
     utl/UtlStringTest.cpp \
     utl/UtlStringTest.h \
     utl/UtlStringTest_ConstructiveManipulators.cpp \
@@ -47,7 +48,7 @@ testsuite_SOURCES = \
     utl/UtlHashBagIterator.cpp \
     utl/UtlRegex.cpp \
     utl/UtlTokenizerTest.cpp \
-	 utl/XmlContentTest.cpp \
+    utl/XmlContentTest.cpp \
     os/OsTestUtilities.cpp \
     os/OsTestUtilities.h \
     os/OsNameDbTest.cpp \
@@ -69,8 +70,8 @@ testsuite_SOURCES = \
     os/OsProcessIteratorTest.cpp \
     os/OsProcessTest.cpp \
     os/OsProcessMgrTest.cpp \
-	 utl/TestPlugin.h \
-	 utl/PluginHooksTest.cpp
+    utl/TestPlugin.h \
+    utl/PluginHooksTest.cpp
 
 # Removed because it hangs when the working directory does not exist
 
@@ -91,7 +92,7 @@ sandbox_LDADD = $(testsuite_LDADD)
 
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-    utl/UtlRegex.cpp
+    utl/UtlLongLongInt.cpp
 
 # Performance test of UtlList
 

@@ -54,6 +54,7 @@ libsipXport_la_SOURCES =  \
     utl/UtlIterator.cpp \
     utl/UtlList.cpp \
     utl/UtlListIterator.cpp \
+    utl/UtlLongLongInt.cpp \
     utl/UtlSList.cpp \
     utl/UtlSListIterator.cpp \
     utl/UtlDList.cpp \
