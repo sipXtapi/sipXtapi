@@ -376,9 +376,10 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
             while (pNextInfoRecord && !bFound)
             {
                 sprintf(szAdapterId, "eth%u", adapterId);
-                PIP_ADDRESS_STRING pNextAddress = &(pNextInfoRecord->IpAddressList.IpAddress);
-                while (pNextAddress)
+				PIP_ADDR_STRING pNextAddressNode = &(pNextInfoRecord->IpAddressList);
+                while (pNextAddressNode)
                 {
+                    PIP_ADDRESS_STRING pNextAddress = &(pNextAddressNode->IpAddress);
                     strcpy(szAddr, pNextAddress->String);
                     if (strcmp(szAddr, szIp) == 0 || strcmp(szIp, "0.0.0.0") == 0)// if the target
                                                                              // matches this address
@@ -388,15 +389,8 @@ bool getContactAdapterName(char* szAdapter, const char* szIp)
                         strcpy(szAdapter, szAdapterId);
                         bFound = true;
                         break;
-                    }                                            
-                    if (pNextInfoRecord->IpAddressList.Next)
-                    {
-                        pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
                     }
-                    else
-                    {
-                        pNextAddress = NULL;
-                    }
+					pNextAddressNode = pNextAddressNode->Next;
                 }
                 adapterId++;
                 pNextInfoRecord = pNextInfoRecord->Next;
@@ -439,34 +433,21 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[], int &num
             while (pNextInfoRecord)
             {
                 sprintf(szAdapterId, "eth%u", adapterId);
-                PIP_ADDRESS_STRING pNextAddress = &(pNextInfoRecord->IpAddressList.IpAddress);
-                while (pNextAddress)
+				PIP_ADDR_STRING pNextAddressNode = &(pNextInfoRecord->IpAddressList);
+                while (pNextAddressNode)
                 {
+                    PIP_ADDRESS_STRING pNextAddress = &(pNextAddressNode->IpAddress);
                     strcpy(szAddr, pNextAddress->String);
                     // ignore the loopback address
                     if (strcmp(szAddr, "127.0.0.1") == 0 || strcmp(szAddr, "0.0.0.0") == 0)
                     {
-                        if (pNextInfoRecord->IpAddressList.Next)
-                        {
-                            pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
-                        }
-                        else
-                        {
-                            pNextAddress = NULL;
-                        }
+						pNextAddressNode = pNextAddressNode->Next;
                         continue;
                     }                                            
                                     
                     localHostAddresses[numAddresses] = new HostAdapterAddress(szAdapterId, szAddr);
                     numAddresses++;
-                    if (pNextInfoRecord->IpAddressList.Next)
-                    {
-                        pNextAddress = &(pNextInfoRecord->IpAddressList.Next->IpAddress);
-                    }
-                    else
-                    {
-                        pNextAddress = NULL;
-                    }
+					pNextAddressNode = pNextAddressNode->Next;
                 }
                 adapterId++;
                 pNextInfoRecord = pNextInfoRecord->Next;
