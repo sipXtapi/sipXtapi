@@ -37,6 +37,9 @@
 #define BEGIN_INT "<value><int>"
 #define END_INT "</int></value>\n"
 
+#define BEGIN_I8 "<value><i8>"
+#define END_I8 "</i8></value>\n"
+
 #define BEGIN_BOOLEAN "<value><boolean>"
 #define END_BOOLEAN "</boolean></value>\n"
 

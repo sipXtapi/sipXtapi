@@ -14,6 +14,7 @@
 #include <os/OsSysLog.h>
 #include <os/OsDateTime.h>
 #include <utl/UtlInt.h>
+#include <utl/UtlLongLongInt.h>
 #include <utl/UtlBool.h>
 #include <utl/UtlDateTime.h>
 #include <utl/UtlSList.h>
@@ -85,11 +86,24 @@ bool XmlRpcBody::addValue(UtlContainable* value)
    if (value->isInstanceOf(UtlInt::TYPE))
    {
       UtlInt* pValue = (UtlInt *)value;
-      char temp[10];
+      // allow room for the widest possible value, INT_MIN = -2147483648
+      char temp[11];
       sprintf(temp, "%d", pValue->getValue());
       paramValue.append(BEGIN_INT);
       paramValue.append(temp);
       paramValue.append(END_INT);
+      result = true;
+   }
+   // UtlLongLongInt
+   else if (value->isInstanceOf(UtlLongLongInt::TYPE))
+   {
+      UtlLongLongInt* pValue = (UtlLongLongInt *)value;
+      // allow room for the widest possible value, LLONG_MIN = -9223372036854775808
+      char temp[20];
+      sprintf(temp, "%lld", pValue->getValue());
+      paramValue.append(BEGIN_I8);
+      paramValue.append(temp);
+      paramValue.append(END_I8);
       result = true;
    }
    else if (value->isInstanceOf(UtlBool::TYPE))
