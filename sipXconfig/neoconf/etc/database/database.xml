@@ -92,7 +92,8 @@
   <target name="version1" description="upgrade from version 1" unless="version2"
     depends="
   	  conference_name_uniqueness,
-      upload
+      upload,
+      grandstreamV2
 	  "/>
 
   <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
@@ -113,7 +114,11 @@
   <target name="upload" depends="drop-upload">
     <db-patch patch="upload"/>
   </target>  
-  
+
+  <target name="grandstreamV2" unless="grandstreamV2">
+    <db-patch patch="grandstreamV2"/>
+  </target>  
+
   <target name="schema" unless="schema">
     <sipx-sql>
       <transaction src="${sql.dir}/schema.sql"/>
