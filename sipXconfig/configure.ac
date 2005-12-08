@@ -15,7 +15,9 @@ AC_CONFIG_SRCDIR([neoconf/src/org/sipfoundry/sipxconfig/common/User.java])
 
 SFAC_INIT_FLAGS
 
-CHECK_SSL
+# openssl shell script for r/w certs
+AC_PATH_PROG([OPENSSL],[openssl])
+
 SFAC_INIT_FLAGS
 
 # Jar files to all of sipXconfig. 
