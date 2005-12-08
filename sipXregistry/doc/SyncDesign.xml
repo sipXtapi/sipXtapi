@@ -790,6 +790,19 @@
      long long int  update_number        ending update number (for last update in array)
               </artwork>
             </figure>
+
+<t>When the server
+is responding to a Pull Updates message, it must only consider records
+whose update numbers are less than the Last Update Number Received for
+the registrar named in the request.  That's because the server is only
+authoritative for updates with update numbers less than LUNR, although
+its DB may contain records with update numbers higher than that due to
+receiving out-of-order Push Updates, etc.</t>
+
+<t>If the server responded with higher-number updates, it would update the
+client's LUNR for that Primary Registrar, and it would lose track of the
+fact it still needs to try to find lower-numbered records.</t>
+
           </section>
           
         </section>
@@ -901,6 +914,19 @@
           <t> Begin accepting Push Updates and Check XML-RPCs.</t>
           <t> Begin accepting REGISTERs and redirection requests.</t>
           </list>
+
+<t>During startup, the Last Update Number for the
+registrar's database should be treated like the Last Update Number
+Received for a Primary Registrar, initialized from the recovered DB and
+incremented based on pulled data.  Especially if the local DB cannot be
+recovered, it should be initialized to 0/0.  Only once startup is done
+should it be set to a new epoch/0 value.  If the epoch/0 value is set
+initially, it will block pulling updates from other registrars.</t>
+
+<t>We might want to always initialize Last Update Number to epoch/0 after
+startup, so we can always distinguish the various series of updates in
+the databases.</t>
+
         </section>
         
       </section>

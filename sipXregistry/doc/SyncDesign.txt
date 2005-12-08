@@ -27,12 +27,12 @@ Table of Contents
          5.6.2.2.  registrySync.pushUpdates method  . . . . . . . . . 13
          5.6.2.3.  registrySync.pullUpdates method  . . . . . . . . . 14
        5.6.3.  RegisterTest -- Peer Reachability  . . . . . . . . . . 15
-         5.6.3.1.  registrySync.Check method  . . . . . . . . . . . . 15
+         5.6.3.1.  registrySync.Check method  . . . . . . . . . . . . 16
        5.6.4.  Startup Processing . . . . . . . . . . . . . . . . . . 16
      5.7.  XML-RPC Security . . . . . . . . . . . . . . . . . . . . . 17
-     5.8.  HTTP Persistent Connections  . . . . . . . . . . . . . . . 17
-     5.9.  Authorization Proxy Record-Route . . . . . . . . . . . . . 17
-   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 18
+     5.8.  HTTP Persistent Connections  . . . . . . . . . . . . . . . 18
+     5.9.  Authorization Proxy Record-Route . . . . . . . . . . . . . 18
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 19
 
 
 
@@ -800,6 +800,18 @@ Lawrence, et al.                                               [Page 14]
 
         long long int  update_number        ending update number (for last update in array)
 
+   When the server is responding to a Pull Updates message, it must only
+   consider records whose update numbers are less than the Last Update
+   Number Received for the registrar named in the request.  That's
+   because the server is only authoritative for updates with update
+   numbers less than LUNR, although its DB may contain records with
+   update numbers higher than that due to receiving out-of-order Push
+   Updates, etc.
+
+   If the server responded with higher-number updates, it would update
+   the client's LUNR for that Primary Registrar, and it would lose track
+   of the fact it still needs to try to find lower-numbered records.
+
 5.6.3.  RegisterTest -- Peer Reachability
 
    _The exact implementation of this processing has not yet been fixed.
@@ -821,6 +833,14 @@ Lawrence, et al.                                               [Page 14]
    Likewise, when this method is invoked, the server sets the
    PeerReceived DbUpdateNumber the arguments, and checks the
    PeerReachable value.  If PeerReachable is "false", it is reset to
+
+
+
+Lawrence, et al.                                               [Page 15]
+
+                               sipXpbx HA                  December 2005
+
+
    "true", and a PushRegistryUpdate OsMessage is sent to the
    RegistrySync thread to restart updates.
 
@@ -833,13 +853,6 @@ Lawrence, et al.                                               [Page 14]
 5.6.3.1.  registrySync.Check method
 
    Inputs:
-
-
-
-Lawrence, et al.                                               [Page 15]
-
-                               sipXpbx HA                  December 2005
-
 
      string         Name                          The sender's identifier
      long long int  PeerReceivedDbUpdateNumber    The current value of the sender's
@@ -875,6 +888,15 @@ Lawrence, et al.                                               [Page 15]
       Initializes its local database DbUpdateNumber by setting the base
       time in the upper word from the current time and the counter in
       the lower word to zero.
+
+
+
+
+Lawrence, et al.                                               [Page 16]
+
+                               sipXpbx HA                  December 2005
+
+
       Sets the PeerSent DbUpdateNumber and PeerReceived DbUpdateNumber
       to zero.
 
@@ -888,14 +910,6 @@ Lawrence, et al.                                               [Page 15]
    SIP port, so that clients will consider it to be down and fail over
    to another server.  A fairly elaborate process is needed to handle
    this situation well.
-
-
-
-
-Lawrence, et al.                                               [Page 16]
-
-                               sipXpbx HA                  December 2005
-
 
    Declare the peer registrar to be "live" (until proven otherwise).
    Make a Pull Updates request to the peer for records owned by the
@@ -912,6 +926,18 @@ Lawrence, et al.                                               [Page 16]
       Begin accepting Push Updates and Check XML-RPCs.
       Begin accepting REGISTERs and redirection requests.
 
+   During startup, the Last Update Number for the registrar's database
+   should be treated like the Last Update Number Received for a Primary
+   Registrar, initialized from the recovered DB and incremented based on
+   pulled data.  Especially if the local DB cannot be recovered, it
+   should be initialized to 0/0.  Only once startup is done should it be
+   set to a new epoch/0 value.  If the epoch/0 value is set initially,
+   it will block pulling updates from other registrars.
+
+   We might want to always initialize Last Update Number to epoch/0
+   after startup, so we can always distinguish the various series of
+   updates in the databases.
+
 5.7.  XML-RPC Security
 
    Registry synchronization requests require that the RPC connection be
@@ -919,6 +945,13 @@ Lawrence, et al.                                               [Page 16]
 
    * Initially, all synchronized Servers will use the same key and
    certificate. *
+
+
+
+Lawrence, et al.                                               [Page 17]
+
+                               sipXpbx HA                  December 2005
+
 
 5.8.  HTTP Persistent Connections
 
@@ -948,7 +981,30 @@ Lawrence, et al.                                               [Page 16]
 
 
 
-Lawrence, et al.                                               [Page 17]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lawrence, et al.                                               [Page 18]
 
                                sipXpbx HA                  December 2005
 
@@ -1004,5 +1060,5 @@ Authors' Addresses
 
 
 
-Lawrence, et al.                                               [Page 18]
+Lawrence, et al.                                               [Page 19]
 

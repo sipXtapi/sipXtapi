@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Mon, 05 Dec 2005 23:09:01 +0000">
+<meta http-equiv="Expires" content="Thu, 08 Dec 2005 03:05:32 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -1012,6 +1012,18 @@ Authors' Addresses<br />
 
      long long int  update_number        ending update number (for last update in array)
 </pre>
+<p>When the server
+is responding to a Pull Updates message, it must only consider records
+whose update numbers are less than the Last Update Number Received for
+the registrar named in the request.  That's because the server is only
+authoritative for updates with update numbers less than LUNR, although
+its DB may contain records with update numbers higher than that due to
+receiving out-of-order Push Updates, etc.
+</p>
+<p>If the server responded with higher-number updates, it would update the
+client's LUNR for that Primary Registrar, and it would lose track of the
+fact it still needs to try to find lower-numbered records.
+</p>
 <a name="regtest"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.5.6.3"></a><h3>5.6.3.&nbsp;RegisterTest -- Peer Reachability</h3>
@@ -1126,6 +1138,18 @@ Authors' Addresses<br />
 <li> Begin accepting REGISTERs and redirection requests.
 </li>
 </blockquote>
+<p>During startup, the Last Update Number for the
+registrar's database should be treated like the Last Update Number
+Received for a Primary Registrar, initialized from the recovered DB and
+incremented based on pulled data.  Especially if the local DB cannot be
+recovered, it should be initialized to 0/0.  Only once startup is done
+should it be set to a new epoch/0 value.  If the epoch/0 value is set
+initially, it will block pulling updates from other registrars.
+</p>
+<p>We might want to always initialize Last Update Number to epoch/0 after
+startup, so we can always distinguish the various series of updates in
+the databases.
+</p>
 <a name="xmlrpcsec"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.5.7"></a><h3>5.7.&nbsp;XML-RPC Security</h3>
