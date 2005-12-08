@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 
 public class LazySipxReplicationContextImpl implements SipxReplicationContext {
@@ -45,6 +46,12 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         m_tasks.addAll(DataSet.getEnumList());
         notify();
     }
+    
+
+    public synchronized void replicate(XmlFile xmlFile) {
+        m_tasks.add(xmlFile);
+        notify();
+    }    
 
     /* could be private - workaround for checkstyle bug */
     protected synchronized void waitForWork() throws InterruptedException {
@@ -85,8 +92,15 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         protected boolean work() {
             Set tasks = getTasks();
             for (Iterator i = tasks.iterator(); i.hasNext();) {
-                DataSet ds = (DataSet) i.next();
-                m_target.generate(ds);
+                Object next = i.next();
+                if (next instanceof DataSet) {
+                    DataSet ds = (DataSet) next;
+                    m_target.generate(ds);                    
+                }
+                if (next instanceof XmlFile) {
+                    XmlFile file = (XmlFile) next;
+                    m_target.replicate(file);                    
+                }
             }
             return true;
         }

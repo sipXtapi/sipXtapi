@@ -19,11 +19,10 @@ import org.apache.commons.collections.Closure;
 import org.apache.commons.collections.CollectionUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class ConferenceAdmission extends XmlFile {
-
-    private static final String FILENAME = "conferences.xml";
 
     private String m_configDirectory;
 
@@ -70,10 +69,14 @@ public class ConferenceAdmission extends XmlFile {
      */
     public void writeToFile() throws IOException {
         File parent = new File(m_configDirectory);
-        writeToFile(parent, FILENAME);
+        writeToFile(parent, getType().getName());
     }
 
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
+    }
+
+    public ConfigFileType getType() {
+        return ConfigFileType.CONFERENCES;
     }
 }

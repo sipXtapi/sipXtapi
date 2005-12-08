@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.parkorbit;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -68,14 +67,10 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
 
     public void activateParkOrbits() {
         m_replicationContext.generate(DataSet.ALIAS);
-        try {
-            Collection orbits = getParkOrbits();
-            BackgroundMusic defaultMusic = getBackgroundMusic();
-            m_orbitsGenerator.generate(defaultMusic, orbits);
-            m_orbitsGenerator.writeToFile();
-        } catch (IOException e) {
-            new RuntimeException("Activating call parking configuration failed.", e);
-        }
+        Collection orbits = getParkOrbits();
+        BackgroundMusic defaultMusic = getBackgroundMusic();
+        m_orbitsGenerator.generate(defaultMusic, orbits);
+        m_replicationContext.replicate(m_orbitsGenerator);
     }
 
     public String getDefaultMusicOnHold() {
@@ -113,14 +108,14 @@ public class ParkOrbitContextImpl extends SipxHibernateDaoSupport implements Par
         // If there is one, then the alias is in use.
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_PARK_ORBIT_IDS_WITH_ALIAS, VALUE, alias);
-        return SipxCollectionUtils.safeSize(objs) > 0;        
+        return SipxCollectionUtils.safeSize(objs) > 0;
     }
-    
+
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_PARK_ORBIT_IDS_WITH_ALIAS, VALUE, alias);
         Collection bids = BeanId.createBeanIdCollection(ids, ParkOrbit.class);
-        return bids;        
+        return bids;
     }
 
     /**

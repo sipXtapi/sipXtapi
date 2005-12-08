@@ -6,13 +6,14 @@
 
 <!DOCTYPE topology [
      <!ELEMENT topology (location+)>
-     <!ELEMENT location (component+, replication_url, agent_url)>
+     <!ELEMENT location (component+, replication_url, agent_url, sip_domain?)>
      <!ATTLIST location id CDATA #REQUIRED>
      <!ELEMENT component EMPTY>
      <!ATTLIST component id CDATA  #REQUIRED>
      <!ATTLIST component type  (media-server | config-server | comm-server) #REQUIRED>
      <!ELEMENT replication_url (#PCDATA)>
      <!ELEMENT agent_url (#PCDATA)>
+     <!ELEMENT sip_domain (#PCDATA)>
 ]>
  
 <topology>

@@ -15,17 +15,25 @@ import junit.framework.TestCase;
 
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class LazySipxReplicationContextImplTest extends TestCase {
 
     public void testGenerateAll() throws Exception {
+        XmlFile mr = new MappingRules();
+        XmlFile orbits = new Orbits();
+        
         MockControl replicationCtrl = MockControl.createControl(SipxReplicationContext.class);
         SipxReplicationContext replication = (SipxReplicationContext) replicationCtrl.getMock();
+        replication.replicate(mr);
         replication.generate(DataSet.ALIAS);
         replication.generate(DataSet.AUTH_EXCEPTION);
         replication.generate(DataSet.CREDENTIAL);
         replication.generate(DataSet.EXTENSION);
         replication.generate(DataSet.PERMISSION);
+        replication.replicate(orbits);
         replication.generate(DataSet.ALIAS);
         replication.generate(DataSet.AUTH_EXCEPTION);
         replication.generate(DataSet.CREDENTIAL);
@@ -41,6 +49,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         
         lazy.init();
         
+        lazy.replicate(mr);
         for(int i = 0; i < 20; i++) {
             lazy.generate(DataSet.AUTH_EXCEPTION);
             lazy.generate(DataSet.PERMISSION);
@@ -49,6 +58,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         
         Thread.sleep(200);
         
+        lazy.replicate(orbits);
         for(int i = 0; i < 20; i++) {
             lazy.generate(DataSet.AUTH_EXCEPTION);
             lazy.generate(DataSet.PERMISSION);
@@ -59,5 +69,4 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         
         replicationCtrl.verify();
     }
-
 }

@@ -119,4 +119,8 @@ public class EmergencyRoutingRules extends XmlFile {
         File parent = new File(configDirectory);
         writeToFile(parent, E911RULES_XML);
     }
+
+    public ConfigFileType getType() {
+        return ConfigFileType.E911_RULES;
+    }
 }

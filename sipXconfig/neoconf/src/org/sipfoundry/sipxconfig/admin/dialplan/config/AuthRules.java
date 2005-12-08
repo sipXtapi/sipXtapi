@@ -97,7 +97,8 @@ public class AuthRules extends XmlFile implements ConfigFile {
     public Document getDocument() {
         return m_doc;
     }
-
+    
+    
     void generateNoAccess(List gateways) {
         CustomDialingRule rule = new CustomDialingRule();
         rule.setDescription(NO_ACCESS_RULE);
@@ -111,5 +112,9 @@ public class AuthRules extends XmlFile implements ConfigFile {
 
     public void end() {
         generateNoAccess(new ArrayList(m_gateways));
+    }
+
+    public ConfigFileType getType() {
+        return ConfigFileType.AUTH_RULES;
     }
 }

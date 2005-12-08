@@ -83,4 +83,8 @@ public class Orbits extends XmlFile {
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
     }
+    
+    public ConfigFileType getType() {
+        return ConfigFileType.ORBITS;
+    }
 }

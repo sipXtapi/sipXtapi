@@ -33,8 +33,8 @@ public class Permissions extends DataSetGenerator {
      * to the list of items.
      */
     protected void addItems(Element items) {
+        String domain = getSipDomain();
         CoreContext coreContext = getCoreContext();
-        String domain = coreContext.getDomainName();
         List list = coreContext.loadUsers();
         for (Iterator i = list.iterator(); i.hasNext();) {
             User user = (User) i.next();

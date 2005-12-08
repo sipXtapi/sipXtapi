@@ -9,6 +9,7 @@
       <agent_url>
          https://localhost:8091/cgi-bin/processmonitor/process.cgi
       </agent_url>
+      <sip_domain>h1.sipfoundry.org</sip_domain>
    </location>
    <location id="Primary CommServer">
       <component id="CommServer1"  type="comm-server" />         
@@ -18,5 +19,6 @@
       <agent_url>
          https://192.168.0.27:8091/cgi-bin/processmonitor/process.cgi
       </agent_url>
+      <sip_domain>h2.sipfoundry.org</sip_domain>
    </location>  
 </topology>

@@ -24,8 +24,8 @@ public class Credentials extends DataSetGenerator {
     }
 
     protected void addItems(Element items) {
+        String domainName = getSipDomain();
         CoreContext coreContext = getCoreContext();
-        String domainName = coreContext.getDomainName();
         String realm = coreContext.getAuthorizationRealm();
         List list = coreContext.loadUsers();
         for (Iterator i = list.iterator(); i.hasNext();) {

@@ -34,6 +34,8 @@ public abstract class XmlFile {
     protected static final DocumentFactory FACTORY = DocumentFactory.getInstance();
 
     public abstract Document getDocument();
+    
+    public abstract ConfigFileType getType();
 
     /**
      * Writes document to specified writer
@@ -115,5 +117,20 @@ public abstract class XmlFile {
         if (!StringUtils.isBlank(nameText)) {
             hostMatch.addComment(nameText);
         }
+    }
+    
+    /**
+     * Treat every file of the same type as equal
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof XmlFile) {
+            XmlFile file = (XmlFile) obj;
+            return getType().equals(file.getType());            
+        }
+        return false;
+    }
+    
+    public int hashCode() {
+        return getType().hashCode();
     }
 }

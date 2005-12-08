@@ -15,7 +15,10 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
+import org.dom4j.Element;
+import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.springframework.context.ApplicationContext;
 
 public class DataSetGeneratorTest extends TestCase {
@@ -28,5 +31,31 @@ public class DataSetGeneratorTest extends TestCase {
             assertNotNull(set.getName(), gen);
             assertNotNull(set.getName(), gen.getCoreContext());
         }
+    }
+
+    public void testGetDomain() {
+        DataSetGenerator dsg = new DataSetGenerator() {
+            protected DataSet getType() {
+                return null;
+            }
+
+            protected void addItems(Element items) {
+                // do nothing
+            }
+        };
+
+        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
+        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        coreContext.getDomainName();
+        coreContextCtrl.setReturnValue("core.domain.com");
+        coreContextCtrl.replay();
+
+        dsg.setCoreContext(coreContext);
+        assertEquals("core.domain.com", dsg.getSipDomain());
+
+        coreContextCtrl.verify();
+        
+        dsg.setSipDomain("set.domain.com");
+        assertEquals("set.domain.com", dsg.getSipDomain());
     }
 }

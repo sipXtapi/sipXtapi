@@ -11,8 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import org.dom4j.Document;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl.Location;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public interface ReplicationManager {
-    boolean replicateData(String[] urls, Document payload, DataSet type);
+    boolean replicateData(Location[] locations, DataSetGenerator generator, DataSet type);
+    boolean replicateFile(Location[] locations, XmlFile file);
 }

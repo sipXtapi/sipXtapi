@@ -30,6 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl.Location;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class ReplicationManagerImpl implements ReplicationManager {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
@@ -42,28 +46,36 @@ public class ReplicationManagerImpl implements ReplicationManager {
      * detect it. We could throw exceptions from here but it would mean that a single IO failure
      * dooms entire replication process.
      */
-    public boolean replicateData(String[] urls, Document payload, DataSet type) {
-        byte[] payloadBytes = xmlToByteArray(payload);
-        Document xml = generateXMLDataToPost(payloadBytes, type);
-        byte[] data = xmlToByteArray(xml);
+    public boolean replicateData(Location[] locations, DataSetGenerator generator, DataSet type) {
 
         boolean success = true;
-        for (int i = 0; i < urls.length; i++) {
+        for (int i = 0; i < locations.length; i++) {
             try {
-                postData(urls[i], data);
+                generator.setSipDomain(locations[i].getSipDomain());
+                Document payload = generator.generate();
+                byte[] payloadBytes = xmlToByteArray(payload, false);
+                Document xml = generateXMLDataToPost(payloadBytes, type.getName(), "database");
+                byte[] data = xmlToByteArray(xml, false);
+                postData(locations[i].getReplicationUrl(), data);
             } catch (IOException e) {
                 success = false;
-                LOG.error("Replication failed: " + type.getName(), e);
+                LOG.error("Data replication failed: " + type.getName(), e);
             }
         }
         return success;
     }
 
-    private byte[] xmlToByteArray(Document doc) {
+    private byte[] xmlToByteArray(Document doc, boolean niceFormat) {
+        OutputFormat format = new OutputFormat();
+        if (niceFormat) {
+            format.setNewlines(true);
+            format.setIndent(true);
+        }
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         Writer writer = new BufferedWriter(new OutputStreamWriter(stream, CHARSET_UTF8));
         try {
-            doc.write(writer);
+            XMLWriter xmlWriter = new XMLWriter(writer, format);
+            xmlWriter.write(doc);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } finally {
@@ -105,8 +117,10 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
     /**
      * generates xml data to post to a URL
+     * 
+     * @param dataType database or file - depending on type of data to replicate
      */
-    Document generateXMLDataToPost(byte[] payload, DataSet dataSet) {
+    Document generateXMLDataToPost(byte[] payload, String targetDataName, String dataType) {
         byte[] encodedPayload = Base64.encodeBase64(payload);
         // Base64 encoded content is always limited to US-ASCII charset
         String strPayload;
@@ -118,10 +132,10 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
         Document document = DocumentFactory.getInstance().createDocument();
         Element data = document.addElement("replicationdata").addElement("data");
-        data.addAttribute("type", "database");
+        data.addAttribute("type", dataType);
         data.addAttribute("action", "replace");
 
-        data.addAttribute("target_data_name", dataSet.getName());
+        data.addAttribute("target_data_name", targetDataName);
 
         // these 2 values are hardcoded for now - they do not seem to be used by replication.cgi
         data.addAttribute("target_component_type", "comm-server");
@@ -130,5 +144,23 @@ public class ReplicationManagerImpl implements ReplicationManager {
         data.addElement("payload").setText(strPayload);
 
         return document;
+    }
+
+    public boolean replicateFile(Location[] locations, XmlFile file) {
+        boolean success = true;
+        for (int i = 0; i < locations.length; i++) {
+            try {
+                Document payload = file.getDocument();
+                byte[] payloadBytes = xmlToByteArray(payload, true);
+                Document xml = generateXMLDataToPost(payloadBytes, file.getType().getName(),
+                        "file");
+                byte[] data = xmlToByteArray(xml, false);
+                postData(locations[i].getReplicationUrl(), data);
+            } catch (IOException e) {
+                success = false;
+                LOG.error("File replication failed: " + file.getType().getName(), e);
+            }
+        }
+        return success;
     }
 }

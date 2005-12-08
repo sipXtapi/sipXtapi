@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,6 +55,37 @@ public class MappingRulesTest extends XMLTestCase {
         assertXpathEvaluatesTo("${MY_FULL_HOSTNAME}", "/mappings/hostMatch/hostPattern[2]", xml);
         assertXpathEvaluatesTo("${MY_HOSTNAME}", "/mappings/hostMatch/hostPattern[3]", xml);
         assertXpathEvaluatesTo("${MY_IP_ADDR}", "/mappings/hostMatch/hostPattern[4]", xml);
+    }
+
+    public void testGetDocumentInvalidExternals() throws Exception {
+        MappingRules mappingRules = new MappingRules();
+        mappingRules.setExternalRulesFileName("/invalid/file/name");
+        Document document = mappingRules.getDocument();
+
+        String xml = XmlUnitHelper.asString(document);
+        XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
+
+        assertXpathExists("/mappings/hostMatch/hostPattern", xml);
+    }
+
+    public void testGetDocumentValidExternals() throws Exception {
+        URL resource = getClass().getResource("external_mappingrules.test.xml");
+
+        MappingRules mappingRules = new MappingRules();
+        mappingRules.setExternalRulesFileName(resource.getFile());
+        Document document = mappingRules.getDocument();
+
+        String xml = XmlUnitHelper.asString(document);
+
+        XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
+
+        assertXpathEvaluatesTo("some_other.domain.com", "/mappings/hostMatch/hostPattern", xml);
+        assertXpathEvaluatesTo("${SIPXCHANGE_DOMAIN_NAME}",
+                "/mappings/hostMatch/userMatch/permissionMatch/transform/host", xml);
+
+        assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
     }
 
     /**
@@ -178,5 +210,16 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
         controlPlan.verify();
+    }
+
+    public void testEquals() throws Exception {
+        XmlFile f1 = new MappingRules();
+        XmlFile f2 = new MappingRules();
+        XmlFile f3 = new FallbackRules();
+        assertEquals(f1, f2);
+        assertNotSame(f1, f2);
+        assertEquals(f1.hashCode(), f2.hashCode());
+        assertFalse(f1.equals(null));
+        assertFalse(f1.equals(f3));
     }
 }

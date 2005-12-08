@@ -166,9 +166,7 @@
     <property name="ruleFactory">
       <ref bean="dialRuleFactory"></ref>
     </property>
-    <property name="configDirectory">
-      <value>${sysdir.etc}</value>
-    </property>
+    <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
   </bean>
   
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -182,6 +180,23 @@
 
   <bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
     <property name="velocityEngine" ref="velocityEngine"/>
+  </bean>
+  
+  
+  <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules"/>
+  <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules"/>
+  <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules"/>
+  
+  <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator">
+    <property name="mappingRules">
+      <ref local="mappingRules"/>
+    </property>
+    <property name="fallbackRules">
+      <ref local="fallbackRules"/>
+    </property>
+    <property name="authRules">
+      <ref local="authRules"/>
+    </property>
   </bean>
 
 </beans>

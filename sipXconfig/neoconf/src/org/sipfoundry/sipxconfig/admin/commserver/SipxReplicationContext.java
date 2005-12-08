@@ -12,9 +12,12 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public interface SipxReplicationContext {
     void generate(DataSet dataSet);
 
     void generateAll();
+    
+    void replicate(XmlFile xmlFile);
 }

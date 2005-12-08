@@ -22,10 +22,10 @@ import org.sipfoundry.sipxconfig.common.User;
 
 public class Extensions extends DataSetGenerator {
     private static final Pattern PATTERN_NUMERIC = Pattern.compile("\\d+");
-    
+
     /** Add all numeric aliases as extension elements in an XML document */
     protected void addItems(Element items) {
-        String domainName = getCoreContext().getDomainName();
+        String domainName = getSipDomain();
         List users = getCoreContext().loadUsers();
         for (Iterator i = users.iterator(); i.hasNext();) {
             User user = (User) i.next();
@@ -41,13 +41,13 @@ public class Extensions extends DataSetGenerator {
                         item = items.addElement("item");
                         item.addElement("uri").setText(user.getUri(domainName));
                         foundNumericAlias = true;
-                    }                    
+                    }
                     item.addElement("extension").setText(alias);
                 }
             }
         }
     }
-    
+
     protected DataSet getType() {
         return DataSet.EXTENSION;
     }

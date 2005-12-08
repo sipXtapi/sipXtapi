@@ -24,4 +24,8 @@ public class FallbackRules extends MappingRules {
             generateRule(rule);
         }
     }
+    
+    public ConfigFileType getType() {
+        return ConfigFileType.FALLBACK_RULES;
+    }
 }
