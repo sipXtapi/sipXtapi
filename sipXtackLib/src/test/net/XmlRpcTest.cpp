@@ -15,6 +15,7 @@
 
 #include <os/OsDefs.h>
 #include <utl/UtlInt.h>
+#include <utl/UtlLongLongInt.h>
 #include <utl/UtlBool.h>
 #include <utl/UtlDateTime.h>
 #include <utl/UtlSListIterator.h>
@@ -174,6 +175,9 @@ public:
             "<value><int>162</int></value>\n"
             "</param>\n"
             "<param>\n"
+            "<value><i8>162162</i8></value>\n"
+            "</param>\n"
+            "<param>\n"
             "<value>\n"
             "<array>\n"
             "<data>\n"
@@ -216,6 +220,9 @@ public:
 
          UtlInt intValue(162);
          request.addParam(&intValue);
+
+         UtlLongLongInt llintValue(162162);
+         request.addParam(&llintValue);
          
          UtlSList list;
          UtlString array1("160@pingtel.com");
@@ -256,6 +263,9 @@ public:
             "</param>\n"
             "<param>\n"
             "<value><int>162</int></value>\n"
+            "</param>\n"
+            "<param>\n"
+            "<value><i8>162162</i8></value>\n"
             "</param>\n"
             "<param>\n"
             "<value>\n"
