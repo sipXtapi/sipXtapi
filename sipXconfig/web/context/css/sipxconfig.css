@@ -124,13 +124,18 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 	font-style:italic;
 }
 
-#banner
+#banner, #banner-setup
 {
 	height:0;
 	color:#fff;
 	border-bottom:thick solid #669999;
 	padding:55px 0 20px 120px;
 	background:url(/sipxconfig/images/sipxconfig-logo.png) no-repeat left #669999;
+}
+
+#banner-setup
+{
+	background:url(/images/sipxconfig-logo.png) no-repeat left #669999;
 }
 
 #banner-links
