@@ -1,0 +1,24 @@
+<html>
+ <%= stylesheet_link_tag "sipxconfig" %>
+ <body>
+ <div id="banner">
+ </div> 
+ <div id="content">
+   <h1>Resolve Conflicts</h1>
+   <p>The following files could not be restored due to format
+   incompatiblities. Default </p>
+   <form action="/setup/complete">
+   <ol>
+   <li><strong>mapping-rules.in</strong> - Routes incoming calls to various parts
+   of your system.  <br/>
+   <i><a href="#">Attempt to Restore...</a></i></li>
+   <li><strong>config.defs</strong> - Global system variables.  <br/>
+   <i><a href="#">Attempt to Restore...</a></i></li>
+   </ol>
+   <input type="submit" value="Do not restore these files"/> By not restoring these
+   files your system will be perfectly stable but you may lose any previous 
+   configuration settings.
+   </form>
+</div>   
+ </body>
+</html>

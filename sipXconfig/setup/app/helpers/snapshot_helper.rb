@@ -1,0 +1,2 @@
+module SnapshotHelper
+end

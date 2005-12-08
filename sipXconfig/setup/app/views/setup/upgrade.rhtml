@@ -1,0 +1,21 @@
+<html>
+ <%= stylesheet_link_tag "sipxconfig" %>
+ <body>
+ <div id="banner">
+ </div> 
+ <div id="content">
+   <h1>Restore Configuration After Upgrade</h1>
+   <p>You may restore your system's configuration after an upgrade 
+   to a previous configuration.</p>
+   <form action="/setup/resolve_conflicts">
+   Configuration:
+   <select>
+   <option>snapshot-12-03-05.tgz (latest)</option>
+   <option>snapshot-10-24-05.tgz</option>
+   <option>snapshot-09-21-05.tgz</option>
+   </select>
+   <input type="submit" value="Restore"/>
+   </form>
+</div>   
+ </body>
+</html>
