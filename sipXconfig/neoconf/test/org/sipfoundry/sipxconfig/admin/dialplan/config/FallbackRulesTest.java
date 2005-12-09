@@ -53,6 +53,7 @@ public class FallbackRulesTest extends XMLTestCase {
         control.replay();
 
         MappingRules mappingRules = new FallbackRules();
+        mappingRules.begin();
         mappingRules.generate(rule);
         mappingRules.end();
 
@@ -84,6 +85,7 @@ public class FallbackRulesTest extends XMLTestCase {
         control.replay();
 
         MappingRules mappingRules = new FallbackRules();
+        mappingRules.begin();
         mappingRules.generate(rule);
         mappingRules.end();
 

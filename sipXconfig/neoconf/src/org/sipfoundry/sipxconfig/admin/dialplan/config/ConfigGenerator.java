@@ -64,6 +64,9 @@ public class ConfigGenerator {
 
     public void generate(DialPlanContext plan) {
         List rules = plan.getGenerationRules();
+        m_mappingRules.begin();
+        m_authRules.begin();
+        m_fallbackRules.begin();
 
         for (Iterator i = rules.iterator(); i.hasNext();) {
             IDialingRule rule = (IDialingRule) i.next();

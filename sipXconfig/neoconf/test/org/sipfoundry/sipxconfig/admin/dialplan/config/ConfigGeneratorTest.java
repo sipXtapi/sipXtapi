@@ -42,9 +42,16 @@ public class ConfigGeneratorTest extends XMLTestCase {
         ConfigGenerator generator = new ConfigGenerator();
         generator.generate(er);
         generator.generate(empty);
-        checkConfigFileGeneration(generator, new AuthRules(), ConfigFileType.AUTH_RULES);
-        checkConfigFileGeneration(generator, new MappingRules(), ConfigFileType.MAPPING_RULES);
-        checkConfigFileGeneration(generator, new FallbackRules(), ConfigFileType.FALLBACK_RULES);
+        
+        AuthRules authRules = new AuthRules();
+        authRules.begin();
+        checkConfigFileGeneration(generator, authRules, ConfigFileType.AUTH_RULES);
+        MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
+        checkConfigFileGeneration(generator, mappingRules, ConfigFileType.MAPPING_RULES);        
+        FallbackRules fallbackRules = new FallbackRules();
+        fallbackRules.begin();
+        checkConfigFileGeneration(generator, fallbackRules, ConfigFileType.FALLBACK_RULES);
         controlPlan.verify();
     }
 

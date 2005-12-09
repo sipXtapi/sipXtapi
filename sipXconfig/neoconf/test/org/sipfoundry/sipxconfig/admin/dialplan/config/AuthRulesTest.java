@@ -35,6 +35,7 @@ public class AuthRulesTest extends XMLTestCase {
 
     public void testGetDoc() throws Exception {
         AuthRules rules = new AuthRules();
+        rules.begin();
         Document doc = rules.getDocument();
 
         String xml = XmlUnitHelper.asString(doc);
@@ -65,6 +66,7 @@ public class AuthRulesTest extends XMLTestCase {
         control.replay();
 
         MockAuthRules authRules = new MockAuthRules();
+        authRules.begin();
         authRules.generate(rule);
         authRules.end();
 
@@ -107,6 +109,7 @@ public class AuthRulesTest extends XMLTestCase {
         control.replay();
 
         AuthRules authRules = new AuthRules();
+        authRules.begin();
         authRules.generate(rule);
         authRules.end();
 
@@ -158,6 +161,7 @@ public class AuthRulesTest extends XMLTestCase {
         control.replay();
 
         MockAuthRules authRules = new MockAuthRules();
+        authRules.begin();
         authRules.generate(rule);
         authRules.end();
 
@@ -188,6 +192,7 @@ public class AuthRulesTest extends XMLTestCase {
             gateways[i].setAddress("10.1.2." + i);
         }
         AuthRules rules = new AuthRules();
+        rules.begin();
         rules.generateNoAccess(Arrays.asList(gateways));
         String lastHostMatch = "/mappings/hostMatch/";
         Document document = rules.getDocument();
@@ -205,6 +210,7 @@ public class AuthRulesTest extends XMLTestCase {
 
     public void testNamespace() {
         AuthRules rules = new AuthRules();
+        rules.begin();
         Document doc = rules.getDocument();
 
         Element rootElement = doc.getRootElement();

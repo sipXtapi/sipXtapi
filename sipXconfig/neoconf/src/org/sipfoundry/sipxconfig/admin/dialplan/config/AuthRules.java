@@ -47,7 +47,7 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
  * </code>
  * 
  */
-public class AuthRules extends XmlFile implements ConfigFile {
+public class AuthRules extends RulesXmlFile {
     private static final String NAMESPACE = "http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00";
     private static final String NO_ACCESS_RULE = "Reject all other calls to the gateways"
             + " that are not handled by the earlier rules";
@@ -56,9 +56,13 @@ public class AuthRules extends XmlFile implements ConfigFile {
     private Set m_gateways = new HashSet();
 
     public AuthRules() {
+    }
+    
+    public void begin() {
         m_doc = FACTORY.createDocument();
         QName mappingsName = FACTORY.createQName("mappings", NAMESPACE);
-        m_doc.addElement(mappingsName);
+        Element mappings = m_doc.addElement(mappingsName);
+        addExternalRules(mappings);
     }
 
     public void generate(IDialingRule rule) {

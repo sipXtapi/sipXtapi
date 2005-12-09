@@ -18,14 +18,11 @@ import java.io.StringWriter;
 import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.LogFactory;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
-import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
 /**
  * ConfigFile
@@ -34,7 +31,7 @@ public abstract class XmlFile {
     protected static final DocumentFactory FACTORY = DocumentFactory.getInstance();
 
     public abstract Document getDocument();
-    
+
     public abstract ConfigFileType getType();
 
     /**
@@ -104,32 +101,17 @@ public abstract class XmlFile {
         tmpFile.renameTo(configFile);
     }
 
-    protected void addRuleDescription(Element userMatch, IDialingRule rule) {
-        String descriptionText = rule.getDescription();
-        if (!StringUtils.isBlank(descriptionText)) {
-            Element description = userMatch.addElement("description");
-            description.setText(descriptionText);
-        }
-    }
-
-    protected void addRuleNameComment(Element hostMatch, IDialingRule rule) {
-        String nameText = rule.getName();
-        if (!StringUtils.isBlank(nameText)) {
-            hostMatch.addComment(nameText);
-        }
-    }
-    
     /**
      * Treat every file of the same type as equal
      */
     public boolean equals(Object obj) {
         if (obj instanceof XmlFile) {
             XmlFile file = (XmlFile) obj;
-            return getType().equals(file.getType());            
+            return getType().equals(file.getType());
         }
         return false;
     }
-    
+
     public int hashCode() {
         return getType().hashCode();
     }

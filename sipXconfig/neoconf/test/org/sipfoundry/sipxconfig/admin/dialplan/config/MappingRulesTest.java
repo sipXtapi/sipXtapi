@@ -43,6 +43,7 @@ public class MappingRulesTest extends XMLTestCase {
 
     public void testGetDocument() throws Exception {
         MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
         Document document = mappingRules.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
@@ -59,6 +60,7 @@ public class MappingRulesTest extends XMLTestCase {
 
     public void testGetDocumentInvalidExternals() throws Exception {
         MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
         mappingRules.setExternalRulesFileName("/invalid/file/name");
         Document document = mappingRules.getDocument();
 
@@ -74,6 +76,7 @@ public class MappingRulesTest extends XMLTestCase {
 
         MappingRules mappingRules = new MappingRules();
         mappingRules.setExternalRulesFileName(resource.getFile());
+        mappingRules.begin();
         Document document = mappingRules.getDocument();
 
         String xml = XmlUnitHelper.asString(document);
@@ -105,6 +108,7 @@ public class MappingRulesTest extends XMLTestCase {
 
     public void testGetHostMatch() throws Exception {
         MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
         Element hostMatch = mappingRules.getFirstHostMatch();
         Document document = mappingRules.getDocument();
         assertSame(document, hostMatch.getDocument());
@@ -142,6 +146,7 @@ public class MappingRulesTest extends XMLTestCase {
         control.replay();
 
         MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
         mappingRules.generate(rule);
         mappingRules.end();
 
@@ -169,6 +174,7 @@ public class MappingRulesTest extends XMLTestCase {
         control.replay();
 
         MappingRules mappingRules = new MappingRules();
+        mappingRules.begin();
         mappingRules.generate(rule);
         mappingRules.end();
 
