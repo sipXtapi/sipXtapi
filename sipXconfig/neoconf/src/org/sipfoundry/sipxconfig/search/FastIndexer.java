@@ -32,8 +32,19 @@ public class FastIndexer implements Indexer {
             return;
         }
         if (!newInstance) {
-            removeBean(bean, id);
+            internalRemoveBean(bean, id);
         }
+        addBean(document);
+    }
+
+    public void removeBean(Object bean, Serializable id) {
+        // only remove beans that are index-able
+        if (m_beanAdaptor.indexClass(new Document(), bean.getClass())) {
+            internalRemoveBean(bean, id);
+        }
+    }
+
+    private synchronized void addBean(Document document) {
         IndexWriter writer = null;
         try {
             writer = m_indexSource.getWriter(false);
@@ -45,7 +56,7 @@ public class FastIndexer implements Indexer {
         }
     }
 
-    public void removeBean(Object bean, Serializable id) {
+    private synchronized void internalRemoveBean(Object bean, Serializable id) {
         IndexReader reader = null;
         try {
             reader = m_indexSource.getReader();
@@ -56,7 +67,6 @@ public class FastIndexer implements Indexer {
         } finally {
             LuceneUtils.closeQuietly(reader);
         }
-
     }
 
     public void setBeanAdaptor(BeanAdaptor beanAdaptor) {

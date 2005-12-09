@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -26,7 +27,7 @@ public interface SettingDao extends DataObjectSource {
 
     public void saveGroup(Group group);
     
-    public void deleteGroup(Group group);
+    public void deleteGroups(Collection allSelected);
     
     public Group getGroupByName(String resource, String name);
     

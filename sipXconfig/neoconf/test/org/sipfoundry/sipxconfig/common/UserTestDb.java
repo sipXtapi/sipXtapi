@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.dbunit.Assertion;
@@ -101,8 +102,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
     public void testDeleteUserGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
-        Group group = m_settingDao.getGroup(new Integer(1001));
-        m_settingDao.deleteGroup(group);
+        m_settingDao.deleteGroups(Collections.singletonList(new Integer(1001)));
         // link table references removed
         ITable actual = TestHelper.getConnection().createDataSet().getTable("user_group");
         assertEquals(0, actual.getRowCount());

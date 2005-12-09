@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -38,14 +37,7 @@ public abstract class GroupTable extends BaseComponent {
 
     public void deleteGroup(IRequestCycle cycle_) {
         SettingDao context = getSettingContext();
-        Object[] groupIds = getSelections().getAllSelected().toArray();
-        List groups = getGroups();
-        Collection deletedGroups = DataCollectionUtil.findByPrimaryKey(groups, groupIds);
-        Iterator i = deletedGroups.iterator();
-        while (i.hasNext()) {
-            Group group = (Group) i.next();
-            context.deleteGroup(group);
-        }
+        context.deleteGroups(getSelections().getAllSelected());
     }
     
     public void moveUp(IRequestCycle cycle_) {

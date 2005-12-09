@@ -87,7 +87,7 @@ public class SearchManagerImpl implements SearchManager {
     }
 
     private List hits2beans(Hits hits, Transformer transformer, int firstItem, int pageSize)
-            throws IOException {
+        throws IOException {
         final int hitCount = hits.length();
         List results = new ArrayList(hitCount);
         int from = firstItem < 0 ? 0 : firstItem;

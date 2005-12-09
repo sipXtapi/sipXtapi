@@ -24,12 +24,14 @@ public interface BeanAdaptor {
     /**
      * @return true if the document should be added to index
      */
-    public abstract boolean documentFromBean(Document document, Object bean, Serializable id,
+    boolean documentFromBean(Document document, Object bean, Serializable id,
             Object[] state, String[] fieldNames, Type[] types);
 
-    public abstract Term getIdentityTerm(Object bean, Serializable id);
+    Term getIdentityTerm(Object bean, Serializable id);
 
-    public abstract Identity getBeanIdentity(Document document);
+    Identity getBeanIdentity(Document document);
+    
+    boolean indexClass(Document document, Class klass); 
 
     public static class Identity {
         private Class m_klass;

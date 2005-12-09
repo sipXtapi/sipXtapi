@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.phone;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import org.dbunit.Assertion;
@@ -188,8 +189,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     public void testDeletePhoneGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/GroupMemberCountSeed.xml");
-        Group group = settingDao.getGroup(new Integer(1001));
-        settingDao.deleteGroup(group);
+        settingDao.deleteGroups(Collections.singletonList(new Integer(1001)));
         // link table references removed
         ITable actual = TestHelper.getConnection().createDataSet().getTable("phone_group");
         // just phone 2 and group 2

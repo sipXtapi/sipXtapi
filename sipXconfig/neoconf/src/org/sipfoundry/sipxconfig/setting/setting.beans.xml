@@ -6,9 +6,8 @@
   -  S E T T I N G  D A O  I M P L
   -->
   <bean id="settingDaoImpl" class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl">
-    <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
   </bean>
   <!--
   -  S E T T I N G  D A O 

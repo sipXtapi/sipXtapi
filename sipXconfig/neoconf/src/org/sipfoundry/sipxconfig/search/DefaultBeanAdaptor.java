@@ -107,7 +107,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         return false;
     }
 
-    boolean indexClass(Document doc, Class beanClass) {
+    public boolean indexClass(Document doc, Class beanClass) {
         for (int i = 0; i < CLASSES.length; i++) {
             Class klass = CLASSES[i];
             if (klass.isAssignableFrom(beanClass)) {
