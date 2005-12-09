@@ -21,6 +21,9 @@ class SetupController < ApplicationController
     # 9. if not. move on to success page.
   end
 
+  def list_conflicts
+  end
+  	
   def resolve_conflict
     # show partnering files in text windows side-by-side, restore file read-only
     # if save, take edited file

@@ -1,0 +1,34 @@
+<html>
+ <%= stylesheet_link_tag "sipxconfig" %>
+ <body>
+ <div id="banner-setup">
+ </div> 
+ <div id="content">
+   <h1>Resolve Settings in mappingrules.xml</h1>
+   <p>Visually compare the contents of the two files and make the necessary edits
+   to the file on the left.</p>
+   <form action="/setup/list_conflicts">
+<div id="col1">   
+   <h3>Existing system file</h3>
+<textarea rows="20" cols="35">
+# comment here
+foo=bar
+blah=yo
+</textarea>
+<ul class="form-actions">
+ <li><input type="submit" value="Save"/></li>
+ <li><input type="submit" value="Cancel"/></li>
+</ul>
+</div>
+<div id="col2">
+   <h3>Backup file</h3>
+<textarea rows="20" cols="35" readonly="readonly">
+yi=ha
+zip=do
+</textarea><br/>
+</div>
+<div class="clear"/>
+   </form>
+</div>   
+ </body>
+</html>
