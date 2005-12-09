@@ -124,7 +124,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 	font-style:italic;
 }
 
-#banner, #banner-setup
+#banner, #banner-setup, #banner-jsetup
 {
 	height:0;
 	color:#fff;
@@ -136,6 +136,11 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 #banner-setup
 {
 	background:url(/images/sipxconfig-logo.png) no-repeat left #669999;
+}
+
+#banner-jsetup
+{
+	background:url(/sipxsetup/images/sipxconfig-logo.png) no-repeat left #669999;
 }
 
 #banner-links
