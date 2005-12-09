@@ -29,6 +29,7 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
@@ -85,8 +86,8 @@ public class SearchManagerImpl implements SearchManager {
         }
     }
 
-    private List hits2beans(Hits hits, Transformer transformer, int firstItem,
-            int pageSize) throws IOException {
+    private List hits2beans(Hits hits, Transformer transformer, int firstItem, int pageSize)
+            throws IOException {
         final int hitCount = hits.length();
         List results = new ArrayList(hitCount);
         int from = firstItem < 0 ? 0 : firstItem;
@@ -104,9 +105,20 @@ public class SearchManagerImpl implements SearchManager {
         return results;
     }
 
-    private Query parseUserQuery(String queryText) throws ParseException {
+    /**
+     * Return prefix queries if user only enters single field, otherwise use query parser
+     * 
+     * @param queryText
+     * @return newly created query object
+     */
+    Query parseUserQuery(String queryText) throws ParseException {
         QueryParser parser = new QueryParser(Indexer.DEFAULT_FIELD, m_analyzer);
-        return parser.parse(queryText);
+        Query query = parser.parse(queryText);
+        if (query instanceof TermQuery) {
+            TermQuery termQuery = (TermQuery) query;
+            return new PrefixQuery(termQuery.getTerm());
+        }
+        return query;
     }
 
     public List search(Class entityClass, String queryText, int firstResult, int pageSize,

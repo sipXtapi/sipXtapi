@@ -16,6 +16,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.search.PrefixQuery;
+import org.apache.lucene.search.Query;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -175,10 +178,27 @@ public class SearchManagerImplTestDb extends TestCase {
         user = (User) collection.get(1);
         assertEquals(names[2], user.getUserName());
     }
-    
+
     public void testSortingIllegalFieldName() throws Exception {
         List collection = m_searchManager.search(User.class, "first*", 0, -1, "bongo", true,
                 m_identityToBean);
         assertEquals(0, collection.size());
+    }
+
+    public void testParseQuery() throws Exception {
+        SearchManagerImpl impl = new SearchManagerImpl();
+        impl.setAnalyzer(new StandardAnalyzer());
+
+        Query query = impl.parseUserQuery("kuku");
+        assertTrue(query instanceof PrefixQuery);
+
+        query = impl.parseUserQuery("-kuku");
+        assertFalse(query instanceof PrefixQuery);
+
+        query = impl.parseUserQuery("name:kuku");
+        assertTrue(query instanceof PrefixQuery);
+
+        query = impl.parseUserQuery("name:kuku AND bongo");
+        assertFalse(query instanceof PrefixQuery);
     }
 }
