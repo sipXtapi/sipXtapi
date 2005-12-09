@@ -31,6 +31,7 @@ sipxpbx.log.dir=@SIPX_LOGDIR@
 sipxpbx.run.dir=@SIPX_RUNDIR@
 sipxpbx.tmp.dir=@SIPX_TMPDIR@
 sipxconfig.war=${top.build.dir}/web/dist/sipxconfig.war
+sipxsetup.war=${top.build.dir}/jsetup/dist/sipxsetup.war
 sipxconfig.jar=${top.build.dir}/neoconf/dist/sipxconfig.jar
 # very optional
 sipfoundry.org.dir=@SIPFOUNDRY_ORG@

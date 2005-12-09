@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="com.iw.plugins.spindle.core.TAPESTRY_FRAMEWORK"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/jetty-5.1.4.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
+	<classpathentry kind="output" path="context/WEB-INF/classes"/>
+</classpath>
