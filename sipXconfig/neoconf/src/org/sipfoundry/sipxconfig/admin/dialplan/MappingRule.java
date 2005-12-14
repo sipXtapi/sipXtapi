@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
@@ -115,24 +116,24 @@ public class MappingRule extends DialingRule {
 
     // specialized classes
     public static class Operator extends MappingRule {
-        public Operator(AutoAttendant autoAttendant, String[] patterns) {
-            setName(autoAttendant.getName());
-            setDescription(autoAttendant.getDescription());
+        public Operator(AutoAttendant attendant, String[] aliases) {
+            this(attendant.getName(), attendant.getDescription(), attendant.getSystemName(),
+                    attendant.getExtension(), aliases);
+        }
 
-            String extension = autoAttendant.getExtension();
+        public Operator(String name, String description, String systemName, String extension,
+                String[] aliases) {
+            setName(name);
+            setDescription(description);
+
             if (null == extension) {
-                setPatterns(patterns);
+                setPatterns(aliases);
             } else {
-                // append extension to existing patterns
-                int len = patterns.length;
-                String[] patternsEx = new String[len + 1];
-                patternsEx[0] = extension;
-                System.arraycopy(patterns, 0, patternsEx, 1, len);
-                setPatterns(patternsEx);
+                setPatterns((String[]) ArrayUtils.add(aliases, 0, extension));
             }
 
             Map params = new HashMap();
-            params.put("name", autoAttendant.getSystemName());
+            params.put("name", systemName);
 
             setUrl(buildUrl(CallDigits.FIXED_DIGITS, AUTOATTENDANT, params));
         }

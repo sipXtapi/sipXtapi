@@ -27,15 +27,13 @@ import org.sipfoundry.sipxconfig.common.Permission;
  */
 public class InternalRuleTest extends TestCase {
 
-    private static final String RULE_NAME_PARAM = "%26name%3Dxcf-1";
-
     private static final String URL_PARAMS = ";play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
-    private static final String URL_PREFIX = "<sip:{digits}@{mediaserver}" + URL_PARAMS;
-    private static final String OPERATOR_URL = URL_PREFIX + "autoattendant" + RULE_NAME_PARAM
-            + ">";
-    private static final String VOICEMAIL_URL = URL_PREFIX + "retrieve>";
-    private static final String VOICEMAIL_FALLBACK_URL = URL_PREFIX
-            + "deposit%26mailbox%3D{digits}>;q=0.1";
+    private static final String OPERATOR_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
+            + "autoattendant%26name%3Dxcf-1>";
+    private static final String VOICEMAIL_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
+            + "retrieve>";
+    private static final String VOICEMAIL_FALLBACK_URL = "<sip:{digits}@{mediaserver}"
+            + URL_PARAMS + "deposit%26mailbox%3D{digits}>;q=0.1";
     private static final String VOICEMAIL_TRANSFER_URL = "<sip:{vdigits}@{mediaserver}"
             + URL_PARAMS + "deposit%26mailbox%3D{vdigits}>";
 

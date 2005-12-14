@@ -17,8 +17,7 @@ import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 public final class ScheduledDay extends Enum {
-    
-    public static final ScheduledDay EVERYDAY = new ScheduledDay("Every day");    
+    public static final ScheduledDay EVERYDAY = new ScheduledDay("Every day");
     public static final ScheduledDay SUNDAY = new ScheduledDay("Sunday", Calendar.SUNDAY);
     public static final ScheduledDay MONDAY = new ScheduledDay("Monday", Calendar.MONDAY);
     public static final ScheduledDay TUESDAY = new ScheduledDay("Tuesday", Calendar.TUESDAY);
@@ -26,7 +25,11 @@ public final class ScheduledDay extends Enum {
     public static final ScheduledDay THURSDAY = new ScheduledDay("Thursday", Calendar.THURSDAY);
     public static final ScheduledDay FRIDAY = new ScheduledDay("Friday", Calendar.FRIDAY);
     public static final ScheduledDay SATURDAY = new ScheduledDay("Saturday", Calendar.SATURDAY);
-    
+
+    public static final ScheduledDay[] DAYS_OF_WEEK = {
+        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+    };
+
     private int m_dayOfWeek;
 
     private ScheduledDay(String id) {
@@ -37,7 +40,7 @@ public final class ScheduledDay extends Enum {
         super(id);
         m_dayOfWeek = dayOfWeek;
     }
-        
+
     /**
      * Used for Hibernate type translation
      */
@@ -57,5 +60,6 @@ public final class ScheduledDay extends Enum {
      */
     public int getDayOfWeek() {
         return m_dayOfWeek;
-    }    
+    }
+
 }

@@ -24,6 +24,7 @@ public final class DialingRuleType extends Enum {
     public static final DialingRuleType LONG_DISTANCE = new DialingRuleType("Long Distance");
     public static final DialingRuleType RESTRICTED = new DialingRuleType("Restricted");
     public static final DialingRuleType TOLL_FREE = new DialingRuleType("Toll free");
+    public static final DialingRuleType ATTENDANT = new DialingRuleType("Attendant");
 
     private DialingRuleType(String name) {
         super(name);

@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
  * DialingRuleFactory
+ * TODO: we should be able to use spring for that...
  */
 public class DialingRuleFactory {
     private static final Map PROTOTYPES = new HashMap();
@@ -29,6 +30,7 @@ public class DialingRuleFactory {
         PROTOTYPES.put(DialingRuleType.LOCAL, new LocalRule());
         PROTOTYPES.put(DialingRuleType.EMERGENCY, new EmergencyRule());
         PROTOTYPES.put(DialingRuleType.INTERNATIONAL, new InternationalRule());
+        PROTOTYPES.put(DialingRuleType.ATTENDANT, new AttendantDialingRule());
     }
 
     /**
