@@ -11,12 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 
 public class Holiday extends ScheduledAttendant {
-    private List m_dates;
+    private List m_dates = new ArrayList();
 
     void addDay(Date day) {
         if (!m_dates.contains(day)) {
