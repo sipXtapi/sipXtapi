@@ -19,19 +19,19 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 
-public class AttendantDialingRuleTest extends TestCase {
+public class AttendantRuleTest extends TestCase {
     private static final String URL_PARAMS = ";play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
     private static final String OPERATOR_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
             + "autoattendant%26name%3Daa_-1>";    
     
     public void testNotImplemented() {
-        AttendantDialingRule rule = new AttendantDialingRule();
+        AttendantRule rule = new AttendantRule();
         assertNull(rule.getPatterns());
         assertNull(rule.getTransforms());
     }
 
     public void testAppendToGenerationRulesDisabled() {
-        AttendantDialingRule rule = new AttendantDialingRule();
+        AttendantRule rule = new AttendantRule();
         List list = new ArrayList();
         rule.appendToGenerationRules(list);
         // do not add anything if rule is disabled and it is disabled by default
@@ -39,7 +39,7 @@ public class AttendantDialingRuleTest extends TestCase {
     }
 
     public void testAppendToGenerationRules() {
-        AttendantDialingRule rule = new AttendantDialingRule();
+        AttendantRule rule = new AttendantRule();
         rule.setName("abc");
         rule.setExtension("100");
         rule.setAttendantAliases("0, operator");
@@ -69,7 +69,7 @@ public class AttendantDialingRuleTest extends TestCase {
     }
 
     public void testIsInternal() {
-        AttendantDialingRule rule = new AttendantDialingRule();
+        AttendantRule rule = new AttendantRule();
         // this is internal rule
         assertTrue(rule.isInternal());
     }

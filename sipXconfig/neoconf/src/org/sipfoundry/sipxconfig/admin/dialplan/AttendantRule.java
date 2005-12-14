@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
-public class AttendantDialingRule extends DialingRule {
+public class AttendantRule extends DialingRule {
     private static final String SYSTEM_NAME_PREFIX = "aa_";
 
     private ScheduledAttendant m_afterHoursAttendant;

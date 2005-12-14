@@ -19,13 +19,13 @@ import java.util.List;
 public class Holiday extends ScheduledAttendant {
     private List m_dates = new ArrayList();
 
-    void addDay(Date day) {
+    public void addDay(Date day) {
         if (!m_dates.contains(day)) {
             m_dates.add(day);
         }
     }
 
-    void removeDay(Date day) {
+    public void removeDay(Date day) {
         m_dates.remove(day);
     }
 
