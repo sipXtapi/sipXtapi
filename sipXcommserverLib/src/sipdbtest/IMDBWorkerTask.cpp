@@ -52,6 +52,8 @@ UtlString userKey ("user");
 UtlString permissionKey ("permission");
 UtlString qvalueKey ("qvalue");
 UtlString expiresKey ("expires");
+UtlString primaryKey ("primary");
+UtlString updateNumberKey ("update_number");
 UtlString timenowKey ("timenow");
 UtlString subscribecseqKey ("subscribecseq");
 UtlString eventtypeKey ("eventtype");

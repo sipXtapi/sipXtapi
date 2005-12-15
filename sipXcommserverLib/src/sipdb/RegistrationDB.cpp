@@ -685,10 +685,6 @@ RegistrationDB::getUnexpiredContacts (
 
         if ( cursor.select(query) > 0 )
         {
-
-         // DO_NOW: primary and update_number
-
-
             // Copy all the unexpired contacts into the result hash
             do
             {

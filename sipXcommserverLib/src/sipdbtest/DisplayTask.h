@@ -18,6 +18,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "IMDBWorkerTask.h"
+#include "sipdb/ResultSet.h"
 
 // DEFINES
 // MACROS
@@ -98,6 +99,18 @@ public:
     void insertRow ( 
         const UtlHashMap& nvPairs, 
         const UtlString& tableName ) const;
+
+private:
+    void showProcessInfo(ResultSet& resultSet) const;
+    void showCredentials(ResultSet& resultSet) const;
+    void showHuntGroups(ResultSet& resultSet) const;
+    void showAuthExceptions(ResultSet& resultSet) const;
+    void showRegistrations(ResultSet& resultSet) const;
+    void showAliases(ResultSet& resultSet) const;
+    void showExtensions(ResultSet& resultSet) const;
+    void showPermissions(ResultSet& resultSet) const;
+    void showDialByName(ResultSet& resultSet) const;
+    void showSubscriptions(ResultSet& resultSet) const;
 };
 
 #endif  // DISPLAYTASK_H
