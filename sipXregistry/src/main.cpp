@@ -150,13 +150,13 @@ initSysLog(OsConfigDb* pConfig)
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
    // exist
-   struct tagPrioriotyLookupTable
+   struct tagPriorityLookupTable
    {
       const char*      pIdentity;
       OsSysLogPriority ePriority;
    };
 
-   struct tagPrioriotyLookupTable lkupTable[] =
+   struct tagPriorityLookupTable lkupTable[] =
       {
          { "DEBUG",   PRI_DEBUG},
          { "INFO",    PRI_INFO},
@@ -228,7 +228,7 @@ initSysLog(OsConfigDb* pConfig)
    }
    logLevel.toUpper();
    OsSysLogPriority priority = PRI_ERR;
-   int iEntries = sizeof(lkupTable)/sizeof(struct tagPrioriotyLookupTable);
+   int iEntries = sizeof(lkupTable)/sizeof(struct tagPriorityLookupTable);
    for (int i=0; i<iEntries; i++)
    {
       if (logLevel == lkupTable[i].pIdentity)

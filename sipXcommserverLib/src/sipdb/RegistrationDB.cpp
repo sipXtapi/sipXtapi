@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
+#include "utl/UtlLongLongInt.h"
 #include "os/OsLock.h"
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
@@ -40,9 +41,9 @@ UtlString RegistrationDB::gCseqKey("cseq");
 UtlString RegistrationDB::gQvalueKey("qvalue");
 UtlString RegistrationDB::gInstanceIdKey("instance_id");
 UtlString RegistrationDB::gGruuKey("gruu");
+UtlString RegistrationDB::gPrimaryKey("primary");
+UtlString RegistrationDB::gUpdateNumberKey("update_number");
 UtlBoolean     grVerboseLoggingEnabled = FALSE;
-
-// extern gExpiresKey;
 
 /* ============================ CREATORS ================================== */
 
@@ -268,10 +269,10 @@ OsStatus RegistrationDB::cleanAndPersist( const int &newerThanTime )
                       fd != NULL; fd = fd->nextField )
                 {
                     // if the column name does not contain the
-                    // np_prefix we must_presist it
+                    // np_prefix we must persist it
                     if ( strstr( fd->name, "np_" ) == NULL )
                     {
-                        // Create the a column element named after the IMDB column name
+                        // Create a column element named after the IMDB column name
                         TiXmlElement element (fd->name );
 
                         // See if the IMDB has the predefined SPECIAL_NULL_VALUE
@@ -334,8 +335,11 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
     int cseq = (int) atoi( cseqStr );
 
     // If the IMDB does not specify a Q-Value % will be found here
-    // (represengint a null IMDB column)
+    // (representing a null IMDB column)
     UtlString qvalue = *((UtlString*)nvPairs.findValue(&gQvalueKey));
+
+    UtlString updateNumberStr = *((UtlString*)nvPairs.findValue(&gUpdateNumberKey));
+    intll updateNumber = (intll) strtoll(updateNumberStr, 0, 0);
 
     // Get the remaining fields so that we can substitute the null string
     // if the fetched value is 0 (the null pointer) because the field
@@ -345,6 +349,7 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
     UtlString* callId = (UtlString*) nvPairs.findValue(&gCallidKey);
     UtlString* instanceId = (UtlString*) nvPairs.findValue(&gInstanceIdKey);
     UtlString* gruu = (UtlString*) nvPairs.findValue(&gGruuKey);
+    UtlString* primary = (UtlString*) nvPairs.findValue(&gPrimaryKey);
 
     // Note: identity inferred from the uri
     updateBinding (
@@ -355,8 +360,10 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
         cseq,
         expires,
         *(instanceId ? instanceId : &nullString),
-        *(gruu ? gruu : &nullString)
-                   );
+        *(gruu ? gruu : &nullString),
+        *(primary ? primary : &nullString),
+        updateNumber
+        );
 }
 
 
@@ -369,6 +376,8 @@ RegistrationDB::updateBinding( const Url& uri
                               ,const int& expires
                               ,const UtlString& instance_id
                               ,const UtlString& gruu
+                              ,const UtlString& primary
+                              ,const intll& update_number
                               )
 {
     UtlString identity;
@@ -405,27 +414,31 @@ RegistrationDB::updateBinding( const Url& uri
             case 0:
                 // Insert new row
                 RegistrationRow row;
-                row.np_identity = identity;
-                row.uri         = fullUri;
-                row.callid      = callid;
-                row.cseq        = cseq;
-                row.contact     = contact;
-                row.qvalue      = qvalue;
-                row.expires     = expires;
-                row.instance_id = instance_id;
-                row.gruu        = gruu;
+                row.np_identity   = identity;
+                row.uri           = fullUri;
+                row.callid        = callid;
+                row.cseq          = cseq;
+                row.contact       = contact;
+                row.qvalue        = qvalue;
+                row.expires       = expires;
+                row.instance_id   = instance_id;
+                row.gruu          = gruu;
+                row.primary       = primary;
+                row.update_number = update_number;
                 insert (row);
                 break;
 
             case 1:
                 // this id->contact binding exists - update it
-                cursor->uri     = fullUri;
-                cursor->callid  = callid;
-                cursor->cseq    = cseq;
-                cursor->qvalue  = qvalue;
-                cursor->expires = expires;
-                cursor->instance_id = instance_id;
-                cursor->gruu    = gruu;
+                cursor->uri           = fullUri;
+                cursor->callid        = callid;
+                cursor->cseq          = cseq;
+                cursor->qvalue        = qvalue;
+                cursor->expires       = expires;
+                cursor->instance_id   = instance_id;
+                cursor->gruu          = gruu;
+                cursor->primary       = primary;
+                cursor->update_number = update_number;
                 cursor.update();
                 break;
         }
@@ -448,6 +461,8 @@ RegistrationDB::expireOldBindings( const Url& uri
                                   ,const UtlString& callid
                                   ,const int& cseq
                                   ,const int& timeNow
+                                  ,const UtlString& primary
+                                  ,const intll& update_number
                                   )
 {
     UtlString identity;
@@ -473,6 +488,8 @@ RegistrationDB::expireOldBindings( const Url& uri
             {
               cursor->expires = expirationTime;
               cursor->cseq = cseq;
+              cursor->primary = primary;
+              cursor->update_number = update_number;
               cursor.update();
             } while ( cursor.next() );
         }
@@ -486,6 +503,8 @@ void RegistrationDB::expireAllBindings( const Url& uri
                                        ,const UtlString& callid
                                        ,const int& cseq
                                        ,const int& timeNow
+                                       ,const UtlString& primary
+                                       ,const intll& update_number
                                        )
 {
     UtlString identity;
@@ -511,6 +530,8 @@ void RegistrationDB::expireAllBindings( const Url& uri
               cursor->expires = expirationTime;
               cursor->callid  = callid;
               cursor->cseq    = cseq;
+              cursor->primary = primary;
+              cursor->update_number = update_number;
               cursor.update();
            } while ( cursor.next() );
         }
@@ -577,7 +598,7 @@ RegistrationDB::removeAllRows ()
 void
 RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
 {
-    // Clear the out any previous records
+    // Clear out any previous records
     rResultSet.destroyAll();
 
     if ( m_pFastDB != NULL )
@@ -589,42 +610,36 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
         {
             do {
                 UtlHashMap record;
-                UtlString* uriValue =
-                    new UtlString ( cursor->uri );
-                UtlString* callidValue =
-                    new UtlString ( cursor->callid );
-                UtlString* contactValue =
-                    new UtlString ( cursor->contact );
-                UtlInt* expiresValue =
-                    new UtlInt ( cursor->expires );
-                UtlInt* cseqValue =
-                    new UtlInt ( cursor->cseq );
-                UtlString* qvalueValue =
-                    new UtlString ( cursor->qvalue );
+                UtlString* uriValue = new UtlString(cursor->uri);
+                UtlString* callidValue = new UtlString(cursor->callid);
+                UtlString* contactValue = new UtlString(cursor->contact);
+                UtlInt* expiresValue = new UtlInt(cursor->expires);
+                UtlInt* cseqValue = new UtlInt(cursor->cseq);
+                UtlString* qvalueValue = new UtlString(cursor->qvalue);
+                UtlString* primaryValue = new UtlString(cursor->primary);
+                UtlLongLongInt* updateNumberValue = new UtlLongLongInt(cursor->update_number);
 
                 // Memory Leak fixes, make shallow copies of static keys
-                UtlString* uriKey = new UtlString( gUriKey );
-                UtlString* callidKey = new UtlString( gCallidKey );
-                UtlString* contactKey = new UtlString( gContactKey );
-                UtlString* expiresKey = new UtlString( gExpiresKey );
-                UtlString* cseqKey = new UtlString( gCseqKey );
-                UtlString* qvalueKey = new UtlString( gQvalueKey );
+                UtlString* uriKey = new UtlString(gUriKey);
+                UtlString* callidKey = new UtlString(gCallidKey);
+                UtlString* contactKey = new UtlString(gContactKey);
+                UtlString* expiresKey = new UtlString(gExpiresKey);
+                UtlString* cseqKey = new UtlString(gCseqKey);
+                UtlString* qvalueKey = new UtlString(gQvalueKey);
+                UtlString* primaryKey = new UtlString(gPrimaryKey);
+                UtlString* updateNumberKey = new UtlString(gUpdateNumberKey);
 
-                record.insertKeyAndValue (
-                    uriKey, uriValue);
-                record.insertKeyAndValue (
-                    callidKey, callidValue);
-                record.insertKeyAndValue (
-                    contactKey, contactValue);
-                record.insertKeyAndValue (
-                    expiresKey, expiresValue);
-                record.insertKeyAndValue (
-                    cseqKey, cseqValue);
-                record.insertKeyAndValue (
-                    qvalueKey, qvalueValue);
+                record.insertKeyAndValue(uriKey, uriValue);
+                record.insertKeyAndValue(callidKey, callidValue);
+                record.insertKeyAndValue(contactKey, contactValue);
+                record.insertKeyAndValue(expiresKey, expiresValue);
+                record.insertKeyAndValue(cseqKey, cseqValue);
+                record.insertKeyAndValue(qvalueKey, qvalueValue);
+                record.insertKeyAndValue(primaryKey, primaryValue);
+                record.insertKeyAndValue(updateNumberKey, updateNumberValue);
 
                 rResultSet.addValue(record);
-            } while ( cursor.next() );
+            } while (cursor.next());
         }
         // commit rows and also ensure process/tls integrity
         m_pFastDB->detach(0);
@@ -670,26 +685,25 @@ RegistrationDB::getUnexpiredContacts (
 
         if ( cursor.select(query) > 0 )
         {
+
+         // DO_NOW: primary and update_number
+
+
             // Copy all the unexpired contacts into the result hash
             do
             {
                 UtlHashMap record;
-                UtlString* uriValue =
-                    new UtlString ( cursor->uri );
-                UtlString* callidValue =
-                    new UtlString ( cursor->callid );
-                UtlString* contactValue =
-                    new UtlString ( cursor->contact );
-                UtlInt* expiresValue =
-                    new UtlInt ( cursor->expires );
-                UtlInt* cseqValue =
-                    new UtlInt ( cursor->cseq );
-                UtlString* qvalueValue =
-                    new UtlString ( cursor->qvalue );
-                UtlString* instanceIdValue =
-                    new UtlString ( cursor->instance_id );
-                UtlString* gruuValue =
-                    new UtlString ( cursor->gruu );
+                UtlString* uriValue = new UtlString(cursor->uri);
+                UtlString* callidValue = new UtlString(cursor->callid);
+                UtlString* contactValue = new UtlString(cursor->contact);
+                UtlInt* expiresValue = new UtlInt(cursor->expires);
+                UtlInt* cseqValue = new UtlInt(cursor->cseq);
+                UtlString* qvalueValue = new UtlString(cursor->qvalue);
+                UtlString* primaryValue = new UtlString(cursor->primary);
+                UtlLongLongInt* updateNumberValue = new UtlLongLongInt(cursor->update_number);
+
+                UtlString* instanceIdValue = new UtlString(cursor->instance_id);
+                UtlString* gruuValue = new UtlString(cursor->gruu);
                 OsSysLog::add(FAC_DB, PRI_DEBUG,
                               "RegistrationDB::getUnexpiredContacts Record found "
                               "uri = '%s', contact = '%s', instance_id = '%s', "
@@ -698,39 +712,29 @@ RegistrationDB::getUnexpiredContacts (
                               instanceIdValue->data(), gruuValue->data());
 
                 // Memory Leak fixes, make shallow copies of static keys
-                UtlString* uriKey
-                    = new UtlString( gUriKey );
-                UtlString* callidKey
-                    = new UtlString( gCallidKey );
-                UtlString* contactKey
-                    = new UtlString( gContactKey );
-                UtlString* expiresKey
-                    = new UtlString( gExpiresKey );
-                UtlString* cseqKey
-                    = new UtlString( gCseqKey );
-                UtlString* qvalueKey
-                    = new UtlString( gQvalueKey );
-                UtlString* instanceIdKey 
-                    = new UtlString( gInstanceIdKey );
-                UtlString* gruuKey
-                    = new UtlString( gGruuKey );
+                UtlString* uriKey = new UtlString(gUriKey);
+                UtlString* callidKey = new UtlString(gCallidKey);
+                UtlString* contactKey = new UtlString(gContactKey);
+                UtlString* expiresKey = new UtlString(gExpiresKey);
+                UtlString* cseqKey = new UtlString(gCseqKey);
+                UtlString* qvalueKey = new UtlString(gQvalueKey);
+                UtlString* primaryKey = new UtlString(gPrimaryKey);
+                UtlString* updateNumberKey = new UtlString(gUpdateNumberKey);
 
-                record.insertKeyAndValue (
-                    uriKey, uriValue);
-                record.insertKeyAndValue (
-                    callidKey, callidValue);
-                record.insertKeyAndValue (
-                    contactKey, contactValue);
-                record.insertKeyAndValue (
-                    expiresKey, expiresValue);
-                record.insertKeyAndValue (
-                    cseqKey, cseqValue);
-                record.insertKeyAndValue (
-                    qvalueKey, qvalueValue);
-                record.insertKeyAndValue (
-                    instanceIdKey, instanceIdValue);
-                record.insertKeyAndValue (
-                    gruuKey, gruuValue);
+                UtlString* instanceIdKey = new UtlString(gInstanceIdKey);
+                UtlString* gruuKey = new UtlString(gGruuKey);
+
+                record.insertKeyAndValue(uriKey, uriValue);
+                record.insertKeyAndValue(callidKey, callidValue);
+                record.insertKeyAndValue(contactKey, contactValue);
+                record.insertKeyAndValue(expiresKey, expiresValue);
+                record.insertKeyAndValue(cseqKey, cseqValue);
+                record.insertKeyAndValue(qvalueKey, qvalueValue);
+                record.insertKeyAndValue(primaryKey, primaryValue);
+                record.insertKeyAndValue(updateNumberKey, updateNumberValue);
+ 
+                record.insertKeyAndValue(instanceIdKey, instanceIdValue);
+                record.insertKeyAndValue(gruuKey, gruuValue);
 
                 rResultSet.addValue(record);
 

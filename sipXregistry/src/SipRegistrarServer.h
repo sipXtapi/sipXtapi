@@ -98,6 +98,14 @@ protected:
 
     PluginHooks* mpSipRegisterPlugins;
 
+    // The last update number assigned to a registration.  Equals zero if no
+    // local registrations have been processed yet.
+    UtlLongLongInt mDbUpdateNumber;
+
+    // Temporary hack: create a dummy local registrar name until we can get
+    // this value from the configuration
+    static const UtlString gDummyLocalRegistrarName;
+
     /**
      *
      * @param timeNow

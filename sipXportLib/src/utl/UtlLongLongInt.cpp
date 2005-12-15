@@ -25,7 +25,7 @@ UtlContainableType UtlLongLongInt::TYPE = "UtlLongLongInt" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor accepting an optional default value.
-UtlLongLongInt::UtlLongLongInt(LLINT value)
+UtlLongLongInt::UtlLongLongInt(intll value)
 {
     mValue = value ;
 } 
@@ -40,11 +40,39 @@ UtlLongLongInt::~UtlLongLongInt()
 {
 }
 
+/* ============================ OPERATORS ============================== */
+
+// Prefix increment operator
+UtlLongLongInt& UtlLongLongInt::operator++() {
+    mValue++;
+    return *this;
+}
+
+// Postfix increment operator
+UtlLongLongInt UtlLongLongInt::operator++(int) {
+    UtlLongLongInt temp = *this;
+    ++*this;
+    return temp;
+}
+
+// Prefix decrement operator
+UtlLongLongInt& UtlLongLongInt::operator--() {
+    mValue--;
+    return *this;
+}
+
+// Postfix decrement operator
+UtlLongLongInt UtlLongLongInt::operator--(int) {
+    UtlLongLongInt temp = *this;
+    --*this;
+    return temp;
+}
+
 /* ============================ MANIPULATORS ============================== */
 
-LLINT UtlLongLongInt::setValue(LLINT iValue)
+intll UtlLongLongInt::setValue(intll iValue)
 {
-    LLINT iOldValue = mValue ;
+    intll iOldValue = mValue ;
     mValue = iValue ;
 
     return iOldValue ;
@@ -52,7 +80,7 @@ LLINT UtlLongLongInt::setValue(LLINT iValue)
 
 /* ============================ ACCESSORS ================================= */
 
-LLINT UtlLongLongInt::getValue() const 
+intll UtlLongLongInt::getValue() const 
 {
     return mValue ; 
 }
@@ -78,15 +106,15 @@ int UtlLongLongInt::compareTo(UtlContainable const * inVal) const
    if (inVal->isInstanceOf(UtlLongLongInt::TYPE))
     {
         UtlLongLongInt* temp = (UtlLongLongInt*)inVal ; 
-        LLINT inLlint = temp -> getValue() ;
-        if (mValue > inLlint) {
+        intll inIntll = temp -> getValue() ;
+        if (mValue > inIntll) {
         	result = 1 ;
         }
-        else if (mValue == inLlint) {
+        else if (mValue == inIntll) {
         	result = 0 ;
         }
         else {
-        	// mValue < inLlint
+        	// mValue < inIntll
         	result = -1 ;
         }
     }

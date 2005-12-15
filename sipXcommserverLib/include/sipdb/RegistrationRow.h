@@ -40,7 +40,9 @@ public:
     const char* instance_id;
     const char* gruu;
     int4 cseq;
-    int4 expires;           // Absolute expiration time, secs since 1/1/1970
+    int4 expires;             // Absolute expiration time, seconds since 1/1/1970
+    const char* primary;      // The name of the Primary Registrar for this registration
+    db_int8 update_number;    // The DbUpdateNumber of the last modification to this entry
     TYPE_DESCRIPTOR (
       ( KEY(np_identity, INDEXED),
         KEY(callid, HASHED),
@@ -54,9 +56,11 @@ public:
         // be calculated from it.  But it makes debugging a lot easier to log
         // both in registration.xml.
         FIELD(instance_id),
-        FIELD(gruu) )
+        FIELD(gruu),
+        FIELD(primary),
+        FIELD(update_number)
+      )
     );
 };
 
 #endif //REGISTRATIONROW_H
-

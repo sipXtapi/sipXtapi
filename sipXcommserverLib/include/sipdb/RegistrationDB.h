@@ -15,6 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsMutex.h"
+#include "utl/UtlLongLongInt.h"
 #include "utl/UtlString.h"
 
 // DEFINES
@@ -73,6 +74,8 @@ public:
                        ,const int& expires
                        ,const UtlString& instance_id
                        ,const UtlString& gruu
+                       ,const UtlString& primary
+                       ,const intll& update_number
                        );
 
     /// expireAllBindings for this URI as of 1 second before timeNow
@@ -80,6 +83,8 @@ public:
                            ,const UtlString& callid
                            ,const int& cseq
                            ,const int& timeNow
+                           ,const UtlString& primary
+                           ,const intll& update_number
                            );
 
     /// expireOldBindings for this callid and older cseq values.
@@ -87,6 +92,8 @@ public:
                            ,const UtlString& callid
                            ,const int& cseq
                            ,const int& timeNow
+                           ,const UtlString& primary
+                           ,const intll& update_number
                            );
 
     void removeAllRows ();
@@ -119,20 +126,44 @@ public:
     // Singleton and Serialization mutex
     static OsMutex sLockMutex;
 
-    // ResultSet column Keys
+    // ResultSet column Keys ===================================================
+
+    // The AOR of this registration
     static UtlString gUriKey;
+
+    // The Call-ID of the REGISTERs that establish/maintain this registration
     static UtlString gCallidKey;
+
+    // The contact of this registration
     static UtlString gContactKey;
+
+    // Absolute expiration time of this registration, seconds since 1/1/1970
     static UtlString gExpiresKey;
+
+    // The contact of this registration
     static UtlString gCseqKey;
+
+    // The q-value of this registration
     static UtlString gQvalueKey;
+
+    // The +sip.instance value that was provided with the registration, or the null string
     static UtlString gInstanceIdKey;
+
+    // The GRUU that was assigned to this registration, or the null string
     static UtlString gGruuKey;
+
+    // The name of the Primary Registrar for this registration
+    static UtlString gPrimaryKey;
+
+    // The DbUpdateNumber of the last modification to this entry
+    static UtlString gUpdateNumberKey;
+
+    //==========================================================================
 
     // Fast DB instance
     dbDatabase* m_pFastDB;
 
-    // the persistent filename for loading/saving
+    // The persistent filename for loading/saving
     UtlString mDatabaseName;
 
 private:

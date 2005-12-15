@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include <assert.h>
 
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
@@ -944,7 +945,18 @@ SIPDBManager::getFieldValue (
     UtlString& textValue)
 {
     char tempString[100];
+
+    // The only data types that are currently known to work are "char*", "int4",
+    // and "db_int8".  All other data types are likely to be broken, so comment
+    // out that code for now.  If the caller tries to use a broken data type,
+    // log an error and assert(false) rather than silently returning the wrong answer.
+    // In the cases that work, we're using "fd->appOffs" rather than "fd->dbsOffs"
+    // so perhaps we should make this change everywhere.  But that may be wrong,
+    // and would be pointless without a unit test for this method, which we should
+    // implement regardless.
+
     switch (fd->type) {
+/*
     case dbField::tpBool:
         textValue = (char*) (*(bool*)(base + fd->dbsOffs))? "true" : "false";
         break;
@@ -958,39 +970,24 @@ SIPDBManager::getFieldValue (
         sprintf ( tempString, "%d", *(int2*)(base + fd->dbsOffs) );
         textValue = tempString;
         break;
+*/
     case dbField::tpInt4:
-       /* rschaaf (7/15/03):
-        * The following line of code used to read:
-        *   sprintf ( tempString, "%d", *(int4*)(base + fd->dbsOffs) );
-        * This code doesn't fetch the correct value.
-        * I'm reverting this code to the way an earlier revision
-        * worked.  The code for fetching other types of values may also
-        * be wrong, but rather than making wholesale changes to code
-        * that I don't understand and can't test, I'm making the minimal
-        * change required -- the only two types of column values that we
-        * use are "char*" and "int4".  John Coffey had already made a similar
-        * change for the "char*" field type in order to get string value
-        * fetches to work.
-        */
-        sprintf ( tempString, "%d", *(int4*)(base + fd->appOffs /* dbsOffs */) );
+        sprintf ( tempString, "%d", *(int4*)(base + fd->appOffs) );
         textValue = tempString;
         break;
 
     case dbField::tpInt8:
-        sprintf ( tempString, "%ld", *(int8*)(base + fd->dbsOffs) );  // Wrong?
-// ???  sprintf ( tempString,"%lld", *(int8*)(base + fd->dbsOffs) );  // Right?
+        sprintf ( tempString,"%lld", *(int8*)(base + fd->appOffs) );
         textValue = tempString;
         break;
-
+/*
     case dbField::tpReal4:
-        sprintf ( tempString, "%ld", *(real4*)(base + fd->dbsOffs) );  // Wrong?
-// ???  sprintf ( tempString,  "%g", *(real4*)(base + fd->dbsOffs) );  // Right?
+        sprintf ( tempString,  "%g", *(real4*)(base + fd->dbsOffs) );
         textValue = tempString;
         break;
 
     case dbField::tpReal8:
-        sprintf ( tempString, "%ld", *(real8*)(base + fd->dbsOffs) );  // Wrong?
-// ???  sprintf ( tempString,  "%g", *(real8*)(base + fd->dbsOffs) );  // Right?
+        sprintf ( tempString,  "%g", *(real8*)(base + fd->dbsOffs) );
         textValue = tempString;
         break;
 
@@ -1000,12 +997,16 @@ SIPDBManager::getFieldValue (
             memcpy(tempString, base + fd->dbsOffs, fd->dbsSize);
         }
         break;
-
+*/
     case dbField::tpString:
-        textValue = *(char**)(base + fd->appOffs /* dbsOffs */);
+        textValue = *(char**)(base + fd->appOffs);
         break;
 
     default:
+        OsSysLog::add(FAC_DB, PRI_ERR, 
+                      "SIPDBManager::getFieldValue - "
+                      "ERROR unsupported data type: %d", fd->type);
+        assert(false);
         break;
     }
 }

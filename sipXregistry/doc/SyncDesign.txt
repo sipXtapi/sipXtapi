@@ -19,7 +19,7 @@ Table of Contents
        5.3.1.  Additional DB Columns  . . . . . . . . . . . . . . . .  8
        5.3.2.  Overall DB Structure . . . . . . . . . . . . . . . . .  8
      5.4.  Thread Structure and Locking . . . . . . . . . . . . . . .  9
-     5.5.  Primary and Secondary Registrars . . . . . . . . . . . . .  9
+     5.5.  Primary and Secondary Registrars . . . . . . . . . . . . . 10
      5.6.  Processing . . . . . . . . . . . . . . . . . . . . . . . . 10
        5.6.1.  RegisterServer -- Register Message Processing  . . . . 10
        5.6.2.  RegisterSync -- Sending Updates to the Peer Server . . 11
@@ -301,10 +301,13 @@ Lawrence, et al.                                                [Page 5]
 
 5.1.  Configuration
 
-   An HA Registrar has two additional configuration parameters:
-   SIP_REGISTRAR_SYNC_WITH The host name of the other registrar to sync
-      to. ( _In future versions, this may allow a comma-separated list
-      of Servers._)
+   An HA Registrar has three additional configuration parameters:
+   SIP_REGISTRAR_NAME The name of this registrar -- fully qualified host
+      name, to ensure uniqueness.
+   SIP_REGISTRAR_SYNC_WITH Comma-delimited list of fully qualified host
+      names of peer registrars to sync with.  May include the name of
+      this registrar to allow all registrars to be configured with the
+      same peer list.
    SIP_REGISTRAR_XMLRPC_PORT The port number used by all Servers to
       listen for XML-RPC registry synchronization requests.
 
@@ -322,13 +325,10 @@ Lawrence, et al.                                                [Page 5]
 
    DbUpdateNumber is a positive, signed, 64-bit number composed of two
    parts:
-   base time The "base time" component in the upper half of
-      DbUpdateNumber is a Unix time value, the number of seconds since
-      00:00 GMT, 1 January 1970.  It is the time at which the registrar
-      last initialized the counter component.  Since all Servers are
-      expected to have reliable, NTP-synchronized clocks, base times
-      created by a Service always increase.  Since initializations of
-      the update number are expected to be rare, all base times in a
+
+
+
+
 
 
 
@@ -337,6 +337,13 @@ Lawrence, et al.                                                [Page 6]
                                sipXpbx HA                  December 2005
 
 
+   base time The "base time" component in the upper half of
+      DbUpdateNumber is a Unix time value, the number of seconds since
+      00:00 GMT, 1 January 1970.  It is the time at which the registrar
+      last initialized the counter component.  Since all Servers are
+      expected to have reliable, NTP-synchronized clocks, base times
+      created by a Service always increase.  Since initializations of
+      the update number are expected to be rare, all base times in a
       system are unique.  The base time is a 32-bit, positive, signed
       integer.
    counter The "counter" component in the bottom half of DbUpdateNumber
@@ -378,13 +385,6 @@ Lawrence, et al.                                                [Page 6]
    For a given registrar, DbUpdateNumbers for registrations that it
    handles as the primary registrar are referred to as "local".
    DbUpdateNumbers for registrations handled by other registrars and
-   received via updates are referred to "peer".
-   PeerReceivedDbUpdateNumber The largest DbUpdateNumber received from
-      the peer.
-
-
-
-
 
 
 
@@ -393,6 +393,9 @@ Lawrence, et al.                                                [Page 7]
                                sipXpbx HA                  December 2005
 
 
+   received via updates are referred to "peer".
+   PeerReceivedDbUpdateNumber The largest DbUpdateNumber received from
+      the peer.
    PeerSentDbUpdateNumber The largest DbUpdateNumber sent to the peer.
 
    The registrar service maintains additional state that is not
@@ -438,9 +441,6 @@ Lawrence, et al.                                                [Page 7]
    When a registration is to be expired in advance of its previously
    scheduled expiration time (due to the processing of some REGISTER
    message), its DB entry is modified by reducing its expiration time to
-   one second before the current time.
-
-   Each entry contains the following fields.  (The fields for GRUU
 
 
 
@@ -449,6 +449,9 @@ Lawrence, et al.                                                [Page 8]
                                sipXpbx HA                  December 2005
 
 
+   one second before the current time.
+
+   Each entry contains the following fields.  (The fields for GRUU
    support are not listed, but they do not affect any of the replication
    algorithms.)
    uri The AOR of this registration.
@@ -456,13 +459,14 @@ Lawrence, et al.                                                [Page 8]
    qvalue The q-value of this registration.
    callid The Call-ID of the REGISTERs that establish/maintain this
       registration.
+   expires Expiration time for this registration.
    cseq The largest CSeq seen for REGISTERs for this registration.
    instance_id The "+sip.instance" value that was provided with the
       registration, or the null string.
    gruu The GRUU that was assigned to this registration, or the null
       string.
    primary The name of the Primary Registrar for this registration.
-   update_number The DbUpdateNumber of the last modification of this
+   update_number The DbUpdateNumber of the last modification to this
       entry.
 
 5.4.  Thread Structure and Locking
@@ -494,10 +498,6 @@ Lawrence, et al.                                                [Page 8]
    reads from it by the redirect service; the FastDB ensures sufficient
    integrity that none is needed. _
 
-5.5.  Primary and Secondary Registrars
-
-   Every registrar has a unique name, known by all registrars, which
-
 
 
 Lawrence, et al.                                                [Page 9]
@@ -505,6 +505,9 @@ Lawrence, et al.                                                [Page 9]
                                sipXpbx HA                  December 2005
 
 
+5.5.  Primary and Secondary Registrars
+
+   Every registrar has a unique name, known by all registrars, which
    will usually be its host name.  Every REGISTER is processed by the
    registrar that first receives it, which is called the Primary
    Registrar for the REGISTER, and the Primary Registrar is said to
@@ -550,9 +553,6 @@ Lawrence, et al.                                                [Page 9]
 5.6.1.  RegisterServer -- Register Message Processing
 
    When a REGISTER message has been determined to be valid, the local DB
-   update number is incremented, and the changes are applied to the
-   local registry database.  The local DbUpdateNumber is recorded in
-   each updated row in the registry database.  The SipRegistrarServer
 
 
 
@@ -561,6 +561,9 @@ Lawrence, et al.                                               [Page 10]
                                sipXpbx HA                  December 2005
 
 
+   update number is incremented, and the changes are applied to the
+   local registry database.  The local DbUpdateNumber is recorded in
+   each updated row in the registry database.  The SipRegistrarServer
    thread then sends a PushRegistryUpdate OsMessage to the RegisterSync
    thread to trigger replication to the peer registrar.
 
@@ -607,9 +610,6 @@ Lawrence, et al.                                               [Page 10]
    which it is the Primary Registrar and which have not been propagated
    to the peer registrar.
 
-   First, RegisterSync checks the peer state: If PeerReachable is
-   "false", it immediately terminates processing the PushRegistryUpdate
-
 
 
 Lawrence, et al.                                               [Page 11]
@@ -617,6 +617,8 @@ Lawrence, et al.                                               [Page 11]
                                sipXpbx HA                  December 2005
 
 
+   First, RegisterSync checks the peer state: If PeerReachable is
+   "false", it immediately terminates processing the PushRegistryUpdate
    message.  (The updates that need to be sent will be sent when
    RegisterTest detects that the peer registry is reachable.)
 
@@ -663,8 +665,6 @@ Lawrence, et al.                                               [Page 11]
    since a lost response will cause the update to be re-sent.
 
    On any registrySync.pushUpdates failure, the client sets its
-   PeerReachable value to "false", and sends a PeerUnReachable OsMessage
-   to the RegisterTest thread.
 
 
 
@@ -672,6 +672,9 @@ Lawrence, et al.                                               [Page 12]
 
                                sipXpbx HA                  December 2005
 
+
+   PeerReachable value to "false", and sends a PeerUnReachable OsMessage
+   to the RegisterTest thread.
 
 5.6.2.2.  registrySync.pushUpdates method
 
@@ -719,9 +722,6 @@ Lawrence, et al.                                               [Page 12]
 
         none
 
-   TBD -- The intent of return values was to inform the caller that
-   there were unpropagated updates, but I'm not sure that there is
-
 
 
 Lawrence, et al.                                               [Page 13]
@@ -729,6 +729,8 @@ Lawrence, et al.                                               [Page 13]
                                sipXpbx HA                  December 2005
 
 
+   TBD -- The intent of return values was to inform the caller that
+   there were unpropagated updates, but I'm not sure that there is
    anything the caller would actually do with that information, so
    perhaps this should just return the value of DbUpdateNumber passed in
    the transaction (as an acknowledgment).
@@ -764,8 +766,6 @@ Lawrence, et al.                                               [Page 13]
                                     update numbers greater than update_number
 
    Outputs:
-
-
 
 
 
@@ -934,17 +934,17 @@ Lawrence, et al.                                               [Page 16]
    set to a new epoch/0 value.  If the epoch/0 value is set initially,
    it will block pulling updates from other registrars.
 
-   We might want to always initialize Last Update Number to epoch/0
-   after startup, so we can always distinguish the various series of
-   updates in the databases.
+   After startup, change the Last Update Number to epoch/0 because
+   otherwise, in the case where we have lost some of our own updates due
+   to the restart (we sent them out but were not able to persist them),
+   we could end up generating new updates with update numbers that
+   duplicate the update numbers of those lost updates.
 
 5.7.  XML-RPC Security
 
    Registry synchronization requests require that the RPC connection be
    SSL-authenticated as coming from a Server in the same SIP domain.
 
-   * Initially, all synchronized Servers will use the same key and
-   certificate. *
 
 
 
@@ -952,6 +952,9 @@ Lawrence, et al.                                               [Page 17]
 
                                sipXpbx HA                  December 2005
 
+
+   * Initially, all synchronized Servers will use the same key and
+   certificate. *
 
 5.8.  HTTP Persistent Connections
 
@@ -975,9 +978,6 @@ Lawrence, et al.                                               [Page 17]
    _At this time, the plan is to not change how the Record-Route is
    constructed (continue using the IP address rather than use the SRV
    name)._
-
-
-
 
 
 

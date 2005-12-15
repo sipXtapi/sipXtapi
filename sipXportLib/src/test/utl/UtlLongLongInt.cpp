@@ -32,32 +32,33 @@ class UtlLongLongIntTests : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE(UtlLongLongIntTests);
     CPPUNIT_TEST(testConstructor) ; 
     CPPUNIT_TEST(testCompareTo) ; 
-    CPPUNIT_TEST(testCompareTo_NonLlint) ; 
+    CPPUNIT_TEST(testCompareTo_NonIntll) ; 
     CPPUNIT_TEST(testEquals) ; 
-    CPPUNIT_TEST(testEquals_NonLlint) ; 
+    CPPUNIT_TEST(testEquals_NonIntll) ; 
     CPPUNIT_TEST(testSetValue) ; 
     CPPUNIT_TEST(testGetContainableType) ; 
+    CPPUNIT_TEST(testOperators) ; 
     CPPUNIT_TEST_SUITE_END();
 
 private:
 
-    struct BasicLlintVerifier 
+    struct BasicIntllVerifier 
     {
         const char* message ; 
-        LLINT input ; 
-        LLINT expectedValue ; 
+        intll input ; 
+        intll expectedValue ; 
     } ;
     
-    static const LLINT llint_Zero ;
-    static const LLINT llint_Positive ;
-    static const LLINT llint_Negative ;
+    static const intll llint_Zero ;
+    static const intll llint_Positive ;
+    static const intll llint_Negative ;
     //LLONG_MAX
     //LLONG_MIN
     static const int INDEX_NOT_FOUND  ; 
     // An indication that the test should be ignored. 
     static const int IGNORE_TEST ; 
     
-    static const BasicLlintVerifier commonTestSet[] ; 
+    static const BasicIntllVerifier commonTestSet[] ; 
     static const int commonTestSetLength ; 
 
     enum EqualOrCompareTest { TEST_EQUAL, TEST_COMPARE } ;
@@ -103,9 +104,9 @@ public:
     void testConstructor()
     {
         // First test the default constructor
-        UtlLongLongInt testLlint ; 
+        UtlLongLongInt testIntll ; 
         const char* msg0 = "Test the default constructor" ; 
-        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg0, 0LL, testLlint.getValue()) ; 
+        CPPUNIT_ASSERT_EQUAL_MESSAGE(msg0, 0LL, testIntll.getValue()) ; 
 
         // Now test the single argument constructor for each of 
         // the common test data type
@@ -114,8 +115,8 @@ public:
         { 
             string msg ;
             TestUtilities::createMessage(2, &msg, prefix, commonTestSet[i].message) ; 
-            UtlLongLongInt testLlint(commonTestSet[i].input) ; 
-            LLINT actualValue = testLlint.getValue() ; 
+            UtlLongLongInt testIntll(commonTestSet[i].input) ; 
+            intll actualValue = testIntll.getValue() ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), commonTestSet[i].expectedValue, actualValue) ; 
         }
     }
@@ -162,10 +163,10 @@ public:
         struct compareToData
         { 
             const char* message ; // Description about the type of test data
-            LLINT baseValue ; // The value of the test UtlLongLongInt
-            LLINT equalToBase ;  // A Long Long Integer that is equal to the base value
-            LLINT greaterThanBase ; // Long Long Integer that is greater than the base value  
-            LLINT lessThanBase ;  // Long Long Integer that is less than the base value
+            intll baseValue ; // The value of the test UtlLongLongInt
+            intll equalToBase ;  // A Long Long Integer that is equal to the base value
+            intll greaterThanBase ; // Long Long Integer that is greater than the base value  
+            intll lessThanBase ;  // Long Long Integer that is less than the base value
         } ; 
         const compareToData testData[] = { \
             { "zero", 0, 0, 10, -10 }, \
@@ -175,14 +176,14 @@ public:
             { "integer at its minimum allowed value", LLONG_MIN, LLONG_MIN, LLONG_MIN+10, IGNORE_TEST } 
         } ; 
         const int testCount = sizeof(testData)/sizeof(testData[0]) ; 
-        LLINT expectedForEquals = 0 ;
-        LLINT expectedForGreaterThan = 1 ; 
-        LLINT expectedForLessThan = -1 ; 
+        intll expectedForEquals = 0 ;
+        intll expectedForGreaterThan = 1 ; 
+        intll expectedForLessThan = -1 ; 
         
         // Loop to iterate through the array of test data. 
         for (int i = 0 ; i < testCount ; i++)
         {            
-            UtlLongLongInt testLlint(testData[i].baseValue) ; 
+            UtlLongLongInt testIntll(testData[i].baseValue) ; 
             UtlLongLongInt llintForCompare ; 
 
             // -------------------------------------------------------------------------
@@ -192,12 +193,12 @@ public:
                                              testData[i].message, suffix1) ; 
             if (testType == TEST_COMPARE) 
             {
-                LLINT actual = testLlint.compareTo(&llintForCompare) ;  
+                intll actual = testIntll.compareTo(&llintForCompare) ;  
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedForEquals, actual) ; 
             }
             else if (testType == TEST_EQUAL) 
             {
-                UtlBoolean actual = testLlint.isEqual(&llintForCompare) ; 
+                UtlBoolean actual = testIntll.isEqual(&llintForCompare) ; 
                 CPPUNIT_ASSERT_MESSAGE(msg.data(), actual) ; 
             }
             // -------------------------------------------------------------------------
@@ -214,12 +215,12 @@ public:
                                              testData[i].message, suffix2) ; 
                 if (testType == TEST_COMPARE) 
                 {
-                    LLINT actual = testLlint.compareTo(&llintForCompare) ; 
+                    intll actual = testIntll.compareTo(&llintForCompare) ; 
                     CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedForGreaterThan, actual)  ; 
                 }
                 else if (testType == TEST_EQUAL) 
                 {
-                    UtlBoolean actual = testLlint.isEqual(&llintForCompare) ; 
+                    UtlBoolean actual = testIntll.isEqual(&llintForCompare) ; 
                     CPPUNIT_ASSERT_MESSAGE(msg.data(), !actual) ; 
                 }
             }
@@ -237,12 +238,12 @@ public:
                                              testData[i].message, suffix3) ; 
                 if (testType == TEST_COMPARE) 
                 {
-                    LLINT actual = testLlint.compareTo(&llintForCompare) ; 
+                    intll actual = testIntll.compareTo(&llintForCompare) ; 
                     CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedForLessThan, actual) ;
                 }
                 else if (testType == TEST_EQUAL) 
                 {
-                    UtlBoolean actual = testLlint.isEqual(&llintForCompare) ; 
+                    UtlBoolean actual = testIntll.isEqual(&llintForCompare) ; 
                     CPPUNIT_ASSERT_MESSAGE(msg.data(), !actual) ; 
                 }
             }
@@ -253,11 +254,11 @@ public:
     /*!a Test the compareTo method when a non-UtlLongLongInt is passed. 
     *    
     */
-    void testCompareTo_NonLlint()
+    void testCompareTo_NonIntll()
     {
         UtlString testUtlString("Test String") ; 
         UtlLongLongInt testUtlLongLongInt(LLONG_MAX) ; 
-        LLINT actual = testUtlLongLongInt.compareTo(&testUtlString) ; 
+        intll actual = testUtlLongLongInt.compareTo(&testUtlString) ; 
         // If a collectable is *NOT* an Integer, then the only thing that is predictible is
         // that this is not equal to the argument
         CPPUNIT_ASSERT_MESSAGE( "Compare a Long Long Integer with a String ", (actual != 0 )) ; 
@@ -266,7 +267,7 @@ public:
     /*!a Test the Equals Method when the argument passed is not a UtlLongLongInt
     *
     */
-    void testEquals_NonLlint()
+    void testEquals_NonIntll()
     {
         const char* prefix = "Test the isEquals(UtlContainable other) for an Integer whose " \
                              "value is " ; 
@@ -275,14 +276,14 @@ public:
         UtlString testString("This is a test string") ;
         for (int i = 0 ; i < commonTestSetLength; i++)
         {
-            UtlLongLongInt testLlint(commonTestSet[i].input) ; 
+            UtlLongLongInt testIntll(commonTestSet[i].input) ; 
             string msg ; 
-            UtlBoolean isEqual = testLlint.isEqual(&testString);
+            UtlBoolean isEqual = testIntll.isEqual(&testString);
             TestUtilities::createMessage(3, &msg, prefix, commonTestSet[i].message, suffix) ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), (UtlBoolean)false, isEqual) ;  
         }
 
-    } //testEquals_NonLlint
+    } //testEquals_NonIntll
     
     /*!a Test the setValue(llint) method. 
     * 
@@ -306,10 +307,10 @@ public:
             // for any given type of llint
             for (int j = 0 ; j < commonTestSetLength ; j++)
             {
-                UtlLongLongInt baseLlint(commonTestSet[i].input) ; 
+                UtlLongLongInt baseIntll(commonTestSet[i].input) ; 
 
-                LLINT oldActualValue = baseLlint.setValue(commonTestSet[j].input) ; 
-                LLINT newActualValue = baseLlint.getValue() ; 
+                intll oldActualValue = baseIntll.setValue(commonTestSet[j].input) ; 
+                intll newActualValue = baseIntll.getValue() ; 
                 
                 // Verify that the return value = previous value
                 TestUtilities::createMessage(5, &msg, prefix, commonTestSet[i].message, \
@@ -340,21 +341,34 @@ public:
         string msg ; 
         for (int i = 0 ; i < commonTestSetLength; i++)
         {
-            UtlLongLongInt testLlint(commonTestSet[i].input) ; 
-            UtlContainableType actual = testLlint.getContainableType() ; 
+            UtlLongLongInt testIntll(commonTestSet[i].input) ; 
+            UtlContainableType actual = testIntll.getContainableType() ; 
             TestUtilities::createMessage(2, &msg, prefix, commonTestSet[i].message) ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), string("UtlLongLongInt"), \
                                       string(actual)) ; 
         }
     } //testGetContainableType
+
+    void testOperators()
+    {
+        UtlLongLongInt testIntll(1);
+        CPPUNIT_ASSERT((++testIntll).getValue() == 2);
+        CPPUNIT_ASSERT((testIntll++).getValue() == 2);
+        CPPUNIT_ASSERT((--testIntll).getValue() == 2);
+        CPPUNIT_ASSERT((testIntll--).getValue() == 2);
+
+        // test conversion operator
+        UtlLongLongInt testIntll2(LLONG_MAX);
+        CPPUNIT_ASSERT(testIntll2 == LLONG_MAX);
+    } //testOperators
 };
 
 
 // ------------------- Static constant initializers -------------------------
-const LLINT UtlLongLongIntTests::llint_Zero = 0LL ;
-const LLINT UtlLongLongIntTests::llint_Positive = 101LL ;
-const LLINT UtlLongLongIntTests::llint_Negative = -51LL ;
-const UtlLongLongIntTests::BasicLlintVerifier \
+const intll UtlLongLongIntTests::llint_Zero = 0LL ;
+const intll UtlLongLongIntTests::llint_Positive = 101LL ;
+const intll UtlLongLongIntTests::llint_Negative = -51LL ;
+const UtlLongLongIntTests::BasicIntllVerifier \
       UtlLongLongIntTests::commonTestSet[]  = { \
          {"Zero", llint_Zero, llint_Zero},  \
          {"Positive Long Long Integer", llint_Positive, llint_Positive}, \

@@ -344,12 +344,14 @@
         registrar architecture. </t>
       
       <section title='Configuration'>
-        <t> An HA Registrar has two additional configuration parameters: </t>
+        <t> An HA Registrar has three additional configuration parameters: </t>
         <list style='hanging'>
-          <t hangText='SIP_REGISTRAR_SYNC_WITH'> The host name of the other registrar to
-            sync to. (
-            <spanx style='emph'>In future versions, this may allow a comma-separated list
-              of Servers.</spanx>) </t>
+          <t hangText='SIP_REGISTRAR_NAME'> The name of this registrar -- fully
+            qualified host name, to ensure uniqueness.</t>
+          <t hangText='SIP_REGISTRAR_SYNC_WITH'> Comma-delimited list of fully qualified
+            host names of peer registrars to sync with.
+            May include the name of this registrar to allow
+            all registrars to be configured with the same peer list.</t>
           <t hangText='SIP_REGISTRAR_XMLRPC_PORT'> The port number used by all Servers to
             listen for XML-RPC registry synchronization requests. </t>
         </list>
@@ -484,6 +486,7 @@
             <t hangText='qvalue'> The q-value of this registration. </t>
             <t hangText='callid'> The Call-ID of the REGISTERs that establish/maintain
               this registration. </t>
+            <t hangText='expires'> Expiration time for this registration. </t>
             <t hangText='cseq'> The largest CSeq seen for REGISTERs for this registration.
               </t>
             <t hangText='instance_id'> The
@@ -493,7 +496,7 @@
               string. </t>
             <t hangText='primary'> The name of the Primary Registrar for this
               registration. </t>
-            <t hangText='update_number'> The DbUpdateNumber of the last modification of this
+            <t hangText='update_number'> The DbUpdateNumber of the last modification to this
               entry. </t>
           </list>
         </section>
@@ -923,9 +926,12 @@ recovered, it should be initialized to 0/0.  Only once startup is done
 should it be set to a new epoch/0 value.  If the epoch/0 value is set
 initially, it will block pulling updates from other registrars.</t>
 
-<t>We might want to always initialize Last Update Number to epoch/0 after
-startup, so we can always distinguish the various series of updates in
-the databases.</t>
+<t>After startup, change the Last Update Number to epoch/0
+because otherwise, in the case where we have lost some of our own
+updates due to the restart (we sent them out but were not able to persist them),
+we could end up generating new updates
+with update numbers that duplicate the update numbers of those lost
+updates.</t>
 
         </section>
         

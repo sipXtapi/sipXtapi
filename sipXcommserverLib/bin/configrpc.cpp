@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
             {
                if (Verbose == Feedback)
                {
-                  printf("set %ld name/value pairs.\n", numberSet->getValue());
+                  printf("set %d name/value pairs.\n", numberSet->getValue());
                }
             }
             else
@@ -367,7 +367,7 @@ int main(int argc, char* argv[])
             {
                if (Verbose == Feedback)
                {
-                  printf("deleted %ld parameters.\n", deletedCount->getValue());
+                  printf("deleted %d parameters.\n", deletedCount->getValue());
                }
             }
             else

@@ -65,19 +65,22 @@ static UtlString gQvalueKey("qvalue");
 static UtlString gInstanceIdKey("instance_id");
 static UtlString gGruuKey("gruu");
 
+const UtlString SipRegistrarServer::gDummyLocalRegistrarName("dummy.somewhere.com");
+
 SipRegistrarServer::SipRegistrarServer() :
     OsServerTask("SipRegistrarServer", NULL, 2000),
     mIsStarted(FALSE),
     mSipUserAgent(NULL),
     mDefaultRegistryPeriod(3600),
-    mNonceExpiration(5*60)
+    mNonceExpiration(5*60),
+    mDbUpdateNumber(0)
 {
     // Set up a periodic timer for nonce garbage collection
     OsMsgQ* queue = getMessageQueue();
     OsQueuedEvent* queuedEvent = new OsQueuedEvent(*queue, 0);
     OsTimer* timer = new OsTimer(*queuedEvent);
     // Once a minute
-    OsTime lapseTime(60,0);
+    OsTime lapseTime(60, 0);
     timer->periodicEvery(lapseTime, lapseTime);
 }
 
@@ -405,6 +408,12 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
             {
                int spreadExpirationTime = 0;
 
+               // Increment the update number so as to assign a single fresh update
+               // number to all the database changes we're about to make.  In some
+               // cases we might not actually make any changes.  That's OK, having
+               // an update number with no associated changes won't break anything.
+               mDbUpdateNumber++;
+
                 if ( removeAll )
                 {
                     // Contact: * special case
@@ -418,6 +427,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         imdb->expireAllBindings( toUrl
                                                 ,registerCallidStr, registerCseqInt
                                                 ,timeNow
+                                                ,gDummyLocalRegistrarName
+                                                ,mDbUpdateNumber
                                                 );
                     }
                     else
@@ -517,13 +528,17 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                 ,expirationTime
                                                 ,instance_id
                                                 ,gruu
+                                                ,gDummyLocalRegistrarName
+                                                ,mDbUpdateNumber
                                                 );
 
                         } // iterate over good contact entries
 
                         // If there were any bindings not dealt with explicitly in this
                         // message that used the same callid, then expire them.
-                        imdb->expireOldBindings( toUrl, registerCallidStr, registerCseqInt, timeNow );
+                        imdb->expireOldBindings( toUrl, registerCallidStr, registerCseqInt, 
+                                                 timeNow, gDummyLocalRegistrarName,
+                                                 mDbUpdateNumber );
                     }
                     else
                     {
@@ -545,7 +560,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     // give each RegisterPlugin a chance to do its thing
                     PluginIterator plugins(*mpSipRegisterPlugins);
                     RegisterPlugin* plugin;
-                    while(plugin = static_cast<RegisterPlugin*>(plugins.next()))
+                    while ((plugin = static_cast<RegisterPlugin*>(plugins.next())))
                     {
                        plugin->takeAction(registerMessage, spreadExpirationTime, mSipUserAgent );
                     }

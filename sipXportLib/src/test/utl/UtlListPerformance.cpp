@@ -155,7 +155,7 @@ void doListOperations()
    // iterate over each item in the list
    UtlSListIterator iterate(testList);
    UtlString* item;
-   while (item = dynamic_cast<UtlString*>(iterate()))
+   while ((item = dynamic_cast<UtlString*>(iterate())))
    {
       externalForSideEffects = item->length();
       delete item;

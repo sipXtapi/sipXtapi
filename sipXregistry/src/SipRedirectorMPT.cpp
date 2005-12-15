@@ -168,7 +168,7 @@ void SipRedirectorMPT::loadMappings(UtlString* file_name,
           mMapLock.acquire();
 
           for (TiXmlNode* mapNode = NULL;
-               mapNode = MPTNode->IterateChildren("map", mapNode);
+               (mapNode = MPTNode->IterateChildren("map", mapNode));
              )
           {
              // Carefully get the <user> and <content> text.
@@ -281,7 +281,7 @@ void SipRedirectorMPT::writeMappings(UtlString* file_name,
       fprintf(f, "<MPT>\n");
       UtlHashMapIterator itor(*mapUserToContacts);
       UtlContainable* c;
-      while (c = itor())
+      while ((c = itor()))
       {
          UtlString* k = dynamic_cast<UtlString*> (c);
          UtlString k_escaped;

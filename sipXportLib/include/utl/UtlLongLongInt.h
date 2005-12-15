@@ -18,8 +18,6 @@
 // DEFINES
 // MACROS
 
-#define LLINT long long int
-
 // Borrow this from the gcc include file "limits.h".
 // LLONG_MIN and LLONG_MAX are defined by the ISO C99 standard but not by C++
 // LONG_LONG_MIN and LONG_LONG_MAX are defined by gcc.
@@ -52,12 +50,25 @@ public:
     /**
      * Constructor accepting an optional default value.
      */
-    UtlLongLongInt(LLINT initialValue = 0) ;
+    UtlLongLongInt(intll initialValue = 0) ;
       
     /**
      * Destructor
      */
     virtual ~UtlLongLongInt();
+
+/* ============================ OPERATORS ============================== */
+
+    // Declare prefix and postfix increment operators.
+    UtlLongLongInt& operator++();       // Prefix increment operator
+    UtlLongLongInt operator++(int);     // Postfix increment operator
+
+    // Declare prefix and postfix decrement operators.
+    UtlLongLongInt& operator--();       // Prefix decrement operator
+    UtlLongLongInt operator--(int);     // Postfix decrement operator
+
+    // Conversion to long long int
+    operator intll() { return mValue; }
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -66,14 +77,14 @@ public:
      *
      * @returns the old value
      */
-    LLINT setValue(LLINT iValue) ;
+    intll setValue(intll iValue) ;
 
 /* ============================ ACCESSORS ================================= */
 
     /**
      * Get the long long int wrapped by this object.
      */
-    LLINT getValue() const ;    
+    intll getValue() const ;    
 
     /**
      * Calculate a unique hash code for this object.  If the equals
@@ -110,7 +121,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    LLINT mValue ;    /** < The long long int wrapped by this object */ 
+    intll mValue ;    /** < The long long int wrapped by this object */ 
 
 } ;
 

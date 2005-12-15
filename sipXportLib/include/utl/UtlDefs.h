@@ -34,6 +34,7 @@
 // STRUCTS
 // TYPEDEFS
 typedef int UtlBoolean ;
+typedef long long int intll;
 typedef const char* const UtlContainableType ;
 
 // FORWARD DECLARATIONS

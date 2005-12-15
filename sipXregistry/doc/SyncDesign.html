@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Thu, 08 Dec 2005 03:05:32 +0000">
+<meta http-equiv="Expires" content="Wed, 14 Dec 2005 22:59:34 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -520,14 +520,18 @@ Authors' Addresses<br />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.5.1"></a><h3>5.1.&nbsp;Configuration</h3>
 
-<p> An HA Registrar has two additional configuration parameters: 
+<p> An HA Registrar has three additional configuration parameters: 
 </p>
 <blockquote class="text"><dl>
+<dt>SIP_REGISTRAR_NAME</dt>
+<dd> The name of this registrar -- fully
+            qualified host name, to ensure uniqueness.
+</dd>
 <dt>SIP_REGISTRAR_SYNC_WITH</dt>
-<dd> The host name of the other registrar to
-            sync to. (
-            <span class="emph">In future versions, this may allow a comma-separated list
-              of Servers.</span>) 
+<dd> Comma-delimited list of fully qualified
+            host names of peer registrars to sync with.
+            May include the name of this registrar to allow
+            all registrars to be configured with the same peer list.
 </dd>
 <dt>SIP_REGISTRAR_XMLRPC_PORT</dt>
 <dd> The port number used by all Servers to
@@ -691,6 +695,9 @@ Authors' Addresses<br />
 <dd> The Call-ID of the REGISTERs that establish/maintain
               this registration. 
 </dd>
+<dt>expires</dt>
+<dd> Expiration time for this registration. 
+</dd>
 <dt>cseq</dt>
 <dd> The largest CSeq seen for REGISTERs for this registration.
               
@@ -709,7 +716,7 @@ Authors' Addresses<br />
               registration. 
 </dd>
 <dt>update_number</dt>
-<dd> The DbUpdateNumber of the last modification of this
+<dd> The DbUpdateNumber of the last modification to this
               entry. 
 </dd>
 </dl></blockquote>
@@ -1146,9 +1153,12 @@ recovered, it should be initialized to 0/0.  Only once startup is done
 should it be set to a new epoch/0 value.  If the epoch/0 value is set
 initially, it will block pulling updates from other registrars.
 </p>
-<p>We might want to always initialize Last Update Number to epoch/0 after
-startup, so we can always distinguish the various series of updates in
-the databases.
+<p>After startup, change the Last Update Number to epoch/0
+because otherwise, in the case where we have lost some of our own
+updates due to the restart (we sent them out but were not able to persist them),
+we could end up generating new updates
+with update numbers that duplicate the update numbers of those lost
+updates.
 </p>
 <a name="xmlrpcsec"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
