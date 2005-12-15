@@ -61,6 +61,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
     private SipxReplicationContext m_sipxReplicationContext;
+    private String m_scriptsDirectory;
 
     /**
      * Loads dial plan, creates a new one if none exist
@@ -165,6 +166,11 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public List getGenerationRules() {
         DialPlan dialPlan = getDialPlan();
         return dialPlan.getGenerationRules();
+    }
+    
+    public List getAttendantRules() {
+        DialPlan dialPlan = getDialPlan();
+        return dialPlan.getAttendantRules();
     }
 
     /**
@@ -288,7 +294,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     public void activateDialPlan() {
         ConfigGenerator generator = getGenerator();
-        generator.activate(m_sipxReplicationContext);
+        generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
     }
 
     public void applyEmergencyRouting() {
@@ -343,6 +349,10 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
 
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
+    }
+    
+    public void setScriptsDirectory(String scriptsDirectory) {
+        m_scriptsDirectory = scriptsDirectory;
     }
 
     public void onApplicationEvent(ApplicationEvent event) {

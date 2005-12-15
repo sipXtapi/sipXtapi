@@ -17,6 +17,7 @@ import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -204,6 +205,8 @@ public class MappingRulesTest extends XMLTestCase {
         DialPlanContext plan = (DialPlanContext) controlPlan.getMock();
         plan.getGenerationRules();
         controlPlan.setReturnValue(rules);
+        plan.getAttendantRules();
+        controlPlan.setReturnValue(Collections.EMPTY_LIST);
         controlPlan.replay();
 
         ConfigGenerator generator = new ConfigGenerator();

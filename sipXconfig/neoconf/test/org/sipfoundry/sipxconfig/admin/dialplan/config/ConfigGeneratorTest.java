@@ -19,6 +19,7 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 
@@ -31,28 +32,30 @@ public class ConfigGeneratorTest extends XMLTestCase {
     }
 
     public void testGetFileContent() throws Exception {
-        MockControl controlPlan = MockControl.createStrictControl(DialPlanContext.class);
-        DialPlanContext empty = (DialPlanContext) controlPlan.getMock();
+        MockControl planCtrl = MockControl.createStrictControl(DialPlanContext.class);
+        DialPlanContext empty = (DialPlanContext) planCtrl.getMock();
         empty.getGenerationRules();
-        controlPlan.setReturnValue(Collections.EMPTY_LIST);
-        controlPlan.replay();
+        planCtrl.setReturnValue(Collections.EMPTY_LIST);
+        empty.getAttendantRules();
+        planCtrl.setReturnValue(Collections.EMPTY_LIST);
+        planCtrl.replay();
 
         EmergencyRouting er = new EmergencyRouting();
 
         ConfigGenerator generator = new ConfigGenerator();
         generator.generate(er);
         generator.generate(empty);
-        
+
         AuthRules authRules = new AuthRules();
         authRules.begin();
         checkConfigFileGeneration(generator, authRules, ConfigFileType.AUTH_RULES);
         MappingRules mappingRules = new MappingRules();
         mappingRules.begin();
-        checkConfigFileGeneration(generator, mappingRules, ConfigFileType.MAPPING_RULES);        
+        checkConfigFileGeneration(generator, mappingRules, ConfigFileType.MAPPING_RULES);
         FallbackRules fallbackRules = new FallbackRules();
         fallbackRules.begin();
         checkConfigFileGeneration(generator, fallbackRules, ConfigFileType.FALLBACK_RULES);
-        controlPlan.verify();
+        planCtrl.verify();
     }
 
     /**
@@ -66,27 +69,5 @@ public class ConfigGeneratorTest extends XMLTestCase {
         document.write(writer);
         String xml = generator.getFileContent(type);
         assertXMLEqual("Comparing: " + type, writer.getBuffer().toString(), xml);
-    }
-
-    public void testActivate() throws Exception {
-        MockControl repCtrl = MockControl.createControl(SipxReplicationContext.class);
-        SipxReplicationContext rep = (SipxReplicationContext) repCtrl.getMock();
-        rep.replicate(new MappingRules());
-        rep.replicate(new FallbackRules());
-        rep.replicate(new AuthRules());
-        repCtrl.replay();
-
-        MockControl planCtrl = MockControl.createStrictControl(DialPlanContext.class);
-        DialPlanContext empty = (DialPlanContext) planCtrl.getMock();
-        empty.getGenerationRules();
-        planCtrl.setReturnValue(Collections.EMPTY_LIST);
-        planCtrl.replay();
-
-        ConfigGenerator generator = new ConfigGenerator();
-        generator.generate(empty);
-        generator.activate(rep);
-
-        planCtrl.verify();
-        repCtrl.verify();
     }
 }

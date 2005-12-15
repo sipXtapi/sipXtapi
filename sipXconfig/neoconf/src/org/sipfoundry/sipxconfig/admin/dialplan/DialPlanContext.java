@@ -63,6 +63,8 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
     public void moveRules(Collection selectedRows, int step);
 
     public List getGenerationRules();
+    
+    public List getAttendantRules();    
 
     public void resetToFactoryDefault();
 

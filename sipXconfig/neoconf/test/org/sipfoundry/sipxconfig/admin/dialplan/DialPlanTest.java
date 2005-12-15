@@ -58,4 +58,14 @@ public class DialPlanTest extends TestCase {
         plan.setRules(Arrays.asList(rules));
         assertEquals("2000", plan.getLikelyVoiceMailValue());
     }
+
+    public void testGetAttendantRules() {
+        DialPlan plan = new DialPlan();
+        assertTrue(plan.getAttendantRules().isEmpty());
+        DialingRule[] rules = new DialingRule[] {
+            new AttendantRule(), new CustomDialingRule(), new AttendantRule()
+        };
+        plan.setRules(Arrays.asList(rules));
+        assertEquals(2, plan.getAttendantRules().size());
+    }
 }

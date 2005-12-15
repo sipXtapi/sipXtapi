@@ -16,6 +16,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
+import org.apache.commons.collections.functors.InstanceofPredicate;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 
@@ -62,8 +65,19 @@ public class DialPlan extends BeanWithId {
         }
         return generationRules;
     }
-    
-   
+
+    /**
+     * This function return all attendant rules contained in this plan.
+     * 
+     * @return list of attendant rules, empty list if no attendant rules in this plan
+     */
+    public List getAttendantRules() {
+        List attendantRules = new ArrayList();
+        Predicate isAttendantRule = InstanceofPredicate.getInstance(AttendantRule.class);
+        CollectionUtils.select(m_rules, isAttendantRule, attendantRules);
+        return attendantRules;
+    }
+
     /**
      * Run thru dialing rules and set rellevant dial plans that take
      */
@@ -73,10 +87,10 @@ public class DialPlan extends BeanWithId {
             ((InternalRule) rules[i]).setAutoAttendant(operator);
         }
     }
-    
+
     /**
-     * There can be multiple internal dialing rules and therefore multiple voicemail
-     * extensions, but pick the most likely one.
+     * There can be multiple internal dialing rules and therefore multiple voicemail extensions,
+     * but pick the most likely one.
      */
     public String getLikelyVoiceMailValue() {
         DialingRule[] rules = getDialingRuleByType(m_rules, InternalRule.class);
@@ -88,7 +102,7 @@ public class DialPlan extends BeanWithId {
         String voicemail = ((InternalRule) rules[0]).getVoiceMail();
         return voicemail;
     }
-    
+
     static DialingRule[] getDialingRuleByType(List rulesCandidates, Class c) {
         List rules = new ArrayList();
         for (Iterator i = rulesCandidates.iterator(); i.hasNext();) {
@@ -96,7 +110,7 @@ public class DialPlan extends BeanWithId {
             if (rule.getClass().isAssignableFrom(c)) {
                 rules.add(rule);
             }
-        }                       
+        }
 
         return (DialingRule[]) rules.toArray(new DialingRule[rules.size()]);
     }

@@ -115,4 +115,8 @@ public abstract class XmlFile {
     public int hashCode() {
         return getType().hashCode();
     }
+
+    public String getFileBaseName() {
+        return getType().getName();
+    }
 }

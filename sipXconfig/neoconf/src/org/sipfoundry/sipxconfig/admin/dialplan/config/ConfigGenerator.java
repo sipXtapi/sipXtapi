@@ -11,15 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
+import org.sipfoundry.sipxconfig.common.UserException;
 
 /**
  * ConfigGenerator
@@ -30,6 +35,7 @@ public class ConfigGenerator {
     private MappingRules m_mappingRules;
     private AuthRules m_authRules;
     private FallbackRules m_fallbackRules;
+    private List m_attendantScheduleFiles = new ArrayList();
     private Map m_files = new HashMap();
 
     public ConfigGenerator() {
@@ -77,6 +83,16 @@ public class ConfigGenerator {
         m_mappingRules.end();
         m_authRules.end();
         m_fallbackRules.end();
+
+        List attendantRules = plan.getAttendantRules();
+        for (Iterator i = attendantRules.iterator(); i.hasNext();) {
+            AttendantRule ar = (AttendantRule) i.next();
+            if (ar.isEnabled()) {
+                AttendantScheduleFile file = new AttendantScheduleFile();
+                file.generate(ar);
+                m_attendantScheduleFiles.add(file);
+            }
+        }
     }
 
     /**
@@ -91,10 +107,22 @@ public class ConfigGenerator {
         return file.getFileContent();
     }
 
-    public void activate(SipxReplicationContext sipxReplicationContext) {
+    public void activate(SipxReplicationContext sipxReplicationContext, String scriptsDirectory) {
         for (Iterator i = m_files.values().iterator(); i.hasNext();) {
             XmlFile file = (XmlFile) i.next();
             sipxReplicationContext.replicate(file);
+        }
+        activateAttendantRules(scriptsDirectory);
+    }
+
+    private void activateAttendantRules(String scriptsDirectory) {
+        try {
+            for (Iterator i = m_attendantScheduleFiles.iterator(); i.hasNext();) {
+                XmlFile file = (XmlFile) i.next();
+                file.writeToFile(new File(scriptsDirectory), file.getFileBaseName());
+            }
+        } catch (IOException e) {
+            throw new UserException("Error when generating auto attendant schedule.", e);
         }
     }
 }

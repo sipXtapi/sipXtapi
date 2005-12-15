@@ -27,9 +27,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 
 public class AttendantScheduleFile extends XmlFile {
-    public static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
+    private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
+    private static final String SUFFIX = "_schedule.xml";
 
     private Document m_document;
+    private String m_baseFileName;
 
     public Document getDocument() {
         if (m_document == null) {
@@ -44,6 +46,7 @@ public class AttendantScheduleFile extends XmlFile {
     }
 
     void generate(AttendantRule attendantRule) {
+        m_baseFileName = attendantRule.getSystemName() + SUFFIX;
         Element root = getDocument().getRootElement();
         Element schedule = root.addElement("schedule");
         Holiday holidayAttendant = attendantRule.getHolidayAttendant();
@@ -81,5 +84,9 @@ public class AttendantScheduleFile extends XmlFile {
         Element ah = parent.addElement(name);
         ah.addElement("filename").setText(sa.getAttendant().getSystemName());
         return ah;
+    }
+
+    public String getFileBaseName() {
+        return m_baseFileName;
     }
 }
