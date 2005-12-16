@@ -74,3 +74,14 @@
  
              <!-- Uncomment to enable single sign-on across web apps
                 deployed to this host AND to all other hosts in the cluster.
+--- conf/standardjboss.xml.orig	2005-12-16 10:04:10.000000000 -0500
++++ conf/standardjboss.xml	2005-12-15 17:17:45.000000000 -0500
+@@ -1007,7 +1007,7 @@
+       <instance-cache></instance-cache>
+       <persistence-manager></persistence-manager>
+       <container-pool-conf>
+-        <MaximumSize>100</MaximumSize>
++        <MaximumSize>1</MaximumSize>
+       </container-pool-conf>
+     </container-configuration>
+ 
