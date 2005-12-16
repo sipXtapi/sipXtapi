@@ -182,6 +182,7 @@ SipRedirectorMapping::lookUp(
          {
             for (int j=0; j<numDBPermissions; j++)
             {
+               UtlHashMap record;
                dbPermissions.getIndex(j, record);
                UtlString dbPermissionStr =
                   *((UtlString*)record.
