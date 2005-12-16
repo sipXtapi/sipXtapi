@@ -16,6 +16,11 @@
         direction="auto">
     </parameter>
     
+    <parameter name="idConverter" 
+    	type="org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor"
+    	required="yes" 
+    	direction="auto"/>
+    
     <!-- P R O P E R T I E S -->
     
     <property-specification name="coreContext" 

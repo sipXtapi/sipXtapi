@@ -12,18 +12,23 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
+import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
@@ -184,6 +189,34 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         protected void beforeActivation(AbstractPage page) {
             EditCallGroup editCallGroup = (EditCallGroup) page;
             editCallGroup.setCallGroupId(m_callGroupId);
+        }
+    }
+
+    public IPrimaryKeyConvertor getIdConverter() {
+        return new RingConverter(getCallGroup());
+    }
+
+    public static final class RingConverter implements IPrimaryKeyConvertor {
+        private CallGroup m_callGroup;
+
+        public RingConverter(CallGroup group) {
+            m_callGroup = group;
+        }
+
+        public Object getPrimaryKey(Object objValue) {
+            BeanWithId bean = (BeanWithId) objValue;
+            return bean.getPrimaryKey();
+        }
+
+        public Object getValue(Object objPrimaryKey) {
+            List rings = m_callGroup.getRings();
+            for (Iterator i = rings.iterator(); i.hasNext();) {
+                PrimaryKeySource bean = (PrimaryKeySource) i.next();
+                if (bean.getPrimaryKey().equals(objPrimaryKey)) {
+                    return bean;
+                }
+            }
+            return null;
         }
     }
 }

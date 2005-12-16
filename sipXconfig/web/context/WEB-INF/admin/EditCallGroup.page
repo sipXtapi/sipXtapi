@@ -58,6 +58,7 @@
         
     <component id="ringTable" type="UserRingTable">
         <binding name="rings" expression="callGroup.rings"/>
+        <binding name="idConverter" expression="idConverter"/>
     </component>
     
     <component id="formActions" type="FormActions">
