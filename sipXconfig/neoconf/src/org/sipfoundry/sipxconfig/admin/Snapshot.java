@@ -38,10 +38,20 @@ public class Snapshot {
         try {
             File destDir = new File(m_destDirectory);
             Runtime runtime = Runtime.getRuntime();
-            runtime.exec(getCmdLine(m_binDirectory), null, destDir);
+            Process process = runtime.exec(getCmdLine(m_binDirectory), null, destDir);
+            process.waitFor();
+            int exitValue = process.exitValue();
+            if (exitValue != 0) {
+                throw new UserException("Errors when executing snapshot script: {0}", String
+                        .valueOf(exitValue));
+            }
             return new File(destDir, RESULT_FILE_NAME);
         } catch (IOException e) {
-            throw new UserException("Cannot retrieve configuration snapshot.");
+            throw new UserException("Cannot retrieve configuration snapshot.\n{0}", e
+                    .getLocalizedMessage());
+        } catch (InterruptedException e) {
+            throw new UserException("Snapshot service inexpectedly terminated.\n{0}", e
+                    .getLocalizedMessage());
         }
     }
 
@@ -60,6 +70,7 @@ public class Snapshot {
         if (!m_www) {
             cmds.add("--no-www");
         }
+        cmds.add(RESULT_FILE_NAME);
         return (String[]) cmds.toArray(new String[cmds.size()]);
     }
 
