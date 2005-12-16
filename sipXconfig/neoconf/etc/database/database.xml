@@ -93,7 +93,8 @@
     depends="
   	  conference_name_uniqueness,
       upload,
-      grandstreamV2
+      grandstreamV2,
+  	  attendant_schedule
 	  "/>
 
   <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
@@ -117,6 +118,19 @@
 
   <target name="grandstreamV2" unless="grandstreamV2">
     <db-patch patch="grandstreamV2"/>
+  </target>  
+
+  <!-- this patch uninstalls itself each time until upload is a bit more frozen-->
+  <target name="drop-attendant_schedule" if="attendant_schedule">
+    <sipx-sql>
+      drop table attendant_working_hours;
+      drop table holiday_dates;
+      drop table attendant_dialing_rule;
+      delete from patch where name = 'attendant_schedule';
+    </sipx-sql>
+  </target>  
+  <target name="attendant_schedule" depends="drop-attendant_schedule">
+    <db-patch patch="attendant_schedule"/>
   </target>  
 
   <target name="schema" unless="schema">
