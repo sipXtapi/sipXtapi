@@ -11,7 +11,8 @@
   <table name="initialization_task"/>
   <table name="upload"/>
   
-  <!-- dial plans related -->  
+  <!-- dial plans related -->
+  <table name="dial_plan"/>
   <table name="auto_attendant"/>
   <table name="attendant_menu_item"/>
   <table name="dialing_rule"/>
@@ -24,8 +25,14 @@
   <table name="emergency_dialing_rule"/>
   <table name="internal_dialing_rule"/>
   <table name="long_distance_dialing_rule"/>
+  <table name="attendant_dialing_rule"/>
+  <table name="holiday_dates"/>
+  <table name="attendant_working_hours"/>
   
-    <!-- settings -->  
+  <!-- park orbit -->
+  <table name="park_orbit"/>
+  
+  <!-- settings -->  
   <table name="value_storage"/>
   <table name="group_storage"/>
   <table name="setting_value"/>  

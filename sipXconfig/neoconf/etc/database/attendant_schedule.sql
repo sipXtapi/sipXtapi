@@ -3,13 +3,13 @@ create table attendant_dialing_rule (
    attendant_aliases varchar(255),
    extension varchar(255),
    after_hours_attendant_id int4 not null,
-   after_hours_attendant_enabled bool,
+   after_hours_attendant_enabled bool not null,
    
    holiday_attendant_id int4 not null,
-   holiday_attendant_enabled bool,
+   holiday_attendant_enabled bool not null,
    
    working_time_attendant_id int4 not null,
-   working_time_attendant_enabled bool,
+   working_time_attendant_enabled bool not null,
    
    primary key (attendant_dialing_rule_id)
 );
@@ -17,7 +17,7 @@ create table attendant_dialing_rule (
 create table attendant_working_hours (
    attendant_dialing_rule_id int4 not null,
    index int4 not null,
-   enabled bool,
+   enabled bool not null,
    day varchar(255),
    start timestamp,
    stop timestamp,
@@ -45,3 +45,13 @@ alter table holiday_dates
   add constraint fk_holiday_dates_attendant_dialing_rule 
   foreign key (attendant_dialing_rule_id) 
   references attendant_dialing_rule;
+  
+alter table attendant_dialing_rule  
+  add constraint fk_after_hours_attendant_auto_attendant 
+  foreign key (after_hours_attendant_id) 
+  references auto_attendant;
+
+alter table attendant_dialing_rule  
+  add constraint fk_working_time_attendant_auto_attendant 
+  foreign key (working_time_attendant_id) 
+  references auto_attendant;  

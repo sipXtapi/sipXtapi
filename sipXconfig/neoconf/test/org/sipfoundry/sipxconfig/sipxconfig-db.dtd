@@ -6,11 +6,11 @@
     attendant_aliases CDATA #IMPLIED
     extension CDATA #IMPLIED
     after_hours_attendant_id CDATA #REQUIRED
-    after_hours_attendant_enabled CDATA #IMPLIED
+    after_hours_attendant_enabled CDATA #REQUIRED
     holiday_attendant_id CDATA #REQUIRED
-    holiday_attendant_enabled CDATA #IMPLIED
+    holiday_attendant_enabled CDATA #REQUIRED
     working_time_attendant_id CDATA #REQUIRED
-    working_time_attendant_enabled CDATA #IMPLIED
+    working_time_attendant_enabled CDATA #REQUIRED
 >
 
 <!ELEMENT attendant_menu_item EMPTY>
@@ -25,7 +25,7 @@
 <!ATTLIST attendant_working_hours
     attendant_dialing_rule_id CDATA #REQUIRED
     index CDATA #REQUIRED
-    enabled CDATA #IMPLIED
+    enabled CDATA #REQUIRED
     day CDATA #IMPLIED
     start CDATA #IMPLIED
     stop CDATA #IMPLIED

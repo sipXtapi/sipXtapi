@@ -91,38 +91,43 @@
     </joined-subclass>
     
     <joined-subclass name="AttendantRule" table="attendant_dialing_rule">
-      <key column="attendant_dialing_rule_id"/>
+      <key column="attendant_dialing_rule_id"
+        foreign-key="fk_attendant_dialing_rule_dialing_rule"/>
       <property name="attendantAliases"/>
       <property name="extension"/>
       <component name="afterHoursAttendant"
         class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant">
-        <many-to-one name="attendant" column="after_hours_attendant_id" class="AutoAttendant"/>
+        <many-to-one name="attendant" column="after_hours_attendant_id" class="AutoAttendant"
+          cascade="none" foreign-key="fk_after_hours_attendant_auto_attendant"/>
         <property name="enabled" column="after_hours_attendant_enabled"/>
       </component>
       <component name="holidayAttendant"
         class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday">
-        <many-to-one name="attendant" column="holiday_attendant_id" class="AutoAttendant"/>
+        <many-to-one name="attendant" column="holiday_attendant_id" class="AutoAttendant"
+          cascade="none" foreign-key="fk_holiday_dates_attendant_dialing_rule"/>
         <property name="enabled" column="holiday_attendant_enabled"/>
         <list name="dates" table="holiday_dates">
-          <key column="attendant_dialing_rule_id"/>
+          <key column="attendant_dialing_rule_id"
+            foreign-key="fk_holiday_dates_attendant_dialing_rule"/>
           <index column="position"/>
           <element type="date" column="date" not-null="true"/>
         </list>
       </component>
       <component name="workingTimeAttendant"
         class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime">
-        <many-to-one name="attendant" column="working_time_attendant_id" class="AutoAttendant"/>
+        <many-to-one name="attendant" column="working_time_attendant_id" class="AutoAttendant"
+          cascade="none" foreign-key="fk_attendant_working_hours_attendant_dialing_rule"/>
         <property name="enabled" column="working_time_attendant_enabled"/>
         <array name="workingHours" table="attendant_working_hours" batch-size="7">
-          <key column="attendant_dialing_rule_id"/>
+          <key column="attendant_dialing_rule_id"
+            foreign-key="fk_attendant_working_hours_attendant_dialing_rule"/>
           <index column="index"/>
           <composite-element
             class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime$WorkingHours">
             <property name="start"/>
             <property name="stop"/>
             <property name="enabled"/>
-            <property name="day"
-              type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType"/>
+            <property name="day" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType"/>
           </composite-element>
         </array>
       </component>

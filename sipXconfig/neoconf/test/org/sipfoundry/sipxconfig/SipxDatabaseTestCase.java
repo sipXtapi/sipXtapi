@@ -1,10 +1,13 @@
 package org.sipfoundry.sipxconfig;
 
+import java.io.FileWriter;
 import java.sql.SQLException;
 
 import junit.framework.TestCase;
 
 import org.dbunit.database.IDatabaseConnection;
+import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.xml.FlatXmlWriter;
 import org.springframework.dao.DataIntegrityViolationException;
 
 /**
@@ -43,5 +46,11 @@ public class SipxDatabaseTestCase extends TestCase {
         super.tearDown();
 
         TestHelper.closeConnection();
+    }
+
+    protected void writeFlatXmlDataSet(FileWriter fileWriter) throws Exception {
+        IDataSet set = getConnection().createDataSet();
+        FlatXmlWriter writer = new FlatXmlWriter(fileWriter);
+        writer.write(set);
     }
 }

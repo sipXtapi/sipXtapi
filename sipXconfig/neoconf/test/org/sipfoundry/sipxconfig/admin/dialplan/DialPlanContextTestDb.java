@@ -11,8 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,6 +30,10 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.filter.IncludeTableFilter;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.springframework.context.ApplicationContext;
@@ -147,10 +155,10 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         IDatabaseConnection db = TestHelper.getConnection();
         assertEquals(3, db.getRowCount("routing_exception"));
     }
-    
+
     public void testRemoveRoutingException() throws Exception {
         TestHelper.insertFlat("admin/dialplan/emergency_routing.db.xml");
-        
+
         EmergencyRouting er = m_context.getEmergencyRouting();
         RoutingException re = (RoutingException) er.getExceptions().iterator().next();
         m_context.removeRoutingException(re.getId());
@@ -158,25 +166,88 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         IDatabaseConnection db = TestHelper.getConnection();
         assertEquals(1, db.getRowCount("routing_exception"));
     }
-    
+
     public void testIsAliasInUse() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        assertTrue(m_context.isAliasInUse("test attendant in use"));	// auto attendant name
-        assertTrue(m_context.isAliasInUse("1234"));     // auto attendant extension
-        assertTrue(m_context.isAliasInUse("alias1"));   // auto attendant alias
-        assertTrue(m_context.isAliasInUse("alias2"));   // auto attendant alias
-        assertTrue(m_context.isAliasInUse("100"));      // voicemail extension
-        assertFalse(m_context.isAliasInUse("200"));     // a random extension that should not be in use
+        assertTrue(m_context.isAliasInUse("test attendant in use")); // auto attendant name
+        assertTrue(m_context.isAliasInUse("1234")); // auto attendant extension
+        assertTrue(m_context.isAliasInUse("alias1")); // auto attendant alias
+        assertTrue(m_context.isAliasInUse("alias2")); // auto attendant alias
+        assertTrue(m_context.isAliasInUse("100")); // voicemail extension
+        assertFalse(m_context.isAliasInUse("200")); // a random extension that should not be in
+                                                    // use
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("test attendant in use").size() == 1);    // auto attendant name
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1234").size() == 1);     // auto attendant extension
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("alias1").size() == 1);   // auto attendant alias
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("alias2").size() == 1);   // auto attendant alias
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("100").size() == 1);      // voicemail extension
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("200").size() == 0);     // a random extension that should not be in use        
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("test attendant in use").size() == 1); // auto
+                                                                                                    // attendant
+                                                                                                    // name
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1234").size() == 1); // auto attendant
+                                                                                // extension
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("alias1").size() == 1); // auto
+                                                                                    // attendant
+                                                                                    // alias
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("alias2").size() == 1); // auto
+                                                                                    // attendant
+                                                                                    // alias
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("100").size() == 1); // voicemail
+                                                                                // extension
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("200").size() == 0); // a random
+                                                                                // extension that
+                                                                                // should not be
+                                                                                // in use
     }
 
+    public void testStoreAttendantRule() throws Exception {
+        TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
+        AutoAttendant autoAttendant = m_context.getAutoAttendant(new Integer(2000));
+
+        ScheduledAttendant sa = new ScheduledAttendant();
+        sa.setAttendant(autoAttendant);
+
+        DateFormat format = new SimpleDateFormat("MM/dd/yyy");
+
+        Holiday holiday = new Holiday();
+        holiday.setAttendant(autoAttendant);
+        holiday.addDay(format.parse("01/01/2005"));
+        holiday.addDay(format.parse("06/06/2005"));
+        holiday.addDay(format.parse("12/24/2005"));
+
+        WorkingTime wt = new WorkingTime();
+        wt.setAttendant(autoAttendant);
+        WorkingHours[] workingHours = wt.getWorkingHours();
+        Date stop = workingHours[4].getStop();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(stop);
+        calendar.add(Calendar.HOUR_OF_DAY, -1);
+        workingHours[4].setStop(calendar.getTime());
+
+        AttendantRule rule = new AttendantRule();
+        rule.setName("myattendantschedule");
+        rule.setAfterHoursAttendant(sa);
+        rule.setHolidayAttendant(holiday);
+        rule.setWorkingTimeAttendant(wt);
+
+        m_context.storeRule(rule);
+
+        assertEquals(1, getConnection().getRowCount("attendant_dialing_rule"));
+        assertEquals(7, getConnection().getRowCount("attendant_working_hours"));
+        assertEquals(3, getConnection().getRowCount("holiday_dates"));
+    }
+
+    public void testLoadAttendantRule() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
+
+        DialingRule rule = m_context.getRule(new Integer(2002));
+        assertTrue(rule instanceof AttendantRule);
+        AttendantRule ar = (AttendantRule) rule;
+        assertTrue(ar.getAfterHoursAttendant().isEnabled());
+        assertFalse(ar.getWorkingTimeAttendant().isEnabled());
+        assertTrue(ar.getHolidayAttendant().isEnabled());
+
+        assertEquals(2, ar.getHolidayAttendant().getDates().size());
+
+        assertEquals("19:25", ar.getWorkingTimeAttendant().getWorkingHours()[4].getStopTime());
+    }
 }
