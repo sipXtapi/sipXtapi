@@ -103,7 +103,7 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
 
       // resip::Client Registration Handler ///////////////////////////////////////////
       virtual void onSuccess(resip::ClientRegistrationHandle, const resip::SipMessage& response);
-      virtual void onRemoved(resip::ClientRegistrationHandle);
+      virtual void onRemoved(resip::ClientRegistrationHandle, const resip::SipMessage& response);
       virtual int onRequestRetry(resip::ClientRegistrationHandle, int retrySeconds, const resip::SipMessage& response);
       virtual void onFailure(resip::ClientRegistrationHandle, const resip::SipMessage& response);
 

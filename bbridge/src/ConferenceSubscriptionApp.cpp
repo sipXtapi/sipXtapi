@@ -96,7 +96,7 @@ void ConferenceSubscriptionApp::notifyOne()
    const resip::Contents& notice = mConference->makeNotice();
 
    // Send it to the subscriber.
-   resip::SipMessage& message = mSubscriptionHandle->update(&notice);
+   resip::SharedPtr<resip::SipMessage> message = mSubscriptionHandle->update(&notice);
    mSubscriptionHandle->send(message);
 
    InfoLog(<< "Sent NOTIFY to subscriber '" << mSubscriptionHandle->getSubscriber()

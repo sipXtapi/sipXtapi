@@ -28,6 +28,10 @@
 # define LLONG_MAX	LONG_LONG_MAX
 #endif
 
+#if defined(_WIN32)
+#define strtoll _strtoi64 
+#endif
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS

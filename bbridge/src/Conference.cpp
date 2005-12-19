@@ -100,7 +100,7 @@ void Conference::notifyAll()
       // Get the subscription dialog handle for the subscription.
       resip::ServerSubscriptionHandle handle = (*i)->getSubscriptionHandle();
       // Create the NOTIFY message.
-      resip::SipMessage& message = handle->update(&notice);
+      resip::SharedPtr<resip::SipMessage> message = handle->update(&notice);
       // Send it.
       handle->send(message);
 

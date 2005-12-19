@@ -116,7 +116,7 @@ ConferenceUserAgent::ConferenceUserAgent(OsConfigDb& db) :
       resip::NameAddr aor(gw1Aor.data());
       gw1->setDefaultFrom(aor);
       gw1->setDigestCredential(gw1Realm.data(), gw1Username.data(), gw1Password.data());
-      resip::SipMessage& reg = mDum.makeRegistration(aor, gw1);
+      resip::SharedPtr<resip::SipMessage> reg = mDum.makeRegistration(aor, gw1);
       InfoLog (<< "Registering  " << aor.uri().user() << " to map to " << gw1Conference.data());
       mDum.send(reg);
       mInBoundMap[aor.uri().user()] = gw1Conference.data();
@@ -161,7 +161,7 @@ ConferenceUserAgent::onFailure(resip::ClientRegistrationHandle h,
 }
 
 void 
-ConferenceUserAgent::onRemoved(resip::ClientRegistrationHandle h)
+ConferenceUserAgent::onRemoved(resip::ClientRegistrationHandle h, const resip::SipMessage& response)
 {
 }
 

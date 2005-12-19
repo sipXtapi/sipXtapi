@@ -6,9 +6,9 @@
 ////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include <openssl/ssl.h>
 #include <openssl/rand.h>
 #include <openssl/x509v3.h>
+#include <openssl/ssl.h>
 #include <openssl/err.h>
 
 // APPLICATION INCLUDES
@@ -17,6 +17,10 @@
 #include "os/OsSysLog.h"
 #include "utl/UtlString.h"
 #include "utl/UtlSList.h"
+
+#ifndef SIPX_CONFDIR
+#  define SIPX_CONFDIR "."
+#endif
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
