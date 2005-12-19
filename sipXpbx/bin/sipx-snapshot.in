@@ -326,14 +326,14 @@ do
 done
 
 # Get info on installed sipx rpms
-for sipName in `rpm -qa | grep sipx`
+for sipName in `rpm -qa --nodigest --nosignature | grep sipx`
 do
    echo "" >> ${SystemConfig}
    echo "======== RPM $d" >> ${SystemConfig}
         rpm -qi $sipName     >> ${SystemConfig}
 done
 echo "======== RPMs" >> ${SystemConfig}
-rpm -qa | sort >> ${SystemConfig}
+rpm -qa --nodigest --nosignature | sort >> ${SystemConfig}
 
 echo ""       >> ${SystemConfig}
 echo ======== ifconfig >> ${SystemConfig}
