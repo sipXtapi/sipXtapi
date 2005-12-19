@@ -1,6 +1,5 @@
 #ifndef _BBRIDGE_H_
 #define _BBRIDGE_H_
-// Constants used throughout Boston Bridge
 
 // Constants used throughout Boston Bridge
 #if defined(_WIN32)
