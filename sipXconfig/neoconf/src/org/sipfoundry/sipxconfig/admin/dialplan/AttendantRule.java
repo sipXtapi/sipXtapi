@@ -21,9 +21,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 public class AttendantRule extends DialingRule {
     private static final String SYSTEM_NAME_PREFIX = "aa_";
 
-    private ScheduledAttendant m_afterHoursAttendant;
-    private Holiday m_holidayAttendant;
-    private WorkingTime m_workingTimeAttendant;
+    private ScheduledAttendant m_afterHoursAttendant = new ScheduledAttendant();
+    private Holiday m_holidayAttendant = new Holiday();
+    private WorkingTime m_workingTimeAttendant = new WorkingTime();
     private String m_attendantAliases;
     private String m_extension;
 

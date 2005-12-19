@@ -36,6 +36,7 @@
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
     <page name="ChangePin" specification-path="user_portal/ChangePin.page"/>
+    <page name="EditAttendantDialRule" specification-path="dialplan/EditAttendantDialRule.page"/>
 	<page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
     <page name="EditCallGroup" specification-path="admin/EditCallGroup.page"/>
     <page name="EditBridge" specification-path="conference/EditBridge.page"/>

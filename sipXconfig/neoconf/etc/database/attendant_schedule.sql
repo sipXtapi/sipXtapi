@@ -2,13 +2,13 @@ create table attendant_dialing_rule (
    attendant_dialing_rule_id int4 not null,
    attendant_aliases varchar(255),
    extension varchar(255),
-   after_hours_attendant_id int4 not null,
+   after_hours_attendant_id int4,
    after_hours_attendant_enabled bool not null,
    
-   holiday_attendant_id int4 not null,
+   holiday_attendant_id int4,
    holiday_attendant_enabled bool not null,
    
-   working_time_attendant_id int4 not null,
+   working_time_attendant_id int4,
    working_time_attendant_enabled bool not null,
    
    primary key (attendant_dialing_rule_id)

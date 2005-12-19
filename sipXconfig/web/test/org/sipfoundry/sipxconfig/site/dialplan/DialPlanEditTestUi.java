@@ -148,6 +148,25 @@ public class DialPlanEditTestUi extends WebTestCase {
             assertLinkPresentWithText(name);
         }
     }
+    
+    public void testAttendantRuleAdd() throws Exception {
+        for (int i = 0; i < NAMES.length; i++) {
+            String[] row = NAMES[i];
+            clickLink("dialplan:add");
+            selectOption("ruleTypeSelection", "Attendant");
+            clickButton("selectRule:next");
+
+            setFormElement("name", row[0]);
+            setFormElement("description", row[2]);
+            // dial pattern prefix
+            setFormElement("extension", "33344" + i);
+            
+            clickButton("form:ok");
+            assertTextInTable("dialplan:list", row[2]);
+            assertLinkPresentWithText(row[0]);
+        }
+    }
+    
 
     public void testMove() {
         clickButton("dialplan:revert");
