@@ -2,6 +2,12 @@
 #define _BBRIDGE_H_
 // Constants used throughout Boston Bridge
 
+// Constants used throughout Boston Bridge
+#if defined(_WIN32)
+#   define bbridgeVersion "0.1" // ?slg? is there a better way to handle this on Windows?
+#   define SIPX_VERSION          bbridgeVersion
+#endif
+
 #ifndef SIPX_VERSION
 #  include "config/bbridge-buildstamp.h"
 #  define SIPX_BBRIDGE_VERSION          bbridgeVersion
