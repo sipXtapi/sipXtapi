@@ -143,7 +143,7 @@
     <component-type type="UserSearch" specification-path="user/UserSearch.jwc"/>
     <component-type type="UserSearchResults" specification-path="user/UserSearchResults.jwc"/>
     <component-type type="UserTable" specification-path="user/UserTable.jwc"/>
-    
+    <component-type type="WorkingHoursEditor" specification-path="dialplan/WorkingHoursEditor.jwc"/>    
     
     <!-- Services -->
     <service name="DownloadService" class="org.sipfoundry.sipxconfig.components.DownloadService"/>

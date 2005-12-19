@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 
@@ -50,13 +51,17 @@ public class WorkingTime extends ScheduledAttendant {
 
         public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm", Locale.US);
 
+        static {
+            TIME_FORMAT.setTimeZone(getGmtTimeZone());
+        }
+
         private boolean m_enabled;
         private ScheduledDay m_day;
         private Date m_start;
         private Date m_stop;
 
         public WorkingHours() {
-            Calendar calendar = Calendar.getInstance();
+            Calendar calendar = Calendar.getInstance(getGmtTimeZone());
             calendar.set(Calendar.HOUR_OF_DAY, DEFAULT_START);
             calendar.set(Calendar.MINUTE, 0);
             m_start = calendar.getTime();
@@ -81,17 +86,23 @@ public class WorkingTime extends ScheduledAttendant {
         }
 
         public String getStartTime() {
-            return TIME_FORMAT.format(m_start);
+            return formatTime(m_start);
         }
 
         public String getStopTime() {
-            return TIME_FORMAT.format(m_stop);
+            return formatTime(m_stop);
         }
 
+        /**
+         * @return UTC time
+         */
         public Date getStart() {
             return m_start;
         }
 
+        /**
+         * @param UTC time
+         */
         public void setStart(Date start) {
             m_start = start;
         }
@@ -102,6 +113,20 @@ public class WorkingTime extends ScheduledAttendant {
 
         public void setStop(Date stop) {
             m_stop = stop;
+        }
+
+        /**
+         * Formats time as 24 hours (00:00-23:59), GMT time.
+         * 
+         * @param date date to format - needs to be GMT time zon
+         * @return formatted time string
+         */
+        private static String formatTime(Date date) {
+            return TIME_FORMAT.format(date);
+        }
+
+        private static TimeZone getGmtTimeZone() {
+            return TimeZone.getTimeZone("GMT");
         }
     }
 }

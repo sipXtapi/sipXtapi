@@ -27,6 +27,9 @@
     	type="org.apache.tapestry.callback.ICallback"
      	persistent="yes"/>
     
+    <property-specification name="workingHours" 
+    	type="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime$WorkingHours"/>
+    
     <!--
      - B E A N S
      -->
@@ -51,7 +54,7 @@
             
     <component id="extensionPanel" type="FieldPanel">
         <binding name="field" expression="components.extension"/>
-	    <static-binding name="label" value="Extension"/>
+        <message-binding name="label" key="label.extension"/>
     </component>
     <component id="extension" type="ValidField">
 	    <binding name="value" expression="rule.extension"/>
@@ -60,7 +63,7 @@
     </component>    
     <component id="autoAttendantAliasesPanel" type="FieldPanel">
         <binding name="field" expression="components.autoAttendantAliases"/>
-        <message-binding name="label" key="value"/>
+        <message-binding name="label" key="label.autoAttendantAliases"/>
         <message-binding name="description" key="description.autoAttendantAliases"/>
     </component>
     <component id="autoAttendantAliases" type="ValidField">
@@ -94,11 +97,17 @@
     <component id="workingTimeAttendant" type="PropertySelection">
         <binding name="value" expression="rule.workingTimeAttendant.attendant"/>
         <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
-    </component>    
-        
+    </component>
+    <component id="workingHours" type="Foreach">
+        <binding name="source" expression="rule.workingTimeAttendant.workingHours"/>
+        <binding name="value" expression="workingHours"/>
+    </component>
+    <component id="workingDay" type="WorkingHoursEditor">
+        <binding name="workingHours" expression="workingHours"/>
+    </component>
+            
     <component id="formActions" type="FormActions">
         <binding name="callback" expression="callback"/>
         <binding name="listener" expression="listeners.commit"/>
-    </component>    
-
+    </component>
 </page-specification>

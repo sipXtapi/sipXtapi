@@ -124,8 +124,8 @@
           <index column="index"/>
           <composite-element
             class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime$WorkingHours">
-            <property name="start"/>
-            <property name="stop"/>
+            <property name="start" type="org.sipfoundry.sipxconfig.common.UtcTimestampType"/>
+            <property name="stop" type="org.sipfoundry.sipxconfig.common.UtcTimestampType"/>
             <property name="enabled"/>
             <property name="day" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType"/>
           </composite-element>

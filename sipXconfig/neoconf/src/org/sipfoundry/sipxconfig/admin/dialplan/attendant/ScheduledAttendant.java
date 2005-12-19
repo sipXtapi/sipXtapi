@@ -12,9 +12,8 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public class ScheduledAttendant extends BeanWithId {
+public class ScheduledAttendant {
     private boolean m_enabled;
     
     private AutoAttendant m_attendant;

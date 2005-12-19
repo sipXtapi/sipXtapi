@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.io.FileWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -234,6 +235,8 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         assertEquals(1, getConnection().getRowCount("attendant_dialing_rule"));
         assertEquals(7, getConnection().getRowCount("attendant_working_hours"));
         assertEquals(3, getConnection().getRowCount("holiday_dates"));
+        
+        writeFlatXmlDataSet(new FileWriter("/tmp/kuku.xml"));
     }
 
     public void testLoadAttendantRule() throws Exception {

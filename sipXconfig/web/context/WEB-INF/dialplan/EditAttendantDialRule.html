@@ -20,12 +20,36 @@
                     <tr for="rule:autoAttendantAliases" jwcid="autoAttendantAliasesPanel">
                     	<input jwcid="autoAttendantAliases" id="rule:autoAttendantAliases" type="text" />                        
                     </tr>
+                </tbody>
+            </table>
+        </fieldset>
+        <!-- working hours attendant-->
+        <fieldset>
+            <table>
+                <tbody>
                     <tr for="rule:workingTimeAttendant" jwcid="workingTimeAttendantPanel">
                     	<input jwcid="workingTimeAttendant" id="rule:workingTimeAttendant" type="text" />
                     </tr>
+					<tr jwcid="workingHours">
+                        <span jwcid="workingDay"/>
+					</tr>                                            
+				</tbody>                    
+			</table>                
+		</fieldset>            
+        <!-- after hours attendant -->
+        <fieldset>
+            <table>
+                <tbody>
                     <tr for="rule:afterHoursAttendant" jwcid="afterHoursAttendantPanel">
                     	<input jwcid="afterHoursAttendant" id="rule:afterHoursAttendant" type="text" />                        
                     </tr>
+                </tbody>
+            </table>
+        </fieldset>
+        <!-- holiday attendant -->
+        <fieldset>
+            <table>
+                <tbody>
                     <tr for="rule:holidayAttendant" jwcid="holidayAttendantPanel">
                     	<input jwcid="holidayAttendant" id="rule:holidayAttendant" type="text" />                        
                     </tr>
@@ -33,7 +57,7 @@
             </table>
         </fieldset>
 		<!-- rule type dependent end -->
-        
+                
     	<ul jwcid="formActions"/>
     </form>
     </div>

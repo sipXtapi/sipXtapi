@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
 import java.util.Calendar;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -22,9 +23,9 @@ public class WorkingTimeTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
     }
-    
+
     public void testGetStartTime() throws Exception {
-        Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.set(1970, Calendar.JANUARY, 1, 10, 14);
         WorkingHours hours = new WorkingHours();
         hours.setStart(c.getTime());
@@ -33,7 +34,7 @@ public class WorkingTimeTest extends TestCase {
     }
 
     public void testGetStopTime() throws Exception {
-        Calendar c = Calendar.getInstance();
+        Calendar c = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         c.set(1970, Calendar.JANUARY, 1);
         c.set(Calendar.HOUR, 6);
         c.set(Calendar.MINUTE, 16);
@@ -43,13 +44,13 @@ public class WorkingTimeTest extends TestCase {
         assertEquals("18:16", hours.getStopTime());
         assertEquals(c.getTime(), hours.getStop());
     }
-    
+
     public void testInitWokingHours() {
         WorkingHours hours = new WorkingHours();
         assertEquals("09:00", hours.getStartTime());
         assertEquals("18:00", hours.getStopTime());
     }
-    
+
     public void testInitWorkingTime() {
         WorkingTime wt = new WorkingTime();
         WorkingHours[] workingHours = wt.getWorkingHours();
@@ -59,5 +60,4 @@ public class WorkingTimeTest extends TestCase {
         assertFalse(workingHours[5].isEnabled());
         assertFalse(workingHours[6].isEnabled());
     }
-    
 }
