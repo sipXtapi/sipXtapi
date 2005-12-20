@@ -58,6 +58,9 @@ public class AttendantScheduleFile extends XmlFile {
     }
 
     private void addHoliday(Element schedule, Holiday holiday) {
+        if (holiday.getAttendant() == null) {
+            return;
+        }
         Element holidays = addAttendant(schedule, holiday, "holidays");
         List dates = holiday.getDates();
         for (Iterator i = dates.iterator(); i.hasNext();) {
@@ -67,6 +70,9 @@ public class AttendantScheduleFile extends XmlFile {
     }
 
     private void addRegularHours(Element schedule, WorkingTime workingTime) {
+        if (workingTime.getAttendant() == null) {
+            return;
+        }
         Element regularHours = addAttendant(schedule, workingTime, "regularhours");
         WorkingHours[] workingHours = workingTime.getWorkingHours();
         for (int i = 0; i < workingHours.length; i++) {
@@ -81,6 +87,9 @@ public class AttendantScheduleFile extends XmlFile {
     }
 
     private Element addAttendant(Element parent, ScheduledAttendant sa, String name) {
+        if (sa.getAttendant() == null) {
+            return null;
+        }
         Element ah = parent.addElement(name);
         ah.addElement("filename").setText(sa.getAttendant().getSystemName());
         return ah;

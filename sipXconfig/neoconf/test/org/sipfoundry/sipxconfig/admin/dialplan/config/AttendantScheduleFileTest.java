@@ -35,6 +35,19 @@ public class AttendantScheduleFileTest extends XMLTestCase {
         XMLUnit.setIgnoreWhitespace(true);
     }
 
+    public void testGenerateEmpty() throws Exception {
+        AttendantRule rule = new AttendantRule();
+        rule.setName("abc");
+        AttendantScheduleFile file = new AttendantScheduleFile();
+        file.generate(rule);
+
+        String generatedXml = file.getFileContent();
+
+        String expected = "<organizationprefs><schedule/></organizationprefs>";
+
+        assertXMLEqual(expected, generatedXml);
+    }
+
     public void testGenerate() throws Exception {
         AutoAttendant operator = new AutoAttendant();
         operator.setSystemId("operator");
@@ -69,11 +82,11 @@ public class AttendantScheduleFileTest extends XMLTestCase {
 
         AttendantScheduleFile file = new AttendantScheduleFile();
         file.generate(rule);
-        
+
         assertEquals("aa_-1_schedule.xml", file.getFileBaseName());
 
         String generatedXml = file.getFileContent();
-        
+
         InputStream referenceXmlStream = AttendantScheduleFileTest.class
                 .getResourceAsStream("attendant_schedule.test.xml");
 
