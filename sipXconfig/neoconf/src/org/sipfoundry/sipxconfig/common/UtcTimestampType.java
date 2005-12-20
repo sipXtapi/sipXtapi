@@ -39,13 +39,11 @@ public class UtcTimestampType extends TimestampType {
      */
     public void set(PreparedStatement st, Object value, int index) throws SQLException {
         Date date = (Date) value;
-        System.err.println("before: " + date);
         Calendar local = getLocalCalendar();
         local.setTime(date);
         int offset = local.get(Calendar.ZONE_OFFSET);
         local.add(Calendar.MILLISECOND, -offset);
         Date localTime = local.getTime();
-        System.err.println("after: " + localTime);
         super.set(st, localTime, index);
     }
 
