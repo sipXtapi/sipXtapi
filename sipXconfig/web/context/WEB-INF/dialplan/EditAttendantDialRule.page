@@ -75,6 +75,7 @@
     <component id="afterHoursAttendantPanel" type="FieldPanel">
         <binding name="field" expression="components.afterHoursAttendant"/>
         <message-binding name="label" key="label.afterHoursAttendant"/>
+        <message-binding name="description" key="description.afterHoursAttendant"/>
     </component>
     <component id="afterHoursAttendant" type="PropertySelection">
         <binding name="value" expression="rule.afterHoursAttendant.attendant"/>
@@ -84,22 +85,29 @@
     <component id="holidayAttendantPanel" type="FieldPanel">
         <binding name="field" expression="components.holidayAttendant"/>
         <message-binding name="label" key="label.holidayAttendant"/>
+        <message-binding name="description" key="description.holidayAttendant"/>
     </component>
     <component id="holidayAttendant" type="PropertySelection">
         <binding name="value" expression="rule.holidayAttendant.attendant"/>
         <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
+        <binding name="submitOnChange" expression="true"/>
     </component>
     <component id="holidayDates" type="HolidaysEditor">
         <binding name="holiday" expression="rule.holidayAttendant"/>
 	</component>
+    <component id="renderHolidayConfig" type="contrib:FormConditional">
+        <binding name="condition" expression="rule.holidayAttendant.attendant != null"/>
+    </component>
 
     <component id="workingTimeAttendantPanel" type="FieldPanel">
         <binding name="field" expression="components.workingTimeAttendant"/>
         <message-binding name="label" key="label.workingTimeAttendant"/>
+        <message-binding name="description" key="description.workingTimeAttendant"/>        
     </component>
     <component id="workingTimeAttendant" type="PropertySelection">
         <binding name="value" expression="rule.workingTimeAttendant.attendant"/>
         <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
+        <binding name="submitOnChange" expression="true"/>
     </component>
     <component id="workingHours" type="Foreach">
         <binding name="source" expression="rule.workingTimeAttendant.workingHours"/>
@@ -107,6 +115,9 @@
     </component>
     <component id="workingDay" type="WorkingHoursEditor">
         <binding name="workingHours" expression="workingHours"/>
+    </component>    
+    <component id="renderWorkingHoursConfig" type="contrib:FormConditional">
+        <binding name="condition" expression="rule.workingTimeAttendant.attendant != null"/>
     </component>
             
     <component id="formActions" type="FormActions">

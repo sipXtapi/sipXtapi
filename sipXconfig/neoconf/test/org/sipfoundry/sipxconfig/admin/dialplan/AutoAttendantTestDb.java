@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.File;
-import java.util.Collection;
 import java.util.Collections;
 
 import org.dbunit.Assertion;
