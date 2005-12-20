@@ -142,13 +142,9 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
         return !delegate.getHasErrors();
     }
 
-    public void commit(IRequestCycle cycle) {
+    public void commit(IRequestCycle cycle_) {
         if (isValid()) {
             saveValid();
-
-            // Ignore the callback for now because we're navigating to unexpected places.
-            // Always go to the EditFlexibleDialPlan plan.
-            cycle.activate(EditFlexibleDialPlan.PAGE);
         }
     }
 
