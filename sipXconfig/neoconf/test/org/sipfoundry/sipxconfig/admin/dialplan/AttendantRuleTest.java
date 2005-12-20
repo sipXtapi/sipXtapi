@@ -16,6 +16,9 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 
@@ -72,5 +75,30 @@ public class AttendantRuleTest extends TestCase {
         AttendantRule rule = new AttendantRule();
         // this is internal rule
         assertTrue(rule.isInternal());
+    }
+    
+    public void testCheckAttendant() {
+        AutoAttendant attendant = new AutoAttendant();
+        attendant.setUniqueId();
+        
+        WorkingTime wt = new WorkingTime();
+        wt.setAttendant(attendant);
+        
+        Holiday holiday = new Holiday();
+        holiday.setAttendant(attendant);
+        
+        ScheduledAttendant sa = new ScheduledAttendant();
+        sa.setAttendant(attendant);
+        
+        AttendantRule r1 = new AttendantRule();
+        assertFalse(r1.checkAttendant(attendant));
+        
+        r1.setAfterHoursAttendant(sa);
+        assertTrue(r1.checkAttendant(attendant));
+
+        AttendantRule r2 = new AttendantRule();        
+        r2.setWorkingTimeAttendant(wt);
+        r2.setHolidayAttendant(holiday);
+        assertTrue(r2.checkAttendant(attendant));
     }
 }

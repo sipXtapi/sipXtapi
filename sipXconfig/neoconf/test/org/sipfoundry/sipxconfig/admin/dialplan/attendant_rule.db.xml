@@ -2,9 +2,9 @@
 <dataset>
   <dial_plan dial_plan_id="500"/>
   
-  <auto_attendant auto_attendant_id="1000" name="a0"/>
-  <auto_attendant auto_attendant_id="1001" name="a1"/>
-  <auto_attendant auto_attendant_id="1002" name="a2"/>
+  <auto_attendant auto_attendant_id="1000" name="a0" prompt="kuku.wav" extension="987"/>
+  <auto_attendant auto_attendant_id="1001" name="a1" prompt="kuku.wav" extension="988"/>
+  <auto_attendant auto_attendant_id="1002" name="a2" prompt="kuku.wav" extension="989"/>
   
   <dialing_rule dialing_rule_id="2002" name="attendant_rule" position="0" dial_plan_id="500"
     enabled="false"/>

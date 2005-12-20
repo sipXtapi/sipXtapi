@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.dbunit.Assertion;
 import org.dbunit.dataset.IDataSet;
@@ -98,6 +100,17 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         }
     }
 
+    public void testDeleteInUseByAttendantRule() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
+        try {
+            m_context.deleteAutoAttendantsByIds(Collections.singletonList(new Integer(1001)), "");
+            fail();
+        } catch (AttendantInUseException e) {
+            assertTrue(true);
+            assertTrue(e.getMessage().indexOf("attendant_rule") > 0);
+        }
+    }
+    
     public void testDeleteOperatorInUse() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/seedOperator.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));

@@ -167,7 +167,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         DialPlan dialPlan = getDialPlan();
         return dialPlan.getGenerationRules();
     }
-    
+
     public List getAttendantRules() {
         DialPlan dialPlan = getDialPlan();
         return dialPlan.getAttendantRules();
@@ -242,7 +242,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     public void deleteAutoAttendantsByIds(Collection attendantIds, String scriptsDir) {
-        // TODO: Remove attendants from internal dialing rules
         for (Iterator i = attendantIds.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             AutoAttendant aa = getAutoAttendant(id);
@@ -257,6 +256,18 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         Collection rules = getRulesUsedByAttendant(attendant);
         if (rules.size() > 0) {
             throw new AttendantInUseException(rules);
+        }
+
+        Collection attendantRules = getHibernateTemplate().loadAll(AttendantRule.class);
+        Collection affectedRules = new ArrayList();
+        for (Iterator i = attendantRules.iterator(); i.hasNext();) {
+            AttendantRule rule = (AttendantRule) i.next();
+            if (rule.checkAttendant(attendant)) {
+                affectedRules.add(rule);
+            }
+        }
+        if (!affectedRules.isEmpty()) {
+            throw new AttendantInUseException(affectedRules);
         }
 
         getHibernateTemplate().delete(attendant);
@@ -350,7 +361,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
     }
-    
+
     public void setScriptsDirectory(String scriptsDirectory) {
         m_scriptsDirectory = scriptsDirectory;
     }

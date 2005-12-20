@@ -100,4 +100,16 @@ public class AttendantRule extends DialingRule {
     public void setExtension(String extension) {
         m_extension = extension;
     }
+
+    /**
+     * Check if the attendant in question is referenced by this rule
+     * @param attendant
+     * @return true if any references have been found false otherwise
+     */
+    public boolean checkAttendant(AutoAttendant attendant) {
+        boolean result = m_afterHoursAttendant.checkAttendant(attendant);
+        result |= m_workingTimeAttendant.checkAttendant(attendant);
+        result |= m_holidayAttendant.checkAttendant(attendant);
+        return result;
+    }
 }
