@@ -1,0 +1,7 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="setup" class="org.sipfoundry.sipxconfig.setup.SetupManager">
+    
+  </bean>
+</beans>

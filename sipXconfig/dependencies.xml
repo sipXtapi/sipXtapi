@@ -6,7 +6,7 @@
  - ant default target called    
 -->
 <project name="dependencies" default="depend.all">
-  <target name="depend.all" depends="depend.neoconf, depend.web">
+  <target name="depend.all" depends="depend.neoconf, depend.weblib, depend.web, depend.jsetup">
   </target>
   
   <target name="depend.web" depends="depend.neoconf">
@@ -19,5 +19,9 @@
 
   <target name="depend.jsetup">
     <ant dir="${top.dir}/jsetup" inheritAll="false"/>
+  </target>
+
+  <target name="depend.weblib">
+    <ant dir="${top.dir}/weblib" inheritAll="false"/>
   </target>
 </project>
