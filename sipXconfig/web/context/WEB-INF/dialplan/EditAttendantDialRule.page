@@ -88,7 +88,10 @@
     <component id="holidayAttendant" type="PropertySelection">
         <binding name="value" expression="rule.holidayAttendant.attendant"/>
         <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
-    </component>    
+    </component>
+    <component id="holidayDates" type="HolidaysEditor">
+        <binding name="holiday" expression="rule.holidayAttendant"/>
+	</component>
 
     <component id="workingTimeAttendantPanel" type="FieldPanel">
         <binding name="field" expression="components.workingTimeAttendant"/>

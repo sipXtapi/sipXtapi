@@ -101,7 +101,7 @@ public class WorkingTime extends ScheduledAttendant {
         }
 
         /**
-         * @param UTC time
+         * @param start UTC time
          */
         public void setStart(Date start) {
             m_start = start;

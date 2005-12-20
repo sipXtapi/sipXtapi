@@ -96,7 +96,6 @@
             | sed -e 's,./,,' -e 's/\.jwc//' | sort
       -
       -->
-    <component-type type="SearchPanel" specification-path="search/SearchPanel.jwc"/>
     <component-type type="AdminNavigation" specification-path="common/AdminNavigation.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
     <component-type type="AssetSelectorPanel" specification-path="common/AssetSelectorPanel.jwc"/>
@@ -119,6 +118,7 @@
     <component-type type="GroupLabel" specification-path="setting/GroupLabel.jwc"/>
     <component-type type="GroupSelect" specification-path="setting/GroupSelect.jwc"/>
     <component-type type="GroupTable" specification-path="setting/GroupTable.jwc"/>
+    <component-type type="HolidaysEditor" specification-path="dialplan/HolidaysEditor.jwc"/>
     <component-type type="ItemCommon" specification-path="common/ItemCommon.jwc"/>
     <component-type type="LineLabel" specification-path="line/LineLabel.jwc"/>
     <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>
@@ -130,6 +130,7 @@
     <component-type type="RestartReminderPanel" specification-path="admin/commserver/RestartReminderPanel.jwc"/>
     <component-type type="RingEditor" specification-path="user_portal/RingEditor.jwc"/>
     <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
+    <component-type type="SearchPanel" specification-path="search/SearchPanel.jwc"/>
     <component-type type="SettingEditor" specification-path="setting/SettingEditor.jwc"/>
     <component-type type="SettingsFieldset" specification-path="setting/SettingsFieldset.jwc"/>
     <component-type type="SettingsForm" specification-path="setting/SettingsForm.jwc"/>
