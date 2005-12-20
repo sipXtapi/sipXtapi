@@ -23,19 +23,27 @@ class Setup
   end
   
   def finish_upgrade  
-    unresolved = @system.unresolved_backup_files
-    unresolved.each do |file|
-      resolve(file)
-      # if ok, delete unresolved file
-      # if !ok, report conflict
+    success = true
+    unresolved = @system.unresolved_backup_files(@system.configuration_files)
+    unresolved.each do |backup_file|
+      if resolve(backup_file) 
+        @system.delete_file(backup_file)
+      else
+        success = false
+        @system.puts "Could not automatically resolve file #{file}"
+      end
     end
+    return success
   end
   
   def resolve(file)
     master = @system.backup_master_file(file)
     patch = @system.create_patch(master, file)
-    @system.test_patch(master, patch)
-    @system.apply_patch(master, patch)
+    if @system.test_patch(master, patch)
+      @system.apply_patch(master, patch)
+      return true
+    end
+    return false
   end
 end
 
@@ -43,8 +51,9 @@ end
 # commands AND so calls can be stubbed out for unitttests 
 class SystemService
 
-  # These values are replaced during make install
   @@binDir = '@sipxpbx.bin.dir@'
+  @@patch = 'patch'
+  @@diff = 'diff'
   
   def initialize()
     @console = $stdout;
@@ -53,20 +62,30 @@ class SystemService
   def console(message) 
     @console.puts(message)
   end
+  
+  def delete_file(file)
+    File.delete(file)
+  end
 
   def perform_backup
     `#{@@binDir}/backup-configs.sh`
   end
   
   def create_patch(masterFile, oldFile)
-    return `diff -u #{masterFile} #{oldFile}`    
+    return `#{@@diff} --unified #{masterFile} #{oldFile}`    
   end
-
+    
   def test_patch(masterFile, patch)
-    return true
+    IO.popen("#{@@patch} --unified --dry-run #{masterFile}", "w") {|pipe|
+      pipe.puts patch
+    }
+    return "#{$?}" == "0"
   end
 
   def apply_patch(masterFile, patch)
+    IO.popen("#{@@patch} --unified #{masterFile}", "w") {|pipe|
+      pipe.puts patch
+    }
   end
   
 end
@@ -78,12 +97,12 @@ class RedhatSystem < SystemService
   end
   
   def modified_files(package)
-   modified = Array.new
-   modified_line = `rpm --query --verify #{package}`.split("\n")
-   modified_line.each do |line|
-     modified.add line.split.last
-   end
-   return modified
+    modified = Array.new
+    modified_line = `rpm --query --verify #{package}`.split("\n")
+    modified_line.each do |line|
+      modified.add line.split.last
+    end
+    return modified
   end
   
   def configuration_files
@@ -95,7 +114,7 @@ class RedhatSystem < SystemService
   end
   
   # %config(noreplace) filename and file was modified by end user
-  def unresolved_backup_files
+  def unresolved_backup_files(configuration_files)
     unresolved = Array.new
     configuration_files.each do |file|
       unresolved.add file if File.exists? file+".rpmnew"
