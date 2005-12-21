@@ -28,7 +28,8 @@ public
   end
   def test_finish_upgrade
     files = [ "file.master"]
-    @system.should_receive(:configuration_files).and_return(files)
+    @system.should_receive(:packages).and_return("foo")
+    @system.should_receive(:configuration_files).with("foo").and_return(files)
     @system.should_receive(:backup_filename).with("file.master").and_return("file.backup")
     @system.should_receive(:file_exists).with("file.backup").and_return(true)
     @system.should_receive(:create_patch).with("file.master", "file.backup").and_return("patch")
@@ -41,7 +42,8 @@ public
   end
   def test_unresolved_backup_files
     files = [ "file1", "file2"]
-    @system.should_receive(:configuration_files).and_return(files)
+    @system.should_receive(:packages).and_return("foo")
+    @system.should_receive(:configuration_files).with("foo").and_return(files)
     @system.should_receive(:backup_filename).with("file1").and_return("backup1")
     @system.should_receive(:file_exists).with("backup1").and_return(true)
     @system.should_receive(:backup_filename).with("file2").and_return("backup2")

@@ -18,7 +18,7 @@ class Setup
     end
   end
 
-  def prepare_for_upgrade
+  def prepare_for_upgrade    
     @system.perform_backup
   end
   
@@ -55,11 +55,19 @@ class Setup
   # %config(noreplace) filename and file was modified by end user
   def unresolved_backup_files
     unresolved = []
-    @system.configuration_files.each do |file|
+    configuration_files.each do |file|
       unresolved.push file if @system.file_exists(@system.backup_filename(file))
     end
     
     return unresolved
+  end
+
+  def configuration_files
+    files = []
+    @system.packages.each do |package|
+      files.concat @system.configuration_files(package)
+    end
+    return files
   end
 
 end
@@ -93,7 +101,7 @@ class SystemService
   end
   
   def create_patch(masterFile, oldFile)
-    return `#{@@diff} --unified #{masterFile} #{oldFile}`    
+    return `#{@@diff} --unified #{masterFile} #{oldFile}`
   end
     
   def test_patch(masterFile, patch)
@@ -126,12 +134,8 @@ class RedhatSystem < SystemService
     return modified
   end
   
-  def configuration_files
-    files = []
-    packages.each do |package|
-      files.push `rpm --query --configfiles #{package}`.split("\n")
-    end
-    return files
+  def configuration_files(package)
+    return `rpm --query --configfiles #{package}`.split("\n")
   end
   
   def backup_filename(master_filename)
