@@ -13,7 +13,7 @@ class Setup
     packages = @system.packages
     packages.each do |package|
       @system.modified_files(package).each do |file|
-        @system.puts file
+        @system.console file
       end
     end
   end
@@ -24,27 +24,44 @@ class Setup
   
   def finish_upgrade  
     success = true
-    unresolved = @system.unresolved_backup_files(@system.configuration_files)
-    unresolved.each do |backup_file|
-      if resolve(backup_file) 
-        @system.delete_file(backup_file)
+    unresolved = unresolved_backup_files
+    unresolved.each do |master_file|
+      if resolve(master_file) 
+        @system.delete_file(@system.backup_filename(master_file))
       else
         success = false
-        @system.puts "Could not automatically resolve file #{file}"
+        @system.console "Could not automatically resolve file #{master_file}"
       end
     end
     return success
   end
   
-  def resolve(file)
-    master = @system.backup_master_file(file)
-    patch = @system.create_patch(master, file)
+  def resolve(master)
+    backup = @system.backup_filename(master)
+    patch = @system.create_patch(master, backup)
     if @system.test_patch(master, patch)
       @system.apply_patch(master, patch)
       return true
     end
     return false
   end
+  
+  def show_unresolved
+    unresolved_backup_files.each do |file|
+      @system.console file
+    end
+  end
+
+  # %config(noreplace) filename and file was modified by end user
+  def unresolved_backup_files
+    unresolved = []
+    @system.configuration_files.each do |file|
+      unresolved.push file if @system.file_exists(@system.backup_filename(file))
+    end
+    
+    return unresolved
+  end
+
 end
 
 # Isolate system calls so other distros can implement respective 
@@ -65,6 +82,10 @@ class SystemService
   
   def delete_file(file)
     File.delete(file)
+  end
+  
+  def file_exists(file)
+    return File.exists?(file)
   end
 
   def perform_backup
@@ -97,34 +118,24 @@ class RedhatSystem < SystemService
   end
   
   def modified_files(package)
-    modified = Array.new
+    modified = []
     modified_line = `rpm --query --verify #{package}`.split("\n")
     modified_line.each do |line|
-      modified.add line.split.last
+      modified.push line.split.last
     end
     return modified
   end
   
   def configuration_files
-    files = Array.new
+    files = []
     packages.each do |package|
-      files.add `rpm --query --configfiles #{package}`.split("\n")
+      files.push `rpm --query --configfiles #{package}`.split("\n")
     end
     return files
   end
   
-  # %config(noreplace) filename and file was modified by end user
-  def unresolved_backup_files(configuration_files)
-    unresolved = Array.new
-    configuration_files.each do |file|
-      unresolved.add file if File.exists? file+".rpmnew"
-    end
-    
-    return unresolved
-  end
-  
-  def backup_master_file(filename)
-    return filename.chomp(".rpmsave")
+  def backup_filename(master_filename)
+    return master_filename + '.rpmnew'
   end
   
 end
@@ -132,10 +143,12 @@ end
 
 def usage_exit
       usage = <<__EOU__
-  Usage:
-    #{ $0 } --show-modified
-  Show configuration files that have been modified.
+  Usage: #{ $0 } command
 
+  Commands:
+     --show-modified    Show configuration files that have been modified.
+     --show-unresolved  Show configuration files that need to be resolved
+                        after an upgrade.
 __EOU__
 
       STDERR << usage
@@ -145,6 +158,7 @@ end
 if __FILE__ == $0
   OptSet = [
     ['--show-modified','-m', GetoptLong::NO_ARGUMENT],
+    ['--show-unresolved','-u', GetoptLong::NO_ARGUMENT],
     ['--help','-h', GetoptLong::NO_ARGUMENT],
   ]
 
@@ -153,10 +167,14 @@ if __FILE__ == $0
     action = nil
     opts.each do |name, arg|
       case name
-        when "--show-modified"
-          action = "show_modified"
-        else
+        when "--help"
           usage_exit
+        else
+          OptSet.each do |option|
+            if name == option[0]
+              action = option[0].slice(2..-1).gsub(/[-]/, "_")
+            end
+          end
         end
     end
   rescue
@@ -164,7 +182,7 @@ if __FILE__ == $0
   end
 
   begin
-
+  usage_exit if !action
   setup = Setup.new
   setup.send(action)
 

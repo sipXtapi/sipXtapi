@@ -1,4 +1,5 @@
 require 'test/unit'
+require 'rubygems'
 require 'flexmock'
 require 'tempfile'
 require 'fileutils'
@@ -6,49 +7,46 @@ load 'sipxsetup'
 
 class SetupTest < Test::Unit::TestCase
 public
+  def setup
+    @system = FlexMock.new("sipxsetup")
+    @setup = Setup.new(@system)    	
+  end
+  def
+    @system.verify
+  end
   def test_show_modified
-    system = FlexMock.new("sipxsetup")
-    setup = Setup.new(system)  
-    system.should_receive(:packages).and_return {
-      [ "sipxportlib", "sipxtacklib" ]      
-    }
-    system.should_receive(:modified_files).with("sipxportlib").and_return {
-      [ "sipxport.properties" ]      
-    }
-    system.should_receive(:puts).with("sipxport.properties")
-    system.should_receive(:modified_files).with("sipxtacklib").and_return {
-      [ "sipxtack.properties" ]      
-    }
-    system.should_receive(:puts).with("sipxtack.properties")
+    @system.should_receive(:packages).and_return(["p1", "p2"])
+    @system.should_receive(:modified_files).with("p1").and_return(["f1"])
+    @system.should_receive(:console).with("f1")
+    @system.should_receive(:modified_files).with("p2").and_return([])
     
-    setup.show_modified
+    @setup.show_modified
   end
   def test_prepare_for_upgrade
-    system = FlexMock.new("sipxsetup")
-    setup = Setup.new(system)  
-    system.should_receive(:perform_backup)
-
-    setup.prepare_for_upgrade
+    @system.should_receive(:perform_backup)
+    @setup.prepare_for_upgrade
   end
   def test_finish_upgrade
-    system = FlexMock.new("sipxsetup")
-    setup = Setup.new(system)  
-    files = [ "file.backup"]
-    system.should_receive(:configuration_files).and_return(files)
-    system.should_receive(:unresolved_backup_files).with(files).and_return(files)
-    system.should_receive(:backup_master_file).with("file.backup").and_return {
-      "file.master"
-    }    
-    system.should_receive(:create_patch).with("file.master", "file.backup").and_return {
-      "patch"
-    }
-    system.should_receive(:test_patch).with("file.master", "patch").and_return {
-      true
-    }
-    system.should_receive(:apply_patch).with("file.master", "patch")
-    system.should_receive(:delete_file).with("file.backup")
+    files = [ "file.master"]
+    @system.should_receive(:configuration_files).and_return(files)
+    @system.should_receive(:backup_filename).with("file.master").and_return("file.backup")
+    @system.should_receive(:file_exists).with("file.backup").and_return(true)
+    @system.should_receive(:create_patch).with("file.master", "file.backup").and_return("patch")
+    @system.should_receive(:test_patch).with("file.master", "patch").and_return(true)
+    @system.should_receive(:apply_patch).with("file.master", "patch")
+    @system.should_receive(:backup_filename).with("file.master").and_return("file.backup")
+    @system.should_receive(:delete_file).with("file.backup")
     
-    setup.finish_upgrade
+    assert @setup.finish_upgrade
+  end
+  def test_unresolved_backup_files
+    files = [ "file1", "file2"]
+    @system.should_receive(:configuration_files).and_return(files)
+    @system.should_receive(:backup_filename).with("file1").and_return("backup1")
+    @system.should_receive(:file_exists).with("backup1").and_return(true)
+    @system.should_receive(:backup_filename).with("file2").and_return("backup2")
+    @system.should_receive(:file_exists).with("backup2").and_return(false)
+    assert_equal(["file1"], @setup.unresolved_backup_files)
   end
 end
 
@@ -122,9 +120,7 @@ public
   def setup
     @system = RedhatSystem.new
   end
-  def test_unresolved_master
-    assert_equal("foo", @system.backup_master_file("foo.rpmsave"))
-  end
-  def test_unresolved_backup_files
+  def test_backup_filename
+    assert_equal("foo.rpmnew", @system.backup_filename("foo"))
   end
 end
