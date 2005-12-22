@@ -4,12 +4,10 @@
       <column>auto_attendant_id</column>
       <column>name</column>
       <column>prompt</column>	  	
-      <column>extension</column>	  	
 	  <row>
 		<value>2000</value>
 		<value>test attendant in use</value>
 		<value>hello.wav</value>
-		<value>1234</value>
 	  </row>
   </table>
   <table name="dialing_rule">
@@ -28,18 +26,14 @@
   </table>
   <table name="internal_dialing_rule">
     <column>internal_dialing_rule_id</column>
-    <column>auto_attendant_id</column>
     <column>local_extension_len</column>
     <column>voice_mail</column>
     <column>voice_mail_prefix</column>
-	<column>aa_aliases</column>
     <row>
       <value>1000</value>
-      <value>2000</value>
       <value>3</value>
       <value>100</value>
       <value>8</value>
-      <value>alias1,alias2</value>
     </row>
   </table>
 </dataset>

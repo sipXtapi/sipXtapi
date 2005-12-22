@@ -7,7 +7,6 @@
 		auto_attendant_id="1000"
         name="martha"
 		description="aa description"
-		extension="100"
 		prompt="thankyou_goodbye.wav"/>
 	<dial_plan
 		dial_plan_id="1000"/>

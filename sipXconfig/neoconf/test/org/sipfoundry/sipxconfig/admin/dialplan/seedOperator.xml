@@ -6,6 +6,5 @@
         name="Operator"
 		system_id="operator"
 		description="aa description"
-		extension="100"
 		prompt="thankyou_goodbye.wav"/> 
 </dataset>

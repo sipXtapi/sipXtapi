@@ -1,6 +1,6 @@
 package org.sipfoundry.sipxconfig;
 
-import java.io.FileWriter;
+import java.io.Writer;
 import java.sql.SQLException;
 
 import junit.framework.TestCase;
@@ -48,9 +48,9 @@ public class SipxDatabaseTestCase extends TestCase {
         TestHelper.closeConnection();
     }
 
-    protected void writeFlatXmlDataSet(FileWriter fileWriter) throws Exception {
+    protected void writeFlatXmlDataSet(Writer out) throws Exception {
         IDataSet set = getConnection().createDataSet();
-        FlatXmlWriter writer = new FlatXmlWriter(fileWriter);
+        FlatXmlWriter writer = new FlatXmlWriter(out);
         writer.write(set);
     }
 }

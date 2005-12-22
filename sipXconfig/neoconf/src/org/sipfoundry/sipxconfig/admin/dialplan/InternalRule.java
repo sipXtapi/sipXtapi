@@ -27,16 +27,6 @@ public class InternalRule extends DialingRule {
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
     private String m_voiceMail = DEFAULT_VOICEMAIL;
-    
-    /**
-     * @deprecated use attendant dialing rule
-     */
-    private AutoAttendant m_autoAttendant;
-    /**
-     * @deprecated use attendant dialing rule
-     */
-    private String m_aaAliases;
-
 
     public String[] getPatterns() {
         return null;
@@ -48,20 +38,6 @@ public class InternalRule extends DialingRule {
 
     public DialingRuleType getType() {
         return DialingRuleType.INTERNAL;
-    }
-
-    /**
-     * @deprecated use attendant dialing rule
-     */
-    public AutoAttendant getAutoAttendant() {
-        return m_autoAttendant;
-    }
-
-    /**
-     * @deprecated use attendant dialing rule
-     */
-    public void setAutoAttendant(AutoAttendant autoAttendant) {
-        m_autoAttendant = autoAttendant;
     }
 
     public int getLocalExtensionLen() {
@@ -88,20 +64,6 @@ public class InternalRule extends DialingRule {
 
     public void setVoiceMailPrefix(String voiceMailPrefix) {
         m_voiceMailPrefix = voiceMailPrefix;
-    }
-
-    /**
-     * @deprecated use attendant dialing rule
-     */
-    public String getAaAliases() {
-        return m_aaAliases;
-    }
-
-    /**
-     * @deprecated use attendant dialing rule
-     */
-    public void setAaAliases(String attendantAliases) {
-        m_aaAliases = attendantAliases;
     }
 
     public void appendToGenerationRules(List rules) {

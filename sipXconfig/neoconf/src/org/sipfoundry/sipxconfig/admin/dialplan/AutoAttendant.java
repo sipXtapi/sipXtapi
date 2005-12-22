@@ -22,18 +22,11 @@ public class AutoAttendant extends BeanWithId implements NamedObject {
 
     public static final String OPERATOR_ID = "operator";
     
-    private static final String OPERATOR_DEFAULT_EXT = "100";
-
     private static final String SYSTEM_NAME_PREFIX = "xcf";
     
     private static final String OPERATOR_DEFAULT_PROMPT = "welcome.wav";
     
     private String m_name;
-
-    /**
-     * @deprecated extension is now kept in AttendantRule only
-     */
-    private String m_extension;
 
     private String m_description;
 
@@ -51,7 +44,6 @@ public class AutoAttendant extends BeanWithId implements NamedObject {
         operator.setSystemId(OPERATOR_ID);
         operator.setName("Operator");
         operator.setPrompt(OPERATOR_DEFAULT_PROMPT);
-        operator.setExtension(OPERATOR_DEFAULT_EXT);
         operator.resetToFactoryDefault();
         
         return operator;
@@ -95,20 +87,6 @@ public class AutoAttendant extends BeanWithId implements NamedObject {
 
     public void setDescription(String description) {
         m_description = description;
-    }
-
-    /**
-     * @deprecated extension is now kept in AttendantRule only
-     */
-    public String getExtension() {
-        return m_extension;
-    }
-
-    /**
-     * @deprecated extension is now kept in AttendantRule only
-     */
-    public void setExtension(String extension) {
-        m_extension = extension;
     }
 
     public String getPrompt() {

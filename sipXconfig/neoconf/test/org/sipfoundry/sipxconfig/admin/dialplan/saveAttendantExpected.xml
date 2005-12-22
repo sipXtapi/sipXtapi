@@ -2,7 +2,6 @@
 <!DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd">
 <dataset>
   <auto_attendant auto_attendant_id="[auto_attendant_id]" name="test-aa" system_id="[null]"
-    extension="[null]"
     description="aa description" prompt="thankyou_goodbye.wav"/>
   
   <attendant_menu_item auto_attendant_id="[auto_attendant_id]" dialpad_key="1"

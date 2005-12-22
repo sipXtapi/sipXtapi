@@ -246,10 +246,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (attendant.isOperator()) {
             throw new AttendantInUseException();
         }
-        Collection rules = getRulesUsedByAttendant(attendant);
-        if (rules.size() > 0) {
-            throw new AttendantInUseException(rules);
-        }
 
         Collection attendantRules = getHibernateTemplate().loadAll(AttendantRule.class);
         Collection affectedRules = new ArrayList();
@@ -268,13 +264,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (script.exists()) {
             script.delete();
         }
-    }
-
-    public List getRulesUsedByAttendant(AutoAttendant attendant) {
-        String query = "from InternalRule r where r.autoAttendant = :attendant";
-        List attendants = getHibernateTemplate().findByNamedParam(query, "attendant", attendant);
-
-        return attendants;
     }
 
     /**

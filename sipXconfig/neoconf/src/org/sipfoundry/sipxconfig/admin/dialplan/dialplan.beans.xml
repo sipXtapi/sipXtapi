@@ -2,7 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-
+  
   <!--
   - D I A L   P L A N S
   -->
@@ -17,7 +17,8 @@
     <property name="voiceMailPrefix" value="8"/>
   </bean>
   
-  <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule" singleton="false">
+  <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule"
+    singleton="false">
     <property name="name" value="AutoAttendant"/>
     <property name="description" value="Default autoattendant dialing plan"/>
     <property name="enabled" value="true"/>
@@ -149,7 +150,8 @@
   <!--
   - D I A L P L A N  C O N T E X T
   -->
-  <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl">
+  <bean id="dialPlanContextImpl"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl">
     <property name="coreContext">
       <ref bean="coreContext"></ref>
     </property>
@@ -165,7 +167,8 @@
     <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
   </bean>
   
-  <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+  <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext</value>
     </property>
@@ -173,17 +176,17 @@
       <ref local="dialPlanContextImpl"/>
     </property>
   </bean>
-
+  
   <bean id="vxml" class="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator">
     <property name="velocityEngine" ref="velocityEngine"/>
   </bean>
-  
   
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules"/>
   <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules"/>
   <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules"/>
   
-  <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator">
+  <bean id="dialPlanConfigGenerator"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator">
     <property name="mappingRules">
       <ref local="mappingRules"/>
     </property>
@@ -194,6 +197,29 @@
       <ref local="authRules"/>
     </property>
   </bean>
-
+  
+  <bean id="attendantMigrationContextImpl"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContextImpl">
+    <property name="dialPlanContext">
+      <ref local="dialPlanContext"/>
+    </property>
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+  
+  <bean id="attendantMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContext</value>
+    </property>
+    <property name="target">
+      <ref local="attendantMigrationContextImpl"/>
+    </property>
+  </bean>
+  
+  <bean id="attendantMigrationTrigger"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationTrigger">
+    <property name="attendantMigrationContext">
+      <ref local="attendantMigrationContext"/>
+    </property>
+  </bean>
 </beans>
-

@@ -54,4 +54,8 @@ alter table attendant_dialing_rule
 alter table attendant_dialing_rule  
   add constraint fk_working_time_attendant_auto_attendant 
   foreign key (working_time_attendant_id) 
-  references auto_attendant;  
+  references auto_attendant;
+  
+  
+-- make sure that the rules are migrated to new tables
+insert into initialization_task (name) values ('dial_plan_migrate_attendant_rules');

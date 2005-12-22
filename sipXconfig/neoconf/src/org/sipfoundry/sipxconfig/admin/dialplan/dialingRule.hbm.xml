@@ -48,8 +48,7 @@
       </list>
       <bag name="permissions" table="custom_dialing_rule_permission">
         <key column="custom_dialing_rule_id"/>
-        <element type="org.sipfoundry.sipxconfig.common.Permission$UserType"
-          column="permission"/>
+        <element type="org.sipfoundry.sipxconfig.common.Permission$UserType" column="permission"/>
       </bag>
     </joined-subclass>
     
@@ -62,11 +61,9 @@
     
     <joined-subclass name="InternalRule" table="internal_dialing_rule">
       <key column="internal_dialing_rule_id"/>
-      <many-to-one name="autoAttendant" column="auto_attendant_id" class="AutoAttendant"/>
       <property name="localExtensionLen"/>
       <property name="voiceMail"/> <!-- voicemail extension -->
       <property name="voiceMailPrefix"/>
-      <property name="aaAliases"/>
     </joined-subclass>
     
     <joined-subclass name="InternationalRule" table="international_dialing_rule">
@@ -85,8 +82,7 @@
       <property name="areaCodes"/>
       <property name="externalLen"/>
       <property name="longDistancePrefix"/>
-      <property name="permission"
-        type="org.sipfoundry.sipxconfig.common.Permission$UserType"/>
+      <property name="permission" type="org.sipfoundry.sipxconfig.common.Permission$UserType"/>
       <property name="pstnPrefix"/>
     </joined-subclass>
     
@@ -134,56 +130,65 @@
     </joined-subclass>
     
   </class>
-	
-	<class name="EmergencyRouting" table="emergency_routing">
+  
+  <class name="EmergencyRouting" table="emergency_routing">
     <id name="id" column="emergency_routing_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">dialing_rule_seq</param>
       </generator>
     </id>
-		<many-to-one name="defaultGateway" class="org.sipfoundry.sipxconfig.gateway.Gateway" not-null="false" 
-			column="gateway_id" foreign-key="fk_emergency_routing_gateway"/>
-		<property name="externalNumber"/>
-		<bag name="exceptions" table="routing_exception" cascade="all,delete-orphan" inverse="true">
-			<key column="emergency_routing_id"/>
-			<one-to-many class="RoutingException"/>
-		</bag>
-	</class>
-	
-	<class name="RoutingException" table="routing_exception">
+    <many-to-one name="defaultGateway" class="org.sipfoundry.sipxconfig.gateway.Gateway"
+      not-null="false" column="gateway_id" foreign-key="fk_emergency_routing_gateway"/>
+    <property name="externalNumber"/>
+    <bag name="exceptions" table="routing_exception" cascade="all,delete-orphan" inverse="true">
+      <key column="emergency_routing_id"/>
+      <one-to-many class="RoutingException"/>
+    </bag>
+  </class>
+  
+  <class name="RoutingException" table="routing_exception">
     <id name="id" column="routing_exception_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">dialing_rule_seq</param>
       </generator>
     </id>
-		<many-to-one name="gateway" class="org.sipfoundry.sipxconfig.gateway.Gateway" not-null="false" 
-			column="gateway_id" foreign-key="fk_routing_exception_gateway"/>		
-		<property name="externalNumber"/>
-		<property name="callers"/>
-		
-    <many-to-one name="emergencyRouting" column="emergency_routing_id" class="EmergencyRouting" not-null="true"
-      foreign-key="fk_emergency_routing_routing_exception"/>
-		
-	</class>
-	  
+    <many-to-one name="gateway" class="org.sipfoundry.sipxconfig.gateway.Gateway" not-null="false"
+      column="gateway_id" foreign-key="fk_routing_exception_gateway"/>
+    <property name="externalNumber"/>
+    <property name="callers"/>
+    
+    <many-to-one name="emergencyRouting" column="emergency_routing_id" class="EmergencyRouting"
+      not-null="true" foreign-key="fk_emergency_routing_routing_exception"/>
+    
+  </class>
+  
   <query name="dialingRuleIdsWithName">
     <![CDATA[select dr.id from DialingRule dr where dr.name = :value]]>
-  </query>  
-	  
+  </query>
+  
   <query name="internalRuleIdsWithVoiceMailExtension">
     <![CDATA[select ir.id from InternalRule ir where ir.voiceMail = :value]]>
-  </query>  
-	  
+  </query>
+  
   <query name="attendantRuleIdsWithExtension">
     <![CDATA[select r.id from AttendantRule r where r.extension = :value]]>
-  </query>  
-
-  <query name="aaAliases">
-    <![CDATA[select r.attendantAliases from AttendantRule r]]>
-  </query>  
-	  
+  </query>
+  
+  <query name="aaAliases"> <![CDATA[select r.attendantAliases from AttendantRule r]]>
+  </query>
+  
   <query name="attendantRuleIdsAndAttendantAliases">
     <![CDATA[select r.id, r.attendantAliases from AttendantRule r]]>
-  </query>  
-
+  </query>
+  
+  <!-- need to use SQL query since we no longer map some of the columns used here -->
+  <sql-query name="attendantsReferencesByInternalRules">
+    <return-scalar type="int" column="id"/>
+    <return-scalar type="string" column="aliases"/>
+    <return-scalar type="string" column="extension"/>
+    <![CDATA[select rule.auto_attendant_id as id, rule.aa_aliases as aliases, a.extension as extension 
+      	from internal_dialing_rule as rule, auto_attendant as a 
+      	where rule.auto_attendant_id=a.auto_attendant_id]]>
+  </sql-query>
+  
 </hibernate-mapping>

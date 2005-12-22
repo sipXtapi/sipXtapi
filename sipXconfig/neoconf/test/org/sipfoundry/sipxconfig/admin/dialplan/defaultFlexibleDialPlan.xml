@@ -70,14 +70,11 @@
   </table>
   <table name="internal_dialing_rule">
     <column>internal_dialing_rule_id</column>
-    <column>auto_attendant_id</column>
     <column>local_extension_len</column>
     <column>voicemail</column>
     <column>voicemail_prefix</column>
-    <column>auto_attendant_aliases</column>
     <row>
       <value>30</value>
-      <value>100</value>
       <value>3</value>
       <value>101</value>
       <value>8</value>

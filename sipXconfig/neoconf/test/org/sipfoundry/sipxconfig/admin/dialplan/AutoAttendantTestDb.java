@@ -20,7 +20,6 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.springframework.context.ApplicationContext;
@@ -84,18 +83,6 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         assertTrue(scriptFile.exists());
         m_context.deleteAutoAttendant(aa, TestHelper.getTestDirectory());
         assertFalse(scriptFile.exists());
-    }
-
-    public void testDeleteInUse() throws Exception {
-        TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        AutoAttendant aa = m_context.getAutoAttendant(new Integer(2000));
-        try {
-            m_context.deleteAutoAttendant(aa, "");
-            fail();
-        } catch (AttendantInUseException e) {
-            assertTrue(true);
-            assertTrue(e.getMessage().indexOf("Internal") > 0);
-        }
     }
 
     public void testDeleteInUseByAttendantRule() throws Exception {
