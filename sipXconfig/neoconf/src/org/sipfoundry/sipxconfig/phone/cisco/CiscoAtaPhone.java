@@ -30,8 +30,10 @@ import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.RestartException;
+import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
@@ -376,5 +378,24 @@ public class CiscoAtaPhone extends CiscoPhone {
                                       getSettings().getSetting(PHONE_REGISTRATION_SETTING).getValue(),
                                       getSettings().getSetting(SIP_PORT_SETTING).getValue(),
                                       settings.getUserId());
+    }
+
+    public Setting evaluateModel(ConditionalSet conditional) {
+        CiscoAtaSettingExpressionEvaluator gssee =
+            new CiscoAtaSettingExpressionEvaluator(getModel().getModelId());
+        Setting model = conditional.evaluate(gssee);
+        return model;
+    }
+
+    static class CiscoAtaSettingExpressionEvaluator implements SettingExpressionEvaluator {
+        private String m_model;
+
+        public CiscoAtaSettingExpressionEvaluator(String model) {
+            m_model = model;
+        }
+        
+        public boolean isExpressionTrue(String expression, Setting setting_) {
+            return m_model.matches(expression);
+        }
     }
 }

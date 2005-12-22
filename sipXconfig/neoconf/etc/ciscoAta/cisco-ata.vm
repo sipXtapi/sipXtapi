@@ -5,7 +5,11 @@
 #Group $group.Name
 #if ($group.Name != "upgrade")
 #foreach ($setting in $phone.getRealSettings($group))
+#if ($setting.Value == "")
+${setting.ProfileName}:0
+#else
 ${setting.ProfileName}:$!{setting.Value}
+#end
 #end
 #end
 #end
@@ -14,15 +18,27 @@ ${setting.ProfileName}:$!{setting.Value}
 #set ($group = $line.getSetting('port'))
 #foreach ($setting in $group.Values)
 #if ($phone.CfgPrefix == "ata")
+#if ($setting.Value == "")
+${setting.ProfileName}${i}:0
+#else
 ${setting.ProfileName}${i}:$!{setting.Value}
+#end
+#else
+#if ($setting.Value == "")
+${setting.ProfileName}:0
 #else
 ${setting.ProfileName}:$!{setting.Value}
 #end
 #end
 #end
+#end
 $!{phone.SoftwareUpgradeConfig}
 $!{phone.LogoUpgradeConfig}
-#set ($gname = "country/_tone.$!{phone.getSettings().getSetting('country/_country').Value}")
+#if ($phone.CfgPrefix == "ata")
+#set ($gname = "country/_tone.$!{phone.getSettings().getSetting('country/_country').Value}.ata")
+#else
+#set ($gname = "country/_tone.$!{phone.getSettings().getSetting('country/_country').Value}.79xx")
+#end
 #Tones $gname
 #set ($tgroup = $phone.getSettings().getSetting($gname))
 #foreach ($setting in $tgroup.Values)

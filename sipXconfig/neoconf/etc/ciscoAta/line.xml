@@ -8,27 +8,27 @@
       <type>
         <string required="yes"/>
       </type>
-      <value>
-      </value>
+      <value></value>
       <description>User ID</description>
     </setting>
     <setting name="PWD">
       <type>
         <string password="yes"/>
       </type>
-      <value>
-      </value>
+      <value></value>
       <description>Password</description>
     </setting>
     <setting name="DisplayName">
-      <value>
-      </value>
+      <value></value>
       <description>Display name for Caller ID</description>
     </setting>
     <setting name="LoginID">
-      <value>
-      </value>
-      <description>Authentication ID (if device UseLoginID = 1)</description>
+      <value></value>
+      <description>Authentication ID if device setting UseLoginID = 1</description>
+    </setting>
+    <setting name="ShortName" if="79.*">
+      <value>0</value>
+      <description>Display name for LCD screen</description>
     </setting>
   </group>
 </model>
