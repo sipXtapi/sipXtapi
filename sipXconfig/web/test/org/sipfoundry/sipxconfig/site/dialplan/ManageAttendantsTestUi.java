@@ -40,11 +40,11 @@ public class ManageAttendantsTestUi extends WebTestCase {
         String[][] expectedData = {
             // Name Ext Description
             {
-                "ManageAttendantsTestUi 0", "300", SEED_DESCRIPTION
+                "ManageAttendantsTestUi 0", SEED_DESCRIPTION
             }, {
-                "ManageAttendantsTestUi 1", "301", SEED_DESCRIPTION
+                "ManageAttendantsTestUi 1", SEED_DESCRIPTION
             }, {
-                "ManageAttendantsTestUi 2", "302", SEED_DESCRIPTION
+                "ManageAttendantsTestUi 2", SEED_DESCRIPTION
             }
         };
         assertTableRowsEqual("list:attendant", 1, expectedData);
@@ -59,9 +59,9 @@ public class ManageAttendantsTestUi extends WebTestCase {
         String[][] expectedData = {
             // Name Ext Description
             {
-                "ManageAttendantsTestUi 0", "300", SEED_DESCRIPTION
+                "ManageAttendantsTestUi 0", SEED_DESCRIPTION
             }, {
-                "Name edited", "301", SEED_DESCRIPTION
+                "Name edited", SEED_DESCRIPTION
             }
         };
         assertTableRowsEqual("list:attendant", 1, expectedData);
@@ -76,9 +76,9 @@ public class ManageAttendantsTestUi extends WebTestCase {
         String[][] expectedData = {
             // Name Ext Description
             {
-                "ManageAttendantsTestUi 0", "300", SEED_DESCRIPTION
+                "ManageAttendantsTestUi 0", SEED_DESCRIPTION
             }, {
-                "ManageAttendantsTestUi 2", "302", SEED_DESCRIPTION
+                "ManageAttendantsTestUi 2", SEED_DESCRIPTION
             }
         };
         assertTableRowsEqual("list:attendant", 1, expectedData);
@@ -90,7 +90,6 @@ public class ManageAttendantsTestUi extends WebTestCase {
             clickLink("addAttendant");
             setFormElement("name", "ManageAttendantsTestUi " + i);
             setFormElement("description", SEED_DESCRIPTION);
-            setFormElement("extension", Integer.toString(300 + i));
             selectOption("prompt", promptTestFile);
             clickButton("form:ok");
             SiteTestHelper.assertNoException(tester);

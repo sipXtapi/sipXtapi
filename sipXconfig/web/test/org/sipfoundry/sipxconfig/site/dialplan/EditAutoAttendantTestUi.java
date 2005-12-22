@@ -60,7 +60,6 @@ public class EditAutoAttendantTestUi extends WebTestCase {
 
         setFormElement("name", "New Attendant");
         setFormElement("description", "created by EditAutoAttendantTestUi.testNewAttendant");
-        setFormElement("extension", "301");
         selectOption("prompt", PROMPT_TEST_FILE);
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
@@ -73,7 +72,6 @@ public class EditAutoAttendantTestUi extends WebTestCase {
 
         setFormElement("name", "Upload Prompt Test");
         setFormElement("description", "created by EditAutoAttendantTestUi.testUpload");
-        setFormElement("extension", "301");
         String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/"
                 + PROMPT_TEST_FILE;
         File actualFile = new File(actualFilename);
@@ -174,7 +172,6 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         tester.setFormElement("name", "New Attendant");
         tester.setFormElement("description",
                 "created by EditAutoAttendantTestUi.seedAutoAttendant");
-        tester.setFormElement("extension", "301");
         tester.selectOption("prompt", PROMPT_TEST_FILE);
         tester.clickButton("form:ok");
     }

@@ -72,7 +72,6 @@
     <component id="common" type="ItemCommon">
         <binding name="item" expression="attendant"/>
         <binding name="useEnabled" expression="false"/>
-        <binding name="useExtension" expression="true"/>
     </component>
     
     <!-- auto attendant prompts selection -->

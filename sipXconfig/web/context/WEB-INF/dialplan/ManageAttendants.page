@@ -33,13 +33,13 @@
       - C O M P O N E N T S
       -->
     <component id="tableView" type="Table">
-        <static-binding name="columns" value="* Name:name,Extension:extension,Description:description"/>
+        <static-binding name="columns" value="* name,description"/>
         <binding name="source" expression="dialPlanContext.autoAttendants"/>
 		<binding name="row" expression="currentRow"/>
         <binding name="convertor" expression="beans.idConverter"/>
         <binding name="selections" expression="selections"/>
     </component>
-	<component id="NameColumnValue" type="Block"/>    
+	<component id="nameColumnValue" type="Block"/>    
     <component id="nameText" type="Insert">
         <binding name="value" expression="currentRow.name"/>
     </component>    
