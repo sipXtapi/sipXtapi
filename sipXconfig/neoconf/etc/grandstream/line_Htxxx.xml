@@ -104,8 +104,8 @@
             <type>
                 <integer min="1024" max="65535"/>
             </type>
-            <value>5060</value>
-            <description>Local SIP port (default 5060)</description>
+            <value></value>
+            <description>Local SIP port</description>
         </setting>
         <setting name="P39-P739">
             <label>Local RTP port</label>
