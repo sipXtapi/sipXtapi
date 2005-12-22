@@ -10,24 +10,19 @@
   
   <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule"
     singleton="false">
-    <property name="name">
-      <value>Internal</value>
-    </property>
-    <property name="description">
-      <value>Default internal dialing plan</value>
-    </property>
-    <property name="enabled">
-      <value>true</value>
-    </property>
-    <property name="voiceMail">
-      <value>101</value>
-    </property>
-    <property name="voiceMailPrefix">
-      <value>8</value>
-    </property>
-    <property name="aaAliases">
-      <value>operator, 0</value>
-    </property>
+    <property name="name" value="Internal"/>
+    <property name="description" value="Default internal dialing plan"/>
+    <property name="enabled" value="true"/>
+    <property name="voiceMail" value="101"/>
+    <property name="voiceMailPrefix" value="8"/>
+  </bean>
+  
+  <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule" singleton="false">
+    <property name="name" value="AutoAttendant"/>
+    <property name="description" value="Default autoattendant dialing plan"/>
+    <property name="enabled" value="true"/>
+    <property name="extension" value="100"/>
+    <property name="attendantAliases" value="operator, 0"/>
   </bean>
   
   <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule"
@@ -139,13 +134,14 @@
     singleton="false">
     <property name="rules">
       <list>
-        <ref bean="defaultEmergencyRule"></ref>
-        <ref bean="defaultInternationalRule"></ref>
-        <ref bean="defaultInternalRule"></ref>
-        <ref bean="defaultLocalRule"></ref>
-        <ref bean="defaultLongDistanceRule"></ref>
-        <ref bean="defaultRestrictedRule"></ref>
-        <ref bean="defaultTollFreeRule"></ref>
+        <ref bean="defaultEmergencyRule"/>
+        <ref bean="defaultInternationalRule"/>
+        <ref bean="defaultInternalRule"/>
+        <ref bean="defaultAttendantRule"/>
+        <ref bean="defaultLocalRule"/>
+        <ref bean="defaultLongDistanceRule"/>
+        <ref bean="defaultRestrictedRule"/>
+        <ref bean="defaultTollFreeRule"/>
       </list>
     </property>
   </bean>

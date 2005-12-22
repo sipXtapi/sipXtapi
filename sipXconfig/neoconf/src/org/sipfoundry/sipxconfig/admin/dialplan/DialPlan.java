@@ -19,6 +19,7 @@ import java.util.List;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.functors.InstanceofPredicate;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 
@@ -82,9 +83,12 @@ public class DialPlan extends BeanWithId {
      * Run thru dialing rules and set rellevant dial plans that take
      */
     public void setOperator(AutoAttendant operator) {
-        DialingRule[] rules = getDialingRuleByType(m_rules, InternalRule.class);
+        DialingRule[] rules = getDialingRuleByType(m_rules, AttendantRule.class);
         for (int i = 0; i < rules.length; i++) {
-            ((InternalRule) rules[i]).setAutoAttendant(operator);
+            AttendantRule ar = (AttendantRule) rules[i];
+            ScheduledAttendant sa = new ScheduledAttendant();
+            sa.setAttendant(operator);
+            ar.setAfterHoursAttendant(sa);
         }
     }
 

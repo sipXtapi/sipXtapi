@@ -101,4 +101,15 @@ public class AttendantRuleTest extends TestCase {
         r2.setHolidayAttendant(holiday);
         assertTrue(r2.checkAttendant(attendant));
     }
+    
+    public void testGetAttendantAliasesAsArray() {
+        String[] attendantAliases = AttendantRule.getAttendantAliasesAsArray(null);
+        assertEquals(0, attendantAliases.length);
+        attendantAliases = AttendantRule.getAttendantAliasesAsArray("");
+        assertEquals(0, attendantAliases.length);
+        attendantAliases = AttendantRule.getAttendantAliasesAsArray("0, operator");
+        assertEquals(2, attendantAliases.length);
+        assertEquals("0", attendantAliases[0]);
+        assertEquals("operator", attendantAliases[1]);
+    }    
 }

@@ -44,6 +44,8 @@ public class DialPlanEditTestUi extends WebTestCase {
         }, {
             "Internal", "true", "Internal", "Default internal dialing plan"
         }, {
+            "AutoAttendant", "true", "Attendant", "Default autoattendant dialing plan"
+        }, {
             "Local", "false", "Local", "Local dialing"
         }, {
             "Long Distance", "false", "Long Distance", "Long distance dialing plan"
@@ -64,7 +66,7 @@ public class DialPlanEditTestUi extends WebTestCase {
     public void testDisplayAndClean() {
         assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
         // remove all
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < DEFAULTS.length; i++) {
             SiteTestHelper.selectRow(tester, i, true);
         }
         clickButton("dialplan:delete");
@@ -85,7 +87,7 @@ public class DialPlanEditTestUi extends WebTestCase {
             assertElementPresent("item:enabled");
             assertElementPresent("item:description");
             // all rules except "internal" have gateways panel
-            if (!name.startsWith("Internal")) {
+            if (!name.startsWith("Internal") && !name.startsWith("AutoAttendant")) {
                 checkGateways();
             }
             setFormElement("name", "");
@@ -148,7 +150,7 @@ public class DialPlanEditTestUi extends WebTestCase {
             assertLinkPresentWithText(name);
         }
     }
-    
+
     public void testAttendantRuleAdd() throws Exception {
         for (int i = 0; i < NAMES.length; i++) {
             String[] row = NAMES[i];
@@ -160,13 +162,12 @@ public class DialPlanEditTestUi extends WebTestCase {
             setFormElement("description", row[2]);
             // dial pattern prefix
             setFormElement("extension", "33344" + i);
-            
+
             clickButton("form:ok");
             assertTextInTable("dialplan:list", row[2]);
             assertLinkPresentWithText(row[0]);
         }
     }
-    
 
     public void testMove() {
         clickButton("dialplan:revert");

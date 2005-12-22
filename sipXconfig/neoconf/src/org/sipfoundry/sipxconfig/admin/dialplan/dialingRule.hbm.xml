@@ -174,12 +174,16 @@
     <![CDATA[select ir.id from InternalRule ir where ir.voiceMail = :value]]>
   </query>  
 	  
+  <query name="attendantRuleIdsWithExtension">
+    <![CDATA[select r.id from AttendantRule r where r.extension = :value]]>
+  </query>  
+
   <query name="aaAliases">
-    <![CDATA[select ir.aaAliases from InternalRule ir]]>
+    <![CDATA[select r.attendantAliases from AttendantRule r]]>
   </query>  
 	  
-  <query name="internalRuleIdsAndAaAliases">
-    <![CDATA[select ir.id, ir.aaAliases from InternalRule ir]]>
+  <query name="attendantRuleIdsAndAttendantAliases">
+    <![CDATA[select r.id, r.attendantAliases from AttendantRule r]]>
   </query>  
 
 </hibernate-mapping>

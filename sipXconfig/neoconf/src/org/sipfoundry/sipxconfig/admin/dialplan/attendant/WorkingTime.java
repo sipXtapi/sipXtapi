@@ -45,6 +45,12 @@ public class WorkingTime extends ScheduledAttendant {
         m_workingHours = workingHours;
     }
 
+    public Object clone() throws CloneNotSupportedException {
+        WorkingTime clone = (WorkingTime) super.clone();
+        clone.m_workingHours = (WorkingHours[]) m_workingHours.clone();
+        return clone;
+    }
+
     public static class WorkingHours {
         public static final int DEFAULT_START = 9;
         public static final int DEFAULT_STOP = 18;

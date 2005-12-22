@@ -116,10 +116,10 @@ public class MappingRule extends DialingRule {
 
     // specialized classes
     public static class Operator extends MappingRule {
-        public Operator(AutoAttendant attendant, String[] aliases) {
+        public Operator(AutoAttendant attendant, String extension, String[] aliases) {
             this(attendant.getName(), attendant.getDescription(), attendant.getSystemName(),
-                    attendant.getExtension(), aliases);
-        }
+                    extension, aliases);
+        }        
 
         public Operator(String name, String description, String systemName, String extension,
                 String[] aliases) {

@@ -28,8 +28,6 @@ import org.sipfoundry.sipxconfig.common.Permission;
 public class InternalRuleTest extends TestCase {
 
     private static final String URL_PARAMS = ";play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3D";
-    private static final String OPERATOR_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
-            + "autoattendant%26name%3Dxcf-1>";
     private static final String VOICEMAIL_URL = "<sip:{digits}@{mediaserver}" + URL_PARAMS
             + "retrieve>";
     private static final String VOICEMAIL_FALLBACK_URL = "<sip:{digits}@{mediaserver}"
@@ -45,9 +43,6 @@ public class InternalRuleTest extends TestCase {
         ir.setName("kuku");
         ir.setDescription(TEST_DESCRIPTION);
         ir.setLocalExtensionLen(5);
-        AutoAttendant aa = new AutoAttendant();
-        aa.setExtension("100");
-        ir.setAutoAttendant(aa);
         ir.setVoiceMail("20004");
         ir.setVoiceMailPrefix("7");
         ir.setEnabled(true);
@@ -55,18 +50,11 @@ public class InternalRuleTest extends TestCase {
         List rules = new ArrayList();
         ir.appendToGenerationRules(rules);
 
-        assertEquals(4, rules.size());
+        assertEquals(3, rules.size());
 
-        MappingRule o = (MappingRule) rules.get(0);
-        MappingRule v = (MappingRule) rules.get(1);
-        MappingRule vt = (MappingRule) rules.get(2);
-        MappingRule vf = (MappingRule) rules.get(3);
-
-        assertEquals(TEST_DESCRIPTION, o.getDescription());
-        assertEquals("100", o.getPatterns()[0]);
-        assertEquals(0, o.getPermissions().size());
-        UrlTransform to = (UrlTransform) o.getTransforms()[0];
-        assertEquals(OPERATOR_URL, to.getUrl());
+        MappingRule v = (MappingRule) rules.get(0);
+        MappingRule vt = (MappingRule) rules.get(1);
+        MappingRule vf = (MappingRule) rules.get(2);
 
         assertEquals(TEST_DESCRIPTION, v.getDescription());
         assertEquals("20004", v.getPatterns()[0]);
@@ -87,47 +75,12 @@ public class InternalRuleTest extends TestCase {
         assertEquals(VOICEMAIL_FALLBACK_URL, tvf.getUrl());
     }
 
-    public void testAppendToGenerationRulesAutoAttandantOnly() throws Exception {
-        InternalRule ir = new InternalRule();
-        ir.setName("kuku");
-        ir.setDescription(TEST_DESCRIPTION);
-        ir.setLocalExtensionLen(5);
-        AutoAttendant aa = new AutoAttendant();
-        aa.setExtension("100");
-        ir.setAutoAttendant(aa);
-        ir.setEnabled(true);
-        ir.setVoiceMail("");
-        ir.setVoiceMailPrefix("");
-        List rules = new ArrayList();
-        ir.appendToGenerationRules(rules);
-        assertEquals(1, rules.size());
-
-        MappingRule o = (MappingRule) rules.get(0);
-        assertEquals(TEST_DESCRIPTION, o.getDescription());
-        assertEquals("100", o.getPatterns()[0]);
-        assertEquals(0, o.getPermissions().size());
-        UrlTransform to = (UrlTransform) o.getTransforms()[0];
-        assertEquals(OPERATOR_URL, to.getUrl());
-    }
-
-    public void testGetAttendantAliasesAsArray() {
-        InternalRule ir = new InternalRule();
-        String[] attendantAliases = ir.getAttendantAliasesAsArray();
-        assertEquals(0, attendantAliases.length);
-        ir.setAaAliases("0, operator");
-        attendantAliases = ir.getAttendantAliasesAsArray();
-        assertEquals(2, attendantAliases.length);
-        assertEquals("0", attendantAliases[0]);
-        assertEquals("operator", attendantAliases[1]);
-    }
-
     public void testOperator() {
         AutoAttendant aa = new AutoAttendant();
-        aa.setExtension("100");
         aa.setName(TEST_NAME);
         aa.setDescription(TEST_DESCRIPTION);
 
-        Operator o = new MappingRule.Operator(aa, ArrayUtils.EMPTY_STRING_ARRAY);
+        Operator o = new MappingRule.Operator(aa, "100", ArrayUtils.EMPTY_STRING_ARRAY);
         assertEquals("100", StringUtils.join(o.getPatterns(), "|"));
         assertEquals(TEST_NAME, o.getName());
         assertEquals(TEST_DESCRIPTION, o.getDescription());
@@ -135,11 +88,10 @@ public class InternalRuleTest extends TestCase {
 
     public void testOperatorWithAliases() {
         AutoAttendant aa = new AutoAttendant();
-        aa.setExtension("100");
         aa.setName(TEST_NAME);
         aa.setDescription(TEST_DESCRIPTION);
 
-        Operator o = new MappingRule.Operator(aa, new String[] {
+        Operator o = new MappingRule.Operator(aa, "100", new String[] {
             "0", "operator"
         });
         assertEquals("100|0|operator", StringUtils.join(o.getPatterns(), "|"));
@@ -152,7 +104,7 @@ public class InternalRuleTest extends TestCase {
         aa.setName(TEST_NAME);
         aa.setDescription(TEST_DESCRIPTION);
 
-        Operator o = new MappingRule.Operator(aa, new String[] {
+        Operator o = new MappingRule.Operator(aa, null, new String[] {
             "0", "operator"
         });
         assertEquals("0|operator", StringUtils.join(o.getPatterns(), "|"));

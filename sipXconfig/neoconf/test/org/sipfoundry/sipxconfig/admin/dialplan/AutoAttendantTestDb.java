@@ -39,7 +39,6 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         AutoAttendant aa = new AutoAttendant();
         aa.setName("test-aa");
         aa.setDescription("aa description");
-        aa.setExtension("313");
         aa.setPrompt("thankyou_goodbye.wav");
         aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.GOTO_EXTENSION,
                 "1234"));
@@ -133,21 +132,5 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
             gotNameInUseException = true;
         }
         assertTrue(gotNameInUseException);
-    }
-    
-    public void testSaveExtensionThatIsDuplicateAlias() throws Exception {
-        TestHelper.cleanInsertFlat("admin/dialplan/seedUser.xml");
-        boolean gotExtensionInUseException = false;
-        AutoAttendant aa = new AutoAttendant();
-        aa.setName("autodafe");
-        aa.setExtension("alpha");
-        try {
-            m_context.storeAutoAttendant(aa);
-        }
-        catch (ExtensionInUseException e) {
-            gotExtensionInUseException = true;
-        }
-        assertTrue(gotExtensionInUseException);
-    }
-
+    }    
 }

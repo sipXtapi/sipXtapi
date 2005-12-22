@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 
-public class ScheduledAttendant {
+public class ScheduledAttendant implements Cloneable {
     private boolean m_enabled;
 
     private AutoAttendant m_attendant;
@@ -32,6 +32,10 @@ public class ScheduledAttendant {
 
     public void setAttendant(AutoAttendant attendant) {
         m_attendant = attendant;
+    }
+    
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
     /**

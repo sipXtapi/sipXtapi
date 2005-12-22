@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.springframework.context.ApplicationContext;
 
@@ -81,15 +82,15 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
         IDataSet set = new FilteredDataSet(filter, TestHelper.getConnection().createDataSet());
         ITable table = set.getTable("dialing_rule");
-        assertEquals(7, table.getRowCount());
+        assertEquals(8, table.getRowCount());
         // FIXME: test agains the real data - need to remove ids...
         // IDataSet reference = new FilteredDataSet(filter, TestHelper
         // .loadDataSet("admin/dialplan/defaultFlexibleDialPlan.xml"));
         // Assertion.assertEquals(set, reference);
 
-        ITable internal = set.getTable("internal_dialing_rule");
+        ITable internal = set.getTable("attendant_dialing_rule");
         assertEquals(1, internal.getRowCount());
-        assertEquals("operator, 0", internal.getValue(0, "aa_aliases"));
+        assertEquals("operator, 0", internal.getValue(0, "attendant_aliases"));
     }
 
     public void testDuplicateRules() throws Exception {
@@ -171,12 +172,16 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
     public void testIsAliasInUse() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
         assertTrue(m_context.isAliasInUse("test attendant in use")); // auto attendant name
-        assertTrue(m_context.isAliasInUse("1234")); // auto attendant extension
-        assertTrue(m_context.isAliasInUse("alias1")); // auto attendant alias
-        assertTrue(m_context.isAliasInUse("alias2")); // auto attendant alias
         assertTrue(m_context.isAliasInUse("100")); // voicemail extension
         assertFalse(m_context.isAliasInUse("200")); // a random extension that should not be in
                                                     // use
+    }
+    
+    public void testIsAliasInUseAttendant() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");        
+        assertTrue(m_context.isAliasInUse("333")); // auto attendant extension
+        assertTrue(m_context.isAliasInUse("operator")); // auto attendant alias
+        assertTrue(m_context.isAliasInUse("0")); // auto attendant alias
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
@@ -184,14 +189,6 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("test attendant in use").size() == 1); // auto
                                                                                                     // attendant
                                                                                                     // name
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1234").size() == 1); // auto attendant
-                                                                                // extension
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("alias1").size() == 1); // auto
-                                                                                    // attendant
-                                                                                    // alias
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("alias2").size() == 1); // auto
-                                                                                    // attendant
-                                                                                    // alias
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("100").size() == 1); // voicemail
                                                                                 // extension
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("200").size() == 0); // a random
@@ -199,6 +196,17 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
                                                                                 // should not be
                                                                                 // in use
     }
+    
+    public void testGetBeanIdsOfObjectsWithAliasAttendant() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");        
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("333").size() == 1); // auto attendant
+                                                                                // extension
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("operator").size() == 1); // auto
+                                                                                    // attendant
+                                                                                    // alias
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("0").size() == 1); // auto
+    }
+    
 
     public void testStoreAttendantRule() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
@@ -252,5 +260,37 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         assertEquals(2, ar.getHolidayAttendant().getDates().size());
 
         assertEquals("19:25", ar.getWorkingTimeAttendant().getWorkingHours()[4].getStopTime());
+    }
+    
+
+    public void testSaveExtensionThatIsDuplicateAlias() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
+        AttendantRule ar = new AttendantRule();
+        ar.setName("autodafe");
+        ar.setExtension("0");
+        try {
+            m_context.storeRule(ar);
+            fail();
+        }
+        catch (UserException e) {            
+            // this is expected
+            assertTrue(e.getMessage().indexOf("0") > 0);
+        }
+    }
+
+    public void testSaveAliasThatIsDuplicateAlias() throws Exception {
+        TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
+        AttendantRule ar = new AttendantRule();
+        ar.setName("autodafe");
+        ar.setExtension("222");
+        ar.setAttendantAliases("operator");
+        try {
+            m_context.storeRule(ar);
+            fail();
+        }
+        catch (UserException e) {            
+            // this is expected
+            assertTrue(e.getMessage().indexOf("operator") > 0);
+        }
     }
 }

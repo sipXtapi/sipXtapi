@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan;
 
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 
@@ -27,9 +26,17 @@ public class InternalRule extends DialingRule {
 
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
-    private AutoAttendant m_autoAttendant;
-    private String m_aaAliases;
     private String m_voiceMail = DEFAULT_VOICEMAIL;
+    
+    /**
+     * @deprecated use attendant dialing rule
+     */
+    private AutoAttendant m_autoAttendant;
+    /**
+     * @deprecated use attendant dialing rule
+     */
+    private String m_aaAliases;
+
 
     public String[] getPatterns() {
         return null;
@@ -43,10 +50,16 @@ public class InternalRule extends DialingRule {
         return DialingRuleType.INTERNAL;
     }
 
+    /**
+     * @deprecated use attendant dialing rule
+     */
     public AutoAttendant getAutoAttendant() {
         return m_autoAttendant;
     }
 
+    /**
+     * @deprecated use attendant dialing rule
+     */
     public void setAutoAttendant(AutoAttendant autoAttendant) {
         m_autoAttendant = autoAttendant;
     }
@@ -77,36 +90,25 @@ public class InternalRule extends DialingRule {
         m_voiceMailPrefix = voiceMailPrefix;
     }
 
+    /**
+     * @deprecated use attendant dialing rule
+     */
     public String getAaAliases() {
         return m_aaAliases;
     }
 
+    /**
+     * @deprecated use attendant dialing rule
+     */
     public void setAaAliases(String attendantAliases) {
         m_aaAliases = attendantAliases;
     }
 
-    public String[] getAttendantAliasesAsArray() {
-        return getAttendantAliasesAsArray(m_aaAliases);
-    }
-
-    public static String[] getAttendantAliasesAsArray(String aliasesString) {
-        if (aliasesString == null) {
-            return ArrayUtils.EMPTY_STRING_ARRAY;
-        }
-        return StringUtils.split(aliasesString, ", ");        
-    }
-    
     public void appendToGenerationRules(List rules) {
         if (!isEnabled()) {
             return;
         }
         boolean generateVoiceMailRules = StringUtils.isNotBlank(m_voiceMail);
-        if (m_autoAttendant != null) {
-            MappingRule operator = new MappingRule.Operator(m_autoAttendant,
-                    getAttendantAliasesAsArray());
-            operator.setDescription(getDescription());
-            rules.add(operator);
-        }
         if (generateVoiceMailRules) {
             MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail);
             voicemail.setDescription(getDescription());

@@ -30,6 +30,9 @@ public class AutoAttendant extends BeanWithId implements NamedObject {
     
     private String m_name;
 
+    /**
+     * @deprecated extension is now kept in AttendantRule only
+     */
     private String m_extension;
 
     private String m_description;
@@ -94,10 +97,16 @@ public class AutoAttendant extends BeanWithId implements NamedObject {
         m_description = description;
     }
 
+    /**
+     * @deprecated extension is now kept in AttendantRule only
+     */
     public String getExtension() {
         return m_extension;
     }
 
+    /**
+     * @deprecated extension is now kept in AttendantRule only
+     */
     public void setExtension(String extension) {
         m_extension = extension;
     }

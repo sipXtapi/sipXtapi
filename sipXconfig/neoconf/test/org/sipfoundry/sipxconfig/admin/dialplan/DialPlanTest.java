@@ -19,12 +19,12 @@ public class DialPlanTest extends TestCase {
 
     public void testSetOperator() {
         DialPlan plan = new DialPlan();
-        InternalRule irule = new InternalRule();
-        plan.addRule(irule);
-        assertNull(irule.getAutoAttendant());
+        AttendantRule arule = new AttendantRule();
+        plan.addRule(arule);
+        assertNull(arule.getAfterHoursAttendant().getAttendant());
         AutoAttendant operator = new AutoAttendant();
         plan.setOperator(operator);
-        assertSame(operator, irule.getAutoAttendant());
+        assertSame(operator, arule.getAfterHoursAttendant().getAttendant());
     }
 
     public void testGetDialingRuleByType() {

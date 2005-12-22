@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -46,14 +47,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private static final String VALUE = "value";
     private static final String AUTO_ATTENDANT = "auto attendant";
     private static final String DIALING_RULE = "dialing rule";
-
-    private static final String QUERY_DIALING_RULE_IDS_WITH_NAME = "dialingRuleIdsWithName";
-    private static final String QUERY_AUTO_ATTENDANT_IDS_WITH_NAME_OR_EXTENSION = 
-        "autoAttendantIdsWithNameOrExtension";
-    private static final String QUERY_AUTO_ATTENDANT_ALIASES = "aaAliases";
-    private static final String QUERY_INTERNAL_RULE_IDS_WITH_VOICE_MAIL_EXTENSION = 
-        "internalRuleIdsWithVoiceMailExtension";
-    private static final String QUERY_INTERNAL_RULE_IDS_AND_AUTO_ATTENDANT_ALIASES = "internalRuleIdsAndAaAliases";
 
     private transient ConfigGenerator m_generator;
     private DialingRuleFactory m_ruleFactory;
@@ -95,6 +88,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (rule instanceof InternalRule) {
             checkAliasCollisionsForInternalRule((InternalRule) rule);
         }
+        if (rule instanceof AttendantRule) {
+            checkAliasCollisionsForAttendantRule((AttendantRule) rule);
+        }
 
         // Save the rule. If it's a new rule then attach it to the dial plan first
         // and save it via the dial plan.
@@ -107,23 +103,25 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
     }
 
-    // Check voicemail extensions and auto attendant aliases
-    // for collisions with other aliases in the system.
-    // Throw a UserException if there is a collision.
     private void checkAliasCollisionsForInternalRule(InternalRule rule) {
-        // Check the voicemail extension
         String voiceMailExtension = rule.getVoiceMail();
         if (!m_aliasManager.canObjectUseAlias(rule, voiceMailExtension)) {
-            final String message = "Extension {0} is already in use.  "
-                    + "Please choose another voicemail extension.";
-            throw new UserException(message, voiceMailExtension);
+            throw new ExtensionInUseException("voicemail", voiceMailExtension);
+        }
+    }
+
+    private void checkAliasCollisionsForAttendantRule(AttendantRule ar) {
+        String attendantExtension = ar.getExtension();
+        if (!m_aliasManager.canObjectUseAlias(ar, attendantExtension)) {
+            throw new ExtensionInUseException(DIALING_RULE, attendantExtension);
         }
 
-        // Check the auto attendant aliases
-        String[] aliases = rule.getAttendantAliasesAsArray();
+        String aa = ar.getAttendantAliases();
+        String[] aliases = AttendantRule.getAttendantAliasesAsArray(aa);
+
         for (int i = 0; i < aliases.length; i++) {
             String ruleAlias = aliases[i];
-            if (!m_aliasManager.canObjectUseAlias(rule, ruleAlias)) {
+            if (!m_aliasManager.canObjectUseAlias(ar, ruleAlias)) {
                 final String message = "Alias \"{0}\" is already in use.  "
                         + "Please choose another alias for this auto attendant.";
                 throw new UserException(message, ruleAlias);
@@ -154,8 +152,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
             DialingRule rule = (DialingRule) i.next();
 
             // Create a copy of the rule with a unique name
-            DialingRule ruleDup = (DialingRule) duplicateBean(rule,
-                    QUERY_DIALING_RULE_IDS_WITH_NAME);
+            DialingRule ruleDup = (DialingRule) duplicateBean(rule, "dialingRuleIdsWithName");
 
             rules.add(ruleDup);
         }
@@ -210,12 +207,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void storeAutoAttendant(AutoAttendant aa) {
         // Check for duplicate names or extensions before saving the call group
         String name = aa.getName();
-        String extension = aa.getExtension();
         if (!m_aliasManager.canObjectUseAlias(aa, name)) {
             throw new NameInUseException(AUTO_ATTENDANT, name);
-        }
-        if (!m_aliasManager.canObjectUseAlias(aa, extension)) {
-            throw new ExtensionInUseException(AUTO_ATTENDANT, extension);
         }
         getHibernateTemplate().saveOrUpdate(aa);
     }
@@ -410,16 +403,56 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
      * voicemail.
      */
     public boolean isAliasInUse(String alias) {
-        return isAutoAttendantNameOrExtensionInUse(alias) || isAutoAttendantAliasInUse(alias)
-                || isVoiceMailExtensionInUse(alias);
+        if (getAutoAttendantsWithName(alias).size() > 0) {
+            // Look for the ID of an auto attendant with the specified alias/extension.
+            // If there is one, then the alias is in use.
+            return true;
+        }
+        if (getInternalRulesWithVoiceMailExtension(alias).size() > 0) {
+            return true;
+        }
+        if (getAttendantRulesWithExtension(alias).size() > 0) {
+            return true;
+        }
+        return isAutoAttendantAliasInUse(alias);
     }
 
-    private boolean isAutoAttendantNameOrExtensionInUse(String alias) {
-        // Look for the ID of an auto attendant with the specified alias/extension.
-        // If there is one, then the alias is in use.
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_AUTO_ATTENDANT_IDS_WITH_NAME_OR_EXTENSION, VALUE, alias);
-        return SipxCollectionUtils.safeSize(objs) > 0;
+    public Collection getBeanIdsOfObjectsWithAlias(String alias) {
+        Collection bids = new ArrayList();
+
+        Collection autoAttendants = getAutoAttendantsWithName(alias);
+        bids.addAll(BeanId.createBeanIdCollection(autoAttendants, AutoAttendant.class));
+
+        Collection internalRules = getInternalRulesWithVoiceMailExtension(alias);
+        bids.addAll(BeanId.createBeanIdCollection(internalRules, InternalRule.class));
+
+        Collection attendantRules = getAttendantRulesWithExtension(alias);
+        bids.addAll(BeanId.createBeanIdCollection(attendantRules, AttendantRule.class));
+
+        bids.addAll(getBeanIdsOfRulesWithAutoAttendantAlias(alias));
+
+        return bids;
+    }
+
+    private Collection getAutoAttendantsWithName(String alias) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("autoAttendantIdsWithName",
+                VALUE, alias);
+    }
+
+    private Collection getBeanIdsOfRulesWithAutoAttendantAlias(String alias) {
+        Collection objs = getHibernateTemplate().findByNamedQuery(
+                "attendantRuleIdsAndAttendantAliases");
+        Collection bids = new ArrayList();
+        for (Iterator iter = objs.iterator(); iter.hasNext();) {
+            Object[] idAndAliases = (Object[]) iter.next();
+            Integer id = (Integer) idAndAliases[0];
+            String aa = (String) idAndAliases[1];
+            String[] aliases = AttendantRule.getAttendantAliasesAsArray(aa);
+            if (ArrayUtils.contains(aliases, alias)) {
+                bids.add(new BeanId(id, AttendantRule.class));
+            }
+        }
+        return bids;
     }
 
     private boolean isAutoAttendantAliasInUse(String alias) {
@@ -427,72 +460,23 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         // we can't query the DB for individual aliases. However, there will be so few
         // of these aliases (one string per internal dialing rule) that we can simply load
         // all such alias strings and check them in Java.
-        boolean isAliasInUse = false;
-        List aliasStrings = getHibernateTemplate().findByNamedQuery(QUERY_AUTO_ATTENDANT_ALIASES);
+        List aliasStrings = getHibernateTemplate().findByNamedQuery("aaAliases");
         for (Iterator iter = SipxCollectionUtils.safeIterator(aliasStrings); iter.hasNext();) {
-            String aliasesString = (String) iter.next();
-            isAliasInUse = doesAliasesStringContainAlias(aliasesString, alias);
-            if (isAliasInUse) {
-                break;
+            String[] aliases = AttendantRule.getAttendantAliasesAsArray((String) iter.next());
+            if (ArrayUtils.contains(aliases, alias)) {
+                return true;
             }
         }
-        return isAliasInUse;
+        return false;
     }
 
-    private boolean doesAliasesStringContainAlias(String aliasesString, String alias) {
-        boolean containsAlias = false;
-        String[] aliases = InternalRule.getAttendantAliasesAsArray(aliasesString);
-        for (int i = 0; i < aliases.length; i++) {
-            String ruleAlias = aliases[i];
-            if (ruleAlias.equals(alias)) {
-                containsAlias = true;
-                break;
-            }
-        }
-        return containsAlias;
+    private Collection getInternalRulesWithVoiceMailExtension(String extension) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "internalRuleIdsWithVoiceMailExtension", VALUE, extension);
     }
 
-    private boolean isVoiceMailExtensionInUse(String alias) {
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_INTERNAL_RULE_IDS_WITH_VOICE_MAIL_EXTENSION, VALUE, alias);
-        return SipxCollectionUtils.safeSize(objs) > 0;
+    private Collection getAttendantRulesWithExtension(String extension) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "attendantRuleIdsWithExtension", VALUE, extension);
     }
-
-    public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        Collection bids = new ArrayList();
-        bids.addAll(getBeanIdsOfAutoAttendantsWithNameOrExtension(alias));
-        bids.addAll(getBeanIdsOfInternalRulesWithAutoAttendantAlias(alias));
-        bids.addAll(getBeanIdsOfInternalRulesWithVoiceMailExtension(alias));
-        return bids;
-    }
-
-    private Collection getBeanIdsOfAutoAttendantsWithNameOrExtension(String alias) {
-        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_AUTO_ATTENDANT_IDS_WITH_NAME_OR_EXTENSION, VALUE, alias);
-        Collection bids = BeanId.createBeanIdCollection(ids, AutoAttendant.class);
-        return bids;
-    }
-
-    private Collection getBeanIdsOfInternalRulesWithAutoAttendantAlias(String alias) {
-        Collection objs = getHibernateTemplate().findByNamedQuery(
-                QUERY_INTERNAL_RULE_IDS_AND_AUTO_ATTENDANT_ALIASES);
-        Collection bids = new ArrayList();
-        for (Iterator iter = objs.iterator(); iter.hasNext();) {
-            Object[] idAndAliases = (Object[]) iter.next();
-            Integer id = (Integer) idAndAliases[0];
-            String aliases = (String) idAndAliases[1];
-            if (doesAliasesStringContainAlias(aliases, alias)) {
-                bids.add(new BeanId(id, InternalRule.class));
-            }
-        }
-        return bids;
-    }
-
-    private Collection getBeanIdsOfInternalRulesWithVoiceMailExtension(String alias) {
-        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_INTERNAL_RULE_IDS_WITH_VOICE_MAIL_EXTENSION, VALUE, alias);
-        Collection bids = BeanId.createBeanIdCollection(ids, InternalRule.class);
-        return bids;
-    }
-
 }

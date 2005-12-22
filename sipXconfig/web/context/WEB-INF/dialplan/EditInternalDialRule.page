@@ -32,10 +32,6 @@
      -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     
-    <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-        <set-property name="collection" expression="dialPlanContext.autoAttendants"/>
-        <set-property name="labelExpression" expression="'name'"/>            
-    </bean>    
     <!--
      - C O M P O N E N T S
      -->
@@ -61,24 +57,6 @@
         <message-binding name="displayName" key="label.extensionLen"/>
     </component>
     
-    <component id="autoAttendantLabel" type="FieldLabel">
-        <binding name="field" expression="components.autoAttendant"/>
-        <message-binding name="displayName" key="label.autoAttendant"/>
-    </component>
-    <component id="autoAttendant" type="PropertySelection">
-        <binding name="value" expression="rule.autoAttendant"/>
-        <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
-    </component>    
-
-    <component id="autoAttendantAliasesLabel" type="FieldLabel">
-        <binding name="field" expression="components.autoAttendantAliases"/>
-    </component>
-    <component id="autoAttendantAliases" type="ValidField">
-        <binding name="value" expression="rule.aaAliases"/>
-        <binding name="validator" expression="global.validUsernamePatternSequence"/>
-        <message-binding name="displayName" key="label.autoAttendantAliases"/>
-    </component>
-
     <component id="voiceMailLabel" type="FieldLabel">
         <binding name="field" expression="components.voiceMail"/>
     </component>

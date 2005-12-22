@@ -15,6 +15,7 @@ import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -50,19 +51,16 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
     // See DialPlanContextTestDb,DialPlanContextTestDb
     public void testIsAutoAttendantAliasInUse() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        assertTrue(m_aliasManager.isAliasInUse("1234"));     // auto attendant extension
-        assertTrue(m_aliasManager.isAliasInUse("alias1"));   // auto attendant alias
-        assertTrue(m_aliasManager.isAliasInUse("alias2"));   // auto attendant alias
         assertTrue(m_aliasManager.isAliasInUse("100"));      // voicemail extension
         assertFalse(m_aliasManager.isAliasInUse("200"));     // a random extension that should not be in use
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() throws Exception  {
-        TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        Collection objs = m_aliasManager.getBeanIdsOfObjectsWithAlias("1234");
-        assertTrue(objs.size() == 1);
+        TestHelper.cleanInsertFlat("alias/AliasSeed.xml");
+        Collection objs = m_aliasManager.getBeanIdsOfObjectsWithAlias("morcheeba");
+        assertEquals(1, objs.size());
         BeanId bid = (BeanId) objs.iterator().next();
-        assertTrue(bid.getBeanClass().equals(AutoAttendant.class));
+        assertEquals(AttendantRule.class, bid.getBeanClass());
     }
 
     public void testCanObjectUseAlias() throws Exception  {

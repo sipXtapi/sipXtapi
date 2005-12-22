@@ -39,6 +39,15 @@ public class Holiday extends ScheduledAttendant {
     }
 
     /**
+     * Need deep copy to support Hibernate collections
+     */
+    public Object clone() throws CloneNotSupportedException {
+        Holiday clone = (Holiday) super.clone();
+        clone.setDates(new ArrayList(getDates()));
+        return clone;
+    }
+
+    /**
      * It's safe to call this function even if the index is bigger than current number of days
      * 
      * @param i day index
