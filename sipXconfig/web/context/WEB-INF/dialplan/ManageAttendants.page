@@ -47,9 +47,6 @@
         <binding name="listener" expression="listeners.edit"/>
         <binding name="parameters" expression="currentRow.id"/>
     </component>    
-    <component id="selectedRow" type="Checkbox">
-        <binding name="selected" expression="selections.selected[currentRow.id]"/>
-    </component>
     <component id="addAttendantLink" type="DirectLink">
         <binding name="listener" expression="listeners.add"/>
     </component>    

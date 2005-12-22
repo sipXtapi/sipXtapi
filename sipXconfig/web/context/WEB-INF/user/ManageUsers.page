@@ -43,9 +43,6 @@
 	<component id="userManagement" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>
-    <component id="groupLabel" type="Insert">
-        <message-binding name="value" key="label.group"/>
-    </component>
     <component id="groupFilter" type="GroupFilter">
         <binding name="selectedGroupId" expression="groupId"/>
         <binding name="groups" expression="coreContext.groups"/>

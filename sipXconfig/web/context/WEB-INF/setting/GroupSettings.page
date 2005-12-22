@@ -32,9 +32,6 @@
    <!--
     - C O M P O N E N T S
     -->
-    <component id="settingDescription" type="Insert">
-        <binding name="value" expression="parentSetting.description"/>
-    </component>
     <component id="settingsForm" type="SettingsForm">
         <binding name="settings" expression="parentSetting"/>
         <binding name="cancelListener" expression="listeners.cancel"/>

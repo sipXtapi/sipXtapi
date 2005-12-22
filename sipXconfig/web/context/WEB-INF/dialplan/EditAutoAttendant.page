@@ -81,17 +81,8 @@
         <message-binding name="errorMsg" key="error.select"/>
     </component>
 
-    <component id="ok" type="Submit">
-        <binding name="listener" expression="listeners.ok"/>
-    </component>    
-    <component id="apply" type="Submit">
-        <binding name="listener" expression="listeners.apply"/>
-    </component>
     <component id="reset" type="Submit">
         <binding name="listener" expression="listeners.reset"/>
-    </component>
-    <component id="cancel" type="Submit">
-        <binding name="listener" expression="listeners.cancel"/>
     </component>
     <component id="removeMenuItems" type="Submit">
         <binding name="listener" expression="listeners.removeMenuItems"/>
