@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -182,7 +181,7 @@ public class CiscoAtaPhone extends CiscoPhone {
                 String msg = "Cisco profile conversion utility failed status code:" + errCode;
                 StringWriter err = new StringWriter();
                 err.write(msg.toCharArray());
-                CopyUtils.copy(p.getErrorStream(), err);
+                IOUtils.copy(p.getErrorStream(), err);
                 throw new RuntimeException(err.toString());
             }
         } catch (IOException e) {

@@ -18,7 +18,7 @@ import java.io.InputStream;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.io.CopyUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.engine.AbstractService;
@@ -53,7 +53,7 @@ public class DownloadService extends AbstractService {
                 + "\"");
 
         InputStream stream = new FileInputStream(file);
-        CopyUtils.copy(stream, responseOutputStream);
+        IOUtils.copy(stream, responseOutputStream);
     }
 
     /**

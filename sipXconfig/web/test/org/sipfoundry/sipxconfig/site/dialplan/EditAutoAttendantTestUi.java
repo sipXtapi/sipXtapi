@@ -21,7 +21,6 @@ import net.sourceforge.jwebunit.ExpectedTable;
 import net.sourceforge.jwebunit.WebTestCase;
 import net.sourceforge.jwebunit.WebTester;
 
-import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
@@ -186,7 +185,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         InputStream in = EditAutoAttendantTestUi.class.getResourceAsStream(filename);
         SiteTestHelper.cleanDirectory(dir.getPath());
         FileOutputStream out = new FileOutputStream(new File(dir, filename));
-        CopyUtils.copy(in, out);
+        IOUtils.copy(in, out);
         IOUtils.closeQuietly(in);
         IOUtils.closeQuietly(out);
     }

@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.AbstractPage;
@@ -112,20 +111,20 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
             return;
         }
 
-        FileOutputStream promptWtr = null;
+        FileOutputStream promptWriter = null;
         String fileName = getSystemIndependentFileName(upload.getFilePath());
         try {
             File promptsDir = new File(getAssetDir());
             promptsDir.mkdirs();
             File promptFile = new File(promptsDir, fileName);
-            promptWtr = new FileOutputStream(promptFile);
-            CopyUtils.copy(upload.getStream(), promptWtr);
+            promptWriter = new FileOutputStream(promptFile);
+            IOUtils.copy(upload.getStream(), promptWriter);
             setAsset(promptFile.getName());
             setUploadAsset(null);
         } catch (IOException ioe) {
             throw new RuntimeException("Could not upload file " + fileName, ioe);
         } finally {
-            IOUtils.closeQuietly(promptWtr);
+            IOUtils.closeQuietly(promptWriter);
         }
     }
 

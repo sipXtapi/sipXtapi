@@ -38,7 +38,11 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-compiler-4.1.31.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/jasper-runtime-4.1.31.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javax.servlet.jsp.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-io-1.0.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/commons-io/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-io-1.1.jar">
+		<attributes>
+			<attribute value="http://jakarta.apache.org/commons/io/api-release" name="javadoc_location"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry sourcepath="LIB_SRC/spring/1.2.3/src.zip" kind="var" path="SIPX_CONFIG/lib/spring-1.2.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javamail-1.3.2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-checkboxes-1.1.jar"/>

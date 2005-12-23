@@ -23,7 +23,6 @@ import javax.sql.DataSource;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.velocity.app.VelocityEngine;
 import org.dbunit.database.DatabaseConfig;
@@ -49,7 +48,7 @@ import org.springframework.dao.DataIntegrityViolationException;
  * TestHelper: used for unit tests that need Spring instantiated
  */
 public final class TestHelper {
-    
+
     private static Properties s_sysDirProps;
 
     private static ApplicationContext s_appContext;
@@ -57,13 +56,17 @@ public final class TestHelper {
     private static DatabaseConnection s_dbunitConnection;
 
     static {
-        // The default XML parser (Apache Crimson) cannot resolve relative DTDs, google to find the bug.
+        // The default XML parser (Apache Crimson) cannot resolve relative DTDs, google to find
+        // the bug.
         System.setProperty("org.xml.sax.driver", "org.apache.xerces.parsers.SAXParser");
-        
-        // The method SAXParserFactory.newInstance is using this system property to find the parser factory.
+
+        // The method SAXParserFactory.newInstance is using this system property to find the
+        // parser factory.
         // So we have to set this property instead of, or in addition to, the one above.
-        // Fixes XCF-537: jdk dependency in DB unit tests, fails with jdk 1.4.2, works with jdk 1.5.
-        System.setProperty("javax.xml.parsers.SAXParserFactory", "org.apache.xerces.jaxp.SAXParserFactoryImpl");
+        // Fixes XCF-537: jdk dependency in DB unit tests, fails with jdk 1.4.2, works with jdk
+        // 1.5.
+        System.setProperty("javax.xml.parsers.SAXParserFactory",
+                "org.apache.xerces.jaxp.SAXParserFactoryImpl");
     }
 
     public static ApplicationContext getApplicationContext() {
@@ -76,21 +79,21 @@ public final class TestHelper {
 
         return s_appContext;
     }
-    
+
     public static ModelFilesContext getModelFilesContext() {
         ModelFilesContextImpl mfc = new ModelFilesContextImpl();
         String sysdir = getSettingModelContextRoot();
-        mfc.setConfigDirectory(sysdir);        
+        mfc.setConfigDirectory(sysdir);
         XmlModelBuilder builder = new XmlModelBuilder(sysdir);
         mfc.setModelBuilder(builder);
-        return mfc;        
+        return mfc;
     }
-    
+
     public static String getSettingModelContextRoot() {
         String sysdir = getSysDirProperties().getProperty("sysdir.etc");
         return sysdir;
     }
-    
+
     public static Setting loadSettings(String path) {
         Setting settings = getModelFilesContext().loadModelFile(path);
         return settings;
@@ -158,9 +161,9 @@ public final class TestHelper {
         if (s_dbunitConnection != null && !s_dbunitConnection.getConnection().isClosed()) {
             s_dbunitConnection.close();
             s_dbunitConnection = null;
-        }        
+        }
     }
-    
+
     public static void main(String[] args) {
         try {
             if (args.length > 0) {
@@ -249,7 +252,7 @@ public final class TestHelper {
             }
         }
     }
-    
+
     /**
      * Use in test to create copy of example files to be changed by test methods.
      * 
@@ -261,7 +264,7 @@ public final class TestHelper {
     public static final void copyStreamToDirectory(InputStream from, String dir, String filename)
             throws IOException {
         FileOutputStream to = new FileOutputStream(new File(dir, filename));
-        CopyUtils.copy(from, to);
+        IOUtils.copy(from, to);
         IOUtils.closeQuietly(to);
         IOUtils.closeQuietly(from);
     }

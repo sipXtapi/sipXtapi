@@ -19,7 +19,6 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -49,7 +48,7 @@ public class ConfigFileWriterTest extends TestCase {
         m_destinationFile = new File(m_configDirectory, ConfigFileStorageTest.CONFIG_FILE);
         configStream.reset();
         Writer buffer = new StringWriter();
-        CopyUtils.copy(configStream, buffer);
+        IOUtils.copy(configStream, buffer);
 
         m_originalContent = buffer.toString();
 

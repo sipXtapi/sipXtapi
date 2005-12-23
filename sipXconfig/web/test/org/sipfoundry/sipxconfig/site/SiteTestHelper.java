@@ -26,7 +26,6 @@ import junit.framework.TestSuite;
 import net.sourceforge.jwebunit.HttpUnitDialog;
 import net.sourceforge.jwebunit.WebTester;
 
-import org.apache.commons.io.CopyUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.common.TestUtil;
@@ -265,7 +264,7 @@ public class SiteTestHelper {
         String webpath = getArtificialSystemRootDirectory() + "/" + path;
         try {
             FileWriter out = new FileWriter(webpath);
-            CopyUtils.copy(neopath, out);
+            IOUtils.write(neopath, out);
             IOUtils.closeQuietly(out);
             return webpath;
         } catch (IOException ioe) {
