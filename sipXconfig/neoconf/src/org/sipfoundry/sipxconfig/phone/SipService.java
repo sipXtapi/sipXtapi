@@ -23,11 +23,14 @@ public interface SipService {
     
     public String getServerUri();
     
-    public void send(String sipMsg) throws IOException;
+    public void send(byte[] sipMsg) throws IOException;
     
     public void sendCheckSync(String uri, String registrationServer, 
             String registrationServerPort, String userId);
         
+    public void sendCheckSync(String uri, String registrationServer, 
+            String registrationServerPort, String userId, byte[] payload);
+
     public String getCurrentDate();
     
     public void setProxyHost(String proxy);

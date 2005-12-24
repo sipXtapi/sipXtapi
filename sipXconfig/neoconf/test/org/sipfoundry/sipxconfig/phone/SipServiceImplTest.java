@@ -61,7 +61,7 @@ public class SipServiceImplTest extends TestCase {
             + "Content-Length: 0\r\n" 
             + "\r\n";
 
-        m_sip.send(msg);
+        m_sip.send(msg.getBytes());
         
         rdr.shutdown();
         assertEquals(msg, rdr.msg);

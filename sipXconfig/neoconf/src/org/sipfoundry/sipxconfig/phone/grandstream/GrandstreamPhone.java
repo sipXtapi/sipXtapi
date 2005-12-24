@@ -388,9 +388,23 @@ public class GrandstreamPhone extends Phone {
     }
 
     public void restart() {
-        // Grandstream does not let third-party software restart their phones
-        throw new RestartException(
-                "Grandstream phones cannot be restarted remotely, except by Grandstream's GAPSLITE product");
+        if (getLines().size() == 0) {
+            throw new RestartException("Restart command is sent to first line and "
+                    + "first phone line is not valid");
+        }
+
+        Line line = getLine(0);
+        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
+        if (settings == null) {
+            throw new RestartException(
+                    "Line implementation does not support LineSettings adapter");
+        }
+
+        String password = settings.getPassword();
+        byte[] resetPayload = new ResetPacket(password, getSerialNumber()).getResetMessage();
+        
+        getSipService().sendCheckSync(line.getUri(), settings.getRegistrationServer(), settings
+                .getRegistrationServerPort(), settings.getUserId(), resetPayload);
     }
 
     public Setting evaluateModel(ConditionalSet conditional) {

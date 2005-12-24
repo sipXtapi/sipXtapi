@@ -113,12 +113,11 @@ public class SipServiceImpl implements SipService {
         return "sip:sipuaconfig@" + getFromServer();
     }
 
-    public void send(String sipMsg) throws IOException {
+    public void send(byte[] sipBytes) throws IOException {
         // not particular reason it's UDP other than we do not
         // expect a response so this seems more appropriate.
-        s_log.info(sipMsg);
+        s_log.info(new String(sipBytes));
         DatagramSocket socket = new DatagramSocket();
-        byte[] sipBytes = sipMsg.getBytes();
         InetAddress toAddress = InetAddress.getByName(m_proxyHost);
         DatagramPacket packet = new DatagramPacket(sipBytes, 0, sipBytes.length, 
                 toAddress, m_proxyPort);
@@ -145,22 +144,33 @@ public class SipServiceImpl implements SipService {
     
     public void sendCheckSync(String uri, String registrationServer, 
             String registrationServerPort, String userId) {
+        sendCheckSync(uri, registrationServer, 
+                registrationServerPort, userId, new byte[0]);
+    }
+
+    public void sendCheckSync(String uri, String registrationServer, 
+            String registrationServerPort, String userId, byte[] payload) {
         // The check-sync message is a flavor of unsolicited NOTIFY
         // this message does not require that the phone be enrolled
         // the message allows us to reboot a specific phone 
         String restartSip = "NOTIFY {0} SIP/2.0\r\n" + "Via: {1}\r\n"
                 + "From: {2}\r\n" + "To: {3}\r\n" + "Event: check-sync\r\n"
                 + "Date: {4}\r\n" + "Call-ID: {5}\r\n" + "CSeq: 1 NOTIFY\r\n"
-                + "Contact: null\r\n" + "Content-Length: 0\r\n" + "\r\n";
+                + "Contact: null\r\n" + "Content-Length: {6}\r\n" + "\r\n";
         Object[] sipParams = new Object[] { 
             getNotifyRequestUri(registrationServer, registrationServerPort, userId), 
             getServerVia(),
             getServerUri(), 
             uri,
             getCurrentDate(), 
-            generateCallId()
+            generateCallId(),
+            String.valueOf(payload.length)
         };
-        String msg = MessageFormat.format(restartSip, sipParams);
+        String header = MessageFormat.format(restartSip, sipParams);
+        int headerLen = header.length();
+        byte[] msg = new byte[headerLen + payload.length];
+        System.arraycopy(header.getBytes(), 0, msg, 0, headerLen);
+        System.arraycopy(payload, 0, msg, headerLen, payload.length);
         try {
             send(msg);
         } catch (IOException e) {
