@@ -18,7 +18,12 @@
     <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
         <set-property name="enumClass" 
         	expression="@org.sipfoundry.sipxconfig.admin.dialplan.CallDigits@class"/>        
-	</bean>    
+	</bean>
+    <bean name="localizedDigitsModel" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator" lifecycle="page">
+        <set-property name="model" expression="beans.digitsModel"/>
+        <set-property name="resourcePrefix" expression="'digits.'"/>        
+        <set-property name="messages" expression="messages"/>
+    </bean>
     
     <!-- C O M P O N E N T S -->
     <component id="prefixLabel" type="FieldLabel">
@@ -27,11 +32,11 @@
     <component id="prefix" type="ValidField">
         <binding name="value" expression="pattern.prefix"/>
         <binding name="validator" expression="page.global.validSipUrlUser"/>
-        <static-binding name="displayName" value="Prefix"/>
+        <message-binding name="displayName" key="label.prefix"/>
     </component>
     
     <component id="digits" type="PropertySelection">
         <binding name="value" expression="pattern.digits"/>
-        <binding name="model" expression="beans.digitsModel"/>
+        <binding name="model" expression="beans.localizedDigitsModel"/>
     </component>
 </component-specification>
