@@ -2,38 +2,22 @@
 	<span jwcid="@RenderBody"/>
 	<fieldset>
 		<legend>User Search</legend>
-		<table>
-			<tr>
-				<td>
-                    <label for="userSearch:userNameOrAlias">
-						<span jwcid="userNameOrAliasLabel">User ID or alias</span>:
-                    </label>
-				</td>
-				<td>
-					<input jwcid="userNameOrAlias" id="userSearch:userNameOrAlias"/>
-				</td>
+		<table jwcid="renderAdvancedSearch" element="table">
+			<tr for="userSearch:userNameOrAlias" jwcid="userNameOrAliasLabel">
+				<input jwcid="userNameOrAlias" id="userSearch:userNameOrAlias"/>
 			</tr>
-			<tr>
-				<td>
-                    <label for="userSearch:lastName">
- 						<span jwcid="lastNameLabel">Last name</span>:
-                    </label>
-				</td>
-				<td>
-					<input jwcid="lastName" id="userSearch:lastName"/>
-				</td>
+			<tr for="userSearch:lastName" jwcid="lastNameLabel">
+				<input jwcid="lastName" id="userSearch:lastName"/>
 			</tr>
-			<tr>
-				<td>
-                    <label for="userSearch:firstName">
-						<span jwcid="firstNameLabel">First name</span>:
-                    </label>
-				</td>
-				<td>
-					<input jwcid="firstName" id="userSearch:firstName"/>
-				</td>
+			<tr for="userSearch:firstName" jwcid="firstNameLabel">
+				<input jwcid="firstName" id="userSearch:firstName"/>
 			</tr>
 		</table>
+        <table jwcid="renderSimpleSearch" element="table">
+			<tr for="userSearch:query" jwcid="queryLabel">
+				<input jwcid="query" id="userSearch:query"/>
+			</tr>            
+        </table>
 	</fieldset>
 	<ul class="component-submit">
 		<li>

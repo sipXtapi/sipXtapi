@@ -15,11 +15,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.search.BeanAdaptor;
+import org.sipfoundry.sipxconfig.search.SearchManager;
 
 public abstract class UserSearch extends BaseComponent {
 
@@ -35,12 +38,26 @@ public abstract class UserSearch extends BaseComponent {
 
     public abstract CoreContext getCoreContext();
 
+    public abstract SearchManager getSearchManager();
+
+    public abstract boolean getSimpleSearch();
+
+    public abstract String getQuery();
+
     public void search(IRequestCycle cycle_) {
-        User user = getUser();
-        if (user != null) {
-            List results = getCoreContext().loadUserByTemplateUser(getUser());
-            // keep original collection, reference has already been given to other
-            // components.
+        List results = null;
+        String query = getQuery();
+
+        if (getSimpleSearch() && StringUtils.isNotBlank(query)) {
+            BeanAdaptor.IdentityToBean identityToBean = new BeanAdaptor.IdentityToBean(getCoreContext());
+            results = getSearchManager().search(User.class, query, identityToBean);
+        } else {
+            results = getCoreContext().loadUserByTemplateUser(getUser());
+        }
+
+        // keep original collection, reference has already been given to other
+        // components.
+        if (results != null) {
             setUsers(new ArrayList(results));
         }
     }

@@ -5,13 +5,18 @@
 	<body jwcid="$content$">
 		<span jwcid="@Border">
 			<span jwcid="phoneLabel"/>
-			<h2>Add Line</h2>
-			<p>Adding a user to the phone will add a line appearance on that 
+			<h2><span key="title">Add Line</span></h2>
+			<p><span key="help.text">Adding a user to the phone will add a line appearance on that 
 				phone managing calls for that user. You can add users to as 
 				many phones as you'd like including different phone models. 
 				Settings regarding how that user is configured on this 
-				particular phone can be set after adding the user.</p>
+				particular phone can be set after adding the user.</span></p>
 			<form jwcid="selectUserForm" id="line:add">
+				<ul class="component-links">
+					<li>
+		                <a  href="#" id="search:toggle" jwcid="toggleSearchType">Advanced Search</a>
+					</li>
+				</ul>                
 				<span jwcid="searchForm">
 					<span jwcid="returnToEditPhone"/>
 				</span>

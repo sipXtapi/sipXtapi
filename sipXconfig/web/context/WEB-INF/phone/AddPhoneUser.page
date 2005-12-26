@@ -18,7 +18,12 @@
     	initial-value="global.phoneContext"/>    
 	<property-specification name="coreContext" 
 		type="org.sipfoundry.sipxconfig.common.CoreContext" 
-    	initial-value="global.coreContext"/>    
+    	initial-value="global.coreContext"/>
+    <property-specification name="simpleSearch" 
+    	type="boolean" 
+    	initial-value="true" 
+    	persistent="yes"/>
+    
     <!--
       - B E A N S
       -->
@@ -26,11 +31,17 @@
     <!--
       - C O M P O N E N T S
       -->
+    <component id="toggleSearchType" type="ToggleLink">
+        <binding name="toggle" expression="simpleSearch"/>
+        <message-binding name="labelOff" key="search.simple"/>
+        <message-binding name="labelOn" key="search.advanced"/>
+    </component>
     <component id="selectUserForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
     </component>
     <component id="searchForm" type="UserSearch">
         <binding name="cancelListener" expression="listeners.cancel"/>
+        <binding name="simpleSearch" expression="simpleSearch"/>
     </component>
     <component id="searchResults" type="UserSearchResults">
         <binding name="users" expression="components.searchForm.users"/>    
