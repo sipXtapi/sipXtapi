@@ -16,7 +16,6 @@ import java.util.Collection;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
-import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;

@@ -187,11 +187,11 @@ public class GrandstreamPhone extends Phone {
         GrandstreamModel model = (GrandstreamModel) getModel();
         int cfgtyp = model.getLineCfgType();
         if (cfgtyp == GrandstreamModel.LINECFG_PHONE) {
-            line.getSettings().getSetting("port/P48-P403-P503-P603").setValue(defaults.getOutboundProxy());
+            line.getSettings().getSetting("port/P48-P403-P503-P603").setValue(defaults.getDomainName());
             line.getSettings().getSetting("port/P33-P426-P526-P626").setValue(defaults.getVoiceMail());
         }
         if (cfgtyp == GrandstreamModel.LINECFG_HT) {
-            line.getSettings().getSetting("port/P48-P748").setValue(defaults.getOutboundProxy());
+            line.getSettings().getSetting("port/P48-P748").setValue(defaults.getDomainName());
         }
     }
 

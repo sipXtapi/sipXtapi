@@ -23,14 +23,6 @@ public class PhoneDefaults {
 
     private static final String DEFAULT_SIP_PORT = "5060";
 
-    private String m_outboundProxy;
-
-    private String m_outboundProxyPort;
-
-    private String m_registrationServer;
-
-    private String m_registrationServerPort;
-
     private String m_tftpServer;
 
     private String m_profileRootUrl;
@@ -55,34 +47,6 @@ public class PhoneDefaults {
 
     public String getDomainName() {
         return m_domainName;
-    }
-
-    /**
-     * @deprecated use domain name
-     */
-    public String getOutboundProxy() {
-        return m_outboundProxy;
-    }
-
-    /**
-     * @deprecated use domain name
-     */
-    public String getOutboundProxyPort() {
-        return m_outboundProxyPort;
-    }
-
-    /**
-     * @deprecated use domain name
-     */
-    public String getRegistrationServer() {
-        return m_registrationServer;
-    }
-
-    /**
-     * @deprecated use domain name
-     */
-    public String getRegistrationServerPort() {
-        return m_registrationServerPort;
     }
 
     public String getTftpServer() {
@@ -136,34 +100,6 @@ public class PhoneDefaults {
 
     public void setProfileRootUrl(String profileUrl) {
         m_profileRootUrl = profileUrl;
-    }
-
-    /**
-     * @deprecated use domain name
-     */
-    public void setOutboundProxy(String outboundProxy) {
-        m_outboundProxy = outboundProxy;
-    }
-
-    /**
-     * @deprecated use domain name
-     */
-    public void setOutboundProxyPort(String outboundProxyPort) {
-        m_outboundProxyPort = outboundProxyPort;
-    }
-
-    /**
-     * @deprecated use domain name
-     */
-    public void setRegistrationServer(String registrationServer) {
-        m_registrationServer = registrationServer;
-    }
-
-    /**
-     * @deprecated use domain name
-     */
-    public void setRegistrationServerPort(String registrationServerPort) {
-        m_registrationServerPort = registrationServerPort;
     }
 
     public void setTftpServer(String tftpServer) {

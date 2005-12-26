@@ -12,21 +12,24 @@
       <value>sipxconfig.properties</value>
     </constructor-arg>
   </bean>
+  
   <bean id="sysdir"
     class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="location">
-      <ref bean="sipxconfig.properties"></ref>
+      <ref local="sipxconfig.properties"/>
     </property>
   </bean>
   
-  
-  <!-- This is used in unit test environment only: we change dataSource.jdbcUrl using this mechanism -->
+  <!-- used to directly inject values from sipxconfig.properties file -->
+  <!-- invalid keys are ignored to allow for easier upgrades and file changes -->
   <bean id="overrider"
     class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
     <property name="location">
-      <ref bean="sipxconfig.properties"></ref>
+      <ref local="sipxconfig.properties"/>
     </property>
+    <property name="ignoreInvalidKeys" value="true"/>
   </bean>
+  
   <!--
   - P O S T G R E S
   -->

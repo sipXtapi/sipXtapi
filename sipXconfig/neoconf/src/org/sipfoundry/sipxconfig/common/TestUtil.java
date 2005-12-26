@@ -144,8 +144,6 @@ public final class TestUtil {
         sysProps.setProperty("sysdir.phone", outputDirectory);
         sysProps.setProperty("sysdir.tmp", outputDirectory + "/tmp");
         sysProps.setProperty("sysdir.log", outputDirectory);
-        sysProps.setProperty("phoneDefaults.outboundProxy", "proxy.sipfoundry.org");
-        sysProps.setProperty("phoneDefaults.registrationServer", "registrar.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.tftpServer", "tftp.sipfoundry.org");
         sysProps.setProperty("phoneDefaults.authorizationRealm", realm);
         sysProps.setProperty("phoneDefaults.domainName", domainName);
