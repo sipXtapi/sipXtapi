@@ -127,6 +127,7 @@
     <component-type type="PatternsEditor" specification-path="dialplan/PatternsEditor.jwc"/>
     <component-type type="PhoneLabel" specification-path="phone/PhoneLabel.jwc"/>
     <component-type type="PhoneNavigation" specification-path="phone/PhoneNavigation.jwc"/>
+    <component-type type="QuickHelp" specification-path="common/QuickHelp.jwc"/>
     <component-type type="RestartReminderPanel" specification-path="admin/commserver/RestartReminderPanel.jwc"/>
     <component-type type="RingEditor" specification-path="user_portal/RingEditor.jwc"/>
     <component-type type="RoutingExceptionEditor" specification-path="dialplan/RoutingExceptionEditor.jwc"/>
