@@ -606,7 +606,7 @@ SipAaa::handleMessage( OsMsg& eventMessage )
                                 UtlString prevFromTag;
                                 UtlString prevSignature;
                                 // If the permission, from tag and signature
-                                // of the exist record-route matches the one
+                                // of the existing record-route matches the one
                                 // to be added, mark it as not unique so that
                                 // we do not add it again
                                 if(prevRRouteUrl.getUrlParameter("a", prevPermission) &&
@@ -771,7 +771,7 @@ UtlBoolean SipAaa::isAuthenticated(
                 OsSysLog::add(FAC_AUTH, PRI_INFO,
                               "SipAaa::isAuthenticated() "
                               "Invalid NONCE: %s found "
-                              "call-id: %s from tag: %s uri: %s realm: %s expiration: %d",
+                              "call-id: %s from tag: %s uri: %s realm: %s expiration: %ld",
                               requestNonce.data(), callId.data(), fromTag.data(),
                               requestUri.data(), mRealm.data(), nonceExpires);
             }
@@ -784,7 +784,8 @@ UtlBoolean SipAaa::isAuthenticated(
 
     if ( !authenticated )
     {
-        OsSysLog::add(FAC_AUTH, PRI_INFO, "SipAaa::isAuthenticated() Request not authenticated.",
+        OsSysLog::add(FAC_AUTH, PRI_INFO,
+              "SipAaa::isAuthenticated() Request not authenticated for user: '%s'",
               requestUser.data());
 
         UtlString newNonce;
@@ -809,87 +810,62 @@ UtlBoolean SipAaa::isAuthenticated(
 }
 
 UtlBoolean
-SipAaa::isAuthorized (
-    const SipMessage& sipRequest,
+SipAaa::isAuthorized(
     const ResultSet& requiredPermissions,
-    const char* authUser,
-    SipMessage& authResponse,
-    UtlString& matchedPermission)
+    const ResultSet& grantedPermissions,
+    UtlString& matchedPermission,
+    UtlString& unmatchedPermissions)
 {
     UtlBoolean authorized = FALSE;
-    UtlString unMatchedPermissions;
-
-    UtlString userUrlString(authUser ? authUser : "");
-    if ( userUrlString.index("@") < 0 )
-    {
-        userUrlString.append("@");
-        userUrlString.append(mRealm);
-    }
-    Url userUrl(userUrlString);
-
-    // get all permissions associated with this user
-    ResultSet grantedPermissions;
-    PermissionDB::getInstance()->getPermissions( userUrl, grantedPermissions );
 
     // dpetrie:  I think that these loops are backwards.  It appears that
     // this is verifying that the user has at least one of the
     // required permissions.  I think that what is is SUPPOSED to
     // do is verify that the user has ALL of the required permissions.
-    UtlString identityKey ("identity");
-    UtlString permissionKey ("permission");
+    UtlString identityKey("identity");
+    UtlString permissionKey("permission");
 
     int numGrantedPermissions = grantedPermissions.getSize();
-    for (int i = 0; i< numGrantedPermissions; i++ )
+    for (int i = 0; i < numGrantedPermissions; i++)
     {
+        UtlHashMap grantedRecord;
+        grantedPermissions.getIndex(i, grantedRecord);
 
-        UtlHashMap record;
-        grantedPermissions.getIndex( i, record );
-
-        UtlString rowUri        = *((UtlString*)record.findValue(&identityKey));
-        UtlString grantedRowPermission = *((UtlString*)record.findValue(&permissionKey));
+        UtlString rowUri               = *((UtlString*)grantedRecord.findValue(&identityKey));
+        UtlString grantedRowPermission = *((UtlString*)grantedRecord.findValue(&permissionKey));
 
         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized found uri: %s permission: %s",
                rowUri.data(), grantedRowPermission.data());
-        //osPrintf("SipAaa::isAuthorized found uri: %s permission: %s\n",
-        //    rowUri.data(), rowPermission.data());
 
         // Search through the input permissions set for a match
         int numRequiredPermissions = requiredPermissions.getSize();
-        if ( numRequiredPermissions > 0 )
+        if (numRequiredPermissions > 0)
         {
             UtlString permDB;
-            for (int j=0; j<numRequiredPermissions; j++ )
+            for (int j = 0; j < numRequiredPermissions; j++)
             {
-                // WARNING: I think that the following reuse
-                // of the record object is wiping out rows in
-                // the localPermisions result set for
-                // numLocalPermissions > 1.  However I am
-                // afraid to change it. dpetrie
-                requiredPermissions.getIndex( j, record );
+                UtlHashMap requiredRecord;
+                requiredPermissions.getIndex(j, requiredRecord);
 
-                // I do not know why rowUri even exists as a variable in
-                // this method dpetrie
-                //rowUri = *((UtlString*)record.findValue( &identityKey ));
-
-                permDB = *((UtlString*)record.findValue( &permissionKey ));
-                if ( permDB.compareTo( grantedRowPermission, UtlString::ignoreCase ) == 0 ||
-                    permDB.compareTo("ValidUser", UtlString::ignoreCase ) == 0 ||
-                    permDB.compareTo("RecordRoute", UtlString::ignoreCase ) == 0)
+                permDB = *((UtlString*)requiredRecord.findValue(&permissionKey));
+                if (permDB.compareTo(grantedRowPermission, UtlString::ignoreCase) == 0 ||
+                    permDB.compareTo("ValidUser", UtlString::ignoreCase) == 0 ||
+                    permDB.compareTo("RecordRoute", UtlString::ignoreCase) == 0)
                 {
-                    matchedPermission.append( permDB );
+                    matchedPermission.append(permDB);
                     authorized = TRUE;
                     break;
                 } else
                 {
                     // only the first time we need to fill in the string
-                    // to get the names of permissions requeired to be send back in case of an error
-                    if ( i == 0 )
+                    // to get the names of permissions to send back when there is an error
+                    if (i == 0)
                     {
-                        if ( !unMatchedPermissions.isNull() )
+                        if (!unmatchedPermissions.isNull())
                         {
-                            unMatchedPermissions.append("+");
+                            unmatchedPermissions.append("+");
                         }
-                        unMatchedPermissions.append(permDB);
+                        unmatchedPermissions.append(permDB);
                     }
                 }
                 permDB.remove(0);
@@ -907,37 +883,63 @@ SipAaa::isAuthorized (
         int numRequiredPermissions = requiredPermissions.getSize();
         for(int i = 0; i < numRequiredPermissions; i++)
         {
-            requiredPermissions.getIndex( i, requiredPermRecord );
+            requiredPermissions.getIndex(i, requiredPermRecord);
             UtlString* requirePermPtr =
-                ((UtlString*)requiredPermRecord.findValue( &permissionKey ));
+                ((UtlString*)requiredPermRecord.findValue(&permissionKey));
             if(requirePermPtr)
             {
-                if ( !unMatchedPermissions.isNull() )
+                if (!unmatchedPermissions.isNull())
                 {
-                    unMatchedPermissions.append("+");
+                    unmatchedPermissions.append("+");
                 }
-                unMatchedPermissions.append(*requirePermPtr);
+                unmatchedPermissions.append(*requirePermPtr);
             }
         }
     }
+
+    return authorized;
+}
+
+UtlBoolean
+SipAaa::isAuthorized (
+    const SipMessage& sipRequest,
+    const ResultSet& requiredPermissions,
+    const char* authUser,
+    SipMessage& authResponse,
+    UtlString& matchedPermission)
+{
+    UtlString userUrlString(authUser ? authUser : "");
+    if ( userUrlString.index("@") < 0 )
+    {
+        userUrlString.append("@");
+        userUrlString.append(mRealm);
+    }
+    Url userUrl(userUrlString);
+
+    // get all permissions associated with this user
+    ResultSet grantedPermissions;
+    PermissionDB::getInstance()->getPermissions(userUrl, grantedPermissions);
+
+    UtlString unmatchedPermissions;
+    UtlBoolean authorized =
+       isAuthorized(requiredPermissions, grantedPermissions, matchedPermission, unmatchedPermissions);
 
     OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipAaa::isAuthorized user: %s %s for %s",
                   authUser && *authUser ? authUser : "none",
                   authorized ? "authorized" : "not authorized",
                   matchedPermission.data());
 
-    if ( !authorized )
+    if (!authorized)
     {
         UtlString errorText("Not authorized for ");
-        errorText += unMatchedPermissions;
+        errorText += unmatchedPermissions;
 
         authResponse.setResponseData(&sipRequest,
                                      SIP_FORBIDDEN_CODE,
                                      errorText.data());
     }
-    return(authorized);
+    return authorized;
 }
-
 
 void SipAaa::calcRouteSignature(UtlString& matchedPermission,
                                UtlString& callId,
@@ -954,7 +956,6 @@ void SipAaa::calcRouteSignature(UtlString& matchedPermission,
 
     NetMd5Codec::encode(signatureData, signature);
 }
-
 
 /* ============================ FUNCTIONS ================================= */
 
