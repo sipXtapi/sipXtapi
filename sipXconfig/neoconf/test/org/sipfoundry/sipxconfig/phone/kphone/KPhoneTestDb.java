@@ -25,7 +25,7 @@ public class KPhoneTestDb extends SipxDatabaseTestCase {
         PhoneContext pc = (PhoneContext) TestHelper.getApplicationContext().getBean(
                 PhoneContext.CONTEXT_BEAN_NAME);
 
-        KPhone kphone = (KPhone) pc.newPhone(KPhone.MODEL);
+        KPhone kphone = (KPhone) pc.newPhone(KPhone.MODEL_KPHONE);
 
         // All phones in system have a unique id, this will be important for
         // selecting which profile to download 

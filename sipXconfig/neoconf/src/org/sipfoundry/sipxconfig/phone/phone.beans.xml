@@ -64,7 +64,7 @@
         <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_HT496"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
 
-        <bean id="org.sipfoundry.sipxconfig.phone.kphone.KPhone.MODEL"
+        <bean id="org.sipfoundry.sipxconfig.phone.kphone.KPhone.MODEL_KPHONE"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
       </list>
     </property>

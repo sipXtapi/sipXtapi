@@ -19,10 +19,10 @@ import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
 public class KPhone extends Phone {
     
-    public static final PhoneModel MODEL = new PhoneModel("kphone", "KPhone");
+    public static final PhoneModel MODEL_KPHONE = new PhoneModel("kphone", "KPhone");
     
     public KPhone() {
-        super(MODEL);
+        super(MODEL_KPHONE);
         setPhoneTemplate("kphone/kphonerc.vm");
     }
     

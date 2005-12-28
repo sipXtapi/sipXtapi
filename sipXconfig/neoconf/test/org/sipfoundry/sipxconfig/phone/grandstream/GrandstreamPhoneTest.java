@@ -12,8 +12,6 @@
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
 import java.io.ByteArrayOutputStream;
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 import junit.framework.TestCase;
 
