@@ -16,11 +16,15 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
@@ -57,8 +61,13 @@ public abstract class UserSearch extends BaseComponent {
 
         // keep original collection, reference has already been given to other
         // components.
-        if (results != null) {
-            setUsers(new ArrayList(results));
+        setUsers(new ArrayList(results));
+        // record success message
+        IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
+        if (delegate instanceof SipxValidationDelegate) {
+            SipxValidationDelegate validator = (SipxValidationDelegate) delegate;
+            String msg = getMessages().format("msg.found", new Integer(results.size()));                
+            validator.recordSuccess(msg);
         }
     }
 

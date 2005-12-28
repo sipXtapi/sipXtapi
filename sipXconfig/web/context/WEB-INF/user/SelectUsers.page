@@ -56,7 +56,7 @@
     <component id="title" type="Insert">
         <binding name="value" expression="title"/>
     </component>
-    <component id="prompt" type="Insert">
+    <component id="prompt" type="QuickHelp">
         <binding name="value" expression="prompt"/>
     </component>
 </page-specification>
