@@ -46,14 +46,14 @@ class UrlMapping;
 class SipMessage;
 class ResultSet;
 
-//:Class short description which may consist of multiple lines (note the ':')
-// Class detailed description which may extend to multiple lines
+
+/**
+ * SipAaa is the core of the auth proxy
+ */
 class SipAaa : public OsServerTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
-
-/* ============================ CREATORS ================================== */
 
    SipAaa(SipUserAgent& sipUserAgent,
           const char* authenticationRealm,
@@ -63,36 +63,39 @@ public:
    SipAaa(const SipAaa& rSipAaa);
      //:Copy constructor
 
-   virtual
-   ~SipAaa();
+   virtual ~SipAaa();
      //:Destructor
-
-/* ============================ MANIPULATORS ============================== */
 
    SipAaa& operator=(const SipAaa& rhs);
      //:Assignment operator
 
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
-/* ============================ ACCESSORS ================================= */
-
-/* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    // Empty constructor, for use by unit tests only
+    SipAaa() {}
+
     UtlBoolean isAuthenticated(
         const SipMessage& sipRequest,
         UtlString& authUser,
         SipMessage& authResponse );
 
-    UtlBoolean isAuthorized (
+    UtlBoolean isAuthorized(
+        const ResultSet& requiredPermissions,
+        const ResultSet& grantedPermissions,
+        UtlString& matchedPermission,
+        UtlString& unmatchedPermissions);
+
+    UtlBoolean isAuthorized(
         const SipMessage& sipRequest,
-        const ResultSet& permissions, 
+        const ResultSet& requiredPermissions, 
         const char* authUser,
         SipMessage& authResponse,
-        UtlString& matchedPermission );
+        UtlString& matchedPermission);
 
     void calcRouteSignature(UtlString& matchedPermission,
                            UtlString& callId, 
@@ -107,10 +110,9 @@ private:
     long mNonceExpiration;
     UtlString mRouteName;
 
-
+    friend class SipAaaTest;
 };
 
 /* ============================ INLINE METHODS ============================ */
 
 #endif  // _SipAaa_h_
-

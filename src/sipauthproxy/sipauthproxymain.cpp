@@ -16,7 +16,7 @@
 #elif defined(__pingtel_on_posix__)
 #include <unistd.h>
 #endif
-#include <iostream.h>
+#include <iostream>
 
 // APPLICATION INCLUDES
 #include "os/OsFS.h"
@@ -156,13 +156,13 @@ void initSysLog(OsConfigDb* pConfig)
    UtlString fileTarget;             // Path to store log file.
    UtlBoolean bSpecifiedDirError ;   // Set if the specified log dir does not
                                     // exist
-   struct tagPrioriotyLookupTable
+   struct tagPriorityLookupTable
    {
       const char*      pIdentity;
       OsSysLogPriority ePriority;
    };
 
-   struct tagPrioriotyLookupTable lkupTable[] =
+   struct tagPriorityLookupTable lkupTable[] =
    {
       { "DEBUG",   PRI_DEBUG},
       { "INFO",    PRI_INFO},
@@ -232,7 +232,7 @@ void initSysLog(OsConfigDb* pConfig)
    }
    logLevel.toUpper();
    OsSysLogPriority priority = PRI_ERR;
-   int iEntries = sizeof(lkupTable)/sizeof(struct tagPrioriotyLookupTable);
+   int iEntries = sizeof(lkupTable)/sizeof(struct tagPriorityLookupTable);
    for (int i=0; i<iEntries; i++)
    {
       if (logLevel == lkupTable[i].pIdentity)
@@ -595,7 +595,7 @@ main( int argc, char* argv[] )
     sipUserAgent.setDnsSrvTimeout(dnsSrvTimeout);
     sipUserAgent.setMaxSrvRecords(maxNumSrvRecords);
 
-    sipUserAgent.setForking(FALSE);  // Diable forking
+    sipUserAgent.setForking(FALSE);  // Disable forking
     sipUserAgent.setHostAliases(hostAliases);
     sipUserAgent.start();
 
