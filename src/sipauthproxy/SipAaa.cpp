@@ -809,6 +809,7 @@ UtlBoolean SipAaa::isAuthenticated(
     return(authenticated);
 }
 
+
 UtlBoolean
 SipAaa::isAuthorized(
     const ResultSet& requiredPermissions,
@@ -817,11 +818,6 @@ SipAaa::isAuthorized(
     UtlString& unmatchedPermissions)
 {
     UtlBoolean authorized = FALSE;
-
-    // dpetrie:  I think that these loops are backwards.  It appears that
-    // this is verifying that the user has at least one of the
-    // required permissions.  I think that what is is SUPPOSED to
-    // do is verify that the user has ALL of the required permissions.
     UtlString identityKey("identity");
     UtlString permissionKey("permission");
 
@@ -873,20 +869,18 @@ SipAaa::isAuthorized(
         }
     } //end 1st for loop over granted permission
 
-    // dpetrie: As the above loops are inside out and I am not about to change
-    // it at this stage of the release, we have to catch the fact that
-    // the user has no permissions and get the list that were
-    // required
+    // If authorization failed, then fill in unmatchedPermissions with all required
+    // permissions, since none of them matched
     if (!authorized)
     {
         UtlHashMap requiredPermRecord;
         int numRequiredPermissions = requiredPermissions.getSize();
-        for(int i = 0; i < numRequiredPermissions; i++)
+        for (int i = 0; i < numRequiredPermissions; i++)
         {
             requiredPermissions.getIndex(i, requiredPermRecord);
             UtlString* requirePermPtr =
                 ((UtlString*)requiredPermRecord.findValue(&permissionKey));
-            if(requirePermPtr)
+            if (requirePermPtr)
             {
                 if (!unmatchedPermissions.isNull())
                 {

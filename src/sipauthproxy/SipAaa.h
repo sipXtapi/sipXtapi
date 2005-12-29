@@ -84,11 +84,28 @@ private:
         UtlString& authUser,
         SipMessage& authResponse );
 
+    /**
+     * Compare the permissions required for the user (requiredPermissions) with the
+     * permissions granted to the user (grantedPermissions).  Return true in two
+     * cases:
+     *  # If the user has *any* (not all) of the required permissions
+     *  # If requiredPermissions contains one or more of the special permissions "ValidUser" or "RecordRoute".
+     * and false otherwise.
+     * In the second case (special permissions) the grantedPermissions don't matter, only
+     * the requiredPermissions matter.
+     * Return the first matched permission in matchedPermission.
+     * Return unmatched permissions in unmatchedPermissions as a single string, using "+"
+     * as a delimiter between permission names.
+     * One would expect permissions to be logically AND'd not OR'd, that is, *all*
+     * requiredPermissions should be required, not just one of them.  This is probably
+     * a bug, but since many installations may now depend on this behavior, we can't change
+     * it without including a configuration option that provides backward compatibility.
+     */
     UtlBoolean isAuthorized(
-        const ResultSet& requiredPermissions,
-        const ResultSet& grantedPermissions,
-        UtlString& matchedPermission,
-        UtlString& unmatchedPermissions);
+       const ResultSet& requiredPermissions,
+       const ResultSet& grantedPermissions,
+       UtlString& matchedPermission,
+       UtlString& unmatchedPermissions);
 
     UtlBoolean isAuthorized(
         const SipMessage& sipRequest,

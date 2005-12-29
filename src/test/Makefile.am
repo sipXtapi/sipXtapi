@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_srcdir)/src/sipauthproxy -I$(top_srcdir)/src/sipforkingproxy
+INCLUDES = -I$(top_srcdir)/src/cse -I$(top_srcdir)/src/sipauthproxy -I$(top_srcdir)/src/sipforkingproxy
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
