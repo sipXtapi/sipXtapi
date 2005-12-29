@@ -5,7 +5,7 @@ SIPfoundry sipXpbx                                           S. Lawrence
                                                                D. Worley
                                                               W. Gillett
                                                            Pingtel Corp.
-                                                       December 21, 2005
+                                                       December 29, 2005
 
 
                        sipXpbx High Availability
@@ -27,7 +27,7 @@ Table of Contents
        5.4.1.  Additional DB Columns  . . . . . . . . . . . . . . . .  8
        5.4.2.  Overall DB Structure . . . . . . . . . . . . . . . . .  8
      5.5.  Threads  . . . . . . . . . . . . . . . . . . . . . . . . .  9
-     5.6.  Locking  . . . . . . . . . . . . . . . . . . . . . . . . .  9
+     5.6.  Locking  . . . . . . . . . . . . . . . . . . . . . . . . . 10
      5.7.  Processing . . . . . . . . . . . . . . . . . . . . . . . . 10
        5.7.1.  Startup Processing . . . . . . . . . . . . . . . . . . 10
        5.7.2.  Transition from Startup Phase to Operational Phase . . 12
@@ -228,7 +228,7 @@ Lawrence, et al.                                                [Page 4]
 4.1.  REGISTER Request Updates
 
    Updating the registry is handled by the routine SipRegistrarServer::
-   applyRegisterToDirectory and the sibdb RegistrationDB class.  The
+   applyRegisterToDirectory and the sipbdb RegistrationDB class.  The
    applyRegisterToDirectory method is called after the REGISTER request
    has been authenticated; it validates the registration by checking to
    see if the Call-ID and CSeq are in sequence by calling
@@ -244,7 +244,7 @@ Lawrence, et al.                                                [Page 4]
       all contacts for this Address Of Record (not just those from this
       Call-ID) be expired.  This is done using a single call to:
 
-        RegistrationDB::expireAllBindings( aor, callid, cseq, timeNow )
+        RegistrationDB::expireAllBindings(aor, callid, cseq, timeNow )
 
       The last three arguments to expireAllBindings are not used to
       select which bindings to operate on.  (All bindings for the given
@@ -260,13 +260,13 @@ Lawrence, et al.                                                [Page 4]
       The listed contacts are updated by calling RegistrationDB::
       updateBinding on each contact:
 
-         RegistrationDB::updateBinding( toUrl,
-                                        contact,
-                                        qvalue,
-                                        registerCallidStr,
-                                        registerCseqInt,
-                                        expirationTime
-                                        )
+         RegistrationDB::updateBinding(toUrl,
+                                       contact,
+                                       qvalue,
+                                       registerCallidStr,
+                                       registerCseqInt,
+                                       expirationTime
+                                       )
 
       Each contact has its q-value and expiration time set, and the
       Call-ID and CSeq are recorded as its "last updated by"
@@ -285,11 +285,11 @@ Lawrence, et al.                                                [Page 5]
       any contacts that have the same Call-ID but an earlier CSeq number
       are expired by a single call to:
 
-                 RegistrationDB::expireOldBindings( toUrl,
-                                                    registerCallidStr,
-                                                    registerCseqInt,
-                                                    timeNow
-                                                    )
+                 RegistrationDB::expireOldBindings(toUrl,
+                                                   registerCallidStr,
+                                                   registerCseqInt,
+                                                   timeNow
+                                                   )
 
 4.2.  Locking
 
@@ -365,6 +365,10 @@ Lawrence, et al.                                                [Page 6]
    PeerSentDbUpdateNumber The largest value of the local DbUpdateNumber
       sent to the peer.
 
+   These state variables are not persisted directly.  Rather, they are
+   persisted implicitly in that they can be computed at startup from the
+   registration database.  See Startup Processing (Section 5.7.1).
+
    The registrar service maintains additional state that is not
    persistent:
    PeerReachable This is a boolean that indicates whether or not the
@@ -381,10 +385,6 @@ Lawrence, et al.                                                [Page 6]
    The registration database is held in the in-memory RegistrationDB
    object, which is implemented using FastDB.  For persistence, this is
    written to the "var/sipxdata/sipdb/registration.xml" file, and
-   restored from that file at startup.
-
-
-
 
 
 
@@ -392,6 +392,8 @@ Lawrence, et al.                                                [Page 7]
 
                                sipXpbx HA                  December 2005
 
+
+   restored from that file at startup.
 
 5.4.1.  Additional DB Columns
 
@@ -435,9 +437,7 @@ Lawrence, et al.                                                [Page 7]
       registration, or the null string.
    gruu The GRUU that was assigned to this registration, or the null
       string.
-   primary The name of the Primary Registrar for this registration.
-   update_number The DbUpdateNumber of the last modification to this
-      entry.
+
 
 
 
@@ -449,6 +449,10 @@ Lawrence, et al.                                                [Page 8]
                                sipXpbx HA                  December 2005
 
 
+   primary The name of the Primary Registrar for this registration.
+   update_number The DbUpdateNumber of the last modification to this
+      entry.
+
 5.5.  Threads
 
    There are several threads in a Registry/Redirect Server:
@@ -457,15 +461,15 @@ Lawrence, et al.                                                [Page 8]
       As such, it is responsible for the transition between the startup
       (Section 5.7.1) and operational (Section 5.7.3) phases of
       operation.
-      * The RegisterInitialSync and HttpServer are started at the
-      beginning of the startup phase.  The SipUserAgent, RegisterServer,
-      RedirectServer, RegistrarSync, and RegistrarTest threads are
-      started at the beginning of the operational phase.  The HttpServer
-      is also active in the operational phase, but some methods are
-      supported only in the operational phase.. *
+      * The RegisterInitialSync and HttpServer threads are started at
+      the beginning of the startup phase.  The SipUserAgent,
+      RegisterServer, RedirectServer, RegistrarSync, and RegistrarTest
+      threads are started at the beginning of the operational phase.
+      The HttpServer is also active in the operational phase, and some
+      methods are supported only in the operational phase. *
    RegisterInitialSync This thread implements the startup
       (Section 5.7.1) phase of operation: recovery of the local registry
-      database, and resyncronizing with each peer.  When this phase is
+      database, and resynchronizing with each peer.  When this phase is
       complete, this thread signals the SipRegister thread.
    HttpServer This thread is the XML-RPC server.  Each of the XML-RPC
       methods invoked on the local system run in this thread. _At
@@ -486,17 +490,13 @@ Lawrence, et al.                                                [Page 8]
       thread, which in turn passes them to either RegisterServer or
       RedirectServer depending on the request method.
    RegistrarSync This thread is the XML-RPC client that sends updates to
-      each peer server during the operational (Section 5.7.3) phase..
+      each peer server during the operational (Section 5.7.3) phase.
    RegistrarTest This thread is responsible for periodically attempting
       to re-establish contact with an UnReachable peer.  A peer becomes
       UnReachable when any communication with that peer fails for any
       reason.
 
-5.6.  Locking
 
-   Registry database updates are protected by an OsMutex; it is taken by
-   applyRegisterToDirectory and by each of the registrarSync XML-RPC
-   server methods.  This serializes all the checks for CSeq correctness,
 
 
 
@@ -505,6 +505,11 @@ Lawrence, et al.                                                [Page 9]
                                sipXpbx HA                  December 2005
 
 
+5.6.  Locking
+
+   Registry database updates are protected by an OsMutex; it is taken by
+   applyRegisterToDirectory and by each of the registrarSync XML-RPC
+   server methods.  This serializes all the checks for CSeq correctness,
    and also protects the synchronization state variables.
 
    The XML-RPC client threads (RegistrarSync and RegistrarTest) will
@@ -521,14 +526,14 @@ Lawrence, et al.                                                [Page 9]
    Registrar processing is performed in two distinct phases stages --
    Startup Phase and Operational Phase.
 
-   The purpose of the startup phase is to recovers the local
-   registration database (if possible), and to resyncronize with all
-   peer registrars.  Any updates are pulled from peer registrars so that
-   the local registrar can tell when its database is up to date and that
-   no more updates are available.  During the startup phase the database
-   is not yet known to be up to date, so the Registry/Redirect service
-   does not accept either any SIP request or any request to push updates
-   from any peer registrar.
+   The purpose of the startup phase is to recover the local registration
+   database (if possible), and to resynchronize with all peer
+   registrars.  Any updates are pulled from peer registrars so that the
+   local registrar can tell when its database is up to date and that no
+   more updates are available.  During the startup phase the database is
+   not yet known to be up to date, so the Registry/Redirect service does
+   not accept either any SIP request or any request to push updates from
+   any peer registrar.
 
    During the operational phase, the registrar processes SIP messages.
    Any REGISTER request that results in updates to the local database
@@ -549,11 +554,6 @@ Lawrence, et al.                                                [Page 9]
    the server does not open its SIP port.  SIP clients will consider it
    to be down and fail over to another server.
 
-   In order to prevent races between the pull-based synchronization
-   during the startup phase and the push-based synchronization used
-   during the operational phase, the registrarSync.pushUpdates and
-   registrarSync.reset methods are not available during the startup
-
 
 
 Lawrence, et al.                                               [Page 10]
@@ -561,6 +561,10 @@ Lawrence, et al.                                               [Page 10]
                                sipXpbx HA                  December 2005
 
 
+   In order to prevent races between the pull-based synchronization
+   during the startup phase and the push-based synchronization used
+   during the operational phase, the registrarSync.pushUpdates and
+   registrarSync.reset methods are not available during the startup
    phase.  Attempts to invoke them result in XML-RPC faults, which
    causes the caller to consider the target of the request to be
    UnReachable.  This is corrected by the registrarSync.reset
@@ -578,7 +582,7 @@ Lawrence, et al.                                               [Page 10]
           number in the database whose associated "primary" is the name
           of the peer.
        *  Each PeerSentDbUpdateNumber is set to zero (for the time
-          being, we assume that no updates have been propogated to the
+          being, we assume that no updates have been propagated to the
           peers).
        If any synchronization variable cannot be initialized from the
        local persistent store, then:
@@ -590,12 +594,12 @@ Lawrence, et al.                                               [Page 10]
            local registrar host name and DbUpdateNumber.  The purpose of
            this call is to recover any registrations for which the local
            host was the primary but which for some reason were not saved
-           in the local persistant store (the canonical case is that the
+           in the local persistent store (the canonical case is that the
            local file was lost or corrupted - when this is the case, the
            local DbUpdateNumber will usually be zero).
        2.  Call registrarSync.pullUpdates (Section 5.8.1), passing the
            peer registrar host name and PeerReceivedDbUpdateNumber.
-           This call recovers any updates that have occured while the
+           This call recovers any updates that have occurred while the
            local registrar has been down.
        If any request to a peer fails, mark that peer as UnReachable and
        proceed.
@@ -605,10 +609,6 @@ Lawrence, et al.                                               [Page 10]
        associated PeerReceivedDbUpdateNumber.  This recovers whatever
        data is still available about updates for which the UnReachable
        peer was the primary.
-   4.  Reset DbUpdateNumber to the current epoch time, left shifted 32
-       bits.
-
-
 
 
 
@@ -617,6 +617,8 @@ Lawrence, et al.                                               [Page 11]
                                sipXpbx HA                  December 2005
 
 
+   4.  Reset DbUpdateNumber to the current epoch time, left-shifted 32
+       bits.
    5.  For each peer that is not marked UnReachable, call
        registrarSync.reset (Section 5.8.2); if successful, this has the
        effect of both systems marking each other as Reachable.  The
@@ -633,10 +635,10 @@ Lawrence, et al.                                               [Page 11]
        *  RegisterServer (Section 5.7.3.1)
        *  RedirectServer
        *  SipUserAgent
-   2.  Start the syncronization threads:
+   2.  Start the synchronization threads:
        *  RegistrarTest (Section 5.7.3.3)
        *  RegistrarSync (Section 5.7.3.2)
-   3.  Begin accepting syncronization requests by registering the XML-
+   3.  Begin accepting synchronization requests by registering the XML-
        RPC methods:
        *  registrarSync.pushUpdates (Section 5.8.3)
        *  registrarSync.reset (Section 5.8.2)
@@ -645,10 +647,10 @@ Lawrence, et al.                                               [Page 11]
 
    In normal operation (no system or connectivity failures), the
    RegisterServer thread processes REGISTER requests, and the
-   RegisterSync thread propogates the resulting database updates to each
+   RegisterSync thread propagates the resulting database updates to each
    peer.  If connectivity is lost, the RegistrarTest thread
-   periodicallly attempts to reestablish contact and resyncronize the
-   DbUpdateNumber values that govern update propogation.
+   periodicallly attempts to reestablish contact and resynchronize the
+   DbUpdateNumber values that govern update propagation.
 
 5.7.3.1.  RegisterServer
 
@@ -663,8 +665,6 @@ Lawrence, et al.                                               [Page 11]
    effect is atomic - either all Contacts are accepted or none are.
    Note that the Primary Registrar is responsible for this logic, and
    that the effect of the REGISTER is reduced to the insertion/
-   modification of a number of rows in the local database.  Each row is
-   tagged with the local DbUpdateNumber of the new version of the DB.
 
 
 
@@ -673,7 +673,9 @@ Lawrence, et al.                                               [Page 12]
                                sipXpbx HA                  December 2005
 
 
-   The RegistrarSync thread propogates records based on comparing the
+   modification of a number of rows in the local database.  Each row is
+   tagged with the local DbUpdateNumber of the new version of the DB.
+   The RegistrarSync thread propagates records based on comparing the
    update number in the row with the PeerSentDbUpdateNumber for the
    peer.  Also see pushUpdates (Section 5.8.3).
 
@@ -700,7 +702,7 @@ Lawrence, et al.                                               [Page 12]
    semaphore.  The static C++ method "RegistrarSync::sendUpdates"; when
    invoked, increments the semaphore value, indicating to the
    RegistrarSync thread that there may be updates available to be
-   propogated, or that connectivity to a previously UnReachable peer has
+   propagated, or that connectivity to a previously UnReachable peer has
    been restored.  On each pass through the loop, the thread does:
       For each Reachable peer, if the local DbUpdateNumber is greater
       than the PeerSentDbUpdateNumber, the registerSync.pushUpdates
@@ -712,15 +714,13 @@ Lawrence, et al.                                               [Page 12]
       After completing one pass over the Reachable peers, if
       DbUpdateNumber is less than the lowest PeerSentDbUpdateNumber for
       all Reachable peers (indicating that there remains at least one
-      update to be propogated), the RegistrarSync thread calls
+      update to be propagated), the RegistrarSync thread calls
       sendUpdates itself.
 
 5.7.3.3.  RegistrarTest
 
    The RegistrarTest thread is responsible for determining whether or
    not a previously UnReachable peer has become Reachable.  When a peer
-   is marked UnReachable, the RegistrarTest::checkPeers C++ method is
-   invoked to signal that the checks should begin.
 
 
 
@@ -728,6 +728,9 @@ Lawrence, et al.                                               [Page 13]
 
                                sipXpbx HA                  December 2005
 
+
+   is marked UnReachable, the RegistrarTest::checkPeers C++ method is
+   invoked to signal that the checks should begin.
 
    For each UnReachable peer, the RegistrarTest thread maintains a timer
    to periodically check the status of that peer.  Each time this timer
@@ -740,7 +743,7 @@ Lawrence, et al.                                               [Page 13]
    using standard exponential backoff to a maximum interval of one
    eighth of the maximum registration interval.  This prevents useless
    and possibly harmful traffic being injected into the network in the
-   event that the loss of connectivity is traffic related.
+   event that the loss of connectivity is traffic-related.
 
    A successful invocation of the registrarSync.reset method resets the
    state of the peer to Reachable and also resets the
@@ -774,9 +777,6 @@ Lawrence, et al.                                               [Page 13]
 
    Used to pull updates during the startup phase (Section 5.7.1).
 
-   If this method returns any fault, the server is marked UnReachable by
-   the client.
-
 
 
 
@@ -784,6 +784,9 @@ Lawrence, et al.                                               [Page 14]
 
                                sipXpbx HA                  December 2005
 
+
+   If this method returns any fault, the server is marked UnReachable by
+   the client.
 
    Inputs:
 
@@ -831,9 +834,6 @@ Lawrence, et al.                                               [Page 14]
                string   registrar_name  The clients name
                i8       update_number
 
-   The sent update_number is the highest update number in the clients
-   database owned by the server: the PeerReceivedDbUpdateNumber in the
-
 
 
 Lawrence, et al.                                               [Page 15]
@@ -841,6 +841,8 @@ Lawrence, et al.                                               [Page 15]
                                sipXpbx HA                  December 2005
 
 
+   The sent update_number is the highest update number in the clients
+   database owned by the server: the PeerReceivedDbUpdateNumber in the
    client for the server.  This value becomes the PeerSentDbUpdateNumber
    in the server for the client registrar_name.  Note that this value
    may be less than the current value for PeerSentDbUpdateNumber,
@@ -851,7 +853,7 @@ Lawrence, et al.                                               [Page 15]
                i8  update_number
 
    The returned update_number is the highest update number in the
-   servers database owned by the client: the PeerReceivedDbUpdateNumber
+   server's database owned by the client: the PeerReceivedDbUpdateNumber
    in the server for the client.  The client sets PeerSentDbUpdateNumber
    for the server to this value.  A successful return indicates that the
    server is prepared to receive registrarSync.pushUpdates calls.
@@ -884,10 +886,8 @@ Lawrence, et al.                                               [Page 15]
                    i8      update_number
 
    All rows in the updates array MUST have the same update_number, and
-   MUST be the complete set of rows from the callers database that have
+   MUST be the complete set of rows from the caller's database that have
    that update_number.
-
-   Outputs:
 
 
 
@@ -896,6 +896,8 @@ Lawrence, et al.                                               [Page 16]
 
                                sipXpbx HA                  December 2005
 
+
+   Outputs:
 
                i8    update_number
 
@@ -921,9 +923,9 @@ Lawrence, et al.                                               [Page 16]
    Registry synchronization requests require that the RPC connection be
    SSL-authenticated as coming from one of the servers configured as a
    peer of the current server.  The fully qualified host name of the
-   peer server must be present in the subjectAltName of SSL client
-   certificate it presents when setting up the SSL connection (this is
-   true of the certificates generated by the normal sipXpbx setup).
+   peer server must be present in the subjectAltName of the SSL client
+   certificate that it presents when setting up the SSL connection (this
+   is true of the certificates generated by the normal sipXpbx setup).
 
 5.10.  HTTP Persistent Connections
 
@@ -944,8 +946,6 @@ Lawrence, et al.                                               [Page 16]
    authproxy to another. *But phones that could not process an SRV name
    in a Record-Route would be unable to perform any in-dialog requests.*
 
-   _At this time, the plan is to not change how the Record-Route is
-
 
 
 Lawrence, et al.                                               [Page 17]
@@ -953,9 +953,9 @@ Lawrence, et al.                                               [Page 17]
                                sipXpbx HA                  December 2005
 
 
+   _At this time, the plan is to not change how the Record-Route is
    constructed (continue using the IP address rather than use the SRV
    name)._
-
 
 
 

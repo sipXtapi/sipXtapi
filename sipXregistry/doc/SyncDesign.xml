@@ -36,7 +36,7 @@
       <email>walter_gillett@hotmail.com</email>
     </address>
     </author>
-    <date day="21" month="December" year="2005"/>
+    <date day="29" month="December" year="2005"/>
     <area>sipXregistry</area>
   </front>
 
@@ -254,7 +254,7 @@
 
         <t>
           Updating the registry is handled by the routine
-          SipRegistrarServer::applyRegisterToDirectory and the sibdb
+          SipRegistrarServer::applyRegisterToDirectory and the sipbdb
           RegistrationDB class.  The applyRegisterToDirectory method is called
           after the REGISTER request has been authenticated; it validates the
           registration by checking to see if the Call-ID and CSeq are in
@@ -283,7 +283,7 @@
 
           <figure>
             <artwork>
-     RegistrationDB::expireAllBindings( aor, callid, cseq, timeNow )
+     RegistrationDB::expireAllBindings(aor, callid, cseq, timeNow )
             </artwork>
           </figure>
 
@@ -309,13 +309,13 @@
 
           <figure>
             <artwork>
-      RegistrationDB::updateBinding( toUrl, 
-                                     contact,     
-                                     qvalue,
-                                     registerCallidStr, 
-                                     registerCseqInt,
-                                     expirationTime 
-                                     )
+      RegistrationDB::updateBinding(toUrl, 
+                                    contact,     
+                                    qvalue,
+                                    registerCallidStr, 
+                                    registerCseqInt,
+                                    expirationTime 
+                                    )
             </artwork>
           </figure>
 
@@ -329,11 +329,11 @@
 
           <figure>
             <artwork>
-              RegistrationDB::expireOldBindings( toUrl, 
-                                                 registerCallidStr,
-                                                 registerCseqInt, 
-                                                 timeNow
-                                                 )
+              RegistrationDB::expireOldBindings(toUrl, 
+                                                registerCallidStr,
+                                                registerCseqInt, 
+                                                timeNow
+                                                )
             </artwork>
           </figure>
           </t>
@@ -472,7 +472,14 @@ The following sections detail the changes needed to implement the replicated
           </t>
 
         </list>
-         </t>
+        </t>
+
+        <t>
+          These state variables are not persisted directly.  Rather, they are persisted
+          implicitly in that they can be computed at startup from the registration database.
+          See <xref target='startup'>Startup Processing</xref>.
+        </t>
+
         <t>
           The registrar service maintains additional state that is not persistent:
           
@@ -607,20 +614,20 @@ The following sections detail the changes needed to implement the replicated
 
             <t>
               <spanx style='strong'>
-                The RegisterInitialSync and HttpServer are started at the
+                The RegisterInitialSync and HttpServer threads are started at the
                 beginning of the startup phase.  The SipUserAgent,
                 RegisterServer, RedirectServer, RegistrarSync, and
                 RegistrarTest threads are started at the beginning of the
                 operational phase.  The HttpServer is also active in the
-                operational phase, but some methods are supported only in the
-                operational phase..
+                operational phase, and some methods are supported only in the
+                operational phase.
               </spanx>
             </t>
 
             <t hangText='RegisterInitialSync'>
               This thread implements the  <xref
               target='startup'>startup</xref> phase of operation: recovery of
-              the local registry database, and resyncronizing with each
+              the local registry database, and resynchronizing with each
               peer.  When this phase is complete, this thread signals the
               SipRegister thread.
             </t>
@@ -658,7 +665,7 @@ The following sections detail the changes needed to implement the replicated
             <t hangText='RegistrarSync'>
               This thread is the XML-RPC client that sends updates
               to each peer server during the <xref
-              target='operational'>operational</xref> phase.. 
+              target='operational'>operational</xref> phase.
             </t>
 
             <t hangText='RegistrarTest'>
@@ -700,8 +707,8 @@ The following sections detail the changes needed to implement the replicated
           -- Startup Phase and Operational Phase.
         </t>
         <t>
-          The purpose of the startup phase is to recovers the local
-          registration database (if possible), and to resyncronize with all
+          The purpose of the startup phase is to recover the local
+          registration database (if possible), and to resynchronize with all
           peer registrars.  Any updates are pulled from peer registrars so
           that the local registrar can tell when its database is up to date
           and that no more updates are available.  During the startup phase
@@ -772,7 +779,7 @@ The following sections detail the changes needed to implement the replicated
                   </t>
                   <t>
                     Each PeerSentDbUpdateNumber is set to zero (for the time
-                    being, we assume that no updates have been propogated to
+                    being, we assume that no updates have been propagated to
                     the peers).
                   </t>
                 </list>
@@ -800,7 +807,7 @@ The following sections detail the changes needed to implement the replicated
                     passing the local registrar host name and DbUpdateNumber.
                     The purpose of this call is to recover any registrations
                     for which the local host was the primary but which for some
-                    reason were not saved in the local persistant store (the
+                    reason were not saved in the local persistent store (the
                     canonical case is that the local file was lost or
                     corrupted - when this is the case, the local DbUpdateNumber
                     will usually be zero).
@@ -810,7 +817,7 @@ The following sections detail the changes needed to implement the replicated
                     target='pullUpdates'>registrarSync.pullUpdates</xref>,
                     passing the peer registrar host name and
                     PeerReceivedDbUpdateNumber.  This call recovers any updates
-                    that have occured while the local registrar has been down.
+                    that have occurred while the local registrar has been down.
                   </t>
                 </list>
                 If any request to a peer fails, mark that peer as UnReachable
@@ -826,7 +833,7 @@ The following sections detail the changes needed to implement the replicated
               </t>
 
               <t>
-                Reset DbUpdateNumber to the current epoch time, left shifted 32
+                Reset DbUpdateNumber to the current epoch time, left-shifted 32
                 bits.
               </t>
 
@@ -862,14 +869,14 @@ The following sections detail the changes needed to implement the replicated
                 </list>
               </t>
               <t>
-                Start the syncronization threads:
+                Start the synchronization threads:
                 <list style='symbols'>
                   <t><xref target='registrartest'>RegistrarTest</xref></t>
                   <t><xref target='registrarsync'>RegistrarSync</xref></t>
                 </list>
               </t>
               <t>
-                Begin accepting syncronization requests by registering the XML-RPC
+                Begin accepting synchronization requests by registering the XML-RPC
                 methods:
                 <list style='symbols'>
                   <t><xref target='pushUpdates'>registrarSync.pushUpdates</xref></t>
@@ -885,11 +892,11 @@ The following sections detail the changes needed to implement the replicated
           <t>
             In normal operation (no system or connectivity failures), the
             RegisterServer thread processes REGISTER requests, and the
-            RegisterSync thread propogates the resulting database updates
+            RegisterSync thread propagates the resulting database updates
             to each peer.  If connectivity is lost, the RegistrarTest
             thread periodicallly attempts to reestablish contact and
-            resyncronize the DbUpdateNumber values that govern update
-            propogation.
+            resynchronize the DbUpdateNumber values that govern update
+            propagation.
           </t>
 
           <section title='RegisterServer' anchor='registerserver'>
@@ -912,7 +919,7 @@ The following sections detail the changes needed to implement the replicated
               of the REGISTER is reduced to the insertion/modification of a number of
               rows in the local database.  Each row is tagged with the local
               DbUpdateNumber of the new version of the DB.  The
-              RegistrarSync thread propogates records based on comparing
+              RegistrarSync thread propagates records based on comparing
               the update number in the row with the PeerSentDbUpdateNumber
               for the peer.  Also see <xref target='pushUpdates'>pushUpdates</xref>.
             </t>
@@ -949,7 +956,7 @@ The following sections detail the changes needed to implement the replicated
               style='verb'>RegistrarSync::sendUpdates</spanx>; when invoked,
               increments the semaphore value, indicating to the
               RegistrarSync thread that there may be updates available to be
-              propogated, or that connectivity to a previously UnReachable
+              propagated, or that connectivity to a previously UnReachable
               peer has been restored.  On each pass through the loop, the
               thread does: 
               <list>
@@ -970,7 +977,7 @@ The following sections detail the changes needed to implement the replicated
                   DbUpdateNumber is less than the lowest
                   PeerSentDbUpdateNumber for all Reachable peers
                   (indicating that there remains at least one update to be
-                  propogated), the RegistrarSync thread calls sendUpdates
+                  propagated), the RegistrarSync thread calls sendUpdates
                   itself.
                 </t>
               </list>
@@ -1005,7 +1012,7 @@ The following sections detail the changes needed to implement the replicated
             standard exponential backoff to a maximum interval of one eighth of the maximum
             registration interval. This prevents useless and possibly harmful traffic
             being injected into the network in the event that the loss of connectivity is
-            traffic related.
+            traffic-related.
           </t>
           
           <t>
@@ -1157,7 +1164,7 @@ The following sections detail the changes needed to implement the replicated
             </artwork>
           </figure>
           The returned update_number is the highest update number in the
-          servers database owned by the client: the
+          server's database owned by the client: the
           PeerReceivedDbUpdateNumber in the server for the client.  The
           client sets PeerSentDbUpdateNumber for the server to this value.
           A successful return indicates that the server is prepared to
@@ -1201,7 +1208,7 @@ The following sections detail the changes needed to implement the replicated
             </artwork>
           </figure>
           All rows in the updates array MUST have the same update_number,
-          and MUST be the complete set of rows from the callers database
+          and MUST be the complete set of rows from the caller's database
           that have that update_number.
         </t>
         <t>
@@ -1241,8 +1248,8 @@ The following sections detail the changes needed to implement the replicated
           Registry synchronization requests require that the RPC connection
           be SSL-authenticated as coming from one of the servers configured
           as a peer of the current server.  The fully qualified host name
-          of the peer server must be present in the subjectAltName of SSL
-          client certificate it presents when setting up the SSL connection
+          of the peer server must be present in the subjectAltName of the SSL
+          client certificate that it presents when setting up the SSL connection
           (this is true of the certificates generated by the normal sipXpbx
           setup).
         </t>
