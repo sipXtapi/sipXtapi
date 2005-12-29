@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Thu, 29 Dec 2005 20:32:48 +0000">
+<meta http-equiv="Expires" content="Thu, 29 Dec 2005 20:46:18 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -1048,7 +1048,8 @@ The following sections detail the changes needed to implement the replicated
                     Call <a class="info" href="#pullUpdates">registrarSync.pullUpdates<span> (</span><span class="info">registrarSync.pullUpdates method</span><span>)</span></a>,
                     passing the peer registrar host name and
                     PeerReceivedDbUpdateNumber.  This call recovers any updates
-                    that have occurred while the local registrar has been down.
+                    for which that peer was the primary that have occurred while
+                    the local registrar has been down.
                   
 </li>
 </ol>

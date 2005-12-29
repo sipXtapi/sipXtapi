@@ -422,40 +422,6 @@ The following sections detail the changes needed to implement the replicated
             See <xref target='startup'>Startup Processing</xref> for how the
             DbUpdateNumber is initialized. <!-- :TODO: and incremented... -->
           </t>
-
-          <!--
-        <list style='hanging'>
-          <t hangText='base time'> The "base time" component in the upper half of
-            DbUpdateNumber is a Unix time value, the number of seconds since 00:00 GMT, 1
-            January 1970. It is the time at which the registrar last initialized the counter
-            component. Since all Servers are expected to have reliable, NTP-synchronized
-            clocks, base times created by a Service always increase. Since initializations
-            of the update number are expected to be rare, all base times in a system are unique.
-            The base time is a 32-bit, positive, signed integer. </t>
-          
-          <t hangText='counter'> The "counter" component in the bottom half of
-            DbUpdateNumber is a 32-bit unsigned integer that is incremented on every update.</t>
-        </list>
-        
-
-        <t> We need to be able to compare DbUpdateNumbers and decide which one is more
-          recent.  However, at 1,000 updates/second, a 32-bit counter will wrap in 1.6 months.
-          Because registrations don't stay valid for very long (typically 1 hour), the range
-          of DbUpdateNumbers at any point in time is pretty narrow, so we could treat
-          DbUpdateNumbers as cyclic, looking at the absolute value of the difference of two
-          numbers to see which one is larger.  But this gets complicated.  We can avoid this
-          cleverness using a simple trick: rather than wrapping the counter, instead carry
-          the overflow bit into the base time value, effectively turning the 32-bit counter
-          into a 64-bit counter that will wrap in 292,471,209 years - not a problem.  Base time
-          changes due to overflow can easily be distinguished from base time resets due to
-          service restarts, which will increment the base time by much more than a few seconds.</t>
-        
-        <t> This design allows us to generate unique, monotonic DbUpdateNumbers even if
-          we've lost the history for a registry. If that happens, then we initialize the base
-          time to the current time and the update number to zero. Since the new base time is both
-          most significant and bigger than any previous base times, the new DbUpdateNumbers
-          will be bigger than any previous DbUpdateNumbers. </t>
-          -->     
        
         <t> 
           For a given registrar, DbUpdateNumbers for registrations that it handles as the
@@ -817,7 +783,8 @@ The following sections detail the changes needed to implement the replicated
                     target='pullUpdates'>registrarSync.pullUpdates</xref>,
                     passing the peer registrar host name and
                     PeerReceivedDbUpdateNumber.  This call recovers any updates
-                    that have occurred while the local registrar has been down.
+                    for which that peer was the primary that have occurred while
+                    the local registrar has been down.
                   </t>
                 </list>
                 If any request to a peer fails, mark that peer as UnReachable
