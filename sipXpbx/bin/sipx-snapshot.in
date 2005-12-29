@@ -370,9 +370,9 @@ done
 # Execute system monitoring commands
 for command in \
     "ps -efww" \
-    "netstat -ap --ip" \
+    "netstat -ap --ip --numeric-hosts" \
     "top n 1 b" \
-    "vmstat 10 2" \
+    "vmstat 5 2" \
     "free" \
     "df"
 do
