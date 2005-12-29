@@ -13,14 +13,14 @@ package org.sipfoundry.sipxconfig.common;
 
 import org.apache.commons.collections.Buffer;
 import org.apache.commons.collections.BufferUtils;
-import org.apache.commons.collections.buffer.BoundedFifoBuffer;
+import org.apache.commons.collections.buffer.UnboundedFifoBuffer;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 public class BackgroundTaskQueue {
     private static final Log LOG = LogFactory.getLog(BackgroundTaskQueue.class);
 
-    private final Buffer m_queue = BufferUtils.blockingBuffer(new BoundedFifoBuffer());
+    private final Buffer m_queue = BufferUtils.blockingBuffer(new UnboundedFifoBuffer());
     private Worker m_worker = new Worker();
 
     public void addTask(Runnable task) {

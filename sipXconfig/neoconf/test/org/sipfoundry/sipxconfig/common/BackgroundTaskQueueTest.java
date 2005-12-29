@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.util.Arrays;
+
 import junit.framework.TestCase;
 
 public class BackgroundTaskQueueTest extends TestCase {
@@ -19,8 +21,9 @@ public class BackgroundTaskQueueTest extends TestCase {
         final Thread testThread = Thread.currentThread();
         queue.suspend();
 
+        final int taskNum = 97;
         final StringBuffer buffer = new StringBuffer();
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < taskNum; i++) {
             Runnable task = new Runnable() {
                 public void run() {
                     buffer.append("A");
@@ -33,9 +36,13 @@ public class BackgroundTaskQueueTest extends TestCase {
         assertEquals("", buffer.toString());
 
         queue.resume();
+        
+        char[] expected = new char[taskNum];
+        Arrays.fill(expected, 'A');
+        
         queue.yieldTillEmpty();
-
-        assertEquals("AAAAA", buffer.toString());
+        
+        assertEquals(new String(expected), buffer.toString());
     }
 
     public void testQueueException() throws Exception {
