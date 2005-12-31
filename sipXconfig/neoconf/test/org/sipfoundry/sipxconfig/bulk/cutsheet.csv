@@ -1,0 +1,6 @@
+"Username","Pintoken","Sip Password","FirstName","LastName","Alias","UserGroup","SerialNumber","Manufacturer","Model","Phone Group","Phone Description"
+"300","1234","12ab","John","Lennon","jlennon","Beatles","0004F20342AE","polycom",300,"all","Room"
+"301","1234","13bc","Ringo","Star",,"Beatles","0004F20343F5","polycom",600,"all","Green"
+"400","1234","14av","Conference room",,,"Common","00E075F370E7","polycom",4000,"all",
+"303","1234","123","John","McCartney","Jmc","Beatles","0004F2032A08","snom",360,"special",
+"304","1234","12uuu","George","Harrison","Gha","Beatles","0004F2032A06","ciscoIp",7960,"all",
