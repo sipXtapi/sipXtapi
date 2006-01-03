@@ -108,11 +108,8 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(urlConn.getInputStream()));
-        String strResponseBody = "";
-        while (reader.ready()) {
-            strResponseBody += reader.readLine();
-        }
-        return strResponseBody.startsWith("replication was successful");
+        String strResponseBody = reader.readLine(); 
+        return strResponseBody != null && strResponseBody.startsWith("replication was successful");
     }
 
     /**

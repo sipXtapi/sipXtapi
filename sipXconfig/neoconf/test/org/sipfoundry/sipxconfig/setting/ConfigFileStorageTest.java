@@ -59,8 +59,7 @@ public class ConfigFileStorageTest extends TestCase {
 
         m_storage.flush();
         boolean found = false;
-        while (reader.ready()) {
-            String line = reader.readLine();
+        for (String line = reader.readLine(); line != null; line = reader.readLine()) {            
             if (line.startsWith(m_andorra.getName())) {
                 assertTrue(line.endsWith(newValue));
                 found = true;
@@ -82,8 +81,7 @@ public class ConfigFileStorageTest extends TestCase {
                 CONFIG_FILE)));
 
         boolean found = false;
-        while (reader.ready()) {
-            String line = reader.readLine();
+        for (String line = reader.readLine(); line != null; line = reader.readLine()) {            
             if (line.startsWith(m_andorra.getName())) {
                 assertTrue(line.endsWith(DEFAULT_VALUE));
                 found = true;

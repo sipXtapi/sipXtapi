@@ -74,8 +74,8 @@ public class ConfigFileWriter {
         try {
             Set configuredProperies = new HashSet(props.keySet());
             reader = new BufferedReader(new FileReader(file));
-            while (reader.ready()) {
-                String line = reader.readLine();
+            String line;
+            while ((line = reader.readLine()) != null) {
                 String propertyName = m_format.getPropertyName(line);
                 if (configuredProperies.remove(propertyName)) {
                     writeProperty(writer, propertyName, props);

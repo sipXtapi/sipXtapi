@@ -75,6 +75,12 @@ public class AudioCodesGateway extends Gateway {
         return iniFile;
     }
 
+    /**
+     * Generates profiles by copying and enhancing template file. 
+     * 
+     * Do not change it to IOUtils.copy since SettingIniFilter is not fully implemented. It onky
+     * works fif write(String str) method is used.
+     */
     public void generateProfiles(Writer writer) throws IOException {
         BufferedReader iniReader = null;
         try {
@@ -82,8 +88,8 @@ public class AudioCodesGateway extends Gateway {
             AudioCodesModel model = (AudioCodesModel) getModel();
             File iniTemplate = model.getIniFileTemplate();
             iniReader = new BufferedReader(new FileReader(iniTemplate));
-            while (iniReader.ready()) {
-                String line = iniReader.readLine();
+            String line;
+            while ((line = iniReader.readLine()) != null) {
                 iniWriter.write(line);
                 iniWriter.write('\n');
             }

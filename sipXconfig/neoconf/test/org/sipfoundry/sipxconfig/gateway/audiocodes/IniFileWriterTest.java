@@ -19,6 +19,7 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;
@@ -53,9 +54,13 @@ public class IniFileWriterTest extends TestCase {
 
         BufferedReader result = new BufferedReader(new StringReader(writer.toString()));
 
-        while (expected.ready()) {
-            assertEquals(expected.readLine(), result.readLine());
-        }
+        String expectedLine;
+        String resultLine;
+        do {
+            expectedLine = expected.readLine();
+            resultLine = result.readLine();
+            assertEquals(expectedLine, resultLine);
+        } while(expectedLine != null || resultLine != null);
 
         expected.close();
         result.close();
