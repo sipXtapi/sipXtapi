@@ -72,3 +72,6 @@
                 (lambda-intro-cont . +)
                 (inexpr-statement . 0)
                 (inexpr-class . +))))
+
+; Put "(require 'sipX)" in your .emacs file to load this file
+(provide 'sipX)
