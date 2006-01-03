@@ -28,8 +28,9 @@ PreviewWindow::PreviewWindow(wxWindow* parent, const wxPoint& pos, const wxSize&
 {
     wxColor* wxBlack = wxTheColourDatabase->FindColour("BLACK");
     SetBackgroundColour(*wxBlack);
+#ifdef _WIN32    
     sipXmgr::getInstance().setPreviewWindow((void*)GetHWND());
-    
+#endif     
 }
 
 void PreviewWindow::OnPaint(wxPaintEvent& event)
