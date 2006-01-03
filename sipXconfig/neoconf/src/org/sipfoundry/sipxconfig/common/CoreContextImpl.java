@@ -171,8 +171,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                         result = alias;
                         break;
                     }
-                }                
-            }           
+                }
+            }
         }
 
         return result;
@@ -336,6 +336,14 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public List getGroups() {
         return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
     }
+    
+
+    public Group getGroupByName(String userGroupName, boolean createIfNotFound) {
+        if (createIfNotFound) {
+            return m_settingDao.getGroupCreateIfNotFound(USER_GROUP_RESOURCE_ID, userGroupName);
+        }
+        return m_settingDao.getGroupByName(USER_GROUP_RESOURCE_ID, userGroupName);
+    }    
 
     public Setting getUserSettingsModel() {
         // return copy so original model stays intact
@@ -385,20 +393,21 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public boolean isAliasInUse(String alias) {
-        // Look for the ID of a user with a user ID or user alias matching the specified SIP alias.
+        // Look for the ID of a user with a user ID or user alias matching the specified SIP
+        // alias.
         // If there is one, then the alias is in use.
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_USER_IDS_BY_NAME_OR_ALIAS, VALUE, alias);
         return SipxCollectionUtils.safeSize(objs) > 0;
     }
-    
+
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 QUERY_USER_IDS_BY_NAME_OR_ALIAS, VALUE, alias);
         Collection bids = BeanId.createBeanIdCollection(ids, User.class);
         return bids;
     }
-    
+
     public void addToGroup(Integer groupId, Collection ids) {
         DaoUtils.addToGroup(getHibernateTemplate(), groupId, User.class, ids);
     }
@@ -406,5 +415,4 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public void removeFromGroup(Integer groupId, Collection ids) {
         DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, User.class, ids);
     }
-
 }

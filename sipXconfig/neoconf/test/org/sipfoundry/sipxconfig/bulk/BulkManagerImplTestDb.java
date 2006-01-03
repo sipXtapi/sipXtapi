@@ -44,8 +44,9 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(5, getConnection().getRowCount("users"));
         assertEquals(5, getConnection().getRowCount("phone"));
         assertEquals(5, getConnection().getRowCount("line"));
-//        assertEquals(2, getConnection().getRowCount("user_group"));
-//        assertEquals(2, getConnection().getRowCount("phone_group"));
-    }
-    
+        assertEquals(5, getConnection().getRowCount("user_group"));
+        assertEquals(5, getConnection().getRowCount("phone_group"));
+        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
+        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));        
+    }    
 }

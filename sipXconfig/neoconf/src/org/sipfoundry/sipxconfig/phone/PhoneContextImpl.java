@@ -54,7 +54,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private List m_availableModels;
 
     private BeanFactory m_beanFactory;
-    
+
     private JobQueue m_jobQueue;
 
     private String m_systemDirectory;
@@ -179,7 +179,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     public Phone loadPhone(Integer id) {
         Phone phone = (Phone) getHibernateTemplate().load(Phone.class, id);
-        
+
         return phone;
     }
 
@@ -207,6 +207,13 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     public List getGroups() {
         return m_settingDao.getGroups(GROUP_RESOURCE_ID);
+    }
+
+    public Group getGroupByName(String phoneGroupName, boolean createIfNotFound) {
+        if (createIfNotFound) {
+            return m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, phoneGroupName);
+        }
+        return m_settingDao.getGroupByName(GROUP_RESOURCE_ID, phoneGroupName);
     }
 
     /** unittesting only */

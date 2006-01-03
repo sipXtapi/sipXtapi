@@ -57,9 +57,12 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
         Phone phone = newPhoneFromRow(row);
 
         // TODO: implement adding to groups
-        // String phoneGroupName = get(row, Index.PHONE_GROUP);
-        // String userGroupName = get(row, Index.USER_GROUP);
-        insertData(user, null, phone, null);
+        String phoneGroupName = get(row, Index.PHONE_GROUP);
+        Group phoneGroup = m_phoneContext.getGroupByName(phoneGroupName, true);
+        
+        String userGroupName = get(row, Index.USER_GROUP);
+        Group userGroup = m_coreContext.getGroupByName(userGroupName, true);
+        insertData(user, userGroup, phone, phoneGroup);
     }
 
     private User newUserFromRow(String[] row) {
@@ -92,7 +95,7 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
      * @param phone phone to add or update
      * @param phoneGroup phone group to which phone will be added
      */
-    void insertData(User user, Group userGroup, Phone phone, Group phoneGroup) {
+    private void insertData(User user, Group userGroup, Phone phone, Group phoneGroup) {
         if (userGroup != null) {
             user.addGroup(userGroup);
         }

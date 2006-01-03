@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
@@ -80,6 +81,16 @@ public interface PhoneContext extends DataObjectSource {
 
     public List getGroups();
 
+    /**
+     * Retrieves phone group by name.
+     * 
+     * @param phoneGroupName name of the group
+     * @param createIfNotFound if true a new group with this name will be created, if false null
+     *        is returned if group with a phoneGroupName is not found
+     * @return phone group or null if group not found and createIfNotFound is false
+     */
+    public Group getGroupByName(String phoneGroupName, boolean createIfNotFound);
+
     /** unittesting only */
     public void clear();
 
@@ -96,4 +107,5 @@ public interface PhoneContext extends DataObjectSource {
     public void removeFromGroup(Integer groupId, Collection ids);
 
     public void addUsersToPhone(Integer phoneId, Collection ids);
+
 }

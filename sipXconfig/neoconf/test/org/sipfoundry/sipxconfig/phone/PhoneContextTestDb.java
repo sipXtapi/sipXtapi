@@ -19,6 +19,7 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public class PhoneContextTestDb extends SipxDatabaseTestCase {
@@ -111,6 +112,25 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         assertEquals(4, m_context.getPhonesCount());
     }
 
+    public void testGetGroupByName() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+        
+        Group g1 = m_context.getGroupByName("phone group 1", false);
+        assertNotNull(g1);
+        assertEquals("phone group 1", g1.getName());
+        
+        Group g2 = m_context.getGroupByName("bongo", false);
+        assertNull(g2);
+        assertEquals(2, getConnection().getRowCount("group_storage"));
+
+        g2 = m_context.getGroupByName("bongo", true);
+        assertNotNull(g2);
+        assertEquals("bongo", g2.getName());
+        
+        assertEquals(3, getConnection().getRowCount("group_storage"));
+    }    
+    
     public void testCountPhonesInGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");

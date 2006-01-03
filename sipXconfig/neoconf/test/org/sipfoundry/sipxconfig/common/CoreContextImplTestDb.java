@@ -90,33 +90,33 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testCheckForDuplicateNameOrAlias() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
         final String UNIQUE_NAME = "uniqueNameThatDoesntExistInTheUniverseOrBeyond";
-        
+
         // Check that a user with a unique name won't collide with any existing users
         User user = new User();
         user.setUserName(UNIQUE_NAME);
         assertNull(m_core.checkForDuplicateNameOrAlias(user));
-        
+
         // Check that a user with a duplicate name is found to be a duplicate
         user.setUserName("userseed4");
         assertEquals("userseed4", m_core.checkForDuplicateNameOrAlias(user));
-        
+
         // Check that a user with an alias that matches an existing username
         // is found to be a duplicate
         user.setUserName(UNIQUE_NAME);
         user.setAliasesString("userseed6");
         assertEquals("userseed6", m_core.checkForDuplicateNameOrAlias(user));
-        
+
         // Check that a user with an alias that matches an existing alias
         // is found to be a duplicate
         user.setAliasesString("two");
         assertEquals("two", m_core.checkForDuplicateNameOrAlias(user));
-        
+
         // Check that duplicate checking doesn't get confused by multiple collisions
         // with both usernames and aliases
         user.setUserName("userseed4");
         user.setAliasesString("two,1");
         assertNotNull(m_core.checkForDuplicateNameOrAlias(user));
-        
+
         // Check that collisions internal to the user are caught.
         // Note that duplicates within the aliases list are ignored.
         final String WASAWUSU = "wasawusu";
@@ -125,9 +125,9 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(WASAWUSU, m_core.checkForDuplicateNameOrAlias(user));
         user.setUserName(UNIQUE_NAME);
         user.setAliasesString(WASAWUSU + "," + WASAWUSU);
-        assertNull(m_core.checkForDuplicateNameOrAlias(user));        
+        assertNull(m_core.checkForDuplicateNameOrAlias(user));
     }
-    
+
     public void testSearchByUserName() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
 
@@ -230,6 +230,25 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("SeedUserGroup1", group.getName());
     }
 
+    public void testGetGroupByName() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.xml");
+
+        Group g1 = m_core.getGroupByName("SeedUserGroup1", false);
+        assertNotNull(g1);
+        assertEquals("SeedUserGroup1", g1.getName());
+
+        Group g2 = m_core.getGroupByName("bongo", false);
+        assertNull(g2);
+        assertEquals(1, getConnection().getRowCount("group_storage"));
+
+        g2 = m_core.getGroupByName("bongo", true);
+        assertNotNull(g2);
+        assertEquals("bongo", g2.getName());
+
+        assertEquals(2, getConnection().getRowCount("group_storage"));
+    }
+
     public void testGetUserSettingModel() {
         Setting model = m_core.getUserSettingsModel();
         assertNotNull(model.getSetting("permission"));
@@ -274,52 +293,52 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         Assertion.assertEquals(expectedRds.getTable("setting_value"), actualDs
                 .getTable("setting_value"));
     }
-    
+
     public void testCheckForDuplicateString() {
         // An empty collection should have no duplicates
         List strings = new ArrayList();
         assertNull(m_core.checkForDuplicateString(strings));
-        
+
         // Still no duplicates
         strings.add(new String("a"));
         strings.add(new String("b"));
         strings.add(new String("c"));
         assertNull(m_core.checkForDuplicateString(strings));
-        
+
         // Now we have a duplicate
         strings.add(new String("b"));
         assertEquals("b", m_core.checkForDuplicateString(strings));
-        
+
         // Try multiple duplicates (result is indeterminate but non-null)
         strings.add(new String("c"));
-        assertNotNull(m_core.checkForDuplicateString(strings));        
+        assertNotNull(m_core.checkForDuplicateString(strings));
     }
-    
+
     public void testCountUsers() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
         assertEquals(10, m_core.getUsersCount());
     }
-    
+
     public void testCountUsersInGroup() throws Exception {
         TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
         assertEquals(2, m_core.getUsersInGroupCount(new Integer(1001)));
         assertEquals(3, m_core.getUsersInGroupCount(new Integer(1002)));
     }
-    
+
     public void testCountUsersInGroupWithSearch() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
         assertEquals(1, m_core.getUsersInGroupWithSearchCount(new Integer(1001), "pha"));
         assertEquals(1, m_core.getUsersInGroupWithSearchCount(new Integer(1002), "add"));
         assertEquals(2, m_core.getUsersInGroupWithSearchCount(new Integer(1003), "l"));
     }
-    
+
     public void testLoadUserPage() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
         Collection page = m_core.loadUsersByPage(null, null, 0, 2, "userName", true);
         assertEquals(2, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
-        
+
         Collection next = m_core.loadUsersByPage(null, null, 2, 2, "userName", true);
         assertEquals(2, next.size());
         User nextUser = (User) next.iterator().next();
@@ -339,29 +358,30 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         // try sorting by last name
         Collection page = m_core.loadUsersByPage(null, null, 2, 2, "firstName", true);
         User u = (User) page.iterator().next();
-        assertEquals("kyle", u.getUserName());        
+        assertEquals("kyle", u.getUserName());
     }
-    
+
     public void testLoadUserPageWithGroup() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage(null, new Integer(1001), 0, 10, "userName", true);
+        Collection page = m_core
+                .loadUsersByPage(null, new Integer(1001), 0, 10, "userName", true);
         assertEquals(1, page.size());
         User u = (User) page.iterator().next();
-        assertEquals("alpha", u.getUserName());        
+        assertEquals("alpha", u.getUserName());
     }
-        
+
     public void testLoadUserPageWithUserSearch() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
         Collection page = m_core.loadUsersByPage("og", null, 0, 10, "userName", true);
         assertEquals(6, page.size());
         User u = (User) page.iterator().next();
         assertEquals("alpha", u.getUserName());
-        
+
         page = m_core.loadUsersByPage("og", null, 2, 2, "userName", true);
         assertEquals(2, page.size());
         u = (User) page.iterator().next();
         assertEquals("elephant", u.getUserName());
-        
+
         page = m_core.loadUsersByPage("og", null, 4, 2, "userName", true);
         assertEquals(2, page.size());
         u = (User) page.iterator().next();
@@ -370,15 +390,16 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         page = m_core.loadUsersByPage("og", null, 6, 2, "userName", true);
         assertEquals(0, page.size());
     }
-    
+
     public void testLoadUserPageWithUserSearchAndGroup() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
-        Collection page = m_core.loadUsersByPage("og", new Integer(1003), 0, 10, "userName", true);
+        Collection page = m_core
+                .loadUsersByPage("og", new Integer(1003), 0, 10, "userName", true);
         assertEquals(1, page.size());
         User u = (User) page.iterator().next();
         assertEquals("gogo", u.getUserName());
     }
-    
+
     public void testLoadUserPageWithUserSearchCaseInsensitive() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
         Collection page = m_core.loadUsersByPage("mamba", null, 0, 10, "userName", true);
@@ -386,19 +407,19 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         User u = (User) page.iterator().next();
         assertEquals("kyle", u.getUserName());
     }
-    
+
     public void testIsAliasInUse() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
-        assertTrue(m_core.isAliasInUse("janus"));       // a user ID
-        assertTrue(m_core.isAliasInUse("dweezil"));     // a user alias
-        assertFalse(m_core.isAliasInUse("jessica"));    // a first name
+        assertTrue(m_core.isAliasInUse("janus")); // a user ID
+        assertTrue(m_core.isAliasInUse("dweezil")); // a user alias
+        assertFalse(m_core.isAliasInUse("jessica")); // a first name
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
         TestHelper.cleanInsertFlat("common/SampleUsersSeed.xml");
-        assertTrue(m_core.getBeanIdsOfObjectsWithAlias("janus").size() == 1);       // a user ID
-        assertTrue(m_core.getBeanIdsOfObjectsWithAlias("dweezil").size() == 1);     // a user alias
-        assertTrue(m_core.getBeanIdsOfObjectsWithAlias("jessica").size() == 0);    // a first name        
+        assertTrue(m_core.getBeanIdsOfObjectsWithAlias("janus").size() == 1); // a user ID
+        assertTrue(m_core.getBeanIdsOfObjectsWithAlias("dweezil").size() == 1); // a user alias
+        assertTrue(m_core.getBeanIdsOfObjectsWithAlias("jessica").size() == 0); // a first name
     }
 
 }

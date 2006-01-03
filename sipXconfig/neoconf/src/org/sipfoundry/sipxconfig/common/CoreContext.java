@@ -87,6 +87,16 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     public List getGroups();
 
     /**
+     * Retrieves user group by name.
+     * 
+     * @param userGroupName name of the group
+     * @param createIfNotFound if true a new group with this name will be created, if false null
+     *        is returned if group with a phoneGroupName is not found
+     * @return user group or null if group not found and createIfNotFound is false
+     */
+    public Group getGroupByName(String userGroupName, boolean createIfNotFound);
+
+    /**
      * Model of all user settings
      */
     public Setting getUserSettingsModel();
