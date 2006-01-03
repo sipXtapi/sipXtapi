@@ -12,7 +12,9 @@
 package org.sipfoundry.sipxconfig.bulk;
 
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.enums.ValuedEnum;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -53,35 +55,66 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
     }
 
     private void insertRow(String[] row) {
-        User user = newUserFromRow(row);
-        Phone phone = newPhoneFromRow(row);
+        User user = userFromRow(row);
+        Phone phone = phoneFromRow(row);
 
-        // TODO: implement adding to groups
         String phoneGroupName = get(row, Index.PHONE_GROUP);
         Group phoneGroup = m_phoneContext.getGroupByName(phoneGroupName, true);
-        
+
         String userGroupName = get(row, Index.USER_GROUP);
         Group userGroup = m_coreContext.getGroupByName(userGroupName, true);
         insertData(user, userGroup, phone, phoneGroup);
     }
 
-    private User newUserFromRow(String[] row) {
-        User user = new User();
-        user.setUserName(get(row, Index.USERNAME));
-        user.setFirstName(get(row, Index.FIRST_NAME));
-        user.setLastName(get(row, Index.LAST_NAME));
-        user.setAliasesString(get(row, Index.ALIAS));
-        user.setPin(get(row, Index.PINTOKEN), m_coreContext.getAuthorizationRealm());
-        user.setSipPassword(get(row, Index.SIP_PASSWORD));
+    /**
+     * Updates user properties from row data. Creates new user if one does not exist. USer (newly
+     * created or updated) is not save to the database here. That's reponsibility of the called By
+     * convention empty String does not overwrite the data.
+     * 
+     * @param row see Index enum
+     * 
+     * @return modifified (but not saved used object)
+     */
+    User userFromRow(String[] row) {
+        String userName = get(row, Index.USERNAME);
+        User user = m_coreContext.loadUserByUserName(userName);
+
+        if (user == null) {
+            user = new User();
+            user.setUserName(userName);
+        }
+
+        String pin = get(row, Index.PIN);
+        if (pin.length() > 0) {
+            user.setPin(pin, m_coreContext.getAuthorizationRealm());
+        }
+
+        setProperty(user, row, Index.FIRST_NAME);
+        setProperty(user, row, Index.LAST_NAME);
+        setProperty(user, row, Index.ALIAS);
+        setProperty(user, row, Index.SIP_PASSWORD);
+
         return user;
     }
 
-    private Phone newPhoneFromRow(String[] row) {
-        PhoneModel model = PhoneModel.getModel(get(row, Index.BEAN_ID), get(row, Index.MODEL_ID));
+    Phone phoneFromRow(String[] row) {
+        String serialNo = get(row, Index.SERIAL_NUMBER);
 
-        Phone phone = m_phoneContext.newPhone(model);
-        phone.setDescription(get(row, Index.PHONE_DESCRIPTION));
-        phone.setSerialNumber(get(row, Index.SERIAL_NUMBER));
+        Integer phoneId = m_phoneContext.getPhoneIdBySerialNumber(serialNo);
+        Phone phone = null;
+        if (phoneId != null) {
+            phone = m_phoneContext.loadPhone(phoneId);
+        } else {
+            PhoneModel model = PhoneModel.getModel(get(row, Index.BEAN_ID), get(row,
+                    Index.MODEL_ID));
+            phone = m_phoneContext.newPhone(model);
+            phone.setSerialNumber(serialNo);
+        }
+
+        String description = get(row, Index.PHONE_DESCRIPTION);
+        if (description.length() > 0) {
+            phone.setDescription(description);
+        }
 
         return phone;
     }
@@ -116,6 +149,22 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
         return row[index.getValue()];
     }
 
+    // FIXME: this should be private but checkstyle complains...
+    static void setProperty(Object bean, String[] row, Index index) {
+        String value = get(row, index);
+        if (value.length() == 0) {
+            return;
+        }
+        String property = index.getName();
+        try {
+            BeanUtils.setProperty(bean, property, value);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e.getCause());
+        }
+    }
+
     /**
      * Values of the enums below determine the exact format of CSV file "Username","Pintoken","Sip
      * Password","FirstName","LastName","Alias","UserGroup","SerialNumber","Manufacturer","Model","Phone
@@ -124,11 +173,11 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
     public static final class Index extends ValuedEnum {
         // user fields
         public static final Index USERNAME = new Index("userName", 0);
-        public static final Index PINTOKEN = new Index("pintoken", 1);
+        public static final Index PIN = new Index("pin", 1);
         public static final Index SIP_PASSWORD = new Index("sipPassword", 2);
         public static final Index FIRST_NAME = new Index("firstName", 3);
         public static final Index LAST_NAME = new Index("lastName", 4);
-        public static final Index ALIAS = new Index("alias", 5);
+        public static final Index ALIAS = new Index("aliasesString", 5);
         public static final Index USER_GROUP = new Index("userGroupName", 6);
 
         // phone fields
