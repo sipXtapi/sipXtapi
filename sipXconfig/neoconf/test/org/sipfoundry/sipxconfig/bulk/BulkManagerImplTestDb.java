@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
 
-public class BulkManagerImplTest extends SipxDatabaseTestCase {
+public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
     private BulkManager m_bulkManager;
 
     protected void setUp() throws Exception {
