@@ -19,7 +19,6 @@ import java.io.StringWriter;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;

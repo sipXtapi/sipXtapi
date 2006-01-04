@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
 import java.io.StringWriter;
 
-
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;

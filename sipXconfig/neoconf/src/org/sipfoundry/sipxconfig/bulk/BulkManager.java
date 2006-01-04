@@ -11,10 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.bulk;
 
+import java.io.File;
 import java.io.Reader;
 
 public interface BulkManager {
     public static final String CONTEXT_BEAN_NAME = "bulkManager";
 
     void insertFromCsv(Reader reader);
+    
+    void insertFromCsv(File file, boolean deleteOnImport);
 }

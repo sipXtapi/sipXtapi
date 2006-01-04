@@ -28,7 +28,6 @@ public class UserCallForwardingTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.seedUser(getTester());
         SiteTestHelper.home(getTester());
-        clickLink("resetDialPlans");
     }
 
     public void testDisplayUserCallForwarding() throws Exception {

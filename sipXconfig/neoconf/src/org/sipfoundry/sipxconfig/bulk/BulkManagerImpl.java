@@ -11,11 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.bulk;
 
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.Closure;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.enums.ValuedEnum;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -55,6 +59,10 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
     }
 
     private void insertRow(String[] row) {
+        if (row.length <= Index.PHONE_DESCRIPTION.getValue()) {
+            // invalid file format
+            return;
+        }
         User user = userFromRow(row);
         Phone phone = phoneFromRow(row);
 
@@ -189,6 +197,22 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
 
         private Index(String name, int value) {
             super(name, value);
+        }
+    }
+
+    public void insertFromCsv(File file, boolean deleteOnImport) {
+        Reader reader = null;
+        try {
+            reader = new FileReader(file);
+            insertFromCsv(reader);
+            reader.close();
+            if (deleteOnImport) {
+                file.delete();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } finally {
+            IOUtils.closeQuietly(reader);
         }
     }
 }

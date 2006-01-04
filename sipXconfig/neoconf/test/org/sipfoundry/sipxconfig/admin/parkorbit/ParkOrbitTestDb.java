@@ -19,8 +19,6 @@ import java.util.List;
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
-import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.springframework.context.ApplicationContext;
 
 public class ParkOrbitTestDb extends SipxDatabaseTestCase {

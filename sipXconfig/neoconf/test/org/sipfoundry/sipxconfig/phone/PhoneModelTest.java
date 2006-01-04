@@ -33,7 +33,7 @@ public class PhoneModelTest extends TestCase {
        try {
            PhoneModel.getModel(unreg.getBeanId(), unreg.getModelId());
            fail();
-       } catch (IllegalArgumentException expected) {
+       } catch (UnknownModelException expected) {
            assertTrue(true);
        }
     }

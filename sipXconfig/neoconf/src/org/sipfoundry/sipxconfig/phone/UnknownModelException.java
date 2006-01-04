@@ -11,7 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-public class UnknownModelException extends IllegalArgumentException {
+import org.sipfoundry.sipxconfig.common.UserException;
+
+public class UnknownModelException extends UserException {
     public UnknownModelException(String modelName) {
         super("Unknown model name: " + modelName);
     }
