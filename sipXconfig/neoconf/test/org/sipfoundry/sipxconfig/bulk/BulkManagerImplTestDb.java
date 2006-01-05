@@ -55,6 +55,23 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
     }
+    
+    public void testInsertFromCsvDuplicate() throws Exception {
+        InputStream cutsheet = getClass().getResourceAsStream("cutsheet.csv");
+        cutsheet.mark(-1);
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        // and try again
+        cutsheet.reset();
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        assertEquals(5, getConnection().getRowCount("users"));
+        assertEquals(5, getConnection().getRowCount("phone"));
+        // lines are re-added for now - everything else is updated
+        assertEquals(10, getConnection().getRowCount("line"));
+        assertEquals(5, getConnection().getRowCount("user_group"));
+        assertEquals(5, getConnection().getRowCount("phone_group"));
+        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
+        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));                
+    }
 
     public void testUserFromRow() {
         User bongo = new User();

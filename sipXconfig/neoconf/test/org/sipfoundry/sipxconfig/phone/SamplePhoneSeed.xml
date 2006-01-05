@@ -23,7 +23,7 @@
 		bean_id="polycom"
         model_id="300"/>
 	<phone 
-		serial_number="00004" 
+		serial_number="aa00004" 
 		phone_id="1003" 
 		bean_id="polycom"
         model_id="500"/>

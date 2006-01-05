@@ -95,7 +95,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         Phone[] phones = (Phone[]) page1.toArray(new Phone[page1.size()]);
         assertEquals("00001", phones[0].getSerialNumber());
         assertEquals("00003", phones[1].getSerialNumber());
-        assertEquals("00004", phones[2].getSerialNumber());
+        assertEquals("aa00004", phones[2].getSerialNumber());
         assertEquals("00002", phones[3].getSerialNumber());
     }
 
@@ -103,6 +103,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
         assertEquals(new Integer(1002), m_context.getPhoneIdBySerialNumber("00003"));
+        assertEquals(new Integer(1003), m_context.getPhoneIdBySerialNumber("Aa:00004"));
         assertEquals(null, m_context.getPhoneIdBySerialNumber("won't find this guy"));
     }
 

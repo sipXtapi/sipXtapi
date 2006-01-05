@@ -310,7 +310,7 @@ public class Phone extends BeanWithGroups {
         m_serialNumber = cleanSerialNumber(serialNumber);
     }
 
-    private static String cleanSerialNumber(String rawNumber) {
+    public static String cleanSerialNumber(String rawNumber) {
         String clean = rawNumber.toLowerCase();
         clean = clean.replaceAll("[:\\s]*", "");
 

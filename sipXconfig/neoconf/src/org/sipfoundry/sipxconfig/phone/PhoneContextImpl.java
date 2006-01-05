@@ -22,7 +22,6 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
-import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -184,24 +183,14 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Integer getPhoneIdBySerialNumber(String serialNumber) {
-        Integer phoneId = null;
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", serialNumber);
-        if (SipxCollectionUtils.safeSize(objs) != 0) {
-            if (objs.size() > 1) {
-                // There is a database uniqueness constraint that should prevent this from ever
-                // happening
-                throw new IllegalStateException("Duplicate phone serial number: " + serialNumber);
-            }
-            phoneId = (Integer) objs.get(0);
-        }
-        return phoneId;
+                QUERY_PHONE_ID_BY_SERIAL_NUMBER, "value", Phone.cleanSerialNumber(serialNumber));
+        return (Integer) DaoUtils.requireOneOrZero(objs, QUERY_PHONE_ID_BY_SERIAL_NUMBER);
     }
 
     public Phone newPhone(PhoneModel model) {
         Phone phone = (Phone) m_beanFactory.getBean(model.getBeanId());
         phone.setModelId(model.getModelId());
-
         return phone;
     }
 
