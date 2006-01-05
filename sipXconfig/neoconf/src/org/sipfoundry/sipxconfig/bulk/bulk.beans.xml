@@ -12,9 +12,10 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="coreContext" ref="coreContext"/>
     <property name="phoneContext" ref="phoneContext"/>
+    <property name="jobContext" ref="jobContext"/>
   </bean>
   
-  <bean id="bulkManager" class="org.springframework.aop.framework.ProxyFactoryBean"
+  <bean id="bulkManagerDao" class="org.springframework.aop.framework.ProxyFactoryBean"
     parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.bulk.BulkManager</value>
@@ -22,5 +23,23 @@
     <property name="target">
       <ref local="bulkManagerImpl"/>
     </property>
+  </bean>
+
+	<bean id="backgroundTaskInterceptor"
+		class="org.sipfoundry.sipxconfig.common.BackgroundTaskInterceptor"/>
+	        
+  <bean id="bulkManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.bulk.BulkManager</value>
+    </property>
+    <property name="target">
+      <ref local="bulkManagerDao"/>
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+      </list>
+    </property>
   </bean>  
+
 </beans>

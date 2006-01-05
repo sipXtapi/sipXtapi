@@ -25,6 +25,7 @@ import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -84,6 +85,10 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public void saveUser(User user) {
+        String dup = checkForDuplicateNameOrAlias(user);
+        if (dup != null) {
+            throw new NameInUseException(dup);
+        }
         getHibernateTemplate().saveOrUpdate(user);
     }
 

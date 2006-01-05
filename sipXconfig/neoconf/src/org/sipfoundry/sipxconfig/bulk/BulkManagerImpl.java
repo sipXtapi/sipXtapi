@@ -15,20 +15,25 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.enums.ValuedEnum;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.springframework.orm.hibernate3.HibernateAccessor;
 
 public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkManager {
     private CsvParser m_csvParser;
@@ -36,6 +41,8 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
     private CoreContext m_coreContext;
 
     private PhoneContext m_phoneContext;
+
+    private JobContext m_jobContext;
 
     public void setCsvParser(CsvParser csvParser) {
         m_csvParser = csvParser;
@@ -49,20 +56,22 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
         m_phoneContext = phoneContext;
     }
 
+    public void setJobContext(JobContext jobContext) {
+        m_jobContext = jobContext;
+    }
+
     public void insertFromCsv(Reader reader) {
-        Closure insertRow = new Closure() {
-            public void execute(Object input) {
-                insertRow((String[]) input);
-            }
-        };
+        getHibernateTemplate().setFlushMode(HibernateAccessor.FLUSH_NEVER);
+        Closure insertRow = new RowInserter();
         m_csvParser.parse(reader, insertRow);
     }
 
+    /**
+     * Inserts data from a single row
+     * 
+     * @param row each array element represents a single field - see Index
+     */
     private void insertRow(String[] row) {
-        if (row.length <= Index.PHONE_DESCRIPTION.getValue()) {
-            // invalid file format
-            return;
-        }
         User user = userFromRow(row);
         Phone phone = phoneFromRow(row);
 
@@ -170,6 +179,31 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e.getCause());
+        }
+    }
+
+    private final class RowInserter implements Closure {
+        public void execute(Object input) {
+            String[] row = (String[]) input;
+            if (row.length <= Index.PHONE_DESCRIPTION.getValue()) {
+                LogFactory.getLog(getClass()).warn("Invalid data format when importing:" + row);
+                return;
+            }
+            Serializable jobId = m_jobContext.schedule("Import data: " + row[0]);
+            try {
+                m_jobContext.start(jobId);
+                insertRow(row);
+                getHibernateTemplate().flush();
+                m_jobContext.success(jobId);
+            } catch (UserException e) {
+                // ignore user exceptions - just log them
+                m_jobContext.failure(jobId, e.getLocalizedMessage(), e);
+                getHibernateTemplate().clear();
+            } catch (RuntimeException e) {
+                // log and rethrow runtime exceptions
+                m_jobContext.failure(jobId, e.getLocalizedMessage(), e);
+                throw e;
+            }
         }
     }
 

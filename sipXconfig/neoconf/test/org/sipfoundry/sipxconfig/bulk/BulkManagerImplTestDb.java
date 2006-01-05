@@ -31,7 +31,7 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
     protected void setUp() throws Exception {
         super.setUp();
         ApplicationContext context = TestHelper.getApplicationContext();
-        m_bulkManager = (BulkManager) context.getBean(BulkManager.CONTEXT_BEAN_NAME);
+        m_bulkManager = (BulkManager) context.getBean("bulkManagerDao");
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -42,6 +42,20 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(0, getConnection().getRowCount("line"));
         assertEquals(0, getConnection().getRowCount("user_group"));
         assertEquals(0, getConnection().getRowCount("phone_group"));
+    }
+
+    public void testInsertFromCsvAliasDuplication() throws Exception {
+        // second user has a duplicated alias - it should be ignored, but remaining users have to
+        // be imported
+        InputStream cutsheet = getClass().getResourceAsStream("errors.csv");
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        assertEquals(2, getConnection().getRowCount("users"));
+        assertEquals(2, getConnection().getRowCount("phone"));
+        assertEquals(2, getConnection().getRowCount("line"));
+        assertEquals(2, getConnection().getRowCount("user_group"));
+        assertEquals(2, getConnection().getRowCount("phone_group"));
+        assertEquals(1, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
+        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
     }
 
     public void testInsertFromCsv() throws Exception {
@@ -55,7 +69,7 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
     }
-    
+
     public void testInsertFromCsvDuplicate() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("cutsheet.csv");
         cutsheet.mark(-1);
@@ -70,7 +84,7 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(5, getConnection().getRowCount("user_group"));
         assertEquals(5, getConnection().getRowCount("phone_group"));
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
-        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));                
+        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
     }
 
     public void testUserFromRow() {

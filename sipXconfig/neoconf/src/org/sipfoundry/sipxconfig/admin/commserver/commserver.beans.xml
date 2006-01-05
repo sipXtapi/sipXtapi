@@ -31,9 +31,6 @@
 		class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
 	</bean>
 	
-	<bean id="backgroundTaskInterceptor"
-		class="org.sipfoundry.sipxconfig.common.BackgroundTaskInterceptor"/>
-	
 	<bean id="sipxReplicationContext"
 		class="org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl"
 		init-method="init">
