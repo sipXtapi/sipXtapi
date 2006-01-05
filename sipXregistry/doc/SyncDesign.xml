@@ -43,27 +43,31 @@
   <middle>
 
     <section title="Motivation and Overview">
-      <t> For large systems, defined as PBXs with more than a few dozen users, high
+      <t> 
+        For large systems, defined as PBXs with more than a few dozen users, high
         availability (HA) for basic calling is essential: users should be able to make and
         receive phone calls reliably at all times. HA for voice mail, and perhaps some other
         services, is a lower priority although still important. </t>
       <t>
         <spanx style='strong'> In order to deliver HA as quickly as possible, we will start
           by implementing only those features that are absolutely required. The first HA
-          implementation in sipXpbx release 3.2 will only address basic calling. Automated
+          implementation, targeted for sipXpbx release 3.2, will only address basic calling. Automated
           installation will not be supported; some custom, manual configuration will be
           required. No more than 2 registrars will be allowed. </spanx>
       </t>
-      <t> In sipXpbx, basic calling depends on three components: the two proxies and the
+      <t> 
+        In sipXpbx, basic calling depends on three components: the two proxies and the
         registrar/redirect service. The proxies can be replicated and DNS SRV records can be
         used to share load and provide for failover. The registrar/redirect service,
         however, cannot currently be deployed on multiple servers because the 'soft' state
         in the registry database (mappings from registered Addresses to Contacts) cannot be
         shared. While replicating the proxies alone does help with scaling, the registrar is
-        a single point of failure for basic calling service. </t>
-      <t> This memo describes a system architecture to provide high availability service for
+        a single point of failure for basic calling service. 
+      </t>
+      <t> 
+        This memo describes a system architecture to provide high availability service for
         basic calling, by adding the required replication of registration information.
-        </t>      
+      </t>      
     </section>
 
     <section title="Terminology">
@@ -237,6 +241,17 @@
            Testing is required to determine the best method for Record-Routing.
          </spanx>
        </t>
+       <t hangText='Via headers'>
+         In theory, the SIP standard allows an SRV name to be used in a Via
+         header, which would permit redundancy between proxies in an HA
+         configuration even within single request; the request could take
+         one path and the response another.  There is some reason to doubt
+         that our current proxies would do the transaction handling
+         correctly for this, and every reason to doubt that most SIP
+         implementations would take advantage of it (and might even be
+         confused by it), so we will continue to use IP addresses in the
+         Via headers.
+       </t>
       </list>
       </t>
 
@@ -246,9 +261,87 @@
 
       <t>
         This section describes the operation of the registrar in
-        sipXpbx version 3.0. It does not describe HA changes, or
-        the changes for GRUU support.
+        sipXpbx version 3.0. 
       </t>
+
+      <t>
+        The registration database is held in the in-memory RegistrationDB
+        object, which is implemented using FastDB.  For persistence, this
+        is written to the <spanx
+        style='verb'>var/sipxdata/sipdb/registration.xml</spanx> file,
+        and restored from that file at startup.
+      </t>
+
+      <section title='Database Structure'>
+        <t>
+          The entries in the registration database maintain the state for registrations
+          of contacts for Addresses Of Record. Entries are indexed by AOR, contact, and the
+          Call-ID of the sequence of REGISTERs (the registration quasi-dialog) that
+          establish and maintain the registration.
+        </t>
+        
+        <t>
+          Entries are considered to have expired when the current time exceeds the
+          expiration time recorded in the entry. The entry is not removed at that time, so
+          that the entry can maintain the "last CSeq seen" value for that Call-ID, in case an
+          out-of-sequence REGISTER arrives. Expired entries are removed
+          from the DB only after the expiration time is more than two times
+          the maximum allowed registration duration; we assume that is long enough that
+          no out-of-order REGISTERS will be received. 
+        </t>
+        
+        <t> 
+          When a REGISTER message causes a registration to become invalid
+          in advance of its previously scheduled expiration time, its DB
+          entry is modified by reducing its expiration time to one second
+          before the current time.
+        </t>
+        
+        <t> 
+          Each entry contains the following fields.
+          
+          <list style='hanging'>
+            <t hangText='uri'>
+              The AOR of this registration.
+            </t>
+            <t hangText='contact'>
+              The contact of this registration.
+            </t>
+            <t hangText='qvalue'>
+              The q-value of this registration.
+            </t>
+            <t hangText='callid'>
+              The Call-ID of the REGISTERs that establish/maintain
+              this registration.
+            </t>
+            <t hangText='expires'>
+              Expiration time for this registration.
+            </t>
+            <t hangText='cseq'>
+              The largest CSeq seen for REGISTERs for this registration.
+            </t>
+            <t hangText='instance_id'>
+              The <spanx style='verb'>+sip.instance</spanx> value that
+              was provided with the registration, or the null string.
+            </t>
+            <t hangText='gruu'>
+              The GRUU that was assigned to this registration, or the null
+              string.
+            </t>
+            <t hangText='primary'>
+              The name of the Primary Registrar for this
+              registration <spanx style='emph'>new for HA</spanx>; see 
+              <xref target='dbchanges'>Database Changes</xref>.
+            </t>
+            <t hangText='update_number'>
+              The DbUpdateNumber of the last modification to this
+              entry <spanx style='emph'>new for HA</spanx>; see <xref
+              target='dbchanges'>Database Changes</xref>.
+            </t>
+          </list>
+        </t>
+
+      </section>
 
       <section title='REGISTER Request Updates' anchor='applyRegisterToDirectory'>
 
@@ -353,9 +446,9 @@
     <section title='Changes'>
       
       <t>
-The following sections detail the changes needed to implement the replicated
+        The following sections detail the changes needed to implement the replicated
         registrar architecture. 
-</t>
+      </t>
       
       <section title='Configuration'>
         <t>
@@ -378,9 +471,11 @@ The following sections detail the changes needed to implement the replicated
           </list>
         </t>
         <t>
-          <spanx style='emph'>The set of configuration parameters may be changed in future
-            versions of the HA system. Compatibility is only guaranteed with those
-            sipXconfig versions which support HA.</spanx>
+          <spanx style='emph'>If the above parameters are not configured,
+          then the registrar will act as a standalone registrar, fully
+          backward compatible withe earlier versions in which HA was not
+          supported.
+          </spanx>
         </t>
         
       </section>
@@ -420,21 +515,25 @@ The following sections detail the changes needed to implement the replicated
 
           <t>
             See <xref target='startup'>Startup Processing</xref> for how the
-            DbUpdateNumber is initialized. <!-- :TODO: and incremented... -->
+            DbUpdateNumber is initialized, and <xref
+            target='SipRegistrarServer'>SipRegistrarServer</xref> for how it is
+            incremented.
           </t>
        
         <t> 
           For a given registrar, DbUpdateNumbers for registrations that it handles as the
           primary registrar are referred to as "local". DbUpdateNumbers for registrations
           handled by other registrars and received via updates are referred
-          to "peer". 
+          to as "peer".  
         </t>
         
           <t hangText='PeerReceivedDbUpdateNumber'> 
-            The largest DbUpdateNumber received from the peer. 
+            The largest DbUpdateNumber received from each peer (there is
+            one instance of this value for each peer). 
           </t>
           <t hangText='PeerSentDbUpdateNumber'> 
-            The largest value of the local DbUpdateNumber sent to the peer.
+            The largest value of the local DbUpdateNumber sent to each peer (there is
+            one instance of this value for each peer).
           </t>
 
         </list>
@@ -466,107 +565,38 @@ The following sections detail the changes needed to implement the replicated
         </t>
       </section>
       
-      <section title='Registration Database'>
+      <section title='Registration Database Changes' anchor='dbchanges'>
 
         <t>
-          The registration database is held in the in-memory RegistrationDB
-          object, which is implemented using FastDB.  For persistence, this
-          is written to the <spanx
-          style='verb'>var/sipxdata/sipdb/registration.xml</spanx> file,
-          and restored from that file at startup.
+          The present method of writing the persistent copy of the registration database
+          leaves a window during which there is an incomplete (and therefor
+          invalid, because it is XML) copy on the disk.  As part of the HA
+          development, this will be corrected, at least for the
+          registration db.
         </t>
 
-        <section title='Additional DB Columns' anchor='dbcolumns'>
-          <t>
-            Each row in the registration database (which corresponds to a binding of a
-            contact URI to an AOR) gains two columns: 
-            <list style='hanging'>
-              <t hangText='Primary'> 
-                The fully qualified host name of the Primary Registrar for
-                this binding. 
-              </t>
-              <t hangText='UpdateNumber'> 
-                The DbUpdateNumber of the Primary Registrar's DB that identifies
-                the update which inserted or last modified this row. 
-              </t>
-            </list>
-          </t>
-        </section>
-        
-        <section title='Overall DB Structure'>
-          <t>
-            The entries in the registration database maintain the state for registrations
-            of contacts for Addresses Of Record. Entries are indexed by AOR, contact, and the
-            Call-ID of the sequence of REGISTERs (the registration quasi-dialog) that
-            establish and maintain the registration.
-          </t>
-          
-          <t>
-            Entries are considered to have expired when the current time exceeds the
-            expiration time recorded in the entry. The entry is not removed at that time, so
-            that the entry can maintain the "last CSeq seen" value for that Call-ID, in case an
-            out-of-sequence REGISTER arrives. Entries are removed from the DB after one
-            hour after they expire, as we assume that is long enough that
-            no out-of-order REGISTERS will be received. 
-          </t>
-          
-          <t> 
-            When a REGISTER message causes a registration to become invalid
-            in advance of its previously scheduled expiration time, its DB
-            entry is modified by reducing its expiration time to one second
-            before the current time.
-          </t>
-          
-          <t> 
-            Each entry contains the following fields.
-            
-            <list style='hanging'>
-              <t hangText='uri'>
-                The AOR of this registration.
-              </t>
-              <t hangText='contact'>
-                The contact of this registration.
-              </t>
-              <t hangText='qvalue'>
-                The q-value of this registration.
-              </t>
-              <t hangText='callid'>
-                The Call-ID of the REGISTERs that establish/maintain
-                this registration.
-              </t>
-              <t hangText='expires'>
-                Expiration time for this registration.
-              </t>
-              <t hangText='cseq'>
-                The largest CSeq seen for REGISTERs for this registration.
-              </t>
-              <t hangText='instance_id'>
-                The <spanx style='verb'>+sip.instance</spanx> value that
-                was provided with the registration, or the null string.
-              </t>
-              <t hangText='gruu'>
-                The GRUU that was assigned to this registration, or the null
-                string.
-              </t>
-              <t hangText='primary'>
-                The name of the Primary Registrar for this
-                registration.
-              </t>
-              <t hangText='update_number'>
-                The DbUpdateNumber of the last modification to this
-                entry.
-              </t>
-            </list>
-          </t>
-
-        </section>
+        <t>
+          Each row in the registration database (which corresponds to a binding of a
+          contact URI to an AOR) gains two columns: 
+          <list style='hanging'>
+            <t hangText='Primary'> 
+              The fully qualified host name of the Primary Registrar for
+              this binding. 
+            </t>
+            <t hangText='UpdateNumber'> 
+              The DbUpdateNumber of the Primary Registrar's DB that identifies
+              the update which inserted or last modified this row. 
+            </t>
+          </list>
+        </t>
         
       </section>
       
       <section title='Threads'>
         
         <t>
-          There are several threads in a Registry/Redirect Server: 
+          There are several threads in a Registry/Redirect Server; named
+          here by the class name of the object that implements the thread: 
           
           <list style='hanging'>
 
@@ -580,9 +610,9 @@ The following sections detail the changes needed to implement the replicated
 
             <t>
               <spanx style='strong'>
-                The RegisterInitialSync and HttpServer threads are started at the
+                The RegistrarInitialSync and HttpServer threads are started at the
                 beginning of the startup phase.  The SipUserAgent,
-                RegisterServer, RedirectServer, RegistrarSync, and
+                SipRegistrarServer, SipRedirectServer, RegistrarSync, and
                 RegistrarTest threads are started at the beginning of the
                 operational phase.  The HttpServer is also active in the
                 operational phase, and some methods are supported only in the
@@ -590,7 +620,7 @@ The following sections detail the changes needed to implement the replicated
               </spanx>
             </t>
 
-            <t hangText='RegisterInitialSync'>
+            <t hangText='RegistrarInitialSync'>
               This thread implements the  <xref
               target='startup'>startup</xref> phase of operation: recovery of
               the local registry database, and resynchronizing with each
@@ -608,13 +638,13 @@ The following sections detail the changes needed to implement the replicated
               allow for multi-threaded invocation.</spanx>
             </t>
 
-            <t hangText='RegisterServer'>
+            <t hangText='SipRegistrarServer'>
               This thread processes incoming REGISTER
               messages, applying the necessary updates to the DB, and notifying RegistrarSync
               thread to propagate updates.  
             </t>
 
-            <t hangText='RedirectServer'>
+            <t hangText='SipRedirectServer'>
               This thread processes all incoming messages other than
               REGISTER.  It returns either Redirect (3xx) or Not Found (404)
               responses as appropriate; other than reading the registration
@@ -624,8 +654,8 @@ The following sections detail the changes needed to implement the replicated
             <t hangText='SipUserAgent'>
               This thread actually receives all SIP messages for the
               Registry/Redirect service and passes them to the SipRegister
-              thread, which in turn passes them to either RegisterServer or
-              RedirectServer depending on the request method.
+              thread, which in turn passes them to either SipRegistrarServer or
+              SipRedirectServer depending on the request method.
             </t>
 
             <t hangText='RegistrarSync'>
@@ -645,12 +675,13 @@ The following sections detail the changes needed to implement the replicated
         </t>
       </section>
         
-      <section title='Locking'>
+      <section title='Locking Changes' anchor='dblock'>
 
         <t>
           Registry database updates are protected by an OsMutex; it is taken by
-          applyRegisterToDirectory and by each of the registrarSync XML-RPC server
-          methods. This serializes all the checks for CSeq correctness, and also protects
+          applyRegisterToDirectory and by applyUpdateToDirectory (called by
+          each of the registrarSync XML-RPC server
+          methods). This serializes all the checks for CSeq correctness, and also protects
           the synchronization state variables. 
         </t>
         <t>
@@ -746,7 +777,10 @@ The following sections detail the changes needed to implement the replicated
                   <t>
                     Each PeerSentDbUpdateNumber is set to zero (for the time
                     being, we assume that no updates have been propagated to
-                    the peers).
+                    the peers).  This initialization actually has no
+                    operational effect, because the PeerSentDbUpdateNumber
+                    is set by the registrarSync.reset XML-RPC method before
+                    it is read.
                   </t>
                 </list>
 
@@ -830,8 +864,8 @@ The following sections detail the changes needed to implement the replicated
               <t>
                 Begin accepting registration and redirection SIP requests by starting the threads: 
                 <list style='symbols'>
-                  <t><xref target='registerserver'>RegisterServer</xref></t>
-                  <t>RedirectServer</t>
+                  <t><xref target='SipRegistrarServer'>SipRegistrarServer</xref></t>
+                  <t>SipRedirectServer</t>
                   <t>SipUserAgent</t>
                 </list>
               </t>
@@ -858,7 +892,7 @@ The following sections detail the changes needed to implement the replicated
 
           <t>
             In normal operation (no system or connectivity failures), the
-            RegisterServer thread processes REGISTER requests, and the
+            SipRegistrarServer thread processes REGISTER requests, and the
             RegisterSync thread propagates the resulting database updates
             to each peer.  If connectivity is lost, the RegistrarTest
             thread periodicallly attempts to reestablish contact and
@@ -866,15 +900,15 @@ The following sections detail the changes needed to implement the replicated
             propagation.
           </t>
 
-          <section title='RegisterServer' anchor='registerserver'>
+          <section title='SipRegistrarServer' anchor='SipRegistrarServer'>
 
             <t> 
               When a REGISTER request has been determined to be valid, the
               local DbUpdateNumber is incremented, and the changes are
               applied to the local registry database. The local
               DbUpdateNumber is recorded in each updated row in the
-              registry database. The RegistrarServer thread then invokes
-              the RegistrarSync.push C++ method, which signals the
+              registry database. The SipRegistrarServer thread then invokes
+              the RegistrarSync::sendUpdates C++ method, which signals the
               RegistrarSync thread to trigger replication to peers.
             </t>
             
@@ -997,7 +1031,10 @@ The following sections detail the changes needed to implement the replicated
           <xref target='pullUpdates'>registerSync.pullUpdates</xref> or
           <xref target='pushUpdates'>registerSync.pushUpdates</xref>.  In
           either case, the logic of how to apply those methods to the local
-          registry database is the same.
+          registry database is the same, and is implemented in the new 
+          SipRegistrarServer::applyUpdatesToDirectory method.  <spanx
+          style='emph'>Note that this method in not running in the
+          SipRegistrarServer thread</spanx>; see <xref target='dblock'>Locking Changes</xref>
         </t>
         <t>
           Unlike the <xref
@@ -1188,6 +1225,15 @@ The following sections detail the changes needed to implement the replicated
           The returned update_number is equal to the sent update number (it
           is just an acknowledgement); this value is used to update the
           callers PeerSentDbUpdateNumber for the server.
+        </t>
+        
+        <t>
+          The server <spanx style='strong'>must</spanx> return a fault if
+          this method is invoked by a peer that is currently considered
+          UnReachable, or when the server is not in the Operational phase.
+          This is because the update numbers are not synchronized under
+          these conditions; they are resynchronized by the
+          registrarSync.reset method.
         </t>
 
         <t>
