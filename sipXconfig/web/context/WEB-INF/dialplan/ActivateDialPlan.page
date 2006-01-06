@@ -24,12 +24,6 @@
      -->
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
 
-    <bean name="xmlSelectorModel" 
-        class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
-        lifecycle="page">
-        <set-property name="enumClass" 
-        	expression="@org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@class"/>
-    </bean>
     <!--
      - C O M P O N E N T S
      -->
@@ -38,7 +32,7 @@
     </component>
     
     <component id="xmlSelector" type="PropertySelection">
-        <binding name="model" expression="beans.xmlSelectorModel"/>
+        <binding name="model" expression="fileSelectionModel"/>
         <binding name="value" expression="selected"/>
         <static-binding name="submitOnChange" value="true"/>
     </component>
