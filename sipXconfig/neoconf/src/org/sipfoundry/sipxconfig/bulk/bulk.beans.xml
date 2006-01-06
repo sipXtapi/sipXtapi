@@ -33,11 +33,12 @@
       <value>org.sipfoundry.sipxconfig.bulk.BulkManager</value>
     </property>
     <property name="target">
-      <ref local="bulkManagerDao"/>
+      <ref local="bulkManagerImpl"/>
     </property>
     <property name="interceptorNames">
       <list>
         <value>backgroundTaskInterceptor</value>
+        <value>hibernateInterceptor</value>        
       </list>
     </property>
   </bean>  

@@ -56,7 +56,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
             lazy.generateAll();            
         }
         
-        Thread.sleep(200);
+        Thread.sleep(400);
         
         lazy.replicate(orbits);
         for(int i = 0; i < 20; i++) {
@@ -65,7 +65,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
             lazy.generateAll();            
         }        
 
-        Thread.sleep(200);
+        Thread.sleep(400);
         
         replicationCtrl.verify();
     }

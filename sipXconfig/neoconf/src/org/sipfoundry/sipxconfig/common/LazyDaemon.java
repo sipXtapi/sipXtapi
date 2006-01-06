@@ -15,12 +15,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * Daemon thread that sleeps mos of the time in waitForWork method. When there is something to be
+ * Daemon thread that sleeps most of the time in waitForWork method. When there is something to be
  * do it wakes up, sleeps some more and then does it.
  */
 public abstract class LazyDaemon extends Thread {
     public static final Log LOG = LogFactory.getLog(LazyDaemon.class);
     private int m_sleepInterval;
+    private volatile long m_workAddedTimestamp;
 
     public LazyDaemon(String name, int sleepInterval) {
         super(name);
@@ -34,7 +35,11 @@ public abstract class LazyDaemon extends Thread {
             boolean moreWork = true;
             while (moreWork) {
                 waitForWork();
-                sleep(m_sleepInterval);
+                long quietPeriod = 0;
+                do {
+                    sleep(m_sleepInterval);
+                    quietPeriod = System.currentTimeMillis() - m_workAddedTimestamp;                    
+                } while(quietPeriod < m_sleepInterval);                
                 try {
                     moreWork = work();
                 } catch (Throwable e) {
@@ -44,6 +49,10 @@ public abstract class LazyDaemon extends Thread {
         } catch (InterruptedException e) {
             LOG.error(getName() + "exiting due to exception.", e);
         }
+    }
+    
+    public void workScheduled() {
+        m_workAddedTimestamp = System.currentTimeMillis();        
     }
 
     /**

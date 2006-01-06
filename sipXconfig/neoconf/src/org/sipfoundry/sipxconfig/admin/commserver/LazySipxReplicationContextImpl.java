@@ -32,26 +32,36 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
 
     private int m_sleepInterval = DEFAULT_SLEEP_INTERVAL;
 
+    /**
+     * Do not initialized worker here - properties must be set first
+     */
+    private Worker m_worker;
+
     public void init() {
-        Worker worker = new Worker();
-        worker.start();
+        m_worker = new Worker();
+        m_worker.start();
     }
 
     public synchronized void generate(DataSet dataSet) {
         m_tasks.add(dataSet);
-        notify();
+        notifyWorker();
     }
 
     public synchronized void generateAll() {
         m_tasks.addAll(DataSet.getEnumList());
-        notify();
+        notifyWorker();
     }
     
 
     public synchronized void replicate(XmlFile xmlFile) {
         m_tasks.add(xmlFile);
+        notifyWorker();
+    }
+    
+    private void notifyWorker() {
+        m_worker.workScheduled();
         notify();
-    }    
+    }
 
     /* could be private - workaround for checkstyle bug */
     protected synchronized void waitForWork() throws InterruptedException {
