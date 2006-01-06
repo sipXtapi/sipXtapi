@@ -44,6 +44,19 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(0, getConnection().getRowCount("phone_group"));
     }
 
+    public void testInsertFromCsvNameDuplication() throws Exception {
+        // users with duplicated names should be overwritten
+        InputStream cutsheet = getClass().getResourceAsStream("dup_names.csv");
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        assertEquals(2, getConnection().getRowCount("users"));
+        assertEquals(3, getConnection().getRowCount("phone"));
+        assertEquals(3, getConnection().getRowCount("line"));
+        assertEquals(2, getConnection().getRowCount("user_group"));
+        assertEquals(3, getConnection().getRowCount("phone_group"));
+        assertEquals(1, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
+        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
+    }
+
     public void testInsertFromCsvAliasDuplication() throws Exception {
         // second user has a duplicated alias - it should be ignored, but remaining users have to
         // be imported
