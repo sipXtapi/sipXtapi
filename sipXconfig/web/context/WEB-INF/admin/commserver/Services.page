@@ -13,8 +13,7 @@
     	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext" 
     	initial-value="global.sipxProcessContext"/>
     <property-specification name="currentRow"
-        type="org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus">
-    </property-specification>    
+        type="org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus"/>
 	<property-specification name="selections" 
     	type="org.sipfoundry.sipxconfig.components.SelectMap"
     	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>  	
@@ -36,7 +35,7 @@
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="sipxProcessContext.status"/>
         <static-binding name="pageSize" value="-1"/>
-        <static-binding name="columns" value="* Name:serviceName,Status:status.name"/>
+        <static-binding name="columns" value="* serviceName,=statusColumn"/>
     </component>
     <component id="tableColumns" type="contrib:TableColumns"/>    
     <component id="tableRows" type="contrib:TableRows">
@@ -64,7 +63,6 @@
         <message-binding name="label" key="button.restart"/>
     </component>
     <component id="refreshButton" type="Submit">
-        <binding name="listener" expression="listeners.noop"/>
         <message-binding name="label" key="button.refresh"/>
     </component>
             

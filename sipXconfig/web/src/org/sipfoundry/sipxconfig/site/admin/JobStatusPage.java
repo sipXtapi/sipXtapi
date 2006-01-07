@@ -15,13 +15,10 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.job.Job;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 public abstract class JobStatusPage extends BasePage {
     public abstract JobContext getJobContext();
-
-    public abstract Job getCurrentRow();
 
     public void remove(IRequestCycle cycle_) {
         getJobContext().removeCompleted();
