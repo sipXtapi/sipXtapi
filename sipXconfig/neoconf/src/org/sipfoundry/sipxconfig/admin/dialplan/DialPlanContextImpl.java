@@ -43,6 +43,7 @@ import org.springframework.context.ApplicationListener;
  */
 public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         DialPlanContext, ApplicationListener {
+    private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
     private static final String OPERATOR_CONSTANT = "operator";
     private static final String VALUE = "value";
     private static final String AUTO_ATTENDANT = "auto attendant";
@@ -79,9 +80,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void storeRule(DialingRule rule) {
         // Check for duplicate names before saving the rule
         String name = rule.getName();
-        if (!m_aliasManager.canObjectUseAlias(rule, name)) {
-            throw new NameInUseException(DIALING_RULE, name);
-        }
+        DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), rule,
+                DIALING_RULE_IDS_WITH_NAME_QUERY, name,
+                new NameInUseException(DIALING_RULE, name));
 
         // For internal rules, check for alias collisions. Note: this method throws
         // an exception if it finds a duplicate.
@@ -152,7 +153,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
             DialingRule rule = (DialingRule) i.next();
 
             // Create a copy of the rule with a unique name
-            DialingRule ruleDup = (DialingRule) duplicateBean(rule, "dialingRuleIdsWithName");
+            DialingRule ruleDup = (DialingRule) duplicateBean(rule,
+                    DIALING_RULE_IDS_WITH_NAME_QUERY);
 
             rules.add(ruleDup);
         }
