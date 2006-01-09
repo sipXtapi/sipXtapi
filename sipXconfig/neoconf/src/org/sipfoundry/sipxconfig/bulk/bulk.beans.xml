@@ -10,6 +10,7 @@
       <ref local="csvParser"></ref>
     </property>
     <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="transactionManager" ref="transactionManager"/>
     <property name="coreContext" ref="coreContext"/>
     <property name="phoneContext" ref="phoneContext"/>
     <property name="jobContext" ref="jobContext"/>

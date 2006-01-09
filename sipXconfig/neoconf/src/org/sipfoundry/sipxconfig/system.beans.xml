@@ -92,9 +92,9 @@
   - T R A N S A C T I O N  S U P P O R T
   -->
   <bean id="transactionManager"
-    class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-    <property name="dataSource">
-      <ref local="dataSource"/>
+    class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory">
+      <ref local="sessionFactory"/>
     </property>
   </bean>
   <!--

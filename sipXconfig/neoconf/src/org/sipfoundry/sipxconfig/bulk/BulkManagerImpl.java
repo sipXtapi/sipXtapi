@@ -33,7 +33,11 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.springframework.orm.hibernate3.HibernateAccessor;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkManager {
     private CsvParser m_csvParser;
@@ -43,6 +47,8 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
     private PhoneContext m_phoneContext;
 
     private JobContext m_jobContext;
+
+    private PlatformTransactionManager m_transactionManager;
 
     public void setCsvParser(CsvParser csvParser) {
         m_csvParser = csvParser;
@@ -60,8 +66,11 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
         m_jobContext = jobContext;
     }
 
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        m_transactionManager = transactionManager;
+    }
+
     public void insertFromCsv(Reader reader) {
-        getHibernateTemplate().setFlushMode(HibernateAccessor.FLUSH_NEVER);
         Closure insertRow = new RowInserter();
         m_csvParser.parse(reader, insertRow);
     }
@@ -184,24 +193,28 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
 
     private final class RowInserter implements Closure {
         public void execute(Object input) {
-            String[] row = (String[]) input;
+            final String[] row = (String[]) input;
             if (row.length <= Index.PHONE_DESCRIPTION.getValue()) {
                 LogFactory.getLog(getClass()).warn("Invalid data format when importing:" + row);
                 return;
             }
-            Serializable jobId = m_jobContext.schedule("Import data: " + row[0]);
+            TransactionTemplate tt = new TransactionTemplate(m_transactionManager);
+            final Serializable jobId = m_jobContext.schedule("Import data: " + row[0]);
+            TransactionCallback callback = new TransactionCallbackWithoutResult() {
+                protected void doInTransactionWithoutResult(TransactionStatus status_) {
+                    m_jobContext.start(jobId);
+                    insertRow(row);
+                    m_jobContext.success(jobId);
+                }
+            };
             try {
-                m_jobContext.start(jobId);
-                insertRow(row);
-                getHibernateTemplate().flush();
-                m_jobContext.success(jobId);
+                tt.execute(callback);
             } catch (UserException e) {
                 // ignore user exceptions - just log them
-                m_jobContext.failure(jobId, e.getLocalizedMessage(), e);
-                getHibernateTemplate().clear();
+                m_jobContext.failure(jobId, null, e);
             } catch (RuntimeException e) {
-                // log and rethrow runtime exceptions
-                m_jobContext.failure(jobId, e.getLocalizedMessage(), e);
+                // log and rethrow other exceptions
+                m_jobContext.failure(jobId, null, e);
                 throw e;
             }
         }
