@@ -53,29 +53,25 @@ public class PhoneDefaults {
         return m_tftpServer;
     }
 
-    /**
-     * @deprecated use domain name
-     */
     public void setProxyServerAddr(String proxyServerAddr) {
         m_proxyServerAddr = proxyServerAddr;
     }
 
     /**
-     * @deprecated use domain name
+     * Only use this function when IP address of the proxy is needed. 
+     * In most cases you should be able to use SIP domain name
      */
     public String getProxyServerAddr() {
         return m_proxyServerAddr;
     }
 
-    /**
-     * @deprecated use domain name
-     */
     public void setProxyServerSipPort(String proxyServerSipPort) {
         m_proxyServerSipPort = proxyServerSipPort;
     }
 
     /**
-     * @deprecated use domain name
+     * Only use this function when port of the the proxy is needed. 
+     * In most cases you should be able to use SIP domain name
      */
     public String getProxyServerSipPort() {
         return m_proxyServerSipPort;
