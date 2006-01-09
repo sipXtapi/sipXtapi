@@ -67,6 +67,13 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         Arrays.sort(FIELDS);
     }
 
+    
+    private Class[] m_indexedClasses = CLASSES;
+    
+    public void setIndexedClasses(Class[] indexedClasses) {
+        m_indexedClasses = indexedClasses;
+    }
+    
     /**
      * @return true if the document should be added to index
      */
@@ -108,8 +115,8 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     }
 
     public boolean indexClass(Document doc, Class beanClass) {
-        for (int i = 0; i < CLASSES.length; i++) {
-            Class klass = CLASSES[i];
+        for (int i = 0; i < m_indexedClasses.length; i++) {
+            Class klass = m_indexedClasses[i];
             if (klass.isAssignableFrom(beanClass)) {
                 doc.add(Field.Keyword(Indexer.CLASS_FIELD, klass.getName()));
                 return true;
@@ -117,7 +124,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         }
         return false;
     }
-
+    
     private String getKeyword(Object bean, Serializable id) {
         StringBuffer buffer = new StringBuffer();
         buffer.append(bean.getClass().getName());

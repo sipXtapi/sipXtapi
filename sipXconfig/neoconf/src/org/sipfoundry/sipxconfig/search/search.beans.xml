@@ -2,6 +2,7 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <bean id="beanAdaptor" class="org.sipfoundry.sipxconfig.search.DefaultBeanAdaptor"/>
+  
   <bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
   
   <bean id="indexSource" class="org.sipfoundry.sipxconfig.search.SimpleIndexSource">
@@ -17,9 +18,10 @@
     <property name="beanAdaptor" ref="beanAdaptor"/>
   </bean>
   
+  <bean id="bulkBeanAdaptor" class="org.sipfoundry.sipxconfig.search.DefaultBeanAdaptor"/>  
   <bean id="bulkIndexer" class="org.sipfoundry.sipxconfig.search.BulkIndexer">
     <property name="indexSource" ref="indexSource"/>
-    <property name="beanAdaptor" ref="beanAdaptor"/>
+    <property name="beanAdaptor" ref="bulkBeanAdaptor"/>
   </bean>
   
   <bean id="searchManager" class="org.sipfoundry.sipxconfig.search.SearchManagerImpl">
@@ -44,6 +46,7 @@
   <bean id="indexManagerImpl" class="org.sipfoundry.sipxconfig.search.IndexManagerImpl">
     <property name="hibernateTemplate" ref="loadIndexingHibernateTemplate"/>
     <property name="indexer" ref="bulkIndexer"/>
+    <property name="beanAdaptor" ref="bulkBeanAdaptor"/>
   </bean>
   
   <bean id="indexManager" class="org.springframework.aop.framework.ProxyFactoryBean"

@@ -31,7 +31,9 @@ public interface BeanAdaptor {
 
     Identity getBeanIdentity(Document document);
     
-    boolean indexClass(Document document, Class klass); 
+    boolean indexClass(Document document, Class klass);
+    
+    void setIndexedClasses(Class[] indexedClasses);    
 
     public static class Identity {
         private Class m_klass;

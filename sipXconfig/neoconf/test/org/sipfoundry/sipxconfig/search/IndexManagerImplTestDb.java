@@ -33,12 +33,12 @@ public class IndexManagerImplTestDb extends TestCaseDb {
         CoreContext coreContext = (CoreContext) context.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_identityToBean = new IdentityToBean(coreContext);
         TestHelper.cleanInsert("ClearDb.xml");
-        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
-
-        m_indexManager.indexAll();
     }
 
     public void testSearchByName() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        m_indexManager.indexAll();
+
         List users = m_searchManager.search("u*2", m_identityToBean);
         assertEquals(1, users.size());
         User user = (User) users.get(0);
@@ -47,10 +47,22 @@ public class IndexManagerImplTestDb extends TestCaseDb {
     }
 
     public void testSearchByAlias() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+        m_indexManager.indexAll();
+
         List users = m_searchManager.search("two", m_identityToBean);
         assertEquals(1, users.size());
         User user = (User) users.get(0);
         assertEquals("userseed2", user.getUserName());
+    }
+
+    public void testSearchReferencedUser() throws Exception {
+        TestHelper.cleanInsertFlat("search/phone_user.db.xml");
+        m_indexManager.indexAll();
+
+        List users = m_searchManager.search("kuku", null);
+        // check if user has been only indexed once
+        assertEquals(1, users.size());
     }
 
 }

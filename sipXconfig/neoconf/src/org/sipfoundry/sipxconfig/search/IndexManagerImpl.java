@@ -22,6 +22,8 @@ public class IndexManagerImpl extends HibernateDaoSupport implements IndexManage
 
     private Indexer m_indexer;
 
+    private BeanAdaptor m_beanAdaptor;
+
     private Class[] m_indexedClasses = DefaultBeanAdaptor.CLASSES;
 
     /**
@@ -33,6 +35,9 @@ public class IndexManagerImpl extends HibernateDaoSupport implements IndexManage
             m_indexer.open();
             // load all classes that need to be indexed
             for (int i = 0; i < m_indexedClasses.length; i++) {
+                m_beanAdaptor.setIndexedClasses(new Class[] {
+                    m_indexedClasses[i]
+                });
                 getHibernateTemplate().loadAll(m_indexedClasses[i]);
             }
         } finally {
@@ -43,6 +48,13 @@ public class IndexManagerImpl extends HibernateDaoSupport implements IndexManage
 
     public void setIndexer(Indexer indexer) {
         m_indexer = indexer;
+    }
+
+    /**
+     * In order for this code to work this has to be the same beanAdaptor that is used by Indexer
+     */
+    public void setBeanAdaptor(BeanAdaptor beanAdaptor) {
+        m_beanAdaptor = beanAdaptor;
     }
 
     /**
