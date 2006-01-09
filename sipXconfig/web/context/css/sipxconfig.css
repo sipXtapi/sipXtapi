@@ -146,7 +146,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 #banner-links
 {
 	float:right;
-	padding:0 20px 0 0;
+	padding:0 5px 0 0;
 }
 
 #banner-links a
@@ -411,9 +411,10 @@ ul.component-pager li
 
 div.help
 {
+	clear:right;
 	float:right;
 	width:15em;
-	margin-left:20px;
+	margin:5px 0;
 	border-collapse:collapse;
 	border:1px;
 	border-color:#ccc;
@@ -425,7 +426,7 @@ div.help
 div.search 
 {
 	float:right;
-	padding:0 20px 0 0;
+	padding:0 10px 0 0;
 }
 
 fieldset
