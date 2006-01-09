@@ -24,11 +24,9 @@
 #include "sipdb/HuntgroupDB.h"
 #include "sipdb/ExtensionDB.h"
 #include "sipdb/PermissionDB.h"
-#include "sipdb/RegistrationDB.h"
 #include "sipdb/SubscriptionDB.h"
 #include "sipdb/DialByNameDB.h"
 #include "sipdb/CredentialDB.h"
-#include "sipdb/RegistrationDB.h"
 #include "sipdb/SIPXAuthHelper.h"
 #include "IMDBTaskMonitor.h"
 #include "ImportTask.h"
@@ -102,6 +100,12 @@ ImportTask::importTableRows ( const UtlString& rImportFilename ) const
 {
     int exitCode = EXIT_SUCCESS;
 
+    if (rImportFilename.contains("registration"))
+    {
+       cout << "Loading the registration database is no longer supported" << endl;
+       return EXIT_UNSUPPORTEDDB;
+    }
+
     // Load all rows from an external XML Script
     if ( loadDB( rImportFilename ) == OS_SUCCESS )
     {
@@ -117,11 +121,6 @@ ImportTask::importTableRows ( const UtlString& rImportFilename ) const
         if ( HuntgroupDB::getInstance()->store() != OS_SUCCESS )
         {
             cout << "Problem storing HuntgroupDB to local XML file" << endl;
-        }
-
-        if ( RegistrationDB::getInstance()->cleanAndPersist(0) != OS_SUCCESS )
-        {
-           cout << "Problem storing RegistrationDB to local XML file" << endl;
         }
 
         if ( AliasDB::getInstance()->store() != OS_SUCCESS )
@@ -190,8 +189,6 @@ ImportTask::loadDB( const UtlString& rFileName ) const
                     HuntgroupDB::getInstance()->removeAllRows();
                 } else if ( tableName.compareTo("permission"   , UtlString::ignoreCase)==0 ) {
                     PermissionDB::getInstance()->removeAllRows();
-                } else if ( tableName.compareTo("registration" , UtlString::ignoreCase)==0 ) {
-                    RegistrationDB::getInstance()->removeAllRows();
                 } else if ( tableName.compareTo("subscription" , UtlString::ignoreCase)==0 ) {
                     SubscriptionDB::getInstance()->removeAllRows();
                 }
@@ -346,9 +343,6 @@ ImportTask::insertRow (
         HuntgroupDB::getInstance()->
             insertRow (
                 Url( *((UtlString*)rNVPairs.findValue(&identityKey))));
-    } else if ( rTableName.compareTo("registration" , UtlString::ignoreCase)==0 )
-    {
-        RegistrationDB::getInstance()->insertRow ( rNVPairs );
     } else if ( rTableName.compareTo("alias" , UtlString::ignoreCase)==0 )
     {
         AliasDB::getInstance()->
