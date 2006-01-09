@@ -64,6 +64,12 @@
     <property name="indexManager">
       <ref local="indexManager"/>      
     </property>
-  </bean>  
+  </bean>
+  
+  <bean id="userSearchManager" class="org.sipfoundry.sipxconfig.search.UserSearchManagerImpl">
+    <property name="searchManager">
+      <ref local="searchManager"/>
+    </property>
+  </bean>
   
 </beans>

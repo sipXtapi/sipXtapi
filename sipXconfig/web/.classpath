@@ -53,5 +53,10 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/axis-ant-1.3.jar"/>
 	<classpathentry sourcepath="LIB_SRC/easymockclassextension/src.zip" kind="var" path="SIPX_CONFIG/lib/easymockclassextension-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_BUILD/web/dist/server-bindings.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/lucene/src.zip" kind="var" path="SIPX_CONFIG/lib/lucene-1.4.3.jar">
+		<attributes>
+			<attribute value="http://lucene.apache.org/java/docs/api/" name="javadoc_location"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

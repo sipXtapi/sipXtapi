@@ -46,9 +46,9 @@ public class SearchManagerImplTestDb extends TestCase {
 
     public void testSearch() throws Exception {
         User user = new User();
-        user.setFirstName("first");
+        user.setFirstName("fIrst");
         user.setLastName("last");
-        user.setUserName("bongo");
+        user.setUserName("boNGo");
 
         m_coreContext.saveUser(user);
 

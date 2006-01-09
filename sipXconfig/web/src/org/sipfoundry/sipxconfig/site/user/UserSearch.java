@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
 import org.sipfoundry.sipxconfig.search.SearchManager;
+import org.sipfoundry.sipxconfig.search.UserSearchManager;
 
 public abstract class UserSearch extends BaseComponent {
 
@@ -43,6 +44,8 @@ public abstract class UserSearch extends BaseComponent {
     public abstract CoreContext getCoreContext();
 
     public abstract SearchManager getSearchManager();
+    
+    public abstract UserSearchManager getUserSearchManager();
 
     public abstract boolean getSimpleSearch();
 
@@ -52,11 +55,11 @@ public abstract class UserSearch extends BaseComponent {
         List results = null;
         String query = getQuery();
 
+        BeanAdaptor.IdentityToBean identityToBean = new BeanAdaptor.IdentityToBean(getCoreContext());
         if (getSimpleSearch() && StringUtils.isNotBlank(query)) {
-            BeanAdaptor.IdentityToBean identityToBean = new BeanAdaptor.IdentityToBean(getCoreContext());
             results = getSearchManager().search(User.class, query, identityToBean);
         } else {
-            results = getCoreContext().loadUserByTemplateUser(getUser());
+            results = getUserSearchManager().search(getUser(), 0, -1, identityToBean);
         }
 
         // keep original collection, reference has already been given to other

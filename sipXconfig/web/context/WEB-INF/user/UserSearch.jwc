@@ -24,6 +24,9 @@
     <property-specification name="searchManager" 
     	type="org.sipfoundry.sipxconfig.search.SearchManager"
     	initial-value="page.global.searchManager"/>
+    <property-specification name="userSearchManager" 
+    	type="org.sipfoundry.sipxconfig.search.UserSearchManager"
+    	initial-value="page.global.userSearchManager"/>
     <property-specification name="coreContext" 
     	type="org.sipfoundry.sipxconfig.common.CoreContext" 
     	initial-value="page.global.coreContext"/>

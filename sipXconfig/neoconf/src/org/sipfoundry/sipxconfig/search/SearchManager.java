@@ -14,9 +14,10 @@ package org.sipfoundry.sipxconfig.search;
 import java.util.List;
 
 import org.apache.commons.collections.Transformer;
+import org.apache.lucene.search.Query;
 
 public interface SearchManager {
-    String CONTEXT_BEAN_NAME = "searchManager";
+    public static final String CONTEXT_BEAN_NAME = "searchManager";
 
     List search(String query, Transformer transformer);
 
@@ -39,4 +40,6 @@ public interface SearchManager {
      */
     List search(Class entityClass, String query, int firstResult, int pageSize, String sort,
             boolean orderAscending, Transformer transformer);
+    
+    List search(Query query, int firstResult, int pageSize, Transformer transformer);    
 }

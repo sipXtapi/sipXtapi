@@ -61,8 +61,6 @@ public class SearchManagerImpl implements SearchManager {
         try {
             Query query = parseUserQuery(queryText);
             return search(query, 0, -1, null, transformer);
-        } catch (IOException e) {
-            LOG.error("search by user query error", e);
         } catch (ParseException e) {
             LOG.info(e.getMessage());
         }
@@ -73,17 +71,24 @@ public class SearchManagerImpl implements SearchManager {
         return search(entityClass, queryText, 0, -1, null, false, transformer);
     }
 
+    public List search(Query query, int firstResult, int pageSize, Transformer transformer) {
+        return search(query, firstResult, pageSize, null, transformer);
+    }
+
     private List search(Query query, int firstItem, int pageSize, Sort sort,
-            Transformer transformer) throws IOException {
+            Transformer transformer) {
         IndexSearcher searcher = null;
         try {
             searcher = m_indexSource.getSearcher();
             Hits hits = searcher.search(query, sort);
             List found = hits2beans(hits, transformer, firstItem, pageSize);
             return found;
+        } catch (IOException e) {
+            LOG.error("search by user query error", e);
         } finally {
             LuceneUtils.closeQuietly(searcher);
         }
+        return Collections.EMPTY_LIST;
     }
 
     private List hits2beans(Hits hits, Transformer transformer, int firstItem, int pageSize)
@@ -136,12 +141,11 @@ public class SearchManagerImpl implements SearchManager {
                 sort = new Sort(field);
             }
             return search(query, firstResult, pageSize, sort, transformer);
-        } catch (IOException e) {
-            LOG.error("search by class error", e);
         } catch (ParseException e) {
             LOG.info(e.getMessage());
         }
 
         return Collections.EMPTY_LIST;
     }
+
 }
