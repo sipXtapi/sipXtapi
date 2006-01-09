@@ -71,6 +71,19 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
     }
 
+    public void testInsertFromCsvPhoneDuplication() throws Exception {
+        // users with duplicated names should be overwritten
+        InputStream cutsheet = getClass().getResourceAsStream("dup_phones.csv");
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        assertEquals(5, getConnection().getRowCount("users"));
+        assertEquals(4, getConnection().getRowCount("phone"));
+        assertEquals(5, getConnection().getRowCount("line"));
+        assertEquals(5, getConnection().getRowCount("user_group"));
+        assertEquals(4, getConnection().getRowCount("phone_group"));
+        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
+        assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
+    }
+    
     public void testInsertFromCsv() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("cutsheet.csv");
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
@@ -99,6 +112,7 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
     }
+    
 
     public void testUserFromRow() {
         User bongo = new User();

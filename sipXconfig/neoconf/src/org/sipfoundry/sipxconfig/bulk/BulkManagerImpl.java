@@ -158,6 +158,7 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
         if (userGroup != null) {
             user.addGroup(userGroup);
         }
+        m_coreContext.saveUser(user);
 
         if (phoneGroup != null) {
             phone.addGroup(phoneGroup);
@@ -167,7 +168,6 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
         line.setUser(user);
         phone.addLine(line);
 
-        m_coreContext.saveUser(user);
         m_phoneContext.storePhone(phone);
     }
 
