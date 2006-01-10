@@ -32,7 +32,7 @@ import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class ReplicationManagerImpl implements ReplicationManager {

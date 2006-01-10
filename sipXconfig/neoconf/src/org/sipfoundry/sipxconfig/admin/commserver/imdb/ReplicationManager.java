@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public interface ReplicationManager {

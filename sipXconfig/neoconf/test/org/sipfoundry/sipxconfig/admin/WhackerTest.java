@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin;
 
 import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.Date;
 
 import junit.framework.AssertionFailedError;
@@ -33,7 +34,7 @@ public class WhackerTest extends TestCase {
         // Make a mock control that checks that.
         m_processControl = MockClassControl.createStrictControl(SipxProcessContext.class);
         SipxProcessContext processContext = (SipxProcessContext) m_processControl.getMock();
-        processContext.manageServices(Whacker.SERVICE_NAMES, SipxProcessContext.Command.RESTART);
+        processContext.manageServices(Arrays.asList(Whacker.SERVICES), SipxProcessContext.Command.RESTART);
         m_processControl.replay();
         m_whacker.setProcessContext(processContext);
     }

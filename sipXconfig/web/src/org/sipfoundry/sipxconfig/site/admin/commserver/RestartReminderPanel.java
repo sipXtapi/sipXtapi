@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
@@ -35,11 +34,8 @@ public abstract class RestartReminderPanel extends BaseComponent {
             return;
         }
         Object[] processes = getProcesses();
-        List procsToRestart = (null != processes) ? Arrays.asList(processes) : Process.getAll();
         SipxProcessContext processContext = getSipxProcessContext();
-        for (Iterator i = procsToRestart.iterator(); i.hasNext();) {
-            Process p = (Process) i.next();
-            processContext.manageService(p, SipxProcessContext.Command.RESTART);
-        }
+        List procsToRestart = (null != processes) ? Arrays.asList(processes) : Process.getAll();
+        processContext.manageServices(procsToRestart, SipxProcessContext.Command.RESTART);
     }
 }

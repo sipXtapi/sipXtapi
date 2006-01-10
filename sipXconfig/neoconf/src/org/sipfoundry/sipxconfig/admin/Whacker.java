@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.admin;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.TimeZone;
 import java.util.Timer;
@@ -31,11 +32,11 @@ public class Whacker implements ApplicationListener {
     class WhackerTask extends TimerTask {
         public void run() {
             LOG.info("Restarting the media server");
-            m_processContext.manageServices(SERVICE_NAMES, SipxProcessContext.Command.RESTART);
+            m_processContext.manageServices(Arrays.asList(SERVICES), SipxProcessContext.Command.RESTART);
         }
     }
 
-    static final Process[] SERVICE_NAMES = {
+    static final Process[] SERVICES = {
         Process.MEDIA_SERVER
     };
     private static final Log LOG = LogFactory.getLog(Whacker.class);

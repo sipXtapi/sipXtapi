@@ -11,13 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.components.LocalizedTableRendererSource;
 
@@ -32,6 +35,15 @@ public abstract class Services extends BasePage {
     public abstract Collection getServicesToStop();
 
     public abstract Collection getServicesToRestart();
+
+    //TODO: this should be selected by the user
+    public Location getServiceLocation() {
+        Location[] locations = getSipxProcessContext().getLocations();
+        if(locations == null || locations.length < 1) {
+            return null;
+        }
+        return locations[0];
+    }
 
     public ITableColumn getStatusColumn() {
         ExpressionTableColumn column = new ExpressionTableColumn(STATUS_COLUMN,
@@ -58,7 +70,13 @@ public abstract class Services extends BasePage {
             // nothing to do
             return;
         }
-        String[] names = (String[]) services.toArray(new String[services.size()]);
-        getSipxProcessContext().manageServices(names, operation);
+        // FIXME: we should be able to get a list of process directly here (not trrough the list
+        // of names)
+        Collection processes = new ArrayList(services.size());
+        for (Iterator i = services.iterator(); i.hasNext();) {
+            String service = (String) i.next();
+            processes.add(SipxProcessContext.Process.getEnum(service));
+        }
+        getSipxProcessContext().manageServices(getServiceLocation(), processes, operation);
     }
 }

@@ -33,7 +33,7 @@
         <binding name="listener" expression="listeners.formSubmit"/>
     </component>
     <component id="tableView" type="contrib:TableView">
-        <binding name="source" expression="sipxProcessContext.status"/>
+        <binding name="source" expression="sipxProcessContext.getStatus(serviceLocation)"/>
         <static-binding name="pageSize" value="-1"/>
         <static-binding name="columns" value="* serviceName,=statusColumn"/>
     </component>

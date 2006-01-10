@@ -100,7 +100,7 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
     }
 
     /** Return the replication URLs, retrieving them on demand */
-    protected Location[] getLocations() {
+    public Location[] getLocations() {
         if (m_locations != null) {
             return m_locations;
         }
@@ -131,45 +131,6 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
 
     public void setJobContext(JobContext jobContext) {
         m_jobContext = jobContext;
-    }
-
-    public static class Location {
-        private String m_id;
-        private String m_processMonitorUrl;
-        private String m_replicationUrl;
-        private String m_sipDomain;
-
-        public String getId() {
-            return m_id;
-        }
-
-        public void setId(String id) {
-            m_id = id;
-        }
-
-        public String getProcessMonitorUrl() {
-            return m_processMonitorUrl;
-        }
-
-        public void setProcessMonitorUrl(String processMonitorUrl) {
-            m_processMonitorUrl = processMonitorUrl;
-        }
-
-        public String getReplicationUrl() {
-            return m_replicationUrl;
-        }
-
-        public void setReplicationUrl(String replicationUrl) {
-            m_replicationUrl = replicationUrl;
-        }
-
-        public String getSipDomain() {
-            return m_sipDomain;
-        }
-
-        public void setSipDomain(String sipDomain) {
-            m_sipDomain = sipDomain;
-        }
     }
 
     private static final class LocationDigester extends Digester {

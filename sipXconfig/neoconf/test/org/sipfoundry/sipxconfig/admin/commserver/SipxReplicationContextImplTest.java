@@ -15,7 +15,6 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl.Location;
 
 public class SipxReplicationContextImplTest extends TestCase {
     SipxReplicationContextImpl m_processContextImpl;
