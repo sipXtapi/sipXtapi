@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -94,6 +95,8 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     private String m_binDir;
 
+    private boolean m_isTextFormatEnabled;
+
     public CiscoAtaPhone() {
         super(BEAN_ID);
         init();
@@ -106,6 +109,16 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     private void init() {
         setPhoneTemplate("ciscoAta/cisco-ata.vm");
+    }
+
+    /**
+     * Generate files in text format. Won't be usable by phone, but you can use cisco
+     * config tool to convert manually. This is mostly for debugging
+     * 
+     * @param isTextFormatEnabled true to save as text, default is false
+     */
+    public void setTextFormatEnabled(boolean isTextFormatEnabled) {
+        m_isTextFormatEnabled = isTextFormatEnabled;
     }
 
     public String getCfgPrefix() {
@@ -188,6 +201,14 @@ public class CiscoAtaPhone extends CiscoPhone {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
+        }
+        if (!m_isTextFormatEnabled) {
+            try {
+                FileUtils.forceDelete(new File(outputTxtfile));
+            } catch (IOException e) {
+                // ignore delete failure
+                LOG.info(e.getMessage());
+            }
         }
     }
 
