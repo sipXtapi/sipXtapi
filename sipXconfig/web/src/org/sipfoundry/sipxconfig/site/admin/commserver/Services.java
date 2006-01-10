@@ -36,10 +36,10 @@ public abstract class Services extends BasePage {
 
     public abstract Collection getServicesToRestart();
 
-    //TODO: this should be selected by the user
+    // TODO: this should be selected by the user
     public Location getServiceLocation() {
         Location[] locations = getSipxProcessContext().getLocations();
-        if(locations == null || locations.length < 1) {
+        if (locations == null || locations.length < 1) {
             return null;
         }
         return locations[0];

@@ -42,7 +42,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
     private static final String PROCESS_STATUS_ATTRIB = STATUS;
 
     /** Read service status values from the process monitor and return them in an array */
-    public ServiceStatus[] getStatus(Location location) {        
+    public ServiceStatus[] getStatus(Location location) {
         InputStream statusStream = getStatusStream(location);
         if (statusStream == null) {
             return new ServiceStatus[0];
@@ -85,7 +85,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
      * Get service status and return it as a stream.
      */
     InputStream getStatusStream(Location location) {
-        if(location == null) {
+        if (location == null) {
             return null;
         }
         // Get a status URL only for the first process monitor
