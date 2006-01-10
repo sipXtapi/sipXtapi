@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<tapestry-project-properties>
-    <validate-web-xml>false</validate-web-xml>
-    <context-root>/context</context-root>
-</tapestry-project-properties>
