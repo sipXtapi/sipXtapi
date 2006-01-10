@@ -174,7 +174,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
         }
     }
 
-#if 1 // 
+#if 0 // enable only for transaction match debugging - log is confusing otherwise
     UtlString relationString;
     SipTransaction::getRelationshipString(relationship, relationString);
     UtlString bytes;
