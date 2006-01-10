@@ -14,9 +14,14 @@ Source: %name-%version.tar.gz
 Requires: xerces-c >= 2.6.0
 Requires: sipxportlib >= 3.1
 Requires: sipxtacklib >= 3.1
+Requires: kingkonf >= 1.0
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
+
+# upgrade support
+%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
+%define this_archive %{name}-%{version}-%{release}.tgz
 
 %description
  This project is used to hold code used in common by a number of the
@@ -60,6 +65,13 @@ make
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
+# upgrade support
+%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
+mkdir -p %{upgrade_archive_root}
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive} \
+    etc
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -98,6 +110,11 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/tmp
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipdb
 
+# upgrade support
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
+
+
 ################################################################
 ### :TODO: - standalone install won't work without this but
 ###          if we include it, it will conflict with sipXpbx
@@ -130,3 +147,12 @@ sipx-upgrade -p sipxcommserverlib -c
 
 %post
 sipx-upgrade -p sipxcommserverlib -u --bdir %{_bindir}  --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
+
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}
