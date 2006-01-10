@@ -21,6 +21,7 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
@@ -33,6 +34,9 @@ public abstract class UserSearch extends BaseComponent {
 
     public static final String COMPONENT = "UserSearch";
 
+    /** this value is also hardcoded in UserSearch.properties to display error message */
+    private static final int MAX_RESULT = 100;
+
     public abstract User getUser();
 
     public abstract void setUser(User user);
@@ -44,7 +48,7 @@ public abstract class UserSearch extends BaseComponent {
     public abstract CoreContext getCoreContext();
 
     public abstract SearchManager getSearchManager();
-    
+
     public abstract UserSearchManager getUserSearchManager();
 
     public abstract boolean getSimpleSearch();
@@ -55,11 +59,13 @@ public abstract class UserSearch extends BaseComponent {
         List results = null;
         String query = getQuery();
 
-        BeanAdaptor.IdentityToBean identityToBean = new BeanAdaptor.IdentityToBean(getCoreContext());
+        BeanAdaptor.IdentityToBean identityToBean = new BeanAdaptor.IdentityToBean(
+                getCoreContext());
         if (getSimpleSearch() && StringUtils.isNotBlank(query)) {
-            results = getSearchManager().search(User.class, query, identityToBean);
+            results = getSearchManager().search(User.class, query, 0, MAX_RESULT, null, false,
+                    identityToBean);
         } else {
-            results = getUserSearchManager().search(getUser(), 0, -1, identityToBean);
+            results = getUserSearchManager().search(getUser(), 0, MAX_RESULT, identityToBean);
         }
 
         // keep original collection, reference has already been given to other
@@ -69,8 +75,14 @@ public abstract class UserSearch extends BaseComponent {
         IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
         if (delegate instanceof SipxValidationDelegate) {
             SipxValidationDelegate validator = (SipxValidationDelegate) delegate;
-            String msg = getMessages().format("msg.found", new Integer(results.size()));                
-            validator.recordSuccess(msg);
+            if (results.size() < MAX_RESULT) {
+                String msg = getMessages().format("msg.found", new Integer(results.size()));
+                validator.recordSuccess(msg);
+            } else {
+                String msg = getMessages().format("msg.foundTooMany", new Integer(results.size()));
+                validator.record(msg, ValidationConstraint.TOO_LARGE);
+            }
+
         }
     }
 
