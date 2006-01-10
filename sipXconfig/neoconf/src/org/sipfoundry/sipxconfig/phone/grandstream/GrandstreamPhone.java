@@ -402,9 +402,12 @@ public class GrandstreamPhone extends Phone {
 
         String password = settings.getPassword();
         byte[] resetPayload = new ResetPacket(password, getSerialNumber()).getResetMessage();
-        
-        getSipService().sendCheckSync(line.getUri(), settings.getRegistrationServer(), settings
-                .getRegistrationServerPort(), settings.getUserId(), resetPayload);
+        String event = "Content-Type: application/octet-stream\r\n"
+            + "Event: sys-control\r\n";
+
+        getSipService().sendNotify(line.getUri(), settings.getRegistrationServer(),
+                                   settings.getRegistrationServerPort(), settings.getUserId(),
+                                   event, resetPayload);
     }
 
     public Setting evaluateModel(ConditionalSet conditional) {

@@ -67,7 +67,8 @@ public class GrandstreamPhoneTest extends TestCase {
     public void testReset() throws Exception {
         tester.sipControl = MockControl.createStrictControl(SipService.class);
         tester.sip = (SipService) tester.sipControl.getMock();        
-        tester.sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "sipfoundry.org", null, "juser", new byte[0]);
+        tester.sip.sendNotify("\"Joe User\"<sip:juser@sipfoundry.org>", "sipfoundry.org", null, "juser",
+                              "Content-Type: application/octet-stream\r\nEvent: sys-control\r\n", new byte[0]);
         tester.sipControl.setMatcher(new ResetArgumentMatcher());
         tester.sipControl.replay();
         

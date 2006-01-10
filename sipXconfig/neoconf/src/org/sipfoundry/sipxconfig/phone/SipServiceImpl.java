@@ -143,20 +143,22 @@ public class SipServiceImpl implements SipService {
     }
     
     public void sendCheckSync(String uri, String registrationServer, 
-            String registrationServerPort, String userId) {
-        sendCheckSync(uri, registrationServer, 
-                registrationServerPort, userId, new byte[0]);
+                              String registrationServerPort, String userId) {
+        sendNotify(uri, registrationServer, 
+                      registrationServerPort, userId, "Event: check-sync\r\n", new byte[0]);
     }
 
-    public void sendCheckSync(String uri, String registrationServer, 
-            String registrationServerPort, String userId, byte[] payload) {
+    public void sendNotify(String uri, String registrationServer, 
+                              String registrationServerPort, String userId, String event, byte[] payload) {
         // The check-sync message is a flavor of unsolicited NOTIFY
         // this message does not require that the phone be enrolled
         // the message allows us to reboot a specific phone 
         String restartSip = "NOTIFY {0} SIP/2.0\r\n" + "Via: {1}\r\n"
-                + "From: {2}\r\n" + "To: {3}\r\n" + "Event: check-sync\r\n"
+                + "From: {2}\r\n" + "To: {3}\r\n"
                 + "Date: {4}\r\n" + "Call-ID: {5}\r\n" + "CSeq: 1 NOTIFY\r\n"
-                + "Contact: null\r\n" + "Content-Length: {6}\r\n" + "\r\n";
+                + "Contact: null\r\n"
+                + event
+                + "Content-Length: {6}\r\n" + "\r\n";
         Object[] sipParams = new Object[] { 
             getNotifyRequestUri(registrationServer, registrationServerPort, userId), 
             getServerVia(),
