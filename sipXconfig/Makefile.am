@@ -11,7 +11,7 @@ edit = $(LocalizeSipXconfig) \
     -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g'
 
 
-SUBDIRS = . bin neoconf web $(doc_SUBDIRS)
+SUBDIRS = . bin neoconf web meta $(doc_SUBDIRS)
 
 EXTRA_DIST = \
     config/sipX-config.in \

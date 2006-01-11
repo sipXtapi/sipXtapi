@@ -54,6 +54,7 @@ AC_CONFIG_FILES([
     bin/Makefile
     neoconf/Makefile
     web/Makefile
+    meta/Makefile
     doc/Makefile
 ])
 

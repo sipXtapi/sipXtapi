@@ -27,6 +27,7 @@ Source: %name-%version.tar.gz
 Requires: sipxtacklib >= 3.1
 Requires: sipxcommserverlib >= 3.1
 Requires: postgresql-server >= 7.3
+Requires: kingkonf >= 1.0
 
 # to serve profile/catalog/apps.  These can be served from
 # tomcat eventually to improve scalability by reducing server
@@ -35,6 +36,11 @@ Requires: httpd >= 2.0
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
+
+# kingkonf upgrade support
+# should match sipXlib.m4:SIPX_UPGRADEDIR
+%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
+%define this_archive %{name}-%{version}-%{release}.tgz
 
 %description
   Configuring one phone can be a daunting task, configuring a hundred
@@ -60,6 +66,14 @@ make
 # the way it is.
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
+
+# kingkonf upgrade support
+%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
+mkdir -p %{upgrade_archive_root}
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive} \
+    etc \
+    var/sipxdata/configserver
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -87,8 +101,23 @@ rm -rf $RPM_BUILD_ROOT
 
 %dir %{_localstatedir}
 
+# kingkonf upgrade support
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
+
 %pre
 
 %post
 
 sipxconfig.sh --setup
+
+# kingkonf upgrade support
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
+
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}
+

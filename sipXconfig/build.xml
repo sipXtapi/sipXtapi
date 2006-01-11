@@ -53,7 +53,8 @@
 
   <filelist id="components" dir="${basedir}" files="
       neoconf/build.xml
-      web/build.xml"/>
+      web/build.xml
+      meta/build.xml"/>
   <property name="subdirs" value="components"/>
 
   <property name="project.dir" value="."/>
