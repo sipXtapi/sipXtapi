@@ -80,6 +80,7 @@ AC_CONFIG_FILES([sipXdialog/src/Makefile])
 AC_CONFIG_FILES([sipXdialog/etc/Makefile])
 AC_CONFIG_FILES([sipXdialog/bin/Makefile])
 AC_CONFIG_FILES([sipXdialog/doc/Makefile])
+AC_CONFIG_FILES([meta/Makefile])
 
 AM_CONDITIONAL(DO_RPMBUILD, test x$enable_rpmbuild = xyes)
 
