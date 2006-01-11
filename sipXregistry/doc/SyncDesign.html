@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Wed, 11 Jan 2006 19:08:21 +0000">
+<meta http-equiv="Expires" content="Wed, 11 Jan 2006 20:04:16 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -1072,6 +1072,12 @@ Authors' Addresses<br />
               
 </li>
 <li>
+                Begin accepting pullUpdates requests by registering the XML-RPC
+                method
+                <a class="info" href="#pullUpdates">registrarSync.pullUpdates<span> (</span><span class="info">registrarSync.pullUpdates method</span><span>)</span></a>.
+              
+</li>
+<li>
                 For each peer:
                 
 <ol class="text">
@@ -1159,7 +1165,7 @@ Authors' Addresses<br />
               
 </li>
 <li>
-                Begin accepting synchronization requests by registering the XML-RPC
+                Begin accepting all synchronization requests by registering the remaining XML-RPC
                 methods:
                 
 <ul class="text">

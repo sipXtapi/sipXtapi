@@ -811,6 +811,12 @@
               </t>
 
               <t>
+                Begin accepting pullUpdates requests by registering the XML-RPC
+                method
+                <xref target='pullUpdates'>registrarSync.pullUpdates</xref>.
+              </t>
+
+              <t>
                 For each peer:
                 <list style='numbers'>
                   <t> 
@@ -889,7 +895,7 @@
                 </list>
               </t>
               <t>
-                Begin accepting synchronization requests by registering the XML-RPC
+                Begin accepting all synchronization requests by registering the remaining XML-RPC
                 methods:
                 <list style='symbols'>
                   <t><xref target='pushUpdates'>registrarSync.pushUpdates</xref></t>
