@@ -7,6 +7,7 @@
   <target name="default"/>
   <target name="compile"/>
   <target name="test"/>
+  <target name="clover.report"/>
 
   <target name="install">
     <mkdir dir="${dest.dir}${sipxpbx.upgrade.dir}"/>
