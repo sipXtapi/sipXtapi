@@ -35,4 +35,5 @@ AC_CONFIG_FILES([config/sipXcommon.mak])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
+AC_CONFIG_FILES([meta/Makefile])
 AC_OUTPUT

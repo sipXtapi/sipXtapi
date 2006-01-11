@@ -2,8 +2,6 @@
 
 include $(top_builddir)/config/sipXcommon.mak
 
-unconditional_SUBDIRS = . src include bin etc
-
 INSTALL = @INSTALL@
 
 editscripts_IN = \
@@ -30,7 +28,7 @@ EXTRA_DIST = \
 
 include $(srcdir)/config/sipXprojtop.mak
 
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
+SUBDIRS = . src include bin etc meta $(doc_SUBDIRS)
 
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES)
