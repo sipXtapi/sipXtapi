@@ -756,6 +756,18 @@
           </t>
 
           <t>
+            The registrarSync.pullUpdates method is registered (server-side
+            activation) during the 
+            startup phase, before calling pullUpdates on peer registrars.
+            This allows registrars coming up at the same time to synchronize.
+            If we registered pullUpdates later, then two 
+            registrars coming up at the same time would both refuse to be a 
+            pullUpdates server until after making a pullUpdates client 
+            call, resulting in a temporary deadlock. The deadlock would be fixed by 
+            a subsequent reset, but that would be inefficient.
+          </t>
+
+          <t>
             The startup processing phase performs the following steps:
             <list style='numbers'>
               <t> 

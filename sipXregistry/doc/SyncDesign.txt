@@ -29,7 +29,7 @@ Table of Contents
      5.6.  Locking Changes  . . . . . . . . . . . . . . . . . . . . . 10
      5.7.  Processing . . . . . . . . . . . . . . . . . . . . . . . . 10
        5.7.1.  Startup Processing . . . . . . . . . . . . . . . . . . 11
-       5.7.2.  Transition from Startup Phase to Operational Phase . . 12
+       5.7.2.  Transition from Startup Phase to Operational Phase . . 13
        5.7.3.  Operational Phase  . . . . . . . . . . . . . . . . . . 13
          5.7.3.1.  SipRegistrarServer . . . . . . . . . . . . . . . . 13
          5.7.3.2.  RegistrarSync  . . . . . . . . . . . . . . . . . . 14
@@ -42,7 +42,7 @@ Table of Contents
      5.9.  XML-RPC Security . . . . . . . . . . . . . . . . . . . . . 18
      5.10. HTTP Persistent Connections  . . . . . . . . . . . . . . . 18
      5.11. Authorization Proxy Record-Route . . . . . . . . . . . . . 18
-   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 19
+   Authors' Addresses . . . . . . . . . . . . . . . . . . . . . . . . 20
 
 
 
@@ -598,16 +598,16 @@ Lawrence, et al.                                               [Page 10]
    (Section 5.8.2) during the transition from startup to operational
    phase (Section 5.7.2).
 
+   The registrarSync.pullUpdates method is registered (server-side
+   activation) during the startup phase, before calling pullUpdates on
+   peer registrars.  This allows registrars coming up at the same time
+   to synchronize.  If we registered pullUpdates later, then two
+   registrars coming up at the same time would both refuse to be a
+   pullUpdates server until after making a pullUpdates client call,
+   resulting in a temporary deadlock.  The deadlock would be fixed by a
+   subsequent reset, but that would be inefficient.
+
    The startup processing phase performs the following steps:
-   1.  Read the local persistent registry store.  If successful,
-       restores the synchronization state variables from the store as
-       follows:
-       *  The local DbUpdateNumber is set to the largest update number
-          in the database whose associated "primary" is the name of the
-          local system.
-       *  Each PeerReceivedDbUpdateNumber is set to the largest update
-          number in the database whose associated "primary" is the name
-          of the peer.
 
 
 
@@ -617,6 +617,15 @@ Lawrence, et al.                                               [Page 11]
                                sipXpbx HA                  December 2005
 
 
+   1.  Read the local persistent registry store.  If successful,
+       restores the synchronization state variables from the store as
+       follows:
+       *  The local DbUpdateNumber is set to the largest update number
+          in the database whose associated "primary" is the name of the
+          local system.
+       *  Each PeerReceivedDbUpdateNumber is set to the largest update
+          number in the database whose associated "primary" is the name
+          of the peer.
        *  Each PeerSentDbUpdateNumber is set to zero (for the time
           being, we assume that no updates have been propagated to the
           peers).  This initialization actually has no operational
@@ -655,15 +664,6 @@ Lawrence, et al.                                               [Page 11]
        effect of both systems marking each other as Reachable.  The
        PeerSentDbUpdateNumber is set to the returned update number.
 
-5.7.2.  Transition from Startup Phase to Operational Phase
-
-   At the end of the startup phase, the registry database contains all
-   available registration records.  To transition to the operational
-   phase: [[transition1: This needs some more thinking to get the order
-   correct and avoid thrashing. --Scott Lawrence]]
-   1.  Begin accepting registration and redirection SIP requests by
-       starting the threads:
-
 
 
 
@@ -673,6 +673,14 @@ Lawrence, et al.                                               [Page 12]
                                sipXpbx HA                  December 2005
 
 
+5.7.2.  Transition from Startup Phase to Operational Phase
+
+   At the end of the startup phase, the registry database contains all
+   available registration records.  To transition to the operational
+   phase: [[transition1: This needs some more thinking to get the order
+   correct and avoid thrashing. --Scott Lawrence]]
+   1.  Begin accepting registration and redirection SIP requests by
+       starting the threads:
        *  SipRegistrarServer (Section 5.7.3.1)
        *  SipRedirectServer
        *  SipUserAgent
@@ -713,14 +721,6 @@ Lawrence, et al.                                               [Page 12]
    peer.  Also see pushUpdates (Section 5.8.3).
 
    This transformation of the REGISTER before propagation is not a
-   direct expression of the rules in RFC 3261, as it does not process
-   "expire all" operations correctly in certain uncommon race
-   situations.  It does however ensure that the results of replication
-   are accurately defined (since the processing of the DB updates will
-   produce the same result regardless of the order in which they are
-   processed).  Even in cases where the RFC 3261 result is not produced,
-   the result is always the same as would be produced by the same
-   messages if they were received with certain small changes in their
 
 
 
@@ -729,6 +729,14 @@ Lawrence, et al.                                               [Page 13]
                                sipXpbx HA                  December 2005
 
 
+   direct expression of the rules in RFC 3261, as it does not process
+   "expire all" operations correctly in certain uncommon race
+   situations.  It does however ensure that the results of replication
+   are accurately defined (since the processing of the DB updates will
+   produce the same result regardless of the order in which they are
+   processed).  Even in cases where the RFC 3261 result is not produced,
+   the result is always the same as would be produced by the same
+   messages if they were received with certain small changes in their
    arrival times.  In other words, the race condition already exists in
    3261, and the registry replication does not introduce any problems
    that are not already there.
@@ -769,6 +777,14 @@ Lawrence, et al.                                               [Page 13]
    to periodically check the status of that peer.  Each time this timer
    expires, if the peer is still UnReachable (the status may have been
    changed by the peer calling registrarSync.reset) then RegistrarTest
+
+
+
+Lawrence, et al.                                               [Page 14]
+
+                               sipXpbx HA                  December 2005
+
+
    attempts to invoke the registerSync.reset (Section 5.8.2) XML-RPC
    method for the peer. [[checktimer: The initial timer value is TBD.]]
 
@@ -777,13 +793,6 @@ Lawrence, et al.                                               [Page 13]
    eighth of the maximum registration interval.  This prevents useless
    and possibly harmful traffic being injected into the network in the
    event that the loss of connectivity is traffic-related.
-
-
-
-Lawrence, et al.                                               [Page 14]
-
-                               sipXpbx HA                  December 2005
-
 
    A successful invocation of the registrarSync.reset method resets the
    state of the peer to Reachable and also resets the
@@ -825,6 +834,13 @@ Lawrence, et al.                                               [Page 14]
 
    Inputs:
 
+
+
+Lawrence, et al.                                               [Page 15]
+
+                               sipXpbx HA                  December 2005
+
+
                string  registrar_name  Owning registrar name
                i8      update_number
 
@@ -832,14 +848,6 @@ Lawrence, et al.                                               [Page 14]
    update number is greater than update_number.
 
    Outputs:
-
-
-
-
-Lawrence, et al.                                               [Page 15]
-
-                               sipXpbx HA                  December 2005
-
 
                struct
                  int        numberOfUpdates
@@ -881,14 +889,6 @@ Lawrence, et al.                                               [Page 15]
    database owned by the server: the PeerReceivedDbUpdateNumber in the
    client for the server.  This value becomes the PeerSentDbUpdateNumber
    in the server for the client registrar_name.  Note that this value
-   may be less than the current value for PeerSentDbUpdateNumber,
-   indicating that some previously sent values were lost.
-
-   Outputs:
-
-               i8  update_number
-
-   The returned update_number is the highest update number in the
 
 
 
@@ -897,6 +897,14 @@ Lawrence, et al.                                               [Page 16]
                                sipXpbx HA                  December 2005
 
 
+   may be less than the current value for PeerSentDbUpdateNumber,
+   indicating that some previously sent values were lost.
+
+   Outputs:
+
+               i8  update_number
+
+   The returned update_number is the highest update number in the
    server's database owned by the client: the PeerReceivedDbUpdateNumber
    in the server for the client.  The client sets PeerSentDbUpdateNumber
    for the server to this value.  A successful return indicates that the
@@ -937,14 +945,6 @@ Lawrence, et al.                                               [Page 16]
 
                i8    update_number
 
-   The returned update_number is equal to the sent update number (it is
-   just an acknowledgement); this value is used to update the callers
-   PeerSentDbUpdateNumber for the server.
-
-   The server *must* return a fault if this method is invoked by a peer
-   that is currently considered UnReachable, or when the server is not
-   in the Operational phase.  This is because the update numbers are not
-   synchronized under these conditions; they are resynchronized by the
 
 
 
@@ -953,6 +953,14 @@ Lawrence, et al.                                               [Page 17]
                                sipXpbx HA                  December 2005
 
 
+   The returned update_number is equal to the sent update number (it is
+   just an acknowledgement); this value is used to update the callers
+   PeerSentDbUpdateNumber for the server.
+
+   The server *must* return a fault if this method is invoked by a peer
+   that is currently considered UnReachable, or when the server is not
+   in the Operational phase.  This is because the update numbers are not
+   synchronized under these conditions; they are resynchronized by the
    registrarSync.reset method.
 
    If this method returns any fault, the client marks the server as
@@ -993,6 +1001,14 @@ Lawrence, et al.                                               [Page 17]
    as described in Section 3.  Using that mechanism, and assuming the
    phones support SRV record names in Record-Routes correctly, then in-
    dialog requests (like 'on/off hold') would fail over from one
+
+
+
+Lawrence, et al.                                               [Page 18]
+
+                               sipXpbx HA                  December 2005
+
+
    authproxy to another. *But phones that could not process an SRV name
    in a Record-Route would be unable to perform any in-dialog requests.*
 
@@ -1004,7 +1020,47 @@ Lawrence, et al.                                               [Page 17]
 
 
 
-Lawrence, et al.                                               [Page 18]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lawrence, et al.                                               [Page 19]
 
                                sipXpbx HA                  December 2005
 
@@ -1060,5 +1116,5 @@ Authors' Addresses
 
 
 
-Lawrence, et al.                                               [Page 19]
+Lawrence, et al.                                               [Page 20]
 

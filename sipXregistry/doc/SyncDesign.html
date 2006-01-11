@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Thu, 05 Jan 2006 23:47:41 +0000">
+<meta http-equiv="Expires" content="Wed, 11 Jan 2006 19:08:21 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -1008,6 +1008,18 @@ Authors' Addresses<br />
             consider the target of the request to be UnReachable.  This is
             corrected by the <a class="info" href="#reset">registrarSync.reset<span> (</span><span class="info">registrarSync.reset method</span><span>)</span></a> during the <a class="info" href="#transition">transition from startup to operational
             phase<span> (</span><span class="info">Transition from Startup Phase to Operational Phase</span><span>)</span></a>.
+          
+</p>
+<p>
+            The registrarSync.pullUpdates method is registered (server-side
+            activation) during the 
+            startup phase, before calling pullUpdates on peer registrars.
+            This allows registrars coming up at the same time to synchronize.
+            If we registered pullUpdates later, then two 
+            registrars coming up at the same time would both refuse to be a 
+            pullUpdates server until after making a pullUpdates client 
+            call, resulting in a temporary deadlock. The deadlock would be fixed by 
+            a subsequent reset, but that would be inefficient.
           
 </p>
 <p>
