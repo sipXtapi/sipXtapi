@@ -3,7 +3,7 @@ include $(top_builddir)/config/sipXcommon.mak
 
 include $(srcdir)/config/sipXprojtop.mak
 
-SUBDIRS = . js src bin include $(doc_SUBDIRS)
+SUBDIRS = . js src bin include meta $(doc_SUBDIRS)
 
 INSTALL = @INSTALL@
 
