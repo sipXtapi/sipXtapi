@@ -16,6 +16,11 @@ Requires: sipxcommserverlib >= 3.1
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
+# kingkonf upgrade support
+# should match sipXlib.m4:SIPX_UPGRADEDIR
+%define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
+%define this_archive %{name}-%{version}-%{release}.tgz
+
 %description
 sipXregistry is the registry/redirect server component of the sipX family. 
 It shares a number of common components with the rest of the family, but
@@ -51,6 +56,14 @@ make
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
+# kingkonf upgrade support
+%define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
+mkdir -p %{upgrade_archive_root}
+tar --directory ${RPM_BUILD_ROOT} \
+    -czf %{upgrade_archive_root}/%{this_archive} \
+    etc \
+    var/sipxdata
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -76,6 +89,10 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipdb/alias.xml
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/sipdb/huntgroup.xml
 
+# kingkonf upgrade support
+%{upgrade_archive_dir}/%{this_archive}
+%{upgrade_archive_dir}/%{name}-previous.tgz
+
 %files devel
 %defattr(644,root,root,755)
 %doc %{_datadir}/doc/sipx/%name/*
@@ -88,5 +105,12 @@ sipx-upgrade -p sipxregistry -c
 %post
 sipx-upgrade -p sipxregistry -u --sdir %{_localstatedir} --cdir %{_sysconfdir}
 
+# kingkonf upgrade support
+%define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
+%define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
+if [ -f %{current_archive} ]; then
+  mv %{current_archive} %{previous_archive}
+fi
+mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 
-
+pkg-upgrade --previous %{previous_archive} --current %{current_archive}
