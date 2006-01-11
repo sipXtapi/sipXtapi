@@ -19,12 +19,14 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
+import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.components.LocalizedTableRendererSource;
 
-public abstract class Services extends BasePage {
+public abstract class Services extends BasePage implements PageRenderListener {
     public static final String PAGE = "Services";
     private static final String STATUS_COLUMN = "status";
 
@@ -36,13 +38,19 @@ public abstract class Services extends BasePage {
 
     public abstract Collection getServicesToRestart();
 
-    // TODO: this should be selected by the user
-    public Location getServiceLocation() {
-        Location[] locations = getSipxProcessContext().getLocations();
-        if (locations == null || locations.length < 1) {
-            return null;
+    public abstract Location getServiceLocation();
+
+    public abstract void setServiceLocation(Location location);
+
+    public void pageBeginRender(PageEvent event_) {
+        Location location = getServiceLocation();
+        if (location != null) {
+            return;
         }
-        return locations[0];
+        Location[] locations = getSipxProcessContext().getLocations();
+        if (locations.length > 0) {
+            setServiceLocation(locations[0]);
+        }
     }
 
     public ITableColumn getStatusColumn() {

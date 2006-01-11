@@ -19,19 +19,45 @@
     	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>  	
 	<property-specification name="servicesToStart" type="java.util.Collection"/>    
 	<property-specification name="servicesToStop" type="java.util.Collection"/>    
-	<property-specification name="servicesToRestart" type="java.util.Collection"/>    
+	<property-specification name="servicesToRestart" type="java.util.Collection"/>
+    
+    <property-specification name="serviceLocation" type="org.sipfoundry.sipxconfig.admin.commserver.Location"/>    
     
 	<!--
 	  - B E A N S
 	  -->
-    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="page"/>
+    
+    <bean name="locationModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="request">
+        <set-property name="array" expression="sipxProcessContext.locations"/>
+        <set-property name="labelExpression" expression="'id'"/>
+    </bean>
+    
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>    
     
 	<!--
 	  - C O M P O N E N T S
 	  -->
 	<component id="form" type="Form">
         <binding name="listener" expression="listeners.formSubmit"/>
+        <binding name="delegate" expression="beans.validator"/>
     </component>
+    
+    <component id="locationPanel" type="FieldPanel">
+        <binding name="field" expression="components.locationSelection"/>
+        <message-binding name="label" key="label.locations"/>
+        <message-binding name="description" key="description.locations"/>
+    </component>
+    <component id="locationSelection" type="PropertySelection">
+        <binding name="value" expression="serviceLocation"/>
+        <binding name="model" expression="beans.locationModel"/>
+        <binding name="submitOnChange" expression="true"/>
+    </component>
+    
+    <component id="renderLocation" type="contrib:FormConditional">
+        <binding name="condition" expression="sipxProcessContext.locations.length > 0"/>
+    </component>
+    
     <component id="tableView" type="contrib:TableView">
         <binding name="source" expression="sipxProcessContext.getStatus(serviceLocation)"/>
         <static-binding name="pageSize" value="-1"/>

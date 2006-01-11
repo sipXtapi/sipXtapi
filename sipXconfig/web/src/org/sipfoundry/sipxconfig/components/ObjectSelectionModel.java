@@ -35,6 +35,10 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
     public void setCollection(Collection objects) {
         m_objects = objects.toArray();
     }
+    
+    public void setArray(Object[] objects) {
+        m_objects = (Object[]) objects.clone();        
+    }
 
     /**
      * Will run expression on each object in collection to build label text
