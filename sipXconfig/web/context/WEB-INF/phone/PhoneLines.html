@@ -5,14 +5,20 @@
 <body jwcid="$content$">
 	<div jwcid="@Border">
 		<span jwcid="editPhoneNavigation">
-                Phones can register with multiple identities with different registration servers or even 
-                the same registration server. For example, if you want to receive calls for both jsmith@mycompany.com 
-                and sales@mycompany.com with the same registration server, and you want to receive calls 
-                from snowboarder113@fwd.com, you would enter all that information here.
+                <p>To handle calls for multiple people or identities add lines for those users by 
+                clicking on the <strong>Add Line</strong> link.  If your users are not managed
+                by this PBX, for example Vonage, FWD or separate internal server,
+                click on <strong>Add External Line</strong>.</p>
+                <p>An common and convenient alternative to adding lines to phones, is to create a 
+                call group that will send calls to a list of users all at once or a specified 
+                sequence.</p>
         </span>
         <div id="settings-content">
 			<form jwcid="editLinesForm">
 				<ul class="component-links">
+					<li>
+						<a href="#" id="AddExternalLine" jwcid="addExternalLineLink">Add External Line</a>
+					</li>
 					<li>
 						<a href="#" id="AddUser" jwcid="addLineLink">Add Line</a>
 					</li>

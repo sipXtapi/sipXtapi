@@ -33,6 +33,10 @@ public class KPhoneTest extends TestCase {
         InputStream expectedProfile = getClass().getResourceAsStream("default-kphonerc");
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
+        
+        // Display name because value comes from LineSettings now, not User object
+        // kphone does not store Dsiplay name directory, but uses it as part of URI
+        // would need a URI parser to get it back.
         assertEquals(expected, actualWriter.toString());
     }
 }

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.line.AddExternalLine">
+    <description>add a description</description>
+    
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback" 
+    	persistent="yes"/>   
+    <property-specification name="phoneId"
+        type="java.lang.Integer"
+        persistent="yes"/>
+    <property-specification name="phone"
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="settings"
+        type="org.sipfoundry.sipxconfig.phone.LineSettings"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
+    
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>
+    <bean name="registrationServerValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>
+        
+    <component id="formActions" type="FormActions">
+        <binding name="listener" expression="listeners.apply"/>
+        <binding name="callback" expression="callback"/>
+    </component>
+    <component id="displayIdLabel" type="FieldLabel">
+        <binding name="field" expression="components.displayId"/>
+    </component>
+    <component id="displayId" type="ValidField">
+	    <binding name="value" expression="settings.displayName"/>
+    	<binding name="validator" expression="beans.nameValidator"/>
+        <message-binding name="displayName" key="label.displayName"/>
+    </component>
+    <component id="userIdLabel" type="FieldLabel">
+        <binding name="field" expression="components.userId"/>
+    </component>
+    <component id="userId" type="ValidField">
+	    <binding name="value" expression="settings.userId"/>
+    	<binding name="validator" expression="beans.nameValidator"/>
+        <message-binding name="displayName" key="label.userId"/>
+    </component>
+    <component id="passwordLabel" type="FieldLabel">
+        <binding name="field" expression="components.password"/>
+        <message-binding name="displayName" key="label.password"/>
+    </component>
+    <component id="password" type="TextField">
+	    <binding name="value" expression="settings.password"/>
+        <static-binding name="hidden" value="true"/>
+    </component>
+    <component id="registrationServerLabel" type="FieldLabel">
+        <binding name="field" expression="components.registrationServer"/>
+    </component>
+    <component id="registrationServer" type="ValidField">
+	    <binding name="value" expression="settings.registrationServer"/>
+    	<binding name="validator" expression="beans.registrationServerValidator"/>
+        <message-binding name="displayName" key="label.registrationServer"/>
+    </component>
+    <component id="voiceMailLabel" type="FieldLabel">
+        <binding name="field" expression="components.voiceMail"/>
+        <message-binding name="displayName" key="label.voiceMail"/>
+    </component>
+    <component id="voiceMail" type="TextField">
+	    <binding name="value" expression="settings.voiceMail"/>
+    </component>
+    
+</page-specification>

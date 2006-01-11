@@ -41,6 +41,10 @@
         <binding name="selections" expression="selections"/>
         <binding name="convertor" expression="idConverter"/>
     </component>
+    <component id="addExternalLineLink" type="DirectLink">
+        <binding name="listener" expression="listeners.addExternalLine"/>
+        <binding name="parameters" expression="phone.id"/>
+    </component>
     <component id="addLineLink" type="DirectLink">
         <binding name="listener" expression="listeners.addLine"/>
         <binding name="parameters" expression="phone.id"/>
@@ -49,6 +53,7 @@
     <component id="editLineLink" type="DirectLink">
         <binding name="listener" expression="listeners.editLine"/>
         <binding name="parameters" expression="currentRow.id"/>
+        <binding name="id" expression="'link:line' + currentRow.position"/>
     </component>
     <component id="lineLabel" type="Insert"> 
         <binding name="value" expression="currentRow.uri"/>

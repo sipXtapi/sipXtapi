@@ -28,7 +28,7 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="BulkImport" specification-path="admin/BulkImport.page"/>    <page name="EditUpload" specification-path="upload/EditUpload.page"/>    
+    <page name="AddExternalLine" specification-path="line/AddExternalLine.page"/>    <page name="BulkImport" specification-path="admin/BulkImport.page"/>    <page name="EditUpload" specification-path="upload/EditUpload.page"/>    
     <page name="ManageUploads" specification-path="upload/ManageUploads.page"/>    
     <page name="SearchPage" specification-path="search/SearchPage.page"/>    
     <page name="ListBridges" specification-path="conference/ListBridges.page"/>    

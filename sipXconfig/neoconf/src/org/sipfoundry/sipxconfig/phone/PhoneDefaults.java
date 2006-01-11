@@ -152,18 +152,22 @@ public class PhoneDefaults {
                 settings.setVoiceMail(getVoiceMail());
             }
         }
-
-        if (user != null) {
-            line.setUri(getUri(user));
-        }
     }
 
-    public String getUri(User user) {
+    public String getUri(LineSettings settings) {        
         StringBuffer sb = new StringBuffer();
-        sb.append("sip:").append(user.getUserName());
-        sb.append('@').append(m_domainName);
+        sb.append("sip:").append(settings.getUserId());
+        
+        // HACK: Although getDomainName may make more sense, in practice 
+        // phones do not store domain name and therefore would return
+        // null.  This is because LineSettings is typically backed by 
+        // SettingBeanAdapter and setX(foo) does not always mean foo == getX()
+        // if there's no mapping. All phones need a registration server.
+        // Real fix might be to remove SettingBeanAdapter with something more
+        // flexible
+        sb.append('@').append(settings.getRegistrationServer());
 
-        String displayName = user.getDisplayName();
+        String displayName = settings.getDisplayName();
         if (displayName != null) {
             sb.insert(0, "\"" + displayName + "\"<").append(">");
         }
