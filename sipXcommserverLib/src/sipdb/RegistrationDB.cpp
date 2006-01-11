@@ -338,8 +338,8 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
     // (representing a null IMDB column)
     UtlString qvalue = *((UtlString*)nvPairs.findValue(&gQvalueKey));
 
-    UtlString updateNumberStr = *((UtlString*)nvPairs.findValue(&gUpdateNumberKey));
-    intll updateNumber = (intll) strtoll(updateNumberStr, 0, 0);
+    UtlString* updateNumberStr = dynamic_cast<UtlString*>(nvPairs.findValue(&gUpdateNumberKey));
+    intll updateNumber = (updateNumberStr ? strtoll(updateNumberStr->data(), 0, 0) : 0);
 
     // Get the remaining fields so that we can substitute the null string
     // if the fetched value is 0 (the null pointer) because the field
