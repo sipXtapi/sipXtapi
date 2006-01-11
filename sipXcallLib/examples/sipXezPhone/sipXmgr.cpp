@@ -142,7 +142,7 @@ UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const boo
     {
         return false;
     }
-    
+    OsTask::delay(2000);
     if (SIPX_RESULT_SUCCESS != sipxLineAdd(m_hInst, sipXezPhoneSettings::getInstance().getIdentity(), &m_hLine))
     {
         return false;
@@ -156,6 +156,7 @@ UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const boo
         return false;
     }
 
+    OsTask::delay(2000);
     if (SIPX_RESULT_SUCCESS != sipxLineRegister(m_hLine, true))
     {
         return false;
