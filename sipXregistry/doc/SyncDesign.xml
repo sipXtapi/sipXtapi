@@ -1109,12 +1109,15 @@
         <t>Inputs:
         <figure>
           <artwork>
-            string  registrar_name  Owning registrar name
-            i8      update_number   
+            string  callingRegistrar         Calling registrar name
+            string  primaryRegistrar         Primary registrar name
+            i8      updateNumber   
           </artwork>
         </figure>
-        The server is asked to send all updates for the registrar_name
-        whose update number is greater than update_number.
+        The server is asked to send all updates for which primaryRegistrar is primary
+        and whose update number is greater than updateNumber.  The callingRegistrar
+        input is used for authentication.  RPC requests are only accepted from configured
+        peers.
         </t>
 
         <t>
@@ -1122,7 +1125,7 @@
           <figure>
             <artwork>
             struct
-              int        numberOfUpdates
+              int        numUpdates
               array      updates
                struct    row
                  string  uri
@@ -1131,17 +1134,17 @@
                  string  contact 
                  int     expires
                  string  qvalue
-                 string  instance_id
+                 string  instanceId
                  string  gruu
                  string  primary
-                 i8      update_number
+                 i8      updateNumber
             </artwork>
           </figure>
 
-          The numberOfUpdates is the number of rows in the update array.
+          numUpdates is the number of rows in the update array.
         </t>
         <t>
-          A returned numberOfUpdates of zero indicates that the server has no
+          A returned numUpdates of zero indicates that the server has no
           rows in its database for the primary registrar_name greater than
           the requested value; the records for the specified primary
           registrar are synchronized. 
@@ -1166,15 +1169,15 @@
           Inputs:
           <figure>
             <artwork>
-            string   registrar_name  The clients name
-            i8       update_number   
+            string  callingRegistrar          Calling registrar name
+            i8      updateNumber   
             </artwork>
           </figure>
-          The sent update_number is the highest update number in the
+          The sent updateNumber is the highest update number in the
           clients database owned by the server: the
           PeerReceivedDbUpdateNumber in the client for the server.  This
           value becomes the PeerSentDbUpdateNumber in the server for the
-          client registrar_name.  Note that this value may be less than the
+          callingRegistrar client.  Note that this value may be less than the
           current value for PeerSentDbUpdateNumber, indicating that some
           previously sent values were lost.
         </t>
@@ -1182,10 +1185,10 @@
           Outputs:
           <figure>
             <artwork>
-            i8  update_number
+            i8  updateNumber
             </artwork>
           </figure>
-          The returned update_number is the highest update number in the
+          The returned updateNumber is the highest update number in the
           server's database owned by the client: the
           PeerReceivedDbUpdateNumber in the server for the client.  The
           client sets PeerSentDbUpdateNumber for the server to this value.
@@ -1214,7 +1217,7 @@
           Inputs:
           <figure>
             <artwork>
-            string    registrar_name          Calling registrar name
+            string    callingRegistrar  Calling registrar name
             array     updates
               struct  row
                 string  uri
@@ -1223,24 +1226,24 @@
                 string  contact 
                 int     expires
                 string  qvalue
-                string  instance_id
+                string  instanceId
                 string  gruu
                 string  primary
-                i8      update_number
+                i8      updateNumber
             </artwork>
           </figure>
-          All rows in the updates array MUST have the same update_number,
+          All rows in the updates array MUST have the same updateNumber,
           and MUST be the complete set of rows from the caller's database
-          that have that update_number.
+          that have that updateNumber.
         </t>
         <t>
           Outputs:
           <figure>
             <artwork>
-            i8    update_number
+            i8    updateNumber
             </artwork>
           </figure>
-          The returned update_number is equal to the sent update number (it
+          The returned updateNumber is equal to the sent update number (it
           is just an acknowledgement); this value is used to update the
           callers PeerSentDbUpdateNumber for the server.
         </t>
@@ -1262,7 +1265,7 @@
           The update rows are applied to the local database as specified in
           <xref target='applyUpdatesToDirectory'>applyUpdatesToDirectory</xref>.  Note that whether or not any
           rows from this call are applied to the database, the
-          PeerReceivedDbUpdateNumber is set to the update_number and that
+          PeerReceivedDbUpdateNumber is set to the updateNumber and that
           value is returned.  Because the PeerReceivedDbUpdateNumber is not
           persisted locally other than as a side effect of rows in the
           database, then a registry service reset following an update of
