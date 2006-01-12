@@ -14,12 +14,12 @@
 // APPLICATION INCLUDES
 #include "net/Url.h"
 #include "utl/UtlString.h"
+#include "os/OsBSem.h"
 
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class OsBSem;
 
 /**
  * A peer registrar is another registry server in the same SIP domain

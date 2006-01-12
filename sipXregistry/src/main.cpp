@@ -224,7 +224,7 @@ initSysLog(OsConfigDb* pConfig)
    if ((pConfig->get(CONFIG_SETTING_LOG_LEVEL, logLevel) != OS_SUCCESS) ||
        logLevel.isNull())
    {
-      logLevel = "ERR";
+      logLevel = "NOTICE";
    }
    logLevel.toUpper();
    OsSysLogPriority priority = PRI_ERR;
@@ -338,35 +338,59 @@ main(int argc, char* argv[] )
       OsPathBase::separator +
       CONFIG_SETTINGS_FILE;
 
-   configDb.loadFromFile(fileName) ;
+   bool configLoaded = ( configDb.loadFromFile(fileName) == OS_SUCCESS );
+   if (!configLoaded)
+   {
+      configDb.set("SIP_REGISTRAR_UDP_PORT", "5070");
+      configDb.set("SIP_REGISTRAR_TCP_PORT", "5070");
+      configDb.set("SIP_REGISTRAR_TLS_PORT", "5071");
+      configDb.set("SIP_REGISTRAR_PROXY_PORT", "5060");
+      configDb.set("SIP_REGISTRAR_MAX_EXPIRES", "");
+      configDb.set("SIP_REGISTRAR_MIN_EXPIRES", "");
+      configDb.set("SIP_REGISTRAR_DOMAIN_NAME", "");
+      //configDb.set("SIP_REGISTRAR_AUTHENTICATE_SCHEME", "");
+      configDb.set("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", "");
+      configDb.set("SIP_REGISTRAR_AUTHENTICATE_QOP", "");
+      configDb.set("SIP_REGISTRAR_AUTHENTICATE_REALM", "");
+
+      configDb.set("SIP_REGISTRAR_MEDIA_SERVER", "");
+      configDb.set("SIP_REGISTRAR_VOICEMAIL_SERVER", "");
+      configDb.set(CONFIG_SETTING_LOG_DIR, "");
+      configDb.set(CONFIG_SETTING_LOG_LEVEL, "");
+      configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
+   }
+
    initSysLog(&configDb) ;
-
-
+   OsSysLog::add(FAC_SIP, PRI_NOTICE,
+                 "SipRegistrar >>>>>>>>>>>>>>>> STARTED"
+                 );
+   if (configLoaded)
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO, "Read config %s", fileName.data());
+   }
+   else
+   {
+      if (configDb.storeToFile(fileName) == OS_SUCCESS)
+      {
+         OsSysLog::add( FAC_SIP, PRI_INFO, "Default config written to: %s",
+                       fileName.data()
+                       );
+      }
+      else
+      {
+         OsSysLog::add( FAC_SIP, PRI_ERR, "Default config write failed to: %s",
+                       fileName.data());
+      }
+   }
+      
    // Fetch Pointer to the OsServer task object, note that
    // object uses the IMDB so it is important to shut this thread
    // cleanly before the signal handler exits
-   SipRegistrar* registrar = SipRegistrar::getInstance();
+   SipRegistrar* registrar = SipRegistrar::getInstance(&configDb, fileName);
 
    pServerTask = static_cast<OsServerTask*>(registrar);
 
-   /////////////////////////////////////////////////////////////////////////
-   //        THIS IS A HACK TO GET AROUND THE IMDB LOCKUP. WE'D LIKE TO   //
-   //        FIGURE OUT AND FIX THE PROBLEM EVENTUALLY                    //
-   // (actually we think we've fixed this, so this can probably be removed//
-   // The following line forces to load the  ExtensionDB, will keep until //
-   // closeIMDBConnections is called.                                     //
-   //                                                                     //
-   ExtensionDB* pExtensionDB = ExtensionDB::getInstance();
-   //                                                                     //
-   /////////////////////////////////////////////////////////////////////////
-
-   if (NULL == pExtensionDB) {
-      // Ha! now the compiler will stop complaining about pExtensionDB
-      // being an unused local variable...
-      printf("pExtensionDB = %p\n", pExtensionDB);
-   }
-
-   // Do not exit, let the proxy do its stuff
+   // Do not exit, let the services run...
    while( !gShutdownFlag )
    {
       if ( interactiveSet)
@@ -384,10 +408,6 @@ main(int argc, char* argv[] )
             {
                OsSysLog::enableConsoleOutput(FALSE);
             }
-            else
-            {
-               registrar->printMessageLog();
-            }
          }
       }
       else
@@ -398,7 +418,6 @@ main(int argc, char* argv[] )
 
    // Remove the current process's row from the IMDB
    // Persisting the database if necessary
-   cout << "Cleaning Up..Start." << endl;
 
    // This is a server task so gracefully shutdown the
    // server task using the waitForShutdown method, this
@@ -418,8 +437,6 @@ main(int argc, char* argv[] )
 
    // Flush the log file
    OsSysLog::flush();
-
-   cout << "Cleanup...Finished" << endl;
 
    return 0;
 }

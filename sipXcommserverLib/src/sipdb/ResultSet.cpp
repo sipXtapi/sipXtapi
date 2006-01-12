@@ -67,7 +67,7 @@ ResultSet::getIndex(
     UtlHashMap& rRecord) const
 {
     // empty out the record before populating it
-    // they are not mine to destroy so don't destry them
+    // they are not mine to destroy so don't destroy them
     assert(rRecord.isEmpty());
     // :TODO: rRecord.removeAll();
 

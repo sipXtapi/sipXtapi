@@ -42,24 +42,14 @@ class PluginHooks;
 class SipRegistrarServer : public OsServerTask
 {
 public:
-    /**
-     * Initialized the Registration Server
-     */
-    UtlBoolean initialize(
-        SipUserAgent* SipUserAgent,
-        PluginHooks* sipRegisterPlugins,
-        int defaultRegistryPeriod,
-        const UtlString& minExpiresTime,
-        const UtlString& defaultDomain,
-        const UtlString& domainAliases,
-        int              proxyNormalPort,
-        const UtlBoolean& useCredentialDB,
-        const UtlString& realm);
+    /// Construct the thread to process REGISTER requests.
+    SipRegistrarServer(OsConfigDb*   pOsConfigDb,  ///< Configuration parameters
+                       SipUserAgent* pSipUserAgent ///< User Agent to use when sending responses
+                       );
 
-    /** ctor */
-    SipRegistrarServer();
+    /// Initialize the Registration Server
+    void initialize(OsConfigDb& configDb);
 
-    /** dtor */
     virtual ~SipRegistrarServer();
 
     /**
@@ -67,13 +57,13 @@ public:
      */
     enum RegisterStatus
     {
-        REGISTER_SUCCESS = 0,
-        REGISTER_LESS_THAN_MINEXPIRES ,
-        REGISTER_INVALID_REQUEST,
-        REGISTER_FORBIDDEN,
-        REGISTER_NOT_FOUND,
-        REGISTER_OUT_OF_ORDER,
-        REGISTER_QUERY
+        REGISTER_SUCCESS = 0,           ///< contacts updated
+        REGISTER_LESS_THAN_MINEXPIRES , ///< requested duration to short
+        REGISTER_INVALID_REQUEST,       ///< some other error
+        REGISTER_FORBIDDEN,             ///< authenticated id not valid for AOR
+        REGISTER_NOT_FOUND,             ///< no contacts match AOR
+        REGISTER_OUT_OF_ORDER,          ///< newer data already in registry database
+        REGISTER_QUERY                  ///< request is a valid query for current contacts
     };
 
 protected:
@@ -82,7 +72,7 @@ protected:
     int mDefaultRegistryPeriod;
     UtlString mMinExpiresTimeStr;
     int mMinExpiresTimeint;
-    UtlBoolean mIsCredentialDB;
+    bool mUseCredentialDB;
     UtlString mRealm;
 
     UtlString mDefaultDomain;
@@ -106,48 +96,36 @@ protected:
     // this value from the configuration
     static const UtlString gDummyLocalRegistrarName;
 
-    /**
-     *
-     * @param timeNow
-     * @param registerMessage
-     *
-     * @return
-     */
+    /// Validate bindings, and if all are ok apply them to the registry db
     RegisterStatus applyRegisterToDirectory(
-        const Url& toUrl,
-        const int timeNow,
-        const SipMessage& registerMessage );
+        const Url& toUrl,  ///< AOR from the message
+        const int timeNow, ///< base time for all expiration calculations
+        const SipMessage& registerMessage ///< message containing bindings
+                                            );
 
-    /**
-     *
-     * @param eventMessage
-     *
-     * @return
-     */
+    // Process a single REGISTER request
     UtlBoolean handleMessage( OsMsg& eventMessage );
 
-    /**
-     *
-     * @param message
-     * @param responseMessage
-     *
+    /// Check authentication for REGISTER request
+    UtlBoolean isAuthorized(const Url& toUrl, ///< AOR from the message
+                            const SipMessage& message, ///< REGISTER message
+                            SipMessage& responseMessage /// response for challenge
+                            );
+    /**<
      * @return
+     * - true if request is authenticated as user for To address
+     * - false if not (responseMessage is then set up as a challenge)
      */
-    UtlBoolean isAuthorized(
-        const Url& toUrl,
-        const SipMessage& message,
-        SipMessage& responseMessage );
 
-    /**
-     *
-     * @param message
-     * @param responseMessage
-     *
+    // Is the target of this message this domain?
+    UtlBoolean isValidDomain(const SipMessage& message,///< REGISTER message
+                             SipMessage& responseMessage /// response if not valid
+                             );
+    /**<
      * @return
+     * - true if request is targetted to this domain
+     * - false if not (responseMessage is then set up as an error response)
      */
-    UtlBoolean isValidDomain(
-        const SipMessage& message,
-        SipMessage& responseMessage );
 
     /**
      * Configure a domain as valid for registration at this server.

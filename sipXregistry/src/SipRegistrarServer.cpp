@@ -49,9 +49,12 @@
 // CONSTANTS
 const RegEx RegQValue("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); // syntax for a valid q parameter value
 
+#define MIN_EXPIRES_TIME 300
+#define HARD_MINIMUM_EXPIRATION 60
+const char DEFAULT_EXPIRATION_TIME[] = "7200";
+
 // STRUCTS
 // TYPEDEFS
-#define MIN_EXPIRES_TIME 300
 
 // FORWARD DECLARATIONS
 // GLOBAL VARIABLES
@@ -67,69 +70,87 @@ static UtlString gGruuKey("gruu");
 
 const UtlString SipRegistrarServer::gDummyLocalRegistrarName("dummy.somewhere.com");
 
-SipRegistrarServer::SipRegistrarServer() :
-    OsServerTask("SipRegistrarServer", NULL, 2000),
+SipRegistrarServer::SipRegistrarServer(OsConfigDb*   pOsConfigDb,  ///< Configuration parameters
+                                       SipUserAgent* pSipUserAgent ///< User Agent to use when sending responses
+                                       ) :
+    OsServerTask("SipRegistrarServer", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
     mIsStarted(FALSE),
-    mSipUserAgent(NULL),
-    mDefaultRegistryPeriod(3600),
+    mSipUserAgent(pSipUserAgent),
+    mDefaultRegistryPeriod(),
     mNonceExpiration(5*60),
     mDbUpdateNumber(0)
 {
-    // Set up a periodic timer for nonce garbage collection
-    OsMsgQ* queue = getMessageQueue();
-    OsQueuedEvent* queuedEvent = new OsQueuedEvent(*queue, 0);
-    OsTimer* timer = new OsTimer(*queuedEvent);
-    // Once a minute
-    OsTime lapseTime(60, 0);
-    timer->periodicEvery(lapseTime, lapseTime);
+   initialize(*pOsConfigDb);
 }
 
-UtlBoolean
-SipRegistrarServer::initialize(
-    SipUserAgent* SipUserAgent,
-    PluginHooks* sipRegisterPlugins,
-    int defaultRegistryPeriod,
-    const UtlString& minExpiresTime,
-    const UtlString& defaultDomain,
-    const UtlString& domainAliases,
-    int              proxyNormalPort,
-    const UtlBoolean& useCredentialDB,
-    const UtlString& realm)
+void
+SipRegistrarServer::initialize(OsConfigDb& configDb)
 {
-    if ( !mIsStarted )
-    {
-        //start the thread
-        start();
-    }
 
-    if ( !minExpiresTime.isNull() )
+    // Minimum Registration Time
+    configDb.get("SIP_REGISTRAR_MIN_EXPIRES", mMinExpiresTimeStr);
+    if ( mMinExpiresTimeStr.isNull() )
     {
-        mMinExpiresTimeStr.append(minExpiresTime);
-        mMinExpiresTimeint = atoi(minExpiresTime.data());
+        mMinExpiresTimeint = atoi(mMinExpiresTimeStr.data());
 
         if ( mMinExpiresTimeint < 60 )
         {
-            mMinExpiresTimeint = 60;
-            mMinExpiresTimeStr = "60";
+           OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         "SipRegistrarServer "
+                         "configured minimum (%d) < hard minimum (%d); set to hard minimum",
+                         mMinExpiresTimeint, HARD_MINIMUM_EXPIRATION
+                         );
+            mMinExpiresTimeint = HARD_MINIMUM_EXPIRATION;
+            char min[10];
+            sprintf(min, "%d", HARD_MINIMUM_EXPIRATION);
+            mMinExpiresTimeStr = min;
         }
     }
 
-    if ( defaultRegistryPeriod > mMinExpiresTimeint )
+    // Maximum/Default Registration Time
+    UtlString maxExpiresTimeStr;
+    configDb.get("SIP_REGISTRAR_MAX_EXPIRES", maxExpiresTimeStr);
+    if ( maxExpiresTimeStr.isNull() )
     {
-        mDefaultRegistryPeriod = defaultRegistryPeriod;
+       maxExpiresTimeStr = DEFAULT_EXPIRATION_TIME;
+    }
+    int maxExpiresTime = atoi(maxExpiresTimeStr.data());
+    if ( maxExpiresTime >= mMinExpiresTimeint )
+    {
+        mDefaultRegistryPeriod = maxExpiresTime;
+    }
+    else 
+    {
+       OsSysLog::add(FAC_SIP, PRI_WARNING,
+                     "SipRegistrarServer "
+                     "configured maximum (%d) < minimum (%d); set to minimum",
+                     maxExpiresTime, mMinExpiresTimeint
+                     );
+       mDefaultRegistryPeriod = mMinExpiresTimeint;
     }
 
-    if ( !defaultDomain.isNull() )
+    // Domain Name
+    configDb.get("SIP_REGISTRAR_DOMAIN_NAME", mDefaultDomain);
+    if ( mDefaultDomain.isNull() )
     {
-        mDefaultDomain.remove(0);
-        mDefaultDomain.append(defaultDomain);
-        Url defaultDomainUrl(mDefaultDomain);
-        mDefaultDomainPort = defaultDomainUrl.getHostPort();
-        defaultDomainUrl.getHostAddress(mDefaultDomainHost);
-
-        addValidDomain(mDefaultDomainHost, mDefaultDomainPort);
+       OsSocket::getHostIp(&mDefaultDomain);
+       OsSysLog::add(FAC_SIP, PRI_CRIT,
+                     "SIP_REGISTRAR_DOMAIN_NAME not configured using IP '%s'",
+                     mDefaultDomain.data()
+                     );
     }
+    // get the url parts for the domain
+    Url defaultDomainUrl(mDefaultDomain);
+    mDefaultDomainPort = defaultDomainUrl.getHostPort();
+    defaultDomainUrl.getHostAddress(mDefaultDomainHost);
+    // make sure that the unspecified domain name is also valid
+    addValidDomain(mDefaultDomainHost, mDefaultDomainPort);
 
+    // Domain Aliases
+    //   (other domain names that this registrar accepts as valid in the request URI)
+    UtlString domainAliases;
+    configDb.get("SIP_REGISTRAR_DOMAIN_ALIASES", domainAliases);
+    
     UtlString aliasString;
     int aliasIndex = 0;
     while(NameValueTokenizer::getSubField(domainAliases.data(), aliasIndex,
@@ -144,27 +165,37 @@ SipRegistrarServer::initialize(
        aliasIndex++;
     }
 
-    if ( !realm.isNull() )
-    {
-        mRealm.remove(0);
-        mRealm.append(realm);
-    }
+    // Authentication Realm Name
+    configDb.get("SIP_REGISTRAR_AUTHENTICATE_REALM", mRealm);
 
-    mProxyNormalPort = proxyNormalPort;
-    
-    mIsCredentialDB = useCredentialDB;
-    mpSipRegisterPlugins = sipRegisterPlugins;
-    
-    if ( SipUserAgent )
+    mProxyNormalPort = configDb.getPort("SIP_REGISTRAR_PROXY_PORT");
+    if (mProxyNormalPort == PORT_DEFAULT)
     {
-        mSipUserAgent = SipUserAgent;
+       mProxyNormalPort = SIP_PORT;
     }
+    
+    // Authentication Scheme:  NONE | DIGEST
+    UtlString authenticateScheme;
+    configDb.get("SIP_REGISTRAR_AUTHENTICATE_SCHEME", authenticateScheme);
+    mUseCredentialDB = (authenticateScheme.compareTo("NONE" , UtlString::ignoreCase) != 0);
 
-    if ( !mSipUserAgent )
-    {
-        return FALSE;
-    }
-    return TRUE;
+    /*
+     * Unused Authentication Directives
+     *
+     * These directives are in the configuration files but are not used:
+     *
+     *   configDb.get("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", authAlgorithm); 
+     *     there may someday be a reason to use that one, since MD5 is aging.
+     *
+     *   configDb.get("SIP_REGISTRAR_AUTHENTICATE_QOP", authQop);
+     *     the qop will probably never be used - removed from current config file
+     */
+
+    // Registration Plugins
+    mpSipRegisterPlugins = new PluginHooks( RegisterPlugin::Factory
+                                           ,RegisterPlugin::Prefix
+                                           );
+    mpSipRegisterPlugins->readConfig( configDb );
 }
 
 /// Apply valid changes to the database
@@ -826,7 +857,7 @@ SipRegistrarServer::isAuthorized (
     UtlString identity;
     toUrl.getIdentity(identity);
     
-    if ( !mIsCredentialDB )
+    if ( !mUseCredentialDB )
     {
         OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized() "
                 ":: No Credential DB - request is always AUTHORIZED\n" );
@@ -953,7 +984,7 @@ SipRegistrarServer::addValidDomain(const UtlString& host, int port)
    sprintf(explicitPort,":%d", PORT_NONE==port ? SIP_PORT : port );
    valid->append(explicitPort);
    
-   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::addValidDomain(%s)\n",valid->data()) ;
+   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::addValidDomain(%s)",valid->data()) ;
 
    mValidDomains.insert(valid);
 }

@@ -14,6 +14,7 @@
 #include <stdlib.h>
 
 // APPLICATION INCLUDES
+#include "os/OsBSem.h"
 #include "os/OsFS.h"
 #include "os/OsConfigDb.h"
 #include "os/OsSysLog.h"
@@ -21,19 +22,26 @@
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
+#include "sipdb/RegistrationDB.h"
 #include "SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
 #include "SipRedirectServer.h"
 #include "SipRegistrarServer.h"
+#include "RegistrarPeer.h"
+#include "RegistrarTest.h"
+#include "RegistrarSync.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define CONFIG_ETC_DIR SIPX_CONFDIR
 
 #define CONFIG_SETTING_LOG_LEVEL      "SIP_REGISTRAR_LOG_LEVEL"
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_REGISTRAR_LOG_CONSOLE"
 #define CONFIG_SETTING_LOG_DIR        "SIP_REGISTRAR_LOG_DIR"
+
+#define REGISTRAR_DEFAULT_RPC_PORT  5077
+#define REGISTRAR_DEFAULT_SIP_PORT  5070
+#define REGISTRAR_DEFAULT_SIPS_PORT 5071
 
 const char* RegisterPlugin::Prefix  = "SIP_REGISTRAR";
 const char* RegisterPlugin::Factory = "getRegisterPlugin";
@@ -47,109 +55,152 @@ OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipRegistrar::SipRegistrar(SipUserAgent* sipUserAgent,
-                           PluginHooks* sipRegisterPlugins,
-                           int maxExpiresTime,
-                           const UtlString& defaultDomain,
-                           const UtlString& domainAliases,
-                           int              proxyNormalPort,
-                           const UtlString& defaultMinExpiresTime,
-                           const UtlBoolean& useCredentialDB,
-                           const UtlString& defaultAuthAlgorithm,
-                           const UtlString& defaultAuthQop,
-                           const UtlString& defaultRealm,
-                           const UtlString& configDir,
-                           const UtlString& mediaServer,
-                           const UtlString& voicemailServer,
-                           const char* configFileName):
-OsServerTask("SipRegistrarMain"),
-mRedirectServer(NULL),
-mRedirectMsgQ(NULL),
-mRedirectThreadInitialized(FALSE),
-mRegistrarThreadInitialized(FALSE),
-mSipRegisterPlugins(sipRegisterPlugins),
-mProxyNormalPort(proxyNormalPort)
+SipRegistrar::SipRegistrar(OsConfigDb* configDb, const char* configFile) :
+   OsServerTask("SipRegistrarMain", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
+   mConfigDb(configDb),
+   mConfigFileName(configFile),
+   mHttpServer(NULL),
+   mXmlRpcDispatcher(NULL),
+   mReplicationConfigured(false),
+   mInitialSyncThread(NULL),
+   mSipUserAgent(NULL),
+   mRedirectServer(NULL),
+   mRedirectMsgQ(NULL),
+   mRegistrarServer(NULL),
+   mRegistrarMsgQ(NULL)
 {
-   mConfigDirectory.remove(0);
-   mConfigDirectory.append(configDir);
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar:: constructed."
+                 ) ;
 
-   mDefaultRegistryPeriod = maxExpiresTime;
-   mSipUserAgent = sipUserAgent;
-   if ( sipUserAgent )
+   configurePeers();
+}
+
+int SipRegistrar::run(void* pArg)
+{
+   startRpcServer();
+
+   reloadPersistentRegistrations();
+
+   /*
+    * If replication is configured,
+    *   the following blocks until the state of each peer is known
+    */
+   startupPhase(); 
+ 
+   operationalPhase();
+
+   int taskResult = OsServerTask::run(pArg);
+
+   if (mRegistrationDb)
    {
-      sipUserAgent->addMessageObserver( *this->getMessageQueue(), NULL /* all methods */ );
+      mRegistrationDb->releaseInstance();
+      mRegistrationDb = NULL;
+   }
+
+   return taskResult;
+}
+
+
+/// Load persistent soft state
+void SipRegistrar::reloadPersistentRegistrations()
+{
+   mRegistrationDb = RegistrationDB::getInstance();
+}
+
+
+/// Launch all Startup Phase threads.
+void SipRegistrar::startupPhase()
+{
+   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar entering startup phase");
+
+   if (mReplicationConfigured)
+   {
+      // :TODO: Begin the RegistrarInitialSync thread and then wait for it.
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipRegistrar::startupPhase no replication configured"
+                    );
+   }
+}
+
+/// Launch all Operational Phase threads.
+void SipRegistrar::operationalPhase()
+{
+   OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar entering operational phase");
+
+   // Start the sip stack
+   int tcpPort = PORT_DEFAULT;
+   int udpPort = PORT_DEFAULT;
+   int tlsPort = PORT_DEFAULT;
+
+   udpPort = mConfigDb->getPort("SIP_REGISTRAR_UDP_PORT");
+   if (udpPort == PORT_DEFAULT)
+   {
+      udpPort = REGISTRAR_DEFAULT_SIP_PORT;
+   }
+  
+   tcpPort = mConfigDb->getPort("SIP_REGISTRAR_TCP_PORT");
+   if (tcpPort == PORT_DEFAULT)
+   {
+      tcpPort = REGISTRAR_DEFAULT_SIP_PORT;
+   }
+
+   tlsPort = mConfigDb->getPort("SIP_REGISTRAR_TLS_PORT");
+   if (tlsPort == PORT_DEFAULT)
+   {
+      tlsPort = REGISTRAR_DEFAULT_SIPS_PORT;
+   }
+
+   mSipUserAgent = new SipUserAgent(tcpPort,
+                                    udpPort,
+                                    tlsPort,
+                                    NULL,   // public IP address (not used)
+                                    NULL,   // default user (not used)
+                                    NULL,   // default SIP address (not used)
+                                    NULL,   // outbound proxy
+                                    NULL,   // directory server
+                                    NULL,   // registry server
+                                    NULL,   // auth scheme
+                                    NULL,   // auth realm
+                                    NULL,   // auth DB
+                                    NULL,   // auth user IDs
+                                    NULL,   // auth passwords
+                                    NULL,   // nat ping URL
+                                    0,      // nat ping frequency
+                                    "PING", // nat ping method
+                                    NULL,   // line mgr
+                                    SIP_DEFAULT_RTT, // first resend timeout
+                                    TRUE,   // default to UA transaction
+                                    SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
+                                    SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
+                                    FALSE,  // use next available port                                                  
+                                    FALSE   // do not do UA message checks for METHOD, requires, etc...
+                                    );
+
+   if ( mSipUserAgent )
+   {
+      mSipUserAgent->addMessageObserver( *this->getMessageQueue(), NULL /* all methods */ );
 
       // the above causes us to actually receive all methods
       // the following sets what we send in Allow headers
-      sipUserAgent->allowMethod(SIP_REGISTER_METHOD);
-      sipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD);
-      sipUserAgent->allowMethod(SIP_OPTIONS_METHOD);
-      sipUserAgent->allowMethod(SIP_CANCEL_METHOD);
+      mSipUserAgent->allowMethod(SIP_REGISTER_METHOD);
+      mSipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD);
+      mSipUserAgent->allowMethod(SIP_OPTIONS_METHOD);
+      mSipUserAgent->allowMethod(SIP_CANCEL_METHOD);
 
-      sipUserAgent->allowExtension("sip-cc-01");
-      sipUserAgent->allowExtension("gruu");
+      mSipUserAgent->allowExtension("gruu"); // should be moved to gruu processor?
    }
 
-   if(!defaultAuthAlgorithm.isNull())
-   {
-      mAuthAlgorithm = defaultAuthAlgorithm;
-   }
+   mSipUserAgent->start();
 
-   if(!defaultAuthQop.isNull())
-   {
-      mAuthQop = defaultAuthQop;
-   }
-
-   if ( !defaultDomain.isNull() )
-   {
-      mDefaultDomain.remove(0);
-      mDefaultDomain.append(defaultDomain);
-   }
-
-   if ( !domainAliases.isNull() )
-   {
-      mDomainAliases.remove(0);
-      mDomainAliases.append(domainAliases);
-   }
-
-   if ( !defaultMinExpiresTime.isNull() )
-   {
-      mMinExpiresTime.remove(0);
-      mMinExpiresTime.append(defaultMinExpiresTime);
-   }
-
-   if ( !defaultDomain.isNull() )
-   {
-      mDefaultDomain.remove(0);
-      mDefaultDomain.append(defaultDomain);
-   }
-
-   if ( !defaultRealm.isNull() )
-   {
-      mRealm.remove(0);
-      mRealm.append(defaultRealm);
-   }
-
-   if ( !mediaServer.isNull() )
-   {
-      mMediaServer.remove(0);
-      mMediaServer.append(mediaServer);
-   }
-
-   if ( !voicemailServer.isNull() )
-   {
-      mVoicemailServer.remove(0);
-      mVoicemailServer.append(voicemailServer);
-   }
-
-   Url domain(mDefaultDomain);
-   domain.getHostAddress(mlocalDomainHost);
-
-   mIsCredentialDB = useCredentialDB;
-
-   startRedirectServer(configFileName);
    startRegistrarServer();
+
+   startRedirectServer();
 }
+
+
 
 // Destructor
 SipRegistrar::~SipRegistrar()
@@ -178,20 +229,10 @@ SipRegistrar::~SipRegistrar()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-/*SipRegistrar&
-SipRegistrar::operator=(const SipRegistrar& rhs)
-{
-   if (this == &rhs)              // handle the assignment to self case
-      return *this;
-
-   return *this;
-}*/
-
-/* ============================ MANIPULATORS ============================== */
 UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 {
-    syslog(FAC_SIP, PRI_DEBUG, "SipRegistrar::handleMessage() :: Start processing SIP message\n") ;
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::handleMessage()"
+                  " Start processing SIP message") ;
 
     int msgType = eventMessage.getMsgType();
     int msgSubType = eventMessage.getMsgSubType();
@@ -208,9 +249,8 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
             UtlString method;
             message->getRequestMethod(&method);
 
-            if ( !message->isResponse() )
+            if ( !message->isResponse() ) // is a request ?
             {
-                // osPrintf("SipRegistrar::handleMessage() Message is Authorized\n");
                 if ( method.compareTo(SIP_REGISTER_METHOD) == 0 )
                 {
                     //send to Register Thread
@@ -222,275 +262,40 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
                     sendToRedirectServer(eventMessage);
                 }
             }
+            else
+            {
+               // responses are ignored.
+            }
+        }
+        else
+        {
+           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                         "SipRegistrar::handleMessage no message."
+                         ) ;
         }
     }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipRegistrar::handleMessage unexpected message type %d/%d",
+                     msgType, msgSubType
+                     ) ;
+    }
+    
     return(TRUE);
 }
 
 SipRegistrar*
-SipRegistrar::startRegistrar(
-    const UtlString workingDir,
-    const char* configFileName )
+SipRegistrar::getInstance(OsConfigDb* configDb, const char* configFile)
 {
-    int tcpPort = PORT_DEFAULT;
-    int udpPort = PORT_DEFAULT;
-    int tlsPort = PORT_DEFAULT;
-    int proxyNormalPort = PORT_DEFAULT;
+    OsLock singletonLock(sLock);
 
-    UtlString defaultMaxExpiresTime;
-    UtlString defaultMinExpiresTime;
-
-    UtlString domainName;
-    UtlString domainAliases;
-    UtlString authenticateScheme;
-    UtlString authAlgorithm;
-    UtlString authQop;
-    UtlString realm;
-    UtlString mediaServer;
-    UtlString voicemailServer;
-
-    UtlBoolean isCredentialDB = TRUE;
-
-    OsConfigDb configDb;
-
-    if ( configDb.loadFromFile(configFileName) == OS_SUCCESS )
-    {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "Found config file: %s", configFileName);
-        //osPrintf("Found config file: %s\n", configFileName);
-    }
-    else
-    {
-        configDb.set("SIP_REGISTRAR_UDP_PORT", "5070");
-        configDb.set("SIP_REGISTRAR_TCP_PORT", "5070");
-        configDb.set("SIP_REGISTRAR_TLS_PORT", "5071");
-        configDb.set("SIP_REGISTRAR_PROXY_PORT", "5060");
-        configDb.set("SIP_REGISTRAR_MAX_EXPIRES", "");
-        configDb.set("SIP_REGISTRAR_MIN_EXPIRES", "");
-        configDb.set("SIP_REGISTRAR_DOMAIN_NAME", "");
-        //configDb.set("SIP_REGISTRAR_AUTHENTICATE_SCHEME", "");
-        configDb.set("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", "");
-        configDb.set("SIP_REGISTRAR_AUTHENTICATE_QOP", "");
-        configDb.set("SIP_REGISTRAR_AUTHENTICATE_REALM", "");
-
-        configDb.set("SIP_REGISTRAR_MEDIA_SERVER", "");
-        configDb.set("SIP_REGISTRAR_VOICEMAIL_SERVER", "");
-        configDb.set(CONFIG_SETTING_LOG_DIR, "");
-        configDb.set(CONFIG_SETTING_LOG_LEVEL, "");
-        configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
-
-        if ( configDb.storeToFile(configFileName) == OS_SUCCESS )
-        {
-            OsSysLog::add( FAC_SIP, PRI_INFO,
-                           "Could not write config file: %s",
-                           configFileName);
-        }
-    }
-
-    udpPort = configDb.getPort("SIP_REGISTRAR_UDP_PORT");
-    if (udpPort == PORT_DEFAULT)
-    {
-       udpPort = 5070;
-    }
-  
-    tcpPort = configDb.getPort("SIP_REGISTRAR_TCP_PORT");
-    if (tcpPort == PORT_DEFAULT)
-    {
-       tcpPort = 5070;
-    }
-
-    tlsPort = configDb.getPort("SIP_REGISTRAR_TLS_PORT");
-    if (tlsPort == PORT_DEFAULT)
-    {
-       tlsPort = 5071;
-    }
-
-    proxyNormalPort = configDb.getPort("SIP_REGISTRAR_PROXY_PORT");
-    if (proxyNormalPort == PORT_DEFAULT)
-    {
-       proxyNormalPort = 5060;
-    }
-
-    configDb.get("SIP_REGISTRAR_MAX_EXPIRES", defaultMaxExpiresTime);
-    configDb.get("SIP_REGISTRAR_MIN_EXPIRES", defaultMinExpiresTime);
-
-    configDb.get("SIP_REGISTRAR_DOMAIN_NAME", domainName);
-    configDb.get("SIP_REGISTRAR_DOMAIN_ALIASES", domainAliases);
-
-    configDb.get("SIP_REGISTRAR_AUTHENTICATE_SCHEME", authenticateScheme);
-    configDb.get("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", authAlgorithm);
-    configDb.get("SIP_REGISTRAR_AUTHENTICATE_QOP", authQop);
-    configDb.get("SIP_REGISTRAR_AUTHENTICATE_REALM", realm);
-
-    configDb.get("SIP_REGISTRAR_MEDIA_SERVER", mediaServer);
-    configDb.get("SIP_REGISTRAR_VOICEMAIL_SERVER", voicemailServer);
-    //configDb.get("SIP_REGISTRAR_LOCAL_DOMAIN", localDomain);
-
-    if ( defaultMinExpiresTime.isNull() )
-    {
-        defaultMinExpiresTime.append("300"); //300 seconds
-    }
-    osPrintf("SIP_REGISTRAR_MIN_EXPIRES : %s\n", defaultMinExpiresTime.data());
-
-    if ( defaultMaxExpiresTime.isNull() )
-    {
-        defaultMaxExpiresTime.append("7200"); //default to 2 hrs
-    }
-    osPrintf("SIP_REGISTRAR_MAX_EXPIRES : %s\n", defaultMaxExpiresTime.data());
-
-    if(domainName.isNull())
-    {
-       OsSocket::getHostIp(&domainName);
-    }
-    osPrintf("SIP_REGISTRAR_DOMAIN_NAME : %s\n", domainName.data());
-
-
-    if ( authenticateScheme.compareTo("NONE" , UtlString::ignoreCase) == 0 ) /* NONE/DIGEST */
-    {
-        isCredentialDB = FALSE;
-        osPrintf("SIP_AUTHPROXY_AUTHENTICATE_SCHEME : NONE\n");
-    }
-
-    if ( authAlgorithm.isNull() ) /* MD5/MD5SESS */
-    {
-        authAlgorithm.append("MD5");
-    }
-    osPrintf("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM : %s\n", authAlgorithm.data());
-
-    if ( authQop.isNull() ) /* AUTH/AUTH-INT/NONE */
-    {
-        authQop.append("NONE");
-    }
-    osPrintf("SIP_REGISTRAR_AUTHENTICATE_QOP : %s\n", authQop.data());
-
-    if(realm.isNull())
-    {
-        realm.append(domainName);
-    }
-    osPrintf("SIP_REGISTRAR_AUTHENTICATE_REALM : %s\n", realm.data());
-
-    if(mediaServer.isNull())
-    {
-        OsSocket::getHostIp(&mediaServer);
-        mediaServer.append(":");
-        mediaServer.append("5100");
-    }
-    osPrintf("SIP_REGISTRAR_MEDIA_SERVER : %s\n", mediaServer.data());
-
-    if(voicemailServer.isNull())
-    {
-        OsSocket::getHostIp(&voicemailServer);
-        voicemailServer.append(":");
-        voicemailServer.append("8090");
-    }
-    osPrintf("SIP_REGISTRAR_VOICEMAIL_SERVER: %s\n", voicemailServer.data());
-
-    int maxExpiresTime = atoi(defaultMaxExpiresTime.data());
-
-    // Start the sip stack
-    SipUserAgent* sipUserAgent = new SipUserAgent(tcpPort,
-        udpPort,
-        tlsPort,
-        NULL,   // public IP address (not used in proxy)
-        NULL,   // default user (not used in proxy)
-        NULL,   // default SIP address (not used in proxy)
-        NULL,   // outbound proxy
-        NULL,   // directory server
-        NULL,   // registry server
-        NULL,   // auth scheme
-        NULL,   // auth realm
-        NULL,   // auth DB
-        NULL,   // auth user IDs
-        NULL,   // auth passwords
-        NULL,   // nat ping URL
-        0,      // nat ping frequency
-        "PING", // nat ping method
-        NULL,   // line mgr
-        SIP_DEFAULT_RTT, // first resend timeout
-        TRUE,   // default to UA transaction
-        SIPUA_DEFAULT_SERVER_UDP_BUFFER_SIZE, // socket layer read buffer size
-        SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE, // OsServerTask message queue size
-        FALSE,  // use next available port                                                  
-        FALSE   // do not do UA message checks for METHOD, requires, etc...
-        );
-
-    PluginHooks* sipRegisterPlugins = new PluginHooks( RegisterPlugin::Factory
-                                                      ,RegisterPlugin::Prefix
-                                                      );
-    sipRegisterPlugins->readConfig( configDb );
-
-    sipUserAgent->start();
-
-    if(domainAliases.isNull())
-    {
-       UtlString ipAddress;
-       OsSocket::getHostIp(&ipAddress);
-       domainAliases = ipAddress;
-       char portBuf[20];
-       sprintf(portBuf, ":%d", sipUserAgent->getUdpPort());
-       domainAliases.append(portBuf);
-    }
-
-    // Start the registrar.
-    SipRegistrar* registrar =
-        new SipRegistrar(
-            sipUserAgent,
-            sipRegisterPlugins,
-            maxExpiresTime ,
-            domainName,
-            domainAliases,
-            proxyNormalPort,
-            defaultMinExpiresTime,
-            isCredentialDB,
-            authAlgorithm,
-            authQop,
-            realm,
-            workingDir,
-            mediaServer,
-            voicemailServer,
-            configFileName
-                         );
-
-    registrar->start();
-
-    return(registrar);
-}
-
-void
-SipRegistrar::printMessageLog()
-{
-   UtlString buffer;
-   mSipUserAgent->printStatus();
-   mSipUserAgent->getMessageLog(buffer);
-   printf("=================>\n%s\n", buffer.data());
-}
-
-SipRegistrar*
-SipRegistrar::getInstance()
-{
-    // If the task does not yet exist or hasn't been started, then acquire
-    // the lock to ensure that only one instance of the task is started
-    sLock.acquire();
     if ( spInstance == NULL )
     {
-        OsPath workingDirectory;
-        if ( OsFileSystem::exists( CONFIG_ETC_DIR ) )
-        {
-           workingDirectory = CONFIG_ETC_DIR;
-           OsPath path(workingDirectory);
-           path.getNativePath(workingDirectory);
-        }
-        else
-        {
-           OsPath path;
-           OsFileSystem::getWorkingDirectory(path);
-           path.getNativePath(workingDirectory);
-        }
-
-        UtlString fileName =  workingDirectory +
-           OsPathBase::separator +
-           "registrar-config";
-
-        spInstance = startRegistrar(workingDirectory, fileName);
+       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::getInstance(%p, %s)",
+                     configDb, configFile);
+       
+       spInstance = new SipRegistrar(configDb, configFile);
     }
 
     UtlBoolean isStarted = spInstance->isStarted();
@@ -499,67 +304,129 @@ SipRegistrar::getInstance()
         isStarted = spInstance->start();
         assert( isStarted );
     }
-    sLock.release();
 
     return spInstance;
 }
 
+/// Read peer configuration and initialize peer state
+void SipRegistrar::configurePeers()
+{
+   UtlString myName;
+   mConfigDb->get("SIP_REGISTRAR_NAME", mPrimaryName);
+
+   UtlString peerNames;
+   mConfigDb->get("SIP_REGISTRAR_SYNC_WITH", peerNames);
+
+   if (!mPrimaryName.isNull() && !peerNames.isNull())
+   {
+      // :TODO: initialize mPeers by instantiating each RegisterPeer not myself.
+      // if all is well:
+      //   mReplicationConfigured = true;
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRegistrar::configurePeers - no peers configured"
+                    );
+   }
+}
+
+    
+/// If replication configured, name of this registrar as primary, else NULL
+const char* SipRegistrar::primaryName()
+{
+   return (  mReplicationConfigured
+           ? mPrimaryName.data()
+           : NULL
+           );
+}
+
+
+/// Server for XML-RPC requests
+void SipRegistrar::startRpcServer()
+{
+   // Begins operation of the HTTP/RPC service
+   // sets mHttpServer and mXmlRpcDispatcher
+
+   int httpPort = mConfigDb->getPort("SIP_REGISTRAR_XMLRPC_PORT");
+   if (PORT_NONE == httpPort)
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "SipRegistrar::startRpcServer"
+                    " SIP_REGISTRAR_XMLRPC_PORT == PORT_NONE :"
+                    " peer synchronization disabled"
+                    );
+      mReplicationConfigured = false; // force all replication interfaces off
+   }
+   else
+   {
+      if (PORT_DEFAULT == httpPort)
+      {
+         httpPort = REGISTRAR_DEFAULT_RPC_PORT;
+      }
+
+      // :TODO: initialize mHttpServer and mXmlRpcDispatcher
+   }
+}
+
+/// Get an iterator over all peers.
+UtlSListIterator* SipRegistrar::getPeers()
+{
+   return (  ( ! mReplicationConfigured || mPeers.isEmpty() )
+           ? NULL : new UtlSListIterator(mPeers));
+}
+
+/// Get peer state object by name.
+RegistrarPeer* SipRegistrar::getPeer(const UtlString& peerName)
+{
+   return (  mReplicationConfigured
+           ? dynamic_cast<RegistrarPeer*>(mPeers.find(&peerName))
+           : NULL
+           );
+}
+
+
 /* ============================ ACCESSORS ================================= */
 /////////////////////////////////////////////////////////////////////////////
 void
-SipRegistrar::startRedirectServer(const char* configFileName)
+SipRegistrar::startRedirectServer()
 {
-   UtlString localdomain;
-   OsSocket::getHostIp(&localdomain);
-
-   mRedirectServer = new SipRedirectServer();
-   if ( mRedirectServer->initialize(mSipUserAgent,
-                                    mConfigDirectory,
-                                    mMediaServer,
-                                    mVoicemailServer,
-                                    mlocalDomainHost,
-                                    mProxyNormalPort,
-                                    configFileName) )
-   {
-      mRedirectMsgQ = mRedirectServer->getMessageQueue();
-      mRedirectThreadInitialized = TRUE;
-   }
+   mRedirectServer = new SipRedirectServer(mConfigDb, mSipUserAgent);
+   mRedirectMsgQ = mRedirectServer->getMessageQueue();
+   mRedirectServer->start();
 }
 
 void
 SipRegistrar::startRegistrarServer()
 {
-    mRegistrarServer = new SipRegistrarServer();
-    if ( mRegistrarServer->initialize(mSipUserAgent,
-                                      mSipRegisterPlugins,
-                                      mDefaultRegistryPeriod,
-                                      mMinExpiresTime,
-                                      mDefaultDomain,
-                                      mDomainAliases,
-                                      mProxyNormalPort,
-                                      mIsCredentialDB,
-                                      mRealm) )
-    {
-        mRegistrarMsgQ = mRegistrarServer->getMessageQueue();
-        mRegistrarThreadInitialized = TRUE;
-    }
+    mRegistrarServer = new SipRegistrarServer(mConfigDb, mSipUserAgent);
+    mRegistrarMsgQ = mRegistrarServer->getMessageQueue();
+    mRegistrarServer->start();
 }
 
 void
 SipRegistrar::sendToRedirectServer(OsMsg& eventMessage)
 {
-    if ( mRedirectThreadInitialized )
+    if ( mRedirectMsgQ )
     {
         mRedirectMsgQ->send(eventMessage);
+    }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_CRIT, "sendToRedirectServer - queue not initialized.");
     }
 }
 
 void
 SipRegistrar::sendToRegistrarServer(OsMsg& eventMessage)
 {
-    if ( mRegistrarThreadInitialized )
+    if ( mRegistrarMsgQ )
     {
         mRegistrarMsgQ->send(eventMessage);
+    }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_CRIT, "sendToRegistrarServer - queue not initialized.");
     }
 }
 

@@ -60,9 +60,6 @@ SipRedirectorMPT::initialize(const UtlHashMap& configParameters,
                                  int redirectorNo)
 {
    UtlString s;
-   s = "configDir";
-   const UtlString* configDir =
-      dynamic_cast<UtlString*> (configParameters.findValue(&s));
 
    s = "localDomainHost";
    mDomainName =
@@ -72,7 +69,7 @@ SipRedirectorMPT::initialize(const UtlHashMap& configParameters,
                  mDomainName.data());
 
    configFileName =
-      *configDir + OsPathBase::separator + MPT_FILE_NAME;
+      SIPX_CONFDIR + OsPathBase::separator + MPT_FILE_NAME;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMPT::SipRedirectorMPT Loading mappings from '%s'",
                  configFileName.data());

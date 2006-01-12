@@ -153,9 +153,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
    }
    else
    {
-      UtlString s = "configDir";
-      const UtlString* configDir =
-         dynamic_cast<UtlString*> (configParameters.findValue(&s));
+      UtlString s;
       s = "orbitConfigFilename";
       const UtlString* orbitConfigFilename =
          dynamic_cast<UtlString*> (configParameters.findValue(&s));
@@ -170,7 +168,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
       {
          // Assemble the full file name.
          UtlString fileName =
-            *configDir + OsPathBase::separator + *orbitConfigFilename;
+            SIPX_CONFDIR + OsPathBase::separator + *orbitConfigFilename;
 
          if (
             // Get the park server's SIP domain so we can forward its
@@ -1083,8 +1081,8 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
                        "Start processing NOTIFY CallID '%s'", callId.data());
 
          {
-            // This block holds SipRedirectServer::mMutex.
-            OsLock lock(SipRedirectServer::getInstance()->mMutex);
+            // This block holds SipRedirectServer::mRedirectorMutex.
+            OsLock lock(SipRedirectServer::getInstance()->mRedirectorMutex);
 
             // Look for a suspended request whose SUBSCRIBE had this Call-Id.
             SipRedirectServerPrivateStorageIterator itor(mRedirectorNo);

@@ -48,12 +48,12 @@ class ResultSetRpcTest; // unit test - see sipXcommserverLib/src/test/ResultSetR
  * All the param types must be UtlContainable. Here is the mapping between XML-RPC
  * types to UtlContainable types:
  * 
- * <i4> or <int> is UtlInt.
- * <boolean> is UtlBool.
- * <string> is UtlString.
- * <dateTime.iso8601> is UtlDateTime.
- * <array> is UtlSList.
- * <struct> is UtlHashMap.
+ * * <i4> or <int> is UtlInt.
+ * * <boolean> is UtlBool.
+ * * <string> is UtlString.
+ * * <dateTime.iso8601> is UtlDateTime.
+ * * <array> is UtlSList.
+ * * <struct> is UtlHashMap.
  * 
  * <double> and <base64> are currently not supported.
  *  

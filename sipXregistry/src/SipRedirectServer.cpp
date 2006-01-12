@@ -35,8 +35,7 @@
 
 // DEFINES
 
-// Names of configuration files.  All are assumed to be in the directory
-// 'configDir'.
+// Names of configuration files.  All are assumed to be in the directory SIPX_CONFDIR
 #define URL_MAPPING_RULES_FILENAME "mappingrules.xml"
 #define URL_FALLBACK_RULES_FILENAME "fallbackrules.xml"
 #define ORBIT_CONFIG_FILENAME "orbits.xml"
@@ -53,21 +52,24 @@
 SipRedirectServer* SipRedirectServer::spInstance = NULL;
 
 // Constructor
-SipRedirectServer::SipRedirectServer() :
-   OsServerTask("SipRedirectServer-%d", NULL, 2000),
-   mMutex(OsMutex::Q_FIFO),
+SipRedirectServer::SipRedirectServer(OsConfigDb*   pOsConfigDb,  ///< Configuration parameters
+                                     SipUserAgent* pSipUserAgent ///< User Agent to use when sending responses
+                                     ) :
+   OsServerTask("SipRedirectServer-%d", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
+   mRedirectorMutex(OsMutex::Q_FIFO),
    mIsStarted(FALSE),
-   mpSipUserAgent(NULL),
+   mpSipUserAgent(pSipUserAgent),
    mNextSeqNo(0)
 {
    spInstance = this;
+   initialize(*pOsConfigDb);
 }
 
 // Destructor
 SipRedirectServer::~SipRedirectServer()
 {
    // Seize the lock that protects the list of suspend objects.
-   OsLock lock(mMutex);
+   OsLock lock(mRedirectorMutex);
 
    // Cancel all suspended requests.
    UtlHashMapIterator itor(mSuspendList);
@@ -96,79 +98,19 @@ SipRedirectServer::getInstance()
     return spInstance;
 }
 
-// Eventually, the redirector objects will not be created by special
-// code but rather by a generalized initialization routine driven by
-// an XML file that loads .so's for the SipRedirector* classes.  The
-// XML will look something like this:
-//    <redirectors>
-//        <redirector name="RegDB" library="SipRedirectorRegDB.so">
-//        </redirector>
-//        <redirector name="AliasDB" library="SipRedirectorAliasDB.so">
-//        </redirector>
-//        <redirector name="MappingRules" library="SipRedirectorMapping.so">
-//            <param name="fallback" value="false"/>
-//            <param name="mappingRulesFilename" value="mappingrules.xml"/>
-//            <param name="configDir" value="SIPX_CONFDIR"/>
-//            <param name="mediaServer" value="..."/>
-//            <param name="voicemailServer" value="..."/>
-//            <param name="localDomainHost" value="..."/>
-//        </redirector>
-//        <redirector name="FallbackRules" library="SipRedirectorMapping.so">
-//            <param name="fallback" value="true"/>
-//            <param name="mappingRulesFilename" value="fallbackrules.xml"/>
-//            <param name="configDir" value="SIPX_CONFDIR"/>
-//            <param name="mediaServer" value="..."/>
-//            <param name="voicemailServer" value="..."/>
-//            <param name="localDomainHost" value="..."/>
-//        </redirector>
-//        <redirector name="Hunt" library="SipRedirectorHunt.so">
-//        </redirector>
-//        <redirector name="Subscribe" library="SipRedirectorSubscribe.so">
-//        </redirector>
-//    </redirectors>
 UtlBoolean
-SipRedirectServer::initialize(
-   SipUserAgent* pSipUserAgent,
-   const UtlString& configDir,
-   const UtlString& mediaServer,
-   const UtlString& voicemailServer,
-   const UtlString& localDomainHost,
-   int              proxyNormalPort,
-   const char* configFileName)
+SipRedirectServer::initialize(OsConfigDb& configDb    ///< Configuration parameters
+                              )
 {
-   if (!mIsStarted)
+   UtlString defaultDomain;
+   configDb.get("SIP_REGISTRAR_DOMAIN_NAME", defaultDomain);
+
+   mProxyNormalPort = configDb.getPort("SIP_REGISTRAR_PROXY_PORT");
+   if (mProxyNormalPort == PORT_DEFAULT)
    {
-      //start the thread
-      start();
+      mProxyNormalPort = SIP_PORT;
    }
-
-   mpSipUserAgent = pSipUserAgent;
-
-   if (!mpSipUserAgent)
-   {
-      return false;
-   }
-
-   mProxyNormalPort = proxyNormalPort;
    
-   // Load the configuration file.
-
-   OsConfigDb configDb;
-
-   if (configDb.loadFromFile(configFileName) == OS_SUCCESS)
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectServer::initialize "
-                    "Loaded config file '%s'", configFileName);
-   }
-   else
-   {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRedirectServer::initialize "
-                    "Error loading config file '%s'", configFileName);
-      return false;
-   }
-
    // Initialize the list of redirect processors.
 
    // Make a hash map to convey the configuration parameters to the
@@ -176,17 +118,8 @@ SipRedirectServer::initialize(
    // This really ought to be simpler, but UtlHashMap demands that its
    // arguments be pointers to writable objects.
    UtlHashMap configParameters;
-   UtlString k1 = "configDir";
-   UtlString v1 = configDir;
-   configParameters.insertKeyAndValue(&k1, &v1);
-   UtlString k2 = "mediaServer";
-   UtlString v2 = mediaServer;
-   configParameters.insertKeyAndValue(&k2, &v2);
-   UtlString k3 = "voicemailServer";
-   UtlString v3 = voicemailServer;
-   configParameters.insertKeyAndValue(&k3, &v3);
    UtlString k4 = "localDomainHost";
-   UtlString v4 = localDomainHost;
+   UtlString v4 = defaultDomain;
    configParameters.insertKeyAndValue(&k4, &v4);
 
    // Create and initialize the SipRedirectorRegDB object.
@@ -256,7 +189,7 @@ static void logResponse(UtlString& messageStr)
 /**
  * Cancel a suspended redirection.
  *
- * Caller must hold mMutex.
+ * Caller must hold mRedirectorMutex.
  *
  * containableSeqNo - UtlInt containing the sequence number.
  *
@@ -349,7 +282,7 @@ void SipRedirectServer::processRedirect(const SipMessage* message,
    }
     
    // Seize the lock that protects the list of suspend objects.
-   OsLock lock(mMutex);
+   OsLock lock(mRedirectorMutex);
 
    // Process with the redirectors.
    // Set to TRUE if any of the redirectors requests suspension.
@@ -578,7 +511,7 @@ SipRedirectServer::handleMessage(OsMsg& eventMessage)
 
          {
             // Seize the lock that protects the list of suspend objects.
-            OsLock lock(mMutex);
+            OsLock lock(mRedirectorMutex);
 
             // Look for a suspended request that had this Call-Id.
             UtlHashMapIterator itor(mSuspendList);
