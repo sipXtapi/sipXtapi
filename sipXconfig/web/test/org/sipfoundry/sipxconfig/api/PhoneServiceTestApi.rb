@@ -40,10 +40,10 @@ class PhoneServiceTestApi < ApiTestCase
     findPhone.search.bySerialNumber = @seed.serialNumber
     assert_equal(1, @phone_service.findPhone(findPhone).phones.length)
     
-    deletePhone = AdminPhone.new(PhoneSearch.new())
+    deletePhone = ManagePhone.new(PhoneSearch.new())
     deletePhone.search.bySerialNumber = @seed.serialNumber
     deletePhone.deletePhone = true
-    @phone_service.adminPhone(deletePhone)
+    @phone_service.managePhone(deletePhone)
     
     # ensure phone was deleted
     assert_equal(0, @phone_service.findPhone(findPhone).phones.length)
@@ -55,16 +55,16 @@ class PhoneServiceTestApi < ApiTestCase
     search = PhoneSearch.new(@seed.serialNumber)
     
     #add group
-    addGroup = AdminPhone.new(search)
+    addGroup = ManagePhone.new(search)
     addGroup.addGroup = 'group1'
-    @phone_service.adminPhone(addGroup)
+    @phone_service.managePhone(addGroup)
     phones = @phone_service.findPhone(FindPhone.new(search)).phones;
     assert_equal('group1', phones[0].groups[0])
     
     #remove group
-    removeGroup = AdminPhone.new(search)
+    removeGroup = ManagePhone.new(search)
     removeGroup.removeGroup = 'group1'
-    @phone_service.adminPhone(removeGroup)
+    @phone_service.managePhone(removeGroup)
     phones = @phone_service.findPhone(FindPhone.new(search)).phones;
     assert_nil(phones[0].groups)	    
   end
@@ -82,17 +82,17 @@ class PhoneServiceTestApi < ApiTestCase
     
     # add line
     search = PhoneSearch.new(@seed.serialNumber)
-    addLine = AdminPhone.new(search);
+    addLine = ManagePhone.new(search);
     addLine.addLine = Line.new('user1')
-    @phone_service.adminPhone(addLine)
+    @phone_service.managePhone(addLine)
     
     phone = @phone_service.findPhone(FindPhone.new(search)).phones[0]
     assert_equal(phone.lines[0].userName, 'user1')
     
     #remove line		
-    removeLine = AdminPhone.new(search);
+    removeLine = ManagePhone.new(search);
     removeLine.removeLine = 'user1'
-    @phone_service.adminPhone(removeLine)
+    @phone_service.managePhone(removeLine)
     
     phone = @phone_service.findPhone(FindPhone.new(search)).phones[0]
     assert_nil(phone.lines)
@@ -102,9 +102,9 @@ class PhoneServiceTestApi < ApiTestCase
     seedPhone()
     
     search = PhoneSearch.new(@seed.serialNumber)
-    edit = AdminPhone.new(search);
+    edit = ManagePhone.new(search);
     edit.edit = [ Property.new('description', 'hello') ]
-    @phone_service.adminPhone(edit)
+    @phone_service.managePhone(edit)
     
     phone = @phone_service.findPhone(FindPhone.new(search)).phones[0]
     assert_equal(phone.description, 'hello')       
@@ -119,14 +119,14 @@ class PhoneServiceTestApi < ApiTestCase
     @seed.lines = [ Line.new('user1') ]
     @phone_service.addPhone(addPhone)
     
-    generateProfiles = AdminPhone.new()
+    generateProfiles = ManagePhone.new()
     generateProfiles.generateProfiles = true
-    @phone_service.adminPhone(generateProfiles)
+    @phone_service.managePhone(generateProfiles)
     # this just excersizes code. does not verify profiles were generated
     
-    restart = AdminPhone.new()
+    restart = ManagePhone.new()
     restart.restart = true
-    @phone_service.adminPhone(restart)
+    @phone_service.managePhone(restart)
     # this just excersizes code. does not verify restart message was sent	
   end
   

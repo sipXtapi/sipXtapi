@@ -143,6 +143,15 @@
           <xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
         </xsd:sequence>
       </xsd:complexType>
+      <xsd:complexType name="ExternalLine">
+        <xsd:sequence>
+          <xsd:element name="userId" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="displayName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+          <xsd:element name="password" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+          <xsd:element name="registrationServer" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="voiceMail" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+        </xsd:sequence>
+      </xsd:complexType>
       <xsd:complexType name="ParkOrbit">
         <xsd:sequence>
           <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1"/>
@@ -228,7 +237,7 @@
           </xsd:sequence>
         </xsd:complexType>
         </xsd:element>
-      <xsd:element name="AdminPhone">
+      <xsd:element name="ManagePhone">
         <xsd:complexType>
           <xsd:sequence>
               <xsd:element name="search" type="tns:PhoneSearch" minOccurs="1" maxOccurs="1"/>
@@ -237,6 +246,7 @@
             <xsd:element name="addGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
              <xsd:element name="removeGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
              <xsd:element name="addLine" type="tns:Line" nillable="true" minOccurs="0" maxOccurs="1"/>
+             <xsd:element name="addExternalLine" type="tns:ExternalLine" nillable="true" minOccurs="0" maxOccurs="1"/>
              <xsd:element name="removeLine" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
               <xsd:element name="generateProfiles" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
               <xsd:element name="restart" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
@@ -260,7 +270,7 @@
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>
-      <xsd:element name="AdminUser">
+      <xsd:element name="ManageUser">
         <xsd:complexType>
           <xsd:sequence>
             <xsd:element name="search" type="tns:UserSearch" minOccurs="1" maxOccurs="1"/>
@@ -270,7 +280,7 @@
             <xsd:element name="removeGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
           </xsd:sequence>
         </xsd:complexType>
-        </xsd:element>    
+      </xsd:element>    
       <xsd:element name="FindUser">
         <xsd:complexType>
           <xsd:sequence>
@@ -448,15 +458,15 @@
     <part name="findPhone" element="tns:FindPhone"/>
   </message>
   
-  <message name="adminPhoneResponse"/>
-  <message name="adminPhoneRequest">
-    <part name="adminPhone" element="tns:AdminPhone"/>
+  <message name="managePhoneResponse"/>
+  <message name="managePhoneRequest">
+    <part name="managePhone" element="tns:ManagePhone"/>
   </message>
 
   <portType name="PhoneService">
     <documentation> 
       Any change to phones requires generating profiles to get phone 
-      to update. See adminPhone.
+      to update. See managePhone.
     </documentation>
     <operation name="addPhone">
       <input message="tns:addPhoneRequest"/>
@@ -466,9 +476,9 @@
       <input message="tns:findPhoneRequest"/>
       <output message="tns:findPhoneResponse"/>
     </operation>
-    <operation name="adminPhone">
-      <input message="tns:adminPhoneRequest"/>
-      <output message="tns:adminPhoneResponse"/>
+    <operation name="managePhone">
+      <input message="tns:managePhoneRequest"/>
+      <output message="tns:managePhoneResponse"/>
     </operation>
   </portType>  
 
@@ -492,7 +502,7 @@
       </output>      
       <soap:operation soapAction=""/>            
     </operation>
-    <operation name="adminPhone">
+    <operation name="managePhone">
        <input>
         <soap:body use="literal" namespace="urn:ConfigService" />
       </input>      
@@ -542,9 +552,9 @@
     <part name="findUser" element="tns:FindUser"/>
   </message>
 
-  <message name="adminUserResponse"/>
-  <message name="adminUserRequest">
-    <part name="adminUser" element="tns:AdminUser"/>
+  <message name="manageUserResponse"/>
+  <message name="manageUserRequest">
+    <part name="manageUser" element="tns:ManageUser"/>
   </message>
   
   <portType name="UserService">
@@ -560,9 +570,9 @@
       <input message="tns:findUserRequest"/>
       <output message="tns:findUserResponse"/>
     </operation>
-    <operation name="adminUser">
-      <input message="tns:adminUserRequest"/>
-      <output message="tns:adminUserResponse"/>
+    <operation name="manageUser">
+      <input message="tns:manageUserRequest"/>
+      <output message="tns:manageUserResponse"/>
     </operation>
   </portType>
 
@@ -586,7 +596,7 @@
       </output>      
       <soap:operation soapAction=""/>            
     </operation>
-    <operation name="adminUser">
+    <operation name="manageUser">
        <input>
         <soap:body use="literal" namespace="urn:ConfigService" />
       </input>      

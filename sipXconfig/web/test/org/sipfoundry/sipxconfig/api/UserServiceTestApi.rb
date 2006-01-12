@@ -53,9 +53,9 @@ class UserServiceTestApi < ApiTestCase
     users = @user_service.findUser(FindUser.new(search)).users
     assert_equal(1, users.length)
     
-    deleteUser = AdminUser.new(search);
+    deleteUser = ManageUser.new(search);
     deleteUser.deleteUser = true
-    @user_service.adminUser(deleteUser)
+    @user_service.manageUser(deleteUser)
     
     users = @user_service.findUser(FindUser.new(search)).users
     assert_equal(0, users.length)
@@ -69,9 +69,9 @@ class UserServiceTestApi < ApiTestCase
     users = @user_service.findUser(FindUser.new(search)).users
     assert_nil(users[0].groups)
     
-    addGroup = AdminUser.new(search);
+    addGroup = ManageUser.new(search);
     addGroup.addGroup = 'yaya'
-    @user_service.adminUser(addGroup)
+    @user_service.manageUser(addGroup)
     
     users = @user_service.findUser(FindUser.new(search)).users
     assert_equal(1, users[0].groups.length)
@@ -84,9 +84,9 @@ class UserServiceTestApi < ApiTestCase
     @user_service.addUser(addUser1)    
     
     search = UserSearch.new(addUser1.user.userName)  
-    removeGroup = AdminUser.new(search);
+    removeGroup = ManageUser.new(search);
     removeGroup.removeGroup = 'group2'
-    @user_service.adminUser(removeGroup)
+    @user_service.manageUser(removeGroup)
     
     users = @user_service.findUser(FindUser.new(search)).users
     assert_equal(1, users[0].groups.length)
@@ -114,12 +114,12 @@ class UserServiceTestApi < ApiTestCase
     
     search = UserSearch.new()
     search.byGroup = 'group3'
-    editUser = AdminUser.new(search)
+    editUser = ManageUser.new(search)
     editUser.edit = [ 
     Property.new('firstName', 'Secret'), 
     Property.new('lastName', 'Agent') 
     ]
-    users = @user_service.adminUser(editUser)
+    users = @user_service.manageUser(editUser)
     
     users = @user_service.findUser(FindUser.new(nil)).users
     users.sort do |a, b|

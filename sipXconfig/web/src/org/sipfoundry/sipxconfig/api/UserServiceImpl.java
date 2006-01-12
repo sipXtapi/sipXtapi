@@ -104,28 +104,28 @@ public class UserServiceImpl implements UserService {
         }        
     }
 
-    public void adminUser(AdminUser adminUser) throws RemoteException {
-        org.sipfoundry.sipxconfig.common.User[] myUsers = search(adminUser.getSearch());
+    public void manageUser(ManageUser manageUser) throws RemoteException {
+        org.sipfoundry.sipxconfig.common.User[] myUsers = search(manageUser.getSearch());
         for (int i = 0; i < myUsers.length; i++) {
-            if (Boolean.TRUE.equals(adminUser.getDeleteUser())) {
+            if (Boolean.TRUE.equals(manageUser.getDeleteUser())) {
                 m_coreContext.deleteUser(myUsers[i]);
                 continue; // no other edits make sense
             }
-            if (adminUser.getEdit() != null) {
+            if (manageUser.getEdit() != null) {
                 User apiUser = new User();
-                Set properties  = ApiBeanUtil.getSpecifiedProperties(adminUser.getEdit());
-                ApiBeanUtil.setProperties(apiUser, adminUser.getEdit());
+                Set properties  = ApiBeanUtil.getSpecifiedProperties(manageUser.getEdit());
+                ApiBeanUtil.setProperties(apiUser, manageUser.getEdit());
                 m_userBuilder.toMyObject(myUsers[i], apiUser, properties);
             }
 
-            if (adminUser.getAddGroup() != null) {                
-                Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, adminUser
+            if (manageUser.getAddGroup() != null) {                
+                Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, manageUser
                         .getAddGroup());
                 myUsers[i].addGroup(g);
             }
 
-            if (adminUser.getRemoveGroup() != null) {
-                Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, adminUser.getRemoveGroup());
+            if (manageUser.getRemoveGroup() != null) {
+                Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, manageUser.getRemoveGroup());
                 if (g != null) {
                     DataCollectionUtil.removeByPrimaryKey(myUsers[i].getGroups(), g.getPrimaryKey());
                 }
