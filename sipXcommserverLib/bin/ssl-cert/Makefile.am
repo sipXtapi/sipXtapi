@@ -20,6 +20,7 @@ $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript)) : % : $(srcdir)/%.in
 	$(LocalizeSipXconfig) \
 		-e 's,@OPENSSL\@,@OPENSSL@,g' \
 		$< > $@
+	chmod +x $@
 
 install-exec-hook : ssl-dirs install-sipx-scripts
 
