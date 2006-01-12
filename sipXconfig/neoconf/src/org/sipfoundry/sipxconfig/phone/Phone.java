@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
@@ -384,9 +385,19 @@ public class Phone extends BeanWithGroups {
         if (m_lines == Collections.EMPTY_LIST) {
             m_lines = new ArrayList();
         }
+        int max = getModel().getMaxLineCount(); 
+        if (m_lines.size() >= max) {
+            throw new MaxLinesException("Maximum number of allowed lines is " + max);
+        }
         line.setPhone(this);
         line.setPosition(m_lines.size());
         m_lines.add(line);
+    }
+    
+    public static class MaxLinesException extends UserException {
+        MaxLinesException(String msg) {
+            super(msg);
+        }
     }
 
     public Line getLine(int position) {

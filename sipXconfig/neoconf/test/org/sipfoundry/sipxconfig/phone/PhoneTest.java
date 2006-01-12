@@ -75,4 +75,21 @@ public class PhoneTest extends TestCase {
         assertNull(phone.findByUsername("foox"));        
         assertNull(phone.findByUsername("Foo"));        
     }
+    
+    public void testMaxLines() {
+        Phone phone = new Phone(new LimitedLinePhoneModel());
+        phone.addLine(phone.createLine());
+        try {
+            phone.addLine(phone.createLine());
+            fail();
+        } catch (Phone.MaxLinesException expected) {
+            assertTrue(true);
+        }
+    }
+    
+    static class LimitedLinePhoneModel extends PhoneModel {
+        LimitedLinePhoneModel() {
+            super("beanId", "modelId", "LimitedLinePhoneModel", 1);
+        }
+    }
 }

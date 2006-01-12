@@ -4,18 +4,20 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
+        <span jwcid="@ErrorMsg"/>
 		<span jwcid="editPhoneNavigation">
                 <p>To handle calls for multiple people or identities add lines for those users by 
                 clicking on the <strong>Add Line</strong> link.  If your users are not managed
-                by this PBX, for example Vonage, FWD or separate internal server,
-                click on <strong>Add External Line</strong>.</p>
-                <p>An common and convenient alternative to adding lines to phones, is to create a 
-                call group that will send calls to a list of users all at once or a specified 
-                sequence.</p>
+                by this PBX, click on <strong>Add External Line</strong>.</p>                
+                <p>A common and convenient alternative to adding lines to phones, is to create a 
+                 hunt group that will send calls to a list of users with a specified sequence.</p>
         </span>
         <div id="settings-content">
 			<form jwcid="editLinesForm">
 				<ul class="component-links">
+                    <li>
+                        Maximum Supported Lines: <span jwcid="maxLines"/>
+                    </li>
 					<li>
 						<a href="#" id="AddExternalLine" jwcid="addExternalLineLink">Add External Line</a>
 					</li>

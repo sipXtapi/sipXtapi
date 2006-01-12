@@ -24,6 +24,7 @@
 	  - B E A N S
 	  -->
 	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
     <!--
     - C O M P O N E N T S
     -->
@@ -42,11 +43,13 @@
         <binding name="convertor" expression="idConverter"/>
     </component>
     <component id="addExternalLineLink" type="DirectLink">
-        <binding name="listener" expression="listeners.addExternalLine"/>
+        <binding name="listener" expression="global.tapestry
+            .treatUserExceptionAsValidationError(beans.validator, listeners.addExternalLine)"/>
         <binding name="parameters" expression="phone.id"/>
     </component>
     <component id="addLineLink" type="DirectLink">
-        <binding name="listener" expression="listeners.addLine"/>
+        <binding name="listener" expression="global.tapestry
+            .treatUserExceptionAsValidationError(beans.validator, listeners.addLine)"/>
         <binding name="parameters" expression="phone.id"/>
     </component>
     <component id="LineColumnValue" type="Block"/>
@@ -54,6 +57,9 @@
         <binding name="listener" expression="listeners.editLine"/>
         <binding name="parameters" expression="currentRow.id"/>
         <binding name="id" expression="'link:line' + currentRow.position"/>
+    </component>
+    <component id="maxLines" type="Insert">
+        <binding name="value" expression="phone.model.maxLineCount"/>
     </component>
     <component id="lineLabel" type="Insert"> 
         <binding name="value" expression="currentRow.uri"/>
