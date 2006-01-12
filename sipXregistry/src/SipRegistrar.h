@@ -37,6 +37,8 @@ class HttpServer;
 class XmlRpcDispatch;
 class RegistrationDB;
 class RegistrarPeer;
+class RegistrarTest;
+class RegistrarSync;
 class RegistrarInitialSync;
 class SipRedirectServer;
 class SipRegistrarServer;
@@ -119,6 +121,12 @@ public:
      * @returns NULL if no peer is configured with peerName
      */
 
+    /// Get the RegistrarTest thread object
+    RegistrarTest* getRegistrarTest();
+    
+    /// Get the RegistrarSync thread object
+    RegistrarSync* getRegistrarSync();
+    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -150,6 +158,9 @@ private:
 
    SipRegistrarServer* mRegistrarServer;
    OsMsgQ* mRegistrarMsgQ;
+
+   RegistrarSync* mRegistrarSync;
+   RegistrarTest* mRegistrarTest;
 
    // :TODO: still needed? UtlString mDefaultDomain;
 

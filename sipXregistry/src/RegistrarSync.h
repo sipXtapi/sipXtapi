@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "os/OsTask.h"
 
 // DEFINES
 // CONSTANTS
@@ -32,10 +33,8 @@ class RegistrarSync : public OsTask
    RegistrarSync();
 
    /// destructor
-   virtual ~RegistrarSync()
-      {
-      };
-
+   virtual ~RegistrarSync();
+  
    /// Signal that there may be updates ready to send.
    void sendUpdates();
 
@@ -49,7 +48,7 @@ class RegistrarSync : public OsTask
    /// mutex must be locked with OsLock to access any other member variable.
    OsBSem mutex;
 
-   OsCSem mUpdatesPending;
+   // OsCSem mUpdatesPending;   :TODO: this may need to change to a queue
    
    /// There is no copy constructor.
    RegistrarSync(const RegistrarSync&);

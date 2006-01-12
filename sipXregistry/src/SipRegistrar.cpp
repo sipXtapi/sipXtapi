@@ -200,6 +200,17 @@ void SipRegistrar::operationalPhase()
    startRedirectServer();
 }
 
+/// Get the RegistrarTest thread object
+RegistrarTest* SipRegistrar::getRegistrarTest()
+{
+   return mRegistrarTest;
+}
+
+/// Get the RegistrarSync thread object
+RegistrarSync* SipRegistrar::getRegistrarSync()
+{
+   return mRegistrarSync;
+}
 
 
 // Destructor

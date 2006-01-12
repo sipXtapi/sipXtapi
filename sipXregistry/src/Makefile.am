@@ -21,7 +21,9 @@ sipregistrar_SOURCES =  \
     RedirectSuspend.cpp \
 	 RegistrarInitialSync.h \
     RegistrarTest.h \
+    RegistrarTest.cpp \
     RegistrarSync.h \
+    RegistrarSync.cpp \
     RegistrarPeer.h \
     RegistrarPeer.cpp \
     SipRedirectorAliasDB.cpp \

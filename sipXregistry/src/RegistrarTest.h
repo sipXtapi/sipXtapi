@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "os/OsServerTask.h"
 
 // DEFINES
 // CONSTANTS
@@ -32,10 +33,8 @@ class RegistrarTest : public OsServerTask
    RegistrarTest();
 
    /// destructor
-   virtual ~RegistrarTest()
-      {
-      };
-
+   virtual ~RegistrarTest();
+   
 
    /// Check each unreachable peer.
    UtlBoolean handleMessage( OsMsg& eventMessage ///< Timer expiration msg

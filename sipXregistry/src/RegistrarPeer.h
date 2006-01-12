@@ -114,14 +114,16 @@ class RegistrarPeer : public UtlString
    /// only SipRegistrar may construct and destroy RegistrarPeer objects
    friend class SipRegistrar; 
 
-   OsBSem* mLock;       ///< must be held to access to other member variables.
+   OsBSem               mLock;       ///< must be held to access to other member variables.
    SynchronizationState mSyncState; 
-   intll   mSentTo;
-   intll   mReceivedFrom;
-   Url     mUrl;        ///< XML RPC URL
+   intll                mSentTo;
+   intll                mReceivedFrom;
+   Url                  mUrl;        ///< XML RPC URL
+   SipRegistrar*        mRegistrar;
 
    /// All RegistrarPeer objects are initially considered to be not reachable.
-   RegistrarPeer( const UtlString& name
+   RegistrarPeer( SipRegistrar*    registrar
+                 ,const UtlString& name
                  ,int              rpcPort
                  ,const char*      rpcPath = "/RPC2"
                  );
