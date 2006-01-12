@@ -198,7 +198,8 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 	left: auto;
 }
 
-#navigation li:hover ul { 
+#navigation li:hover ul,
+#navigation li.over ul { 
 	display: block; 
 }
 
@@ -211,7 +212,8 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 	border: 1px solid #FFFFCC;
 }
 
-#navigation a:hover {
+#navigation a:hover,
+#navigation a.over {
 	color: #003333;
 	background: #999999;
 }
