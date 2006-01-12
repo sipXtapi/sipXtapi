@@ -78,9 +78,8 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
-%doc doc/INSTALL.ssl
-#%doc doc/credential.xml
-#%doc doc/permission.xml
+%docdir @SIPX_DOCDIR@
+@SIPX_DOCDIR@
 %attr(755,root,root) %{_bindir}/configpp
 %attr(755,root,root) %{_bindir}/get_def_addr
 %attr(755,root,root) %{_bindir}/%name-config
@@ -113,14 +112,6 @@ rm -rf $RPM_BUILD_ROOT
 # upgrade support
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
-
-
-################################################################
-### :TODO: - standalone install won't work without this but
-###          if we include it, it will conflict with sipXpbx
-################################################################
-#%dir %attr(700,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/sipxpbx/ssl
-
 
 %files devel
 %defattr(644,root,root,755)
