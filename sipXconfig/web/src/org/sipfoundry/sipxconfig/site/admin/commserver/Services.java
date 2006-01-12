@@ -11,11 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
@@ -23,7 +22,10 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
+import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.components.LocalizedTableRendererSource;
 
 public abstract class Services extends BasePage implements PageRenderListener {
@@ -78,13 +80,19 @@ public abstract class Services extends BasePage implements PageRenderListener {
             // nothing to do
             return;
         }
-        // FIXME: we should be able to get a list of process directly here (not trrough the list
-        // of names)
-        Collection processes = new ArrayList(services.size());
-        for (Iterator i = services.iterator(); i.hasNext();) {
-            String service = (String) i.next();
-            processes.add(SipxProcessContext.Process.getEnum(service));
+        getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
+    }
+
+    public static class StatusConvertor implements IPrimaryKeyConvertor {
+        public Object getPrimaryKey(Object objValue) {
+            ServiceStatus status = (ServiceStatus) objValue;
+            return status.getServiceName();
         }
-        getSipxProcessContext().manageServices(getServiceLocation(), processes, operation);
+
+        /** on rewind all services are unknown */
+        public Object getValue(Object objPrimaryKey) {
+            Process process = Process.getEnum((String) objPrimaryKey);
+            return new ServiceStatus(process, Status.UNKNOWN);
+        }
     }
 }
