@@ -4,18 +4,18 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
-		<form jwcid="@Form" delegate="ognl:beans.validator" id="form:line">
+		<form jwcid="@Form" delegate="ognl:beans.validator" id="form:externalLine">
       <fieldset>
         <table>
           <tbody>
             <tr>
               <td>
-                <label for="line:displayId">
-                  <span jwcid="displayIdLabel">Display ID</span>:
+                <label for="line:displayName">
+                  <span jwcid="displayNameLabel">Display Name</span>:
                 </label>
               </td>
               <td>
-                <input jwcid="displayId" id="line:displayId"/>
+                <input jwcid="displayName" id="line:displayName"/>
               </td>
             </tr>
             <tr>
@@ -60,6 +60,7 @@
             </tr>
           </tbody>
         </table>
+        </fieldset>
         <ul jwcid="formActions"/>
 		</form>
 	</div>        

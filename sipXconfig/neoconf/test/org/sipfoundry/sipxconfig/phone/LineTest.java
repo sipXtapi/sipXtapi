@@ -34,7 +34,7 @@ public class LineTest extends TestCase {
         assertNotSame(lineGroup, line.getGroups().iterator().next());        
     }
     
-    public void testNoUserGetUri() {
+    public void testNoUserGetUriAndDisplayLabel() {
         PhoneDefaults defaults = new PhoneDefaults();
         
         MockControl phoneContextCtrl = MockControl.createNiceControl(PhoneContext.class);
@@ -56,6 +56,7 @@ public class LineTest extends TestCase {
         
         String actual = line.getUri();
         assertEquals("\"Display Name\"<sip:user_id@sipfoundry.org>", actual);
+        assertEquals("user_id", line.getDisplayLabel());
         
         phoneContextCtrl.verify();
     }

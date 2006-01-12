@@ -34,10 +34,10 @@
         <binding name="listener" expression="listeners.apply"/>
         <binding name="callback" expression="callback"/>
     </component>
-    <component id="displayIdLabel" type="FieldLabel">
-        <binding name="field" expression="components.displayId"/>
+    <component id="displayNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.displayName"/>
     </component>
-    <component id="displayId" type="ValidField">
+    <component id="displayName" type="ValidField">
 	    <binding name="value" expression="settings.displayName"/>
     	<binding name="validator" expression="beans.nameValidator"/>
         <message-binding name="displayName" key="label.displayName"/>
