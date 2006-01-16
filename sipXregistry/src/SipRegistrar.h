@@ -57,15 +57,15 @@ class SipRegistrar : public OsServerTask // should be SipServerBase ?
 public:
 
    //:Default constructor
+   SipRegistrar( OsConfigDb* configDb
+                );
 
    virtual
    ~SipRegistrar();
      //:Destructor
 
 
-    static SipRegistrar* getInstance(OsConfigDb* configDb,
-                                     const char* configFileName
-                                     );
+    static SipRegistrar* getInstance(OsConfigDb* configDb);
 
     SipRegistrarServer& getRegistrarServer();
 
@@ -144,20 +144,19 @@ private:
    static OsBSem sLock;
 
    OsConfigDb* mConfigDb; ///< this is owned by the main routine - do not delete
-   UtlString   mConfigFileName;
    
    RegistrationDB* mRegistrationDb;
 
-   HttpServer* mHttpServer;
+   int             mHttpPort;
+   HttpServer*     mHttpServer;
    XmlRpcDispatch* mXmlRpcDispatch;
 
-   // SyncRpc serves XML-RPC calls for HA (high availability) synchronization
-   SyncRpc* mSyncRpc;
+   SyncRpc* mSyncRpc; ///< serves XML-RPC calls for HA (high availability) synchronization
 
-   bool mReplicationConfigured; /// master switch for replication 
-   UtlString mPrimaryName; ///< full name of this host as primary 
-   UtlSList mPeers; ///< list of RegisterPeer objects.
-   
+   bool      mReplicationConfigured; /// master switch for replication 
+   UtlString mPrimaryName;           ///< full name of this host as primary 
+   UtlSList  mPeers;                 ///< list of RegisterPeer objects.
+
    RegistrarInitialSync* mInitialSyncThread;
    
    SipUserAgent* mSipUserAgent;
@@ -172,10 +171,6 @@ private:
    RegistrarTest* mRegistrarTest;
 
    // :TODO: still needed? UtlString mDefaultDomain;
-
-   SipRegistrar( OsConfigDb* configDb,
-                 const char* configFileName
-                );
 
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();

@@ -386,7 +386,9 @@ main(int argc, char* argv[] )
    // Fetch Pointer to the OsServer task object, note that
    // object uses the IMDB so it is important to shut this thread
    // cleanly before the signal handler exits
-   SipRegistrar* registrar = SipRegistrar::getInstance(&configDb, fileName);
+   SipRegistrar* registrar = SipRegistrar::getInstance(&configDb);
+
+   registrar->start();
 
    pServerTask = static_cast<OsServerTask*>(registrar);
 

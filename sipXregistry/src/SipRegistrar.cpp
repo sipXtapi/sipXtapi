@@ -23,6 +23,7 @@
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
+#include "net/NameValueTokenizer.h"
 #include "net/XmlRpcDispatch.h"
 #include "sipdb/RegistrationDB.h"
 #include "SipRegistrar.h"
@@ -60,10 +61,9 @@ OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 // phase.  This has been done for SipRegistrarServer.
 
 // Constructor
-SipRegistrar::SipRegistrar(OsConfigDb* configDb, const char* configFile) :
+SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    OsServerTask("SipRegistrarMain", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
    mConfigDb(configDb),
-   mConfigFileName(configFile),
    mHttpServer(NULL),
    mXmlRpcDispatch(NULL),
    mSyncRpc(NULL),
@@ -77,7 +77,26 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb, const char* configFile) :
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar:: constructed.");
 
-   configurePeers();
+   mHttpPort = mConfigDb->getPort("SIP_REGISTRAR_XMLRPC_PORT");
+   if (PORT_NONE == mHttpPort)
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "SipRegistrar::configurePeers"
+                    " SIP_REGISTRAR_XMLRPC_PORT == PORT_NONE :"
+                    " peer synchronization disabled"
+                    );
+
+
+   }
+   else // HTTP/RPC port is configured
+   {
+      if (PORT_DEFAULT == mHttpPort)
+      {
+         mHttpPort = REGISTRAR_DEFAULT_RPC_PORT;
+      }
+
+      configurePeers();
+   }
 }
 
 int SipRegistrar::run(void* pArg)
@@ -309,23 +328,16 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 }
 
 SipRegistrar*
-SipRegistrar::getInstance(OsConfigDb* configDb, const char* configFile)
+SipRegistrar::getInstance(OsConfigDb* configDb)
 {
     OsLock singletonLock(sLock);
 
     if ( spInstance == NULL )
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::getInstance(%p, %s)",
-                     configDb, configFile);
+       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::getInstance(%p)",
+                     configDb);
        
-       spInstance = new SipRegistrar(configDb, configFile);
-    }
-
-    UtlBoolean isStarted = spInstance->isStarted();
-    if ( !isStarted )
-    {
-        isStarted = spInstance->start();
-        assert( isStarted );
+       spInstance = new SipRegistrar(configDb);
     }
 
     return spInstance;
@@ -344,22 +356,56 @@ SipRegistrar::getRegistrarServer()
 /// Read peer configuration and initialize peer state
 void SipRegistrar::configurePeers()
 {
-   UtlString myName;
+   // in case we can ever do this on the fly, clear out any old peer configuration
+   mReplicationConfigured = false;
+   mPeers.destroyAll();
+   mPrimaryName.remove(0);
+   
    mConfigDb->get("SIP_REGISTRAR_NAME", mPrimaryName);
 
-   UtlString peerNames;
-   mConfigDb->get("SIP_REGISTRAR_SYNC_WITH", peerNames);
-
-   if (!mPrimaryName.isNull() && !peerNames.isNull())
+   if (! mPrimaryName.isNull())
    {
-      // :TODO: initialize mPeers by instantiating each RegisterPeer not myself.
-      // if all is well:
-      //   mReplicationConfigured = true;
+      UtlString peerNames;
+      mConfigDb->get("SIP_REGISTRAR_SYNC_WITH", peerNames);
+
+      if (!peerNames.isNull())
+      {
+         UtlString peerName;
+         
+         for (int peerIndex = 0;
+              NameValueTokenizer::getSubField(peerNames.data(), peerIndex, ", \t", &peerName);
+              peerIndex++
+              )
+         {
+            if ( peerName != mPrimaryName )
+            {
+               RegistrarPeer* thisPeer = new RegistrarPeer(this, peerName, mHttpPort);
+               assert(thisPeer);
+
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRegistrar::configurePeers adding %s", peerName.data()
+                             );
+            
+               mPeers.append(thisPeer);
+            }
+         }
+
+         if (mPeers.isEmpty())
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRegistrar::configurePeers - no peers configured"
+                          );
+         }
+         else
+         {
+            mReplicationConfigured = true;
+         }
+      }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRegistrar::configurePeers - no peers configured"
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::configurePeers "
+                    "SIP_REGISTRAR_NAME not set - replication disbled"
                     );
    }
 }
@@ -381,26 +427,11 @@ void SipRegistrar::startRpcServer()
    // Begins operation of the HTTP/RPC service
    // sets mHttpServer and mXmlRpcDispatcher
 
-   int httpPort = mConfigDb->getPort("SIP_REGISTRAR_XMLRPC_PORT");
-   if (PORT_NONE == httpPort)
-   {
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRegistrar::startRpcServer"
-                    " SIP_REGISTRAR_XMLRPC_PORT == PORT_NONE :"
-                    " peer synchronization disabled"
-                    );
-      mReplicationConfigured = false; // force all replication interfaces off
-   }
-   else
-   {
-      if (PORT_DEFAULT == httpPort)
-      {
-         httpPort = REGISTRAR_DEFAULT_RPC_PORT;
-      }
-
+    if (mReplicationConfigured)
+    {
       // Initialize mHttpServer, mXmlRpcDispatch, and mSyncRpc
 
-      mXmlRpcDispatch = new XmlRpcDispatch(httpPort, true /* use https */);
+      mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */);
       mHttpServer = mXmlRpcDispatch->getHttpServer();
       mSyncRpc = new SyncRpc(*mXmlRpcDispatch, *this);
       
