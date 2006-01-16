@@ -13,9 +13,6 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "net/XmlRpcDispatch.h"
-#include "net/XmlRpcMethod.h"
-
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -24,31 +21,45 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class SipRegistrar;
+class XmlRpcDispatch;
+
 
 /// XML-RPC interface for synchronizing multiple registrars
 class SyncRpc {
 public:
-   SyncRpc();
-   ~SyncRpc();
-
    /// RPC method identifiers
    typedef enum
-      {
-         Check
-         ,PullUpdates
-         ,PushUpdates
-         ,NumMethods
-      } Method;
+   {
+       PullUpdates      ///< pull database updates
+      ,PushUpdates      ///< push database updates
+      ,Reset            ///< reset state with peer
+      ,NumMethods
+   } Method;
 
+   // Hash keys
+   static UtlString gNumUpdatesKey;
+   static UtlString gUpdatesKey;
 
-   /// Must be called once to connect the RPC methods
-   static void registerMethods(XmlRpcDispatch& rpc /**< xmlrpc dispatch service to use */);
-   
+   SyncRpc(XmlRpcDispatch& xmlRpcDispatch,
+           SipRegistrar& registrar);
+   ~SyncRpc();
+
+   XmlRpcDispatch& getXmlRpcDispatch();
+
+   /// Register the XML-RPC method identified by the Method enum value
+   void registerMethod(Method method);
+
+protected:
+   // Method names
+   static const char* PULL_UPDATES;
+   static const char* PUSH_UPDATES;
+   static const char* RESET;
+
+   XmlRpcDispatch& mXmlRpcDispatch;
+   SipRegistrar& mRegistrar;
+
 private:
-   static bool       sRegistered;    /**< whether or not the SyncRpc methods have been
-                                      *   registered with XmlRpcDispatch
-                                      */
-
    /// no copy constructor
    SyncRpc(const SyncRpc& nocopy);
 

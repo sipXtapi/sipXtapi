@@ -74,7 +74,7 @@ SipRedirectServer::~SipRedirectServer()
    // Cancel all suspended requests.
    UtlHashMapIterator itor(mSuspendList);
    UtlInt* key;
-   while (key = dynamic_cast<UtlInt*> (itor()))
+   while ((key = dynamic_cast<UtlInt*> (itor())))
    {
       cancelRedirect(*key,
                      dynamic_cast<RedirectSuspend*> (itor.value()));

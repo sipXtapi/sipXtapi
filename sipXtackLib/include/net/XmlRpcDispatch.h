@@ -98,10 +98,13 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    /// Add a method to the RPC dispatch
-   void addMethod(const char* methodName, XmlRpcMethod::Get* method, void* userData);
+   void addMethod(const char* methodName, XmlRpcMethod::Get* method, void* userData = NULL);
 
    /// Remove a method from the RPC dispatch by name
    void removeMethod(const char* methodName);
+
+   /// Return the HTTP server that services RPC requests
+   HttpServer* getHttpServer();
    
 /* ============================ INQUIRY =================================== */
 

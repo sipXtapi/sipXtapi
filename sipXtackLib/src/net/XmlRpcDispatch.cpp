@@ -246,6 +246,12 @@ void XmlRpcDispatch::removeMethod(const char* methodName)
 }
 
 
+/// Return the HTTP server that services RPC requests
+HttpServer* XmlRpcDispatch::getHttpServer()
+{
+   return mpHttpServer;
+}
+
 /* ============================ INQUIRY =================================== */
 
 
@@ -873,7 +879,7 @@ void XmlRpcDispatch::cleanUp(UtlHashMap* map)
    UtlString* pName;
    UtlContainable *key;
    UtlContainable *value;
-   while (pName = (UtlString *) iterator())
+   while ((pName = (UtlString *) iterator()))
    {
       key = map->removeKeyAndValue(pName, value);
       UtlString paramType(value->getContainableType());
@@ -901,7 +907,7 @@ void XmlRpcDispatch::cleanUp(UtlSList* array)
 {
    UtlSListIterator iterator(*array);
    UtlContainable *value;
-   while (value = iterator())
+   while ((value = iterator()))
    {
       value = array->remove(value);
       UtlString paramType(value->getContainableType());

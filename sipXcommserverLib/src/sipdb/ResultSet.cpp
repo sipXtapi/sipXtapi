@@ -56,8 +56,8 @@ ResultSet::destroyAll()
 void
 ResultSet::clear()
 {
-   // I think this would actually be a bug if there was ever anything here to clear,
-   // so I'm going to treat is as a check rather than clearing it out.
+   // I think this would actually be a bug if there were ever anything here to clear,
+   // so I'm going to assert that the ResultSet is empty, rather than clearing it
    assert(isEmpty());
 }
 
@@ -66,10 +66,8 @@ ResultSet::getIndex(
     const int& index, 
     UtlHashMap& rRecord) const
 {
-    // empty out the record before populating it
-    // they are not mine to destroy so don't destroy them
+    // The record must be empty.  We can't clear the content because we don't own it.
     assert(rRecord.isEmpty());
-    // :TODO: rRecord.removeAll();
 
     OsStatus result = OS_FAILED;
     UtlHashMap *m;

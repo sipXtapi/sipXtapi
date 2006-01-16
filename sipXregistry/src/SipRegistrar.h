@@ -42,6 +42,9 @@ class RegistrarSync;
 class RegistrarInitialSync;
 class SipRedirectServer;
 class SipRegistrarServer;
+class SyncRpc;
+class UtlSListIterator;
+
 
 /// Top Level sipXregistry thread
 /**
@@ -53,20 +56,18 @@ class SipRegistrar : public OsServerTask // should be SipServerBase ?
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-/* ============================ CREATORS ================================== */
-
-
    //:Default constructor
 
    virtual
    ~SipRegistrar();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
 
     static SipRegistrar* getInstance(OsConfigDb* configDb,
                                      const char* configFileName
                                      );
+
+    SipRegistrarServer& getRegistrarServer();
 
     /// top level task
     virtual int run(void* pArg);
@@ -82,7 +83,7 @@ public:
     void startRpcServer();
     /**<
      * Begins operation of the HTTP/RPC service
-     * sets mHttpServer and mXmlRpcDispatcher
+     * sets mHttpServer and mXmlRpcDispatch
      */
     
     /// Launch all Startup Phase threads and wait until synchronization state is known
@@ -97,7 +98,7 @@ public:
      * Begins operation of the SipRegistrarServer and SipRedirectServer.
      */
 
-    /// Read configuration for replication..
+    /// Read configuration for replication.
     void configurePeers();
     /**<
      * Sets mReplicationConfigured=true if replication is configured.
@@ -121,6 +122,9 @@ public:
      * @returns NULL if no peer is configured with peerName
      */
 
+    /// Get the master object for synchronization via XML-RPC
+    SyncRpc* getSyncRpc();
+
     /// Get the RegistrarTest thread object
     RegistrarTest* getRegistrarTest();
     
@@ -132,18 +136,23 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+   // Constants
+   static const int REGISTRAR_DEFAULT_RPC_PORT;
 
    // Singleton globals
    static SipRegistrar* spInstance;
    static OsBSem sLock;
 
-   OsConfigDb* mConfigDb; ///< this is 'owned by the main routine - do not delete
+   OsConfigDb* mConfigDb; ///< this is owned by the main routine - do not delete
    UtlString   mConfigFileName;
    
    RegistrationDB* mRegistrationDb;
 
    HttpServer* mHttpServer;
-   XmlRpcDispatch* mXmlRpcDispatcher;
+   XmlRpcDispatch* mXmlRpcDispatch;
+
+   // SyncRpc serves XML-RPC calls for HA (high availability) synchronization
+   SyncRpc* mSyncRpc;
 
    bool mReplicationConfigured; /// master switch for replication 
    UtlString mPrimaryName; ///< full name of this host as primary 
@@ -173,10 +182,8 @@ private:
    void sendToRegistrarServer(OsMsg& eventMessage);
 
    /* ============================ REDIRECT ==================================== */
-    void startRedirectServer();
-    void sendToRedirectServer(OsMsg& eventMessage);
+   void startRedirectServer();
+   void sendToRedirectServer(OsMsg& eventMessage);
 };
-
-/* ============================ INLINE METHODS ============================ */
 
 #endif  // _SipRegistrar_h_

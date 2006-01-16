@@ -23,12 +23,14 @@
 #include "net/SipUserAgent.h"
 #include "net/NetMd5Codec.h"
 #include "net/NameValueTokenizer.h"
+#include "sipdb/RegistrationBinding.h"
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
 #include "SipRegistrarServer.h"
+#include "SyncRpc.h"
 #include "registry/RegisterPlugin.h"
 
 // DEFINES
@@ -58,6 +60,7 @@ const char DEFAULT_EXPIRATION_TIME[] = "7200";
 
 // FORWARD DECLARATIONS
 // GLOBAL VARIABLES
+// Static Initializers
 
 static UtlString gUriKey("uri");
 static UtlString gCallidKey("callid");
@@ -69,26 +72,26 @@ static UtlString gInstanceIdKey("instance_id");
 static UtlString gGruuKey("gruu");
 
 const UtlString SipRegistrarServer::gDummyLocalRegistrarName("dummy.somewhere.com");
+OsMutex         SipRegistrarServer::sLockMutex(OsMutex::Q_FIFO);
 
-SipRegistrarServer::SipRegistrarServer(OsConfigDb*   pOsConfigDb,  ///< Configuration parameters
-                                       SipUserAgent* pSipUserAgent ///< User Agent to use when sending responses
-                                       ) :
+SipRegistrarServer::SipRegistrarServer() :
     OsServerTask("SipRegistrarServer", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
     mIsStarted(FALSE),
-    mSipUserAgent(pSipUserAgent),
     mDefaultRegistryPeriod(),
     mNonceExpiration(5*60),
     mDbUpdateNumber(0)
 {
-   initialize(*pOsConfigDb);
 }
 
 void
-SipRegistrarServer::initialize(OsConfigDb& configDb)
+SipRegistrarServer::initialize(
+   OsConfigDb*   pOsConfigDb,      ///< Configuration parameters
+   SipUserAgent* pSipUserAgent)    ///< User Agent to use when sending responses
 {
+    mSipUserAgent = pSipUserAgent;
 
     // Minimum Registration Time
-    configDb.get("SIP_REGISTRAR_MIN_EXPIRES", mMinExpiresTimeStr);
+    pOsConfigDb->get("SIP_REGISTRAR_MIN_EXPIRES", mMinExpiresTimeStr);
     if ( mMinExpiresTimeStr.isNull() )
     {
         mMinExpiresTimeint = atoi(mMinExpiresTimeStr.data());
@@ -109,7 +112,7 @@ SipRegistrarServer::initialize(OsConfigDb& configDb)
 
     // Maximum/Default Registration Time
     UtlString maxExpiresTimeStr;
-    configDb.get("SIP_REGISTRAR_MAX_EXPIRES", maxExpiresTimeStr);
+    pOsConfigDb->get("SIP_REGISTRAR_MAX_EXPIRES", maxExpiresTimeStr);
     if ( maxExpiresTimeStr.isNull() )
     {
        maxExpiresTimeStr = DEFAULT_EXPIRATION_TIME;
@@ -130,7 +133,7 @@ SipRegistrarServer::initialize(OsConfigDb& configDb)
     }
 
     // Domain Name
-    configDb.get("SIP_REGISTRAR_DOMAIN_NAME", mDefaultDomain);
+    pOsConfigDb->get("SIP_REGISTRAR_DOMAIN_NAME", mDefaultDomain);
     if ( mDefaultDomain.isNull() )
     {
        OsSocket::getHostIp(&mDefaultDomain);
@@ -149,7 +152,7 @@ SipRegistrarServer::initialize(OsConfigDb& configDb)
     // Domain Aliases
     //   (other domain names that this registrar accepts as valid in the request URI)
     UtlString domainAliases;
-    configDb.get("SIP_REGISTRAR_DOMAIN_ALIASES", domainAliases);
+    pOsConfigDb->get("SIP_REGISTRAR_DOMAIN_ALIASES", domainAliases);
     
     UtlString aliasString;
     int aliasIndex = 0;
@@ -166,9 +169,9 @@ SipRegistrarServer::initialize(OsConfigDb& configDb)
     }
 
     // Authentication Realm Name
-    configDb.get("SIP_REGISTRAR_AUTHENTICATE_REALM", mRealm);
+    pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_REALM", mRealm);
 
-    mProxyNormalPort = configDb.getPort("SIP_REGISTRAR_PROXY_PORT");
+    mProxyNormalPort = pOsConfigDb->getPort("SIP_REGISTRAR_PROXY_PORT");
     if (mProxyNormalPort == PORT_DEFAULT)
     {
        mProxyNormalPort = SIP_PORT;
@@ -176,7 +179,7 @@ SipRegistrarServer::initialize(OsConfigDb& configDb)
     
     // Authentication Scheme:  NONE | DIGEST
     UtlString authenticateScheme;
-    configDb.get("SIP_REGISTRAR_AUTHENTICATE_SCHEME", authenticateScheme);
+    pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_SCHEME", authenticateScheme);
     mUseCredentialDB = (authenticateScheme.compareTo("NONE" , UtlString::ignoreCase) != 0);
 
     /*
@@ -184,10 +187,10 @@ SipRegistrarServer::initialize(OsConfigDb& configDb)
      *
      * These directives are in the configuration files but are not used:
      *
-     *   configDb.get("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", authAlgorithm); 
+     *   pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", authAlgorithm); 
      *     there may someday be a reason to use that one, since MD5 is aging.
      *
-     *   configDb.get("SIP_REGISTRAR_AUTHENTICATE_QOP", authQop);
+     *   pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_QOP", authQop);
      *     the qop will probably never be used - removed from current config file
      */
 
@@ -195,8 +198,22 @@ SipRegistrarServer::initialize(OsConfigDb& configDb)
     mpSipRegisterPlugins = new PluginHooks( RegisterPlugin::Factory
                                            ,RegisterPlugin::Prefix
                                            );
-    mpSipRegisterPlugins->readConfig( configDb );
+    mpSipRegisterPlugins->readConfig(*pOsConfigDb);
 }
+
+int SipRegistrarServer::pullUpdates(
+   const UtlString& registrarName,
+   intll            updateNumber,
+   UtlSList&        updates)
+{
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
+   RegistrationDB* imdb = RegistrationDB::getInstance();
+   int numUpdates = imdb->getNewUpdatesForRegistrar(registrarName, updateNumber, updates);
+   return numUpdates;
+}
+
 
 /// Apply valid changes to the database
 ///
@@ -208,6 +225,9 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                              ,const SipMessage& registerMessage
                                              )
 {
+    // Critical Section here
+    OsLock lock(sLockMutex);
+
     RegisterStatus returnStatus = REGISTER_SUCCESS;
     UtlBoolean removeAll = FALSE;
     UtlBoolean isExpiresheader = FALSE;
@@ -240,7 +260,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     RegistrationDB* imdb = RegistrationDB::getInstance();
 
     // Check that this call-id and cseq are newer than what we have in the db
-    if (! imdb->isOutOfSequence( toUrl, registerCallidStr, registerCseqInt))
+    if (! imdb->isOutOfSequence(toUrl, registerCallidStr, registerCseqInt))
     {
         // ****************************************************************
         // We now make two passes over all the contacts - the first pass
@@ -601,7 +621,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     }
     else
     {
-       OsSysLog::add( FAC_SIP, PRI_WARNING,
+        OsSysLog::add( FAC_SIP, PRI_WARNING,
                       "SipRegistrarServer::applyRegisterToDirectory request out of order\n"
                       "  To: '%s'\n"
                       "  Call-Id: '%s'\n"
@@ -614,6 +634,56 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 
     return returnStatus;
 }
+
+
+intll
+SipRegistrarServer::applyUpdatesToDirectory(
+   int timeNow,
+   const UtlSList& updates)
+{
+    // Critical Section here
+    OsLock lock(sLockMutex);
+
+   // Loop over the updates.  For each update, if the call ID and cseq are newer than what
+   // we have in the DB, then apply the update to the DB.
+   UtlSListIterator updateIter(updates);
+   RegistrationBinding* reg;
+   bool updated = false;    // set to true if we make any updates
+   RegistrationDB* imdb = RegistrationDB::getInstance();
+   while ((reg = dynamic_cast<RegistrationBinding*>(updateIter())))
+   {
+      if (!imdb->isOutOfSequence(*(reg->getUri()), *(reg->getCallId()), reg->getCseq()))
+      {
+         imdb->updateBinding(*reg);
+         updated = true;
+      
+      }
+      else
+      {
+         OsSysLog::add(
+            FAC_SIP, PRI_WARNING,
+            "SipRegistrarServer::applyUpdateToDirectory update out of cseq order\n"
+            "  To: '%s'\n"
+            "  Call-Id: '%s'\n"
+            "  Cseq: %d",
+            reg->getUri()->toString().data(), reg->getCallId()->data(), reg->getCseq()
+            );
+      }
+   }
+
+   // If we accepted any updates, then garbage collect and persist the database
+   if (updated)
+   {
+      int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
+      imdb->cleanAndPersist(oldestTimeToKeep);
+   }
+
+   // :HA: Update PeerReceivedDbUpdateNumber to updateNumber if updateNumber is bigger.
+   // If updateNumber is out of order, then log a warning in case there is a problem.
+   // Return PeerReceivedDbUpdateNumber.
+   return reg ? reg->getUpdateNumber() : 0;    // for now, just return the update number
+}
+
 
 //functions
 UtlBoolean

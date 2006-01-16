@@ -30,14 +30,18 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class Url;
+template<class T> class dbCursor;
 class dbDatabase;
 class dbFieldDescriptor;
-class UtlHashMap;
-class TiXmlNode;
+class RegistrationBinding;
+class RegistrationRow;
 class ResultSet;
+class TiXmlNode;
+class Url;
+class UtlHashMap;
+class UtlSList;
 
-/// Database of all information aquired through REGISTER messages
+/// Database of all information acquired through REGISTER messages
 class RegistrationDB
 {
 public:
@@ -50,20 +54,45 @@ public:
 
     /// Queries
 
-    ///
     UtlBoolean isOutOfSequence( const Url& uri
-                              ,const UtlString& callid
-                              ,const int& cseq
+                               ,const UtlString& callid
+                               ,const int& cseq
                               ) const;
 
-    // utility method for dumping all rows
+    /// Utility method for dumping all rows
     void getAllRows ( ResultSet& rResultSet ) const;
+
+    /// Return the maximum update number for primaryRegistrar, or zero if there are no such updates
+    intll getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const;
+    
+    /// Get the next update for primaryRegistrar with an update number > updateNumber.
+    int getNextUpdateForRegistrar( const UtlString& primaryRegistrar
+                                   ,intll            updateNumber
+                                   ,UtlSList&        bindings
+                                   ) const;
+    /**<
+     * Fill in the bindings arg with the bindings, objects of type RegistrationBinding.
+     * (A single update may include multiple bindings.)
+     * Return the number of bindings (the length of the list).
+     */
+
+    /// Get all updates for primaryRegistrar with an update number > updateNumber.
+    int getNewUpdatesForRegistrar( const UtlString& primaryRegistrar
+                                   ,intll            updateNumber
+                                   ,UtlSList&        bindings
+                                   ) const;
+    /**<
+     * Fill in the bindings arg with the bindings, objects of type RegistrationBinding.
+     * Return the number of bindings (the length of the list).
+     */
 
     /// getUnexpiredContacts is used to generate lookup responses
     void getUnexpiredContacts ( const Url& uri
                                ,const int& timeNow
                                ,ResultSet& rResultSet
                                ) const;
+
+    void RegistrationDB::updateBinding(const RegistrationBinding&);
 
     /// updateBinding of uri to contact: does insert or update as needed
     void updateBinding( const Url& uri
@@ -101,32 +130,19 @@ public:
     /// Garbage collect and persist database
     ///
     /// Garbage collect - delete all rows older than the specified
-    /// time, and then write all remaining entries to the persistant
+    /// time, and then write all remaining entries to the persistent
     /// data store (xml file).
     OsStatus cleanAndPersist( const int &newerThanTime );
 
     // Added this to make load and store code identical
-    // in all database implementations -- One step closer
+    // in all database implementations -- one step closer
     // to a template version of the code.
     void insertRow ( const UtlHashMap& nvPairs );
 
-  protected:
-    // this is implicit now
-    OsStatus load();
-
-    // Singleton Constructor is private
-    RegistrationDB( const UtlString& name );
-
-    // There is only one singleton in this design
-    static RegistrationDB* spInstance;
-
-    // Fast DB instance
-    static dbDatabase* spDBInstance;
-
-    // Singleton and Serialization mutex
-    static OsMutex sLockMutex;
-
     // ResultSet column Keys ===================================================
+
+    // The identity of this registration
+    static UtlString gIdentityKey;
 
     // The AOR of this registration
     static UtlString gUriKey;
@@ -137,12 +153,6 @@ public:
     // The contact of this registration
     static UtlString gContactKey;
 
-    // Absolute expiration time of this registration, seconds since 1/1/1970
-    static UtlString gExpiresKey;
-
-    // The contact of this registration
-    static UtlString gCseqKey;
-
     // The q-value of this registration
     static UtlString gQvalueKey;
 
@@ -152,6 +162,12 @@ public:
     // The GRUU that was assigned to this registration, or the null string
     static UtlString gGruuKey;
 
+    // The contact of this registration
+    static UtlString gCseqKey;
+
+    // Absolute expiration time of this registration, seconds since 1/1/1970
+    static UtlString gExpiresKey;
+
     // The name of the Primary Registrar for this registration
     static UtlString gPrimaryKey;
 
@@ -159,6 +175,24 @@ public:
     static UtlString gUpdateNumberKey;
 
     //==========================================================================
+
+protected:
+    // this is implicit now
+    OsStatus load();
+
+    // Singleton Constructor is private
+    RegistrationDB(const UtlString& name);
+
+    RegistrationBinding* copyRowToRegistrationBinding(dbCursor<RegistrationRow>& cursor) const;
+
+    // There is only one singleton in this design
+    static RegistrationDB* spInstance;
+
+    // Fast DB instance
+    static dbDatabase* spDBInstance;
+
+    // Singleton and Serialization mutex
+    static OsMutex sLockMutex;
 
     // Fast DB instance
     dbDatabase* m_pFastDB;
@@ -168,8 +202,9 @@ public:
 
 private:
     /// No destructor, no no no
-    virtual ~RegistrationDB();
+    ~RegistrationDB();
 
+    static UtlString nullString;
 };
 
 #endif //REGISTRATIONDB_H

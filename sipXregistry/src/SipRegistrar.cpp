@@ -19,9 +19,11 @@
 #include "os/OsConfigDb.h"
 #include "os/OsSysLog.h"
 #include "utl/PluginHooks.h"
+#include "net/HttpServer.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "net/SipUserAgent.h"
+#include "net/XmlRpcDispatch.h"
 #include "sipdb/RegistrationDB.h"
 #include "SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
@@ -30,6 +32,7 @@
 #include "RegistrarPeer.h"
 #include "RegistrarTest.h"
 #include "RegistrarSync.h"
+#include "SyncRpc.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -39,7 +42,6 @@
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_REGISTRAR_LOG_CONSOLE"
 #define CONFIG_SETTING_LOG_DIR        "SIP_REGISTRAR_LOG_DIR"
 
-#define REGISTRAR_DEFAULT_RPC_PORT  5077
 #define REGISTRAR_DEFAULT_SIP_PORT  5070
 #define REGISTRAR_DEFAULT_SIPS_PORT 5071
 
@@ -47,12 +49,15 @@ const char* RegisterPlugin::Prefix  = "SIP_REGISTRAR";
 const char* RegisterPlugin::Factory = "getRegisterPlugin";
 
 // STATIC VARIABLE INITIALIZATIONS
+
+const int SipRegistrar::REGISTRAR_DEFAULT_RPC_PORT = 5077;
 SipRegistrar* SipRegistrar::spInstance = NULL;
 OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
-/* //////////////////////////// PUBLIC //////////////////////////////////// */
 
-/* ============================ CREATORS ================================== */
+// :HA: Separate thread object creation from thread starting, except for
+// SipUserAgent.  Create objects early, create threads in operational
+// phase.  This has been done for SipRegistrarServer.
 
 // Constructor
 SipRegistrar::SipRegistrar(OsConfigDb* configDb, const char* configFile) :
@@ -60,17 +65,17 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb, const char* configFile) :
    mConfigDb(configDb),
    mConfigFileName(configFile),
    mHttpServer(NULL),
-   mXmlRpcDispatcher(NULL),
+   mXmlRpcDispatch(NULL),
+   mSyncRpc(NULL),
    mReplicationConfigured(false),
    mInitialSyncThread(NULL),
    mSipUserAgent(NULL),
    mRedirectServer(NULL),
    mRedirectMsgQ(NULL),
-   mRegistrarServer(NULL),
+   mRegistrarServer(new SipRegistrarServer()),
    mRegistrarMsgQ(NULL)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar:: constructed."
-                 ) ;
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar:: constructed.");
 
    configurePeers();
 }
@@ -200,6 +205,12 @@ void SipRegistrar::operationalPhase()
    startRedirectServer();
 }
 
+/// Get the master object for synchronization via XML-RPC
+SyncRpc* SipRegistrar::getSyncRpc()
+{
+   return mSyncRpc;
+}
+
 /// Get the RegistrarTest thread object
 RegistrarTest* SipRegistrar::getRegistrarTest()
 {
@@ -236,9 +247,10 @@ SipRegistrar::~SipRegistrar()
         mRegistrarServer = NULL;
         mRegistrarMsgQ = NULL;
     }
+
+    // :HA: Shut down and delete mSyncRpc, mXmlRpcDispatch, and mHttpServer
 }
 
-/* ============================ MANIPULATORS ============================== */
 
 UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 {
@@ -319,6 +331,16 @@ SipRegistrar::getInstance(OsConfigDb* configDb, const char* configFile)
     return spInstance;
 }
 
+SipRegistrarServer&
+SipRegistrar::getRegistrarServer()
+{
+   // The SipRegistrarServer is created in the SipRegistrar constructor, so
+   // mRegistrarServer should never be null
+   assert(mRegistrarServer);
+
+   return *mRegistrarServer;
+}
+
 /// Read peer configuration and initialize peer state
 void SipRegistrar::configurePeers()
 {
@@ -376,7 +398,15 @@ void SipRegistrar::startRpcServer()
          httpPort = REGISTRAR_DEFAULT_RPC_PORT;
       }
 
-      // :TODO: initialize mHttpServer and mXmlRpcDispatcher
+      // Initialize mHttpServer, mXmlRpcDispatch, and mSyncRpc
+
+      mXmlRpcDispatch = new XmlRpcDispatch(httpPort, true /* use https */);
+      mHttpServer = mXmlRpcDispatch->getHttpServer();
+      mSyncRpc = new SyncRpc(*mXmlRpcDispatch, *this);
+      
+      // Register only the pullUpdates method now.  Register other methods later
+      // to avoid race conditions.
+      mSyncRpc->registerMethod(SyncRpc::PullUpdates);
    }
 }
 
@@ -396,9 +426,6 @@ RegistrarPeer* SipRegistrar::getPeer(const UtlString& peerName)
            );
 }
 
-
-/* ============================ ACCESSORS ================================= */
-/////////////////////////////////////////////////////////////////////////////
 void
 SipRegistrar::startRedirectServer()
 {
@@ -410,8 +437,8 @@ SipRegistrar::startRedirectServer()
 void
 SipRegistrar::startRegistrarServer()
 {
-    mRegistrarServer = new SipRegistrarServer(mConfigDb, mSipUserAgent);
     mRegistrarMsgQ = mRegistrarServer->getMessageQueue();
+    mRegistrarServer->initialize(mConfigDb, mSipUserAgent);
     mRegistrarServer->start();
 }
 
@@ -440,11 +467,3 @@ SipRegistrar::sendToRegistrarServer(OsMsg& eventMessage)
        OsSysLog::add(FAC_SIP, PRI_CRIT, "sendToRegistrarServer - queue not initialized.");
     }
 }
-
-/* ============================ INQUIRY =================================== */
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-/* ============================ FUNCTIONS ================================= */

@@ -10,7 +10,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include <sipdb/RegistrationDB.h>
 
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
@@ -23,26 +22,31 @@
 #include "fastdb/fastdb.h"
 
 #include "xmlparser/tinyxml.h"
+#include "sipdb/RegistrationBinding.h"
+#include "sipdb/RegistrationDB.h"
+#include "sipdb/RegistrationRow.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
-#include "sipdb/RegistrationRow.h"
-#include "sipdb/RegistrationDB.h"
 
 REGISTER( RegistrationRow );
 
 // Static Initializers
 RegistrationDB* RegistrationDB::spInstance = NULL;
 OsMutex         RegistrationDB::sLockMutex (OsMutex::Q_FIFO);
+
+UtlString RegistrationDB::gIdentityKey("identity");
 UtlString RegistrationDB::gUriKey("uri");
 UtlString RegistrationDB::gCallidKey("callid");
 UtlString RegistrationDB::gContactKey("contact");
-UtlString RegistrationDB::gExpiresKey("expires");
-UtlString RegistrationDB::gCseqKey("cseq");
 UtlString RegistrationDB::gQvalueKey("qvalue");
 UtlString RegistrationDB::gInstanceIdKey("instance_id");
 UtlString RegistrationDB::gGruuKey("gruu");
+UtlString RegistrationDB::gCseqKey("cseq");
+UtlString RegistrationDB::gExpiresKey("expires");
 UtlString RegistrationDB::gPrimaryKey("primary");
 UtlString RegistrationDB::gUpdateNumberKey("update_number");
+
+UtlString RegistrationDB::nullString("");
 UtlBoolean     grVerboseLoggingEnabled = FALSE;
 
 /* ============================ CREATORS ================================== */
@@ -110,8 +114,6 @@ RegistrationDB::releaseInstance()
 OsStatus
 RegistrationDB::load()
 {
-    // Critical Section here
-    OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
     if ( m_pFastDB != NULL )
@@ -196,12 +198,10 @@ RegistrationDB::load()
 /// Garbage collect and persist database
 ///
 /// Garbage collect - delete all rows older than the specified
-/// time, and then write all remaining entries to the persistant
+/// time, and then write all remaining entries to the persistent
 /// data store (xml file).
 OsStatus RegistrationDB::cleanAndPersist( const int &newerThanTime )
 {
-    // Critical Section here
-    OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
     if ( m_pFastDB != NULL )
@@ -344,7 +344,6 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
     // Get the remaining fields so that we can substitute the null string
     // if the fetched value is 0 (the null pointer) because the field
     // is not present in the disk file.
-    static UtlString nullString("");
     UtlString* contact = (UtlString*) nvPairs.findValue(&gContactKey);
     UtlString* callId = (UtlString*) nvPairs.findValue(&gCallidKey);
     UtlString* instanceId = (UtlString*) nvPairs.findValue(&gInstanceIdKey);
@@ -368,6 +367,22 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
 
 
 void
+RegistrationDB::updateBinding(const RegistrationBinding& reg)
+{
+   updateBinding(*(reg.getUri()),    // must not be null
+                 *(reg.getContact() ? reg.getContact() : &nullString),
+                 *(reg.getQvalue() ? reg.getQvalue() : &nullString),
+                 *(reg.getCallId() ? reg.getCallId() : &nullString),
+                 reg.getCseq(),
+                 reg.getExpires(),
+                 *(reg.getInstanceId() ? reg.getInstanceId() : &nullString),
+                 *(reg.getGruu() ? reg.getGruu() : &nullString),
+                 *(reg.getPrimary() ? reg.getPrimary() : &nullString),
+                 reg.getUpdateNumber());
+}
+
+
+void
 RegistrationDB::updateBinding( const Url& uri
                               ,const UtlString& contact
                               ,const UtlString& qvalue
@@ -386,9 +401,6 @@ RegistrationDB::updateBinding( const Url& uri
 
     if ( !identity.isNull() && (m_pFastDB != NULL) )
     {
-        // Critical Section here
-        OsLock lock( sLockMutex );
-
         // Thread Local Storage
         m_pFastDB->attach();
 
@@ -399,6 +411,7 @@ RegistrationDB::updateBinding( const Url& uri
         query="np_identity=",identity,
             "  and contact=",contact;
         int existingBinding = cursor.select( query ) > 0;
+        RegistrationRow row;
         switch ( existingBinding )
         {
             default:
@@ -413,7 +426,6 @@ RegistrationDB::updateBinding( const Url& uri
 
             case 0:
                 // Insert new row
-                RegistrationRow row;
                 row.np_identity   = identity;
                 row.uri           = fullUri;
                 row.callid        = callid;
@@ -513,9 +525,6 @@ void RegistrationDB::expireAllBindings( const Url& uri
 
     if ( !identity.isNull() && ( m_pFastDB != NULL ) )
     {
-        // Critical Section here
-        OsLock lock( sLockMutex );
-
         // Thread Local Storage
         m_pFastDB->attach();
         dbCursor< RegistrationRow > cursor(dbCursorForUpdate);
@@ -646,6 +655,48 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
     }
 }
 
+intll
+RegistrationDB::getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const
+{
+   assert(false);    // not yet implemented
+}
+
+int 
+RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
+                                          intll            updateNumber,
+                                          UtlSList&        bindings) const
+{
+   // Note: when implementing this method, share code with getNewUpdatesForRegistrar.
+   // Only difference is the query.
+
+   assert(false);    // not yet implemented
+}
+
+int
+RegistrationDB::getNewUpdatesForRegistrar(const UtlString& registrarName,
+                                          intll            updateNumber,
+                                          UtlSList&        bindings) const
+{
+   dbCursor<RegistrationRow> cursor(dbCursorForUpdate);
+   dbQuery query;
+   query = "primary = ", registrarName, " and update_number > ", updateNumber;
+   int numRows = cursor.select(query);
+   if (numRows > 0)
+   {
+      OsSysLog::add(FAC_SIP, PRI_DEBUG
+                    ,"RegistrationDB::getBindingsForRegistrar found %d rows for %s with updateNumber > %lld"
+                    ,numRows
+                    ,registrarName.data()
+                    ,updateNumber);
+      do {
+         RegistrationBinding* reg = copyRowToRegistrationBinding(cursor);
+         bindings.append(reg);
+      }
+      while (cursor.next());
+   }
+   return numRows;
+}
+
 void
 RegistrationDB::getUnexpiredContacts (
    const Url& uri,
@@ -757,3 +808,19 @@ RegistrationDB::getInstance( const UtlString& name )
     return spInstance;
 }
 
+RegistrationBinding*
+RegistrationDB::copyRowToRegistrationBinding(dbCursor<RegistrationRow>& cursor) const
+{
+   RegistrationBinding *reg = new RegistrationBinding();
+   reg->setUri(* new UtlString(cursor->uri));
+   reg->setCallId(* new UtlString(cursor->callid));
+   reg->setContact(* new UtlString(cursor->contact));
+   reg->setQvalue(* new UtlString(cursor->qvalue));
+   reg->setInstanceId(* new UtlString(cursor->instance_id));
+   reg->setGruu(* new UtlString(cursor->gruu));
+   reg->setCseq(cursor->cseq);
+   reg->setExpires(cursor->expires);
+   reg->setPrimary(* new UtlString(cursor->primary));
+   reg->setUpdateNumber(cursor->update_number);
+   return reg;
+}

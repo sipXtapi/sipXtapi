@@ -16,6 +16,7 @@
 //#include <...>
 
 // APPLICATION INCLUDES
+#include "os/OsLock.h"
 #include "os/OsServerTask.h"
 #include "net/SipNonceDb.h"
 #include "utl/UtlHashMap.h"
@@ -32,6 +33,7 @@
 class SipMessage;
 class SipUserAgent;
 class PluginHooks;
+class SyncRpc;
 
 /**
  * The Registrar Server is responsible for registering and unregistering
@@ -43,12 +45,16 @@ class SipRegistrarServer : public OsServerTask
 {
 public:
     /// Construct the thread to process REGISTER requests.
-    SipRegistrarServer(OsConfigDb*   pOsConfigDb,  ///< Configuration parameters
-                       SipUserAgent* pSipUserAgent ///< User Agent to use when sending responses
-                       );
+    SipRegistrarServer();
+    /**<
+     * Defer init to the initialize method to allow the SipRegistrarServer object
+     * to be accessed before the associated thread has been started.
+     */
 
     /// Initialize the Registration Server
-    void initialize(OsConfigDb& configDb);
+    void initialize(OsConfigDb*   configDb,        ///< Configuration parameters
+                    SipUserAgent* pSipUserAgent    ///< User Agent to use when sending responses
+    );
 
     virtual ~SipRegistrarServer();
 
@@ -65,6 +71,29 @@ public:
         REGISTER_OUT_OF_ORDER,          ///< newer data already in registry database
         REGISTER_QUERY                  ///< request is a valid query for current contacts
     };
+
+    /**
+     * Retrieve all updates for registrarName whose update number is greater than updateNumber.
+     * Return the updates in the updates list.  Each update is an object of type
+     * RegistrationBinding.
+     * The order of updates in the list is not specified.
+     * Return the number of updates in the list.
+     */
+    int pullUpdates(
+       const UtlString& registrarName,
+       intll            updateNumber,
+       UtlSList&        updates);
+
+    /**
+     * Apply registry updates to the database, all of which must have the same primary
+     * registrar and update number.
+     * Return the maximum update number for that registrar.
+     * Since updates are sent in order, that should always be the update number that is
+     * common to all of these updates.
+     */
+    intll applyUpdatesToDirectory(
+        int timeNow,
+        const UtlSList& updates);
 
 protected:
     UtlBoolean mIsStarted;
@@ -92,9 +121,11 @@ protected:
     // local registrations have been processed yet.
     UtlLongLongInt mDbUpdateNumber;
 
-    // Temporary hack: create a dummy local registrar name until we can get
+    // :HA: create a dummy local registrar name until we can get
     // this value from the configuration
     static const UtlString gDummyLocalRegistrarName;
+
+    static OsMutex sLockMutex;
 
     /// Validate bindings, and if all are ok apply them to the registry db
     RegisterStatus applyRegisterToDirectory(

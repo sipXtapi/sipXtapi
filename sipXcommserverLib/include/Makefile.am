@@ -21,6 +21,7 @@ nobase_include_HEADERS =  \
     sipdb/HuntgroupRow.h \
     sipdb/PermissionDB.h \
     sipdb/PermissionRow.h \
+    sipdb/RegistrationBinding.h \
     sipdb/RegistrationDB.h \
     sipdb/RegistrationRow.h \
     sipdb/ResultSet.h \

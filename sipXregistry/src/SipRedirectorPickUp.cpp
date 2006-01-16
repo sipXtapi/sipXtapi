@@ -693,8 +693,8 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
    {
       // Find all the <orbit> elements.
       for (TiXmlNode* orbit_element = 0;
-           orbit_element = orbits_element->IterateChildren("orbit",
-                                                           orbit_element);
+           (orbit_element = orbits_element->IterateChildren("orbit",
+                                                            orbit_element));
          )
       {
          // Process each <orbit> element.
@@ -803,7 +803,7 @@ void SipRedirectorPrivateStoragePickUp::processNotify(const char* body)
                     "Body parsed, <dialog-info> found");
       // Find all the <dialog> elements.
       for (TiXmlNode* dialog = 0;
-           dialog = dialog_info->IterateChildren("dialog", dialog); )
+           (dialog = dialog_info->IterateChildren("dialog", dialog)); )
       {
          // Process each <dialog> element.
          processNotifyDialogElement(dialog->ToElement());
@@ -1089,8 +1089,8 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
             // Fetch a pointer to each element of myContentSource into
             // pStorage.
             SipRedirectorPrivateStoragePickUp* pStorage;
-            while (pStorage =
-                   dynamic_cast<SipRedirectorPrivateStoragePickUp*> (itor()))
+            while ((pStorage =
+                    dynamic_cast<SipRedirectorPrivateStoragePickUp*> (itor())))
             {
                // Does this request have the same Call-Id?
                if (callId.compareTo(pStorage->mSubscribeCallId) == 0)
