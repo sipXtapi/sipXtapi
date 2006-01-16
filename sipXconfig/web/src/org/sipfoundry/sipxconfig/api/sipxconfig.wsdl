@@ -140,10 +140,11 @@
       </xsd:complexType>
       <xsd:complexType name="Line">
         <xsd:sequence>
-          <xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="userId" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="uri" type="xsd:string" minOccurs="1" maxOccurs="1"/>
         </xsd:sequence>
       </xsd:complexType>
-      <xsd:complexType name="ExternalLine">
+      <xsd:complexType name="AddExternalLine">
         <xsd:sequence>
           <xsd:element name="userId" type="xsd:string" minOccurs="1" maxOccurs="1"/>
           <xsd:element name="displayName" type="xsd:string" minOccurs="0" maxOccurs="1"/>
@@ -246,8 +247,9 @@
             <xsd:element name="addGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
              <xsd:element name="removeGroup" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
              <xsd:element name="addLine" type="tns:Line" nillable="true" minOccurs="0" maxOccurs="1"/>
-             <xsd:element name="addExternalLine" type="tns:ExternalLine" nillable="true" minOccurs="0" maxOccurs="1"/>
-             <xsd:element name="removeLine" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+             <xsd:element name="addExternalLine" type="tns:AddExternalLine" nillable="true" minOccurs="0" maxOccurs="1"/>
+             <xsd:element name="removeLineByUserId" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
+             <xsd:element name="removeLineByUri" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1"/>
               <xsd:element name="generateProfiles" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
               <xsd:element name="restart" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
           </xsd:sequence>

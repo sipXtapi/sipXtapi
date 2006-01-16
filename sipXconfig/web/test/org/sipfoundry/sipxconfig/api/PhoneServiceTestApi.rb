@@ -69,12 +69,6 @@ class PhoneServiceTestApi < ApiTestCase
     assert_nil(phones[0].groups)	    
   end
   
-  def seedPhone
-    @seed = Phone.new('000000000000', 'unmanagedPhone')
-    addPhone = AddPhone.new(@seed)
-    @phone_service.addPhone(addPhone)
-  end
-  
   def test_addRemoveLine
     seedPhone()
     addUser1 = AddUser.new(User.new('user1'), '1234')
@@ -87,11 +81,11 @@ class PhoneServiceTestApi < ApiTestCase
     @phone_service.managePhone(addLine)
     
     phone = @phone_service.findPhone(FindPhone.new(search)).phones[0]
-    assert_equal(phone.lines[0].userName, 'user1')
+    assert_equal(phone.lines[0].userId, 'user1')
     
     #remove line		
     removeLine = ManagePhone.new(search);
-    removeLine.removeLine = 'user1'
+    removeLine.removeLineByUserId = 'user1'
     @phone_service.managePhone(removeLine)
     
     phone = @phone_service.findPhone(FindPhone.new(search)).phones[0]
@@ -136,4 +130,35 @@ class PhoneServiceTestApi < ApiTestCase
     assert_equal(1, all.length)
     assert_equal(@seed.serialNumber, all[0].serialNumber)        
   end
+  
+  def test_addRemoveExternalLine
+    seedPhone()    
+    search = PhoneSearch.new(@seed.serialNumber)
+    addExternalLine = ManagePhone.new(search);
+    addExternalLine.addExternalLine = AddExternalLine.new('external_user', 'External User', '1234',
+       'fwd.com', '101')
+    @phone_service.managePhone(addExternalLine)
+    
+    #ERROR Nil in response.  Username is not persisting
+    phone = @phone_service.findPhone(FindPhone.new(search)).phones[0]
+    
+    expectedUri = '"External User"<sip:external_user@fwd.com>'
+    assert_equal(phone.lines[0].userId, 'external_user')
+    assert_equal(phone.lines[0].uri, expectedUri)
+    
+    #remove line		
+    removeLine = ManagePhone.new(search);
+    removeLine.removeLineByUri = expectedUri
+    @phone_service.managePhone(removeLine)
+    
+    phone = @phone_service.findPhone(FindPhone.new(search)).phones[0]
+    assert_nil(phone.lines)
+  end
+
+  def seedPhone
+    @seed = Phone.new('000000000000', 'unmanagedPhone')
+    addPhone = AddPhone.new(@seed)
+    @phone_service.addPhone(addPhone)
+  end
+  
 end

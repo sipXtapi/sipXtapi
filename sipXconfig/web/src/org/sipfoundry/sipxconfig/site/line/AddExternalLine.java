@@ -38,6 +38,10 @@ public abstract class AddExternalLine extends PageWithCallback implements PageRe
     public abstract void setPhoneContext(PhoneContext context);
     
     public abstract PhoneContext getPhoneContext();
+    
+    public abstract String getPasswordConfirm();
+    
+    public abstract void setPasswordConfirm(String confirm);
 
     public void apply(IRequestCycle cycle_) {
         getPhoneContext().storePhone(getPhone());

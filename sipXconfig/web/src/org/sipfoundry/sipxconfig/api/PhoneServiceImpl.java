@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -126,29 +127,49 @@ public class PhoneServiceImpl implements PhoneService {
                     Set properties = ApiBeanUtil.getSpecifiedProperties(managePhone.getEdit());
                     ApiBeanUtil.setProperties(apiPhone, managePhone.getEdit());
                     m_builder.toMyObject(myPhones[i], apiPhone, properties);
+                    m_context.storePhone(myPhones[i]);
                 }
 
-                if (managePhone.getRemoveLine() != null) {
-                    String username = managePhone.getRemoveLine();
+                if (managePhone.getRemoveLineByUserId() != null) {
+                    String username = managePhone.getRemoveLineByUserId();
                     org.sipfoundry.sipxconfig.phone.Line l = myPhones[i].findByUsername(username);
                     if (l != null) {
-                        myPhones[i].removeLine(l);
+                        m_context.deleteLine(l);
                     }
                 }
 
+                if (managePhone.getRemoveLineByUri() != null) {
+                    String uri = managePhone.getRemoveLineByUri();
+                    org.sipfoundry.sipxconfig.phone.Line l = myPhones[i].findByUri(uri);
+                    if (l != null) {
+                        m_context.deleteLine(l);
+                    }
+                }
+                
                 if (managePhone.getAddLine() != null) {
-                    String userName = managePhone.getAddLine().getUserName();
+                    String userName = managePhone.getAddLine().getUserId();
                     org.sipfoundry.sipxconfig.common.User u = m_coreContext
                             .loadUserByUserName(userName);
                     org.sipfoundry.sipxconfig.phone.Line l = myPhones[i].createLine();
                     l.setUser(u);
                     myPhones[i].addLine(l);
+                    m_context.storePhone(myPhones[i]);
+                }
+                
+                if (managePhone.getAddExternalLine() != null) {
+                    AddExternalLine eline = managePhone.getAddExternalLine();
+                    org.sipfoundry.sipxconfig.phone.Line l = myPhones[i].createLine();
+                    LineSettings settings = (LineSettings) l.getAdapter(LineSettings.class);
+                    ApiBeanUtil.toMyObject(new SimpleBeanBuilder(), settings, eline);
+                    myPhones[i].addLine(l);
+                    m_context.storePhone(myPhones[i]);
                 }
 
                 if (managePhone.getAddGroup() != null) {
                     Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, managePhone
                             .getAddGroup());
                     myPhones[i].addGroup(g);
+                    m_context.storePhone(myPhones[i]);
                 }
 
                 if (managePhone.getRemoveGroup() != null) {
@@ -156,9 +177,8 @@ public class PhoneServiceImpl implements PhoneService {
                     if (g != null) {
                         DataCollectionUtil.removeByPrimaryKey(myPhones[i].getGroups(), g.getPrimaryKey());
                     }
+                    m_context.storePhone(myPhones[i]);
                 }
-
-                m_context.storePhone(myPhones[i]);
             }
         }
     }

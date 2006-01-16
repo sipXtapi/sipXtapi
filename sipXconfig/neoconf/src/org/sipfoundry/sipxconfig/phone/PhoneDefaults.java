@@ -139,11 +139,11 @@ public class PhoneDefaults {
     }
 
     public void setLineDefaults(Line line, User user) {
-        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
-        if (settings != null) {
-            settings.setDomainName(m_domainName);
-            settings.setRegistrationServer(m_domainName);
-            if (user != null) {
+        if (user != null) {
+            LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
+            if (settings != null) {
+                settings.setDomainName(m_domainName);
+                settings.setRegistrationServer(m_domainName);
                 settings.setAuthorizationId(user.getUserName());
                 settings.setUserId(user.getUserName());
                 settings.setDisplayName(user.getDisplayName());

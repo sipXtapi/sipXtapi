@@ -14,6 +14,8 @@
         persistent="yes"/>
     <property-specification name="phone"
         type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="passwordConfirm"
+        type="java.lang.String"/>
     <property-specification name="settings"
         type="org.sipfoundry.sipxconfig.phone.LineSettings"/>
 	<property-specification name="phoneContext" 
@@ -56,6 +58,14 @@
     </component>
     <component id="password" type="TextField">
 	    <binding name="value" expression="settings.password"/>
+        <static-binding name="hidden" value="true"/>
+    </component>
+    <component id="passwordConfirmLabel" type="FieldLabel">
+        <binding name="field" expression="components.password"/>
+        <message-binding name="displayName" key="label.password"/>
+    </component>
+    <component id="passwordConfirm" type="TextField">
+	    <binding name="value" expression="passwordConfirm"/>
         <static-binding name="hidden" value="true"/>
     </component>
     <component id="registrationServerLabel" type="FieldLabel">

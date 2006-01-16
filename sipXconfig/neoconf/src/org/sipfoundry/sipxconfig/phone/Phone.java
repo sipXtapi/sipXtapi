@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
@@ -202,11 +203,23 @@ public class Phone extends BeanWithGroups {
     public Line findByUsername(String username) {
         for (int i = 0; i < getLines().size(); i++) {
             Line l = (Line) getLines().get(i);
-            if (username.equals(l.getUser().getUserName())) {
+            User user = l.getUser();
+            if (user != null && user.getUserName().equals(username)) {
                 return l;
             }
         }
         return null;
+    }
+    
+    public Line findByUri(String uri) {
+        for (int i = 0; i < getLines().size(); i++) {
+            Line l = (Line) getLines().get(i);
+            String candidate = l.getUri();
+            if (candidate.equals(uri)) {
+                return l;
+            }
+        }
+        return null;        
     }
 
     public void removeLine(Line line) {
@@ -358,8 +371,7 @@ public class Phone extends BeanWithGroups {
             adapter.addMapping(LineSettings.AUTHORIZATION_ID, CREDENTIAL_SETTINGS
                     + LineSettings.AUTHORIZATION_ID);
             adapter.addMapping(LineSettings.USER_ID, CREDENTIAL_SETTINGS + LineSettings.USER_ID);
-            adapter
-                    .addMapping(LineSettings.PASSWORD, CREDENTIAL_SETTINGS
+            adapter.addMapping(LineSettings.PASSWORD, CREDENTIAL_SETTINGS
                             + LineSettings.PASSWORD);
             adapter.addMapping(LineSettings.DISPLAY_NAME, CREDENTIAL_SETTINGS
                     + LineSettings.DISPLAY_NAME);

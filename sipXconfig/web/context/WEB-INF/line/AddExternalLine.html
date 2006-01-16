@@ -3,6 +3,7 @@
     <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
 </head>
 <body jwcid="$content$">
+    <h2>External Line</h2>
 	<div jwcid="@Border">
 		<form jwcid="@Form" delegate="ognl:beans.validator" id="form:externalLine">
       <fieldset>
@@ -36,6 +37,16 @@
               </td>
               <td>
                 <input jwcid="password" id="line:password"/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="line:passwordConfirm">
+                  <span jwcid="passwordConfirmLabel">Confirm Password</span>:
+                </label>
+              </td>
+              <td>
+                <input jwcid="passwordConfirm" id="line:passwordConfirm"/>
               </td>
             </tr>
             <tr>

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
 
 public class PhoneBuilder extends SimpleBeanBuilder {    
     private static final String MODEL_ID_PROP = "modelId"; 
@@ -47,7 +48,9 @@ public class PhoneBuilder extends SimpleBeanBuilder {
                 Line[] apiLines = (Line[]) ApiBeanUtil.newArray(Line.class, myLines.size());            
                 for (int i = 0; i < apiLines.length; i++) {
                     org.sipfoundry.sipxconfig.phone.Line myLine = (org.sipfoundry.sipxconfig.phone.Line) myLines.get(i);
-                    apiLines[i].setUserName(myLine.getUser().getUserName());
+                    LineSettings settings = (LineSettings) myLine.getAdapter(LineSettings.class);
+                    apiLines[i].setUserId(settings.getUserId());
+                    apiLines[i].setUri(myLine.getUri());
                 }
                 phone.setLines(apiLines);
             }
