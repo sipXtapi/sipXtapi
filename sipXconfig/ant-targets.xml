@@ -31,6 +31,7 @@
   <property name="junit.results.dir" value="${build.dir}/junit" />
   <property name="test.classes.dir" value="${build.dir}/tests"/>
   <property name="clover.dir" value="${build.dir}/clover"/>
+  <property name="test.name" value="*"/>
 
   <!-- 
     - going forward this default will change to just 'test'
@@ -45,8 +46,7 @@
   </target>
 
   <!-- Default pattern for unittest naming schema -->
-  <property name="test.name" value="*Test"/>
-  <patternset id="test.classes" includes="**/${test.name}.class" />
+  <patternset id="test.classes" includes="**/${test.name}Test.class" />
 
   <!--
     - T A S K   D E F I N I T I O N S
