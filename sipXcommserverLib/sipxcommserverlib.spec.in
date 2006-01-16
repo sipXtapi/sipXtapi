@@ -78,7 +78,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS LICENSE INSTALL README NEWS TODO ChangeLog %name.configlog
-%attr(755,root,root) @SIPX_DOCDIR@/INSTALL.ssl
+%attr(755,root,root) %{_datadir}/doc/sipx/INSTALL.ssl
 %attr(755,root,root) %{_bindir}/configpp
 %attr(755,root,root) %{_bindir}/get_def_addr
 %attr(755,root,root) %{_bindir}/%name-config
