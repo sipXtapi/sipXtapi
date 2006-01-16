@@ -25,7 +25,7 @@ $Method = '';
 $UserAgent = '';
 $MaxForwards = 20;
 $UseViaName = 0;
-$SymetricPort = 0;
+$SymmetricPort = 0;
 
 $DefaultUserAgent = "sipsend/$VERSION";
 
@@ -40,8 +40,8 @@ $HELP = <<HELP;
         ---timeout <seconds> (not implemented yet)
         ---show1xx|-1
            Also output provisional responses.
-        ---symetric <port>
-           Use symetric signalling (send and listen on the same port)
+        ---symmetric <port>
+           Use symmetric signalling (send and listen on the same port)
         ---credentials <username> <password>
            Specify credentials for Digest authentication.
         -t|--to <to>
@@ -96,7 +96,7 @@ HELP
              '-', '--verbose',     0, 'ShowRequest',
              '-', '--timeout',     1, 'Timeout',
              '-', '--show1xx',     0, 'Show1xx',
-             '-', '--symetric',    1, 'SymetricPort',
+             '-', '--symmetric',   1, 'SymmetricPort',
              '-', '--credentials', 2, 'Credentials',
              '-', 't|to',          1, 'To',
              '-', 'f|from',        1, 'From',
@@ -134,10 +134,10 @@ $proto = getprotobyname('tcp');
 
 socket( SIP, PF_INET, SOCK_STREAM, $proto );
 
-if ( $SymetricPort )
+if ( $SymmetricPort )
 {
-    bind( SIP, sockaddr_in( $SymetricPort, INADDR_ANY ))
-        || die "Bind to INADDR_ANY:$SymetricPort failed: $!\n";
+    bind( SIP, sockaddr_in( $SymmetricPort, INADDR_ANY ))
+        || die "Bind to INADDR_ANY:$SymmetricPort failed: $!\n";
 }
 
 $serverAddr = sockaddr_in( $Port, inet_aton( $Server ) );
