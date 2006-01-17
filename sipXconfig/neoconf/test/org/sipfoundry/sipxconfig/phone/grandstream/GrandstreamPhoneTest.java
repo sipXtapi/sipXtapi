@@ -21,6 +21,7 @@ import org.easymock.MockControl;
 import org.easymock.internal.EqualsMatcher;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.phone.SipService;
 
 public class GrandstreamPhoneTest extends TestCase {
@@ -30,6 +31,7 @@ public class GrandstreamPhoneTest extends TestCase {
     PhoneTestDriver tester;
     
     protected void setUp() {
+        PhoneTimeZone.setTimeZone("EST");
         phone = new GrandstreamPhone(GrandstreamModel.MODEL_PHONEBT);
         tester = new PhoneTestDriver(phone);
     }

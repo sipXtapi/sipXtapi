@@ -714,13 +714,6 @@
       <value>900</value>
       <description>SIP registration renewal interval in seconds.</description>
     </setting>
-    <setting name="Proxy">
-      <type>
-        <string maxLen="31"/>
-      </type>
-      <value>0</value>
-      <description>Proxy or registrar address (0 = disabled).</description>
-    </setting>
     <setting name="SecProxy">
       <type>
         <string maxLen="31"/>
@@ -749,7 +742,7 @@
         <integer min="1" max="65535"/>
       </type>
       <value>5060</value>
-      <description>The port for SIP requests.</description>
+      <description>The device port for SIP requests.</description>
     </setting>
     <setting name="MediaPort">
       <!-- even values only -->
@@ -1290,7 +1283,7 @@
           </option>
         </enum>
       </type>
-      <value>0</value>
+      <value>20</value>
       <description>Timezone.</description>
     </setting>
     <setting name="IPDialPlan">
@@ -1523,7 +1516,6 @@
           </enum>
         </type>
         <value>0</value>
-        <description>Default is to send via local proxy.</description>
       </setting>
       <setting name="__ConnectMode.17" advanced="yes">
         <label>SIP call forwarding performed by the ATA</label>
@@ -1673,7 +1665,6 @@
           </enum>
         </type>
         <value>0</value>
-        <description>Default is to send via local proxy.</description>
       </setting>
       <setting name="__ConnectMode.19" advanced="yes">
         <label>Generate ringback tone to the caller</label>

@@ -416,8 +416,12 @@ public class Phone extends BeanWithGroups {
         return (Line) m_lines.get(position);
     }
 
+    protected void setDefaultTimeZone() {
+    }
+
     protected void defaultSettings() {
         getPhoneContext().getPhoneDefaults().setPhoneDefaults(this);
+        setDefaultTimeZone();
     }
 
     protected void defaultLineSettings(Line line) {

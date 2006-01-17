@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
+import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
 /**
@@ -28,6 +30,10 @@ import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 public class CiscoIpPhone extends CiscoPhone {
 
     public static final String BEAN_ID = "ciscoIp";
+
+    private static final String DST_AUTO_ADJUST = "dst_auto_adjust";
+
+    private static final String ZEROMIN = ":00";
 
     public CiscoIpPhone() {
         super(BEAN_ID);
@@ -86,6 +92,43 @@ public class CiscoIpPhone extends CiscoPhone {
         return impl;
     }
 
+    protected void setDefaultTimeZone() {
+        PhoneTimeZone mytz = new PhoneTimeZone();
+        Setting datetime = getSettings().getSetting("datetime");
+
+        datetime.getSetting("time_zone").setValue(mytz.getShortName());
+        
+        if (mytz.getDstOffset() == 0) {
+            datetime.getSetting(DST_AUTO_ADJUST).setValue("0");
+        } else {
+            datetime.getSetting(DST_AUTO_ADJUST).setValue("1");
+            datetime.getSetting("dst_offset")
+                .setValue(String.valueOf(mytz.getDstOffset() / 3600));
+
+            datetime.getSetting("dst_start_day")
+                .setValue(String.valueOf(mytz.getStartDay()));
+            datetime.getSetting("dst_start_day_of_week")
+                .setValue(String.valueOf(mytz.getStartDayOfWeek()));
+            datetime.getSetting("dst_start_month")
+                .setValue(String.valueOf(mytz.getStartMonth()));
+            datetime.getSetting("dst_start_time")
+                .setValue(String.valueOf(mytz.getStartTime() / 3600) + ZEROMIN);
+            datetime.getSetting("dst_start_week_of_month")
+                .setValue(String.valueOf(mytz.getStartWeek()));
+
+            datetime.getSetting("dst_stop_day")
+                .setValue(String.valueOf(mytz.getStopDay()));
+            datetime.getSetting("dst_stop_day_of_week")
+                .setValue(String.valueOf(mytz.getStopDayOfWeek()));
+            datetime.getSetting("dst_stop_month")
+                .setValue(String.valueOf(mytz.getStopMonth()));
+            datetime.getSetting("dst_stop_time")
+                .setValue(String.valueOf(mytz.getStopTime() / 3600) + ZEROMIN);
+            datetime.getSetting("dst_stop_week_of_month")
+                .setValue(String.valueOf(mytz.getStopWeek()));
+        }
+    }
+    
     public void defaultLineSettings(Line line) {
         super.defaultLineSettings(line);
 

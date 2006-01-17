@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 
 public class SnomTest extends TestCase {
 
@@ -25,6 +26,7 @@ public class SnomTest extends TestCase {
     }
 
     public void testGetProfileName() {
+        PhoneTimeZone.setTimeZone("US/Eastern");
         SnomPhone phone = new SnomPhone(SnomModel.MODEL_360);
         // it can be called without serial number
         assertEquals("snom360.htm", phone.getProfileName());

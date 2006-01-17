@@ -862,6 +862,10 @@
       <type>
         <enum>
           <option>
+            <label>Use offset and DST parameters.</label>
+            <value></value>
+          </option>
+          <option>
             <value>USA-10</value>
           </option>
           <option>
@@ -1163,8 +1167,24 @@
           </option>
         </enum>
       </type>
-      <value>USA-5</value>
+      <value></value>
       <description/>
+    </setting>
+    <setting name="utc_offset">
+      <label>Timezone offset</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+      <description>Leave blank if using Timezone selection.</description>
+    </setting>
+    <setting name="dst">
+      <label>Daylight Savings Time</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+      <description>Leave blank if using Timezone selection.</description>
     </setting>
     <setting name="http_proxy">
       <label>HTTP Proxy</label>

@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
+import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -69,6 +70,8 @@ public class GrandstreamPhone extends Phone {
     public static final String ET = "&";
 
     private static final String PARAM_DELIM = "-";
+
+    private static final String TIMEZONE_SETTING = "phone/P64";
 
     private static final SettingFilter S_REALSETTINGS = new SettingFilter() {
         public boolean acceptSetting(Setting root_, Setting setting) {
@@ -149,6 +152,14 @@ public class GrandstreamPhone extends Phone {
         setDefaultIfExists(upgroot, "P192", defaults.getTftpServer());
         setDefaultIfExists(upgroot, "P237", defaults.getTftpServer());
     } 
+
+    protected void setDefaultTimeZone() {
+        PhoneTimeZone mytz = new PhoneTimeZone();
+
+        int tzmin = mytz.getOffsetWithDst() / 60 + 12 * 60;
+
+        getSettings().getSetting(TIMEZONE_SETTING).setValue(String.valueOf(tzmin));
+    }
 
     public Object getLineAdapter(Line line, Class interfac) {
         Object impl;

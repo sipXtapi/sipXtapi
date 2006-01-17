@@ -18,6 +18,7 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 
 public class CiscoAtaPhoneTest extends TestCase {
 
@@ -26,6 +27,7 @@ public class CiscoAtaPhoneTest extends TestCase {
     PhoneTestDriver tester;
 
     protected void setUp() {
+        PhoneTimeZone.setTimeZone("EST");
         phone = new CiscoAtaPhone(CiscoModel.MODEL_ATA18X);
         tester = new PhoneTestDriver(phone);
 

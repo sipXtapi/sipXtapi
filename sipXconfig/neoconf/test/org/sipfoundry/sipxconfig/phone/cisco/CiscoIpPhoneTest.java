@@ -17,12 +17,14 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 
 public class CiscoIpPhoneTest extends TestCase {
 
     private CiscoIpPhone m_phone;
 
     protected void setUp() {
+        PhoneTimeZone.setTimeZone("US/Eastern");
         m_phone = new CiscoIpPhone(CiscoModel.MODEL_7960);
         new PhoneTestDriver(m_phone);
     }
