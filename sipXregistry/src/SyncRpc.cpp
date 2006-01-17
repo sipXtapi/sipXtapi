@@ -160,6 +160,7 @@ private:
  * Parameters  Type        Name                    Description
  *  Inputs:
  *             string      callingRegistrar        Calling registrar name
+ *             intll       lastSentUpdateNumber    Number of last update sent
  *             array       updates
  *               struct
  *                 string  uri
@@ -203,7 +204,12 @@ protected:
          // the callingRegistrar input, since peers only push updates for which
          // they are the primary registrar.
 
-         UtlSList* updateMaps = dynamic_cast<UtlSList*>(params.at(1));
+         // :HA: Make sure that lastSentUpdateNumber matches PeerReceivedDbUpdateNumber.
+         // Otherwise we're missing one or more updates.  If there is a mismatch, then
+         // reject the update, and return a fault in order to trigger a reset.
+         //UtlLongLongInt* lastSentUpdateNumber = dynamic_cast<UtlLongLongInt*>(params.at(1));
+
+         UtlSList* updateMaps = dynamic_cast<UtlSList*>(params.at(2));
          UtlSListIterator updateIter(*updateMaps);
 
          // Iterate over the updates and convert RPC params to RegistrationBindings
