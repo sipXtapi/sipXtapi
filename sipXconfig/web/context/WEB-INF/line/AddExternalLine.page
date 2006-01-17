@@ -14,8 +14,6 @@
         persistent="yes"/>
     <property-specification name="phone"
         type="org.sipfoundry.sipxconfig.phone.Phone"/>
-    <property-specification name="passwordConfirm"
-        type="java.lang.String"/>
     <property-specification name="settings"
         type="org.sipfoundry.sipxconfig.phone.LineSettings"/>
 	<property-specification name="phoneContext" 
@@ -31,57 +29,50 @@
     	<set-property name="required" expression="true"/>
 	    <set-property name="minimumLength" expression="1"/>
 	</bean>
-        
-    <component id="formActions" type="FormActions">
-        <binding name="listener" expression="listeners.apply"/>
-        <binding name="callback" expression="callback"/>
-    </component>
-    <component id="displayNameLabel" type="FieldLabel">
+            
+    <component id="displayNamePanel" type="FieldPanel">
         <binding name="field" expression="components.displayName"/>
+        <message-binding name="label" key="label.displayName"/>        
     </component>
-    <component id="displayName" type="ValidField">
+    <component id="displayName" type="TextField">
 	    <binding name="value" expression="settings.displayName"/>
-    	<binding name="validator" expression="beans.nameValidator"/>
         <message-binding name="displayName" key="label.displayName"/>
     </component>
-    <component id="userIdLabel" type="FieldLabel">
+    <component id="userIdPanel" type="FieldPanel">
         <binding name="field" expression="components.userId"/>
+        <message-binding name="label" key="label.userId"/>
+        <message-binding name="description" key="description.userId"/>
     </component>
     <component id="userId" type="ValidField">
 	    <binding name="value" expression="settings.userId"/>
     	<binding name="validator" expression="beans.nameValidator"/>
         <message-binding name="displayName" key="label.userId"/>
     </component>
-    <component id="passwordLabel" type="FieldLabel">
-        <binding name="field" expression="components.password"/>
-        <message-binding name="displayName" key="label.password"/>
+    <component id="passwordConfirmPanel" type="ConfirmPassword">
+        <binding name="password" expression="settings.password"/>
     </component>
-    <component id="password" type="TextField">
-	    <binding name="value" expression="settings.password"/>
-        <static-binding name="hidden" value="true"/>
-    </component>
-    <component id="passwordConfirmLabel" type="FieldLabel">
-        <binding name="field" expression="components.password"/>
-        <message-binding name="displayName" key="label.password"/>
-    </component>
-    <component id="passwordConfirm" type="TextField">
-	    <binding name="value" expression="passwordConfirm"/>
-        <static-binding name="hidden" value="true"/>
-    </component>
-    <component id="registrationServerLabel" type="FieldLabel">
+    <component id="registrationServerPanel" type="FieldPanel">
         <binding name="field" expression="components.registrationServer"/>
+        <message-binding name="label" key="label.registrationServer"/>
+        <message-binding name="description" key="description.registrationServer"/>
     </component>
     <component id="registrationServer" type="ValidField">
 	    <binding name="value" expression="settings.registrationServer"/>
     	<binding name="validator" expression="beans.registrationServerValidator"/>
         <message-binding name="displayName" key="label.registrationServer"/>
     </component>
-    <component id="voiceMailLabel" type="FieldLabel">
+    <component id="voiceMailPanel" type="FieldPanel">
         <binding name="field" expression="components.voiceMail"/>
-        <message-binding name="displayName" key="label.voiceMail"/>
+        <message-binding name="label" key="label.voiceMail"/>
+        <message-binding name="description" key="description.voiceMail"/>
     </component>
     <component id="voiceMail" type="TextField">
 	    <binding name="value" expression="settings.voiceMail"/>
+    </component>
+    <component id="formActions" type="FormActions">
+        <binding name="listener" expression="listeners.ok"/>
+        <static-binding name="includeApplyButton" value="false"/>
+        <binding name="callback" expression="callback"/>
     </component>
     
 </page-specification>

@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.line;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -39,12 +40,15 @@ public abstract class AddExternalLine extends PageWithCallback implements PageRe
     
     public abstract PhoneContext getPhoneContext();
     
-    public abstract String getPasswordConfirm();
-    
-    public abstract void setPasswordConfirm(String confirm);
+    private boolean isValid() {
+        IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
+        return !delegate.getHasErrors();
+    }
 
-    public void apply(IRequestCycle cycle_) {
-        getPhoneContext().storePhone(getPhone());
+    public void ok(IRequestCycle cycle_) {
+        if (isValid()) {
+            getPhoneContext().storePhone(getPhone());
+        }
     }
 
     public void pageBeginRender(PageEvent event_) {

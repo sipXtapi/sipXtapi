@@ -20,6 +20,10 @@
     <parameter name="includeRefreshButton" direction="in" required="no"
     	default-value="false"
     	type="boolean"/>
+
+    <parameter name="includeApplyButton" direction="in" required="no"
+    	default-value="true"
+    	type="boolean"/>
     
     <parameter name="successMessage" direction="in" required="no" type="java.lang.String"/>
     
@@ -32,6 +36,11 @@
     <component id="ifRenderCancel" copy-of="ifRenderOk">
     </component>
         
+    <component id="ifRenderApply" type="contrib:FormConditional">
+        <binding name="condition" expression="includeApplyButton"/>
+        <static-binding name="element" value="li"/>
+    </component>
+
     <component id="ifRenderRefresh" type="contrib:FormConditional">
         <binding name="condition" expression="includeRefreshButton"/>
         <static-binding name="element" value="li"/>

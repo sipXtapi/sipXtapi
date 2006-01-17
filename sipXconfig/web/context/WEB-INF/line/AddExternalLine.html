@@ -3,71 +3,25 @@
     <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
 </head>
 <body jwcid="$content$">
-    <h2>External Line</h2>
 	<div jwcid="@Border">
-		<form jwcid="@Form" delegate="ognl:beans.validator" id="form:externalLine">
+      <h2>Add External Line</h2>
+      <span jwcid="@ErrorMsg"/>
+	  <form jwcid="@Form" delegate="ognl:beans.validator" id="form:externalLine">
       <fieldset>
         <table>
           <tbody>
-            <tr>
-              <td>
-                <label for="line:displayName">
-                  <span jwcid="displayNameLabel">Display Name</span>:
-                </label>
-              </td>
-              <td>
+            <tr jwcid="displayNamePanel">
                 <input jwcid="displayName" id="line:displayName"/>
-              </td>
             </tr>
-            <tr>
-              <td>
-                <label for="line:userId">
-                  <span jwcid="userIdLabel">User ID</span>:
-                </label>
-              </td>
-              <td>
+            <tr jwcid="userIdPanel">
                 <input jwcid="userId" id="line:userId"/>
-              </td>
             </tr>
-            <tr>
-              <td>
-                <label for="line:password">
-                  <span jwcid="passwordLabel">Password</span>:
-                </label>
-              </td>
-              <td>
-                <input jwcid="password" id="line:password"/>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <label for="line:passwordConfirm">
-                  <span jwcid="passwordConfirmLabel">Confirm Password</span>:
-                </label>
-              </td>
-              <td>
-                <input jwcid="passwordConfirm" id="line:passwordConfirm"/>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <label for="line:registrationServer">
-                  <span jwcid="registrationServerLabel">Registration Server</span>:
-                </label>
-              </td>
-              <td>
+            <tr jwcid="passwordConfirmPanel"/>
+            <tr jwcid="registrationServerPanel">
                 <input jwcid="registrationServer" id="line:registrationServer"/>
-              </td>
             </tr>
-            <tr>
-              <td>
-                <label for="line:voiceMail">
-                  <span jwcid="voiceMailLabel">Voice Mail</span>:
-                </label>
-              </td>
-              <td>
+            <tr jwcid="voiceMailPanel">
                 <input jwcid="voiceMail" id="line:voiceMail"/>
-              </td>
             </tr>
           </tbody>
         </table>

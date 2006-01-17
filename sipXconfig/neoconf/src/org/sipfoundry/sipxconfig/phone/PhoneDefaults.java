@@ -168,7 +168,7 @@ public class PhoneDefaults {
         sb.append('@').append(settings.getRegistrationServer());
 
         String displayName = settings.getDisplayName();
-        if (displayName != null) {
+        if (StringUtils.isNotBlank(displayName)) {
             sb.insert(0, "\"" + displayName + "\"<").append(">");
         }
         String uri = sb.toString();
