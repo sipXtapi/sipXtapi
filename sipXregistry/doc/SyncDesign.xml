@@ -53,7 +53,7 @@
           by implementing only those features that are absolutely required. The first HA
           implementation, targeted for sipXpbx release 3.2, will only address basic calling. Automated
           installation will not be supported; some custom, manual configuration will be
-          required. No more than 2 registrars will be allowed. </spanx>
+          required. No more than 2 registrars will be supported. </spanx>
       </t>
       <t> 
         In sipXpbx, basic calling depends on three components: the two proxies and the
@@ -1031,7 +1031,8 @@
             standard exponential backoff to a maximum interval of one eighth of the maximum
             registration interval. This prevents useless and possibly harmful traffic
             being injected into the network in the event that the loss of connectivity is
-            traffic-related.
+            traffic-related. It also prevents thrashing in the event of any unexpected
+            problem that causes resets to fail many times in a row.
           </t>
           
           <t>
@@ -1160,7 +1161,7 @@
       <section title='registrarSync.reset method' anchor='reset'>
 
         <t>
-          This method conveys the PeerSentDbUpdateNumber in both directions
+          This method conveys the PeerReceivedDbUpdateNumber in both directions
           between the client and the server, and indicates that the client
           is ready to receive registrarSync.pushUpdates calls.
         </t>
@@ -1173,13 +1174,13 @@
             i8      updateNumber   
             </artwork>
           </figure>
-          The sent updateNumber is the highest update number in the
-          clients database owned by the server: the
-          PeerReceivedDbUpdateNumber in the client for the server.  This
-          value becomes the PeerSentDbUpdateNumber in the server for the
+          The updateNumber input is the client's PeerReceivedDbUpdateNumber for
+          that server.  PeerReceivedDbUpdateNumber is the highest update number
+          in the client's database owned by the server, or zero if there are no
+          such updates.  This value becomes the PeerSentDbUpdateNumber in the server for the
           callingRegistrar client.  Note that this value may be less than the
           current value for PeerSentDbUpdateNumber, indicating that some
-          previously sent values were lost.
+          previously sent updates were lost.
         </t>
         <t>
           Outputs:
@@ -1199,9 +1200,13 @@
         <t>
           If no fault is returned, the client and server each mark the
           other as Reachable, and call the RegistrarSync::sendUpdates C++
-          method to begin pushing updates to the peer (it is possible that
+          method to begin pushing updates to the peer. It is possible that
           there are no updates to be sent, but determining this is the
-          responsibility of the <xref target='registrarsync'>RegistrarSync</xref> thread).
+          responsibility of the <xref target='registrarsync'>RegistrarSync</xref> thread.
+        </t>
+        <t>
+          See <xref target='registrartest'>RegistrarTest</xref> for info on how faults
+          are handled.
         </t>
 
       </section>
@@ -1217,7 +1222,8 @@
           Inputs:
           <figure>
             <artwork>
-            string    callingRegistrar  Calling registrar name
+            string    callingRegistrar     Calling registrar name
+            i8        lastSentUpdateNumber Number of last update sent
             array     updates
               struct  row
                 string  uri
@@ -1245,7 +1251,7 @@
           </figure>
           The returned updateNumber is equal to the sent update number (it
           is just an acknowledgement); this value is used to update the
-          callers PeerSentDbUpdateNumber for the server.
+          caller's PeerSentDbUpdateNumber for the server.
         </t>
         
         <t>
@@ -1255,6 +1261,24 @@
           This is because the update numbers are not synchronized under
           these conditions; they are resynchronized by the
           registrarSync.reset method.
+        </t>
+
+        <t>
+          lastSentUpdateNumber is set to zero if this is the first update for this
+          session.  lastSentUpdateNumber is the value of the client's 
+          PeerSentDbUpdateNumber just before pushing the update.
+        </t>
+
+        <t>
+          The server <spanx style='strong'>must</spanx> return a fault if
+          lastSentUpdateNumber does not match the current value of 
+          PeerReceivedDbUpdateNumber.  For example, suppose the server receives
+          update #2 with lastSentUpdateNumber = 1 but PeerReceivedDbUpdateNumber = 0.
+          The server returns a fault because update #2 is out of order -- the server
+          doesn't have update #1.  On receiving the fault response, the client does
+          a reset to resynchronize.  This scenario is improbable but possible
+          because a pushUpdates call going in one direction can cross a reset call
+          going in the other direction.
         </t>
 
         <t>
@@ -1320,6 +1344,25 @@
           name).</spanx>
         </t>
 
+      </section>
+    
+      <section title='Protocol Versioning'>
+        <t>
+          Rules for XML-RPC interoperability across versions of the registrar:
+          <list>
+            <t>
+              Each registrar release should be protocol-interoperable with prior releases,
+              since customers may have different software versions on different machines,
+              even if only temporarily in the course of an overall upgrade.
+            </t>
+            <t>
+              If we need to make incompatible changes for some reason, then we will change
+              the XML-RPC method names to avoid interoperability problems.  For example,
+              "registrarSync.pullUpdates" would become "registrarSync2.pullUpdates"
+              (append "2" to "registrarSync" to make all the method names different).
+            </t>
+          </list>
+        </t>
       </section>
     </section>
 
