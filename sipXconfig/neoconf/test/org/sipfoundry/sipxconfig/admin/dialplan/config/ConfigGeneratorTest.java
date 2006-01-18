@@ -41,8 +41,7 @@ public class ConfigGeneratorTest extends XMLTestCase {
         EmergencyRouting er = new EmergencyRouting();
 
         ConfigGenerator generator = new ConfigGenerator();
-        generator.generate(er);
-        generator.generate(empty);
+        generator.generate(empty, er);
 
         AuthRules authRules = new AuthRules();
         authRules.begin();

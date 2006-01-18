@@ -209,7 +209,7 @@ public class MappingRulesTest extends XMLTestCase {
         controlPlan.replay();
 
         ConfigGenerator generator = new ConfigGenerator();
-        generator.generate(plan);
+        generator.generate(plan, null);
 
         String generatedXml = generator.getFileContent(ConfigFileType.MAPPING_RULES);
 
