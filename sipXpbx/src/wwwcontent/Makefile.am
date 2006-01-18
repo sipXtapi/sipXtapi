@@ -1,7 +1,7 @@
 aapromptsdir=@SIPX_VXMLDATADIR@/prompts
 
 aaprompts_DATA = \
-	stdprompts/autoattendant.wav
+	stdprompts/autoattendant.wav \
 	stdprompts/afterhours.wav
 
 wwwcontentdir=@wwwdir@/doc
@@ -538,6 +538,7 @@ wwwcontent = \
 	stdprompts/9th.wav \
 	stdprompts/a.wav \
 	stdprompts/activate_greeting_success.wav \
+	stdprompts/afterhours.wav \
 	stdprompts/afterhours_greeting_is.wav \
 	stdprompts/afterhours_greeting_selected.wav \
 	stdprompts/am.wav \
