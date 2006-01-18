@@ -198,8 +198,19 @@
       </type>
       <value>1</value>
       <description>If checked, local user interface sound effects such as confirmation/error 
-        tones, will be enabled. </description>
+        tones, will be enabled. </description>        
     </setting>
+    <group name="patterns">
+      <label>Call Tone Pattern</label>
+      <group name="MESSAGE_WAITING">
+         <label>Message Waiting</label>
+         <setting name="type">
+            <type refid="tone-pattern"/>
+            <value>chord</value>
+            <description>Sound effect</description>
+         </setting>
+      </group>      
+    </group>
   </group>
   <group name="voice">
     <label>Voice/Codecs</label>

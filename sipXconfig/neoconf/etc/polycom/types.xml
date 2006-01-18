@@ -11,3 +11,13 @@
       </option>      
     </enum>
   </type>
+  <type id="tone-pattern">
+    <enum>
+      <option>
+        <value>chord</value>
+      </option>
+      <option>
+        <value>silence</value>
+      </option>
+    </enum>
+  </type>
