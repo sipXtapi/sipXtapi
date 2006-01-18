@@ -182,20 +182,6 @@
       <property name="caseIndent" value="0"/>
     </module>
     
-    <!-- Usage checks -->
-    <!-- See http://checkstyle.sourceforge.net/config_usage.html -->
-    <!-- module name="usage.OneMethodPrivateField"/-->
-    <module name="usage.UnusedLocalVariable"/>
-    <module name="usage.UnusedParameter">
-      <property name="ignoreFormat" value="_$|Temp$"/>
-    </module>
-    <module name="usage.UnusedPrivateField">
-      <property name="ignoreFormat" value="(_$|Temp$|^serialVersionUID)"/>
-    </module>
-    <module name="usage.UnusedPrivateMethod">
-      <property name="ignoreFormat" value="_$"/>
-    </module>
-    
     <!-- Making sure logging is used -->
     <module name="GenericIllegalRegexp">
       <property name="severity" value="warning"/>
