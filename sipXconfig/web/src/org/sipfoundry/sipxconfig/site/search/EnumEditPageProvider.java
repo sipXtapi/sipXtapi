@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
+import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule;
@@ -88,6 +89,8 @@ public class EnumEditPageProvider implements EditPageProvider {
             "EditEmergencyDialRule", RULE_ID
         }, InternationalRule.class, new String[] {
             "EditInternationalDialRule", RULE_ID
+        }, AttendantRule.class, new String[] {
+            "EditAttendantDialRule", RULE_ID
         }
     };
 
