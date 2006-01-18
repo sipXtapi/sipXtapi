@@ -33,6 +33,7 @@
 #include "RegistrarPeer.h"
 #include "RegistrarTest.h"
 #include "RegistrarSync.h"
+#include "RegistrarInitialSync.h"
 #include "SyncRpc.h"
 
 // EXTERNAL FUNCTIONS
@@ -43,8 +44,8 @@
 #define CONFIG_SETTING_LOG_CONSOLE    "SIP_REGISTRAR_LOG_CONSOLE"
 #define CONFIG_SETTING_LOG_DIR        "SIP_REGISTRAR_LOG_DIR"
 
-#define REGISTRAR_DEFAULT_SIP_PORT  5070
-#define REGISTRAR_DEFAULT_SIPS_PORT 5071
+const int REGISTRAR_DEFAULT_SIP_PORT  = 5070;
+const int REGISTRAR_DEFAULT_SIPS_PORT = 5071;
 
 const char* RegisterPlugin::Prefix  = "SIP_REGISTRAR";
 const char* RegisterPlugin::Factory = "getRegisterPlugin";
@@ -66,7 +67,6 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    mConfigDb(configDb),
    mHttpServer(NULL),
    mXmlRpcDispatch(NULL),
-   mSyncRpc(NULL),
    mReplicationConfigured(false),
    mInitialSyncThread(NULL),
    mSipUserAgent(NULL),
@@ -115,10 +115,10 @@ int SipRegistrar::run(void* pArg)
 
    int taskResult = OsServerTask::run(pArg);
 
-   if (mRegistrationDb)
+   if (mRegistrationDB)
    {
-      mRegistrationDb->releaseInstance();
-      mRegistrationDb = NULL;
+      mRegistrationDB->releaseInstance();
+      mRegistrationDB = NULL;
    }
 
    return taskResult;
@@ -128,7 +128,7 @@ int SipRegistrar::run(void* pArg)
 /// Load persistent soft state
 void SipRegistrar::reloadPersistentRegistrations()
 {
-   mRegistrationDb = RegistrationDB::getInstance();
+   mRegistrationDB = RegistrationDB::getInstance();
 }
 
 
@@ -140,6 +140,14 @@ void SipRegistrar::startupPhase()
    if (mReplicationConfigured)
    {
       // :TODO: Begin the RegistrarInitialSync thread and then wait for it.
+      RegistrarInitialSync* initialSyncThread = new RegistrarInitialSync(this);
+      initialSyncThread->start();
+      yield();
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "SipRegistrar::startupPhase waiting for initialSyncThread"
+                    );
+      
+      initialSyncThread->waitForCompletion();
    }
    else
    {
@@ -224,10 +232,10 @@ void SipRegistrar::operationalPhase()
    startRedirectServer();
 }
 
-/// Get the master object for synchronization via XML-RPC
-SyncRpc* SipRegistrar::getSyncRpc()
+/// Get the XML-RPC dispatcher
+XmlRpcDispatch* SipRegistrar::getXmlRpcDispatch()
 {
-   return mSyncRpc;
+   return mXmlRpcDispatch;
 }
 
 /// Get the RegistrarTest thread object
@@ -242,6 +250,13 @@ RegistrarSync* SipRegistrar::getRegistrarSync()
    return mRegistrarSync;
 }
 
+/// Get the RegistrationDB thread object
+RegistrationDB* SipRegistrar::getRegistrationDB()
+{
+   return mRegistrationDB;
+}
+
+    
 
 // Destructor
 SipRegistrar::~SipRegistrar()
@@ -267,7 +282,7 @@ SipRegistrar::~SipRegistrar()
         mRegistrarMsgQ = NULL;
     }
 
-    // :HA: Shut down and delete mSyncRpc, mXmlRpcDispatch, and mHttpServer
+    // :HA: Shut down and delete xomXmlRpcDispatch, and mHttpServer
 }
 
 
@@ -429,15 +444,10 @@ void SipRegistrar::startRpcServer()
 
     if (mReplicationConfigured)
     {
-      // Initialize mHttpServer, mXmlRpcDispatch, and mSyncRpc
+      // Initialize mHttpServer and mXmlRpcDispatch
 
       mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */);
       mHttpServer = mXmlRpcDispatch->getHttpServer();
-      mSyncRpc = new SyncRpc(*mXmlRpcDispatch, *this);
-      
-      // Register only the pullUpdates method now.  Register other methods later
-      // to avoid race conditions.
-      mSyncRpc->registerMethod(SyncRpc::PullUpdates);
    }
 }
 

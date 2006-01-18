@@ -31,6 +31,7 @@ libsipXregistry_la_SOURCES = \
     RedirectResumeMsg.cpp \
     RedirectSuspend.cpp \
 	 RegistrarInitialSync.h \
+	 RegistrarInitialSync.cpp \
     RegistrarTest.h \
     RegistrarTest.cpp \
     RegistrarSync.h \

@@ -35,16 +35,14 @@ class SipUserAgent;
 class SipMessage;
 class HttpServer;
 class XmlRpcDispatch;
-class RegistrationDB;
 class RegistrarPeer;
 class RegistrarTest;
 class RegistrarSync;
 class RegistrarInitialSync;
 class SipRedirectServer;
 class SipRegistrarServer;
-class SyncRpc;
+class SyncRpcMethod;
 class UtlSListIterator;
-
 
 /// Top Level sipXregistry thread
 /**
@@ -122,14 +120,17 @@ public:
      * @returns NULL if no peer is configured with peerName
      */
 
-    /// Get the master object for synchronization via XML-RPC
-    SyncRpc* getSyncRpc();
+    /// Get the XML-RPC dispatcher
+    XmlRpcDispatch* getXmlRpcDispatch();
 
     /// Get the RegistrarTest thread object
     RegistrarTest* getRegistrarTest();
     
     /// Get the RegistrarSync thread object
     RegistrarSync* getRegistrarSync();
+    
+    /// Get the RegistrationDB thread object
+    RegistrationDB* getRegistrationDB();
     
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -145,13 +146,11 @@ private:
 
    OsConfigDb* mConfigDb; ///< this is owned by the main routine - do not delete
    
-   RegistrationDB* mRegistrationDb;
+   RegistrationDB* mRegistrationDB;
 
    int             mHttpPort;
    HttpServer*     mHttpServer;
    XmlRpcDispatch* mXmlRpcDispatch;
-
-   SyncRpc* mSyncRpc; ///< serves XML-RPC calls for HA (high availability) synchronization
 
    bool      mReplicationConfigured; /// master switch for replication 
    UtlString mPrimaryName;           ///< full name of this host as primary 

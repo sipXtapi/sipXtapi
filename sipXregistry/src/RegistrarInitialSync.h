@@ -13,12 +13,13 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "os/OsTask.h"
 
 // DEFINES
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-
+class SipRegistrar;
 
 /**
  * RegistrarInitialSync is an OsTask that implements the startup
@@ -31,26 +32,33 @@
  * not accept either any SIP request or any request to push updates from
  * any peer registrar.
  */
-class RegistrarInitialSync
+class RegistrarInitialSync : public OsTask
 {
   public:
 
    /// Create the startup phase thread.
-   RegistrarInitialSync()
-      {
-      };
+   RegistrarInitialSync(SipRegistrar* registrar);
 
    virtual int run(void* pArg);
 
+   /// Wait until the startup phase has completed
+   void waitForCompletion();
+   
    /// destructor
-   virtual ~RegistrarInitialSync()
-      {
-      };
+   virtual ~RegistrarInitialSync();
 
   protected:
+   friend class SipRegistrar;
 
+   void restorePeerUpdateNumbers(UtlSListIterator* peers,
+                                 RegistrationDB*   registrationDb
+                                 );
+   
   private:
 
+   SipRegistrar* mRegistrar;
+   OsBSem        mFinished;
+   
    /// There is no copy constructor.
    RegistrarInitialSync(const RegistrarInitialSync&);
 

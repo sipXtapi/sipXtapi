@@ -32,7 +32,7 @@ RegistrarPeer::RegistrarPeer( SipRegistrar*   registrar
                              )
    : UtlString(name),
      mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
-     mSyncState(PeerSyncStateUnknown),
+     mSyncState(SyncStateUnknown),
      mSentTo(0),
      mReceivedFrom(0),
      mRegistrar(registrar)
@@ -72,12 +72,12 @@ void RegistrarPeer::markUnReachable()
    { // lock scope
       OsLock mutex(mLock);
    
-      notifyTestThread = (  PeerReachable == mSyncState
+      notifyTestThread = (  Reachable == mSyncState
                           ? mRegistrar->getRegistrarTest() // was reachabe, so get the thread
                           : NULL // was not reachable, so no need to notify the thread again
                           );   
 
-      mSyncState = PeerUnReachable;
+      mSyncState = UnReachable;
    }  // release lock before signalling RegistrarTest thread
    
    if (notifyTestThread)
@@ -95,11 +95,11 @@ void RegistrarPeer::markReachable()
    { // lock scope
       OsLock mutex(mLock);
    
-      notifySyncThread = (  PeerUnReachable == mSyncState
+      notifySyncThread = (  UnReachable == mSyncState
                           ? mRegistrar->getRegistrarSync() // was not reachabe, so get the thread
                           : NULL // was reachable, so no need to notify the thread again
                           );   
-      mSyncState = PeerReachable;
+      mSyncState = Reachable;
 
    }  // release lock before signalling RegistrarSync thread
    

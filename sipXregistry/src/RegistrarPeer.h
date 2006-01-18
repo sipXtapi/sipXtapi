@@ -44,12 +44,15 @@ class RegistrarPeer : public UtlString
          
 // ================================================================
 /** @name                  Addressing
- *
- * Note that the host name of the peer is stored in the parent UtlString,
- * so RegistrarPeer::data() returns a pointer to that name.
  */
 ///@{
 
+   /// The unique (fully qualified domain) name of this peer.
+   const char* name()
+      {
+         return UtlString::data();
+      }
+   
    /// The full URL to be used to make an XML RPC request of this peer.
    void rpcURL(Url& url);
 
@@ -62,16 +65,17 @@ class RegistrarPeer : public UtlString
 
    typedef enum
       {
-         PeerSyncStateUnknown, ///< initial condition before startup sync is complete.
-         PeerReachable,        ///< initial sync completed, and no failure has occured.
-         PeerUnReachable       ///< most recent request to this peer failed.
+         SyncStateUnknown, ///< initial condition before startup sync is complete.
+         Reachable,        ///< initial sync completed, and no failure has occured.
+         UnReachable,      ///< most recent request to this peer failed.
+         Incompatible      ///< serious error indicating incompatible xoversion
       } SynchronizationState;
 
    /// Whether or not the most recent attempt to reach this peer succeeded.
    SynchronizationState synchronizationState();
    /**
     * No attempt should be made to push updates to or accept push updates from a peer
-    * that is not PeerReachable; the RegisterTest thread is responsible for attempting
+    * that is not Reachable; the RegisterTest thread is responsible for attempting
     * to re-establish contact.
     */
    
@@ -90,6 +94,16 @@ class RegistrarPeer : public UtlString
     * Until the next time markUnReachable is called, isReachable returns true.
     */
 
+   /// Indicate that a permanent error has occured with this peer.
+   void markIncompatible();
+   /**<
+    * This is used only if an interaction has determined that the peer
+    * is broken or otherwise incompatible (for example, response
+    * parameters were not the expected type).
+    *
+    * No further RPC calls will be made to a peer marked Incompatible.
+    */
+   
 ///@}
 
 // ================================================================
