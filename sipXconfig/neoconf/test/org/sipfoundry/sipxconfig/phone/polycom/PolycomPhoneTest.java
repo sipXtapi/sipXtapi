@@ -18,7 +18,6 @@ import junit.framework.TestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
-import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -29,9 +28,8 @@ public class PolycomPhoneTest extends TestCase {
     private PhoneTestDriver m_tester;
 
     protected void setUp() {
-        PhoneTimeZone.setTimeZone("US/Eastern");
         m_phone = new PolycomPhone(PolycomModel.MODEL_600);
-        m_tester = new PhoneTestDriver(m_phone);
+        m_tester = new PhoneTestDriver(m_phone, "US/Eastern");
     }
 
     public void testGenerateProfiles() throws Exception {
