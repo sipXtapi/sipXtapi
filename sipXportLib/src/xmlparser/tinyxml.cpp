@@ -23,6 +23,7 @@ distribution.
 */
 
 #include <ctype.h>
+#include <unistd.h>
 #include "xmlparser/tinyxml.h"
 
 #ifdef TIXML_USE_STL
@@ -985,15 +986,35 @@ bool TiXmlDocument::LoadFile( const char* filename, TiXmlEncoding encoding )
 
 bool TiXmlDocument::SaveFile( const char * filename ) const
 {
-	// The old c stuff lives on...
-	FILE* fp = fopen( filename, "w" );
-	if ( fp )
-	{
-		Print( fp, 0 );
-		fclose( fp );
-		return true;
+   bool result = false;
+
+   // the filename is what we want to write, but if we crash or are restarted
+   // when it is only partially written, then the resulting file will not be
+   // well-formed, so we first write to a .new file and then only when that is
+   // done do we change the name to the real filename
+   const char* newsuffix = ".new";
+   char* newfilename = new char[strlen(filename) + strlen(newsuffix) + 1];
+   if (newfilename)
+   {
+      strcpy(newfilename,filename);
+      strcat(newfilename,newsuffix);
+   
+      // The old c stuff lives on...
+      FILE* fp = fopen( newfilename, "w" );
+      if ( fp )
+      {
+         Print( fp, 0 );
+         fflush( fp ); // flush user space buffers
+         fsync( fileno( fp )); // sync kernel buffers to disk
+         fclose( fp );
+         // file is safe on disk - rename atomically changes it to filename,
+         // ensuring that at all times there is a well-formed file on disk.xo
+         rename( newfilename, filename );
+         result = true;
+      }
+      delete [] newfilename;
 	}
-	return false;
+	return result;
 }
 
 
