@@ -19,6 +19,8 @@
 #include "os/OsMutex.h"
 #include "os/OsSysLog.h"
 #include "utl/UtlSortedList.h"
+#include "utl/UtlHashMap.h"
+#include "utl/UtlHashBag.h"
 
 // DEFINES
 /* Digest Authenticaton helper */
@@ -47,7 +49,7 @@
  * Indicator for no active greeting.
  * Stored in the mailbox preferences file.
  */
-#define ACTIVE_GREETING_NOT_SET                 "none"
+#define ACTIVE_GREETING_NOT_SET         "none"
 
 /* Mailbox folder summary file */
 #define FOLDER_SUMMARY_FILE             "summary.xml"
@@ -136,6 +138,12 @@
 #define DIST_LIST_NAME "distribution.xml"
 
 
+/** Autoattendant schedule **/
+#define AA_SCHEDULE_DIR "aa_vxml/"
+#define SPECIAL_MENU    "afterhour"
+#define HOLIDAY_MENU    "afterhour"
+#define REGULAR_MENU    "operator"
+#define AFTERHOUR_MENU  "afterhour"
 
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -153,6 +161,24 @@ class MessageIDGenerator;
 class NotificationHelper;
 class SIPXAuthHelper;
 
+// Private class to contain organization pref info
+class AutoAttendantSchedule
+{
+public:
+    AutoAttendantSchedule();
+
+    virtual ~AutoAttendantSchedule();
+    
+    UtlHashBag mHolidays;
+    UtlString mHolidayMenu;
+
+    UtlHashMap mRegularFromHour;
+    UtlHashMap mRegularToHour;
+    UtlString mRegularMenu;
+    
+    UtlString mAfterHourMenu;
+};
+
 
 /**
  * Mailbox Manager class.  This class is responsible for
@@ -163,6 +189,9 @@ class SIPXAuthHelper;
  */
 class MailboxManager
 {
+
+friend class AutoAttendantSchedule;
+
 public:
     // Used in GetMessageBlock
     // No need for an enum when it can take just two values.
@@ -210,6 +239,9 @@ public:
 
     /** Method to get the base file URL of IVR prompts (like file:///usr/share/www/doc) */
     OsStatus getIvrPromptURL( UtlString& rIvrPromptUrl ) const;
+
+    /** Method to get the name of AA menu based on current local time */
+    OsStatus getTimeBasedAAName( UtlString& rScheduleName, UtlString& rLocalTime, UtlString& rAAName ) const;
 
     /**
      * Method to validate the extn and pin and to login the user.
@@ -726,6 +758,15 @@ public:
     OsStatus parseOrganizationPrefsFile ( UtlHashMap* rOrgPrefsHashDict) const;
 
 
+    /** Sets a special AA menu to be the active overal system AA menu
+     *  by putting right entries into the organization prefs xml.
+     *
+     *  @param  specialType         The flag to enable the special AA menu.
+     *
+     */
+    OsStatus setSystemOverallAAMenu(  bool specialType ) const ;
+
+
     /**
      * Utility method for parsing the mailbox id and
      *  deriving the physical location of the mailbox.
@@ -762,6 +803,13 @@ public:
      */
     OsStatus setPassword ( const UtlString& userid,
                            const UtlString& password ) ;
+
+    /** Parses the autoattendant schedule file.
+     *
+     *  @param  rAASchedule  Autoattendant schdule filled on return.
+    */
+    OsStatus parseAutoAttendantSchduleFile ( UtlString& fileLocation,
+                                             AutoAttendantSchedule* rSchedule ) const;
 
 protected:
     /**
@@ -1055,6 +1103,14 @@ private:
                                         const char* data,
                                         const int& datasize) const;
 
+    /** Gets the location of the AA schedule XML file.
+     *
+     *  @param  rScheduleFileLocation   Filled on return.
+     *  @return OsStatus                OS_SUCCESS or OS_FAILED.
+     */
+    OsStatus getScheduleFileLocation( UtlString& rFileName, UtlString& rScheduleFileLocation ) const ;
+
+    int timeValue(const char* time) const;
 
     // Singleton instance
     static MailboxManager* spInstance;
@@ -1087,8 +1143,8 @@ private:
     UtlString m_emailNotificationAddr;
     UtlString m_configServerSecureUrl;
 
-        // Variable to hold the value of <voicemail-info-playback> element
-        UtlString m_voicemailInfoPlayback;
+    // Variable to hold the value of <voicemail-info-playback> element
+    UtlString m_voicemailInfoPlayback;
 
     UtlHashMap* m_templateFolderInfo;
     int      m_maxMessageLength;
@@ -1107,7 +1163,7 @@ private:
      * @JC No longer need to store pointers to the individual tables, sipdbmanager takes care
      * of reference counting and destruction
      */
-    MessageIDGenerator* m_pMsgIDGenerator;
+    MessageIDGenerator* m_pMsgIDGenerator;    
 };
 
 #endif //MAILBOXMANAGER_H

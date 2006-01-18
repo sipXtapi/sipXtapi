@@ -101,6 +101,22 @@ extern cgicc::Cgicc *gCgi;
 MailboxManager* MailboxManager::spInstance = NULL;
 OsMutex         MailboxManager::sLockMutex (OsMutex::Q_FIFO);
 
+
+AutoAttendantSchedule::AutoAttendantSchedule()
+{    
+    mHolidayMenu = HOLIDAY_MENU;   
+    mRegularMenu = REGULAR_MENU;
+    mAfterHourMenu = AFTERHOUR_MENU;
+}
+
+AutoAttendantSchedule::~AutoAttendantSchedule()
+{
+    mHolidays.destroyAll();    
+    mRegularFromHour.destroyAll();
+    mRegularToHour.destroyAll();
+}
+
+
 /* ============================ CREATORS ================================== */
 MailboxManager::MailboxManager() :
     m_inboxFolder("inbox"),
@@ -4569,9 +4585,7 @@ MailboxManager::postMWIStatus ( const UtlString& mailboxIdentity ) const
 
             // Create an empty response object and sent the built up request
             // via it to the embedded web server on statusserver:8100
-            HttpMessage *pResponse =
-                new HttpMessage(
-                    static_cast< const HttpMessage& >(*pRequest) );
+            HttpMessage *pResponse = new HttpMessage();
 
               writeToLog("postMWIevent - sending ", notifyBodyText.data(), PRI_DEBUG);
             pResponse->get( statusServerUrl, *pRequest, 20*1000 );
@@ -5370,26 +5384,29 @@ MailboxManager::getSystemPromptUrl( const UtlString& promptType,
 OsStatus
 MailboxManager::createOrganizationPrefsFile( const UtlString& orgPrefsFileLocation ) const
 {
-    OsFile prefsFile ( orgPrefsFileLocation );
 
-    OsStatus result = prefsFile.open( OsFile::CREATE );
-    if ( result == OS_SUCCESS )
+    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                  "createOrganizationPrefsFile creating a default file %s",
+                  orgPrefsFileLocation.data());
+                  
+    OsFile prefsFile (orgPrefsFileLocation);
+    OsStatus result = prefsFile.open(OsFile::CREATE);
+    if (result == OS_SUCCESS)
     {
         UtlString defaultPrefsData =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
             "<organizationprefs>\n"
-            "   <systemgreeting>" + UtlString( GENERIC_SYSTEM_GREETING ) + "</systemgreeting>\n"
-            "   <autoattendant>" + UtlString( GENERIC_AUTOATTENDANT_PROMPT ) + "</autoattendant>\n"
+            "   <specialoperation>" + UtlString( "false" ) + "</specialoperation>\n"
+            "   <autoattendant>" + UtlString( "afterhour" ) + "</autoattendant>\n"
             "</organizationprefs>";
-
+   
         unsigned long bytes_written = 0;
-        result = prefsFile.write(
-            defaultPrefsData.data(),
-            defaultPrefsData.length(),
-            bytes_written );
+        result = prefsFile.write(defaultPrefsData.data(),
+                                 defaultPrefsData.length(),
+                                 bytes_written);
         prefsFile.close();
     }
-
+   
     return result;
 }
 
@@ -5444,23 +5461,23 @@ MailboxManager::parseOrganizationPrefsFile ( UtlHashMap* rOrgPrefsHashDict) cons
     UtlString prefsFileName;
 
     // 1. Get the location of the organization prefs file.
-    result = getOrgPrefsFileLocation( prefsFileName );
-    if( result == OS_SUCCESS )
+    result = getOrgPrefsFileLocation(prefsFileName);
+    if(result == OS_SUCCESS)
     {
-        TiXmlDocument doc ( prefsFileName );
+        TiXmlDocument doc (prefsFileName);
 
         // 2. Verify that we can load the file (i.e it must exist)
-        if( doc.LoadFile() )
+        if(doc.LoadFile())
         {
             // 3. Get the root element of the XML file.
             TiXmlNode * rootNode = doc.FirstChild ("organizationprefs");
-            if ( rootNode != NULL )
+            if (rootNode != NULL)
             {
                 // 4. Get individual element values.
                 UtlString value;
-                result = getConfigValue (*rootNode, "systemgreeting", value);
+                result = getConfigValue (*rootNode, "specialoperation", value);
                 rOrgPrefsHashDict->insertKeyAndValue(
-                        new UtlString("systemgreeting"),
+                        new UtlString("specialoperation"),
                         new UtlString(value));
 
                 result = getConfigValue (*rootNode, "autoattendant", value);
@@ -5470,6 +5487,7 @@ MailboxManager::parseOrganizationPrefsFile ( UtlHashMap* rOrgPrefsHashDict) cons
             }
         }
     }
+    
     return result;
 }
 
@@ -5717,8 +5735,7 @@ MailboxManager::setPassword (
 
    // Create an empty response object and sent the built up request
    // via it to the config server
-   HttpMessage *pResponse =
-      new HttpMessage(static_cast< const HttpMessage& >(*pRequest));
+   HttpMessage *pResponse = new HttpMessage();
 
    pResponse->get(userServiceUrl, *pRequest, 20*1000);
 
@@ -5765,7 +5782,7 @@ MailboxManager::setPassword (
       pRequest->setContentLength(soapMessage.length());
       pRequest->addHeaderField("SOAPAction", "#rebuildDataSets");
 
-      pResponse = new HttpMessage(static_cast< const HttpMessage& >(*pRequest));
+      pResponse = new HttpMessage();
       pResponse->get(dataSetServiceUrl, *pRequest, 20*1000);
       
       pResponse->getResponseStatusText(&status);
@@ -5819,8 +5836,7 @@ MailboxManager::setPassword (
 
    // Create an empty response object and sent the built up request
    // via it to the config server
-   HttpMessage *pResponse =
-      new HttpMessage(static_cast< const HttpMessage& >(*pRequest));
+   HttpMessage *pResponse = new HttpMessage();
 
    pResponse->get(userServiceUrl, *pRequest, 20*1000);
 
@@ -5853,3 +5869,438 @@ MailboxManager::setPassword (
 }
 
 
+OsStatus
+MailboxManager::getTimeBasedAAName ( UtlString& rName,
+                                     UtlString& rLocalTime,
+                                     UtlString& rAAName ) const
+{
+    OsStatus result = OS_FAILED;
+    
+    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                  "getTimeBasedAAName local time = %s", rLocalTime.data());
+                  
+    // Mon, 25-Sep-2002 05:51:44 PM EST
+    UtlString dayOfWeek;
+    UtlString time;
+    UtlString day;
+    UtlString hour;
+    UtlString minute;
+    
+    dayOfWeek = rLocalTime(0, 3);
+
+    int dayLength = rLocalTime.index(" ", 5);
+    day = rLocalTime(5, dayLength-5);
+    
+    int timeLength = rLocalTime.index(" ", dayLength+1);
+    time = rLocalTime(dayLength+1, timeLength-dayLength-1);
+    hour = time(0, 2);
+    minute = time(3, 2);
+    
+    if (rLocalTime.index("PM") != UTL_NOT_FOUND)
+    {
+        char temp[3];
+        sprintf(temp, "%d", atoi(hour.data()) + 12);
+        hour = temp;
+    }
+    
+    int currentTime = atoi(hour) * 100 + atoi(minute);
+    
+    UtlString scheduleFileLocation;
+    result = getScheduleFileLocation( rName, scheduleFileLocation );
+    if( result == OS_SUCCESS )
+    {
+        // Check whether the special case is on or not
+        UtlHashMap rOrgPrefsHashDict;        
+        result = parseOrganizationPrefsFile(&rOrgPrefsHashDict);
+        UtlString key("specialoperation");
+        UtlString* special = (UtlString *) rOrgPrefsHashDict.findValue(&key);
+        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                      "getTimeBasedAAName special operation = %s", special->data());
+        
+        if (special->compareTo("true", UtlString::ignoreCase) == 0)
+        {
+            UtlString name("autoattendant");
+            UtlString* aaMenu = (UtlString *) rOrgPrefsHashDict.findValue(&name);
+            rAAName = aaMenu->data();
+        }
+        else
+        {
+            AutoAttendantSchedule scheduleFile;
+            result = parseAutoAttendantSchduleFile( scheduleFileLocation, &scheduleFile );
+            
+            if (result == OS_SUCCESS)
+            {
+                // Check whether it is on holiday
+                if (scheduleFile.mHolidays.find(&day))
+                {
+                    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                                  "getTimeBasedAAName today is a holiday = %s", day.data());
+                    rAAName = scheduleFile.mHolidayMenu;
+                }
+                else
+                {
+                    // Check whether it is in rgular hour
+                    UtlString* fromHour = (UtlString *) scheduleFile.mRegularFromHour.findValue(&dayOfWeek);
+                    UtlString* toHour = (UtlString *) scheduleFile.mRegularToHour.findValue(&dayOfWeek);
+                    if (fromHour != NULL && toHour != NULL)
+                    {
+                        if ((timeValue(fromHour->data()) < currentTime) &&
+                            (currentTime < timeValue(toHour->data())))
+                        {
+                            rAAName = scheduleFile.mRegularMenu;
+                        }
+                        else
+                        {        
+                            rAAName = scheduleFile.mAfterHourMenu;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                              "getTimeBasedAAName failed to parse the schedule file %s", scheduleFileLocation.data());
+                
+            }
+        }  
+    }
+    
+    return result;
+}
+
+
+OsStatus
+MailboxManager::parseAutoAttendantSchduleFile ( UtlString& fileLocation,
+                                                AutoAttendantSchedule* rSchedule ) const
+{
+    OsStatus result = OS_FAILED;
+
+    TiXmlDocument doc (fileLocation);
+
+    // 1. Verify that we can load the file (i.e it must exist)
+    if(doc.LoadFile())
+    {
+        // 2. Get the root element of the XML file.
+        TiXmlNode * rootNode = doc.FirstChild ("schedules");
+        if (rootNode != NULL)
+        {
+            // 3. Get individual element values.              
+            //
+            //<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" \
+            //<schedules>\n" \
+            //  <autoattendant>\n" \
+            //    <special>\n" \
+            //      <operation>%s</operation>\n" \
+            //      <filename>%s</filename>\n" \
+            //    </special>\n" \
+            //    <holidays>\n" \
+            //      <date>1-Jan-2005</date>\n" \
+            //      <date>4-Jul-2005</date>\n" \
+            //      <date>25-Dec-2005</date>\n" \
+            //      <filename>%s</filename>\n" \
+            //    </holidays>\n" \
+            //    <regularhours>\n" \
+            //      <monday>\n" \
+            //        <from>08:00</from>\n" \
+            //        <to>18:00</to>\n" \
+            //      </monday>\n" \
+            //      <tuesday>\n" \
+            //        <from>08:00</from>\n" \
+            //        <to>18:00</to>\n" \
+            //      </tuesday>\n" \
+            //      <wednesday>\n" \
+            //        <from>08:00</from>\n" \
+            //        <to>18:00</to>\n" \
+            //      </wednesday>\n" \
+            //      <thursday>\n" \
+            //        <from>08:00</from>\n" \
+            //        <to>18:00</to>\n" \
+            //      </thursday>\n" \
+            //      <friday>\n" \
+            //        <from>08:00</from>\n" \
+            //        <to>17:00</to>\n" \
+            //      </friday>\n" \
+            //      <filename>%s</filename>\n" \
+            //    </regularhours>\n" \
+            //    <afterhours>\n" \
+            //      <filename>%s</filename>\n" \
+            //    </afterhours>\n" \
+            //  </autoattendant>\n" \
+            //</schedules>";
+              
+            TiXmlNode* aaNode = rootNode->FirstChild("autoattendant");
+            if (aaNode != NULL)
+            {
+                // Get dates for holiday
+                TiXmlNode* holidayNode = aaNode->FirstChild("holidays");
+                if (holidayNode != NULL)
+                {
+                    for (TiXmlNode* dateNode = holidayNode->FirstChild("date");
+                         dateNode; 
+                         dateNode = dateNode->NextSibling("date"))
+                    {
+                        UtlString date = dateNode->FirstChild()->Value();
+                        rSchedule->mHolidays.insert(new UtlString(date));
+                    }
+                      
+                    TiXmlNode* holidayName = holidayNode->FirstChild("filename");
+                    if (holidayName != NULL)
+                    {
+                        rSchedule->mHolidayMenu = holidayName->FirstChild()->Value();
+                    }
+                }
+
+                // Get regular hours
+                TiXmlNode* regularNode = aaNode->FirstChild("regularhours");
+                if (regularNode != NULL)
+                {
+                    TiXmlNode* dayNode = regularNode->FirstChild("sunday");
+                    if (dayNode != NULL)
+                    {
+                        TiXmlNode* fromNode = dayNode->FirstChild("from");
+                        if (fromNode)
+                        {
+                            UtlString from = fromNode->FirstChild()->Value();
+                            rSchedule->mRegularFromHour.insertKeyAndValue(new UtlString("Sun"),
+                                                                          new UtlString(from));
+                        }
+
+                        TiXmlNode* toNode = dayNode->FirstChild("to");
+                        if (toNode)
+                        {
+                            UtlString to = toNode->FirstChild()->Value();
+                            rSchedule->mRegularToHour.insertKeyAndValue(new UtlString("Sun"),
+                                                                        new UtlString(to));
+                        }
+                    }
+
+                    dayNode = regularNode->FirstChild("monday");
+                    if (dayNode != NULL)
+                    {
+                        TiXmlNode* fromNode = dayNode->FirstChild("from");
+                        if (fromNode)
+                        {
+                            UtlString from = fromNode->FirstChild()->Value();
+                            rSchedule->mRegularFromHour.insertKeyAndValue(new UtlString("Mon"),
+                                                                          new UtlString(from));
+                        }
+
+                        TiXmlNode* toNode = dayNode->FirstChild("to");
+                        if (toNode)
+                        {
+                            UtlString to = toNode->FirstChild()->Value();
+                            rSchedule->mRegularToHour.insertKeyAndValue(new UtlString("Mon"),
+                                                                        new UtlString(to));
+                        }
+                    }
+
+                    dayNode = regularNode->FirstChild("tuesday");
+                    if (dayNode != NULL)
+                    {
+                        TiXmlNode* fromNode = dayNode->FirstChild("from");
+                        if (fromNode)
+                        {
+                            UtlString from = fromNode->FirstChild()->Value();
+                            rSchedule->mRegularFromHour.insertKeyAndValue(new UtlString("Tue"),
+                                                                          new UtlString(from));
+                        }
+
+                        TiXmlNode* toNode = dayNode->FirstChild("to");
+                        if (toNode)
+                        {
+                            UtlString to = toNode->FirstChild()->Value();
+                            rSchedule->mRegularToHour.insertKeyAndValue(new UtlString("Tue"),
+                                                                        new UtlString(to));
+                        }
+                    }
+
+                    dayNode = regularNode->FirstChild("wednesday");
+                    if (dayNode != NULL)
+                    {
+                        TiXmlNode* fromNode = dayNode->FirstChild("from");
+                        if (fromNode)
+                        {
+                            UtlString from = fromNode->FirstChild()->Value();
+                            rSchedule->mRegularFromHour.insertKeyAndValue(new UtlString("Wed"),
+                                                                          new UtlString(from));
+                        }
+
+                        TiXmlNode* toNode = dayNode->FirstChild("to");
+                        if (toNode)
+                        {
+                            UtlString to = toNode->FirstChild()->Value();
+                            rSchedule->mRegularToHour.insertKeyAndValue(new UtlString("Wed"),
+                                                                        new UtlString(to));
+                        }
+                    }
+
+                    dayNode = regularNode->FirstChild("thursday");
+                    if (dayNode != NULL)
+                    {
+                        TiXmlNode* fromNode = dayNode->FirstChild("from");
+                        if (fromNode)
+                        {
+                            UtlString from = fromNode->FirstChild()->Value();
+                            rSchedule->mRegularFromHour.insertKeyAndValue(new UtlString("Thu"),
+                                                                          new UtlString(from));
+                        }
+
+                        TiXmlNode* toNode = dayNode->FirstChild("to");
+                        if (toNode)
+                        {
+                            UtlString to = toNode->FirstChild()->Value();
+                            rSchedule->mRegularToHour.insertKeyAndValue(new UtlString("Thu"),
+                                                                        new UtlString(to));
+                        }
+                    }
+
+                    dayNode = regularNode->FirstChild("friday");
+                    if (dayNode != NULL)
+                    {
+                        TiXmlNode* fromNode = dayNode->FirstChild("from");
+                        if (fromNode)
+                        {
+                            UtlString from = fromNode->FirstChild()->Value();
+                            rSchedule->mRegularFromHour.insertKeyAndValue(new UtlString("Fri"),
+                                                                          new UtlString(from));
+                        }
+
+                        TiXmlNode* toNode = dayNode->FirstChild("to");
+                        if (toNode)
+                        {
+                            UtlString to = toNode->FirstChild()->Value();
+                            rSchedule->mRegularToHour.insertKeyAndValue(new UtlString("Fri"),
+                                                                        new UtlString(to));
+                        }
+                    }
+
+                    dayNode = regularNode->FirstChild("saturday");
+                    if (dayNode != NULL)
+                    {
+                        TiXmlNode* fromNode = dayNode->FirstChild("from");
+                        if (fromNode)
+                        {
+                            UtlString from = fromNode->FirstChild()->Value();
+                            rSchedule->mRegularFromHour.insertKeyAndValue(new UtlString("Sat"),
+                                                                          new UtlString(from));
+                        }
+
+                        TiXmlNode* toNode = dayNode->FirstChild("to");
+                        if (toNode)
+                        {
+                            UtlString to = toNode->FirstChild()->Value();
+                            rSchedule->mRegularToHour.insertKeyAndValue(new UtlString("Sat"),
+                                                                        new UtlString(to));
+                        }
+                    }
+
+                    TiXmlNode* regularName = regularNode->FirstChild("filename");
+                    if (regularName != NULL)
+                    {
+                        rSchedule->mRegularMenu = regularName->FirstChild()->Value();
+                    }
+                }
+
+                // Get after hours
+                TiXmlNode* afterhourNode = aaNode->FirstChild("afterhours");
+                if (afterhourNode != NULL)
+                {
+                    TiXmlNode* afterhourName = afterhourNode->FirstChild("filename");
+                    if (afterhourName != NULL)
+                    {
+                        rSchedule->mAfterHourMenu = afterhourName->FirstChild()->Value();
+                    }
+                }
+                
+                result = OS_SUCCESS;
+            }
+        }
+    }
+
+    return result;
+}
+
+
+OsStatus
+MailboxManager::getScheduleFileLocation( UtlString& rFileName, UtlString& rScheduleFileLocation ) const
+{
+    OsStatus result = OS_FAILED;
+
+    // Construct the physical path to the location of the organization prefs file.
+    if (!m_mediaserverRoot.isNull() && m_mediaserverRoot != "")
+    {
+        rScheduleFileLocation = m_mediaserverRoot + OsPathBase::separator + AA_SCHEDULE_DIR + rFileName + "-schedule.xml";
+    
+        if ( OsFileSystem::exists(rScheduleFileLocation) )
+        {
+            result = OS_SUCCESS;
+        }
+        else
+        {
+            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                          "getScheduleFileLocation failed to find the schedule file %s",
+                          rScheduleFileLocation.data());
+        }
+    }
+    else
+    {
+        OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                      "getScheduleFileLocation failed to find mailserver root dir");
+    }
+        
+
+    return result;
+}
+
+
+int MailboxManager::timeValue(const char* currentTime) const
+{
+    UtlString time(currentTime);  
+    UtlString hour = time(0, 2);
+    UtlString minute = time(3, 2);
+    int timeInValue = atoi(hour)*100 + atoi(minute);
+    
+    return timeInValue;
+}    
+
+
+OsStatus
+MailboxManager::setSystemOverallAAMenu(  bool special ) const
+{
+    OsStatus result = OS_FAILED;
+    UtlString logContents;
+                
+    UtlString prefFileLocation;
+    result = getOrgPrefsFileLocation( prefFileLocation );
+    if( result == OS_SUCCESS )
+    {
+        UtlString elementName, elementValue ;
+        if (special)
+        {
+            elementName = "specialoperation";
+            elementValue = "true";
+        }
+        else
+        {
+            elementName = "specialoperation";
+            elementValue = "false";
+        }
+
+        result = updateOrganizationPrefsFile(prefFileLocation, elementName, elementValue);
+
+        if( result != OS_SUCCESS )
+        {
+            logContents = "Failed to update the organization prefs file " + prefFileLocation ;
+
+        }
+    }
+    else
+    {
+        logContents = "Failed to get the location of organization prefs XML file";
+    }
+
+    if( result != OS_SUCCESS )
+        writeToLog( "setSystemOverallAAMenu", logContents, PRI_ERR );
+
+    return result;
+}

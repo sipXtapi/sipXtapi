@@ -44,6 +44,7 @@ libmailboxmgr_la_SOURCES = \
 	SendByDistListCGI.cpp \
 	SetActiveGreetingCGI.cpp \
 	SetActiveSystemPromptCGI.cpp \
+	SpecialAAMenuCGI.cpp \
 	SosCGI.cpp \
 	StatusServerCGI.cpp \
 	TransferToExtnCGI.cpp \
@@ -86,6 +87,7 @@ noinst_HEADERS = \
     SetActiveGreeting.h \
     SetActiveGreetingCGI.h \
     SetActiveSystemPromptCGI.h \
+    SpecialAAMenuCGI.h \
     SosCGI.h \
     StatusServerCGI.h \
     TransferToExtnCGI.h \
