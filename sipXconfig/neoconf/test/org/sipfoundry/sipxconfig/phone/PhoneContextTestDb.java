@@ -98,6 +98,31 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         assertEquals("aa00004", phones[2].getSerialNumber());
         assertEquals("00002", phones[3].getSerialNumber());
     }
+    
+    public void testLoadPhones() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+
+        Collection page1 = m_context.loadPhones();
+        assertEquals(4, page1.size());
+        Phone[] phones = (Phone[]) page1.toArray(new Phone[page1.size()]);
+        assertEquals("00001", phones[0].getSerialNumber());
+        assertEquals("00002", phones[1].getSerialNumber());
+        assertEquals("00003", phones[2].getSerialNumber());
+        assertEquals("aa00004", phones[3].getSerialNumber());
+    }
+
+    public void testGetAllPhoneIds() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/SamplePhoneSeed.xml");
+
+        Collection result = m_context.getAllPhoneIds();
+        assertEquals(4, result.size());
+        Integer[] ids = (Integer[]) result.toArray(new Integer[result.size()]);
+        for (int i = 0; i < ids.length; i++) {
+            assertEquals(new Integer(1000 + i), ids[i]);
+        }
+    }
 
     public void testGetPhoneIdBySerialNumber() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");

@@ -26,6 +26,12 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>
+	<property-specification name="profileManager" 
+		type="org.sipfoundry.sipxconfig.phone.ProfileManager" 
+    	initial-value="global.profileManager"/>
+	<property-specification name="restartManager" 
+		type="org.sipfoundry.sipxconfig.phone.RestartManager" 
+    	initial-value="global.restartManager"/>    
     <property-specification name="searchManager"
     	type="org.sipfoundry.sipxconfig.search.SearchManager"
     	initial-value="global.searchManager"/>

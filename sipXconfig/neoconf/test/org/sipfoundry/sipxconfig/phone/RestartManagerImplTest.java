@@ -1,10 +1,10 @@
 /*
  * 
  * 
- * Copyright (C) 2004 SIPfoundry Inc.
+ * Copyright (C) 2006 SIPfoundry Inc.
  * Licensed by SIPfoundry under the LGPL license.
  * 
- * Copyright (C) 2004 Pingtel Corp.
+ * Copyright (C) 2006 Pingtel Corp.
  * Licensed to SIPfoundry under a Contributor Agreement.
  * 
  * $
@@ -17,20 +17,14 @@ import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
-public class JobQueueTest extends TestCase {
-
-    private JobQueue m_queue;
-
-    protected void setUp() {
-        m_queue = new JobQueue();
-    }
-
+public class RestartManagerImplTest extends TestCase {
     public void testGenerateProfiles() throws Exception {
         Integer jobId = new Integer(4);
+        Integer phoneId = new Integer(1000);
 
         MockControl jobContextCtrl = MockControl.createStrictControl(JobContext.class);
         JobContext jobContext = (JobContext) jobContextCtrl.getMock();
-        jobContext.schedule("Projection for phone 000000000000");
+        jobContext.schedule("Restarting phone 000000000000");
         jobContextCtrl.setReturnValue(jobId);
         jobContext.start(jobId);
         jobContext.success(jobId);
@@ -39,35 +33,35 @@ public class JobQueueTest extends TestCase {
         MockControl phoneControl = MockClassControl.createStrictControl(Phone.class);
         Phone phone = (Phone) phoneControl.getMock();
         phoneControl.expectAndReturn(phone.getSerialNumber(), "000000000000");
-        phone.generateProfiles();
-        phoneControl.setVoidCallable(1);
         phone.restart();
-        phoneControl.setVoidCallable(1);
         phoneControl.replay();
 
-        JobRecord job = new JobRecord();
-        job.setPhones(new Phone[] {
-            phone
-        });
+        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
+        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        phoneContext.loadPhone(phoneId);
+        phoneContextCtrl.setReturnValue(phone);
+        phoneContextCtrl.replay();
 
-        job.setType(JobRecord.TYPE_PROJECTION);
+        RestartManagerImpl rm = new RestartManagerImpl();
+        rm.setJobContext(jobContext);
+        rm.setPhoneContext(phoneContext);
 
-        m_queue.setJobContext(jobContext);
-        m_queue.addJob(job);
-        m_queue.yieldTillEmpty();
+        rm.restart(phoneId);
 
         jobContextCtrl.verify();
         phoneControl.verify();
+        phoneContextCtrl.verify();
     }
 
     public void testRestartException() throws Exception {
         Integer jobId = new Integer(4);
+        Integer phoneId = new Integer(1000);
 
         RestartException re = new RestartException("xxx");
 
         MockControl jobContextCtrl = MockControl.createStrictControl(JobContext.class);
         JobContext jobContext = (JobContext) jobContextCtrl.getMock();
-        jobContext.schedule("Projection for phone 000000000000");
+        jobContext.schedule("Restarting phone 000000000000");
         jobContextCtrl.setReturnValue(jobId);
         jobContext.start(jobId);
         jobContext.failure(jobId, null, re);
@@ -80,23 +74,19 @@ public class JobQueueTest extends TestCase {
         phoneControl.setThrowable(re);
         phoneControl.replay();
 
-        JobRecord job = new JobRecord();
-        job.setPhones(new Phone[] {
-            phone
-        });
+        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
+        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        phoneContext.loadPhone(phoneId);
+        phoneContextCtrl.setReturnValue(phone);
+        phoneContextCtrl.replay();
 
-        job.setType(JobRecord.TYPE_DEVICE_RESTART);
+        RestartManagerImpl rm = new RestartManagerImpl();
+        rm.setJobContext(jobContext);
+        rm.setPhoneContext(phoneContext);
 
-        m_queue.setJobContext(jobContext);
-        m_queue.addJob(job);
-        m_queue.yieldTillEmpty();
+        rm.restart(phoneId);
 
         phoneControl.verify();
         jobContextCtrl.verify();
-    }
-
-    public void testStartStop() throws Exception {
-        JobQueue queue = new JobQueue();
-        assertTrue(queue.isEmpty());
     }
 }

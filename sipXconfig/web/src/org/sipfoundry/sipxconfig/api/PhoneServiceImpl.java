@@ -17,19 +17,22 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.phone.ProfileManager;
+import org.sipfoundry.sipxconfig.phone.RestartManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public class PhoneServiceImpl implements PhoneService {
 
-    private static final String GROUP_RESOURCE_ID = 
-        org.sipfoundry.sipxconfig.phone.Phone.GROUP_RESOURCE_ID;
-    
+    private static final String GROUP_RESOURCE_ID = org.sipfoundry.sipxconfig.phone.Phone.GROUP_RESOURCE_ID;
+
     private PhoneContext m_context;
 
     private SettingDao m_settingDao;
@@ -37,6 +40,10 @@ public class PhoneServiceImpl implements PhoneService {
     private PhoneBuilder m_builder;
 
     private CoreContext m_coreContext;
+
+    private ProfileManager m_profileManager;
+
+    private RestartManager m_restartManager;
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -48,6 +55,14 @@ public class PhoneServiceImpl implements PhoneService {
 
     public void setPhoneBuilder(PhoneBuilder builder) {
         m_builder = builder;
+    }
+
+    public void setProfileManager(ProfileManager profileManager) {
+        m_profileManager = profileManager;
+    }
+
+    public void setRestartManager(RestartManager restartManager) {
+        m_restartManager = restartManager;
     }
 
     public void addPhone(AddPhone addPhone) throws RemoteException {
@@ -110,10 +125,12 @@ public class PhoneServiceImpl implements PhoneService {
 
     public void managePhone(ManagePhone managePhone) throws RemoteException {
         org.sipfoundry.sipxconfig.phone.Phone[] myPhones = phoneSearch(managePhone.getSearch());
+        Collection ids = CollectionUtils.collect(Arrays.asList(myPhones),
+                new BeanWithId.BeanToId());
         if (Boolean.TRUE.equals(managePhone.getGenerateProfiles())) {
-            m_context.generateProfilesAndRestart(Arrays.asList(myPhones));
+            m_profileManager.generateProfilesAndRestart(ids);
         } else if (Boolean.TRUE.equals(managePhone.getRestart())) {
-            m_context.restart(Arrays.asList(myPhones));
+            m_restartManager.restart(ids);
         } else {
             for (int i = 0; i < myPhones.length; i++) {
 
@@ -145,7 +162,7 @@ public class PhoneServiceImpl implements PhoneService {
                         m_context.deleteLine(l);
                     }
                 }
-                
+
                 if (managePhone.getAddLine() != null) {
                     String userName = managePhone.getAddLine().getUserId();
                     org.sipfoundry.sipxconfig.common.User u = m_coreContext
@@ -155,7 +172,7 @@ public class PhoneServiceImpl implements PhoneService {
                     myPhones[i].addLine(l);
                     m_context.storePhone(myPhones[i]);
                 }
-                
+
                 if (managePhone.getAddExternalLine() != null) {
                     AddExternalLine eline = managePhone.getAddExternalLine();
                     org.sipfoundry.sipxconfig.phone.Line l = myPhones[i].createLine();
@@ -166,16 +183,18 @@ public class PhoneServiceImpl implements PhoneService {
                 }
 
                 if (managePhone.getAddGroup() != null) {
-                    Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID, managePhone
-                            .getAddGroup());
+                    Group g = m_settingDao.getGroupCreateIfNotFound(GROUP_RESOURCE_ID,
+                            managePhone.getAddGroup());
                     myPhones[i].addGroup(g);
                     m_context.storePhone(myPhones[i]);
                 }
 
                 if (managePhone.getRemoveGroup() != null) {
-                    Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, managePhone.getRemoveGroup());
+                    Group g = m_settingDao.getGroupByName(GROUP_RESOURCE_ID, managePhone
+                            .getRemoveGroup());
                     if (g != null) {
-                        DataCollectionUtil.removeByPrimaryKey(myPhones[i].getGroups(), g.getPrimaryKey());
+                        DataCollectionUtil.removeByPrimaryKey(myPhones[i].getGroups(), g
+                                .getPrimaryKey());
                     }
                     m_context.storePhone(myPhones[i]);
                 }

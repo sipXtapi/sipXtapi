@@ -43,7 +43,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         PhoneContext, ApplicationListener, DaoEventListener {
 
     private static final String GROUP_RESOURCE_ID = "phone";
-    private static final String QUERY_PHONE = "from Phone";
     private static final String QUERY_PHONE_ID_BY_SERIAL_NUMBER = "phoneIdsWithSerialNumber";
 
     private CoreContext m_coreContext;
@@ -54,26 +53,11 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private BeanFactory m_beanFactory;
 
-    private JobQueue m_jobQueue;
-
     private String m_systemDirectory;
 
     private Map m_modelCache = new HashMap();
 
     private PhoneDefaults m_phoneDefaults;
-
-    /**
-     * Generate profile on phones in background
-     */
-    public void generateProfilesAndRestart(Collection phones) {
-        JobRecord job = createJobRecord(phones, JobRecord.TYPE_PROJECTION);
-        m_jobQueue.addJob(job);
-    }
-
-    public void generateProfilesAndRestartAll() {
-        Collection phones = getHibernateTemplate().loadAll(Phone.class);
-        generateProfilesAndRestart(phones);
-    }
 
     public List getAvailablePhoneModels() {
         return m_availableModels;
@@ -83,29 +67,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         m_availableModels = models;
     }
 
-    /**
-     * Restart phones in background
-     */
-    public void restart(Collection phones) {
-        JobRecord job = createJobRecord(phones, JobRecord.TYPE_DEVICE_RESTART);
-        m_jobQueue.addJob(job);
-    }
-
-    JobRecord createJobRecord(Collection phones, int type) {
-        JobRecord job = new JobRecord();
-        job.setType(type);
-        Phone[] phonesArray = (Phone[]) phones.toArray(new Phone[0]);
-        job.setPhones(phonesArray);
-
-        return job;
-    }
-
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
-    }
-
-    public void setJobQueue(JobQueue jobQueue) {
-        m_jobQueue = jobQueue;
     }
 
     public void setCoreContext(CoreContext coreContext) {
@@ -172,9 +135,13 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     }
 
     public Collection loadPhones() {
-        String phoneQuery = QUERY_PHONE;
-        return getHibernateTemplate().find(phoneQuery);
+        return getHibernateTemplate().loadAll(Phone.class);
     }
+    
+    public Collection getAllPhoneIds() {
+        return getHibernateTemplate().findByNamedQuery("phoneIds");
+    }
+
 
     public Phone loadPhone(Integer id) {
         Phone phone = (Phone) getHibernateTemplate().load(Phone.class, id);
@@ -209,7 +176,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public void clear() {
         // ordered bottom-up, e.g. traverse foreign keys so as to
         // not leave hanging references. DB will reject otherwise
-        deleteAll(QUERY_PHONE);
+        deleteAll("from Phone");
         deleteAll("from Group where resource = 'phone'");
     }
 

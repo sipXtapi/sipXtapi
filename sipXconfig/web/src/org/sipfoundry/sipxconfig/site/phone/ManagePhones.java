@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -31,6 +30,8 @@ import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.ProfileManager;
+import org.sipfoundry.sipxconfig.phone.RestartManager;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
@@ -49,6 +50,10 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
     public abstract void setIdConverter(IPrimaryKeyConvertor cvt);
 
     public abstract PhoneContext getPhoneContext();
+    
+    public abstract RestartManager getRestartManager();
+    
+    public abstract ProfileManager getProfileManager();
 
     public abstract Integer getGroupId();
 
@@ -99,44 +104,34 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public void deletePhone(IRequestCycle cycle_) {
         PhoneContext context = getPhoneContext();
-        Phone[] phones = getSelectedPhones();
+        PhoneContext phoneContext = getPhoneContext();
+        
+        SelectMap selections = getSelections();
+        Iterator phoneIds = selections.getAllSelected().iterator();
+        Phone[] phones1 = new Phone[selections.getAllSelected().size()];
+        for (int i1 = 0; i1 < phones1.length; i1++) {
+            Integer phoneId = (Integer) phoneIds.next();
+            phones1[i1] = phoneContext.loadPhone(phoneId);
+        }
+        Phone[] phones = phones1;
         for (int i = 0; i < phones.length; i++) {
             context.deletePhone(phones[i]);
         }
     }
 
     public void generateProfiles(IRequestCycle cycle_) {
-        Phone[] selectedPhones = getSelectedPhones();
-        if (selectedPhones.length > 0) {
-            Collection phones = Arrays.asList(selectedPhones);
-            getPhoneContext().generateProfilesAndRestart(phones);
-        }
+        Collection phoneIds = getSelections().getAllSelected();
+        getProfileManager().generateProfilesAndRestart(phoneIds);
     }
 
     public void generateAllProfiles(IRequestCycle cycle_) {
-        getPhoneContext().generateProfilesAndRestartAll();
-    }
-
-    private Phone[] getSelectedPhones() {
-        PhoneContext phoneContext = getPhoneContext();
-
-        SelectMap selections = getSelections();
-        Iterator phoneIds = selections.getAllSelected().iterator();
-        Phone[] phones = new Phone[selections.getAllSelected().size()];
-        for (int i = 0; i < phones.length; i++) {
-            Integer phoneId = (Integer) phoneIds.next();
-            phones[i] = phoneContext.loadPhone(phoneId);
-        }
-
-        return phones;
+        Collection phoneIds = getPhoneContext().getAllPhoneIds();
+        getProfileManager().generateProfilesAndRestart(phoneIds);
     }
 
     public void restart(IRequestCycle cycle_) {
-        Phone[] selectedPhones = getSelectedPhones();
-        if (selectedPhones.length > 0) {
-            Collection phones = Arrays.asList(selectedPhones);
-            getPhoneContext().restart(phones);
-        }
+        Collection phoneIds = getSelections().getAllSelected();
+        getRestartManager().restart(phoneIds);
     }
 
     /**
