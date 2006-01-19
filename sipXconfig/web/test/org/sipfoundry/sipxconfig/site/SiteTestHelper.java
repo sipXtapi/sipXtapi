@@ -44,7 +44,7 @@ public class SiteTestHelper {
      * unnec. dependencies
      */
     public static final String TEST_USER = "testuser";
-
+    
     /**
      * The name of the checkbox used in standard tables
      */

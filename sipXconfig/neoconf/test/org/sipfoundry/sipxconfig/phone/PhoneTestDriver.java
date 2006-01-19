@@ -38,9 +38,13 @@ public class PhoneTestDriver {
     public MockControl sipControl;
     
     public PhoneDefaults defaults;
-
+    
     public PhoneTestDriver(Phone _phone) {
-        
+        this(_phone, "EST");
+    }
+    
+    public PhoneTestDriver(Phone _phone, String timezone) {
+        PhoneTimeZone.setTimeZone(timezone);        
         defaults = new PhoneDefaults();
         defaults.setDomainName("sipfoundry.org");
         defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");

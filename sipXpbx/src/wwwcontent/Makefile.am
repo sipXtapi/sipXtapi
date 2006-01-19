@@ -1,7 +1,8 @@
 aapromptsdir=@SIPX_VXMLDATADIR@/prompts
 
 aaprompts_DATA = \
-	stdprompts/autoattendant.wav
+	stdprompts/autoattendant.wav \
+	stdprompts/afterhours.wav
 
 wwwcontentdir=@wwwdir@/doc
 
@@ -13,6 +14,8 @@ wwwcontentdir=@wwwdir@/doc
 wwwcontent = \
 	index.html \
 	aa_vxml/autoattendant-operator.vxml \
+	aa_vxml/autoattendant-afterhour.vxml \
+	aa_vxml/operator-schedule.xml \
 	aa_vxml/dialbyname.vxml \
 	adminui/!SkinSubFolder!/Default.skn \
 	adminui/!SkinSubFolder!/Default/Default.skn \
@@ -234,6 +237,7 @@ wwwcontent = \
 	adminui/setting_up_email_page.htm \
 	adminui/viewimage.gif \
 	adminui/viewimage.gig.gif \
+	cb_vxml/cbadmission.vxml \
 	images/asc.gif \
 	images/bullet.gif \
 	images/bulletdown.gif \
@@ -534,6 +538,7 @@ wwwcontent = \
 	stdprompts/9th.wav \
 	stdprompts/a.wav \
 	stdprompts/activate_greeting_success.wav \
+	stdprompts/afterhours.wav \
 	stdprompts/afterhours_greeting_is.wav \
 	stdprompts/afterhours_greeting_selected.wav \
 	stdprompts/am.wav \
@@ -553,6 +558,7 @@ wwwcontent = \
 	stdprompts/beep.wav \
 	stdprompts/c.wav \
 	stdprompts/cancelled.wav \
+	stdprompts/cb_welcome.wav \
 	stdprompts/comment_options.wav \
 	stdprompts/confirm_new_passwd.wav \
 	stdprompts/confirm_new_pin.wav \
@@ -637,6 +643,7 @@ wwwcontent = \
 	stdprompts/mainmenu_no_autoattendant.wav \
 	stdprompts/mainmenu_short.wav \
 	stdprompts/manage_autoattendant_options.wav \
+	stdprompts/manage_special_menu_options.wav \
 	stdprompts/manage_system_greetings_options.wav \
 	stdprompts/march.wav \
 	stdprompts/may.wav \
@@ -735,6 +742,10 @@ wwwcontent = \
 	stdprompts/september.wav \
 	stdprompts/special_occasion_greeting_is.wav \
 	stdprompts/special_occasion_greeting_selected.wav \
+	stdprompts/special_menu_disabled.wav \
+	stdprompts/special_menu_enabled.wav \
+	stdprompts/special_menu_not_set.wav \
+	stdprompts/special_menu_option.wav \
 	stdprompts/standard_greeting_is.wav \
 	stdprompts/standard_selected.wav \
 	stdprompts/standard_system_greeting_is.wav \
@@ -1092,7 +1103,7 @@ wwwcontent = \
 	vm_vxml/login_no_autoattendant.vxml.in \
 	vm_vxml/mainmenu.vxml \
 	vm_vxml/mainmenu_no_autoattendant.vxml \
-	vm_vxml/manage_autoattendant_prompt.vxml \
+	vm_vxml/manage_autoattendant.vxml \
 	vm_vxml/manage_system_greetings.vxml \
 	vm_vxml/msglisten.vxml \
 	vm_vxml/recordgreeting.vxml \

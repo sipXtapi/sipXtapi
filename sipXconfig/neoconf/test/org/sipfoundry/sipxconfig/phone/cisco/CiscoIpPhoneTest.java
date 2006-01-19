@@ -24,7 +24,7 @@ public class CiscoIpPhoneTest extends TestCase {
 
     protected void setUp() {
         m_phone = new CiscoIpPhone(CiscoModel.MODEL_7960);
-        new PhoneTestDriver(m_phone);
+        new PhoneTestDriver(m_phone, "US/Eastern");
     }
 
     public void testGetSettings() {

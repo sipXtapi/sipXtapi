@@ -39,6 +39,7 @@
 #include "mailboxmgr/MoveMessagesCGI.h"
 #include "mailboxmgr/UpdateMessageStatesCGI.h"
 #include "mailboxmgr/AutoAttendantCGI.h"
+#include "mailboxmgr/SpecialAAMenuCGI.h"
 #include "mailboxmgr/DialByNameCGI.h"
 #include "mailboxmgr/DeleteMailboxCGI.h"
 #include "mailboxmgr/RecycleDeletedMsgsCGI.h"
@@ -511,6 +512,13 @@ main(int argc, char* argv[])
                     // Create the appropriate Command Object
                     cmd = new DialByNameCGI( fromUrl, digits, isFromDeposit );
                 }
+            } else if ( action == "setspecialmenu" )
+            {
+                const char* sOption = gValues->valueOf ( "setoption" );
+                OsSysLog::add( LOG_FACILITY, PRI_INFO, "Mediaserver CGI - Set special AA menu to %s \n", sOption);
+
+                // Create the appropriate Command Object
+                cmd = new SpecialAAMenuCGI( sOption );
             } else if ( action == "login" )
             {
                 UtlString extension, pin;

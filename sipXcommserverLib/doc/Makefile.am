@@ -24,18 +24,29 @@ Doxyfile: $(srcdir)/Doxyfile.in
 		-e 's,@top_srcdir\@,$(top_srcdir),g' \
 	$(srcdir)/Doxyfile.in > Doxyfile
 
-install: install-doc
+install: install-doc install-ssl-doc
 
-.PHONY: install-doc
+.PHONY: install-doc install-ssl-doc
+
 install-doc: @PACKAGE@
 	rm -rf $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	@INSTALL@ -d $(DESTDIR)@SIPX_DOCDIR@/@PACKAGE@
 	find @PACKAGE@ -type f -print \
 	| xargs --replace=% @INSTALL@ -m u=rw,go=r % $(DESTDIR)@SIPX_DOCDIR@/%
 
+install-ssl-doc: $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
+
+$(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl: $(builddir)/INSTALL.ssl
+	@INSTALL@ -m u=rw,go=r INSTALL.ssl $(DESTDIR)@SIPX_DOCDIR@/INSTALL.ssl
+
+$(builddir)/INSTALL.ssl: $(srcdir)/INSTALL.ssl
+	$(LocalizeSipXconfig) $(srcdir)/INSTALL.ssl > INSTALL.ssl
+
 clean: clean-doc
 
 .PHONY: clean-doc
 clean-doc:
 	rm -rf @PACKAGE@ Doxyfile
+	rm -f INSTALL.ssl
+
 

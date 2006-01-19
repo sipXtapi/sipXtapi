@@ -27,10 +27,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
 /**
  * Base class for managed phone subclasses
@@ -43,6 +46,10 @@ public class Phone extends BeanWithGroups {
 
     public static final String GROUP_RESOURCE_ID = PHONE_CONSTANT;
 
+    private static final String SYSTEM_SETTINGS = "system/";
+    private static final String SERVER_SETTINGS = "server/";
+    private static final String CREDENTIAL_SETTINGS = "credential/";
+
     private static final Log LOG = LogFactory.getLog(Phone.class);
 
     private String m_description;
@@ -54,8 +61,8 @@ public class Phone extends BeanWithGroups {
     private List m_lines = Collections.EMPTY_LIST;
 
     private PhoneContext m_phoneContext;
-    
-    private ModelFilesContext m_modelFilesContext; 
+
+    private ModelFilesContext m_modelFilesContext;
 
     private String m_tftpRoot;
 
@@ -141,13 +148,13 @@ public class Phone extends BeanWithGroups {
             settingModel = loadModelFile("phone.xml");
             setSettingModel(settingModel);
         }
-        
+
         return settingModel;
     }
-    
+
     Setting loadModelFile(String basename) {
         String[] details = new String[] {
-                getModel().getModelId()
+            getModel().getModelId()
         };
         Setting model = null;
         Setting master = m_modelFilesContext.loadModelFile(basename, getBeanId(), details);
@@ -157,11 +164,11 @@ public class Phone extends BeanWithGroups {
         }
         return model;
     }
-    
+
     protected Setting evaluateModel(ConditionalSet conditional) {
         Set defines = new HashSet();
         defines.add(getModel().getModelId());
-        Setting model = conditional.evaluate(defines);        
+        Setting model = conditional.evaluate(defines);
         return model;
     }
 
@@ -192,20 +199,32 @@ public class Phone extends BeanWithGroups {
             IOUtils.closeQuietly(wtr);
         }
     }
-    
+
     public Line findByUsername(String username) {
         for (int i = 0; i < getLines().size(); i++) {
             Line l = (Line) getLines().get(i);
-            if (username.equals(l.getUser().getUserName())) {
+            User user = l.getUser();
+            if (user != null && user.getUserName().equals(username)) {
                 return l;
             }
         }
         return null;
     }
+    
+    public Line findByUri(String uri) {
+        for (int i = 0; i < getLines().size(); i++) {
+            Line l = (Line) getLines().get(i);
+            String candidate = l.getUri();
+            if (candidate.equals(uri)) {
+                return l;
+            }
+        }
+        return null;        
+    }
 
     public void removeLine(Line line) {
         getLines().remove(line);
-        DataCollectionUtil.updatePositions(getLines());            
+        DataCollectionUtil.updatePositions(getLines());
     }
 
     /**
@@ -320,15 +339,50 @@ public class Phone extends BeanWithGroups {
     /**
      * No adapters supported in generic implementation
      */
-    public Object getAdapter(Class interfac_) {
-        return null;
+    public Object getAdapter(Class interfac) {
+        Object o = null;
+        if (interfac == PhoneSettings.class) {
+            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
+            adapter.setSetting(getSettings());
+            adapter.addMapping(PhoneSettings.DOMAIN_NAME, SYSTEM_SETTINGS
+                    + PhoneSettings.DOMAIN_NAME);
+            adapter.addMapping(PhoneSettings.VOICE_MAIL_NUMBER, SYSTEM_SETTINGS
+                    + PhoneSettings.VOICE_MAIL_NUMBER);
+            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, SERVER_SETTINGS
+                    + PhoneSettings.OUTBOUND_PROXY);
+            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, SERVER_SETTINGS
+                    + PhoneSettings.OUTBOUND_PROXY_PORT);
+            adapter.addMapping(PhoneSettings.TFTP_SERVER, SERVER_SETTINGS
+                    + PhoneSettings.TFTP_SERVER);
+            o = adapter.getImplementation();
+        }
+
+        return o;
     }
 
     /**
      * No line adapters supported in generic implementation
      */
-    public Object getLineAdapter(Line line_, Class interfac_) {
-        return null;
+    public Object getLineAdapter(Line line, Class interfac) {
+        Object impl = null;
+        if (interfac == LineSettings.class) {
+            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
+            adapter.setSetting(line.getSettings());
+            adapter.addMapping(LineSettings.AUTHORIZATION_ID, CREDENTIAL_SETTINGS
+                    + LineSettings.AUTHORIZATION_ID);
+            adapter.addMapping(LineSettings.USER_ID, CREDENTIAL_SETTINGS + LineSettings.USER_ID);
+            adapter.addMapping(LineSettings.PASSWORD, CREDENTIAL_SETTINGS
+                            + LineSettings.PASSWORD);
+            adapter.addMapping(LineSettings.DISPLAY_NAME, CREDENTIAL_SETTINGS
+                    + LineSettings.DISPLAY_NAME);
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER, SERVER_SETTINGS
+                    + LineSettings.REGISTRATION_SERVER);
+            adapter.addMapping(LineSettings.REGISTRATION_SERVER_PORT, SERVER_SETTINGS
+                    + LineSettings.REGISTRATION_SERVER_PORT);
+            impl = adapter.getImplementation();
+        }
+
+        return impl;
     }
 
     public List getLines() {
@@ -343,17 +397,31 @@ public class Phone extends BeanWithGroups {
         if (m_lines == Collections.EMPTY_LIST) {
             m_lines = new ArrayList();
         }
+        int max = getModel().getMaxLineCount(); 
+        if (m_lines.size() >= max) {
+            throw new MaxLinesException("Maximum number of allowed lines is " + max);
+        }
         line.setPhone(this);
         line.setPosition(m_lines.size());
         m_lines.add(line);
+    }
+    
+    public static class MaxLinesException extends UserException {
+        MaxLinesException(String msg) {
+            super(msg);
+        }
     }
 
     public Line getLine(int position) {
         return (Line) m_lines.get(position);
     }
 
+    protected void setDefaultTimeZone() {
+    }
+
     protected void defaultSettings() {
         getPhoneContext().getPhoneDefaults().setPhoneDefaults(this);
+        setDefaultTimeZone();
     }
 
     protected void defaultLineSettings(Line line) {

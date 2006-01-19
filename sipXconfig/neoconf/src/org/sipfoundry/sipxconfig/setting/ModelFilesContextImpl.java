@@ -148,10 +148,8 @@ public class ModelFilesContextImpl implements ModelFilesContext {
             
             String msg = MessageFormat
                     .format(
-                            "Logic errro, one of these files should not passed file filter \"{0}\" \"{1}\"",
-                            new String[] {
-                                s1, s2
-                            });
+                            "Logic error, one of these files should not passed file filter \"{0}\" \"{1}\"",
+                            (Object[]) new String[] {s1, s2});
             throw new IllegalStateException(msg);
         }
     }

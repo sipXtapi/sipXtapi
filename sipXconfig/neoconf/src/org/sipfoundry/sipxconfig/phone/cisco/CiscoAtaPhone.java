@@ -27,9 +27,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
-import org.sipfoundry.sipxconfig.phone.RestartException;
+import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
@@ -48,6 +47,8 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     private static final String IMAGE_ID = "imageid";
 
+    private static final String ATA_ID = "ata";
+
     private static final String NONE = "none";
 
     private static final int KOLME = 3;
@@ -55,12 +56,10 @@ public class CiscoAtaPhone extends CiscoPhone {
     private static final String NOLLAX = "0x";
 
     private static final String ALLE = "_";
-
-    private static final String PHONE_REGISTRATION_SETTING = "sip/Proxy";
-
-    private static final String SIP_PORT_SETTING = "sip/SIPPort";
     
     private static final String UPGRADE_SETTING_GROUP = "upgrade";
+
+    private static final String TIMEZONE_SETTING = "service/TimeZone";
     
     private static final Log LOG = LogFactory.getLog(CiscoAtaPhone.class);
 
@@ -186,7 +185,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             String[] cmd = {
                 getCfgfmtUtility(), "-t" + getPtagDat(), outputTxtfile, outputfile
             };
-            String cmdline = MessageFormat.format("{0} {1} {2} {3}", cmd);
+            String cmdline = MessageFormat.format("{0} {1} {2} {3}", (Object[]) cmd);
             LOG.info(cmdline);
             Process p = Runtime.getRuntime().exec(cmd);
             int errCode = p.waitFor();
@@ -231,11 +230,10 @@ public class CiscoAtaPhone extends CiscoPhone {
         if (c == PhoneSettings.class) {
             SettingBeanAdapter adapter = new SettingBeanAdapter(c);
             adapter.setSetting(getSettings());
-            // XCF-760 safe not to set these, traffic is sent to registration
-            // server by default, FQDN or just DN. 
-            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, "sip/SipOutBoundProxy");
-            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, SIP_PORT_SETTING);
             adapter.addMapping(PhoneSettings.TFTP_SERVER, "network/TftpURL");
+            if (!getCfgPrefix().equals(ATA_ID)) {
+                adapter.addMapping(PhoneSettings.VOICE_MAIL_NUMBER, "caller/VoiceMailNumber");
+            }
             o = adapter.getImplementation();
         } else {
             o = super.getAdapter(c);
@@ -253,7 +251,13 @@ public class CiscoAtaPhone extends CiscoPhone {
             adapter.addMapping(LineSettings.USER_ID, "port/UID");
             adapter.addMapping(LineSettings.PASSWORD, "port/PWD");
             adapter.addMapping(LineSettings.DISPLAY_NAME, "port/DisplayName");
-            // sip/SIPPort for outbound proxy?
+            if (getCfgPrefix().equals(ATA_ID)) {
+                adapter.addMapping(LineSettings.REGISTRATION_SERVER, "port/_Proxy.18x");
+                adapter.addMapping(LineSettings.REGISTRATION_SERVER_PORT, "port/_ProxyPort.18x");
+            } else {
+                adapter.addMapping(LineSettings.REGISTRATION_SERVER, "port/_Proxy.79");
+                adapter.addMapping(LineSettings.REGISTRATION_SERVER_PORT, "port/_ProxyPort.79");
+            }
             impl = adapter.getImplementation();
         } else {
             impl = super.getAdapter(interfac);
@@ -262,12 +266,23 @@ public class CiscoAtaPhone extends CiscoPhone {
         return impl;
     }
 
-    protected void defaultSettings() {
-        super.defaultSettings();
-        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
-        getSettings().getSetting(PHONE_REGISTRATION_SETTING).setValue(
-                defaults.getDomainName());
+    protected void setDefaultTimeZone() {
+        PhoneTimeZone mytz = new PhoneTimeZone();
+
+        int tzmin = mytz.getOffsetWithDst() / 60;
+        int atatz;
+
+        if (tzmin % 60 == 0) {
+            atatz = tzmin / 60;
+            if (atatz < 0) {
+                atatz += 25;
+            }
+        } else {
+            atatz = tzmin;
+        }
+        getSettings().getSetting(TIMEZONE_SETTING).setValue(String.valueOf(atatz));
     }
+    
 
     public String getSoftwareUpgradeConfig() {
         Setting swupgrade = getSettings().getSetting(UPGRADE_SETTING_GROUP);
@@ -289,7 +304,7 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     public String getLogoUpgradeConfig() {
-        if (getCfgPrefix().equals("ata")) {
+        if (getCfgPrefix().equals(ATA_ID)) {
             return StringUtils.EMPTY;
         }
 
@@ -307,6 +322,20 @@ public class CiscoAtaPhone extends CiscoPhone {
         }
 
         return "upgradelogo:" + imageid + ",0," + logofile;
+    }
+
+    public String getProxyConfig() {
+        if (getLines().size() == 0) {
+            return StringUtils.EMPTY;
+        }
+
+        Line line = getLine(0);
+        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
+        if (settings == null) {
+            return StringUtils.EMPTY;
+        }
+
+        return "Proxy:" + settings.getRegistrationServer() + ":" + settings.getRegistrationServerPort();
     }
 
     public Collection getProfileLines() {
@@ -383,21 +412,6 @@ public class CiscoAtaPhone extends CiscoPhone {
                 }
             }
         }
-    }
-
-    protected void sendCheckSyncToFirstLine() {
-        if (getLines().size() == 0) {
-            throw new RestartException("Restart command is sent to first line and "
-                                       + "first phone line is not valid");
-        }
-
-        Line line = getLine(0);
-        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
-
-        getSipService().sendCheckSync(line.getUri(),
-                                      getSettings().getSetting(PHONE_REGISTRATION_SETTING).getValue(),
-                                      getSettings().getSetting(SIP_PORT_SETTING).getValue(),
-                                      settings.getUserId());
     }
 
     public Setting evaluateModel(ConditionalSet conditional) {

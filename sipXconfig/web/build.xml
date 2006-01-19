@@ -11,7 +11,7 @@
   <property name="ruby.debug" value=""/>
   <property name="ruby.flags" value="-w ${ruby.debug}"/>
   <property name="server-bindings.jar" value="${dist.dir}/server-bindings.jar"/>
-  <patternset id="test-ui.classes" includes="**/*TestUi.class"/> 
+  <patternset id="test-ui.classes" includes="**/${test.name}TestUi.class"/> 
   
   <path id="axis.path">
     <pathelement location="${jaxrpc.jar}"/>

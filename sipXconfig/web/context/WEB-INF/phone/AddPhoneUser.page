@@ -54,6 +54,7 @@
         <binding name="value" expression="returnToEditPhone"/>
     </component>
     <component id="select" type="Submit">
-        <binding name="listener" expression="listeners.select"/>
+        <binding name="listener" expression="global.tapestry
+            .treatUserExceptionAsValidationError(beans.validator, listeners.select)"/>
     </component>    
 </page-specification>

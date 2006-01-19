@@ -285,7 +285,7 @@
         </field>
 
         <!-- Invoke the VXML for managing auto attendant prompt  -->
-        <subdialog name="manageautoattendant" cond="systemadministrationoptions == '1'" src="manage_autoattendant_prompt.vxml">
+        <subdialog name="manageautoattendant" cond="systemadministrationoptions == '1'" src="manage_autoattendant.vxml">
             <param name="mailbox" expr="mailbox"/>
             <param name="mediaserverurl" expr="mediaserverurl" />
             <param name="securemediaserverurl" expr="securemediaserverurl" />

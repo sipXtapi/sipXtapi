@@ -1554,12 +1554,15 @@
 					se.pat.ringer.22.inst.3.value="-2"/>
 			</RINGER>
 			<MISCELLANEOUS>
+## XCF-840 this setting exposed because its the most annoying
+##  most people just want the option to silence it
+#set ($setting = $cfg.EndpointSettings.getSetting('se/patterns/MESSAGE_WAITING/type'))
 				<MESSAGE_WAITING se.pat.misc.1.name="message waiting" 
-					se.pat.misc.1.inst.1.type="chord" 
+					se.pat.misc.1.inst.1.type="$!{setting.Value}" 
 					se.pat.misc.1.inst.1.value="1" 
-					se.pat.misc.1.inst.2.type="chord" 
+					se.pat.misc.1.inst.2.type="$!{setting.Value}" 
 					se.pat.misc.1.inst.2.value="2" 
-					se.pat.misc.1.inst.3.type="chord" 
+					se.pat.misc.1.inst.3.type="$!{setting.Value}" 
 					se.pat.misc.1.inst.3.value="1"/>
 				<INSTANT_MESSAGE se.pat.misc.2.name="instant message" 
 					se.pat.misc.2.inst.1.type="chord" 

@@ -20,6 +20,8 @@ import org.apache.commons.lang.enums.Enum;
 public class PhoneModel extends Enum {
 
     private static final Map REGISTERED = new LinkedHashMap();
+    
+    private static final int DEFAULT_MAX_LINES = 4;
 
     private String m_beanId;
 
@@ -34,7 +36,7 @@ public class PhoneModel extends Enum {
     }
 
     public PhoneModel(String beanId, String modelId, String label) {
-        this(beanId, modelId, label, 1);
+        this(beanId, modelId, label, DEFAULT_MAX_LINES);
     }
 
     public PhoneModel(String beanId, String modelId, String label, int maxLineCount) {

@@ -57,4 +57,18 @@ public class EditPhoneLinesTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertEquals(1, SiteTestHelper.getRowCount(tester, "line:list"));
     }
+    
+    public void testMaxLines() {
+        m_helper.seedLine(3);
+        clickLink("ManagePhones");
+        clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
+        clickLinkWithText("Lines");
+
+        // based on the fact a polycom 500 can only understand 3 lines
+        SiteTestHelper.assertNoUserError(tester);
+        clickLink("AddUser");
+        SiteTestHelper.assertUserError(tester);
+        clickLink("AddExternalLine");
+        SiteTestHelper.assertUserError(tester);
+    }
 }

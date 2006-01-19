@@ -10,6 +10,7 @@
     
     <description>Admin portal navigation component</description>
     
-    
-    
+    <component id="ieHackScript" type="Script">
+        <static-binding name="script" value="AdminNavigation.script"/>
+    </component>
 </component-specification>

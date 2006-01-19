@@ -73,6 +73,7 @@ public class PhoneTestHelper {
             m_tester.clickLink("AddUser");
             m_tester.clickButton("user:search");
             // first (should be only?) row
+            SiteTestHelper.assertNoException(m_tester);
             SiteTestHelper.selectRow(m_tester, 0, true);
             m_tester.clickButton("user:select");
         }

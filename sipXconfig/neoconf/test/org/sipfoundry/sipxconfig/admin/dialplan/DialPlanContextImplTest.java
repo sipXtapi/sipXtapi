@@ -30,8 +30,8 @@ public class DialPlanContextImplTest extends TestCase {
         MockControl bfCtrl = MockControl.createControl(BeanFactory.class);
         BeanFactory bf = (BeanFactory) bfCtrl.getMock();
         bf.getBean(ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
-        bfCtrl.setReturnValue(new ConfigGenerator());        
-        bfCtrl.setReturnValue(new ConfigGenerator());        
+        bfCtrl.setReturnValue(new ConfigGenerator());
+        bfCtrl.setReturnValue(new ConfigGenerator());
         bfCtrl.replay();
 
         DialPlanContextImpl manager = new MockDialPlanContextImpl(new DialPlan());
@@ -45,7 +45,7 @@ public class DialPlanContextImplTest extends TestCase {
         assertNotSame(g1, g2);
         assertSame(g2, g3);
 
-        bfCtrl.verify();        
+        bfCtrl.verify();
     }
 
     public void testMoveRules() throws Exception {
@@ -71,7 +71,7 @@ public class DialPlanContextImplTest extends TestCase {
         DialPlan getDialPlan() {
             return m_plan;
         }
-        
+
         public EmergencyRouting getEmergencyRouting() {
             return new EmergencyRouting();
         }

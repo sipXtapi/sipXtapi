@@ -26,6 +26,8 @@ import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
  */
 public class PhoneConfiguration extends VelocityProfileGenerator {
 
+    private static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
+
     public PhoneConfiguration(PolycomPhone phone) {
         super(phone);
     }
@@ -37,7 +39,8 @@ public class PhoneConfiguration extends VelocityProfileGenerator {
 
     public Collection getLines() {
         PolycomPhone phone = (PolycomPhone) getPhone();
-        int lineCount = phone.getModel().getMaxLineCount();
+        int lineCount = Math.min(phone.getModel().getMaxLineCount(), 
+                TEMPLATE_DEFAULT_LINE_COUNT);
         ArrayList linesSettings = new ArrayList(lineCount);
 
         Collection lines = phone.getLines();

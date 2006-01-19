@@ -12,7 +12,8 @@ pbxconf_files = \
     WatchDog.xml.in \
     ProcessDefinitions.xml.in \
     resourcemap.xml.in \
-    voicemail.xml.in.in
+    voicemail.xml.in.in \
+    cbadmission.xml.in.in
 
 wwwconf_files = \
     httpd.conf.in \

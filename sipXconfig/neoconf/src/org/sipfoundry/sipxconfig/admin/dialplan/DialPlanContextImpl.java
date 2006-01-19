@@ -77,8 +77,40 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         return empty;
     }
 
+    /**
+     * @param rule new DialingRule to be added to the plan
+     * @param position index of a new rule to be added, -1 means append the rule
+     */
+    public void addRule(int position, DialingRule rule) {
+        if (!rule.isNew()) {
+            throw new IllegalArgumentException("addRule method can be only called for new rules");
+        }
+        validateRule(rule);
+        DialPlan dialPlan = getDialPlan();
+        dialPlan.addRule(position, rule);
+        getHibernateTemplate().saveOrUpdate(dialPlan);
+    }
+
     public void storeRule(DialingRule rule) {
-        // Check for duplicate names before saving the rule
+        validateRule(rule);
+
+        // Save the rule. If it's a new rule then attach it to the dial plan first
+        // and save it via the dial plan.
+        if (rule.isNew()) {
+            DialPlan dialPlan = getDialPlan();
+            dialPlan.addRule(rule);
+            getHibernateTemplate().saveOrUpdate(dialPlan);
+        } else {
+            getHibernateTemplate().saveOrUpdate(rule);
+        }
+    }
+
+    /**
+     * Checks for duplicate names. Should be called before saving the rule.
+     * 
+     * @param rule to be verified
+     */
+    private void validateRule(DialingRule rule) {
         String name = rule.getName();
         DaoUtils.checkDuplicatesByNamedQuery(getHibernateTemplate(), rule,
                 DIALING_RULE_IDS_WITH_NAME_QUERY, name,
@@ -91,16 +123,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
         if (rule instanceof AttendantRule) {
             checkAliasCollisionsForAttendantRule((AttendantRule) rule);
-        }
-
-        // Save the rule. If it's a new rule then attach it to the dial plan first
-        // and save it via the dial plan.
-        if (rule.isNew()) {
-            DialPlan dialPlan = getDialPlan();
-            dialPlan.addRule(rule);
-            getHibernateTemplate().saveOrUpdate(dialPlan);
-        } else {
-            getHibernateTemplate().saveOrUpdate(rule);
         }
     }
 
@@ -281,8 +303,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public ConfigGenerator generateDialPlan() {
         ConfigGenerator generator = (ConfigGenerator) m_beanFactory.getBean(
                 ConfigGenerator.BEAN_NAME, ConfigGenerator.class);
-        generator.generate(getEmergencyRouting());
-        generator.generate(this);
+        generator.generate(this, getEmergencyRouting());
         m_generator = generator;
         return m_generator;
     }

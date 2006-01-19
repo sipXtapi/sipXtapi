@@ -50,6 +50,15 @@ public class DialPlan extends BeanWithId {
         DataCollectionUtil.updatePositions(m_rules);
     }
 
+    public void addRule(int position, DialingRule rule) {
+        if (position < 0) {
+            m_rules.add(rule);
+        } else {
+            m_rules.add(0, rule);
+        }
+        DataCollectionUtil.updatePositions(m_rules);
+    }
+
     public void removeAllRules() {
         m_rules.clear();
     }

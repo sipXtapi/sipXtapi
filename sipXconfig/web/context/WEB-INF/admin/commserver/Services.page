@@ -12,8 +12,6 @@
     <property-specification name="sipxProcessContext" 
     	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext" 
     	initial-value="global.sipxProcessContext"/>
-    <property-specification name="currentRow"
-        type="org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus"/>
 	<property-specification name="selections" 
     	type="org.sipfoundry.sipxconfig.components.SelectMap"
     	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>  	
@@ -32,6 +30,8 @@
         <set-property name="array" expression="sipxProcessContext.locations"/>
         <set-property name="labelExpression" expression="'id'"/>
     </bean>
+    
+    <bean name="statusConvertor" class="org.sipfoundry.sipxconfig.site.admin.commserver.Services$StatusConvertor" lifecycle="page"/>
     
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>    
     
@@ -58,21 +58,14 @@
         <binding name="condition" expression="sipxProcessContext.locations.length > 0"/>
     </component>
     
-    <component id="tableView" type="contrib:TableView">
+    <component id="tableView" type="Table">
         <binding name="source" expression="sipxProcessContext.getStatus(serviceLocation)"/>
-        <static-binding name="pageSize" value="-1"/>
+        <binding name="selections" expression="selections"/>
         <static-binding name="columns" value="* serviceName,=statusColumn"/>
+        <binding name="usePager" expression="false"/>
+        <binding name="convertor" expression="beans.statusConvertor"/>
     </component>
-    <component id="tableColumns" type="contrib:TableColumns"/>    
-    <component id="tableRows" type="contrib:TableRows">
-		<binding name="class" expression="beans.rowClass.next"/>
-		<binding name="row" expression="currentRow"/>
-    </component>
-    <component id="tableValues" type="contrib:TableValues"/>        
-    <component id="selectedRow" type="Checkbox">
-        <!-- Use the serviceName as a unique row ID -->
-        <binding name="selected" expression="selections.selected[currentRow.serviceName]"/>
-    </component>   
+    
     <component id="startButton" type="Submit">
         <binding name="selected" expression="servicesToStart"/>
         <binding name="tag" expression="selections.allSelected"/>

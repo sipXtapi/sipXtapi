@@ -113,6 +113,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %attr(755,root,root) %{_datadir}/www/cgi-bin/processmonitor/process.cgi
 %attr(755,root,root) %{_datadir}/www/cgi-bin/voicemail/mediaserver.cgi
+%attr(755,root,root) %{_datadir}/www/cgi-bin/cbadmission/cbadmission.cgi
 %attr(755,root,root) %{_datadir}/www/cgi-bin/replication/replication.cgi
 
 # The configuration directory needs to be writeable because
@@ -121,6 +122,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/ProcessDefinitions.xml
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/resourcemap.xml
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/voicemail.xml.in
+%config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cbadmission.xml.in
 
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/httpd-sipxchange-config.sh
 %config(noreplace) %attr(644,root,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/mime.types
@@ -141,6 +143,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/style
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/userui
 %config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/vm_vxml
+%config(noreplace) %attr(755,root,@SIPXPBXUSER@) %{_datadir}/www/doc/cb_vxml
 
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mediaserver
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/parkserver

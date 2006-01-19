@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <vxml version="2.0" application="root.vxml">
-    <!-- VXML for managing auto attendant prompts.. -->
+    <!-- VXML for managing auto attendant. -->
 
-    <form id="manageautoattendantprompt">
+    <form id="manageautoattendant">
         <property name="interdigittimeout" value="3s" />
         <property name="timeout" value="10s" />
 
@@ -15,18 +15,23 @@
         <var name="action" expr="'savesystemprompt'" />
         <var name="size" expr="'0'"/>
         <var name="prompttype" expr="'customautoattendant'" />
+        <var name="setoption" expr="'true'" />
 
         <!-- Play the manage auto attendant options prompt -->
         <field name="manageautoattendant">
-            <grammar>1|*</grammar>
+            <grammar>1|2|*</grammar>
             <prompt>
                 <audio expr="mediaserverurl + promptsalias + 'manage_autoattendant_options.wav'"/>
-                 <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'manage_special_menu_options.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'"/>
             </prompt>
             <filled>
                 <if cond="manageautoattendant == '1'">
                     <!-- Administrator wants to record the auto attendant prompt -->
                     <goto nextitem="playprompt"/>
+                <elseif cond="manageautoattendant == '2'" />
+                    <!-- Administrator wants to enable or disable the special AA menu -->
+                    <goto nextitem="specialmenu"/>
                 <elseif cond="manageautoattendant == '*'" />
                     <!-- Cancel and return to the System Adminstration Options menu -->
                     <prompt>
@@ -149,30 +154,21 @@
 
 
         <!-- Prompts users to select the active auto attendant prompt -->
-        <field name="selectgreeting" cond="manageautoattendant == '2'" type="digits?minlength=1;maxlength=1">
+        <field name="specialmenu" cond="manageautoattendant == '2'" type="digits?minlength=1;maxlength=1">
             <prompt>
-                <audio expr="mediaserverurl + promptsalias + 'select_autoattendant_prompt.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'special_menu_option.wav'"/>
                 <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'"/>
             </prompt>
             <filled>
-                <if cond="selectgreeting == '1'" >
-                     <!-- Listen to all the available auto attendant prompts -->
-                    <assign name="prompttype" expr="'autoattendant'" />
-                    <assign name="action" expr="'getallsystemprompts'" />
-                    <goto nextitem="playallgreetings" />
-                <elseif cond="selectgreeting == '2'" />
-                    <!-- Select user recorded auto attendant prompt as active -->
-                    <assign name="prompttype" expr="'customautoattendant'" />
-                    <goto nextitem="confirmselectgreeting" />
-                <elseif cond="selectgreeting == '3'" />
-                    <!-- Select generic auto attendant prompt as active -->
-                    <assign name="prompttype" expr="'genericautoattendant'" />
-                    <goto nextitem="confirmselectgreeting" />
-                <elseif cond="selectgreeting == '4'" />
-                    <!-- Disable playing auto attendant prompt -->
-                    <assign name="prompttype" expr="'none'" />
-                    <goto nextitem="confirmselectgreeting" />
-                <elseif cond="selectgreeting == '*'" />
+                <if cond="specialmenu == '1'" >
+                    <assign name="setoption" expr="'true'" />
+                    <assign name="action" expr="'setspecialmenu'" />
+                    <goto nextitem="setspecialmenu" />
+                <elseif cond="specialmenu == '2'" />
+                    <assign name="setoption" expr="'false'" />
+                    <assign name="action" expr="'setspecialmenu'" />
+                    <goto nextitem="setspecialmenu" />
+                <elseif cond="specialmenu == '*'" />
                     <!-- Cancel and return to the Manage Autoattendant Options menu -->
                     <prompt>
                         <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'"/>
@@ -184,8 +180,8 @@
                     <prompt bargein="false">
                         <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
                     </prompt>
-                    <clear namelist="selectgreeting" />
-                    <goto nextitem="selectgreeting" />
+                    <clear namelist="specialmenu" />
+                    <goto nextitem="specialmenu" />
                 </if>
             </filled>
             <noinput count="3">
@@ -258,6 +254,31 @@
             </filled>
         </subdialog>
 
+
+        <!-- Invoke the CGI for set up the special AA menu -->
+        <subdialog name="setspecialmenu" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action setoption">
+            <filled>
+                <if cond="setspecialmenu.result =='failed'" >
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'special_menu_not_set.wav'" />
+                    </prompt>
+                    <clear namelist="manageautoattendant"/>
+                    <goto nextitem="manageautoattendant" />
+                <elseif cond="setspecialmenu.result =='success'" />
+                    <prompt cond="setoption == 'true'">
+                        <audio expr="mediaserverurl + promptsalias + 'special_menu_enabled.wav'" />
+                    </prompt>
+                    <prompt cond="setoption == 'false'">
+                        <audio expr="mediaserverurl + promptsalias + 'special_menu_disabled.wav'" />
+                    </prompt>
+                    <clear namelist="manageautoattendant"/>
+                    <goto nextitem="manageautoattendant" />
+                <else />
+                    <clear namelist="manageautoattendant"/>
+                    <goto nextitem="manageautoattendant" />                
+                </if>
+            </filled>
+        </subdialog>
 
         <!-- Invoke the CGI for playing all the available auto attendant prompts -->
         <subdialog name="playallgreetings" cond="selectgreeting == '1'" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action prompttype">

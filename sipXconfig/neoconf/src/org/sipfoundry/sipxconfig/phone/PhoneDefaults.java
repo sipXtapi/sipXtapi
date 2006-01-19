@@ -139,11 +139,11 @@ public class PhoneDefaults {
     }
 
     public void setLineDefaults(Line line, User user) {
-        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
-        if (settings != null) {
-            settings.setDomainName(m_domainName);
-            settings.setRegistrationServer(m_domainName);
-            if (user != null) {
+        if (user != null) {
+            LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
+            if (settings != null) {
+                settings.setDomainName(m_domainName);
+                settings.setRegistrationServer(m_domainName);
                 settings.setAuthorizationId(user.getUserName());
                 settings.setUserId(user.getUserName());
                 settings.setDisplayName(user.getDisplayName());
@@ -152,19 +152,23 @@ public class PhoneDefaults {
                 settings.setVoiceMail(getVoiceMail());
             }
         }
-
-        if (user != null) {
-            line.setUri(getUri(user));
-        }
     }
 
-    public String getUri(User user) {
+    public String getUri(LineSettings settings) {        
         StringBuffer sb = new StringBuffer();
-        sb.append("sip:").append(user.getUserName());
-        sb.append('@').append(m_domainName);
+        sb.append("sip:").append(settings.getUserId());
+        
+        // HACK: Although getDomainName may make more sense, in practice 
+        // phones do not store domain name and therefore would return
+        // null.  This is because LineSettings is typically backed by 
+        // SettingBeanAdapter and setX(foo) does not always mean foo == getX()
+        // if there's no mapping. All phones need a registration server.
+        // Real fix might be to remove SettingBeanAdapter with something more
+        // flexible
+        sb.append('@').append(settings.getRegistrationServer());
 
-        String displayName = user.getDisplayName();
-        if (displayName != null) {
+        String displayName = settings.getDisplayName();
+        if (StringUtils.isNotBlank(displayName)) {
             sb.insert(0, "\"" + displayName + "\"<").append(">");
         }
         String uri = sb.toString();

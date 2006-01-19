@@ -198,8 +198,19 @@
       </type>
       <value>1</value>
       <description>If checked, local user interface sound effects such as confirmation/error 
-        tones, will be enabled. </description>
+        tones, will be enabled. </description>        
     </setting>
+    <group name="patterns">
+      <label>Call Tone Pattern</label>
+      <group name="MESSAGE_WAITING">
+         <label>Message Waiting</label>
+         <setting name="type">
+            <type refid="tone-pattern"/>
+            <value>chord</value>
+            <description>Sound effect</description>
+         </setting>
+      </group>      
+    </group>
   </group>
   <group name="voice">
     <label>Voice/Codecs</label>
@@ -727,14 +738,14 @@
         <integer min="1" max="7"/>
       </type>
       <value>1</value>
-      <description>Day of week to apply DST. 1=Mon, 2=Tue, ..., 7=Sun</description>
+      <description>Day of week to apply DST. 1=Sun, 2=Mon, ..., 7=Sat</description>
     </setting>
     <setting name="daylightSavings.start.dayOfWeek.lastInMonth">
       <type>
         <boolean/>
       </type>
       <value>0</value>
-      <description>If checked and fixedDayEnable is checked, start DST on the last day of the 
+      <description>If checked and fixedDayEnable=0, start DST on the last day of the 
         week (specified by dayOfWeek) in the month, rather than the first in the 
         month.</description>
     </setting>
@@ -764,7 +775,7 @@
         <integer min="1" max="7"/>
       </type>
       <value>1</value>
-      <description>Day of week to stop DST. 1=Mon, 2=Tue, ..., 7=Sun</description>
+      <description>Day of week to stop DST. 1=Sun, 2=Mon, ..., 7=Sat</description>
     </setting>
     <setting name="daylightSavings.stop.dayOfWeek.lastInMonth">
       <type>
@@ -1663,7 +1674,7 @@
         <!--string compatible with the digit map feature of MGCP described in 2.1.5 of RFC 3435. String
 	        is limited to 512 bytes and 20 segments; a comma is also allowed; when reached in the digit map, a comma will
 	        turn dial tone back on.-->
-        <value><![CDATA[[2-9]11|0T|011xxx.T|91[2-9]xxxxxxxxx|[1-8]xx]]></value>
+        <value><![CDATA[[2-9]11|0T|100|101|011xxx.T|9011xxx.T|1[2-9]xxxxxxxxx|91[2-9]xxxxxxxxx|9[2-9]xxxxxx|*xx|[8]xxx|[2-7]xx]]></value>
         <description>When this attribute is present, number-only dialing during the setup phase 
           of new calls will be compared against the patterns therein and if a match is found, 
           the call will be initiated automatically eliminating the need to press Send. 

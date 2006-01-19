@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.phone;
 
 import junit.framework.TestCase;
 
+import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class LineTest extends TestCase {
@@ -30,5 +32,32 @@ public class LineTest extends TestCase {
         line.addGroup(lineGroup);
         
         assertNotSame(lineGroup, line.getGroups().iterator().next());        
+    }
+    
+    public void testNoUserGetUriAndDisplayLabel() {
+        PhoneDefaults defaults = new PhoneDefaults();
+        
+        MockControl phoneContextCtrl = MockControl.createNiceControl(PhoneContext.class);
+        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        phoneContextCtrl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults, 2);
+        phoneContextCtrl.replay();
+
+        Phone phone = new Phone();
+        phone.setPhoneContext(phoneContext);
+        
+        phone.setSettingModel(TestHelper.loadSettings("unmanagedPhone/phone.xml"));
+        Line line = phone.createLine();        
+        line.setSettingModel(TestHelper.loadSettings("unmanagedPhone/line.xml"));
+        phone.addLine(line);
+        LineSettings settings = (LineSettings) phone.getLineAdapter(line, LineSettings.class);
+        settings.setDisplayName("Display Name");
+        settings.setUserId("user_id");
+        settings.setRegistrationServer("sipfoundry.org");
+        
+        String actual = line.getUri();
+        assertEquals("\"Display Name\"<sip:user_id@sipfoundry.org>", actual);
+        assertEquals("user_id", line.getDisplayLabel());
+        
+        phoneContextCtrl.verify();
     }
 }

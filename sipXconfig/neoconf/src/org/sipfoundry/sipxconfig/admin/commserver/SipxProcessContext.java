@@ -26,13 +26,15 @@ public interface SipxProcessContext {
         public static final Process MEDIA_SERVER = new Process("MediaServer");
         public static final Process PARK_SERVER = new Process("ParkServer");
         public static final Process PRESENCE_SERVER = new Process("PresenceServer");
+        public static final Process CONFIG_SERVER = new Process("ConfigServer");
+        public static final Process KEEP_ALIVE = new Process("KeepAlive");
 
         private Process(String name) {
             super(name);
         }
-        
+
         public static Process getEnum(String name) {
-            return (Process) getEnum(Process.class, name);            
+            return (Process) getEnum(Process.class, name);
         }
 
         public static List getAll() {
@@ -56,7 +58,7 @@ public interface SipxProcessContext {
      * machine. This is a first step towards providing status for all server machines.
      */
     public ServiceStatus[] getStatus(Location location);
-    
+
     public Location[] getLocations();
 
     /**
@@ -64,7 +66,7 @@ public interface SipxProcessContext {
      * don't need output, which excludes the "status" command.
      */
     public void manageServices(Location location, Collection services, Command command);
-    
+
     public void manageServices(Collection services, Command restart);
 
     /**

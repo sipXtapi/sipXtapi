@@ -14,9 +14,11 @@ package org.sipfoundry.sipxconfig.phone;
 import java.io.File;
 import java.io.IOException;
 
-import org.sipfoundry.sipxconfig.common.User;
-
 import junit.framework.TestCase;
+
+import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.User;
 
 public class PhoneTest extends TestCase {
 
@@ -74,5 +76,47 @@ public class PhoneTest extends TestCase {
         assertSame(l, phone.findByUsername("foo"));
         assertNull(phone.findByUsername("foox"));        
         assertNull(phone.findByUsername("Foo"));        
+    }
+    
+    public void testFindByUri() {
+        PhoneDefaults defaults = new PhoneDefaults();
+        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
+        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        phoneContextCtrl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults, MockControl.ONE_OR_MORE);
+        phoneContextCtrl.replay();
+        
+        Phone phone = new Phone();
+        phone.setPhoneContext(phoneContext);
+        phone.setSettingModel(TestHelper.loadSettings("unmanagedPhone/phone.xml"));
+        phone.setSerialNumber("123456789012");
+        Line l = phone.createLine();        
+        phone.addLine(l);
+        l.setSettingModel(TestHelper.loadSettings("unmanagedPhone/line.xml"));
+        LineSettings settings = (LineSettings) l.getAdapter(LineSettings.class);
+        settings.setRegistrationServer("sipfoundry.org");
+        settings.setUserId("foo");
+        
+        assertSame(l, phone.findByUri("sip:foo@sipfoundry.org"));
+        assertNull(phone.findByUri("sip:foox@sipfoundry.org"));        
+        assertNull(phone.findByUri("foo@sipfoundry.org"));        
+
+        phoneContextCtrl.verify();
+    }
+
+    public void testMaxLines() {
+        Phone phone = new Phone(new LimitedLinePhoneModel());
+        phone.addLine(phone.createLine());
+        try {
+            phone.addLine(phone.createLine());
+            fail();
+        } catch (Phone.MaxLinesException expected) {
+            assertTrue(true);
+        }
+    }
+    
+    static class LimitedLinePhoneModel extends PhoneModel {
+        LimitedLinePhoneModel() {
+            super("beanId", "modelId", "LimitedLinePhoneModel", 1);
+        }
     }
 }

@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
+import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
@@ -34,6 +35,34 @@ public class PolycomPhone extends Phone {
     public static final String BEAN_ID = "polycom";
 
     public static final String CALL = "call";
+
+    private static final String D_ENABLE = "daylightSavings.enable";
+
+    private static final String D_FIXEDDAY = "daylightSavings.fixedDayEnable";
+
+    private static final String D_STARTMONTH = "daylightSavings.start.month";
+
+    private static final String D_STARTDATE = "daylightSavings.start.date";
+
+    private static final String D_STARTTIME = "daylightSavings.start.time";
+
+    private static final String D_STARTDOW = "daylightSavings.start.dayOfWeek";
+
+    private static final String D_STARTLAST = "daylightSavings.start.dayOfWeek.lastInMonth";
+
+    private static final String D_STOPMONTH = "daylightSavings.stop.month";
+
+    private static final String D_STOPDATE = "daylightSavings.stop.date";
+
+    private static final String D_STOPTIME = "daylightSavings.stop.time";
+
+    private static final String D_STOPDOW = "daylightSavings.stop.dayOfWeek";
+
+    private static final String D_STOPLAST = "daylightSavings.stop.dayOfWeek.lastInMonth";
+
+    private static final String D_ZERO = "0";
+
+    private static final String D_ONE = "1";
 
     private String m_phoneConfigDir = "polycom/mac-address.d";
 
@@ -172,6 +201,61 @@ public class PolycomPhone extends Phone {
         }
 
         return impl;
+    }
+
+    protected void setDefaultTimeZone() {
+        PhoneTimeZone mytz = new PhoneTimeZone();
+        Setting datetime = getSettings().getSetting("tcpIpApp.sntp");
+
+        datetime.getSetting("gmtOffset")
+            .setValue(String.valueOf(mytz.getOffset()));
+        
+        if (mytz.getDstOffset() == 0) {
+            datetime.getSetting(D_ENABLE).setValue(D_ZERO);
+        } else {
+            datetime.getSetting(D_ENABLE).setValue(D_ONE);
+
+            if (mytz.getStartDay() > 0) {
+                datetime.getSetting(D_FIXEDDAY).setValue(D_ONE);
+                datetime.getSetting(D_STARTDATE)
+                    .setValue(String.valueOf(mytz.getStartDay()));
+                datetime.getSetting(D_STARTLAST).setValue(D_ZERO);
+                datetime.getSetting(D_STOPDATE)
+                    .setValue(String.valueOf(mytz.getStopDay()));
+                datetime.getSetting(D_STOPLAST).setValue(D_ZERO);
+            } else {
+                datetime.getSetting(D_FIXEDDAY).setValue(D_ZERO);
+                if (mytz.getStartWeek() == PhoneTimeZone.DST_LASTWEEK) {
+                    datetime.getSetting(D_STARTDATE).setValue(D_ONE);
+                    datetime.getSetting(D_STARTLAST).setValue(D_ONE);
+                } else {
+                    datetime.getSetting(D_STARTDATE)
+                        .setValue(String.valueOf(mytz.getStartWeek()));
+                    datetime.getSetting(D_STARTLAST).setValue(D_ZERO);
+                }
+                if (mytz.getStopWeek() == PhoneTimeZone.DST_LASTWEEK) {
+                    datetime.getSetting(D_STOPDATE).setValue(D_ONE);
+                    datetime.getSetting(D_STOPLAST).setValue(D_ONE);
+                } else {
+                    datetime.getSetting(D_STOPDATE)
+                        .setValue(String.valueOf(mytz.getStopWeek()));
+                    datetime.getSetting(D_STOPLAST).setValue(D_ZERO);
+                }
+            }
+            datetime.getSetting(D_STARTDOW)
+                .setValue(String.valueOf(mytz.getStartDayOfWeek()));
+            datetime.getSetting(D_STARTMONTH)
+                .setValue(String.valueOf(mytz.getStartMonth()));
+            datetime.getSetting(D_STARTTIME)
+                .setValue(String.valueOf(mytz.getStartTime() / 3600));
+
+            datetime.getSetting(D_STOPDOW)
+                .setValue(String.valueOf(mytz.getStopDayOfWeek()));
+            datetime.getSetting(D_STOPMONTH)
+                .setValue(String.valueOf(mytz.getStopMonth()));
+            datetime.getSetting(D_STOPTIME)
+                .setValue(String.valueOf(mytz.getStopTime() / 3600));
+        }
     }
 
     protected void defaultLineSettings(Line line) {

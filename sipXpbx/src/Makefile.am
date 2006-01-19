@@ -13,6 +13,7 @@ SUBDIRS= \
     processcgi \
     mediaservercgi \
     replicationcgi \
+    cbadmissioncgi \
     watchdog \
     mod_sipxauth \
     emailnotifier \

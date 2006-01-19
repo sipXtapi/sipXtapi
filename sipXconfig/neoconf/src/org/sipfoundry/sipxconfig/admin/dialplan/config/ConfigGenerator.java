@@ -60,7 +60,10 @@ public class ConfigGenerator {
         m_files.put(ConfigFileType.FALLBACK_RULES, m_fallbackRules);
     }
 
-    public void generate(EmergencyRouting er) {
+    private void generate(EmergencyRouting er) {
+        if (er == null) {
+            return;
+        }
         List rules = er.asDialingRulesList();
         for (Iterator i = rules.iterator(); i.hasNext();) {
             IDialingRule rule = (IDialingRule) i.next();
@@ -68,11 +71,13 @@ public class ConfigGenerator {
         }
     }
 
-    public void generate(DialPlanContext plan) {
+    public void generate(DialPlanContext plan, EmergencyRouting er) {
         List rules = plan.getGenerationRules();
         m_mappingRules.begin();
         m_authRules.begin();
         m_fallbackRules.begin();
+
+        generate(er);
 
         for (Iterator i = rules.iterator(); i.hasNext();) {
             IDialingRule rule = (IDialingRule) i.next();
@@ -80,6 +85,7 @@ public class ConfigGenerator {
             m_authRules.generate(rule);
             m_fallbackRules.generate(rule);
         }
+
         m_mappingRules.end();
         m_authRules.end();
         m_fallbackRules.end();

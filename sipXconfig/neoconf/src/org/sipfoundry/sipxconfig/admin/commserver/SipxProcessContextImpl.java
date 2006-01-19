@@ -18,6 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -55,25 +56,33 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             // Create a ServiceStatus for each process (a.k.a. service) entry.
             // Ignore process grouping, not clear whether that means anything important.
             List list = document.selectNodes("//process");
-            ServiceStatus[] statusArray = new ServiceStatus[list.size()];
-            for (int i = 0; i < statusArray.length; i++) {
-                Element element = (Element) list.get(i);
-                String name = element.attribute("name").getValue();
-                String status = element.attribute(PROCESS_STATUS_ATTRIB).getValue();
+            List serviceStatusList = new ArrayList(list.size());
+            for (Iterator i = list.iterator(); i.hasNext();) {
+                Element element = (Element) i.next();
 
                 // Map the status string to a status enum value. For robustness, if the status
                 // string is unknown, map it to the special "unknown" status value, in case the
                 // process monitor surprises us. We do that here rather than in the getEnum
                 // method because the enum itself shouldn't know about the semantics of its
                 // values.
-                ServiceStatus.Status serviceStatus = ServiceStatus.Status.getEnum(status);
-                if (serviceStatus == null) {
-                    serviceStatus = ServiceStatus.Status.UNKNOWN;
+                String status = element.attribute(PROCESS_STATUS_ATTRIB).getValue();
+                ServiceStatus.Status st = ServiceStatus.Status.getEnum(status);
+                if (st == null) {
+                    st = ServiceStatus.Status.UNKNOWN;
                 }
 
-                statusArray[i] = new ServiceStatus(name, serviceStatus);
+                String name = element.attribute("name").getValue();
+                Process process = Process.getEnum(name);
+                if (process == null) {
+                    // Ignore uknown processes
+                    LOG.warn("Uknown process name" + name + "received from: "
+                            + location.getProcessMonitorUrl());
+                    continue;
+                }
+                serviceStatusList.add(new ServiceStatus(process, st));
             }
-            return statusArray;
+            return (ServiceStatus[]) serviceStatusList
+                    .toArray(new ServiceStatus[serviceStatusList.size()]);
         } catch (DocumentException e) {
             throw new RuntimeException(e);
         } finally {

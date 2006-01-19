@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
+import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
@@ -34,6 +35,11 @@ public class SnomPhone extends Phone {
     public static final String MAILBOX = "line/user_mailbox";
     
     public static final String OUTBOUND_PROXY = "sip/user_outbound";
+
+    private static final String TIMEZONE_SETTING = "network/utc_offset";
+
+    // Uncomment when JDK 1.5 required
+    // private static final String DST_SETTING = "network/dst";
 
     public SnomPhone() {
         super(BEAN_ID);
@@ -110,6 +116,31 @@ public class SnomPhone extends Phone {
         PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
         String configUrl = defaults.getProfileRootUrl() + '/' + getProfileName();
         settings.getSetting("update/setting_server").setValue(configUrl);
+    }
+
+    protected void setDefaultTimeZone() {
+        PhoneTimeZone mytz = new PhoneTimeZone();
+        int tzsec = mytz.getOffset();
+
+        if (tzsec <= 0) {
+            getSettings().getSetting(TIMEZONE_SETTING).setValue(String.valueOf(tzsec));
+        } else {
+            getSettings().getSetting(TIMEZONE_SETTING).setValue("+" + String.valueOf(tzsec));
+        }
+
+        // Snom DST setting waiting for JDK 1.5x
+        // String dst;
+        // if (mytz.getDstOffset() == 0) {
+        //     dst = StringUtils.EMPTY;
+        // } else {
+        //     dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00",
+        //                         mytz.getDstOffset(), mytz.getStartMonth(),
+        //                         Math.min(mytz.getStartWeek(), 5), (mytz.getStartDayOfWeek() + 5) % 7 + 1,
+        //                         mytz.getStartTime() / 3600, mytz.getStopMonth(),
+        //                         Math.min(mytz.getStopWeek(), 5), (mytz.getStopDayOfWeek() + 5) % 7 + 1,
+        //                         mytz.getStopTime() / 3600);
+        // }
+        // getSettings().getSetting(DST_SETTING).setValue(dst);
     }
 
     public Object getLineAdapter(Line line, Class interfac) {

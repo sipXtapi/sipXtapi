@@ -10,65 +10,84 @@
   <type id="month">
     <enum>
       <option>
-        <value>January</value>
+        <label>January</label>
+        <value>1</value>
       </option>
       <option>
-        <value>February</value>
+        <label>February</label>
+        <value>2</value>
       </option>
       <option>
-        <value>March</value>
+        <label>March</label>
+        <value>3</value>
       </option>
       <option>
-        <value>April</value>
+        <label>April</label>
+        <value>4</value>
       </option>
       <option>
-        <value>May</value>
+        <label>May</label>
+        <value>5</value>
       </option>
       <option>
-        <value>June</value>
+        <label>June</label>
+        <value>6</value>
       </option>
       <option>
-        <value>July</value>
+        <label>July</label>
+        <value>7</value>
       </option>
       <option>
-        <value>August</value>
+        <label>August</label>
+        <value>8</value>
       </option>
       <option>
-        <value>September</value>
+        <label>September</label>
+        <value>9</value>
       </option>
       <option>
-        <value>October</value>
+        <label>October</label>
+        <value>10</value>
       </option>
       <option>
-        <value>November</value>
+        <label>November</label>
+        <value>11</value>
       </option>
       <option>
-        <value>December</value>
+        <label>December</label>
+        <value>12</value>
       </option>
     </enum>
   </type>
   <type id="dayofweek">
     <enum>
       <option>
-        <value>Sunday</value>
+        <label>Sunday</label>
+        <value>1</value>
       </option>
       <option>
-        <value>Monday</value>
+        <label>Monday</label>
+        <value>2</value>
       </option>
       <option>
-        <value>Tuesday</value>
+        <label>Tuesday</label>
+        <value>3</value>
       </option>
       <option>
-        <value>Wednesday</value>
+        <label>Wednesday</label>
+        <value>4</value>
       </option>
       <option>
-        <value>Thursday</value>
+        <label>Thursday</label>
+        <value>5</value>
       </option>
       <option>
-        <value>Friday</value>
+        <label>Friday</label>
+        <value>6</value>
       </option>
       <option>
-        <value>Saturday</value>
+        <label>Saturday</label>
+        <value>7</value>
       </option>
     </enum>
   </type>
@@ -210,7 +229,7 @@
       <type>
         <integer min="-12" max="12"/>
       </type>
-      <value>+1</value>
+      <value>1</value>
       <description>Offset from the phone time when DST is in effect.</description>
     </setting>
     <setting name="dst_start_day">
@@ -222,17 +241,17 @@
     </setting>
     <setting name="dst_start_day_of_week">
       <type refid="dayofweek"/>
-      <value>Sunday</value>
+      <value>1</value>
       <description>Day of the week on which DST begins.</description>
     </setting>
     <setting name="dst_start_month">
       <type refid="month"/>
-      <value>March</value>
+      <value>4</value>
       <description>Month in which DST begins.</description>
     </setting>
     <setting name="dst_start_time">
       <type refid="hh:mm"/>
-      <value>02:00</value>
+      <value>2:00</value>
       <description>Time of day on which DST begins.</description>
     </setting>
     <setting name="dst_start_week_of_month">
@@ -262,7 +281,7 @@
           </option>
         </enum>
       </type>
-      <value>8</value>
+      <value>1</value>
       <description>Week of month in which DST begins.</description>
     </setting>
     <setting name="dst_stop_day">
@@ -274,17 +293,17 @@
     </setting>
     <setting name="dst_stop_day_of_week">
       <type refid="dayofweek"/>
-      <value>Sunday</value>
+      <value>1</value>
       <description>Day of the week on which DST ends.</description>
     </setting>
     <setting name="dst_stop_month">
       <type refid="month"/>
-      <value>October</value>
+      <value>10</value>
       <description>Month in which DST ends.</description>
     </setting>
     <setting name="dst_stop_time">
       <type refid="hh:mm"/>
-      <value>02:00</value>
+      <value>2:00</value>
       <description>Time of day on which DST ends.</description>
     </setting>
     <setting name="dst_stop_week_of_month">
@@ -449,7 +468,7 @@
           </option>
         </enum>
       </type>
-      <value>GMT</value>
+      <value>EST</value>
       <description>Time zone in which the phone is located.</description>
     </setting>
   </group>

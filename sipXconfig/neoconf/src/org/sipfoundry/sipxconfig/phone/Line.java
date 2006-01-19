@@ -21,8 +21,6 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public class Line extends BeanWithGroups implements DataCollectionItem {
 
     private Phone m_phone;
-
-    private String m_uri;
     
     private User m_user;
     
@@ -37,7 +35,8 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
     }
 
     public String getDisplayLabel() {
-        return m_user.getUserName();
+        LineSettings settings = (LineSettings) getAdapter(LineSettings.class);
+        return (settings != null ? settings.getUserId() : null);
     }
 
     public int getPosition() {
@@ -82,22 +81,19 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
         getPhone().defaultLineSettings(this);
     }
     
+    protected void decorateSettings() {
+        super.decorateSettings();
+        
+    }
+
     public Object getAdapter(Class interfac) {
         Object adapter = getPhone().getLineAdapter(this, interfac);
         return adapter;
     }
     
-    public String getUri() {
-        // HACK: uri is determined by it's settings, so need to initialize
-        // them before determining the URI. hesitated to create an initialize()
-        // method on phones and lines for the moment as to not introduce yet 
-        // another setup requirement on related objects.
-        getSettings();
-        
-        return m_uri;
-    }
-    
-    public void setUri(String uri) {
-        m_uri = uri;
+    public String getUri() {        
+        LineSettings settings = (LineSettings) getAdapter(LineSettings.class);
+        String uri = getPhoneContext().getPhoneDefaults().getUri(settings);
+        return uri;
     }
 }

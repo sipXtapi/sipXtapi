@@ -3,6 +3,54 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+Version 3.1.2
+** Bug
+    * [XCF-475] - polycom - Configure directory memory size
+    * [XCF-531] - Phones - Add Line: user search should be case insensitive
+    * [XCF-656] - Searching for users in "Add Line" screen always searches for the first name entered
+    * [XCF-659] - Return in Add Line screen exits to Lines screen
+    * [XCF-660] - In Add Lines, a search finding no users does not say so
+    * [XCF-665] - Starting/Stopping Services does not work for KeepAlive service
+    * [XCF-716] - Groups field for New Phone should say "Groups" not "Additional Groups"
+    * [XCF-787] - PhoneDefaults.getProxyServerAddr() is deprecated, need to clean up the compiler warnings
+    * [XCF-801] - Indexer Exception running PhoneGroupTestUi on Windows
+    * [XCF-813] - Config server menus dont work in IE
+    * [XCF-814] - Link to download the sipx-snapshot result is missing.
+    * [XCF-816] - Partial phone search doesnt work.
+    * [XCF-817] - Global search results lists the users that have already been deleted. 
+    * [XCF-834] - Bug of at the same time calling setting in huntgroup
+    * [XCF-835] - Apply and OK do not behave correctly on Dialing rules pages
+    * [XCF-841] - one can only generate about 32 profiles in one shot
+    * [XCF-843] - duplicate users found in global search after re-indexing
+    * [XCF-847] - Adding a dial plan with duplicate name is giving an internal error.
+    * [XCF-848] - Dial plan activation page - Internal Server error occurred when was selected item in the drop down is not authrules, mappingrules or fallbackrules. 
+    * [XCF-849] - Generated profiles are not getting deleted, when the phones are deleted from the configserver for Cisco ata, Ciso 7912 and 7905 phones.
+    * [XCF-864] - Please provided timed release profile pushes 
+    * [XCF-868] - replication.cgi corrupts dial plans entries when dialplans are saved
+
+** New Feature
+    * [XCF-777] - Cutsheet - importing data from comma separated values file
+    * [XCF-809] - mapping rules replication for remotely managed hosts
+    * [XCF-818] - Implement time/day of week based, auto attendant feature (aka. Night menu)
+    * [XCF-823] - support for injecting dial rules from external file
+    * [XCF-824] - specifying SIP domain when replicating data
+
+** Task
+    * [XCF-752] - upgrade jakarta commons io
+    * [XCF-821] - Gather statistics on installation and upgrade issues
+
+** Improvement
+    * [XCF-328] - Maximum line limit for a (polycom) device
+    * [XCF-505] - manage services (start/stop/restart/status) on multiple machines
+    * [XCF-572] - Ability to add unmanaged users to phones
+    * [XCF-658] - Text on "Add Line" page is not so clear
+    * [XCF-730] - limit the number of users returned by a user search, for efficiency
+    * [XCF-735] - do not use "digits" and "vdigits" in UI
+    * [XCF-759] - user selection/search should offer quick search by default
+    * [XCF-805] - services screen - change "started" status to "OK" status
+    * [XCF-806] - Support Polycom 1.6.3 settings
+    * [XCF-822] - Upgrade and Installation Enhancements
+    * [XCF-859] - lazy daemon should optionally support quiet period	
 
 Version 3.1.1
 ** Bug

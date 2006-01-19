@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
@@ -25,6 +26,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.site.line.AddExternalLine;
 import org.sipfoundry.sipxconfig.site.line.EditLine;
 
 /**
@@ -67,10 +69,26 @@ public abstract class PhoneLines extends BasePage implements PageRenderListener 
             setSelections(new SelectMap());
         }
     }
+    
+    public void addExternalLine(IRequestCycle cycle) {
+        Object[] params = cycle.getServiceParameters();
+        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        checkMaxLines(phoneId);
+        AddExternalLine page = (AddExternalLine) cycle.getPage(AddExternalLine.PAGE);
+        page.setPhoneId(phoneId);
+        page.setCallback(new PageCallback(this));
+        cycle.activate(page);        
+    }
+    
+    private void checkMaxLines(Integer phoneId) {
+        Phone phone = getPhoneContext().loadPhone(phoneId);
+        phone.addLine(phone.createLine());        
+    }
 
     public void addLine(IRequestCycle cycle) {
         Object[] params = cycle.getServiceParameters();
         Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+        checkMaxLines(phoneId);
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
         page.setPhoneId(phoneId);
         cycle.activate(page);

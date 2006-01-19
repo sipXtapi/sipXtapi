@@ -784,6 +784,10 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         //create response - 200 ok reseponse
                         finalResponse.setOkResponseData(&message);
 
+                        // get the call-id from the register message for context test below
+                        UtlString registerCallId;
+                        message.getCallIdField(&registerCallId);
+
                         //get all current contacts now for the response
                         ResultSet registrations;
 
@@ -794,8 +798,27 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         int numRegistrations = registrations.getSize();
                         for ( int i = 0 ; i<numRegistrations; i++ )
                         {
-                            UtlHashMap record;
-                            registrations.getIndex( i, record );
+                          UtlHashMap record;
+                          registrations.getIndex( i, record );
+
+                          // Check if this contact should be returned in this context
+                          // for REGISTER_QUERY, return all contacts
+                          // for REGISTER_SUCCESS, return only the contacts with the same
+                          //     call-id.  This is because we've seen too many phones that
+                          //     don't expect to see contacts other than the one they sent,
+                          //     and get upset by contact parameters meant for others
+                          //     In particular, when some other contact is about to expire,
+                          //     they think that they got a short time and try again - which
+                          //     loops until the other contact expires or is refreshed by
+                          //     someone else - not good.
+                          UtlString* contactCallId
+                             = dynamic_cast<UtlString*>(record.findValue(&gCallidKey));
+                          if (   REGISTER_QUERY == applyStatus
+                              || (   contactCallId
+                                  && registerCallId.isEqual(contactCallId)
+                                  )
+                              )
+                          {
                             UtlString contactKey("contact");
                             UtlString expiresKey("expires");
                             UtlString qvalueKey("qvalue");
@@ -849,6 +872,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             }
 
                             finalResponse.setContactField(contactUri.toString(),i);
+                          }
                         }
                     }
                     break;
