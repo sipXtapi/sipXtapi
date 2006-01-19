@@ -50,7 +50,11 @@ class CallGroupServiceTestApi < ApiTestCase
     # Create a UserRing.
     # UserRing properties are expiration, type, position, userName.
     # We must pass in position 0 because that will be the list position of this one UserRing.
-    inRing = UserRing.new(19, 'immediate', 0, 'lipton')
+    inRing = UserRing.new
+    inRing.expiration = 19
+    inRing.type = 'immediate'
+    inRing.position = 0
+    inRing.userName = 'lipton'
 
     # Create a CallGroup
     # CallGroup properties are name, extension, description, enabled, rings
