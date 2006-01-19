@@ -50,9 +50,9 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
     public abstract void setIdConverter(IPrimaryKeyConvertor cvt);
 
     public abstract PhoneContext getPhoneContext();
-    
+
     public abstract RestartManager getRestartManager();
-    
+
     public abstract ProfileManager getProfileManager();
 
     public abstract Integer getGroupId();
@@ -70,7 +70,7 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
     public abstract SearchManager getSearchManager();
 
     public IBasicTableModel getTableModel() {
-        String queryText = getQueryText();        
+        String queryText = getQueryText();
         if (!getSearchMode() || StringUtils.isBlank(queryText)) {
             return new PhoneTableModel(getPhoneContext(), getGroupId());
         }
@@ -104,34 +104,45 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public void deletePhone(IRequestCycle cycle_) {
         PhoneContext context = getPhoneContext();
-        PhoneContext phoneContext = getPhoneContext();
-        
-        SelectMap selections = getSelections();
-        Iterator phoneIds = selections.getAllSelected().iterator();
-        Phone[] phones1 = new Phone[selections.getAllSelected().size()];
-        for (int i1 = 0; i1 < phones1.length; i1++) {
-            Integer phoneId = (Integer) phoneIds.next();
-            phones1[i1] = phoneContext.loadPhone(phoneId);
+
+        Collection ids = getSelections().getAllSelected();
+        if (ids.isEmpty()) {
+            return;
         }
-        Phone[] phones = phones1;
-        for (int i = 0; i < phones.length; i++) {
-            context.deletePhone(phones[i]);
+
+        for (Iterator i = ids.iterator(); i.hasNext();) {
+            Integer phoneId = (Integer) i.next();
+            Phone phone = context.loadPhone(phoneId);
+            context.deletePhone(phone);
         }
+
+        String msg = getMessages().format("msg.success.delete", Integer.toString(ids.size()));
+        TapestryUtils.recordSuccess(this, msg);
     }
 
     public void generateProfiles(IRequestCycle cycle_) {
         Collection phoneIds = getSelections().getAllSelected();
-        getProfileManager().generateProfilesAndRestart(phoneIds);
+        generateProfiles(phoneIds);
     }
 
     public void generateAllProfiles(IRequestCycle cycle_) {
         Collection phoneIds = getPhoneContext().getAllPhoneIds();
+        generateProfiles(phoneIds);
+    }
+
+    private void generateProfiles(Collection phoneIds) {
         getProfileManager().generateProfilesAndRestart(phoneIds);
+        String msg = getMessages().format("msg.success.profiles",
+                Integer.toString(phoneIds.size()));
+        TapestryUtils.recordSuccess(this, msg);
     }
 
     public void restart(IRequestCycle cycle_) {
         Collection phoneIds = getSelections().getAllSelected();
         getRestartManager().restart(phoneIds);
+        String msg = getMessages().format("msg.success.restart",
+                Integer.toString(phoneIds.size()));
+        TapestryUtils.recordSuccess(this, msg);
     }
 
     /**
