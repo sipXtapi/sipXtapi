@@ -74,7 +74,7 @@ public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport imple
         sa.setAttendant(autoAttendant);
         sa.setEnabled(true);
         rule.setAfterHoursAttendant(sa);
-        m_dialPlanContext.storeRule(rule);
+        m_dialPlanContext.addRule(0, rule);
     }
 
     private void cleanSchema() {

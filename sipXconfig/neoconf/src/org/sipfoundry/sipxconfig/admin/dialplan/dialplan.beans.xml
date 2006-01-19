@@ -137,8 +137,8 @@
       <list>
         <ref bean="defaultEmergencyRule"/>
         <ref bean="defaultInternationalRule"/>
-        <ref bean="defaultInternalRule"/>
         <ref bean="defaultAttendantRule"/>
+        <ref bean="defaultInternalRule"/>
         <ref bean="defaultLocalRule"/>
         <ref bean="defaultLongDistanceRule"/>
         <ref bean="defaultRestrictedRule"/>

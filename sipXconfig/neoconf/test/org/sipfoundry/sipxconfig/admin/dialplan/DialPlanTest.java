@@ -39,6 +39,33 @@ public class DialPlanTest extends TestCase {
         assertSame(candidates[1], actual[0]);
         assertSame(candidates[3], actual[1]);
     }
+    
+    public void testAddRule() {        
+        DialingRule a = new InternalRule();
+        DialingRule b = new CustomDialingRule();
+        DialingRule c = new AttendantRule();
+        DialingRule d = new AttendantRule();
+
+        DialPlan plan = new DialPlan();
+        plan.addRule(a);
+        plan.addRule(b);
+        assertEquals(2, plan.getRules().size());
+        assertEquals(0, a.getPosition());
+        assertEquals(1, b.getPosition());
+        
+        plan.addRule(0, c);
+        assertEquals(3, plan.getRules().size());
+        assertEquals(0, c.getPosition());
+        assertEquals(1, a.getPosition());
+        assertEquals(2, b.getPosition());
+        
+        plan.addRule(-1, d);
+        assertEquals(4, plan.getRules().size());
+        assertEquals(0, c.getPosition());
+        assertEquals(1, a.getPosition());
+        assertEquals(2, b.getPosition());
+        assertEquals(3, d.getPosition());        
+    }
 
     public void testLikelyVoiceMail() {
         DialPlan plan = new DialPlan();

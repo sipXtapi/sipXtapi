@@ -42,9 +42,9 @@ public class DialPlanEditTestUi extends WebTestCase {
         }, {
             "International", "false", "International", "International dialing"
         }, {
-            "Internal", "true", "Internal", "Default internal dialing plan"
-        }, {
             "AutoAttendant", "true", "Attendant", "Default autoattendant dialing plan"
+        }, {
+            "Internal", "true", "Internal", "Default internal dialing plan"
         }, {
             "Local", "false", "Local", "Local dialing"
         }, {
