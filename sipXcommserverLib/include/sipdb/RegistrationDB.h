@@ -92,7 +92,7 @@ public:
                                ,ResultSet& rResultSet
                                ) const;
 
-    void RegistrationDB::updateBinding(const RegistrationBinding&);
+    void updateBinding(const RegistrationBinding&);
 
     /// updateBinding of uri to contact: does insert or update as needed
     void updateBinding( const Url& uri

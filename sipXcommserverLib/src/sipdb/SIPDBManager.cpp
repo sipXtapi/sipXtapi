@@ -39,7 +39,7 @@ REGISTER( TableInfo );
 // EXTERNAL VARIABLES
 // CONSTANTS
 
-// environment varialbe name for static data 
+// environment variable name for static data 
 
 static const char* DefaultVarPath = SIPX_TMPDIR;
 static const char* DefaultCfgPath = SIPX_DBDIR;
@@ -52,7 +52,7 @@ static const char* DefaultCfgPath = SIPX_DBDIR;
 SIPDBManager* SIPDBManager::spInstance = NULL;
 dbDatabase*   SIPDBManager::spFastDB = NULL;
 OsMutex       SIPDBManager::sLockMutex (OsMutex::Q_FIFO);
-UtlBoolean     SIPDBManager::gVerboseLoggingEnabled = FALSE;
+UtlBoolean    SIPDBManager::gVerboseLoggingEnabled = FALSE;
 
 /* Helper method to return the process id */
 int 
@@ -554,7 +554,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
         // Begin Tx
         spFastDB->attach();
 
-        // ensure that the table is registerd with the process id.
+        // ensure that the table is registered with the process id.
         dbCursor< TableInfo > cursor ( dbCursorForUpdate );
         dbQuery query;
         query="tablename=",tablename,"and pid=",pid;
@@ -1059,7 +1059,7 @@ SIPDBManager::preloadAllDatabase() const
     // their reference count does not go to 0
     // causing an expensive load by another process
     
-    // If called first thing during startuo, this code 
+    // If called first thing during startup, this code 
     // will force the xml files to be loaded into imdb.
 
     CredentialDB*   pCredentialDB   = CredentialDB::getInstance();
