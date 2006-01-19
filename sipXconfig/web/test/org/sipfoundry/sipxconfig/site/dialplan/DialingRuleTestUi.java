@@ -51,7 +51,7 @@ public class DialingRuleTestUi extends WebTestCase {
         clickLinkWithText("Internal");
         SiteTestHelper.assertNoException(tester);
         //it's a submit link: uses java script, does not have id
-        setFormElement("name", "invalid name");
+        setFormElement("name", "");
         clickButton("form:ok");
         // should fail with the error message
         SiteTestHelper.assertUserError(tester);
