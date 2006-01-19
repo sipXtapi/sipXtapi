@@ -59,6 +59,7 @@ make
 # DESTDIR when copying/moving/creating files.  The approach we're taking
 # is quite standard, so it's surprising RPM's makeinstall macro is
 # the way it is.
+rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
 # kingkonf upgrade support
