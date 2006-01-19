@@ -128,6 +128,9 @@ public:
     
     /// Get the RegistrarSync thread object
     RegistrarSync* getRegistrarSync();
+
+    /// Return true if replication is configured, false otherwise
+    bool isReplicationConfigured();
     
     /// Get the RegistrationDB thread object
     RegistrationDB* getRegistrationDB();

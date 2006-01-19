@@ -29,6 +29,7 @@
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
+#include "SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "SyncRpc.h"
 #include "registry/RegisterPlugin.h"
@@ -71,12 +72,13 @@ static UtlString gQvalueKey("qvalue");
 static UtlString gInstanceIdKey("instance_id");
 static UtlString gGruuKey("gruu");
 
-const UtlString SipRegistrarServer::gDummyLocalRegistrarName("dummy.somewhere.com");
 OsMutex         SipRegistrarServer::sLockMutex(OsMutex::Q_FIFO);
 
-SipRegistrarServer::SipRegistrarServer() :
+SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     OsServerTask("SipRegistrarServer", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
+    mRegistrar(registrar),
     mIsStarted(FALSE),
+    mSipUserAgent(NULL),
     mDefaultRegistryPeriod(),
     mNonceExpiration(5*60),
     mDbUpdateNumber(0)
@@ -476,9 +478,10 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     {
                         // Expires: 0 && Contact: * - clear all contacts
                         imdb->expireAllBindings( toUrl
-                                                ,registerCallidStr, registerCseqInt
+                                                ,registerCallidStr
+                                                ,registerCseqInt
                                                 ,timeNow
-                                                ,gDummyLocalRegistrarName
+                                                ,primaryName()
                                                 ,mDbUpdateNumber
                                                 );
                     }
@@ -579,7 +582,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                 ,expirationTime
                                                 ,instance_id
                                                 ,gruu
-                                                ,gDummyLocalRegistrarName
+                                                ,primaryName()
                                                 ,mDbUpdateNumber
                                                 );
 
@@ -588,7 +591,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         // If there were any bindings not dealt with explicitly in this
                         // message that used the same callid, then expire them.
                         imdb->expireOldBindings( toUrl, registerCallidStr, registerCseqInt, 
-                                                 timeNow, gDummyLocalRegistrarName,
+                                                 timeNow, primaryName(),
                                                  mDbUpdateNumber );
                     }
                     else
@@ -929,7 +932,7 @@ SipRegistrarServer::isAuthorized (
     
     if ( !mUseCredentialDB )
     {
-        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized() "
+        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized() "
                 ":: No Credential DB - request is always AUTHORIZED\n" );
         isAuthorized = TRUE;
     }
@@ -939,7 +942,7 @@ SipRegistrarServer::isAuthorized (
         // if URI not defined in DB, the user is not authorized to modify bindings - NOT DOING ANYMORE
         // check if we requested authentication and this is the req with
         // authorization,validate the authorization
-        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized()"
+        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized()"
                 ": fromUri='%s', toUri='%s', realm='%s' \n", fromUri.data(), toUrl.toString().data(), mRealm.data() );
 
         UtlString requestNonce, requestRealm, requestUser, uriParam;
@@ -962,7 +965,7 @@ SipRegistrarServer::isAuthorized (
 
             if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive check that realm is correct
             {
-                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized() Realm Matches\n");
+                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized() Realm Matches\n");
 
                 // need the request URI to validate the nonce
                 UtlString reqUri;
@@ -993,7 +996,7 @@ SipRegistrarServer::isAuthorized (
                            ))
                         {
                           OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                                        "SipRegistrar::isAuthorized() "
+                                        "SipRegistrarServer::isAuthorized() "
                                         "response auth hash matches\n");
                         }
                       else
@@ -1110,6 +1113,11 @@ SipRegistrarServer::isValidDomain(
     }
 
     return isValid;
+}
+
+const char* SipRegistrarServer::primaryName()
+{
+   return mRegistrar.primaryName();
 }
 
 SipRegistrarServer::~SipRegistrarServer()

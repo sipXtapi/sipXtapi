@@ -75,7 +75,6 @@ void SyncRpcMethod::registerMethod(const char*        methodName,
    registrar.getXmlRpcDispatch()->addMethod(methodName, getMethod, &registrar);
 }
 
-
 /// The execute method called by XmlRpcDispatch
 bool SyncRpcMethod::execute(const HttpRequestContext& requestContext, ///< request context
                             UtlSList& params,                         ///< request param list
@@ -245,7 +244,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                {
                   UtlSListIterator updates(*responseUpdates);
                   UtlHashMap* update;
-                  while (update = dynamic_cast<UtlHashMap*>(updates()))
+                  while ((update = dynamic_cast<UtlHashMap*>(updates())))
                   {
                      bindings->append(new RegistrationBinding(*update));
                   }
@@ -508,7 +507,7 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* replicated, ///< peer to push to
    UtlSListIterator bindingIterator(*bindings);
    UtlSList bindingParamList;
    RegistrationBinding* binding;
-   while (binding = dynamic_cast<RegistrationBinding*>(bindingIterator()))
+   while ((binding = dynamic_cast<RegistrationBinding*>(bindingIterator())))
    {
       UtlHashMap* toMap = new UtlHashMap;
       binding->copy(*toMap);

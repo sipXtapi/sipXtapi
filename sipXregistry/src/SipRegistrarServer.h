@@ -31,6 +31,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class SipMessage;
+class SipRegistrar;
 class SipUserAgent;
 class PluginHooks;
 class SyncRpc;
@@ -45,7 +46,7 @@ class SipRegistrarServer : public OsServerTask
 {
 public:
     /// Construct the thread to process REGISTER requests.
-    SipRegistrarServer();
+    SipRegistrarServer(SipRegistrar& registrar);
     /**<
      * Defer init to the initialize method to allow the SipRegistrarServer object
      * to be accessed before the associated thread has been started.
@@ -96,6 +97,7 @@ public:
         const UtlSList& updates);
 
 protected:
+    SipRegistrar& mRegistrar;
     UtlBoolean mIsStarted;
     SipUserAgent* mSipUserAgent;
     int mDefaultRegistryPeriod;
@@ -120,10 +122,6 @@ protected:
     // The last update number assigned to a registration.  Equals zero if no
     // local registrations have been processed yet.
     UtlLongLongInt mDbUpdateNumber;
-
-    // :HA: create a dummy local registrar name until we can get
-    // this value from the configuration
-    static const UtlString gDummyLocalRegistrarName;
 
     static OsMutex sLockMutex;
 
@@ -164,6 +162,9 @@ protected:
      * @param port the port number portion of a valid registration url
      */
     void addValidDomain(const UtlString& host, int port = PORT_NONE);
+
+    /// If replication configured, name of this registrar as primary, else NULL
+    const char* primaryName();
 };
 
 #endif // SIPREGISTRARSERVER_H

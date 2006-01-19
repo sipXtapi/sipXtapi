@@ -57,10 +57,6 @@ SipRegistrar* SipRegistrar::spInstance = NULL;
 OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
 
-// :HA: Separate thread object creation from thread starting, except for
-// SipUserAgent.  Create objects early, create threads in operational
-// phase.  This has been done for SipRegistrarServer.
-
 // Constructor
 SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    OsServerTask("SipRegistrarMain", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
@@ -72,16 +68,18 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    mSipUserAgent(NULL),
    mRedirectServer(NULL),
    mRedirectMsgQ(NULL),
-   mRegistrarServer(new SipRegistrarServer()),
+   // Create the SipRegistrarServer object so it will be available immediately,
+   // but don't start the associated thread until the registrar is operational.
+   mRegistrarServer(new SipRegistrarServer(*this)),
    mRegistrarMsgQ(NULL)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar:: constructed.");
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar constructed.");
 
    mHttpPort = mConfigDb->getPort("SIP_REGISTRAR_XMLRPC_PORT");
    if (PORT_NONE == mHttpPort)
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SipRegistrar::configurePeers"
+                    "SipRegistrar::SipRegistrar"
                     " SIP_REGISTRAR_XMLRPC_PORT == PORT_NONE :"
                     " peer synchronization disabled"
                     );
@@ -250,12 +248,17 @@ RegistrarSync* SipRegistrar::getRegistrarSync()
    return mRegistrarSync;
 }
 
+/// Return true if replication is configured, false otherwise
+bool SipRegistrar::isReplicationConfigured()
+{
+   return mReplicationConfigured;
+}
+
 /// Get the RegistrationDB thread object
 RegistrationDB* SipRegistrar::getRegistrationDB()
 {
    return mRegistrationDB;
 }
-
     
 
 // Destructor
