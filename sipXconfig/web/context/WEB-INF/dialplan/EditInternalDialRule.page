@@ -42,7 +42,6 @@
     
 	<component id="common" type="ItemCommon">
         <binding name="item" expression="rule"/>
-        <binding name="nameValidator" expression="global.validSipNameRequired"/>
     </component>
     
     <component id="extensionLenLabel" type="FieldLabel">
