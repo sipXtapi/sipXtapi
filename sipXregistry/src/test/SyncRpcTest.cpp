@@ -22,6 +22,7 @@
 #include "os/OsFS.h"
 #include "os/OsProcess.h"
 #include "sipdb/RegistrationDB.h"
+#include "SipRegistrar.h"
 
 using namespace std;
 
@@ -37,7 +38,12 @@ class SyncRpcTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   SyncRpcTest() : mTestDir(TEST_DATA_DIR) {}
+   SyncRpcTest() :
+      mTestDir(TEST_DATA_DIR),
+      mHttpPort(SipRegistrar::REGISTRAR_DEFAULT_RPC_PORT + 1),
+      mHttpServer(NULL),
+      mXmlRpcDispatch(NULL)
+      {}
 
    void setUp()
       {
@@ -62,31 +68,34 @@ public:
 
    void testPullUpdates()
       {
-return;
+#ifdef COMMENT_OUT_TEMPORARILY
+         // Load the registration DB
          RegistrationDB* regDb = RegistrationDB::getInstance();
 
-         Url url("sip:banana@fruit.com");
-         UtlString contact("sip:1.2.3.4@fruit.com");
-         UtlString qvalue("99");
-         UtlString callid("123");
-         int cseq = 5;
-         int timeNow = OsDateTime::getSecsSinceEpoch();
-         int expires = timeNow + 3600;
-         UtlString instance_id("instance");
-         UtlString gruu("gruu");
-         UtlString primary("my registrar");
-         intll updateNumber(999);         
-         regDb->updateBinding(url, contact, qvalue, callid, cseq, expires, instance_id, 
-                              gruu, primary, updateNumber);
+         // Set up a sync RPC server
+         mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */);
+         mHttpServer = mXmlRpcDispatch->getHttpServer();
 
-         regDb->cleanAndPersist(timeNow);
+         // Pull all updates with primary = R1 and updateNumber > 1
+         // Verify that the right updates got pulled
+
+
+
+
+
+
          regDb->releaseInstance();
+#endif
       }
 
 private:
    static const char* REGDB_FILENAME; 
-   static const char* REGDBTEMPLATE_FILENAME; 
-   UtlString mTestDir;
+   static const char* REGDBTEMPLATE_FILENAME;
+
+   UtlString          mTestDir;
+   int                mHttpPort;
+   HttpServer*        mHttpServer;
+   XmlRpcDispatch*    mXmlRpcDispatch;
 
    void removeTestFile(const char* testFilename)
       {
@@ -150,7 +159,6 @@ private:
             CPPUNIT_ASSERT_EQUAL(*endptr, '\0');
             char newTime[20];          // room for up to a 64-bit number, may have minus sign
             int newTimeLen = sprintf(newTime, "%ld", timeNow + timeNumber);
-            cout << timeNumber << ' ' << timeNow << ' ' << newTime << endl;
             CPPUNIT_ASSERT(newTimeLen > 0);
 
             // Replace the old expiration value with the new shifted value

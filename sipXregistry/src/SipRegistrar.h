@@ -41,7 +41,6 @@ class RegistrarSync;
 class RegistrarInitialSync;
 class SipRedirectServer;
 class SipRegistrarServer;
-class SyncRpcMethod;
 class UtlSListIterator;
 
 /// Top Level sipXregistry thread
@@ -181,6 +180,8 @@ private:
    /* ============================ REDIRECT ==================================== */
    void startRedirectServer();
    void sendToRedirectServer(OsMsg& eventMessage);
+
+   friend class SyncRpcTest;
 };
 
 #endif  // _SipRegistrar_h_

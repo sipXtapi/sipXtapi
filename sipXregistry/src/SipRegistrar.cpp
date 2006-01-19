@@ -34,7 +34,6 @@
 #include "RegistrarTest.h"
 #include "RegistrarSync.h"
 #include "RegistrarInitialSync.h"
-#include "SyncRpc.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
