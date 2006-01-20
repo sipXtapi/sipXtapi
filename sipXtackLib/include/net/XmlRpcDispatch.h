@@ -76,14 +76,15 @@ class XmlRpcDispatch : public HttpService
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+   static const char* DEFAULT_URL_PATH;
 
 /* ============================ CREATORS ================================== */
 
    /// Create a dispatch object.
    XmlRpcDispatch(int httpServerPort,           ///< port number for HttpServer
                   bool isSecureServer,          ///< option for HTTP or HTTPS
-                  const char* uriPath = "/RPC2" ///< uri path
-                  ); 
+                  const char* uriPath = DEFAULT_URL_PATH          ///< uri path
+                  );
 
    /// Destructor.
    virtual ~XmlRpcDispatch();

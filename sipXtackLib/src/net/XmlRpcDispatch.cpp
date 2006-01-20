@@ -75,6 +75,8 @@ void XmlRpcMethodContainer::getData(XmlRpcMethod::Get*& method, void*& userData)
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+const char* XmlRpcDispatch::DEFAULT_URL_PATH = "/RPC2";
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
