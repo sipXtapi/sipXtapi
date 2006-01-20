@@ -17,18 +17,17 @@
 package org.taha.interceptor;
 
 import java.io.Serializable;
-
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
-
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.logging.Log;
-
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
+import java.lang.reflect.Array;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.Assert;
 
 /**
  * @author <a href="mailto:irbouh@gmail.com">Omar Irbouh</a>
@@ -87,10 +86,31 @@ public class MethodCacheInterceptor implements MethodInterceptor, InitializingBe
         sb.append(targetName).append(".").append(methodName);
         if ((arguments != null) && (arguments.length != 0)) {
             for (int i = 0; i < arguments.length; i++) {
-                sb.append(".").append(arguments[i]);
+                sb.append(".").append(getCacheKey(arguments[i]));
             }
         }
 
         return sb.toString();
+    }
+    
+    public static String getCacheKey(Object o) {
+        if (o == null) {
+            return "";
+        }
+        
+        // TODO Collections
+        
+        if (Object[].class.isAssignableFrom(o.getClass())) {
+            Object[] a = (Object[]) o;
+            StringBuffer sb = new StringBuffer();
+            sb.append('[');
+            for (int i = 0; i < a.length; i++) {
+                sb.append(getCacheKey(a[i])).append(',');
+            }
+            sb.append(']');
+            return sb.toString();
+        } 
+        
+        return o.toString();
     }
 }

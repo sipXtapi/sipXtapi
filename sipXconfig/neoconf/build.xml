@@ -10,7 +10,7 @@
 
 	<property name="project.dir" value="neoconf" />
 	<import file="../ant-targets.xml" />
-        <patternset id="test-db.classes" includes="**/${test.name}TestDb.class" />
+  <patternset id="test-db.classes" includes="**/${test.name}TestDb.class" />
 
 	<!-- 
 	    - common path unittests will need that interfaces w/sipxconfig lib 
@@ -68,6 +68,7 @@
 		<pathelement location="${easymock.jar}" />
 		<pathelement location="${easymockclassextension.jar}" />
 		<pathelement location="${dbunit.jar}" />
+		<pathelement location="${junitperf.jar}" />
 		<pathelement location="${p6spy.jar}" />
         <pathelement location="${xmlunit.jar}"/>
 	    <pathelement location="${xerces.jar}" />
@@ -197,6 +198,24 @@
     	</junit>
      	<fail if="junit.failed"/>   
 	</target>
+
+    <target name="test-performance" depends="compile.test, reset-db"
+       description="run junit tests that run performance tests">
+
+    	<junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+	      <classpath refid="test.path"/>
+    	  <formatter type="plain"/>
+	      <formatter type="xml"/>
+	      <sysproperty key="basedir" value="${basedir}"/>
+	      <batchtest todir="${junit.results.dir}">
+	        <fileset dir="${test.classes.dir}"> 
+	          <patternset refid="test-performance.classes"/>
+	        </fileset>
+	      </batchtest>
+    	</junit>
+     	<fail if="junit.failed"/>   
+	</target>
+
 
 	<target name="test-models">    
 		<xmlvalidate description="validate setting description files">
