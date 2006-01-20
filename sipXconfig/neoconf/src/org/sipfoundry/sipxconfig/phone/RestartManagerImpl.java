@@ -22,9 +22,20 @@ import org.sipfoundry.sipxconfig.job.JobContext;
 public class RestartManagerImpl implements RestartManager {
     private static final Log LOG = LogFactory.getLog(RestartManagerImpl.class);
 
+    private static final int DEFAULT_THROTTLE_INTERVAL = 1000;
+
     private JobContext m_jobContext;
 
     private PhoneContext m_phoneContext;
+
+    /**
+     * The number of millis by which we are going to delay restarting a phone if more than one
+     * phone is restarted. We are delaying restart of the phone. The default value is 1 second,
+     * but it can be changes by modifying sipxcongig.properties.in file. Set to 0 to remove the
+     * throttle.
+     * 
+     */
+    private int m_throttleInterval = DEFAULT_THROTTLE_INTERVAL;
 
     public void setJobContext(JobContext jobContext) {
         m_jobContext = jobContext;
@@ -34,10 +45,26 @@ public class RestartManagerImpl implements RestartManager {
         m_phoneContext = phoneContext;
     }
 
+    public void setThrottleInterval(int throttleInterval) {
+        m_throttleInterval = throttleInterval;
+    }
+
     public void restart(Collection phoneIds) {
         for (Iterator iter = phoneIds.iterator(); iter.hasNext();) {
             Integer id = (Integer) iter.next();
             restart(id);
+            throttle();
+        }
+    }
+
+    private void throttle() {
+        if (m_throttleInterval <= 0) {
+            return;
+        }
+        try {
+            Thread.sleep(m_throttleInterval);
+        } catch (InterruptedException e) {
+            LOG.error("Ignoring exception", e);
         }
     }
 
