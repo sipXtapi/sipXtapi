@@ -59,6 +59,7 @@
 					</xsd:enumeration>
         </xsd:restriction>
       </xsd:simpleType>      
+      <!-- 
       <xsd:complexType name="AbstractRing">
         <xsd:sequence>
           <xsd:element name="expiration" type="xsd:int" minOccurs="1" maxOccurs="1"/>
@@ -66,14 +67,19 @@
           <xsd:element name="position" type="xsd:int" minOccurs="1" maxOccurs="1"/>
         </xsd:sequence>
       </xsd:complexType>
+      -->
       <xsd:complexType name="UserRing">
-        <xsd:complexContent>
-        	<xsd:extension base="tns:AbstractRing">
-		        <xsd:sequence>
-    	      	<xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
-            </xsd:sequence>
-        	</xsd:extension>
-        </xsd:complexContent>
+    	<!--
+    	  - Ruby 1.8.4 from FC4 doesn't have support for this yet, latest download
+    	  -   from SOAP4R does. Hold back on this as long as possible until FC4 catches up
+    	  -  xsd:extension base="tns:AbstractRing"
+    	  -->
+        <xsd:sequence>
+          <xsd:element name="expiration" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="type" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="position" type="xsd:int" minOccurs="1" maxOccurs="1"/>
+          <xsd:element name="userName" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+        </xsd:sequence>
       </xsd:complexType>
       <xsd:complexType name="CallGroup">
         <xsd:sequence>

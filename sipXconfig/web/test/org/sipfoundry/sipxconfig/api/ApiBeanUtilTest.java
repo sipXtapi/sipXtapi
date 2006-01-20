@@ -33,7 +33,7 @@ public class ApiBeanUtilTest extends TestCase {
     }
     
     public void testReadableProperties() {
-        Object[] props = ApiBeanUtil.getReadableProperties(new Frick()).toArray();
+        Object[] props = ApiBeanUtil.getProperties(new Frick()).toArray();
         Arrays.sort(props);
         assertEquals(2, props.length);        
         assertEquals("address", props[0]);

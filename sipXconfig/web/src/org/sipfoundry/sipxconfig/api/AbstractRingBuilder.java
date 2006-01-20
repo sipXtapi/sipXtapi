@@ -36,9 +36,9 @@ public class AbstractRingBuilder extends SimpleBeanBuilder {
 
     public void toApiObject(Object apiObject, Object myObject, Set properties) {
         super.toApiObject(apiObject, myObject, properties);
-        org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing my =
-            (org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing) myObject;
-        AbstractRing api = (AbstractRing) apiObject;
+        org.sipfoundry.sipxconfig.admin.callgroup.UserRing my =
+            (org.sipfoundry.sipxconfig.admin.callgroup.UserRing) myObject;
+        UserRing api = (UserRing) apiObject;
         // Ideally we would use the enum name here, my.getType().getName(),
         // but we can't do that yet.  See XCF-794.
         if (properties.contains(TYPE_PROP)) {
@@ -61,7 +61,7 @@ public class AbstractRingBuilder extends SimpleBeanBuilder {
         super.toMyObject(myObject, apiObject, properties);
         org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing my =
             (org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing) myObject;
-        AbstractRing api = (AbstractRing) apiObject;
+        UserRing api = (UserRing) apiObject;
         if (properties.contains(TYPE_PROP)) {
             // Ideally we would just retrieve the enum value by name, e.g.
             //     org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type.getEnum(api.getType())
