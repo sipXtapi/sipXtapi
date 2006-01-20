@@ -96,6 +96,15 @@ public:
         int timeNow,
         const UtlSList& updates);
 
+    /// Get the largest update number in the local database for this registrar as primary.
+    intll getDbUpdateNumber() 
+       {
+          return mDbUpdateNumber;
+       }
+
+    /// Reset the DbUpdateNumber so that the upper half is the epoch time.
+    void resetDbUpdateNumberEpoch();
+    
 protected:
     SipRegistrar& mRegistrar;
     UtlBoolean mIsStarted;

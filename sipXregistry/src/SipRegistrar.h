@@ -73,9 +73,6 @@ public:
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
     /**< Messages are dispatched to either the SipRegistrarServer or SipRedirectServer thread */
 
-    /// Load persistent soft state
-    void reloadPersistentRegistrations();
-    
     /// Server for XML-RPC requests
     void startRpcServer();
     /**<
@@ -131,7 +128,7 @@ public:
     /// Return true if replication is configured, false otherwise
     bool isReplicationConfigured();
     
-    /// Get the RegistrationDB thread object
+    /// Get the RegistrationDB object
     RegistrationDB* getRegistrationDB();
     
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -146,8 +143,9 @@ private:
    static SipRegistrar* spInstance;
    static OsBSem sLock;
 
+   // order is important - these two must be before everything below
+   // so that they are initialized first.
    OsConfigDb* mConfigDb; ///< this is owned by the main routine - do not delete
-   
    RegistrationDB* mRegistrationDB;
 
    int             mHttpPort;

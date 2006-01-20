@@ -60,6 +60,7 @@ OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    OsServerTask("SipRegistrarMain", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
    mConfigDb(configDb),
+   mRegistrationDB(RegistrationDB::getInstance()), // implicitly loads database
    mHttpServer(NULL),
    mXmlRpcDispatch(NULL),
    mReplicationConfigured(false),
@@ -100,8 +101,6 @@ int SipRegistrar::run(void* pArg)
 {
    startRpcServer();
 
-   reloadPersistentRegistrations();
-
    /*
     * If replication is configured,
     *   the following blocks until the state of each peer is known
@@ -120,14 +119,6 @@ int SipRegistrar::run(void* pArg)
 
    return taskResult;
 }
-
-
-/// Load persistent soft state
-void SipRegistrar::reloadPersistentRegistrations()
-{
-   mRegistrationDB = RegistrationDB::getInstance();
-}
-
 
 /// Launch all Startup Phase threads.
 void SipRegistrar::startupPhase()

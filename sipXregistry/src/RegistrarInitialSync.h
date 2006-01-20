@@ -50,9 +50,19 @@ class RegistrarInitialSync : public OsTask
   protected:
    friend class SipRegistrar;
 
+   /// Recover the latest received update number for each peer from the local db.
    void restorePeerUpdateNumbers(UtlSListIterator* peers,
                                  RegistrationDB*   registrationDb
                                  );
+   
+   /// Get any updates from peers that we missed or lost while down
+   void pullUpdatesFromPeers( UtlSListIterator* peers
+                             ,const char*       primaryName
+                             ,intll             dbUpdateNumber
+                             );
+   
+   /// Get any updates for unreachable peers from reachable ones.
+   void recoverUnReachablePeers( UtlSListIterator* peers );
    
   private:
 

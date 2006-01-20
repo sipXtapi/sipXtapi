@@ -30,11 +30,6 @@
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
 
-// Hash keys
-//const UtlString SyncRpc::NUM_UPDATES("numUpdates");
-//const UtlString SyncRpc::UPDATES("updates");
-
-
 /*****************************************************************
  **** SyncRpcMethod contains common code for SyncRpc methods
  *****************************************************************/
@@ -140,14 +135,76 @@ bool SyncRpcReset::execute(const HttpRequestContext& requestContext, ///< reques
 }
 
 /// Reset the SynchronizationState and update numbers with respect to some peer.
-RegistrarPeer::SynchronizationState SyncRpcReset::invoke(RegistrarPeer& peer)
+RegistrarPeer::SynchronizationState
+SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
+                     RegistrarPeer& peer    ///< the peer to be reset
+                     )
 {
-   RegistrarPeer::SynchronizationState resultState;
+   RegistrarPeer::SynchronizationState resultState; 
 
-   // :TODO: really do the reset...
-   peer.markReachable();
-   resultState = RegistrarPeer::Reachable;
+   // check inputs
+   assert(myName && *myName != '\000');
+
+   // get the target URI
+   Url targetURI;
+   peer.rpcURL(targetURI);
+
+   // construct the request to be sent
+   XmlRpcRequest request(targetURI, METHOD_NAME);
+
+   // first parameter is my own name
+   UtlString callerName(myName);
+   request.addParam(&callerName);
+
+   // second parameter is our PeerReceivedDbUpdateNumber for the peer
+   UtlLongLongInt receivedUpdate(peer.receivedFrom());
+   request.addParam(&receivedUpdate);
    
+   // make the request
+   XmlRpcResponse response;
+   if (request.execute(response)) // blocks; returns false for any fault
+   {
+      // Apparently successfull, so update the PeerSentDbUpdateNumber for this peer
+      UtlContainable* value;
+      response.getResponse(value);
+
+      // response is the PeerSentDbUpdateNumber for the peer
+      UtlLongLongInt* sentTo = dynamic_cast<UtlLongLongInt*>(value);
+      if ( sentTo )
+      {
+         peer.setSentTo(*sentTo);
+
+         // all is well
+         resultState = RegistrarPeer::Reachable;
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_CRIT,
+                       "SyncRpcReset::invoke : no update number returned : "
+                       " %s marked incompatible for replication",
+                       peer.name()
+                       );
+         assert(false); // bad xmlrpc response
+         resultState = RegistrarPeer::Incompatible;
+         peer.markIncompatible();
+      }
+   }
+   else
+   {
+      // fault returned - we are now unsynchronized
+      int faultCode;
+      UtlString faultText;
+
+      response.getFault(&faultCode, faultText);
+      OsSysLog::add(FAC_SIP, PRI_ERR,
+                    "SyncRpcReset::invoke : fault %d %s\n"
+                    " %s is now marked UnReachable",
+                    faultCode, faultText.data(), peer.name()
+                    );
+      peer.markUnReachable();
+      resultState = RegistrarPeer::UnReachable;
+   }
+
    return resultState;
 }
 
@@ -252,7 +309,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                else
                {
                   OsSysLog::add(FAC_SIP, PRI_CRIT,
-                                "SyncRpc::pullUpdates : "
+                                "SyncRpcPullUpdates::invoke : "
                                 "inconsistent number of updates %d != %d : "
                                 " %s marked incompatible for replication",
                                 numUpdates->getValue(),
@@ -267,7 +324,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
             else
             {
                OsSysLog::add(FAC_SIP, PRI_CRIT,
-                             "SyncRpc::pullUpdates : no updates element found  "
+                             "SyncRpcPullUpdates::invoke : no updates element found  "
                              " %s marked incompatible for replication",
                              source->name()
                              );
@@ -285,7 +342,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
       else
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
-                       "SyncRpc::pullUpdates : no numUpdates element found : "
+                       "SyncRpcPullUpdates::invoke : no numUpdates element found : "
                        " %s marked incompatible for replication",
                        source->name()
                        );
@@ -302,8 +359,8 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
 
       response.getFault(&faultCode, faultText);
       OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "SyncRpc::pullUpdates : fault %d %s\n"
-                    " %s is UnReachable",
+                    "SyncRpcPullUpdates::invoke : fault %d %s\n"
+                    " %s is now marked UnReachable",
                     faultCode, faultText.data(), source->name()
                     );
       source->markUnReachable();
@@ -531,7 +588,7 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* replicated, ///< peer to push to
       else
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
-                       "SyncRpc::pushUpdates : invalid response "
+                       "SyncRpcPushUpdates::invoke : invalid response "
                        " %s marked incompatible for replication",
                        replicated->name()
                        );

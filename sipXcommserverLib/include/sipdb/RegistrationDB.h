@@ -63,7 +63,7 @@ public:
     void getAllRows ( ResultSet& rResultSet ) const;
 
     /// Return the maximum update number for primaryRegistrar, or zero if there are no such updates
-    intll getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const;
+    intll getMaxUpdateNumberForRegistrar(const char* primaryRegistrar) const;
     
     /// Get the next update for primaryRegistrar with an update number > updateNumber.
     int getNextUpdateForRegistrar( const UtlString& primaryRegistrar

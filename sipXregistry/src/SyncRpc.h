@@ -101,7 +101,8 @@ class SyncRpcReset : public SyncRpcMethod
 
    /// Reset the SynchronizationState and update numbers with respect to some peer.
    RegistrarPeer::SynchronizationState
-      invoke( RegistrarPeer& peer     ///< the peer to invoke reset on
+      invoke( const char*    myName   ///< primary name of this registrar
+             ,RegistrarPeer& peer     ///< the peer to invoke reset on
              );
    /**<
     * On success,

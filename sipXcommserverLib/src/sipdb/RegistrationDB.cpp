@@ -656,9 +656,13 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
 }
 
 intll
-RegistrationDB::getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const
+RegistrationDB::getMaxUpdateNumberForRegistrar(const char* primaryRegistrar) const
 {
-   assert(false);    // not yet implemented
+   intll maxUpdateForPrimary = 0;
+
+   //:TODO: get the real number
+
+   return maxUpdateForPrimary;
 }
 
 int 

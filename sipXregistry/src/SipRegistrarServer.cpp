@@ -80,9 +80,11 @@ SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     mIsStarted(FALSE),
     mSipUserAgent(NULL),
     mDefaultRegistryPeriod(),
-    mNonceExpiration(5*60),
-    mDbUpdateNumber(0)
+    mNonceExpiration(5*60)
 {
+   // Recover the largest update number from the database for this primary
+   RegistrationDB* imdb = mRegistrar.getRegistrationDB();
+   mDbUpdateNumber = imdb->getMaxUpdateNumberForRegistrar(mRegistrar.primaryName());
 }
 
 void
@@ -201,6 +203,7 @@ SipRegistrarServer::initialize(
                                            ,RegisterPlugin::Prefix
                                            );
     mpSipRegisterPlugins->readConfig(*pOsConfigDb);
+   
 }
 
 int SipRegistrarServer::pullUpdates(
@@ -1143,6 +1146,28 @@ const char* SipRegistrarServer::primaryName()
 {
    return mRegistrar.primaryName();
 }
+
+/// Reset the upper half of the DbUpdateNumber to the epoch time.
+void SipRegistrarServer::resetDbUpdateNumberEpoch()
+{
+   int timeNow = OsDateTime::getSecsSinceEpoch();
+   intll newEpoch;
+   newEpoch = timeNow;
+   newEpoch <<= 32;
+
+   { // lock before changing the epoch update number
+      OsLock lock(sLockMutex);
+            
+      mDbUpdateNumber = newEpoch;
+   } // release lock before logging
+   
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "SipRegistrarServer::resetDbUpdateNumberEpoch to %llx",
+                 newEpoch
+                 );
+}
+
+    
 
 SipRegistrarServer::~SipRegistrarServer()
 {
