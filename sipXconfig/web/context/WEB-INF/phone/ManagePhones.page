@@ -48,7 +48,7 @@
         <binding name="delegate" expression="beans.validator"/>
 	</component>
     <component id="newPhoneTable" type="Table">
-        <static-binding name="columns" value="* serialNumber,lines,modelId:model.label,description"/>
+        <static-binding name="columns" value="* serialNumber,!lines,modelId:model.label,description"/>
         <binding name="source" expression="tableModel"/>
         <binding name="usePager" expression="true"/>
 		<binding name="row" expression="currentRow"/>

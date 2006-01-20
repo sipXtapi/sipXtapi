@@ -40,7 +40,7 @@ public interface PhoneContext extends DataObjectSource {
 
     public int getPhonesInGroupCount(Integer groupId);
 
-    public List loadPhonesByPage(Integer groupId, int page, int pageSize, String orderBy,
+    public List loadPhonesByPage(Integer groupId, int page, int pageSize, String[] orderBy,
             boolean orderAscending);
 
     public Collection loadPhones();

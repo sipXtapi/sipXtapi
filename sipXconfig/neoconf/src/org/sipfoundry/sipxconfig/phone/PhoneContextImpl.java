@@ -129,7 +129,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return getBeansInGroupCount(Phone.class, groupId);
     }
 
-    public List loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String orderBy,
+    public List loadPhonesByPage(Integer groupId, int firstRow, int pageSize, String[] orderBy,
             boolean orderAscending) {
         return loadBeansByPage(Phone.class, groupId, firstRow, pageSize, orderBy, orderAscending);
     }

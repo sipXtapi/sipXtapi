@@ -38,7 +38,7 @@ public interface SearchManager {
      * @return collection of BeanAdapter.Identity objects - if no transformer provided,
      *         transformed collection if there was a transformer
      */
-    List search(Class entityClass, String query, int firstResult, int pageSize, String sort,
+    List search(Class entityClass, String query, int firstResult, int pageSize, String[] sort,
             boolean orderAscending, Transformer transformer);
     
     List search(Query query, int firstResult, int pageSize, Transformer transformer);    

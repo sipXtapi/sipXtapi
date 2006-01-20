@@ -141,8 +141,10 @@ public class SearchManagerImplTestDb extends TestCase {
         }
 
         // ascending
-        List collection = m_searchManager.search(User.class, "first*", 0, -1, "userName", true,
-                m_identityToBean);
+        String[] orderBy = new String[] {
+            "userName"
+        };
+        List collection = m_searchManager.search(User.class, "first*", 0, -1, orderBy, true, m_identityToBean);
         assertEquals(names.length, collection.size());
         User user = (User) collection.get(0);
         assertEquals(names[0], user.getUserName());
@@ -150,8 +152,7 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals(names[names.length - 1], user.getUserName());
 
         // descending
-        collection = m_searchManager.search(User.class, "first*", 0, -1, "userName", false,
-                m_identityToBean);
+        collection = m_searchManager.search(User.class, "first*", 0, -1, orderBy, false, m_identityToBean);
         assertEquals(names.length, collection.size());
         user = (User) collection.get(names.length - 1);
         assertEquals(names[0], user.getUserName());
@@ -159,8 +160,7 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals(names[names.length - 1], user.getUserName());
 
         // do not return first item - descending order
-        collection = m_searchManager.search(User.class, "first*", 1, -1, "userName", false,
-                m_identityToBean);
+        collection = m_searchManager.search(User.class, "first*", 1, -1, orderBy, false, m_identityToBean);
         int size = collection.size();
         assertEquals(names.length - 1, size);
         user = (User) collection.get(0);
@@ -170,8 +170,7 @@ public class SearchManagerImplTestDb extends TestCase {
 
         // only return 2 items starting from first - ascending order
         int pageSize = 2;
-        collection = m_searchManager.search(User.class, "first*", 1, pageSize, "userName", true,
-                m_identityToBean);
+        collection = m_searchManager.search(User.class, "first*", 1, pageSize, orderBy, true, m_identityToBean);
         assertEquals(pageSize, collection.size());
         user = (User) collection.get(0);
         assertEquals(names[1], user.getUserName());
@@ -179,9 +178,42 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals(names[2], user.getUserName());
     }
 
+    public void testSortingByMultipleFields() {
+        final String[] names = {
+            "xaa", "xee", "xbb", "xzz"
+        };
+
+        final String[] firstNames = {
+            "44", "33", "22", "11"
+        };
+
+        final String[] lastNames = {
+            "11", "22", "22", "33"
+        };
+
+        for (int i = 0; i < names.length; i++) {
+            User user = new User();
+            user.setFirstName(firstNames[i]);
+            user.setLastName(lastNames[i]);
+            user.setUserName(names[i]);
+
+            m_coreContext.saveUser(user);
+        }
+        String[] orderBy = new String[] {
+            "lastName", "firstName"
+        };
+        List users = m_searchManager.search(User.class, "x*", 0, -1, orderBy, false, m_identityToBean);
+        
+        assertEquals("xzz", ((User) users.get(0)).getUserName());
+        assertEquals("xee", ((User) users.get(1)).getUserName());
+        assertEquals("xbb", ((User) users.get(2)).getUserName());
+        assertEquals("xaa", ((User) users.get(3)).getUserName());
+    }
+
     public void testSortingIllegalFieldName() throws Exception {
-        List collection = m_searchManager.search(User.class, "first*", 0, -1, "bongo", true,
-                m_identityToBean);
+        List collection = m_searchManager.search(User.class, "first*", 0, -1, new String[] {
+            "bongo"
+        }, true, m_identityToBean);
         assertEquals(0, collection.size());
     }
 

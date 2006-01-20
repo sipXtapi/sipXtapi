@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -58,12 +57,12 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
     }
 
     public List loadBeansByPage(Class beanClass, Integer groupId, int firstRow, int pageSize,
-            String orderBy, boolean orderAscending) {
+            String[] orderBy, boolean orderAscending) {
         Criteria c = getByGroupCriteria(beanClass, groupId);
         c.setFirstResult(firstRow);
         c.setMaxResults(pageSize);
-        if (StringUtils.isNotBlank(orderBy)) {
-            Order order = orderAscending ? Order.asc(orderBy) : Order.desc(orderBy);
+        for (int i = 0; i < orderBy.length; i++) {
+            Order order = orderAscending ? Order.asc(orderBy[i]) : Order.desc(orderBy[i]);
             c.addOrder(order);
         }
         List users = c.list();
