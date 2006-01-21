@@ -1652,13 +1652,27 @@
     <description>Dialplan for all lines on this phone. Each line may be configured 
       independenty, see that lines settings.</description>
     <setting name="impossibleMatchHandling">
+      <label>Impossible Match Handling</label>
       <type>
-        <integer required="yes" min="0" max="2"/>
+        <enum>
+          <option>
+            <label>send immediately</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>give reorder tone</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>allow user to dispatch</label>
+            <value>2</value>
+          </option>
+        </enum>
       </type>
-      <value>0</value>
-      <description>If set to 0, the digits entered up to and including the point where an 
-        impossible match occurred are sent to the server immediately. If checked, give reorder 
-        tone. If set to 2, allow user to accumulate digits and dispatch call manually with the 
+      <value>2</value>
+      <description>If 'send immediately', the digits entered up to and including the point where an 
+        impossible match occurred are sent to the server immediately. If 'give reorder tone', give reorder 
+        audible tone. If 'allow user to dispatch', allow user to accumulate digits and dispatch call manually with the 
         Send soft key. </description>
     </setting>
     <setting name="removeEndOfDial">
@@ -1689,13 +1703,14 @@
         <description>Timeout in seconds for 'T' feature of digitmap. </description>
       </setting>
       <group name="routing.1">
+        <label>Emergency Routing</label>
         <setting name="address">
           <type>
             <!-- dotted-decimal IP address or host name -->
           </type>
           <value/>
-          <description>IP address or host name and port of a SIP server that will be used for 
-            routing calls. </description>
+          <description>IP address or host name and port of a SIP server that will be used for
+            routing emergency calls. </description>
         </setting>
         <setting name="port">
           <type>
