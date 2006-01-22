@@ -51,7 +51,7 @@ const char* RegisterPlugin::Factory = "getRegisterPlugin";
 
 // STATIC VARIABLE INITIALIZATIONS
 
-const int SipRegistrar::REGISTRAR_DEFAULT_RPC_PORT = 5077;
+const int SipRegistrar::SIP_REGISTRAR_DEFAULT_XMLRPC_PORT = 5077;
 SipRegistrar* SipRegistrar::spInstance = NULL;
 OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
@@ -90,7 +90,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    {
       if (PORT_DEFAULT == mHttpPort)
       {
-         mHttpPort = REGISTRAR_DEFAULT_RPC_PORT;
+         mHttpPort = SIP_REGISTRAR_DEFAULT_XMLRPC_PORT;
       }
 
       configurePeers();
@@ -435,10 +435,9 @@ void SipRegistrar::startRpcServer()
    // Begins operation of the HTTP/RPC service
    // sets mHttpServer and mXmlRpcDispatcher
 
-    if (mReplicationConfigured)
-    {
+   if (mReplicationConfigured)
+   {
       // Initialize mHttpServer and mXmlRpcDispatch
-
       mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */);
       mHttpServer = mXmlRpcDispatch->getHttpServer();
    }

@@ -100,7 +100,7 @@ class SyncRpcReset : public SyncRpcMethod
    static void registerSelf(SipRegistrar&   registrar);
 
    /// Reset the SynchronizationState and update numbers with respect to some peer.
-   RegistrarPeer::SynchronizationState
+   static RegistrarPeer::SynchronizationState
       invoke( const char*    myName   ///< primary name of this registrar
              ,RegistrarPeer& peer     ///< the peer to invoke reset on
              );
@@ -177,7 +177,7 @@ class SyncRpcPullUpdates : public SyncRpcMethod
    static void registerSelf(SipRegistrar&   registrar);
 
    /// pull all missing updates for a given primary from a peer
-   RegistrarPeer::SynchronizationState
+   static RegistrarPeer::SynchronizationState
       invoke(RegistrarPeer* source,  ///< peer to pull from
              const char*    myName,  ///< primary name of this registrar
              RegistrarPeer* primary, ///< whos records to pull
@@ -255,7 +255,7 @@ class SyncRpcPushUpdates : public SyncRpcMethod
    static void registerSelf(SipRegistrar&   registrar);
 
    /// Push one update to a given peer
-   RegistrarPeer::SynchronizationState
+   static RegistrarPeer::SynchronizationState
       invoke(RegistrarPeer* replicated, ///< peer to push to
              const char*    myName,     ///< primary name of this registrar
              UtlSList*      bindings    ///< list of RegistrationBinding 

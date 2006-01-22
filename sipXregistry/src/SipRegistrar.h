@@ -137,7 +137,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    // Constants
-   static const int REGISTRAR_DEFAULT_RPC_PORT;
+   static const int SIP_REGISTRAR_DEFAULT_XMLRPC_PORT;
 
    // Singleton globals
    static SipRegistrar* spInstance;
@@ -178,8 +178,6 @@ private:
    /* ============================ REDIRECT ==================================== */
    void startRedirectServer();
    void sendToRedirectServer(OsMsg& eventMessage);
-
-   friend class SyncRpcTest;
 };
 
 #endif  // _SipRegistrar_h_

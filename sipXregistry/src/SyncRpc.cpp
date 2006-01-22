@@ -244,7 +244,7 @@ SyncRpcPullUpdates::SyncRpcPullUpdates()
 RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
    RegistrarPeer* source,  ///< peer to pull from
    const char*    myName,  ///< primary name of this registrar
-   RegistrarPeer* primary, ///< whos records to pull
+   RegistrarPeer* primary, ///< whose records to pull
    UtlSList*      bindings ///< list of RegistrationBinding 
                                                                )
 {
@@ -267,7 +267,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
    UtlString callerName(myName);
    request.addParam(&callerName);
 
-   // second parameter is the name of the registrar whos records we want
+   // second parameter is the name of the registrar whose records we want
    request.addParam(primary);
 
    // third parameter is the PeerReceivedDbUpdateNumber from the primary we want
@@ -278,7 +278,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
    XmlRpcResponse response;
    if (request.execute(response)) // blocks; returns false for any fault
    {
-      // Apparently successfull, so update the PeerSentDbUpdateNumber for this peer
+      // Apparently successful, so update the PeerSentDbUpdateNumber for this peer
       UtlContainable* value;
       response.getResponse(value);
       UtlHashMap* responseStruct = dynamic_cast<UtlHashMap*>(value);
@@ -379,14 +379,14 @@ bool SyncRpcPullUpdates::execute(
    ExecutionStatus& status
                                  )
 {
-   // Verify that the callingRegistrar a configured peer registrar.
+   // Verify that the callingRegistrar is a configured peer registrar.
    UtlString* callingRegistrar = dynamic_cast<UtlString*>(params.at(0));
    status = authenticateCaller(requestContext, *callingRegistrar, response);
          
    // Retrieve all updates for the primaryRegistrar whose update number is greater 
    // than updateNumber.
-   UtlString* primaryRegistrar = dynamic_cast<UtlString*>(params.at(0));
-   UtlLongLongInt* updateNumber = dynamic_cast<UtlLongLongInt*>(params.at(1));
+   UtlString* primaryRegistrar = dynamic_cast<UtlString*>(params.at(1));
+   UtlLongLongInt* updateNumber = dynamic_cast<UtlLongLongInt*>(params.at(2));
    UtlSList updates;    // list of RegistrationBindings
    SipRegistrar* registrar = static_cast<SipRegistrar*>(userData);
    SipRegistrarServer& registrarServer = registrar->getRegistrarServer();
@@ -576,7 +576,7 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* replicated, ///< peer to push to
    XmlRpcResponse response;
    if (request.execute(response)) // blocks; returns false for any fault
    {
-      // Apparently successfull, so update the PeerSentDbUpdateNumber for this peer
+      // Apparently successful, so update the PeerSentDbUpdateNumber for this peer
       UtlContainable* value;
       response.getResponse(value);
       UtlLongLongInt* newSentUpdateNumber = dynamic_cast<UtlLongLongInt*>(value);

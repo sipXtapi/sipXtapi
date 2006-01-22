@@ -73,7 +73,7 @@ void RegistrarPeer::markUnReachable()
       OsLock mutex(mLock);
    
       notifyTestThread = (  Reachable == mSyncState
-                          ? mRegistrar->getRegistrarTest() // was reachabe, so get the thread
+                          ? mRegistrar->getRegistrarTest() // was reachable, so get the thread
                           : NULL // was not reachable, so no need to notify the thread again
                           );   
 

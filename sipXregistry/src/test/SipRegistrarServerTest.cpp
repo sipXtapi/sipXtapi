@@ -21,8 +21,9 @@
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
 #include "os/OsProcess.h"
-#include "sipdb/RegistrationDB.h"
+#include "RegistrarTestCase.h"
 #include "SipRegistrar.h"
+#include "SipRegistrarServer.h"
 
 using namespace std;
 
@@ -31,80 +32,46 @@ using namespace std;
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class SyncRpcTest : public CppUnit::TestCase
+class SipRegistrarServerTest : public RegistrarTestCase
 {
-   CPPUNIT_TEST_SUITE(SyncRpcTest);
+   CPPUNIT_TEST_SUITE(SipRegistrarServerTest);
    CPPUNIT_TEST(testPullUpdates);
    CPPUNIT_TEST_SUITE_END();
 
 public:
-   SyncRpcTest() :
-      mTestDir(TEST_DATA_DIR),
-      mHttpPort(SipRegistrar::REGISTRAR_DEFAULT_RPC_PORT + 1),
-      mHttpServer(NULL),
-      mXmlRpcDispatch(NULL)
+   SipRegistrarServerTest() :
+      mRegistrar(NULL)
       {}
 
    void setUp()
       {
-         // :HA: Turn this into a common utility for relocating the registration DB
-
-         // Locate the registration DB in a test directory so that
-         // we don't collide with the production DB.
-         int status = setenv("SIPX_DB_CFG_PATH", mTestDir, 1);
-         CPPUNIT_ASSERT_EQUAL(0, status);
-         status = setenv("SIPX_DB_VAR_PATH", mTestDir, 1);
-         CPPUNIT_ASSERT_EQUAL(0, status);
-         //cout << "Loading registration DB from " << mTestDir << endl;
-
-         // Delete previous imdb.odb file if it exists.
-         // (Previously we were deleting registration.xml as well, but then had trouble
-         // recreating/opening it.)
-         removeTestFile("imdb.odb");
+         RegistrarTestCase::setUp();
 
          // Copy registration.xml.in to registration.xml, updating timestamps
          createRegistrationDbFromTemplate();
+
+         // Create the SipRegistrar for testing, without starting the associated thread
+         initSipRegistrar();
       }
 
    void testPullUpdates()
       {
-#ifdef COMMENT_OUT_TEMPORARILY
-         // Load the registration DB
-         RegistrationDB* regDb = RegistrationDB::getInstance();
+         // Pull all updates with primary = R1 and updateNumber > 1.
+         UtlSList updates;
+         int numUpdates = getRegistrarServer().pullUpdates(
+            "R1",        // registrarName
+            1,           // updateNumber -- pull only the updates with larger numbers
+            updates);    // updates are returned in this list
 
-         // Set up a sync RPC server
-         mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */);
-         mHttpServer = mXmlRpcDispatch->getHttpServer();
-
-         // Pull all updates with primary = R1 and updateNumber > 1
-         // Verify that the right updates got pulled
-
-
-
-
-
-
-         regDb->releaseInstance();
-#endif
+         // Verify that the right updates got pulled.
+         CPPUNIT_ASSERT_EQUAL(1, numUpdates);
       }
 
 private:
    static const char* REGDB_FILENAME; 
    static const char* REGDBTEMPLATE_FILENAME;
 
-   UtlString          mTestDir;
-   int                mHttpPort;
-   HttpServer*        mHttpServer;
-   XmlRpcDispatch*    mXmlRpcDispatch;
-
-   void removeTestFile(const char* testFilename)
-      {
-         auto_ptr<OsFile> testFile(testFileFromFilename(testFilename));
-         if (testFile->exists())
-         {
-            CPPUNIT_ASSERT_EQUAL(OS_SUCCESS, testFile->remove());
-         }
-      }
+   SipRegistrar*      mRegistrar;
 
    void createRegistrationDbFromTemplate()
       {
@@ -168,16 +135,26 @@ private:
          }
       }
 
-   OsFile* testFileFromFilename(const char* testFilename)
+   // Create the registrar for testing, without starting the associated thread
+   void initSipRegistrar()
       {
-         UtlString testFilePath(mTestDir);
-         OsPath path(testFilePath.append(testFilename));
-         OsFile* testFile = new OsFile(path);
-         return testFile;
+         // Create and initialize the registrar, but don't start it.
+         // For unit testing, we just need the registrar object, not the thread.
+         // This arrangement is wacky and we'll try to improve it in the future.
+         OsConfigDb configDb;        // empty configuration DB is OK
+         mRegistrar = SipRegistrar::getInstance(&configDb);
+
+         // The config was empty so replication is not configured
+         CPPUNIT_ASSERT(!mRegistrar->isReplicationConfigured());
+      }
+
+   SipRegistrarServer& getRegistrarServer()
+      {
+         return mRegistrar->getRegistrarServer();
       }
 };
 
-const char* SyncRpcTest::REGDBTEMPLATE_FILENAME="registration.xml.in";
-const char* SyncRpcTest::REGDB_FILENAME="registration.xml";
+const char* SipRegistrarServerTest::REGDBTEMPLATE_FILENAME = "registration.xml.in";
+const char* SipRegistrarServerTest::REGDB_FILENAME = "registration.xml";
 
-CPPUNIT_TEST_SUITE_REGISTRATION(SyncRpcTest);
+CPPUNIT_TEST_SUITE_REGISTRATION(SipRegistrarServerTest);

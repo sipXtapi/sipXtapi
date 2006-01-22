@@ -745,7 +745,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
             *   can use sip:user@domain:mProxyNormalPort, so this normalization
             *   cannot interfere with valid addresses.)
             *
-            * For the strict rules, set the configuraiton parameter
+            * For the strict rules, set the configuration parameter
             *   SIP_REGISTRAR_PROXY_PORT : PORT_NONE
             */
            if (   mProxyNormalPort != PORT_NONE
@@ -754,8 +754,6 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
            {
               toUrl.setHostPort(PORT_NONE);
            }
-           UtlString registeredIdentity;
-           toUrl.getIdentity(registeredIdentity);
            
            // check in credential database if authentication needed
            if ( isAuthorized( toUrl, message, finalResponse ) )

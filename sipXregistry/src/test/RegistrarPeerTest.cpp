@@ -16,6 +16,7 @@
 // APPLICATION INCLUDES
 #include "os/OsConfigDb.h"
 #include "utl/UtlSListIterator.h"
+#include "RegistrarTestCase.h"
 #include "SipRegistrar.h"
 #include "RegistrarPeer.h"
 
@@ -24,7 +25,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class RegistrarPeerTest : public CppUnit::TestCase
+class RegistrarPeerTest : public RegistrarTestCase
 {
    CPPUNIT_TEST_SUITE(RegistrarPeerTest);
    CPPUNIT_TEST(testConfigureNone);
@@ -33,6 +34,11 @@ class RegistrarPeerTest : public CppUnit::TestCase
 
 
 public:
+   void setUp()
+      {
+         RegistrarTestCase::setUp();
+      }
+
    void testConfigureNone()
       {
          OsConfigDb configuration;

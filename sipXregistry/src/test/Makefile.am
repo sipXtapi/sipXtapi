@@ -17,7 +17,8 @@ testsuite_LDADD = \
 
 testsuite_SOURCES = \
     RegistrarPeerTest.cpp \
-    SyncRpcTest.cpp
+    RegistrarTestCase.cpp \
+    SipRegistrarServerTest.cpp
 
 # [DEBUG ASSISTANT] List a single unit test to isolate a unit test for
 # debugging or when developing a new unit test. As courtesy remove all
@@ -33,6 +34,7 @@ sandbox_LDADD = $(testsuite_LDADD)
 
 sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
 sandbox_SOURCES = \
-    SyncRpcTest.cpp
+    RegistrarTestCase.cpp \
+    SipRegistrarServerTest.cpp
 
 EXTRA_DIST = 
