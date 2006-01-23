@@ -64,6 +64,8 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals(0, collection.size());
 
         user.setUserName("kuku");
+        // when changing username, must change PIN too
+        user.setPin("1234", m_coreContext.getAuthorizationRealm());
         m_coreContext.saveUser(user);
 
         collection = m_searchManager.search("first", m_identityToBean);
