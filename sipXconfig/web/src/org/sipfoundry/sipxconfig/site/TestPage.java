@@ -152,6 +152,10 @@ public abstract class TestPage extends BasePage {
     }
 
     public void seedTestUser(IRequestCycle cycle_) {
+        createTestUserIfMissing();
+    }
+    
+    private User createTestUserIfMissing() {
         String userName = TEST_USER_USERNAME;
         if (null != getCoreContext().loadUserByUserName(TEST_USER_USERNAME)) {
             // we already have test user - get a unique name for a new one
@@ -166,6 +170,7 @@ public abstract class TestPage extends BasePage {
                 : EMPTY_STRING);
         user.setPin(TEST_USER_PIN, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
+        return user;
     }
 
     public void populateUsers(IRequestCycle cycle_) {
@@ -233,13 +238,7 @@ public abstract class TestPage extends BasePage {
     }
 
     public void login(IRequestCycle cycle) {
-        CoreContext core = getCoreContext();
-        List users = core.loadUsers();
-        if (users.isEmpty()) {
-            seedTestUser(cycle);
-            users = core.loadUsers();
-        }
-        User user = (User) users.get(0);
+        User user = createTestUserIfMissing();
         Visit visit = (Visit) getVisit();
         visit.login(user.getId(), true);
     }
