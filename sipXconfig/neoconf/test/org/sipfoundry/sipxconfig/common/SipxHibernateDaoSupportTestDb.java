@@ -82,7 +82,7 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
             m_dao.getOriginalValue(user, "eyeglassPerscription");
             fail();
         } catch (IllegalArgumentException e) {
-            assertTrue(e.getMessage().contains("eyeglassPerscription"));
+            assertTrue(e.getMessage().indexOf("eyeglassPerscription") >= 0);
         }
     }    
 }
