@@ -24,7 +24,7 @@
 /// Provides test input data for registration database tests.
 /**
  * The registration database test input is in the form of templates for the
- * registration.xml file.  These are normal files, except that the exipires
+ * registration.xml file.  These are normal files, except that the expires
  * values are relative numbers.  The ConvertRelativeExpirations TemplateConverter
  * turns these into absolute times relative to the time of conversion.
  */

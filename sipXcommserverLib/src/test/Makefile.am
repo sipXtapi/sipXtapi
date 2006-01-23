@@ -6,7 +6,7 @@ SUBDIRS = testlib
 ## and of course require no setup
 TESTS = testsuite
 
-check_PROGRAMS = testsuite
+check_PROGRAMS = testsuite sandbox
 
 testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
@@ -17,7 +17,7 @@ testsuite_LDADD = \
    ../libsipXcommserver.la
 
 testsuite_SOURCES = \
-	 RegistryDbTest.cpp \
+    RegistryDbTest.cpp \
     ResultSetRpcTest.cpp \
     UrlMappingTest.cpp
 
@@ -30,3 +30,19 @@ EXTRA_DIST = \
 	mapdata/userpat.xml \
 	mapdata/vdigits.xml \
 	regdbdata/getMaxUpdate.xml
+
+# [DEBUG ASSISTANT] List a single unit test to isolate a unit test for
+# debugging or when developing a new unit test. As courtesy remove all
+# unit tests before checking in, although forgetting to has no ill
+# effects. To build and run:
+#
+#   cd src/test
+#   make sandbox
+#   ./sandbox
+#
+#sandbox_LDFLAGS = $(testsuite_LDFLAGS)
+sandbox_LDADD = $(testsuite_LDADD)
+
+sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
+sandbox_SOURCES = \
+    RegistryDbTest.cpp
