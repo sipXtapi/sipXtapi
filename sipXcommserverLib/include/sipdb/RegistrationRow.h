@@ -47,6 +47,7 @@ public:
       ( KEY(np_identity, INDEXED),
         KEY(callid, HASHED),
         KEY(cseq, HASHED),
+        KEY(primary, INDEXED),
         FIELD(uri),
         FIELD(contact),
         FIELD(qvalue),
@@ -57,7 +58,6 @@ public:
         // both in registration.xml.
         FIELD(instance_id),
         FIELD(gruu),
-        FIELD(primary),
         FIELD(update_number)
       )
     );

@@ -658,10 +658,18 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
 intll
 RegistrationDB::getMaxUpdateNumberForRegistrar(const char* primaryRegistrar) const
 {
-   intll maxUpdateForPrimary = 0;
+   intll maxUpdateForPrimary = 0LL;
 
-   //:TODO: get the real number
-
+   dbCursor<RegistrationRow> cursor;
+   dbQuery query;
+   query = "primary = ", primaryRegistrar, "order by update_number desc";
+   
+   int numRows = cursor.select(query);
+   if (numRows > 0)
+   {
+      maxUpdateForPrimary = cursor->update_number;
+   }
+   
    return maxUpdateForPrimary;
 }
 

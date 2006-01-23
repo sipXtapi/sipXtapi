@@ -83,6 +83,8 @@ SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     mNonceExpiration(5*60)
 {
    // Recover the largest update number from the database for this primary
+   //   (don't need to take the lock here, because we are not changing the database
+   //    and no one has the reference to SipRegistrarServer yet).
    RegistrationDB* imdb = mRegistrar.getRegistrationDB();
    mDbUpdateNumber = imdb->getMaxUpdateNumberForRegistrar(mRegistrar.primaryName());
 }

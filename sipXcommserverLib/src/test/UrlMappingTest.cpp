@@ -17,6 +17,8 @@
 #include "digitmaps/UrlMapping.h"
 #include "sipdb/ResultSet.h"
 
+#include "testlib/FileTestContext.h"
+
 #define VM "VoIcEmAiL"
 #define MS "MeDiAsErVeR"
 #define LH "LoCaLhOsT"
@@ -41,6 +43,16 @@ class UrlMappingTest : public CppUnit::TestCase
 
 
       public:
+      void setUp()
+      {
+         mFileTestContext = new FileTestContext(TEST_DATA_DIR "/mapdata", TEST_WORK_DIR "/mapdata");
+      }
+            
+      void tearDown()
+      {
+         delete mFileTestContext;
+      }
+   
       void testSimpleMap()
       {
          UrlMapping* urlmap;
@@ -50,7 +62,9 @@ class UrlMappingTest : public CppUnit::TestCase
          UtlString actual;
 
          CPPUNIT_ASSERT( urlmap = new UrlMapping() );
-         CPPUNIT_ASSERT( urlmap->loadMappings(TEST_DATA_DIR "mapdata/simple.xml",
+         UtlString simpleXml;
+         mFileTestContext->inputFilePath("simple.xml", simpleXml);
+         CPPUNIT_ASSERT( urlmap->loadMappings(simpleXml.data(),
                                               MS, VM, LH
                                               )
                         == OS_SUCCESS
@@ -180,7 +194,10 @@ class UrlMappingTest : public CppUnit::TestCase
          ResultSet permissions;
          UtlString actual;
 
-         CPPUNIT_ASSERT( loadUrlMap( urlmap, "mapdata/params.xml"));
+         UtlString paramsXml;
+         mFileTestContext->inputFilePath("params.xml", paramsXml);
+
+         CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          // the interface says getContactList returns an OsStatus,
          // but it is not set so don't test it
@@ -203,7 +220,10 @@ class UrlMappingTest : public CppUnit::TestCase
          ResultSet permissions;
          UtlString actual;
 
-         CPPUNIT_ASSERT( loadUrlMap( urlmap, "mapdata/params.xml"));
+         UtlString paramsXml;
+         mFileTestContext->inputFilePath("params.xml", paramsXml);
+
+         CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("sip:ADDURLPARAM@thisdomain")
                                ,registrations, isPSTNnumber, permissions
@@ -225,7 +245,10 @@ class UrlMappingTest : public CppUnit::TestCase
          ResultSet permissions;
          UtlString actual;
 
-         CPPUNIT_ASSERT( loadUrlMap( urlmap, "mapdata/params.xml"));
+         UtlString paramsXml;
+         mFileTestContext->inputFilePath("params.xml", paramsXml);
+
+         CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("sip:ADDHEADERPARAM@thisdomain")
                                ,registrations, isPSTNnumber, permissions
@@ -247,7 +270,10 @@ class UrlMappingTest : public CppUnit::TestCase
          ResultSet permissions;
          UtlString actual;
 
-         CPPUNIT_ASSERT( loadUrlMap( urlmap, "mapdata/params.xml"));
+         UtlString paramsXml;
+         mFileTestContext->inputFilePath("params.xml", paramsXml);
+
+         CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("<sip:ADDFIELDS@thisdomain;urlparam=avalue>;field=oldvalue")
                                ,registrations, isPSTNnumber, permissions
@@ -272,7 +298,10 @@ class UrlMappingTest : public CppUnit::TestCase
          ResultSet permissions;
          UtlString actual;
 
-         CPPUNIT_ASSERT( loadUrlMap( urlmap, "mapdata/params.xml"));
+         UtlString paramsXml;
+         mFileTestContext->inputFilePath("params.xml", paramsXml);
+
+         CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("<sip:ADDFIELDS@thisdomain;urlparam=avalue>;NEWFIELDPARAM=oldvalue")
                                ,registrations, isPSTNnumber, permissions
@@ -297,7 +326,10 @@ class UrlMappingTest : public CppUnit::TestCase
          ResultSet permissions;
          UtlString actual;
 
-         CPPUNIT_ASSERT( loadUrlMap( urlmap, "mapdata/params.xml"));
+         UtlString paramsXml;
+         mFileTestContext->inputFilePath("params.xml", paramsXml);
+
+         CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("<sip:ADDURLPARAM@thisdomain;NEWURLPARAM=avalue>;field=oldvalue")
                                ,registrations, isPSTNnumber, permissions
@@ -323,7 +355,10 @@ class UrlMappingTest : public CppUnit::TestCase
          ResultSet permissions;
          UtlString actual;
 
-         CPPUNIT_ASSERT( loadUrlMap( urlmap, "mapdata/params.xml"));
+         UtlString paramsXml;
+         mFileTestContext->inputFilePath("params.xml", paramsXml);
+
+         CPPUNIT_ASSERT( loadUrlMap( urlmap, paramsXml.data()));
 
          urlmap.getContactList( Url("<sip:ADDFIELDS@thisdomain;NEWURLPARAM=oldvalue>")
                                ,registrations, isPSTNnumber, permissions
@@ -346,7 +381,11 @@ class UrlMappingTest : public CppUnit::TestCase
          UtlString actual;
 
          CPPUNIT_ASSERT( urlmap = new UrlMapping() );
-         CPPUNIT_ASSERT( urlmap->loadMappings(TEST_DATA_DIR "mapdata/digits.xml",
+
+         UtlString digitsXml;
+         mFileTestContext->inputFilePath("digits.xml", digitsXml);
+
+         CPPUNIT_ASSERT( urlmap->loadMappings(digitsXml.data(),
                                               MS, VM, LH
                                               )
                         == OS_SUCCESS
@@ -491,7 +530,11 @@ class UrlMappingTest : public CppUnit::TestCase
          UtlString actual;
 
          CPPUNIT_ASSERT( urlmap = new UrlMapping() );
-         CPPUNIT_ASSERT( urlmap->loadMappings(TEST_DATA_DIR "mapdata/vdigits.xml",
+
+         UtlString vdigitsXml;
+         mFileTestContext->inputFilePath("vdigits.xml", vdigitsXml);
+
+         CPPUNIT_ASSERT( urlmap->loadMappings(vdigitsXml.data(),
                                               MS, VM, LH
                                               )
                         == OS_SUCCESS
@@ -644,7 +687,11 @@ class UrlMappingTest : public CppUnit::TestCase
          UtlString actual;
 
          CPPUNIT_ASSERT( urlmap = new UrlMapping() );
-         CPPUNIT_ASSERT( urlmap->loadMappings(TEST_DATA_DIR "mapdata/userpat.xml",
+
+         UtlString userpatXml;
+         mFileTestContext->inputFilePath("userpat.xml", userpatXml);
+
+         CPPUNIT_ASSERT( urlmap->loadMappings(userpatXml.data(),
                                               MS, VM, LH
                                               )
                         == OS_SUCCESS
@@ -699,7 +746,11 @@ class UrlMappingTest : public CppUnit::TestCase
          UtlString actual;
 
          CPPUNIT_ASSERT( urlmap = new UrlMapping() );
-         CPPUNIT_ASSERT( urlmap->loadMappings(TEST_DATA_DIR "mapdata/escape.xml",
+
+         UtlString escapeXml;
+         mFileTestContext->inputFilePath("escape.xml", escapeXml);
+
+         CPPUNIT_ASSERT( urlmap->loadMappings(escapeXml.data(),
                                               MS, VM, LH
                                               )
                         == OS_SUCCESS
@@ -761,7 +812,12 @@ class UrlMappingTest : public CppUnit::TestCase
          UtlString actual;
 
          CPPUNIT_ASSERT( urlmap = new UrlMapping() );
-         CPPUNIT_ASSERT( urlmap->loadMappings(TEST_DATA_DIR "mapdata/specials.xml",
+
+         UtlString specialsXml;
+         mFileTestContext->inputFilePath("specials.xml", specialsXml);
+
+
+         CPPUNIT_ASSERT( urlmap->loadMappings(specialsXml.data(),
                                               MS, VM, LH
                                               )
                         == OS_SUCCESS
@@ -850,12 +906,13 @@ class UrlMappingTest : public CppUnit::TestCase
 
       bool loadUrlMap( UrlMapping& urlmap, const char* mapfile )
       {
-         return (   urlmap.loadMappings(TEST_DATA_DIR "mapdata/params.xml",
-                                        MS, VM, LH
-                                        )
+         return (   urlmap.loadMappings(mapfile, MS, VM, LH )
                  == OS_SUCCESS
                  );
       };
+
+   FileTestContext* mFileTestContext;
+   
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UrlMappingTest);

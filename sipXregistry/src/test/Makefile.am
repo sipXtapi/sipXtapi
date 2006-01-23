@@ -12,7 +12,7 @@ testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\"
 
 testsuite_LDADD = \
-   @SIPXUNIT_LIBS@ \
+   @SIPXCOMMSERVERTEST_LIBS@ \
    ../libsipXregistry.la
 
 testsuite_SOURCES = \
