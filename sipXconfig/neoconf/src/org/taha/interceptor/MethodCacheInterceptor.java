@@ -17,7 +17,6 @@
 package org.taha.interceptor;
 
 import java.io.Serializable;
-import java.lang.reflect.Array;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
