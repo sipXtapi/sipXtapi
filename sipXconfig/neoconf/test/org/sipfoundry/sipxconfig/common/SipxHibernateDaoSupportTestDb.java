@@ -65,4 +65,24 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
         hibernate.flush();
     }
 
+    public void testGetOriginalValue() throws Exception {
+        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        Integer id = new Integer(1000);       
+        User user = (User) m_dao.load(User.class, id);
+        user.setUserName("goofy");
+        assertEquals("testuser", m_dao.getOriginalValue(user, "userName"));
+    }    
+
+    public void testGetOriginalValueIllegalProperty() throws Exception {
+        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        Integer id = new Integer(1000);       
+        User user = (User) m_dao.load(User.class, id);
+        user.setUserName("goofy");
+        try {
+            m_dao.getOriginalValue(user, "eyeglassPerscription");
+            fail();
+        } catch (IllegalArgumentException e) {
+            assertTrue(e.getMessage().contains("eyeglassPerscription"));
+        }
+    }    
 }

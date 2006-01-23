@@ -72,6 +72,23 @@ public class UserTestDb extends SipxDatabaseTestCase {
         Assertion.assertEquals(expected, actual);
     }
     
+    public void testUpdateUserName() throws Exception {
+        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        Integer id = new Integer(1000);       
+        User user = (User) m_core.loadUser(id);
+        user.setUserName("foo");
+        try {
+            m_core.saveUser(user);
+            fail("Didn't fail for pintoken change");
+        } catch (UserException expected) {
+            assertTrue(true);
+        }
+
+        // heed assertion and change pintoken
+        user.setPin("1234", "fake realm");
+        m_core.saveUser(user);        
+    }
+    
     public void testUserGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");

@@ -89,7 +89,23 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         if (dup != null) {
             throw new NameInUseException(dup);
         }
+        if (!user.isNew()) {            
+            String origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
+            if (!origUserName.equals(user.getUserName())) {
+                String origPintoken = (String) getOriginalValue(user, "pintoken");
+                if (origPintoken.equals(user.getPintoken())) {
+                    throw new ChangePintokenRequiredException(
+                            "When changing user name, you must also change PIN");
+                }
+            }
+        }
         getHibernateTemplate().saveOrUpdate(user);
+    }
+    
+    public static class ChangePintokenRequiredException extends UserException {
+        public ChangePintokenRequiredException(String msg) {
+            super(msg);
+        }
     }
 
     public void deleteUser(User user) {
