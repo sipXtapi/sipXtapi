@@ -15,8 +15,8 @@
 
 // APPLICATION INCLUDES
 #include "os/OsConfigDb.h"
+#include "testlib/RegistrationDbTestContext.h"
 #include "utl/UtlSListIterator.h"
-#include "RegistrarTestCase.h"
 #include "SipRegistrar.h"
 #include "RegistrarPeer.h"
 
@@ -25,7 +25,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
-class RegistrarPeerTest : public RegistrarTestCase
+class RegistrarPeerTest : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(RegistrarPeerTest);
    CPPUNIT_TEST(testConfigureNone);
@@ -36,7 +36,12 @@ class RegistrarPeerTest : public RegistrarTestCase
 public:
    void setUp()
       {
-         RegistrarTestCase::setUp();
+         // Originally I was appending "/regdbdata" to these directories, but
+         // recursive directory creation was failing for some unknown reason.
+         RegistrationDbTestContext testDbContext(TEST_DATA_DIR,
+                                                 TEST_WORK_DIR
+                                                 );
+         testDbContext.inputFile("updatesToPull.xml");
       }
 
    void testConfigureNone()
