@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Order;
@@ -118,38 +119,39 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
         return vs != null && vs.isNew() && vs.size() == 0 ? null : vs;
     }
 
-
     /**
-     * Returns the original value of an object before it was modified by application.
-     * Represent the original value from the database. 
+     * Returns the original value of an object before it was modified by application. Represent
+     * the original value from the database.
      */
     protected Object getOriginalValue(PrimaryKeySource obj, String propertyName) {
         HibernateCallback callback = new GetOriginalValueCallback(obj, propertyName);
         Object originalValue = getHibernateTemplate().execute(callback, true);
         return originalValue;
     }
-    
-    class GetOriginalValueCallback implements HibernateCallback {
+
+    static class GetOriginalValueCallback implements HibernateCallback {
         private PrimaryKeySource m_object;
         private String m_propertyName;
+
         GetOriginalValueCallback(PrimaryKeySource object, String propertyName) {
             m_object = object;
             m_propertyName = propertyName;
         }
-        
+
         public Object doInHibernate(Session session) {
-            SessionImplementor si = (SessionImplementor) session;        
+            SessionImplementor si = (SessionImplementor) session;
             EntityPersister ep = si.getEntityPersister(null, m_object);
-            Serializable id = (Serializable) m_object.getPrimaryKey();
-            Object[] props = si.getPersistenceContext().getDatabaseSnapshot(id, ep);
+
             String[] propNames = ep.getPropertyNames();
-            for (int i = 0; i < propNames.length; i++) {
-                if (m_propertyName.equals(propNames[i])) {
-                    return props[i];
-                }
+            int propIndex = ArrayUtils.indexOf(propNames, m_propertyName);
+            if (propIndex < 0) {
+                throw new IllegalArgumentException("Property '" + m_propertyName
+                        + "' not found on object '" + m_object.getClass() + "'");
             }
-            throw new IllegalArgumentException("Property '" + m_propertyName 
-                    + "' not found on object '" + m_object.getClass() + "'");
+
+            Serializable id = (Serializable) m_object.getPrimaryKey();
+            Object[] props = ep.getDatabaseSnapshot(id, si);
+            return props[propIndex];
         }
     }
 }

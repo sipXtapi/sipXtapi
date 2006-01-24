@@ -80,17 +80,25 @@ public class SearchManagerImplTestDb extends TestCase {
         assertEquals(0, collection.size());
 
         user.setAliasesString("aaa, bcd");
+        //user.setFirstName("zzzfirstname");
         m_coreContext.saveUser(user);
+
+        collection = m_searchManager.search("zzzfirstname", m_identityToBean);
+
+        //assertEquals(1, collection.size());        
+        //assertTrue(collection.remove(user));
+        
+        User user2 = m_coreContext.loadUser(user.getId());
+        System.err.println(user2.getAliasesString());
 
         collection = m_searchManager.search("aaa", m_identityToBean);
 
-        // !!!!!!!!!!!!! FAILING !!!!!!!!!!!!!!!
-        //  assertEquals(1, collection.size());        
-        // assertTrue(collection.remove(user));
+        assertEquals(1, collection.size());        
+        assertTrue(collection.remove(user));
 
-        // collection = m_searchManager.search("alias:bcd", m_identityToBean);
-        // assertEquals(1, collection.size());
-        // assertTrue(collection.remove(user));
+        collection = m_searchManager.search("alias:bcd", m_identityToBean);
+        assertEquals(1, collection.size());
+        assertTrue(collection.remove(user));
     }
 
     public void testSearchByClass() throws Exception {

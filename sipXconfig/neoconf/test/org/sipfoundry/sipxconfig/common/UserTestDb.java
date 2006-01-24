@@ -29,21 +29,21 @@ import org.springframework.context.ApplicationContext;
 public class UserTestDb extends SipxDatabaseTestCase {
 
     private CoreContext m_core;
-    
+
     private SettingDao m_settingDao;
-    
+
     private Integer userId = new Integer(1000);
 
     protected void setUp() throws Exception {
-        ApplicationContext app = TestHelper.getApplicationContext(); 
-        m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);        
+        ApplicationContext app = TestHelper.getApplicationContext();
+        m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
     }
 
     public void testLoadUser() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.xml");
-        
+
         User user = m_core.loadUser(userId);
         assertEquals(userId, user.getPrimaryKey());
         assertEquals(userId, user.getId());
@@ -71,10 +71,10 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
         Assertion.assertEquals(expected, actual);
     }
-    
+
     public void testUpdateUserName() throws Exception {
         TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
-        Integer id = new Integer(1000);       
+        Integer id = new Integer(1000);
         User user = m_core.loadUser(id);
         user.setUserName("foo");
         try {
@@ -86,9 +86,21 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
         // heed assertion and change pintoken
         user.setPin("1234", "fake realm");
-        m_core.saveUser(user);        
+        m_core.saveUser(user);
     }
-    
+
+    public void testUpdateAliases() throws Exception {
+        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        assertEquals(1, getConnection().getRowCount("user_alias", "where user_id = 1000"));
+
+        Integer id = new Integer(1000);
+        User user = m_core.loadUser(id);
+        user.setAliasesString("bongo, kuku");
+        m_core.saveUser(user);
+
+        assertEquals(2, getConnection().getRowCount("user_alias", "where user_id = 1000"));        
+    }
+
     public void testUserGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
@@ -96,15 +108,15 @@ public class UserTestDb extends SipxDatabaseTestCase {
         Set groups = user.getGroups();
         assertEquals(1, groups.size());
     }
-    
+
     public void testUserSettings() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
         User user = m_core.loadUser(new Integer(1001));
-        Setting settings = user.getSettings();        
+        Setting settings = user.getSettings();
         assertNotNull(settings);
     }
-    
+
     public void testGroupMembers() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
@@ -115,7 +127,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
         User expectedUser = (User) users.iterator().next();
         assertEquals(actualUser.getDisplayName(), expectedUser.getDisplayName());
     }
-    
+
     public void testDeleteUserGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
