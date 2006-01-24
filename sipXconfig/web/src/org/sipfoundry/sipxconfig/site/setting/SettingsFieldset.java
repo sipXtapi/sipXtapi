@@ -25,6 +25,10 @@ public abstract class SettingsFieldset extends BaseComponent {
     public abstract Setting getSettings();
 
     public abstract void setSettings(Setting setting);
+    
+    public abstract boolean getRenderGroupTitle();
+    
+    public abstract void setRenderGroupTitle(boolean render);
 
     public Collection getFlattenedSettings() {
         return SettingUtil.filter(SettingFilter.ALL, getSettings());
@@ -52,17 +56,38 @@ public abstract class SettingsFieldset extends BaseComponent {
     }
 
     /**
+     * Render group if it's not advanced (hidden) or if show advanced is set
+     * and group title rendering is allowed
+     * 
+     * @param setting
+     * @return true if setting should be rendered
+     */
+    public boolean renderGroup(Setting setting) {
+        if (!getRenderGroupTitle()) {
+            // group title rendering not allowed
+            return false;
+        }
+                
+        return showSetting(setting);
+    }
+
+    /**
      * Render setting if it's not advanced (hidden) or if show advanced is set
      * 
      * @param setting
      * @return true if setting should be rendered
      */
     public boolean renderSetting(Setting setting) {
+        return showSetting(setting);
+    }
+    
+    boolean showSetting(Setting setting) {
         if (setting.isHidden()) {
             // do not render hidden seetings
             return false;
         }
-        return !setting.isAdvanced() || getShowAdvanced();
+        boolean isAdvanced = SettingUtil.isAdvancedIncludingParents(getSettings(), setting); 
+        return !isAdvanced || getShowAdvanced();
     }
 
     /**
@@ -73,6 +98,7 @@ public abstract class SettingsFieldset extends BaseComponent {
      * @return true if setting is not rendered (is advanced and advanced settings are not shown)
      */
     public boolean renderSettingPlaceholder(Setting setting) {
-        return setting.isAdvanced() && !getShowAdvanced();
+        boolean isAdvanced = SettingUtil.isAdvancedIncludingParents(getSettings(), setting); 
+        return isAdvanced && !getShowAdvanced();
     }
 }
