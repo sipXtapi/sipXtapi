@@ -12,6 +12,11 @@ testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
     -DTEST_WORK_DIR=\"@abs_top_builddir@/src/test/work\"
 
+all: @abs_top_builddir@/src/test/work
+
+@abs_top_builddir@/src/test/work:
+	mkdir @abs_top_builddir@/src/test/work
+
 testsuite_LDADD = \
 	testlib/libsipXcommserverTest.la \
    ../libsipXcommserver.la
