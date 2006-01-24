@@ -125,7 +125,7 @@ void FileTestContext::makeCleanWorkingDir()
    OsPath         testWorkingDir(mTestWorkingDir);
 
    OsFileSystem::remove(testWorkingDir, TRUE /* Recursive */, TRUE /* Force */ );
-   OsFileSystem::createDir(testWorkingDir);
+   OsFileSystem::createDir(testWorkingDir, TRUE);
 }
 
 void FileTestContext::workingFilePath(const char* filename, UtlString& path)

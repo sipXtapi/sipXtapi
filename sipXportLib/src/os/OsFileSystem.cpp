@@ -154,10 +154,20 @@ OsStatus OsFileSystem::change(const OsPath& path)
 
 //: Creates the specified directory
 //  Fails if a file by the same name exist in the parent directory
-OsStatus OsFileSystem::createDir(const OsPath& path)
+OsStatus OsFileSystem::createDir(const OsPath& path, const UtlBoolean createParent)
 {
-    OsDir dir(path);
-    return dir.create();
+    OsStatus stat = OS_SUCCESS;
+    
+    if (createParent)
+    {
+        stat = createDirRecursive(path);
+    }
+    if ( stat == OS_SUCCESS)
+    {
+        OsDir dir(path);
+        stat = dir.create();
+    }
+    return stat;
 }
 
 //: returns the current working directory for the process
@@ -271,6 +281,53 @@ OsStatus OsFileSystem::removeTree(const OsPath& path,UtlBoolean bForce)
           }
       }
     }
+    return retval;
+}
+
+OsStatus OsFileSystem::createDirRecursive(const OsPath& rOsPath)
+{
+    OsStatus retval = OS_FAILED;
+    
+    UtlString parentDir;
+    
+    if (!exists(rOsPath))
+    {
+        // Find last separator and chop last name off path
+        UtlString sep = OsPath::separator;
+        
+        int lastSep = -1;
+        unsigned int nextSep = rOsPath.index(sep);
+        
+        while (nextSep != UtlString::UTLSTRING_NOT_FOUND)
+        {
+            lastSep = nextSep;
+            nextSep = rOsPath.index(sep, lastSep+1);
+        }
+        if (lastSep != -1)
+        {
+            parentDir = rOsPath(0, lastSep);
+            OsPath parent(parentDir);
+            if (!exists(parent))
+            {
+                retval = createDirRecursive(parent);
+                if (retval == OS_SUCCESS)
+                {
+                    OsDir dir(parent);
+                    dir.create();
+                    retval = OS_SUCCESS;
+                }
+            }
+            else
+            {
+                retval = OS_SUCCESS;
+            }
+        }
+    }
+    else
+    {
+        retval = OS_SUCCESS;
+    }
+    
     return retval;
 }
 
