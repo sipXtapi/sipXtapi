@@ -40,8 +40,8 @@ public class MethodCacheInterceptor implements MethodInterceptor, InitializingBe
     /**
      * sets cache name to be used
      */
-    public void setCache(Cache cache) {
-        this.cache = cache;
+    public void setCache(Cache cache_) {
+        this.cache = cache_;
     }
 
     /**

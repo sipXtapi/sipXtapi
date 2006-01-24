@@ -75,7 +75,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
     public void testUpdateUserName() throws Exception {
         TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
         Integer id = new Integer(1000);       
-        User user = (User) m_core.loadUser(id);
+        User user = m_core.loadUser(id);
         user.setUserName("foo");
         try {
             m_core.saveUser(user);
