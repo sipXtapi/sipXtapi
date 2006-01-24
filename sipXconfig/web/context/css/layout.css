@@ -137,11 +137,13 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 
 #navigation li ul {
 	display: none;
-	position: absolute; 
-	top: 1em;
+	position: absolute;
+	/* top and left are for IE only */
+	top: 2em;
 	left: 0em;
 }
 
+/* reset those values for all the browsers except for IE */
 #navigation li > ul {
 	top: auto;
 	left: auto;
@@ -155,7 +157,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 #navigation a {
 	display: block;
 	text-decoration: none;
-	padding: 5px;
+	padding: 0.4em 0;
 	border-width: 1px;
 	border-style: solid;
 }
