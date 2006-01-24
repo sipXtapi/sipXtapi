@@ -1,0 +1,314 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+<head>
+<title>Pingtel Interop Online</title>
+<style>
+body
+{
+background-color: white;
+color: #336699;
+margin-left: 5%;
+margin-right: 5%;
+}
+h2
+{
+margin-left: -3%;
+}
+.nav
+{
+background-color: #336699;
+color: white;
+}
+.component
+{
+background-color: #CCCC99;
+}
+h1
+{
+color: #336699;
+margin-top: .75em;
+}
+
+.group
+{
+font-style: italic;
+border-color: #FFCC00;
+border-width: 1;
+border-style: solid;
+}
+code
+{
+white-space: pre;
+}
+img
+{
+   border-width: 0;
+}
+</style>
+</head>
+
+<body>
+<a href="http://www.pingtel.com/">
+<img src="logo_pingtel.gif" alt="Pingtel Corp." border="0" height="53"
+width="133" align="left" />
+</a>
+
+<h1 align="right">
+&nbsp;Interop Online
+</h1>
+<hr>
+
+<p>
+This test server is provided by <a
+href='http://www.pingtel.com/'>Pingtel</a> for open interoperability
+testing.  It is the Pingtel proxy software (based on the
+<a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx open source project</a>)
+with a <a href='#config'>custom configuration</a>.  This configuration
+is designed to exercise issues we have found are important to
+interoperability between User Agents and Proxies.
+</p>
+
+<p>
+This server is freely available to all, <strong>but Pingtel does not
+provide any free support for diagnosing problems you have with these
+tests.</strong>  If you are in need of help, consulting is available
+for a fee; contact &lt;<a href='mailto:%69%6E%74%65%72%6F%70%2D%63%6F%6E%66%69%67%40%70%69%6E%67%74%65%6C%2E%63%6F%6D'><b>interop-config</b><i>(at)</i><b>pingtel</b><i>(dot)</i><b>com</b></a>&gt;.
+</p>
+
+<p>
+<strong>NOTE WELL:</strong>  All communication with this server is
+logged and used under the "SIPit rules":  It may be used by Pingtel for
+internal testing and
+development, and aggregate information may be released to other
+parties.  No information identifiable to a specific user, product, or
+company will be released to other parties.
+</p>
+
+<p>
+For more information and resources to help you assess and improve the
+interoperability of your SIP implementation, see the
+<a href='http://www.sipfoundry.org/interoperability.html'>
+SIPfoundry Interoperatibility Initiative
+</a>.
+</p>
+
+<hr />
+
+<h2>Tests</h2>
+
+<p>
+The tests below are organized so that they can be used by more than
+one tester at a time - if you pick your own group of extensions.  Pick
+a number between 10 and 99 - in the addresses below, this group number
+is shown as "<span class='group'>gg</span>".  Each group consists of 9
+addresses that you can register:
+<code>
+    1<span class='group'>gg</span>1@interop.pingtel.com
+    1<span class='group'>gg</span>2@interop.pingtel.com
+    1<span class='group'>gg</span>3@interop.pingtel.com
+    1<span class='group'>gg</span>4@interop.pingtel.com
+    1<span class='group'>gg</span>5@interop.pingtel.com
+    1<span class='group'>gg</span>6@interop.pingtel.com
+    1<span class='group'>gg</span>7@interop.pingtel.com
+    1<span class='group'>gg</span>8@interop.pingtel.com
+    1<span class='group'>gg</span>9@interop.pingtel.com
+</code>
+When you register the first address, check the response to see if it
+has any Contact addresses other than yours - if it does, please choose
+another group number.
+</p>
+
+<h2>DNS SRV</h2>
+
+<p>
+The SRV records for <code>interop.pingtel.com</code> are set to prefer
+TCP; your user agent should choose TCP over UDP.
+</p>
+
+<h2>Registration</h2>
+
+<p>
+The credentials for the test addresses are:
+</p>
+<dl>
+  <dt>Address Of Record</dt>
+  <dd><code>1<span class='group'>gg</span>n@interop.pingtel.com</code>
+    <br />(for n= 1..9)
+  </dd>
+  <dt>User Name<dt>
+  <dd><code>1<span class='group'>gg</span>n</code>
+    <br />(The user part of the address)
+  </dd>
+  <dt>Realm<dt>
+  <dd><code>interop.pingtel.com</code></dd>
+  <dt>Password</dt>
+  <dd><code>1234</code></dd>
+</dl>
+
+<h2>Message Waiting</h2>
+
+<p>
+The 1<span class='group'>gg</span>1 and 1<span
+class='group'>gg</span>2 each has a voicemail box; they may SUBSCRIBE
+for the <code>message-waiting</code> event package.  You can call the
+voicemail box directly by calling user
+<code>2<span class='group'>gg</span>1</code> or <code>2<span class='group'>gg</span>2</code>.
+to deposit voicemail.
+</p>
+
+<h2>Transfer</h2>
+
+<p>
+A call to "<code>100@interop.pingtel.com</code>" will be answered by an
+auto-attendant - when you enter a registered extension at the prompt,
+the auto-attendant will transfer your call (REFER without Replaces).
+</p>
+
+<p>
+If your user agent(s) can do consultative transfer (REFER with
+Replaces), then you should also try that through the proxy.
+</p>
+
+<h2>Authenticated INVITE (407 Proxy Authentication Required)</h2>
+
+<p>
+A call to <code>3<span class='group'>gg</span>x</code> (for any x 1-9)
+will be challenged for authentication, and when successfully
+authenticated will ring <code>1<span class='group'>gg</span>x</code>.
+</p>
+
+<h2>Authenticated INVITE (403 Forbidden)</h2>
+
+<p>
+A call to <code>4<span class='group'>gg</span>x</code> (for any x 1-9)
+will be challenged for authentication, but even when authenticated
+only an extension ending in 7, 8, or 9 is allowed to complete the call
+(which will ring <code>1<span class='group'>gg</span>x</code>).  Any
+other caller will get a 403 Forbidden response.  This allows you to
+test whether or not your user interface communicates the reason for
+the call failure.
+</p>
+
+<h2>Serial Forking</h2>
+
+<p>
+A call to <code>5<span class='group'>gg</span>0</code>
+will be forked to <code>1<span class='group'>gg</span>3</code>,
+<code>1<span class='group'>gg</span>4</code>, <code>1<span
+class='group'>gg</span>5</code>, and <code>1<span
+class='group'>gg</span>6</code> in some random order.  If not
+answered, the first extension called will receive a CANCEL when the
+next is called.  Make sure that your caller connects with the phone
+that answers, and that all the others correctly clean up the
+cancelled requests.
+</p>
+
+<h2>Parallel Forking</h2>
+
+<p>
+A call to <code>6<span class='group'>gg</span>0</code>
+will be simultaneously forked to <code>1<span class='group'>gg</span>3</code>,
+<code>1<span class='group'>gg</span>4</code>, <code>1<span
+class='group'>gg</span>5</code>, and <code>1<span
+class='group'>gg</span>6</code>.  When one answers, the others will
+receive a CANCEL.  Make sure that your caller connects with the phone
+that answers, and that all the others correctly clean up the
+cancelled requests.
+</p>
+
+<h2>Long Paths / Large Messages</h2>
+
+<p>
+A call to <code>7<span class='group'>gg</span>x</code> (for any x 1-9)
+will spiral several times within the proxy so that when received at <code>1<span
+class='group'>gg</span>x</code> it will have several Vias.  This
+checks your handling of large messages (if UDP, they will be fragmented).
+</p>
+
+<h2>Merged INVITE</h2>
+
+<p>
+A call to <code>8<span class='group'>gg</span>x</code> (for any x 1-9)
+will be forked such that two INVITE requests will be received at <code>1<span
+class='group'>gg</span>x</code> with the same Call-Id, Cseq, and From tag
+values, but different branch ids.  The UAC should accept the first one
+and return a 482 Loop Detected response to the second.  Make sure that
+the loop detected error is sent and that the call is correctly set up
+when the called phone answers.
+</p>
+
+<h2>Hop Limit Exceeded</h2>
+
+<p>
+Any call to <code>9999</code> will return a 483 Too Many Hops.  As a
+diagnostic aid, this software returns part of the failed request in
+the body of the 483 response.  This allows you to test whether or not
+your user interface conveys the reason for the failure (and is not
+troubled by the response body).
+</p>
+
+<h2>Call Pick-Up</h2>
+
+<p>
+Any call to <code>*78xxxx</code> will pick up the call ringing on the
+UA at <code>xxxx</code>.  To use this feature:
+</p>
+
+<ol>
+<li>From one UA, call a second UA via <code>1<span
+class='group'>gg</span>n</code>.</li>
+<li>Leave the call ringing.</li>
+<li>From a third UA, call <code>*781<span
+class='group'>gg</span>n</code>.</li>
+<li>The third UA should now be talking to the first UA, and the second
+should no longer be ringing.</li>
+<li>If the second UA answers the call before the third UA calls <code>*781<span
+class='group'>gg</span>n</code>, the third UA should receive a
+<code>404</code> response rather than connecting to the first UA.</li>
+</ol>
+
+<p>
+This test should work whether or not the first or third UAs are
+registered to the test server.
+</p>
+
+<p>
+This test checks that the first UA correctly handles INVITE with Replaces and
+the early-only option, and whether the second UA generates
+dialog event notices with usable endpoint identification.
+</p>
+
+<h2>Call Park and Retrieve</h2>
+
+<p>
+The extensions <code>5<span class='group'>gg</span>x</code> (for any x
+1-9) are <em>parking orbits</em>.
+(The extensions <code>5<span class='group'>gg</span>0</code> are used
+in the Serial Forking test described above.)
+If a call is transferred to a parking orbit, it will connect to the
+<em>park server</em> user agent, which plays music.
+A call can be retrieved from a parking orbit by calling
+<code>*4xxxx</code>, where <code>xxxx</code> is the parking orbit.
+If there are several calls parked on the same orbit, the one that was
+parked there first is retrieved.
+</p>
+
+<!--
+
+<hr />
+
+<h3><a name='config'>How this server is configured</a></h3>
+
+<p>
+This server uses a special test configuration
+(it would not make a very friendly configurationn in a real PBX :-).
+The configuration, and the scripts that are used to generate it, are
+available in the sipXpbx/doc/developer/interop.pingtel.com directory  of the
+<a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx Open Source
+PBX Project</a>.
+</p>
+
+-->
+
+</body>
+</html>
