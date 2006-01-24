@@ -48,6 +48,9 @@
        <filemap identifier="conferences.xml"
                 location="@SIPX_CONFDIR@/conferences.xml" />
                 
+       <filemap identifier="organizationprefs.xml"
+                location="@SIPX_VXMLDATADIR@/organizationprefs.xml" />                
+                
       <databasemap identifier="credential"      location="credential" />
       <databasemap identifier="alias"           location="alias" />
       <databasemap identifier="permission"      location="permission" />
