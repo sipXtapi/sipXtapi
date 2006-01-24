@@ -113,6 +113,11 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
     }
     
+    public void testInsertFromCsvUserNameAliasConflict() throws Exception {
+        InputStream cutsheet = getClass().getResourceAsStream("user_alias_conflict.csv");
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));        
+        assertEquals(1, getConnection().getRowCount("users"));
+    }
 
     public void testUserFromRow() {
         User bongo = new User();
