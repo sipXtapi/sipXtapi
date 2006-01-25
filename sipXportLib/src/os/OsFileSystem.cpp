@@ -313,8 +313,7 @@ OsStatus OsFileSystem::createDirRecursive(const OsPath& rOsPath)
                 if (retval == OS_SUCCESS)
                 {
                     OsDir dir(parent);
-                    dir.create();
-                    retval = OS_SUCCESS;
+                    retval = dir.create();
                 }
             }
             else
