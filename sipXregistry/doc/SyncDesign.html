@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Tue, 17 Jan 2006 19:41:19 +0000">
+<meta http-equiv="Expires" content="Wed, 25 Jan 2006 14:38:12 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -194,6 +194,8 @@ HTTP Persistent Connections<br />
 Authorization Proxy Record-Route<br />
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor12">5.12.</a>&nbsp;
 Protocol Versioning<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor13">5.13.</a>&nbsp;
+Loose Ends<br />
 <a href="#rfc.authors">&#167;</a>&nbsp;
 Authors' Addresses<br />
 </p>
@@ -1655,6 +1657,58 @@ Authors' Addresses<br />
 </p>
 </blockquote><p>
         
+</p>
+<a name="anchor13"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.13"></a><h3>5.13.&nbsp;Loose Ends</h3>
+
+<p>This section contains changes that need to be merged into the spec.
+</p>
+<p>1. Checking for out-of-order updates
+</p>
+<p>You've added this text to SyncDesign.xml:
+</p>
+<p>
+The server <span class="strong">must</span> return a fault if
+lastSentUpdateNumber does not match the current value of
+PeerReceivedDbUpdateNumber.  For example, suppose the server receives
+update #2 with lastSentUpdateNumber = 1 but PeerReceivedDbUpdateNumber = 0.
+The server returns a fault because update #2 is out of order -- the server
+doesn't have update #1.  On receiving the fault response, the client does
+a reset to resynchronize.  This scenario is improbable but possible
+because a pushUpdates call going in one direction can cross a reset call
+going in the other direction.
+</p>
+<p>
+I think you can soften these conditions a bit --  The validity test can
+be "lastSentUpdateNumber &lt;= PeerReceivedDbUpdateNumber", because an
+update from a base point that is too far in the past is never a problem.
+</p>
+<p>
+Though you have to update PeerReceivedDbUpdateNumber as:
+</p>
+<p>
+PeerReceivedDbUpdateNumber = max(PeerReceivedDbUpdateNumber,
+                                 updateNumber)
+</p>
+<p>
+because this admits the possibility that updateNumber is less than
+PeerReceivedDbUpdateNumber.
+</p>
+<p>2. Avoid reset thrashing
+</p>
+<p>
+The plausible "reset thrashing" scenarios generally are situations where
+reset always succeeds but the first update immediately thereafter fails,
+triggering another reset.  It seems to me that the exponential backoff
+should only be reset to its initial delay when an update has succeeded.
+</p>
+<p>
+Since a successful update always causes progress (at least in the
+PeerLastSentDbUpdate in the client), there can be no infinite sequence
+of successful updates, and so they can never prevent exponential backoff
+when it is needed.  But there can be an infinite series of successful
+resets.
 </p>
 <a name="rfc.authors"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>

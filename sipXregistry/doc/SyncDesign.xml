@@ -1364,7 +1364,47 @@
           </list>
         </t>
       </section>
+
+    <section title='Loose Ends'>
+      <t>This section contains changes that need to be merged into the spec.</t>
+      <t>1. Checking for out-of-order updates</t>
+      <t>You've added this text to SyncDesign.xml:</t>
+      <t>
+The server <spanx style='strong'>must</spanx> return a fault if
+lastSentUpdateNumber does not match the current value of
+PeerReceivedDbUpdateNumber.  For example, suppose the server receives
+update #2 with lastSentUpdateNumber = 1 but PeerReceivedDbUpdateNumber = 0.
+The server returns a fault because update #2 is out of order -- the server
+doesn't have update #1.  On receiving the fault response, the client does
+a reset to resynchronize.  This scenario is improbable but possible
+because a pushUpdates call going in one direction can cross a reset call
+going in the other direction.</t>
+      <t>
+I think you can soften these conditions a bit --  The validity test can
+be "lastSentUpdateNumber &lt;= PeerReceivedDbUpdateNumber", because an
+update from a base point that is too far in the past is never a problem.</t>
+      <t>
+Though you have to update PeerReceivedDbUpdateNumber as:</t>
+      <t>
+PeerReceivedDbUpdateNumber = max(PeerReceivedDbUpdateNumber,
+                                 updateNumber)</t>
+      <t>
+because this admits the possibility that updateNumber is less than
+PeerReceivedDbUpdateNumber.</t>
+      <t>2. Avoid reset thrashing</t>
+      <t>
+The plausible "reset thrashing" scenarios generally are situations where
+reset always succeeds but the first update immediately thereafter fails,
+triggering another reset.  It seems to me that the exponential backoff
+should only be reset to its initial delay when an update has succeeded.</t>
+      <t>
+Since a successful update always causes progress (at least in the
+PeerLastSentDbUpdate in the client), there can be no infinite sequence
+of successful updates, and so they can never prevent exponential backoff
+when it is needed.  But there can be an infinite series of successful
+resets.</t>
     </section>
+  </section>
 
 </middle>
 <back>
