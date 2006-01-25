@@ -55,5 +55,7 @@
     </component>    
     <component id="attendantListForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
-    </component>    
+    </component>
+    
+    <component id="specialAttendant" type="SpecialAttendantPanel"/>
 </page-specification>

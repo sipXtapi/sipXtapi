@@ -292,6 +292,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     public void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant) {
+        if (enabled && attendant == null) {
+            throw new UserException("Select special auto attendant to be used.");
+        }
         m_sipxReplicationContext.replicate(new SpecialAutoAttendantMode(enabled, attendant));
     }
 
