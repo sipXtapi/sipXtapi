@@ -20,6 +20,7 @@ import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class RestartManagerImplTest extends TestCase {
+    
     public void testGenerateProfiles() throws Exception {
         Integer jobId = new Integer(4);
         Integer phoneId = new Integer(1000);
@@ -151,7 +152,11 @@ public class RestartManagerImplTest extends TestCase {
         before = System.currentTimeMillis();
         rm.restart(Arrays.asList(ids));
         duration = System.currentTimeMillis() - before;
-        assertTrue(duration >= 2 * throttle);
+
+        // failed 2 out of 10 times on windows until fudge added
+        // machine was 3GHz, Dual core p4.
+        final long timingFudge = 100;         
+        assertTrue(duration + timingFudge >= 2 * throttle);
 
         jobContextCtrl.verify();
         phoneControl.verify();
