@@ -21,6 +21,9 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.valid.IValidationDelegate;
 
 public abstract class FormActions extends BaseComponent {
+    
+    private boolean m_applyPressed;
+    
     public abstract ICallback getCallback();
 
     public abstract IActionListener getListener();
@@ -32,22 +35,32 @@ public abstract class FormActions extends BaseComponent {
     }
 
     public void onOk(IRequestCycle cycle) {
-        onApply(cycle);
+        m_applyPressed = false; 
+        apply(cycle);
         if (TapestryUtils.isValid((AbstractPage) getPage())) {
             getCallback().performCallback(cycle);
         }
     }
 
     public void onApply(IRequestCycle cycle) {
+        m_applyPressed = true; 
+        apply(cycle);
+    }
+    
+    public boolean wasApplyPressedAndNotCancel() {
+        return m_applyPressed;
+    }
+    
+    private void apply(IRequestCycle cycle) {
         IValidationDelegate validator = TapestryUtils.getValidator((AbstractComponent) getPage());
-        IActionListener adapter = new TapestryContext.UserExceptionAdapter(validator,
-                getListener());
+        IActionListener listener = getListener();
+        IActionListener adapter = new TapestryContext.UserExceptionAdapter(validator, listener);
         adapter.actionTriggered(this, cycle);
         if (validator instanceof SipxValidationDelegate) {
             SipxValidationDelegate sipxValidator = (SipxValidationDelegate) validator;
             String msg = StringUtils.defaultIfEmpty(getSuccessMessage(), getMessage("user.success"));
             sipxValidator.recordSuccess(msg);
-        }
+        }        
     }
 
     public void onCancel(IRequestCycle cycle) {

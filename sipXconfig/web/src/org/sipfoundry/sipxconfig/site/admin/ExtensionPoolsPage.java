@@ -14,14 +14,14 @@ package org.sipfoundry.sipxconfig.site.admin;
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.ExtensionPool;
 import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class ExtensionPoolsPage extends BasePage {
+public abstract class ExtensionPoolsPage extends PageWithCallback {
 
     public static final String PAGE = "ExtensionPools";
 

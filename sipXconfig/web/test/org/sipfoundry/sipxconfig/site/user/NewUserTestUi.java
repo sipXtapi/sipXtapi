@@ -75,7 +75,7 @@ public class NewUserTestUi extends WebTestCase {
             setFormElement("userId", NEW_USER_USERNAME[i]);
             setFormElement("password", NEW_USER_PWORD);
             setFormElement("confirmPassword", NEW_USER_PWORD);
-            clickButton("form:ok");
+            clickButton("form:apply");
             SiteTestHelper.assertNoUserError(tester);
             SiteTestHelper.assertNoException(tester);
         }
@@ -95,7 +95,8 @@ public class NewUserTestUi extends WebTestCase {
         final String NEW_USER_USERNAME = "cuser";
         final String NEW_USER_PWORD = "1234";
 
-        clickLink("NewUser");
+        clickLink("ManageUsers");
+        clickLink("AddUser");
         setFormElement("userId", NEW_USER_USERNAME);
         setFormElement("password", NEW_USER_PWORD);
         setFormElement("confirmPassword", NEW_USER_PWORD);
@@ -104,7 +105,8 @@ public class NewUserTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
 
         SiteTestHelper.home(tester);
-        clickLink("NewUser");
+        clickLink("ManageUsers");
+        clickLink("AddUser");
         setFormElement("userId", NEW_USER_USERNAME);
         setFormElement("password", NEW_USER_PWORD);
         setFormElement("confirmPassword", NEW_USER_PWORD);

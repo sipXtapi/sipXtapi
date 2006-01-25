@@ -37,22 +37,15 @@ public abstract class ManageUsers extends BasePage {
     public abstract void setGroupId(Integer groupId);
 
     public void addUser(IRequestCycle cycle) {
-        // Prep the NewUser page with a null userId so a new user will be created
         NewUser page = (NewUser) cycle.getPage(NewUser.PAGE);
-        page.setUserId(null);
-
-        // Go to the New User page
         page.activatePageWithCallback(PAGE, cycle);
     }
 
     public void editUser(IRequestCycle cycle) {
-        // Prep the EditUser page with the userId
         Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
                 .getServiceParameters(), 0);
         EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);
         page.setUserId(userId);
-
-        // Go to the Edit User page
         page.activatePageWithCallback(PAGE, cycle);
     }
 
