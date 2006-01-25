@@ -7,7 +7,6 @@
 	</head>
 <body jwcid="$content$">
 	<div jwcid="@Border" restricted="false">
-        <span jwcid="errors"></span>
         <div class="help">
 <p>You configure call forwarding row parameters, directing calls to locations other than voicemail by clicking Add Number. The default is set to ring the associated extension first, and if no one answers at the extension, the call is forwarded to voicemail. You add alternate numbers to forward calls to, select "If no response" or "At the same time" as a call forwarding action, and define how long to ring the alternate number before continuing to the next row or on to voicemail for the original extension.</p>
 
@@ -27,8 +26,14 @@
 
 <p>You can delete a call forwarding row by clicking <em>Delete</em> at the right-hand side of the associated row. You can edit a call forwarding row by editing the associated row's fields and clicking <em>OK</em> or <em>Apply</em>. You can add additional call forwarding rows by clicking <em>Add Number</em>. You can only change the successive hierarchy of the call forwarding rows by directly editing the rows or deleting and recreating rows.</p>
         </div>
-		<div id="component">
+        <span jwcid="@Conditional" condition="ognl:visit.admin">
+     		<span jwcid="userNavigation"/>
+        </span>
+        <span jwcid="@Conditional" condition="ognl:! visit.admin">
             <h2><span key="title">Call Forwarding</span></h2>
+        </span>
+        <span jwcid="errors"></span>
+		<div id="settings-content">
 			<form jwcid="form">
 	            <ul class="component-links">
 	                <li><a jwcid="addRingLink" href="#"><span key="add">Add Number</span></a></li>

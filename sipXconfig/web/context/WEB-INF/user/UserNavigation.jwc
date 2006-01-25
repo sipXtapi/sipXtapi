@@ -43,6 +43,10 @@
     <component id="heading" type="Insert">
         <binding name="value" expression="heading"/>
     </component>            
+    <component id="callForwardingLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editCallForwarding"/>
+        <binding name="parameters" expression="user.id"/>
+    </component>
     <component id="editUserLink" type="DirectLink">
         <binding name="listener" expression="listeners.editUser"/>
         <binding name="parameters" expression="user.id"/>

@@ -48,6 +48,11 @@
     <!--
      - C O M P O N E N T S
      -->
+    <component id="userNavigation" type="UserNavigation">
+        <binding name="user" expression="user"/>
+        <binding name="tab" expression="CallForwarding"/>
+        <static-binding name="heading" value="Call Forwarding"/>
+    </component>
     <component id="form" type="Form">
         <binding name="delegate" expression="beans.validator"/>
         <binding name="listener" expression="listeners.submit"/>

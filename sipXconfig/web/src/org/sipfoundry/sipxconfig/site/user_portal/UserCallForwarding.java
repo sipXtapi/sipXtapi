@@ -15,11 +15,10 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.ListEditMap;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
@@ -27,14 +26,16 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.sipfoundry.sipxconfig.site.Visit;
+import org.sipfoundry.sipxconfig.site.user.ManageUsers;
 
 /**
  * UserCallForwarding
  */
-public abstract class UserCallForwarding extends BasePage implements PageRenderListener {
+public abstract class UserCallForwarding extends PageWithCallback implements PageRenderListener {
     public static final String PAGE = "UserCallForwarding";
     private static final String ACTION_ADD = "add";
 
@@ -65,10 +66,6 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
     public abstract void setUserId(Integer userId);
 
     public abstract String getAction();
-
-    public abstract ICallback getCallback();
-
-    public abstract void setCallback(ICallback callback);
 
     public void pageBeginRender(PageEvent event_) {
         CallSequence callSequence = getCallSequence();
@@ -106,6 +103,10 @@ public abstract class UserCallForwarding extends BasePage implements PageRenderL
 
         ListEditMap map = createListEditMap(callSequence);
         setRingsMap(map);
+
+        if (getCallback() == null && ((Visit) getVisit()).isAdmin()) {
+            setCallback(new PageCallback(ManageUsers.PAGE));
+        }        
     }
 
     /**
