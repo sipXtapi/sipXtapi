@@ -707,8 +707,6 @@ then
       cp sipXbuild/build/rpms/xerces-c/xerces-c-devel-2*.rpm $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/build/rpms/java-1.5.0-sun/java-1.5.0-sun-1.5.0.??-1jpp.*.rpm $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/build/rpms/java-1.5.0-sun/java-1.5.0-sun-jdbc-1.5.0.??-1jpp.*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/bin/install-*-fc4.sh $Disttree/RPM/$Distro/$Distrover
-      chmod +x $Disttree/RPM/$Distro/$Distrover/install-*-fc4.sh
     else
         echo "sipXbuild missing (skipped) " 1>&2
         echo "sipXbuild missing (skipped) " >> build.err
