@@ -170,7 +170,10 @@ protected:
     // Protected Constructor
     SIPDBManager();
 
-    // Singtleton instance
+    /// Override the default fastdb tmp dir if the env var SIPX_DB_VAR_PATH is set
+    void setFastdbTempDir();
+
+    // Singleton instance
     static SIPDBManager* spInstance;
 
     // Exclusive binary lock
@@ -182,12 +185,15 @@ protected:
     // used to log to a special file
     static UtlBoolean gVerboseLoggingEnabled;
 
-    // the working direcory for all database instances
+    // the working directory for all database instances
     // the XML files are located here (var)
     UtlString m_absWorkingDirectory;
+
     // The configuration file directory (etc)
     UtlString m_absConfigDirectory;
+
+    // Fastdb tmp dir path
+    UtlString m_FastDbTmpDirPath;
 };
 
 #endif //SIPDBMANAGER_H
-

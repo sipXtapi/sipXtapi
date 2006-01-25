@@ -45,10 +45,8 @@ public:
 
    void testPullUpdates()
       {
-         // Originally I was appending "/regdbdata" to these directories, but
-         // recursive directory creation was failing for some unknown reason.
-         RegistrationDbTestContext testDbContext(TEST_DATA_DIR,
-                                                 TEST_WORK_DIR
+         RegistrationDbTestContext testDbContext(TEST_DATA_DIR "/regdbdata",
+                                                 TEST_WORK_DIR "/regdbdata"
                                                  );
          testDbContext.inputFile("updatesToPull.xml");
 

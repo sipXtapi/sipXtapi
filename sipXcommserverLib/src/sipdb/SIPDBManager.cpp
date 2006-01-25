@@ -11,6 +11,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include <limits.h>
 
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
@@ -37,6 +38,10 @@ REGISTER( TableInfo );
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
+
+// Declared in fastdb/sync.h, but including that header file is problematic
+extern char const* keyFileDir;
+
 // CONSTANTS
 
 // environment variable name for static data 
@@ -83,6 +88,9 @@ SIPDBManager::SIPDBManager ()
     // Get the working and config file paths
     m_absWorkingDirectory = getVarPath() ;
     m_absConfigDirectory = getCfgPath() ;
+
+    // Override the default fastdb tmp dir if SIPX_DB_VAR_PATH was set
+    setFastdbTempDir();
 
     if ( gVerboseLoggingEnabled )
     {
@@ -1248,3 +1256,25 @@ UtlBoolean SIPDBManager::isVerboseLoggingEnabled()
     return bFoundFile ;
 }
 
+/// Override the default fastdb tmp dir if the env var SIPX_DB_VAR_PATH is set
+void SIPDBManager::setFastdbTempDir()
+{
+   // This method must only be called once
+   assert(m_FastDbTmpDirPath.isNull());
+
+   char* pPath = getenv(SIPX_DB_VAR_PATH);
+   if (pPath != NULL && pPath[0] != '\0')
+   {
+      m_FastDbTmpDirPath = pPath;
+         
+      // The path must end in a separator
+      if (m_FastDbTmpDirPath(m_FastDbTmpDirPath.length() - 1) != OsPath::separator)
+      {
+         m_FastDbTmpDirPath.append(OsPath::separator);
+      }
+
+      // Pass the string to fastdb.  It's ugly to reference someone else's pointer
+      // directly like this, but allows us to avoid changing the fastdb code for now.
+      keyFileDir = m_FastDbTmpDirPath;
+   }         
+}
