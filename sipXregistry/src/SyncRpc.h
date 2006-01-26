@@ -178,10 +178,11 @@ class SyncRpcPullUpdates : public SyncRpcMethod
 
    /// pull all missing updates for a given primary from a peer
    static RegistrarPeer::SynchronizationState
-      invoke(RegistrarPeer* source,  ///< peer to pull from
-             const char*    myName,  ///< primary name of this registrar
-             RegistrarPeer* primary, ///< whos records to pull
-             UtlSList*      bindings ///< list of RegistrationBinding 
+      invoke(RegistrarPeer* source,       ///< peer to pull from
+             const char*    myName,       ///< name of this registrar
+             const char*    primaryName,  ///< name of registrar whose updates we want
+             intll          updateNumber, ///< pull updates starting after this number
+             UtlSList*      bindings      ///< list of RegistrationBinding 
              );
    /**<
     * On success, the bindings are returned.

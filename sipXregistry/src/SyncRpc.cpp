@@ -242,17 +242,18 @@ SyncRpcPullUpdates::SyncRpcPullUpdates()
 
 /// Fetch all unfetched updates for a given primary from a peer
 RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
-   RegistrarPeer* source,  ///< peer to pull from
-   const char*    myName,  ///< primary name of this registrar
-   RegistrarPeer* primary, ///< whose records to pull
-   UtlSList*      bindings ///< list of RegistrationBinding 
+   RegistrarPeer* source,       ///< peer to pull from
+   const char*    myName,       ///< primary name of this registrar
+   const char*    primaryName,  ///< name of registrar whose updates we want
+   intll          updateNumber, ///< pull updates starting after this number
+   UtlSList*      bindings      ///< list of RegistrationBinding 
                                                                )
 {
    RegistrarPeer::SynchronizationState resultState; 
 
    // check inputs
    assert(source);
-   assert(primary);
+   assert(primaryName);
    assert(myName && *myName != '\000');
    assert(bindings->isEmpty());
 
@@ -268,11 +269,12 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
    request.addParam(&callerName);
 
    // second parameter is the name of the registrar whose records we want
-   request.addParam(primary);
+   UtlString primary(primaryName);
+   request.addParam(&primary);
 
-   // third parameter is the PeerReceivedDbUpdateNumber from the primary we want
-   UtlLongLongInt received(primary->receivedFrom());
-   request.addParam(&received);
+   // third parameter is the update number after which we want all updates
+   UtlLongLongInt updateNumberBoxed(updateNumber);
+   request.addParam(&updateNumberBoxed);
    
    // make the request
    XmlRpcResponse response;

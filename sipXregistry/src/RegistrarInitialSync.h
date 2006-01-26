@@ -34,8 +34,7 @@ class SipRegistrar;
  */
 class RegistrarInitialSync : public OsTask
 {
-  public:
-
+public:
    /// Create the startup phase thread.
    RegistrarInitialSync(SipRegistrar* registrar);
 
@@ -47,34 +46,41 @@ class RegistrarInitialSync : public OsTask
    /// destructor
    virtual ~RegistrarInitialSync();
 
-  protected:
+protected:
    friend class SipRegistrar;
 
    /// Recover the latest received update number for each peer from the local db.
-   void restorePeerUpdateNumbers(UtlSListIterator* peers,
-                                 RegistrationDB*   registrationDb
-                                 );
+   void restorePeerUpdateNumbers(UtlSListIterator& peers);
    
-   /// Get any updates from peers that we missed or lost while down
-   void pullUpdatesFromPeers( UtlSListIterator* peers
-                             ,const char*       primaryName
-                             ,intll             dbUpdateNumber
-                             );
+   /// Get from peers any of our own updates that we have lost
+   void pullLocalUpdatesFromPeers( UtlSListIterator& peers
+                                  ,const char*       primaryName
+                                  ,intll             dbUpdateNumber
+                                  );
    
-   /// Get any updates for unreachable peers from reachable ones.
-   void recoverUnReachablePeers( UtlSListIterator* peers );
+   /// Get from peers any peer updates that we missed or lost while down
+   void pullPeerUpdatesFromPeers( UtlSListIterator& peers
+                                 ,const char*      primaryName
+                                  );
    
-  private:
+   /// Apply updates to the registration DB
+   void applyUpdates(UtlSList& bindings);
 
-   SipRegistrar* mRegistrar;
-   OsBSem        mFinished;
+   /// Get any updates for unreachable peers from reachable ones.
+   void recoverUnReachablePeers(UtlSListIterator& peers);
+   
+   RegistrationDB* getRegistrationDb();
+
+private:
+   SipRegistrar*   mRegistrar;
+   RegistrationDB* mRegistrationDb;
+   OsBSem          mFinished;
    
    /// There is no copy constructor.
    RegistrarInitialSync(const RegistrarInitialSync&);
 
    /// There is no assignment operator.
    RegistrarInitialSync& operator=(const RegistrarInitialSync&);
-    
 };
 
 #endif // _REGISTERINITIALSYNC_H_

@@ -169,8 +169,6 @@ private:
    RegistrarSync* mRegistrarSync;
    RegistrarTest* mRegistrarTest;
 
-   // :TODO: still needed? UtlString mDefaultDomain;
-
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();
    void sendToRegistrarServer(OsMsg& eventMessage);

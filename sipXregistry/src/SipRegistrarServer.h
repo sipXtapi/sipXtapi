@@ -51,6 +51,12 @@ public:
      * Defer init to the initialize method to allow the SipRegistrarServer object
      * to be accessed before the associated thread has been started.
      */
+   
+    /// Recover and return the largest update number from the database for this primary.
+    intll restoreLocalUpdateNumber();
+    /**<
+     * This method can be called prior to the initialize method (yes this is confusing, sorry)
+     */
 
     /// Initialize the Registration Server
     void initialize(OsConfigDb*   configDb,        ///< Configuration parameters
@@ -73,7 +79,7 @@ public:
         REGISTER_QUERY                  ///< request is a valid query for current contacts
     };
 
-    /**
+    /**<
      * Retrieve all updates for registrarName whose update number is greater than updateNumber.
      * Return the updates in the updates list.  Each update is an object of type
      * RegistrationBinding.
@@ -85,7 +91,7 @@ public:
        intll            updateNumber,
        UtlSList&        updates);
 
-    /**
+    /**<
      * Apply registry updates to the database, all of which must have the same primary
      * registrar and update number.
      * Return the maximum update number for that registrar.

@@ -111,10 +111,10 @@ class RegistrarPeer : public UtlString
  */
 ///@{
 
-   /// The oldest update successfully sent to this peer.
+   /// The update number of the oldest update successfully sent to this peer.
    intll sentTo();
 
-   /// The last update received from this peer.
+   /// The update number of the last update received from this peer.
    intll receivedFrom();
 
    void setSentTo(intll updateNumber);
