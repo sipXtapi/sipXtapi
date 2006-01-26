@@ -75,7 +75,7 @@ public class NewUserTestUi extends WebTestCase {
             setFormElement("userId", NEW_USER_USERNAME[i]);
             setFormElement("password", NEW_USER_PWORD);
             setFormElement("confirmPassword", NEW_USER_PWORD);
-            clickButton("form:ok");
+            clickButton("form:apply");
             SiteTestHelper.assertNoUserError(tester);
             SiteTestHelper.assertNoException(tester);
         }
@@ -95,7 +95,8 @@ public class NewUserTestUi extends WebTestCase {
         final String NEW_USER_USERNAME = "cuser";
         final String NEW_USER_PWORD = "1234";
 
-        clickLink("NewUser");
+        clickLink("ManageUsers");
+        clickLink("AddUser");
         setFormElement("userId", NEW_USER_USERNAME);
         setFormElement("password", NEW_USER_PWORD);
         setFormElement("confirmPassword", NEW_USER_PWORD);
@@ -104,7 +105,8 @@ public class NewUserTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
 
         SiteTestHelper.home(tester);
-        clickLink("NewUser");
+        clickLink("ManageUsers");
+        clickLink("AddUser");
         setFormElement("userId", NEW_USER_USERNAME);
         setFormElement("password", NEW_USER_PWORD);
         setFormElement("confirmPassword", NEW_USER_PWORD);
@@ -112,5 +114,21 @@ public class NewUserTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(tester);
         SiteTestHelper.assertNoException(tester);
     }
-
+    
+    public void testStay() {
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        setFormElement("userId", "x");
+        setFormElement("password", "1234");
+        setFormElement("confirmPassword", "1234");
+        checkCheckbox("stay");        
+        clickButton("form:ok");
+        assertElementPresent("user:success");
+        setFormElement("userId", "y");
+        setFormElement("password", "1234");
+        setFormElement("confirmPassword", "1234");
+        uncheckCheckbox("stay");        
+        clickButton("form:ok");
+        assertElementNotPresent("user:success");        
+    }
 }

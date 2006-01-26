@@ -285,14 +285,14 @@
       <description>Server to which dummy UDP packets are sent to maintain a NAT translation for 
         a session.</description>
     </setting>
-    <group name="vlansettinggroup">
+    <group name="vlansettinggroup" advanced="yes">
       <label>VLANSetting</label>
       <setting name="VLANSetting" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>VLAN-related settings.</description>
       </setting>
-      <setting name="__VLANSetting.0" advanced="yes">
+      <setting name="__VLANSetting.0">
         <label>CoS value for signaling</label>
         <type>
           <integer min="0" max="7"/>
@@ -300,7 +300,7 @@
         <value>3</value>
         <description>802.1P priority</description>
       </setting>
-      <setting name="__VLANSetting.3" advanced="yes">
+      <setting name="__VLANSetting.3">
         <label>CoS value for voice</label>
         <type>
           <integer min="0" max="7"/>
@@ -308,7 +308,7 @@
         <value>5</value>
         <description>802.1P priority</description>
       </setting>
-      <setting name="__VLANSetting.18" advanced="yes">
+      <setting name="__VLANSetting.18">
         <label>802.1Q VLAN ID</label>
         <type>
           <integer min="0" max="4095"/>
@@ -316,14 +316,14 @@
         <value>0</value>
       </setting>
     </group>
-    <group name="tosgroup">
+    <group name="tosgroup" advanced="yes">
       <label>Type of Service (TOS)</label>
       <setting name="TOS" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Type of Service configuration.</description>
       </setting>
-      <setting name="__TOS.0" advanced="yes">
+      <setting name="__TOS.0">
         <label>ToS for audio</label>
         <type>
           <integer min="0" max="255"/>
@@ -331,7 +331,7 @@
         <value>184</value>
         <description>Type of Service.</description>
       </setting>
-      <setting name="__TOS.8" advanced="yes">
+      <setting name="__TOS.8">
         <label>ToS for signaling</label>
         <type>
           <integer min="0" max="255"/>
@@ -340,14 +340,14 @@
         <description>Type of Service.</description>
       </setting>
     </group>
-    <group name="opflagsgroup.18x" if="18x">
+    <group name="opflagsgroup.18x" if="18x" advanced="yes">
       <label>OpFlags</label>
       <setting name="OpFlags" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Various operational features.</description>
       </setting>
-      <setting name="__OpFlags.0" advanced="yes">
+      <setting name="__OpFlags.0">
         <label>TFTP configuration filename</label>
         <type>
           <boolean/>
@@ -355,7 +355,7 @@
         <value>0</value>
         <description>Use only internal default TFTP configuration filename.</description>
       </setting>
-      <setting name="__OpFlags.1" advanced="yes">
+      <setting name="__OpFlags.1">
         <label>Network probing on power up</label>
         <type>
           <boolean/>
@@ -363,7 +363,7 @@
         <value>1</value>
         <description>Do not perform static network router probing at power up.</description>
       </setting>
-      <setting name="__OpFlags.3" advanced="yes">
+      <setting name="__OpFlags.3">
         <label>DHCP option 150</label>
         <type>
           <boolean/>
@@ -371,7 +371,7 @@
         <value>0</value>
         <description>Do not ask for DHCP option 150 in DHCP DISCOVERY message.</description>
       </setting>
-      <setting name="__OpFlags.4" advanced="yes">
+      <setting name="__OpFlags.4">
         <label>VLAN network operation</label>
         <type>
           <boolean/>
@@ -379,7 +379,7 @@
         <value>0</value>
         <description>User the static VLAN ID specified in VLANSetting.</description>
       </setting>
-      <setting name="__OpFlags.5" advanced="yes">
+      <setting name="__OpFlags.5">
         <label>VLAN encapsulation</label>
         <type>
           <boolean/>
@@ -387,7 +387,7 @@
         <value>0</value>
         <description>Do not use VLAN IP encapsulation.</description>
       </setting>
-      <setting name="__OpFlags.6" advanced="yes">
+      <setting name="__OpFlags.6">
         <label>Cisco Discovery Protocol</label>
         <type>
           <boolean/>
@@ -395,7 +395,7 @@
         <value>0</value>
         <description>Do not perform CDP discovery.</description>
       </setting>
-      <setting name="__OpFlags.7" advanced="yes">
+      <setting name="__OpFlags.7">
         <label>Web configuration access</label>
         <type>
           <boolean/>
@@ -403,7 +403,7 @@
         <value>0</value>
         <description>Do not allow web configuration.</description>
       </setting>
-      <setting name="__OpFlags.8" advanced="yes">
+      <setting name="__OpFlags.8">
         <label>HTTP refresh access</label>
         <type>
           <boolean/>
@@ -411,7 +411,7 @@
         <value>0</value>
         <description>Do not allow http://ip/refresh.</description>
       </setting>
-      <setting name="__OpFlags.9" advanced="yes">
+      <setting name="__OpFlags.9">
         <label>HTTP reset access</label>
         <type>
           <boolean/>
@@ -419,7 +419,7 @@
         <value>0</value>
         <description>Do not allow reset via http://ip/reset.</description>
       </setting>
-      <setting name="__OpFlags.10" advanced="yes">
+      <setting name="__OpFlags.10">
         <label>Hostname of device</label>
         <type>
           <boolean/>
@@ -428,7 +428,7 @@
         <description>In DHCP packets use device's name as hostname (DHCP option 
           12).</description>
       </setting>
-      <setting name="__OpFlags.13" advanced="yes">
+      <setting name="__OpFlags.13">
         <label>DNS servers 1</label>
         <type>
           <boolean/>
@@ -437,7 +437,7 @@
         <description>Use both DHCP provided (preferred) and statically configured DNS 
           IPs.</description>
       </setting>
-      <setting name="__OpFlags.14" advanced="yes">
+      <setting name="__OpFlags.14">
         <label>DNS servers 2</label>
         <type>
           <boolean/>
@@ -446,7 +446,7 @@
         <description>Use both statically configured (preferred) and DHCP provided DNS 
           IPs.</description>
       </setting>
-      <setting name="__OpFlags.15" advanced="yes">
+      <setting name="__OpFlags.15">
         <label>Disable UDP checksum</label>
         <type>
           <boolean/>
@@ -454,7 +454,7 @@
         <value>0</value>
         <description>Disable generation of UDP checksum in outgoing UDP packets.</description>
       </setting>
-      <setting name="__OpFlags.28" advanced="yes">
+      <setting name="__OpFlags.28">
         <label>Password protection</label>
         <type>
           <boolean>
@@ -470,14 +470,14 @@
         <description>Factory Reset and Local Upgrade protected by UIPassword also.</description>
       </setting>
     </group>
-    <group name="nattimergroup.18x" if="18x">
+    <group name="nattimergroup.18x" if="18x" advanced="yes">
       <label>NatTimer</label>
       <setting name="NatTimer" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Operational parameters for NAT.</description>
       </setting>
-      <setting name="__NatTimer.0" advanced="yes">
+      <setting name="__NatTimer.0">
         <label>SIP/RTP keep-alive period</label>
         <type>
           <integer min="0" max="2047"/>
@@ -485,7 +485,7 @@
         <value>0</value>
         <description>To keep NAT/firewall port bindings open (seconds).</description>
       </setting>
-      <setting name="__NatTimer.16" advanced="yes">
+      <setting name="__NatTimer.16">
         <label>NAT traversal mode</label>
         <type>
           <enum>
@@ -505,7 +505,7 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__NatTimer.18" advanced="yes">
+      <setting name="__NatTimer.18">
         <label>SIP keep-alive destination</label>
         <type>
           <enum>
@@ -521,7 +521,7 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__NatTimer.20" advanced="yes">
+      <setting name="__NatTimer.20">
         <label>Keep-alive for SIPPort</label>
         <type>
           <boolean/>
@@ -529,7 +529,7 @@
         <value>0</value>
         <description>To either NatServer or Proxy.</description>
       </setting>
-      <setting name="__NatTimer.21" advanced="yes">
+      <setting name="__NatTimer.21">
         <label>Keep alive for MediaPort</label>
         <type>
           <boolean/>
@@ -537,7 +537,7 @@
         <value>0</value>
         <description>To NatServer.</description>
       </setting>
-      <setting name="__NatTimer.22" advanced="yes">
+      <setting name="__NatTimer.22">
         <label>Keep-alive for MediaPort+4</label>
         <type>
           <boolean/>
@@ -546,14 +546,14 @@
         <description>To NatServer.</description>
       </setting>
     </group>
-    <group name="opflagsgroup.79" if="79.*">
+    <group name="opflagsgroup.79" if="79.*" advanced="yes">
       <label>OpFlags</label>
       <setting name="OpFlags" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Various operational features.</description>
       </setting>
-      <setting name="__OpFlags.0" advanced="yes">
+      <setting name="__OpFlags.0">
         <label>TFTP configuration filename</label>
         <type>
           <boolean/>
@@ -561,7 +561,7 @@
         <value>0</value>
         <description>Use only internal default TFTP configuration filename.</description>
       </setting>
-      <setting name="__OpFlags.1" advanced="yes">
+      <setting name="__OpFlags.1">
         <label>Network probing on power up</label>
         <type>
           <boolean/>
@@ -569,7 +569,7 @@
         <value>1</value>
         <description>Do not perform static network router probing at power up.</description>
       </setting>
-      <setting name="__OpFlags.3" advanced="yes">
+      <setting name="__OpFlags.3">
         <label>DHCP option 150</label>
         <type>
           <boolean/>
@@ -577,7 +577,7 @@
         <value>0</value>
         <description>Do not ask for DHCP option 150 in DHCP DISCOVERY message.</description>
       </setting>
-      <setting name="__OpFlags.4" advanced="yes">
+      <setting name="__OpFlags.4">
         <label>VLAN network operation</label>
         <type>
           <boolean/>
@@ -585,7 +585,7 @@
         <value>0</value>
         <description>User the static VLAN ID specified in VLANSetting.</description>
       </setting>
-      <setting name="__OpFlags.5" advanced="yes">
+      <setting name="__OpFlags.5">
         <label>VLAN encapsulation</label>
         <type>
           <boolean/>
@@ -593,7 +593,7 @@
         <value>0</value>
         <description>Do not use VLAN IP encapsulation.</description>
       </setting>
-      <setting name="__OpFlags.6" advanced="yes">
+      <setting name="__OpFlags.6">
         <label>Cisco Discovery Protocol</label>
         <type>
           <boolean/>
@@ -601,7 +601,7 @@
         <value>0</value>
         <description>Do not perform CDP discovery.</description>
       </setting>
-      <setting name="__OpFlags.7" advanced="yes">
+      <setting name="__OpFlags.7">
         <label>Web configuration access</label>
         <type>
           <boolean/>
@@ -609,7 +609,7 @@
         <value>0</value>
         <description>Do not allow web configuration.</description>
       </setting>
-      <setting name="__OpFlags.8" advanced="yes">
+      <setting name="__OpFlags.8">
         <label>HTTP refresh access</label>
         <type>
           <boolean/>
@@ -617,7 +617,7 @@
         <value>0</value>
         <description>Do not allow http://ip/refresh.</description>
       </setting>
-      <setting name="__OpFlags.9" advanced="yes">
+      <setting name="__OpFlags.9">
         <label>HTTP reset access</label>
         <type>
           <boolean/>
@@ -625,7 +625,7 @@
         <value>0</value>
         <description>Do not allow reset via http://ip/reset.</description>
       </setting>
-      <setting name="__OpFlags.15" advanced="yes">
+      <setting name="__OpFlags.15">
         <label>Disable UDP checksum</label>
         <type>
           <boolean/>
@@ -634,14 +634,14 @@
         <description>Disable generation of UDP checksum in outgoing UDP packets.</description>
       </setting>
     </group>
-    <group name="nattimergroup.79" if="79.*">
+    <group name="nattimergroup.79" if="79.*" advanced="yes">
       <label>NatTimer</label>
       <setting name="NatTimer" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Operational parameters for NAT.</description>
       </setting>
-      <setting name="__NatTimer.0" advanced="yes">
+      <setting name="__NatTimer.0">
         <label>SIP/RTP keep alive period</label>
         <type>
           <integer min="0" max="2047"/>
@@ -649,7 +649,7 @@
         <value>0</value>
         <description>To keep NAT/firewall port bindings open (seconds).</description>
       </setting>
-      <setting name="__NatTimer.18" advanced="yes">
+      <setting name="__NatTimer.18">
         <label>SIP keep alive destination</label>
         <type>
           <enum>
@@ -665,7 +665,7 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__NatTimer.20" advanced="yes">
+      <setting name="__NatTimer.20">
         <label>Keep alive for SIPPort</label>
         <type>
           <boolean/>
@@ -673,7 +673,7 @@
         <value>0</value>
         <description>To either NatServer or Proxy.</description>
       </setting>
-      <setting name="__NatTimer.21" advanced="yes">
+      <setting name="__NatTimer.21">
         <label>Keep alive for MediaPort</label>
         <type>
           <boolean/>
@@ -681,7 +681,7 @@
         <value>0</value>
         <description>To NatServer.</description>
       </setting>
-      <setting name="__NatTimer.22" advanced="yes">
+      <setting name="__NatTimer.22">
         <label>Keep alive for MediaPort+4</label>
         <type>
           <boolean/>
@@ -773,14 +773,14 @@
       <value>1800</value>
       <description>Minimum required interval between SIP session refreshes.</description>
     </setting>
-    <group name="msgretrylimitsgroup">
+    <group name="msgretrylimitsgroup" advanced="yes">
       <label>MsgRetryLimits</label>
       <setting name="MsgRetryLimits" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Configure retry limits.</description>
       </setting>
-      <setting name="__MsgRetryLimits.0" advanced="yes">
+      <setting name="__MsgRetryLimits.0">
         <label>Retransmit SIP requests</label>
         <type>
           <integer min="0" max="15"/>
@@ -789,7 +789,7 @@
         <description>Except those listed below and final response to INVITE. 0 = default 
           values, NOTIFY 6, PRACK 5, response to INVITE 7</description>
       </setting>
-      <setting name="__MsgRetryLimits.4" advanced="yes">
+      <setting name="__MsgRetryLimits.4">
         <label>Retransmit REGISTER requests</label>
         <type>
           <integer min="0" max="15"/>
@@ -797,7 +797,7 @@
         <value>0</value>
         <description>0 = default value (10 times)</description>
       </setting>
-      <setting name="__MsgRetryLimits.8" advanced="yes">
+      <setting name="__MsgRetryLimits.8">
         <label>Retransmit INVITE request</label>
         <type>
           <integer min="0" max="15"/>
@@ -805,7 +805,7 @@
         <value>0</value>
         <description>0 = default value (2 times)</description>
       </setting>
-      <setting name="__MsgRetryLimits.12" advanced="yes">
+      <setting name="__MsgRetryLimits.12">
         <label>Retransmit BYE request</label>
         <type>
           <integer min="0" max="15"/>
@@ -813,7 +813,7 @@
         <value>0</value>
         <description>0 = default value (4 times)</description>
       </setting>
-      <setting name="__MsgRetryLimits.16" advanced="yes">
+      <setting name="__MsgRetryLimits.16">
         <label>Retransmit CANCEL request</label>
         <type>
           <integer min="0" max="15"/>
@@ -821,7 +821,7 @@
         <value>0</value>
         <description>0 = default value (4 times)</description>
       </setting>
-      <setting name="__MsgRetryLimits.20" advanced="yes">
+      <setting name="__MsgRetryLimits.20">
         <label>Retransmit REFER request</label>
         <type>
           <integer min="0" max="15"/>
@@ -830,35 +830,35 @@
         <description>0 = default value (5 times)</description>
       </setting>
     </group>
-    <group name="sessiontimergroup.18x" if="18x">
+    <group name="sessiontimergroup.18x" if="18x" advanced="yes">
       <label>SessionTimer</label>
       <setting name="SessionTimer" hidden="yes">
         <type refid="bitmap"/>
         <value>0x00000000</value>
         <description>Configure SIP session timer)</description>
       </setting>
-      <setting name="__SessionTimer.0" advanced="yes">
+      <setting name="__SessionTimer.0">
         <label>Advertise session timer support</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__SessionTimer.1" advanced="yes">
+      <setting name="__SessionTimer.1">
         <label>Request a session timer on every call</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__SessionTimer.2" advanced="yes">
+      <setting name="__SessionTimer.2">
         <label>Callee should initiate session refresh</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__SessionTimer.4" advanced="yes">
+      <setting name="__SessionTimer.4">
         <label>Enable session debug messages</label>
         <type>
           <boolean/>
@@ -1378,14 +1378,14 @@
       <value>0x00019e60</value>
       <description>Setup Caller ID Signaling Method.</description>
     </setting>
-    <group name="connectmodegroup.18x" if="18x">
+    <group name="connectmodegroup.18x" if="18x" advanced="yes">
       <label>ConnectMode</label>
       <setting name="ConnectMode" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Call signaling protocol control</description>
       </setting>
-      <setting name="__ConnectMode.0" advanced="yes">
+      <setting name="__ConnectMode.0">
         <label>Where to send INVITE requests</label>
         <type>
           <enum>
@@ -1401,7 +1401,7 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.1" advanced="yes">
+      <setting name="__ConnectMode.1">
         <label>Remove previous registration mode</label>
         <type>
           <enum>
@@ -1417,7 +1417,7 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.2" advanced="yes">
+      <setting name="__ConnectMode.2">
         <label>G.711 payload type in fax passthru mode</label>
         <type>
           <enum>
@@ -1433,21 +1433,21 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.3" advanced="yes">
+      <setting name="__ConnectMode.3">
         <label>Include RTP statistics in BYE</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.4" advanced="yes">
+      <setting name="__ConnectMode.4">
         <label>Include instance=MAC-... in Contact:</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.5" advanced="yes">
+      <setting name="__ConnectMode.5">
         <label>Allow INVITE from</label>
         <type>
           <enum>
@@ -1463,14 +1463,14 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.7" advanced="yes">
+      <setting name="__ConnectMode.7">
         <label>Fax passthrough redundancy</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.8" advanced="yes">
+      <setting name="__ConnectMode.8">
         <label>NSE payload type number</label>
         <type>
           <integer min="0" max="23"/>
@@ -1478,7 +1478,7 @@
         <value>4</value>
         <description>The value is the offset to payload type 96</description>
       </setting>
-      <setting name="__ConnectMode.13" advanced="yes">
+      <setting name="__ConnectMode.13">
         <label>Fax passthrough codec</label>
         <type>
           <enum>
@@ -1494,14 +1494,14 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.14" advanced="yes">
+      <setting name="__ConnectMode.14">
         <label>Disable fax passthrough mode</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.16" advanced="yes">
+      <setting name="__ConnectMode.16">
         <label>SIP registration mode</label>
         <type>
           <enum>
@@ -1517,77 +1517,77 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.17" advanced="yes">
+      <setting name="__ConnectMode.17">
         <label>SIP call forwarding performed by the ATA</label>
         <type>
           <boolean/>
         </type>
         <value>1</value>
       </setting>
-      <setting name="__ConnectMode.18" advanced="yes">
+      <setting name="__ConnectMode.18">
         <label>SIP call return performed by the ATA</label>
         <type>
           <boolean/>
         </type>
         <value>1</value>
       </setting>
-      <setting name="__ConnectMode.19" advanced="yes">
+      <setting name="__ConnectMode.19">
         <label>Generate ringback tone to the caller</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.20" advanced="yes">
+      <setting name="__ConnectMode.20">
         <label>SIP REGISTER includes action=proxy</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.21" advanced="yes">
+      <setting name="__ConnectMode.21">
         <label>SIP REGISTER includes action=redirect</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.22" advanced="yes">
+      <setting name="__ConnectMode.22">
         <label>Enable processing of via header received tag</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.23" advanced="yes">
+      <setting name="__ConnectMode.23">
         <label>User config permanent default call waiting</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.24" advanced="yes">
+      <setting name="__ConnectMode.24">
         <label>Mixing of audio and call waiting tone</label>
         <type>
           <boolean/>
         </type>
         <value>1</value>
       </setting>
-      <setting name="__ConnectMode.25" advanced="yes">
+      <setting name="__ConnectMode.25">
         <label>Call waiting hang-Up alert</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.26" advanced="yes">
+      <setting name="__ConnectMode.26">
         <label>Auto-retrieval of held call</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.27" advanced="yes">
+      <setting name="__ConnectMode.27">
         <label>CLIR privacy</label>
         <type>
           <boolean/>
@@ -1596,14 +1596,14 @@
         <description>Replace username with anonymous in the from and contact 
           headers</description>
       </setting>
-      <setting name="__ConnectMode.28" advanced="yes">
+      <setting name="__ConnectMode.28">
         <label>Conference warning tone</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.29" advanced="yes">
+      <setting name="__ConnectMode.29">
         <label>DNS SRV in SIP</label>
         <type>
           <boolean/>
@@ -1611,7 +1611,7 @@
         <value>1</value>
         <description>Perform DNS SRV look up on domain name first</description>
       </setting>
-      <setting name="__ConnectMode.30" advanced="yes">
+      <setting name="__ConnectMode.30">
         <label>Called party anonymity</label>
         <type>
           <boolean/>
@@ -1620,14 +1620,14 @@
         <description>Replace username with anonymous in the To header</description>
       </setting>
     </group>
-    <group name="connectmodegroup.79" if="79.*">
+    <group name="connectmodegroup.79" if="79.*" advanced="yes">
       <label>ConnectMode</label>
       <setting name="ConnectMode" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Call signaling protocol control</description>
       </setting>
-      <setting name="__ConnectMode.0" advanced="yes">
+      <setting name="__ConnectMode.0">
         <label>Send INVITE requests</label>
         <type>
           <enum>
@@ -1643,14 +1643,14 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.4" advanced="yes">
+      <setting name="__ConnectMode.4">
         <label>Include instance=MAC-... in Contact:</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.16" advanced="yes">
+      <setting name="__ConnectMode.16">
         <label>SIP registration mode</label>
         <type>
           <enum>
@@ -1666,35 +1666,35 @@
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.19" advanced="yes">
+      <setting name="__ConnectMode.19">
         <label>Generate ringback tone to the caller</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.20" advanced="yes">
+      <setting name="__ConnectMode.20">
         <label>SIP REGISTER includes action=proxy</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.21" advanced="yes">
+      <setting name="__ConnectMode.21">
         <label>SIP REGISTER includes action=redirect</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.22" advanced="yes">
+      <setting name="__ConnectMode.22">
         <label>Process via header received= tag</label>
         <type>
           <boolean/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__ConnectMode.24" advanced="yes">
+      <setting name="__ConnectMode.24">
         <label>Include RTP statistics in BYE</label>
         <type>
           <boolean/>
@@ -1702,14 +1702,14 @@
         <value>0</value>
       </setting>
     </group>
-    <group name="featuretimergroup" if="18x">
+    <group name="featuretimergroup" if="18x" advanced="yes">
       <label>FeatureTimer</label>
       <setting name="FeatureTimer" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Timing values for telephone features</description>
       </setting>
-      <setting name="__FeatureTimer.0" advanced="yes">
+      <setting name="__FeatureTimer.0">
         <label>Maximum time redialing busy line</label>
         <type>
           <integer min="0" max="15"/>
@@ -1718,7 +1718,7 @@
         <description>0 = default (30 minutes), 5 minutes increment, range 1-15 = 5-75 
           min.</description>
       </setting>
-      <setting name="__FeatureTimer.4" advanced="yes">
+      <setting name="__FeatureTimer.4">
         <label>Retry interval if line is busy</label>
         <type>
           <integer min="0" max="15"/>
@@ -1727,7 +1727,7 @@
         <description>0 = default (15 seconds), 15 seconds increment, range 1-15 = 15-225 
           sec.</description>
       </setting>
-      <setting name="__FeatureTimer.8" advanced="yes">
+      <setting name="__FeatureTimer.8">
         <label>On-hook delay before disconnect</label>
         <type>
           <integer min="0" max="31"/>
@@ -1735,7 +1735,7 @@
         <value>0</value>
         <description>0 = no delay, 5 seconds increment, range 0-31 = 0-155 sec.</description>
       </setting>
-      <setting name="__FeatureTimer.13" advanced="yes">
+      <setting name="__FeatureTimer.13">
         <label>Delay before ringing...</label>
         <type>
           <integer min="0" max="7"/>
@@ -1745,7 +1745,7 @@
           during callback on busy. 0 = no waiting, 1 second increment, range 0-7 
           sec.</description>
       </setting>
-      <setting name="__FeatureTimer.16" advanced="yes">
+      <setting name="__FeatureTimer.16">
         <label>Ring timeout for call waiting</label>
         <type>
           <integer min="0" max="7"/>
@@ -1755,14 +1755,14 @@
           sec.</description>
       </setting>
     </group>
-    <group name="featuretimer2group" if="18x">
+    <group name="featuretimer2group" if="18x" advanced="yes">
       <label>FeatureTimer2</label>
       <setting name="FeatureTimer2" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Control timing of certain telephone features</description>
       </setting>
-      <setting name="__FeatureTimer2.0" advanced="yes">
+      <setting name="__FeatureTimer2.0">
         <label>Max time ethernet can be disc. before reboot</label>
         <type>
           <integer min="0" max="255"/>
@@ -1771,14 +1771,14 @@
         <description>In seconds, 0 to disable this feature</description>
       </setting>
     </group>
-    <group name="sigtimergroup.18x" if="18x">
+    <group name="sigtimergroup.18x" if="18x" advanced="yes">
       <label>SigTimer</label>
       <setting name="SigTimer" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Various timeout values</description>
       </setting>
-      <setting name="__SigTimer.0" advanced="yes">
+      <setting name="__SigTimer.0">
         <label>Period between call waiting tones</label>
         <type>
           <integer min="0" max="255"/>
@@ -1786,7 +1786,7 @@
         <value>100</value>
         <description>0.1 second increment, range 0-255 = 0-25.5 sec.</description>
       </setting>
-      <setting name="__SigTimer.8" advanced="yes">
+      <setting name="__SigTimer.8">
         <label>Delay in playing reorder tone</label>
         <type>
           <integer min="0" max="62"/>
@@ -1794,7 +1794,7 @@
         <value>5</value>
         <description>63 = never, 1 second increment, range 0-62 sec.</description>
       </setting>
-      <setting name="__SigTimer.14" advanced="yes">
+      <setting name="__SigTimer.14">
         <label>Ring timeout for incoming calls</label>
         <type>
           <integer min="0" max="63"/>
@@ -1803,7 +1803,7 @@
         <description>0 = ring forever, 10 seconds increment, range 1-63 = 10-630 
           sec.</description>
       </setting>
-      <setting name="__SigTimer.20" advanced="yes">
+      <setting name="__SigTimer.20">
         <label>No answer timeout before call forwarding</label>
         <type>
           <integer min="0" max="63"/>
@@ -1811,7 +1811,7 @@
         <value>20</value>
         <description>1 second increment, range 0-63 sec.</description>
       </setting>
-      <setting name="__SigTimer.26" advanced="yes">
+      <setting name="__SigTimer.26">
         <label>Mininum flash-hook time</label>
         <type>
           <enum>
@@ -1836,7 +1836,7 @@
         <value>0</value>
         <description>1 second increment, range 0-63 sec.</description>
       </setting>
-      <setting name="__SigTimer.28" advanced="yes">
+      <setting name="__SigTimer.28">
         <label>Maximum flash-hook time</label>
         <type>
           <integer min="0" max="15"/>
@@ -1845,14 +1845,14 @@
         <description>0 = 1000 ms, 100 ms increment, range 1-15 = 100-1500 ms</description>
       </setting>
     </group>
-    <group name="sigtimergroup.79" if="79.*">
+    <group name="sigtimergroup.79" if="79.*" advanced="yes">
       <label>SigTimer</label>
       <setting name="SigTimer" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Various timeout values</description>
       </setting>
-      <setting name="__SigTimer.0" advanced="yes">
+      <setting name="__SigTimer.0">
         <label>Period between call waiting tones</label>
         <type>
           <integer min="0" max="255"/>
@@ -1860,7 +1860,7 @@
         <value>100</value>
         <description>0.1 second increment, range 0-255 = 0-25.5 sec.</description>
       </setting>
-      <setting name="__SigTimer.14" advanced="yes">
+      <setting name="__SigTimer.14">
         <label>Ring timeout for incoming calls</label>
         <type>
           <integer min="0" max="63"/>
@@ -1869,7 +1869,7 @@
         <description>0 = ring forever, 10 seconds increment, range 1-63 = 10-630 
           sec.</description>
       </setting>
-      <setting name="__SigTimer.20" advanced="yes">
+      <setting name="__SigTimer.20">
         <label>No answer timeout before forwarding</label>
         <type>
           <integer min="0" max="63"/>
@@ -1877,7 +1877,7 @@
         <value>20</value>
         <description>1 second increment, range 0-63 sec.</description>
       </setting>
-      <setting name="__SigTimer.28" advanced="yes">
+      <setting name="__SigTimer.28">
         <label>First key repeat interval</label>
         <type>
           <integer min="0" max="3"/>
@@ -1885,7 +1885,7 @@
         <value>0</value>
         <description>0 = 1 sec, 1 = disable repeat, 2 = 2 sec, 3 = 3 sec</description>
       </setting>
-      <setting name="__SigTimer.30" advanced="yes">
+      <setting name="__SigTimer.30">
         <label>Subsequent key repeat interval</label>
         <type>
           <integer min="0" max="3"/>
@@ -1916,21 +1916,21 @@
       <value>0x00000000</value>
       <description>Turn on specific syslog traces.</description>
     </setting>
-    <group name="traceflagsgroup">
+    <group name="traceflagsgroup" advanced="yes">
       <label>TraceFlags</label>
       <setting name="TraceFlags" hidden="yes">
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Set trace features for diagnostic use.</description>
       </setting>
-      <setting name="__TraceFlags.0" advanced="yes">
+      <setting name="__TraceFlags.0">
         <label>SIP Debug Level</label>
         <type>
           <integer min="0" max="3"/>
         </type>
         <value>0</value>
       </setting>
-      <setting name="__TraceFlags.8" advanced="yes">
+      <setting name="__TraceFlags.8">
         <label>RTP Statistics Log</label>
         <type>
           <boolean/>
@@ -2001,136 +2001,136 @@
       <value>us</value>
       <description>Country specific tone settings</description>
     </setting>
-    <group name="_tone.us.ata" if="18x">
+    <group name="_tone.us.ata" if="18x" advanced="yes">
       <label>Tone Parameters - United States</label>
-      <setting name="DialTone" advanced="yes">
+      <setting name="DialTone">
         <value>2,31538,30831,1380,1740,1,0,0,1000,0,0</value>
         <description>Dial tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="BusyTone" advanced="yes">
+      <setting name="BusyTone">
         <value>2,30467,28959,1191,1513,0,4000,4000,0,0,0</value>
         <description>Busy tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="ReorderTone" advanced="yes">
+      <setting name="ReorderTone">
         <value>2,30467,28959,1191,1513,0,2000,2000,0,0,0,0,0,0,0,0,0</value>
         <description>Reorder tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="RingBackTone" advanced="yes">
+      <setting name="RingBackTone">
         <value>2,30831,30467,1943,2111,0,16000,32000,0,0,0</value>
         <description>Ring-back tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="CallWaitTone" advanced="yes">
+      <setting name="CallWaitTone">
         <value>1,30831,0,5493,0,0,2400,2400,4800,0,0</value>
         <description>Call-waiting tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="AlertTone" advanced="yes">
+      <setting name="AlertTone">
         <value>1,30467,0,5970,0,0,480,480,1920,0,0</value>
         <description>Alert tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="SITone" advanced="yes">
+      <setting name="SITone">
         <value>2,30467,28959,1191,1513,0,2000,2000,0,0,0,0,0,0,0,0,0</value>
         <description>Special information tone format (see ATA administration 
           guide).</description>
       </setting>
-      <setting name="RingOnOffTime" advanced="yes">
+      <setting name="RingOnOffTime">
         <value>2,4,25</value>
         <description>Ringer cadence pattern (see ATA administration guide).</description>
       </setting>
     </group>
-    <group name="_tone.fin.ata" if="18x">
+    <group name="_tone.fin.ata" if="18x" advanced="yes">
       <label>Tone Parameters - Finland</label>
-      <setting name="DialTone" advanced="yes">
+      <setting name="DialTone">
         <value>1,30958,0,4952,0,1,0,0,0</value>
         <description>Dial tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="BusyTone" advanced="yes">
+      <setting name="BusyTone">
         <value>1,30958,0,4952,0,0,2400,2400,0</value>
         <description>Busy tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="ReorderTone" advanced="yes">
+      <setting name="ReorderTone">
         <value>1,30958,0,5556,0,0,1600,2000,0</value>
         <description>Reorder tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="RingBackTone" advanced="yes">
+      <setting name="RingBackTone">
         <value>1,30958,0,9545,0,0,8000,32000,0</value>
         <description>Ring-back tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="CallWaitTone" advanced="yes">
+      <setting name="CallWaitTone">
         <value>1,30831,0,5493,0,0,2400,2400,4800</value>
         <description>Call-waiting tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="AlertTone" advanced="yes">
+      <setting name="AlertTone">
         <value>1,30467,0,5970,0,0,480,480,1920</value>
         <description>Alert tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="SITone" advanced="yes">
+      <setting name="SITone">
         <value>1,30958,0,9545,0,0,8000,32000,0</value>
         <description>Special information tone format (see ATA administration 
           guide).</description>
       </setting>
-      <setting name="RingOnOffTime" advanced="yes">
+      <setting name="RingOnOffTime">
         <value>1,5,25</value>
         <description>Ringer cadence pattern (see ATA administration guide).</description>
       </setting>
     </group>
-    <group name="_tone.us.79xx" if="79.*">
+    <group name="_tone.us.79xx" if="79.*" advanced="yes">
       <label>Tone Parameters - United States</label>
-      <setting name="DialTone" advanced="yes">
+      <setting name="DialTone">
         <value>2,31538,814,30831,2032,0,0,0,0,0,0</value>
         <description>Dial tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="DialTone2" advanced="yes">
+      <setting name="DialTone2">
         <value>2,30743,1384,29864,1252,0,0,0,0,0,0</value>
         <description>Alert tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="BusyTone" advanced="yes">
+      <setting name="BusyTone">
         <value>2,30467,1104,28959,1404,1,4000,4000,0,0,0</value>
         <description>Busy tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="ReorderTone" advanced="yes">
+      <setting name="ReorderTone">
         <value>0,2,30467,1104,28959,1404,0,0,1,2000,2000,0,0,0,0,0,0</value>
         <description>Reorder tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="RingBackTone" advanced="yes">
+      <setting name="RingBackTone">
         <value>2,30831,2032,30467,1104,1,16000,32000,0,0,0</value>
         <description>Ring-back tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="CallWaitTone" advanced="yes">
+      <setting name="CallWaitTone">
         <value>1,30831,2412,0,0,1,2400,2400,0,0,4800</value>
         <description>Call-waiting tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="RingOnOffTime" advanced="yes">
+      <setting name="RingOnOffTime">
         <value>2,4,25</value>
         <description>Ringer cadence pattern (see ATA administration guide).</description>
       </setting>
     </group>
-    <group name="_tone.fin.79xx" if="79.*">
+    <group name="_tone.fin.79xx" if="79.*"  advanced="yes">
       <label>Tone Parameters - Finland</label>
-      <setting name="DialTone" advanced="yes">
+      <setting name="DialTone">
         <value>1,30958,4952,0,0,0,0,0,0,0,0</value>
         <description>Dial tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="DialTone2" advanced="yes">
+      <setting name="DialTone2">
         <value>1,30958,4952,0,0,0,0,0,0,0,0</value>
         <description>Dial tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="BusyTone" advanced="yes">
+      <setting name="BusyTone">
         <value>1,30958,4952,0,0,1,2400,2400,0,0,0</value>
         <description>Busy tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="ReorderTone" advanced="yes">
+      <setting name="ReorderTone">
         <value>1,1,30958,5556,0,0,0,0,1,1600,2000,0,0,0,0,0,0</value>
         <description>Reorder tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="RingBackTone" advanced="yes">
+      <setting name="RingBackTone">
         <value>1,30958,9545,0,0,1,8000,32000,0,0,0</value>
         <description>Ring-back tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="CallWaitTone" advanced="yes">
+      <setting name="CallWaitTone">
         <value>1,30831,5493,0,0,2,2400,2400,4800,0,9600</value>
         <description>Call-waiting tone format (see ATA administration guide).</description>
       </setting>
-      <setting name="RingOnOffTime" advanced="yes">
+      <setting name="RingOnOffTime">
         <value>1,5,25</value>
         <description>Ringer cadence pattern (see ATA administration guide).</description>
       </setting>

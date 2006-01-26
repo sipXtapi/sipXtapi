@@ -83,7 +83,7 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
     }
-    
+
     public void testInsertFromCsv() throws Exception {
         InputStream cutsheet = getClass().getResourceAsStream("cutsheet.csv");
         m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
@@ -112,7 +112,30 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'phone'"));
         assertEquals(2, getConnection().getRowCount("group_storage", "where resource = 'user'"));
     }
-    
+
+    public void testInsertFromCsvUserNameAliasConflict() throws Exception {
+        InputStream cutsheet = getClass().getResourceAsStream("user_alias_conflict.csv");
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        assertEquals(1, getConnection().getRowCount("users"));
+    }
+
+    public void testInsertFromCsvBlankPhoneGroup() throws Exception {
+        InputStream cutsheet = getClass().getResourceAsStream("blank_phonegroup.csv");
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        assertEquals(1, getConnection().getRowCount("users"));
+        assertEquals(1, getConnection().getRowCount("phone"));
+        assertEquals(0, getConnection().getRowCount("phone_group"));
+        assertEquals(1, getConnection().getRowCount("user_group"));
+    }
+
+    public void testInsertFromCsvBlankUserGroup() throws Exception {
+        InputStream cutsheet = getClass().getResourceAsStream("blank_usergroup.csv");
+        m_bulkManager.insertFromCsv(new InputStreamReader(cutsheet));
+        assertEquals(1, getConnection().getRowCount("users"));
+        assertEquals(1, getConnection().getRowCount("phone"));
+        assertEquals(1, getConnection().getRowCount("phone_group"));
+        assertEquals(0, getConnection().getRowCount("user_group"));
+    }
 
     public void testUserFromRow() {
         User bongo = new User();

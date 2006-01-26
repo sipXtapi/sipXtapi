@@ -24,22 +24,6 @@ public interface PhoneContext extends DataObjectSource {
 
     public static final String CONTEXT_BEAN_NAME = "phoneContext";
 
-    /**
-     * Generate profile on phones in background
-     * 
-     * @param phones collection of phone objects
-     */
-    public void generateProfilesAndRestart(Collection phones);
-
-    public void generateProfilesAndRestartAll();
-
-    /**
-     * Restart phones in background
-     * 
-     * @param phones collection of phone objects
-     */
-    public void restart(Collection phones);
-
     public List getAvailablePhoneModels();
 
     /**
@@ -56,11 +40,13 @@ public interface PhoneContext extends DataObjectSource {
 
     public int getPhonesInGroupCount(Integer groupId);
 
-    public List loadPhonesByPage(Integer groupId, int page, int pageSize, String orderBy,
+    public List loadPhonesByPage(Integer groupId, int page, int pageSize, String[] orderBy,
             boolean orderAscending);
 
     public Collection loadPhones();
 
+    public Collection getAllPhoneIds();
+    
     public void storeLine(Line line);
 
     public void deleteLine(Line line);
@@ -107,5 +93,4 @@ public interface PhoneContext extends DataObjectSource {
     public void removeFromGroup(Integer groupId, Collection ids);
 
     public void addUsersToPhone(Integer phoneId, Collection ids);
-
 }

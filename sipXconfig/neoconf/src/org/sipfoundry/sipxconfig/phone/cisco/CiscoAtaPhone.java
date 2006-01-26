@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -56,11 +55,11 @@ public class CiscoAtaPhone extends CiscoPhone {
     private static final String NOLLAX = "0x";
 
     private static final String ALLE = "_";
-    
+
     private static final String UPGRADE_SETTING_GROUP = "upgrade";
 
     private static final String TIMEZONE_SETTING = "service/TimeZone";
-    
+
     private static final Log LOG = LogFactory.getLog(CiscoAtaPhone.class);
 
     private static final SettingFilter S_REALGROUPS = new SettingFilter() {
@@ -111,8 +110,8 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     /**
-     * Generate files in text format. Won't be usable by phone, but you can use cisco
-     * config tool to convert manually. This is mostly for debugging
+     * Generate files in text format. Won't be usable by phone, but you can use cisco config tool
+     * to convert manually. This is mostly for debugging
      * 
      * @param isTextFormatEnabled true to save as text, default is false
      */
@@ -138,7 +137,8 @@ public class CiscoAtaPhone extends CiscoPhone {
         if (m_ptagDat != null) {
             return m_ptagDat;
         }
-        return getPhoneContext().getSystemDirectory() + "/ciscoAta/" + getCfgPrefix() + "-ptag.dat";
+        return getPhoneContext().getSystemDirectory() + "/ciscoAta/" + getCfgPrefix()
+                + "-ptag.dat";
     }
 
     public void setCfgfmtUtility(String cfgfmtUtility) {
@@ -185,8 +185,7 @@ public class CiscoAtaPhone extends CiscoPhone {
             String[] cmd = {
                 getCfgfmtUtility(), "-t" + getPtagDat(), outputTxtfile, outputfile
             };
-            String cmdline = MessageFormat.format("{0} {1} {2} {3}", (Object[]) cmd);
-            LOG.info(cmdline);
+            LOG.info(StringUtils.join(cmd, ' '));
             Process p = Runtime.getRuntime().exec(cmd);
             int errCode = p.waitFor();
             if (errCode != 0) {
@@ -282,7 +281,6 @@ public class CiscoAtaPhone extends CiscoPhone {
         }
         getSettings().getSetting(TIMEZONE_SETTING).setValue(String.valueOf(atatz));
     }
-    
 
     public String getSoftwareUpgradeConfig() {
         Setting swupgrade = getSettings().getSetting(UPGRADE_SETTING_GROUP);
@@ -335,7 +333,8 @@ public class CiscoAtaPhone extends CiscoPhone {
             return StringUtils.EMPTY;
         }
 
-        return "Proxy:" + settings.getRegistrationServer() + ":" + settings.getRegistrationServerPort();
+        return "Proxy:" + settings.getRegistrationServer() + ":"
+                + settings.getRegistrationServerPort();
     }
 
     public Collection getProfileLines() {
@@ -415,8 +414,8 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     public Setting evaluateModel(ConditionalSet conditional) {
-        CiscoAtaSettingExpressionEvaluator gssee =
-            new CiscoAtaSettingExpressionEvaluator(getModel().getModelId());
+        CiscoAtaSettingExpressionEvaluator gssee = new CiscoAtaSettingExpressionEvaluator(
+                getModel().getModelId());
         Setting model = conditional.evaluate(gssee);
         return model;
     }
@@ -427,7 +426,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         public CiscoAtaSettingExpressionEvaluator(String model) {
             m_model = model;
         }
-        
+
         public boolean isExpressionTrue(String expression, Setting setting_) {
             return m_model.matches(expression);
         }

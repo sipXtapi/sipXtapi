@@ -38,7 +38,7 @@
 	<component id="groupManagement" type="Form">
 	</component>
 	<component id="tableView" type="Table">
-		<static-binding name="columns"  value="* Name:weight, !Members"/>
+		<static-binding name="columns"  value="* !name:weight, !members"/>
 		<binding name="source" expression="groups"/>
         <binding name="usePager" expression="true"/>
 		<binding name="row" expression="currentRow"/>
@@ -46,7 +46,7 @@
         <binding name="selections" expression="selections"/>
 	</component>
     <!-- Column 2: view group -->
-    <component id="NameColumnValue" type="Block"/>
+    <component id="nameColumnValue" type="Block"/>
     <component id="lineNumber" type="Insert">
         <binding name="value" expression="groups.indexOf(currentRow) + 1"/>
     </component>
@@ -58,7 +58,7 @@
         <binding name="value" expression="currentRow.name"/>
     </component>
     <!-- Column 3: view members -->
-    <component id="MembersColumnValue" type="Block"/>
+    <component id="membersColumnValue" type="Block"/>
     <component id="memberLink" type="DirectLink">
         <binding name="listener" expression="groupMembersListener"/>        
         <binding name="parameters" expression="currentRow.primaryKey"/>
@@ -68,12 +68,15 @@
     </component>
     <component id="delete" type="Submit">
         <binding name="listener" expression="listeners.deleteGroup"/>
+        <message-binding name="label" key="button.delete"/>
     </component>
     <component id="moveUp" type="Submit">
         <binding name="listener" expression="listeners.moveUp"/>
+        <message-binding name="label" key="button.moveUp"/>
     </component>
     <component id="moveDown" type="Submit">
         <binding name="listener" expression="listeners.moveDown"/>
+        <message-binding name="label" key="button.moveDown"/>
     </component>
     
 </component-specification>

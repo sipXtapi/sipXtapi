@@ -31,7 +31,7 @@
     </property-specification>
     
     <component id="ifRenderGroupTitle" type="Conditional">
-        <binding name="condition" expression="renderGroupTitle"/>
+        <binding name="condition" expression="renderGroup(currentSetting)"/>
     </component>
     <component id="IfGroup" type="Conditional">
         <binding name="condition" expression="currentSetting.getValues().size() > 0"/>

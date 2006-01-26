@@ -33,11 +33,15 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class ReplicationManagerImpl implements ReplicationManager {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final Charset CHARSET_UTF8 = Charset.forName("UTF8");
+
+    private SipxProcessContext m_sipxProcessContext;
 
     /**
      * sends payload data to all URLs
@@ -46,9 +50,9 @@ public class ReplicationManagerImpl implements ReplicationManager {
      * detect it. We could throw exceptions from here but it would mean that a single IO failure
      * dooms entire replication process.
      */
-    public boolean replicateData(Location[] locations, DataSetGenerator generator, DataSet type) {
-
+    public boolean replicateData(Location[] locations, DataSetGenerator generator) {
         boolean success = true;
+        DataSet type = generator.getType();
         for (int i = 0; i < locations.length; i++) {
             try {
                 generator.setSipDomain(locations[i].getSipDomain());
@@ -108,8 +112,9 @@ public class ReplicationManagerImpl implements ReplicationManager {
 
         BufferedReader reader = new BufferedReader(
                 new InputStreamReader(urlConn.getInputStream()));
-        String strResponseBody = reader.readLine(); 
-        return strResponseBody != null && strResponseBody.startsWith("replication was successful");
+        String strResponseBody = reader.readLine();
+        return strResponseBody != null
+                && strResponseBody.startsWith("replication was successful");
     }
 
     /**
@@ -118,15 +123,6 @@ public class ReplicationManagerImpl implements ReplicationManager {
      * @param dataType database or file - depending on type of data to replicate
      */
     Document generateXMLDataToPost(byte[] payload, String targetDataName, String dataType) {
-        byte[] encodedPayload = Base64.encodeBase64(payload);
-        // Base64 encoded content is always limited to US-ASCII charset
-        String strPayload;
-        try {
-            strPayload = new String(encodedPayload, "US-ASCII");
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-        }
-
         Document document = DocumentFactory.getInstance().createDocument();
         Element data = document.addElement("replicationdata").addElement("data");
         data.addAttribute("type", dataType);
@@ -138,9 +134,26 @@ public class ReplicationManagerImpl implements ReplicationManager {
         data.addAttribute("target_component_type", "comm-server");
         data.addAttribute("target_component_id", "CommServer1");
 
+        String strPayload = encodeBase64(payload);
         data.addElement("payload").setText(strPayload);
 
         return document;
+    }
+
+    /**
+     * Encodes payload using Base64 and returns encoded data as string
+     * 
+     * @param payload
+     * @return string representing encoded data
+     */
+    private String encodeBase64(byte[] payload) {
+        try {
+            // Base64 encoded content is always limited to US-ASCII charset
+            byte[] encodedPayload = Base64.encodeBase64(payload);
+            return new String(encodedPayload, "US-ASCII");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public boolean replicateFile(Location[] locations, XmlFile file) {
@@ -153,11 +166,18 @@ public class ReplicationManagerImpl implements ReplicationManager {
                         "file");
                 byte[] data = xmlToByteArray(xml, false);
                 postData(locations[i].getReplicationUrl(), data);
+                if (null != null) {
+                    m_sipxProcessContext.manageServices(locations[i], null, Command.RESTART);
+                }
             } catch (IOException e) {
                 success = false;
                 LOG.error("File replication failed: " + file.getType().getName(), e);
             }
         }
         return success;
+    }
+
+    public void setSipxProcessContext(SipxProcessContext sipxProcessContext) {
+        m_sipxProcessContext = sipxProcessContext;
     }
 }

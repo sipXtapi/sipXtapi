@@ -21,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.ValuedEnum;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -85,10 +86,16 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
         Phone phone = phoneFromRow(row);
 
         String phoneGroupName = get(row, Index.PHONE_GROUP);
-        Group phoneGroup = m_phoneContext.getGroupByName(phoneGroupName, true);
+        Group phoneGroup = null;
+        if (StringUtils.isNotBlank(phoneGroupName)) {
+            phoneGroup = m_phoneContext.getGroupByName(phoneGroupName, true);
+        }
 
         String userGroupName = get(row, Index.USER_GROUP);
-        Group userGroup = m_coreContext.getGroupByName(userGroupName, true);
+        Group userGroup = null;
+        if (StringUtils.isNotBlank(userGroupName)) {
+            userGroup = m_coreContext.getGroupByName(userGroupName, true);
+        }
         insertData(user, userGroup, phone, phoneGroup);
     }
 

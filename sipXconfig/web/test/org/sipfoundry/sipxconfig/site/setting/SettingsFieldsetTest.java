@@ -26,17 +26,21 @@ public class SettingsFieldsetTest extends TestCase {
     protected void setUp() throws Exception {
         AbstractInstantiator instantiator = new AbstractInstantiator();
         m_fieldset = (SettingsFieldset) instantiator.getInstance(SettingsFieldset.class);
+        m_fieldset.setSettings(new SettingSet("x"));
     }
 
     public void testRender() throws Exception {
-        MockControl control = MockControl.createControl(Setting.class);
+        MockControl control = MockControl.createNiceControl(Setting.class);
         Setting setting = (Setting) control.getMock();
-        control.expectAndReturn(setting.isHidden(), false, 4);
+        control.expectAndReturn(setting.getParentPath(), "x", MockControl.ONE_OR_MORE);
+        control.expectAndReturn(setting.isHidden(), false);
         control.expectAndReturn(setting.isAdvanced(), true);
         control.expectAndReturn(setting.isAdvanced(), false);
         control.expectAndReturn(setting.isAdvanced(), true);
         control.expectAndReturn(setting.isAdvanced(), false);
         control.replay();
+        
+        m_fieldset.getSettings().addSetting(setting);
 
         m_fieldset.setShowAdvanced(true);
         assertTrue(m_fieldset.renderSetting(setting));
@@ -65,11 +69,14 @@ public class SettingsFieldsetTest extends TestCase {
     }
 
     public void testRenderSettingPlaceholder() throws Exception {
-        MockControl control = MockControl.createControl(Setting.class);
+        MockControl control = MockControl.createNiceControl(Setting.class);
         Setting setting = (Setting) control.getMock();
+        control.expectAndReturn(setting.getParentPath(), "x", MockControl.ONE_OR_MORE);
         control.expectAndReturn(setting.isAdvanced(), true, 2);
         control.expectAndReturn(setting.isAdvanced(), false, 2);
         control.replay();
+
+        m_fieldset.getSettings().addSetting(setting);
 
         m_fieldset.setShowAdvanced(true);
         assertFalse(m_fieldset.renderSettingPlaceholder(setting));

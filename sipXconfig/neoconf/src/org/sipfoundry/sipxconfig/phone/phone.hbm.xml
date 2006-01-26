@@ -46,6 +46,10 @@
     </set -->
   </class>
 
+  <query name="phoneIds">
+    <![CDATA[select p.id from Phone p]]>        
+  </query>  
+
   <query name="phoneIdsWithSerialNumber">
     <![CDATA[select p.id from Phone p where p.serialNumber = :value]]>        
   </query>  

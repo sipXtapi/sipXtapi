@@ -57,7 +57,7 @@ public class SearchPhoneTableModel implements IBasicTableModel {
 
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
             boolean orderAscending) {
-        String orderBy = objSortColumn != null ? objSortColumn.getColumnName() : null;
+        String[] orderBy = PhoneTableModel.orderByFromSortColum(objSortColumn);        
         List page = m_searchManager.search(Phone.class, m_queryText, firstRow, pageSize, orderBy,
                 orderAscending, new IdToPhone());
         return page.iterator();

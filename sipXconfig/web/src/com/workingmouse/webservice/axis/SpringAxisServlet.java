@@ -144,8 +144,8 @@ public class SpringAxisServlet extends AxisServlet {
      * 
      * @see #createWebApplicationContext
      */
-    public void setContextClass(Class contextClass) {
-        this.contextClass = contextClass;
+    public void setContextClass(Class contextClass_) {
+        this.contextClass = contextClass_;
     }
 
     /**
@@ -159,8 +159,8 @@ public class SpringAxisServlet extends AxisServlet {
      * Set a custom namespace for the SpringAxisServlet,
      * to be used for building a default context config location.
      */
-    public void setNamespace(String namespace) {
-        this.namespace = namespace;
+    public void setNamespace(String namespace_) {
+        this.namespace = namespace_;
     }
 
     /**
@@ -179,8 +179,8 @@ public class SpringAxisServlet extends AxisServlet {
      * location built from the namespace. This location string can consist of
      * multiple locations separated by any number of commas and spaces.
      */
-    public void setContextConfigLocation(String contextConfigLocation) {
-        this.contextConfigLocation = contextConfigLocation;
+    public void setContextConfigLocation(String contextConfigLocation_) {
+        this.contextConfigLocation = contextConfigLocation_;
     }
 
     /**

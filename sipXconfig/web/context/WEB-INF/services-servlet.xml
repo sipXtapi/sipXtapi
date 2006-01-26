@@ -19,9 +19,11 @@
 </bean>
 
 <bean id="PhoneService" class="org.sipfoundry.sipxconfig.api.PhoneServiceImpl">
-	<property name="phoneContext" ref="phoneContext"/>
-	<property name="phoneBuilder" ref="phoneBuilder"/>
-	<property name="settingDao" ref="settingDao"/>
+  <property name="phoneContext" ref="phoneContext"/>
+  <property name="phoneBuilder" ref="phoneBuilder"/>
+  <property name="settingDao" ref="settingDao"/>
+  <property name="profileManager" ref="profileManager"/>
+  <property name="restartManager" ref="restartManager"/>
 </bean>
   
 <bean id="TestService" class="org.sipfoundry.sipxconfig.api.TestServiceImpl"/>

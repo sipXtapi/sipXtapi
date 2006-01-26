@@ -47,12 +47,29 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
 
     private static final Log LOG = LogFactory.getLog(DefaultBeanAdaptor.class);
 
+    /**
+     * List of fields that will be part of description for found entities
+     */
     private static final String[] DESCRIPTION_FIELDS = {
         "description"
     };
 
+    /**
+     * List of fields that will be part of index name
+     */
     private static final String[] NAME_FIELDS = {
         "lastName", "firstName", "name", "extension", "userName", "serialNumber"
+    };
+
+    /**
+     * Remaining fields - they are not displayed in name or description but one can order and
+     * search for them.
+     * 
+     * Please note that all String properties are indexed you only need to list a field
+     * explicitely if you want to use its name in search queries.
+     */
+    private static final String[] OTHER_FIELDS = {
+        "beanId", "modelId"
     };
 
     /**
@@ -63,17 +80,17 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     private static final String[] FIELDS;
 
     static {
-        FIELDS = (String[]) ArrayUtils.addAll(NAME_FIELDS, DESCRIPTION_FIELDS);
+        String[] fields = (String[]) ArrayUtils.addAll(NAME_FIELDS, DESCRIPTION_FIELDS);
+        FIELDS = (String[]) ArrayUtils.addAll(fields, OTHER_FIELDS);
         Arrays.sort(FIELDS);
     }
 
-    
     private Class[] m_indexedClasses = CLASSES;
-    
+
     public void setIndexedClasses(Class[] indexedClasses) {
         m_indexedClasses = indexedClasses;
     }
-    
+
     /**
      * @return true if the document should be added to index
      */
@@ -124,7 +141,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         }
         return false;
     }
-    
+
     private String getKeyword(Object bean, Serializable id) {
         StringBuffer buffer = new StringBuffer();
         buffer.append(bean.getClass().getName());

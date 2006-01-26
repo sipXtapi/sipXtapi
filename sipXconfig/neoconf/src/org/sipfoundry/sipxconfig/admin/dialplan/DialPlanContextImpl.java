@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.EmergencyRoutingRules;
+import org.sipfoundry.sipxconfig.admin.dialplan.config.SpecialAutoAttendantMode;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -290,6 +291,13 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         }
     }
 
+    public void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant) {
+        if (enabled && attendant == null) {
+            throw new UserException("Select special auto attendant to be used.");
+        }
+        m_sipxReplicationContext.replicate(new SpecialAutoAttendantMode(enabled, attendant));
+    }
+
     /**
      * This is for testing only. TODO: need to find a better way of cleaning database between
      * tests
@@ -491,4 +499,5 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         return getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "attendantRuleIdsWithExtension", VALUE, extension);
     }
+
 }

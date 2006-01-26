@@ -64,5 +64,23 @@ public class SettingUtilTest extends TestCase {
     public void testNSubpath() {
         assertEquals("c", SettingUtil.subpath("a/b/c", 2));
     }
+    
+    public void testGetSettingFromNode() {
+        Setting root = TestHelper.loadSettings("../test/org/sipfoundry/sipxconfig/setting/games.xml");
+        Setting cards = root.getSetting("cards");
+        Setting ace = root.getSetting("cards/card/A");
+        String acePath = ace.getPath();
+        assertSame(ace, SettingUtil.getSettingFromNode(cards, acePath));        
+    }
 
+    public void testIsAdvancedIncludingParents() {
+        Setting root = TestHelper.loadSettings("../test/org/sipfoundry/sipxconfig/setting/advanced.xml");
+        assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advanced")));
+        assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advanced/setting")));
+        assertFalse(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("not-advanced/setting")));
+        assertFalse(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("not-advanced")));
+        assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advanced-setting/setting")));
+        assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advance-and-advanded-setting/setting")));
+        assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advance-and-advanded-setting")));
+    }    
 }

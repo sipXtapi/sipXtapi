@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
@@ -127,7 +126,7 @@ public class SearchManagerImpl implements SearchManager {
     }
 
     public List search(Class entityClass, String queryText, int firstResult, int pageSize,
-            String sortField, boolean orderAscending, Transformer transformer) {
+            String[] sortFields, boolean orderAscending, Transformer transformer) {
         try {
             Query userQuery = parseUserQuery(queryText);
             Term classTerm = new Term(Indexer.CLASS_FIELD, entityClass.getName());
@@ -135,11 +134,7 @@ public class SearchManagerImpl implements SearchManager {
             BooleanQuery query = new BooleanQuery();
             query.add(classQuery, true, false);
             query.add(userQuery, true, false);
-            Sort sort = null;
-            if (StringUtils.isNotBlank(sortField)) {
-                SortField field = new SortField(sortField, SortField.STRING, !orderAscending);
-                sort = new Sort(field);
-            }
+            Sort sort = createSortFromFields(sortFields, orderAscending);
             return search(query, firstResult, pageSize, sort, transformer);
         } catch (ParseException e) {
             LOG.info(e.getMessage());
@@ -148,4 +143,14 @@ public class SearchManagerImpl implements SearchManager {
         return Collections.EMPTY_LIST;
     }
 
+    private Sort createSortFromFields(String[] sortFields, boolean orderAscending) {
+        if (sortFields == null || sortFields.length == 0) {
+            return null;
+        }
+        SortField[] sfs = new SortField[sortFields.length];
+        for (int i = 0; i < sfs.length; i++) {
+            sfs[i] = new SortField(sortFields[i], SortField.STRING, !orderAscending);
+        }
+        return new Sort(sfs);
+    }
 }

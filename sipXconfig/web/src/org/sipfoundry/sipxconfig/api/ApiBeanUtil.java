@@ -29,12 +29,12 @@ public final class ApiBeanUtil {
     }
     
     public static void toApiObject(ApiBeanBuilder builder, Object apiObject, Object myObject) {
-        Set properties = getReadableProperties(apiObject);
+        Set properties = getProperties(apiObject);
         builder.toApiObject(apiObject, myObject, properties);
     }
     
     public static void toMyObject(ApiBeanBuilder builder, Object myObject, Object apiObject) {
-        Set properties = getReadableProperties(apiObject);
+        Set properties = getProperties(apiObject);
         builder.toMyObject(myObject, apiObject, properties);
     }
 
@@ -71,7 +71,7 @@ public final class ApiBeanUtil {
         if (numObjects == 0) {
             return apiArray; 
         }
-        Set properties = ApiBeanUtil.getReadableProperties(apiArray[0]);
+        Set properties = ApiBeanUtil.getProperties(apiArray[0]);
         for (int i = 0; i < numObjects; i++) {
             builder.toApiObject(apiArray[i], myObjects[i], properties);
         }
@@ -124,7 +124,7 @@ public final class ApiBeanUtil {
         throw new RuntimeException("Error accessing property " + property, e);                
     }
     
-    public static Set getReadableProperties(Object o) {
+    public static Set getProperties(Object o) {
         Set properties = null;
         try {
             Map desciption = BeanUtils.describe(o);

@@ -7,7 +7,7 @@
 <body>
   <unique>
     <![CDATA[
-window.onload=function() {
+function hoverToOverForIE () {
 	if (document.all&&document.getElementById) {
 		navRoot = document.getElementById("nav");
 		for (i=0; i<navRoot.childNodes.length; i++) {
@@ -26,4 +26,7 @@ window.onload=function() {
   	]]>
   </unique>
 </body>
+<initialization>
+hoverToOverForIE();    
+</initialization>
 </script>

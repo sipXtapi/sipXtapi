@@ -35,5 +35,5 @@ public class DaoUtilsTestDb extends SipxDatabaseTestCase {
         user = new User();
         user.setUserName("wont find this guy");
         assertFalse(DaoUtils.checkDuplicates(m_hibernate, user, "userName", null));
-    }
+    }    
 }

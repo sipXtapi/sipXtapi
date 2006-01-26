@@ -16,12 +16,16 @@ import junit.framework.TestCase;
 public class AbstractRingBuilderTest extends TestCase {
     private AbstractRingBuilder m_builder;
     private org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing m_myAbstractRing;
-    private AbstractRing m_apiAbstractRing;
+    private UserRing m_apiAbstractRing;
     
     protected void setUp() {
         m_builder = new AbstractRingBuilder();
+
+        // UserRing copies over user name
+        m_builder.getCustomFields().add("userName");
+        
         m_myAbstractRing = new org.sipfoundry.sipxconfig.admin.callgroup.UserRing();
-        m_apiAbstractRing = new AbstractRing();
+        m_apiAbstractRing = new UserRing();
     }
 
     public void testFromApi() {

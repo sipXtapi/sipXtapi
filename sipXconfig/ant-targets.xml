@@ -32,6 +32,7 @@
   <property name="test.classes.dir" value="${build.dir}/tests"/>
   <property name="clover.dir" value="${build.dir}/clover"/>
   <property name="test.name" value="*"/>
+  <patternset id="test-performance.classes" includes="**/${test.name}TestPerformance.class" />        
 
   <!-- 
     - going forward this default will change to just 'test'

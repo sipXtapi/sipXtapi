@@ -11,17 +11,22 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.hibernate.Criteria;
+import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.engine.SessionImplementor;
+import org.hibernate.persister.entity.EntityPersister;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -58,12 +63,12 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
     }
 
     public List loadBeansByPage(Class beanClass, Integer groupId, int firstRow, int pageSize,
-            String orderBy, boolean orderAscending) {
+            String[] orderBy, boolean orderAscending) {
         Criteria c = getByGroupCriteria(beanClass, groupId);
         c.setFirstResult(firstRow);
         c.setMaxResults(pageSize);
-        if (StringUtils.isNotBlank(orderBy)) {
-            Order order = orderAscending ? Order.asc(orderBy) : Order.desc(orderBy);
+        for (int i = 0; i < orderBy.length; i++) {
+            Order order = orderAscending ? Order.asc(orderBy[i]) : Order.desc(orderBy[i]);
             c.addOrder(order);
         }
         List users = c.list();
@@ -112,5 +117,41 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
     protected ValueStorage clearUnsavedValueStorage(ValueStorage vs) {
         // If no settings don't bother saving anything.
         return vs != null && vs.isNew() && vs.size() == 0 ? null : vs;
+    }
+
+    /**
+     * Returns the original value of an object before it was modified by application. Represent
+     * the original value from the database.
+     */
+    protected Object getOriginalValue(PrimaryKeySource obj, String propertyName) {
+        HibernateCallback callback = new GetOriginalValueCallback(obj, propertyName);
+        Object originalValue = getHibernateTemplate().execute(callback, true);
+        return originalValue;
+    }
+
+    static class GetOriginalValueCallback implements HibernateCallback {
+        private PrimaryKeySource m_object;
+        private String m_propertyName;
+
+        GetOriginalValueCallback(PrimaryKeySource object, String propertyName) {
+            m_object = object;
+            m_propertyName = propertyName;
+        }
+
+        public Object doInHibernate(Session session) {
+            SessionImplementor si = (SessionImplementor) session;
+            EntityPersister ep = si.getEntityPersister(null, m_object);
+
+            String[] propNames = ep.getPropertyNames();
+            int propIndex = ArrayUtils.indexOf(propNames, m_propertyName);
+            if (propIndex < 0) {
+                throw new IllegalArgumentException("Property '" + m_propertyName
+                        + "' not found on object '" + m_object.getClass() + "'");
+            }
+
+            Serializable id = (Serializable) m_object.getPrimaryKey();
+            Object[] props = ep.getDatabaseSnapshot(id, si);
+            return props[propIndex];
+        }
     }
 }

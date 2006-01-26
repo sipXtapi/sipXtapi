@@ -24,8 +24,8 @@ import org.apache.tapestry.valid.ValidatorException;
 /**
  * Utility method for tapestry pages and components
  * 
- * DEVELOPERS NOTE: Static utility methods have their place but consider adding
- * methods to TapestryContext to avoid too many static methods and the limitations they incur
+ * DEVELOPERS NOTE: Static utility methods have their place but consider adding methods to
+ * TapestryContext to avoid too many static methods and the limitations they incur
  */
 public final class TapestryUtils {
     /**
@@ -39,7 +39,7 @@ public final class TapestryUtils {
     private TapestryUtils() {
         // intentionally empty
     }
-    
+
     /**
      * Utility method to provide more descriptive unchecked exceptions for unmarshalling object
      * from Tapestry service Parameters.
@@ -128,12 +128,20 @@ public final class TapestryUtils {
         return validator;
     }
 
+    public static void recordSuccess(AbstractComponent page, String msg) {
+        IValidationDelegate delegate = getValidator(page);
+        if (delegate instanceof SipxValidationDelegate) {
+            SipxValidationDelegate validator = (SipxValidationDelegate) delegate;
+            validator.recordSuccess(msg);
+        }
+    }
+
     /**
-     * Convience method that will quietly localize and act graceful if resources
-     * are not set or found.
+     * Convience method that will quietly localize and act graceful if resources are not set or
+     * found.
      */
     public static final String localize(IMessages messages, String key) {
-        return localize(messages, null, key);        
+        return localize(messages, null, key);
     }
 
     /**
@@ -143,10 +151,10 @@ public final class TapestryUtils {
         if (key == null || messages == null) {
             return key;
         }
-        
+
         String fullKey = prefix != null ? prefix + key : key;
         String label = messages.getMessage(fullKey, key);
-        
+
         return label;
     }
 
@@ -163,5 +171,5 @@ public final class TapestryUtils {
                 .getMessage(columnName), columnName, true);
         column.setValueRendererSource(new DateTableRendererSource());
         return column;
-    }    
+    }
 }

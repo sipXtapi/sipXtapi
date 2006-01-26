@@ -4,11 +4,20 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border">
-    	<div class="help">
-        Restart only works when phones can successfully register; otherwise you
-        need to restart phones manually.
-        </div>
         <h2>Phones</h2>
+		<div class="help">
+			<b>Quick Links</b>
+			<ul>
+				<li><a jwcid="@PageLink" page="ManageUsers" href="#">Users</a></li>
+			</ul>
+			<ul>
+				<li><a jwcid="@PageLink" page="JobStatusPage" href="#">Job Status</a></li>
+			</ul>
+		</div>        
+    	<div jwcid="@QuickHelp" value="message:help.restart">
+	        Restart only works when phones can successfully register; otherwise you
+	        need to restart phones manually.
+        </div>
         <span jwcid="@ErrorMsg"/>
 		<ul class="component-links">
 			<li>

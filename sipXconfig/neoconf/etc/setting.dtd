@@ -5,8 +5,9 @@
 <!ELEMENT description (#PCDATA)>
 <!ELEMENT group (label?,profileName?,description?,(setting|group)*)>
 <!ATTLIST group 
-	name NMTOKEN #REQUIRED
-	hidden %flag; "no"
+  name NMTOKEN #REQUIRED
+  advanced %flag; "no"
+  hidden %flag; "no"
   if CDATA #IMPLIED
   unless CDATA #IMPLIED
   copy-of NMTOKEN #IMPLIED>

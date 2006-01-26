@@ -26,6 +26,12 @@
 	<property-specification name="phoneContext" 
 		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
     	initial-value="global.phoneContext"/>
+	<property-specification name="profileManager" 
+		type="org.sipfoundry.sipxconfig.phone.ProfileManager" 
+    	initial-value="global.profileManager"/>
+	<property-specification name="restartManager" 
+		type="org.sipfoundry.sipxconfig.phone.RestartManager" 
+    	initial-value="global.restartManager"/>    
     <property-specification name="searchManager"
     	type="org.sipfoundry.sipxconfig.search.SearchManager"
     	initial-value="global.searchManager"/>
@@ -42,7 +48,7 @@
         <binding name="delegate" expression="beans.validator"/>
 	</component>
     <component id="newPhoneTable" type="Table">
-        <static-binding name="columns" value="* serialNumber,lines,modelId:model.label,description"/>
+        <static-binding name="columns" value="* serialNumber,!lines,modelId:model.label,description"/>
         <binding name="source" expression="tableModel"/>
         <binding name="usePager" expression="true"/>
 		<binding name="row" expression="currentRow"/>

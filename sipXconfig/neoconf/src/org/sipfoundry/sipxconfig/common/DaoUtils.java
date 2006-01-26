@@ -70,7 +70,7 @@ public final class DaoUtils {
         List objs = hibernate.executeFind(callback);
         return checkDuplicates(obj, objs, exception);
     }
-
+    
     /**
      * Return true if query returns objects other than obj. Used to check for duplicates. If
      * exception is non-null, then throw the exception instead of returning true.

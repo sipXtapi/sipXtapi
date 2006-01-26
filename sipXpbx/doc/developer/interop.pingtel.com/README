@@ -1,0 +1,13 @@
+This directory contains the configuration for the interoperability test server,
+interop.pingtel.com.
+
+The subdirectories are:
+
+etc=sipxpbx
+
+Configuration files to be unpacked into /etc/sipxpbx after a standard
+sipX installation.
+
+usr=share=www=doc
+
+HTML files to be unpacked into /usr/share/www/doc.

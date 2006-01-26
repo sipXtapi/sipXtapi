@@ -13,6 +13,12 @@ Sudo=""
 Check=CHECK
 Deps=DEPS
 MakeOptions=-s
+Distro=""
+Distrover=""
+
+# Warning! It's solely user's responsibility to use correct path
+# without trailing slash.
+Disttree=""
 
 # Configuration switches for the ../configure commmand line 
 # May be added to by the meta/${BuildLabel}.configure-switches file
@@ -192,6 +198,7 @@ tarBuild()
             fi
         fi
     fi
+
     popd > /dev/null
 
     if test "$Success" = "true"
@@ -254,6 +261,10 @@ distributionBuild()
             fi
         fi
     fi
+    if [ "$Success" = "true" ]; then
+       cp *.tar.* $Disttree/SRC
+    fi
+
     popd > /dev/null
 
     if test "$Success" = "true"
@@ -327,7 +338,6 @@ rpmBuild()
         then
             if make $MakeOptions rpm
             then
-            
                 ## Upgrade will install if RPM was not previsously installed
                 if [ `echo $RpmLibraryProjects | grep -c $Project` -ne 0 ]
                 then 
@@ -344,9 +354,8 @@ rpmBuild()
                 if [ "$Success" = "true" ]; then
                     if [ "$Check" = "CHECK" ]; then
                         Success=false
-
                         if make $MakeOptions
-                            then
+                        then
                             if make check
                             then
                                 Success=true
@@ -355,6 +364,10 @@ rpmBuild()
                     fi
                 fi
             fi
+        fi
+        if [ "$Success" = "true" ]; then
+            cp *.rpm $Disttree/RPM/$Distro/$Distrover
+            cp *.tar.* $Disttree/SRC
         fi
     fi
     popd > /dev/null
@@ -397,7 +410,6 @@ builderr()
     fi
 }
 
-
 ## Makes a directory and optionally clean it
 ##
 mkbuilddir()
@@ -405,6 +417,22 @@ mkbuilddir()
     if ! test -d $1
     then
         mkdir -p $1
+    fi
+}
+
+## Makes a distribution tree and optionally clean it
+## The dist tree model set it to sipX/<branch>
+mkdisttree()
+{
+
+    if [ "$Disttree"x != ""x ]
+    then
+      if [ -d $Disttree ]
+      then
+        rm -rf $Disttree
+      fi
+      mkdir -p $Disttree/RPM/$Distro/$Distrover
+      mkdir -p $Disttree/SRC
     fi
 }
 
@@ -450,6 +478,21 @@ do
         shift
         newProjects=`echo ${1} | perl -pe 's|,| |g; s|/| |g'`
         Projects="$Projects $newProjects"
+        ;;
+
+        --disttree)
+        shift
+        Disttree=$1
+        ;;
+
+        --distro)
+        shift
+        Distro=$1
+        ;;
+
+        --distrover)
+        shift
+        Distrover=$1
         ;;
 
         -nc|--no-check)
@@ -511,6 +554,26 @@ if [[ -n "$Destination" ]] && [[ "$Destination" != /* ]]
 then
     Destination="$(pwd)/$Destination"
 fi
+if [ -z "$Disttree" -a -n "$SIPX_DISTTREE" ]
+then
+    Disttree=$SIPX_DISTTREE
+fi
+# Make $Disttree absolute if it is relative.
+if [[ -n "$Disttree" ]] && [[ "$Disttree" != /* ]]
+then
+    Disttree="$(pwd)/$Disttree"
+fi
+
+if [ -z "$Distro" ]
+then
+    Distro=${SIPX_DISTRO:=`uname`}
+fi
+if [ -z "$Distrover" ]
+then
+    Distrover=${SIPX_DISTROVER:=0}
+fi
+
+MakeOptions="$MakeOptions DISTRO=$Distro DISTROVER=$Distrover"
 
 if [ -z "$Projects" ]
 then
@@ -602,6 +665,7 @@ then
         exit 1
     fi
 
+    mkdisttree
     mkbuilddir $Destination
     Staging="$Destination/var/tmp"
     mkbuilddir $Staging
@@ -620,7 +684,7 @@ then
     exit $BuildReturn
 elif test "$Action" = "RPM"
 then
-
+    mkdisttree
     for Project in `ProjectsInOrder $Projects`; do
       if [ -d $Project ]
       then
@@ -630,7 +694,34 @@ then
           echo "$Project missing (skipped) " >> build.err
       fi
     done
+    if [ -d sipXbuild ]
+    then
+      cp sipXbuild/build/rpms/cgicc/cgicc-3*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/cgicc/cgicc-devel-3*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/pcre/pcre-4*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/pcre/pcre-devel-4*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/w3c-libwww/sipx-w3c-libwww-5*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/w3c-libwww/sipx-w3c-libwww-devel-5*.i386.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/mod_cplusplus/mod*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/xerces-c/xerces-c-2*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/xerces-c/xerces-c-devel-2*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/java-1.5.0-sun/java-1.5.0-sun-1.5.0.??-1jpp.*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/java-1.5.0-sun/java-1.5.0-sun-jdbc-1.5.0.??-1jpp.*.rpm $Disttree/RPM/$Distro/$Distrover
+    else
+        echo "sipXbuild missing (skipped) " 1>&2
+        echo "sipXbuild missing (skipped) " >> build.err
+    fi
+    echo "Creating $Distrover repodata" >&2
+    createrepo $Disttree/RPM/$Distro/$Distrover
 
+    cat <<EOF > $Disttree/sipx.repo
+## The GPG public key for sipX is at:
+##    https://www.sipfoundry.org/pub/key/RPM-GPG-KEY-sipX
+[sipX]
+name=SIPfoundry sipX pbx
+baseurl=http://www.sipfoundry.org/pub/sipX/$(basename $Disttree)/RPM/$Distro/$Distrover
+gpgcheck=1
+EOF
     cat build.err
     exit $BuildReturn
 elif test "$Action" = "RPMCLEAN"
@@ -699,6 +790,9 @@ Usage:
                 [-r|--rpm]
                 [-l|--label <label> ]
                 [-v|--verbose] 
+                [--distro]
+                [--distrover]
+                [--disttree path]
                 [--configure xxx] ...
                 [{destination directory}]
 
@@ -778,6 +872,16 @@ Options are:
 
      --configure xxx   Add "xxx" to the list of options to be passed to
                        ./configure, as if it appeared in a --label file.
+
+     --distro          The OS distribution RPMs are built for. The names are reserved for
+                       FC, RHE, etc.
+
+     --distrover       The OS distribution version.
+
+     --disttree path   Indicates if distribution tree to be created. If presented, to conform
+                       with the distribution tree model, the lowermost directory of the "path"                       represents the branch, both the distro and the distrover (see above)
+                       required for rpm build.
+
 USAGE
 
 exit

@@ -26,13 +26,28 @@ public class UserCallForwardingTestUi extends WebTestCase {
 
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.seedUser(getTester());
-        SiteTestHelper.home(getTester());
     }
 
-    public void testDisplayUserCallForwarding() throws Exception {
+    public void testAdminDisplay() throws Exception {
+        SiteTestHelper.home(getTester(), true);
         clickLink("UserCallForwarding");
         assertTextNotPresent("An exception has occurred.");
         assertTextPresent("Call Forwarding");
+        assertButtonPresent("form:ok");
+        assertButtonPresent("form:cancel");
+        assertButtonPresent("form:apply");
+    }
+    
+    public void testNonAdminDisplay() throws Exception {
+        SiteTestHelper.home(getTester());
+        tester.clickLink("loginFirstTestUser");
+        clickLink("UserCallForwarding");
+        assertTextPresent("Call Forwarding");
+
+        // at the time, no where to go to, e.g. callback null, so 
+        // apply is only option        
+        assertButtonNotPresent("form:ok");
+        assertButtonNotPresent("form:cancel");
+        assertButtonPresent("form:apply");
     }
 }

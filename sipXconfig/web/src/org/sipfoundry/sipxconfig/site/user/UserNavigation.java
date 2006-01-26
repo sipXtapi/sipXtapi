@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 
 public abstract class UserNavigation extends BaseComponent {
 
@@ -34,6 +35,14 @@ public abstract class UserNavigation extends BaseComponent {
     public abstract Setting getCurrentSetting();
     
     public abstract CoreContext getCoreContext();
+
+    public void editCallForwarding(IRequestCycle cycle) {
+        UserCallForwarding page = (UserCallForwarding) cycle.getPage(UserCallForwarding.PAGE);
+        Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
+                .getServiceParameters(), 0);
+        page.setUserId(userId);
+        cycle.activate(page);
+    }
 
     public void editUser(IRequestCycle cycle) {
         EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);

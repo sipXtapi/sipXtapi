@@ -23,7 +23,12 @@ distribution.
 */
 
 #include <ctype.h>
-#include <unistd.h>
+#ifdef _WIN32
+#   include <io.h>
+#   define fsync(fd) _commit(fd)
+#else
+#   include <unistd.h>
+#endif
 #include "xmlparser/tinyxml.h"
 
 #ifdef TIXML_USE_STL
