@@ -64,10 +64,23 @@ public interface SipxProcessContext {
     /**
      * Apply the specified command to the named services. This method handles only commands that
      * don't need output, which excludes the "status" command.
+     * 
+     * @param services list of services that will receive the command
+     * @param command command to send
+     * @param location information about the host on which services are running
      */
     public void manageServices(Location location, Collection services, Command command);
 
-    public void manageServices(Collection services, Command restart);
+    public void manageServices(Collection services, Command command);
+
+    /**
+     * Delayed version of manageServices strictly for restarting services. Restart commands is
+     * not send until the event of the specific class is received.
+     * 
+     * @param services list of services that will receive the command
+     * @param eventClass class of event that will trigger the command
+     */
+    public void restartOnEvent(Collection services, Class eventClass);
 
     /**
      * Apply the specified command to the process/service. This method handles only commands that

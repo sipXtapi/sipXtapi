@@ -319,6 +319,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void activateDialPlan() {
         ConfigGenerator generator = getGenerator();
         generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
+        // notify the world we are done with activating dial plan
+        m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));        
     }
 
     public void applyEmergencyRouting() {

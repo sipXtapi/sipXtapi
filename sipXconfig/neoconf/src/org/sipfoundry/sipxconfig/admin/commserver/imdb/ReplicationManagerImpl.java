@@ -33,15 +33,11 @@ import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 
 public class ReplicationManagerImpl implements ReplicationManager {
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
     private static final Charset CHARSET_UTF8 = Charset.forName("UTF8");
-
-    private SipxProcessContext m_sipxProcessContext;
 
     /**
      * sends payload data to all URLs
@@ -166,18 +162,11 @@ public class ReplicationManagerImpl implements ReplicationManager {
                         "file");
                 byte[] data = xmlToByteArray(xml, false);
                 postData(locations[i].getReplicationUrl(), data);
-                if (null != null) {
-                    m_sipxProcessContext.manageServices(locations[i], null, Command.RESTART);
-                }
             } catch (IOException e) {
                 success = false;
                 LOG.error("File replication failed: " + file.getType().getName(), e);
             }
         }
         return success;
-    }
-
-    public void setSipxProcessContext(SipxProcessContext sipxProcessContext) {
-        m_sipxProcessContext = sipxProcessContext;
     }
 }

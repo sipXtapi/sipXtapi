@@ -13,11 +13,20 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.springframework.context.ApplicationEvent;
 
 public interface SipxReplicationContext {
     void generate(DataSet dataSet);
 
     void generateAll();
-    
+
     void replicate(XmlFile xmlFile);
+
+    /**
+     * This function will publish application event - in case the application is done lazily it
+     * will publish the even only after everything has been replicated
+     * 
+     * @param event event to be published
+     */
+    void publishEvent(ApplicationEvent event);
 }

@@ -32,9 +32,13 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 import org.xml.sax.SAXException;
 
-public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplicationContext {
+public class SipxReplicationContextImpl implements ApplicationEventPublisherAware,
+        BeanFactoryAware, SipxReplicationContext {
 
     protected static final Log LOG = LogFactory.getLog(SipxProcessContextImpl.class);
     private static final String TOPOLOGY_XML = "topology.xml";
@@ -42,6 +46,7 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
     private Location[] m_locations;
     private String m_configDirectory;
     private BeanFactory m_beanFactory;
+    private ApplicationEventPublisher m_appliationEventPublisher;
     private ReplicationManager m_replicationManager;
     private JobContext m_jobContext;
 
@@ -76,7 +81,8 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
     }
 
     public void replicate(XmlFile xmlFile) {
-        Serializable jobId = m_jobContext.schedule("File replication: " + xmlFile.getType().getName());
+        Serializable jobId = m_jobContext.schedule("File replication: "
+                + xmlFile.getType().getName());
         boolean success = false;
         try {
             m_jobContext.start(jobId);
@@ -156,5 +162,13 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
             addRule(PATTERN, rule);
             addSetNext(PATTERN, "add");
         }
+    }
+
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        m_appliationEventPublisher = applicationEventPublisher;
+    }
+
+    public void publishEvent(ApplicationEvent event) {
+        m_appliationEventPublisher.publishEvent(event);
     }
 }

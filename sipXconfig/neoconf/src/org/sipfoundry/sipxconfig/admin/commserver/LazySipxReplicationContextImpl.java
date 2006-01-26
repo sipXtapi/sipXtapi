@@ -11,14 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
+import org.springframework.context.ApplicationEvent;
 
 public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     /**
@@ -27,6 +30,8 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     private static final int DEFAULT_SLEEP_INTERVAL = 7000;
 
     private Set m_tasks = new HashSet();
+
+    private List m_events = new ArrayList();
 
     private SipxReplicationContext m_target;
 
@@ -51,23 +56,35 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         m_tasks.addAll(DataSet.getEnumList());
         notifyWorker();
     }
-    
 
     public synchronized void replicate(XmlFile xmlFile) {
         m_tasks.add(xmlFile);
         notifyWorker();
     }
-    
+
+    public synchronized void publishEvent(ApplicationEvent event) {
+        m_events.add(event);
+        // we call notify and not notifyWorker - publishing event is not real work
+        notify();
+    }
+
     private void notifyWorker() {
         m_worker.workScheduled();
         notify();
     }
 
-    /* could be private - workaround for checkstyle bug */
-    protected synchronized void waitForWork() throws InterruptedException {
+    private synchronized void waitForWork() throws InterruptedException {
         if (m_tasks.isEmpty()) {
             wait();
         }
+    }
+
+    private void publishQueuedEvents() {
+        for (Iterator u = m_events.iterator(); u.hasNext();) {
+            ApplicationEvent event = (ApplicationEvent) u.next();
+            m_target.publishEvent(event);
+        }
+        m_events.clear();
     }
 
     private synchronized Set getTasks() {
@@ -105,13 +122,15 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
                 Object next = i.next();
                 if (next instanceof DataSet) {
                     DataSet ds = (DataSet) next;
-                    m_target.generate(ds);                    
+                    m_target.generate(ds);
                 }
                 if (next instanceof XmlFile) {
                     XmlFile file = (XmlFile) next;
-                    m_target.replicate(file);                    
+                    m_target.replicate(file);
                 }
             }
+            // before we start waiting publish all the events that are in the queue
+            publishQueuedEvents();
             return true;
         }
     }

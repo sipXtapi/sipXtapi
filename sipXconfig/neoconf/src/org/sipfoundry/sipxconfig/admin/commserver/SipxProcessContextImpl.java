@@ -20,18 +20,26 @@ import java.net.URLEncoder;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.collections.Factory;
+import org.apache.commons.collections.MapUtils;
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
 public class SipxProcessContextImpl extends SipxReplicationContextImpl implements
-        BeanFactoryAware, SipxProcessContext {
+        BeanFactoryAware, SipxProcessContext, ApplicationListener {
     // for checkstyle compliance, keep only one copy of this string
     private static final String STATUS = "status";
 
@@ -41,6 +49,8 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
 
     // Constants related to parsing XML output from the process monitor
     private static final String PROCESS_STATUS_ATTRIB = STATUS;
+
+    private EventsToServices m_eventsToServices = new EventsToServices();
 
     /** Read service status values from the process monitor and return them in an array */
     public ServiceStatus[] getStatus(Location location) {
@@ -174,5 +184,46 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             location.getProcessMonitorUrl(), ACTION_STATUS
         };
         return MessageFormat.format(COMMAND_URL_FORMAT, params);
+    }
+
+    public void restartOnEvent(Collection services, Class eventClass) {
+        m_eventsToServices.addServices(services, eventClass);
+    }
+
+    public void onApplicationEvent(ApplicationEvent event) {
+        Collection services = m_eventsToServices.getServices(event.getClass());
+        if (services != null) {
+            manageServices(services, Command.RESTART);
+        }
+    }
+
+    static final class EventsToServices {
+        private Map m_map;
+
+        public EventsToServices() {
+            Factory setFactory = new Factory() {
+                public Object create() {
+                    return new HashSet();
+                }
+            };
+            m_map = MapUtils.lazyMap(new HashMap(), setFactory);
+        }
+
+        public void addServices(Collection services, Class eventClass) {
+            Set serviceSet = (Set) m_map.get(eventClass);
+            serviceSet.addAll(services);
+        }
+
+        public Collection getServices(Class eventClass) {
+            Set services = new HashSet();
+            for (Iterator i = m_map.entrySet().iterator(); i.hasNext();) {
+                Map.Entry entry = (Map.Entry) i.next();
+                Class klass = (Class) entry.getKey();
+                if (klass.isAssignableFrom(eventClass)) {
+                    services.addAll((Collection) entry.getValue());
+                }
+            }
+            return services;
+        }
     }
 }
