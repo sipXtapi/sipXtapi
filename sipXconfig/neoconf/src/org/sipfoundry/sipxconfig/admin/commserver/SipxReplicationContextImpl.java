@@ -57,7 +57,7 @@ public class SipxReplicationContextImpl implements BeanFactoryAware, SipxReplica
             String beanName = dataSet.getBeanName();
             DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
                     DataSetGenerator.class);
-            success = m_replicationManager.replicateData(getLocations(), generator, dataSet);
+            success = m_replicationManager.replicateData(getLocations(), generator);
         } finally {
             if (success) {
                 m_jobContext.success(jobId);

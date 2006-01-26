@@ -23,19 +23,32 @@ public abstract class RestartReminderPanel extends BaseComponent {
 
     public abstract boolean getRestartLater();
 
+    public abstract void setRestartLater(boolean restartLater);
+
     public abstract SipxProcessContext getSipxProcessContext();
+
+    public abstract void setSipxProcessContext(SipxProcessContext sipxProcessContext);
 
     public abstract void setProcesses(Object[] processes);
 
     public abstract Object[] getProcesses();
 
     public void restart() {
+        List procsToRestart = getProcessesToRestart();
+        if (procsToRestart != null) {
+            SipxProcessContext processContext = getSipxProcessContext();
+            processContext.manageServices(procsToRestart, SipxProcessContext.Command.RESTART);
+        }
+    }
+
+    public List getProcessesToRestart() {
         if (getRestartLater()) {
-            return;
+            return null;
         }
         Object[] processes = getProcesses();
-        SipxProcessContext processContext = getSipxProcessContext();
-        List procsToRestart = (null != processes) ? Arrays.asList(processes) : Process.getAll();
-        processContext.manageServices(procsToRestart, SipxProcessContext.Command.RESTART);
+        if (processes != null) {
+            return Arrays.asList(processes);
+        }
+        return Process.getAll();
     }
 }
