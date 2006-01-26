@@ -114,5 +114,21 @@ public class NewUserTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(tester);
         SiteTestHelper.assertNoException(tester);
     }
-
+    
+    public void testStay() {
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        setFormElement("userId", "x");
+        setFormElement("password", "1234");
+        setFormElement("confirmPassword", "1234");
+        checkCheckbox("stay");        
+        clickButton("form:ok");
+        assertElementPresent("user:success");
+        setFormElement("userId", "y");
+        setFormElement("password", "1234");
+        setFormElement("confirmPassword", "1234");
+        uncheckCheckbox("stay");        
+        clickButton("form:ok");
+        assertElementNotPresent("user:success");        
+    }
 }

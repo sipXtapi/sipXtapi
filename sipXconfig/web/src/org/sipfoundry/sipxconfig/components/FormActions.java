@@ -47,7 +47,15 @@ public abstract class FormActions extends BaseComponent {
         apply(cycle);
     }
     
-    public boolean wasApplyPressedAndNotCancel() {
+    /**
+     * Incase parent component needs to know if Apply was pressed instead of OK. Return is 
+     * undetermined if called when any other button was pressed.
+     * 
+     * A more elegant, however slighlty more involved solution would add paramter
+     * to FormActions, direction out, that called boolean setter on parent directory
+     * similiar to button and tag releationship
+     */
+    public boolean wasApplyPressedInsteadOfOk() {
         return m_applyPressed;
     }
     

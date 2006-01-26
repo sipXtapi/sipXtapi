@@ -15,6 +15,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -34,6 +35,8 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
     public abstract User getUser();
 
     public abstract void setUser(User user);
+    
+    public abstract boolean isStay();
 
     public IActionListener getCommitListener() {
         return new IActionListener() {
@@ -46,7 +49,7 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
 
                     // On saving the user, transfer control to edituser page.
                     FormActions buttons = (FormActions) component;
-                    if (buttons.wasApplyPressedAndNotCancel()) {
+                    if (buttons.wasApplyPressedInsteadOfOk()) {
                         EditUser edit = (EditUser) cycle.getPage(EditUser.PAGE);
                         edit.setUserId(user.getId());
                         cycle.activate(edit);
@@ -60,6 +63,26 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
         ExtensionPoolsPage poolsPage = (ExtensionPoolsPage) cycle.getPage(
                 ExtensionPoolsPage.PAGE);
         poolsPage.activatePageWithCallback(PAGE, cycle);        
+    }
+
+    public void activatePageWithCallback(String returnPageName, IRequestCycle cycle) {
+        super.activatePageWithCallback(returnPageName, cycle);
+        setCallback(new OptionalStay(getCallback()));
+    }
+    
+    class OptionalStay implements ICallback {
+        private ICallback m_delegate;
+        OptionalStay(ICallback delegate) {
+            m_delegate = delegate;
+        }
+        public void performCallback(IRequestCycle cycle) {
+            if (isStay()) {
+                setUser(null);
+                cycle.activate(PAGE);
+            } else if (m_delegate != null) {
+                m_delegate.performCallback(cycle);
+            }
+        }                
     }
 
     public void pageBeginRender(PageEvent event) {

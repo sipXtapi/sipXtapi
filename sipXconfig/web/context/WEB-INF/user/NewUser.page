@@ -17,6 +17,8 @@
     <property-specification name="callback" 
     	type="org.apache.tapestry.callback.ICallback"
      	persistent="yes"/>
+    <property-specification name="stay"
+        type="boolean"/>
     
     <!--
       - B E A N S 
@@ -41,4 +43,7 @@
         <binding name="callback" expression="callback"/>
         <binding name="listener" expression="commitListener"/>
     </component>    
+    <component id="stay" type="Checkbox">
+        <binding name="selected" expression="stay"/>
+    </component>
 </page-specification>
