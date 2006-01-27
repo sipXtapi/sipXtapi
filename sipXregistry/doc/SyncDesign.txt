@@ -1138,7 +1138,7 @@ Authors' Addresses
    Walter Gillett
    Pingtel Corp.
 
-   Email: walter_gillett at pingtel.com
+   Email: wgillett at pingtel.com
 
 
 
