@@ -23,12 +23,4 @@ public class ModelFilesContextTest extends TestCase {
         Setting userSettings2 = mfc.loadModelFile("user-settings.xml");
         assertSame(userSettings1, userSettings2);                
     }
-
-    public void testCacheWithDetails() {
-        ModelFilesContext mfc = (ModelFilesContext) TestHelper.getApplicationContext().getBean("modelFilesContext");
-        Setting userSettings1 = mfc.loadModelFile("user-settings.xml", "", new String[] { "" });
-        Setting userSettings2 = mfc.loadModelFile("user-settings.xml", "", new String[] { "" });
-        assertSame(userSettings1, userSettings2);                
-    }
-
 }

@@ -140,3 +140,16 @@
         
     </enum>
 </type>
+<type id="dtmfOptions">
+    <enum>
+        <option>
+            <label>in audio</label><value>0</value>
+        </option>
+        <option>
+            <label>via RTP</label><value>1</value>
+        </option>
+        <option>
+            <label>via SIP INFO</label><value>2</value>
+        </option>
+    </enum>
+</type>

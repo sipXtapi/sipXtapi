@@ -18,7 +18,5 @@ public interface ModelFilesContext {
 
     public Setting loadModelFile(String basename, String manufacturer);
 
-    public Setting loadModelFile(String basename, String manufacturer, String[] details);
-    
     public File getModelFile(String basename, String manufacturer);
 }

@@ -76,7 +76,7 @@ public class Upload extends BeanWithSettings {
         Setting model = super.getSettingModel();
         if (model == null) {
             Setting master = m_modelFilesContext.loadModelFile("upload.xml", m_specification
-                    .getSpecificationId(), m_specification.getDetails());
+                    .getSpecificationId());
             if (master != null) {    
                 model = master.copy();
                 setSettingModel(model);
