@@ -19,6 +19,8 @@
      	persistent="yes"/>
     <property-specification name="stay"
         type="boolean"/>
+    <property-specification name="appliedPressed" 
+    	type="boolean"/>
     
     <!--
       - B E A N S 
@@ -41,7 +43,8 @@
     </component>
     <component id="formActions" type="FormActions">
         <binding name="callback" expression="callback"/>
-        <binding name="listener" expression="commitListener"/>
+        <binding name="listener" expression="listeners.onCommit"/>
+        <binding name="appliedPressed" expression="appliedPressed"/>
     </component>    
     <component id="stay" type="Checkbox">
         <binding name="selected" expression="stay"/>

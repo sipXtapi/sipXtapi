@@ -27,6 +27,10 @@
     
     <parameter name="successMessage" direction="in" required="no" type="java.lang.String"/>
     
+    <parameter name="appliedPressed">
+        <description>optional parameter set to true if Apply was pressed and to false otherwise</description>
+    </parameter>
+    
     <!-- C O M P O N E N T S -->
     <component id="ifRenderOk" type="contrib:FormConditional">
         <binding name="condition" expression="callback != null"/>
@@ -49,20 +53,27 @@
     <component id="ok" type="Submit">
         <binding name="listener" expression="listeners.onOk"/>
         <message-binding name="label" key="button.ok"/>
+        <inherited-binding name="selected" parameter-name="appliedPressed"/>
+        <binding name="tag" expression="false"/>
     </component>
     
     <component id="apply" type="Submit">
         <binding name="listener" expression="listeners.onApply"/>
         <message-binding name="label" key="button.apply"/>
+        <inherited-binding name="selected" parameter-name="appliedPressed"/>
+        <binding name="tag" expression="true"/>
     </component>
     
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.onCancel"/>
         <message-binding name="label" key="button.cancel"/>
+        <inherited-binding name="selected" parameter-name="appliedPressed"/>
+        <binding name="tag" expression="false"/>
     </component>
     
     <component id="refresh" type="Submit">
-        <binding name="listener" expression="listeners.onRefresh"/>
         <message-binding name="label" key="button.refresh"/>
+        <inherited-binding name="selected" parameter-name="appliedPressed"/>
+        <binding name="tag" expression="false"/>
     </component>        
 </component-specification>

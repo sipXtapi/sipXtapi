@@ -12,15 +12,12 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.apache.tapestry.IActionListener;
-import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.components.FormActions;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
@@ -35,46 +32,46 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
     public abstract User getUser();
 
     public abstract void setUser(User user);
-    
+
     public abstract boolean isStay();
 
-    public IActionListener getCommitListener() {
-        return new IActionListener() {
-            public void actionTriggered(IComponent component, IRequestCycle cycle) {
-                if (TapestryUtils.isValid(NewUser.this)) {
-                    // Save the user
-                    CoreContext core = getCoreContext();
-                    User user = getUser();
-                    core.saveUser(user);
+    public abstract boolean isAppliedPressed();
 
-                    // On saving the user, transfer control to edituser page.
-                    FormActions buttons = (FormActions) component;
-                    if (buttons.wasApplyPressedInsteadOfOk()) {
-                        EditUser edit = (EditUser) cycle.getPage(EditUser.PAGE);
-                        edit.setUserId(user.getId());
-                        cycle.activate(edit);
-                    }
-                }
-            }
-        };
+    public void onCommit(IRequestCycle cycle) {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+        // Save the user
+        CoreContext core = getCoreContext();
+        User user = getUser();
+        core.saveUser(user);
+
+        // On saving the user, transfer control to edituser page.
+        if (isAppliedPressed()) {
+            EditUser edit = (EditUser) cycle.getPage(EditUser.PAGE);
+            edit.setUserId(user.getId());
+            cycle.activate(edit);
+        }
     }
 
     public void extensionPools(IRequestCycle cycle) {
-        ExtensionPoolsPage poolsPage = (ExtensionPoolsPage) cycle.getPage(
-                ExtensionPoolsPage.PAGE);
-        poolsPage.activatePageWithCallback(PAGE, cycle);        
+        ExtensionPoolsPage poolsPage = (ExtensionPoolsPage) cycle
+                .getPage(ExtensionPoolsPage.PAGE);
+        poolsPage.activatePageWithCallback(PAGE, cycle);
     }
 
     public void activatePageWithCallback(String returnPageName, IRequestCycle cycle) {
         super.activatePageWithCallback(returnPageName, cycle);
         setCallback(new OptionalStay(getCallback()));
     }
-    
+
     class OptionalStay implements ICallback {
         private ICallback m_delegate;
+
         OptionalStay(ICallback delegate) {
             m_delegate = delegate;
         }
+
         public void performCallback(IRequestCycle cycle) {
             if (isStay()) {
                 setUser(null);
@@ -82,7 +79,7 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
             } else if (m_delegate != null) {
                 m_delegate.performCallback(cycle);
             }
-        }                
+        }
     }
 
     public void pageBeginRender(PageEvent event) {
