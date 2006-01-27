@@ -55,7 +55,7 @@
     </component>
     
     <component id="renderLocation" type="contrib:FormConditional">
-        <binding name="condition" expression="sipxProcessContext.locations.length > 0"/>
+        <binding name="condition" expression="sipxProcessContext.locations.length > 1"/>
     </component>
     
     <component id="tableView" type="Table">

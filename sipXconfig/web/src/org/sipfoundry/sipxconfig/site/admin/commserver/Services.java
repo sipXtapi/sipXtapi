@@ -76,11 +76,9 @@ public abstract class Services extends BasePage implements PageRenderListener {
     }
 
     private void manageServices(Collection services, SipxProcessContext.Command operation) {
-        if (services == null) {
-            // nothing to do
-            return;
+        if (services != null) {
+            getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
         }
-        getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
     }
 
     public static class StatusConvertor implements IPrimaryKeyConvertor {
