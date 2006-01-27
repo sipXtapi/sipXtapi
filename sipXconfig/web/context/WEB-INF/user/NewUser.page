@@ -40,6 +40,7 @@
     </component>
     <component id="userForm" type="UserForm">
         <binding name="user" expression="user"/>
+        <binding name="alwaysShowSipPassword" expression="true"/>
     </component>
     <component id="formActions" type="FormActions">
         <binding name="callback" expression="callback"/>
