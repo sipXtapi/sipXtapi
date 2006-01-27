@@ -30,6 +30,39 @@
 
 REGISTER( RegistrationRow );
 
+
+// Smart DB accessor that attaches the DB on construction, and detaches on destruction.
+// This is necessary to protect process/thread-local storage integrity.
+class SmartDbAccessor
+{
+public:
+   SmartDbAccessor(dbDatabase* fastDB, int lineNo) : mFastDB(fastDB), mLineNo(lineNo)
+      {
+         if (mFastDB != NULL)
+         {
+            mFastDB->attach();
+         }
+         else
+         {
+            OsSysLog::add(FAC_DB, PRI_ERR, "RegistrationDB.cpp line %d - no DB", lineNo);
+         }
+      }
+   ~SmartDbAccessor()
+      {
+         if (mFastDB != NULL)
+         {
+            mFastDB->detach(0);
+         }
+      }
+
+private:
+   dbDatabase* mFastDB;
+   int         mLineNo;
+};
+
+#define SMART_DB_ACCESS SmartDbAccessor accessor(m_pFastDB, __LINE__)
+
+
 // Static Initializers
 RegistrationDB* RegistrationDB::spInstance = NULL;
 OsMutex         RegistrationDB::sLockMutex (OsMutex::Q_FIFO);
@@ -206,8 +239,7 @@ OsStatus RegistrationDB::cleanAndPersist( const int &newerThanTime )
 
     if ( m_pFastDB != NULL )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
 
         // Purge all expired field entries from the DB
         // Note: callid set to null indicates provisioned entries and
@@ -315,8 +347,6 @@ OsStatus RegistrationDB::cleanAndPersist( const int &newerThanTime )
                  OsFileSystem::remove( fileName );
             }
         }
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
     else
     {
@@ -401,8 +431,7 @@ RegistrationDB::updateBinding( const Url& uri
 
     if ( !identity.isNull() && (m_pFastDB != NULL) )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
 
         // Search for a matching row before deciding to update or insert
         dbCursor< RegistrationRow > cursor( dbCursorForUpdate );
@@ -454,9 +483,6 @@ RegistrationDB::updateBinding( const Url& uri
                 cursor.update();
                 break;
         }
-
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
     else
     {
@@ -484,8 +510,7 @@ RegistrationDB::expireOldBindings( const Url& uri
 
     if ( !identity.isNull() && ( m_pFastDB != NULL ) )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor(dbCursorForUpdate);
 
         dbQuery query;
@@ -505,8 +530,6 @@ RegistrationDB::expireOldBindings( const Url& uri
               cursor.update();
             } while ( cursor.next() );
         }
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
 }
 
@@ -525,10 +548,8 @@ void RegistrationDB::expireAllBindings( const Url& uri
 
     if ( !identity.isNull() && ( m_pFastDB != NULL ) )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor(dbCursorForUpdate);
-
         dbQuery query;
         query="np_identity=",identity," and expires>=",expirationTime;
 
@@ -544,9 +565,6 @@ void RegistrationDB::expireAllBindings( const Url& uri
               cursor.update();
            } while ( cursor.next() );
         }
-        
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
 }
 
@@ -563,16 +581,13 @@ RegistrationDB::isOutOfSequence( const Url& uri
 
   if ( !identity.isNull() && ( m_pFastDB != NULL) )
     {
-      // Thread Local Storage
-      m_pFastDB->attach();
-
+      SMART_DB_ACCESS;
       dbCursor< RegistrationRow > cursor;
       dbQuery query;
       query="np_identity=",identity,
         " and callid=",callid,
         " and cseq>=",cseq;
       isOlder = ( cursor.select(query) > 0 );
-      m_pFastDB->detach(0);
     }
   else
     {
@@ -592,15 +607,12 @@ RegistrationDB::removeAllRows ()
 {
     if ( m_pFastDB != NULL )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor( dbCursorForUpdate );
         if (cursor.select() > 0)
         {
             cursor.removeAllSelected();
         }
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
 }
 
@@ -612,8 +624,7 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
 
     if ( m_pFastDB != NULL )
     {
-        // must do this first to ensure process/tls integrity
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor;
         if ( cursor.select() > 0 )
         {
@@ -650,8 +661,6 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
                 rResultSet.addValue(record);
             } while (cursor.next());
         }
-        // commit rows and also ensure process/tls integrity
-        m_pFastDB->detach(0);
     }
 }
 
@@ -660,16 +669,20 @@ RegistrationDB::getMaxUpdateNumberForRegistrar(const char* primaryRegistrar) con
 {
    intll maxUpdateForPrimary = 0LL;
 
-   dbCursor<RegistrationRow> cursor;
-   dbQuery query;
-   query = "primary = ", primaryRegistrar, "order by update_number desc";
-   
-   int numRows = cursor.select(query);
-   if (numRows > 0)
+   if ( m_pFastDB != NULL )
    {
-      maxUpdateForPrimary = cursor->update_number;
-   }
+      SMART_DB_ACCESS;
+      dbCursor<RegistrationRow> cursor;
+      dbQuery query;
+      query = "primary = ", primaryRegistrar, "order by update_number desc";
    
+      int numRows = cursor.select(query);
+      if (numRows > 0)
+      {
+         maxUpdateForPrimary = cursor->update_number;
+      }
+   }
+
    return maxUpdateForPrimary;
 }
 
@@ -681,7 +694,12 @@ RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
    // Note: when implementing this method, share code with getNewUpdatesForRegistrar.
    // Only difference is the query.
 
-   assert(false);    // not yet implemented
+   if ( m_pFastDB != NULL )
+   {
+      SMART_DB_ACCESS;
+      assert(false);    // not yet implemented
+   }
+   return 0;            // not yet implemented
 }
 
 int
@@ -689,22 +707,27 @@ RegistrationDB::getNewUpdatesForRegistrar(const UtlString& registrarName,
                                           intll            updateNumber,
                                           UtlSList&        bindings) const
 {
-   dbCursor<RegistrationRow> cursor(dbCursorForUpdate);
-   dbQuery query;
-   query = "primary = ", registrarName, " and update_number > ", updateNumber;
-   int numRows = cursor.select(query);
-   if (numRows > 0)
+   int numRows = 0;
+   if ( m_pFastDB != NULL )
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG
-                    ,"RegistrationDB::getBindingsForRegistrar found %d rows for %s with updateNumber > %lld"
-                    ,numRows
-                    ,registrarName.data()
-                    ,updateNumber);
-      do {
-         RegistrationBinding* reg = copyRowToRegistrationBinding(cursor);
-         bindings.append(reg);
+      SMART_DB_ACCESS;
+      dbCursor<RegistrationRow> cursor(dbCursorForUpdate);
+      dbQuery query;
+      query = "primary = ", registrarName, " and update_number > ", updateNumber;
+      numRows = cursor.select(query);
+      if (numRows > 0)
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG
+                       ,"RegistrationDB::getBindingsForRegistrar found %d rows for %s with updateNumber > %lld"
+                       ,numRows
+                       ,registrarName.data()
+                       ,updateNumber);
+         do {
+            RegistrationBinding* reg = copyRowToRegistrationBinding(cursor);
+            bindings.append(reg);
+         }
+         while (cursor.next());
       }
-      while (cursor.next());
    }
    return numRows;
 }
@@ -723,9 +746,7 @@ RegistrationDB::getUnexpiredContacts (
 
     if ( !identity.isNull() && ( m_pFastDB != NULL) )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
-
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor;
         dbQuery query;
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -799,8 +820,6 @@ RegistrationDB::getUnexpiredContacts (
 
             } while ( cursor.next() );
         }
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
 }
 
