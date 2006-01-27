@@ -220,11 +220,12 @@
 	<target name="test-models">    
 		<xmlvalidate description="validate setting description files">
 			<fileset dir="etc/audiocodes" includes="**/*.xml" excludes="types.xml"></fileset>
-			<fileset dir="etc/cisco">
+			<fileset dir="etc/ciscoIp">
         <include name="**/*.xml"/>
         <exclude name="syncinfo.xml"/>
         <exclude name="types.xml"/>          
       </fileset>
+			<fileset dir="etc/ciscoAta" includes="**/*.xml" excludes="types.xml"></fileset>
 			<fileset dir="etc/commserver" includes="**/*.xml" excludes="types.xml"></fileset>
 			<fileset dir="etc/kphone" includes="**/*.xml" excludes="types.xml"></fileset>
 			<fileset dir="etc/polycom" includes="**/*.xml" excludes="types.xml"></fileset>
