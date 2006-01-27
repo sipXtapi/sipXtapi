@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Wed, 25 Jan 2006 14:38:12 +0000">
+<meta http-equiv="Expires" content="Fri, 27 Jan 2006 23:09:11 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -128,7 +128,7 @@
 <tr><td class="header">&nbsp;</td><td class="header">D. Worley</td></tr>
 <tr><td class="header">&nbsp;</td><td class="header">W. Gillett</td></tr>
 <tr><td class="header">&nbsp;</td><td class="header">Pingtel Corp.</td></tr>
-<tr><td class="header">&nbsp;</td><td class="header">December 29, 2005</td></tr>
+<tr><td class="header">&nbsp;</td><td class="header">January 27, 2006</td></tr>
 </table></td></tr></table>
 <div align="right"><span class="title"><br />sipXpbx High Availability</span></div>
 <a name="toc"></a><br /><hr />
@@ -1161,9 +1161,9 @@ Authors' Addresses<br />
                 Start the synchronization threads:
                 
 <ul class="text">
-<li><a class="info" href="#registrartest">RegistrarTest<span> (</span><span class="info">RegistrarTest</span><span>)</span></a>
-</li>
 <li><a class="info" href="#registrarsync">RegistrarSync<span> (</span><span class="info">RegistrarSync</span><span>)</span></a>
+</li>
+<li><a class="info" href="#registrartest">RegistrarTest<span> (</span><span class="info">RegistrarTest</span><span>)</span></a>
 </li>
 </ul>
               
@@ -1251,7 +1251,7 @@ Authors' Addresses<br />
 </p>
 <p> 
               The RegistrarSync thread operation is governed by a private
-              static OsCSem (counting semaphore).  The thread main loop
+              static OsBSem (binary semaphore).  The thread main loop
               waits on that semaphore.  The static C++ method <span class="verb">RegistrarSync::sendUpdates</span>; when invoked,
               increments the semaphore value, indicating to the
               RegistrarSync thread that there may be updates available to be
@@ -1733,6 +1733,6 @@ resets.
 <tr><td class="author-text">&nbsp;</td>
 <td class="author-text">Pingtel Corp.</td></tr>
 <tr><td class="author" align="right">Email:&nbsp;</td>
-<td class="author-text"><a href="mailto:walter_gillett@hotmail.com">walter_gillett@hotmail.com</a></td></tr>
+<td class="author-text"><a href="mailto:walter_gillett at pingtel.com">walter_gillett at pingtel.com</a></td></tr>
 </table>
 </body></html>

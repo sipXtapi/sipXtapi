@@ -5,7 +5,7 @@ SIPfoundry sipXpbx                                           S. Lawrence
                                                                D. Worley
                                                               W. Gillett
                                                            Pingtel Corp.
-                                                       December 29, 2005
+                                                        January 27, 2006
 
 
                        sipXpbx High Availability
@@ -54,7 +54,7 @@ Table of Contents
 
 Lawrence, et al.                                                [Page 1]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
 1.  Motivation and Overview
@@ -110,7 +110,7 @@ Lawrence, et al.                                                [Page 1]
 
 Lawrence, et al.                                                [Page 2]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    o  one Master Server running:
@@ -166,7 +166,7 @@ Lawrence, et al.                                                [Page 2]
 
 Lawrence, et al.                                                [Page 3]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
         _sip._tcp.sipxregistrar1 IN SRV 1 50 5070 sipxpbx1
@@ -222,7 +222,7 @@ Lawrence, et al.                                                [Page 3]
 
 Lawrence, et al.                                                [Page 4]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
       confused by it), so we will continue to use IP addresses in the
@@ -278,7 +278,7 @@ Lawrence, et al.                                                [Page 4]
 
 Lawrence, et al.                                                [Page 5]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    instance_id The "+sip.instance" value that was provided with the
@@ -334,7 +334,7 @@ Lawrence, et al.                                                [Page 5]
 
 Lawrence, et al.                                                [Page 6]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
          RegistrationDB::updateBinding(toUrl,
@@ -390,7 +390,7 @@ Lawrence, et al.                                                [Page 6]
 
 Lawrence, et al.                                                [Page 7]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
 5.2.  Primary and Replicated Registrars
@@ -446,7 +446,7 @@ Lawrence, et al.                                                [Page 7]
 
 Lawrence, et al.                                                [Page 8]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    PeerReachable This is a boolean that indicates whether or not the
@@ -502,7 +502,7 @@ Lawrence, et al.                                                [Page 8]
 
 Lawrence, et al.                                                [Page 9]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    HttpServer This thread is the XML-RPC server.  Each of the XML-RPC
@@ -558,7 +558,7 @@ Lawrence, et al.                                                [Page 9]
 
 Lawrence, et al.                                               [Page 10]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    database (if possible), and to resynchronize with all peer
@@ -614,7 +614,7 @@ Lawrence, et al.                                               [Page 10]
 
 Lawrence, et al.                                               [Page 11]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    1.  Read the local persistent registry store.  If successful,
@@ -670,7 +670,7 @@ Lawrence, et al.                                               [Page 11]
 
 Lawrence, et al.                                               [Page 12]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
 5.7.2.  Transition from Startup Phase to Operational Phase
@@ -685,8 +685,8 @@ Lawrence, et al.                                               [Page 12]
        *  SipRedirectServer
        *  SipUserAgent
    2.  Start the synchronization threads:
-       *  RegistrarTest (Section 5.7.3.3)
        *  RegistrarSync (Section 5.7.3.2)
+       *  RegistrarTest (Section 5.7.3.3)
    3.  Begin accepting all synchronization requests by registering the
        remaining XML-RPC methods:
        *  registrarSync.pushUpdates (Section 5.8.3)
@@ -726,7 +726,7 @@ Lawrence, et al.                                               [Page 12]
 
 Lawrence, et al.                                               [Page 13]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    direct expression of the rules in RFC 3261, as it does not process
@@ -747,7 +747,7 @@ Lawrence, et al.                                               [Page 13]
    Reachable peer registrars.
 
    The RegistrarSync thread operation is governed by a private static
-   OsCSem (counting semaphore).  The thread main loop waits on that
+   OsBSem (binary semaphore).  The thread main loop waits on that
    semaphore.  The static C++ method "RegistrarSync::sendUpdates"; when
    invoked, increments the semaphore value, indicating to the
    RegistrarSync thread that there may be updates available to be
@@ -782,7 +782,7 @@ Lawrence, et al.                                               [Page 13]
 
 Lawrence, et al.                                               [Page 14]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    attempts to invoke the registerSync.reset (Section 5.8.2) XML-RPC
@@ -838,7 +838,7 @@ Lawrence, et al.                                               [Page 14]
 
 Lawrence, et al.                                               [Page 15]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    Inputs:
@@ -894,7 +894,7 @@ Lawrence, et al.                                               [Page 15]
 
 Lawrence, et al.                                               [Page 16]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    The updateNumber input is the client's PeerReceivedDbUpdateNumber for
@@ -950,7 +950,7 @@ Lawrence, et al.                                               [Page 16]
 
 Lawrence, et al.                                               [Page 17]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    All rows in the updates array MUST have the same updateNumber, and
@@ -1006,7 +1006,7 @@ Lawrence, et al.                                               [Page 17]
 
 Lawrence, et al.                                               [Page 18]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    SSL-authenticated as coming from one of the servers configured as a
@@ -1062,7 +1062,7 @@ Lawrence, et al.                                               [Page 18]
 
 Lawrence, et al.                                               [Page 19]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
    You've added this text to SyncDesign.xml:
@@ -1118,7 +1118,7 @@ Lawrence, et al.                                               [Page 19]
 
 Lawrence, et al.                                               [Page 20]
 
-                               sipXpbx HA                  December 2005
+                               sipXpbx HA                   January 2006
 
 
 Authors' Addresses
@@ -1138,7 +1138,7 @@ Authors' Addresses
    Walter Gillett
    Pingtel Corp.
 
-   Email: walter_gillett@hotmail.com
+   Email: walter_gillett at pingtel.com
 
 
 

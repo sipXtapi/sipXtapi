@@ -33,10 +33,10 @@
     <author initials="W." surname="Gillett" fullname="Walter Gillett">
     <organization>Pingtel Corp.</organization>
     <address>
-      <email>walter_gillett@hotmail.com</email>
+      <email>walter_gillett at pingtel.com</email>
     </address>
     </author>
-    <date day="29" month="December" year="2005"/>
+    <date day="27" month="January" year="2006"/>
     <area>sipXregistry</area>
   </front>
 
@@ -890,8 +890,8 @@
               <t>
                 Start the synchronization threads:
                 <list style='symbols'>
-                  <t><xref target='registrartest'>RegistrarTest</xref></t>
                   <t><xref target='registrarsync'>RegistrarSync</xref></t>
+                  <t><xref target='registrartest'>RegistrarTest</xref></t>
                 </list>
               </t>
               <t>
@@ -970,7 +970,7 @@
             
             <t> 
               The RegistrarSync thread operation is governed by a private
-              static OsCSem (counting semaphore).  The thread main loop
+              static OsBSem (binary semaphore).  The thread main loop
               waits on that semaphore.  The static C++ method <spanx
               style='verb'>RegistrarSync::sendUpdates</spanx>; when invoked,
               increments the semaphore value, indicating to the
