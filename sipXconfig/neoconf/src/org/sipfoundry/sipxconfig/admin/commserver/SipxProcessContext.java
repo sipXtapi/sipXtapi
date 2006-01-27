@@ -11,7 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.enums.Enum;
@@ -39,6 +42,21 @@ public interface SipxProcessContext {
 
         public static List getAll() {
             return getEnumList(Process.class);
+        }
+
+        /**
+         * This should be used to get list of all the services except KEEP_ALIVE and CONFIG_SERVER
+         * 
+         * @return list of the services that you want usually restart
+         * 
+         */
+        public static List getRestartable() {
+            Process[] noRestart = {
+                KEEP_ALIVE, CONFIG_SERVER
+            };
+            List processes = new LinkedList(getAll());
+            processes.removeAll(Arrays.asList(noRestart));
+            return Collections.unmodifiableList(processes);
         }
     };
 
@@ -74,8 +92,8 @@ public interface SipxProcessContext {
     public void manageServices(Collection services, Command command);
 
     /**
-     * Delayed version of manageServices strictly for restarting services. Restart commands is
-     * not send until the event of the specific class is received.
+     * Delayed version of manageServices strictly for restarting services. Restart commands is not
+     * send until the event of the specific class is received.
      * 
      * @param services list of services that will receive the command
      * @param eventClass class of event that will trigger the command

@@ -59,6 +59,6 @@ public abstract class RestartReminderPanel extends BaseComponent {
         if (processes != null) {
             return Arrays.asList(processes);
         }
-        return Process.getAll();
+        return Process.getRestartable();
     }
 }
