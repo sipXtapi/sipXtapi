@@ -34,7 +34,7 @@
     
     <property-specification name="showSipPassword" type="boolean" persistent="yes"/>
     
-	<!-- comma-delimited list of aliases -->
+	<!-- space-delimited list of aliases -->
     <property-specification name="aliasesString" type="java.lang.String"/>
 
     <!--

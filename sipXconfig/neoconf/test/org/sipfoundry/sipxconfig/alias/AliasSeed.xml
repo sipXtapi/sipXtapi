@@ -33,7 +33,7 @@
   		voice_mail_prefix="pickle"/>
   <attendant_dialing_rule 
     attendant_dialing_rule_id="1001"
-    attendant_aliases = "gorillaz,morcheeba"
+    attendant_aliases = "gorillaz morcheeba"
     working_time_attendant_enabled="false"
     working_time_attendant_id="1000"
     after_hours_attendant_enabled="true"

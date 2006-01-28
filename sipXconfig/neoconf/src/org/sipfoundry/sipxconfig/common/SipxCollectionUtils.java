@@ -15,48 +15,24 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.collections.iterators.EmptyIterator;
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 
 public final class SipxCollectionUtils {
 
     /** Singleton class with static methods, don't allow anyone to instantiate */
     private SipxCollectionUtils() {
     }
-    
-    /** Return the Collection size.  Return 0 if the Collection is null. */
+
+    /** Return the Collection size. Return 0 if the Collection is null. */
     public static int safeSize(Collection coll) {
         return coll != null ? coll.size() : 0;
     }
-    
+
     public static boolean safeIsEmpty(Collection coll) {
         return safeSize(coll) == 0;
     }
-    
-    /** Return a Collection iterator.  Return an empty iterator if the Collection is null. */
+
+    /** Return a Collection iterator. Return an empty iterator if the Collection is null. */
     public static Iterator safeIterator(Collection coll) {
         return coll != null ? coll.iterator() : EmptyIterator.INSTANCE;
-    }
-
-    /**
-     * Given a comma-delimited string of names, return the names as a string array. Trim
-     * leading and trailing whitespace from each name.
-     */
-    public static String[] splitString(String delimitedString) {
-        if (StringUtils.isBlank(delimitedString)) {
-            return ArrayUtils.EMPTY_STRING_ARRAY;
-        }
-        String delmittedClean = delimitedString.trim();
-        String[] split = delmittedClean.split("\\s*,\\s*");
-        return split;
-    }
-    
-    public static String[] toStringArray(Collection c) {
-        String[] s = new String[c.size()];
-        Iterator x = c.iterator();
-        for (int i = 0; x.hasNext(); i++) {
-            s[i] = StringUtils.defaultString(x.next().toString());
-        }
-        return s;
     }
 }

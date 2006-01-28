@@ -162,27 +162,21 @@ public class User extends BeanWithGroups {
         getAliases().addAll(Arrays.asList(aliases));
     }
 
-    /** Return the aliases as a comma-delimited string */
+    /** Return the aliases as a space-delimited string */
     public String getAliasesString() {
         Set aliases = getAliases();
-        return StringUtils.join(aliases.iterator(), ", ");
+        return StringUtils.join(aliases.iterator(), " ");
     }
 
-    /** Set the aliases from a comma-delimited string */
+    /** Set the aliases from a space-delimited string */
     public void setAliasesString(String aliasesString) {
-        String[] aliases = SipxCollectionUtils.splitString(aliasesString);
         getAliases().clear();
-        addAliases(aliases);
+        if(aliasesString != null) {
+            String[] aliases = StringUtils.split(aliasesString);
+            addAliases(aliases);            
+        }
     }
     
-    /**
-     * Given a comma-delimited string of group names, return the names as a string array. Trim
-     * leading and trailing whitespace from each group name
-     */
-    public static String[] groupNamesFromString(String groupString) {
-        return SipxCollectionUtils.splitString(groupString);
-    }
-
     public String getUri(String domainName) {
         return SipUri.format(this, domainName);
     }

@@ -106,7 +106,7 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
         ITable internal = set.getTable("attendant_dialing_rule");
         assertEquals(1, internal.getRowCount());
-        assertEquals("operator, 0", internal.getValue(0, "attendant_aliases"));
+        assertEquals("operator 0", internal.getValue(0, "attendant_aliases"));
     }
 
     public void testDuplicateRules() throws Exception {

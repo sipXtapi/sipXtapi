@@ -478,7 +478,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     private boolean isAutoAttendantAliasInUse(String alias) {
-        // Because auto attendant aliases are stored together in a comma-delimited string,
+        // Because auto attendant aliases are stored together in a space-delimited string,
         // we can't query the DB for individual aliases. However, there will be so few
         // of these aliases (one string per internal dialing rule) that we can simply load
         // all such alias strings and check them in Java.

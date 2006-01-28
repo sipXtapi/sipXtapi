@@ -23,7 +23,7 @@
     <property name="description" value="Default autoattendant dialing plan"/>
     <property name="enabled" value="true"/>
     <property name="extension" value="100"/>
-    <property name="attendantAliases" value="operator, 0"/>
+    <property name="attendantAliases" value="operator 0"/>
   </bean>
   
   <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule"
