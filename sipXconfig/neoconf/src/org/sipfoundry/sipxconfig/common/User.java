@@ -33,14 +33,14 @@ public class User extends BeanWithGroups {
     // security roles
     public static final String ROLE_USER = "ROLE_USER";
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
-    
+
     // property names
     public static final String ALIASES_PROP = "aliases";
     public static final String FIRST_NAME_PROP = "firstName";
     public static final String LAST_NAME_PROP = "lastName";
     public static final String USER_NAME_PROP = "userName";
-    
-    // Reserved name for the special superadmin user.  In principle, this name could now be
+
+    // Reserved name for the special superadmin user. In principle, this name could now be
     // anything, it's just "superadmin" by current convention.
     public static final String SUPERADMIN = "superadmin";
 
@@ -59,7 +59,7 @@ public class User extends BeanWithGroups {
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
      * user. To keep the PIN secure, we don't store it.
-     */    
+     */
     public String getPintoken() {
         return (String) ObjectUtils.defaultIfNull(m_pintoken, StringUtils.EMPTY);
     }
@@ -151,8 +151,8 @@ public class User extends BeanWithGroups {
     }
 
     /**
-     * Add the alias to the set of aliases.
-     * Return true if the alias was added, false if the alias was already in the set.
+     * Add the alias to the set of aliases. Return true if the alias was added, false if the alias
+     * was already in the set.
      */
     public boolean addAlias(String alias) {
         return getAliases().add(alias);
@@ -171,12 +171,12 @@ public class User extends BeanWithGroups {
     /** Set the aliases from a space-delimited string */
     public void setAliasesString(String aliasesString) {
         getAliases().clear();
-        if(aliasesString != null) {
+        if (aliasesString != null) {
             String[] aliases = StringUtils.split(aliasesString);
-            addAliases(aliases);            
+            addAliases(aliases);
         }
     }
-    
+
     public String getUri(String domainName) {
         return SipUri.format(this, domainName);
     }
@@ -209,7 +209,7 @@ public class User extends BeanWithGroups {
         boolean enabled = Permission.isEnabled(setting.getValue());
         return enabled;
     }
-    
+
     public boolean isAdmin() {
         return hasPermission(Permission.SUPERADMIN);
     }
