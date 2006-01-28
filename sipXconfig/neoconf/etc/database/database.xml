@@ -104,15 +104,7 @@
   	<mark-patch-applied patch="conference_name_uniqueness"/>
   </target>  
   
-  <!-- this patch uninstalls itself each time until upload is a bit more frozen-->
-  <target name="drop-upload" if="upload">
-    <sipx-sql>
-      drop table upload;
-      drop sequence upload_seq;
-      delete from patch where name = 'upload';
-    </sipx-sql>
-  </target>  
-  <target name="upload" depends="drop-upload">
+  <target name="upload" unless="upload">
     <db-patch patch="upload"/>
   </target>  
 
