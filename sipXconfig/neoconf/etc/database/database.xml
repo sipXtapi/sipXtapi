@@ -94,6 +94,7 @@
   	  conference_name_uniqueness,
       upload,
       grandstreamV2,
+      upload_deployed,
   	  attendant_schedule
 	  "/>
 
@@ -112,7 +113,11 @@
     <db-patch patch="grandstreamV2"/>
   </target>  
 
-  <target name="attendant_schedule" unless="attendant_schedule">
+  <target name="upload_deployed" unless="upload_deployed">
+    <db-patch patch="upload_deployed"/>
+  </target>  
+
+    <target name="attendant_schedule" unless="attendant_schedule">
     <db-patch patch="attendant_schedule"/>
   </target>  
 

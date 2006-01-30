@@ -28,16 +28,29 @@
     </component>
     <component id="uploadForm" type="Form">
         <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="components.applyOkCancel.listeners.onApply"/>
     </component>    
     <component id="settingsFieldset" type="SettingsFieldset">
         <binding name="settings" expression="upload.settings"/>
         <binding name="renderGroupTitle" expression="true"/>
+        <binding name="enabled" expression="! upload.deployed"/>
     </component>
     <component id="nameDescriptionEdit" type="ItemCommon">
         <static-binding name="useExtension" value="false"/>
         <static-binding name="useEnabled" value="false"/>
+        <static-binding name="useFieldset" value="false"/>
         <binding name="item" expression="upload"/>
     </component>    
+    <component id="deploy" type="Submit">
+        <binding name="selected" expression="upload.deployed"/>
+        <binding name="tag" expression="true"/>
+        <static-binding name="label" value="Deploy"/>
+    </component>
+    <component id="undeploy" type="Submit">
+        <binding name="selected" expression="upload.deployed"/>
+        <binding name="tag" expression="false"/>
+        <static-binding name="label" value="Undeploy"/>
+    </component>
     <component id="applyOkCancel" type="FormActions">
         <binding name="listener" expression="listeners.onSave"/>
         <binding name="callback" expression="callback"/>

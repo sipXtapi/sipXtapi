@@ -11,6 +11,7 @@
     </id>
     <discriminator column="bean_id"/>
     <property name="name"/>
+    <property name="deployed"/>
     <property name="beanId" insert="false" update="false"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>

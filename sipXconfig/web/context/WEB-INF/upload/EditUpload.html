@@ -14,8 +14,20 @@
 	                </tbody>
 		        </table>
 	         </fieldset>        
+            <span jwcid="@contrib:FormConditional" condition="ognl:upload.deployed">
+    	        <p><strong>You cannot make changes when files are deployed.</strong></p>
+             </span>
              <fieldset jwcid="settingsFieldset"/>
-             <span jwcid="applyOkCancel"/>
+             <span jwcid="applyOkCancel">
+                 <li>
+                 <span jwcid="@contrib:FormConditional" condition="ognl:upload.deployed">
+                     <input jwcid="undeploy"/>
+                 </span>
+                 <span jwcid="@contrib:FormConditional" condition="ognl:! upload.deployed">
+                     <input jwcid="deploy"/>
+                 </span>
+                 </li>
+             </span>
 		</form>
 	</div>
 </body>

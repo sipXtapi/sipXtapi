@@ -31,6 +31,7 @@ public class Upload extends BeanWithSettings {
     private ModelFilesContext m_modelFilesContext;
     private String m_beanId;
     private UploadDestination m_destination;
+    private boolean m_deployed;
 
     public Upload() {
         this(UploadSpecification.UNMANAGED);
@@ -43,6 +44,14 @@ public class Upload extends BeanWithSettings {
     protected Upload(UploadSpecification specification) {
         m_beanId = specification.getBeanId();
         m_specification = specification;
+    }
+
+    public boolean isDeployed() {
+        return m_deployed;
+    }
+
+    public void setDeployed(boolean enabled) {
+        m_deployed = enabled;
     }
 
     public UploadSpecification getSpecification() {

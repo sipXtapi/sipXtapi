@@ -5,6 +5,10 @@
 <body jwcid="$content$">
 	<div jwcid="@Border">
         <h2>Device Files</h2>
+        <p>Deployed files are made available in the destination directory. 
+            Undeployed files are removed from destination directory but can be redeployed
+            at at time w/o uploading files again. </p>
+        <p>You can only upload when files are undeployed.</p>
         <span jwcid="@ErrorMsg"/>
 		<form jwcid="uploadManagement">
 			<ul class="component-links">
@@ -21,6 +25,10 @@
 				<li>
 					<input id="phone:delete" jwcid="delete" value="Delete"
                        onclick="return confirm('Are you sure you want to delete selected upload items?')"/>
+					<input id="phone:delete" jwcid="deploy" value="Deploy"
+                       onclick="return confirm('Are you sure you want to deploy selected upload items?')"/>
+					<input id="phone:delete" jwcid="undeploy" value="Undeploy"
+                       onclick="return confirm('Are you sure you want to undeploy selected upload items?')"/>
 				</li>
 			</ul>
 		</form>

@@ -37,7 +37,7 @@ public abstract class EditUpload extends PageWithCallback implements PageRenderL
     public abstract void setUploadSpecification(UploadSpecification specification);
     
     public abstract UploadManager getUploadManager();
-
+    
     public void pageBeginRender(PageEvent event_) {
         Upload upload = getUpload();
         if (upload == null) {
