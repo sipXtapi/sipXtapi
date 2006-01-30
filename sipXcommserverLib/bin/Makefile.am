@@ -2,6 +2,8 @@ include $(top_builddir)/config/sipXcommon.mak
 
 SUBDIRS = ssl-cert
 
+INCLUDES = -I../include
+
 dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
    configpp \

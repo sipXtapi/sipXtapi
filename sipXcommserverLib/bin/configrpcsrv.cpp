@@ -24,7 +24,7 @@
 #include <os/OsTask.h>
 #include <os/OsConfigDb.h>
 
-#include "configrpc/ConfigRPC.h"
+#include <configrpc/ConfigRPC.h>
 
 // CONSTANTS
 #define HTTP_PORT               8200    // Default HTTP port
