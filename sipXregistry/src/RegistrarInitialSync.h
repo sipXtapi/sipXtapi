@@ -50,30 +50,27 @@ protected:
    friend class SipRegistrar;
 
    /// Recover the latest received update number for each peer from the local db.
-   void restorePeerUpdateNumbers(UtlSListIterator& peers);
+   void restorePeerUpdateNumbers();
    
    /// Get from peers any of our own updates that we have lost
-   void pullLocalUpdatesFromPeers( UtlSListIterator& peers
-                                  ,const char*       primaryName
-                                  ,intll             dbUpdateNumber
-                                  );
+   void pullLocalUpdatesFromPeers();
    
    /// Get from peers any peer updates that we missed or lost while down
-   void pullPeerUpdatesFromPeers( UtlSListIterator& peers
-                                 ,const char*      primaryName
-                                  );
-   
-   /// Apply updates to the registration DB
-   void applyUpdates(UtlSList& bindings);
+   void pullPeerUpdatesFromPeers();
 
    /// Get any updates for unreachable peers from reachable ones.
-   void recoverUnReachablePeers(UtlSListIterator& peers);
-   
-   RegistrationDB* getRegistrationDb();
+   void recoverUnReachablePeers();
+
+   /// Return the name of this registrar
+   const char* getPrimaryName();
+
+   SipRegistrarServer& getRegistrarServer();
+
+   /// Apply registry updates to the database
+   void applyUpdatesToDirectory(UtlSList& bindings);
 
 private:
    SipRegistrar*   mRegistrar;
-   RegistrationDB* mRegistrationDb;
    OsBSem          mFinished;
    
    /// There is no copy constructor.

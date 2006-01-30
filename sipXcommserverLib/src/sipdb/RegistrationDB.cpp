@@ -14,6 +14,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
 #include "utl/UtlLongLongInt.h"
+#include "utl/UtlSListIterator.h"
 #include "os/OsLock.h"
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
@@ -665,7 +666,7 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
 }
 
 intll
-RegistrationDB::getMaxUpdateNumberForRegistrar(const char* primaryRegistrar) const
+RegistrationDB::getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const
 {
    intll maxUpdateForPrimary = 0LL;
 

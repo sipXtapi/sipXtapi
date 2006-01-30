@@ -460,12 +460,11 @@ bool SyncRpcPushUpdates::execute(
    // the callingRegistrar input, since peers only push updates for which
    // they are the primary registrar.
 
-
-   // :HA: Make sure that lastSentUpdateNumber matches PeerReceivedDbUpdateNumber.
+   // :HA: Make sure that lastSentUpdateNumber <= PeerReceivedDbUpdateNumber.
    // Otherwise we're missing one or more updates.  If there is a mismatch, then
    // reject the update, and return a fault in order to trigger a reset.
-   // :TODO: do this check - UtlLongLongInt* lastSentUpdateNumber = dynamic_cast<UtlLongLongInt*>(params.at(1));
-
+   // :TODO: do this check -
+   //   UtlLongLongInt* lastSentUpdateNumber <= dynamic_cast<UtlLongLongInt*>(params.at(1));
    UtlSList* updateMaps = dynamic_cast<UtlSList*>(params.at(2));
    UtlSListIterator updateIter(*updateMaps);
 
@@ -562,7 +561,9 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* replicated, ///< peer to push to
    UtlString primaryName(myName);
    request.addParam(&primaryName);
 
-   // second parameter is a list of registration bindings
+   // :HA: add lastSentUpdateNumber as the second parameter here
+
+   // third parameter is a list of registration bindings
    UtlSListIterator bindingIterator(*bindings);
    UtlSList bindingParamList;
    RegistrationBinding* binding;

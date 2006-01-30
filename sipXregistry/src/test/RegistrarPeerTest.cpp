@@ -48,7 +48,7 @@ public:
 
          SipRegistrar registrar(&configuration);
 
-         CPPUNIT_ASSERT(NULL == registrar.primaryName());
+         CPPUNIT_ASSERT(registrar.primaryName().isNull());
 
          UtlSListIterator* peerIterator = registrar.getPeers();
          CPPUNIT_ASSERT(NULL == peerIterator);

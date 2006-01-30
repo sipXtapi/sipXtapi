@@ -9,14 +9,18 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include <memory>
 
 // APPLICATION INCLUDES
 #include "sipdb/RegistrationBinding.h"
+#include "os/OsDateTime.h"
 #include "utl/UtlSListIterator.h"
 #include "SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "RegistrarInitialSync.h"
 #include "SyncRpc.h"
+
+using std::auto_ptr;
 
 // DEFINES
 // CONSTANTS
@@ -27,7 +31,6 @@
 RegistrarInitialSync::RegistrarInitialSync(SipRegistrar* registrar)
    : OsTask("RegistrarInitSync-%d"),
      mRegistrar(registrar),
-     mRegistrationDb(NULL),
      mFinished(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
 {
 };
@@ -36,37 +39,25 @@ int RegistrarInitialSync::run(void* pArg)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync started");
 
-   UtlSListIterator*   peers              = mRegistrar->getPeers();
-   SipRegistrarServer& sipRegistrarServer = mRegistrar->getRegistrarServer();
-   
-   // recover the largest update number from the database for this primary
-   intll dbUpdateNumber = sipRegistrarServer.restoreLocalUpdateNumber();
-
    // get the received update numbers for each peer from the local database
-   restorePeerUpdateNumbers(*peers);
+   restorePeerUpdateNumbers();
 
    // having done that, we can begin accepting pull requests from peers
    SyncRpcPullUpdates::registerSelf(*mRegistrar);
 
    // Get from peers any of our own updates that we have lost
-   const char* primaryName = mRegistrar->primaryName();
-   pullLocalUpdatesFromPeers(*peers,
-                             primaryName,
-                             dbUpdateNumber);
+   pullLocalUpdatesFromPeers();
    
    // Get from peers any peer updates that we missed or lost while down
-   pullPeerUpdatesFromPeers(*peers, primaryName);
+   pullPeerUpdatesFromPeers();
 
    // Get any updates for unreachable peers from reachable ones.
-   recoverUnReachablePeers(*peers);
-
-   // We're done with the peers iterator
-   delete peers;
+   recoverUnReachablePeers();
 
    // Reset the DbUpdateNumber so that the upper half is the epoch time.
-   sipRegistrarServer.resetDbUpdateNumberEpoch();
+   getRegistrarServer().resetDbUpdateNumberEpoch();
 
-   // SipRegistrar manages the transition to operational phase, so it will send the resets
+   // SipRegistrar manages the transition to operational phase, so it will send resets to peers
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync complete");
    
@@ -75,17 +66,18 @@ int RegistrarInitialSync::run(void* pArg)
 }
 
 /// Recover the latest received update number for each peer from the local db.
-void RegistrarInitialSync::restorePeerUpdateNumbers(UtlSListIterator& peers)
+void RegistrarInitialSync::restorePeerUpdateNumbers()
 {
+   auto_ptr<UtlSListIterator> peers(mRegistrar->getPeers());
    RegistrarPeer* peer;
-   while ((peer = static_cast<RegistrarPeer*>(peers())))
+   while ((peer = static_cast<RegistrarPeer*>((*peers)())))
    {
       const char* name = peer->name();
       assert(name);
       
       // Set the last received update number for the peer to the max update number
       // for the peer that we see in the registration DB
-      intll maxUpdateNumber = getRegistrationDb()->getMaxUpdateNumberForRegistrar(name);
+      intll maxUpdateNumber = getRegistrarServer().getMaxUpdateNumberForRegistrar(name);
       peer->setReceivedFrom(maxUpdateNumber);
 
       // We don't know the last sent update number for the peer yet, so zero it out
@@ -95,14 +87,11 @@ void RegistrarInitialSync::restorePeerUpdateNumbers(UtlSListIterator& peers)
 
    
 /// Get from peers any of our own updates that we have lost
-void RegistrarInitialSync::pullLocalUpdatesFromPeers(
-   UtlSListIterator& peers,            // list of peers
-   const char*       primaryName,      // name of this registrar
-   intll             DbUpdateNumber)   // largest local DB update number
+void RegistrarInitialSync::pullLocalUpdatesFromPeers()
 {
-   assert(primaryName);
+   auto_ptr<UtlSListIterator> peers(mRegistrar->getPeers());
    RegistrarPeer* peer;
-   while ((peer = static_cast<RegistrarPeer*>(peers())))
+   while ((peer = static_cast<RegistrarPeer*>((*peers)())))
    {
       // Call pullUpdates, passing the local registrar host name and DbUpdateNumber.
       // The purpose of this call is to recover any registrations for which the local
@@ -110,29 +99,36 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers(
       // persistent store (the canonical case is that the local file was lost or
       // corrupted - when this is the case, the local DbUpdateNumber will usually be zero).
       // If we can't reach the peer, then the invoke method marks it UnReachable.
+
+      // Pulling updates changes maxUpdateNumber, so compute it on each iteration
+      const char* primaryName = getPrimaryName();
+      intll maxUpdateNumber = getRegistrarServer().getMaxUpdateNumberForRegistrar(primaryName);
+
       UtlSList bindings;
       RegistrarPeer::SynchronizationState state =
-         SyncRpcPullUpdates::invoke(peer, primaryName, primaryName, DbUpdateNumber, &bindings);
+         SyncRpcPullUpdates::invoke(
+            peer,            // the peer we're contacting
+            primaryName,     // name of the calling registrar (this one)
+            primaryName,     // name of the registrar whose updates we're pulling (this one)
+            maxUpdateNumber, // pull all updates more recent than this
+            &bindings);      // return bindings in this list
 
       // Apply the resulting updates to the DB
       if (state == RegistrarPeer::Reachable)
       {
-         applyUpdates(bindings);
+         applyUpdatesToDirectory(bindings);
       }
    }
-
-   // restore the iterator's state
-   peers.reset();
 }
 
 
 /// Get from peers any peer updates that we missed or lost while down
-void RegistrarInitialSync::pullPeerUpdatesFromPeers(
-   UtlSListIterator& peers,            // list of peers
-   const char*       primaryName)      // name of this registrar
+void RegistrarInitialSync::pullPeerUpdatesFromPeers()
 {
+   auto_ptr<UtlSListIterator> peers(mRegistrar->getPeers());
    RegistrarPeer* peer;
-   while ((peer = static_cast<RegistrarPeer*>(peers())))
+   const char* primaryName = getPrimaryName();
+   while ((peer = static_cast<RegistrarPeer*>((*peers)())))
    {
       const char* peerName = peer->name();
       assert(peerName);
@@ -144,36 +140,16 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers(
       // Apply the resulting updates to the DB
       if (state == RegistrarPeer::Reachable)
       {
-         applyUpdates(bindings);
+         applyUpdatesToDirectory(bindings);
       }
-      
-   }
-
-   // restore the iterator's state
-   peers.reset();
-}
-
-   
-/// Apply updates to the registration DB
-void RegistrarInitialSync::applyUpdates(UtlSList& bindings)
-{
-   UtlSListIterator bindingsIter(bindings);
-   RegistrationBinding* binding;
-   RegistrationDB* regDb = getRegistrationDb();
-   while ((binding = static_cast<RegistrationBinding*>(bindingsIter())))
-   {
-      regDb->updateBinding(*binding);
    }
 }
 
 
 /// Get any updates for unreachable peers from reachable ones.
-void RegistrarInitialSync::recoverUnReachablePeers( UtlSListIterator& peers )
+void RegistrarInitialSync::recoverUnReachablePeers()
 {
    // Defer implementation until after HA 1.0: see XRR-92
-
-   // restore the iterator's state
-   peers.reset();
 }
 
 
@@ -183,13 +159,24 @@ void RegistrarInitialSync::waitForCompletion()
 }
 
 
-RegistrationDB* RegistrarInitialSync::getRegistrationDb()
+const char* RegistrarInitialSync::getPrimaryName()
 {
-   if (mRegistrationDb == NULL)
-   {
-      mRegistrationDb = mRegistrar->getRegistrationDB();
-   }
-   return mRegistrationDb;
+   const char* primaryName = mRegistrar->primaryName();   
+   assert(primaryName);
+   return primaryName;
+}
+
+
+SipRegistrarServer& RegistrarInitialSync::getRegistrarServer()
+{
+   return mRegistrar->getRegistrarServer();
+}
+
+
+void RegistrarInitialSync::applyUpdatesToDirectory(UtlSList& bindings)
+{
+   int timeNow = OsDateTime::getSecsSinceEpoch();
+   getRegistrarServer().applyUpdatesToDirectory(timeNow, bindings);
 }
  
   

@@ -64,14 +64,15 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    mHttpServer(NULL),
    mXmlRpcDispatch(NULL),
    mReplicationConfigured(false),
-   mInitialSyncThread(NULL),
    mSipUserAgent(NULL),
    mRedirectServer(NULL),
    mRedirectMsgQ(NULL),
    // Create the SipRegistrarServer object so it will be available immediately,
    // but don't start the associated thread until the registrar is operational.
    mRegistrarServer(new SipRegistrarServer(*this)),
-   mRegistrarMsgQ(NULL)
+   mRegistrarMsgQ(NULL),
+   mRegistrarSync(NULL),
+   mRegistrarTest(NULL)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar constructed.");
 
@@ -127,7 +128,7 @@ void SipRegistrar::startupPhase()
 
    if (mReplicationConfigured)
    {
-      // :TODO: Begin the RegistrarInitialSync thread and then wait for it.
+      // Begin the RegistrarInitialSync thread and then wait for it.
       RegistrarInitialSync* initialSyncThread = new RegistrarInitialSync(this);
       initialSyncThread->start();
       yield();
@@ -214,10 +215,14 @@ void SipRegistrar::operationalPhase()
    }
 
    mSipUserAgent->start();
-
    startRegistrarServer();
-
    startRedirectServer();
+
+   // The RegistrarTest thread signals the RegistrarSync thread's semaphore.  So the 
+   // RegistrarSync object must be created before the RegistrarTest thread starts.
+   // But the order in which the threads start doesn't matter.
+   //startRegistrarSync();    // :HA: not ready
+   //startRegistrarTest();    // :HA: not ready
 }
 
 /// Get the XML-RPC dispatcher
@@ -419,13 +424,10 @@ void SipRegistrar::configurePeers()
 }
 
     
-/// If replication configured, name of this registrar as primary, else NULL
-const char* SipRegistrar::primaryName()
+/// If replication is configured, then name of this registrar as primary
+const UtlString& SipRegistrar::primaryName() const
 {
-   return (  mReplicationConfigured
-           ? mPrimaryName.data()
-           : NULL
-           );
+   return mPrimaryName;
 }
 
 
@@ -499,4 +501,18 @@ SipRegistrar::sendToRegistrarServer(OsMsg& eventMessage)
     {
        OsSysLog::add(FAC_SIP, PRI_CRIT, "sendToRegistrarServer - queue not initialized.");
     }
+}
+
+void
+SipRegistrar::startRegistrarSync()
+{
+   mRegistrarSync = new RegistrarSync();
+   mRegistrarSync->start();
+}
+
+void
+SipRegistrar::startRegistrarTest()
+{
+   mRegistrarTest = new RegistrarTest();
+   mRegistrarTest->start();
 }

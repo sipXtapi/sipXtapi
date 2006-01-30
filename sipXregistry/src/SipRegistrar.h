@@ -98,8 +98,8 @@ public:
      * Sets mReplicationConfigured=true if replication is configured.
      */
     
-    /// If replication configured, name of this registrar as primary, else NULL
-    const char* primaryName();
+    /// If replication is configured, then name of this registrar as primary
+    const UtlString& primaryName() const;
 
     /// Get an iterator over all peers.
     UtlSListIterator* getPeers();
@@ -155,8 +155,6 @@ private:
    bool      mReplicationConfigured; /// master switch for replication 
    UtlString mPrimaryName;           ///< full name of this host as primary 
    UtlSList  mPeers;                 ///< list of RegisterPeer objects.
-
-   RegistrarInitialSync* mInitialSyncThread;
    
    SipUserAgent* mSipUserAgent;
    
@@ -176,6 +174,9 @@ private:
    /* ============================ REDIRECT ==================================== */
    void startRedirectServer();
    void sendToRedirectServer(OsMsg& eventMessage);
+
+   void startRegistrarSync();
+   void startRegistrarTest();
 };
 
 #endif  // _SipRegistrar_h_

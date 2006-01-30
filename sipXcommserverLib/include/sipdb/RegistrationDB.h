@@ -62,8 +62,8 @@ public:
     /// Utility method for dumping all rows
     void getAllRows ( ResultSet& rResultSet ) const;
 
-    /// Return the maximum update number for primaryRegistrar, or zero if there are no such updates
-    intll getMaxUpdateNumberForRegistrar(const char* primaryRegistrar) const;
+    /// Return the max update number for primaryRegistrar, or zero if there are no such updates
+    intll getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const;
     
     /// Get the next update for primaryRegistrar with an update number > updateNumber.
     int getNextUpdateForRegistrar( const UtlString& primaryRegistrar
@@ -92,9 +92,10 @@ public:
                                ,ResultSet& rResultSet
                                ) const;
 
+    /// update the binding of uri to contact: does insert or update as needed
     void updateBinding(const RegistrationBinding&);
 
-    /// updateBinding of uri to contact: does insert or update as needed
+    /// update the binding of uri to contact: does insert or update as needed
     void updateBinding( const Url& uri
                        ,const UtlString& contact
                        ,const UtlString& qvalue

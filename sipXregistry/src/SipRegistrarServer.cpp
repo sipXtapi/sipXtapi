@@ -82,18 +82,10 @@ SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     mDefaultRegistryPeriod(),
     mNonceExpiration(5*60)
 {
-}
-
-/// Recover and return the largest update number from the database for this primary.
-intll
-SipRegistrarServer::restoreLocalUpdateNumber()
-{
-   // Critical Section here
-   OsLock lock(sLockMutex);
-
-   RegistrationDB* imdb = mRegistrar.getRegistrationDB();
-   mDbUpdateNumber = imdb->getMaxUpdateNumberForRegistrar(mRegistrar.primaryName());
-   return mDbUpdateNumber;
+   // Recover and return the largest update number from the database for this primary.
+   // Do this even if replication is not configured.  Replication might get 
+   // configured later and we want the update numbers to be correct if that happens.
+   mDbUpdateNumber = getMaxUpdateNumberForRegistrar(mRegistrar.primaryName());
 }
 
 void
@@ -114,12 +106,11 @@ SipRegistrarServer::initialize(
            OsSysLog::add(FAC_SIP, PRI_WARNING,
                          "SipRegistrarServer "
                          "configured minimum (%d) < hard minimum (%d); set to hard minimum",
-                         mMinExpiresTimeint, HARD_MINIMUM_EXPIRATION
-                         );
-            mMinExpiresTimeint = HARD_MINIMUM_EXPIRATION;
-            char min[10];
-            sprintf(min, "%d", HARD_MINIMUM_EXPIRATION);
-            mMinExpiresTimeStr = min;
+                         mMinExpiresTimeint, HARD_MINIMUM_EXPIRATION);
+           mMinExpiresTimeint = HARD_MINIMUM_EXPIRATION;
+           char min[10];
+           sprintf(min, "%d", HARD_MINIMUM_EXPIRATION);
+           mMinExpiresTimeStr = min;
         }
     }
 
@@ -649,54 +640,133 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 
     return returnStatus;
 }
-
+    
 
 intll
 SipRegistrarServer::applyUpdatesToDirectory(
    int timeNow,
    const UtlSList& updates)
 {
-    // Critical Section here
-    OsLock lock(sLockMutex);
+   // Critical Section here
+   OsLock lock(sLockMutex);
 
-   // Loop over the updates.  For each update, if the call ID and cseq are newer than what
-   // we have in the DB, then apply the update to the DB.
+   // Loop over the updates and apply them to the DB.
+   // All updates must be for the same primary registrar.
    UtlSListIterator updateIter(updates);
    RegistrationBinding* reg;
-   bool updated = false;    // set to true if we make any updates
    RegistrationDB* imdb = RegistrationDB::getInstance();
+   UtlString primary;
+   UtlString emptyPrimary;
+   const UtlString& myPrimary(mRegistrar.primaryName());
+   RegistrarPeer* peer = NULL;    // peer registrar, or NULL if it's our local registrar
+   intll maxUpdateNumber = -1;    // max update number for these updates
+
    while ((reg = dynamic_cast<RegistrationBinding*>(updateIter())))
    {
-      if (!imdb->isOutOfSequence(*(reg->getUri()), *(reg->getCallId()), reg->getCseq()))
+      intll updateNumber = reg->getUpdateNumber();
+      if (maxUpdateNumber < 0)    // if this is the first time through the loop
       {
-         imdb->updateBinding(*reg);
-         updated = true;
-      
+         maxUpdateNumber = updateNumber;
+         if (reg->getPrimary() != NULL)
+         {
+            primary = *(reg->getPrimary());
+         }
+         if (primary != myPrimary)
+         {
+            peer = mRegistrar.getPeer(primary);
+            if (peer == NULL)
+            {
+               OsSysLog::add(
+                  FAC_SIP, PRI_ERR,
+                  "SipRegistrarServer::applyUpdatesToDirectory unknown peer %s\n",
+                  primary.data());
+               break;
+            }
+         }
       }
       else
       {
-         OsSysLog::add(
-            FAC_SIP, PRI_WARNING,
-            "SipRegistrarServer::applyUpdateToDirectory update out of cseq order\n"
-            "  To: '%s'\n"
-            "  Call-Id: '%s'\n"
-            "  Cseq: %d",
-            reg->getUri()->toString().data(), reg->getCallId()->data(), reg->getCseq()
-            );
+         // make sure that all updates are for a single primary
+         const UtlString* nextPrimary = reg->getPrimary() ? reg->getPrimary() : &emptyPrimary;
+         if (primary != *nextPrimary)
+         {
+            OsSysLog::add(
+               FAC_SIP, PRI_ERR,
+               "SipRegistrarServer::applyUpdatesToDirectory updates with mixed primaries\n"
+               " updateNumber: %lld, primary1: %s, primary2: %s\n",
+               reg->getUpdateNumber(), primary.data(), nextPrimary->data());
+            maxUpdateNumber = -1;    // error
+            break;
+         }
       }
+      maxUpdateNumber = updateOneBinding(reg, peer, imdb);
    }
 
-   // If we accepted any updates, then garbage collect and persist the database
-   if (updated)
+   // If we processed any updates, then garbage collect and persist the database.
+   if (maxUpdateNumber > 0)
    {
       int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
       imdb->cleanAndPersist(oldestTimeToKeep);
    }
 
-   // :HA: Update PeerReceivedDbUpdateNumber to updateNumber if updateNumber is bigger.
-   // If updateNumber is out of order, then log a warning in case there is a problem.
-   // Return PeerReceivedDbUpdateNumber.
-   return reg ? reg->getUpdateNumber() : 0;    // for now, just return the update number
+   return maxUpdateNumber;
+}
+
+
+intll SipRegistrarServer::updateOneBinding(
+   RegistrationBinding* reg,
+   RegistrarPeer* peer,    // NULL if it's the local registrar
+   RegistrationDB* imdb)
+{
+   assert(reg);
+   assert(imdb);
+
+   if (imdb->isOutOfSequence(*reg->getUri(), *reg->getCallId(), reg->getCseq()))
+   {
+      return -1;
+   }
+
+   // Update the registrar state and the binding
+   intll updateNumber = reg->getUpdateNumber();
+   if (peer != NULL)
+   {
+      intll receivedFrom = peer->receivedFrom();
+      if (updateNumber > receivedFrom)
+      {
+         peer->setReceivedFrom(updateNumber);
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "SipRegistrarServer::updateOneBinding "
+                       "updateNumber = %lld is less than receivedFrom = %lld "
+                       "for peer %s",
+                       updateNumber, receivedFrom, peer->name());
+         updateNumber = -1;    // indicate an error
+      }
+   }
+   else
+   {
+      if (updateNumber > mDbUpdateNumber)
+      {
+         mDbUpdateNumber = updateNumber;
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "SipRegistrarServer::updateOneBinding "
+                       "updateNumber = %lld is less than the current updateNumber = %lld "
+                       "for the local registrar",
+                       updateNumber, mDbUpdateNumber.getValue());
+         updateNumber = -1;    // indicate an error
+      }
+   }
+
+   if (updateNumber > 0)
+   {
+      imdb->updateBinding(*reg);
+   }
+   return updateNumber;
 }
 
 
@@ -1149,9 +1219,24 @@ SipRegistrarServer::isValidDomain(
     return isValid;
 }
 
-const char* SipRegistrarServer::primaryName()
+const UtlString& SipRegistrarServer::primaryName() const
 {
    return mRegistrar.primaryName();
+}
+
+intll SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName) const
+{
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
+   RegistrationDB* imdb = mRegistrar.getRegistrationDB();
+   return imdb->getMaxUpdateNumberForRegistrar(primaryName);
+}
+
+/// Get the largest update number in the local database for this registrar as primary
+intll SipRegistrarServer::getDbUpdateNumber() const
+{
+   return mDbUpdateNumber.getValue();
 }
 
 /// Reset the upper half of the DbUpdateNumber to the epoch time.
@@ -1173,8 +1258,6 @@ void SipRegistrarServer::resetDbUpdateNumberEpoch()
                  newEpoch
                  );
 }
-
-    
 
 SipRegistrarServer::~SipRegistrarServer()
 {

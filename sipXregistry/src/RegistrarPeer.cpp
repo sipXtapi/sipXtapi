@@ -96,7 +96,7 @@ void RegistrarPeer::markReachable()
       OsLock mutex(mLock);
    
       notifySyncThread = (  UnReachable == mSyncState
-                          ? mRegistrar->getRegistrarSync() // was not reachabe, so get the thread
+                          ? mRegistrar->getRegistrarSync() // was not reachable, so get the thread
                           : NULL // was reachable, so no need to notify the thread again
                           );   
       mSyncState = Reachable;

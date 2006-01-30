@@ -51,12 +51,6 @@ public:
      * Defer init to the initialize method to allow the SipRegistrarServer object
      * to be accessed before the associated thread has been started.
      */
-   
-    /// Recover and return the largest update number from the database for this primary.
-    intll restoreLocalUpdateNumber();
-    /**<
-     * This method can be called prior to the initialize method (yes this is confusing, sorry)
-     */
 
     /// Initialize the Registration Server
     void initialize(OsConfigDb*   configDb,        ///< Configuration parameters
@@ -79,6 +73,11 @@ public:
         REGISTER_QUERY                  ///< request is a valid query for current contacts
     };
 
+    /// Retrieve all updates for registrarName whose update number is greater than updateNumber
+    int pullUpdates(
+       const UtlString& registrarName,
+       intll            updateNumber,
+       UtlSList&        updates);
     /**<
      * Retrieve all updates for registrarName whose update number is greater than updateNumber.
      * Return the updates in the updates list.  Each update is an object of type
@@ -86,30 +85,24 @@ public:
      * The order of updates in the list is not specified.
      * Return the number of updates in the list.
      */
-    int pullUpdates(
-       const UtlString& registrarName,
-       intll            updateNumber,
-       UtlSList&        updates);
 
-    /**<
-     * Apply registry updates to the database, all of which must have the same primary
-     * registrar and update number.
-     * Return the maximum update number for that registrar.
-     * Since updates are sent in order, that should always be the update number that is
-     * common to all of these updates.
-     */
+    /// Apply registry updates for a single registrar (local or peer) to the database
     intll applyUpdatesToDirectory(
         int timeNow,
         const UtlSList& updates);
+    /**<
+     * Return the maximum update number for that registrar after applying updates, or -1
+     * if there is an error.  An empty updates list is an error.
+     */
 
-    /// Get the largest update number in the local database for this registrar as primary.
-    intll getDbUpdateNumber() 
-       {
-          return mDbUpdateNumber;
-       }
+    /// Get the largest update number in the local database for this registrar as primary
+    intll getDbUpdateNumber() const;
 
     /// Reset the DbUpdateNumber so that the upper half is the epoch time.
     void resetDbUpdateNumberEpoch();
+
+    /// Return the max update number for primaryRegistrar, or zero if there are no such updates
+    intll getMaxUpdateNumberForRegistrar(const char* primaryName) const;
     
 protected:
     SipRegistrar& mRegistrar;
@@ -140,12 +133,19 @@ protected:
 
     static OsMutex sLockMutex;
 
-    /// Validate bindings, and if all are ok apply them to the registry db
+    /// Validate bindings, and if all are OK then apply them to the registry db
     RegisterStatus applyRegisterToDirectory(
         const Url& toUrl,  ///< AOR from the message
         const int timeNow, ///< base time for all expiration calculations
-        const SipMessage& registerMessage ///< message containing bindings
-                                            );
+        const SipMessage& registerMessage); ///< message containing bindings
+    
+    /// Update one binding for a peer registrar, or the local registrar (if peer is NULL)
+    intll updateOneBinding(RegistrationBinding* update,
+                           RegistrarPeer* peer,
+                           RegistrationDB* imdb);
+    /**<
+     * Return the updateNumber, or -1 if there was an error
+     */
 
     // Process a single REGISTER request
     UtlBoolean handleMessage( OsMsg& eventMessage );
@@ -178,8 +178,8 @@ protected:
      */
     void addValidDomain(const UtlString& host, int port = PORT_NONE);
 
-    /// If replication configured, name of this registrar as primary, else NULL
-    const char* primaryName();
+    /// If replication is configured, then name of this registrar as primary
+    const UtlString& primaryName() const;
 };
 
 #endif // SIPREGISTRARSERVER_H
