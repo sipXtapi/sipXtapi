@@ -719,7 +719,7 @@ then
 ##    https://www.sipfoundry.org/pub/key/RPM-GPG-KEY-sipX
 [sipX]
 name=SIPfoundry sipX pbx
-baseurl=http://www.sipfoundry.org/pub/sipX/$(basename $Disttree)/RPM/$Distro/$Distrover
+baseurl=http://www.sipfoundry.org/pub/sipX/$(basename $Disttree)/RPM/$Distro//$releasever
 gpgcheck=1
 EOF
     cat build.err
