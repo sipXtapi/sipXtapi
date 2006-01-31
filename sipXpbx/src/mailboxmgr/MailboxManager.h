@@ -140,7 +140,6 @@
 
 /** Autoattendant schedule **/
 #define AA_SCHEDULE_DIR "aa_vxml/"
-#define SPECIAL_MENU    "afterhour"
 #define HOLIDAY_MENU    "afterhour"
 #define REGULAR_MENU    "operator"
 #define AFTERHOUR_MENU  "afterhour"

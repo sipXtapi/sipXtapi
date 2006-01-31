@@ -5989,10 +5989,6 @@ MailboxManager::parseAutoAttendantSchduleFile ( UtlString& fileLocation,
             //<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" \
             //<schedules>\n" \
             //  <autoattendant>\n" \
-            //    <special>\n" \
-            //      <operation>%s</operation>\n" \
-            //      <filename>%s</filename>\n" \
-            //    </special>\n" \
             //    <holidays>\n" \
             //      <date>1-Jan-2005</date>\n" \
             //      <date>4-Jul-2005</date>\n" \
