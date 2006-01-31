@@ -717,20 +717,25 @@ RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
                                           intll            updateNumber,
                                           UtlSList&        bindings) const
 {
-   dbQuery query;
-   query =
-      "primary = ", primaryRegistrar,
-      " and update_number = ", getNextUpdateNumberForRegistrar(primaryRegistrar, updateNumber);
-   int numRows = getUpdatesForRegistrar(query, bindings);
-   if (numRows > 0)
+   int numRows = 0;
+   intll nextUpdateNumber = getNextUpdateNumberForRegistrar(primaryRegistrar, updateNumber);
+   if (nextUpdateNumber > 0)
    {
-      OsSysLog::add(
-         FAC_SIP, PRI_DEBUG
-         ,"RegistrationDB::getNextUpdateForRegistrar found %d rows for %s with updateNumber = %lld"
-         ,numRows
-         ,primaryRegistrar.data()
-         ,updateNumber);
-   }   
+      dbQuery query;
+      query =
+         "primary = ", primaryRegistrar,
+         " and update_number = ", nextUpdateNumber;
+         numRows = getUpdatesForRegistrar(query, bindings);
+      if (numRows > 0)
+      {
+         OsSysLog::add(
+            FAC_SIP, PRI_DEBUG
+            ,"RegistrationDB::getNextUpdateForRegistrar found %d rows for %s with updateNumber = %lld"
+            ,numRows
+            ,primaryRegistrar.data()
+            ,updateNumber);
+      }   
+   }
    return numRows;
 }
 
