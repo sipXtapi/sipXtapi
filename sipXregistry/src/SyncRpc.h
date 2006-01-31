@@ -163,7 +163,7 @@ class SyncRpcReset : public SyncRpcMethod
  */
 class SyncRpcPullUpdates : public SyncRpcMethod
 {
-  public:
+public:
 
    static XmlRpcMethod* get();
 
@@ -190,7 +190,11 @@ class SyncRpcPullUpdates : public SyncRpcMethod
     * On any failure, the source is marked UnReachable.
     */
    
-  protected:
+protected:   
+   static const char* METHOD_NAME;
+   static const UtlString NUM_UPDATES;
+   static const UtlString UPDATES;
+
    /// constructor 
    SyncRpcPullUpdates();
 
@@ -200,13 +204,14 @@ class SyncRpcPullUpdates : public SyncRpcMethod
                         XmlRpcResponse& response,                 ///< request response
                         ExecutionStatus& status
                         );
-   
-   static const char* METHOD_NAME;
-   static const UtlString NUM_UPDATES;
-   static const UtlString UPDATES;
-   
-  private:
 
+   /// Handle missing parameters for the execute method
+   void handleMissingExecuteParam(const char* paramName,
+                                  XmlRpcResponse& response,
+                                  ExecutionStatus& status,
+                                  RegistrarPeer* peer = NULL);
+   
+private:
    /// no copy constructor
    SyncRpcPullUpdates(const SyncRpcPullUpdates& nocopy);
 

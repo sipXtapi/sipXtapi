@@ -110,6 +110,14 @@ void RegistrarPeer::markReachable()
    }
 }
 
+/// Indicate that a permanent error has occured with this peer.
+void RegistrarPeer::markIncompatible()
+{
+   OsLock mutex(mLock);
+
+   mSyncState = Incompatible;
+}
+
 /// The oldest update successfully sent to this peer.
 intll RegistrarPeer::sentTo()
 {

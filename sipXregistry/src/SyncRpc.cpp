@@ -21,6 +21,7 @@
 #include "net/XmlRpcRequest.h"
 #include "sipdb/RegistrationBinding.h"
 #include "sipdb/RegistrationDB.h"
+#include "RegistrarPeer.h"
 #include "SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "SyncRpc.h"
@@ -432,36 +433,44 @@ bool SyncRpcPullUpdates::execute(
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_CRIT,
-                             "SyncRpcPullUpdates::execute updateNumber arg missing: "
-                             "%s marked incompatible for replication",
-                             peer->name());
-               assert(false);    // bad XML-RPC response
-               peer->markIncompatible();
+               handleMissingExecuteParam("updateNumber", response, status, peer);
             }
          }
          else
          {
-            OsSysLog::add(FAC_SIP, PRI_CRIT,
-                          "SyncRpcPullUpdates::execute primaryRegistrar arg missing: "
-                          "%s marked incompatible for replication",
-                          peer->name());
-            assert(false);    // bad XML-RPC response
-            peer->markIncompatible();
+            handleMissingExecuteParam("primaryRegistrar", response, status, peer);
          }
       }
    }
    else
    {
-      // we would mark the peer incompatible, but we don't even know who the peer is
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SyncRpcPullUpdates::execute callingRegistrar arg missing");
-      assert(false);    // bad XML-RPC response
+      handleMissingExecuteParam("primaryRegistrar", response, status);
    }
 
-   // :HA: fill in XML-RPC fault response on errors
-
    return true;
+}
+
+void SyncRpcPullUpdates::handleMissingExecuteParam(const char* paramName,
+                                                   XmlRpcResponse& response,
+                                                   ExecutionStatus& status,
+                                                   RegistrarPeer* peer)
+{
+   UtlString faultMsg(paramName);
+   faultMsg += " parameter is missing or invalid type";
+   response.setFault(XmlRpcResponse::EmptyParameterValue, faultMsg);
+   status = XmlRpcMethod::FAILED;
+   if (peer != NULL)
+   {
+      // Mark the peer incompatible since we can't understand what it's saying.
+      // Log that as part of the fault message.
+      peer->markIncompatible();
+
+      faultMsg += ": ";
+      faultMsg += peer->name();
+      faultMsg += " marked incompatible for replication";
+   }
+   OsSysLog::add(FAC_SIP, PRI_CRIT, faultMsg);
+   assert(false);    // bad XML-RPC response
 }
 
 
