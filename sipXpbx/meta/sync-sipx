@@ -97,7 +97,7 @@ fi
 
 set -x
 rsync $DryRun $RsyncOpts \
-    --exclude /include/ --exclude /share/doc/ --exclude '/var/log/*' \
-    --exclude '/var/sipxdata/sipdb/*' --exclude '/var/sipxdata/tmp/*' --exclude '/var/run/*' \
+    --exclude /include/ --exclude /share/doc/ --exclude '/var/log/sipxpbx/*' \
+    --exclude '/var/sipxdata/sipdb/*' --exclude '/var/sipxdata/tmp/*' --exclude '/var/run/sipxpbx/*' \
     $ConfigFilter $InstallDir/ $TargetHost:$InstallDir/
 
