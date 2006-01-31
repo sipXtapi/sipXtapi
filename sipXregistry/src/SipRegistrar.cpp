@@ -513,6 +513,6 @@ SipRegistrar::startRegistrarSync()
 void
 SipRegistrar::startRegistrarTest()
 {
-   mRegistrarTest = new RegistrarTest();
+   mRegistrarTest = new RegistrarTest(*this);
    mRegistrarTest->start();
 }

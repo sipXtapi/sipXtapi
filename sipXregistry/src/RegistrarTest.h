@@ -13,6 +13,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "os/OsTimer.h"
 #include "os/OsServerTask.h"
 
 // DEFINES
@@ -30,7 +31,7 @@ class RegistrarTest : public OsServerTask
   public:
 
    // constructor
-   RegistrarTest();
+   RegistrarTest(SipRegistrar& registrar);
 
    /// destructor
    virtual ~RegistrarTest();
@@ -56,10 +57,13 @@ class RegistrarTest : public OsServerTask
   private:
 
    /// mutex must be locked with OsLock to access any other member variable.
-   OsBSem mutex;
+   OsBSem mLock;
 
    /// Whether or not there is a timer running.
    bool mWaitingForNextCheck;
+
+   /// The retry timer.
+   OsTimer mRetryTimer;
    
    /// Current value of the retry timer.
    size_t mRetryTime; 
@@ -74,6 +78,9 @@ class RegistrarTest : public OsServerTask
     *   and schedule a timer for this new time.
     */
 
+   /// The top level task - do not delete;
+   SipRegistrar& mSipRegistrar;
+   
    /// There is no copy constructor.
    RegistrarTest(const RegistrarTest&);
 

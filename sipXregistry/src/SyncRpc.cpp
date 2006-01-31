@@ -314,6 +314,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                   UtlHashMap* update;
                   while ((update = dynamic_cast<UtlHashMap*>(updates())))
                   {
+                     // add this to the returned bindings list
                      bindings->append(new RegistrationBinding(*update));
                   }
                }
