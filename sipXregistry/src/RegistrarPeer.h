@@ -20,6 +20,8 @@
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class SipRegistrar;
+
 
 /**
  * A peer registrar is another registry server in the same SIP domain
@@ -79,6 +81,8 @@ class RegistrarPeer : public UtlString
     * to re-establish contact.
     */
    
+   inline bool isReachable() { return synchronizationState() == Reachable; }
+
    /// Indicate that a request to this peer failed.
    void markUnReachable();
    /**<

@@ -506,7 +506,7 @@ SipRegistrar::sendToRegistrarServer(OsMsg& eventMessage)
 void
 SipRegistrar::startRegistrarSync()
 {
-   mRegistrarSync = new RegistrarSync();
+   mRegistrarSync = new RegistrarSync(*this);
    mRegistrarSync->start();
 }
 

@@ -36,6 +36,8 @@ class RegistryDbTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE(RegistryDbTest);
    CPPUNIT_TEST(testIsOutOfSequence);
    CPPUNIT_TEST(testGetMaxUpdateNumberForRegistrar);
+   CPPUNIT_TEST(testGetNextUpdateNumberForRegistrar);
+   CPPUNIT_TEST(testGetNextUpdateForRegistrar);
    CPPUNIT_TEST(testGetNewUpdatesForRegistrar);  
    CPPUNIT_TEST(testGetUnexpiredContacts);
    CPPUNIT_TEST(testUpdateExistingBinding);
@@ -77,6 +79,85 @@ public:
          intll seqThreeMax = regDb->getMaxUpdateNumberForRegistrar("seqThree");
          CPPUNIT_ASSERT_EQUAL(0LL, seqThreeMax);         
       }
+
+   void testGetNextUpdateNumberForRegistrar()
+      {
+         RegistrationDbTestContext testDbContext(TEST_DATA_DIR "/regdbdata",
+                                                 TEST_WORK_DIR "/regdbdata"
+                                                 );
+
+         testDbContext.inputFile("getMaxUpdate.xml");
+
+         RegistrationDB* regDb = RegistrationDB::getInstance();
+         
+         intll seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 0LL);
+         CPPUNIT_ASSERT_EQUAL(1LL, seqOneNext);
+
+         seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 1LL);
+         CPPUNIT_ASSERT_EQUAL(2LL, seqOneNext);
+         
+         seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 2LL);
+         CPPUNIT_ASSERT_EQUAL(3LL, seqOneNext);
+         
+         seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 3LL);
+         CPPUNIT_ASSERT_EQUAL(5LL, seqOneNext);
+         
+         seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 4LL);
+         CPPUNIT_ASSERT_EQUAL(5LL, seqOneNext);
+         
+         seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 5LL);
+         CPPUNIT_ASSERT_EQUAL(0LL, seqOneNext);
+         
+         intll seqTwoNext = regDb->getNextUpdateNumberForRegistrar("seqTwo", 4);
+         CPPUNIT_ASSERT_EQUAL(7LL, seqTwoNext);
+        
+         // Pass in unknown registrar
+         intll seqThreeNext = regDb->getNextUpdateNumberForRegistrar("seqThree", 1);
+         CPPUNIT_ASSERT_EQUAL(0LL, seqThreeNext);                  
+      }
+      
+   void testGetNextUpdateForRegistrar()
+      {
+         UtlSList bindings;
+         RegistrationDbTestContext testDbContext(TEST_DATA_DIR "/regdbdata",
+                                                 TEST_WORK_DIR "/regdbdata"
+                                                 );
+
+         testDbContext.inputFile("getMaxUpdate.xml");
+
+         RegistrationDB* regDb = RegistrationDB::getInstance();
+         
+         intll seqOneUpdates = regDb->getNextUpdateForRegistrar("seqOne", 2, bindings);
+         CPPUNIT_ASSERT_EQUAL(1LL, seqOneUpdates);
+         
+         UtlSListIterator iterator(bindings);
+
+         // Loop through all returned bindings and mark the ones we've seen.
+         // Also check correctness of bindings
+         RegistrationBinding *binding;
+         while ((binding = (RegistrationBinding*)iterator()))
+         {
+             CPPUNIT_ASSERT_EQUAL(binding->getCallId()->compareTo("ID3"), 0);
+             CPPUNIT_ASSERT_EQUAL(binding->getContact()->compareTo("sip:300@10.1.1.20"), 0);
+             CPPUNIT_ASSERT_EQUAL(binding->getUri()->toString().compareTo("sip:300@testdomain.example.com"), 0);
+             CPPUNIT_ASSERT_EQUAL(300, binding->getCseq());
+         }
+
+         bindings.destroyAll();
+         // Pass in high update number value, expect nothing to be returned
+         seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 8, bindings);
+         CPPUNIT_ASSERT_EQUAL(0LL, seqOneUpdates);
+
+         bindings.destroyAll();         
+         // Test the other registrar, expect one binding
+         intll seqTwoUpdates = regDb->getNewUpdatesForRegistrar("seqTwo", 2, bindings);
+         CPPUNIT_ASSERT_EQUAL(1LL, seqTwoUpdates);         
+         
+         binding = (RegistrationBinding*)bindings.first();
+         CPPUNIT_ASSERT_EQUAL(binding->getContact()->compareTo("sip:800@10.1.1.20"), 0);    
+         CPPUNIT_ASSERT_EQUAL(binding->getUri()->toString().compareTo("sip:800@testdomain.example.com"), 0);                            
+         CPPUNIT_ASSERT_EQUAL(800, binding->getCseq());       
+      } 
       
    void testGetNewUpdatesForRegistrar()
       {

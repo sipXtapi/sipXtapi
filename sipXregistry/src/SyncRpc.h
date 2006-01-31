@@ -30,8 +30,7 @@ class XmlRpcDispatch;
 /// Base class for all registerSync XML-RPC Methods
 class SyncRpcMethod : public XmlRpcMethod
 {
-  public:
-
+public:
    static XmlRpcMethod* get();
 
    /// destructor
@@ -45,7 +44,10 @@ class SyncRpcMethod : public XmlRpcMethod
    /// Register this method with the XmlRpcDispatch object so it can be called.
    static void registerSelf(SipRegistrar&   registrar);
 
-  protected:
+protected:
+   // Method name
+   static const char* METHOD_NAME;
+   
    /// constructor 
    SyncRpcMethod();
 
@@ -67,14 +69,12 @@ class SyncRpcMethod : public XmlRpcMethod
    ExecutionStatus authenticateCaller(
       const HttpRequestContext& requestContext, ///< request context
       const UtlString&          peerName,       ///< name of the peer who is calling
-      XmlRpcResponse&           response        ///< response to put fault in
+      XmlRpcResponse&           response,       ///< response to put fault in
+      SipRegistrar&             registrar,      ///< registrar
+      RegistrarPeer**           peer = NULL     ///< optional output arg: look up peer by name
                                       );
 
-   // Method name
-   static const char* METHOD_NAME;
-
-  private:
-
+private:
    /// no copy constructor
    SyncRpcMethod(const SyncRpcMethod& nocopy);
 
@@ -242,8 +242,7 @@ class SyncRpcPullUpdates : public SyncRpcMethod
  */
 class SyncRpcPushUpdates : public SyncRpcMethod
 {
-  public:
-
+public:
    static XmlRpcMethod* get();
 
    /// destructor
@@ -267,7 +266,7 @@ class SyncRpcPushUpdates : public SyncRpcMethod
     * On any failure, the peer is marked UnReachable.
     */
 
-  protected:
+protected:
    /// constructor 
    SyncRpcPushUpdates();
 
@@ -280,17 +279,24 @@ class SyncRpcPushUpdates : public SyncRpcMethod
    
    static const char* METHOD_NAME;
 
-  private:
+private:
+   /// Check lastSentUpdateNumber <= PeerReceivedDbUpdateNumber, otherwise updates are missing
+   bool checkLastSentUpdateNumber(intll lastSentUpdateNumber,
+                                  RegistrarPeer& peer,
+                                  XmlRpcResponse& response);
+   /**<
+    * If everything is OK, return true.  Otherwise mark the response and return false.
+    */
 
    // Compare the binding's updateNumber with the expected number.
    // Return true if they match and false if they don't.
    // If there is a mismatch, then set up fault info in the RPC reponse.
-   bool checkUpdateNumber( const RegistrationBinding& reg,
+   bool checkUpdateNumber(const RegistrationBinding& reg,
                           intll updateNumber,
                           XmlRpcResponse& response,
                           ExecutionStatus& status
                           );
-   
+
    /// no copy constructor
    SyncRpcPushUpdates(const SyncRpcPushUpdates& nocopy);
 

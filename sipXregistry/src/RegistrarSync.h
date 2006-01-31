@@ -19,6 +19,7 @@
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class SipRegistrar;
 
 
 /**
@@ -27,10 +28,9 @@
  */
 class RegistrarSync : public OsTask
 {
-  public:
-
+public:
    /// constructor
-   RegistrarSync();
+   RegistrarSync(SipRegistrar& registrar);
 
    /// destructor
    virtual ~RegistrarSync();
@@ -41,12 +41,13 @@ class RegistrarSync : public OsTask
    /// Task main loop.
    virtual int run(void* pArg);
    
-  protected:
+protected:
 
-  private:
+private:
+   SipRegistrar& mRegistrar;
 
    /// mutex must be locked with OsLock to access any other member variable.
-   OsBSem mutex;
+   OsBSem mMutex;
 
    // OsCSem mUpdatesPending;   :TODO: this may need to change to a queue
    
@@ -55,7 +56,6 @@ class RegistrarSync : public OsTask
 
    /// There is no assignment operator.
    RegistrarSync& operator=(const RegistrarSync&);
-    
 };
 
 #endif // _REGISTRARSYNC_H_

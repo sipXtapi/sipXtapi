@@ -33,6 +33,7 @@
 template<class T> class dbCursor;
 class dbDatabase;
 class dbFieldDescriptor;
+class dbQuery;
 class RegistrationBinding;
 class RegistrationRow;
 class ResultSet;
@@ -64,11 +65,18 @@ public:
 
     /// Return the max update number for primaryRegistrar, or zero if there are no such updates
     intll getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const;
+
+    /// Return the next updateNumber for the primaryRegistrar after the specified updateNumber
+    intll getNextUpdateNumberForRegistrar(const UtlString& primaryRegistrar,
+                                          intll            updateNumber) const;
+    /**<
+     * If there are no such updates, then return 0
+     */
     
     /// Get the next update for primaryRegistrar with an update number > updateNumber.
     int getNextUpdateForRegistrar( const UtlString& primaryRegistrar
-                                   ,intll            updateNumber
-                                   ,UtlSList&        bindings
+                                   ,intll           updateNumber
+                                   ,UtlSList&       bindings
                                    ) const;
     /**<
      * Fill in the bindings arg with the bindings, objects of type RegistrationBinding.
@@ -78,8 +86,8 @@ public:
 
     /// Get all updates for primaryRegistrar with an update number > updateNumber.
     int getNewUpdatesForRegistrar( const UtlString& primaryRegistrar
-                                   ,intll            updateNumber
-                                   ,UtlSList&        bindings
+                                   ,intll           updateNumber
+                                   ,UtlSList&       bindings
                                    ) const;
     /**<
      * Fill in the bindings arg with the bindings, objects of type RegistrationBinding.
@@ -178,14 +186,6 @@ public:
     //==========================================================================
 
 protected:
-    // this is implicit now
-    OsStatus load();
-
-    // Singleton Constructor is private
-    RegistrationDB(const UtlString& name);
-
-    RegistrationBinding* copyRowToRegistrationBinding(dbCursor<RegistrationRow>& cursor) const;
-
     // There is only one singleton in this design
     static RegistrationDB* spInstance;
 
@@ -200,6 +200,17 @@ protected:
 
     // The persistent filename for loading/saving
     UtlString mDatabaseName;
+
+    // this is implicit now
+    OsStatus load();
+
+    // Singleton Constructor is private
+    RegistrationDB(const UtlString& name);
+
+    RegistrationBinding* copyRowToRegistrationBinding(dbCursor<RegistrationRow>& cursor) const;
+
+    int getUpdatesForRegistrar(dbQuery&         query,
+                               UtlSList&        bindings) const;
 
 private:
     /// No destructor, no no no

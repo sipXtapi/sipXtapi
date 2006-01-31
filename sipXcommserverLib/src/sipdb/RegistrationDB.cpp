@@ -687,42 +687,85 @@ RegistrationDB::getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar
    return maxUpdateForPrimary;
 }
 
+intll
+RegistrationDB::getNextUpdateNumberForRegistrar(const UtlString& primaryRegistrar,
+                                                intll            updateNumber) const
+{
+   intll nextUpdateNumber = 0LL;
+
+   if ( m_pFastDB != NULL )
+   {
+      SMART_DB_ACCESS;
+      dbCursor<RegistrationRow> cursor;
+      dbQuery query;
+      query = "primary = ", primaryRegistrar,
+              " and update_number > ", updateNumber,
+              " order by update_number asc";
+   
+      int numRows = cursor.select(query);
+      if (numRows > 0)
+      {
+         nextUpdateNumber = cursor->update_number;
+      }
+   }
+
+   return nextUpdateNumber;
+}
+
 int 
 RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
                                           intll            updateNumber,
                                           UtlSList&        bindings) const
 {
-   // Note: when implementing this method, share code with getNewUpdatesForRegistrar.
-   // Only difference is the query.
-
-   if ( m_pFastDB != NULL )
+   dbQuery query;
+   query =
+      "primary = ", primaryRegistrar,
+      " and update_number = ", getNextUpdateNumberForRegistrar(primaryRegistrar, updateNumber);
+   int numRows = getUpdatesForRegistrar(query, bindings);
+   if (numRows > 0)
    {
-      SMART_DB_ACCESS;
-      assert(false);    // not yet implemented
-   }
-   return 0;            // not yet implemented
+      OsSysLog::add(
+         FAC_SIP, PRI_DEBUG
+         ,"RegistrationDB::getNextUpdateForRegistrar found %d rows for %s with updateNumber = %lld"
+         ,numRows
+         ,primaryRegistrar.data()
+         ,updateNumber);
+   }   
+   return numRows;
 }
 
 int
-RegistrationDB::getNewUpdatesForRegistrar(const UtlString& registrarName,
+RegistrationDB::getNewUpdatesForRegistrar(const UtlString& primaryRegistrar,
                                           intll            updateNumber,
                                           UtlSList&        bindings) const
+{
+   dbQuery query;
+   query = "primary = ", primaryRegistrar, " and update_number > ", updateNumber;
+   int numRows = getUpdatesForRegistrar(query, bindings);
+   if (numRows > 0)
+   {
+      OsSysLog::add(
+         FAC_SIP, PRI_DEBUG
+         ,"RegistrationDB::getNewUpdatesForRegistrar found %d rows for %s with updateNumber > %lld"
+         ,numRows
+         ,primaryRegistrar.data()
+         ,updateNumber);
+   }   
+   return numRows;
+}
+
+int
+RegistrationDB::getUpdatesForRegistrar(dbQuery&  query,
+                                       UtlSList& bindings) const
 {
    int numRows = 0;
    if ( m_pFastDB != NULL )
    {
       SMART_DB_ACCESS;
       dbCursor<RegistrationRow> cursor(dbCursorForUpdate);
-      dbQuery query;
-      query = "primary = ", registrarName, " and update_number > ", updateNumber;
       numRows = cursor.select(query);
       if (numRows > 0)
       {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG
-                       ,"RegistrationDB::getBindingsForRegistrar found %d rows for %s with updateNumber > %lld"
-                       ,numRows
-                       ,registrarName.data()
-                       ,updateNumber);
          do {
             RegistrationBinding* reg = copyRowToRegistrationBinding(cursor);
             bindings.append(reg);

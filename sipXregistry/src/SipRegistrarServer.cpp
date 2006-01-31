@@ -29,6 +29,7 @@
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
+#include "RegistrarSync.h"
 #include "SipRegistrar.h"
 #include "SipRegistrarServer.h"
 #include "SyncRpc.h"
@@ -620,6 +621,14 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     while ((plugin = static_cast<RegisterPlugin*>(plugins.next())))
                     {
                        plugin->takeAction(registerMessage, spreadExpirationTime, mSipUserAgent );
+                    }
+
+                    // if replication is configured, then trigger replication
+                    if (mRegistrar.isReplicationConfigured())
+                    {
+                       RegistrarSync* sync = mRegistrar.getRegistrarSync();
+                       assert(sync);
+                       sync->sendUpdates();
                     }
                 }
             }
@@ -1236,6 +1245,9 @@ intll SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName
 /// Get the largest update number in the local database for this registrar as primary
 intll SipRegistrarServer::getDbUpdateNumber() const
 {
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
    return mDbUpdateNumber.getValue();
 }
 

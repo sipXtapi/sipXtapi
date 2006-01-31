@@ -28,6 +28,10 @@ class Url;
 class UtlHashMap;
 class UtlString;
 
+// :TODO: Consider wrapping the RegistrationBinding around an underlying hash set
+// for efficiency, rather than having a bunch of invidual data members, to eliminate
+// conversions from/to hash sets.
+
 /**
  * The Registration class represents a SIP registration binding.
  * Let's treat bindings as well-defined objects rather than unstructured hash sets.

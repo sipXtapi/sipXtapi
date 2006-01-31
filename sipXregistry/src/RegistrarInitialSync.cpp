@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 #include <memory>
+using std::auto_ptr;
 
 // APPLICATION INCLUDES
 #include "sipdb/RegistrationBinding.h"
@@ -19,8 +20,6 @@
 #include "SipRegistrarServer.h"
 #include "RegistrarInitialSync.h"
 #include "SyncRpc.h"
-
-using std::auto_ptr;
 
 // DEFINES
 // CONSTANTS
