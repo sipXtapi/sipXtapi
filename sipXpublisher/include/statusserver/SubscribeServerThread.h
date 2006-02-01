@@ -58,7 +58,8 @@ public:
         STATUS_INVALID_REQUEST,	
         STATUS_FORBIDDEN,	
         STATUS_NOT_FOUND,
-        STATUS_QUERY
+        STATUS_QUERY,
+        STATUS_INTERNAL_ERROR
     } SubscribeStatus;
 
 protected:
@@ -97,10 +98,11 @@ protected:
 
     // Process the message as a prospective database change.
     SubscribeStatus addSubscription (const int timeNow,
-                                     const SipMessage* registerMessage, ///< request message
+                                     const SipMessage* subscribeMessage, ///< request message
                                      const char* domain,
                                      const UtlString& eventType, ///< package name
                                      const UtlString& eventId,   ///< event header id parameter (may be null)
+                                     const UtlHashMap& eventParams,
                                      SipMessage& response        ///< to be returned
                                      );
 

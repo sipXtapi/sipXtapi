@@ -104,7 +104,7 @@ class SipUserAgent;
 
 ///custom fields
 #define SIP_LINE_IDENTIFIER "LINEID"
-
+#define SIPX_IMPLIED_SUB "sipx-implied" ///< integer expiration duration for subscription
 // Response codes and text
 #define SIP_TRYING_CODE 100
 #define SIP_TRYING_TEXT "Trying"

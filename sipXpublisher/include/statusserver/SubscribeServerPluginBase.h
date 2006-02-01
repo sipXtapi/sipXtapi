@@ -92,6 +92,11 @@ public:
      */
     virtual void terminatePlugin() = 0;
 
+    virtual ~SubscribeServerPluginBase()
+    {
+    }
+    
+    
 protected:
 
 
