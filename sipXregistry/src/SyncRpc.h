@@ -44,6 +44,13 @@ public:
    /// Register this method with the XmlRpcDispatch object so it can be called.
    static void registerSelf(SipRegistrar&   registrar);
 
+   typedef enum
+   {
+      UnconfiguredPeer = 300, ///< caller is not a configured peer of this server
+      InvalidParameter, ///< missing parameter or invalid type
+      AuthenticationFailure ///< connection not authenticated by SSL
+   } FaultCode;
+      
 protected:
    // Method name
    static const char* METHOD_NAME;
@@ -65,15 +72,28 @@ protected:
                         ExecutionStatus& status
                         ) = 0;
 
-   /// Common method to do peer authentication
-   ExecutionStatus authenticateCaller(
+   /// Common method to do peer authentication and lookup
+   RegistrarPeer* authenticateCaller(
       const HttpRequestContext& requestContext, ///< request context
       const UtlString&          peerName,       ///< name of the peer who is calling
       XmlRpcResponse&           response,       ///< response to put fault in
-      SipRegistrar&             registrar,      ///< registrar
-      RegistrarPeer**           peer = NULL     ///< optional output arg: look up peer by name
+      SipRegistrar&             registrar       ///< registrar
                                       );
+   /**<
+    * @returns the pointer to the RegistrarPeer if the peerName is configured
+    * and the HttpRequestContext indicates that the connection is from that peer.
+    *
+    * On any failure, the response is set appropriately and a NULL is returned.
+    */
 
+   /// Handle missing parameters for the execute method
+   void handleMissingExecuteParam(const char* methodName,  ///< name of the called XmlRpc method
+                                  const char* paramName,   ///< name of problematic parameter
+                                  XmlRpcResponse& response,///< response (fault is set on this)
+                                  ExecutionStatus& status, ///< set to FAILED
+                                  RegistrarPeer* peer = NULL ///< if passed, is set to Incompatible
+                                  );
+   
 private:
    /// no copy constructor
    SyncRpcMethod(const SyncRpcMethod& nocopy);
@@ -84,6 +104,40 @@ private:
 
 
 /// the registerSync.reset XML-RPC method.
+/**
+ * This method conveys the PeerReceivedDbUpdateNumber in both directions
+ * between the client and the server, and indicates that the client is
+ * ready to receive registrarSync.pushUpdates calls.
+ * 
+ * Inputs:
+ * 
+ * string  callingRegistrar          Calling registrar name
+ * i8      updateNumber
+ * 
+ * The updateNumber input is the client's PeerReceivedDbUpdateNumber for
+ * that server.  PeerReceivedDbUpdateNumber is the highest update number
+ * in the client's database owned by the server, or zero if there are no
+ * such updates.  This value becomes the PeerSentDbUpdateNumber in the
+ * server for the callingRegistrar client.  Note that this value may be
+ * less than the current value for PeerSentDbUpdateNumber, indicating
+ * that some previously sent updates were lost.
+ * 
+ * Outputs:
+ * 
+ * i8   updateNumber
+ * 
+ * The returned updateNumber is the highest update number in the
+ * server's database owned by the client: the PeerReceivedDbUpdateNumber
+ * in the server for the client.  The client sets PeerSentDbUpdateNumber
+ * for the server to this value.  A successful return indicates that the
+ * server is prepared to receive registrarSync.pushUpdates calls.
+ * 
+ * If no fault is returned, the client and server each mark the other as
+ * Reachable, and call the RegistrarSync::sendUpdates C++ method to
+ * begin pushing updates to the peer.  It is possible that there are no
+ * updates to be sent, but determining this is the responsibility of the
+ * RegistrarSync (Section 5.7.3.2) thread.
+ */
 class SyncRpcReset : public SyncRpcMethod
 {
   public:
@@ -205,12 +259,6 @@ protected:
                         ExecutionStatus& status
                         );
 
-   /// Handle missing parameters for the execute method
-   void handleMissingExecuteParam(const char* paramName,
-                                  XmlRpcResponse& response,
-                                  ExecutionStatus& status,
-                                  RegistrarPeer* peer = NULL);
-   
 private:
    /// no copy constructor
    SyncRpcPullUpdates(const SyncRpcPullUpdates& nocopy);

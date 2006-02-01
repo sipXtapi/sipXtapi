@@ -106,7 +106,7 @@ public:
    bool parseXmlRpcResponse(UtlString& responseContent); ///< response content from XML-RPC request
    
    /// Get the content of the response
-   XmlRpcBody* getBody() { return mpResponseBody; };
+   XmlRpcBody* getBody();
          
 /* ============================ ACCESSORS ================================= */
 

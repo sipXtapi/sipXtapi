@@ -31,14 +31,12 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-XmlRpcResponse::XmlRpcResponse()
+XmlRpcResponse::XmlRpcResponse() :
+   mpResponseBody(NULL),
+   mResponseValue(NULL),   
+   mFaultCode(ILL_FORMED_CONTENTS_FAULT_CODE),
+   mFaultString(ILL_FORMED_CONTENTS_FAULT_STRING)
 {
-   mFaultCode = ILL_FORMED_CONTENTS_FAULT_CODE;
-   mFaultString = ILL_FORMED_CONTENTS_FAULT_STRING;
-   mResponseValue = NULL;
-
-   // Start to construct the XML-RPC body
-   mpResponseBody = new XmlRpcBody();
 }
 
 // Destructor
@@ -205,6 +203,13 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
 bool XmlRpcResponse::setResponse(UtlContainable* value)
 {
    bool result = false;
+   assert(mpResponseBody == NULL); // if not true, this has been called twice
+   
+
+   // Start to construct the XML-RPC body
+   mpResponseBody = new XmlRpcBody();
+   assert(mpResponseBody != NULL); // if not true, allocation failed
+
    mpResponseBody->append(BEGIN_RESPONSE);   
    mpResponseBody->append(BEGIN_PARAMS);   
    mpResponseBody->append(BEGIN_PARAM);  
@@ -231,14 +236,11 @@ bool XmlRpcResponse::setFault(int faultCode, const char* faultString)
    mFaultString = faultString;
 
    // Start to construct the XML-RPC body for fault response
-   if (mpResponseBody)
-   {
-      delete mpResponseBody;
-      mpResponseBody = NULL;
-   }
+   assert(mpResponseBody == NULL); // if not true, this has been called twice
 
    mpResponseBody = new XmlRpcBody();
-
+   assert(mpResponseBody != NULL); // if not true, allocation failed
+   
    // Fault response example
    //
    // <methodResponse>
@@ -862,7 +864,7 @@ void XmlRpcResponse::cleanUp(UtlHashMap* map)
    UtlString* pName;
    UtlContainable *key;
    UtlContainable *value;
-   while (pName = (UtlString *) iterator())
+   while ((pName = (UtlString *) iterator()))
    {
       key = map->removeKeyAndValue(pName, value);
       UtlString paramType(value->getContainableType());
@@ -890,7 +892,7 @@ void XmlRpcResponse::cleanUp(UtlSList* array)
 {
    UtlSListIterator iterator(*array);
    UtlContainable *value;
-   while (value = iterator())
+   while ((value = iterator()))
    {
       value = array->remove(value);
       UtlString paramType(value->getContainableType());
@@ -910,6 +912,14 @@ void XmlRpcResponse::cleanUp(UtlSList* array)
          }
       }
    }
+}
+
+/// Get the content of the response
+XmlRpcBody* XmlRpcResponse::getBody()
+{
+   assert(mpResponseBody); // if false, no response was set
+   
+   return mpResponseBody;
 }
 
 /* ============================ FUNCTIONS ================================= */

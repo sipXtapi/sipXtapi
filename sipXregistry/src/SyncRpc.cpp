@@ -85,30 +85,60 @@ bool SyncRpcMethod::execute(const HttpRequestContext& requestContext, ///< reque
 }
 
 /// Common method to do peer authentication
-XmlRpcMethod::ExecutionStatus SyncRpcMethod::authenticateCaller(
+RegistrarPeer* SyncRpcMethod::authenticateCaller(
    const HttpRequestContext& requestContext, ///< request context
    const UtlString&          peerName,       ///< name of the peer who is calling
    XmlRpcResponse&           response,       ///< response to put fault in
-   SipRegistrar&             registrar,      ///< registrar
-   RegistrarPeer**           peer            ///< optional output arg: look up peer by name
+   SipRegistrar&             registrar       ///< registrar
                                                   )
 {
-   // :TODO: Authenticate: Make sure that the RPC call is from a peer that is on
-   // our list of configured peers.
-   // Log failures.
-
-   // Look up the peer by name if the caller provided the peer output arg
-   if (peer)
-   {
-      *peer = registrar.getPeer(peerName);
-   }
-
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SyncRpcMethod::authenticateCaller caller='%s' STUB RETURNING OK",
-                 peerName.data()
-                 );
+   // Authenticate: Make sure that the RPC call is from a peer that is on
+   // our list of configured peers and that SSL confirms that the connection
+   // is from that peer.
+   assert(peerName);
+   RegistrarPeer* peer = NULL;
    
-   return XmlRpcMethod::OK;               // return dummy success value for now
+   if (requestContext.isTrustedPeer(peerName))
+   {
+      // ssl says the connection is from the named host
+      peer = registrar.getPeer(peerName);
+      if (peer)
+      {
+         // all is well
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SyncRpc::authenticateCaller '%s' peer authenticated",
+                       peerName.data()
+                       );
+      }
+      else
+      {
+         // this peer is authenticated, but not configured, so provide a good error response
+         UtlString faultMsg;
+         faultMsg.append("Unconfigured peer '");
+         faultMsg.append(peerName);
+         faultMsg.append("'");
+         response.setFault(SyncRpcMethod::UnconfiguredPeer, faultMsg.data());
+            
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SyncRpcMethod::authenticateCaller '%s' not a configured sync peer",
+                       peerName.data()
+                       );
+      }
+   }
+   else
+   {
+      // ssl says not authenticated - provide only a generic error
+      UtlString faultMsg;
+      faultMsg.append("Authentication Failure");
+      response.setFault(XmlRpcResponse::AuthenticationRequired, faultMsg.data());
+            
+      OsSysLog::add(FAC_SIP, PRI_ERR,
+                    "SyncRpcMethod::authenticateCaller '%s' failed SSL authentication",
+                    peerName.data()
+                    );
+   }
+   
+   return peer;
 }
 
 
@@ -146,7 +176,45 @@ bool SyncRpcReset::execute(const HttpRequestContext& requestContext, ///< reques
                            XmlRpcResponse& response,                 ///< request response
                            ExecutionStatus& status)
 {
-   return false;                // :TODO: implement this method
+   bool result = false;
+
+   UtlString* callingRegistrar = dynamic_cast<UtlString*>(params.at(0));
+   if (callingRegistrar && !callingRegistrar->isNull())
+   {
+      SipRegistrar* registrar = static_cast<SipRegistrar*>(userData);
+      RegistrarPeer* peer = authenticateCaller(requestContext, *callingRegistrar,
+                                               response, *registrar);
+      if (peer)
+      {
+            UtlLongLongInt* updateNumber = dynamic_cast<UtlLongLongInt*>(params.at(2));
+            if (updateNumber)
+            {
+               peer->setSentTo(updateNumber->getValue());
+               UtlLongLongInt returnedUpdateNumber(peer->receivedFrom());
+               peer->markReachable();
+               response.setResponse(&returnedUpdateNumber);
+               result = true;
+            }
+            else
+            {
+               handleMissingExecuteParam(METHOD_NAME, "updateNumber", response, status, peer);
+            }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SyncRpcReset::execute '%s' not authenticated by SSL",
+                       callingRegistrar->data()
+                       );
+      }
+   }
+   else
+   {
+      handleMissingExecuteParam(METHOD_NAME, "callingRegistrar", response, status);
+   }
+
+
+   return result;
 }
 
 /// Reset the SynchronizationState and update numbers with respect to some peer.
@@ -411,10 +479,8 @@ bool SyncRpcPullUpdates::execute(
    {
       // Verify that the callingRegistrar is a configured peer registrar
       SipRegistrar* registrar = static_cast<SipRegistrar*>(userData);
-      RegistrarPeer* peer = NULL;    // look up the peer by name
-      status =
-         authenticateCaller(requestContext, *callingRegistrar, response, *registrar, &peer);
-      if (status == XmlRpcMethod::OK)
+      RegistrarPeer* peer = authenticateCaller(requestContext, *callingRegistrar, response, *registrar);
+      if (peer)
       {
          // Retrieve all updates for the primaryRegistrar whose update number is greater 
          // than updateNumber
@@ -449,31 +515,46 @@ bool SyncRpcPullUpdates::execute(
             }
             else
             {
-               handleMissingExecuteParam("updateNumber", response, status, peer);
+               handleMissingExecuteParam(METHOD_NAME, "updateNumber", response, status, peer);
             }
          }
          else
          {
-            handleMissingExecuteParam("primaryRegistrar", response, status, peer);
+            handleMissingExecuteParam(METHOD_NAME, "primaryRegistrar", response, status, peer);
          }
+      }
+      else
+      {
+         /*
+          * Either authentication or peer lookup failed
+          *   errors already logged, and response is set up
+          *
+          * Note - we don't use REQUIRE_AUTHENTICATION
+          * because that requests HTTP digest authentication,
+          * which won't help
+          */
+         status = XmlRpcMethod::FAILED;
       }
    }
    else
    {
-      handleMissingExecuteParam("primaryRegistrar", response, status);
+      handleMissingExecuteParam(METHOD_NAME, "primaryRegistrar", response, status);
    }
 
    return true;
 }
 
-void SyncRpcPullUpdates::handleMissingExecuteParam(const char* paramName,
-                                                   XmlRpcResponse& response,
-                                                   ExecutionStatus& status,
-                                                   RegistrarPeer* peer)
+void SyncRpcMethod::handleMissingExecuteParam(const char* methodName,
+                                              const char* paramName,
+                                              XmlRpcResponse& response,
+                                              ExecutionStatus& status,
+                                              RegistrarPeer* peer)
 {
-   UtlString faultMsg(paramName);
-   faultMsg += " parameter is missing or invalid type";
-   response.setFault(XmlRpcResponse::EmptyParameterValue, faultMsg);
+   UtlString faultMsg;
+   faultMsg += methodName;
+   faultMsg += " '";
+   faultMsg += paramName;
+   faultMsg += "' parameter is missing or invalid type";
    status = XmlRpcMethod::FAILED;
    if (peer != NULL)
    {
@@ -481,10 +562,11 @@ void SyncRpcPullUpdates::handleMissingExecuteParam(const char* paramName,
       // Log that as part of the fault message.
       peer->markIncompatible();
 
-      faultMsg += ": ";
+      faultMsg += ": '";
       faultMsg += peer->name();
-      faultMsg += " marked incompatible for replication";
+      faultMsg += "' marked incompatible for replication";
    }
+   response.setFault(SyncRpcMethod::InvalidParameter, faultMsg);
    OsSysLog::add(FAC_SIP, PRI_CRIT, faultMsg);
    assert(false);    // bad XML-RPC response
 }
@@ -534,10 +616,9 @@ bool SyncRpcPushUpdates::execute(
       // the callingRegistrar input, since peers only push updates for which
       // they are the primary registrar.
       SipRegistrar* registrar = static_cast<SipRegistrar*>(userData);
-      RegistrarPeer* peer = NULL;    // look up the peer by name
-      status =
-         authenticateCaller(requestContext, *callingRegistrar, response, *registrar, &peer);
-      if (status == XmlRpcMethod::OK)
+      RegistrarPeer* peer =
+         authenticateCaller(requestContext, *callingRegistrar, response, *registrar);
+      if (peer)
       {
          UtlLongLongInt* lastSentUpdateNumber = dynamic_cast<UtlLongLongInt*>(params.at(1));
          if (lastSentUpdateNumber != NULL)
@@ -585,6 +666,18 @@ bool SyncRpcPushUpdates::execute(
                }
             }
          }
+      }
+      else
+      {
+         /*
+          * Either authentication or peer lookup failed
+          *   errors already logged, and response is set up
+          *
+          * Note - we don't use REQUIRE_AUTHENTICATION
+          * because that requests HTTP digest authentication,
+          * which won't help
+          */
+         status = XmlRpcMethod::FAILED;
       }
    }     
    else
