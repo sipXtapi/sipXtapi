@@ -130,7 +130,9 @@ public class EnumEditPageProvider implements EditPageProvider {
         Exception exception = null;
         try {
             IPage page = cycle.getPage(pageInfo[0]);
-            BeanUtils.setProperty(page, pageInfo[1], id);
+            // HACK: see http://issues.apache.org/bugzilla/show_bug.cgi?id=16525 
+            // we need to use copyProperty and not setProperty
+            BeanUtils.copyProperty(page, pageInfo[1], id);
             return page;
         } catch (IllegalAccessException e) {
             exception = e;
