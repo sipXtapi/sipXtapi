@@ -206,7 +206,7 @@
          <label>Message Waiting</label>
          <setting name="type">
             <type refid="tone-pattern"/>
-            <value>chord</value>
+            <value>silence</value>
             <description>Sound effect</description>
          </setting>
       </group>      
