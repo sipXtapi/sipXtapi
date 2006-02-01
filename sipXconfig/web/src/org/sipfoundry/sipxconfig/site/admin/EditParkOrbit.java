@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
@@ -21,7 +20,6 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
-import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class EditParkOrbit extends BasePage implements PageRenderListener {
@@ -69,11 +67,6 @@ public abstract class EditParkOrbit extends BasePage implements PageRenderListen
 
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
-        AbstractComponent component = (AbstractComponent) getComponent("common");
-        StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
-                .getBean("descriptionValidator");
-        descriptionValidator.validate(delegate);
-
         return !delegate.getHasErrors();
     }
 
