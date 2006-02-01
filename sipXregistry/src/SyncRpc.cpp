@@ -445,6 +445,7 @@ bool SyncRpcPullUpdates::execute(
                }
                output.insertKeyAndValue(new UtlString(UPDATES),
                                         &updateMaps);
+               response.setResponse(&output);
             }
             else
             {
