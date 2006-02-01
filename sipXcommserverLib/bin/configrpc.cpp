@@ -27,7 +27,7 @@
 #define HTTP_PORT               8200    // Default HTTP port
 
 int HttpPort = HTTP_PORT;
-enum 
+enum Verbosity
 {
    Quiet,
    Normal,

@@ -673,7 +673,7 @@ protected:
                            UtlString* deleteName = NULL;
                            size_t deleted = 0;
                            
-                           while (deleteName = dynamic_cast<UtlString*>(deleteNames()))
+                           while ((deleteName = dynamic_cast<UtlString*>(deleteNames())))
                            {
                               if (OS_SUCCESS == dataset.remove(*deleteName))
                               {

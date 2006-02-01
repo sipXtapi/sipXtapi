@@ -44,62 +44,73 @@ RegistrationBinding::RegistrationBinding() :
 }
 
 
-RegistrationBinding::RegistrationBinding(const UtlHashMap& regData)
+RegistrationBinding::RegistrationBinding(const UtlHashMap& regData) :
+   mIdentity(NULL),
+   mUri(NULL),
+   mCallId(NULL),
+   mContact(NULL),
+   mQvalue(NULL),
+   mInstanceId(NULL),
+   mGruu(NULL),
+   mCseq(0),
+   mExpires(0),
+   mPrimary(NULL),
+   mUpdateNumber(0)
 {
-   UtlString* identityStr = (UtlString*)regData.findValue(&RegistrationDB::gIdentityKey);
+   UtlString* identityStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gIdentityKey));
    if (identityStr)
    {
       setIdentity(*identityStr);
    }
-   UtlString* uriStr = (UtlString*)regData.findValue(&RegistrationDB::gUriKey);
+   UtlString* uriStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gUriKey));
    if (uriStr)
    {
       setUri(*uriStr);
    }
-   UtlString* callidStr = (UtlString*)regData.findValue(&RegistrationDB::gCallidKey);
+   UtlString* callidStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gCallidKey));
    if (callidStr)
    {
       setCallId(*callidStr);
    }
-   UtlString* contactStr = (UtlString*)regData.findValue(&RegistrationDB::gContactKey);
+   UtlString* contactStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gContactKey));
    if (contactStr)
    {
       setContact(*contactStr);
    }
-   UtlString* qvalueStr = (UtlString*)regData.findValue(&RegistrationDB::gQvalueKey);
+   UtlString* qvalueStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gQvalueKey));
    if (qvalueStr)
    {
       setQvalue(*qvalueStr);
    }
-   UtlString* instanceIdStr = (UtlString*)regData.findValue(&RegistrationDB::gInstanceIdKey);
+   UtlString* instanceIdStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gInstanceIdKey));
    if (instanceIdStr)
    {
       setInstanceId(*instanceIdStr);
    }
-   UtlString* gruuStr = (UtlString*)regData.findValue(&RegistrationDB::gGruuKey);
+   UtlString* gruuStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gGruuKey));
    if (gruuStr)
    {
       setGruu(*gruuStr);
    }
-   UtlString* cseqStr = (UtlString*)regData.findValue(&RegistrationDB::gCseqKey);
-   if (cseqStr)
+   UtlInt* cseq = dynamic_cast<UtlInt*>(regData.findValue(&RegistrationDB::gCseqKey));
+   if (cseq)
    {
-      setCseq(*cseqStr);
+      setCseq(cseq->getValue());
    }
-   UtlString* expiresStr = (UtlString*)regData.findValue(&RegistrationDB::gExpiresKey);
-   if (expiresStr)
+   UtlInt* expires = dynamic_cast<UtlInt*>(regData.findValue(&RegistrationDB::gExpiresKey));
+   if (expires)
    {
-      setExpires(*expiresStr);
+      setExpires(expires->getValue());
    }
-   UtlString* primaryStr = (UtlString*)regData.findValue(&RegistrationDB::gPrimaryKey);
+   UtlString* primaryStr = dynamic_cast<UtlString*>(regData.findValue(&RegistrationDB::gPrimaryKey));
    if (primaryStr)
    {
       setPrimary(*primaryStr);
    }
-   UtlString* updateNumberStr = (UtlString*)regData.findValue(&RegistrationDB::gUpdateNumberKey);
-   if (updateNumberStr)
+   UtlLongLongInt* updateNumber = dynamic_cast<UtlLongLongInt*>(regData.findValue(&RegistrationDB::gUpdateNumberKey));
+   if (updateNumber)
    {
-      setUpdateNumber(*updateNumberStr);
+      setUpdateNumber(updateNumber->getValue());
    }
 }
 
