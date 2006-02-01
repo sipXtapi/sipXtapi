@@ -682,159 +682,120 @@ bool XmlRpcResponse::parseArray(TiXmlNode* subNode, UtlSList* array)
    TiXmlNode* dataNode = subNode->FirstChild("data");
    if (dataNode)
    {
+      result = true; // an empty list is ok
+
+      // see if there are values...
       for (TiXmlNode* valueNode = dataNode->FirstChild("value");
-           valueNode; 
-           valueNode = valueNode->NextSibling("value"))
+           result && valueNode; 
+           valueNode = valueNode->NextSibling("value")
+           )
       {
          // four-byte signed integer                         
-         TiXmlNode* arrayElement = valueNode->FirstChild("i4");
-         if (arrayElement)
+         TiXmlNode* arrayElement;;
+         if ((arrayElement = valueNode->FirstChild("i4")))
          {
             if (arrayElement->FirstChild())
             {
                paramValue = arrayElement->FirstChild()->Value();
                array->insert(new UtlInt(atoi(paramValue)));
-               result = true;
             }
             else
             {
                result = false;
-               break;
+            }
+         }
+         else if ((arrayElement = valueNode->FirstChild("int")))
+         {
+            if (arrayElement->FirstChild())
+            {
+               paramValue = arrayElement->FirstChild()->Value();
+               array->insert(new UtlInt(atoi(paramValue)));
+            }
+            else
+            {
+               result = false;
+            }
+         }
+         else if ((arrayElement = valueNode->FirstChild("i8")))
+         {
+            if (arrayElement->FirstChild())
+            {
+               paramValue = arrayElement->FirstChild()->Value();
+               array->insert(new UtlLongLongInt(strtoll(paramValue, 0, 0)));
+            }
+            else
+            {
+               result = false;
+            }
+         }
+         else if ((arrayElement = valueNode->FirstChild("boolean")))
+         {
+            if (arrayElement->FirstChild())
+            {
+               paramValue = arrayElement->FirstChild()->Value();
+               array->insert(new UtlBool((atoi(paramValue)==1)));
+            }
+            else
+            {
+               result = false;
+            }
+         }
+         else if ((arrayElement = valueNode->FirstChild("string")))
+         {
+            if (arrayElement->FirstChild())
+            {
+               paramValue = arrayElement->FirstChild()->Value();
+               array->insert(new UtlString(paramValue));
+            }
+            else
+            {
+               array->insert(new UtlString());
+            }
+         }
+         else if ((arrayElement = valueNode->FirstChild("dateTime.iso8601")))
+         {
+            if (arrayElement->FirstChild())
+            {
+               paramValue = arrayElement->FirstChild()->Value();
+               array->insert(new UtlString(paramValue));
+            }
+            else
+            {
+               result = false;
+            }
+         }
+         else if ((arrayElement = valueNode->FirstChild("struct")))
+         {
+            UtlHashMap* members = new UtlHashMap();
+            if (parseStruct(arrayElement, members))
+            {
+               array->insert(members);
+            }
+         }
+         else if ((arrayElement = valueNode->FirstChild("array")))
+         {
+            UtlSList* subArray = new UtlSList();
+            if (parseArray(arrayElement, subArray))
+            {
+               array->insert(subArray);
             }
          }
          else
          {
-            arrayElement = valueNode->FirstChild("int");
-            if (arrayElement)
+            // default for string
+            if (valueNode->FirstChild())
             {
-               if (arrayElement->FirstChild())
-               {
-                  paramValue = arrayElement->FirstChild()->Value();
-                  array->insert(new UtlInt(atoi(paramValue)));
-                  result = true;
-               }
-               else
-               {
-                  result = false;
-                  break;
-               }
+               paramValue = valueNode->FirstChild()->Value();
+               array->insert(new UtlString(paramValue));
             }
             else
             {
-               arrayElement = valueNode->FirstChild("i8");
-               if (arrayElement)
-               {
-                  if (arrayElement->FirstChild())
-                  {
-                     paramValue = arrayElement->FirstChild()->Value();
-                     array->insert(new UtlLongLongInt(strtoll(paramValue, 0, 0)));
-                     result = true;
-                  }
-                  else
-                  {
-                     result = false;
-                     break;
-                  }
-               }
-               else
-               {
-                  arrayElement = valueNode->FirstChild("boolean");
-                  if (arrayElement)
-                  {
-                     if (arrayElement->FirstChild())
-                     {
-                        paramValue = arrayElement->FirstChild()->Value();
-                        array->insert(new UtlBool((atoi(paramValue)==1)));
-                        result = true;
-                     }
-                     else
-                     {
-                        result = false;
-                        break;
-                     }
-                  }
-                  else
-                  {              
-                     arrayElement = valueNode->FirstChild("string");
-                     if (arrayElement)
-                     {
-                        if (arrayElement->FirstChild())
-                        {
-                           paramValue = arrayElement->FirstChild()->Value();
-                           array->insert(new UtlString(paramValue));
-                        }
-                        else
-                        {
-                           array->insert(new UtlString());
-                        }
-                        result = true;
-                     }
-                     else
-                     {
-                        arrayElement = valueNode->FirstChild("dateTime.iso8601");
-                        if (arrayElement)
-                        {
-                           if (arrayElement->FirstChild())
-                           {
-                              paramValue = arrayElement->FirstChild()->Value();
-                              array->insert(new UtlString(paramValue));
-                              result = true;
-                           }
-                           else
-                           {
-                              result = false;
-                              break;
-                           }
-                        }
-                        else
-                        {
-                           arrayElement = valueNode->FirstChild("struct");
-                           if (arrayElement)
-                           {
-                              UtlHashMap* members = new UtlHashMap();
-                              if (parseStruct(arrayElement, members))
-                              {
-                                 array->insert(members);
-                                 result = true;
-                              }
-                           }
-                           else
-                           {
-                              arrayElement = valueNode->FirstChild("array");
-                              if (arrayElement)
-                              {
-                                 UtlSList* subArray = new UtlSList();
-                                 if (parseArray(arrayElement, subArray))
-                                 {
-                                    array->insert(subArray);
-                                    result = true;
-                                 }
-                              }
-                              else
-                              {
-                                 // default for string
-                                 if (valueNode->FirstChild())
-                                 {
-                                    paramValue = valueNode->FirstChild()->Value();
-                                    array->insert(new UtlString(paramValue));
-                                 }
-                                 else
-                                 {
-                                    array->insert(new UtlString());
-                                 }
-                                 
-                                 result = true;
-                              }
-                           }
-                        }
-                     }
-                  }
-               }
+               array->insert(new UtlString());
             }
          }
-      }
+      } // end of for loop over values
    }
-   
+
    return result;
 }
 

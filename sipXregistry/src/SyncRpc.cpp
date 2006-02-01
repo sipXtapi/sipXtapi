@@ -367,44 +367,54 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
       UtlContainable* value;
       response.getResponse(value);
       UtlHashMap* responseStruct = dynamic_cast<UtlHashMap*>(value);
-      UtlInt*     numUpdates;
-      if (   responseStruct
-          && (numUpdates
-              = dynamic_cast<UtlInt*>(responseStruct->find(&NUM_UPDATES))
-              )
-          )
+      if ( responseStruct )
       {
-         resultState = RegistrarPeer::Reachable;
-         if (numUpdates->getValue())
+         UtlInt* numUpdates = dynamic_cast<UtlInt*>(responseStruct->findValue(&NUM_UPDATES));
+         if ( numUpdates )
          {
-            UtlSList* responseUpdates =
-               dynamic_cast<UtlSList*>(responseStruct->find(&UPDATES));
-            if (responseUpdates)
+            resultState = RegistrarPeer::Reachable;
+            if (numUpdates->getValue())
             {
-               int actualUpdateCount = responseUpdates->entries();
-               if (actualUpdateCount == numUpdates->getValue())
+               UtlSList* responseUpdates =
+                  dynamic_cast<UtlSList*>(responseStruct->findValue(&UPDATES));
+               if (responseUpdates)
                {
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "SyncRpcPullUpdates::invoke : '%s' returned %d updates",
-                                source->name(), actualUpdateCount
-                                );
-
-                  UtlSListIterator updates(*responseUpdates);
-                  UtlHashMap* update;
-                  while ((update = dynamic_cast<UtlHashMap*>(updates())))
+                  int actualUpdateCount = responseUpdates->entries();
+                  if (actualUpdateCount == numUpdates->getValue())
                   {
-                     // add this to the returned bindings list
-                     bindings->append(new RegistrationBinding(*update));
+                     OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                   "SyncRpcPullUpdates::invoke : '%s' returned %d updates",
+                                   source->name(), actualUpdateCount
+                                   );
+
+                     UtlSListIterator updates(*responseUpdates);
+                     UtlHashMap* update;
+                     while ((update = dynamic_cast<UtlHashMap*>(updates())))
+                     {
+                        // add this to the returned bindings list
+                        bindings->append(new RegistrationBinding(*update));
+                     }
+                  }
+                  else
+                  {
+                     OsSysLog::add(FAC_SIP, PRI_CRIT,
+                                   "SyncRpcPullUpdates::invoke : "
+                                   "inconsistent number of updates %d != %d : "
+                                   " %s marked incompatible for replication",
+                                   numUpdates->getValue(),
+                                   responseUpdates->entries(),
+                                   source->name()
+                                   );
+                     assert(false); // bad xmlrpc response
+                     resultState = RegistrarPeer::Incompatible;
+                     source->markIncompatible();
                   }
                }
                else
                {
                   OsSysLog::add(FAC_SIP, PRI_CRIT,
-                                "SyncRpcPullUpdates::invoke : "
-                                "inconsistent number of updates %d != %d : "
+                                "SyncRpcPullUpdates::invoke : no updates element found  "
                                 " %s marked incompatible for replication",
-                                numUpdates->getValue(),
-                                responseUpdates->entries(),
                                 source->name()
                                 );
                   assert(false); // bad xmlrpc response
@@ -414,31 +424,31 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_CRIT,
-                             "SyncRpcPullUpdates::invoke : no updates element found  "
-                             " %s marked incompatible for replication",
+               // no updates - all is well
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SyncRpcPullUpdates::invoke : no updates returned by '%s'",
                              source->name()
                              );
-               assert(false); // bad xmlrpc response
-               resultState = RegistrarPeer::Incompatible;
-               source->markIncompatible();
+
+               resultState = RegistrarPeer::Reachable;
             }
          }
          else
          {
-            // no updates - all is well
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SyncRpcPullUpdates::invoke : no updates returned by '%s'",
+            OsSysLog::add(FAC_SIP, PRI_CRIT,
+                          "SyncRpcPullUpdates::invoke : no numUpdates element found : "
+                          " %s marked incompatible for replication",
                           source->name()
                           );
-
-            resultState = RegistrarPeer::Reachable;
+            assert(false); // bad xmlrpc response
+            resultState = RegistrarPeer::Incompatible;
+            source->markIncompatible();
          }
       }
       else
       {
          OsSysLog::add(FAC_SIP, PRI_CRIT,
-                       "SyncRpcPullUpdates::invoke : no numUpdates element found : "
+                       "SyncRpcPullUpdates::invoke : no response data returned : "
                        " %s marked incompatible for replication",
                        source->name()
                        );
