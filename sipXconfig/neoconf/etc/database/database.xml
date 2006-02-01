@@ -34,7 +34,7 @@
         select 'version' || version || '=true' from version_history;
       </sipx-sql>    
       <loadproperties srcfile="${tmp.dir}/patches.properties"/>
-  	  <delete file="${tmp.dir}/patches.properties"/>  	  
+      <delete file="${tmp.dir}/patches.properties"/>  	  
   </target>
 	
   <!-- sets flag if any initialization needs to be done -->
@@ -69,7 +69,7 @@
   <target name="create" depends="createdb,schema"
     description="create database with schema"/>
 
-  <target name="upgrade-no-init" depends="patches,version1"/>
+  <target name="upgrade-no-init" depends="patches,version1,version2"/>
 	
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks"
     depends="upgrade-no-init,initialize"/>
@@ -89,14 +89,17 @@
   
 	
   <!-- List each dependency on a separate line below to make source control merging easier -->
-  <target name="version1" description="upgrade from version 1" unless="version2"
-    depends="
-  	  conference_name_uniqueness,
-      upload,
-      grandstreamV2,
-      upload_deployed,
-  	  attendant_schedule
-	  "/>
+  <target name="version1" description="upgrade from version 1" unless="version2">
+    <antcall target="conference_name_uniqueness"/>
+    <antcall target="upload"/>
+    <antcall target="grandstreamV2"/>
+    <antcall target="upload_deployed"/>
+    <antcall target="attendant_schedule"/>
+  </target>
+
+  <target name="version2" description="upgrade from version 1" unless="version3">
+    <!-- antcall target="your version 2 patch here "/ -->
+  </target>
 
   <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
     <sipx-sql>
@@ -117,7 +120,7 @@
     <db-patch patch="upload_deployed"/>
   </target>  
 
-    <target name="attendant_schedule" unless="attendant_schedule">
+  <target name="attendant_schedule" unless="attendant_schedule">
     <db-patch patch="attendant_schedule"/>
   </target>  
 
@@ -126,9 +129,6 @@
       <transaction src="${sql.dir}/schema.sql"/>
     </sipx-sql>
   </target>  
-
-  <!-- Perform no operation, byproduct of the fact ant won't allow empty depends attribute -->
-  <target name="nop"/>
 
   <target name="migrate-2.8" depends="migrate-2.8-run,initialize" 
         description="migrate existing 2.8 PDS database, note clears all existing 3.0 data"/>

@@ -10,8 +10,10 @@ create table version_history(
  * CHANGE VERSION HERE ----------------------------> X <------------------
  *
  * For sipXconfig v3.0, the database version is 1.
+ * For sipXconfig v3.2, the database version is 2.
  */
 insert into version_history (version, applied) values (1, now());
+insert into version_history (version, applied) values (2, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -304,6 +306,54 @@ create table routing_exception (
     primary key (routing_exception_id)
 );
 
+create table upload(
+  upload_id int4 not null primary key,
+  name varchar(255) not null unique,
+  deployed bool not null,
+  bean_id varchar(32) not null,
+  specification_id varchar(32),
+  value_storage_id int4,
+  description varchar(255)
+);
+
+create table attendant_dialing_rule (
+   attendant_dialing_rule_id int4 not null,
+   attendant_aliases varchar(255),
+   extension varchar(255),
+   after_hours_attendant_id int4,
+   after_hours_attendant_enabled bool not null,
+   
+   holiday_attendant_id int4,
+   holiday_attendant_enabled bool not null,
+   
+   working_time_attendant_id int4,
+   working_time_attendant_enabled bool not null,
+   
+   primary key (attendant_dialing_rule_id)
+);
+
+create table attendant_working_hours (
+   attendant_dialing_rule_id int4 not null,
+   index int4 not null,
+   enabled bool not null,
+   day varchar(255),
+   start timestamp,
+   stop timestamp,
+   primary key (attendant_dialing_rule_id, index)
+);
+
+create table holiday_dates (
+   attendant_dialing_rule_id int4 not null,
+   position int4 not null,
+   date timestamp,
+   primary key (attendant_dialing_rule_id, position)
+);
+  
+-- make sure that the rules are migrated to new tables
+insert into initialization_task (name) values ('dial_plan_migrate_attendant_rules');
+
+alter table upload add constraint upload_value_storage foreign key (value_storage_id) references value_storage;
+
 alter table phone add constraint FK65B3D6ECB50FCED foreign key (value_storage_id) references value_storage;
 alter table dial_pattern add constraint FK8D4D2DC1454433A3 foreign key (custom_dialing_rule_id) references custom_dialing_rule;
 alter table international_dialing_rule add constraint FKE5D682BA7DD83CC0 foreign key (international_dialing_rule_id) references dialing_rule;
@@ -344,6 +394,32 @@ alter table meetme_participant add constraint fk_meetme_participant_user foreign
 alter table emergency_routing add constraint fk_emergency_routing_gateway foreign key (gateway_id) references gateway;
 alter table routing_exception add constraint fk_routing_exception_gateway foreign key (gateway_id) references gateway;
 alter table routing_exception add constraint fk_emergency_routing_routing_exception foreign key (emergency_routing_id) references emergency_routing;
+alter table attendant_dialing_rule 
+  add constraint fk_attendant_dialing_rule_dialing_rule 
+  foreign key (attendant_dialing_rule_id) 
+  references dialing_rule;
+
+alter table attendant_working_hours 
+  add constraint fk_attendant_working_hours_attendant_dialing_rule 
+  foreign key (attendant_dialing_rule_id) 
+  references attendant_dialing_rule;
+
+alter table holiday_dates 
+  add constraint fk_holiday_dates_attendant_dialing_rule 
+  foreign key (attendant_dialing_rule_id) 
+  references attendant_dialing_rule;
+  
+alter table attendant_dialing_rule  
+  add constraint fk_after_hours_attendant_auto_attendant 
+  foreign key (after_hours_attendant_id) 
+  references auto_attendant;
+
+alter table attendant_dialing_rule  
+  add constraint fk_working_time_attendant_auto_attendant 
+  foreign key (working_time_attendant_id) 
+  references auto_attendant;  
+
+alter table meetme_conference add constraint conference_name_key unique(name);
     
 create sequence group_weight_seq;
 create sequence dialing_rule_seq;
@@ -362,6 +438,7 @@ create sequence call_group_seq;
 create sequence backup_plan_seq;
 create sequence meetme_seq;
 create sequence extension_pool_seq;
+create sequence upload_seq;
 
 /* retro-add initialization items that used legacy interface */
 insert into initialization_task (name) values ('dial-plans');
