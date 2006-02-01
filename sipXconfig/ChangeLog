@@ -3,6 +3,64 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+
+Version 3.1.3
+** Bug
+    * [XCF-442] - KPhoneTest requires configured database
+    * [XCF-512] - handle usernames that contain punctuation characters properly
+    * [XCF-564] - allow any valid SIP username to be used as an alias
+    * [XCF-663] - loading users from the database is inefficient
+    * [XCF-701] - "green" navigation bar should extend to the bottom of the screen
+    * [XCF-751] - Cisco 7912 - A few of the network parameters have only headings
+    * [XCF-783] - Restriction of blank spaces for internal dialing rule name - but no such restriction for other rules. 
+    * [XCF-785] - Sorting User Groups / Phone groups by Name, is getting sorted according to the associated Number and not by name.
+    * [XCF-786] - Sorting the Phones by line and Model is not working
+    * [XCF-811] - when username is change UI should require specifying a new PIN
+    * [XCF-813] - Config server menus dont work in IE
+    * [XCF-815] - An exception occurred in the Files tab in the Devices menu option.
+    * [XCF-819] - New Grandstream configuration code incompatible with previously added phones
+    * [XCF-826] - Polycom digit map string (phone dial plan) does not allow for local calls
+    * [XCF-839] - dialing rules name uniqueness checking is too strict
+    * [XCF-846] - The autoattendant dialing rule should listed before internal dialing rule in the dial plans page.
+    * [XCF-850] - Internal server error occurred, when clicked on the alias header in the users page
+    * [XCF-857] - "ipmid.cfg" is no longer generated.
+    * [XCF-863] - CallGroupServiceTestAPi is failing
+    * [XCF-872] - attendant dialing plan is not properly added to search results
+    * [XCF-873] - Changes to the dial-plan take 2 activations to become active.
+    * [XCF-875] - Intermittent - Exception occurred ,When i tried to activate the dial plans - needs db drop recreate to resurrect.
+    * [XCF-878] - When trying to add line after maximum supported line are reached in phones, an exception occurs
+    * [XCF-881] - JobStatus is Displayed as "Complete" When try to restart grandstream phone
+    * [XCF-883] - Clicking on Devices tab takes between 5 and 25 seconds to load w/1000 users
+    * [XCF-888] - unit test failure: SearchManagerImplTestDb.testSearch 
+    * [XCF-890] - When csv file is imported, Existing user is added as alias
+    * [XCF-891] - When csv file is imported it accepts a blank user group 
+    * [XCF-892] - When csv file is imported it accepts a blank phone group
+    * [XCF-894] - sipXconfig restarts too many services (including itself) after applying changes on configuration screen
+    * [XCF-896] - location selector on sipXconfig services page should be displayed only if there is more than 1 location configured
+    * [XCF-899] - Hitting cancel when creating a new user and selecting "create new user" tries to validate page
+    * [XCF-901] - setting long (> 255 characters) description for file upload is causing DataIntegrityExceptions
+
+** New Feature
+    * [XCF-838] - "Special" autoattendant selection
+    * [XCF-869] - Add external lines thru SOAP
+
+** Task
+    * [XCF-880] - Freeze db schema to version 2 before 3.2 release
+
+** Improvement
+    * [XCF-567] - User gets no feedback when sending a profile to a phone
+    * [XCF-712] - adding multiple users
+    * [XCF-827] - Polycom phone "Dial Plan" screen includes wrong section headline (affects emergency routing setting)
+    * [XCF-840] - Please provide a way to disable the "message" beep on Polycom phones
+    * [XCF-844] - improve UI responsiveness when generating large number of profiles
+    * [XCF-845] - call forwarding link is easy to miss
+    * [XCF-865] - ensure that sipXconfig does not reboot too many phones at the same time
+    * [XCF-870] - improvement to add external line screen
+    * [XCF-897] - SIP password should be visible on new user screen
+    * [XCF-898] - Support Activate/Inactivate of Device File Sets (e.g. firmware updates)
+    * [XCF-900] - Index Upload objects
+    * [XCF-902] - Default setting for polycom phones on MWI should be silent
+	
 Version 3.1.2
 ** Bug
     * [XCF-475] - polycom - Configure directory memory size
