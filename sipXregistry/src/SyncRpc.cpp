@@ -103,6 +103,11 @@ XmlRpcMethod::ExecutionStatus SyncRpcMethod::authenticateCaller(
       *peer = registrar.getPeer(peerName);
    }
 
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SyncRpcMethod::authenticateCaller caller='%s' STUB RETURNING OK",
+                 peerName.data()
+                 );
+   
    return XmlRpcMethod::OK;               // return dummy success value for now
 }
 
@@ -311,6 +316,11 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                int actualUpdateCount = responseUpdates->entries();
                if (actualUpdateCount == numUpdates->getValue())
                {
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                "SyncRpcPullUpdates::invoke : '%s' returned %d updates",
+                                source->name(), actualUpdateCount
+                                );
+
                   UtlSListIterator updates(*responseUpdates);
                   UtlHashMap* update;
                   while ((update = dynamic_cast<UtlHashMap*>(updates())))
@@ -349,6 +359,11 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
          else
          {
             // no updates - all is well
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SyncRpcPullUpdates::invoke : no updates returned by '%s'",
+                          source->name()
+                          );
+
             resultState = RegistrarPeer::Reachable;
          }
       }

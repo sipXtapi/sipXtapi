@@ -214,10 +214,19 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                     httpString.data());
       responseBody.setFault(AUTHENTICATION_REQUIRED_FAULT_CODE, AUTHENTICATION_REQUIRED_FAULT_STRING);
    }
-   
+
+
    // Send the response back
    responseBody.getBody()->getBytes(&bodyString, &bodyLength);
-      
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "XmlRpcDispatch::processRequest request returned %s\n%s",
+                 (  status == XmlRpcMethod::OK
+                  ? "OK" : "FAILED"
+                  ),
+                 bodyString.data()
+                 );
+   
    response->setBody(new HttpBody(bodyString.data(), bodyLength));
    response->setContentType(CONTENT_TYPE_TEXT_XML);
    response->setContentLength(bodyLength);

@@ -128,7 +128,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                if (1 == result)
                {
                   OsSSL::logConnectParams(FAC_KERNEL, PRI_DEBUG
-                                          ,"OsSSLServerSocket::accept %p"
+                                          ,"OsSSLServerSocket::accept"
                                           ,pSSL);
                }
                else
