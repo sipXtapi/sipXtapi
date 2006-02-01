@@ -78,6 +78,10 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
       // for the peer that we see in the registration DB
       intll maxUpdateNumber = getRegistrarServer().getMaxUpdateNumberForRegistrar(name);
       peer->setReceivedFrom(maxUpdateNumber);
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "RegistrarInitialSync::restorePeerUpdateNumbers "
+                    "for peer '%s' last received update # = %lld",
+                    name, maxUpdateNumber);
 
       // We don't know the last sent update number for the peer yet, so zero it out
       peer->setSentTo(0);
@@ -116,6 +120,10 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
       if (state == RegistrarPeer::Reachable)
       {
          applyUpdatesToDirectory(bindings);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "RegistrarInitialSync::pullLocalUpdatesFromPeers "
+                       "received %d local updates from peer '%s'",
+                       bindings.entries(), peer->name());
       }
    }
 }
@@ -140,6 +148,10 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers()
       if (state == RegistrarPeer::Reachable)
       {
          applyUpdatesToDirectory(bindings);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "RegistrarInitialSync::pullLocalUpdatesFromPeers "
+                       "received %d peer updates from peer '%s'",
+                       bindings.entries(), peer->name());
       }
    }
 }

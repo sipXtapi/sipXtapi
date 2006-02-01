@@ -221,7 +221,7 @@ void SipRegistrar::operationalPhase()
    // The RegistrarTest thread signals the RegistrarSync thread's semaphore.  So the 
    // RegistrarSync object must be created before the RegistrarTest thread starts.
    // But the order in which the threads start doesn't matter.
-   //startRegistrarSync();    // :HA: not ready
+   startRegistrarSync();
    //startRegistrarTest();    // :HA: not ready
 }
 
