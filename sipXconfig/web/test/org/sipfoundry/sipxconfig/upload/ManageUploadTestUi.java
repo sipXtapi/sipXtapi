@@ -44,14 +44,38 @@ public class ManageUploadTestUi extends WebTestCase {
         int tableCount = SiteTestHelper.getRowCount(tester, "upload:list");        
         assertEquals(2, tableCount);
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
-        clickButton("phone:delete");
+        clickButton("upload:delete");
         int nextTableCount = SiteTestHelper.getRowCount(tester, "upload:list");        
         assertEquals(1, nextTableCount);
+    }
+    
+    public void testActivation() throws Exception {
+        seedUpload();
+        SiteTestHelper.home(tester);
+        clickLink("link:upload");
+
+        // activate
+        SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
+        clickButton("upload:activate");
+        String[][] expectedData = {
+                // [] Name Active Description
+                {
+                    "manage uploads seed", "true", "Unmanaged TFTP",  ""
+                }
+            };
+        assertTableRowsEqual("upload:list", 1, expectedData);
+
+        // inactivate
+        SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
+        clickButton("upload:inactivate");
+        expectedData[0][1] = "false";
+        assertTableRowsEqual("upload:list", 1, expectedData);        
     }
     
     private void seedUpload() throws Exception {
         clickLink("link:newUpload");
         setFormElement("name", "manage uploads seed");
+        clickButton("form:apply");        
         File f = File.createTempFile("manage-upload", ".dat");
         assertTrue(getDialog().getForm().hasParameterNamed("promptUpload"));
         getDialog().getForm().setParameter("promptUpload", f);

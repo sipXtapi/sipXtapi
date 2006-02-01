@@ -13,20 +13,24 @@
 		            <span jwcid="nameDescriptionEdit"/>
 	                </tbody>
 		        </table>
-	         </fieldset>        
-            <span jwcid="@contrib:FormConditional" condition="ognl:upload.deployed">
-    	        <p><strong>You cannot make changes when files are deployed.</strong></p>
+	         </fieldset>    
+            <span jwcid="@contrib:FormConditional" condition="ognl:! upload.isNew()">
+	            <span jwcid="@contrib:FormConditional" condition="ognl:upload.deployed">
+	    	        <p><strong>You cannot make changes when files are deployed.</strong></p>
+	             </span>
+	             <fieldset jwcid="settingsFieldset"/>
              </span>
-             <fieldset jwcid="settingsFieldset"/>
              <span jwcid="applyOkCancel">
-                 <li>
-                 <span jwcid="@contrib:FormConditional" condition="ognl:upload.deployed">
-                     <input jwcid="undeploy"/>
+                <span jwcid="@contrib:FormConditional" condition="ognl:! upload.isNew()">
+	                 <li>
+		                 <span jwcid="@contrib:FormConditional" condition="ognl:upload.deployed">
+		                     <input id="upload:inactivate" jwcid="inactivate"/>
+		                 </span>
+		                 <span jwcid="@contrib:FormConditional" condition="ognl:! upload.deployed">
+		                     <input id="upload:activate" jwcid="activate"/>
+		                 </span>
+	                 </li>
                  </span>
-                 <span jwcid="@contrib:FormConditional" condition="ognl:! upload.deployed">
-                     <input jwcid="deploy"/>
-                 </span>
-                 </li>
              </span>
 		</form>
 	</div>

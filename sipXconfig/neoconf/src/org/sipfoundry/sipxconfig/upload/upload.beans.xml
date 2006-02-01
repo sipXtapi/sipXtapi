@@ -22,12 +22,6 @@
   <bean id="upload" class="org.sipfoundry.sipxconfig.upload.Upload"
     singleton="false">
     <property name="modelFilesContext" ref="modelFilesContext"/>
-    <property name="destination" ref="localTftp"/>
-  </bean>
-  
-  <bean id="localTftp"
-    class="org.sipfoundry.sipxconfig.upload.LocalFileSystemDestination">
-    <property name="uploadDirectory" value="${sysdir.phone}/profile/tftproot"/>
   </bean>
   
 </beans>

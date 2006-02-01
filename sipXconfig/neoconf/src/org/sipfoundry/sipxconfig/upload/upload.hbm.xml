@@ -23,4 +23,8 @@
     <![CDATA[from Upload u order by u.name]]>
   </query>
   
+  <query name="deployedUploadBySpecification">
+    <![CDATA[from Upload u where u.deployed = 't' and u.beanId || u.specificationId = :spec]]>
+  </query>
+  
 </hibernate-mapping>

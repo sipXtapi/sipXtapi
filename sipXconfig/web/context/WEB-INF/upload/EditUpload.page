@@ -20,6 +20,8 @@
     <property-specification name="callback" 
     	type="org.apache.tapestry.callback.ICallback" 
     	persistent="yes"/>
+    <property-specification name="active"
+        type="boolean"/>
     
     <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
  
@@ -41,15 +43,15 @@
         <static-binding name="useFieldset" value="false"/>
         <binding name="item" expression="upload"/>
     </component>    
-    <component id="deploy" type="Submit">
-        <binding name="selected" expression="upload.deployed"/>
+    <component id="activate" type="Submit">
+        <binding name="selected" expression="active"/>
         <binding name="tag" expression="true"/>
-        <static-binding name="label" value="Deploy"/>
+        <static-binding name="label" value="Activate"/>
     </component>
-    <component id="undeploy" type="Submit">
-        <binding name="selected" expression="upload.deployed"/>
+    <component id="inactivate" type="Submit">
+        <binding name="selected" expression="active"/>
         <binding name="tag" expression="false"/>
-        <static-binding name="label" value="Undeploy"/>
+        <static-binding name="label" value="Inactivate"/>
     </component>
     <component id="applyOkCancel" type="FormActions">
         <binding name="listener" expression="listeners.onSave"/>

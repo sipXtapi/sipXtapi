@@ -63,11 +63,11 @@ public abstract class ManageUploads extends BasePage implements PageRenderListen
         setUpload(null);
     }
     
-    public void deploy(IRequestCycle cycle_) {       
+    public void activate(IRequestCycle cycle_) {       
         setDeployed(true);
     }
     
-    public void undeploy(IRequestCycle cycle_) {        
+    public void inactivate(IRequestCycle cycle_) {        
         setDeployed(false);
     }
     
@@ -75,8 +75,11 @@ public abstract class ManageUploads extends BasePage implements PageRenderListen
         Upload[] uploads = (Upload[]) DaoUtils.loadBeansArrayByIds(getUploadManager(), Upload.class, 
                 getSelections().getAllSelected());
         for (int i = 0; i < uploads.length; i++) {
-            uploads[i].setDeployed(deploy);
-            getUploadManager().saveUpload(uploads[i]);
+            if (deploy) {
+                getUploadManager().deploy(uploads[i]);
+            } else {                
+                getUploadManager().undeploy(uploads[i]);
+            }
         }        
         // force reload
         setUpload(null);

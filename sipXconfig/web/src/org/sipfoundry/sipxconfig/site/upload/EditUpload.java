@@ -38,6 +38,10 @@ public abstract class EditUpload extends PageWithCallback implements PageRenderL
     
     public abstract UploadManager getUploadManager();
     
+    public abstract boolean isActive();
+    
+    public abstract void setActive(boolean deployed);
+    
     public void pageBeginRender(PageEvent event_) {
         Upload upload = getUpload();
         if (upload == null) {
@@ -48,13 +52,28 @@ public abstract class EditUpload extends PageWithCallback implements PageRenderL
                 upload = getUploadManager().loadUpload(id);
             }
             setUpload(upload);
+            setActive(upload.isDeployed());
         }
+    }
+    
+    private void checkDeploymentStatus() {
+        Upload upload = getUpload();
+        if (isActive() != upload.isDeployed()) {
+            if (!isActive()) {
+                getUploadManager().undeploy(upload);
+            } else if (isActive()) {
+                getUploadManager().deploy(upload);
+            }
+            setActive(upload.isDeployed());
+        }        
     }
     
     public void onSave(IRequestCycle cycle_) {
         if (TapestryUtils.isValid(this)) {
-            getUploadManager().saveUpload(getUpload());
-            setUploadId(getUpload().getId());
+            Upload upload = getUpload();
+            getUploadManager().saveUpload(upload);
+            setUploadId(upload.getId());           
+            checkDeploymentStatus();            
         }
     }    
 }
