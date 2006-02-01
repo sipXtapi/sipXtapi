@@ -99,10 +99,10 @@
 
   <target name="version2" description="upgrade from version 1" unless="version3">
 
-    <!-- antcall target="your version 2 patch here "/ -->
+    <!-- antcall target="your version 2 patch here " -->
 
-    <!-- When freezing schema uncomment this line-->
-    <!-- sipx-version version="3" --/>
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="3" -->
 
   </target>
 
