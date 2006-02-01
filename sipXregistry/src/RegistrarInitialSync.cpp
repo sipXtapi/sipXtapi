@@ -156,10 +156,17 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers()
          {
             applyUpdatesToDirectory(bindings);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "RegistrarInitialSync::pullLocalUpdatesFromPeers "
+                          "RegistrarInitialSync::pullPeerUpdatesFromPeers "
                           "received %d peer updates from peer '%s'",
                           bindings.entries(), peer->name());
          }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "RegistrarInitialSync::pullPeerUpdatesFromPeers "
+                       "'%s' is UnReachable",
+                       peer->name());
       }
    }
 }

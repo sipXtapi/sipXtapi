@@ -473,6 +473,11 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
       resultState = RegistrarPeer::UnReachable;
    }
 
+   if (RegistrarPeer::Reachable == resultState)
+   {
+      source->markReachable();
+   }
+   
    return resultState;
 }
 
