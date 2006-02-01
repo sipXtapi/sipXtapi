@@ -87,7 +87,6 @@
       <delete dir="${tmp.dir}/index" failonerror="false"/>
 	</target>    
   
-	
   <!-- List each dependency on a separate line below to make source control merging easier -->
   <target name="version1" description="upgrade from version 1" unless="version2">
     <antcall target="conference_name_uniqueness"/>
@@ -95,10 +94,16 @@
     <antcall target="grandstreamV2"/>
     <antcall target="upload_deployed"/>
     <antcall target="attendant_schedule"/>
+    <sipx-version version="2"/>
   </target>
 
   <target name="version2" description="upgrade from version 1" unless="version3">
+
     <!-- antcall target="your version 2 patch here "/ -->
+
+    <!-- When freezing schema uncomment this line-->
+    <!-- sipx-version version="3" --/>
+
   </target>
 
   <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
@@ -259,5 +264,15 @@
         password="${sipxconfig.db.password}"
         classpath="${jdbc-driver.jar}"/>
   </presetdef>
+
+  <!-- declare schema version -->
+  <macrodef name="sipx-version">
+    <attribute name="version"/>
+    <sequential>
+      <sipx-sql>
+        insert into version_history (version, applied) values (@{version}, now());
+      </sipx-sql>
+    </sequential>
+  </macrodef>
   
 </project>
