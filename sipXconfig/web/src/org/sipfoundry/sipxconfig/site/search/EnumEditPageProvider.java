@@ -46,6 +46,7 @@ import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
 import org.sipfoundry.sipxconfig.site.phone.EditPhone;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.user.EditUser;
+import org.sipfoundry.sipxconfig.upload.Upload;
 
 /**
  * This is a class in charge of determining which "edit" page should be used for an entity object
@@ -91,6 +92,8 @@ public class EnumEditPageProvider implements EditPageProvider {
             "EditInternationalDialRule", RULE_ID
         }, AttendantRule.class, new String[] {
             "EditAttendantDialRule", RULE_ID
+        }, Upload.class, new String[] {
+            "EditUpload", "uploadId"
         }
     };
 
