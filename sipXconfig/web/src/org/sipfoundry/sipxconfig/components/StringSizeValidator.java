@@ -31,27 +31,12 @@ import org.apache.tapestry.valid.ValidationConstraint;
  * is a half measure, but Tapestry 3.1 is supposedly rewriting validation support, so it probably
  * does not make sense to invest in a better validation framework.
  * 
- * The suggested way of using this class is to define bean in page spec. <code>
- *   <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator">
- *     <set-property name="component" expression="components.gatewayDescription"/>
- *     <set-property name="max" expression="20"/>
- *   </bean>
- * </code>
- * 
- * And then call it in formSubmit lsitener
- * 
- * <code>
- * IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
- * StringSizeValidator descriptionValidator = (StringSizeValidator) getBeans().getBean("descriptionValidator");
- * descriptionValidator.validate(delegate);
- * </code>
- * 
  */
 public class StringSizeValidator {
-    
+
     /** should be less than or equals DB field length */
     public static final int DEFAULT_MAX_LEN = 255;
-    
+
     private static final String ERROR = "Enter at most {0} characters for {1}";
 
     private IFormComponent m_component;
