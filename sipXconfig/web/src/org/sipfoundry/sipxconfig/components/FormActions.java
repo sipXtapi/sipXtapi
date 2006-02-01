@@ -20,7 +20,11 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.valid.IValidationDelegate;
 
-public abstract class FormActions extends BaseComponent {
+public abstract class FormActions extends BaseComponent {    
+    public static final String OK = "ok";
+    public static final String CANCEL = "cancel";
+    public static final String APPLY = "apply";
+    public static final String REFRESH = "refresh";
 
     public abstract ICallback getCallback();
 

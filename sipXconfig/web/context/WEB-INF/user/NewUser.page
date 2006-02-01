@@ -19,8 +19,8 @@
      	persistent="yes"/>
     <property-specification name="stay"
         type="boolean"/>
-    <property-specification name="appliedPressed" 
-    	type="boolean"/>
+    <property-specification name="buttonPressed" 
+    	type="java.lang.String"/>
     
     <!--
       - B E A N S 
@@ -45,7 +45,7 @@
     <component id="formActions" type="FormActions">
         <binding name="callback" expression="callback"/>
         <binding name="listener" expression="listeners.onCommit"/>
-        <binding name="appliedPressed" expression="appliedPressed"/>
+        <binding name="buttonPressed" expression="buttonPressed"/>
     </component>    
     <component id="stay" type="Checkbox">
         <binding name="selected" expression="stay"/>

@@ -18,6 +18,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.FormActions;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
@@ -35,7 +36,7 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
 
     public abstract boolean isStay();
 
-    public abstract boolean isAppliedPressed();
+    public abstract String getButtonPressed();
 
     public void onCommit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
@@ -47,7 +48,7 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
         core.saveUser(user);
 
         // On saving the user, transfer control to edituser page.
-        if (isAppliedPressed()) {
+        if (FormActions.APPLY.equals(getButtonPressed())) {
             EditUser edit = (EditUser) cycle.getPage(EditUser.PAGE);
             edit.setUserId(user.getId());
             cycle.activate(edit);
@@ -73,7 +74,7 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
         }
 
         public void performCallback(IRequestCycle cycle) {
-            if (isStay()) {
+            if (isStay() && FormActions.OK.equals(getButtonPressed())) {
                 setUser(null);
                 cycle.activate(PAGE);
             } else if (m_delegate != null) {

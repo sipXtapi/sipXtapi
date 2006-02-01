@@ -36,13 +36,14 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.upload.Upload;
 
 public class DefaultBeanAdaptor implements BeanAdaptor {
     /** only those classes can be used to search by class */
     public static final Class[] CLASSES = {
         // TODO: inject externally
         User.class, Phone.class, Group.class, Gateway.class, CallGroup.class, DialingRule.class,
-        Bridge.class, Conference.class, ParkOrbit.class, AutoAttendant.class
+        Bridge.class, Conference.class, ParkOrbit.class, AutoAttendant.class, Upload.class
     };
 
     private static final Log LOG = LogFactory.getLog(DefaultBeanAdaptor.class);

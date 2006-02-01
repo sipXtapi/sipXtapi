@@ -27,7 +27,7 @@
     
     <parameter name="successMessage" direction="in" required="no" type="java.lang.String"/>
     
-    <parameter name="appliedPressed">
+    <parameter name="buttonPressed">
         <description>optional parameter set to true if Apply was pressed and to false otherwise</description>
     </parameter>
     
@@ -53,27 +53,27 @@
     <component id="ok" type="Submit">
         <binding name="listener" expression="listeners.onOk"/>
         <message-binding name="label" key="button.ok"/>
-        <inherited-binding name="selected" parameter-name="appliedPressed"/>
-        <binding name="tag" expression="false"/>
+        <inherited-binding name="selected" parameter-name="buttonPressed"/>
+        <binding name="tag" expression="components.ok.id"/>
     </component>
     
     <component id="apply" type="Submit">
         <binding name="listener" expression="listeners.onApply"/>
         <message-binding name="label" key="button.apply"/>
-        <inherited-binding name="selected" parameter-name="appliedPressed"/>
-        <binding name="tag" expression="true"/>
+        <inherited-binding name="selected" parameter-name="buttonPressed"/>
+        <binding name="tag" expression="components.apply.id"/>
     </component>
     
     <component id="cancel" type="Submit">
         <binding name="listener" expression="listeners.onCancel"/>
         <message-binding name="label" key="button.cancel"/>
-        <inherited-binding name="selected" parameter-name="appliedPressed"/>
-        <binding name="tag" expression="false"/>
+        <inherited-binding name="selected" parameter-name="buttonPressed"/>
+        <binding name="tag" expression="components.cancel.id"/>
     </component>
     
     <component id="refresh" type="Submit">
         <message-binding name="label" key="button.refresh"/>
-        <inherited-binding name="selected" parameter-name="appliedPressed"/>
-        <binding name="tag" expression="false"/>
+        <inherited-binding name="selected" parameter-name="buttonPressed"/>
+        <binding name="tag" expression="components.refresh.id"/>
     </component>        
 </component-specification>
