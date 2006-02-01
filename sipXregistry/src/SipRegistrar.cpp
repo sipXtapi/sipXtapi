@@ -396,7 +396,7 @@ void SipRegistrar::configurePeers()
                assert(thisPeer);
 
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRegistrar::configurePeers adding %s", peerName.data()
+                             "SipRegistrar::configurePeers adding '%s'", peerName.data()
                              );
             
                mPeers.append(thisPeer);

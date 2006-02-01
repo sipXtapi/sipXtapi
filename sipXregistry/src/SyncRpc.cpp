@@ -101,7 +101,7 @@ RegistrarPeer* SyncRpcMethod::authenticateCaller(
    if (requestContext.isTrustedPeer(peerName))
    {
       // ssl says the connection is from the named host
-      peer = registrar.getPeer(peerName);
+      peer = registrar.getPeer(peerName); // so look it up in the peer table
       if (peer)
       {
          // all is well
