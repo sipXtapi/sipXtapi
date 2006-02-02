@@ -730,6 +730,8 @@ intll SipRegistrarServer::updateOneBinding(
    assert(reg);
    assert(imdb);
 
+   // Check callId/cseq and accept only updates that are in sequence.
+   // Note that updateNumbers may arrive out of order, that's OK and expected.
    if (imdb->isOutOfSequence(*reg->getUri(), *reg->getCallId(), reg->getCseq()))
    {
       return -1;
@@ -737,44 +739,28 @@ intll SipRegistrarServer::updateOneBinding(
 
    // Update the registrar state and the binding
    intll updateNumber = reg->getUpdateNumber();
+   assert(updateNumber > 0);
    if (peer != NULL)
    {
+      // This update is for a peer.  If the updateNumber is bigger than previous
+      // updateNumbers, then increase peerReceivedDbUpdateNumber accordingly.
       intll receivedFrom = peer->receivedFrom();
       if (updateNumber > receivedFrom)
       {
          peer->setReceivedFrom(updateNumber);
       }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
-                       "SipRegistrarServer::updateOneBinding "
-                       "updateNumber = %lld is less than receivedFrom = %lld "
-                       "for peer %s",
-                       updateNumber, receivedFrom, peer->name());
-         updateNumber = -1;    // indicate an error
-      }
    }
    else
    {
+      // This is a local update pulled from a peer.  If the updateNumber is bigger
+      // than previous updateNumbers, then increase mDbUpdateNumber accordingly.
       if (updateNumber > mDbUpdateNumber)
       {
          mDbUpdateNumber = updateNumber;
       }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_WARNING,
-                       "SipRegistrarServer::updateOneBinding "
-                       "updateNumber = %lld is less than the current updateNumber = %lld "
-                       "for the local registrar",
-                       updateNumber, mDbUpdateNumber.getValue());
-         updateNumber = -1;    // indicate an error
-      }
    }
 
-   if (updateNumber > 0)
-   {
-      imdb->updateBinding(*reg);
-   }
+   imdb->updateBinding(*reg);
    return updateNumber;
 }
 
