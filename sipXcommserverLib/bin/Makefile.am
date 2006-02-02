@@ -5,6 +5,7 @@ SUBDIRS = ssl-cert
 dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
    configpp \
+   pkg-upgrade \
    get_def_addr
 
 LOCAL_SHELLSCRIPTS = \
