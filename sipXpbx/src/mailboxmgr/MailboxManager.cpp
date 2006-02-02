@@ -5906,6 +5906,10 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
 
     int dayLength = rLocalTime.index(" ", 5);
     day = rLocalTime(5, dayLength-5);
+    if (dayLength == 15)
+    {
+       day = "0" + day;
+    }
     
     int timeLength = rLocalTime.index(" ", dayLength+1);
     time = rLocalTime(dayLength+1, timeLength-dayLength-1);
@@ -5921,6 +5925,10 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
     
     int currentTime = atoi(hour) * 100 + atoi(minute);
     
+    OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                  "getTimeBasedAAName dayOfWeek = %s, day = %s, currentTime = %d",
+                  dayOfWeek.data(), day.data(), currentTime);
+                  
     UtlString scheduleFileLocation;
     result = getScheduleFileLocation( rName, scheduleFileLocation );
     if( result == OS_SUCCESS )

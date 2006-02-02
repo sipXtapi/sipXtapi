@@ -2,7 +2,7 @@
 <schedules>
   <autoattendant>
     <holidays>
-      <date>1-Jan-2006</date>
+      <date>01-Jan-2006</date>
       <filename>afterhour</filename>
     </holidays>
     <regularhours>
