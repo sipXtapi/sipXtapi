@@ -28,14 +28,14 @@ import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHou
 
 public class AttendantScheduleFile extends XmlFile {
     private static final DateFormat DATE_FORMAT = new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
-    private static final String SUFFIX = "_schedule.xml";
+    private static final String SUFFIX = "-schedule.xml";
 
     private Document m_document;
     private String m_baseFileName;
 
     public Document getDocument() {
         if (m_document == null) {
-            Element root = XmlFile.FACTORY.createElement("organizationprefs");
+            Element root = XmlFile.FACTORY.createElement("schedules");
             m_document = XmlFile.FACTORY.createDocument(root);
         }
         return m_document;
@@ -48,7 +48,7 @@ public class AttendantScheduleFile extends XmlFile {
     void generate(AttendantRule attendantRule) {
         m_baseFileName = attendantRule.getSystemName() + SUFFIX;
         Element root = getDocument().getRootElement();
-        Element schedule = root.addElement("schedule");
+        Element schedule = root.addElement("autoattendant");
         Holiday holidayAttendant = attendantRule.getHolidayAttendant();
         addHoliday(schedule, holidayAttendant);
         WorkingTime workingTimeAttendant = attendantRule.getWorkingTimeAttendant();

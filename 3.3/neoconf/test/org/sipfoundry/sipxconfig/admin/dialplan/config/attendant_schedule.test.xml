@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<organizationprefs>
-  <schedule>
+<schedules>
+  <autoattendant>
     <holidays>
       <filename>afterhour</filename>
       <date>01-Jan-2005</date>
@@ -32,6 +32,6 @@
     </regularhours>
     <afterhours>
       <filename>afterhour</filename>
-    </afterhours>
-  </schedule>
-</organizationprefs>
+    </afterhours>    
+  </autoattendant>
+</schedules>
