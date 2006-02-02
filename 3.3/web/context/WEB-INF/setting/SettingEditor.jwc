@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingEditor"
+    allow-body="no"
+    allow-informal-parameters="no">
+    
+    <description>Editor for a single setting</description>
+    
+    <parameter name="setting" 
+    	direction="auto" 
+      	required="yes" 
+    	type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <parameter name="enabled"
+        required="no"
+        type="boolean"
+        default-value="true"
+        direction="in">
+    </parameter>
+        
+    <component id="fieldPanel" type="FieldPanel">
+        <binding name="for" expression="'setting:' + setting.name"/>
+        <binding name="field" expression="components.get(setting.type.name + 'Field')"/>
+        <binding name="label" expression="setting.label"/>
+        <binding name="defaultValue" expression="defaultValue"/>
+        <binding name="description" expression="setting.description"/>        
+        <binding name="highlight" expression="modified"/>
+    </component>    
+    
+    <component id="integerField" type="contrib:NumericField">
+        <binding name="id" expression="'setting:' + setting.name"/>
+        <binding name="value" expression="setting.value"/>
+        <binding name="displayName" expression="setting.label"/>
+        <binding name="minimum" expression="setting.type.min"/>
+        <binding name="maximum" expression="setting.type.max"/>
+        <binding name="required" expression="setting.type.required"/>
+        <binding name="disabled" expression="! enabled"/>
+        <static-binding name="type" value="Integer"/>
+    </component>    
+    <component id="integerBlock" type="Block"></component>
+    
+    <component id="realField" type="contrib:NumericField">
+        <binding name="id" expression="'setting:' + setting.name"/>
+        <binding name="value" expression="setting.value"/>
+        <binding name="displayName" expression="setting.label"/>
+        <binding name="minimum" expression="setting.type.min"/>
+        <binding name="maximum" expression="setting.type.max"/>
+        <binding name="required" expression="setting.type.required"/>
+        <binding name="disabled" expression="! enabled"/>
+        <static-binding name="type" value="Float"/>
+    </component>    
+    <component id="realBlock" type="Block"></component>
+        
+	<component id="stringField" type="ValidField">
+        <binding name="id" expression="'setting:' + setting.name"/>
+        <binding name="value" expression="stringValue"/>
+        <binding name="hidden" expression="setting.type.password"/>
+        <binding name="displayName" expression="setting.label"/>
+        <binding name="validator" expression="validator"/>
+        <binding name="disabled" expression="! enabled"/>
+        <binding name="maxLength" expression="setting.type.maxLen"/>
+    </component>
+    <component id="stringBlock" type="Block"></component>
+    
+    <component id="enumField" type="PropertySelection">
+        <binding name="id" expression="'setting:' + setting.name"/>
+        <binding name="value" expression="setting.value"/>
+        <binding name="model" expression="enumModel"/>
+        <binding name="disabled" expression="! enabled"/>
+    </component>
+    <component id="enumBlock" type="Block"></component>
+    
+    <component id="booleanField" type="Checkbox">
+        <binding name="id" expression="'setting:' + setting.name"/>
+        <binding name="selected" expression="booleanValue"/>
+        <binding name="disabled" expression="! enabled"/>
+    </component>
+    <component id="booleanBlock" type="Block"></component>
+    
+    <component id="fileField" type="AssetSelector">
+        <binding name="id" expression="'setting:' + setting.name"/>
+        <binding name="asset" expression="setting.value"/>
+        <binding name="assetDir" expression="setting.type.directory"/>
+        <binding name="selectable" expression="setting.type.variable"/>
+        <binding name="contentType" expression="setting.type.contentType"/>
+        <binding name="submitOnChange" expression="false"/>
+        <binding name="enabled" expression="enabled"/>
+    </component>
+    <component id="fileBlock" type="Block"/>
+    
+    <component id="field" type="RenderBlock">
+        <binding name="block" expression="components.get(setting.type.name + 'Block')"/>
+    </component>    
+</component-specification>

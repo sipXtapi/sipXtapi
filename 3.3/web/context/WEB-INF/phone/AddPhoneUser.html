@@ -1,0 +1,30 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+	</head>
+	<body jwcid="$content$">
+		<span jwcid="@Border">
+			<span jwcid="phoneLabel"/>
+			<h2><span key="title">Add Line</span></h2>
+            <span jwcid="@ErrorMsg"/>
+            <span jwcid="@QuickHelp" value="message:help.text"/>
+			<form jwcid="selectUserForm" id="line:add">
+				<ul class="component-links">
+					<li>
+		                <a  href="#" id="search:toggle" jwcid="toggleSearchType">Advanced Search</a>
+					</li>
+				</ul>                
+				<span jwcid="searchForm">
+					<span jwcid="returnToEditPhone"/>
+				</span>
+				<span jwcid="searchResults"/>
+				<ul class="component-submit">
+					<li>
+						<input id="user:select" jwcid="select" type="submit" 
+							value="Select"/>
+					</li>
+				</ul>
+			</form>
+		</span>
+	</body>
+</html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.upload.EditUpload">
+    <description>add a description</description>
+    
+    <property-specification name="upload"
+        type="org.sipfoundry.sipxconfig.upload.Upload"/>    
+    <property-specification name="uploadId"
+        type="java.lang.Integer"
+        persistent="yes"/>
+    <property-specification name="uploadSpecification"
+        type="org.sipfoundry.sipxconfig.upload.UploadSpecification"
+        persistent="yes"/>
+	<property-specification name="uploadManager" 
+		type="org.sipfoundry.sipxconfig.upload.UploadManager" 
+    	initial-value="global.uploadManager"/>
+    <property-specification name="callback" 
+    	type="org.apache.tapestry.callback.ICallback" 
+    	persistent="yes"/>
+    <property-specification name="active"
+        type="boolean"/>
+    
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+ 
+    <component id="pageLabel" type="Insert">
+        <binding name="value" expression="upload.specification.label"/>
+    </component>
+    <component id="uploadForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" expression="components.applyOkCancel.listeners.onApply"/>
+    </component>    
+    <component id="settingsFieldset" type="SettingsFieldset">
+        <binding name="settings" expression="upload.settings"/>
+        <binding name="renderGroupTitle" expression="true"/>
+        <binding name="enabled" expression="! upload.deployed"/>
+    </component>
+    <component id="nameDescriptionEdit" type="ItemCommon">
+        <static-binding name="useExtension" value="false"/>
+        <static-binding name="useEnabled" value="false"/>
+        <static-binding name="useFieldset" value="false"/>
+        <binding name="item" expression="upload"/>
+    </component>    
+    <component id="activate" type="Submit">
+        <binding name="selected" expression="active"/>
+        <binding name="tag" expression="true"/>
+        <static-binding name="label" value="Activate"/>
+    </component>
+    <component id="inactivate" type="Submit">
+        <binding name="selected" expression="active"/>
+        <binding name="tag" expression="false"/>
+        <static-binding name="label" value="Inactivate"/>
+    </component>
+    <component id="applyOkCancel" type="FormActions">
+        <binding name="listener" expression="listeners.onSave"/>
+        <binding name="callback" expression="callback"/>
+    </component>
+    
+</page-specification>

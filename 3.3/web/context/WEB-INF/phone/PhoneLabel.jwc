@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneLabel"
+    allow-body="no"
+    allow-informal-parameters="no">
+    
+    <description>add a description</description>
+    <!--
+      - P A R A M E T E R S
+      -->
+	<parameter name="phone" 
+        type="org.sipfoundry.sipxconfig.phone.Phone" 
+        required="yes" 
+        direction="in">
+    </parameter>    
+	<parameter name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	required="yes"
+    	direction="auto"/>    
+    <!--
+      - C O M P O N E N T S
+      -->
+    <component id="editPhoneLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editPhone"/>
+        <binding name="parameters" expression="phone.serialNumber"/>
+    </component>
+    <component id="phoneLabel" type="Insert">
+        <binding name="value" expression="phone.serialNumber"/>
+    </component>
+    <component id="phoneModel" type="Insert">
+        <binding name="value" expression="phone.model.label"/>
+    </component>    
+</component-specification>

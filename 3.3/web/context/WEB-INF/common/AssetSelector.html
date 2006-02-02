@@ -1,0 +1,30 @@
+<span jwcid="$content$">
+    <table>
+        <tr>
+            <td>
+                <span jwcid="@contrib:FormConditional" condition="ognl:assetExists and !selectable">
+    				<span jwcid="assetLabel"/>
+                </span>
+                <span jwcid="@contrib:FormConditional" condition="ognl:selectable">
+    				<input type="text" jwcid="prompt" id="asset:prompt"/>
+                </span>
+            </td>
+            <td>
+                <a jwcid="downloadLink" id="asset:download" href="#"><span jwcid="downloadLabel"/></a>
+            </td>
+            <td>
+                <span jwcid="@contrib:FormConditional" condition="ognl:assetExists and !selectable">
+                    <a jwcid="deleteLink">Delete</a>
+                </span>
+            </td>
+        </tr>            
+        <tr>            
+            <span jwcid="@contrib:FormConditional" condition="ognl:!assetExists or selectable">
+	            <td colspan="3">
+	                <input type="file" jwcid="promptUpload" 
+	                    id="asset:promptUpload"/>
+	            </td>
+            </span>
+        </tr>        
+    </table>
+</span>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneLines">
+    <description>
+        Manage an phone lines for a phone
+    </description>
+    <!--
+    - P R O P E R T I E S
+    -->
+    <property-specification name="phone"
+        type="org.sipfoundry.sipxconfig.phone.Phone"/>
+    <property-specification name="phoneId"
+        type="java.lang.Integer" persistent="yes"/>
+    <property-specification name="currentRow"
+        type="org.sipfoundry.sipxconfig.phone.Line"/>
+    <property-specification name="selections"
+        type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
+    	initial-value="global.phoneContext"/>    
+	<!--
+	  - B E A N S
+	  -->
+	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    <!--
+    - C O M P O N E N T S
+    -->
+    <component id="editPhoneNavigation" type="PhoneNavigation">
+        <binding name="phone" expression="phone"/>
+        <static-binding name="tab" value="PhoneLines"/>
+        <static-binding name="heading" value="Lines"/>
+    </component>
+    <component id="editLinesForm" type="Form"/>
+    <component id="lineTableView" type="Table">
+        <binding name="source" expression="lines"/>
+        <static-binding name="columns" value="* !Line:displayLabel"/>
+        <binding name="row" expression="currentRow"/>
+        <binding name="class" expression="beans.rowClass.next"/>
+        <binding name="selections" expression="selections"/>
+        <binding name="convertor" expression="idConverter"/>
+    </component>
+    <component id="addExternalLineLink" type="DirectLink">
+        <binding name="listener" expression="global.tapestry
+            .treatUserExceptionAsValidationError(beans.validator, listeners.addExternalLine)"/>
+        <binding name="parameters" expression="phone.id"/>
+    </component>
+    <component id="addLineLink" type="DirectLink">
+        <binding name="listener" expression="global.tapestry
+            .treatUserExceptionAsValidationError(beans.validator, listeners.addLine)"/>
+        <binding name="parameters" expression="phone.id"/>
+    </component>
+    <component id="LineColumnValue" type="Block"/>
+    <component id="editLineLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editLine"/>
+        <binding name="parameters" expression="currentRow.id"/>
+        <binding name="id" expression="'link:line' + currentRow.position"/>
+    </component>
+    <component id="maxLines" type="Insert">
+        <binding name="value" expression="phone.model.maxLineCount"/>
+    </component>
+    <component id="lineLabel" type="Insert"> 
+        <binding name="value" expression="currentRow.uri"/>
+    </component>
+    <component id="deleteLine" type="Submit">
+        <binding name="listener" expression="listeners.deleteLine"/>
+    </component>
+    <component id="moveUp" type="Submit">
+        <binding name="listener" expression="listeners.moveLineUp"/>
+    </component>
+    <component id="moveDown" type="Submit">
+        <binding name="listener" expression="listeners.moveLineDown"/>
+    </component>
+    <!--
+    - A S S E T S
+    -->
+    <!-- TODO Find some way to define this globally -->
+    <context-asset name="stylesheet" path="css/sipxconfig.css"/>
+</page-specification>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.site.gateway.GatewayForm"
+    allow-body="no"
+    allow-informal-parameters="no">    
+    
+    <parameter name="gateway" direction="auto" 
+        required="yes" 
+        type="org.sipfoundry.sipxconfig.gateway.Gateway"/>
+    
+    <property-specification name="gatewayContext" 
+    	type="org.sipfoundry.sipxconfig.gateway.GatewayContext"
+        initial-value="page.global.gatewayContext"/>
+    
+    <!-- 
+     - B E A N S 
+     -->
+        
+    <bean name="gatewayModels" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    	<set-property name="collection" expression="gatewayContext.availableGatewayModels"/>
+    	<set-property name="labelExpression" expression="'label'"/>        
+    </bean>    
+
+    <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    	<set-property name="required" expression="true"/>
+	    <set-property name="minimumLength" expression="1"/>
+	</bean>
+    
+    <!-- 
+     - C O M P O N E N T S 
+     -->    
+    <component id="gatewayNameLabel" type="FieldLabel">
+        <binding name="field" expression="components.gatewayName"/>
+    </component>
+    <component id="gatewayName" type="ValidField">
+	    <binding name="value" expression="gateway.name"/>
+    	<binding name="validator" expression="beans.nameValidator"/>
+        <message-binding name="displayName" key="label.name"/>
+    </component>
+    
+    <component id="gatewaySerialLabel" type="FieldLabel">
+        <binding name="field" expression="components.gatewaySerial"/>
+    </component>
+    <component id="gatewaySerial" type="ValidField">
+	    <binding name="value" expression="gateway.serialNumber"/>
+    	<binding name="validator" expression="page.global.optionalSerialNumber"/>
+        <message-binding name="displayName" key="label.serial"/>
+    </component>
+
+    <component id="gatewayAddressLabel" type="FieldLabel">
+        <binding name="field" expression="components.gatewayAddress"/>
+    </component>
+    <component id="gatewayAddress" type="ValidField">
+	    <binding name="value" expression="gateway.address"/>
+    	<binding name="validator" expression="beans.nameValidator"/>
+        <message-binding name="displayName" key="label.address"/>
+    </component>
+    
+    <component id="gatewayDescriptionLabel" type="FieldLabel">
+        <binding name="field" expression="components.gatewayDescription"/>
+        <message-binding name="displayName" key="label.description"/>
+    </component>
+    <component id="gatewayDescription" type="TextArea">
+	    <binding name="value" expression="gateway.description"/>
+    </component>
+    
+    <component id="gatewayModelLabel" type="FieldLabel">
+        <binding name="field" expression="components.gatewayModel"/>
+        <message-binding name="displayName" key="label.model"/>
+    </component>
+    <component id="gatewayModel" type="PropertySelection">
+        <binding name="model" expression="beans.gatewayModels"/>
+        <binding name="value" expression="gateway.model"/>
+        <binding name="disabled" expression="!gateway.isNew()"/>
+    </component>
+</component-specification>

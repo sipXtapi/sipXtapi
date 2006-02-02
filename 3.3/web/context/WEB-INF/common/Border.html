@@ -1,0 +1,31 @@
+<html jwcid="shell">
+	<body jwcid="@Body">
+        <div jwcid="renderNavigation">
+	        <div id="banner">
+                <div id="banner-links">
+                        <a href="#" jwcid="@PageLink" id="link.home" page="Home">
+                            <span key="link.home">Home</span>
+                        </a>
+                        <a href="#" jwcid="logoutLink" id="link.logout">
+                            <span key="link.logout">Logout</span>
+                        </a>
+                </div>
+				<span class="hide" key="title">sipXconfig</span>
+			</div>
+
+            <div jwcid="@contrib:Choose" id="navigation" element="div">
+                <span jwcid="@contrib:When" condition="ognl:page.visit.admin">
+			    	<span jwcid="@AdminNavigation">Navigation bar goes here.</span>
+                </span>
+                <span jwcid="@contrib:Otherwise">
+			    	<span jwcid="@UserPortalNavigation">User portal navigation bar goes here.</span>
+                </span>                
+            </div>
+        </div>
+        <div jwcid="renderContent">
+			<span jwcid="wrapped">Page content goes here.</span>
+        </div>
+        <!-- this is to prevent IE Guillotine bug -->
+		<div style="clear: both"></div>
+	</body>
+</html>

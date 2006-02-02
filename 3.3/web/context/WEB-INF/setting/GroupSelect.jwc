@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<component-specification class="org.apache.tapestry.BaseComponent"
+    allow-body="no"
+    allow-informal-parameters="no">    
+    <description>add a description</description>
+    
+    <parameter name="groups"
+        required="yes"
+        type="java.util.Collection"
+        direction="auto"/>
+    <parameter name="values"        
+        required="yes"
+        type="java.util.Collection"
+        direction="auto"/>
+
+    <property-specification name="currentGroup"
+        type="org.sipfoundry.sipxconfig.setting.Group"/>
+    
+    <bean name="groupSelections" class="org.sipfoundry.sipxconfig.components.SelectionCollection">
+        <set-property name="collection" expression="values"/>
+    </bean>
+    
+    <component id="groups" type="Foreach">
+        <binding name="source" expression="groups"/>        
+        <binding name="value" expression="currentGroup"/>
+    </component>
+    <component id="groupOption" type="Option">
+        <binding name="selected" expression="beans.groupSelections.selected[currentGroup]"/>
+        <binding name="label" expression="currentGroup.name"/>
+    </component>
+    
+</component-specification>

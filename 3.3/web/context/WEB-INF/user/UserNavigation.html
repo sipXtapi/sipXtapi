@@ -1,0 +1,31 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
+	</head>
+	<body>
+		<span jwcid="$content$">
+			<span class="pageLabel">User:</span> <span jwcid="userLabel"/>
+			<h2>
+				<span jwcid="heading">Page Heading</span>
+			</h2>
+			<div id="settings-nav">
+				<ul>
+					<li>
+						<a jwcid="editUserLink">Identification</a>
+					</li>
+                    <li>
+                        <a jwcid="callForwardingLink" href="#">Call Forwarding</a>
+                    </li>
+					<span jwcid="settingsTabs">
+						<li>
+							<a href="#" jwcid="settingsLink">
+								<span jwcid="settingsTabLabel"/>
+							</a>
+						</li>
+					</span>
+				</ul>
+			</div>
+			<span jwcid="@RenderBody"/>
+		</span>
+	</body>
+</html>

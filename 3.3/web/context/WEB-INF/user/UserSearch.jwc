@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.user.UserSearch"
+    allow-body="yes"
+    allow-informal-parameters="no">
+    <description>user search criteria form + action button</description>
+    
+    <!--
+      - P A R A M E T E R S
+      -->
+	<parameter name="cancelListener" 
+        type="org.apache.tapestry.IActionListener" 
+        required="yes" 
+        direction="in">
+    </parameter>
+    
+    <parameter name="simpleSearch" type="boolean" direction="in" required="yes"/>
+    
+    <!--
+      - P R O P E R T I E S
+      -->
+    <property-specification name="searchManager" 
+    	type="org.sipfoundry.sipxconfig.search.SearchManager"
+    	initial-value="page.global.searchManager"/>
+    <property-specification name="userSearchManager" 
+    	type="org.sipfoundry.sipxconfig.search.UserSearchManager"
+    	initial-value="page.global.userSearchManager"/>
+    <property-specification name="coreContext" 
+    	type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="page.global.coreContext"/>
+	<property-specification name="user" 
+		type="org.sipfoundry.sipxconfig.common.User"/>
+    <property-specification name="query" type="java.lang.String"/>    
+	<property-specification name="users" 
+		type="java.util.List"/>    
+    
+    <!--
+      - C O M P O N E N T S
+      -->
+    
+    <component id="renderSimpleSearch" type="contrib:FormConditional">
+        <binding name="condition" expression="simpleSearch"/>
+    </component>
+    <component id="renderAdvancedSearch" type="contrib:FormConditional">
+        <binding name="condition" expression="!simpleSearch"/>
+    </component>        
+    
+    <!-- simple search -->
+    <component id="queryLabel" type="FieldPanel">
+        <binding name="field" expression="components.query"/>
+	    <message-binding name="label" key="label.query"/>
+        <message-binding name="description" key="description.query"/>
+    </component>
+    <component id="query" type="TextField">
+	    <binding name="value" expression="query"/>
+    </component>
+    
+    <!-- advanced search -->
+    <component id="firstNameLabel" type="FieldPanel">
+        <binding name="field" expression="components.firstName"/>
+	    <message-binding name="label" key="label.firstName"/>
+    </component>
+    <component id="firstName" type="TextField">
+	    <binding name="value" expression="user.firstName"/>
+    </component>
+    <component id="lastNameLabel" type="FieldPanel">
+        <binding name="field" expression="components.lastName"/>
+	    <message-binding name="label" key="label.lastName"/>
+    </component>
+    <component id="lastName" type="TextField">
+	    <binding name="value" expression="user.lastName"/>
+    </component>
+    <component id="userNameOrAliasLabel" type="FieldPanel">
+        <binding name="field" expression="components.userNameOrAlias"/>
+	    <message-binding name="label" key="label.userNameOrAlias"/>
+    </component>    
+    <!-- The UI captures a string that can be either the username or an alias.
+    	 Feed this string to the page bean in user.userName. --> 
+    <component id="userNameOrAlias" type="TextField">
+	    <binding name="value" expression="user.userName"/>
+    </component>
+        
+    <component id="search" type="Submit">
+        <binding name="listener" expression="listeners.search"/>
+    </component>
+    <component id="cancel" type="Submit">
+        <binding name="listener" expression="cancelListener"/>
+    </component>    
+</component-specification>

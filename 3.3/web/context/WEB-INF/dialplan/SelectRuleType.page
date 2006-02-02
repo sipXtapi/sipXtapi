@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.SelectRuleType">
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanContext" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
+    
+    <property-specification name="ruleType" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType">
+    </property-specification>    
+    
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    
+    <bean name="ruleTypeModel" 
+        class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel"
+        lifecycle="page">
+        <set-property name="options" 
+        	expression="@org.sipfoundry.sipxconfig.site.dialplan.SelectRuleType@TYPES"/>
+    </bean>
+    
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="form" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+    
+    <component id="ruleTypeSelection" type="PropertySelection">
+        <binding name="value" expression="ruleType"/>
+        <binding name="model" expression="beans.ruleTypeModel"/>
+    </component>
+    
+    <component id="next" type="Submit">
+        <binding name="listener" expression="listeners.next"/>
+    </component>    
+</page-specification>

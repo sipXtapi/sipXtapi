@@ -1,0 +1,31 @@
+<html title="International Dialing Rule">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+		<h2>International Dialing</h2>            
+		<span jwcid="@ErrorMsg"/>
+        <form jwcid="form" id="long:rule:edit">
+        <fieldset jwcid="common"/>
+        <fieldset>
+	    <legend>Details</legend>
+        <table>
+            <tbody>
+                <tr>
+                    <td>
+                        <label for="dialplan:pstnPrefix"><span jwcid="internationalPrefixLabel">International Calls Prefix</span>:</label>
+                    </td>
+                    <td>
+                        <input jwcid="internationalPrefix" id="dialplan:pstnPrefix" maxlength="40" type="text" value="9" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </fieldset>
+        <fieldset jwcid="gatewaysPanel"/>
+    	<ul jwcid="formActions"/>
+    </form>
+    </div>
+</body>
+</html>

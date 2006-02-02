@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.ManageAttendants">
+    <description>add a description</description>    
+	<!--
+	  - P R O P E R T I E S
+	  -->
+	<property-specification name="dialPlanContext" 
+		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
+    	initial-value="global.dialPlanContext"/>
+    <property-specification name="vxmlGenerator"
+        type="org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator"
+        initial-value="global.vxml"/>
+   	<property-specification name="selections" 
+       type="org.sipfoundry.sipxconfig.components.SelectMap"
+       initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
+	<property-specification name="selectedRows" 
+       type="java.util.Collection"/>    
+    <property-specification name="currentRow"
+        type="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant"/>
+    <!--
+     - B E A N S
+     -->
+    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+    <bean name="idConverter" class="org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer">
+        <set-property name="class" expression="@org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant@class"/>
+        <set-property name="source" expression="global.dialPlanContext"/>
+    </bean>
+    <!--
+      - C O M P O N E N T S
+      -->
+    <component id="tableView" type="Table">
+        <static-binding name="columns" value="* name,description"/>
+        <binding name="source" expression="dialPlanContext.autoAttendants"/>
+		<binding name="row" expression="currentRow"/>
+        <binding name="convertor" expression="beans.idConverter"/>
+        <binding name="selections" expression="selections"/>
+    </component>
+	<component id="nameColumnValue" type="Block"/>    
+    <component id="nameText" type="Insert">
+        <binding name="value" expression="currentRow.name"/>
+    </component>    
+    <component id="editRowLink" type="DirectLink">
+        <binding name="listener" expression="listeners.edit"/>
+        <binding name="parameters" expression="currentRow.id"/>
+    </component>    
+    <component id="addAttendantLink" type="DirectLink">
+        <binding name="listener" expression="listeners.add"/>
+    </component>    
+    <component id="deleteButton" type="Submit">
+        <binding name="listener" expression="listeners.deleteSelected"/>
+    </component>    
+    <component id="attendantListForm" type="Form">
+        <binding name="delegate" expression="beans.validator"/>
+    </component>
+    
+    <component id="specialAttendant" type="SpecialAttendantPanel"/>
+</page-specification>

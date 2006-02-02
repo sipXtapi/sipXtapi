@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC 
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.components.Border" allow-body="yes" 
+    allow-informal-parameters="yes">
+    
+    <parameter name="loginRequired" type="boolean" default-value="true" required="no" direction="auto"/>
+    <parameter name="restricted" type="boolean" default-value="true" required="no" direction="auto"/>
+    
+	<property-specification name="coreContext" 
+		type="org.sipfoundry.sipxconfig.common.CoreContext" 
+    	initial-value="page.global.coreContext"/>    
+
+    <component id="shell" type="Shell">
+        <binding name="stylesheet" expression="assets.stylesheet"/>
+        <message-binding name="title" key="title"/>
+    </component>
+
+	<component id="wrapped" type="RenderBody"/>
+    
+    <component id="renderNavigation" type="Conditional">
+        <binding name="condition" expression="page.visit.navigationVisible"/>
+    </component>
+    
+    <component id="renderContent" type="Any">
+        <!--binding name="id" expression="(page.visit.navigationVisible)?'content':'_content'"/-->
+        <static-binding name="id" value="content"/>
+        <static-binding name="element" value="div"/>        
+    </component>
+    
+    <component id="logoutLink" type="DirectLink">
+        <binding name="listener" expression="listeners.logout"/>
+    </component>
+    
+	<!--
+	  - A S S E T S
+	  -->	
+    <context-asset name="stylesheet" path="css/sipxconfig.css"/>
+</component-specification>

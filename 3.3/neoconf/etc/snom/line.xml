@@ -1,0 +1,299 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+  <group name="line">
+    <label>Registration</label>
+    <setting name="user_active">
+      <label>Line active</label>
+      <type refid="on-off"/>
+      <value>on</value>
+      <description>Active (registered) line or not.</description>
+    </setting>
+    <setting name="user_realname">
+      <label>Displayname</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+      <description>Caller ID value.</description>
+    </setting>
+    <setting name="user_name">
+      <label>Account</label>
+      <type>
+        <string required="yes"/>
+      </type>
+      <value/>
+      <description>Number or name which is used for registration.</description>
+    </setting>
+    <setting name="user_host">
+      <label>Registrar</label>
+      <type>
+        <string required="yes"/>
+      </type>
+      <value/>
+      <description>FQDN name of the domain or registrar.</description>
+    </setting>
+    <setting name="user_pname">
+      <label>Authentication Username</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+      <description>Username for the authentication if it differs from username.</description>
+    </setting>
+    <setting name="user_pass">
+      <label>Password</label>
+      <type>
+        <string required="yes"/>
+      </type>
+      <value/>
+      <description>Password for authentication against the server.</description>
+    </setting>
+    <setting name="user_mailbox">
+      <label>Mailbox</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+      <description>Number to internal voice mail system.</description>
+    </setting>
+  </group>
+  <group name="sip">
+    <label>SIP</label>
+    <setting name="user_outbound">
+      <label>Outbound Proxy</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="user_moh">
+      <label>Music on hold server</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="user_alert_info">
+      <label>Alert Info URL</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="user_pic">
+      <label>User picture URL</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="user_stream">
+      <label>Music on hold Streaming URL</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="user_dp_str">
+      <label>Dial-Plan String</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="user_q">
+      <label>Q-Value</label>
+      <type>
+        <enum>
+          <option>
+            <value>1.0</value>
+          </option>
+          <option>
+            <value>0.9</value>
+          </option>
+          <option>
+            <value>0.8</value>
+          </option>
+          <option>
+            <value>0.7</value>
+          </option>
+          <option>
+            <value>0.6</value>
+          </option>
+          <option>
+            <value>0.5</value>
+          </option>
+          <option>
+            <value>0.4</value>
+          </option>
+          <option>
+            <value>0.3</value>
+          </option>
+          <option>
+            <value>0.2</value>
+          </option>
+          <option>
+            <value>0.1</value>
+          </option>
+          <option>
+            <value>0.0</value>
+          </option>
+        </enum>
+      </type>
+      <value>1.0</value>
+    </setting>
+    <setting name="user_expiry">
+      <label>Proposed Expiry</label>
+      <type>
+        <enum>
+          <option>
+            <label>1 day</label>
+            <value>86400</value>
+          </option>
+          <option>
+            <label>8 hours</label>
+            <value>28800</value>
+          </option>
+          <option>
+            <label>2 hours</label>
+            <value>7200</value>
+          </option>
+          <option>
+            <label>1 hour</label>
+            <value>3600</value>
+          </option>
+          <option>
+            <label>10 mins</label>
+            <value>600</value>
+          </option>
+          <option>
+            <label>1 min</label>
+            <value>60</value>
+          </option>
+        </enum>
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="user_auto_connect">
+      <label>Auto Answer</label>
+      <type refid="on-off"/>
+      <value>off</value>
+    </setting>
+    <setting name="user_descr_contact">
+      <label>Long SIP-Contact (RFC3840)</label>
+      <type refid="on-off"/>
+      <value>on</value>
+    </setting>
+    <setting name="user_sipusername_as_line">
+      <label>Support broken Registrar</label>
+      <type refid="on-off"/>
+      <value>off</value>
+    </setting>
+  </group>
+  <group name="nat">
+    <label>NAT</label>
+    <setting name="user_ice">
+      <label>Offer ICE</label>
+      <type refid="on-off"/>
+      <value>off</value>
+    </setting>
+    <setting name="stun_server">
+      <label>STUN server (IP-addr:port)</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="stun_binding_interval">
+      <label>STUN interval (seconds)</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="keepalive_interval">
+      <label>Keepalive interval (seconds)</label>
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="user_symmetrical_rtp">
+      <label>Symmetrical RTP</label>
+      <type refid="on-off"/>
+      <value>off</value>
+    </setting>
+  </group>
+  <group name="rtp">
+    <label>RTP</label>
+    <setting name="codec1_name">
+      <label>Codec 1</label>
+      <type refid="codec"/>
+      <value>0</value>
+    </setting>
+    <setting name="codec2_name">
+      <label>Codec 2</label>
+      <type refid="codec"/>
+      <value>8</value>
+    </setting>
+    <setting name="codec3_name">
+      <label>Codec 3</label>
+      <type refid="codec"/>
+      <value>9</value>
+    </setting>
+    <setting name="codec4_name">
+      <label>Codec 4</label>
+      <type refid="codec"/>
+      <value>2</value>
+    </setting>
+    <setting name="codec5_name">
+      <label>Codec 5</label>
+      <type refid="codec"/>
+      <value>3</value>
+    </setting>
+    <setting name="codec6_name">
+      <label>Codec 6</label>
+      <type refid="codec"/>
+      <value>18</value>
+    </setting>
+    <setting name="codec7_name">
+      <label>Codec 7</label>
+      <type refid="codec"/>
+      <value>4</value>
+    </setting>
+    <setting name="codec_size">
+      <label>Packet Size</label>
+      <type>
+        <enum>
+          <option>
+            <label>20ms</label>
+            <value>20</value>
+          </option>
+          <option>
+            <label>30ms</label>
+            <value>30</value>
+          </option>
+          <option>
+            <label>40ms</label>
+            <value>40</value>
+          </option>
+          <option>
+            <label>60ms</label>
+            <value>60</value>
+          </option>
+        </enum>
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name="user_srtp">
+      <label>RTP Encryption</label>
+      <type refid="on-off"/>
+      <value>off</value>
+    </setting>
+  </group>
+</model>

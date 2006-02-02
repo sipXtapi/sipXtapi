@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC
+  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneNavigation"
+    allow-body="yes"
+    allow-informal-parameters="no">
+    <description>
+        <![CDATA[ Navigational tabs, intro text and help box  ]]>
+    </description>
+    <!--
+    - P A R A M E T E R S
+    -->
+    <parameter name="phone"
+        type="org.sipfoundry.sipxconfig.phone.Phone"
+        required="yes"
+        direction="in">
+    </parameter>
+    <parameter name="tab"
+        type="java.lang.String"
+        required="yes"
+        direction="auto">
+    </parameter>
+    <parameter name="heading"
+        type="java.lang.String"
+        required="yes"
+        direction="in">
+    </parameter>    
+    <!--
+      - P R O P E R T I E S
+      -->
+    <property-specification name="currentSetting"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+    <property-specification name="settings"
+        type="org.sipfoundry.sipxconfig.setting.Setting"/>
+	<property-specification name="phoneContext" 
+		type="org.sipfoundry.sipxconfig.phone.PhoneContext"
+        initial-value="page.global.phoneContext"/>
+    <!--
+     - C O M P O N E N T S
+     -->
+    <component id="heading" type="Insert">
+        <binding name="value" expression="heading"/>
+    </component>            
+    <component id="deviceIdLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editPhone"/>
+        <binding name="parameters" expression="phone.id"/>
+    </component>
+    <component id="linesLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editLines"/>
+        <binding name="parameters" expression="phone.id"/>
+    </component>
+    <component id="settingsTabs" type="Foreach">
+        <binding name="source" expression="settings.values"/>
+        <binding name="value" expression="currentSetting"/>
+    </component>
+    <component id="settingsLink" type="DirectLink">
+        <binding name="listener" expression="listeners.editSettings"/>
+        <binding name="parameters" expression="editSettingListenerParameters"/>
+    </component>
+    <component id="settingsTabLabel" type="Insert">
+        <binding name="value" expression="currentSetting.getLabel()"/>
+    </component>
+    <component id="phoneLabel" type="PhoneLabel">
+        <binding name="phone" expression="phone"/>
+        <binding name="phoneContext" expression="phoneContext"/>
+    </component>
+</component-specification>

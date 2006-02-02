@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.apache.tapestry.BaseComponent" 
+    allow-body="no" allow-informal-parameters="no">
+    <!-- P A R A M E T E R S -->
+	<parameter name="ring" 
+        type="org.sipfoundry.sipxconfig.admin.forwarding.Ring" 
+        required="yes" 
+        direction="in">
+    </parameter>
+
+    <parameter name="deleteListener"
+    	type="org.apache.tapestry.IActionListener"
+    	required="yes"
+    	direction="in"
+    />
+            
+    <!-- P R O P E R T I E S -->
+    
+    <!-- B E A N S -->
+    <bean name="delayModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" 
+        lifecycle="page">
+        <set-property name="enumClass" 
+        	expression="@org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$Type@class"/>        
+	</bean>    
+    
+    <!-- C O M P O N E N T S -->
+    <component id="type" type="PropertySelection">
+        <binding name="value" expression="ring.type"/>
+        <binding name="model" expression="beans.delayModel"/>
+    </component>
+    
+    <component id="numberLabel" type="FieldLabel">
+        <binding name="field" expression="components.number"/>
+    </component>
+    <component id="number" type="ValidField">
+        <binding name="value" expression="ring.number"/>
+        <binding name="validator" expression="page.global.validPhoneRequired"/>
+        <message-binding name="displayName" key="label.forward"/>
+    </component>
+    
+    <component id="expirationLabel" type="FieldLabel">
+        <binding name="field" expression="components.expiration"/>
+    </component>
+    <component id="expiration" type="contrib:NumericField">
+        <binding name="value" expression="ring.expiration"/>
+        <binding name="minimum" expression="1"/>
+        <binding name="maximum" expression="999"/>
+        <binding name="required" expression="true"/>
+        <static-binding name="type" value="int"/>
+        <message-binding name="displayName" key="label.ring"/>
+    </component>
+
+    <component id="deleteRing" type="DirectLink">
+        <binding name="listener" expression="deleteListener"/>
+        <binding name="parameters" expression="ring.id"/>
+    </component>
+        
+</component-specification>

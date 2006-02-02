@@ -1,0 +1,64 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!--
+  - C O R E  C O N T E X T   I M P L
+  -->
+  <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
+    <property name="settingDao">
+      <ref bean="settingDao"/>
+    </property>
+    <property name="aliasManager">
+      <ref bean="aliasManager"/>
+    </property>
+    <property name="userSettingModel" ref="userSettingModel"/>
+  </bean>
+  <!--
+  - C O R E  C O N T E X T
+  -->
+  <bean id="coreContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.common.CoreContext</value>
+    </property>
+    <property name="target">
+      <ref local="coreContextImpl"/>
+    </property>
+  </bean>
+  
+  <!--
+  - E X T E N S I O N  P O O L  C O N T E X T   I M P L
+  -->
+  <bean id="extensionPoolContextImpl" class="org.sipfoundry.sipxconfig.common.ExtensionPoolContextImpl">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+    <property name="coreContext">
+      <ref bean="coreContext"/>
+    </property>    
+  </bean>
+  <!--
+  - E X T E N S I O N  P O O L  C O N T E X T
+  -->
+  <bean id="extensionPoolContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.common.ExtensionPoolContext</value>
+    </property>
+    <property name="target">
+      <ref local="extensionPoolContextImpl"/>
+    </property>
+  </bean>
+	
+  <bean id="userSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel">
+    <property name="resource" value="user-settings.xml"/>
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+
+  <bean id="org.sipfoundry.sipxconfig.common.User" class="org.sipfoundry.sipxconfig.common.User" singleton="false">
+    <property name="settingModel" ref="userSettingModel"/>
+  </bean>
+  
+</beans>

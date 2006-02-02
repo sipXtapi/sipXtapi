@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification
+      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
+      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+
+<component-specification class="org.sipfoundry.sipxconfig.components.GatewayTable" allow-body="no" allow-informal-parameters="no">
+    <!-- P A R A M E T E R S -->
+    
+	<parameter name="gatewayCollection" 
+        type="java.util.Collection" 
+        required="yes" 
+        direction="auto">
+    </parameter>
+
+    <parameter name="ruleId" 
+        type="java.lang.Integer" 
+        required="no" 
+        default-value="null"
+        direction="in">
+    </parameter>
+        
+	<parameter name="editPageName"
+        type="java.lang.String" 
+        required="yes" 
+        direction="in">
+    </parameter>
+    
+    
+    <!-- P R O P E R T I E S -->    
+    <property-specification name="currentRow"
+        type="org.sipfoundry.sipxconfig.gateway.Gateway"/>
+    
+   	<property-specification name="selections" 
+       type="org.sipfoundry.sipxconfig.components.SelectMap"/>
+    
+    <!-- B E A N S -->           
+    <bean name="gateway2id" class="org.sipfoundry.sipxconfig.components.Gateway2Id" lifecycle="page">
+        <set-property name="context">page.global.gatewayContext</set-property>
+    </bean>    
+    
+    <!-- C O M P O N E N T S -->           
+    <component id="table" type="Table">
+        <static-binding name="columns" value="* Name:name,Address:address,Description:description"/>
+        <binding name="source" expression="gatewayCollection"/>
+		<binding name="row" expression="currentRow"/>
+        <binding name="convertor" expression="beans.gateway2id"/>
+        <binding name="selections" expression="selections"/>
+    </component>
+
+	<component id="NameColumnValue" type="Block"/>
+    
+    <component id="nameText" type="Insert">
+        <binding name="value" expression="currentRow.name"/>
+    </component>
+    
+    <component id="editRowLink" type="DirectLink">
+        <binding name="listener" expression="listeners.edit"/>
+        <binding name="parameters" expression="currentRow.id"/>
+    </component>
+                    
+</component-specification>
