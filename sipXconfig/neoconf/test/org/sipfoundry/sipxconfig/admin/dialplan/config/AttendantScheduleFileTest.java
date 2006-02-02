@@ -43,7 +43,7 @@ public class AttendantScheduleFileTest extends XMLTestCase {
 
         String generatedXml = file.getFileContent();
 
-        String expected = "<organizationprefs><schedule/></organizationprefs>";
+        String expected = "<schedules><autoattendant/></schedules>";
 
         assertXMLEqual(expected, generatedXml);
     }
@@ -83,7 +83,7 @@ public class AttendantScheduleFileTest extends XMLTestCase {
         AttendantScheduleFile file = new AttendantScheduleFile();
         file.generate(rule);
 
-        assertEquals("aa_-1_schedule.xml", file.getFileBaseName());
+        assertEquals("aa_-1-schedule.xml", file.getFileBaseName());
 
         String generatedXml = file.getFileContent();
 

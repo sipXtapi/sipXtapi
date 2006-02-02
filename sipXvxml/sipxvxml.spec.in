@@ -24,7 +24,6 @@ Requires: httpd >= 2.0
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
 
-# kingkonf upgrade support
 # should match sipXlib.m4:SIPX_UPGRADEDIR
 %define upgrade_archive_dir %{_localstatedir}/sipxdata/upgrade
 %define this_archive %{name}-%{version}-%{release}.tgz
@@ -62,7 +61,6 @@ make
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
-# kingkonf upgrade support
 %define upgrade_archive_root ${RPM_BUILD_ROOT}%{upgrade_archive_dir}
 mkdir -p %{upgrade_archive_root}
 tar --directory ${RPM_BUILD_ROOT} \
@@ -86,7 +84,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
 %config %{_sysconfdir}/sipxpbx/mediaserver-config.in
 
-# kingkonf upgrade support
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
 
@@ -96,7 +93,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 
-# kingkonf upgrade support
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
 if [ -f %{current_archive} ]; then
