@@ -803,6 +803,9 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
    XmlRpcResponse response;
    if (request.execute(response))    // blocks; returns false for any fault
    {
+      // The request succeeded, so increase peerSentDbUpdateNumber accordingly.
+      // :TODO: Consider moving this code out of here (into SipRegistrarServer?
+      // into RegistrarSync) since the RPC method should really just be handling comms.
       UtlContainable* value;
       response.getResponse(value);
       UtlLongLongInt* newSentUpdateNumber = dynamic_cast<UtlLongLongInt*>(value);

@@ -38,6 +38,7 @@ using std::auto_ptr;
 #include "RegistrarSync.h"
 #include "SipRegistrar.h"
 #include "SipRegistrarServer.h"
+#include "SyncRpc.h"
 
 // DEFINES
 // CONSTANTS
@@ -80,20 +81,30 @@ int RegistrarSync::run(void* pArg)
       {
          if (peer->isReachable())
          {
-            intll localDbUpdateNumber = mRegistrar.getRegistrarServer().getDbUpdateNumber();
+            intll localDbUpdateNumber = getRegistrarServer().getDbUpdateNumber();
             intll peerSentDbUpdateNumber = peer->sentTo();
             if (localDbUpdateNumber > peerSentDbUpdateNumber)
             {
-               // :TODO: continue implementation here
-
-               // call RegistrationDB::getNextUpdateForRegistrar via SipRegistrarServer
-               // to get the update to send -- need to implement that method
+               UtlSList bindings;
+               bool isUpdateToSend(
+                  getRegistrarServer().getNextUpdateToSend(peer, bindings));
+               assert(isUpdateToSend);
+               if (isUpdateToSend)
+               {
+                  SyncRpcPushUpdates::invoke(peer, mRegistrar.primaryName(), &bindings);
+               }
             }
          }
       }
    }
 
    return 0;
+}
+
+
+SipRegistrarServer& RegistrarSync::getRegistrarServer()
+{
+   return mRegistrar.getRegistrarServer();
 }
 
 

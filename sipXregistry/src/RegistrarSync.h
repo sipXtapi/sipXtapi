@@ -20,6 +20,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class SipRegistrar;
+class SipRegistrarServer;
 
 
 /**
@@ -42,6 +43,7 @@ public:
    virtual int run(void* pArg);
    
 protected:
+   SipRegistrarServer& getRegistrarServer();
 
 private:
    SipRegistrar& mRegistrar;

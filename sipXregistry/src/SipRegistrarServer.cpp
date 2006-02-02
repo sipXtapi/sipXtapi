@@ -1228,6 +1228,32 @@ intll SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName
    return imdb->getMaxUpdateNumberForRegistrar(primaryName);
 }
 
+/// Return true if there is a new update to send to the registrar, and return the update
+bool SipRegistrarServer::getNextUpdateToSend(RegistrarPeer *peer,
+                                             UtlSList&      bindings)
+{
+   bool isNewUpdate = false;
+
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
+   intll peerSentDbUpdateNumber = peer->sentTo();
+   if (mDbUpdateNumber > peerSentDbUpdateNumber)    // if there are unsent updates
+   {
+      // Get the next update belonging to us (we're primary) that we haven't sent to
+      // registrarName yet.
+      RegistrationDB* imdb = mRegistrar.getRegistrationDB();
+      int numBindings = imdb->getNextUpdateForRegistrar(primaryName(),
+                                                        peerSentDbUpdateNumber,
+                                                        bindings);
+      assert((numBindings > 0) &&
+             ((static_cast<int>(bindings.entries())) == numBindings));
+      isNewUpdate = true;
+   }
+
+   return isNewUpdate;
+}
+
 /// Get the largest update number in the local database for this registrar as primary
 intll SipRegistrarServer::getDbUpdateNumber() const
 {

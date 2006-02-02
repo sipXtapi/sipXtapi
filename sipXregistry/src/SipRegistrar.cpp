@@ -34,6 +34,7 @@
 #include "RegistrarTest.h"
 #include "RegistrarSync.h"
 #include "RegistrarInitialSync.h"
+#include "SyncRpc.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -223,8 +224,18 @@ void SipRegistrar::operationalPhase()
    mSipUserAgent->start();
    startRegistrarServer();
    startRedirectServer();
-   startRegistrarSync();
-   startRegistrarTest();
+
+   if (mReplicationConfigured)
+   {
+      // Start the sync and test threads.  (We ran the init sync thread earlier.)
+      mRegistrarSync->start();
+      mRegistrarTest->start();
+
+      // Register the pushUpdates and reset methods.
+      // (We registered the pullUpdates method earlier because it only needs DB access.)
+      SyncRpcPushUpdates::registerSelf(*this);
+      SyncRpcReset::registerSelf(*this);
+   }
 }
 
 /// Get the XML-RPC dispatcher
@@ -512,16 +523,4 @@ void SipRegistrar::createReplicationThreads()
    mRegistrarInitialSync = new RegistrarInitialSync(*this);
    mRegistrarSync = new RegistrarSync(*this);
    mRegistrarTest = new RegistrarTest(*this);
-}
-
-void
-SipRegistrar::startRegistrarSync()
-{
-   mRegistrarSync->start();
-}
-
-void
-SipRegistrar::startRegistrarTest()
-{
-   mRegistrarTest->start();
 }

@@ -103,6 +103,10 @@ public:
 
     /// Return the max update number for primaryRegistrar, or zero if there are no such updates
     intll getMaxUpdateNumberForRegistrar(const char* primaryName) const;
+
+    /// Return true if there is a new update to send to the peer registrar and fill in bindings
+    bool getNextUpdateToSend(RegistrarPeer *peer,       ///< peer to send the update to
+                             UtlSList&   bindings);     ///< fill in bindings of the update
     
 protected:
     SipRegistrar& mRegistrar;
