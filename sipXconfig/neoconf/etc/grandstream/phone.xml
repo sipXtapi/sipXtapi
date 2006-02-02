@@ -135,7 +135,7 @@
             <value>0</value>
             <description>Use custom ring tone 3 if incoming caller ID is the following.</description>
         </setting>
-        <setting name="P86" if="PhoneHt.*">
+        <setting name="P86" if="Ht.*">
             <label>FXS Impedence</label>
             <type>
                 <enum>
@@ -175,7 +175,7 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P200" if="PhoneHt.*">
+        <setting name="P200" if="Ht.*">
             <label>Caller ID Scheme</label>
             <type>
                 <enum>
@@ -199,14 +199,14 @@
             </type>
             <value>0</value>
         </setting>
-        <setting name="P205" if="PhoneHt.*">
+        <setting name="P205" if="Ht.*">
             <label>Enable Polarity Reversal</label>
             <type>
                 <boolean/>
             </type>
             <value>0</value>
         </setting>
-        <setting name="P206" if="PhoneHt.*">
+        <setting name="P206" if="Ht.*">
             <label>Onhook Voltage</label>
             <type>
                 <enum>
@@ -640,14 +640,6 @@
                 </enum>
             </type>
             <value>100</value>
-        </setting>
-        <setting name="P52" if="PhoneHt.*">
-            <label>Disable NAT Traversal</label>
-            <type>
-                <boolean/>
-            </type>
-            <value>1</value>
-            <description>Disable NAT Traversal.</description>
         </setting>
         <setting name="P260" if="Ht486">
             <label>Session Expiration</label>

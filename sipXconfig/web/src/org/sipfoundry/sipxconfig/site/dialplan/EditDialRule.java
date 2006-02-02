@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.common.Permission;
-import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.BeanFactoryGlobals;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
@@ -131,9 +130,6 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
         AbstractComponent component = (AbstractComponent) getComponent("common");
-        StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
-                .getBean("descriptionValidator");
-        descriptionValidator.validate(delegate);
         // TODO: check if it can be changed to page bean
         BeanFactoryGlobals globals = (BeanFactoryGlobals) getGlobal();
         RuleValidator ruleValidator = (RuleValidator) globals.get("validRule");

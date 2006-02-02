@@ -831,13 +831,17 @@ void XmlRpcResponse::cleanUp(UtlHashMap* map)
       UtlString paramType(value->getContainableType());
       if (paramType.compareTo("UtlHashMap") == 0)
       {
-         cleanUp((UtlHashMap *)value);
+         UtlHashMap* pMap = (UtlHashMap *) value;
+         cleanUp(pMap);
+         delete pMap;
       }
       else
       {
          if (paramType.compareTo("UtlSList") == 0)
          {
-            cleanUp((UtlSList *)value);
+            UtlSList* pList = (UtlSList *) value;
+            cleanUp(pList);
+            delete pList;
          }
          else
          {
@@ -845,7 +849,7 @@ void XmlRpcResponse::cleanUp(UtlHashMap* map)
          }
       }
       
-      delete key;
+      delete pName;
    }
 }
 
@@ -859,13 +863,17 @@ void XmlRpcResponse::cleanUp(UtlSList* array)
       UtlString paramType(value->getContainableType());
       if (paramType.compareTo("UtlHashMap") == 0)
       {
-         cleanUp((UtlHashMap *)value);
+         UtlHashMap* pMap = (UtlHashMap *) value;
+         cleanUp(pMap);
+         delete pMap;
       }
       else
       {
          if (paramType.compareTo("UtlSList") == 0)
          {
-            cleanUp((UtlSList *)value);
+            UtlSList* pList = (UtlSList *) value;
+            cleanUp(pList);
+            delete pList;
          }
          else
          {

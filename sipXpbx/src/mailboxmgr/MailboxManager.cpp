@@ -4711,16 +4711,32 @@ MailboxManager::generateDefaultGreetings (
 
         if( OsFileSystem::exists( recordedNameFile ) )
         {
-            UtlString recordedNameUrl = mailboxUrl + "/" + RECORDED_NAME_FILE ;
-
             writeToLog("GenerateDefaultGreetings", "User has recorded name.", PRI_DEBUG);
 
+            // Modified greetingSuffix to be file based
+            if( greetingType == DEFAULT_STANDARD_GREETING || greetingType == STANDARD_GREETING || greetingType == ACTIVE_GREETING_NOT_SET)
+            {
+                greetingSuffix   = m_mediaserverRoot + "/" + PROMPT_ALIAS + "/" + "is_not_available.wav" ;
+            }
+            else if( greetingType == DEFAULT_OUTOFOFFICE_GREETING || greetingType == OUTOFOFFICE_GREETING)
+            {
+                greetingSuffix   = m_mediaserverRoot + "/" + PROMPT_ALIAS + "/" + "is_out_of_office.wav" ;
+            }
+            else if( greetingType == DEFAULT_EXTENDED_ABS_GREETING || greetingType == EXTENDED_ABSENCE_GREETING)
+            {
+                greetingSuffix   = m_mediaserverRoot + "/" + PROMPT_ALIAS + "/" + "is_on_extended_leave.wav" ;
+            }
+
             UtlString infiles[3] ;
-            infiles[0] = recordedNameUrl ;
+            infiles[0] = recordedNameFile ;
             infiles[1] = greetingSuffix ;
             infiles[2] = "" ;
 
-            if (mergeWaveUrls(infiles, greetingLocation ) != OS_SUCCESS)
+            if (mergeWaveFiles(infiles, greetingLocation ) != OS_SUCCESS)
+                OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_ERR,
+                              "MailboxManager::generateDefaultGreetings failed to generate default %s prompt for %s",
+                              greetingType.data(), mailboxIdentity.data());
+                  
                 result = OS_FAILED;
 
         } else
@@ -5989,10 +6005,6 @@ MailboxManager::parseAutoAttendantSchduleFile ( UtlString& fileLocation,
             //<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" \
             //<schedules>\n" \
             //  <autoattendant>\n" \
-            //    <special>\n" \
-            //      <operation>%s</operation>\n" \
-            //      <filename>%s</filename>\n" \
-            //    </special>\n" \
             //    <holidays>\n" \
             //      <date>1-Jan-2005</date>\n" \
             //      <date>4-Jul-2005</date>\n" \

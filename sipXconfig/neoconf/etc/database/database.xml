@@ -34,7 +34,7 @@
         select 'version' || version || '=true' from version_history;
       </sipx-sql>    
       <loadproperties srcfile="${tmp.dir}/patches.properties"/>
-  	  <delete file="${tmp.dir}/patches.properties"/>  	  
+      <delete file="${tmp.dir}/patches.properties"/>  	  
   </target>
 	
   <!-- sets flag if any initialization needs to be done -->
@@ -69,7 +69,7 @@
   <target name="create" depends="createdb,schema"
     description="create database with schema"/>
 
-  <target name="upgrade-no-init" depends="patches,version1"/>
+  <target name="upgrade-no-init" depends="patches,version1,version2"/>
 	
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks"
     depends="upgrade-no-init,initialize"/>
@@ -87,15 +87,24 @@
       <delete dir="${tmp.dir}/index" failonerror="false"/>
 	</target>    
   
-	
   <!-- List each dependency on a separate line below to make source control merging easier -->
-  <target name="version1" description="upgrade from version 1" unless="version2"
-    depends="
-  	  conference_name_uniqueness,
-      upload,
-      grandstreamV2,
-  	  attendant_schedule
-	  "/>
+  <target name="version1" description="upgrade from version 1" unless="version2">
+    <antcall target="conference_name_uniqueness"/>
+    <antcall target="upload"/>
+    <antcall target="grandstreamV2"/>
+    <antcall target="upload_deployed"/>
+    <antcall target="attendant_schedule"/>
+    <sipx-version version="2"/>
+  </target>
+
+  <target name="version2" description="upgrade from version 1" unless="version3">
+
+    <!-- antcall target="your version 2 patch here " -->
+
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="3" -->
+
+  </target>
 
   <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
     <sipx-sql>
@@ -104,20 +113,16 @@
   	<mark-patch-applied patch="conference_name_uniqueness"/>
   </target>  
   
-  <!-- this patch uninstalls itself each time until upload is a bit more frozen-->
-  <target name="drop-upload" if="upload">
-    <sipx-sql>
-      drop table upload;
-      drop sequence upload_seq;
-      delete from patch where name = 'upload';
-    </sipx-sql>
-  </target>  
-  <target name="upload" depends="drop-upload">
+  <target name="upload" unless="upload">
     <db-patch patch="upload"/>
   </target>  
 
   <target name="grandstreamV2" unless="grandstreamV2">
     <db-patch patch="grandstreamV2"/>
+  </target>  
+
+  <target name="upload_deployed" unless="upload_deployed">
+    <db-patch patch="upload_deployed"/>
   </target>  
 
   <target name="attendant_schedule" unless="attendant_schedule">
@@ -129,9 +134,6 @@
       <transaction src="${sql.dir}/schema.sql"/>
     </sipx-sql>
   </target>  
-
-  <!-- Perform no operation, byproduct of the fact ant won't allow empty depends attribute -->
-  <target name="nop"/>
 
   <target name="migrate-2.8" depends="migrate-2.8-run,initialize" 
         description="migrate existing 2.8 PDS database, note clears all existing 3.0 data"/>
@@ -262,5 +264,15 @@
         password="${sipxconfig.db.password}"
         classpath="${jdbc-driver.jar}"/>
   </presetdef>
+
+  <!-- declare schema version -->
+  <macrodef name="sipx-version">
+    <attribute name="version"/>
+    <sequential>
+      <sipx-sql>
+        insert into version_history (version, applied) values (@{version}, now());
+      </sipx-sql>
+    </sequential>
+  </macrodef>
   
 </project>

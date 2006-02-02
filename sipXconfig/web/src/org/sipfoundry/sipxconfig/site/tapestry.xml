@@ -41,13 +41,12 @@
     </property>
   </bean>
   <!-- Username sequence validator - comma-separated list of usernames, can be empty -->
-  <!-- FIXME this is wrong, see bug entry XCF-245 (and we can't use a comma delimiter!) -->
   <bean name="validUsernamePatternSequence" class="org.apache.tapestry.valid.PatternValidator">
     <property name="patternString">
-      <value>^(([a-zA-Z0-9!#$%&amp;'*+\-/=?^_`{|}~]+)(\s*,?\s*))*$</value>
+      <value>^(([a-zA-Z0-9!#$%&amp;\.,'*+\-/=?^_`{|}~]+)\s*)*$</value>
     </property>
     <property name="patternNotMatchedMessage">
-      <value>Please enter a comma-separated list of numbers or names, for example: joe, 508</value>
+      <value>Please enter a list of numbers or names, for example: joe 508</value>
     </property>
   </bean>
   <bean name="validPin" class="org.apache.tapestry.valid.StringValidator">

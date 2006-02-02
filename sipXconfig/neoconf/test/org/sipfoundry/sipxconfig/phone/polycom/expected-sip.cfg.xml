@@ -1965,11 +1965,11 @@
         
           <MESSAGE_WAITING 
           se.pat.misc.1.name="message waiting" 
-          se.pat.misc.1.inst.1.type="chord" 
+          se.pat.misc.1.inst.1.type="silence" 
           se.pat.misc.1.inst.1.value="1" 
-          se.pat.misc.1.inst.2.type="chord" 
+          se.pat.misc.1.inst.2.type="silence" 
           se.pat.misc.1.inst.2.value="2" 
-          se.pat.misc.1.inst.3.type="chord" 
+          se.pat.misc.1.inst.3.type="silence" 
           se.pat.misc.1.inst.3.value="1"/>
         
           <INSTANT_MESSAGE 

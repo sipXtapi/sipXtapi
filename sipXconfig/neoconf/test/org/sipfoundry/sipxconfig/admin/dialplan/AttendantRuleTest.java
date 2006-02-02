@@ -45,7 +45,7 @@ public class AttendantRuleTest extends TestCase {
         AttendantRule rule = new AttendantRule();
         rule.setName("abc");
         rule.setExtension("100");
-        rule.setAttendantAliases("0, operator");
+        rule.setAttendantAliases("0 operator");
         rule.setEnabled(true);
 
         List list = new ArrayList();
@@ -107,7 +107,7 @@ public class AttendantRuleTest extends TestCase {
         assertEquals(0, attendantAliases.length);
         attendantAliases = AttendantRule.getAttendantAliasesAsArray("");
         assertEquals(0, attendantAliases.length);
-        attendantAliases = AttendantRule.getAttendantAliasesAsArray("0, operator");
+        attendantAliases = AttendantRule.getAttendantAliasesAsArray("0 operator");
         assertEquals(2, attendantAliases.length);
         assertEquals("0", attendantAliases[0]);
         assertEquals("operator", attendantAliases[1]);

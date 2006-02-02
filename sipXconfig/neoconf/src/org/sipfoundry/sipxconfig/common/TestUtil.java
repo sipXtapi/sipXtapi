@@ -157,6 +157,8 @@ public final class TestUtil {
         sysProps.setProperty("replicationTrigger.replicateOnStartup", Boolean.toString(false));
         sysProps.setProperty("whacker.enabled", Boolean.toString(false));
         sysProps.setProperty("indexTrigger.enabled", Boolean.toString(false));
+        sysProps.setProperty("upload.uploadRootDirectory", outputDirectory + "/upload");
+        sysProps.setProperty("upload.destinationDirectory", outputDirectory + "/tftproot");
     }
 
     public static void saveSysDirProperties(Properties sysProps, String classpathDirectory) {

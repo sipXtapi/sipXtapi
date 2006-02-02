@@ -31,11 +31,33 @@ public class EditUploadTestUi extends WebTestCase {
 
     public void testNewUpload() throws Exception {
         setFormElement("name", "new upload");
+        assertFalse(getDialog().getForm().hasParameterNamed("promptUpload"));
+        assertButtonNotPresent("upload:activate");
+        assertButtonNotPresent("upload:inactivate");
+        clickButton("form:apply");        
+
         File f = File.createTempFile("new-upload-test", ".dat");
         assertTrue(getDialog().getForm().hasParameterNamed("promptUpload"));
         getDialog().getForm().setParameter("promptUpload", f);
-        clickButton("form:ok");
-        File uploadDir = new File(SiteTestHelper.getTftpDirectory());
-        assertTrue(new File(uploadDir, f.getName()).exists());
+        clickButton("form:apply");
+
+        // download file link implies file uploaded ok
+        assertLinkPresentWithText("Download");
     }
+    
+    public void testActivate() throws Exception {
+        setFormElement("name", "new upload");
+        assertFalse(getDialog().getForm().hasParameterNamed("promptUpload"));
+        clickButton("form:apply");        
+        File f = File.createTempFile("new-upload-test", ".dat");
+        getDialog().getForm().setParameter("promptUpload", f);
+        assertButtonNotPresent("upload:inactivate");
+        assertButtonPresent("upload:activate");
+        clickButton("upload:activate");        
+        assertButtonNotPresent("upload:activate");
+        assertButtonPresent("upload:inactivate");
+        clickButton("upload:inactivate");        
+    }
+    
+    
 }

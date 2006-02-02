@@ -43,7 +43,7 @@ public abstract class ManageUploads extends BasePage implements PageRenderListen
                 cycle.getServiceParameters(), 0);
         EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
         page.setUploadId(uploadId);
-        cycle.activate(page);
+        page.activatePageWithCallback(PAGE, cycle);
     }
     
     public void addUpload(IRequestCycle cycle) {
@@ -59,6 +59,28 @@ public abstract class ManageUploads extends BasePage implements PageRenderListen
         for (int i = 0; i < uploads.length; i++) {
             getUploadManager().deleteUpload(uploads[i]);
         }
+        // force reload
+        setUpload(null);
+    }
+    
+    public void activate(IRequestCycle cycle_) {       
+        setDeployed(true);
+    }
+    
+    public void inactivate(IRequestCycle cycle_) {        
+        setDeployed(false);
+    }
+    
+    private void setDeployed(boolean deploy) {
+        Upload[] uploads = (Upload[]) DaoUtils.loadBeansArrayByIds(getUploadManager(), Upload.class, 
+                getSelections().getAllSelected());
+        for (int i = 0; i < uploads.length; i++) {
+            if (deploy) {
+                getUploadManager().deploy(uploads[i]);
+            } else {                
+                getUploadManager().undeploy(uploads[i]);
+            }
+        }        
         // force reload
         setUpload(null);
     }

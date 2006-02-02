@@ -319,6 +319,8 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     public void activateDialPlan() {
         ConfigGenerator generator = getGenerator();
         generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
+        // notify the world we are done with activating dial plan
+        m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));        
     }
 
     public void applyEmergencyRouting() {
@@ -476,7 +478,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     }
 
     private boolean isAutoAttendantAliasInUse(String alias) {
-        // Because auto attendant aliases are stored together in a comma-delimited string,
+        // Because auto attendant aliases are stored together in a space-delimited string,
         // we can't query the DB for individual aliases. However, there will be so few
         // of these aliases (one string per internal dialing rule) that we can simply load
         // all such alias strings and check them in Java.

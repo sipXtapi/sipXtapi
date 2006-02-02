@@ -127,6 +127,6 @@ public class AttendantRule extends DialingRule {
         if (aliasesString == null) {
             return ArrayUtils.EMPTY_STRING_ARRAY;
         }
-        return StringUtils.split(aliasesString, ", ");        
+        return StringUtils.split(aliasesString);        
     }
 }

@@ -70,7 +70,8 @@ AutoAttendantCGI::execute(UtlString* out)
    pMailboxManager->getTimeBasedAAName(m_name, localTime, aaName);
    if (aaName.isNull())
    {
-      aaName = m_name;
+      // Use the default AA name
+      aaName = DEFAULT_AA_NAME;
    }
    
    // Construct the dynamic VXML

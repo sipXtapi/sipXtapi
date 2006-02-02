@@ -11,7 +11,12 @@
 	<parameter name="user" 
 		type="org.sipfoundry.sipxconfig.common.User" 
     	required="yes"
-    	direction="auto"/>    
+    	direction="auto"/>
+    
+    <parameter name="alwaysShowSipPassword" 
+    	type="boolean" 
+    	direction="in" 
+    	default-value="false"/>
         
     <!--
       - P R O P E R T I E S
@@ -29,7 +34,7 @@
     
     <property-specification name="showSipPassword" type="boolean" persistent="yes"/>
     
-	<!-- comma-delimited list of aliases -->
+	<!-- space-delimited list of aliases -->
     <property-specification name="aliasesString" type="java.lang.String"/>
 
     <!--
@@ -102,7 +107,11 @@
     </component>
     
     <component id="ifRenderSipPassword" type="contrib:FormConditional">
-        <binding name="condition" expression="showSipPassword"/>
+        <binding name="condition" expression="alwaysShowSipPassword || showSipPassword"/>
+    </component>
+    
+    <component id="ifRenderToggle" type="contrib:FormConditional">
+        <binding name="condition" expression="!alwaysShowSipPassword"/>
     </component>
     
     <component id="toggleShowSipPassword" type="ToggleLink">

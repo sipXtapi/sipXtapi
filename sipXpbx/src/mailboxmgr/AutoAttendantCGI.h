@@ -21,6 +21,8 @@
 #include "mailboxmgr/CGICommand.h"
 
 // DEFINES
+#define DEFAULT_AA_NAME    "operator"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

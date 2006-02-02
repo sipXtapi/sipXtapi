@@ -22,6 +22,12 @@
         default-value="true"
         direction="in">
     </parameter>
+    <parameter name="enabled"
+        required="no"
+        type="boolean"
+        default-value="true"
+        direction="in">
+    </parameter>
     
 
     <property-specification name="showAdvanced" type="boolean" persistent="yes"/>
@@ -45,7 +51,6 @@
     <component id="ifRenderToggle" type="contrib:FormConditional">
         <binding name="condition" expression="hasAdvancedSettings"/>
     </component>
-    
     <component id="settings" type="Foreach">
         <binding name="source" expression="flattenedSettings"/>
         <binding name="value" expression="currentSetting"/>
@@ -53,6 +58,7 @@
     
     <component id="settingEditor" type="SettingEditor">
         <binding name="setting" expression="currentSetting"/>
+        <binding name="enabled" expression="enabled"/>
     </component>
 
     <component id="groupLabel" type="Insert">

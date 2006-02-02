@@ -15,15 +15,19 @@ import junit.framework.TestCase;
 
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.springframework.context.ApplicationEvent;
 
 public class LazySipxReplicationContextImplTest extends TestCase {
 
     public void testGenerateAll() throws Exception {
         XmlFile mr = new MappingRules();
         XmlFile orbits = new Orbits();
+        
+        ApplicationEvent event = new DialPlanActivatedEvent(this);
         
         MockControl replicationCtrl = MockControl.createControl(SipxReplicationContext.class);
         SipxReplicationContext replication = (SipxReplicationContext) replicationCtrl.getMock();
@@ -33,6 +37,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         replication.generate(DataSet.CREDENTIAL);
         replication.generate(DataSet.EXTENSION);
         replication.generate(DataSet.PERMISSION);
+        replication.publishEvent(event);
         replication.replicate(orbits);
         replication.generate(DataSet.ALIAS);
         replication.generate(DataSet.AUTH_EXCEPTION);
@@ -55,6 +60,7 @@ public class LazySipxReplicationContextImplTest extends TestCase {
             lazy.generate(DataSet.PERMISSION);
             lazy.generateAll();            
         }
+        lazy.publishEvent(event);
         
         Thread.sleep(400);
         

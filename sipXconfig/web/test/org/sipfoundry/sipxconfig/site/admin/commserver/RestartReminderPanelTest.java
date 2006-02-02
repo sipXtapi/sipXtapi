@@ -49,7 +49,7 @@ public class RestartReminderPanelTest extends TestCase {
 
         m_restartReminder.setProcesses(null);
         List processesToRestart = m_restartReminder.getProcessesToRestart();
-        assertEquals(Process.getAll().size(), processesToRestart.size());
+        assertEquals(Process.getRestartable().size(), processesToRestart.size());
 
         m_restartReminder.setProcesses(TEST_PROC);
         processesToRestart = m_restartReminder.getProcessesToRestart();
@@ -75,7 +75,7 @@ public class RestartReminderPanelTest extends TestCase {
     public void testRestartNow() throws Exception {
         MockControl contextCtrl = MockControl.createControl(SipxProcessContext.class);
         SipxProcessContext context = (SipxProcessContext) contextCtrl.getMock();
-        context.manageServices(Process.getAll(), Command.RESTART);
+        context.manageServices(Process.getRestartable(), Command.RESTART);
         contextCtrl.replay();
 
         m_restartReminder.setRestartLater(false);

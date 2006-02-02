@@ -131,4 +131,13 @@ public class NewUserTestUi extends WebTestCase {
         clickButton("form:ok");
         assertElementNotPresent("user:success");        
     }
+    
+    public void testNoStayOnCancel() {
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        checkCheckbox("stay");        
+        assertElementPresent("page:newuser");
+        clickButton("form:cancel");
+        assertElementNotPresent("page:newuser");
+    }
 }

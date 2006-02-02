@@ -95,6 +95,7 @@
             <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
             <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>
             <replacefilter token="@sipxpbx.data.dir@" property="sipxpbx.data.dir"/>
+            <replacefilter token="@sipxconfig.upload.dir@" property="sipxconfig.upload.dir"/>
             <replacefilter token="@sipxconfig.phone.dir@" property="sipxconfig.phone.dir"/>
             <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
             <replacefilter token="@sipxvxml.data.dir@" property="sipxvxml.data.dir"/>
@@ -220,11 +221,12 @@
 	<target name="test-models">    
 		<xmlvalidate description="validate setting description files">
 			<fileset dir="etc/audiocodes" includes="**/*.xml" excludes="types.xml"></fileset>
-			<fileset dir="etc/cisco">
+			<fileset dir="etc/ciscoIp">
         <include name="**/*.xml"/>
         <exclude name="syncinfo.xml"/>
         <exclude name="types.xml"/>          
       </fileset>
+			<fileset dir="etc/ciscoAta" includes="**/*.xml" excludes="types.xml"></fileset>
 			<fileset dir="etc/commserver" includes="**/*.xml" excludes="types.xml"></fileset>
 			<fileset dir="etc/kphone" includes="**/*.xml" excludes="types.xml"></fileset>
 			<fileset dir="etc/polycom" includes="**/*.xml" excludes="types.xml"></fileset>

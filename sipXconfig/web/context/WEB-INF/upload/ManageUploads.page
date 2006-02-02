@@ -39,7 +39,7 @@
         <binding name="delegate" expression="beans.validator"/>
     </component>   
     <component id="uploadTable" type="Table">
-        <static-binding name="columns" value="* Name:name,Upload:specification.label,Description:description"/>
+        <static-binding name="columns" value="* Name:name,Active:deployed,Upload:specification.label,Description:description"/>
         <binding name="source" expression="upload"/>
 		<binding name="row" expression="currentRow"/>
         <binding name="convertor" expression="beans.idConverter"/>
@@ -55,6 +55,14 @@
     </component>
     <component id="delete" type="Submit">
         <binding name="listener" expression="listeners.deleteUpload"/>
+    </component>
+    <component id="activate" type="Submit">
+        <binding name="listener" expression="global.tapestry
+        	.treatUserExceptionAsValidationError(beans.validator, listeners.activate)"/>
+    </component>
+    <component id="inactivate" type="Submit">
+        <binding name="listener" expression="global.tapestry
+        	.treatUserExceptionAsValidationError(beans.validator, listeners.inactivate)"/>
     </component>
     <component id="selectSpecification" type="PropertySelection">
         <binding name="value" expression="selectedSpecification"/>

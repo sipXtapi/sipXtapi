@@ -12,16 +12,22 @@
 package org.sipfoundry.sipxconfig.site.gateway;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.IMarkupWriter;
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.form.IFormComponent;
 import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 
 public abstract class GatewayForm extends BaseComponent {
-    /**
-     * Should be called when page wants to validate its components (typically from isValid)
-     */
-    public void validate(IValidationDelegate delegate) {
-        StringSizeValidator descriptionValidator = (StringSizeValidator) getBeans().getBean(
-                "descriptionValidator");
-        descriptionValidator.validate(delegate);
+
+    protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
+        super.renderComponent(writer, cycle);
+        IFormComponent description = (IFormComponent) getComponent("gatewayDescription");
+        if (!cycle.isRewinding() || !description.getForm().isRewinding()) {
+            // if the page or the form are not rewinding we have nothing else to do
+            return;
+        }
+        StringSizeValidator validator = new StringSizeValidator();
+        validator.setComponent(description);
+        validator.validate(description.getForm().getDelegate());
     }
 }

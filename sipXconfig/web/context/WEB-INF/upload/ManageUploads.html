@@ -5,6 +5,10 @@
 <body jwcid="$content$">
 	<div jwcid="@Border">
         <h2>Device Files</h2>
+        <p>Active files are made available in the destination directory, for example the TFTP directory.
+            Inactive files are removed from destination directory but can be redeployed
+            at at time w/o uploading files again.</p>
+        <p>You can only upload when files are inactive.</p>
         <span jwcid="@ErrorMsg"/>
 		<form jwcid="uploadManagement">
 			<ul class="component-links">
@@ -19,8 +23,12 @@
 			</table>
 			<ul class="component-submit">
 				<li>
-					<input id="phone:delete" jwcid="delete" value="Delete"
+					<input id="upload:delete" jwcid="delete" value="Delete"
                        onclick="return confirm('Are you sure you want to delete selected upload items?')"/>
+					<input id="upload:activate" jwcid="activate" value="Activate"
+                       onclick="return confirm('Are you sure you want to activate selected upload items?')"/>
+					<input id="upload:inactivate" jwcid="inactivate" value="Inactivate"
+                       onclick="return confirm('Are you sure you want to inactivate selected upload items?')"/>
 				</li>
 			</ul>
 		</form>

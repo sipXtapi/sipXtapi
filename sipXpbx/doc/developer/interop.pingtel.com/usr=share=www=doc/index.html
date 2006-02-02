@@ -61,7 +61,7 @@ width="133" align="left" />
 <p>
 This test server is provided by <a
 href='http://www.pingtel.com/'>Pingtel</a> for open interoperability
-testing.  It is the Pingtel proxy software (based on the
+testing of SIP user agents.  It is the Pingtel proxy software (based on the
 <a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx open source project</a>)
 with a <a href='#config'>custom configuration</a>.  This configuration
 is designed to exercise issues we have found are important to
@@ -75,20 +75,42 @@ tests.</strong>  If you are in need of help, consulting is available
 for a fee; contact &lt;<a href='mailto:%69%6E%74%65%72%6F%70%2D%63%6F%6E%66%69%67%40%70%69%6E%67%74%65%6C%2E%63%6F%6D'><b>interop-config</b><i>(at)</i><b>pingtel</b><i>(dot)</i><b>com</b></a>&gt;.
 </p>
 
+<blockquote>
 <p>
 <strong>NOTE WELL:</strong>  All communication with this server is
-logged and used under the "SIPit rules":  It may be used by Pingtel for
-internal testing and
+logged and used under the
+"<a href="http://www.cs.columbia.edu/sip/sipit/faq.html">SIPit rules</a>":
+It may be used by Pingtel for internal testing and
 development, and aggregate information may be released to other
-parties.  No information identifiable to a specific user, product, or
-company will be released to other parties.
+parties.  Pingtel will not deliberately release to other parties any
+information identifiable to a specific user, product, or
+company.
+</p>
+
+<p>
+However, some information about your use of this server will be
+visible to the public through normal SIP capabilities and
+through the various CGIs linked to on these pages.
+</p>
+
+<p>
+Any information you obtain about other users of this server you may
+use only under the SIPit rules.
+</p>
+</blockquote>
+
+<p>
+Once you have used this server to verify your implementation's basic
+functionality, you should consider attending
+<a href="http://www.cs.columbia.edu/sip/sipit/">SIPit</a> to do
+thorough interoperability testing with dozens of other implementations.
 </p>
 
 <p>
 For more information and resources to help you assess and improve the
 interoperability of your SIP implementation, see the
 <a href='http://www.sipfoundry.org/interoperability.html'>
-SIPfoundry Interoperatibility Initiative
+SIPfoundry Interoperability Initiative
 </a>.
 </p>
 
@@ -113,9 +135,9 @@ addresses that you can register:
     1<span class='group'>gg</span>8@interop.pingtel.com
     1<span class='group'>gg</span>9@interop.pingtel.com
 </code>
-When you register the first address, check the response to see if it
-has any Contact addresses other than yours - if it does, please choose
-another group number.
+Before you register the first address, check the
+<a href="registrations.cgi">registrations list</a>
+to see what groups other people are using.
 </p>
 
 <h2>DNS SRV</h2>
@@ -200,7 +222,7 @@ class='group'>gg</span>6</code> in some random order.  If not
 answered, the first extension called will receive a CANCEL when the
 next is called.  Make sure that your caller connects with the phone
 that answers, and that all the others correctly clean up the
-cancelled requests.
+canceled requests.
 </p>
 
 <h2>Parallel Forking</h2>
@@ -213,7 +235,7 @@ class='group'>gg</span>5</code>, and <code>1<span
 class='group'>gg</span>6</code>.  When one answers, the others will
 receive a CANCEL.  Make sure that your caller connects with the phone
 that answers, and that all the others correctly clean up the
-cancelled requests.
+canceled requests.
 </p>
 
 <h2>Long Paths / Large Messages</h2>
@@ -293,22 +315,16 @@ If there are several calls parked on the same orbit, the one that was
 parked there first is retrieved.
 </p>
 
-<!--
-
 <hr />
 
 <h3><a name='config'>How this server is configured</a></h3>
 
 <p>
-This server uses a special test configuration
-(it would not make a very friendly configurationn in a real PBX :-).
-The configuration, and the scripts that are used to generate it, are
-available in the sipXpbx/doc/developer/interop.pingtel.com directory  of the
+This server uses a special test configuration of the 
 <a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx Open Source
 PBX Project</a>.
+(It would not make a very friendly configuration in a real PBX :-).)
 </p>
-
--->
 
 </body>
 </html>

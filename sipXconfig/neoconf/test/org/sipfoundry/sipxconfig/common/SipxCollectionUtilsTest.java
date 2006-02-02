@@ -11,9 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -41,21 +39,5 @@ public class SipxCollectionUtilsTest extends TestCase {
         
         iter = SipxCollectionUtils.safeIterator(nonEmptyCollection);
         assertTrue(iter.hasNext());
-    }
-    
-    public void testSplitString() {
-        String[] actual = SipxCollectionUtils.splitString("one, two ");
-        assertEquals(2, actual.length);
-        assertEquals("one", actual[0]);
-        assertEquals("two", actual[1]);
-    }
-    
-    public void testToString() {
-        Object[] data = new Object[] {
-                new File("a"), new File("b")
-        };
-        String[] actual = SipxCollectionUtils.toStringArray(Arrays.asList(data));
-        assertEquals("a", actual[0]);
-        assertEquals("b", actual[1]);
     }
 }

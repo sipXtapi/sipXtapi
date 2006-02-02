@@ -19,6 +19,8 @@
      	persistent="yes"/>
     <property-specification name="stay"
         type="boolean"/>
+    <property-specification name="buttonPressed" 
+    	type="java.lang.String"/>
     
     <!--
       - B E A N S 
@@ -38,10 +40,12 @@
     </component>
     <component id="userForm" type="UserForm">
         <binding name="user" expression="user"/>
+        <binding name="alwaysShowSipPassword" expression="true"/>
     </component>
     <component id="formActions" type="FormActions">
         <binding name="callback" expression="callback"/>
-        <binding name="listener" expression="commitListener"/>
+        <binding name="listener" expression="listeners.onCommit"/>
+        <binding name="buttonPressed" expression="buttonPressed"/>
     </component>    
     <component id="stay" type="Checkbox">
         <binding name="selected" expression="stay"/>

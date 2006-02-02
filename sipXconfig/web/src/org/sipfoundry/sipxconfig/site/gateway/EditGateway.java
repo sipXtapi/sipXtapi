@@ -55,8 +55,6 @@ public abstract class EditGateway extends PageWithCallback implements PageRender
 
     private boolean isValid() {
         IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
-        GatewayForm gatewayForm = (GatewayForm) getComponent("gatewayForm");
-        gatewayForm.validate(delegate);
         return !delegate.getHasErrors();
     }
 

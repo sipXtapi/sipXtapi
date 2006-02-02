@@ -17,14 +17,21 @@ import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 
-public class UploadTest extends TestCase implements UploadDestination {
+public class UploadTest extends TestCase {
     
     private Upload m_upload;
     
     protected void setUp() {
         m_upload = new Upload(UploadSpecification.UNMANAGED);
+        m_upload.setDirectoryId(String.valueOf(System.currentTimeMillis()));
         m_upload.setModelFilesContext(TestHelper.getModelFilesContext());
-        m_upload.setDestination(this);
+        m_upload.setUploadRootDirectory(TestHelper.getTestDirectory() + "/upload");
+        m_upload.setDestinationDirectory(mkdirs(TestHelper.getTestDirectory() + "/tftproot"));
+    }
+    
+    private String mkdirs(String dir) {
+        new File(dir).mkdirs();
+        return dir;
     }
     
     public void testGetSettingModel() {
@@ -32,7 +39,7 @@ public class UploadTest extends TestCase implements UploadDestination {
     }
     
     public void testRemove() throws Exception {
-        File dir = new File(getUploadDirectory());
+        File dir = new File(mkdirs(m_upload.getUploadDirectory()));
         File file1 = File.createTempFile("upload-test", ".dat", dir);
         m_upload.getSettings().getSetting("files/file1").setValue(file1.getName());
         File file10 = File.createTempFile("upload-test", ".dat", dir);
@@ -48,15 +55,29 @@ public class UploadTest extends TestCase implements UploadDestination {
      * If file is already deleted, no need to emit error
      */
     public void testRemoveWithFileMissingNoError() throws Exception {
-        File dir = new File(getUploadDirectory());
+        File dir = new File(mkdirs(m_upload.getUploadDirectory()));
         File file1 = File.createTempFile("upload-test", ".dat", dir);
         m_upload.getSettings().getSetting("files/file1").setValue(file1.getName());
         file1.delete();
         assertFalse(file1.exists());        
         m_upload.remove();        
     }
-
-    public String getUploadDirectory() {
-        return TestHelper.getTestDirectory();
+    
+    public void testDeploy() throws Exception {
+        File dir = new File(mkdirs(m_upload.getUploadDirectory()));
+        File file1 = File.createTempFile("upload-test", ".dat", dir);
+        m_upload.getSettings().getSetting("files/file1").setValue(file1.getName());
+        m_upload.deploy();
+        assertTrue(m_upload.isDeployed());
+        assertTrue(new File(m_upload.getDestinationDirectory() + "/" + file1.getName()).exists());        
+    }
+    
+    public void testUndeploy() throws Exception {
+        File dir = new File(mkdirs(m_upload.getDestinationDirectory()));
+        File file1 = File.createTempFile("upload-test", ".dat", dir);
+        m_upload.getSettings().getSetting("files/file1").setValue(file1.getName());
+        m_upload.undeploy();
+        assertFalse(m_upload.isDeployed());
+        assertFalse(file1.exists());                
     }
 }

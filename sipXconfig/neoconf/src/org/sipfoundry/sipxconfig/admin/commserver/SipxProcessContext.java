@@ -11,7 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang.enums.Enum;
@@ -40,6 +43,21 @@ public interface SipxProcessContext {
         public static List getAll() {
             return getEnumList(Process.class);
         }
+
+        /**
+         * This should be used to get list of all the services except KEEP_ALIVE and CONFIG_SERVER
+         * 
+         * @return list of the services that you want usually restart
+         * 
+         */
+        public static List getRestartable() {
+            Process[] noRestart = {
+                KEEP_ALIVE, CONFIG_SERVER
+            };
+            List processes = new LinkedList(getAll());
+            processes.removeAll(Arrays.asList(noRestart));
+            return Collections.unmodifiableList(processes);
+        }
     };
 
     public static class Command extends Enum {
@@ -64,10 +82,23 @@ public interface SipxProcessContext {
     /**
      * Apply the specified command to the named services. This method handles only commands that
      * don't need output, which excludes the "status" command.
+     * 
+     * @param services list of services that will receive the command
+     * @param command command to send
+     * @param location information about the host on which services are running
      */
     public void manageServices(Location location, Collection services, Command command);
 
-    public void manageServices(Collection services, Command restart);
+    public void manageServices(Collection services, Command command);
+
+    /**
+     * Delayed version of manageServices strictly for restarting services. Restart commands is not
+     * send until the event of the specific class is received.
+     * 
+     * @param services list of services that will receive the command
+     * @param eventClass class of event that will trigger the command
+     */
+    public void restartOnEvent(Collection services, Class eventClass);
 
     /**
      * Apply the specified command to the process/service. This method handles only commands that

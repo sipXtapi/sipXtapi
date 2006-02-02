@@ -17,6 +17,7 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 public class UploadTestDb extends SipxDatabaseTestCase {
@@ -69,6 +70,15 @@ public class UploadTestDb extends SipxDatabaseTestCase {
         assertEquals(0, actual.getTable("Upload").getRowCount());        
     }
     
+    public void testUndeploy() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("upload/GetUploadSeed.xml");
+        Upload upload = (Upload) m_manager.getUpload().toArray(new Upload[0])[0];
+        m_manager.undeploy(upload);
+        Upload fresh = (Upload) m_manager.getUpload().toArray(new Upload[0])[0];
+        assertFalse(fresh.isDeployed());
+    }
+    
     public void testGetUpload() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("upload/GetUploadSeed.xml");
@@ -76,5 +86,32 @@ public class UploadTestDb extends SipxDatabaseTestCase {
         assertEquals(2, f.length);
         assertEquals("harriot", f[0].getName());        
         assertEquals("ozzie", f[1].getName());
+    }
+    
+    public void testRestrictDuplicateUploadTypes() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("upload/GetUploadSeed.xml");
+        Upload[] existing = (Upload[]) m_manager.getUpload().toArray(new Upload[0]);
+        Upload upload = m_manager.newUpload(UploadSpecification.UNMANAGED);
+        upload.setName("monk parakeet");
+        
+        try {
+            m_manager.deploy(upload);
+            fail();
+        } catch (UserException expected) {
+            assertFalse(upload.isDeployed());
+        }      
+
+        m_manager.undeploy(existing[0]);
+        try {
+            m_manager.deploy(upload);
+            fail();
+        } catch (UserException expected) {
+            assertFalse(upload.isDeployed());
+        }        
+
+        m_manager.undeploy(existing[1]);
+        m_manager.deploy(upload);
+        assertTrue(upload.isDeployed());
     }
 }

@@ -69,7 +69,8 @@ public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport imple
         rule.setName(RULE_NAME_PREFIX + autoAttendant.getName());
         rule.setEnabled(true);
         rule.setExtension(extension);
-        rule.setAttendantAliases(aliases);
+        String newAliases = aliases.replaceAll(",\\s*", " ");        
+        rule.setAttendantAliases(newAliases);
         ScheduledAttendant sa = new ScheduledAttendant();
         sa.setAttendant(autoAttendant);
         sa.setEnabled(true);

@@ -12,10 +12,12 @@
 package org.sipfoundry.sipxconfig.api;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 
 public class PhoneBuilder extends SimpleBeanBuilder {    
@@ -39,8 +41,8 @@ public class PhoneBuilder extends SimpleBeanBuilder {
             phone.setModelId(otherPhone.getModelId());
         }
         if (properties.contains(GROUPS_PROP)) {
-            String[] groups = SipxCollectionUtils.toStringArray(otherPhone.getGroupsAsList());
-            phone.setGroups(groups);
+            Collection groupNames = CollectionUtils.collect(otherPhone.getGroups(), new NamedObject.ToName());
+            phone.setGroups((String[]) groupNames.toArray(new String[groupNames.size()]));
         }
         if (properties.contains(LINES_PROP)) {
             List myLines = otherPhone.getLines();

@@ -5,6 +5,7 @@
         upload_id="1000" 		
         name="test upload"
         bean_id="upload"
+        deployed="true"
 		    specification_id="unmanagedPhone"
         description="unittest upload"/>
 </dataset>

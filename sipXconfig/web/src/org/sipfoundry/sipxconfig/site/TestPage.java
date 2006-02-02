@@ -58,7 +58,7 @@ public abstract class TestPage extends BasePage {
     public static final String TEST_USER_LASTNAME = "User";
     public static final String TEST_USER_ALIAS1 = "testy";
     public static final String TEST_USER_ALIAS2 = "200";
-    public static final String TEST_USER_ALIASES = TEST_USER_ALIAS1 + ", " + TEST_USER_ALIAS2;
+    public static final String TEST_USER_ALIASES = TEST_USER_ALIAS1 + " " + TEST_USER_ALIAS2;
     public static final String TEST_USER_PIN = "1234";
     public static final int MANY_USERS = 10000;
 

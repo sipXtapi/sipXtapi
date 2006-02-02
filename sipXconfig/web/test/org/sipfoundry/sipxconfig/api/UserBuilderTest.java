@@ -27,11 +27,11 @@ public class UserBuilderTest extends TestCase {
     public void testFromApi() {        
         m_apiUser.setAliases(new String[] {"one" , "two"});
         ApiBeanUtil.toMyObject(m_builder, m_myUser, m_apiUser);
-        assertEquals("one, two", m_myUser.getAliasesString());
+        assertEquals("one two", m_myUser.getAliasesString());
     }
 
     public void testToApi() {
-        m_myUser.setAliasesString("one, two");
+        m_myUser.setAliasesString("one two");
         ApiBeanUtil.toApiObject(m_builder, m_apiUser, m_myUser);
         assertEquals("one", m_apiUser.getAliases(0));
         assertEquals("two", m_apiUser.getAliases(1));

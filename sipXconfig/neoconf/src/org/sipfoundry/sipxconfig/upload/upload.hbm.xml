@@ -11,6 +11,7 @@
     </id>
     <discriminator column="bean_id"/>
     <property name="name"/>
+    <property name="deployed"/>
     <property name="beanId" insert="false" update="false"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
@@ -20,6 +21,10 @@
 
   <query name="upload">
     <![CDATA[from Upload u order by u.name]]>
+  </query>
+  
+  <query name="deployedUploadBySpecification">
+    <![CDATA[from Upload u where u.deployed = 't' and u.beanId || u.specificationId = :spec]]>
   </query>
   
 </hibernate-mapping>

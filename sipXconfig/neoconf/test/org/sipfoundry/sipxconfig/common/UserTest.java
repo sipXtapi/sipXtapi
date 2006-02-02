@@ -33,7 +33,7 @@ public class UserTest extends TestCase {
     private static final String DOMAIN = "sipfoundry.org";
     private static final String ALIAS1 = "mambo";
     private static final String ALIAS2 = "tango";
-    private static final String ALIASES_STRING = ALIAS1 + ", " + ALIAS2;
+    private static final String ALIASES_STRING = ALIAS1 + " " + ALIAS2;
     
     public void testGetDisplayName() {
         User u = new User();

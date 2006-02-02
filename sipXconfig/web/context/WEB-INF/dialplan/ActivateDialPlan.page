@@ -60,6 +60,7 @@
     
     <component id="reminder" type="RestartReminderPanel">
         <binding name="processes" expression="affectedProcesses"/>
+        <binding name="eventClass" expression="@org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent@class"/>
         <message-binding name="reminderMsg" key="msg.restart"/>
     </component>
 </page-specification>

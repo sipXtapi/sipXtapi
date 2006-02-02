@@ -14,6 +14,8 @@
     
     <parameter name="reminderMsg" type="java.lang.String" direction="in" required="yes"/>
     
+    <parameter name="eventClass" type="java.lang.Class" direction="in" required="no" default-value="null"/>
+    
     <property-specification name="sipxProcessContext" 
     	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext" 
     	initial-value="page.global.sipxProcessContext"/>

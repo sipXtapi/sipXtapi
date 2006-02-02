@@ -29,15 +29,25 @@ public abstract class RestartReminderPanel extends BaseComponent {
 
     public abstract void setSipxProcessContext(SipxProcessContext sipxProcessContext);
 
+    public abstract Object[] getProcesses();
+
     public abstract void setProcesses(Object[] processes);
 
-    public abstract Object[] getProcesses();
+    public abstract Class getEventClass();
+    
+    public abstract void setEventClass(Class eventClass);
 
     public void restart() {
         List procsToRestart = getProcessesToRestart();
-        if (procsToRestart != null) {
-            SipxProcessContext processContext = getSipxProcessContext();
+        if (procsToRestart == null) {
+            return;
+        }
+        SipxProcessContext processContext = getSipxProcessContext();
+        Class eventClass = getEventClass();
+        if (eventClass == null) {
             processContext.manageServices(procsToRestart, SipxProcessContext.Command.RESTART);
+        } else {
+            processContext.restartOnEvent(procsToRestart, eventClass);
         }
     }
 
@@ -49,6 +59,6 @@ public abstract class RestartReminderPanel extends BaseComponent {
         if (processes != null) {
             return Arrays.asList(processes);
         }
-        return Process.getAll();
+        return Process.getRestartable();
     }
 }

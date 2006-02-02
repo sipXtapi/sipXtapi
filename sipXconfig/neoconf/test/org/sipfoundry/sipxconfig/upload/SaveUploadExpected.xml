@@ -3,6 +3,7 @@
 <dataset>
     <upload 
 		name="bezerk" 		
+    deployed="false"
 		upload_id="[upload_id]"
     bean_id="upload"
     specification_id="unmanagedPhone"

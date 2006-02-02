@@ -369,6 +369,18 @@ void SipImpliedSubscriptions::buildSubscribeRequest( const SipMessage& registerM
                                      ,++sequenceNumber
                                      ,duration
                                      );
+
+   /*
+    * Rewrite the event field to add our extension parameter to
+    * ensure that the registration and subscription are synchronized.
+    */
+   const char* standardEventHeader = subscribeRequest.getHeaderValue(0, SIP_EVENT_FIELD);
+   UtlString extendedEventHeader(standardEventHeader);
+   extendedEventHeader.append(";" SIPX_IMPLIED_SUB "=");
+   char durationString[12];
+   sprintf(durationString, "%d", duration);
+   extendedEventHeader.append(durationString);
+   subscribeRequest.setHeaderValue(SIP_EVENT_FIELD, extendedEventHeader.data(), 0);
 }
 
 

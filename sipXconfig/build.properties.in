@@ -23,6 +23,7 @@ sipxpbx.data.dir=@SIPX_DATADIR@
 sipxpbx.conf.dir=@SIPX_CONFDIR@
 sipxvxml.data.dir=@SIPX_VXMLDATADIR@
 sipxpark.audio.dir=@SIPX_PARKMUSICDIR@
+sipxconfig.upload.dir=@SIPX_VARDIR@/upload
 www.dir=@wwwdir@
 sipxpbx.user=@SIPXPBXUSER@
 

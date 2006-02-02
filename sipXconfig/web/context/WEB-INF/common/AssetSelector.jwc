@@ -22,6 +22,7 @@
     
     <parameter name="contentType" type="java.lang.String" direction="in"/>
     <parameter name="selectable" type="boolean" direction="in" default-value="false"/>
+    <parameter name="enabled" type="boolean" direction="in" required="no" default-value="true"/>
 
     <!-- P R O P E R T I E S -->    
 	<property-specification name="uploadAsset" type="org.apache.tapestry.request.IUploadFile"/>
@@ -36,9 +37,11 @@
         <binding name="value" expression="asset"/>
         <binding name="submitOnChange" expression="submitOnChange"/>
         <inherited-binding name="id" parameter-name="id"/>
+        <binding name="disabled" expression="! enabled"/>
     </component>
     <component id="promptUpload" type="Upload">
         <binding name="file" expression="uploadAsset"/>
+        <binding name="disabled" expression="! enabled"/>
     </component>    
     <component id="downloadLink" type="DownloadLink">
         <binding name="dirName" expression="assetDir"/>
@@ -51,6 +54,7 @@
     <component id="deleteLink" type="LinkSubmit">
         <binding name="tag" expression="asset"/>
         <binding name="selected" expression="deleteAsset"/>        
+        <binding name="disabled" expression="! enabled"/>
     </component>
     <component id="assetLabel" type="Insert">
         <binding name="value" expression="asset"/>

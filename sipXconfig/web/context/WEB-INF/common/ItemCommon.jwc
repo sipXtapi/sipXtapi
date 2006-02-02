@@ -3,7 +3,7 @@
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
-<component-specification class="org.apache.tapestry.BaseComponent" allow-body="no" allow-informal-parameters="no">
+<component-specification class="org.sipfoundry.sipxconfig.components.ItemCommon" allow-body="no" allow-informal-parameters="no">
     <!-- P A R A M E T E R S -->
 	<parameter name="item" 
         required="yes"
@@ -35,6 +35,12 @@
     	direction="in"
     	default-value="beans.nameValidator"/>
     
+    <parameter name="maxDescriptionLen"
+    	required="no"
+    	type="int"
+    	direction="in"
+    	default-value="255"/>
+    
     <!-- P R O P E R T I E S -->
     
     <!-- B E A N S -->
@@ -42,10 +48,6 @@
     	<set-property name="required" expression="true"/>
 	    <set-property name="minimumLength" expression="1"/>
 	</bean>
-    
-    <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator">
-        <set-property name="component" expression="components.description"/>
-    </bean>
     
     <!-- C O M P O N E N T S -->
     <component id="ifUseEnabled" type="Conditional">

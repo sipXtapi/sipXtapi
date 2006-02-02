@@ -15,7 +15,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
@@ -29,7 +28,6 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
-import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
 import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
@@ -132,10 +130,6 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
 
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
-        AbstractComponent component = (AbstractComponent) getComponent("common");
-        StringSizeValidator descriptionValidator = (StringSizeValidator) component.getBeans()
-                .getBean("descriptionValidator");
-        descriptionValidator.validate(delegate);
         return !delegate.getHasErrors();
     }
 
