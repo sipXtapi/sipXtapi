@@ -318,9 +318,10 @@ setPostgresRunlevels() {
 
 # simple diagnostics
 configtest() {
+    if ! databaseCheck; then
+      Status=1
+    fi
     @bin.dir@/sipx-validate-xml @sipxpbx.conf.dir@/topology.xml.in
-    Status=$(($Status+$?))
-    databaseVersionCheck
     Status=$(($Status+$?))
 
     # Print out a success message if everything is OK, to give the user some feedback.
