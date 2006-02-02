@@ -27,7 +27,7 @@ using std::auto_ptr;
 // FORWARD DECLARATIONS
 
 /// Create the startup phase thread.
-RegistrarInitialSync::RegistrarInitialSync(SipRegistrar* registrar)
+RegistrarInitialSync::RegistrarInitialSync(SipRegistrar& registrar)
    : OsTask("RegistrarInitSync-%d"),
      mRegistrar(registrar),
      mFinished(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
@@ -42,7 +42,7 @@ int RegistrarInitialSync::run(void* pArg)
    restorePeerUpdateNumbers();
 
    // having done that, we can begin accepting pull requests from peers
-   SyncRpcPullUpdates::registerSelf(*mRegistrar);
+   SyncRpcPullUpdates::registerSelf(mRegistrar);
 
    // Get from peers any of our own updates that we have lost
    pullLocalUpdatesFromPeers();
@@ -67,7 +67,7 @@ int RegistrarInitialSync::run(void* pArg)
 /// Recover the latest received update number for each peer from the local db.
 void RegistrarInitialSync::restorePeerUpdateNumbers()
 {
-   auto_ptr<UtlSListIterator> peers(mRegistrar->getPeers());
+   auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
    RegistrarPeer* peer;
    while ((peer = static_cast<RegistrarPeer*>((*peers)())))
    {
@@ -92,7 +92,7 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
 /// Get from peers any of our own updates that we have lost
 void RegistrarInitialSync::pullLocalUpdatesFromPeers()
 {
-   auto_ptr<UtlSListIterator> peers(mRegistrar->getPeers());
+   auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
    RegistrarPeer* peer;
    while ((peer = static_cast<RegistrarPeer*>((*peers)())))
    {
@@ -137,7 +137,7 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
 /// Get from peers any peer updates that we missed or lost while down
 void RegistrarInitialSync::pullPeerUpdatesFromPeers()
 {
-   auto_ptr<UtlSListIterator> peers(mRegistrar->getPeers());
+   auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
    RegistrarPeer* peer;
    const char* primaryName = getPrimaryName();
    while ((peer = static_cast<RegistrarPeer*>((*peers)())))
@@ -187,7 +187,7 @@ void RegistrarInitialSync::waitForCompletion()
 
 const char* RegistrarInitialSync::getPrimaryName()
 {
-   const char* primaryName = mRegistrar->primaryName();   
+   const char* primaryName = mRegistrar.primaryName();   
    assert(primaryName);
    return primaryName;
 }
@@ -195,7 +195,7 @@ const char* RegistrarInitialSync::getPrimaryName()
 
 SipRegistrarServer& RegistrarInitialSync::getRegistrarServer()
 {
-   return mRegistrar->getRegistrarServer();
+   return mRegistrar.getRegistrarServer();
 }
 
 
@@ -204,8 +204,8 @@ void RegistrarInitialSync::applyUpdatesToDirectory(UtlSList& bindings)
    int timeNow = OsDateTime::getSecsSinceEpoch();
    getRegistrarServer().applyUpdatesToDirectory(timeNow, bindings);
 }
+
  
-  
 /// destructor
 RegistrarInitialSync::~RegistrarInitialSync()
 {

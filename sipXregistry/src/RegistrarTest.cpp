@@ -24,7 +24,7 @@
 // CONSTANTS
 
 const size_t REGISTER_TEST_INITIAL_WAIT = 2; // Seconds until the first test
-const size_t REGISTER_TEST_MAX_WAIT = 30; // Maximum seconds between tests
+const size_t REGISTER_TEST_MAX_WAIT = 32;    // Maximum seconds between tests
 
 // TYPEDEFS
 // FORWARD DECLARATIONS

@@ -164,6 +164,7 @@ private:
    SipRegistrarServer* mRegistrarServer;
    OsMsgQ* mRegistrarMsgQ;
 
+   RegistrarInitialSync* mRegistrarInitialSync;
    RegistrarSync* mRegistrarSync;
    RegistrarTest* mRegistrarTest;
 
@@ -174,6 +175,11 @@ private:
    /* ============================ REDIRECT ==================================== */
    void startRedirectServer();
    void sendToRedirectServer(OsMsg& eventMessage);
+
+   /* ============================ REPLICATION================================== */
+
+   /// Create replication-related thread objects, but don't start them yet
+   void createReplicationThreads();
 
    void startRegistrarSync();
    void startRegistrarTest();

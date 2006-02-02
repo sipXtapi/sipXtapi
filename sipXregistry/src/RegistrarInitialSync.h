@@ -36,7 +36,7 @@ class RegistrarInitialSync : public OsTask
 {
 public:
    /// Create the startup phase thread.
-   RegistrarInitialSync(SipRegistrar* registrar);
+   RegistrarInitialSync(SipRegistrar& registrar);
 
    virtual int run(void* pArg);
 
@@ -70,7 +70,7 @@ protected:
    void applyUpdatesToDirectory(UtlSList& bindings);
 
 private:
-   SipRegistrar*   mRegistrar;
+   SipRegistrar&   mRegistrar;
    OsBSem          mFinished;
    
    /// There is no copy constructor.

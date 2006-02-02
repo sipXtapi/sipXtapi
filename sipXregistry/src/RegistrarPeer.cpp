@@ -67,23 +67,29 @@ RegistrarPeer::SynchronizationState RegistrarPeer::synchronizationState()
 /// Indicate that a request to this peer failed.
 void RegistrarPeer::markUnReachable()
 {
-   RegistrarTest* notifyTestThread;
+   bool notifyTestThread = false;
    
    { // lock scope
       OsLock mutex(mLock);
    
-      notifyTestThread = (  Reachable == mSyncState
-                          ? mRegistrar->getRegistrarTest() // was reachable, so get the thread
-                          : NULL // was not reachable, so no need to notify the thread again
-                          );   
-
-      mSyncState = UnReachable;
+      // If the peer was previously UnReachable, then marking it UnReachable again
+      // is a noop.  If the peer was in any other state (Reachable, SyncStateUnknown,
+      // Incompatible) then notify the test thread so that we can try to reach it
+      // again later.
+      if (mSyncState != UnReachable)
+      {
+         mSyncState = UnReachable;
+         notifyTestThread = true;
+      }
    }  // release lock before signalling RegistrarTest thread
    
    if (notifyTestThread)
    {
+      RegistrarTest* registrarTestThread = mRegistrar->getRegistrarTest();
+      assert(registrarTestThread);
+
       // Tell the RegistrarTest thread to start polling
-      notifyTestThread->check();
+      registrarTestThread->check();
    }
 }
 

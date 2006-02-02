@@ -71,6 +71,7 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    // but don't start the associated thread until the registrar is operational.
    mRegistrarServer(new SipRegistrarServer(*this)),
    mRegistrarMsgQ(NULL),
+   mRegistrarInitialSync(NULL),
    mRegistrarSync(NULL),
    mRegistrarTest(NULL)
 {
@@ -128,15 +129,20 @@ void SipRegistrar::startupPhase()
 
    if (mReplicationConfigured)
    {
+      // Create replication-related thread objects, but don't start them yet
+      createReplicationThreads();
+
       // Begin the RegistrarInitialSync thread and then wait for it.
-      RegistrarInitialSync* initialSyncThread = new RegistrarInitialSync(this);
-      initialSyncThread->start();
+      mRegistrarInitialSync->start();
       yield();
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipRegistrar::startupPhase waiting for initialSyncThread"
                     );
-      
-      initialSyncThread->waitForCompletion();
+      mRegistrarInitialSync->waitForCompletion();
+
+      // The initial sync thread has no further value, to the ash heap of history it goes
+      delete mRegistrarInitialSync;
+      mRegistrarInitialSync = NULL;
    }
    else
    {
@@ -217,12 +223,8 @@ void SipRegistrar::operationalPhase()
    mSipUserAgent->start();
    startRegistrarServer();
    startRedirectServer();
-
-   // The RegistrarTest thread signals the RegistrarSync thread's semaphore.  So the 
-   // RegistrarSync object must be created before the RegistrarTest thread starts.
-   // But the order in which the threads start doesn't matter.
    startRegistrarSync();
-   //startRegistrarTest();    // :HA: not ready
+   startRegistrarTest();
 }
 
 /// Get the XML-RPC dispatcher
@@ -503,16 +505,23 @@ SipRegistrar::sendToRegistrarServer(OsMsg& eventMessage)
     }
 }
 
+
+/// Create replication-related thread objects, but don't start them yet
+void SipRegistrar::createReplicationThreads()
+{
+   mRegistrarInitialSync = new RegistrarInitialSync(*this);
+   mRegistrarSync = new RegistrarSync(*this);
+   mRegistrarTest = new RegistrarTest(*this);
+}
+
 void
 SipRegistrar::startRegistrarSync()
 {
-   mRegistrarSync = new RegistrarSync(*this);
    mRegistrarSync->start();
 }
 
 void
 SipRegistrar::startRegistrarTest()
 {
-   mRegistrarTest = new RegistrarTest(*this);
    mRegistrarTest->start();
 }

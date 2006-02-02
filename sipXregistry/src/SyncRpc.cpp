@@ -627,9 +627,6 @@ bool SyncRpcPushUpdates::execute(
    if (callingRegistrar && !callingRegistrar->isNull())
    {
       // Verify that the caller is a configured peer registrar.
-      // :HA: Also, the hostname that the request is coming from must match
-      // the callingRegistrar input, since peers only push updates for which
-      // they are the primary registrar.
       SipRegistrar* registrar = static_cast<SipRegistrar*>(userData);
       RegistrarPeer* peer =
          authenticateCaller(requestContext, *callingRegistrar, response, *registrar);
@@ -684,14 +681,10 @@ bool SyncRpcPushUpdates::execute(
       }
       else
       {
-         /*
-          * Either authentication or peer lookup failed
-          *   errors already logged, and response is set up
-          *
-          * Note - we don't use REQUIRE_AUTHENTICATION
-          * because that requests HTTP digest authentication,
-          * which won't help
-          */
+         // Either authentication or peer lookup failed.
+         // Errors already logged, and response is set up.
+         // Note - we don't use REQUIRE_AUTHENTICATION because that requests HTTP
+         // digest authentication, which won't help.
          status = XmlRpcMethod::FAILED;
       }
    }     
@@ -708,15 +701,32 @@ bool SyncRpcPushUpdates::execute(
    return true;
 }
 
-// Check lastSentUpdateNumber <= PeerReceivedDbUpdateNumber, otherwise updates are missing
+// Check lastSentUpdateNumber <= peerReceivedDbUpdateNumber, otherwise updates are missing
 // If everything is OK, return true.  Otherwise mark the response and return false.
 bool SyncRpcPushUpdates::checkLastSentUpdateNumber(intll lastSentUpdateNumber,
                                                    RegistrarPeer& peer,
                                                    XmlRpcResponse& response)
 {
-   // :HA: Implement
+   bool status;
+   intll peerReceivedDbUpdateNumber = peer.receivedFrom();
+   if (lastSentUpdateNumber <= peerReceivedDbUpdateNumber)
+   {
+      status = true;
+   }
+   else
+   {
+      // Updates are missing.  This should be rare, but is possible under normal
+      // operation.  Log an error and mark the peer unreachable.  The reset machinery
+      // will get us back in sync.
+      status = false;
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SyncRpcPushUpdates::checkLastSentUpdateNumber "
+                    "lastSentUpdateNumber = %lld but peerReceivedDbUpdateNumber = %lld",
+                    lastSentUpdateNumber, peerReceivedDbUpdateNumber);
+      peer.markUnReachable();
+   }
    
-   return true;    // dummy return value
+   return status;
 }
 
 // Compare the binding's updateNumber with the expected number.
