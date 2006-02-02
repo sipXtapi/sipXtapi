@@ -293,3 +293,17 @@ create-local-modules:
 # Display the value of a variable as 'make' has it set up.
 show.%:
 	@echo $*=$($*)
+
+# Instantiate a label file for all the projects by putting symbolic links in
+# */meta/$LABEL.configure-switches.
+# If ./$LABEL does not exist, create it and initialize it with
+# $CONFIGURE_FLAGS.
+# The default label file name is "SWITCHES".
+LABEL=SWITCHES
+create-label:
+	[ -e ./$(LABEL) ] || echo $(CONFIGURE_FLAGS) >./$(LABEL)
+	for C in $(COMPONENTS) ; \
+	    do \
+	    [ ! -d $$C/meta ] || \
+		ln -s ../../$(LABEL) $$C/meta/$(LABEL).configure-switches ; \
+	done
