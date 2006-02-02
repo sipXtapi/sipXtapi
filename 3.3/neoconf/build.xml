@@ -106,6 +106,7 @@
         </replace>
 
     <!-- copy jars and war -->
+    <mkdir dir="${dest.dir}${sipxpbx.data.dir}/lib"/>
     <copy todir="${dest.dir}${sipxpbx.data.dir}/lib">
       <fileset file="${sipxconfig.jar}" />
       <fileset file="${jetty.jar}" />
