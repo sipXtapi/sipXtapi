@@ -2,7 +2,7 @@ include $(top_builddir)/config/sipXcommon.mak
 
 SUBDIRS = ssl-cert
 
-INCLUDES = -I../include
+INCLUDES = -I$(top_srcdir)/include
 
 dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
