@@ -112,10 +112,10 @@ setConfigureSwitches()
 	    # Turn each line of switches into an assignment that adds
 	    # them to ConfigureSwitches.
             SwitchLines="`sed -e '/^#/d' \
-	                      -e '/^[ 	]*[A-Za-z][A-Za-z0-9_]*=/d' \
-		              -e 's/^/ConfigureSwitches="${ConfigureSwitches} /' \
-		              -e 's/$/"/' \
-		              ${ConfigureSwitchFile}`"
+                              -e $'/^[ \t]*[A-Za-z][A-Za-z0-9_]*=/d' \
+                              -e 's/^/ConfigureSwitches="${ConfigureSwitches} /' \
+                              -e 's/$/"/' \
+                              ${ConfigureSwitchFile}`"
              eval "$SwitchLines"
         else
             echo "Build label '$bl' not defined - no file '${ConfigureSwitchFile}' found." 1>&2
@@ -484,7 +484,8 @@ do
 
         -p|--projects)
         shift
-        newProjects=`echo ${1} | perl -pe 's|,| |g; s|/| |g'`
+        # Normalize the separators to spaces.
+        newProjects=`echo ${1} | sed -e 's|,| |g' -e 's|/| |g'`
         Projects="$Projects $newProjects"
         ;;
 
@@ -583,8 +584,10 @@ fi
 
 MakeOptions="$MakeOptions DISTRO=$Distro DISTROVER=$Distrover"
 
+# Normalize the project list.
 if [ -z "$Projects" ]
 then
+    # If the list is empty, use the full list for that build mode.
     case $ACTION in
         RPM*)
             Projects=$RpmProjects
@@ -593,11 +596,37 @@ then
             Projects=$CommunityProjects
             ;;
     esac
-else
-    if test "$Action" = "CLEAN"
+elif [[ "$Projects" == *+ ]]
+then
+    # If the list is one project followed by +, use that project and
+    # all the following ones from the full list.
+    case $ACTION in
+        RPM*)
+            P=$RpmProjects
+            ;;
+        *)
+            P=$CommunityProjects
+            ;;
+    esac
+    # In the following operations we make sure that the projects
+    # listed in $P are preceded and followed by spaces.  Given how it
+    # is composed above, we don't actually need to pad here, but
+    # padding ensures that this code is resistant to changes in
+    # setting the $xxxProjects variables.
+    # These operations do depend on the fact that $Projects starts
+    # with a space, because starting the pattern with two spaces will
+    # prevent it from matching when it should.
+    if ! echo '' $P '' | grep "${Projects%%+} " >/dev/null
     then
-        Deps=NODEPS
+        echo 2>&1 "Unknown project '$Projects'"
+        exit 1
     fi
+    Projects=$( echo '' $P '' | sed -e "s/^.*${Projects%%+} /${Projects%%+} /" )
+fi
+
+if test "$Action" = "CLEAN"
+then
+    Deps=NODEPS
 fi
 
 if test $Check = NOCHECK
@@ -624,7 +653,10 @@ then
     fi
     mkbuilddir 
 
-    for Project in `ProjectsInOrder $Projects`; 
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
     do
       if [ -d $Project ]
       then
@@ -653,7 +685,11 @@ then
 
     mkbuilddir $Destination
 
-    for Project in `ProjectsInOrder $Projects`; do
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
       if [ -d $Project ]
       then
         tarBuild $Project
@@ -678,7 +714,11 @@ then
     Staging="$Destination/var/tmp"
     mkbuilddir $Staging
 
-    for Project in `ProjectsInOrder $Projects`; do
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
       if [ -d $Project ]
       then
         distributionBuild $Project
@@ -693,7 +733,11 @@ then
 elif test "$Action" = "RPM"
 then
     mkdisttree
-    for Project in `ProjectsInOrder $Projects`; do
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
       if [ -d $Project ]
       then
         rpmBuild $Project
@@ -741,6 +785,8 @@ then
         Reverse="$Project $Reverse"
     done
 
+    echo Build order is: $Reverse
+    echo
     for Project in $Reverse; do
       if [ -d $Project ]
       then
@@ -756,7 +802,11 @@ then
     exit $BuildReturn
 elif test "$Action" = "CLEAN"
 then
-    for Project in `ProjectsInOrder $Projects`; do
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
       if [ -d $Project ]
       then
         cleanBuild $Project
@@ -768,7 +818,11 @@ then
     exit 0
 elif test "$Action" = "EXEC"
 then
-    for Project in `ProjectsInOrder $Projects`; do
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
       if [ -d $Project ]
       then
         pushd $Project > /dev/null
@@ -848,6 +902,13 @@ Options are:
                        When building, any dependencies are also built, so 
                        specifying 'sipXtackLib' would automatically
                        also build 'sipXportLib' (to disable, use --no-deps).
+
+                       If the argument is a project name followed by '+', it will
+                       be expanded into the list of the projects in the standard
+                       order starting at the specified project.  This is useful
+                       for resuming a build that has been interrupted by an error.
+                       (You will probably need -nd as well to get the effect
+                       you want.)
 
      --no-deps|-nd     Build exactly the specified targets; do not build the 
                        projects they depend on.
