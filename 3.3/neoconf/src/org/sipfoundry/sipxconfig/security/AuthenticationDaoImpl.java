@@ -11,16 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.AuthenticationDao;
-import net.sf.acegisecurity.providers.dao.UsernameNotFoundException;
 
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.userdetails.UserDetails;
+import org.acegisecurity.userdetails.UserDetailsService;
+import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class AuthenticationDaoImpl implements AuthenticationDao {
+public class AuthenticationDaoImpl implements UserDetailsService {
     // granted authorities
     static final GrantedAuthority AUTH_USER = new GrantedAuthorityImpl(User.ROLE_USER);
     static final GrantedAuthority AUTH_ADMIN = new GrantedAuthorityImpl(User.ROLE_ADMIN);

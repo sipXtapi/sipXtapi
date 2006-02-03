@@ -17,7 +17,7 @@
   
   <!--  if you wish to use channel security, add "channelProcessingFilter," in front
   of "httpSessionContextIntegrationFilter" in the list below -->
-  <bean id="filterChainProxy" class="net.sf.acegisecurity.util.FilterChainProxy">
+  <bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
     <property name="filterInvocationDefinitionSource">
       <value> CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON PATTERN_TYPE_APACHE_ANT
         /services/**=httpSessionContextIntegrationFilter, basicProcessingFilter, securityEnforcementFilter
@@ -28,7 +28,7 @@
   <!-- ======================== AUTHENTICATION ======================= -->
   
   <bean id="authenticationManager"
-    class="net.sf.acegisecurity.providers.ProviderManager">
+    class="org.acegisecurity.providers.ProviderManager">
     <property name="providers">
       <list>
         <ref local="daoAuthenticationProvider"/>
@@ -55,8 +55,8 @@
   </bean>
   
   <bean id="daoAuthenticationProvider"
-    class="net.sf.acegisecurity.providers.dao.DaoAuthenticationProvider">
-    <property name="authenticationDao">
+    class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+    <property name="userDetailsService">
       <ref local="authenticationDaoImpl"/>
     </property>
     <property name="userCache">
@@ -84,7 +84,7 @@
   </bean>
   
   <bean id="userCache"
-    class="net.sf.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
+    class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
     <property name="cache">
       <ref local="userCacheBackend"/>
     </property>
@@ -93,17 +93,17 @@
   <!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
   <!-- Don't use LoggerListener until we turn off the noise from logging all successful authentication events -->
   <!-- bean id="loggerListener"
-    class="net.sf.acegisecurity.event.authentication.LoggerListener"/ -->
+    class="org.acegisecurity.event.authentication.LoggerListener"/ -->
   
   <bean id="httpSessionContextIntegrationFilter"
-    class="net.sf.acegisecurity.context.HttpSessionContextIntegrationFilter">
+    class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
   </bean>
 
 
   <!-- ===================== HTTP REQUEST SECURITY ==================== -->
   
   <bean id="securityEnforcementFilter"
-    class="net.sf.acegisecurity.intercept.web.SecurityEnforcementFilter">
+    class="org.acegisecurity.intercept.web.SecurityEnforcementFilter">
     <property name="filterSecurityInterceptor">
       <ref local="filterInvocationInterceptor"/>
     </property>
@@ -113,7 +113,7 @@
   </bean>
   
   <bean id="basicProcessingFilter"
-    class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilter">
+    class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
     <property name="authenticationManager">
       <ref local="authenticationManager"/>
     </property>
@@ -123,14 +123,14 @@
   </bean>
   
   <bean id="basicProcessingFilterEntryPoint"
-    class="net.sf.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
+    class="org.acegisecurity.ui.basicauth.BasicProcessingFilterEntryPoint">
     <property name="realmName">
       <value>sipXconfig realm</value>
     </property>
   </bean>
     
   <bean id="httpRequestAccessDecisionManager"
-    class="net.sf.acegisecurity.vote.AffirmativeBased">
+    class="org.acegisecurity.vote.AffirmativeBased">
     <property name="allowIfAllAbstainDecisions">
       <value>false</value>
     </property>
@@ -145,14 +145,14 @@
     - An access decision voter that reads ROLE_* configuration settings.
     - See acegisecurity/samples/contacts/src/main/webapp/common/WEB-INF/applicationContext-common-authorization.xml .
     -->
-  <bean id="roleVoter" class="net.sf.acegisecurity.vote.RoleVoter"/>
+  <bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter"/>
   
   <!-- Note the order that entries are placed against the objectDefinitionSource is critical.
   The FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request URL.
   
   Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*) expressions last -->
   <bean id="filterInvocationInterceptor"
-    class="net.sf.acegisecurity.intercept.web.FilterSecurityInterceptor">
+    class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
     <property name="authenticationManager">
       <ref bean="authenticationManager"/>
     </property>

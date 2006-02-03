@@ -11,12 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import org.sipfoundry.sipxconfig.common.User;
-
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.SaltSource;
 import junit.framework.TestCase;
+
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.providers.dao.SaltSource;
+import org.acegisecurity.userdetails.UserDetails;
+import org.sipfoundry.sipxconfig.common.User;
 
 public class SaltSourceImplTest extends TestCase {
     // SaltSourceImpl.getSalt should return its input as the salt

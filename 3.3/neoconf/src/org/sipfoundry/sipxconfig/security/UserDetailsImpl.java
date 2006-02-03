@@ -11,9 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.UserDetails;
-
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.userdetails.UserDetails;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class UserDetailsImpl implements UserDetails {

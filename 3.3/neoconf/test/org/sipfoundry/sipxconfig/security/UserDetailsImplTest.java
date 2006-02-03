@@ -11,12 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import org.sipfoundry.sipxconfig.common.User;
-
-import net.sf.acegisecurity.GrantedAuthority;
-import net.sf.acegisecurity.GrantedAuthorityImpl;
-import net.sf.acegisecurity.UserDetails;
 import junit.framework.TestCase;
+
+import org.acegisecurity.GrantedAuthority;
+import org.acegisecurity.GrantedAuthorityImpl;
+import org.acegisecurity.userdetails.UserDetails;
+import org.sipfoundry.sipxconfig.common.User;
 
 public class UserDetailsImplTest extends TestCase {
     public void testUserDetailsImpl() {
