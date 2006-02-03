@@ -97,24 +97,32 @@ setConfigureSwitches()
         ConfigureSwitchFile="meta/${bl}.configure-switches"
         if [ -f ${ConfigureSwitchFile} ]
         then
-            SwitchExpression=`sed 's/^#.*//' ${ConfigureSwitchFile}`
-
-           ## by evaluating the expression, switches can use variable
-           ## from this script file
-           ##
-           ## Andy: The orginal line was
-           ## Switch=`eval "echo $SwitchExpression"`
-           ## and that didn't work for me - may have to be put back in
-           ## to evaluate variables in the switches
-            Switch=$SwitchExpression
             UsedLabels="${UsedLabels} ${bl}"
-            # using the echo command forces all the switches onto one line
-            ConfigureSwitches="$ConfigureSwitches `echo $Switch`"
+	    # Any lines that start with "NAME=" are considered to be
+	    # variable assignments.
+	    Variables="`sed -e '/^[ 	]*[A-Za-z][A-Za-z0-9_]*=/!d' \
+		            -e 's/^/export /' \
+		            ${ConfigureSwitchFile}`"
+	    eval "$Variables"
+	    # Copy the variables for display.
+	    UsedVariables="${UsedVariables} ` sed -e '/^[ 	]*[A-Za-z][A-Za-z0-9_]*=/!d' \
+		                ${ConfigureSwitchFile} | tr '\n' ' ' `"
+	    # Any lines in the file that start with '#' are interpreted as
+	    # comments.  Other lines are interpreted as switches.
+	    # Turn each line of switches into an assignment that adds
+	    # them to ConfigureSwitches.
+            SwitchLines="`sed -e '/^#/d' \
+	                      -e '/^[ 	]*[A-Za-z][A-Za-z0-9_]*=/d' \
+		              -e 's/^/ConfigureSwitches="${ConfigureSwitches} /' \
+		              -e 's/$/"/' \
+		              ${ConfigureSwitchFile}`"
+             eval "$SwitchLines"
         else
             echo "Build label '$bl' not defined - no file '${ConfigureSwitchFile}' found." 1>&2
         fi
     done
     echo "      Using labels:             ${UsedLabels:-(none)}"
+    echo "      Using variables:          ${UsedVariables:-(none)}"
     echo "      Using configure switches: ${ConfigureSwitches:-(none)}"
 }
 
@@ -420,7 +428,7 @@ mkbuilddir()
     fi
 }
 
-## Makes a distribution tree and optionally clean it
+## Makes a distribution tree and optionally cleans it
 ## The dist tree model set it to sipX/<branch>
 mkdisttree()
 {
@@ -870,18 +878,18 @@ Options are:
 
      --verbose|-v      Do not add "-s" option to "make".
 
-     --configure xxx   Add "xxx" to the list of options to be passed to
-                       ./configure, as if it appeared in a --label file.
-
      --distro          The OS distribution RPMs are built for. The names are reserved for
                        FC, RHE, etc.
 
      --distrover       The OS distribution version.
 
      --disttree path   Indicates if distribution tree to be created. If presented, to conform
-                       with the distribution tree model, the lowermost directory of the "path"                       represents the branch, both the distro and the distrover (see above)
+                       with the distribution tree model, the lowermost directory of the "path"
+                       represents the branch, both the distro and the distrover (see above)
                        required for rpm build.
 
+     --configure xxx   Add "xxx" to the list of options to be passed to
+                       ./configure, as if it appeared in a --label file.
 USAGE
 
 exit
