@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <routes>
   <route mappingType="local">
-    <!-- Route to the config service -->
-    <routeFrom>sipuaconfig.${SIPXCHANGE_DOMAIN_NAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
-    <routeFrom>sipuaconfig:${PROXY_SERVER_SIP_PORT}</routeFrom>
-    <routeTo>&lt;${CONFIG_SERVER_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
-  </route>
-
-  <route mappingType="local">
     <routeFrom>${SIPXCHANGE_DOMAIN_NAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
     <routeFrom>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</routeFrom>
     <routeFrom>${MY_FULL_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
@@ -15,14 +8,6 @@
 
     <methodMatch>
       <methodPattern>SUBSCRIBE</methodPattern>
-
-      <!-- Config service events -->
-      <fieldMatch fieldName="Event">
-        <fieldPattern>sip-config.*</fieldPattern>
-        <!-- SUBSCRIBEs with the event field containg above pattern-->
-        <!-- will go to the Config server SDS-->
-        <routeTo>&lt;${CONFIG_SERVER_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
-      </fieldMatch>
 
       <!-- Message waiting indication events -->
       <fieldMatch fieldName="Event">
