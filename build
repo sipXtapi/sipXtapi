@@ -98,19 +98,19 @@ setConfigureSwitches()
         if [ -f ${ConfigureSwitchFile} ]
         then
             UsedLabels="${UsedLabels} ${bl}"
-	    # Any lines that start with "NAME=" are considered to be
-	    # variable assignments.
-	    Variables="`sed -e '/^[ 	]*[A-Za-z][A-Za-z0-9_]*=/!d' \
-		            -e 's/^/export /' \
-		            ${ConfigureSwitchFile}`"
-	    eval "$Variables"
-	    # Copy the variables for display.
-	    UsedVariables="${UsedVariables} ` sed -e '/^[ 	]*[A-Za-z][A-Za-z0-9_]*=/!d' \
-		                ${ConfigureSwitchFile} | tr '\n' ' ' `"
-	    # Any lines in the file that start with '#' are interpreted as
-	    # comments.  Other lines are interpreted as switches.
-	    # Turn each line of switches into an assignment that adds
-	    # them to ConfigureSwitches.
+            # Any lines that start with "NAME=" are considered to be
+            # variable assignments.
+            Variables="`sed -e $'/^[ \t]*[A-Za-z][A-Za-z0-9_]*=/!d' \
+                            -e 's/^/export /' \
+                            ${ConfigureSwitchFile}`"
+            eval "$Variables"
+            # Copy the variables for display.
+            UsedVariables="${UsedVariables} ` sed -e $'/^[ \t]*[A-Za-z][A-Za-z0-9_]*=/!d' \
+                                ${ConfigureSwitchFile} | tr '\n' ' ' `"
+            # Any lines in the file that start with '#' are interpreted as
+            # comments.  Other lines are interpreted as switches.
+            # Turn each line of switches into an assignment that adds
+            # them to ConfigureSwitches.
             SwitchLines="`sed -e '/^#/d' \
                               -e $'/^[ \t]*[A-Za-z][A-Za-z0-9_]*=/d' \
                               -e 's/^/ConfigureSwitches="${ConfigureSwitches} /' \
