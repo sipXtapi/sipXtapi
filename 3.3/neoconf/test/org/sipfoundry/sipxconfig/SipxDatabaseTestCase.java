@@ -17,7 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
  * Alternatively we could just throw e.getNextException, but we may want to preserve the original
  * exception.
  */
-public class SipxDatabaseTestCase extends TestCase {
+public abstract class SipxDatabaseTestCase extends TestCase {
     public void runBare() throws Throwable {
         try {
             super.runBare();
@@ -52,5 +52,5 @@ public class SipxDatabaseTestCase extends TestCase {
         IDataSet set = getConnection().createDataSet();
         FlatXmlWriter writer = new FlatXmlWriter(out);
         writer.write(set);
-    }
+    }    
 }
