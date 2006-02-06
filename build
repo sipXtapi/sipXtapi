@@ -13,6 +13,7 @@ Sudo=""
 Check=CHECK
 Deps=DEPS
 MakeOptions=-s
+Verbose=NO
 Distro=""
 Distrover=""
 
@@ -140,10 +141,14 @@ incrementalBuild()
 
     setConfigureSwitches 
 
+    [[ $Verbose = YES ]] &&
+        echo autoreconf --install --force
     if autoreconf --install --force
     then
         mkbuilddir build
         cd build > /dev/null
+        [[ $Verbose = YES ]] &&
+            echo ../configure $ConfigureSwitches --prefix $Destination
         if ../configure $ConfigureSwitches --prefix $Destination
         then
             if make $MakeOptions
@@ -194,10 +199,14 @@ tarBuild()
 
     setConfigureSwitches 
 
+    [[ $Verbose = YES ]] &&
+        echo autoreconf --install --force
     if autoreconf --force --install
     then
         mkbuilddir build
         cd build > /dev/null
+        [[ $Verbose = YES ]] &&
+            echo ../configure $ConfigureSwitches --prefix $Destination
         if ../configure $ConfigureSwitches --prefix $Destination
         then
             if make $MakeOptions dist
@@ -235,10 +244,14 @@ distributionBuild()
 
     setConfigureSwitches 
 
+    [[ $Verbose = YES ]] &&
+        echo autoreconf --install --force
     if autoreconf --force --install
     then
         mkbuilddir build
         cd build > /dev/null
+        [[ $Verbose = YES ]] &&
+            echo ../configure $ConfigureSwitches --prefix $Destination
         if ../configure $ConfigureSwitches --prefix $Destination
         then
             if make $MakeOptions dist
@@ -252,6 +265,8 @@ distributionBuild()
                 # standard make/install
                 pushd $Staging/$TarDir > /dev/null
                 # override install dir for apache modules to avoid need for sudo
+                [[ $Verbose = YES ]] &&
+                    echo ../configure $ConfigureSwitches --prefix $Destination
                 if ./configure $ConfigureSwitches --prefix $Destination
                 then
                     if make $MakeOptions
@@ -338,10 +353,14 @@ rpmBuild()
         fi
     fi
 
+    [[ $Verbose = YES ]] &&
+        echo autoreconf --install --force
     if autoreconf --force --install
     then
         mkbuilddir build
         cd build > /dev/null
+        [[ $Verbose = YES ]] &&
+            echo ../configure $ConfigureSwitches --prefix $Destination
         if ../configure $ConfigureSwitches
         then
             if make $MakeOptions rpm
@@ -529,6 +548,7 @@ do
 
         -v|--verbose)
         MakeOptions=
+        Verbose=YES
         ;;
 
         --configure)
