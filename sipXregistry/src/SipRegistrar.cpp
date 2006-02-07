@@ -291,24 +291,36 @@ SipRegistrar::startRegistrar(
     {
        udpPort = 5070;
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using udpPort = %d",
+                  udpPort);
   
     tcpPort = configDb.getPort("SIP_REGISTRAR_TCP_PORT");
     if (tcpPort == PORT_DEFAULT)
     {
        tcpPort = 5070;
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using tcpPort = %d",
+                  tcpPort);
 
     tlsPort = configDb.getPort("SIP_REGISTRAR_TLS_PORT");
     if (tlsPort == PORT_DEFAULT)
     {
        tlsPort = 5071;
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using tlsPort = %d",
+                  tlsPort);
 
     proxyNormalPort = configDb.getPort("SIP_REGISTRAR_PROXY_PORT");
     if (proxyNormalPort == PORT_DEFAULT)
     {
        proxyNormalPort = 5060;
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using proxyNormalPort = %d",
+                  proxyNormalPort);
 
     configDb.get("SIP_REGISTRAR_MAX_EXPIRES", defaultMaxExpiresTime);
     configDb.get("SIP_REGISTRAR_MIN_EXPIRES", defaultMinExpiresTime);
@@ -329,44 +341,57 @@ SipRegistrar::startRegistrar(
     {
         defaultMinExpiresTime.append("300"); //300 seconds
     }
-    osPrintf("SIP_REGISTRAR_MIN_EXPIRES : %s\n", defaultMinExpiresTime.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using defaultMinExpiresTime = '%s'",
+                  defaultMinExpiresTime.data());
 
     if ( defaultMaxExpiresTime.isNull() )
     {
         defaultMaxExpiresTime.append("7200"); //default to 2 hrs
     }
-    osPrintf("SIP_REGISTRAR_MAX_EXPIRES : %s\n", defaultMaxExpiresTime.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using defaultMaxExpiresTime = '%s'",
+                  defaultMaxExpiresTime.data());
 
     if(domainName.isNull())
     {
        OsSocket::getHostIp(&domainName);
     }
-    osPrintf("SIP_REGISTRAR_DOMAIN_NAME : %s\n", domainName.data());
-
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using domainName = '%s'",
+                  domainName.data());
 
     if ( authenticateScheme.compareTo("NONE" , UtlString::ignoreCase) == 0 ) /* NONE/DIGEST */
     {
         isCredentialDB = FALSE;
-        osPrintf("SIP_AUTHPROXY_AUTHENTICATE_SCHEME : NONE\n");
     }
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using isCredentialDB = %s",
+                  isCredentialDB ? "TRUE" : "FALSE");
 
     if ( authAlgorithm.isNull() ) /* MD5/MD5SESS */
     {
         authAlgorithm.append("MD5");
     }
-    osPrintf("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM : %s\n", authAlgorithm.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using authAlgorithm = '%s'",
+                  authAlgorithm.data());
 
     if ( authQop.isNull() ) /* AUTH/AUTH-INT/NONE */
     {
         authQop.append("NONE");
     }
-    osPrintf("SIP_REGISTRAR_AUTHENTICATE_QOP : %s\n", authQop.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using authQop = '%s'",
+                  authQop.data());
 
     if(realm.isNull())
     {
         realm.append(domainName);
     }
-    osPrintf("SIP_REGISTRAR_AUTHENTICATE_REALM : %s\n", realm.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using realm = '%s'",
+                  realm.data());
 
     if(mediaServer.isNull())
     {
@@ -374,7 +399,9 @@ SipRegistrar::startRegistrar(
         mediaServer.append(":");
         mediaServer.append("5100");
     }
-    osPrintf("SIP_REGISTRAR_MEDIA_SERVER : %s\n", mediaServer.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using mediaServer = '%s'",
+                  mediaServer.data());
 
     if(voicemailServer.isNull())
     {
@@ -382,7 +409,9 @@ SipRegistrar::startRegistrar(
         voicemailServer.append(":");
         voicemailServer.append("8090");
     }
-    osPrintf("SIP_REGISTRAR_VOICEMAIL_SERVER: %s\n", voicemailServer.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipRegistrar::startRegistrar using voicemailServer = '%s'",
+                  voicemailServer.data());
 
     int maxExpiresTime = atoi(defaultMaxExpiresTime.data());
 

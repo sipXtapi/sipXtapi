@@ -136,6 +136,15 @@ SipRedirectServer::initialize(
    int              proxyNormalPort,
    const char* configFileName)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRedirectServer::initialize "
+                 "configDir = '%s', mediaServer = '%s', "
+                 "voicemailServer = '%s', localDomainHost = '%s', "
+                 "proxyNormalPart = %d, configFileName = '%s'",
+                 configDir.data(), mediaServer.data(),
+                 voicemailServer.data(), localDomainHost.data(),
+                 proxyNormalPort, configFileName);
+
    if (!mIsStarted)
    {
       //start the thread
