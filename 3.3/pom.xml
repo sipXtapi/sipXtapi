@@ -1,0 +1,36 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.sipfoundry.sipxconfig</groupId>
+  <version>3.3.1</version>
+  <artifactId>sipxconfig</artifactId>
+  <packaging>pom</packaging>
+  <name>sipXconfig</name>
+  <url>http://www.sipfoundry.org/sipXconfig</url>
+  <modules>
+    <module>neoconf</module>
+    <module>web</module>
+  </modules>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <configuration>
+            <configLocation>${top.dir}/meta/checkstyle.xml</configLocation>
+            <includes>org/sipfoundry/**/*.java</includes>
+            <consoleOutput>true</consoleOutput>
+            <failsOnError>true</failsOnError>
+            <!-- sipXconfig specific: set default severity for checkstyle violations -->
+            <propertyExpansion>checkstyle.severity=error</propertyExpansion>
+            <propertyExpansion>top.dir=${top.dir}</propertyExpansion>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+  <properties>
+    <top.dir>.</top.dir>
+    <top.build.dir>${top.dir}/build</top.build.dir>
+  </properties>
+</project>
