@@ -107,6 +107,8 @@ void RegistrarPeer::markReachable()
                           );   
       mSyncState = Reachable;
 
+      OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                    "RegistrarPeer::markReachable called on peer %s", name());
    }  // release lock before signalling RegistrarSync thread
    
    if (notifySyncThread)
@@ -116,12 +118,39 @@ void RegistrarPeer::markReachable()
    }
 }
 
-/// Indicate that a permanent error has occured with this peer.
+/// Indicate that a permanent error has occurred with this peer.
 void RegistrarPeer::markIncompatible()
 {
    OsLock mutex(mLock);
 
    mSyncState = Incompatible;
+}
+
+/// Set the peer state to a known state (not SyncStateUnknown)
+void RegistrarPeer::setState(SynchronizationState state)
+{
+   switch(state)
+   {
+   case SyncStateUnknown:
+      assert(false);
+      break;
+
+   case Reachable:
+      markReachable();
+      break;
+   
+   case UnReachable:
+      markUnReachable();
+      break;
+
+   case Incompatible:
+      markIncompatible();
+      break;
+
+   default:
+      assert(false);
+      break;
+   }
 }
 
 /// The oldest update successfully sent to this peer.

@@ -88,8 +88,9 @@ public:
 
     /// Apply registry updates for a single registrar (local or peer) to the database
     intll applyUpdatesToDirectory(
-        int timeNow,
-        const UtlSList& updates);
+       int timeNow,                         ///< current epoch time
+       const UtlSList& updates,             ///< list of updates to apply
+       UtlString*      errorMsg = NULL);    ///< fill in the error message on failure
     /**<
      * Return the maximum update number for that registrar after applying updates, or -1
      * if there is an error.  An empty updates list is an error.

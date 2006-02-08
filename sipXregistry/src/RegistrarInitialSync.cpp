@@ -38,6 +38,9 @@ int RegistrarInitialSync::run(void* pArg)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync started");
 
+   // Reset the DbUpdateNumber so that the upper half is the epoch time.
+   getRegistrarServer().resetDbUpdateNumberEpoch();
+
    // get the received update numbers for each peer from the local database
    restorePeerUpdateNumbers();
 
@@ -52,9 +55,6 @@ int RegistrarInitialSync::run(void* pArg)
 
    // Get any updates for unreachable peers from reachable ones.
    recoverUnReachablePeers();
-
-   // Reset the DbUpdateNumber so that the upper half is the epoch time.
-   getRegistrarServer().resetDbUpdateNumberEpoch();
 
    // SipRegistrar manages the transition to operational phase, so it will send resets to peers
 
@@ -83,7 +83,7 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
                     "for peer '%s' last received update # = %lld",
                     name, maxUpdateNumber);
 
-      // We don't know the last sent update number for the peer yet, so zero it out
+      // We don't know the last sent update number for the peer yet, so set it to zero.
       peer->setSentTo(0);
    }
 }

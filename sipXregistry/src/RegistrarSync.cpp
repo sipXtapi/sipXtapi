@@ -62,13 +62,7 @@ void RegistrarSync::sendUpdates()
 /// Task main loop
 int RegistrarSync::run(void* pArg)
 {
-   // :TODO: implement
-
-   // :TODO: move updating of PeerSentDbUpdateNumber out of SyncRpcPushUpdates::invoke
-   // and into RegistrarSync?
-   // :TODO: shut down the thread when requested
-
-   while(true)
+   while (true && !isShuttingDown())
    {
       // Wait until there is work to do
       mMutex.acquire();
@@ -81,18 +75,13 @@ int RegistrarSync::run(void* pArg)
       {
          if (peer->isReachable())
          {
-            intll localDbUpdateNumber = getRegistrarServer().getDbUpdateNumber();
-            intll peerSentDbUpdateNumber = peer->sentTo();
-            if (localDbUpdateNumber > peerSentDbUpdateNumber)
+            UtlSList bindings;
+            bool isUpdateToSend = getRegistrarServer().getNextUpdateToSend(peer, bindings);
+            if (isUpdateToSend)
             {
-               UtlSList bindings;
-               bool isUpdateToSend(
-                  getRegistrarServer().getNextUpdateToSend(peer, bindings));
-               assert(isUpdateToSend);
-               if (isUpdateToSend)
-               {
-                  SyncRpcPushUpdates::invoke(peer, mRegistrar.primaryName(), &bindings);
-               }
+               // :LATER: move updating of PeerSentDbUpdateNumber out of
+               // SyncRpcPushUpdates::invoke and into RegistrarSync?
+               SyncRpcPushUpdates::invoke(peer, mRegistrar.primaryName(), &bindings);
             }
          }
       }

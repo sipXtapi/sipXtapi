@@ -47,8 +47,11 @@ public:
    typedef enum
    {
       UnconfiguredPeer = 300, ///< caller is not a configured peer of this server
-      InvalidParameter, ///< missing parameter or invalid type
-      AuthenticationFailure ///< connection not authenticated by SSL
+      InvalidParameter,       ///< missing parameter or invalid type
+      AuthenticationFailure,  ///< connection not authenticated by SSL
+      UpdateFailed,           ///< error in applying updates to the registration DB
+      UpdateOutOfOrder,       ///< received an update ahead of prior updates
+      MixedUpdateNumbers      ///< received a pushed update with multiple update numbers
    } FaultCode;
       
 protected:
@@ -329,26 +332,35 @@ protected:
                         XmlRpcResponse& response,                 ///< request response
                         ExecutionStatus& status
                         );
-   
+
+   /// guts of SyncRpcPushUpdates::execute -- core method to call after checking errors
+   void applyPushedUpdates(UtlSList&        updateMaps,
+                           XmlRpcResponse&  response,
+                           ExecutionStatus& status,
+                           RegistrarPeer&   peer,
+                           SipRegistrar&    registrar);
+
    static const char* METHOD_NAME;
 
 private:
    /// Check lastSentUpdateNumber <= PeerReceivedDbUpdateNumber, otherwise updates are missing
-   bool checkLastSentUpdateNumber(intll lastSentUpdateNumber,
+   void checkLastSentUpdateNumber(intll lastSentUpdateNumber,
                                   RegistrarPeer& peer,
-                                  XmlRpcResponse& response);
+                                  XmlRpcResponse& response,
+                                  ExecutionStatus& status);
    /**<
-    * If everything is OK, return true.  Otherwise mark the response and return false.
+    * If everything is OK, then set status to XmlRpcMethod::OK.
+    * Otherwise fill in the response with a fault and set status to XmlRpcMethod::FAILED.
     */
 
    // Compare the binding's updateNumber with the expected number.
    // Return true if they match and false if they don't.
    // If there is a mismatch, then set up fault info in the RPC reponse.
    bool checkUpdateNumber(const RegistrationBinding& reg,
-                          intll updateNumber,
-                          XmlRpcResponse& response,
-                          ExecutionStatus& status
-                          );
+                          intll                      updateNumber,
+                          RegistrarPeer&             peer,
+                          XmlRpcResponse&            response,
+                          ExecutionStatus&           status);
 
    /// no copy constructor
    SyncRpcPushUpdates(const SyncRpcPushUpdates& nocopy);

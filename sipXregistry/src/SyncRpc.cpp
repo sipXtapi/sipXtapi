@@ -186,7 +186,7 @@ bool SyncRpcReset::execute(const HttpRequestContext& requestContext, ///< reques
                                                response, *registrar);
       if (peer)
       {
-            UtlLongLongInt* updateNumber = dynamic_cast<UtlLongLongInt*>(params.at(2));
+            UtlLongLongInt* updateNumber = dynamic_cast<UtlLongLongInt*>(params.at(1));
             if (updateNumber)
             {
                peer->setSentTo(updateNumber->getValue());
@@ -269,7 +269,6 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
                        );
          assert(false); // bad xmlrpc response
          resultState = RegistrarPeer::Incompatible;
-         peer.markIncompatible();
       }
    }
    else
@@ -280,11 +279,10 @@ SyncRpcReset::invoke(const char*    myName, ///< primary name of the caller
 
       response.getFault(&faultCode, faultText);
       OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "SyncRpcReset::invoke : fault %d %s\n"
+                    "SyncRpcReset::invoke : fault %d %s"
                     " %s is now marked UnReachable",
                     faultCode, faultText.data(), peer.name()
                     );
-      peer.markUnReachable();
       resultState = RegistrarPeer::UnReachable;
    }
 
@@ -465,7 +463,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
 
       response.getFault(&faultCode, faultText);
       OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "SyncRpcPullUpdates::invoke : fault %d %s\n"
+                    "SyncRpcPullUpdates::invoke : fault %d %s"
                     " %s is now marked UnReachable",
                     faultCode, faultText.data(), source->name()
                     );
@@ -635,98 +633,146 @@ bool SyncRpcPushUpdates::execute(
          UtlLongLongInt* lastSentUpdateNumber = dynamic_cast<UtlLongLongInt*>(params.at(1));
          if (lastSentUpdateNumber != NULL)
          {
-            if (checkLastSentUpdateNumber(*lastSentUpdateNumber, *peer, response))
+            // check lastSentUpdateNumber <= peerReceivedDbUpdateNumber
+            // sets status and handles any errors
+            checkLastSentUpdateNumber(*lastSentUpdateNumber, *peer, response, status);
+
+            if (status == XmlRpcMethod::OK)
             {
                UtlSList* updateMaps = dynamic_cast<UtlSList*>(params.at(2));
-               UtlSListIterator updateIter(*updateMaps);
-
-               // Iterate over the updates and convert RPC params to RegistrationBindings
-               intll updateNumber = 0;
-               UtlHashMap* update;
-               UtlSList* updateList = new UtlSList();    // collect all the updates
-               while ((update = dynamic_cast<UtlHashMap*>(updateIter())))
+               if (updateMaps != NULL)
                {
-                  // Convert the update from a hash map to a RegistrationBinding object
-                  RegistrationBinding* reg = new RegistrationBinding(*update);
-
-                  // If this is not the first update, then make sure that it has the same update
-                  // number as previous updates.
-                  if (updateNumber == 0)
-                  {
-                     updateNumber = reg->getUpdateNumber();
-                  }
-                  else
-                  {
-                     if (!checkUpdateNumber(*reg, updateNumber, response, status))
-                     {
-                        break;
-                     }
-                  }
-
-                  // Add the row to the update list
-                  updateList->append(reg);
+                  applyPushedUpdates(*updateMaps, response, status, *peer, *registrar);
                }
-
-               // Apply the update to the DB
-               if (status == XmlRpcMethod::OK)
+               else
                {
-                  int timeNow = OsDateTime::getSecsSinceEpoch();
-                  SipRegistrarServer& registrarServer = registrar->getRegistrarServer();
-                  updateNumber = registrarServer.applyUpdatesToDirectory(timeNow, *updateList);
-                  UtlLongLongInt updateNumberWrapped(updateNumber);
-                  response.setResponse(&updateNumberWrapped);
+                  handleMissingExecuteParam(METHOD_NAME, "updates", response, status, peer);
                }
             }
+         }
+         else
+         {
+            handleMissingExecuteParam(
+               METHOD_NAME, "lastSentUpdateNumber", response, status, peer);
          }
       }
       else
       {
-         // Either authentication or peer lookup failed.
-         // Errors already logged, and response is set up.
-         // Note - we don't use REQUIRE_AUTHENTICATION because that requests HTTP
-         // digest authentication, which won't help.
+         /*
+          * Either authentication or peer lookup failed
+          *   errors already logged, and response is set up
+          *
+          * Note - we don't use REQUIRE_AUTHENTICATION
+          * because that requests HTTP digest authentication,
+          * which won't help
+          */
          status = XmlRpcMethod::FAILED;
       }
    }     
    else
    {
-      // we would mark the peer incompatible, but we don't even know who the peer is
-      OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "SyncRpcPushUpdates::execute callingRegistrar arg missing");
-      assert(false);    // bad XML-RPC response
+      handleMissingExecuteParam(METHOD_NAME, "callingRegistrar", response, status);
    }
-
-   // :HA: fill in XML-RPC fault response on errors
 
    return true;
 }
 
-// Check lastSentUpdateNumber <= peerReceivedDbUpdateNumber, otherwise updates are missing
-// If everything is OK, return true.  Otherwise mark the response and return false.
-bool SyncRpcPushUpdates::checkLastSentUpdateNumber(intll lastSentUpdateNumber,
-                                                   RegistrarPeer& peer,
-                                                   XmlRpcResponse& response)
+// This method is the guts of SyncRpcPushUpdates::execute, separated from all the
+// error-checking noise.
+void SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
+                                            XmlRpcResponse&  response,
+                                            ExecutionStatus& status,
+                                            RegistrarPeer&   peer,
+                                            SipRegistrar&    registrar)
 {
-   bool status;
+   if (updateMaps.entries() == 0)
+   {
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipRegistrarServer::applyPushedUpdates empty updates list");
+      return;
+   }
+
+   UtlSListIterator updateIter(updateMaps);
+
+   // Iterate over the updates and convert RPC params to RegistrationBindings
+   intll updateNumber = 0;
+   UtlHashMap* update;
+   UtlSList* updateList = new UtlSList();    // collect all the updates
+   status = XmlRpcMethod::OK;
+   while ((update = dynamic_cast<UtlHashMap*>(updateIter())) &&
+          (status == XmlRpcMethod::OK))
+   {
+      // Convert the update from a hash map to a RegistrationBinding object
+      RegistrationBinding* reg = new RegistrationBinding(*update);
+
+      // If this is not the first update, then make sure that it has the same update
+      // number as previous updates.
+      if (updateNumber == 0)
+      {
+         updateNumber = reg->getUpdateNumber();
+      }
+      else
+      {
+         // on error, sets status to XmlRpcMethod::FAILED and does other error handling
+         checkUpdateNumber(*reg, updateNumber, peer, response, status);
+      }
+
+      if (status == XmlRpcMethod::OK)
+      {
+         // Add the row to the update list
+         updateList->append(reg);
+      }
+   }
+
+   // Apply the update to the DB
+   if (status == XmlRpcMethod::OK)    // if there were no errors earlier
+   {
+      int timeNow = OsDateTime::getSecsSinceEpoch();
+      SipRegistrarServer& registrarServer = registrar.getRegistrarServer();
+      UtlString errorMsg;
+      updateNumber = registrarServer.applyUpdatesToDirectory(timeNow, *updateList, &errorMsg);
+      UtlLongLongInt updateNumberWrapped(updateNumber);
+      response.setResponse(&updateNumberWrapped);
+      if (updateNumber < 0)
+      {
+         status = XmlRpcMethod::FAILED;
+         errorMsg.insert(0, 
+                         "SyncRpcPushUpdates::applyPushedUpdates error applying updates ");
+         OsSysLog::add(FAC_SIP, PRI_ERR, errorMsg.data());
+         peer.markUnReachable();
+         response.setFault(SyncRpcMethod::UpdateFailed, errorMsg);
+      }
+   }
+}
+
+// Check lastSentUpdateNumber <= peerReceivedDbUpdateNumber, otherwise updates are missing
+// If everything is OK, set status to XmlRpcMethod::OK.
+// Otherwise mark the response and set status to an error.
+void SyncRpcPushUpdates::checkLastSentUpdateNumber(intll lastSentUpdateNumber,
+                                                   RegistrarPeer& peer,
+                                                   XmlRpcResponse& response,
+                                                   ExecutionStatus& status)
+{
    intll peerReceivedDbUpdateNumber = peer.receivedFrom();
    if (lastSentUpdateNumber <= peerReceivedDbUpdateNumber)
    {
-      status = true;
+      status = XmlRpcMethod::OK;
    }
    else
    {
       // Updates are missing.  This should be rare, but is possible under normal
       // operation.  Log an error and mark the peer unreachable.  The reset machinery
       // will get us back in sync.
-      status = false;
-      OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "SyncRpcPushUpdates::checkLastSentUpdateNumber "
-                    "lastSentUpdateNumber = %lld but peerReceivedDbUpdateNumber = %lld",
-                    lastSentUpdateNumber, peerReceivedDbUpdateNumber);
+      status = XmlRpcMethod::FAILED;
+      char buf[1024];
+      sprintf(buf, 
+              "SyncRpcPushUpdates::checkLastSentUpdateNumber "
+              "lastSentUpdateNumber = %lld but peerReceivedDbUpdateNumber = %lld",
+              lastSentUpdateNumber, peerReceivedDbUpdateNumber);
+      OsSysLog::add(FAC_SIP, PRI_WARNING, buf);
       peer.markUnReachable();
+      response.setFault(SyncRpcMethod::UpdateOutOfOrder, buf);
    }
-   
-   return status;
 }
 
 // Compare the binding's updateNumber with the expected number.
@@ -735,6 +781,7 @@ bool SyncRpcPushUpdates::checkLastSentUpdateNumber(intll lastSentUpdateNumber,
 bool SyncRpcPushUpdates::checkUpdateNumber(
    const RegistrationBinding& reg,
    intll updateNumber,
+   RegistrarPeer& peer,
    XmlRpcResponse& response,
    ExecutionStatus& status
                                            )
@@ -744,11 +791,13 @@ bool SyncRpcPushUpdates::checkUpdateNumber(
       const char* msg = 
          "SyncRpcPushUpdates::execute: "
          "a registry update contains multiple update numbers: %lld and %lld";
-      char buf[256];
+      char buf[1024];
       int msgLen = sprintf(buf, msg, updateNumber, reg.getUpdateNumber());
       assert(msgLen > 0);
-      response.setFault(XmlRpcResponse::IllFormedContents, buf);
+      peer.markIncompatible();    // this peer is confused, don't talk to him
+      response.setFault(SyncRpcMethod::MixedUpdateNumbers, buf);
       status = XmlRpcMethod::FAILED;
+      assert(false);              // should never happen
       return false;
    }
    else
@@ -804,7 +853,7 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
    if (request.execute(response))    // blocks; returns false for any fault
    {
       // The request succeeded, so increase peerSentDbUpdateNumber accordingly.
-      // :TODO: Consider moving this code out of here (into SipRegistrarServer?
+      // :LATER: Consider moving this code out of here (into SipRegistrarServer?
       // into RegistrarSync) since the RPC method should really just be handling comms.
       UtlContainable* value;
       response.getResponse(value);

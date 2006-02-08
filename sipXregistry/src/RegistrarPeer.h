@@ -68,7 +68,7 @@ class RegistrarPeer : public UtlString
    typedef enum
       {
          SyncStateUnknown, ///< initial condition before startup sync is complete.
-         Reachable,        ///< initial sync completed, and no failure has occured.
+         Reachable,        ///< initial sync completed, and no failure has occurred.
          UnReachable,      ///< most recent request to this peer failed.
          Incompatible      ///< serious error indicating incompatible xoversion
       } SynchronizationState;
@@ -98,7 +98,7 @@ class RegistrarPeer : public UtlString
     * Until the next time markUnReachable is called, isReachable returns true.
     */
 
-   /// Indicate that a permanent error has occured with this peer.
+   /// Indicate that a permanent error has occurred with this peer.
    void markIncompatible();
    /**<
     * This is used only if an interaction has determined that the peer
@@ -107,7 +107,9 @@ class RegistrarPeer : public UtlString
     *
     * No further RPC calls will be made to a peer marked Incompatible.
     */
-   
+
+   /// Set the peer state to a known state (not SyncStateUnknown)
+   void setState(SynchronizationState state);
 ///@}
 
 // ================================================================

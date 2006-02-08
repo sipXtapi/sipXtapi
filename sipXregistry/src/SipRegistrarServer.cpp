@@ -290,7 +290,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
              )
         {
            OsSysLog::add( FAC_SIP, PRI_WARNING,
-                          "SipRegistrarServer::applyRegisterToDirectory - processing '%s'\n",
+                          "SipRegistrarServer::applyRegisterToDirectory - processing '%s'",
                           registerContactStr.data()
                                );
             if ( registerContactStr.compareTo("*") != 0 ) // is contact == "*" ?
@@ -322,7 +322,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         returnStatus = REGISTER_INVALID_REQUEST;
                         OsSysLog::add( FAC_SIP, PRI_WARNING,
                                       "SipRegistrarServer::applyRegisterToDirectory"
-                                      " invalid expires parameter value '%s'\n",
+                                      " invalid expires parameter value '%s'",
                                       expireStr.data()
                                       );
                     }
@@ -560,7 +560,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                 expirationTime = timeNow-1;
 
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                              "SipRegistrarServer::applyRegisterToDirectory - Expiring map %s->%s\n",
+                                              "SipRegistrarServer::applyRegisterToDirectory - Expiring map %s->%s",
                                               registerToStr.data(), contact.data()
                                               );
                             }
@@ -573,7 +573,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                   ) + timeNow;
 
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                       "SipRegistrarServer::applyRegisterToDirectory - Adding map %s->%s\n",
+                                       "SipRegistrarServer::applyRegisterToDirectory - Adding map %s->%s",
                                        registerToStr.data(), contact.data() );
                             }
 
@@ -653,11 +653,16 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 
 intll
 SipRegistrarServer::applyUpdatesToDirectory(
-   int timeNow,
-   const UtlSList& updates)
+   int timeNow,                   ///< current epoch time
+   const UtlSList& updates,       ///< list of updates to apply
+   UtlString* errorMsg)           ///< fill in the error message on failure
 {
    // Critical Section here
    OsLock lock(sLockMutex);
+
+   // We need an error string buffer even if the caller didn't provide one
+   UtlString altErrorMsg;
+   errorMsg = errorMsg ? errorMsg : &altErrorMsg;
 
    // Loop over the updates and apply them to the DB.
    // All updates must be for the same primary registrar.
@@ -675,7 +680,6 @@ SipRegistrarServer::applyUpdatesToDirectory(
       intll updateNumber = reg->getUpdateNumber();
       if (maxUpdateNumber < 0)    // if this is the first time through the loop
       {
-         maxUpdateNumber = updateNumber;
          if (reg->getPrimary() != NULL)
          {
             primary = *(reg->getPrimary());
@@ -685,13 +689,13 @@ SipRegistrarServer::applyUpdatesToDirectory(
             peer = mRegistrar.getPeer(primary);
             if (peer == NULL)
             {
-               OsSysLog::add(
-                  FAC_SIP, PRI_ERR,
-                  "SipRegistrarServer::applyUpdatesToDirectory unknown peer %s\n",
-                  primary.data());
+               *errorMsg = "SipRegistrarServer::applyUpdatesToDirectory unknown peer ";
+               errorMsg->append(primary.data());
+               OsSysLog::add(FAC_SIP, PRI_ERR, errorMsg->data());
                break;
             }
          }
+         maxUpdateNumber = updateNumber;
       }
       else
       {
@@ -699,19 +703,22 @@ SipRegistrarServer::applyUpdatesToDirectory(
          const UtlString* nextPrimary = reg->getPrimary() ? reg->getPrimary() : &emptyPrimary;
          if (primary != *nextPrimary)
          {
-            OsSysLog::add(
-               FAC_SIP, PRI_ERR,
-               "SipRegistrarServer::applyUpdatesToDirectory updates with mixed primaries\n"
-               " updateNumber: %lld, primary1: %s, primary2: %s\n",
-               reg->getUpdateNumber(), primary.data(), nextPrimary->data());
-            maxUpdateNumber = -1;    // error
+            char buf[1024];
+            sprintf(buf,
+                    "SipRegistrarServer::applyUpdatesToDirectory updates with mixed primaries"
+                    " updateNumber: %lld, primary1: %s, primary2: %s",
+                    reg->getUpdateNumber(), primary.data(), nextPrimary->data());
+            OsSysLog::add(FAC_SIP, PRI_ERR, buf);
+            *errorMsg = buf;
+            maxUpdateNumber = -1;    // indicate error
             break;
          }
       }
       maxUpdateNumber = updateOneBinding(reg, peer, imdb);
    }
 
-   // If we processed any updates, then garbage collect and persist the database.
+   // If we processed any updates and there were no errors, then garbage-collect
+   // and persist the database.
    if (maxUpdateNumber > 0)
    {
       int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
@@ -792,7 +799,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     {
         // osPrintf("SipRegistrarServer::handleMessage() - Start processing REGISTER Message\n");
         OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
-                "Start processing REGISTER Message\n" );
+                "Start processing REGISTER Message" );
 
         const SipMessage& message = *((SipMessageEvent&)eventMessage).getMessage();
         UtlString userKey, uri;
@@ -854,7 +861,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                     case REGISTER_QUERY:
                     {
                         OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
-                               "contact successfully added\n");
+                               "contact successfully added");
 
                         //create response - 200 ok reseponse
                         finalResponse.setOkResponseData(&message);
@@ -1005,7 +1012,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
            int finalMessageLen;
            finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
            OsSysLog::add( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
-                         "Sending final response\n%s\n", finalMessageStr.data());
+                         "Sending final response\n%s", finalMessageStr.data());
         }
         
         mSipUserAgent->send(finalResponse);
@@ -1032,7 +1039,7 @@ SipRegistrarServer::isAuthorized (
     if ( !mUseCredentialDB )
     {
         OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized() "
-                ":: No Credential DB - request is always AUTHORIZED\n" );
+                ":: No Credential DB - request is always AUTHORIZED" );
         isAuthorized = TRUE;
     }
     else
@@ -1042,7 +1049,7 @@ SipRegistrarServer::isAuthorized (
         // check if we requested authentication and this is the req with
         // authorization,validate the authorization
         OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized()"
-                ": fromUri='%s', toUri='%s', realm='%s' \n", fromUri.data(), toUrl.toString().data(), mRealm.data() );
+                ": fromUri='%s', toUri='%s', realm='%s' ", fromUri.data(), toUrl.toString().data(), mRealm.data() );
 
         UtlString requestNonce, requestRealm, requestUser, uriParam;
         int requestAuthIndex = 0;
@@ -1060,11 +1067,11 @@ SipRegistrarServer::isAuthorized (
                )
         {
            OsSysLog::add( FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
-                    "reqRealm='%s', reqUser='%s'\n", requestRealm.data() , requestUser.data());
+                    "reqRealm='%s', reqUser='%s'", requestRealm.data() , requestUser.data());
 
             if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive check that realm is correct
             {
-                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized() Realm Matches\n");
+                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized() Realm Matches");
 
                 // need the request URI to validate the nonce
                 UtlString reqUri;
@@ -1096,7 +1103,7 @@ SipRegistrarServer::isAuthorized (
                         {
                           OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                                         "SipRegistrarServer::isAuthorized() "
-                                        "response auth hash matches\n");
+                                        "response auth hash matches");
                         }
                       else
                         {
@@ -1190,7 +1197,7 @@ SipRegistrarServer::isValidDomain(
     if ( mValidDomains.contains(&lookupDomain) )
     {
         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                      "SipRegistrarServer::isValidDomain(%s) VALID\n",
+                      "SipRegistrarServer::isValidDomain(%s) VALID",
                       lookupDomain.data()) ;
         isValid = TRUE;
     }
@@ -1200,7 +1207,7 @@ SipRegistrarServer::isValidDomain(
        reqUri.getHostAddress(requestedDomain);
 
        OsSysLog::add(FAC_AUTH, PRI_WARNING,
-                     "SipRegistrarServer::isValidDomain('%s' == '%s') Invalid\n",
+                     "SipRegistrarServer::isValidDomain('%s' == '%s') Invalid",
                      requestedDomain.data(), lookupDomain.data()) ;
 
        UtlString responseText;
@@ -1238,7 +1245,7 @@ bool SipRegistrarServer::getNextUpdateToSend(RegistrarPeer *peer,
    OsLock lock(sLockMutex);
 
    intll peerSentDbUpdateNumber = peer->sentTo();
-   if (mDbUpdateNumber > peerSentDbUpdateNumber)    // if there are unsent updates
+   if (mDbUpdateNumber > peerSentDbUpdateNumber)    // if there might be updates to send
    {
       // Get the next update belonging to us (we're primary) that we haven't sent to
       // registrarName yet.
@@ -1246,9 +1253,11 @@ bool SipRegistrarServer::getNextUpdateToSend(RegistrarPeer *peer,
       int numBindings = imdb->getNextUpdateForRegistrar(primaryName(),
                                                         peerSentDbUpdateNumber,
                                                         bindings);
-      assert((numBindings > 0) &&
-             ((static_cast<int>(bindings.entries())) == numBindings));
-      isNewUpdate = true;
+      assert(static_cast<int>(bindings.entries()) == numBindings);
+      if (numBindings > 0)
+      {
+         isNewUpdate = true;
+      }
    }
 
    return isNewUpdate;

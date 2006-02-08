@@ -92,9 +92,10 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
             if ( RegistrarPeer::UnReachable == peer->synchronizationState() )
             {
                OsSysLog::add( FAC_SIP, PRI_DEBUG, "RegistrarTest SyncRpcReset::invoke(%s, %s)"
-                              ,sipRegistrar->primaryName().data(), peer->name()
-                             );
-               //:TODO: SyncRpcReset::invoke(sipRegistrar->primaryName(), *peer );
+                              ,sipRegistrar->primaryName().data(), peer->name());
+               RegistrarPeer::SynchronizationState state =
+                  SyncRpcReset::invoke(sipRegistrar->primaryName(), *peer);
+               peer->setState(state);
             }
          }
          
