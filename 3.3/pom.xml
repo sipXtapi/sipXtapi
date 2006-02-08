@@ -30,7 +30,7 @@
     </pluginManagement>
   </build>
   <properties>
-    <top.dir>.</top.dir>
+    <top.dir>${basedir}</top.dir>
     <top.build.dir>${top.dir}/build</top.build.dir>
   </properties>
 </project>
