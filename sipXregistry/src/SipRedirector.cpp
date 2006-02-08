@@ -70,7 +70,7 @@ SipRedirector::addContact(SipMessage& response,
    const char* contactString = contactUtlString.data();
    response.setContactField(contactString, numContactsInHeader);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   OsSysLog::add(FAC_SIP, PRI_INFO,
                  "SipRedirector::addContact Redirector '%s' maps '%s' to '%s'",
                  label, requestString.data(), contactString);
 }
@@ -82,7 +82,7 @@ SipRedirector::removeAllContacts(SipMessage& response)
    int numContactsInHeader =
       response.getCountHeaderFields(SIP_CONTACT_FIELD);
 
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+   OsSysLog::add(FAC_SIP, PRI_INFO,
                  "SipRedirector::removeAllContacts Removing %d contacts",
                  numContactsInHeader);
 

@@ -233,7 +233,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
              )
         {
            OsSysLog::add( FAC_SIP, PRI_WARNING,
-                          "SipRegistrarServer::applyRegisterToDirectory - processing '%s'\n",
+                          "SipRegistrarServer::applyRegisterToDirectory - processing '%s'",
                           registerContactStr.data()
                                );
             if ( registerContactStr.compareTo("*") != 0 ) // is contact == "*" ?
@@ -265,7 +265,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         returnStatus = REGISTER_INVALID_REQUEST;
                         OsSysLog::add( FAC_SIP, PRI_WARNING,
                                       "SipRegistrarServer::applyRegisterToDirectory"
-                                      " invalid expires parameter value '%s'\n",
+                                      " invalid expires parameter value '%s'",
                                       expireStr.data()
                                       );
                     }
@@ -310,7 +310,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         UtlString gruuDummy;
                         gruuPresent = registerContactURL.getUrlParameter( "gruu", gruuDummy );
                         OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                       "SipRegistrarServer::applyRegisterToDirectory instance ID = '%s'",
+                                       "SipRegistrarServer::applyRegisterToDirectory"
+                                       " instance ID = '%s'",
                                        instanceId.data());
 
                         // remove the parameter fields - they are not part of the contact itself
@@ -371,7 +372,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                            gruuValue->append("@");
                            gruuValue->append(mDefaultDomain);
                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                         "SipRegistrarServer::applyRegisterToDirectory gruu = '%s'",
+                                         "SipRegistrarServer::applyRegisterToDirectory "
+                                         "gruu = '%s'",
                                          gruuValue->data());
                         }
                         else
@@ -502,7 +504,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                 expirationTime = timeNow-1;
 
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                              "SipRegistrarServer::applyRegisterToDirectory - Expiring map %s->%s\n",
+                                              "SipRegistrarServer::applyRegisterToDirectory"
+                                              " - Expiring map %s->%s",
                                               registerToStr.data(), contact.data()
                                               );
                             }
@@ -515,7 +518,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                   ) + timeNow;
 
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                       "SipRegistrarServer::applyRegisterToDirectory - Adding map %s->%s\n",
+                                              "SipRegistrarServer::applyRegisterToDirectory"
+                                              " - Adding map %s->%s",
                                        registerToStr.data(), contact.data() );
                             }
 
@@ -543,7 +547,8 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     else
                     {
                         OsSysLog::add( FAC_SIP, PRI_ERR
-                                      ,"SipRegistrarServer::applyRegisterToDirectory contact count mismatch %d != %d"
+                                      ,"SipRegistrarServer::applyRegisterToDirectory "
+                                      "contact count mismatch %d != %d"
                                       ,contactIndexCount, numRegistrations
                                       );
                         returnStatus = REGISTER_QUERY;
@@ -611,7 +616,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
     {
         // osPrintf("SipRegistrarServer::handleMessage() - Start processing REGISTER Message\n");
         OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
-                "Start processing REGISTER Message\n" );
+                "Start processing REGISTER Message" );
 
         const SipMessage& message = *((SipMessageEvent&)eventMessage).getMessage();
         UtlString userKey, uri;
@@ -675,7 +680,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                     case REGISTER_QUERY:
                     {
                         OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage() - "
-                               "contact successfully added\n");
+                               "contact successfully added");
 
                         //create response - 200 ok reseponse
                         finalResponse.setOkResponseData(&message);
@@ -725,8 +730,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             int expires = ((UtlInt*)record.findValue(&expiresKey))->getValue();
                             expires = expires - timeNow;
 
-                            OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage - "
-                               "processing contact '%s'", contact.data());
+                            OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                                          "SipRegistrarServer::handleMessage - "
+                                          "processing contact '%s'", contact.data());
                             Url contactUri( contact );
 
                             char buffexpires[32];
@@ -735,8 +741,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             contactUri.setFieldParameter(SIP_EXPIRES_FIELD, buffexpires);
                             if ( !qvalue.isNull() && qvalue.compareTo(SPECIAL_IMDB_NULL_VALUE)!=0 )
                             {
-                               OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage - "
-                               "adding q '%s'", qvalue.data());
+                               OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                                             "SipRegistrarServer::handleMessage - "
+                                             "adding q '%s'", qvalue.data());
 
                                //check if q value is numeric and between the range 0.0 and 1.0
                                RegEx qValueValid(RegQValue); 
@@ -749,13 +756,18 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                             // Add the +sip.instance and gruu
                             // parameters if an instance ID is recorded.
                             UtlString* instance_id = dynamic_cast<UtlString*> (record.findValue(&instanceIdKey));
-                            OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage - value %p, instance_id %p, instanceIdKey = '%s'", 
+                            OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                                          "SipRegistrarServer::handleMessage"
+                                          " - value %p, instance_id %p, instanceIdKey = '%s'", 
                                            record.findValue(&instanceIdKey),
                                            instance_id, instanceIdKey.data());
                             if (instance_id && !instance_id->isNull() &&
                                 instance_id->compareTo(SPECIAL_IMDB_NULL_VALUE) !=0 )
                             {
-                               OsSysLog::add( FAC_SIP, PRI_DEBUG, "SipRegistrarServer::handleMessage - add instance '%s'", instance_id->data());
+                               OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                                             "SipRegistrarServer::handleMessage"
+                                             " - add instance '%s'",
+                                             instance_id->data());
                                contactUri.setFieldParameter("+sip.instance",
                                                             *instance_id);
                                // Prepend "sip:" to the GRUU, since it is stored
@@ -780,20 +792,24 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                     case REGISTER_LESS_THAN_MINEXPIRES:
                         //send 423 Registration Too Brief response
                         //must contain Min-Expires header field
-                        finalResponse.setResponseData(&message,SIP_TOO_BRIEF_CODE,SIP_TOO_BRIEF_TEXT);
+                        finalResponse.setResponseData(&message,
+                                                      SIP_TOO_BRIEF_CODE,SIP_TOO_BRIEF_TEXT);
                         finalResponse.setHeaderValue(SIP_MIN_EXPIRES_FIELD, mMinExpiresTimeStr, 0);
                         break;
 
                     case REGISTER_INVALID_REQUEST:
-                        finalResponse.setResponseData(&message,SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
+                        finalResponse.setResponseData(&message,
+                                                      SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
                         break;
 
                     case REGISTER_FORBIDDEN:
-                        finalResponse.setResponseData(&message,SIP_FORBIDDEN_CODE, SIP_FORBIDDEN_TEXT);
+                        finalResponse.setResponseData(&message,
+                                                      SIP_FORBIDDEN_CODE, SIP_FORBIDDEN_TEXT);
                         break;
 
                     case REGISTER_NOT_FOUND:
-                        finalResponse.setResponseData(&message,SIP_NOT_FOUND_CODE, SIP_NOT_FOUND_TEXT);
+                        finalResponse.setResponseData(&message,
+                                                      SIP_NOT_FOUND_CODE, SIP_NOT_FOUND_TEXT);
                         break;
 
                     default:
@@ -801,7 +817,9 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                                      "Invalid result %d from applyRegisterToDirectory",
                                      applyStatus
                                      );
-                        finalResponse.setResponseData(&message,SIP_SERVER_INTERNAL_ERROR_CODE, SIP_SERVER_INTERNAL_ERROR_TEXT);
+                        finalResponse.setResponseData(&message,
+                                                      SIP_SERVER_INTERNAL_ERROR_CODE,
+                                                      SIP_SERVER_INTERNAL_ERROR_TEXT);
                         break;
                 }
 
@@ -826,7 +844,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
            int finalMessageLen;
            finalResponse.getBytes(&finalMessageStr, &finalMessageLen);
            OsSysLog::add( FAC_SIP, PRI_DEBUG, "\n----------------------------------\n"
-                         "Sending final response\n%s\n", finalMessageStr.data());
+                         "Sending final response\n%s", finalMessageStr.data());
         }
         
         mSipUserAgent->send(finalResponse);
@@ -853,7 +871,7 @@ SipRegistrarServer::isAuthorized (
     if ( !mIsCredentialDB )
     {
         OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized() "
-                ":: No Credential DB - request is always AUTHORIZED\n" );
+                ":: No Credential DB - request is always AUTHORIZED" );
         isAuthorized = TRUE;
     }
     else
@@ -863,7 +881,8 @@ SipRegistrarServer::isAuthorized (
         // check if we requested authentication and this is the req with
         // authorization,validate the authorization
         OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized()"
-                ": fromUri='%s', toUri='%s', realm='%s' \n", fromUri.data(), toUrl.toString().data(), mRealm.data() );
+                      ": fromUri='%s', toUri='%s', realm='%s' ",
+                      fromUri.data(), toUrl.toString().data(), mRealm.data() );
 
         UtlString requestNonce, requestRealm, requestUser, uriParam;
         int requestAuthIndex = 0;
@@ -881,11 +900,11 @@ SipRegistrarServer::isAuthorized (
                )
         {
            OsSysLog::add( FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
-                    "reqRealm='%s', reqUser='%s'\n", requestRealm.data() , requestUser.data());
+                    "reqRealm='%s', reqUser='%s'", requestRealm.data() , requestUser.data());
 
             if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive check that realm is correct
             {
-                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized() Realm Matches\n");
+                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized() Realm Matches");
 
                 // need the request URI to validate the nonce
                 UtlString reqUri;
@@ -917,7 +936,7 @@ SipRegistrarServer::isAuthorized (
                         {
                           OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                                         "SipRegistrar::isAuthorized() "
-                                        "response auth hash matches\n");
+                                        "response auth hash matches");
                         }
                       else
                         {
@@ -936,9 +955,10 @@ SipRegistrarServer::isAuthorized (
                 }
                 else // nonce is not valid
                 {
-                    OsSysLog::add(FAC_AUTH, PRI_ERR,
+                    OsSysLog::add(FAC_AUTH, PRI_INFO,
                                   "Invalid nonce for '%s'\nnonce='%s'\ncallId='%s'\nreqUri='%s'",
-                                  identity.data(), requestNonce.data(), callId.data(), reqUri.data());
+                                  identity.data(), requestNonce.data(),
+                                  callId.data(), reqUri.data());
                 }
             }
             requestAuthIndex++;
@@ -977,7 +997,7 @@ SipRegistrarServer::addValidDomain(const UtlString& host, int port)
    sprintf(explicitPort,":%d", PORT_NONE==port ? SIP_PORT : port );
    valid->append(explicitPort);
    
-   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::addValidDomain(%s)\n",valid->data()) ;
+   OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::addValidDomain(%s)",valid->data()) ;
 
    mValidDomains.insert(valid);
 }
@@ -1011,7 +1031,7 @@ SipRegistrarServer::isValidDomain(
     if ( mValidDomains.contains(&lookupDomain) )
     {
         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                      "SipRegistrarServer::isValidDomain(%s) VALID\n",
+                      "SipRegistrarServer::isValidDomain(%s) VALID",
                       lookupDomain.data()) ;
         isValid = TRUE;
     }
@@ -1021,7 +1041,7 @@ SipRegistrarServer::isValidDomain(
        reqUri.getHostAddress(requestedDomain);
 
        OsSysLog::add(FAC_AUTH, PRI_WARNING,
-                     "SipRegistrarServer::isValidDomain('%s' == '%s') Invalid\n",
+                     "SipRegistrarServer::isValidDomain('%s' == '%s') Invalid",
                      requestedDomain.data(), lookupDomain.data()) ;
 
        UtlString responseText;

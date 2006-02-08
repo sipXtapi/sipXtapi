@@ -1818,7 +1818,11 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
             // there is no parent server transaction should get dispatched
             else if(mpParentTransaction == NULL)
             {
-                OsSysLog::add(FAC_SIP, PRI_CRIT,
+               // xmlscott: despite the comment above, this happens a lot, 
+               //           and seems to not always be bad,
+               //           so I'm changing the priority to get it out of
+               //           the logs.
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                               "SipTransaction::handleChildIncoming "
                               "%d response with parent client transaction NOT dispatched",
                               responseCode);
@@ -2021,7 +2025,8 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 // occur.  For now log some noise and
                 // drop the delayed response, if this ever
                 // occurs
-                OsSysLog::add(FAC_SIP, PRI_CRIT,
+                // xmlscott: lowered priority 
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "sipTransaction::handleChildIncoming %p dropping delayed response", this);
                 delete delayedDispatchedMessage;
                 delayedDispatchedMessage = NULL;
@@ -3298,7 +3303,7 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
 {
     if(delayedDispatchedMessage)
     {
-        OsSysLog::add(FAC_SIP, PRI_CRIT,
+        OsSysLog::add(FAC_SIP, PRI_DEBUG,
                       "SipTransaction::handleIncoming delayedDispatchedMessage not NULL");
         delayedDispatchedMessage = NULL;
     }
