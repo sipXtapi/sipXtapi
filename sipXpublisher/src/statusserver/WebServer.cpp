@@ -165,6 +165,8 @@ void WebServer::initWebServer( HttpServer* pHttpServer )
     }
     else 
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR, "WebServer::couldn't add requests") ;
+        OsSysLog::add(FAC_SIP, PRI_CRIT,
+                      "WebServer::initWebServer no http server passed - requests not added"
+                      ) ;
     }
 }
