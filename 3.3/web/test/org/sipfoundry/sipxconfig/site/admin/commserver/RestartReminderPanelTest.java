@@ -15,7 +15,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.tapestry.test.AbstractInstantiator;
+import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
@@ -26,12 +26,12 @@ public class RestartReminderPanelTest extends TestCase {
         Process.AUTH_PROXY, Process.PRESENCE_SERVER
     };
 
-    private AbstractInstantiator m_pageMaker = new AbstractInstantiator();
+    private Creator m_pageMaker = new Creator();
     private RestartReminderPanel m_restartReminder;
 
     protected void setUp() throws Exception {
         m_restartReminder = (RestartReminderPanel) m_pageMaker
-                .getInstance(RestartReminderPanel.class);
+                .newInstance(RestartReminderPanel.class);
     }
 
     public void testGetProcessesToRestartLater() {

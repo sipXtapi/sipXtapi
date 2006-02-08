@@ -1,82 +1,61 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification
-      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
-	<!--
+  <!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="dialPlanContext" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
-    	initial-value="global.dialPlanContext"/>
-
-    <property-specification name="ruleId" 
-		type="java.lang.Integer"
-        persistent="yes">
-    </property-specification>    
-    
-    <property-specification name="rule" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
-    </property-specification>
-    
-    <!-- not used on this page -->
-	<property-specification name="removeGateways" 
-		type="java.lang.String"/>
-
-    <property-specification name="callback" 
-    	type="org.apache.tapestry.callback.ICallback"
-     	persistent="yes"/>
-    
-    <!--
+  <inject property="dialPlanContext" object="spring:dialPlanContext"/>
+  <inject property="validRule" object="spring:validRule"/>
+  <property name="ruleId"  persist="session">
+  </property>
+  <property name="rule" >
+  </property>
+  <!-- not used on this page -->
+  <property name="removeGateways" />
+  <property name="callback"  persist="session"/>
+  <!--
      - B E A N S
      -->
-    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    
-    <!--
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <!--
      - C O M P O N E N T S
      -->
-    <component id="form" type="Form">
-        <binding name="delegate" expression="beans.validator"/>
-        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
-    </component>
-    
-	<component id="common" type="ItemCommon">
-        <binding name="item" expression="rule"/>
-    </component>
-    
-    <component id="extensionLenLabel" type="FieldLabel">
-        <binding name="field" expression="components.extensionLen"/>
-    </component>
-    <component id="extensionLen" type="contrib:NumericField">
-        <binding name="value" expression="rule.localExtensionLen"/>
-        <binding name="minimum" expression="1"/>
-        <binding name="maximum" expression="99"/>
-        <binding name="required" expression="true"/>
-        <static-binding name="type" value="int"/>
-        <message-binding name="displayName" key="label.extensionLen"/>
-    </component>
-    
-    <component id="voiceMailLabel" type="FieldLabel">
-        <binding name="field" expression="components.voiceMail"/>
-    </component>
-    <component id="voiceMail" type="ValidField">
-        <binding name="value" expression="rule.voiceMail"/>
-        <binding name="validator" expression="global.validPhone"/>
-        <message-binding name="displayName" key="label.voiceMail"/>
-    </component>
-        
-    <component id="voiceMailPrefixLabel" type="FieldLabel">
-        <binding name="field" expression="components.voiceMailPrefix"/>
-    </component>
-    <component id="voiceMailPrefix" type="ValidField">
-        <binding name="value" expression="rule.voiceMailPrefix"/>
-        <binding name="validator" expression="global.validPhone"/>
-        <message-binding name="displayName" key="label.voiceMailPrefix"/>
-    </component>
-
-    <component id="formActions" type="FormActions">
-        <binding name="callback" expression="callback"/>
-        <binding name="listener" expression="listeners.commit"/>
-    </component>    
-
+  <component id="form" type="Form">
+    <binding name="delegate" value="beans.validator"/>
+    <binding name="listener" value="spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+  </component>
+  <component id="common" type="ItemCommon">
+    <binding name="item" value="rule"/>
+  </component>
+  <component id="extensionLenLabel" type="FieldLabel">
+    <binding name="field" value="components.extensionLen"/>
+  </component>
+  <component id="extensionLen" type="contrib:NumericField">
+    <binding name="value" value="rule.localExtensionLen"/>
+    <binding name="minimum" value="1"/>
+    <binding name="maximum" value="99"/>
+    <binding name="required" value="true"/>
+    <binding name="type" value="literal:int"/>
+    <binding name="displayName" value="message:label.extensionLen"/>
+  </component>
+  <component id="voiceMailLabel" type="FieldLabel">
+    <binding name="field" value="components.voiceMail"/>
+  </component>
+  <component id="voiceMail" type="ValidField">
+    <binding name="value" value="rule.voiceMail"/>
+    <binding name="validator" value="spring:validPhone"/>
+    <binding name="displayName" value="message:label.voiceMail"/>
+  </component>
+  <component id="voiceMailPrefixLabel" type="FieldLabel">
+    <binding name="field" value="components.voiceMailPrefix"/>
+  </component>
+  <component id="voiceMailPrefix" type="ValidField">
+    <binding name="value" value="rule.voiceMailPrefix"/>
+    <binding name="validator" value="spring:validPhone"/>
+    <binding name="displayName" value="message:label.voiceMailPrefix"/>
+  </component>
+  <component id="formActions" type="FormActions">
+    <binding name="callback" value="callback"/>
+    <binding name="listener" value="listeners.commit"/>
+  </component>
 </page-specification>

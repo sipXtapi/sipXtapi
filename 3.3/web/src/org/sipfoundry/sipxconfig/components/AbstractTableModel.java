@@ -18,7 +18,7 @@ import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumnModel;
 import org.apache.tapestry.contrib.table.model.ITableModel;
 import org.apache.tapestry.contrib.table.model.common.BasicTableModelWrap;
-import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
+import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumnModel;
 
 public abstract class AbstractTableModel implements IBasicTableModel {
@@ -57,16 +57,18 @@ public abstract class AbstractTableModel implements IBasicTableModel {
         return m_wrappedTableModel;        
     }
     
-    public static class OrderByTableColumn extends ExpressionTableColumn {
+    public static class OrderByTableColumn extends SimpleTableColumn {
         private String m_orderBy;
         
         public OrderByTableColumn(String name, String expression, String orderBy) {
-            super(name, expression, true);
+            super(name, true);
+            //super(name, expression, true);
             m_orderBy = orderBy;            
         }
         
         public OrderByTableColumn(String name, String expression) {
-            super(name, expression, false);
+            super(name, false);
+            //super(name, expression, false);
         }
         
         public String getOrderBy() {

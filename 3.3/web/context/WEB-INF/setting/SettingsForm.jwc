@@ -1,65 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE component-specification PUBLIC
-  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-
-<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingsForm"
-    allow-body="no"
-    allow-informal-parameters="no">
-    
-    <description>Form to configure set of settings</description>
-    
-    <parameter name="settings"
-        required="yes"
-        type="org.sipfoundry.sipxconfig.setting.Setting"
-        direction="auto">
-    </parameter>
-    <parameter name="cancelListener"
-        required="yes"
-        type="org.apache.tapestry.IActionListener"
-        direction="in">
-    </parameter>
-    <parameter name="okListener"
-        type="org.apache.tapestry.IActionListener"
-        required="no"
-        direction="in"
-        default-value="null">
-    </parameter>
-    <parameter name="applyListener"
-        required="yes"
-        type="org.apache.tapestry.IActionListener"
-        direction="in">
-    </parameter>    
-    <parameter name="validator" 
-    	required="yes"
-    	direction="auto" 
-    	type="org.apache.tapestry.valid.IValidationDelegate"/>
-
-    <property-specification name="action" type="org.apache.tapestry.IActionListener"/>    
-    
-    <component id="settingsForm" type="Form">
-        <binding name="delegate" expression="validator"/>
-        <binding name="listener" expression="listeners.formSubmit"/>
-    </component>
-    <component id="ifRenderOk" type="contrib:FormConditional">
-        <binding name="condition" expression="okListener != null"/>
-    </component>
-    
-    <component id="settingsFieldset" type="SettingsFieldset">
-        <binding name="settings" expression="settings"/>
-    </component>
-    
-    <component id="cancel" type="Submit">
-        <binding name="selected" expression="action"/>
-        <binding name="tag" expression="cancelListener"/>
-    </component>
-    <component id="apply" type="Submit">
-        <binding name="selected" expression="action"/>
-        <binding name="tag" expression="applyListener"/>
-    </component>
-    <component id="ok" type="Submit">
-        <binding name="selected" expression="action"/>
-        <binding name="tag" expression="okListener"/>
-    </component>
-    
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingsForm" allow-body="no" allow-informal-parameters="no">
+  <description>Form to configure set of settings</description>
+  <parameter name="settings" required="yes"  >
+  </parameter>
+  <parameter name="cancelListener" required="yes"  >
+  </parameter>
+  <parameter name="okListener"  required="no"  default-value="null">
+  </parameter>
+  <parameter name="applyListener" required="yes"  >
+  </parameter>
+  <parameter name="validator" required="yes"  />
+  <property name="action" />
+  <component id="settingsForm" type="Form">
+    <binding name="delegate" value="validator"/>
+    <binding name="listener" value="listeners.formSubmit"/>
+  </component>
+  <component id="ifRenderOk" type="If">
+    <binding name="condition" value="okListener != null"/>
+  </component>
+  <component id="settingsFieldset" type="SettingsFieldset">
+    <binding name="settings" value="settings"/>
+  </component>
+  <component id="cancel" type="Submit">
+    <binding name="selected" value="action"/>
+    <binding name="tag" value="cancelListener"/>
+  </component>
+  <component id="apply" type="Submit">
+    <binding name="selected" value="action"/>
+    <binding name="tag" value="applyListener"/>
+  </component>
+  <component id="ok" type="Submit">
+    <binding name="selected" value="action"/>
+    <binding name="tag" value="okListener"/>
+  </component>
 </component-specification>

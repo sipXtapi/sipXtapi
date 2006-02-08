@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.site.BeanFactoryGlobals;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
 import org.sipfoundry.sipxconfig.site.gateway.GatewaysPanel;
 import org.sipfoundry.sipxconfig.site.gateway.SelectGateways;
@@ -60,6 +59,10 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
     public abstract ICallback getCallback();
 
     public abstract void setCallback(ICallback callback);
+    
+    public abstract void setValidRule(RuleValidator validator);
+
+    public abstract RuleValidator getValidRule();
 
     public Permission[] getCallHandlingPermissions() {
         return Permission.CALL_HANDLING.getChildren();
@@ -129,10 +132,8 @@ public abstract class EditDialRule extends BasePage implements PageRenderListene
 
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
-        AbstractComponent component = (AbstractComponent) getComponent("common");
-        // TODO: check if it can be changed to page bean
-        BeanFactoryGlobals globals = (BeanFactoryGlobals) getGlobal();
-        RuleValidator ruleValidator = (RuleValidator) globals.get("validRule");
+        AbstractComponent component = (AbstractComponent) getComponent("common");       
+        RuleValidator ruleValidator = getValidRule();        
         ruleValidator.validate(getRule(), delegate, (IFormComponent) component
                 .getComponent("enabled"));
         return !delegate.getHasErrors();

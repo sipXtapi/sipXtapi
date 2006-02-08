@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import org.apache.tapestry.ApplicationRuntimeException;
+import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;

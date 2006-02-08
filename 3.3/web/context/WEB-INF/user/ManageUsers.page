@@ -1,67 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC
-  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.user.ManageUsers">
-    <description>add a description</description>
-    
-	<!--
+  <description>add a description</description>
+  <!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="coreContext" 
-		type="org.sipfoundry.sipxconfig.common.CoreContext" 
-    	initial-value="global.coreContext"/> 
-	<property-specification name="groupId"
-        persistent="yes" 
-		type="java.lang.Integer"/>
-	<property-specification name="queryText"
-        persistent="yes" 
-		type="java.lang.String"/>
-	<property-specification name="searchMode"
-        persistent="yes" 
-		type="boolean"/>
-
-    <!--
+  <inject property="coreContext" object="spring:coreContext"/>
+  <property name="groupId" persist="session" />
+  <property name="queryText" persist="session" />
+  <property name="searchMode" persist="session" />
+  <!--
 	  - B E A N S
 	  -->
-        
-	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    <bean name="noopValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    	<set-property name="required" expression="false"/>
-	    <set-property name="minimumLength" expression="0"/>
-	</bean>    
-    
-	<!--
+  <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="noopValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
+    <set name="required" value="literal:false"/>
+    <set name="minimumLength" value="literal:0"/>
+  </bean>
+  <!--
 	  - C O M P O N E N T S
 	  -->
-    
-    <component id="addUser" type="DirectLink">
-        <binding name="listener" expression="listeners.addUser"/>
-    </component>
-	<component id="userManagement" type="Form">
-        <binding name="delegate" expression="beans.validator"/>
-    </component>
-    <component id="groupFilter" type="GroupFilter">
-        <binding name="selectedGroupId" expression="groupId"/>
-        <binding name="groups" expression="coreContext.groups"/>
-		<binding name="queryText" expression="queryText"/>
-        <binding name="searchMode" expression="searchMode"/>        
-    </component>
-	<component id="userTable" type="UserTable">
-        <binding name="userListener" expression="listeners.editUser"/>
-        <binding name="groupId" expression="groupId"/>
-        <binding name="searchString" expression="queryText"/>
-        <binding name="searchMode" expression="searchMode"/>
-	</component>
-    <component id="delete" type="Submit">
-        <binding name="listener" expression="listeners.deleteUsers"/>
-        <message-binding name="label" key="label.delete"/>        
-    </component>
-    <component id="groupActions" type="GroupActions">
-        <binding name="actionModel" expression="actionModel"/>
-        <binding name="selectedIds" expression="components.userTable.selections.allSelected"/>
-    </component>
-            
+  <component id="addUser" type="DirectLink">
+    <binding name="listener" value="listeners.addUser"/>
+  </component>
+  <component id="userManagement" type="Form">
+    <binding name="delegate" value="beans.validator"/>
+  </component>
+  <component id="groupFilter" type="GroupFilter">
+    <binding name="selectedGroupId" value="groupId"/>
+    <binding name="groups" value="coreContext.groups"/>
+    <binding name="queryText" value="queryText"/>
+    <binding name="searchMode" value="searchMode"/>
+  </component>
+  <component id="userTable" type="UserTable">
+    <binding name="userListener" value="listeners.editUser"/>
+    <binding name="groupId" value="groupId"/>
+    <binding name="searchString" value="queryText"/>
+    <binding name="searchMode" value="searchMode"/>
+  </component>
+  <component id="delete" type="Submit">
+    <binding name="listener" value="listeners.deleteUsers"/>
+    <binding name="label" value="message:label.delete"/>
+  </component>
+  <component id="groupActions" type="GroupActions">
+    <binding name="actionModel" value="actionModel"/>
+    <binding name="selectedIds" value="components.userTable.selections.allSelected"/>
+  </component>
 </page-specification>

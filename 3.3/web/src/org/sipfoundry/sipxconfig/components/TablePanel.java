@@ -75,7 +75,7 @@ public abstract class TablePanel extends BaseComponent {
     private void safeSetChanged() {
         IBinding changed = getChangedBinding();
         if (changed != null) {
-            changed.setBoolean(true);
+            changed.setObject(Boolean.TRUE);
         }
     }
 

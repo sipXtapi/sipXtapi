@@ -1,87 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC
-  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.EditPhoneDefaults">
-    <description>add a description</description>
-    
-	<!--
+  <description>add a description</description>
+  <!--
 	  - P R O P E R T I E S
-	  -->    
-    <!-- Persistent -->
-    <property-specification name="phoneModel" 
-        persistent="yes"
-        type="org.sipfoundry.sipxconfig.phone.PhoneModel"/>
-    <property-specification name="editFormSettingName" 
-        persistent="yes"
-        type="java.lang.String"/>
-    <property-specification name="resourceId" 
-        persistent="yes"
-        type="int"/>
-    <property-specification name="groupId"
-        type="java.lang.Integer"
-        persistent="yes"/>
-    <!-- Transient -->
-	<property-specification name="settingDao" 
-		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
-    	initial-value="global.settingDao"/>    
-	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-    	initial-value="global.phoneContext"/>    
-    <property-specification name="currentNavigationSetting" 
-        type="org.sipfoundry.sipxconfig.setting.Setting"/>
-    <property-specification name="currentEditFormSetting" 
-        type="org.sipfoundry.sipxconfig.setting.Setting"/>
-    <property-specification name="phone" 
-        type="org.sipfoundry.sipxconfig.phone.Phone"/>
-    <property-specification name="group"
-        type="org.sipfoundry.sipxconfig.setting.Group"/>
-    <property-specification name="editFormSetting"
-        type="org.sipfoundry.sipxconfig.setting.Setting"/>
-    <property-specification name="editFormSettings" 
-        type="java.util.Collection"/>    
-    <!-- B E A N S -->
-    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    <!--
+	  -->
+  <!-- Persistent -->
+  <property name="phoneModel" persist="session" />
+  <property name="editFormSettingName" persist="session" />
+  <property name="resourceId" persist="session" />
+  <property name="groupId"  persist="session"/>
+  <!-- Transient -->
+  <inject property="settingDao" object="spring:settingDao"/>
+  <inject property="phoneContext" object="spring:phoneContext"/>
+  <property name="currentNavigationSetting" />
+  <property name="currentEditFormSetting" />
+  <property name="phone" />
+  <property name="group" />
+  <property name="editFormSetting" />
+  <property name="editFormSettings" />
+  <!-- B E A N S -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <!--
      - C O M P O N E N T S
-     -->    
-    <component id="settingsHeading" type="Insert">
-        <binding name="value" expression="editFormSetting.label"/>
-    </component>
-    <component id="phoneDefaultsNavigationDescription" type="Insert">
-        <binding name="value" expression="editFormSetting.description"/>
-    </component>        
-    <component id="phoneSettingsLabel" type="Insert">
-        <binding name="value" expression="currentNavigationSetting.label"/>
-    </component>    
-    <component id="phoneSettings" type="Foreach">
-        <binding name="source" expression="phoneNavigationSettings"/>
-        <binding name="value" expression="currentNavigationSetting"/>
-    </component>
-    <component id="lineSettings" type="Foreach">
-        <binding name="source" expression="lineNavigationSettings"/>
-        <binding name="value" expression="currentNavigationSetting"/>
-    </component>
-    <component id="phoneSettingsLink" type="ActionLink">
-        <binding name="listener" expression="listeners.editPhoneSettings"/>
-    </component>    
-    <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
-    </component>    
-    <component id="lineSettingsLink" type="ActionLink">
-        <binding name="listener" expression="listeners.editLineSettings"/>
-    </component>  
-    <!-- Edit form -->  
-    <component id="settingsForm" type="SettingsForm">
-        <binding name="validator" expression="beans.validator"/>
-        <binding name="applyListener" expression="listeners.apply"/>
-        <binding name="okListener" expression="listeners.ok"/>
-        <binding name="cancelListener" expression="listeners.cancel"/>
-        <binding name="settings" expression="editFormSetting"/>
-    </component>
-    <component id="groupLabel" type="GroupLabel">
-        <binding name="group" expression="group"/>
-    </component>    
-    <component id="modelLabel" type="Insert">
-        <binding name="value" expression="phone.model.label"/>
-    </component>
+     -->
+  <component id="settingsHeading" type="Insert">
+    <binding name="value" value="editFormSetting.label"/>
+  </component>
+  <component id="phoneDefaultsNavigationDescription" type="Insert">
+    <binding name="value" value="editFormSetting.description"/>
+  </component>
+  <component id="phoneSettingsLabel" type="Insert">
+    <binding name="value" value="currentNavigationSetting.label"/>
+  </component>
+  <component id="phoneSettings" type="For">
+    <binding name="source" value="phoneNavigationSettings"/>
+    <binding name="value" value="currentNavigationSetting"/>
+  </component>
+  <component id="lineSettings" type="For">
+    <binding name="source" value="lineNavigationSettings"/>
+    <binding name="value" value="currentNavigationSetting"/>
+  </component>
+  <component id="phoneSettingsLink" type="ActionLink">
+    <binding name="listener" value="listeners.editPhoneSettings"/>
+  </component>
+  <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
+  </component>
+  <component id="lineSettingsLink" type="ActionLink">
+    <binding name="listener" value="listeners.editLineSettings"/>
+  </component>
+  <!-- Edit form -->
+  <component id="settingsForm" type="SettingsForm">
+    <binding name="validator" value="beans.validator"/>
+    <binding name="applyListener" value="listeners.apply"/>
+    <binding name="okListener" value="listeners.ok"/>
+    <binding name="cancelListener" value="listeners.cancel"/>
+    <binding name="settings" value="editFormSetting"/>
+  </component>
+  <component id="groupLabel" type="GroupLabel">
+    <binding name="group" value="group"/>
+  </component>
+  <component id="modelLabel" type="Insert">
+    <binding name="value" value="phone.model.label"/>
+  </component>
 </page-specification>

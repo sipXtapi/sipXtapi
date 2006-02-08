@@ -15,7 +15,6 @@ Args=""
 # (or end user I suppose) can override
 : ${SslDir:=@sipxpbx.conf.dir@/ssl}
 : ${AuthoritiesDir:=$SslDir/authorities}
-: ${JavaCmd:=`@bin.dir@/sipx-config --java`}
 : ${ConfigDefs:=@sipxpbx.conf.dir@/config.defs}
 : ${Configpp:=@bin.dir@/configpp}
 : ${ConfigFiles:=@sipxpbx.conf.dir@/sipxconfig.properties @sipxpbx.conf.dir@/topology.xml}
@@ -32,6 +31,18 @@ Args=""
 
 Database=SIPXCONFIG
 RequiredDatabaseVersion=2
+
+javaCommand() {
+  if [ -z "$JAVA_HOME" ]; then
+    cmd="$JAVA_HOME/bin/java"
+    if [ -f "$cmd" ]; then
+        return cmd
+    fi
+  fi
+  return "java"
+}
+
+: ${JavaCmd:=javaCommand}
 
 # This function determines the correct service name for Postgres.
 postgresService() {
@@ -159,8 +170,8 @@ onWebUi() {
     makeRestoreBackup @sipxpbx.conf.dir@/status-config.in
     makeRestoreBackup @sipxpbx.conf.dir@/authproxy-config.in
 
-    createAuthoritiesTruststore
-    @bin.dir@/ssl-cert/create-ssl-keystore.sh
+    # createAuthoritiesTruststore
+    # @bin.dir@/ssl-cert/create-ssl-keystore.sh
     
     JavaOpts="-server $SIPXCONFIG_OPTS"
 

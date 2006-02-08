@@ -16,15 +16,15 @@ import junit.framework.TestCase;
 import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.test.AbstractInstantiator;
+import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
 
 public class OptionalElementTest extends TestCase {
-    private AbstractInstantiator m_maker = new AbstractInstantiator();
+    private Creator m_maker = new Creator();
     private OptionalElement m_oe;
 
     protected void setUp() throws Exception {
-        m_oe = (OptionalElement) m_maker.getInstance(OptionalElement.class);
+        m_oe = (OptionalElement) m_maker.newInstance(OptionalElement.class);
     }
 
     public void testRender() throws Exception {

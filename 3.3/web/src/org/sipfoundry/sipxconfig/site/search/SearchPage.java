@@ -15,8 +15,8 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.IExternalPage;
-import org.apache.tapestry.IMessages;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
@@ -92,14 +92,14 @@ public abstract class SearchPage extends BasePage implements IExternalPage, Page
      * @return name for the class of found item or label.default.type
      */
     public String getResultItemType() {
-        IMessages messages = getMessages();
+        Messages messages = getMessages();
         BeanAdaptor.Identity item = getResultItem();
         for (Class k = item.getBeanClass(); k != Object.class; k = k.getSuperclass()) {
-            String typeName = messages.getMessage(k.getName(), null);
+            String typeName = TapestryUtils.getMessage(messages, k.getName(), null);
             if (typeName != null) {
                 return typeName;
             }
         }
-        return getMessage("label.default.type");
+        return getMessages().getMessage("label.default.type");
     }
 }

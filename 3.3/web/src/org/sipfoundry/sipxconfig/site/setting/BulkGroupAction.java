@@ -13,8 +13,8 @@ package org.sipfoundry.sipxconfig.site.setting;
 
 import java.util.Collection;
 
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.IActionListener;
-import org.apache.tapestry.IMessages;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -56,7 +56,7 @@ public abstract class BulkGroupAction implements OptionAdapter, IActionListener 
         return getClass().getName() + m_group.getId();
     }
 
-    public String getSuccessMsg(IMessages messages_) {
+    public String getSuccessMsg(Messages messages_) {
         // TODO: use global message repository...
         // messages_.getMessage("msg.actionSuccess");
         return "Operation completed successfully";

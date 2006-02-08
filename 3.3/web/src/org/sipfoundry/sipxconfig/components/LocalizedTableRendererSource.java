@@ -12,7 +12,7 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.IMessages;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.IRender;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
@@ -24,14 +24,14 @@ import org.apache.tapestry.valid.RenderString;
 public final class LocalizedTableRendererSource implements ITableRendererSource {
     private static final String PREFIX_SEPARATOR = ".";
 
-    private final IMessages m_messages;
+    private final Messages m_messages;
     private final String m_prefix;
 
-    public LocalizedTableRendererSource(IMessages messages) {
+    public LocalizedTableRendererSource(Messages messages) {
         this(messages, null);
     }
 
-    public LocalizedTableRendererSource(IMessages messages, String prefix) {
+    public LocalizedTableRendererSource(Messages messages, String prefix) {
         m_messages = messages;
         m_prefix = (prefix == null) ? StringUtils.EMPTY : prefix + PREFIX_SEPARATOR;
     }
@@ -46,7 +46,12 @@ public final class LocalizedTableRendererSource implements ITableRendererSource 
         }
 
         String key = m_prefix + objValue;
-        String strValue = m_messages.getMessage(key, objValue.toString());
+        
+        // PORT: 
+        //    getMessage(key, objValue.toString())
+        //  Cannot safely tell if a key wasn't found.  
+        String strValue = m_messages.getMessage(key);
+        
         return new RenderString(strValue);
     }
 }

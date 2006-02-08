@@ -18,10 +18,10 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.ExpressionTableColumn;
 
 public class UserTableModelTest extends TestCase {
 

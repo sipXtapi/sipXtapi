@@ -16,8 +16,6 @@ import java.io.File;
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.engine.IEngineService;
-import org.apache.tapestry.engine.ILink;
 
 /**
  * Link that allows for dwonlaoding files from web server
@@ -38,12 +36,15 @@ public abstract class DownloadLink extends AbstractComponent {
             return;
         }
 
-        IEngineService srv = cycle.getEngine().getService(DownloadService.SERVICE_NAME);
-        ILink lnk = srv.getLink(cycle, this, new Object[] {
-            file.getAbsolutePath(), getContentType()
-        });
+//        IEngineService srv = cycle.getEngine().getService(DownloadService.SERVICE_NAME);
+//        ILink lnk = srv.getLink(cycle, this, new Object[] {
+//            file.getAbsolutePath(), getContentType()
+//        });
         w.begin("a");
-        w.attribute("href", lnk.getURL());
+        
+//        w.attribute("href", lnk.getURL());
+        w.attribute("href", "todo");
+      
         renderInformalParameters(w, cycle);
         renderBody(w, cycle);
         w.end();

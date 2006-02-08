@@ -17,7 +17,6 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
-import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
@@ -26,6 +25,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
+import org.sipfoundry.sipxconfig.components.ExpressionTableColumn;
 import org.sipfoundry.sipxconfig.components.LocalizedTableRendererSource;
 
 public abstract class Services extends BasePage implements PageRenderListener {
@@ -57,7 +57,7 @@ public abstract class Services extends BasePage implements PageRenderListener {
 
     public ITableColumn getStatusColumn() {
         ExpressionTableColumn column = new ExpressionTableColumn(STATUS_COLUMN,
-                getMessage(STATUS_COLUMN), "status.name", true);
+                getMessages().getMessage(STATUS_COLUMN), "status.name", true);
         ITableRendererSource rendererSource = new LocalizedTableRendererSource(getMessages(),
                 STATUS_COLUMN);
         column.setValueRendererSource(rendererSource);

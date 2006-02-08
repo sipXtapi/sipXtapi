@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.test.AbstractInstantiator;
+import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 
@@ -22,11 +22,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
  * SelectRuleTypeTest
  */
 public class SelectRuleTypeTest extends TestCase {
-    private AbstractInstantiator m_pageMaker = new AbstractInstantiator();
+    private Creator m_pageMaker = new Creator();
     private SelectRuleType m_selectRuleType;
 
     protected void setUp() throws Exception {
-        m_selectRuleType = (SelectRuleType) m_pageMaker.getInstance(SelectRuleType.class);
+        m_selectRuleType = (SelectRuleType) m_pageMaker.newInstance(SelectRuleType.class);
     }
 
     public void testNext() {
@@ -39,7 +39,7 @@ public class SelectRuleTypeTest extends TestCase {
     }
 
     private void verifyPage(DialingRuleType type, String pageName) {
-        EditDialRule page = (EditDialRule) m_pageMaker.getInstance(EditDialRule.class);
+        EditDialRule page = (EditDialRule) m_pageMaker.newInstance(EditDialRule.class);
         page.setRuleId(new Integer(0));
 
         m_selectRuleType.setRuleType(type);

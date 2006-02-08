@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.site.setting;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.test.AbstractInstantiator;
+import org.apache.tapestry.test.Creator;
 import org.apache.tapestry.valid.IValidator;
 import org.apache.tapestry.valid.PatternValidator;
 import org.apache.tapestry.valid.StringValidator;
@@ -30,7 +30,7 @@ public class SettingEditorTest extends TestCase {
     private SettingEditor m_editor;
 
     protected void setUp() throws Exception {
-        m_editor = (SettingEditor) new AbstractInstantiator().getInstance(SettingEditor.class);
+        m_editor = (SettingEditor) new Creator().newInstance(SettingEditor.class);
     }
 
     public void testValidatorForInteger() {

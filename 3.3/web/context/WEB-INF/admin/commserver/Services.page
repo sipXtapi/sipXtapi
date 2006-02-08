@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC
-  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+  "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 
 <page-specification class="org.sipfoundry.sipxconfig.site.admin.commserver.Services">
     <description>Manage services</description>
@@ -9,17 +9,15 @@
 	<!--
 	  - P R O P E R T I E S
 	  -->    
-    <property-specification name="sipxProcessContext" 
-    	type="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext" 
-    	initial-value="global.sipxProcessContext"/>
-	<property-specification name="selections" 
+    <inject property="sipxProcessContext" object="spring:sipxProcessContext"/>
+	<property name="selections" 
     	type="org.sipfoundry.sipxconfig.components.SelectMap"
     	initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>  	
-	<property-specification name="servicesToStart" type="java.util.Collection"/>    
-	<property-specification name="servicesToStop" type="java.util.Collection"/>    
-	<property-specification name="servicesToRestart" type="java.util.Collection"/>
+	<property name="servicesToStart" />    
+	<property name="servicesToStop" />    
+	<property name="servicesToRestart" />
     
-    <property-specification name="serviceLocation" type="org.sipfoundry.sipxconfig.admin.commserver.Location"/>    
+    <property name="serviceLocation" />    
     
 	<!--
 	  - B E A N S
@@ -27,8 +25,8 @@
     <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="page"/>
     
     <bean name="locationModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="request">
-        <set-property name="array" expression="sipxProcessContext.locations"/>
-        <set-property name="labelExpression" expression="'id'"/>
+        <set name="array" value="literal:sipxProcessContext.locations"/>
+        <set name="labelExpression" value="literal:'id'"/>
     </bean>
     
     <bean name="statusConvertor" class="org.sipfoundry.sipxconfig.site.admin.commserver.Services$StatusConvertor" lifecycle="page"/>
@@ -39,50 +37,50 @@
 	  - C O M P O N E N T S
 	  -->
 	<component id="form" type="Form">
-        <binding name="listener" expression="listeners.formSubmit"/>
-        <binding name="delegate" expression="beans.validator"/>
+        <binding name="listener" value="listeners.formSubmit"/>
+        <binding name="delegate" value="beans.validator"/>
     </component>
     
     <component id="locationPanel" type="FieldPanel">
-        <binding name="field" expression="components.locationSelection"/>
-        <message-binding name="label" key="label.locations"/>
-        <message-binding name="description" key="description.locations"/>
+        <binding name="field" value="components.locationSelection"/>
+        <binding name="label" value="message:label.locations"/>
+        <binding name="description" value="message:description.locations"/>
     </component>
     <component id="locationSelection" type="PropertySelection">
-        <binding name="value" expression="serviceLocation"/>
-        <binding name="model" expression="beans.locationModel"/>
-        <binding name="submitOnChange" expression="true"/>
+        <binding name="value" value="serviceLocation"/>
+        <binding name="model" value="beans.locationModel"/>
+        <binding name="submitOnChange" value="true"/>
     </component>
     
-    <component id="renderLocation" type="contrib:FormConditional">
-        <binding name="condition" expression="sipxProcessContext.locations.length > 1"/>
+    <component id="renderLocation" type="If">
+        <binding name="condition" value="sipxProcessContext.locations.length > 1"/>
     </component>
     
     <component id="tableView" type="Table">
-        <binding name="source" expression="sipxProcessContext.getStatus(serviceLocation)"/>
-        <binding name="selections" expression="selections"/>
-        <static-binding name="columns" value="* serviceName,=statusColumn"/>
-        <binding name="usePager" expression="false"/>
-        <binding name="convertor" expression="beans.statusConvertor"/>
+        <binding name="source" value="sipxProcessContext.getStatus(serviceLocation)"/>
+        <binding name="selections" value="selections"/>
+        <binding name="columns" value="literal:* serviceName,=statusColumn"/>
+        <binding name="usePager" value="false"/>
+        <binding name="convertor" value="beans.statusConvertor"/>
     </component>
     
     <component id="startButton" type="Submit">
-        <binding name="selected" expression="servicesToStart"/>
-        <binding name="tag" expression="selections.allSelected"/>
-        <message-binding name="label" key="button.start"/>
+        <binding name="selected" value="servicesToStart"/>
+        <binding name="tag" value="selections.allSelected"/>
+        <binding name="label" value="message:button.start"/>
     </component>
     <component id="stopButton" type="Submit">
-        <binding name="selected" expression="servicesToStop"/>
-        <binding name="tag" expression="selections.allSelected"/>
-        <message-binding name="label" key="button.stop"/>
+        <binding name="selected" value="servicesToStop"/>
+        <binding name="tag" value="selections.allSelected"/>
+        <binding name="label" value="message:button.stop"/>
     </component>
     <component id="restartButton" type="Submit">
-        <binding name="selected" expression="servicesToRestart"/>
-        <binding name="tag" expression="selections.allSelected"/>
-        <message-binding name="label" key="button.restart"/>
+        <binding name="selected" value="servicesToRestart"/>
+        <binding name="tag" value="selections.allSelected"/>
+        <binding name="label" value="message:button.restart"/>
     </component>
     <component id="refreshButton" type="Submit">
-        <message-binding name="label" key="button.refresh"/>
+        <binding name="label" value="message:button.refresh"/>
     </component>
             
 </page-specification>

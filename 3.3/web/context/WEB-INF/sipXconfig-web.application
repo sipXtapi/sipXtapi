@@ -3,21 +3,15 @@
       PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
       "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
 
-<application name="sipXconfig-web" engine-class="org.sipfoundry.sipxconfig.site.SipxconfigEngine">
+<application name="sipXconfig-web">
     <description>sipXconfig Application</description>
     
-    <property name="org.apache.tapestry.global-class" value="org.sipfoundry.sipxconfig.site.BeanFactoryGlobals"/>
+    <property name="org.apache.tapestry.visit-class" value="org.sipfoundry.sipxconfig.site.Visit"/> 
     <!-- note: SipxconfigEngine creates visit objects using spring factory -->
     <!-- setting org.apache.tapestry.visit-class here will be ignored -->
     
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
     <library id="checkboxes" specification-path="/org/mb/tapestry/checkboxes/checkboxes.library"/>
-	<extension name="org.apache.tapestry.multipart-decoder"
-			class="org.apache.tapestry.multipart.DefaultMultipartDecoder">
-		<!-- 20MB for no particular reason. Polycom firmware was 11MB -->
-		<configure property-name="maxSize" type="double" value="20480000"/>
-	</extension>
-
     <!--
       -  P A G E S 
       - NOTE: Assumes page names are unique across directories
@@ -147,7 +141,4 @@
     <component-type type="UserSearchResults" specification-path="user/UserSearchResults.jwc"/>
     <component-type type="UserTable" specification-path="user/UserTable.jwc"/>
     <component-type type="WorkingHoursEditor" specification-path="dialplan/WorkingHoursEditor.jwc"/>    
-    
-    <!-- Services -->
-    <service name="DownloadService" class="org.sipfoundry.sipxconfig.components.DownloadService"/>
 </application>

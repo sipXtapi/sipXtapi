@@ -11,8 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.IComponent;
-import org.apache.tapestry.IMessages;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -30,7 +30,7 @@ public class AddToUserGroupAction extends BulkGroupAction {
         m_coreContext.addToGroup(getGroup().getId(), getIds());
     }
 
-    public String getSuccessMsg(IMessages messages) {
+    public String getSuccessMsg(Messages messages) {
         return messages.format("msg.success.addToUserGroupAction", Integer.toString(getIds()
                 .size()), getGroup().getName());
     }

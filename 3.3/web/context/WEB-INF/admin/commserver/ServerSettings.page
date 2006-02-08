@@ -1,22 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE page-specification PUBLIC
-  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+  "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.admin.commserver.ServerSettings">
 
     <description>Server settings</description>
     
     <!-- P R O P E R T I E S -->
-    
-    <property-specification name="server" 
-    	type="org.sipfoundry.sipxconfig.admin.commserver.Server" 
-    	initial-value="global.sipxServer"/>
-    <property-specification name="parentSettingName"
+   <inject property="server" object="spring:sipxServer"/> 
+    <property name="parentSettingName"
         type="java.lang.String"
         persistent="yes"
     	initial-value="'voice-mail'"
     	/>    
-    <property-specification name="parentSetting"
+    <property name="parentSetting"
         type="org.sipfoundry.sipxconfig.setting.Setting"/>
     
     <!-- B E A N S -->
@@ -25,18 +22,18 @@
 	<!-- C O M P O N E N T S -->
         
     <component id="settingsNavigation" type="SettingsNavigation">
-        <binding name="settings" expression="server.settings"/>
-        <binding name="tab" expression="parentSettingName"/>
-        <message-binding name="heading" key="title"/>
+        <binding name="settings" value="server.settings"/>
+        <binding name="tab" value="parentSettingName"/>
+        <binding name="heading" value="message:title"/>
     </component>
     <component id="settingDescription" type="Insert">
-        <binding name="value" expression="parentSetting.description"/>
+        <binding name="value" value="parentSetting.description"/>
     </component>
     <component id="settingsForm" type="SettingsForm">
-        <binding name="settings" expression="parentSetting"/>
-        <binding name="cancelListener" expression="listeners.cancel"/>
-        <binding name="applyListener" expression="listeners.apply"/>
-        <binding name="validator" expression="beans.validator"/>
+        <binding name="settings" value="parentSetting"/>
+        <binding name="cancelListener" value="listeners.cancel"/>
+        <binding name="applyListener" value="listeners.apply"/>
+        <binding name="validator" value="beans.validator"/>
     </component>
     
 </page-specification>

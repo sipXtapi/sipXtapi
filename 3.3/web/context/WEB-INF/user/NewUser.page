@@ -1,53 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC
-  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.user.NewUser">
-    <description>add a description</description>
-   
-    <!--
+  <description>add a description</description>
+  <!--
       - P R O P E R T I E S
       -->
-    <property-specification name="user"
-        type="org.sipfoundry.sipxconfig.common.User"/>
-	<property-specification name="coreContext" 
-		type="org.sipfoundry.sipxconfig.common.CoreContext" 
-    	initial-value="global.coreContext"/>    
-    <property-specification name="callback" 
-    	type="org.apache.tapestry.callback.ICallback"
-     	persistent="yes"/>
-    <property-specification name="stay"
-        type="boolean"/>
-    <property-specification name="buttonPressed" 
-    	type="java.lang.String"/>
-    
-    <!--
+  <property name="user" />
+  <inject property="coreContext" object="spring:coreContext"/>
+  <property name="callback"  persist="session"/>
+  <property name="stay" />
+  <property name="buttonPressed" />
+  <!--
       - B E A N S 
       -->
-
-    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-        
-    <!--
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <!--
       - C O M P O N E N T S
       -->
-
-    <component id="extensionPoolsLink" type="DirectLink">
-        <binding name="listener" expression="listeners.extensionPools"/>
-    </component>
-    <component id="form" type="Form">
-        <binding name="delegate" expression="beans.validator"/>
-    </component>
-    <component id="userForm" type="UserForm">
-        <binding name="user" expression="user"/>
-        <binding name="alwaysShowSipPassword" expression="true"/>
-    </component>
-    <component id="formActions" type="FormActions">
-        <binding name="callback" expression="callback"/>
-        <binding name="listener" expression="listeners.onCommit"/>
-        <binding name="buttonPressed" expression="buttonPressed"/>
-    </component>    
-    <component id="stay" type="Checkbox">
-        <binding name="selected" expression="stay"/>
-    </component>
+  <component id="extensionPoolsLink" type="DirectLink">
+    <binding name="listener" value="listeners.extensionPools"/>
+  </component>
+  <component id="form" type="Form">
+    <binding name="delegate" value="beans.validator"/>
+  </component>
+  <component id="userForm" type="UserForm">
+    <binding name="user" value="user"/>
+    <binding name="alwaysShowSipPassword" value="true"/>
+  </component>
+  <component id="formActions" type="FormActions">
+    <binding name="callback" value="callback"/>
+    <binding name="listener" value="listeners.onCommit"/>
+    <binding name="buttonPressed" value="buttonPressed"/>
+  </component>
+  <component id="stay" type="Checkbox">
+    <binding name="selected" value="stay"/>
+  </component>
 </page-specification>

@@ -44,7 +44,10 @@ public class StringSizeValidator {
 
     public void validate(IValidationDelegate delegate) {
         IBinding binding = m_component.getBinding("value");
-        String property = binding.getString();
+        
+        // PORT: was binding.getString()
+        String property = binding.getObject().toString();
+        
         if (null != property && property.length() > m_max) {
             delegate.setFormComponent(m_component);
             delegate.record(getError(), ValidationConstraint.TOO_LARGE);

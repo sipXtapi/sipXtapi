@@ -1,127 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification
-      PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-      "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
-	<!--
+  <!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="dialPlanContext" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" 
-    	initial-value="global.dialPlanContext"/>
-
-    <property-specification name="ruleId" 
-		type="java.lang.Integer"
-        persistent="yes">
-    </property-specification>    
-    
-    <property-specification name="rule" 
-		type="org.sipfoundry.sipxconfig.admin.dialplan.DialingRule">
-    </property-specification>
-    
-    <!-- not used on this page -->
-	<property-specification name="removeGateways" 
-		type="java.lang.String"/>
-
-    <property-specification name="callback" 
-    	type="org.apache.tapestry.callback.ICallback"
-     	persistent="yes"/>
-    
-    <property-specification name="workingHours" 
-    	type="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime$WorkingHours"/>
-    
-    <!--
+  <inject property="dialPlanContext" object="spring:dialPlanContext"/>
+  <inject property="validRule" object="spring:validRule"/>
+  <property name="ruleId"  persist="session">
+  </property>
+  <property name="rule" >
+  </property>
+  <!-- not used on this page -->
+  <property name="removeGateways" />
+  <property name="callback"  persist="session"/>
+  <property name="workingHours" />
+  <!--
      - B E A N S
      -->
-    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    
-    <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-        <set-property name="collection" expression="dialPlanContext.autoAttendants"/>
-        <set-property name="labelExpression" expression="'name'"/>            
-    </bean>    
-    <!--
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
+    <set name="collection" value="literal:dialPlanContext.autoAttendants"/>
+    <set name="labelExpression" value="literal:'name'"/>
+  </bean>
+  <!--
      - C O M P O N E N T S
      -->
-    <component id="form" type="Form">
-        <binding name="delegate" expression="beans.validator"/>
-        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
-    </component>
-    
-	<component id="common" type="ItemCommon">
-        <binding name="item" expression="rule"/>
-        <binding name="nameValidator" expression="global.validSipNameRequired"/>
-    </component>
-            
-    <component id="extensionPanel" type="FieldPanel">
-        <binding name="field" expression="components.extension"/>
-        <message-binding name="label" key="label.extension"/>
-    </component>
-    <component id="extension" type="ValidField">
-	    <binding name="value" expression="rule.extension"/>
-        <binding name="validator" expression="global.validPhoneRequired"/>
-        <message-binding name="displayName" key="label.extension"/>
-    </component>    
-    <component id="autoAttendantAliasesPanel" type="FieldPanel">
-        <binding name="field" expression="components.autoAttendantAliases"/>
-        <message-binding name="label" key="label.autoAttendantAliases"/>
-        <message-binding name="description" key="description.autoAttendantAliases"/>
-    </component>
-    <component id="autoAttendantAliases" type="ValidField">
-        <binding name="value" expression="rule.attendantAliases"/>
-        <binding name="validator" expression="global.validUsernamePatternSequence"/>
-        <message-binding name="displayName" key="label.autoAttendantAliases"/>
-    </component>
-
-    <component id="afterHoursAttendantPanel" type="FieldPanel">
-        <binding name="field" expression="components.afterHoursAttendant"/>
-        <message-binding name="label" key="label.afterHoursAttendant"/>
-        <message-binding name="description" key="description.afterHoursAttendant"/>
-    </component>
-    <component id="afterHoursAttendant" type="PropertySelection">
-        <binding name="value" expression="rule.afterHoursAttendant.attendant"/>
-        <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
-    </component>    
-
-    <component id="holidayAttendantPanel" type="FieldPanel">
-        <binding name="field" expression="components.holidayAttendant"/>
-        <message-binding name="label" key="label.holidayAttendant"/>
-        <message-binding name="description" key="description.holidayAttendant"/>
-    </component>
-    <component id="holidayAttendant" type="PropertySelection">
-        <binding name="value" expression="rule.holidayAttendant.attendant"/>
-        <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
-        <binding name="submitOnChange" expression="true"/>
-    </component>
-    <component id="holidayDates" type="HolidaysEditor">
-        <binding name="holiday" expression="rule.holidayAttendant"/>
-	</component>
-    <component id="renderHolidayConfig" type="contrib:FormConditional">
-        <binding name="condition" expression="rule.holidayAttendant.attendant != null"/>
-    </component>
-
-    <component id="workingTimeAttendantPanel" type="FieldPanel">
-        <binding name="field" expression="components.workingTimeAttendant"/>
-        <message-binding name="label" key="label.workingTimeAttendant"/>
-        <message-binding name="description" key="description.workingTimeAttendant"/>        
-    </component>
-    <component id="workingTimeAttendant" type="PropertySelection">
-        <binding name="value" expression="rule.workingTimeAttendant.attendant"/>
-        <binding name="model" expression="global.tapestry.instructUserToSelect(beans.autoAttendants)"/>
-        <binding name="submitOnChange" expression="true"/>
-    </component>
-    <component id="workingHours" type="Foreach">
-        <binding name="source" expression="rule.workingTimeAttendant.workingHours"/>
-        <binding name="value" expression="workingHours"/>
-    </component>
-    <component id="workingDay" type="WorkingHoursEditor">
-        <binding name="workingHours" expression="workingHours"/>
-    </component>    
-    <component id="renderWorkingHoursConfig" type="contrib:FormConditional">
-        <binding name="condition" expression="rule.workingTimeAttendant.attendant != null"/>
-    </component>
-            
-    <component id="formActions" type="FormActions">
-        <binding name="callback" expression="callback"/>
-        <binding name="listener" expression="listeners.commit"/>
-    </component>
+  <component id="form" type="Form">
+    <binding name="delegate" value="beans.validator"/>
+    <binding name="listener" value="spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+  </component>
+  <component id="common" type="ItemCommon">
+    <binding name="item" value="rule"/>
+    <binding name="nameValidator" value="spring:validSipNameRequired"/>
+  </component>
+  <component id="extensionPanel" type="FieldPanel">
+    <binding name="field" value="components.extension"/>
+    <binding name="label" value="message:label.extension"/>
+  </component>
+  <component id="extension" type="ValidField">
+    <binding name="value" value="rule.extension"/>
+    <binding name="validator" value="spring:validPhoneRequired"/>
+    <binding name="displayName" value="message:label.extension"/>
+  </component>
+  <component id="autoAttendantAliasesPanel" type="FieldPanel">
+    <binding name="field" value="components.autoAttendantAliases"/>
+    <binding name="label" value="message:label.autoAttendantAliases"/>
+    <binding name="description" value="message:description.autoAttendantAliases"/>
+  </component>
+  <component id="autoAttendantAliases" type="ValidField">
+    <binding name="value" value="rule.attendantAliases"/>
+    <binding name="validator" value="spring:validUsernamePatternSequence"/>
+    <binding name="displayName" value="message:label.autoAttendantAliases"/>
+  </component>
+  <component id="afterHoursAttendantPanel" type="FieldPanel">
+    <binding name="field" value="components.afterHoursAttendant"/>
+    <binding name="label" value="message:label.afterHoursAttendant"/>
+    <binding name="description" value="message:description.afterHoursAttendant"/>
+  </component>
+  <component id="afterHoursAttendant" type="PropertySelection">
+    <binding name="value" value="rule.afterHoursAttendant.attendant"/>
+    <binding name="model" value="spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+  </component>
+  <component id="holidayAttendantPanel" type="FieldPanel">
+    <binding name="field" value="components.holidayAttendant"/>
+    <binding name="label" value="message:label.holidayAttendant"/>
+    <binding name="description" value="message:description.holidayAttendant"/>
+  </component>
+  <component id="holidayAttendant" type="PropertySelection">
+    <binding name="value" value="rule.holidayAttendant.attendant"/>
+    <binding name="model" value="spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="submitOnChange" value="true"/>
+  </component>
+  <component id="holidayDates" type="HolidaysEditor">
+    <binding name="holiday" value="rule.holidayAttendant"/>
+  </component>
+  <component id="renderHolidayConfig" type="If">
+    <binding name="condition" value="rule.holidayAttendant.attendant != null"/>
+  </component>
+  <component id="workingTimeAttendantPanel" type="FieldPanel">
+    <binding name="field" value="components.workingTimeAttendant"/>
+    <binding name="label" value="message:label.workingTimeAttendant"/>
+    <binding name="description" value="message:description.workingTimeAttendant"/>
+  </component>
+  <component id="workingTimeAttendant" type="PropertySelection">
+    <binding name="value" value="rule.workingTimeAttendant.attendant"/>
+    <binding name="model" value="spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="submitOnChange" value="true"/>
+  </component>
+  <component id="workingHours" type="For">
+    <binding name="source" value="rule.workingTimeAttendant.workingHours"/>
+    <binding name="value" value="workingHours"/>
+  </component>
+  <component id="workingDay" type="WorkingHoursEditor">
+    <binding name="workingHours" value="workingHours"/>
+  </component>
+  <component id="renderWorkingHoursConfig" type="If">
+    <binding name="condition" value="rule.workingTimeAttendant.attendant != null"/>
+  </component>
+  <component id="formActions" type="FormActions">
+    <binding name="callback" value="callback"/>
+    <binding name="listener" value="listeners.commit"/>
+  </component>
 </page-specification>

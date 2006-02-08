@@ -11,13 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
-import org.apache.tapestry.IMessages;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
+import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 
@@ -38,6 +38,11 @@ public final class TapestryUtils {
      */
     private TapestryUtils() {
         // intentionally empty
+    }
+
+    public static final String getMessage(Messages messages, String key, String defaultValue_) {
+        // PORT
+        return messages.getMessage(key);
     }
 
     /**
@@ -140,20 +145,20 @@ public final class TapestryUtils {
      * Convience method that will quietly localize and act graceful if resources are not set or
      * found.
      */
-    public static final String localize(IMessages messages, String key) {
+    public static final String localize(Messages messages, String key) {
         return localize(messages, null, key);
     }
 
     /**
      * @param prefix prepended to key w/o '.' (e.g. fullkey = prefix + key)
      */
-    public static final String localize(IMessages messages, String prefix, String key) {
+    public static final String localize(Messages messages, String prefix, String key) {
         if (key == null || messages == null) {
             return key;
         }
 
         String fullKey = prefix != null ? prefix + key : key;
-        String label = messages.getMessage(fullKey, key);
+        String label = messages.getMessage(fullKey);
 
         return label;
     }
@@ -167,9 +172,11 @@ public final class TapestryUtils {
      * @return newly create column model
      */
     public static ITableColumn createDateColumn(AbstractComponent component, String columnName) {
-        ExpressionTableColumn column = new ExpressionTableColumn(columnName, component
-                .getMessage(columnName), columnName, true);
-        column.setValueRendererSource(new DateTableRendererSource());
-        return column;
+        return new SimpleTableColumn(columnName, true);
+        // PORT: TODO
+        // ExpressionTableColumn column = new ExpressionTableColumn(columnName, component
+        // .getMessage(columnName), columnName, true);
+        // column.setValueRendererSource(new DateTableRendererSource());
+        //        return column;
     }
 }
