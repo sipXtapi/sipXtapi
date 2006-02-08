@@ -312,35 +312,31 @@
   <!--
 	- Compile WSDL into java server-side bindings.
 	-->
-  <target name="server.bindings" 
-	  unless="server-config.wsdd.uptodate">
+  <target name="generate.server.bindings" unless="server-config.wsdd.uptodate">
     <delete dir="${server.bindings.src}"/>
     <mkdir dir="${server.bindings.src}"/>
-    <wsdl2java      
-        url="${src.dir}/org/sipfoundry/sipxconfig/api/sipxconfig.wsdl"
-        output="${server.bindings.src}"
-        serverside="true"
-        noWrapped="true">
-        <mapping namespace="urn:ConfigService" 
-            package="org.sipfoundry.sipxconfig.api"/>
+    <wsdl2java url="${src.dir}/org/sipfoundry/sipxconfig/api/sipxconfig.wsdl" output="${server.bindings.src}"
+      serverside="true" noWrapped="true">
+      <mapping namespace="urn:ConfigService" package="org.sipfoundry.sipxconfig.api"/>
     </wsdl2java>
     <!-- generted impl classes are just stubbed -->
     <delete>
-          <fileset dir="${server.bindings.src}">
+      <fileset dir="${server.bindings.src}">
         <include name="**/*BindingImpl.java"/>
-          </fileset>
+      </fileset>
     </delete>
-    <sipx-javac srcdir="${server.bindings.src}"
-       destdir="${server.bindings.dir}"
-       classpathref="base.path">
+  </target>
+	
+  
+  <target name="server.bindings" depends="generate.server.bindings" unless="server-config.wsdd.uptodate">
+    <sipx-javac srcdir="${server.bindings.src}" destdir="${server.bindings.dir}" classpathref="base.path">
       <classpath>
         <pathelement path="${classes.dir}"/>
       </classpath>
-    </sipx-javac>   
-	<jar destfile="${server-bindings.jar}"
-		basedir="${server.bindings.dir}"/>
+    </sipx-javac>
+    <jar destfile="${server-bindings.jar}" basedir="${server.bindings.dir}"/>    
   </target>
-	
+  
   <!-- 
 	- aggregate axis generated WSDD files into 1 server-config.wsdd 
 	-->
