@@ -14,8 +14,8 @@
 	  - B E A N S
 	  -->
   <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
-  <component id="tableElement"  inherit-informal-parameters="yes">
-    <binding name="element">table</binding>
+  <component id="tableElement" type="Any" inherit-informal-parameters="yes">
+    <binding name="element" value="literal:'table'"/>
     <binding name="id" value="id"/>
   </component>
   <component id="ifRenderPages" type="If">
@@ -26,7 +26,7 @@
     <binding name="columns" value="columns"/>
     <binding name="pageSize" value="usePager ? page.visit.tablePageSize : -1"/>
     <binding name="initialSortColumn" value="initialSortColumn"/>
-    <binding name="element">span</binding>
+    <binding name="element" value="literal:'span'"/>
     <binding name="columnSettingsContainer" value="container"/>
   </component>
   <component id="tablePages" type="contrib:TableFormPages"/>
@@ -37,12 +37,12 @@
     <binding name="convertor" value="convertor"/>
   </component>
   <component id="tableValues" type="contrib:TableValues"/>
-  <component id="selectedRow" type="checkboxes:ControlledCheckbox">
-    <binding name="selected" value="selections.selected[tableRow.id]"/>
+  <component id="selectedRow" type="contrib:ControlledCheckbox">
+    <binding name="value" value="selections.selected[tableRow.id]"/>
   </component>
   <component id="tablePagesCell" type="Any">
     <!-- need an extra column for a footer -->
-    <binding name="colspan" value="components.tableView.getTableColumnModel().columnCount + 1"/>
+    <binding name="colspan" value="components.tableView.tableModel.columnModel.columnCount + 1"/>
     <binding name="element" value="literal:td"/>
   </component>
 </component-specification>

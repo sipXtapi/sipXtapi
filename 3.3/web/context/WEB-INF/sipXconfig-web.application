@@ -11,7 +11,6 @@
     <!-- setting org.apache.tapestry.visit-class here will be ignored -->
     
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
-    <library id="checkboxes" specification-path="/org/mb/tapestry/checkboxes/checkboxes.library"/>
     <!--
       -  P A G E S 
       - NOTE: Assumes page names are unique across directories
