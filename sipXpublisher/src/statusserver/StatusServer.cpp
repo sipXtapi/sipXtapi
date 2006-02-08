@@ -667,8 +667,11 @@ StatusServer::initHttpServer (
                 authRealm, 
                 pValidIpAddressDB );
         }
-        // Set the web server root to the current directory
-        httpServer->addUriMap( "/", osBaseUriDirectory.data() );
+        if (httpServer)
+        {
+           // Set the web server root to the current directory
+           httpServer->addUriMap( "/", osBaseUriDirectory.data() );
+        }
     }
 
     if( httpServer )
