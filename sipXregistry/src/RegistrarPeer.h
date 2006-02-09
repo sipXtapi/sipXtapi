@@ -67,10 +67,10 @@ class RegistrarPeer : public UtlString
 
    typedef enum
       {
-         SyncStateUnknown, ///< initial condition before startup sync is complete.
-         Reachable,        ///< initial sync completed, and no failure has occurred.
-         UnReachable,      ///< most recent request to this peer failed.
-         Incompatible      ///< serious error indicating incompatible xoversion
+         SyncStateUnknown, ///< initial condition
+         Reachable,        ///< a successful reset to the peer has been done
+         UnReachable,      ///< most recent request to this peer failed
+         Incompatible      ///< serious error indicating incompatible version
       } SynchronizationState;
 
    /// Whether or not the most recent attempt to reach this peer succeeded.
