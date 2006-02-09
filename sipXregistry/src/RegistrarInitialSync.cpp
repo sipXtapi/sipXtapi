@@ -38,8 +38,8 @@ int RegistrarInitialSync::run(void* pArg)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync started");
 
-   // Reset the DbUpdateNumber so that the upper half is the epoch time.
-   getRegistrarServer().resetDbUpdateNumberEpoch();
+   // get the max update number for local updates from the local database
+   getRegistrarServer().restoreDbUpdateNumber();
 
    // get the received update numbers for each peer from the local database
    restorePeerUpdateNumbers();
@@ -56,6 +56,9 @@ int RegistrarInitialSync::run(void* pArg)
    // Get any updates for unreachable peers from reachable ones.
    recoverUnReachablePeers();
 
+   // Reset the DbUpdateNumber so that the upper half is the epoch time.
+   getRegistrarServer().resetDbUpdateNumberEpoch();
+
    // SipRegistrar manages the transition to operational phase, so it will send resets to peers
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync complete");
@@ -64,7 +67,7 @@ int RegistrarInitialSync::run(void* pArg)
    return 0; // exit thread
 }
 
-/// Recover the latest received update number for each peer from the local db.
+/// Recover the latest received update number for each peer from the local database
 void RegistrarInitialSync::restorePeerUpdateNumbers()
 {
    auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
@@ -107,9 +110,9 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
          // corrupted - when this is the case, the local DbUpdateNumber will usually be zero).
          // If we can't reach the peer, then the invoke method marks it UnReachable.
 
-         // Pulling updates changes maxUpdateNumber, so compute it on each iteration
+         // Pulling updates changes maxUpdateNumber, so fetch it on each iteration
          const char* primaryName = getPrimaryName();
-         intll maxUpdateNumber = getRegistrarServer().getMaxUpdateNumberForRegistrar(primaryName);
+         intll maxUpdateNumber = getRegistrarServer().getDbUpdateNumber();
 
          UtlSList bindings;
          RegistrarPeer::SynchronizationState state =

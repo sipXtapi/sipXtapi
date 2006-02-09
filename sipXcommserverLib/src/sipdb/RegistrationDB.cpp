@@ -683,6 +683,10 @@ RegistrationDB::getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar
          maxUpdateForPrimary = cursor->update_number;
       }
    }
+   else
+   {
+      assert(false);    // when this method is called, the DB pointer should not be null
+   }
 
    return maxUpdateForPrimary;
 }
@@ -707,6 +711,10 @@ RegistrationDB::getNextUpdateNumberForRegistrar(const UtlString& primaryRegistra
       {
          nextUpdateNumber = cursor->update_number;
       }
+   }
+   else
+   {
+      assert(false);    // when this method is called, the DB pointer should not be null
    }
 
    return nextUpdateNumber;

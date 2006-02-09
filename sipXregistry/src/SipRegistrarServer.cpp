@@ -83,10 +83,6 @@ SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
     mDefaultRegistryPeriod(),
     mNonceExpiration(5*60)
 {
-   // Recover and return the largest update number from the database for this primary.
-   // Do this even if replication is not configured.  Replication might get 
-   // configured later and we want the update numbers to be correct if that happens.
-   mDbUpdateNumber = getMaxUpdateNumberForRegistrar(mRegistrar.primaryName());
 }
 
 void
@@ -220,6 +216,14 @@ int SipRegistrarServer::pullUpdates(
    return numUpdates;
 }
 
+/// Set the largest update number in the local database for this registrar as primary
+void SipRegistrarServer::setDbUpdateNumber(intll dbUpdateNumber)
+{
+   mDbUpdateNumber = dbUpdateNumber;
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRegistrarServer::setDbUpdateNumber to %lld", mDbUpdateNumber.getValue());
+}
 
 /// Apply valid changes to the database
 ///
@@ -471,7 +475,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                // number to all the database changes we're about to make.  In some
                // cases we might not actually make any changes.  That's OK, having
                // an update number with no associated changes won't break anything.
-               mDbUpdateNumber++;
+               setDbUpdateNumber(mDbUpdateNumber + 1);
 
                 if ( removeAll )
                 {
@@ -678,12 +682,13 @@ SipRegistrarServer::applyUpdatesToDirectory(
    UtlString emptyPrimary;
    const UtlString& myPrimary(mRegistrar.primaryName());
    RegistrarPeer* peer = NULL;    // peer registrar, or NULL if it's our local registrar
-   intll maxUpdateNumber = -1;    // max update number for these updates
+   intll maxUpdateNumber = 0;     // max update number for these updates
 
-   while ((reg = dynamic_cast<RegistrationBinding*>(updateIter())))
+   while ((reg = dynamic_cast<RegistrationBinding*>(updateIter())) &&
+          (maxUpdateNumber >= 0)) // max update number is negative if there's an error
    {
       intll updateNumber = reg->getUpdateNumber();
-      if (maxUpdateNumber < 0)    // if this is the first time through the loop
+      if (maxUpdateNumber == 0)   // if this is the first time through the loop
       {
          if (reg->getPrimary() != NULL)
          {
@@ -697,7 +702,7 @@ SipRegistrarServer::applyUpdatesToDirectory(
                *errorMsg = "SipRegistrarServer::applyUpdatesToDirectory unknown peer ";
                errorMsg->append(primary.data());
                OsSysLog::add(FAC_SIP, PRI_ERR, errorMsg->data());
-               break;
+               maxUpdateNumber = -1;    // indicate error
             }
          }
          maxUpdateNumber = updateNumber;
@@ -716,10 +721,14 @@ SipRegistrarServer::applyUpdatesToDirectory(
             OsSysLog::add(FAC_SIP, PRI_ERR, buf);
             *errorMsg = buf;
             maxUpdateNumber = -1;    // indicate error
-            break;
          }
       }
-      maxUpdateNumber = updateOneBinding(reg, peer, imdb);
+
+      // If there were no errors, then apply the update and update state variables
+      if (maxUpdateNumber >= 0)
+      {
+         maxUpdateNumber = updateOneBinding(reg, peer, imdb);
+      }
    }
 
    // If we processed any updates and there were no errors, then garbage-collect
@@ -743,15 +752,21 @@ intll SipRegistrarServer::updateOneBinding(
    assert(imdb);
 
    // Check callId/cseq and accept only updates that are in sequence.
-   // Note that updateNumbers may arrive out of order, that's OK and expected.
+   // Don't require updateNumbers to be in order because when pulling updates, 
+   // updateNumber order is not guaranteed.
    if (imdb->isOutOfSequence(*reg->getUri(), *reg->getCallId(), reg->getCseq()))
    {
       return -1;
    }
 
    // Update the registrar state and the binding
+
    intll updateNumber = reg->getUpdateNumber();
    assert(updateNumber > 0);
+
+   // The return value is the max update number that we have seen for this registrar.
+   intll maxUpdateNumber = updateNumber;
+
    if (peer != NULL)
    {
       // This update is for a peer.  If the updateNumber is bigger than previous
@@ -761,6 +776,10 @@ intll SipRegistrarServer::updateOneBinding(
       {
          peer->setReceivedFrom(updateNumber);
       }
+      else
+      {
+         maxUpdateNumber = receivedFrom;
+      }
    }
    else
    {
@@ -768,12 +787,16 @@ intll SipRegistrarServer::updateOneBinding(
       // than previous updateNumbers, then increase mDbUpdateNumber accordingly.
       if (updateNumber > mDbUpdateNumber)
       {
-         mDbUpdateNumber = updateNumber;
+         setDbUpdateNumber(updateNumber);
+      }
+      else
+      {
+         maxUpdateNumber = mDbUpdateNumber;
       }
    }
 
    imdb->updateBinding(*reg);
-   return updateNumber;
+   return maxUpdateNumber;
 }
 
 
@@ -1250,6 +1273,11 @@ const UtlString& SipRegistrarServer::primaryName() const
 
 intll SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName) const
 {
+   // If replication is not configured, then the primaryName will be empty, but it
+   // should never be null.
+   assert(primaryName != NULL);
+   assert(!mRegistrar.isReplicationConfigured() || strlen(primaryName) > 0);
+
    // Critical Section here
    OsLock lock(sLockMutex);
 
@@ -1261,6 +1289,7 @@ intll SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName
 bool SipRegistrarServer::getNextUpdateToSend(RegistrarPeer *peer,
                                              UtlSList&      bindings)
 {
+   assert(peer != NULL);
    bool isNewUpdate = false;
 
    // Critical Section here
@@ -1305,13 +1334,22 @@ void SipRegistrarServer::resetDbUpdateNumberEpoch()
    { // lock before changing the epoch update number
       OsLock lock(sLockMutex);
             
-      mDbUpdateNumber = newEpoch;
+      setDbUpdateNumber(newEpoch);
    } // release lock before logging
    
    OsSysLog::add(FAC_SIP, PRI_INFO,
                  "SipRegistrarServer::resetDbUpdateNumberEpoch to %llx",
                  newEpoch
                  );
+}
+
+/// Recover the DbUpdateNumber from the local database
+void SipRegistrarServer::restoreDbUpdateNumber()
+{
+   // Recover and return the largest update number from the database for this primary.
+   // Call this method after reading the configuration, otherwise the primaryName will
+   // be empty.
+   setDbUpdateNumber(getMaxUpdateNumberForRegistrar(mRegistrar.primaryName()));
 }
 
 SipRegistrarServer::~SipRegistrarServer()

@@ -102,6 +102,9 @@ public:
     /// Reset the DbUpdateNumber so that the upper half is the epoch time.
     void resetDbUpdateNumberEpoch();
 
+    /// Recover the DbUpdateNumber from the local database
+    void restoreDbUpdateNumber();
+
     /// Return the max update number for primaryRegistrar, or zero if there are no such updates
     intll getMaxUpdateNumberForRegistrar(const char* primaryName) const;
 
@@ -138,6 +141,9 @@ protected:
 
     static OsMutex sLockMutex;
 
+    /// Set the largest update number in the local database for this registrar as primary
+    void setDbUpdateNumber(intll dbUpdateNumber);
+
     /// Validate bindings, and if all are OK then apply them to the registry db
     RegisterStatus applyRegisterToDirectory(
         const Url& toUrl,  ///< AOR from the message
@@ -149,7 +155,10 @@ protected:
                            RegistrarPeer* peer,
                            RegistrationDB* imdb);
     /**<
-     * Return the updateNumber, or -1 if there was an error
+     * 
+     * Return the max updateNumber for the registrar that is primary for this binding
+     * or -1 if there was an error.
+     * Update state variables for the primary registrar.
      */
 
     // Process a single REGISTER request

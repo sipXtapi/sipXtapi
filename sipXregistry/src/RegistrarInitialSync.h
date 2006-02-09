@@ -49,7 +49,7 @@ public:
 protected:
    friend class SipRegistrar;
 
-   /// Recover the latest received update number for each peer from the local db.
+   /// Recover the latest received update number for each peer from the local database
    void restorePeerUpdateNumbers();
    
    /// Get from peers any of our own updates that we have lost
