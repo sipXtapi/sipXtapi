@@ -27,11 +27,11 @@
      -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+    <binding name="listener" value="hivemind:spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
   </component>
   <component id="common" type="ItemCommon">
     <binding name="item" value="rule"/>
-    <binding name="nameValidator" value="spring:validSipNameRequired"/>
+    <binding name="nameValidator" value="hivemind:spring:validSipNameRequired"/>
   </component>
   <component id="extensionPanel" type="FieldPanel">
     <binding name="field" value="components.extension"/>
@@ -39,7 +39,7 @@
   </component>
   <component id="extension" type="ValidField">
     <binding name="value" value="rule.extension"/>
-    <binding name="validator" value="spring:validPhoneRequired"/>
+    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="message:label.extension"/>
   </component>
   <component id="autoAttendantAliasesPanel" type="FieldPanel">
@@ -49,7 +49,7 @@
   </component>
   <component id="autoAttendantAliases" type="ValidField">
     <binding name="value" value="rule.attendantAliases"/>
-    <binding name="validator" value="spring:validUsernamePatternSequence"/>
+    <binding name="validator" value="hivemind:spring:validUsernamePatternSequence"/>
     <binding name="displayName" value="message:label.autoAttendantAliases"/>
   </component>
   <component id="afterHoursAttendantPanel" type="FieldPanel">
@@ -59,7 +59,7 @@
   </component>
   <component id="afterHoursAttendant" type="PropertySelection">
     <binding name="value" value="rule.afterHoursAttendant.attendant"/>
-    <binding name="model" value="spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
   </component>
   <component id="holidayAttendantPanel" type="FieldPanel">
     <binding name="field" value="components.holidayAttendant"/>
@@ -68,7 +68,7 @@
   </component>
   <component id="holidayAttendant" type="PropertySelection">
     <binding name="value" value="rule.holidayAttendant.attendant"/>
-    <binding name="model" value="spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
     <binding name="submitOnChange" value="true"/>
   </component>
   <component id="holidayDates" type="HolidaysEditor">
@@ -84,7 +84,7 @@
   </component>
   <component id="workingTimeAttendant" type="PropertySelection">
     <binding name="value" value="rule.workingTimeAttendant.attendant"/>
-    <binding name="model" value="spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
     <binding name="submitOnChange" value="true"/>
   </component>
   <component id="workingHours" type="For">

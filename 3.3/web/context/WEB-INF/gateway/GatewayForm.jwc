@@ -30,7 +30,7 @@
   </component>
   <component id="gatewaySerial" type="ValidField">
     <binding name="value" value="gateway.serialNumber"/>
-    <binding name="validator" value="spring:optionalSerialNumber"/>
+    <binding name="validator" value="hivemind:spring:optionalSerialNumber"/>
     <binding name="displayName" value="message:label.serial"/>
   </component>
   <component id="gatewayAddressLabel" type="FieldLabel">

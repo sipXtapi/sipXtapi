@@ -33,7 +33,7 @@
     <binding name="selected" value="backupPlan.voicemail"/>
   </component>
   <component id="limitCount" type="PropertySelection">
-    <binding name="model" value="spring:limitedBackupCountModel"/>
+    <binding name="model" value="hivemind:spring:limitedBackupCountModel"/>
     <binding name="value" value="backupPlan.limitedCount"/>
   </component>
   <component id="backup" type="Submit">
@@ -74,8 +74,8 @@
     <binding name="value" value="schedule.scheduledDay"/>
   </component>
   <component id="dailyScheduledTime" type="contrib:DateField">
-    <binding name="format" value="spring:validTime.format"/>
-    <binding name="validator" value="spring:validTime"/>
+    <binding name="format" value="hivemind:spring:validTime.format"/>
+    <binding name="validator" value="hivemind:spring:validTime"/>
     <binding name="required" value="true"/>
     <binding name="date" value="schedule.timeOfDay"/>
     <binding name="displayName" value="literal:Time Of Day"/>

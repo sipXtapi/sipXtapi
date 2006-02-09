@@ -22,7 +22,7 @@
      -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+    <binding name="listener" value="hivemind:spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
   </component>
   <component id="common" type="ItemCommon">
     <binding name="item" value="rule"/>
@@ -37,7 +37,7 @@
   </component>
   <component id="pstnPrefix" type="ValidField">
     <binding name="value" value="rule.optionalPrefix"/>
-    <binding name="validator" value="spring:validPhone"/>
+    <binding name="validator" value="hivemind:spring:validPhone"/>
     <binding name="displayName" value="literal:PSTN prefix"/>
   </component>
   <component id="emergencyNumberLabel" type="FieldLabel">
@@ -45,7 +45,7 @@
   </component>
   <component id="emergencyNumber" type="ValidField">
     <binding name="value" value="rule.emergencyNumber"/>
-    <binding name="validator" value="spring:validPhoneRequired"/>
+    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:Emergency number"/>
   </component>
   <component id="callerSensitiveRoutingLabel" type="FieldLabel">

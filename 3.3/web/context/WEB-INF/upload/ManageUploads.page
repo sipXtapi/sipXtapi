@@ -44,11 +44,11 @@
     <binding name="listener" value="listener:deleteUpload"/>
   </component>
   <component id="activate" type="Submit">
-    <binding name="listener" value="spring:tapestry
+    <binding name="listener" value="hivemind:spring:tapestry
         	.treatUserExceptionAsValidationError(beans.validator, listeners.activate)"/>
   </component>
   <component id="inactivate" type="Submit">
-    <binding name="listener" value="spring:tapestry
+    <binding name="listener" value="hivemind:spring:tapestry
         	.treatUserExceptionAsValidationError(beans.validator, listeners.inactivate)"/>
   </component>
   <component id="selectSpecification" type="PropertySelection">

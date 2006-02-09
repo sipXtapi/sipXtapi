@@ -22,7 +22,7 @@
      -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+    <binding name="listener" value="hivemind:spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
   </component>
   <component id="common" type="ItemCommon">
     <binding name="item" value="rule"/>
@@ -43,7 +43,7 @@
   </component>
   <component id="voiceMail" type="ValidField">
     <binding name="value" value="rule.voiceMail"/>
-    <binding name="validator" value="spring:validPhone"/>
+    <binding name="validator" value="hivemind:spring:validPhone"/>
     <binding name="displayName" value="message:label.voiceMail"/>
   </component>
   <component id="voiceMailPrefixLabel" type="FieldLabel">
@@ -51,7 +51,7 @@
   </component>
   <component id="voiceMailPrefix" type="ValidField">
     <binding name="value" value="rule.voiceMailPrefix"/>
-    <binding name="validator" value="spring:validPhone"/>
+    <binding name="validator" value="hivemind:spring:validPhone"/>
     <binding name="displayName" value="message:label.voiceMailPrefix"/>
   </component>
   <component id="formActions" type="FormActions">

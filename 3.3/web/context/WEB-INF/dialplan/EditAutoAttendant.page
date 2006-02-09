@@ -106,7 +106,7 @@
     <binding name="condition" value="bean:menuItems.value.action.attendantParameter"/>
   </component>
   <component id="attendantParameter" type="PropertySelection">
-    <binding name="model" value="spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
     <binding name="value" value="bean:menuItems.value.parameter"/>
   </component>
   <!-- Last Row : Add Menu Item -->
@@ -118,7 +118,7 @@
     <binding name="value" value="addMenuItemDialPad"/>
   </component>
   <component id="addMenuItemAction" type="PropertySelection">
-    <binding name="model" value="spring:tapestry.instructUserToSelect(beans.localizedMenuItemActions)"/>
+    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.localizedMenuItemActions)"/>
     <binding name="value" value="addMenuItemAction"/>
   </component>
   <component id="addMenuItem" type="Submit">

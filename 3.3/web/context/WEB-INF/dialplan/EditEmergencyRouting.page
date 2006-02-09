@@ -44,7 +44,7 @@
   </component>
   <component id="externalNumber" type="ValidField">
     <binding name="value" value="emergencyRouting.externalNumber"/>
-    <binding name="validator" value="spring:validPhoneRequired"/>
+    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:External emergency number"/>
   </component>
   <component id="exceptions" type="ListEdit">

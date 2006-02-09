@@ -14,8 +14,8 @@
     <binding name="field" value="components.from"/>
   </component>
   <component id="from" type="contrib:DateField">
-    <binding name="format" value="spring:validTime.format"/>
-    <binding name="validator" value="spring:validTime"/>
+    <binding name="format" value="hivemind:spring:validTime.format"/>
+    <binding name="validator" value="hivemind:spring:validTime"/>
     <binding name="required" value="true"/>
     <binding name="date" value="workingHours.start"/>
     <binding name="displayWidth" value="8"/>
@@ -25,8 +25,8 @@
     <binding name="field" value="components.to"/>
   </component>
   <component id="to" type="contrib:DateField">
-    <binding name="format" value="spring:validTime.format"/>
-    <binding name="validator" value="spring:validTime"/>
+    <binding name="format" value="hivemind:spring:validTime.format"/>
+    <binding name="validator" value="hivemind:spring:validTime"/>
     <binding name="required" value="true"/>
     <binding name="date" value="workingHours.stop"/>
     <binding name="displayWidth" value="8"/>

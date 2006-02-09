@@ -23,7 +23,7 @@
   </component>
   <component id="number" type="ValidField">
     <binding name="value" value="ring.number"/>
-    <binding name="validator" value="spring:validPhoneRequired"/>
+    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="message:label.forward"/>
   </component>
   <component id="expirationLabel" type="FieldLabel">

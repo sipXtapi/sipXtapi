@@ -28,7 +28,7 @@
     <binding name="passwordDisplayName" value="message:label.newPin"/>
     <binding name="confirmPasswordDisplayName" value="message:label.confirmNewPin"/>
     <binding name="passwordMismatchMessage" value="message:newPinMismatch"/>
-    <binding name="passwordValidator" value="spring:validPinRequired"/>
+    <binding name="passwordValidator" value="hivemind:spring:validPinRequired"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>

@@ -31,7 +31,7 @@
      -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+    <binding name="listener" value="hivemind:spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
   </component>
   <component id="common" type="ItemCommon">
     <binding name="item" value="rule"/>
@@ -54,7 +54,7 @@
   </component>
   <component id="pstnPrefix" type="ValidField">
     <binding name="value" value="rule.pstnPrefix"/>
-    <binding name="validator" value="spring:validPhoneRequired"/>
+    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:PSTN prefix"/>
   </component>
   <component id="longDistancePrefixLabel" type="FieldLabel">
@@ -62,7 +62,7 @@
   </component>
   <component id="longDistancePrefix" type="ValidField">
     <binding name="value" value="rule.longDistancePrefix"/>
-    <binding name="validator" value="spring:validPhoneRequired"/>
+    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:Long distance prefix"/>
   </component>
   <component id="areaCodesLabel" type="FieldLabel">
@@ -70,7 +70,7 @@
   </component>
   <component id="areaCodes" type="ValidField">
     <binding name="value" value="rule.areaCodes"/>
-    <binding name="validator" value="spring:validPhoneSequence"/>
+    <binding name="validator" value="hivemind:spring:validPhoneSequence"/>
     <binding name="displayName" value="literal:Area codes"/>
   </component>
   <component id="externalLenLabel" type="FieldLabel">

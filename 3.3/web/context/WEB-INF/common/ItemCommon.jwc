@@ -45,7 +45,7 @@
   </component>
   <component id="extension" type="ValidField">
     <binding name="value" value="item.extension"/>
-    <binding name="validator" value="spring:validPhoneRequired"/>
+    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:Extension"/>
   </component>
   <component id="descriptionLabel" type="FieldPanel">

@@ -41,7 +41,7 @@
     <binding name="value" value="returnToEditPhone"/>
   </component>
   <component id="select" type="Submit">
-    <binding name="listener" value="spring:tapestry
+    <binding name="listener" value="hivemind:spring:tapestry
             .treatUserExceptionAsValidationError(beans.validator, listeners.select)"/>
   </component>
 </page-specification>

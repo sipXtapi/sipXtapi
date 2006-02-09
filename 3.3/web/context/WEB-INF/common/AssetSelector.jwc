@@ -17,7 +17,7 @@
   <property name="assetSelectionModel" />
   <!-- C O M P O N E N T S -->
   <component id="prompt" type="PropertySelection">
-    <binding name="model" value="spring:tapestry.instructUserToSelect(assetSelectionModel)"/>
+    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(assetSelectionModel)"/>
     <binding name="value" value="asset"/>
     <binding name="submitOnChange" value="submitOnChange"/>
     <binding name="id" value="id"/>

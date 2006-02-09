@@ -18,7 +18,7 @@
   </component>
   <component id="musicOnHoldSelector" type="AssetSelectorPanel">
     <binding name="asset" value="music"/>
-    <binding name="assetDir" value="spring:orbitsGenerator.audioDirectory"/>
+    <binding name="assetDir" value="hivemind:spring:orbitsGenerator.audioDirectory"/>
     <binding name="selectLabel" value="message:label.music"/>
     <binding name="errorMsg" value="message:error.select"/>
   </component>

@@ -39,7 +39,7 @@
   </component>
   <component id="internationalPrefix" type="ValidField">
     <binding name="value" value="rule.internationalPrefix"/>
-    <binding name="validator" value="spring:validPhoneRequired"/>
+    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:International calls prefix"/>
   </component>
   <!-- gateways configuration -->

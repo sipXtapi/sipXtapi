@@ -24,11 +24,11 @@
   <component id="common" type="ItemCommon">
     <binding name="item" value="parkOrbit"/>
     <binding name="useExtension" value="true"/>
-    <binding name="nameValidator" value="spring:validSipNameRequired"/>
+    <binding name="nameValidator" value="hivemind:spring:validSipNameRequired"/>
   </component>
   <component id="musicOnHoldSelector" type="AssetSelectorPanel">
     <binding name="asset" value="parkOrbit.music"/>
-    <binding name="assetDir" value="spring:orbitsGenerator.audioDirectory"/>
+    <binding name="assetDir" value="hivemind:spring:orbitsGenerator.audioDirectory"/>
     <binding name="selectLabel" value="message:label.music"/>
     <binding name="errorMsg" value="message:error.select"/>
   </component>

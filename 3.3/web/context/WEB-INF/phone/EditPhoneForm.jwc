@@ -14,9 +14,6 @@
   <property name="phoneSelectionModel"  persist="session"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
   
-  <!-- HACK-->
-  <inject property="validSerialNumber" object="spring:validSerialNumber"/>
-  
   <!--
       - B E A N S 
       -->
@@ -50,7 +47,7 @@
   </component>
   <component id="serialNumber" type="ValidField">
     <binding name="value" value="phone.serialNumber"/>
-    <binding name="validator" value="validSerialNumber"/>
+    <binding name="validator" value="hivemind:spring:validSerialNumber"/>
     <binding name="displayName" value="literal:Serial number"/>
   </component>
   <component id="phoneModelLabel" type="FieldLabel">
