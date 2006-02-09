@@ -10,7 +10,7 @@
 
 # The directory containing the test SSL certificate files to be copied
 # into .../etc/sipxpbx/ssl.
-TEST_SSL_FILES=~/ssl-test
+TEST_SSL_FILES=~/local/ssl-test
 
 # Set the "prefix" variable, since many of the @-substitutions use it.
 prefix=@prefix@
