@@ -487,6 +487,8 @@ bool SyncRpcPullUpdates::execute(
    XmlRpcResponse& response,                 ///< request response
    ExecutionStatus& status)
 {
+   bool result = false;
+
    UtlString* callingRegistrar = dynamic_cast<UtlString*>(params.at(0));
    if (callingRegistrar && !callingRegistrar->isNull())
    {
@@ -525,6 +527,7 @@ bool SyncRpcPullUpdates::execute(
                output.insertKeyAndValue(new UtlString(UPDATES),
                                         &updateMaps);
                response.setResponse(&output);
+               result = true;
             }
             else
             {
@@ -554,7 +557,7 @@ bool SyncRpcPullUpdates::execute(
       handleMissingExecuteParam(METHOD_NAME, "primaryRegistrar", response, status);
    }
 
-   return true;
+   return result;
 }
 
 void SyncRpcMethod::handleMissingExecuteParam(const char* methodName,
@@ -621,6 +624,8 @@ bool SyncRpcPushUpdates::execute(
    XmlRpcResponse& response,                 ///< request response
    ExecutionStatus& status)
 {
+   bool result = false;
+
    UtlString* callingRegistrar = dynamic_cast<UtlString*>(params.at(0));
    if (callingRegistrar && !callingRegistrar->isNull())
    {
@@ -642,7 +647,7 @@ bool SyncRpcPushUpdates::execute(
                UtlSList* updateMaps = dynamic_cast<UtlSList*>(params.at(2));
                if (updateMaps != NULL)
                {
-                  applyPushedUpdates(*updateMaps, response, status, *peer, *registrar);
+                  result = applyPushedUpdates(*updateMaps, response, status, *peer, *registrar);
                }
                else
                {
@@ -674,22 +679,24 @@ bool SyncRpcPushUpdates::execute(
       handleMissingExecuteParam(METHOD_NAME, "callingRegistrar", response, status);
    }
 
-   return true;
+   return result;
 }
 
 // This method is the guts of SyncRpcPushUpdates::execute, separated from all the
 // error-checking noise.
-void SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
+bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
                                             XmlRpcResponse&  response,
                                             ExecutionStatus& status,
                                             RegistrarPeer&   peer,
                                             SipRegistrar&    registrar)
 {
+   bool result = false;
+
    if (updateMaps.entries() == 0)
    {
       OsSysLog::add(FAC_SIP, PRI_WARNING,
                     "SipRegistrarServer::applyPushedUpdates empty updates list");
-      return;
+      return result;
    }
 
    UtlSListIterator updateIter(updateMaps);
@@ -733,7 +740,11 @@ void SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
       updateNumber = registrarServer.applyUpdatesToDirectory(timeNow, *updateList, &errorMsg);
       UtlLongLongInt updateNumberWrapped(updateNumber);
       response.setResponse(&updateNumberWrapped);
-      if (updateNumber < 0)
+      if (updateNumber > 0)
+      {
+         result = true;    // success
+      }
+      else
       {
          status = XmlRpcMethod::FAILED;
          errorMsg.insert(0, 
@@ -743,6 +754,8 @@ void SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
          response.setFault(SyncRpcMethod::UpdateFailed, errorMsg);
       }
    }
+
+   return result;
 }
 
 // Check lastSentUpdateNumber <= peerReceivedDbUpdateNumber, otherwise updates are missing

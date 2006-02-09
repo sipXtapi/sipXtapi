@@ -333,8 +333,8 @@ protected:
                         ExecutionStatus& status
                         );
 
-   /// guts of SyncRpcPushUpdates::execute -- core method to call after checking errors
-   void applyPushedUpdates(UtlSList&        updateMaps,
+   /// Core method for handling pushUpdates.  Return true on success, false on failure.
+   bool applyPushedUpdates(UtlSList&        updateMaps,
                            XmlRpcResponse&  response,
                            ExecutionStatus& status,
                            RegistrarPeer&   peer,
