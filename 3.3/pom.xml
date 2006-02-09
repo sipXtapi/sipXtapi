@@ -26,11 +26,22 @@
             <propertyExpansion>top.dir=${top.dir}</propertyExpansion>
           </configuration>
         </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <configuration>
+            <source>1.4</source>
+            <target>1.4</target>
+          </configuration>
+				</plugin>        
       </plugins>
     </pluginManagement>
   </build>
+  <reporting>
+    <outputDirectory>${project.build.directory}/site</outputDirectory>    
+  </reporting>  
   <properties>
-    <top.dir>${basedir}</top.dir>
-    <top.build.dir>${top.dir}/build</top.build.dir>
+    <sipx.src>${env.SIPX_SRC}</sipx.src>
+    <top.dir>${sipx.src}/sipXconfig</top.dir>
+    <top.build.dir>${top.dir}/build.maven</top.build.dir>
   </properties>
 </project>

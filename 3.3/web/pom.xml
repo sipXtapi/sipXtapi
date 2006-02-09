@@ -24,7 +24,7 @@
         <includes>
           <include>**/*.xml</include>
         </includes>
-      </resource>
+      </resource>      
       <!-- this may be a better alternative to using maven-war-plugin configuration -->
       <!--resource>
       <directory>context</directory>        
@@ -61,6 +61,7 @@
             <configuration>
               <sourceRoot>${top.build.dir}/web/dist/server-bindings-src</sourceRoot>
               <tasks>
+                <property name="server.bindings.src" value="${top.build.dir}/web/dist/server-bindings-src"/>
                 <ant antfile="build.xml" target="generate.server.bindings"/>
               </tasks>
             </configuration>
