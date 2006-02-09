@@ -549,17 +549,45 @@
           The registrar service maintains additional state that is not persistent:
           
           <list style='hanging'>
-            <t hangText='PeerReachable'>
-              This is a boolean that indicates whether or not the peer is
-              believed to be reachable. It is initialized on startup to
-              <spanx style='verb'>false</spanx>, indicating that the peer
-              is not known to be reachable. It is set to <spanx
-              style='verb'>false</spanx> by most operations if they fail to
-              reach the peer, and is set to <spanx
-              style='verb'>true</spanx> the RegistrarTest thread (see <xref
+            <t hangText='PeerSynchronizationState'>
+              This variable indicates whether or not the peer is
+              believed to be reachable.  It has four possible values:
+              <list style='hanging'>
+                <t hangText='SyncStateUnknown'>
+                  The initial condition, until peer state has been determined.
+                </t>                  
+                <t hangText='Reachable'>
+                  The peer is available for synchronization.
+                </t>                  
+                <t hangText='UnReachable'>
+                  The peer is not available for synchronization.
+                </t>                  
+                <t hangText='Incompatible'>
+                  The peer is incompatible for synchronization.
+                </t>                  
+              </list>
+              PeerSynchronizationState is initialized on startup to
+              <spanx style='verb'>SyncStateUnknown</spanx>, indicating that the peer
+              is not known to be reachable.
+              It is set to <spanx
+              style='verb'>Reachable</spanx> by the RegistrarTest thread (see <xref
               target='registrartest'/>) when it discovers that it can reach
-              the peer. When it is <spanx style='verb'>false</spanx>, most
+              the peer.  No one else is allowed to declare a peer reachable, because
+              RegistrarTest initializes PeerSentDbUpdateNumber as part of testing
+              reachability.
+              PeerSynchronizationState is set to <spanx
+              style='verb'>UnReachable</spanx> by most operations if they fail to
+              reach the peer.  It is set to <spanx
+              style='verb'>Incompatible</spanx> when a serious error occurs that 
+              indicates that the peer may be running a different version of the software.
+              </t>
+              <t>
+              When PeerSynchronizationState is <spanx
+              style='verb'>UnReachable</spanx>, most
               operations do not attempt to contact the peer.
+              When PeerSynchronizationState is <spanx
+              style='verb'>Incompatible</spanx>, no operations try to contact the peer.
+              The only way out of the Incompatible state is to restart the registrar.
             </t>
           </list>
         </t>
