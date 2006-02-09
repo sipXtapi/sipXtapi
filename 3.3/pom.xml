@@ -32,7 +32,13 @@
             <source>1.4</source>
             <target>1.4</target>
           </configuration>
-				</plugin>        
+        </plugin>
+        <plugin>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <configuration>
+            <forkMode>once</forkMode>
+          </configuration>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
