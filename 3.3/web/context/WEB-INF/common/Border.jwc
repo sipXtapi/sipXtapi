@@ -4,6 +4,7 @@
   <parameter name="loginRequired" default-value="true" required="no"/>
   <parameter name="restricted" default-value="true" required="no"/>
   <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="restartService" object="engine-service:restart"/>
   <component id="shell" type="Shell">
     <binding name="stylesheet" value="assets.stylesheet"/>
     <binding name="title" value="message:title"/>

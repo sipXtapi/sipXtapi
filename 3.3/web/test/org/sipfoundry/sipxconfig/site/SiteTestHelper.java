@@ -45,6 +45,9 @@ public class SiteTestHelper {
      */
     public static final String TEST_USER = "testuser";
     
+    public static final String TEST_PAGE_URL = "/app?page=TestPage&service=page"; 
+
+    
     /**
      * The name of the checkbox used in standard tables
      */
@@ -77,7 +80,7 @@ public class SiteTestHelper {
      * Go to TestPage.html. Log in if the login arg is true. Includes hack for slow machines.
      */
     public static void home(WebTester tester, boolean login) {
-        tester.beginAt("/app?service=page/TestPage");
+        tester.beginAt(TEST_PAGE_URL);
         if (login) {
             tester.clickLink("login");
         }
@@ -86,7 +89,7 @@ public class SiteTestHelper {
         // when the machine you're running it on is slow and you're
         // running a batch of tests, calling beginAt("/") twice seems
         // to get webunit to catch up.
-        tester.beginAt("/app?service=page/TestPage");
+        tester.beginAt(TEST_PAGE_URL);
         assertNoException(tester);
     }
 

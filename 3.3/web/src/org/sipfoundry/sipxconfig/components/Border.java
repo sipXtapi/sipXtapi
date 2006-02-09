@@ -13,10 +13,11 @@ package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
+import org.apache.tapestry.engine.IEngineService;
+import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageValidateListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -27,6 +28,7 @@ import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 public abstract class Border extends BaseComponent implements PageValidateListener {
     public abstract CoreContext getCoreContext();
+    public abstract IEngineService getRestartService();
     
     /**
      * When true - page does not require login
@@ -62,10 +64,9 @@ public abstract class Border extends BaseComponent implements PageValidateListen
             throw new PageRedirectException(Home.PAGE);
         }
     }
-
-    public void logout(IRequestCycle cycle) {
-        Visit visit = getVisit();
-        visit.logout(cycle);
+    
+    public ILink logout() {
+        return getRestartService().getLink(false, null);
     }
     
     protected void redirectToLogin(IPage page) {
