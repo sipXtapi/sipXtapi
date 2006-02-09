@@ -25,11 +25,11 @@
     <binding name="value" value="heading"/>
   </component>
   <component id="callForwardingLink" type="DirectLink">
-    <binding name="listener" value="listeners.editCallForwarding"/>
+    <binding name="listener" value="listener:editCallForwarding"/>
     <binding name="parameters" value="user.id"/>
   </component>
   <component id="editUserLink" type="DirectLink">
-    <binding name="listener" value="listeners.editUser"/>
+    <binding name="listener" value="listener:editUser"/>
     <binding name="parameters" value="user.id"/>
   </component>
   <component id="settingsTabs" type="For">
@@ -37,7 +37,7 @@
     <binding name="value" value="currentSetting"/>
   </component>
   <component id="settingsLink" type="DirectLink">
-    <binding name="listener" value="listeners.editSettings"/>
+    <binding name="listener" value="listener:editSettings"/>
     <binding name="parameters" value="editSettingListenerParameters"/>
   </component>
   <component id="settingsTabLabel" type="Insert">

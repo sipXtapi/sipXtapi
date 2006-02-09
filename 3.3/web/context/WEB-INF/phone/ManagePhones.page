@@ -24,7 +24,7 @@
 	  - C O M P O N E N T S
 	  -->
   <component id="phoneManagement" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="newPhoneTable" type="Table">
     <binding name="columns" value="literal:* serialNumber,!lines,modelId:model.label,description"/>
@@ -35,12 +35,12 @@
     <binding name="selections" value="selections"/>
   </component>
   <component id="addPhone" type="DirectLink">
-    <binding name="listener" value="listeners.addPhone"/>
+    <binding name="listener" value="listener:addPhone"/>
   </component>
   <!-- Column 2: edit phone -->
   <component id="serialNumberColumnValue" type="Block"/>
   <component id="editPhoneLink" type="DirectLink">
-    <binding name="listener" value="listeners.editPhone"/>
+    <binding name="listener" value="listener:editPhone"/>
     <binding name="parameters" value="currentRow.primaryKey"/>
   </component>
   <component id="phoneLabel" type="Insert">
@@ -53,23 +53,23 @@
     <binding name="value" value="currentLine"/>
   </component>
   <component id="lineLink" type="DirectLink">
-    <binding name="listener" value="listeners.editLine"/>
+    <binding name="listener" value="listener:editLine"/>
     <binding name="parameters" value="currentLine.primaryKey"/>
   </component>
   <component id="lineLabel" type="Insert">
     <binding name="value" value="currentLine.displayLabel"/>
   </component>
   <component id="sendProfiles" type="Submit">
-    <binding name="listener" value="listeners.generateProfiles"/>
+    <binding name="listener" value="listener:generateProfiles"/>
   </component>
   <component id="sendAllProfiles" type="Submit">
-    <binding name="listener" value="listeners.generateAllProfiles"/>
+    <binding name="listener" value="listener:generateAllProfiles"/>
   </component>
   <component id="restart" type="Submit">
-    <binding name="listener" value="listeners.restart"/>
+    <binding name="listener" value="listener:restart"/>
   </component>
   <component id="delete" type="Submit">
-    <binding name="listener" value="listeners.deletePhone"/>
+    <binding name="listener" value="listener:deletePhone"/>
   </component>
   <component id="groupFilter" type="GroupFilter">
     <binding name="selectedGroupId" value="groupId"/>

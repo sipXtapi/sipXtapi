@@ -31,7 +31,7 @@
     <component id="tableColumns" type="contrib:TableColumns"/>    
     <component id="tableRows" type="contrib:TableRows">
         <binding name="row" value="currentRow"/>
-		<binding name="class" value="beans.rowClass.next"/>
+		<binding name="class" value="bean:rowClass.next"/>
     </component>
     <component id="tableValues" type="contrib:TableValues"/>
     

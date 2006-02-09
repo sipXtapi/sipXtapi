@@ -22,10 +22,10 @@
 	  - C O M P O N E N T S
 	  -->
   <component id="addUser" type="DirectLink">
-    <binding name="listener" value="listeners.addUser"/>
+    <binding name="listener" value="listener:addUser"/>
   </component>
   <component id="userManagement" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="groupFilter" type="GroupFilter">
     <binding name="selectedGroupId" value="groupId"/>
@@ -34,13 +34,13 @@
     <binding name="searchMode" value="searchMode"/>
   </component>
   <component id="userTable" type="UserTable">
-    <binding name="userListener" value="listeners.editUser"/>
+    <binding name="userListener" value="listener:editUser"/>
     <binding name="groupId" value="groupId"/>
     <binding name="searchString" value="queryText"/>
     <binding name="searchMode" value="searchMode"/>
   </component>
   <component id="delete" type="Submit">
-    <binding name="listener" value="listeners.deleteUsers"/>
+    <binding name="listener" value="listener:deleteUsers"/>
     <binding name="label" value="message:label.delete"/>
   </component>
   <component id="groupActions" type="GroupActions">

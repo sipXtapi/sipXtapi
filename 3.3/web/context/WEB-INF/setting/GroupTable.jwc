@@ -42,15 +42,15 @@
     <binding name="value" value="memberCounts[currentRow.primaryKey]"/>
   </component>
   <component id="delete" type="Submit">
-    <binding name="listener" value="listeners.deleteGroup"/>
+    <binding name="listener" value="listener:deleteGroup"/>
     <binding name="label" value="message:button.delete"/>
   </component>
   <component id="moveUp" type="Submit">
-    <binding name="listener" value="listeners.moveUp"/>
+    <binding name="listener" value="listener:moveUp"/>
     <binding name="label" value="message:button.moveUp"/>
   </component>
   <component id="moveDown" type="Submit">
-    <binding name="listener" value="listeners.moveDown"/>
+    <binding name="listener" value="listener:moveDown"/>
     <binding name="label" value="message:button.moveDown"/>
   </component>
 </component-specification>

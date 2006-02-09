@@ -28,7 +28,7 @@
     <binding name="columns" value="literal:* name,description"/>
     <binding name="source" value="dialPlanContext.autoAttendants"/>
     <binding name="row" value="currentRow"/>
-    <binding name="convertor" value="beans.idConverter"/>
+    <binding name="convertor" value="bean:idConverter"/>
     <binding name="selections" value="selections"/>
   </component>
   <component id="nameColumnValue" type="Block"/>
@@ -36,17 +36,17 @@
     <binding name="value" value="currentRow.name"/>
   </component>
   <component id="editRowLink" type="DirectLink">
-    <binding name="listener" value="listeners.edit"/>
+    <binding name="listener" value="listener:edit"/>
     <binding name="parameters" value="currentRow.id"/>
   </component>
   <component id="addAttendantLink" type="DirectLink">
-    <binding name="listener" value="listeners.add"/>
+    <binding name="listener" value="listener:add"/>
   </component>
   <component id="deleteButton" type="Submit">
-    <binding name="listener" value="listeners.deleteSelected"/>
+    <binding name="listener" value="listener:deleteSelected"/>
   </component>
   <component id="attendantListForm" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="specialAttendant" type="SpecialAttendantPanel"/>
 </page-specification>

@@ -14,8 +14,8 @@
      -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
-    <binding name="listener" value="listeners.formSubmit"></binding>
+    <binding name="delegate" value="bean:validator"/>
+    <binding name="listener" value="listener:formSubmit"></binding>
   </component>
   <component id="itemCommon" type="ItemCommon">
     <binding name="item" value="conference"/>
@@ -27,7 +27,7 @@
     <binding name="renderGroupTitle" value="false"/>
   </component>
   <component id="formActions" type="FormActions">
-    <binding name="listener" value="listeners.apply"/>
+    <binding name="listener" value="listener:apply"/>
     <binding name="callback" value="callback"/>
   </component>
 </page-specification>

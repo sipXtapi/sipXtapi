@@ -30,7 +30,7 @@
      - C O M P O N E N T S
      -->
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
     <binding name="listener" value="spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
   </component>
   <component id="common" type="ItemCommon">
@@ -38,7 +38,7 @@
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>
-    <binding name="listener" value="listeners.commit"/>
+    <binding name="listener" value="listener:commit"/>
   </component>
   <!-- long distance fields -->
   <component id="permissionTypeLabel" type="FieldLabel">
@@ -46,7 +46,7 @@
     <binding name="displayName" value="literal:Type"/>
   </component>
   <component id="permissionType" type="PropertySelection">
-    <binding name="model" value="beans.permissionTypeModel"></binding>
+    <binding name="model" value="bean:permissionTypeModel"></binding>
     <binding name="value" value="rule.permission"></binding>
   </component>
   <component id="pstnPrefixLabel" type="FieldLabel">
@@ -79,13 +79,13 @@
   </component>
   <component id="externalLen" type="PropertySelection">
     <binding name="value" value="rule.externalLen"/>
-    <binding name="model" value="beans.externalLenModel"/>
+    <binding name="model" value="bean:externalLenModel"/>
   </component>
   <!-- gateways configuration -->
   <component id="gatewaysPanel" type="GatewaysPanel">
     <binding name="rule" value="rule"/>
-    <binding name="addGatewayListener" value="listeners.addGateway"/>
-    <binding name="selectGatewayListener" value="listeners.selectGateway"/>
+    <binding name="addGatewayListener" value="listener:addGateway"/>
+    <binding name="selectGatewayListener" value="listener:selectGateway"/>
   </component>
   <!--
 	 - A S S E T S

@@ -13,6 +13,10 @@
       -->
   <property name="phoneSelectionModel"  persist="session"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
+  
+  <!-- HACK-->
+  <inject property="validSerialNumber" object="spring:validSerialNumber"/>
+  
   <!--
       - B E A N S 
       -->
@@ -21,12 +25,12 @@
     <set name="minimumLength" value="literal:1"/>
   </bean>
   <bean name="phoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="literal:phoneContext.availablePhoneModels"/>
-    <set name="labelExpression" value="literal:'label'"/>
+    <set name="collection" value="phoneContext.availablePhoneModels"/>
+    <set name="labelExpression" value="literal:label"/>
   </bean>
   <bean name="phoneGroupSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="literal:phoneContext.groups"/>
-    <set name="labelExpression" value="literal:'name'"/>
+    <set name="collection" value="phoneContext.groups"/>
+    <set name="labelExpression" value="literal:name"/>
   </bean>
   <!--
       - C O M P O N E N T S
@@ -46,7 +50,7 @@
   </component>
   <component id="serialNumber" type="ValidField">
     <binding name="value" value="phone.serialNumber"/>
-    <binding name="validator" value="spring:validSerialNumber"/>
+    <binding name="validator" value="validSerialNumber"/>
     <binding name="displayName" value="literal:Serial number"/>
   </component>
   <component id="phoneModelLabel" type="FieldLabel">
@@ -54,13 +58,13 @@
     <binding name="displayName" value="literal:Phone model"/>
   </component>
   <component id="phoneModel" type="PropertySelection">
-    <binding name="model" value="beans.phoneSelectionModel"/>
+    <binding name="model" value="bean:phoneSelectionModel"/>
     <binding name="value" value="phoneModel"/>
     <binding name="disabled" value="!phone.isNew()"/>
   </component>
   <component id="groupSelect" type="contrib:Palette">
     <binding name="selected" value="phone.groupsAsList"/>
-    <binding name="model" value="beans.phoneGroupSelectionModel"/>
+    <binding name="model" value="bean:phoneGroupSelectionModel"/>
     <binding name="sort" value="@org.apache.tapestry.contrib.palette.SortMode@LABEL"/>
     <binding name="rows" value="3"/>
   </component>

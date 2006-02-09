@@ -15,82 +15,82 @@
   <inject property="indexManager" object="spring:indexManager"/>
   <inject property="uploadManager" object="spring:uploadManager"/>
   <component id="resetDialPlans" type="DirectLink">
-    <binding name="listener" value="listeners.resetDialPlans"/>
+    <binding name="listener" value="listener:resetDialPlans"/>
   </component>
   <component id="resetPhoneContext" type="DirectLink">
-    <binding name="listener" value="listeners.resetPhoneContext"/>
+    <binding name="listener" value="listener:resetPhoneContext"/>
   </component>
   <component id="resetCallGroupContext" type="DirectLink">
-    <binding name="listener" value="listeners.resetCallGroupContext"/>
+    <binding name="listener" value="listener:resetCallGroupContext"/>
   </component>
   <component id="resetParkOrbitContext" type="DirectLink">
-    <binding name="listener" value="listeners.resetParkOrbitContext"/>
+    <binding name="listener" value="listener:resetParkOrbitContext"/>
   </component>
   <component id="resetCoreContext" type="DirectLink">
-    <binding name="listener" value="listeners.resetCoreContext"/>
+    <binding name="listener" value="listener:resetCoreContext"/>
   </component>
   <component id="resetConferenceBridgeContext" type="DirectLink">
-    <binding name="listener" value="listeners.resetConferenceBridgeContext"/>
+    <binding name="listener" value="listener:resetConferenceBridgeContext"/>
   </component>
   <component id="newPhoneGroup" type="DirectLink">
-    <binding name="listener" value="listeners.newGroup"/>
+    <binding name="listener" value="listener:newGroup"/>
     <binding name="parameters" value="literal:phone"/>
   </component>
   <component id="newUpload" type="DirectLink">
-    <binding name="listener" value="listeners.newUpload"/>
+    <binding name="listener" value="listener:newUpload"/>
   </component>
   <component id="resetUpload" type="DirectLink">
-    <binding name="listener" value="listeners.resetUploadManager"/>
+    <binding name="listener" value="listener:resetUploadManager"/>
   </component>
   <component id="newUserGroup" type="DirectLink">
-    <binding name="listener" value="listeners.newGroup"/>
+    <binding name="listener" value="listener:newGroup"/>
     <binding name="parameters" value="literal:user"/>
   </component>
   <component id="toggleNavigation" type="DirectLink">
-    <binding name="listener" value="listeners.toggleNavigation"/>
+    <binding name="listener" value="listener:toggleNavigation"/>
   </component>
   <component id="hideNavigation" type="DirectLink">
-    <binding name="listener" value="listeners.hideNavigation"/>
+    <binding name="listener" value="listener:hideNavigation"/>
   </component>
   <component id="toggleAdmin" type="DirectLink">
-    <binding name="listener" value="listeners.toggleAdmin"/>
+    <binding name="listener" value="listener:toggleAdmin"/>
   </component>
   <component id="seedTestUser" type="DirectLink">
-    <binding name="listener" value="listeners.seedTestUser"/>
+    <binding name="listener" value="listener:seedTestUser"/>
   </component>
   <component id="loginFirstTestUser" type="DirectLink">
-    <binding name="listener" value="listeners.loginFirstTestUser"/>
+    <binding name="listener" value="listener:loginFirstTestUser"/>
   </component>
   <component id="deleteAllUsers" type="DirectLink">
-    <binding name="listener" value="listeners.deleteAllUsers"/>
+    <binding name="listener" value="listener:deleteAllUsers"/>
   </component>
   <component id="login" type="DirectLink">
-    <binding name="listener" value="listeners.login"/>
+    <binding name="listener" value="listener:login"/>
   </component>
   <component id="populateJobs" type="DirectLink">
-    <binding name="listener" value="listeners.populateJobs"/>
+    <binding name="listener" value="listener:populateJobs"/>
   </component>
   <component id="populatePhones" type="DirectLink">
-    <binding name="listener" value="listeners.populatePhones"/>
+    <binding name="listener" value="listener:populatePhones"/>
   </component>
   <component id="populateUsers" type="DirectLink">
-    <binding name="listener" value="listeners.populateUsers"/>
+    <binding name="listener" value="listener:populateUsers"/>
   </component>
   <component id="searchBongo" type="ExternalLink">
     <binding name="page" value="literal:SearchPage"/>
     <binding name="parameters" value="literal:bongo"/>
   </component>
   <component id="RestartReminder" type="DirectLink">
-    <binding name="listener" value="listeners.goToRestartReminderPage"/>
+    <binding name="listener" value="listener:goToRestartReminderPage"/>
   </component>
   <component id="throwException" type="DirectLink">
-    <binding name="listener" value="listeners.throwException"/>
+    <binding name="listener" value="listener:throwException"/>
   </component>
   <component id="validateEditPageProvider" type="DirectLink">
-    <binding name="listener" value="listeners.validateEditPageProvider"/>
+    <binding name="listener" value="listener:validateEditPageProvider"/>
   </component>
   <component id="indexAll" type="DirectLink">
-    <binding name="listener" value="listeners.indexAll"/>
+    <binding name="listener" value="listener:indexAll"/>
   </component>
   <!-- generation of data sets -->
   <property name="dataSet" />
@@ -100,7 +100,7 @@
     <binding name="element" value="literal:ul"/>
   </component>
   <component id="generateLink" type="DirectLink">
-    <binding name="listener" value="listeners.generateDataSet"/>
+    <binding name="listener" value="listener:generateDataSet"/>
     <binding name="parameters" value="dataSet.name"/>
   </component>
   <component id="generateLinkLabel" type="Insert">

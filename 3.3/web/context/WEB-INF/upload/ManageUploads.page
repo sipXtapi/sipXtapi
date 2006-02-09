@@ -23,25 +23,25 @@
     <set name="extraOption" value="literal:null"/>
   </bean>
   <component id="uploadManagement" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="uploadTable" type="Table">
     <binding name="columns" value="literal:* Name:name,Active:deployed,Upload:specification.label,Description:description"/>
     <binding name="source" value="upload"/>
     <binding name="row" value="currentRow"/>
-    <binding name="convertor" value="beans.idConverter"/>
+    <binding name="convertor" value="bean:idConverter"/>
     <binding name="selections" value="selections"/>
   </component>
   <component id="NameColumnValue" type="Block"/>
   <component id="editUploadLink" type="DirectLink">
-    <binding name="listener" value="listeners.editUpload"/>
+    <binding name="listener" value="listener:editUpload"/>
     <binding name="parameters" value="currentRow.primaryKey"/>
   </component>
   <component id="uploadLabel" type="Insert">
     <binding name="value" value="currentRow.name"/>
   </component>
   <component id="delete" type="Submit">
-    <binding name="listener" value="listeners.deleteUpload"/>
+    <binding name="listener" value="listener:deleteUpload"/>
   </component>
   <component id="activate" type="Submit">
     <binding name="listener" value="spring:tapestry
@@ -53,7 +53,7 @@
   </component>
   <component id="selectSpecification" type="PropertySelection">
     <binding name="value" value="selectedSpecification"/>
-    <binding name="model" value="beans.specificationSelection"/>
+    <binding name="model" value="bean:specificationSelection"/>
     <binding name="submitOnChange" value="true"/>
   </component>
 </page-specification>

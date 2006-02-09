@@ -16,7 +16,7 @@
      - C O M P O N E N T S
      -->
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="xmlSelector" type="PropertySelection">
     <binding name="model" value="fileSelectionModel"/>
@@ -27,7 +27,7 @@
     <binding name="value" value="xml"/>
   </component>
   <component id="activate" type="Submit">
-    <binding name="listener" value="listeners.activate"/>
+    <binding name="listener" value="listener:activate"/>
     <binding name="label" value="message:button.ok"/>
   </component>
   <component id="cancel" type="CancelButton">

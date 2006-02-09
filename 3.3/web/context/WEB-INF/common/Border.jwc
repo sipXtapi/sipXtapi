@@ -18,7 +18,7 @@
     <binding name="element" value="'div'"/>
   </component>
   <component id="logoutLink" type="DirectLink">
-    <binding name="listener" value="listeners.logout"/>
+    <binding name="listener" value="listener:logout"/>
   </component>
   <!--
 	  - A S S E T S

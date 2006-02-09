@@ -60,7 +60,7 @@
     <binding name="value" value="user.userName"/>
   </component>
   <component id="search" type="Submit">
-    <binding name="listener" value="listeners.search"/>
+    <binding name="listener" value="listener:search"/>
   </component>
   <component id="cancel" type="Submit">
     <binding name="listener" value="cancelListener"/>

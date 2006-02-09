@@ -23,7 +23,7 @@
   <component id="tableView" type="Table">
     <binding name="columns" value="* !sequence:type,!userid:user.userName,!alias:user.aliasesString,!expiration"/>
     <binding name="source" value="rings"/>
-    <binding name="class" value="beans.rowClass.next"/>
+    <binding name="class" value="bean:rowClass.next"/>
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>
     <binding name="convertor" value="idConverter"/>
@@ -31,7 +31,7 @@
   <component id="sequenceColumnValue" type="Block"/>
   <component id="sequence" type="PropertySelection">
     <binding name="value" value="currentRow.type"/>
-    <binding name="model" value="beans.delayModel"/>
+    <binding name="model" value="bean:delayModel"/>
   </component>
   <!-- it would be better if we just suppress this for the first row however 
     	it's hard to get access to the row number -->

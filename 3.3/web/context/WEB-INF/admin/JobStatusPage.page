@@ -24,16 +24,16 @@
   </component>
   <component id="tableColumns" type="contrib:TableColumns"/>
   <component id="tableRows" type="contrib:TableRows">
-    <binding name="class" value="beans.rowClass.next"/>
+    <binding name="class" value="bean:rowClass.next"/>
     <binding name="row" value="currentRow"/>
   </component>
   <component id="tableValues" type="contrib:TableValues"/>
   <component id="removeButton" type="Submit">
-    <binding name="listener" value="listeners.remove"/>
+    <binding name="listener" value="listener:remove"/>
     <binding name="label" value="message:button.remove"/>
   </component>
   <component id="clearButton" type="Submit">
-    <binding name="listener" value="listeners.clear"/>
+    <binding name="listener" value="listener:clear"/>
     <binding name="label" value="message:button.clear"/>
   </component>
   <component id="refreshButton" type="Submit">

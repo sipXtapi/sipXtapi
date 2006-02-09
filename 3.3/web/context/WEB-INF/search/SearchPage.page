@@ -25,7 +25,7 @@
     <binding name="value" value="resultItem.description"/>
   </component>
   <component id="editLink" type="DirectLink">
-    <binding name="listener" value="listeners.activateEditPage"/>
+    <binding name="listener" value="listener:activateEditPage"/>
     <binding name="parameters" value="{resultItem.beanClass.getName(), resultItem.beanId}"/>
   </component>
 </page-specification>

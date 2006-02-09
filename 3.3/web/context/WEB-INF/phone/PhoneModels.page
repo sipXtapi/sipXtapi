@@ -22,11 +22,11 @@
   </component>
   <component id="unmanagedPhoneModel" copy-of="phoneModel"/>
   <component id="phoneModelLink" type="DirectLink">
-    <binding name="listener" value="listeners.editPhoneDefaults"/>
+    <binding name="listener" value="listener:editPhoneDefaults"/>
     <binding name="parameters" value="currentPhoneModel.name"/>
   </component>
   <component id="editGroup" type="DirectLink">
-    <binding name="listener" value="listeners.editGroup"/>
+    <binding name="listener" value="listener:editGroup"/>
   </component>
   <component id="groupLabel" type="GroupLabel">
     <binding name="group" value="group"/>

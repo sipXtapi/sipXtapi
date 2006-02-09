@@ -15,7 +15,7 @@
     <property name="processes" type="java.lang.Object[]"/>
 
     <component id="continue" type="Submit">
-        <binding name="listener" value="listeners.proceed"/>
+        <binding name="listener" value="listener:proceed"/>
         <binding name="value" value="message:continue.button"/>
     </component>
     

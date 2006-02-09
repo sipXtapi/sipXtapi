@@ -24,11 +24,11 @@
     <binding name="value" value="heading"/>
   </component>
   <component id="deviceIdLink" type="DirectLink">
-    <binding name="listener" value="listeners.editPhone"/>
+    <binding name="listener" value="listener:editPhone"/>
     <binding name="parameters" value="phone.id"/>
   </component>
   <component id="linesLink" type="DirectLink">
-    <binding name="listener" value="listeners.editLines"/>
+    <binding name="listener" value="listener:editLines"/>
     <binding name="parameters" value="phone.id"/>
   </component>
   <component id="settingsTabs" type="For">
@@ -36,7 +36,7 @@
     <binding name="value" value="currentSetting"/>
   </component>
   <component id="settingsLink" type="DirectLink">
-    <binding name="listener" value="listeners.editSettings"/>
+    <binding name="listener" value="listener:editSettings"/>
     <binding name="parameters" value="editSettingListenerParameters"/>
   </component>
   <component id="settingsTabLabel" type="Insert">

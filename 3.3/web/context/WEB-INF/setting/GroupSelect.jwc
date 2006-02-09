@@ -13,7 +13,7 @@
     <binding name="value" value="currentGroup"/>
   </component>
   <component id="groupOption" type="Option">
-    <binding name="selected" value="beans.groupSelections.selected[currentGroup]"/>
+    <binding name="selected" value="bean:groupSelections.selected[currentGroup]"/>
     <binding name="label" value="currentGroup.name"/>
   </component>
 </component-specification>

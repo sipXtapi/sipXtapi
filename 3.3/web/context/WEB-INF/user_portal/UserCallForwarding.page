@@ -30,17 +30,17 @@
     <binding name="heading" value="literal:Call Forwarding"/>
   </component>
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
-    <binding name="listener" value="listeners.submit"/>
+    <binding name="delegate" value="bean:validator"/>
+    <binding name="listener" value="listener:submit"/>
   </component>
   <component id="errors" type="ErrorMsg"/>
   <component id="rings" type="ListEdit">
     <binding name="source" value="ringsMap.keys"/>
     <binding name="value" value="ringsMap.key"/>
-    <binding name="listener" value="listeners.synchronizeRing"/>
+    <binding name="listener" value="listener:synchronizeRing"/>
   </component>
   <component id="ringEditor" type="RingEditor">
-    <binding name="deleteListener" value="listeners.deleteRing"/>
+    <binding name="deleteListener" value="listener:deleteRing"/>
     <binding name="ring" value="ring"/>
   </component>
   <component id="addRingLink" type="LinkSubmit">
@@ -49,7 +49,7 @@
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>
-    <binding name="listener" value="listeners.commit"/>
+    <binding name="listener" value="listener:commit"/>
   </component>
   <component id="firstCall" type="InsertText">
     <binding name="value" value="firstCallMsg"/>

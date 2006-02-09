@@ -65,7 +65,7 @@
   </component>
   <component id="groupSelect" type="contrib:Palette">
     <binding name="selected" value="user.groupsAsList"/>
-    <binding name="model" value="beans.userGroupSelectionModel"/>
+    <binding name="model" value="bean:userGroupSelectionModel"/>
     <binding name="sort" value="@org.apache.tapestry.contrib.palette.SortMode@LABEL"/>
     <binding name="rows" value="3"/>
   </component>

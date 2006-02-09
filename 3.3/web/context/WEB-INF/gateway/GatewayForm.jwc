@@ -22,7 +22,7 @@
   </component>
   <component id="gatewayName" type="ValidField">
     <binding name="value" value="gateway.name"/>
-    <binding name="validator" value="beans.nameValidator"/>
+    <binding name="validator" value="bean:nameValidator"/>
     <binding name="displayName" value="message:label.name"/>
   </component>
   <component id="gatewaySerialLabel" type="FieldLabel">
@@ -38,7 +38,7 @@
   </component>
   <component id="gatewayAddress" type="ValidField">
     <binding name="value" value="gateway.address"/>
-    <binding name="validator" value="beans.nameValidator"/>
+    <binding name="validator" value="bean:nameValidator"/>
     <binding name="displayName" value="message:label.address"/>
   </component>
   <component id="gatewayDescriptionLabel" type="FieldLabel">
@@ -53,7 +53,7 @@
     <binding name="displayName" value="message:label.model"/>
   </component>
   <component id="gatewayModel" type="PropertySelection">
-    <binding name="model" value="beans.gatewayModels"/>
+    <binding name="model" value="bean:gatewayModels"/>
     <binding name="value" value="gateway.model"/>
     <binding name="disabled" value="!gateway.isNew()"/>
   </component>

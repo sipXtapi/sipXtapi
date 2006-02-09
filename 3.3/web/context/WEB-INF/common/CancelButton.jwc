@@ -6,6 +6,6 @@
   </parameter>
   <!-- C O M P O N E N T S -->
   <component id="onCancel" type="Submit">
-    <binding name="listener" value="listeners.cancel"/>
+    <binding name="listener" value="listener:cancel"/>
   </component>
 </component-specification>

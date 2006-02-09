@@ -12,7 +12,7 @@
      - C O M P O N E N T S
      -->
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="errors" type="ErrorMsg"/>
   <component id="logsPanel" type="FieldPanel">
@@ -40,7 +40,7 @@
     <binding name="selected" value="snapshot.credentials"/>
   </component>
   <component id="actions" type="FormActions">
-    <binding name="listener" value="listeners.createSnapshot"/>
+    <binding name="listener" value="listener:createSnapshot"/>
     <binding name="successMessage" value="message:msg.success"/>
   </component>
   <component id="ifResultsPresent" type="If">

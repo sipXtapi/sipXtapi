@@ -13,7 +13,7 @@
     <binding name="value" value="upload.specification.label"/>
   </component>
   <component id="uploadForm" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
     <binding name="listener" value="components.applyOkCancel.listeners.onApply"/>
   </component>
   <component id="settingsFieldset" type="SettingsFieldset">
@@ -38,7 +38,7 @@
     <binding name="label" value="literal:Inactivate"/>
   </component>
   <component id="applyOkCancel" type="FormActions">
-    <binding name="listener" value="listeners.onSave"/>
+    <binding name="listener" value="listener:onSave"/>
     <binding name="callback" value="callback"/>
   </component>
 </page-specification>

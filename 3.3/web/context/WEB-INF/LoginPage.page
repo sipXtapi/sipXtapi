@@ -19,8 +19,8 @@
     <binding name="title" value="message:title"/>
   </component>
   <component id="form" type="Form">
-    <binding name="listener" value="listeners.login"/>
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="listener" value="listener:login"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="panelUserName" type="FieldPanel">
     <binding name="field" value="components.userName"/>
@@ -28,7 +28,7 @@
   </component>
   <component id="userName" type="ValidField">
     <binding name="value" value="userName"/>
-    <binding name="validator" value="beans.nameValidator"/>
+    <binding name="validator" value="bean:nameValidator"/>
     <binding name="displayName" value="message:label.userName"/>
   </component>
   <component id="panelPassword" type="FieldPanel">

@@ -34,9 +34,9 @@
     <binding name="value" value="currentSetting"/>
   </component>
   <component id="settingsTab" type="DirectLink">
-    <binding name="listener" value="listeners.activateTab"/>
+    <binding name="listener" value="listener:activateTab"/>
     <binding name="parameters" value="currentSetting.name"/>
-    <binding name="class" value="beans.tabs.getTabClass(currentSetting.name)"/>
+    <binding name="class" value="bean:tabs.getTabClass(currentSetting.name)"/>
     <binding name="id" value="'link:' + currentSetting.name"/>
   </component>
   <component id="renderTab" type="If">

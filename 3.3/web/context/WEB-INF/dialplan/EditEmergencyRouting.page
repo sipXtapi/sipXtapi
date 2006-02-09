@@ -22,14 +22,14 @@
      - C O M P O N E N T S
      -->
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="errors" type="ErrorMsg"/>
   <component id="gatewaysLink" type="PageLink">
     <binding name="page" value="literal:ListGateways"/>
   </component>
   <component id="addExceptionLink" type="DirectLink">
-    <binding name="listener" value="listeners.addException"/>
+    <binding name="listener" value="listener:addException"/>
   </component>
   <component id="gatewaysLabel" type="FieldLabel">
     <binding name="field" value="components.gateways"/>
@@ -37,7 +37,7 @@
   </component>
   <component id="gateways" type="PropertySelection">
     <binding name="value" value="emergencyRouting.defaultGateway"/>
-    <binding name="model" value="beans.gatewayModel"/>
+    <binding name="model" value="bean:gatewayModel"/>
   </component>
   <component id="externalNumberLabel" type="FieldLabel">
     <binding name="field" value="components.externalNumber"/>
@@ -50,15 +50,15 @@
   <component id="exceptions" type="ListEdit">
     <binding name="source" value="exceptionsMap.keys"/>
     <binding name="value" value="exceptionsMap.key"/>
-    <binding name="listener" value="listeners.synchronizeExceptionItem"/>
+    <binding name="listener" value="listener:synchronizeExceptionItem"/>
   </component>
   <component id="exception" type="RoutingExceptionEditor">
-    <binding name="deleteListener" value="listeners.deleteException"/>
+    <binding name="deleteListener" value="listener:deleteException"/>
     <binding name="exception" value="exceptionItem"/>
     <binding name="gateways" value="gatewayContext.gateways"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>
-    <binding name="listener" value="listeners.commit"/>
+    <binding name="listener" value="listener:commit"/>
   </component>
 </page-specification>

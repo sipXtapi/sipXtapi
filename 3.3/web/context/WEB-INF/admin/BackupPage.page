@@ -19,8 +19,8 @@
      - C O M P O N E N T S
      -->
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
-    <binding name="listener" value="listeners.submit"/>
+    <binding name="delegate" value="bean:validator"/>
+    <binding name="listener" value="listener:submit"/>
   </component>
   <component id="errors" type="ErrorMsg"/>
   <component id="checkConfigs" type="Checkbox">
@@ -37,7 +37,7 @@
     <binding name="value" value="backupPlan.limitedCount"/>
   </component>
   <component id="backup" type="Submit">
-    <binding name="listener" value="listeners.backup"/>
+    <binding name="listener" value="listener:backup"/>
     <binding name="label" value="literal:Backup Now"/>
   </component>
   <component id="ifResultsPresent" type="If">
@@ -70,7 +70,7 @@
     <binding name="selected" value="schedule.enabled"/>
   </component>
   <component id="dailyScheduledDay" type="PropertySelection">
-    <binding name="model" value="beans.scheduledDaysPropertyModel"/>
+    <binding name="model" value="bean:scheduledDaysPropertyModel"/>
     <binding name="value" value="schedule.scheduledDay"/>
   </component>
   <component id="dailyScheduledTime" type="contrib:DateField">
@@ -81,7 +81,7 @@
     <binding name="displayName" value="literal:Time Of Day"/>
   </component>
   <component id="ok" type="Submit">
-    <binding name="listener" value="listeners.ok"/>
+    <binding name="listener" value="listener:ok"/>
     <binding name="label" value="literal:OK"/>
   </component>
 </page-specification>

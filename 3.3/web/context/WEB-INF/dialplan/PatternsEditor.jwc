@@ -29,10 +29,10 @@
     <binding name="displayName" value="literal:Prefix"/>
   </component>
   <component id="add" type="LinkSubmit">
-    <binding name="listener" value="listeners.add"/>
+    <binding name="listener" value="listener:add"/>
   </component>
   <component id="delete" type="LinkSubmit">
-    <binding name="listener" value="listeners.delete"/>
+    <binding name="listener" value="listener:delete"/>
   </component>
   <component id="conditionalAdd" type="If">
     <binding name="condition" value="last"/>
@@ -42,6 +42,6 @@
   </component>
   <component id="digits" type="PropertySelection">
     <binding name="value" value="pattern.digits"/>
-    <binding name="model" value="beans.digitsModel"/>
+    <binding name="model" value="bean:digitsModel"/>
   </component>
 </component-specification>

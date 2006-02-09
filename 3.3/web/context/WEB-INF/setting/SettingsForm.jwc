@@ -14,7 +14,7 @@
   <property name="action" />
   <component id="settingsForm" type="Form">
     <binding name="delegate" value="validator"/>
-    <binding name="listener" value="listeners.formSubmit"/>
+    <binding name="listener" value="listener:formSubmit"/>
   </component>
   <component id="ifRenderOk" type="If">
     <binding name="condition" value="okListener != null"/>

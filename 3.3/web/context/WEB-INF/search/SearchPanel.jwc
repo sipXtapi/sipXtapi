@@ -5,7 +5,7 @@
   <description>input field + search button</description>
   <property name="query" />
   <component id="form" type="Form">
-    <binding name="listener" value="listeners.search"/>
+    <binding name="listener" value="listener:search"/>
   </component>
   <component id="queryField" type="TextField">
     <binding name="value" value="query"/>

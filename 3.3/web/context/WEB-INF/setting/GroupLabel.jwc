@@ -5,7 +5,7 @@
   <description>add a description</description>
   <parameter name="group" required="yes"  />
   <component id="groupLink" type="DirectLink">
-    <binding name="listener" value="listeners.viewGroup"/>
+    <binding name="listener" value="listener:viewGroup"/>
     <binding name="parameters" value="new java.lang.Object[] {group.id, group.resource}"/>
   </component>
   <component id="groupLabel" type="Insert">

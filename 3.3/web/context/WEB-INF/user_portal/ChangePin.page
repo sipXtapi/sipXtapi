@@ -17,7 +17,7 @@
      - C O M P O N E N T S
      -->
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="errors" type="ErrorMsg"/>
   <component id="currentPinLabel" type="FieldLabel">
@@ -39,7 +39,7 @@
     <binding name="passwordValidator" value="spring:validPinRequired"/>
   </component>
   <component id="formActions" type="FormActions">
-    <binding name="listener" value="listeners.changePin"/>
+    <binding name="listener" value="listener:changePin"/>
     <binding name="successMessage" value="message:success"/>
   </component>
 </page-specification>

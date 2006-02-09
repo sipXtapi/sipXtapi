@@ -19,6 +19,6 @@
   <component id="editLineForm" type="Form">
   </component>
   <component id="cancel" type="Submit">
-    <binding name="listener" value="listeners.cancel"/>
+    <binding name="listener" value="listener:cancel"/>
   </component>
 </page-specification>

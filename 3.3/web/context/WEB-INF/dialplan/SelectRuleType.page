@@ -18,13 +18,13 @@
      - C O M P O N E N T S
      -->
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="ruleTypeSelection" type="PropertySelection">
     <binding name="value" value="ruleType"/>
-    <binding name="model" value="beans.ruleTypeModel"/>
+    <binding name="model" value="bean:ruleTypeModel"/>
   </component>
   <component id="next" type="Submit">
-    <binding name="listener" value="listeners.next"/>
+    <binding name="listener" value="listener:next"/>
   </component>
 </page-specification>

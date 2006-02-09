@@ -29,18 +29,18 @@
     <binding name="value" value="heading"/>
   </component>
   <component id="lineTab" type="DirectLink">
-    <binding name="listener" value="listeners.editLine"/>
+    <binding name="listener" value="listener:editLine"/>
     <binding name="parameters" value="line.id"/>
-    <binding name="class" value="beans.tabs.getTabClass('EditLine')"/>
+    <binding name="class" value="bean:tabs.getTabClass('EditLine')"/>
   </component>
   <component id="settingsTabs" type="For">
     <binding name="source" value="settings.values"/>
     <binding name="value" value="currentSetting"/>
   </component>
   <component id="settingsTab" type="DirectLink">
-    <binding name="listener" value="listeners.editSettings"/>
+    <binding name="listener" value="listener:editSettings"/>
     <binding name="parameters" value="editSettingListenerParameters"/>
-    <binding name="class" value="beans.tabs.getTabClass(currentSetting.name)"/>
+    <binding name="class" value="bean:tabs.getTabClass(currentSetting.name)"/>
   </component>
   <component id="settingsTabLabel" type="Insert">
     <binding name="value" value="currentSetting.label"/>

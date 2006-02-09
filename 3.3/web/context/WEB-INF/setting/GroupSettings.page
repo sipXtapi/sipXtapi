@@ -17,12 +17,12 @@
     -->
   <component id="settingsForm" type="SettingsForm">
     <binding name="settings" value="parentSetting"/>
-    <binding name="cancelListener" value="listeners.cancel"/>
-    <binding name="okListener" value="listeners.ok"/>
-    <binding name="applyListener" value="listeners.apply"/>
-    <binding name="validator" value="beans.validator"/>
+    <binding name="cancelListener" value="listener:cancel"/>
+    <binding name="okListener" value="listener:ok"/>
+    <binding name="applyListener" value="listener:apply"/>
+    <binding name="validator" value="bean:validator"/>
   </component>
   <component id="editGroup" type="DirectLink">
-    <binding name="listener" value="listeners.editGroupName"/>
+    <binding name="listener" value="listener:editGroupName"/>
   </component>
 </page-specification>

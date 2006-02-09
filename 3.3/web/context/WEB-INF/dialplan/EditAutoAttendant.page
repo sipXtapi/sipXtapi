@@ -49,7 +49,7 @@
       - C O M P O N E N T S
       -->
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="common" type="ItemCommon">
     <binding name="item" value="attendant"/>
@@ -62,21 +62,21 @@
     <binding name="errorMsg" value="message:error.select"/>
   </component>
   <component id="reset" type="Submit">
-    <binding name="listener" value="listeners.reset"/>
+    <binding name="listener" value="listener:reset"/>
   </component>
   <component id="removeMenuItems" type="Submit">
-    <binding name="listener" value="listeners.removeMenuItems"/>
+    <binding name="listener" value="listener:removeMenuItems"/>
   </component>
   <component id="menuItemTableView" type="contrib:TableView">
-    <binding name="source" value="beans.menuItems.entries"/>
+    <binding name="source" value="bean:menuItems.entries"/>
     <binding name="columns">'* !Dialpad, ' + '!Action:, !Parameter:'</binding>
     <binding name="pageSize" value="literal:-1"/>
   </component>
   <component id="menuItemColumns" type="contrib:TableColumns">
   </component>
   <component id="menuItemRows" type="contrib:TableFormRows">
-    <binding name="row" value="beans.menuItems.currentEntry"/>
-    <binding name="class" value="beans.rowClass.next"/>
+    <binding name="row" value="bean:menuItems.currentEntry"/>
+    <binding name="class" value="bean:rowClass.next"/>
   </component>
   <component id="menuItemValues" type="contrib:TableValues"/>
   <!-- Column 1: select phone -->
@@ -86,8 +86,8 @@
   <!-- Column 2: key dropdown -->
   <component id="DialpadColumnValue" type="Block"/>
   <component id="menuItemKey" type="PropertySelection">
-    <binding name="model" value="beans.dialPadSelectionModel"/>
-    <binding name="value" value="beans.menuItems.key"/>
+    <binding name="model" value="bean:dialPadSelectionModel"/>
+    <binding name="value" value="bean:menuItems.key"/>
   </component>
   <!-- Column 3: action dropdown -->
   <component id="ActionColumnValue" type="Block"/>
@@ -97,24 +97,24 @@
   <!-- Column 4: optional action parameter -->
   <component id="ParameterColumnValue" type="Block"/>
   <component id="ifExtensionParameter" type="If">
-    <binding name="condition" value="beans.menuItems.value.action.extensionParameter"/>
+    <binding name="condition" value="bean:menuItems.value.action.extensionParameter"/>
   </component>
   <component id="extensionParameter" type="TextField">
-    <binding name="value" value="beans.menuItems.value.parameter"/>
+    <binding name="value" value="bean:menuItems.value.parameter"/>
   </component>
   <component id="ifAttendantParameter" type="If">
-    <binding name="condition" value="beans.menuItems.value.action.attendantParameter"/>
+    <binding name="condition" value="bean:menuItems.value.action.attendantParameter"/>
   </component>
   <component id="attendantParameter" type="PropertySelection">
     <binding name="model" value="spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
-    <binding name="value" value="beans.menuItems.value.parameter"/>
+    <binding name="value" value="bean:menuItems.value.parameter"/>
   </component>
   <!-- Last Row : Add Menu Item -->
   <component id="addMenuItemRow" type="Any">
-    <binding name="class" value="beans.rowClass.next"/>
+    <binding name="class" value="bean:rowClass.next"/>
   </component>
   <component id="addMenuItemKey" type="PropertySelection">
-    <binding name="model" value="beans.dialPadSelectionModel"/>
+    <binding name="model" value="bean:dialPadSelectionModel"/>
     <binding name="value" value="addMenuItemDialPad"/>
   </component>
   <component id="addMenuItemAction" type="PropertySelection">
@@ -122,10 +122,10 @@
     <binding name="value" value="addMenuItemAction"/>
   </component>
   <component id="addMenuItem" type="Submit">
-    <binding name="listener" value="listeners.addMenuItem"/>
+    <binding name="listener" value="listener:addMenuItem"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>
-    <binding name="listener" value="listeners.commit"/>
+    <binding name="listener" value="listener:commit"/>
   </component>
 </page-specification>

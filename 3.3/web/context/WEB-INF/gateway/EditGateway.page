@@ -24,7 +24,7 @@
     <binding name="gateway" value="gateway"/>
   </component>
   <component id="formActions" type="FormActions">
-    <binding name="listener" value="listeners.apply"/>
+    <binding name="listener" value="listener:apply"/>
     <binding name="callback" value="callback"/>
   </component>
   <component id="settings" type="SettingsNavigation">

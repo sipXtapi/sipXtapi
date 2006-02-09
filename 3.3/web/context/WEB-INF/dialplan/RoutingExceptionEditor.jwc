@@ -37,6 +37,6 @@
   </component>
   <component id="gateways" type="PropertySelection">
     <binding name="value" value="exception.gateway"/>
-    <binding name="model" value="beans.gatewayModel"/>
+    <binding name="model" value="bean:gatewayModel"/>
   </component>
 </component-specification>

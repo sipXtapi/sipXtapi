@@ -24,10 +24,10 @@
     <binding name="labelOn" value="message:search.advanced"/>
   </component>
   <component id="selectUserForm" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="searchForm" type="UserSearch">
-    <binding name="cancelListener" value="listeners.cancel"/>
+    <binding name="cancelListener" value="listener:cancel"/>
     <binding name="simpleSearch" value="simpleSearch"/>
   </component>
   <component id="searchResults" type="UserSearchResults">

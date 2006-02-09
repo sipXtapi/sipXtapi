@@ -8,6 +8,7 @@
   <property name="phone"  initial-value="new org.sipfoundry.sipxconfig.phone.Phone()"/>
   <property name="phoneModel"  initial-value="phone.model"/>
   <property name="stay" />
+  <inject property="tapestry" object="spring:tapestry" />
   <!--
       - B E A N S
       -->
@@ -16,18 +17,18 @@
       - C O M P O N E N T S
       -->
   <component id="form" type="Form">
-    <binding name="delegate" value="beans.validator"/>
+    <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="editPhoneForm" type="EditPhoneForm">
     <binding name="phone" value="phone"/>
-    <binding name="validator" value="beans.validator"/>
+    <binding name="validator" value="bean:validator"/>
     <binding name="phoneModel" value="phoneModel"/>
   </component>
   <component id="ok" type="Submit">
-    <binding name="listener" value="spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.finish)"/>
+    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(bean:validator, listener:finish)"/>
   </component>
   <component id="cancel" type="Submit">
-    <binding name="listener" value="listeners.cancel"/>
+    <binding name="listener" value="listener:cancel"/>
   </component>
   <component id="stay" type="Checkbox">
     <binding name="selected" value="stay"/>

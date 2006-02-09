@@ -18,7 +18,7 @@
   <component id="modeSelection" type="PropertySelection">
     <binding name="value" value="mode"/>
     <binding name="model" value="modeModel"/>
-    <binding name="renderer" value="beans.radioRenderer"/>
+    <binding name="renderer" value="bean:radioRenderer"/>
   </component>
   <component id="attendantSelectionPanel" type="FieldPanel">
     <binding name="field" value="components.attendantSelection"/>
@@ -29,7 +29,7 @@
     <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants)"/>
   </component>
   <component id="formActions" type="FormActions">
-    <binding name="listener" value="listeners.onApply"/>
+    <binding name="listener" value="listener:onApply"/>
     <binding name="successMessage" value="message:msg.success"/>
   </component>
 </component-specification>

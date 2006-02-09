@@ -7,7 +7,7 @@
   <parameter name="useEnabled" required="no"  default-value="true" />
   <parameter name="useExtension" required="no"  default-value="false" />
   <parameter name="useFieldset" required="no"   default-value="true"/>
-  <parameter name="nameValidator" required="no"   default-value="beans.nameValidator"/>
+  <parameter name="nameValidator" required="no"   default-value="bean:nameValidator"/>
   <parameter name="maxDescriptionLen" required="no"   default-value="255"/>
   <!-- P R O P E R T I E S -->
   <!-- B E A N S -->

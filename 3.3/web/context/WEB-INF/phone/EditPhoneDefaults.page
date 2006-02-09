@@ -42,19 +42,19 @@
     <binding name="value" value="currentNavigationSetting"/>
   </component>
   <component id="phoneSettingsLink" type="ActionLink">
-    <binding name="listener" value="listeners.editPhoneSettings"/>
+    <binding name="listener" value="listener:editPhoneSettings"/>
   </component>
   <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
   </component>
   <component id="lineSettingsLink" type="ActionLink">
-    <binding name="listener" value="listeners.editLineSettings"/>
+    <binding name="listener" value="listener:editLineSettings"/>
   </component>
   <!-- Edit form -->
   <component id="settingsForm" type="SettingsForm">
-    <binding name="validator" value="beans.validator"/>
-    <binding name="applyListener" value="listeners.apply"/>
-    <binding name="okListener" value="listeners.ok"/>
-    <binding name="cancelListener" value="listeners.cancel"/>
+    <binding name="validator" value="bean:validator"/>
+    <binding name="applyListener" value="listener:apply"/>
+    <binding name="okListener" value="listener:ok"/>
+    <binding name="cancelListener" value="listener:cancel"/>
     <binding name="settings" value="editFormSetting"/>
   </component>
   <component id="groupLabel" type="GroupLabel">

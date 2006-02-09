@@ -28,7 +28,7 @@
     <binding name="source" value="lines"/>
     <binding name="columns" value="literal:* !Line:displayLabel"/>
     <binding name="row" value="currentRow"/>
-    <binding name="class" value="beans.rowClass.next"/>
+    <binding name="class" value="bean:rowClass.next"/>
     <binding name="selections" value="selections"/>
     <binding name="convertor" value="idConverter"/>
   </component>
@@ -44,7 +44,7 @@
   </component>
   <component id="LineColumnValue" type="Block"/>
   <component id="editLineLink" type="DirectLink">
-    <binding name="listener" value="listeners.editLine"/>
+    <binding name="listener" value="listener:editLine"/>
     <binding name="parameters" value="currentRow.id"/>
     <binding name="id" value="'link:line' + currentRow.position"/>
   </component>
@@ -55,13 +55,13 @@
     <binding name="value" value="currentRow.uri"/>
   </component>
   <component id="deleteLine" type="Submit">
-    <binding name="listener" value="listeners.deleteLine"/>
+    <binding name="listener" value="listener:deleteLine"/>
   </component>
   <component id="moveUp" type="Submit">
-    <binding name="listener" value="listeners.moveLineUp"/>
+    <binding name="listener" value="listener:moveLineUp"/>
   </component>
   <component id="moveDown" type="Submit">
-    <binding name="listener" value="listeners.moveLineDown"/>
+    <binding name="listener" value="listener:moveLineDown"/>
   </component>
   <!--
     - A S S E T S

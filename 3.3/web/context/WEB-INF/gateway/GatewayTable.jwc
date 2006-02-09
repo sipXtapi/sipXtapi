@@ -20,7 +20,7 @@
     <binding name="columns" value="literal:* Name:name,Address:address,Description:description"/>
     <binding name="source" value="gatewayCollection"/>
     <binding name="row" value="currentRow"/>
-    <binding name="convertor" value="beans.gateway2id"/>
+    <binding name="convertor" value="bean:gateway2id"/>
     <binding name="selections" value="selections"/>
   </component>
   <component id="NameColumnValue" type="Block"/>
@@ -28,7 +28,7 @@
     <binding name="value" value="currentRow.name"/>
   </component>
   <component id="editRowLink" type="DirectLink">
-    <binding name="listener" value="listeners.edit"/>
+    <binding name="listener" value="listener:edit"/>
     <binding name="parameters" value="currentRow.id"/>
   </component>
 </component-specification>

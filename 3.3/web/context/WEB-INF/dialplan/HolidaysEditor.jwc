@@ -12,7 +12,7 @@
     <binding name="source" value="listEditMap.keys"/>
     <binding name="value" value="listEditMap.key"/>
     <binding name="index" value="dayIndex"/>
-    <binding name="listener" value="listeners.onDayRender"/>
+    <binding name="listener" value="listener:onDayRender"/>
   </component>
   <component id="datePicker" type="DatePicker">
     <binding name="value" value="holidayDay"/>

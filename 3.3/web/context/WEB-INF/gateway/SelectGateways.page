@@ -33,7 +33,7 @@
     <binding name="returnPageName" value="nextPage"/>
   </component>
   <component id="gatewaysSelectForm" type="Form">
-    <binding name="delegate" value="beans.validator"/>
-    <binding name="listener" value="listeners.formSubmit"/>
+    <binding name="delegate" value="bean:validator"/>
+    <binding name="listener" value="listener:formSubmit"/>
   </component>
 </page-specification>

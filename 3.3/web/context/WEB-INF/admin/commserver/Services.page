@@ -37,8 +37,8 @@
 	  - C O M P O N E N T S
 	  -->
 	<component id="form" type="Form">
-        <binding name="listener" value="listeners.formSubmit"/>
-        <binding name="delegate" value="beans.validator"/>
+        <binding name="listener" value="listener:formSubmit"/>
+        <binding name="delegate" value="bean:validator"/>
     </component>
     
     <component id="locationPanel" type="FieldPanel">
@@ -48,7 +48,7 @@
     </component>
     <component id="locationSelection" type="PropertySelection">
         <binding name="value" value="serviceLocation"/>
-        <binding name="model" value="beans.locationModel"/>
+        <binding name="model" value="bean:locationModel"/>
         <binding name="submitOnChange" value="true"/>
     </component>
     
@@ -61,7 +61,7 @@
         <binding name="selections" value="selections"/>
         <binding name="columns" value="literal:* serviceName,=statusColumn"/>
         <binding name="usePager" value="false"/>
-        <binding name="convertor" value="beans.statusConvertor"/>
+        <binding name="convertor" value="bean:statusConvertor"/>
     </component>
     
     <component id="startButton" type="Submit">

@@ -14,7 +14,7 @@
     <binding name="model" value="decorateModel(actionModel)"/>
     <binding name="submitOnChange" value="true"/>
     <binding name="value" value="selectedAction"/>
-    <binding name="renderer" value="beans.propertyRenderer"/>
+    <binding name="renderer" value="bean:propertyRenderer"/>
   </component>
   <component id="ifRenderActions" type="If">
     <binding name="condition" value="actionModel.optionCount > 0"/>

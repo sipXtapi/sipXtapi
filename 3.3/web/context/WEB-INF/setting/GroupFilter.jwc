@@ -13,7 +13,7 @@
     <binding name="value" value="groupId"/>
     <binding name="model" value="selectionModel"/>
     <binding name="submitOnChange" value="true"/>
-    <binding name="renderer" value="beans.propertyRenderer"/>
+    <binding name="renderer" value="bean:propertyRenderer"/>
   </component>
   <component id="queryText" type="TextField">
     <binding name="value" value="queryText"/>
