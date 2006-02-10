@@ -14,7 +14,7 @@
 			</div>
 
             <div jwcid="@contrib:Choose" id="navigation" element="div">
-                <span jwcid="@contrib:When" condition="ognl:page.visit.admin">
+                <span jwcid="@contrib:When" condition="ognl:userSession.admin">
 			    	<span jwcid="@AdminNavigation">Navigation bar goes here.</span>
                 </span>
                 <span jwcid="@contrib:Otherwise">

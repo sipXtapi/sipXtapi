@@ -14,6 +14,8 @@
   <inject property="searchManager" object="spring:searchManager"/>
   <inject property="indexManager" object="spring:indexManager"/>
   <inject property="uploadManager" object="spring:uploadManager"/>
+  <inject property="restartService" object="engine-service:restart"/>
+  <inject property="userSession" type="state" object="userSession"/>
   <component id="resetDialPlans" type="DirectLink">
     <binding name="listener" value="listener:resetDialPlans"/>
   </component>

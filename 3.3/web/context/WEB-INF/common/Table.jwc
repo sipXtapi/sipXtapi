@@ -10,6 +10,7 @@
   <parameter name="selections"  required="yes"  />
   <parameter name="convertor"  required="yes" />
   <parameter name="usePager"  required="no"  default-value="false"/>
+  <inject property="tableVariables" object="spring:tableVariables"/>
   <!--
 	  - B E A N S
 	  -->
@@ -24,7 +25,7 @@
   <component id="tableView" type="contrib:TableView">
     <binding name="source" value="source"/>
     <binding name="columns" value="columns"/>
-    <binding name="pageSize" value="usePager ? page.visit.tablePageSize : -1"/>
+    <binding name="pageSize" value="usePager ? tableVariables.tablePageSize : -1"/>
     <binding name="initialSortColumn" value="initialSortColumn"/>
     <binding name="element" value="literal:span"/>
     <binding name="columnSettingsContainer" value="container"/>

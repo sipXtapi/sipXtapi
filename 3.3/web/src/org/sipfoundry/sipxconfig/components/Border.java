@@ -23,22 +23,25 @@ import org.apache.tapestry.event.PageValidateListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.site.Home;
 import org.sipfoundry.sipxconfig.site.LoginPage;
-import org.sipfoundry.sipxconfig.site.Visit;
+import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 public abstract class Border extends BaseComponent implements PageValidateListener {
     public abstract CoreContext getCoreContext();
-    public abstract IEngineService getRestartService();
     
     /**
      * When true - page does not require login
      */
     public abstract boolean isLoginRequired();
     
+    public abstract UserSession getUserSession();
+    
     /**
      * When true - only SUPER can see the pages, when false END_USER is accepted as well as admin
      */
     public abstract boolean isRestricted();
+
+    public abstract IEngineService getRestartService();
 
     public void pageValidate(PageEvent event_) {
         if (!isLoginRequired()) {
@@ -51,22 +54,21 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         }            
 
         // If there are users, but no one is logged in, then force a login
-        IPage page = getPage();
-        Visit visit = getVisit();        
-        if (visit.getUserId() == null) {
-            redirectToLogin(page);
+        UserSession user = getUserSession();
+        if (!user.isLoggedIn()) {
+            redirectToLogin(getPage());
         }
         
         // If the logged-in user is not an admin, and this page is restricted, then 
         // redirect the user to the home page since they are not worthy.
         // (We should probably use an error page instead of just tossing them home.)
-        if (!visit.isAdmin() && isRestricted()) {
+        if (!user.isAdmin() && isRestricted()) {
             throw new PageRedirectException(Home.PAGE);
         }
     }
     
     public ILink logout() {
-        return getRestartService().getLink(false, null);
+        return getUserSession().getLogoutLink(getRestartService());
     }
     
     protected void redirectToLogin(IPage page) {
@@ -74,9 +76,5 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         LoginPage loginPage = (LoginPage) page.getRequestCycle().getPage(LoginPage.PAGE);
         loginPage.setCallback(callback);
         throw new PageRedirectException(loginPage);
-    }
-    
-    protected Visit getVisit() {
-        return (Visit) getPage().getVisit();
     }
 }

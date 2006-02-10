@@ -4,6 +4,7 @@
   <description>Page that displays login form</description>
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="loginContext" object="spring:loginContext"/>
+  <inject property="userSession" type="state" object="userSession"/>
   <property name="callback"  persist="session"/>
   <property name="userName" />
   <property name="password" />

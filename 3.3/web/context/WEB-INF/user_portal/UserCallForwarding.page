@@ -7,6 +7,7 @@
   <inject property="forwardingContext" object="spring:forwardingContext"/>
   <inject property="loginContext" object="spring:loginContext"/>
   <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="userSession" type="state" object="userSession"/>
   <property name="ringsMap" />
   <property name="callSequence" />
   <property name="user" />

@@ -11,13 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.io.IOException;
+
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.engine.IEngineService;
+import org.apache.tapestry.engine.ILink;
+
 
 /**
  * Tapestry Visit object - session parameters for sipXconfig
  */
-public class Visit {
-    public static final String BEAN_NAME = "visit";
+public class UserSession {
 
     /**
      * true if we want to display title bar and navigation false for testing and when embedding
@@ -27,27 +31,17 @@ public class Visit {
 
     private boolean m_admin;
 
-    private int m_tablePageSize;
-
     /**
      * user that is currently logged in
      */
     private Integer m_userId;
-
+    
     public boolean isNavigationVisible() {
         return m_navigationVisible;
     }
 
     public void setNavigationVisible(boolean navigationVisible) {
         m_navigationVisible = navigationVisible;
-    }
-
-    public int getTablePageSize() {
-        return m_tablePageSize;
-    }
-
-    public void setTablePageSize(int tablePageSize) {
-        m_tablePageSize = tablePageSize;
     }
 
     public boolean isAdmin() {
@@ -57,21 +51,25 @@ public class Visit {
     public Integer getUserId() {
         return m_userId;
     }
+    
+    public boolean isLoggedIn() {
+        return getUserId() != null;
+    }
 
     public void login(Integer userId, boolean admin) {
         m_userId = userId;
         m_admin = admin;
     }
-
-    public void logout(IRequestCycle cycle) {
-        // Clear the visit state so we forget about this user and their admin rights, if any
-        clear();
-        
-        // PORT Logout
+    
+    public ILink getLogoutLink(IEngineService restartService) {
+        return restartService.getLink(false, null);
     }
-
-    void clear() {
-        m_userId = null;
-        m_admin = false;
+    
+    public void logout(IEngineService restartService, IRequestCycle cycle) {
+        try {
+            restartService.service(cycle);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }            
     }
 }

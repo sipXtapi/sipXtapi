@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.login.LoginContext;
-import org.sipfoundry.sipxconfig.site.Visit;
+import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.user.ManageUsers;
 
 /**
@@ -66,6 +66,8 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
     public abstract void setUserId(Integer userId);
 
     public abstract String getAction();
+    
+    public abstract UserSession getUserSession();
 
     public void pageBeginRender(PageEvent event_) {
         CallSequence callSequence = getCallSequence();
@@ -74,8 +76,7 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
         }
 
         Integer userId = getUserId();
-        Visit visit = (Visit) getVisit();
-        Integer loggedInUserId = visit.getUserId();
+        Integer loggedInUserId = getUserSession().getUserId();
 
         if (userId == null) {
             // No userId has been set yet, so make it the logged-in user
@@ -104,7 +105,7 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
         ListEditMap map = createListEditMap(callSequence);
         setRingsMap(map);
 
-        if (getCallback() == null && ((Visit) getVisit()).isAdmin()) {
+        if (getCallback() == null && getUserSession().isAdmin()) {
             setCallback(new PageCallback(ManageUsers.PAGE));
         }        
     }

@@ -21,7 +21,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.login.LoginContext;
-import org.sipfoundry.sipxconfig.site.Visit;
+import org.sipfoundry.sipxconfig.site.UserSession;
 
 /**
  * ChangePin
@@ -41,6 +41,7 @@ public abstract class ChangePin extends BasePage {
 
     public abstract String getNewPin();
     public abstract void setNewPin(String newPin);
+    public abstract UserSession getUserSession();
 
     /**
      * Listeners
@@ -54,8 +55,7 @@ public abstract class ChangePin extends BasePage {
 
         // Get the userId.  Note that the Border component of the page ensures
         // that the user is logged in and therefore that userId is non-null.
-        Visit visit = (Visit) getPage().getVisit();
-        Integer userId = visit.getUserId();
+        Integer userId = getUserSession().getUserId();
 
         // Validate the current PIN.
         // Note that the ConfirmPassword component ensures that the new PIN and
@@ -71,14 +71,14 @@ public abstract class ChangePin extends BasePage {
         user = loginContext.checkCredentials(user.getUserName(), currentPin);
         if (user == null) {
             IValidationDelegate delegate = TapestryUtils.getValidator(this);
-            delegate.record(getMessage("message.badCurrentPin"), ValidationConstraint.CONSISTENCY);
+            delegate.record(getMessages().getMessage("message.badCurrentPin"), ValidationConstraint.CONSISTENCY);
             return;
         }
 
         // The new PIN is not allowed to be empty
         if (StringUtils.isEmpty(getNewPin())) {
             IValidationDelegate delegate = TapestryUtils.getValidator(this);
-            delegate.record(getMessage("message.emptyNewPin"), ValidationConstraint.REQUIRED);
+            delegate.record(getMessages().getMessage("message.emptyNewPin"), ValidationConstraint.REQUIRED);
             return;            
         }
         

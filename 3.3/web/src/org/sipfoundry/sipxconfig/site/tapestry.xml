@@ -142,7 +142,7 @@
     </property>
   </bean>
   <!-- prototype for a visit object -->
-  <bean id="visit" class="org.sipfoundry.sipxconfig.site.Visit" singleton="false">
+  <bean id="tableVariables" class="org.sipfoundry.sipxconfig.components.TableVariables" singleton="false">
     <property name="tablePageSize" value="20"/>    
   </bean>
   <!-- tapestry utilities -->

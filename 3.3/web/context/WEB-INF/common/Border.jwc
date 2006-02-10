@@ -3,6 +3,7 @@
 <component-specification class="org.sipfoundry.sipxconfig.components.Border" allow-body="yes" allow-informal-parameters="yes">
   <parameter name="loginRequired" default-value="true" required="no"/>
   <parameter name="restricted" default-value="true" required="no"/>
+  <inject property="userSession" type="state" object="userSession"/>
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="restartService" object="engine-service:restart"/>
   <component id="shell" type="Shell">
@@ -11,10 +12,10 @@
   </component>
   <component id="wrapped" type="RenderBody"/>
   <component id="renderNavigation" type="If">
-    <binding name="condition" value="page.visit.navigationVisible"/>
+    <binding name="condition" value="userSession.navigationVisible"/>
   </component>
   <component id="renderContent" type="Any">
-    <!--binding name="id" value="(page.visit.navigationVisible)?'content':'_content'"/-->
+    <!--binding name="id" value="(userSession.navigationVisible)?'content':'_content'"/-->
     <binding name="id" value="'content'"/>
     <binding name="element" value="'div'"/>
   </component>

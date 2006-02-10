@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -83,6 +84,10 @@ public abstract class TestPage extends BasePage {
     public abstract JobContext getJobContext();
 
     public abstract IndexManager getIndexManager();
+    
+    public abstract UserSession getUserSession();
+    
+    public abstract IEngineService getRestartService();
 
     public void resetDialPlans(IRequestCycle cycle_) {
         getDialPlanContext().clear();
@@ -112,8 +117,7 @@ public abstract class TestPage extends BasePage {
         resetPhoneContext(cycle);
         resetCallGroupContext(cycle);
         getCoreContext().clear();
-        Visit visit = (Visit) getVisit();
-        visit.logout(cycle);
+        getUserSession().logout(getRestartService(), cycle);
     }
 
     public void newGroup(IRequestCycle cycle) {
@@ -131,23 +135,22 @@ public abstract class TestPage extends BasePage {
     }
 
     public void toggleNavigation(IRequestCycle cycle_) {
-        Visit visit = (Visit) getVisit();
-        visit.setNavigationVisible(!visit.isNavigationVisible());
+        UserSession userSession = getUserSession();
+        userSession.setNavigationVisible(!userSession.isNavigationVisible());
     }
 
     public void hideNavigation(IRequestCycle cycle_) {
-        Visit visit = (Visit) getVisit();
-        visit.setNavigationVisible(false);
+        getUserSession().setNavigationVisible(false);
     }
 
     public void toggleAdmin(IRequestCycle cycle) {
-        Visit visit = (Visit) getVisit();
-        boolean admin = !visit.isAdmin();
-        Integer userId = visit.getUserId();
+        UserSession userSession = getUserSession();
+        boolean admin = !userSession.isAdmin();
+        Integer userId = userSession.getUserId();
         if (userId == null) {
             login(cycle);
         } else {
-            visit.login(userId, admin);
+            userSession.login(userId, admin);
         }
     }
 
@@ -197,8 +200,8 @@ public abstract class TestPage extends BasePage {
         }
 
         // Log it in
-        Visit visit = (Visit) getVisit();
-        visit.login(user.getId(), false);
+        UserSession userSession = getUserSession();
+        userSession.login(user.getId(), false);
     }
 
     public void deleteAllUsers(IRequestCycle cycle_) {
@@ -239,8 +242,7 @@ public abstract class TestPage extends BasePage {
 
     public void login(IRequestCycle cycle) {
         User user = createTestUserIfMissing();
-        Visit visit = (Visit) getVisit();
-        visit.login(user.getId(), true);
+        getUserSession().login(user.getId(), true);
     }
 
     public void generateDataSet(IRequestCycle cycle) {

@@ -43,6 +43,8 @@ public abstract class LoginPage extends BasePage implements PageRenderListener {
     public abstract ICallback getCallback();
     public abstract void setCallback(ICallback callback);
     
+    public abstract UserSession getUserSession();
+    
     public void pageBeginRender(PageEvent event_) {
         // If there are no users in the DB, then redirect to the FirstUser page to make one.
         // For most pages, Border takes care of this check, but LoginPage doesn't have a Border.
@@ -74,12 +76,12 @@ public abstract class LoginPage extends BasePage implements PageRenderListener {
         User user = context.checkCredentials(getUserName(), password);
         if (user == null) {
             IValidationDelegate delegate = (IValidationDelegate) getBeans().getBean("validator");
-            delegate.record(getMessage("message.loginError"), ValidationConstraint.CONSISTENCY);
+            delegate.record(getMessages().getMessage("message.loginError"), ValidationConstraint.CONSISTENCY);
             return;
         }
 
-        Visit visit = (Visit) getVisit();
-        visit.login(user.getId(), context.isAdmin(user));
+        UserSession userSession = getUserSession();
+        userSession.login(user.getId(), context.isAdmin(user));
 
         // Ignore any callback and go to the home page.  If the user was redirected to the login
         // page because the session timed out, then after logging in we will have lost all session

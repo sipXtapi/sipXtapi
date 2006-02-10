@@ -1,19 +1,20 @@
 <?xml version="1.0"?>
 
 <module id="sipxconfig" version="1.0.0" package="org.sipfoundry.sipxconfig">
-
+  <contribution configuration-id="tapestry.state.ApplicationObjects">
+    <state-object name="userSession" scope="session">
+      <create-instance class="org.sipfoundry.sipxconfig.site.UserSession"/>
+    </state-object>
+  </contribution>
   <!-- 20MB for no particular reason. Polycom firmware was 11MB
    <configure property-name="maxSize" type="double" value="20480000"/>
    -->
-	<implementation service-id="hivemind.lib.DefaultSpringBeanFactoryHolder">
-		<invoke-factory>
-			<construct autowire-services="false"
-				class="org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl">
-				<event-listener service-id="hivemind.ShutdownCoordinator" />
-				<set-object property="context" value="service:tapestry.globals.WebContext" />
-			</construct>
-		</invoke-factory>
-	</implementation>
-	
- 
- </module>
+  <implementation service-id="hivemind.lib.DefaultSpringBeanFactoryHolder">
+    <invoke-factory>
+      <construct autowire-services="false" class="org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl">
+        <event-listener service-id="hivemind.ShutdownCoordinator" />
+        <set-object property="context" value="service:tapestry.globals.WebContext" />
+      </construct>
+    </invoke-factory>
+  </implementation>
+</module>
