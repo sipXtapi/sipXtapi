@@ -69,13 +69,13 @@ public abstract class ManageUsers extends BasePage {
                 continue;
             }
             if (actions.size() == 0) {
-                actions.add(new OptGroup(getMessage("label.addTo")));
+                actions.add(new OptGroup(getMessages().getMessage("label.addTo")));
             }
             actions.add(new AddToUserGroupAction(g, getCoreContext()));
         }
 
         if (removeFromGroup != null) {
-            actions.add(new OptGroup(getMessage("label.removeFrom")));
+            actions.add(new OptGroup(getMessages().getMessage("label.removeFrom")));
             actions.add(new RemoveFromUserGroupAction(removeFromGroup, getCoreContext()));
         }
 

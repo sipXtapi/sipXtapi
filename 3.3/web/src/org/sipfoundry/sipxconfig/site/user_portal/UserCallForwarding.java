@@ -176,7 +176,7 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
         Object[] params = {
             getUser().getUserName()
         };
-        return format("msg.first", params);
+        return getMessages().format("msg.first", params);
     }
 
     public boolean getHasVoiceMail() {

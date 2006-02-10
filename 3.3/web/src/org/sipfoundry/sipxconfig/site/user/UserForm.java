@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
@@ -138,7 +139,7 @@ public abstract class UserForm extends BaseComponent {
             
             // Reset the confirm PIN field as well.  Ugly to reach into the component
             // like this, but I haven't figured out a better way.
-            getComponent("pin").setProperty("confirmPassword", DUMMY_PIN);
+            PropertyUtils.write(getComponent("pin"), "confirmPassword", DUMMY_PIN);
         }
     }
     
@@ -157,7 +158,7 @@ public abstract class UserForm extends BaseComponent {
         IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
         
         String message = MessageFormat.format(
-                getMessage(messageId), new Object[] {arg});
+                getMessages().getMessage(messageId), new Object[] {arg});
         
         delegate.record(message, ValidationConstraint.CONSISTENCY);
     }

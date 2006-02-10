@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.user;
 
 import java.util.Collection;
 
+import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -44,7 +45,7 @@ public class SelectUsersCallback implements ICallback {
 
     public void performCallback(IRequestCycle cycle) {
         AbstractPage page = (AbstractPage) cycle.getPage(m_pageName);
-        page.setProperty(m_idsPropertyName, m_ids);
+        PropertyUtils.write(page, m_idsPropertyName, m_ids);
         beforeActivation(page);
         cycle.activate(page);
     }
