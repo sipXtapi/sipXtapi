@@ -15,7 +15,7 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.FormActions;
@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
 
-public abstract class NewUser extends PageWithCallback implements PageRenderListener {
+public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "NewUser";
     private static final int SIP_PASSWORD_LEN = 8;

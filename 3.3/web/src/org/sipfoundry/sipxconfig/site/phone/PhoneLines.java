@@ -17,7 +17,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
@@ -32,7 +32,7 @@ import org.sipfoundry.sipxconfig.site.line.EditLine;
 /**
  * Manage a phone's lines
  */
-public abstract class PhoneLines extends BasePage implements PageRenderListener {
+public abstract class PhoneLines extends BasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "PhoneLines";
 

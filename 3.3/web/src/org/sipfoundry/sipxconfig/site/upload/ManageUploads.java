@@ -15,7 +15,7 @@ import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.upload.Upload;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 
-public abstract class ManageUploads extends BasePage implements PageRenderListener {
+public abstract class ManageUploads extends BasePage implements PageBeginRenderListener {
     
     public static final String PAGE = "ManageUploads";
 
@@ -85,7 +85,7 @@ public abstract class ManageUploads extends BasePage implements PageRenderListen
         setUpload(null);
     }
 
-    /** stub: side-effect of PageRenderListener */
+    /** stub: side-effect of PageBeginRenderListener */
     public void pageBeginRender(PageEvent event_) {
         if (getUpload() == null) {
             setUpload(getUploadManager().getUpload());

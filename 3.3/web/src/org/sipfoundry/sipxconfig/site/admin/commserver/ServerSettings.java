@@ -13,12 +13,12 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public abstract class ServerSettings extends BasePage implements PageRenderListener {
+public abstract class ServerSettings extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "ServerSettings";
 
     public abstract Server getServer();

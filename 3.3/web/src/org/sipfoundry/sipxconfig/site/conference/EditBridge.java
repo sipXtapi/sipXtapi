@@ -17,13 +17,13 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 
-public abstract class EditBridge extends PageWithCallback implements PageRenderListener {
+public abstract class EditBridge extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "EditBridge";
 
     public abstract ConferenceBridgeContext getConferenceBridgeContext();

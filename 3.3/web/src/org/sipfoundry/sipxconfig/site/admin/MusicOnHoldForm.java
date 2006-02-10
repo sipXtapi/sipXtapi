@@ -15,11 +15,11 @@ import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class MusicOnHoldForm extends BaseComponent implements PageRenderListener {
+public abstract class MusicOnHoldForm extends BaseComponent implements PageBeginRenderListener {
     public abstract boolean getCommitChanges();
 
     public abstract ParkOrbitContext getParkOrbitContext();

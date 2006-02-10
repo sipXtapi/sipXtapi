@@ -13,13 +13,13 @@ package org.sipfoundry.sipxconfig.site.setting;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class GroupSettings extends BasePage implements PageRenderListener {
+public abstract class GroupSettings extends BasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "GroupSettings";
 

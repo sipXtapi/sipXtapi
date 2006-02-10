@@ -13,14 +13,14 @@ package org.sipfoundry.sipxconfig.site.line;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
-public abstract class AddExternalLine extends PageWithCallback implements PageRenderListener {
+public abstract class AddExternalLine extends PageWithCallback implements PageBeginRenderListener {
     
     public static final String PAGE = "AddExternalLine";
     

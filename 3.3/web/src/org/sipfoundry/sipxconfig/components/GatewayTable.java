@@ -15,14 +15,14 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.site.gateway.EditGateway;
 
 /**
  * GatewayTable
  */
-public abstract class GatewayTable extends BaseComponent implements PageRenderListener {
+public abstract class GatewayTable extends BaseComponent implements PageBeginRenderListener {
     public abstract Gateway getCurrentRow();
 
     public abstract String getEditPageName();

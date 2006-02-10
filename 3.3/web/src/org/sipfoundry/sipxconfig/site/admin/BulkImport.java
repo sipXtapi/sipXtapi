@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidationConstraint;
@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.bulk.BulkManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class BulkImport extends BasePage implements PageRenderListener {
+public abstract class BulkImport extends BasePage implements PageBeginRenderListener {
 
     public abstract IUploadFile getUploadFile();
 

@@ -20,12 +20,12 @@ import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.contrib.table.model.simple.ITableColumnEvaluator;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.RenderString;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 
-public abstract class Registrations extends BasePage implements PageRenderListener {
+public abstract class Registrations extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "Registrations";
 
     private static final String EXPIRES_COLUMN = "expires";

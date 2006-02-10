@@ -17,7 +17,7 @@ import java.util.Iterator;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.form.ListEditMap;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
@@ -35,7 +35,7 @@ import org.sipfoundry.sipxconfig.site.user.ManageUsers;
 /**
  * UserCallForwarding
  */
-public abstract class UserCallForwarding extends PageWithCallback implements PageRenderListener {
+public abstract class UserCallForwarding extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "UserCallForwarding";
     private static final String ACTION_ADD = "add";
 

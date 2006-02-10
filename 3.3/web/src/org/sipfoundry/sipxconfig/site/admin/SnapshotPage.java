@@ -15,12 +15,12 @@ import java.io.File;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.Snapshot;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class SnapshotPage extends BasePage implements PageRenderListener {
+public abstract class SnapshotPage extends BasePage implements PageBeginRenderListener {
 
     public abstract void setSnapshotFile(File file);
 

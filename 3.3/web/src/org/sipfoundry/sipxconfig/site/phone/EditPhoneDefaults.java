@@ -16,7 +16,7 @@ import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
-public abstract class EditPhoneDefaults extends BasePage implements PageRenderListener {
+public abstract class EditPhoneDefaults extends BasePage implements PageBeginRenderListener {
     
     public static final String PAGE = "EditPhoneDefaults";      
     

@@ -17,7 +17,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -34,7 +34,7 @@ import org.sipfoundry.sipxconfig.site.gateway.SelectGateways;
 /**
  * EditDialRule
  */
-public abstract class EditDialRule extends BasePage implements PageRenderListener {
+public abstract class EditDialRule extends BasePage implements PageBeginRenderListener {
     /**
      * list of permission types allowed for long distance permission, used in permssions modle on
      * a long distance page

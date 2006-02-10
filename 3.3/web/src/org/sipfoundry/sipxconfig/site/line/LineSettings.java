@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.site.line;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 /**
  * Comments
  */
-public abstract class LineSettings extends BasePage implements PageRenderListener {
+public abstract class LineSettings extends BasePage implements PageBeginRenderListener {
     
     public static final String PAGE = "LineSettings";
 

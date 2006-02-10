@@ -17,7 +17,7 @@ import java.util.Iterator;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.form.ListEditMap;
 import org.apache.tapestry.form.PropertySelection;
 import org.apache.tapestry.html.BasePage;
@@ -31,7 +31,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 /**
  * EditEmergencyRouting
  */
-public abstract class EditEmergencyRouting extends BasePage implements PageRenderListener {
+public abstract class EditEmergencyRouting extends BasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "EditEmergencyRouting";
 

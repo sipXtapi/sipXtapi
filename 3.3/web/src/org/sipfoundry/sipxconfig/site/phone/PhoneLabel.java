@@ -57,7 +57,7 @@ public abstract class PhoneLabel extends BaseComponent {
     
     private void recordError(String messageId, String param) {
         IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
-        MessageFormat format = new MessageFormat(getMessage(messageId));
+        MessageFormat format = new MessageFormat(getMessages().getMessage(messageId));
         String message = format.format(new Object[] {param});
         delegate.record(message, ValidationConstraint.CONSISTENCY);
     }

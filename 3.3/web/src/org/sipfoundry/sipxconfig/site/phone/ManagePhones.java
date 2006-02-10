@@ -20,7 +20,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
@@ -39,7 +39,7 @@ import org.sipfoundry.sipxconfig.site.line.EditLine;
 /**
  * List all the phones/phones for management and details drill-down
  */
-public abstract class ManagePhones extends BasePage implements PageRenderListener {
+public abstract class ManagePhones extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "ManagePhones";
 
     /** model of the table */
@@ -173,13 +173,13 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
                 continue;
             }
             if (actions.size() == 0) {
-                actions.add(new OptGroup(getMessage("label.addTo")));
+                actions.add(new OptGroup(getMessages().getMessage("label.addTo")));
             }
             actions.add(new AddToPhoneGroupAction(g, getPhoneContext()));
         }
 
         if (removeFromGroup != null) {
-            actions.add(new OptGroup(getMessage("label.removeFrom")));
+            actions.add(new OptGroup(getMessages().getMessage("label.removeFrom")));
             actions.add(new RemoveFromPhoneGroupAction(removeFromGroup, getPhoneContext()));
         }
 

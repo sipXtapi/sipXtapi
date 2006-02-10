@@ -18,7 +18,7 @@ import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.components.ExpressionTableColumn;
 import org.sipfoundry.sipxconfig.components.LocalizedTableRendererSource;
 
-public abstract class Services extends BasePage implements PageRenderListener {
+public abstract class Services extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "Services";
     private static final String STATUS_COLUMN = "status";
 

@@ -15,13 +15,13 @@ import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
-public abstract class UserTable extends BaseComponent implements PageRenderListener {
+public abstract class UserTable extends BaseComponent implements PageBeginRenderListener {
 
     public static final String COMPONENT = "UserTable";
 

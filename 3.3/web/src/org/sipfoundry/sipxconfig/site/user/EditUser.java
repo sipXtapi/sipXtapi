@@ -14,13 +14,13 @@ package org.sipfoundry.sipxconfig.site.user;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class EditUser extends PageWithCallback implements PageRenderListener {
+public abstract class EditUser extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "EditUser";
 

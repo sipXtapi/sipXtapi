@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.site.gateway;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.setting.SettingSet;
 /**
  * EditGateway
  */
-public abstract class EditGateway extends PageWithCallback implements PageRenderListener {
+public abstract class EditGateway extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "EditGateway";
 
     public abstract Integer getGatewayId();

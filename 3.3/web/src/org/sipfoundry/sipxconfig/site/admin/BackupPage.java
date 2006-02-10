@@ -18,7 +18,7 @@ import java.util.List;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.DailyBackupSchedule;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class BackupPage extends BasePage implements PageRenderListener {
+public abstract class BackupPage extends BasePage implements PageBeginRenderListener {
 
     /**
      * Conceivable, available backup limits. Otherwise arbitrary.

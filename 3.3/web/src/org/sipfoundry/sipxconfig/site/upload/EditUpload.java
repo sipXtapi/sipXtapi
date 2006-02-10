@@ -13,14 +13,14 @@ package org.sipfoundry.sipxconfig.site.upload;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.upload.Upload;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 
-public abstract class EditUpload extends PageWithCallback implements PageRenderListener {
+public abstract class EditUpload extends PageWithCallback implements PageBeginRenderListener {
     
     public static final String PAGE = "EditUpload";
     

@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
-public abstract class UserGroups extends BasePage  implements PageRenderListener {
+public abstract class UserGroups extends BasePage  implements PageBeginRenderListener {
     
     public static final String PAGE = "UserGroups";
     
