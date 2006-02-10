@@ -74,20 +74,26 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
 
    localHostPort = serverPort;
 
+   OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                 "OsServerSocket::_ queue=%d port=%d bindaddr=%s",
+                 connectionQueueSize, serverPort, szBindAddr
+                 );
+
    // Create the socket
    socketDescriptor = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
    if(socketDescriptor == OS_INVALID_SOCKET_DESCRIPTOR)
    {
       error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: socket call failed with error: %d=0x%x\n",
-         error, error);
+      OsSysLog::add(FAC_KERNEL, PRI_ERR,
+                    "OsServerSocket: socket call failed with error: %d=0x%x",
+                    error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       goto EXIT;
    }
 
 #ifndef WIN32
    if(setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&one, sizeof(one)))
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: setsockopt(SO_REUSEADDR) failed!\n");
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: setsockopt(SO_REUSEADDR) failed!");
 #endif
     setsockopt(socketDescriptor, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
 
@@ -98,8 +104,9 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    {
       error = OsSocketGetERRNO();
       close();
-      perror("call to setsockopt failed in OsServerSocket::OsServerSocket\n");
-      OsSysLog::add(FAC_SIP, PRI_ERR, "setsockopt call failed with error: 0x%x in OsServerSocket::OsServerSocket\n", error);
+      OsSysLog::add(FAC_SIP, PRI_ERR,
+                    "setsockopt call failed with error: 0x%x in OsServerSocket::OsServerSocket",
+                    error);
       goto EXIT;
    }
 #       endif
@@ -132,7 +139,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    {
       error = OsSocketGetERRNO();
       OsSysLog::add(FAC_KERNEL, PRI_ERR,
-                    "OsServerSocket:  bind to port %d failed with error: %d = 0x%x\n",
+                    "OsServerSocket:  bind to port %d failed with error: %d = 0x%x",
                     ((PORT_DEFAULT == serverPort) ? 0 : serverPort), error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       goto EXIT;
@@ -143,7 +150,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
                            (struct sockaddr*) &localAddr, SOCKET_LEN_TYPE &addrSize);
    if (error) {
       error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: getsockname call failed with error: %d=0x%x\n",
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: getsockname call failed with error: %d=0x%x",
          error, error);
    } else {
       localHostPort = htons(localAddr.sin_port);
@@ -154,7 +161,7 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    if (error)
    {
       error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: listen call failed with error: %d=0x%x\n",
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: listen call failed with error: %d=0x%x",
          error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
    }
@@ -195,7 +202,7 @@ OsConnectionSocket* OsServerSocket::accept()
    if (clientSocket < 0)
    {
       int error = OsSocketGetERRNO();
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: accept call failed with error: %d=0x%x\n",
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: accept call failed with error: %d=0x%x",
          error, error);
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       return NULL;
