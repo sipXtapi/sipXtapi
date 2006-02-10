@@ -27,7 +27,7 @@
     <binding name="field" value="components.userName"/>
     <binding name="label" value="message:label.userName"/>
   </component>
-  <component id="userName" type="ValidField">
+  <component id="userName" type="TextField">
     <binding name="value" value="userName"/>
     <binding name="validator" value="bean:nameValidator"/>
     <binding name="displayName" value="message:label.userName"/>

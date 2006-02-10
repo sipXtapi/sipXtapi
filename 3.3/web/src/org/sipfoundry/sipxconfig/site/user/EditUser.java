@@ -13,8 +13,8 @@ package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;

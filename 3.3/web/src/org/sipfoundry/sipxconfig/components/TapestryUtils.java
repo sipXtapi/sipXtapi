@@ -76,7 +76,7 @@ public final class TapestryUtils {
      * @return bean id - exception is thrown if no id found
      */
     public static Integer getBeanId(IRequestCycle cycle) {
-        return (Integer) assertParameter(Integer.class, cycle.getServiceParameters(), 0);
+        return (Integer) assertParameter(Integer.class, cycle.getListenerParameters(), 0);
     }
 
     /**

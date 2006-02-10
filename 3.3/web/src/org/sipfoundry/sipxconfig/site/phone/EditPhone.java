@@ -14,8 +14,8 @@ package org.sipfoundry.sipxconfig.site.phone;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -45,7 +45,7 @@ public abstract class EditPhone extends BasePage implements PageBeginRenderListe
     public abstract void setCallback(ICallback callback);
 
     public void addLine(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
         page.setReturnToEditPhone(true);

@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -41,7 +41,7 @@ public abstract class PhoneModels extends BasePage implements PageBeginRenderLis
     
     public void editPhoneDefaults(IRequestCycle cycle) {
         EditPhoneDefaults page = (EditPhoneDefaults) cycle.getPage(EditPhoneDefaults.PAGE);
-        String name = (String) TapestryUtils.assertParameter(String.class, cycle.getServiceParameters(), 0);
+        String name = (String) TapestryUtils.assertParameter(String.class, cycle.getListenerParameters(), 0);
         PhoneModel model = PhoneModel.getModel(name);
         page.editPhoneSettings(model, getGroupId());
         cycle.activate(page);

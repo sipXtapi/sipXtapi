@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.form.IPropertySelectionModel;
-
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**

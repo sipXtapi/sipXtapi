@@ -16,8 +16,8 @@ import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.ListEditMap;
 import org.apache.tapestry.form.PropertySelection;
 import org.apache.tapestry.html.BasePage;
@@ -99,7 +99,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageBegin
 
     public void deleteException(IRequestCycle cycle) {
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
+                .getListenerParameters(), 0);
         getDialPlanContext().removeRoutingException(id);
     }
 

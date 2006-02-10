@@ -43,7 +43,7 @@ public abstract class ManageUsers extends BasePage {
 
     public void editUser(IRequestCycle cycle) {
         Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
+                .getListenerParameters(), 0);
         EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);
         page.setUserId(userId);
         page.activatePageWithCallback(PAGE, cycle);

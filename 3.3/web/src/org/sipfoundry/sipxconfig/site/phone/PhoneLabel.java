@@ -38,7 +38,7 @@ public abstract class PhoneLabel extends BaseComponent {
     
     public void editPhone(IRequestCycle cycle) {
         EditPhone editPhonePage = (EditPhone) cycle.getPage(EditPhone.PAGE);
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         String phoneSerialNumber = (String) TapestryUtils.assertParameter(String.class, params, 0);
         Integer phoneId = getPhoneContext().getPhoneIdBySerialNumber(phoneSerialNumber);
         if (phoneId == null) {

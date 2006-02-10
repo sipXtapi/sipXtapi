@@ -14,8 +14,8 @@ package org.sipfoundry.sipxconfig.site.upload;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -40,7 +40,7 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
     
     public void editUpload(IRequestCycle cycle) {
         Integer uploadId = (Integer) TapestryUtils.assertParameter(Integer.class, 
-                cycle.getServiceParameters(), 0);
+                cycle.getListenerParameters(), 0);
         EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
         page.setUploadId(uploadId);
         page.activatePageWithCallback(PAGE, cycle);

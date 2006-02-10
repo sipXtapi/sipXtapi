@@ -16,8 +16,8 @@ import java.io.Serializable;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Bridge;
@@ -81,7 +81,7 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
 
     public void editConference(IRequestCycle cycle) {
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
+                .getListenerParameters(), 0);
         EditConference editConference = (EditConference) cycle.getPage(EditConference.PAGE);
         editConference.activate(cycle, new PageCallback(this), getBridgeId(), id);
     }

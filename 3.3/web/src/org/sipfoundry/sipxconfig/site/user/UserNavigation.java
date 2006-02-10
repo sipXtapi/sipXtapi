@@ -39,7 +39,7 @@ public abstract class UserNavigation extends BaseComponent {
     public void editCallForwarding(IRequestCycle cycle) {
         UserCallForwarding page = (UserCallForwarding) cycle.getPage(UserCallForwarding.PAGE);
         Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
+                .getListenerParameters(), 0);
         page.setUserId(userId);
         cycle.activate(page);
     }
@@ -47,7 +47,7 @@ public abstract class UserNavigation extends BaseComponent {
     public void editUser(IRequestCycle cycle) {
         EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);
 
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setUserId(userId);
 
@@ -57,7 +57,7 @@ public abstract class UserNavigation extends BaseComponent {
     public void editSettings(IRequestCycle cycle) {
         UserSettings page = (UserSettings) cycle.getPage(UserSettings.PAGE);
 
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setUserId(userId);
 

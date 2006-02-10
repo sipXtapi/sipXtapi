@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -52,7 +52,7 @@ public abstract class UserGroups extends BasePage  implements PageBeginRenderLis
     
     public void editUserGroup(IRequestCycle cycle) {
         GroupSettings page = (GroupSettings) cycle.getPage(GroupSettings.PAGE);
-        Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getServiceParameters(), 0);
+        Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getListenerParameters(), 0);
         Setting model = getCoreContext().getUserSettingsModel();
         page.editGroup(groupId, model, PAGE);
         cycle.activate(page);
@@ -60,7 +60,7 @@ public abstract class UserGroups extends BasePage  implements PageBeginRenderLis
     
     public void showGroupMembers(IRequestCycle cycle) {
         ManageUsers page = (ManageUsers) cycle.getPage(ManageUsers.PAGE);
-        Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getServiceParameters(), 0);
+        Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getListenerParameters(), 0);
         page.setGroupId(groupId);
         cycle.activate(page);
     }

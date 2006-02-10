@@ -19,8 +19,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
@@ -83,14 +83,14 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
      */
     public void editPhone(IRequestCycle cycle) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setPhoneId(phoneId);
         cycle.activate(page);
     }
 
     public void editLine(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
         page.setLineId(lineId);

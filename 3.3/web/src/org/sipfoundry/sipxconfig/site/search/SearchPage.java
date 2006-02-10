@@ -19,8 +19,8 @@ import org.apache.hivemind.Messages;
 import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
@@ -71,7 +71,7 @@ public abstract class SearchPage extends BasePage implements IExternalPage, Page
     }
 
     public void activateEditPage(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         String klass = (String) TapestryUtils.assertParameter(String.class, params, 0);
         Object id = TapestryUtils.assertParameter(Object.class, params, 1);
         try {

@@ -52,7 +52,7 @@ public abstract class ManageAttendants extends BasePage {
     public void edit(IRequestCycle cycle) {
         EditAutoAttendant page = (EditAutoAttendant) cycle.getPage(EditAutoAttendant.PAGE);
         
-        Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getServiceParameters(), 0);
+        Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getListenerParameters(), 0);
         AutoAttendant attendant = getDialPlanContext().getAutoAttendant(id);
         page.setAttendant(attendant);
         cycle.activate(page);

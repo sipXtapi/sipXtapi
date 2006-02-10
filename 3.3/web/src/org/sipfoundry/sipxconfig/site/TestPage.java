@@ -122,7 +122,7 @@ public abstract class TestPage extends BasePage {
 
     public void newGroup(IRequestCycle cycle) {
         String resource = (String) TapestryUtils.assertParameter(String.class, cycle
-                .getServiceParameters(), 0);
+                .getListenerParameters(), 0);
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.newGroup(resource, PAGE);
         cycle.activate(page);
@@ -247,7 +247,7 @@ public abstract class TestPage extends BasePage {
 
     public void generateDataSet(IRequestCycle cycle) {
         String setName = (String) TapestryUtils.assertParameter(String.class, cycle
-                .getServiceParameters(), 0);
+                .getListenerParameters(), 0);
         SipxReplicationContext sipxReplicationContext = getSipxReplicationContext();
         sipxReplicationContext.generate(DataSet.getEnum(setName));
     }

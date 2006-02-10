@@ -16,8 +16,8 @@ import java.util.Iterator;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.ListEditMap;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
@@ -164,7 +164,7 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
 
     public void deleteRing(IRequestCycle cycle) {
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
+                .getListenerParameters(), 0);
         ForwardingContext forwardingContext = getForwardingContext();
         Ring ring = forwardingContext.getRing(id);
         CallSequence callSequence = ring.getCallSequence();

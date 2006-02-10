@@ -16,8 +16,8 @@ import java.util.Collection;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
@@ -71,7 +71,7 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
     }
     
     public void addExternalLine(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         checkMaxLines(phoneId);
         AddExternalLine page = (AddExternalLine) cycle.getPage(AddExternalLine.PAGE);
@@ -86,7 +86,7 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
     }
 
     public void addLine(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         checkMaxLines(phoneId);
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
@@ -95,7 +95,7 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
     }
 
     public void editLine(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
+        Object[] params = cycle.getListenerParameters();
         Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
         page.setLineId(lineId);

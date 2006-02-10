@@ -22,8 +22,8 @@ public abstract class GroupLabel extends BaseComponent {
     public abstract Group getGroup();
     
     public void viewGroup(IRequestCycle cycle) {
-        Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getServiceParameters(), 0);
-        String resourceId = (String) TapestryUtils.assertParameter(String.class, cycle.getServiceParameters(), 1);
+        Integer groupId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getListenerParameters(), 0);
+        String resourceId = (String) TapestryUtils.assertParameter(String.class, cycle.getListenerParameters(), 1);
         // HACK: Enumerate all possible group types, cannot think a better way w/o
         // introducing interfaces
         if (resourceId.equals("phone")) {

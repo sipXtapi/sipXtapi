@@ -46,7 +46,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public void edit(IRequestCycle cycle) {
         Integer ruleId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
+                .getListenerParameters(), 0);
         DialingRule rule = getDialPlanContext().getRule(ruleId);
         SelectRuleType.activateEditPage(rule, cycle);
     }
