@@ -16,6 +16,7 @@ import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
+import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -31,12 +32,19 @@ public abstract class FormActions extends BaseComponent {
     public abstract IActionListener getListener();
 
     public abstract String getSuccessMessage();
-
+    
     public void onOk(IRequestCycle cycle) {
         apply(cycle);
         if (TapestryUtils.isValid((AbstractPage) getPage())) {
             getCallback().performCallback(cycle);
         }
+    }
+    
+    public void setButtonPressedBinding(String buttonId) {
+    	IBinding binding = getBinding("buttonPressed");
+    	if (binding != null) {
+    		binding.setObject(buttonId);
+    	}
     }
 
     public void onApply(IRequestCycle cycle) {

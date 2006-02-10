@@ -33,6 +33,6 @@
     <binding name="buttonPressed" value="buttonPressed"/>
   </component>
   <component id="stay" type="Checkbox">
-    <binding name="selected" value="stay"/>
+    <binding name="value" value="stay"/>
   </component>
 </page-specification>

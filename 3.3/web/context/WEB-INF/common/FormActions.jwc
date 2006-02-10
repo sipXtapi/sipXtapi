@@ -29,25 +29,25 @@
   </component>
   <component id="ok" type="Submit">
     <binding name="listener" value="listener:onOk"/>
-    <binding name="label" value="message:button.ok"/>
-    <binding name="selected" value="buttonPressed"/>
+    <binding name="value" value="message:button.ok"/>
+    <binding name="selected" value="buttonPressedBinding"/>
     <binding name="tag" value="components.ok.id"/>
   </component>
   <component id="apply" type="Submit">
     <binding name="listener" value="listener:onApply"/>
-    <binding name="label" value="message:button.apply"/>
-    <binding name="selected" value="buttonPressed"/>
+    <binding name="value" value="message:button.apply"/>
+    <binding name="selected" value="buttonPressedBinding"/>
     <binding name="tag" value="components.apply.id"/>
   </component>
   <component id="cancel" type="Submit">
     <binding name="listener" value="listener:onCancel"/>
-    <binding name="label" value="message:button.cancel"/>
-    <binding name="selected" value="buttonPressed"/>
+    <binding name="value" value="message:button.cancel"/>
+    <binding name="selected" value="buttonPressedBinding"/>
     <binding name="tag" value="components.cancel.id"/>
   </component>
   <component id="refresh" type="Submit">
-    <binding name="label" value="message:button.refresh"/>
-    <binding name="selected" value="buttonPressed"/>
+    <binding name="value" value="message:button.refresh"/>
+    <binding name="selected" value="buttonPressedBinding"/>
     <binding name="tag" value="components.refresh.id"/>
   </component>
 </component-specification>
