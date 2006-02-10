@@ -52,12 +52,8 @@
 			<attribute value="http://lucene.apache.org/java/docs/api/" name="javadoc_location"/>
 		</attributes>
 	</classpathentry>
-<<<<<<< .mine
 	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/hivemind-1.1.1/library/src/java" kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.jar"/>
-=======
-	<classpathentry sourcepath="/LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.jar"/>
-	<classpathentry sourcepath="/LIBSRC/hivemind/1.1.1/hivemind-1.1.1/library/src/java" kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.jar"/>
->>>>>>> .r6100
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.0.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
