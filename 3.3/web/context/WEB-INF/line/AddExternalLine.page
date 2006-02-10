@@ -32,7 +32,7 @@
     <binding name="label" value="message:label.userId"/>
     <binding name="description" value="message:description.userId"/>
   </component>
-  <component id="userId" type="ValidField">
+  <component id="userId" type="TextField">
     <binding name="value" value="settings.userId"/>
     <binding name="validator" value="bean:nameValidator"/>
     <binding name="displayName" value="message:label.userId"/>
@@ -45,7 +45,7 @@
     <binding name="label" value="message:label.registrationServer"/>
     <binding name="description" value="message:description.registrationServer"/>
   </component>
-  <component id="registrationServer" type="ValidField">
+  <component id="registrationServer" type="TextField">
     <binding name="value" value="settings.registrationServer"/>
     <binding name="validator" value="bean:registrationServerValidator"/>
     <binding name="displayName" value="message:label.registrationServer"/>

@@ -20,7 +20,7 @@
   <component id="gatewayNameLabel" type="FieldLabel">
     <binding name="field" value="components.gatewayName"/>
   </component>
-  <component id="gatewayName" type="ValidField">
+  <component id="gatewayName" type="TextField">
     <binding name="value" value="gateway.name"/>
     <binding name="validator" value="bean:nameValidator"/>
     <binding name="displayName" value="message:label.name"/>
@@ -28,7 +28,7 @@
   <component id="gatewaySerialLabel" type="FieldLabel">
     <binding name="field" value="components.gatewaySerial"/>
   </component>
-  <component id="gatewaySerial" type="ValidField">
+  <component id="gatewaySerial" type="TextField">
     <binding name="value" value="gateway.serialNumber"/>
     <binding name="validator" value="hivemind:spring:optionalSerialNumber"/>
     <binding name="displayName" value="message:label.serial"/>
@@ -36,7 +36,7 @@
   <component id="gatewayAddressLabel" type="FieldLabel">
     <binding name="field" value="components.gatewayAddress"/>
   </component>
-  <component id="gatewayAddress" type="ValidField">
+  <component id="gatewayAddress" type="TextField">
     <binding name="value" value="gateway.address"/>
     <binding name="validator" value="bean:nameValidator"/>
     <binding name="displayName" value="message:label.address"/>

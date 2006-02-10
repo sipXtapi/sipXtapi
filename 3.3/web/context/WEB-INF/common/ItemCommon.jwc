@@ -30,7 +30,7 @@
     <binding name="field" value="components.name"/>
     <binding name="label" value="literal:Name"/>
   </component>
-  <component id="name" type="ValidField">
+  <component id="name" type="TextField">
     <binding name="value" value="item.name"/>
     <binding name="displayName" value="literal:Name"/>
     <binding name="field" value="components.name"/>
@@ -43,7 +43,7 @@
     <binding name="field" value="components.extension"/>
     <binding name="label" value="literal:Extension"/>
   </component>
-  <component id="extension" type="ValidField">
+  <component id="extension" type="TextField">
     <binding name="value" value="item.extension"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:Extension"/>

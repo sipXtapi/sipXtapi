@@ -24,7 +24,7 @@
   <component id="currentPinLabel" type="FieldLabel">
     <binding name="field" value="components.currentPin"/>
   </component>
-  <component id="currentPin" type="ValidField">
+  <component id="currentPin" type="TextField">
     <binding name="value" value="currentPin"/>
     <!-- Allow the current PIN to be empty.  Usually empty PINs are not allowed,
              but if the PIN got to be empty, you should be able to change it. -->

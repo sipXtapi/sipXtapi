@@ -39,7 +39,7 @@
   <component id="pstnPrefixLabel" type="FieldLabel">
     <binding name="field" value="components.pstnPrefix"/>
   </component>
-  <component id="pstnPrefix" type="ValidField">
+  <component id="pstnPrefix" type="TextField">
     <binding name="value" value="rule.pstnPrefix"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:PSTN prefix"/>

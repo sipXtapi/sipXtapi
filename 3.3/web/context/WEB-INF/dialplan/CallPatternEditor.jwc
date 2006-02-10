@@ -18,7 +18,7 @@
   <component id="prefixLabel" type="FieldLabel">
     <binding name="field" value="components.prefix"/>
   </component>
-  <component id="prefix" type="ValidField">
+  <component id="prefix" type="TextField">
     <binding name="value" value="pattern.prefix"/>
     <binding name="validator" value="hivemind:spring:validSipUrlUser"/>
     <binding name="displayName" value="message:label.prefix"/>

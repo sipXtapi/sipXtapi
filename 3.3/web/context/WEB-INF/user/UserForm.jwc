@@ -17,7 +17,7 @@
       - B E A N S 
       -->
   <bean name="userGroupSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="literal:coreContext.groups"/>
+    <set name="collection" value="coreContext.groups"/>
     <set name="labelExpression" value="literal:'name'"/>
   </bean>
   <!--
@@ -42,7 +42,7 @@
     <binding name="label" value="message:label.userId"/>
     <binding name="description" value="message:description.userId"/>
   </component>
-  <component id="userId" type="ValidField">
+  <component id="userId" type="TextField">
     <binding name="value" value="user.userName"/>
     <binding name="validator" value="hivemind:spring:validSipNameRequired"/>
     <binding name="displayName" value="message:label.userId"/>
@@ -74,7 +74,7 @@
     <binding name="label" value="message:label.aliases"/>
     <binding name="description" value="message:description.aliases"/>
   </component>
-  <component id="aliases" type="ValidField">
+  <component id="aliases" type="TextField">
     <binding name="value" value="aliasesString"/>
     <binding name="validator" value="hivemind:spring:validUsernamePatternSequence"/>
     <binding name="displayName" value="message:label.aliases"/>

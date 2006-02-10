@@ -21,7 +21,7 @@
   <component id="numberLabel" type="FieldLabel">
     <binding name="field" value="components.number"/>
   </component>
-  <component id="number" type="ValidField">
+  <component id="number" type="TextField">
     <binding name="value" value="ring.number"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="message:label.forward"/>

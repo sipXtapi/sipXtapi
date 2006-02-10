@@ -37,7 +37,7 @@
     <binding name="field" value="components.extension"/>
     <binding name="label" value="message:label.extension"/>
   </component>
-  <component id="extension" type="ValidField">
+  <component id="extension" type="TextField">
     <binding name="value" value="rule.extension"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="message:label.extension"/>
@@ -47,7 +47,7 @@
     <binding name="label" value="message:label.autoAttendantAliases"/>
     <binding name="description" value="message:description.autoAttendantAliases"/>
   </component>
-  <component id="autoAttendantAliases" type="ValidField">
+  <component id="autoAttendantAliases" type="TextField">
     <binding name="value" value="rule.attendantAliases"/>
     <binding name="validator" value="hivemind:spring:validUsernamePatternSequence"/>
     <binding name="displayName" value="message:label.autoAttendantAliases"/>

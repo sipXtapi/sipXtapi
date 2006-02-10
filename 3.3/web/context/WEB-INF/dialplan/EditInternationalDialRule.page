@@ -37,7 +37,7 @@
   <component id="internationalPrefixLabel" type="FieldLabel">
     <binding name="field" value="components.internationalPrefix"/>
   </component>
-  <component id="internationalPrefix" type="ValidField">
+  <component id="internationalPrefix" type="TextField">
     <binding name="value" value="rule.internationalPrefix"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:International calls prefix"/>

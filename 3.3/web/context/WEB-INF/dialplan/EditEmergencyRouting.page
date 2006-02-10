@@ -42,7 +42,7 @@
   <component id="externalNumberLabel" type="FieldLabel">
     <binding name="field" value="components.externalNumber"/>
   </component>
-  <component id="externalNumber" type="ValidField">
+  <component id="externalNumber" type="TextField">
     <binding name="value" value="emergencyRouting.externalNumber"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:External emergency number"/>

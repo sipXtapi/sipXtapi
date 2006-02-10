@@ -52,7 +52,7 @@
   <component id="pstnPrefixLabel" type="FieldLabel">
     <binding name="field" value="components.pstnPrefix"/>
   </component>
-  <component id="pstnPrefix" type="ValidField">
+  <component id="pstnPrefix" type="TextField">
     <binding name="value" value="rule.pstnPrefix"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:PSTN prefix"/>
@@ -60,7 +60,7 @@
   <component id="longDistancePrefixLabel" type="FieldLabel">
     <binding name="field" value="components.longDistancePrefix"/>
   </component>
-  <component id="longDistancePrefix" type="ValidField">
+  <component id="longDistancePrefix" type="TextField">
     <binding name="value" value="rule.longDistancePrefix"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="literal:Long distance prefix"/>
@@ -68,7 +68,7 @@
   <component id="areaCodesLabel" type="FieldLabel">
     <binding name="field" value="components.areaCodes"/>
   </component>
-  <component id="areaCodes" type="ValidField">
+  <component id="areaCodes" type="TextField">
     <binding name="value" value="rule.areaCodes"/>
     <binding name="validator" value="hivemind:spring:validPhoneSequence"/>
     <binding name="displayName" value="literal:Area codes"/>

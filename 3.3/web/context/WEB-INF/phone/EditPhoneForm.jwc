@@ -45,7 +45,7 @@
   <component id="serialNumberLabel" type="FieldLabel">
     <binding name="field" value="components.serialNumber"/>
   </component>
-  <component id="serialNumber" type="ValidField">
+  <component id="serialNumber" type="TextField">
     <binding name="value" value="phone.serialNumber"/>
     <binding name="validator" value="hivemind:spring:validSerialNumber"/>
     <binding name="displayName" value="literal:Serial number"/>

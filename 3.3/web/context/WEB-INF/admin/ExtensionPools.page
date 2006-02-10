@@ -27,7 +27,7 @@
     <binding name="field" value="components.start"/>
     <binding name="label" value="message:label.start"/>
   </component>
-  <component id="start" type="ValidField">
+  <component id="start" type="TextField">
     <binding name="value" value="userExtensionPool.firstExtension"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="message:label.start"/>
@@ -36,7 +36,7 @@
     <binding name="field" value="components.end"/>
     <binding name="label" value="message:label.end"/>
   </component>
-  <component id="end" type="ValidField">
+  <component id="end" type="TextField">
     <binding name="value" value="userExtensionPool.lastExtension"/>
     <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
     <binding name="displayName" value="message:label.end"/>
