@@ -51,7 +51,7 @@ public abstract class FormActions extends BaseComponent {
         if (validator instanceof SipxValidationDelegate) {
             SipxValidationDelegate sipxValidator = (SipxValidationDelegate) validator;
             String msg = StringUtils.defaultIfEmpty(getSuccessMessage(),
-                    getMessage("user.success"));
+                    getMessages().getMessage("user.success"));
             sipxValidator.recordSuccess(msg);
         }
     }

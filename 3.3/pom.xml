@@ -46,8 +46,8 @@
     <outputDirectory>${project.build.directory}/site</outputDirectory>    
   </reporting>  
   <properties>
-    <sipx.src>${env.SIPX_SRC}</sipx.src>
-    <top.dir>${sipx.src}/sipXconfig</top.dir>
+    <sipx.src>${env.SIPXCONFIG_SRC}</sipx.src>
+    <top.dir>${sipx.src}</top.dir>
     <top.build.dir>${top.dir}/build.maven</top.build.dir>
   </properties>
 </project>

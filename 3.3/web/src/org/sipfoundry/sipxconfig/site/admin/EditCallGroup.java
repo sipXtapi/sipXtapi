@@ -122,8 +122,8 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         }
         saveValid();
         SelectUsers page = (SelectUsers) cycle.getPage(SelectUsers.PAGE);
-        page.setTitle(getMessage("title.selectRings"));
-        page.setPrompt(getMessage("prompt.selectRings"));
+        page.setTitle(getMessages().getMessage("title.selectRings"));
+        page.setPrompt(getMessages().getMessage("prompt.selectRings"));
         page.setCallback(new SelectRingsCallback(getCallGroupId()));
         cycle.activate(page);
     }

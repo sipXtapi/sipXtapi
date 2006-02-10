@@ -57,7 +57,7 @@ public abstract class GroupFilter extends BaseComponent {
 
         Collection groups = getGroups();
         if (!groups.isEmpty()) {
-            actions.add(new OptGroup(getMessage("label.groups")));
+            actions.add(new OptGroup(getMessages().getMessage("label.groups")));
         }
         for (Iterator i = groups.iterator(); i.hasNext();) {
             Group g = (Group) i.next();
@@ -66,7 +66,7 @@ public abstract class GroupFilter extends BaseComponent {
 
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
-        String label = getMessage("label.filter");
+        String label = getMessages().getMessage("label.filter");
         return getTapestry().addExtraOption(model, label);
     }
 
@@ -110,7 +110,7 @@ public abstract class GroupFilter extends BaseComponent {
         }
 
         public String getLabel(Object option_, int index_) {
-            return getMessage(m_label);
+            return getMessages().getMessage(m_label);
         }
 
         public String squeezeOption(Object option_, int index_) {
@@ -157,7 +157,7 @@ public abstract class GroupFilter extends BaseComponent {
             }
             if (option instanceof String) {
                 String label = (String) option;
-                return getMessage(label);
+                return getMessages().getMessage(label);
             }
             return option.toString();
         }

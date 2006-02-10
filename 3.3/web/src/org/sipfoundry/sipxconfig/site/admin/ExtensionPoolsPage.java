@@ -69,7 +69,7 @@ public abstract class ExtensionPoolsPage extends PageWithCallback {
      */  
     private void recordError(String messageId) {
         IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
-        delegate.record(getMessage(messageId), ValidationConstraint.TOO_SMALL);
+        delegate.record(getMessages().getMessage(messageId), ValidationConstraint.TOO_SMALL);
     }
     
 }

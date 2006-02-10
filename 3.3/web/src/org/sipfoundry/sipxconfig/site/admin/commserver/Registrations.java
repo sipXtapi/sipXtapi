@@ -39,9 +39,9 @@ public abstract class Registrations extends BasePage implements PageRenderListen
     public ITableColumn getExpiresColumn() {
         ITableColumnEvaluator eval = new ExpireTimeEvaluator();
         ExpireTimeRendererSource rendererSource = new ExpireTimeRendererSource(
-                getMessage("status.expired"));
+                getMessages().getMessage("status.expired"));
         SimpleTableColumn column = new SimpleTableColumn(EXPIRES_COLUMN,
-                getMessage(EXPIRES_COLUMN), eval, true);
+                getMessages().getMessage(EXPIRES_COLUMN), eval, true);
         column.setValueRendererSource(rendererSource);
         return column;
     }
