@@ -42,6 +42,7 @@
 #include <net/HttpRequestContext.h>
 #include <net/NetAttributeTokenizer.h>
 #include <net/NetMd5Codec.h>
+#include <utl/UtlSListIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -72,7 +73,8 @@ void incrementalCheckSum(unsigned int* checkSum, const char* buffer, int bufferL
 
 // Constructor
 HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
-                       const char* realm, OsConfigDb* validIpAddressDB) :
+                       const char* realm, OsConfigDb* validIpAddressDB,
+                       bool bPersistentConnection) :
    OsTask("HttpServer-%d"),
    httpStatus(OS_TASK_NOT_STARTED),
    mpServerSocket(pSocket),
@@ -80,7 +82,10 @@ HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
    mpUserPasswordBasicDb(userPasswordDb),
    mpValidIpAddressDB(validIpAddressDB),
    mpNonceDb(new OsConfigDb),
-   mRealm(realm)
+   mRealm(realm),
+   mbPersistentConnection(bPersistentConnection),
+   mHttpConnections(0),
+   mpHttpConnectionList(new UtlSList)
 {
    if(mpValidIpAddressDB)
    {
@@ -89,8 +94,14 @@ HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
 
    if (!mpNonceDb)
    {
-      OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpNonceDb\n");
+      OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpNonceDb");
    }
+   
+   if (!mpHttpConnectionList)
+   {
+      mbPersistentConnection = false;
+      OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer failed to allocate mpHttpConnectionList");
+   }   
 }
 
 void HttpServer::loadValidIpAddrList()
@@ -170,6 +181,13 @@ HttpServer::~HttpServer()
 
     // Delete all of the processor mappings
     mRequestProcessorMethods.destroyAll();
+    
+    // Delete remaining HttpConnections
+    if (mpHttpConnectionList)
+    {
+        mpHttpConnectionList->destroyAll();
+        delete mpHttpConnectionList;
+    }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -202,34 +220,100 @@ int HttpServer::run(void* runArg)
     while(! isShuttingDown() && mpServerSocket->isOk())
     {
         requestSocket = mpServerSocket->accept();
+        
         if(requestSocket)
         {
-            HttpMessage request;
-            // Read a http request from the socket
-            request.read(requestSocket);
-
-             UtlString remoteIp;
-            requestSocket->getRemoteHostIp(&remoteIp);
-
-            HttpMessage* response = NULL;
-
-            // If request from Valid IP Address
-            if( processRequestIpAddr(remoteIp, request, response))
+            if (mbPersistentConnection)
             {
-               // If the request is authorized
-               processRequest(request, response, requestSocket);
+                OsSysLog::add(FAC_SIP, PRI_ERR, "HttpServer: Using persistent connection" );
+                   
+                // Check for any old HttpConnections that can be deleted
+                int items = mpHttpConnectionList->entries();
+                if (items != 0)
+                {
+                    int deleted = 0;
+                    
+                    UtlSListIterator iterator(*mpHttpConnectionList);
+                    HttpConnection* connection;
+                    while ((connection = dynamic_cast<HttpConnection*>(iterator())))
+                    {
+                        if (connection->toBeDeleted())
+                        {
+                            OsSysLog::add(FAC_SIP, PRI_DEBUG, "Destroying connection %p",
+                                          connection);
+                            mpHttpConnectionList->destroy(connection);                            
+                            ++deleted;
+                            
+                            if (mHttpConnections > 0)
+                            {
+                                --mHttpConnections;
+                            }
+                        }
+                    }
+                    items = mpHttpConnectionList->entries();
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                                  "Destroyed %d inactive HttpConnections, %d remaining", 
+                                  deleted, items);                    
+                }
+                // Create new persistent connection             
+                if (mHttpConnections < MAX_PERSISTENT_HTTP_CONNECTIONS)
+                {
+                    ++mHttpConnections;
+                    HttpConnection* newConnection = new HttpConnection(requestSocket, this);
+                    mpHttpConnectionList->append(newConnection);
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                  "HttpServer: starting persistent connection %d (%p)", 
+                                  mHttpConnections, newConnection);                    
+                    newConnection->start();
+                }
+                else
+                {
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                  "HttpServer::run out of persistent connections - sending 503");
+                    HttpMessage request;
+                    HttpMessage response;
+                    // Read the http request from the socket
+                    request.read(requestSocket);
+                    
+                    // Send out of resources message
+                    response.setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
+                                                        HTTP_OUT_OF_RESOURCES_CODE,
+                                                        HTTP_OUT_OF_RESOURCES_TEXT);
+                    response.write(requestSocket);
+                    requestSocket->close();
+                    delete requestSocket;
+                    requestSocket = NULL;                                                         
+                }
             }
-
-            if(response)
+            else
             {
-                response->write(requestSocket);
-                delete response;
-                response = NULL;
-            }
+                HttpMessage request;
+                // Read a http request from the socket
+                request.read(requestSocket);
 
-            requestSocket->close();
-            delete requestSocket;
-            requestSocket = NULL;
+                UtlString remoteIp;
+                requestSocket->getRemoteHostIp(&remoteIp);
+
+                HttpMessage* response = NULL;
+
+                // If request from Valid IP Address
+                if( processRequestIpAddr(remoteIp, request, response))
+                {
+                   // If the request is authorized
+                   processRequest(request, response, requestSocket);
+                }
+
+                if(response)
+                {
+                    response->write(requestSocket);
+                    delete response;
+                    response = NULL;
+                }
+
+                requestSocket->close();
+                delete requestSocket;
+                requestSocket = NULL;
+            }
         }
         else
         {
@@ -1565,7 +1649,6 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
 
     return(mapFound);
 }
-
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 

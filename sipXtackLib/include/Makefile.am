@@ -19,6 +19,8 @@ EXTRA_DIST = \
 
 nobase_include_HEADERS =  \
     net/HttpBody.h \
+    net/HttpConnection.h \
+    net/HttpConnectionMap.h \
     net/HttpMessage.h \
     net/HttpRequestContext.h \
     net/HttpServer.h \

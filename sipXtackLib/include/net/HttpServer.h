@@ -19,9 +19,11 @@
 #include <utl/UtlHashBag.h>
 #include <os/OsTask.h>
 #include <os/OsConfigDb.h>
-
+#include <net/HttpConnection.h>
 
 // DEFINES
+#define MAX_PERSISTENT_HTTP_CONNECTIONS  5
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -35,6 +37,7 @@ class OsServerSocket;
 class OsConnectionSocket;
 class HttpRequestContext;
 class HttpService;
+class HttpConnection;
 
 //:Class short description which may consist of multiple lines (note the ':')
 // Class detailed description which may extend to multiple lines
@@ -42,11 +45,13 @@ class HttpServer : public OsTask
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+   friend class HttpConnection;
 
 /* ============================ CREATORS ================================== */
 
    HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
-                       const char* realm, OsConfigDb* validIpAddressDB = NULL);
+                       const char* realm, OsConfigDb* validIpAddressDB = NULL,
+                       bool bPersistentConnection = true);
      //:Default constructor
 
    virtual
@@ -161,6 +166,7 @@ protected:
     UtlBoolean findHttpService(const char* fileUri, HttpService*& service);
 
     void loadValidIpAddrList();
+    
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    HttpServer(const HttpServer& rHttpServer);
@@ -180,8 +186,9 @@ private:
    UtlHashMap mHttpServices;
 
         UtlHashBag mValidIpAddrList;
-
-
+   UtlBoolean mbPersistentConnection;
+   int mHttpConnections;
+   UtlSList* mpHttpConnectionList;
 };
 
 /* ============================ INLINE METHODS ============================ */
