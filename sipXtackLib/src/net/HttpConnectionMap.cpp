@@ -236,11 +236,9 @@ HttpConnectionMapEntry::HttpConnectionMapEntry() :
 
 HttpConnectionMapEntry::~HttpConnectionMapEntry()
 {
-    mLock.acquire();
     if (pSocket)
     {
         delete pSocket;
         pSocket = NULL;
     }
-    mLock.release();
 }
