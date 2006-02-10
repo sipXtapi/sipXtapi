@@ -13,7 +13,9 @@ Usage:
     
     sipx-dns <sip-domain> <server-name>[/<ipaddr>]...
 
-    Output DNS records for sipX services.
+    Output DNS records in BIND format for sipX services.  The output is
+    printed on the standard output; it can be captured in a file and 
+    editted into the zone file for your domain.
 
       sip-domain   
           Is the domain that will be used as the domain part of your SIP
@@ -25,9 +27,9 @@ Usage:
           This is the fully qualified name of a sipX server in your domain
           (sipx.example.com).
 
-          May also include the IP address (sipx.example.com/10.1.1.10); if
+          May also include the IP address (sipx.example.com/10.1.1.10).  If
           the address is given, then the A record for the host name will be
-          included.
+          generated; if not, then you must supply that record.
 
           The PTR records for reverse (address to name) lookups are not
           generated.  They are nice to have for system management, but sipX
@@ -121,7 +123,7 @@ done
 
 cat <<EOF
 ################################################################################################
-sipX Servers for SIP domain '$SipDomain'
+# sipX Servers for SIP domain '$SipDomain'
 ################################################################################################
 EOF
 
@@ -190,7 +192,7 @@ done
 cat <<EOF
 
 ################################################################################################
-################################################################################################
+
 EOF
 
 exit
