@@ -2,6 +2,7 @@
 
 RemoveAuxils="no"
 RemoveDevels="no"
+RemoveDebugs="no"
 RemoveDB="yes"
 RemoveCfg="yes"
 Interactive="yes"
@@ -43,6 +44,10 @@ do
       RemoveDevels="yes"
       ;;
 
+    --debugs)
+      RemoveDebugs="yes"
+      ;;
+
     --nodb)
       RemoveDB="no"
       ;;
@@ -52,10 +57,11 @@ do
       ;;
 
     --help | -h)
-      echo "Usage: sipx-uninstall [--auxils] [--devels] [--nodb]"
+      echo "Usage: sipx-uninstall [--auxils] [--devels] [--debugs] [--nodb]"
       echo
       echo "       --auxils  Attempts to additionally uninstall auxiliary RPMs"
       echo "       --devels  Attempts to additionally uninstall sipX*-devel RPMs"
+      echo "       --debugs  Attempts to additionally uninstall sipX*-debug RPMs"
       echo "       --nodb    Leaves database intact"
       echo
       exit 0
@@ -154,6 +160,9 @@ echo "Removing sipx RPMs..."
 for Project in $SipxProjects; do
   Lower=`echo $Project | tr 'A-Z' 'a-z'`
   echo -n "  Removing $Project... "
+  if [ "$RemoveDebugs" = "yes" ]; then
+    rpm -e ${Lower}-debug
+  fi
   rpm -e $Lower &>/dev/null
   echo " done"
 done
@@ -163,6 +172,9 @@ for Project in $SipxLibs; do
   echo -n "  Removing $Project... "
   if [ "$RemoveDevels" = "yes" ]; then
     rpm -e ${Lower}-devel
+  fi
+  if [ "$RemoveDebugs" = "yes" ]; then
+    rpm -e ${Lower}-debug
   fi
   rpm -e $Lower
   echo " done"
