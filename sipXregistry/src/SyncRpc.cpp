@@ -321,7 +321,10 @@ SyncRpcPullUpdates::SyncRpcPullUpdates()
 {
 }
 
-/// Fetch all unfetched updates for a given primary from a peer
+// Fetch all unfetched updates for a given primary from a peer.
+// Pulling updates happens during startup, when peers are in the Uninitialized state.
+// Peers can transition to UnReachable or Incompatible if there is an error, but the
+// transition to Reachable cannot happen until later.
 RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
    RegistrarPeer* source,       ///< peer to pull from
    const char*    myName,       ///< primary name of this registrar
@@ -330,7 +333,7 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
    UtlSList*      bindings      ///< list of RegistrationBinding 
                                                                )
 {
-   RegistrarPeer::SynchronizationState resultState; 
+   RegistrarPeer::SynchronizationState resultState = RegistrarPeer::Uninitialized; 
 
    // check inputs
    assert(source);
@@ -370,7 +373,6 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
          UtlInt* numUpdates = dynamic_cast<UtlInt*>(responseStruct->findValue(&NUM_UPDATES));
          if ( numUpdates )
          {
-            resultState = RegistrarPeer::Reachable;
             if (numUpdates->getValue())
             {
                UtlSList* responseUpdates =
@@ -427,8 +429,6 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                              "SyncRpcPullUpdates::invoke : no updates returned by '%s'",
                              source->name()
                              );
-
-               resultState = RegistrarPeer::Reachable;
             }
          }
          else
@@ -469,11 +469,6 @@ RegistrarPeer::SynchronizationState SyncRpcPullUpdates::invoke(
                     );
       source->markUnReachable();
       resultState = RegistrarPeer::UnReachable;
-   }
-
-   if (RegistrarPeer::Reachable == resultState)
-   {
-      source->markReachable();
    }
    
    return resultState;

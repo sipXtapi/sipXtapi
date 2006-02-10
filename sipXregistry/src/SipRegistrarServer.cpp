@@ -1296,6 +1296,10 @@ bool SipRegistrarServer::getNextUpdateToSend(RegistrarPeer *peer,
    OsLock lock(sLockMutex);
 
    intll peerSentDbUpdateNumber = peer->sentTo();
+
+   // This method must not be called until the peer's sentTo value has been initialized
+   assert(peerSentDbUpdateNumber >= 0);
+
    if (mDbUpdateNumber > peerSentDbUpdateNumber)    // if there might be updates to send
    {
       // Get the next update belonging to us (we're primary) that we haven't sent to

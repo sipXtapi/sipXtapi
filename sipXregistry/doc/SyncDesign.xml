@@ -36,7 +36,7 @@
       <email>wgillett at pingtel.com</email>
     </address>
     </author>
-    <date day="27" month="January" year="2006"/>
+    <date day="9" month="February" year="2006"/>
     <area>sipXregistry</area>
   </front>
 
@@ -553,8 +553,8 @@
               This variable indicates whether or not the peer is
               believed to be reachable.  It has four possible values:
               <list style='hanging'>
-                <t hangText='SyncStateUnknown'>
-                  The initial condition, until peer state has been determined.
+                <t hangText='Uninitialized'>
+                  The initial condition, until a successful reset with the peer.
                 </t>                  
                 <t hangText='Reachable'>
                   The peer is available for synchronization.
@@ -566,15 +566,17 @@
                   The peer is incompatible for synchronization.
                 </t>                  
               </list>
-              PeerSynchronizationState is initialized on startup to
-              <spanx style='verb'>SyncStateUnknown</spanx>, indicating that the peer
-              is not known to be reachable.
+              PeerSynchronizationState is set on startup to
+              <spanx style='verb'>Uninitialized</spanx>.
               It is set to <spanx
               style='verb'>Reachable</spanx> by the RegistrarTest thread (see <xref
-              target='registrartest'/>) when it discovers that it can reach
-              the peer.  No one else is allowed to declare a peer reachable, because
-              RegistrarTest initializes PeerSentDbUpdateNumber as part of testing
-              reachability.
+              target='registrartest'/>) after a successful
+              <xref target='reset'>registrarSync.reset</xref> call on the peer.
+              This is the only way that a peer can become reachable, because the 
+              reset call initializes PeerSentDbUpdateNumber, a necessary step before
+              synchronization can proceed.
+              </t>
+              <t>
               PeerSynchronizationState is set to <spanx
               style='verb'>UnReachable</spanx> by most operations if they fail to
               reach the peer.  It is set to <spanx
@@ -587,7 +589,8 @@
               operations do not attempt to contact the peer.
               When PeerSynchronizationState is <spanx
               style='verb'>Incompatible</spanx>, no operations try to contact the peer.
-              The only way out of the Incompatible state is to restart the registrar.
+              The only way out of the <spanx
+              style='verb'>Incompatible</spanx> state is to restart the registrar.
             </t>
           </list>
         </t>
@@ -777,7 +780,7 @@
             not available during the startup phase.  Attempts to invoke
             them result in XML-RPC faults, which causes the caller to
             consider the target of the request to be UnReachable.  This is
-            corrected by the <xref
+            corrected by <xref
             target='reset'>registrarSync.reset</xref> during the <xref
             target='transition'>transition from startup to operational
             phase</xref>.

@@ -21,8 +21,9 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+const char* RegistrarPeer::STATE_NAMES[] =
+   { "Uninitialized", "Reachable", "UnReachable", "Incompatible" };
 
-/* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 // Constructor
 RegistrarPeer::RegistrarPeer( SipRegistrar*   registrar
@@ -32,12 +33,11 @@ RegistrarPeer::RegistrarPeer( SipRegistrar*   registrar
                              )
    : UtlString(name),
      mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
-     mSyncState(SyncStateUnknown),
-     mSentTo(0),
-     mReceivedFrom(0),
+     mSyncState(Uninitialized),
+     mSentTo(-1),        // intentionally bogus initial state, for debugging
+     mReceivedFrom(-1),  // ditto
      mRegistrar(registrar)
 {
-
    mUrl.setScheme(Url::HttpsUrlScheme);
    mUrl.setHostAddress(name);
    mUrl.setHostPort(rpcPort);
@@ -73,8 +73,8 @@ void RegistrarPeer::markUnReachable()
       OsLock mutex(mLock);
    
       // If the peer was previously UnReachable, then marking it UnReachable again
-      // is a noop.  If the peer was in any other state (Reachable, SyncStateUnknown,
-      // Incompatible) then notify the test thread so that we can try to reach it
+      // is a noop.  If the peer was in any other state (Reachable, Uninitialized,
+      // Incompatible) then notify the test thread so that we can try to reach the peer
       // again later.
       if (mSyncState != UnReachable)
       {
@@ -126,12 +126,12 @@ void RegistrarPeer::markIncompatible()
    mSyncState = Incompatible;
 }
 
-/// Set the peer state to a known state (not SyncStateUnknown)
+/// Set the peer state to a non-initial state (any state but Uninitialized)
 void RegistrarPeer::setState(SynchronizationState state)
 {
    switch(state)
    {
-   case SyncStateUnknown:
+   case Uninitialized:
       assert(false);
       break;
 
@@ -151,6 +151,12 @@ void RegistrarPeer::setState(SynchronizationState state)
       assert(false);
       break;
    }
+}
+
+/// Return the name of a synchronization state, for debugging
+const char* RegistrarPeer::getStateName()
+{
+   return STATE_NAMES[mSyncState];
 }
 
 /// The oldest update successfully sent to this peer.
@@ -182,8 +188,4 @@ void RegistrarPeer::setReceivedFrom(intll updateNumber)
    
    mReceivedFrom = updateNumber;
 }
-
-/* //////////////////////////// PROTECTED ///////////////////////////////// */
-
-/* //////////////////////////// PRIVATE /////////////////////////////////// */
 

@@ -42,7 +42,7 @@ class SipRegistrar;
  */
 class RegistrarPeer : public UtlString
 {
-  public:
+public:
          
 // ================================================================
 /** @name                  Addressing
@@ -67,9 +67,9 @@ class RegistrarPeer : public UtlString
 
    typedef enum
       {
-         SyncStateUnknown, ///< initial condition
+         Uninitialized,    ///< initial condition, until a successful reset
          Reachable,        ///< a successful reset to the peer has been done
-         UnReachable,      ///< most recent request to this peer failed
+         UnReachable,      ///< the most recent request to this peer failed
          Incompatible      ///< serious error indicating incompatible version
       } SynchronizationState;
 
@@ -108,8 +108,12 @@ class RegistrarPeer : public UtlString
     * No further RPC calls will be made to a peer marked Incompatible.
     */
 
-   /// Set the peer state to a known state (not SyncStateUnknown)
+   /// Set the peer state to a non-initial state (any state but Uninitialized)
    void setState(SynchronizationState state);
+
+   /// Return the name of the peer's state, for debugging
+   const char* getStateName();
+
 ///@}
 
 // ================================================================
@@ -130,9 +134,12 @@ class RegistrarPeer : public UtlString
 
 ///@}
    
-  protected:
+protected:
    /// only SipRegistrar may construct and destroy RegistrarPeer objects
    friend class SipRegistrar; 
+
+   // State names are used for debugging
+   static const char* STATE_NAMES[];
 
    OsBSem               mLock;       ///< must be held to access to other member variables.
    SynchronizationState mSyncState; 
@@ -147,17 +154,15 @@ class RegistrarPeer : public UtlString
                  ,int              rpcPort
                  ,const char*      rpcPath = "/RPC2"
                  );
-
    ~RegistrarPeer();
 
-  private:
-
+private:
    /// There is no copy constructor.
    RegistrarPeer(const RegistrarPeer&);
 
    /// There is no assignment operator.
    RegistrarPeer& operator=(const RegistrarPeer&);
-    
+
 };
 
 #endif // _REGISTRARPEER_H_

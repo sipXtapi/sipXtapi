@@ -85,9 +85,6 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
                     "RegistrarInitialSync::restorePeerUpdateNumbers "
                     "for peer '%s' last received update # = %lld",
                     name, maxUpdateNumber);
-
-      // We don't know the last sent update number for the peer yet, so set it to zero.
-      peer->setSentTo(0);
    }
 }
 
@@ -99,9 +96,12 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
    RegistrarPeer* peer;
    while ((peer = static_cast<RegistrarPeer*>((*peers)())))
    {
-      if (   RegistrarPeer::SyncStateUnknown == peer->synchronizationState() // first time, so this is ok
-          || RegistrarPeer::Reachable        == peer->synchronizationState()
-          )
+      RegistrarPeer::SynchronizationState state = peer->synchronizationState();
+
+      // Only RegistrarTest can declare a peer Reachable, via a reset, that happens later
+      assert(state != RegistrarPeer::Reachable);
+
+      if (state == RegistrarPeer::Uninitialized)
       {
          // Call pullUpdates, passing the local registrar host name and DbUpdateNumber.
          // The purpose of this call is to recover any registrations for which the local
@@ -113,24 +113,32 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
          // Pulling updates changes maxUpdateNumber, so fetch it on each iteration
          const char* primaryName = getPrimaryName();
          intll maxUpdateNumber = getRegistrarServer().getDbUpdateNumber();
-
          UtlSList bindings;
-         RegistrarPeer::SynchronizationState state =
-            SyncRpcPullUpdates::invoke(
-               peer,            // the peer we're contacting
-               primaryName,     // name of the calling registrar (this one)
-               primaryName,     // name of the registrar whose updates we're pulling (this one)
-               maxUpdateNumber, // pull all updates more recent than this
-               &bindings);      // return bindings in this list
+         state = SyncRpcPullUpdates::invoke(
+            peer,            // the peer we're contacting
+            primaryName,     // name of the calling registrar (this one)
+            primaryName,     // name of the registrar whose updates we're pulling (this one)
+            maxUpdateNumber, // pull all updates more recent than this
+            &bindings);      // return bindings in this list
+         assert(state != RegistrarPeer::Reachable);
 
-         // Apply the resulting updates to the DB
-         if (state == RegistrarPeer::Reachable)
+         // Apply the resulting updates to the DB, if pullUpdates succeeded.
+         // A return value of Uninitialized indicates success.  If pullUpdates fails
+         // then the peer's state is downgraded to UnReachable or Incompatible.
+         if (state == RegistrarPeer::Uninitialized)
          {
             applyUpdatesToDirectory(bindings);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "RegistrarInitialSync::pullLocalUpdatesFromPeers "
                           "received %d local updates from peer '%s'",
                           bindings.entries(), peer->name());
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "RegistrarInitialSync::pullPeerUpdatesFromPeers "
+                          "'%s' is %s",
+                          peer->name(), peer->getStateName());
          }
       }
    }
@@ -145,17 +153,19 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers()
    const char* primaryName = getPrimaryName();
    while ((peer = static_cast<RegistrarPeer*>((*peers)())))
    {
-      if (peer->isReachable())
+      RegistrarPeer::SynchronizationState state = peer->synchronizationState();
+      assert(state != RegistrarPeer::Reachable);
+      if (state == RegistrarPeer::Uninitialized)
       {
          const char* peerName = peer->name();
          assert(peerName);
          UtlSList bindings;
-         RegistrarPeer::SynchronizationState state =
-            SyncRpcPullUpdates::invoke(
-               peer, primaryName, peerName, peer->receivedFrom(), &bindings);
+         state = SyncRpcPullUpdates::invoke(
+            peer, primaryName, peerName, peer->receivedFrom(), &bindings);
+         assert(state != RegistrarPeer::Reachable);
 
          // Apply the resulting updates to the DB
-         if (state == RegistrarPeer::Reachable)
+         if (state == RegistrarPeer::Uninitialized)
          {
             applyUpdatesToDirectory(bindings);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -163,13 +173,13 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers()
                           "received %d peer updates from peer '%s'",
                           bindings.entries(), peer->name());
          }
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "RegistrarInitialSync::pullPeerUpdatesFromPeers "
-                       "'%s' is UnReachable",
-                       peer->name());
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "RegistrarInitialSync::pullPeerUpdatesFromPeers "
+                          "'%s' is %s",
+                          peer->name(), peer->getStateName());
+         }
       }
    }
 }

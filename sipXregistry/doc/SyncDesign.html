@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Thu, 09 Feb 2006 03:49:22 +0000">
+<meta http-equiv="Expires" content="Thu, 09 Feb 2006 23:34:09 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -128,7 +128,7 @@
 <tr><td class="header">&nbsp;</td><td class="header">D. Worley</td></tr>
 <tr><td class="header">&nbsp;</td><td class="header">W. Gillett</td></tr>
 <tr><td class="header">&nbsp;</td><td class="header">Pingtel Corp.</td></tr>
-<tr><td class="header">&nbsp;</td><td class="header">January 27, 2006</td></tr>
+<tr><td class="header">&nbsp;</td><td class="header">February 9, 2006</td></tr>
 </table></td></tr></table>
 <div align="right"><span class="title"><br />sipXpbx High Availability</span></div>
 <a name="toc"></a><br /><hr />
@@ -802,9 +802,9 @@ Authors' Addresses<br />
               believed to be reachable.  It has four possible values:
               
 <blockquote class="text"><dl>
-<dt>SyncStateUnknown</dt>
+<dt>Uninitialized</dt>
 <dd>
-                  The initial condition, until peer state has been determined.
+                  The initial condition, until a successful reset with the peer.
                 
 </dd>
 <dt>Reachable</dt>
@@ -823,13 +823,17 @@ Authors' Addresses<br />
                 
 </dd>
 </dl></blockquote>
-              PeerSynchronizationState is initialized on startup to
-              <span class="verb">SyncStateUnknown</span>, indicating that the peer
-              is not known to be reachable.
-              It is set to <span class="verb">Reachable</span> by the RegistrarTest thread (see <a class="info" href="#registrartest">Section&nbsp;5.7.3.3<span> (</span><span class="info">RegistrarTest</span><span>)</span></a>) when it discovers that it can reach
-              the peer.  No one else is allowed to declare a peer reachable, because
-              RegistrarTest initializes PeerSentDbUpdateNumber as part of testing
-              reachability.
+              PeerSynchronizationState is set on startup to
+              <span class="verb">Uninitialized</span>.
+              It is set to <span class="verb">Reachable</span> by the RegistrarTest thread (see <a class="info" href="#registrartest">Section&nbsp;5.7.3.3<span> (</span><span class="info">RegistrarTest</span><span>)</span></a>) after a successful
+              <a class="info" href="#reset">registrarSync.reset<span> (</span><span class="info">registrarSync.reset method</span><span>)</span></a> call on the peer.
+              This is the only way that a peer can become reachable, because the 
+              reset call initializes PeerSentDbUpdateNumber, a necessary step before
+              synchronization can proceed.
+              
+</dd>
+<dt></dt>
+<dd>
               PeerSynchronizationState is set to <span class="verb">UnReachable</span> by most operations if they fail to
               reach the peer.  It is set to <span class="verb">Incompatible</span> when a serious error occurs that 
               indicates that the peer may be running a different version of the software.
@@ -840,7 +844,7 @@ Authors' Addresses<br />
               When PeerSynchronizationState is <span class="verb">UnReachable</span>, most
               operations do not attempt to contact the peer.
               When PeerSynchronizationState is <span class="verb">Incompatible</span>, no operations try to contact the peer.
-              The only way out of the Incompatible state is to restart the registrar.
+              The only way out of the <span class="verb">Incompatible</span> state is to restart the registrar.
             
 </dd>
 </dl></blockquote><p>
@@ -1046,7 +1050,7 @@ Authors' Addresses<br />
             not available during the startup phase.  Attempts to invoke
             them result in XML-RPC faults, which causes the caller to
             consider the target of the request to be UnReachable.  This is
-            corrected by the <a class="info" href="#reset">registrarSync.reset<span> (</span><span class="info">registrarSync.reset method</span><span>)</span></a> during the <a class="info" href="#transition">transition from startup to operational
+            corrected by <a class="info" href="#reset">registrarSync.reset<span> (</span><span class="info">registrarSync.reset method</span><span>)</span></a> during the <a class="info" href="#transition">transition from startup to operational
             phase<span> (</span><span class="info">Transition from Startup Phase to Operational Phase</span><span>)</span></a>.
           
 </p>

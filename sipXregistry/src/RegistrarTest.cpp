@@ -82,19 +82,24 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
       if (sipRegistrar && peers)
       {
          /*
-          * Do a single check of each unreachable peer.
+          * Do a single check of each uninitialized or unreachable peer.
           */
          RegistrarPeer* peer;
          while (   !isShuttingDown()
                 && (peer = dynamic_cast<RegistrarPeer*>((*peers)()))
                 )
          {
-            if ( RegistrarPeer::UnReachable == peer->synchronizationState() )
+            if ( RegistrarPeer::Uninitialized == peer->synchronizationState() ||
+                 RegistrarPeer::UnReachable == peer->synchronizationState() )
             {
                OsSysLog::add( FAC_SIP, PRI_DEBUG, "RegistrarTest SyncRpcReset::invoke(%s, %s)"
                               ,sipRegistrar->primaryName().data(), peer->name());
                RegistrarPeer::SynchronizationState state =
                   SyncRpcReset::invoke(sipRegistrar->primaryName(), *peer);
+
+               // Peer state has now been initialized
+               assert(state != RegistrarPeer::Uninitialized);
+
                peer->setState(state);
             }
          }

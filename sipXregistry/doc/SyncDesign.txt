@@ -5,7 +5,7 @@ SIPfoundry sipXpbx                                           S. Lawrence
                                                                D. Worley
                                                               W. Gillett
                                                            Pingtel Corp.
-                                                        January 27, 2006
+                                                        February 9, 2006
 
 
                        sipXpbx High Availability
@@ -451,26 +451,26 @@ Lawrence, et al.                                                [Page 8]
 
    PeerSynchronizationState This variable indicates whether or not the
       peer is believed to be reachable.  It has four possible values:
-      SyncStateUnknown The initial condition, until peer state has been
-         determined.
+      Uninitialized The initial condition, until a successful reset
+         with the peer.
       Reachable The peer is available for synchronization.
       UnReachable The peer is not available for synchronization.
       Incompatible The peer is incompatible for synchronization.
-      PeerSynchronizationState is initialized on startup to
-      "SyncStateUnknown", indicating that the peer is not known to be
-      reachable.  It is set to "Reachable" by the RegistrarTest thread
-      (see Section 5.7.3.3) when it discovers that it can reach the
-      peer.  No one else is allowed to declare a peer reachable, because
-      RegistrarTest initializes PeerSentDbUpdateNumber as part of
-      testing reachability.  PeerSynchronizationState is set to
-      "UnReachable" by most operations if they fail to reach the peer.
-      It is set to "Incompatible" when a serious error occurs that
-      indicates that the peer may be running a different version of the
-      software.
+      PeerSynchronizationState is set on startup to
+      "Uninitialized".  It is set to "Reachable" by the RegistrarTest
+      thread (see Section 5.7.3.3) after a successful
+      registrarSync.reset (Section 5.8.2) call on the peer.  This is the
+      only way that a peer can become reachable, because the reset call
+      initializes PeerSentDbUpdateNumber, a necessary step before
+      synchronization can proceed.
+      PeerSynchronizationState is set to "UnReachable" by most
+      operations if they fail to reach the peer.  It is set to
+      "Incompatible" when a serious error occurs that indicates that the
+      peer may be running a different version of the software.
       When PeerSynchronizationState is "UnReachable", most operations do
       not attempt to contact the peer.  When PeerSynchronizationState is
       "Incompatible", no operations try to contact the peer.  The only
-      way out of the Incompatible state is to restart the registrar.
+      way out of the "Incompatible" state is to restart the registrar.
 
 5.4.  Registration Database Changes
 
@@ -604,7 +604,7 @@ Lawrence, et al.                                               [Page 10]
    registrarSync.reset methods are not available during the startup
    phase.  Attempts to invoke them result in XML-RPC faults, which
    causes the caller to consider the target of the request to be
-   UnReachable.  This is corrected by the registrarSync.reset
+   UnReachable.  This is corrected by registrarSync.reset
    (Section 5.8.2) during the transition from startup to operational
    phase (Section 5.7.2).
 
