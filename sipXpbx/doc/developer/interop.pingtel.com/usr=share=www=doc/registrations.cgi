@@ -221,6 +221,7 @@ sub escapebreak {
     @chars = map { $_ eq '<' ? '&lt;' :
 		       $_ eq '>' ? '&gt;' :
 		       $_ eq '&' ? '&amp;' :
+		       $_ eq ' ' ? '&nbsp;' :
                        $_ } @chars;
     return join('<wbr/>', @chars);
 }
