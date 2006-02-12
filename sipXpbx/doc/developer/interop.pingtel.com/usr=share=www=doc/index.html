@@ -136,7 +136,7 @@ addresses that you can register:
     1<span class='group'>gg</span>9@interop.pingtel.com
 </pre>
 Before you register the first address, check the
-<a href="registrations.cgi">registrations list</a>
+<a href="registrations.cgi">registrations page</a>
 to see what groups other people are using.
 </p>
 
@@ -166,6 +166,34 @@ The credentials for the test addresses are:
   <dt>Password</dt>
   <dd><code>1234</code></dd>
 </dl>
+
+<h2>Registration Tests</h2>
+
+<p>
+The database of current registration information can be seen on the
+<a href="registrations.cgi">registrations page</a>.
+</p>
+
+<p>
+If the UA provides a <code>+sip.instance</code> parameter and the
+extension it is registering for is not 
+<code>1<span class='group'>gg</span>7</code>,
+<code>1<span class='group'>gg</span>8</code>,
+or <code>1<span class='group'>gg</span>9</code>, the registrar will
+assign a GRUU to the UA.
+(The GRUU suppression feature is not yet implemented.)
+</p>
+
+<p>
+The registrar returns to the UA a fictitious contact from another UA
+with a very short expiration time.  (This behavior is allowed by RFC 3261.)
+(This feature is not yet implemented.)
+Some UAs respond incorrectly to the short expiration time by
+immediately re-registering.
+A <font color='red'>red</font> value in the "CSeq" column means that
+the UA has incorrectly sent more than 2
+registrations in the last 5 minutes, which probably indicates it has
+this error.
 
 <h2>Message Waiting</h2>
 
@@ -314,6 +342,32 @@ A call can be retrieved from a parking orbit by calling
 If there are several calls parked on the same orbit, the one that was
 parked there first is retrieved.
 </p>
+
+<h2>Dialog Event Package</h2>
+
+<p>
+Once a registered UA has generated a dialog event package, this server
+can retrieve a copy from its logs and display an analysis of the
+dialog event package against some of the criteria in the
+Internet-Draft
+<a href="http://tools.ietf.org/wg/sipping/draft-worley-sipping-dialog-00.txt"><code>draft-worley-sipping-dialog-00</code></a>,
+"Guidelines for Implementing the Dialog Event Package in User Agents".
+</p>
+
+<p>
+To use this feature, execute a call pick-up where the second UA in the
+procedure (the called UA) is the UA whose dialog event package you
+would like to examine.
+Then enter its extension number in the box below and click on the
+link.
+Violations of the guidelines are marked in the analysis in
+<font color='red'>red</font>.
+</p>
+
+<form action='dialog-event.cgi' method='GET'>
+Extension: <input name='extension' size='4' maxlength='4' />
+<input type='submit' value='Analyze dialog event' />
+</form>
 
 <hr />
 

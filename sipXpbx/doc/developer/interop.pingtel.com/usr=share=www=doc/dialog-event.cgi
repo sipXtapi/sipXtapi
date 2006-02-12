@@ -7,6 +7,10 @@ use strict;
 # This must be the redirector's log, since the NOTIFY is in-dialog and bypasses
 # the proxy.
 my($log_file) = '/var/log/sipxpbx/sipregistrar.log';
+my($registration_file) = '/var/sipxdata/sipdb/registration.xml';
+
+# The SIP domain of this server.
+my($sip_domain) = 'interop.pingtel.com';
 
 # The un-escape table for backslash escapes.
 my(%unescape) = ("r", "\r",
@@ -22,83 +26,225 @@ print &header,
     &start_html('Dialog event package analysis'), "\n",
     &h1("Dialog event package analysis for extension $extension"), "\n";
 
-# Validate the extension.
-if ($extension !~ /^1\d\d[1-9]$/) {
-    print &p(&escapeHTML("Invalid extension '$extension'.")),
-    "\n",
-    &end_html,
-    "\n";
-    exit 0;
-}
+# Start a block.  Any exit from the block will print &end_html.
+HTML:{
 
-# Get the dialog event package.
-my($notify) = &find_last_notify($extension);
-
-# If we can't find a NOTIFY.
-if ($notify eq '') {
-    print &p(&escapeHTML("No dialog event with state other than " .
-			 "\"terminated\" found for extension $extension.")),
-	"\n",
-	&end_html,
+    # Validate the extension.
+    if ($extension !~ /^1\d\d[1-9]$/) {
+	print &p(&escapeHTML("Invalid extension '$extension'.")),
 	"\n";
-    exit 0;
+	last HTML;
+    }
+
+    # Get the dialog event package.
+    my($notify) = &find_last_notify($extension);
+
+    # If we can't find a NOTIFY.
+    if ($notify eq '') {
+	print &p(&escapeHTML("No dialog event with state other than " .
+			     "\"terminated\" found for extension $extension.")),
+	    "\n";
+	last HTML;
+    }
+
+    # Separate the headers and body.
+    my($headers, $body) = $notify =~ /^([\000-\377]*?)\n\n([\000-\377]*)$/;
+
+    print &p(&escapeHTML("The latest dialog event package for extension " .
+			 "$extension with a state other than \"terminated\" is:")),
+	"\n";
+    print &pre(&escapeHTML($headers . "\n\n" . $body)),
+    "\n";
+
+    # Pretty-print it.
+
+    # Insert line breaks.
+    $body =~ s/>\s*</>\n</g;
+    # Indent each line appropriately.
+    my(@body) = split(/\n/, $body);
+    my($depth) = 0;
+    my($line);
+    foreach $line (@body) {
+	my($x) = $line;
+	my($delta) = 0;
+	# Find all the start and end tags and adjust the depth accordingly.
+	$x =~ s%(<(/?)[a-z][^>]*?(/?)>)% ($2 ne '' ? $delta-- : $delta++),
+	($3 ne '' ? $delta-- : 0),
+	$1 %egi;
+	# If the line starts with an end tag, outdent it so it aligns with 
+	# its open tag.
+	my($outdent) = ($x =~ m%^</[a-z]%i);
+	$line = ('  ' x ($depth - $outdent)) . $line;
+	$depth += $delta;
+    }
+
+    # Content-Type.
+
+    my($ok) =
+	$headers =~ m%\nContent-Type\s*:\s*application/dialog-info\+xml\s*[;\n]%;
+    print &p(&strong('Content-Type:') . " " .
+	     ($ok ? "Present" : &red("Absent"))),
+	"\n";
+
+    print &p(&escapeHTML("Reformatted, it looks like this:")),
+    "\n";
+    print &pre(&escapeHTML(join("\n", @body))),
+    "\n";
+
+    # Parse the event body.
+    my($parser) = new XML::Parser(Style => 'Tree');
+    my($tree);
+    # &XML::Parse::parse dies if it can't parse the string.
+    eval { $tree = $parser->parse($body) };
+
+    if ($@ ne '') {
+	print &p(&strong("XML syntax:"),
+		 &red(&escapeHTML("Could not parse.")) .
+		 &br .
+		 &escapeHTML("XML parser message was: " . $@)),
+		 "\n";
+	last HTML;
+    }
+
+    print &p(&escapeHTML("XML syntax: Passed")),
+    "\n";
+
+    # Select a dialog element.
+
+    if ($tree->[0] ne 'dialog-info') {
+	print &p(&red(&escapeHTML("Top element is not 'dialog-info'."))),
+	"\n";
+	last HTML;
+    }
+
+    my($di_content) = $tree->[1];
+    my($i, $dialog);
+    for ($i = 1; $i <= $#$di_content; $i += 2) {
+	if ($di_content->[$i] eq 'dialog') {
+	    my($d_content) = $di_content->[$i+1];
+	    my($j);
+	    for ($j = 1; $j <= $#$d_content; $j += 2) {
+		if ($d_content->[$j] eq 'state' &&
+		    &text($d_content->[$j+1]) ne 'terminated') {
+		    $dialog = $d_content;
+		}
+	    }
+	}
+    }
+
+    if (!defined($dialog)) {
+	print &p(&red(&escapeHTML("No <dialog> with <state> not " .
+				  "'terminated' found."))),
+	"\n";
+	last HTML;
+    }
+
+    print &p(&escapeHTML("Analyzing <dialog> with id='" .
+			 $dialog->[0]->{'id'} . "'.")),
+	"\n";
+
+    # The dialog attributes.
+
+    my($call_id) = $dialog->[0]->{'call-id'};
+    print &p(&strong('Guideline 5(1):') . " Attribute 'call-id' " .
+	     ($call_id ne '' ? "present" : &red("absent")) . '.'),
+	"\n";
+
+    my($local_tag) = $dialog->[0]->{'local-tag'};
+    print &p(&strong('Guideline 5(2):') . " Attribute 'local-tag' " .
+	     ($local_tag ne '' ? "present" : &red("absent")) . '.'),
+	"\n";
+
+    my($remote_tag) = $dialog->[0]->{'remote-tag'};
+    print &p(&strong('Guideline 5(3):') . " Attribute 'remote-tag' " .
+	     ($remote_tag ne '' ? "present" : &red("absent")) . '.'),
+	"\n";
+
+    my($direction) = $dialog->[0]->{'direction'};
+    print &p(&strong('Guideline 5(4):') . " Attribute 'direction' " .
+	     ($direction ne '' ? "present" : &red("absent")) . '.'),
+	"\n";
+
+    # The local and remote URIs.
+
+    my($local_identity, $local_target, $remote_identity, $remote_target);
+    my($i);
+    for ($i = 1; $i <= $#$dialog; $i += 2) {
+	if ($dialog->[$i] eq 'local') {
+	    ($local_identity, $local_target) = &get_URIs($dialog->[$i+1]);
+	} elsif ($dialog->[$i] eq 'remote') {
+	    ($remote_identity, $remote_target) = &get_URIs($dialog->[$i+1]);
+	}
+    }
+
+    print &p(&strong('Guideline 6(1):') . " Local identity " .
+	     ($local_identity ne '' ? "present" : &red("absent")) . '.'),
+	"\n";
+    if ($local_identity ne '') {
+	my($i) = &strip($local_identity);
+	my($j) = "sip:$extension\@$sip_domain";
+	print &p(&strong('Guideline 6(2):') . " Local identity '" .
+		 &code(&escapeHTML($i)) . "' " .
+		 ($i eq $j ? "matches" : &red("does not match")) .
+		 " AOR '" . &code(&escapeHTML($j)) . "'."),
+		 "\n";
+    }
+
+    print &p(&strong('Guideline 6(3):') . " Local target " .
+	     ($local_target ne '' ? "present" : &red("absent")) . '.'),
+	"\n";
+    if ($local_target ne '') {
+	# The test on the local target depends on whether the UA has a GRUU.
+	my($gruu) = &get_GRUU;
+	if ($gruu ne '') {
+	    # If the UA has a GRUU, the local target should be the GRUU.
+	    print &p(&strong('Guideline 6(4):') . " Local target '" .
+		     &code(&escapeHTML($i)) . "' " .
+		     ($i eq $gruu ? "is" : &red("is not")) .
+		     " the UA's GRUU '" . &code(&escapeHTML($gruu)) . "'."),
+		     "\n";
+	} else {
+	    # If the UA has no GRUU, the local target should be a contact URI,
+	    # That is, one with an IP address as its host.
+	    my($i) = &strip($local_target);
+	    my($c) = $i =~ /^sip:((.*)\@)?[0-9.]+(:\d+)?$/;
+	    print &p(&strong('Guideline 6(4):') . " Local target '" .
+		     &code($i) . "' " .
+		     ($c ? "is" : &red("is not")) .
+		     " a contact."),
+		     "\n";
+	}
+    }
+
+    print &p(&strong('Guideline 6(5):') . " Remote identity " .
+	     ($remote_identity ne '' ? "present" : &red("absent")) . '.'),
+	"\n";
+    if ($remote_identity ne '') {
+	my($i) = &strip($remote_identity);
+	my($c) = $i =~ /^sip:\d+\@$sip_domain$/;
+	print &p(&strong('Guideline 6(6):') . " Remote identity '" .
+		 &code(&escapeHTML($i)) . "' " .
+		 ($c ? "is" : &red("is not")) .
+		 " an AOR in " . &code($sip_domain) . "."),
+		 "\n";
+    }
+
+    print &p(&strong('Guideline 6(7):') . " Remote target " .
+	     ($remote_target ne '' ? "present" : &red("absent")) . '.'),
+	"\n";
+    if ($remote_target ne '') {
+	my($i) = &strip($remote_target);
+	my($c) = $i =~ /^sip:((.*)\@)?[0-9.]+(:\d+)?$/;
+	my($g) = $i =~ /^sip:\d+\@$sip_domain;opaque=/;
+	print &p(&strong('Guideline 6(8):') . " Remote target '" . &code($i) .
+		 "' " .
+		 ($c ? "is a contact" :
+		  $g ? "is a GRUU in " . &code($sip_domain) :
+		  &red("is neither a contact nor a GRUU") . " in " .
+		  &code($sip_domain)) . "."),
+		 "\n";
+    }
 }
-
-# Separate the headers and body.
-my($headers, $body) = $notify =~ /^([\000-\377]*?)\n\n([\000-\377]*)$/;
-
-print &p(&escapeHTML("The latest dialog event package for extension " .
-		     "$extension with a state other than \"terminated\" is:")),
-    "\n";
-print &pre(&escapeHTML($headers . "\n\n" . $body)),
-    "\n";
-
-# Pretty-print it.
-
-# Insert line breaks.
-$body =~ s/>\s*</>\n</g;
-# Indent each line appropriately.
-my(@body) = split(/\n/, $body);
-my($depth) = 0;
-my($line);
-foreach $line (@body) {
-    my($x) = $line;
-    my($delta) = 0;
-    # Find all the start and end tags and adjust the depth accordingly.
-    $x =~ s%(<(/?)[a-z][^>]*?(/?)>)% ($2 ne '' ? $delta-- : $delta++),
-                                     ($3 ne '' ? $delta-- : 0),
-                                     $1 %egi;
-    # If the line starts with an end tag, outdent it so it aligns with 
-    # its open tag.
-    my($outdent) = ($x =~ m%^</[a-z]%i);
-    $line = ('  ' x ($depth - $outdent)) . $line;
-    $depth += $delta;
-}
-
-print &p(&escapeHTML("Reformatted, it looks like this:")),
-    "\n";
-print &pre(&escapeHTML(join("\n", @body))),
-    "\n";
-
-# Parse the event body.
-my($parser) = new XML::Parser(Style => 'Tree');
-my($tree);
-# &XML::Parse::parse dies if it can't parse the string.
-eval { $parser->parse($body) };
-
-if ($@ ne '') {
-    print &p(&font({-color => 'red'},
-		   &escapeHTML("Could not parse the event body.")) .
-	     &br .
-	     &escapeHTML("XML parser message was: " . $@)),
-	  "\n",
-	  &end_html,
-	  "\n";
-    exit 0;
-}
-
-print &p(&escapeHTML("Event body passes XML syntax check.")),
-    "\n";
 
 print &end_html,
     "\n";
@@ -136,74 +282,81 @@ sub find_last_notify {
 
 no strict;
 
-# Read and parse the registrations file.
-$parser = new XML::Parser(Style => 'Tree');
-$tree = $parser->parsefile($registration_file);
+# Read and parse the registrations file to find the GRUU for this extension.
+sub get_GRUU {
+    my($parser) = new XML::Parser(Style => 'Tree');
+    my($tree) = $parser->parsefile($registration_file);
+    my($local_gruu);
 
-$table_body = '';
-if (${$tree}[0] eq 'items') {
-    my $c = ${$tree}[1];
-    my $i;
-    $timestamp = ${${$c}[0]}{'timestamp'};
-    for ($i = 1; $i < $#$c; $i += 2) {
-	if (${$c}[$i] eq 'item') {
-	    my $d = ${$c}[$i+1];
-            my $callid, $cseq, $aor, $contact, $q, $expires, $instance_id,
-               $gruu;
-            my $i;
-	    for ($i = 1; $i < $#$d; $i += 2) {
-                $e = ${$d}[$i];
-                $f = ${$d}[$i+1];
-                if ($e eq 'callid') {
-		    $callid = &text($f);
-                } elsif ($e eq 'cseq') {
-                    $cseq = &text($f);
-                } elsif ($e eq 'uri') {
-                    $aor = &text($f);
-                } elsif ($e eq 'contact') {
-                    $contact = &text($f);
-                } elsif ($e eq 'qvalue') {
-                    $q = &text($f);
-                } elsif ($e eq 'expires') {
-                    $expires = &text($f) - $timestamp;
-                } elsif ($e eq 'instance_id') {
-                    $instance_id = &text($f);
-                } elsif ($e eq 'gruu') {
-                    $gruu = &text($f);
+    if ($tree->[0] eq 'items') {
+	my $c = $tree->[1];
+	my $i;
+	for ($i = 1; $i < $#$c; $i += 2) {
+	    if ($c->[$i] eq 'item') {
+		my $d = $c->[$i+1];
+		my $aor, $gruu;
+		my $i;
+		for ($i = 1; $i < $#$d; $i += 2) {
+		    $e = $d->[$i];
+		    $f = $d->[$i+1];
+                    if ($e eq 'uri') {
+			$aor = &text($f);
+		    } elsif ($e eq 'gruu') {
+			$gruu = &text($f);
+		    }
+		}
+		if ($aor =~ /^<?sips?:$extension@/) {
+		    $local_gruu = $gruu;
+		    last;
 		}
 	    }
-            $table_body .= 
-                Tr(td([escapeHTML($callid), escapeHTML($cseq),
-                       escapeHTML($aor), escapeHTML($contact),
-                       escapeHTML($q), escapeHTML($expires),
-                       escapeHTML($instance_id), escapeHTML($gruu)])) . "\n"
-                if $expires > 0;
-        }
+	}
     }
-} else {
-    exit 1;
+
+    return $local_gruu;
 }
 
-# Beware that <tr> is generated by the Tr() function, because tr is a
-# keyword.
-print table({-border => 1, -align => 'left'},
-	    Tr(th(['Call-Id', 'CSeq', 'AOR', 'Contact', 'q', 'Expires',
-		   'Instance ID', 'GRUU'])), "\n",
-	    $table_body);
-
-print end_html,
-    "\n";
-
-exit 0;
-
+# Extract the (top-level) content from an element.
 sub text {
     my($tree) = @_;
     my($text) = '';
     my $i;
     for ($i = 1; $i < $#$tree; $i += 2) {
-	if (${$tree}[$i] eq '0') {
-	    $text .= ${$tree}[$i+1];
+	if ($tree->[$i] eq '0') {
+	    $text .= $tree->[$i+1];
         }
     }
     return $text;
+}
+
+# Display content in red.
+sub red {
+    my(@content) = @_;
+
+    return &font({-color => 'red'}, @content);
+}
+
+# Get the identity and target content from a local or remote element.
+sub get_URIs {
+    my($element) = @_;
+    my($identity, $target);
+    
+    my($i);
+    for ($i = 1; $i <= $#$element; $i += 2) {
+	if ($element->[$i] eq 'identity') {
+	    $identity = &text($element->[$i+1]);
+        } elsif ($element->[$i] eq 'target') {
+	    $target = $element->[$i+1]->[0]->{'uri'};
+        }	    
+    }
+    return ($identity, $target);
+}
+
+# Normalize the URI scheme and remove the parameters.
+sub strip {
+    my($uri) = @_;
+
+    $uri =~ s/^sips?:/sip:/i;
+    $uri =~ s/;.*$//;
+    return $uri;
 }
