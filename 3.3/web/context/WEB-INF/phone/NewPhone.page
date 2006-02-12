@@ -25,12 +25,12 @@
     <binding name="phoneModel" value="phoneModel"/>
   </component>
   <component id="ok" type="Submit">
-    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(bean:validator, listener:finish)"/>
+    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.finish)"/>
   </component>
   <component id="cancel" type="Submit">
     <binding name="listener" value="listener:cancel"/>
   </component>
   <component id="stay" type="Checkbox">
-    <binding name="selected" value="stay"/>
+    <binding name="value" value="stay"/>
   </component>
 </page-specification>

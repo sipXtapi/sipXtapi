@@ -12,14 +12,14 @@
   <component id="groupFilter" type="PropertySelection">
     <binding name="value" value="groupId"/>
     <binding name="model" value="selectionModel"/>
-    <binding name="submitOnChange" value="true"/>
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
     <binding name="renderer" value="bean:propertyRenderer"/>
   </component>
   <component id="queryText" type="TextField">
     <binding name="value" value="queryText"/>
   </component>
   <component id="searchButton" type="Submit">
-    <binding name="label" value="message:button.search"/>
+    <binding name="value" value="message:button.search"/>
   </component>
   <component id="renderQuery" type="If">
     <binding name="condition" value="searchMode"/>

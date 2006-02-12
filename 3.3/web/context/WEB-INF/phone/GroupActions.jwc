@@ -12,7 +12,7 @@
   <inject property="tapestry" object="spring:tapestry"/>
   <component id="actionSelection" type="PropertySelection">
     <binding name="model" value="decorateModel(actionModel)"/>
-    <binding name="submitOnChange" value="true"/>
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
     <binding name="value" value="selectedAction"/>
     <binding name="renderer" value="bean:propertyRenderer"/>
   </component>

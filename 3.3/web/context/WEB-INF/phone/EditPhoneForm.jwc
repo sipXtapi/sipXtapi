@@ -21,6 +21,8 @@
     <set name="required" value="literal:false"/>
     <set name="minimumLength" value="literal:1"/>
   </bean>
+  <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator" lifecycle="page">
+  </bean>
   <bean name="phoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <set name="collection" value="phoneContext.availablePhoneModels"/>
     <set name="labelExpression" value="literal:label"/>
@@ -41,6 +43,7 @@
   </component>
   <component id="phoneDescription" type="TextArea">
     <binding name="value" value="phone.description"/>
+	<binding name="validator" value="bean:descriptionValidator"/>
   </component>
   <component id="serialNumberLabel" type="FieldLabel">
     <binding name="field" value="components.serialNumber"/>
