@@ -28,15 +28,15 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
     private Object[] m_objects;
 
     private String m_labelExpression;
-    
+
     private String m_valueExpression;
 
     public void setCollection(Collection objects) {
         m_objects = objects.toArray();
     }
-    
+
     public void setArray(Object[] objects) {
-        m_objects = (Object[]) objects.clone();        
+        m_objects = objects.clone();
     }
 
     /**
@@ -47,8 +47,8 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
     }
 
     /**
-     * Will run expression on each object in collection to read/write value to
-     * PropertySelection value expression
+     * Will run expression on each object in collection to read/write value to PropertySelection
+     * value expression
      */
     public void setValueExpression(String valueExpression) {
         m_valueExpression = valueExpression;
@@ -61,7 +61,7 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
     public Object getOption(int index) {
         if (StringUtils.isBlank(m_valueExpression)) {
             return m_objects[index];
-        }        
+        }
 
         try {
             parseValueExpression();
@@ -88,7 +88,7 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
             throw new RuntimeException(e);
         }
     }
-        
+
     private synchronized void parseLabelExpression() throws OgnlException {
         if (m_parsedLabelExpression == null) {
             m_parsedLabelExpression = Ognl.parseExpression(m_labelExpression);

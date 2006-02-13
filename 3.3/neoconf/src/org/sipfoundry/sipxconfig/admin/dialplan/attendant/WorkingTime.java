@@ -47,7 +47,7 @@ public class WorkingTime extends ScheduledAttendant {
 
     public Object clone() throws CloneNotSupportedException {
         WorkingTime clone = (WorkingTime) super.clone();
-        clone.m_workingHours = (WorkingHours[]) m_workingHours.clone();
+        clone.m_workingHours = m_workingHours.clone();
         return clone;
     }
 
