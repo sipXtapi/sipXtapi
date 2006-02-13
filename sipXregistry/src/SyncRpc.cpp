@@ -193,6 +193,7 @@ bool SyncRpcReset::execute(const HttpRequestContext& requestContext, ///< reques
                UtlLongLongInt returnedUpdateNumber(peer->receivedFrom());
                peer->markReachable();
                response.setResponse(&returnedUpdateNumber);
+               status = XmlRpcMethod::OK;
                result = true;
             }
             else
@@ -206,6 +207,7 @@ bool SyncRpcReset::execute(const HttpRequestContext& requestContext, ///< reques
                        "SyncRpcReset::execute '%s' not authenticated by SSL",
                        callingRegistrar->data()
                        );
+         status = XmlRpcMethod::FAILED;
       }
    }
    else
@@ -522,6 +524,7 @@ bool SyncRpcPullUpdates::execute(
                output.insertKeyAndValue(new UtlString(UPDATES),
                                         &updateMaps);
                response.setResponse(&output);
+               status = XmlRpcMethod::OK;
                result = true;
             }
             else
