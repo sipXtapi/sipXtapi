@@ -21,10 +21,13 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.valid.IValidationDelegate;
 
-public abstract class FormActions extends BaseComponent {    
+public abstract class FormActions extends BaseComponent {
     public static final String OK = "ok";
+
     public static final String CANCEL = "cancel";
+
     public static final String APPLY = "apply";
+
     public static final String REFRESH = "refresh";
 
     public abstract ICallback getCallback();
@@ -32,19 +35,19 @@ public abstract class FormActions extends BaseComponent {
     public abstract IActionListener getListener();
 
     public abstract String getSuccessMessage();
-    
+
     public void onOk(IRequestCycle cycle) {
         apply(cycle);
         if (TapestryUtils.isValid((AbstractPage) getPage())) {
             getCallback().performCallback(cycle);
         }
     }
-    
+
     public void setButtonPressedBinding(String buttonId) {
-    	IBinding binding = getBinding("buttonPressed");
-    	if (binding != null) {
-    		binding.setObject(buttonId);
-    	}
+        IBinding binding = getBinding("buttonPressed");
+        if (binding != null) {
+            binding.setObject(buttonId);
+        }
     }
 
     public void onApply(IRequestCycle cycle) {
@@ -58,8 +61,8 @@ public abstract class FormActions extends BaseComponent {
         adapter.actionTriggered(this, cycle);
         if (validator instanceof SipxValidationDelegate) {
             SipxValidationDelegate sipxValidator = (SipxValidationDelegate) validator;
-            String msg = StringUtils.defaultIfEmpty(getSuccessMessage(),
-                    getMessages().getMessage("user.success"));
+            String msg = StringUtils.defaultIfEmpty(getSuccessMessage(), getMessages()
+                    .getMessage("user.success"));
             sipxValidator.recordSuccess(msg);
         }
     }

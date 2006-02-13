@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -22,10 +22,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
-
-// NOTE: eclipse bug, won't sort this right on "organize imports" 
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
-
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.components.ExpressionTableColumn;
@@ -84,7 +81,7 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
         }
     }
 
-    public static class StatusConvertor implements IPrimaryKeyConvertor {
+    public static class StatusConvertor implements IPrimaryKeyConverter {
         public Object getPrimaryKey(Object objValue) {
             ServiceStatus status = (ServiceStatus) objValue;
             return status.getServiceName();
