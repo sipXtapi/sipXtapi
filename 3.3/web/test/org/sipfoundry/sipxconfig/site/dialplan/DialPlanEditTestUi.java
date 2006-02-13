@@ -228,7 +228,7 @@ public class DialPlanEditTestUi extends WebTestCase {
             SiteTestHelper.assertNoException(tester);
         }
 
-        assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "table"));
         assertTableRowsEqual("list:gateway", 1, gateways);
 
         // test moving up/down
@@ -240,7 +240,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         // move down one row - no other changes expected
         clickButton("gateway:moveDown");
-        WebTable gatewayTable = getTester().getDialog().getWebTableBySummaryOrId("list:gateway");
+        WebTable gatewayTable = getTester().getDialog().getWebTableBySummaryOrId("table");
         assertEquals(gateways[0][0], gatewayTable.getCellAsText(2, 1));
         assertEquals(gateways[1][0], gatewayTable.getCellAsText(1, 1));
         assertEquals(gateways[2][0], gatewayTable.getCellAsText(3, 1));
@@ -251,7 +251,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         }
         clickButton("gateway:remove");
         // only header in the table
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "table"));
 
         // test adding existing gateways
         SiteTestHelper.clickSubmitLink(tester, "selectGatewayLink");
@@ -259,6 +259,6 @@ public class DialPlanEditTestUi extends WebTestCase {
             SiteTestHelper.selectRow(tester, i, true);
         }
         clickButton("select:gateway:save");
-        assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "list:gateway"));
+        assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "table"));
     }
 }

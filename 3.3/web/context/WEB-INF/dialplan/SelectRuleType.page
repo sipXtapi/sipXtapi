@@ -5,8 +5,7 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
-  <property name="ruleType" >
-  </property>
+  <property name="ruleType"/>
   <!--
      - B E A N S
      -->

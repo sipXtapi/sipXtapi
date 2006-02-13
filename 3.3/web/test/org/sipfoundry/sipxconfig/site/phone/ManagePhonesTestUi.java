@@ -59,7 +59,7 @@ public class ManagePhonesTestUi extends WebTestCase {
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("phone:delete");
         // 2 = 1 thead (columns) + 1 tfoot (pager)
-        assertEquals(2, SiteTestHelper.getRowCount(tester, "phone:list"));
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "newPhoneTable"));
 
         SiteTestHelper.assertNoException(tester);
     }
@@ -70,19 +70,19 @@ public class ManagePhonesTestUi extends WebTestCase {
         clickLink("ManagePhones");
 
         // all users
-        int allTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
+        int allTableCount = SiteTestHelper.getRowCount(tester, "newPhoneTable");
 
         // empty group, no users
         selectOption("groupFilter", "seedGroup0");
         SiteTestHelper.submitNoButton(tester);
         SiteTestHelper.assertNoException(tester);
-        int emptyTableCount = SiteTestHelper.getRowCount(tester, "phone:list");
+        int emptyTableCount = SiteTestHelper.getRowCount(tester, "newPhoneTable");
         assertTrue(allTableCount > emptyTableCount);
 
         // back to all users
         selectOption("groupFilter", "- all -");
         SiteTestHelper.submitNoButton(tester);
-        int allTableCountAgain = SiteTestHelper.getRowCount(tester, "phone:list");
+        int allTableCountAgain = SiteTestHelper.getRowCount(tester, "newPhoneTable");
         assertEquals(allTableCount, allTableCountAgain);
     }
 }

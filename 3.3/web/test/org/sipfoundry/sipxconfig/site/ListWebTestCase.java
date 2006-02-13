@@ -105,7 +105,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertFormPresent();
         assertLinkPresent(buildId("add"));
-        assertEquals(1, SiteTestHelper.getRowCount(tester, buildId("list")));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, m_tableId));
         assertButtonPresent(buildId("delete"));
 
         if (m_hasDuplicate) {
@@ -125,7 +125,7 @@ public abstract class ListWebTestCase extends WebTestCase {
             addItem(getParamNames(), values);
             expected.appendRow(new ExpectedRow(getExpectedTableRow(values)));
         }
-        assertEquals(count + 1, SiteTestHelper.getRowCount(tester, buildId("list")));
+        assertEquals(count + 1, SiteTestHelper.getRowCount(tester, m_tableId));
         if (m_exactCheck) {
             assertTableRowsEqual(m_tableId, 1, expected);
         } else {
@@ -168,7 +168,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         clickButton(buildId("delete"));
 
         assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester,
-                buildId("list")));
+                m_tableId));
         if (m_exactCheck) {
             assertTableRowsEqual(buildId("list"), 1, expected);
         }

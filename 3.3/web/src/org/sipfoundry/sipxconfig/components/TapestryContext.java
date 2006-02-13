@@ -69,8 +69,8 @@ public class TapestryContext {
             try {
                 m_listener.actionTriggered(component, cycle);
             } catch (ApplicationRuntimeException are) {
-                Throwable cause = are.getCause();
-                if (cause instanceof UserException) {
+                UserException cause = getUserExceptionCause(are);
+                if (cause != null) {
                     recordUserException((UserException) cause);
                 } else {
                     throw are;
@@ -78,6 +78,23 @@ public class TapestryContext {
             } catch (UserException ue) {
                 recordUserException(ue);
             }
+        }
+        
+        /**
+         * Starting with Tapestry 4, Listeners wrap exceptions with 
+         * ApplicationRuntimeException.  We have to prepare for many levels
+         * of exceptions as listeners are often wrapped by other listeners
+         */
+        UserException getUserExceptionCause(ApplicationRuntimeException e) {
+            Throwable t = e.getCause();
+            if (t instanceof UserException) {
+                return (UserException) t;               
+            }
+            if (t instanceof ApplicationRuntimeException && t != e) {
+                // recurse
+                return getUserExceptionCause((ApplicationRuntimeException) t);
+            }
+            return null;            
         }
 
         private void recordUserException(UserException e) {

@@ -46,11 +46,16 @@ public class DaoSqueezeAdapter implements IDaoSqueezeAdapter {
     }
 
     public Class getDataClass() {
+        // Used to tell what squeezers belong to what objects.  Here inlies
+        // the FIXME issue. Although you can load phone objects from 
+        // corecontext, this is not expected behavior and may not work for all
+        // objects.
+        // see http://thread.gmane.org/gmane.comp.java.tapestry.user/27861
         return PrimaryKeySource.class;
     }
 
     public String squeeze(DataSqueezer squeezer, Object data) {
-        String className = data.getClass().getCanonicalName();
+        String className = data.getClass().getName();
         PrimaryKeySource p = (PrimaryKeySource) data;
         Object key = squeezeKey(p.getPrimaryKey());
         return getPrefix() + DELIM + className + DELIM + key.toString();

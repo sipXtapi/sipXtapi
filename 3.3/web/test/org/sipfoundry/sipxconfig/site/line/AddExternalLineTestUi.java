@@ -59,12 +59,12 @@ public class AddExternalLineTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         assertTablePresent("line:list");
-        assertEquals(SiteTestHelper.getRowCount(tester, "line:list"), 2); // 1 plus header
+        assertEquals(SiteTestHelper.getRowCount(tester, "lineTableView"), 2); // 1 plus header
         assertTextPresent("\"Dil Bert\"&lt;sip:dilbert@frakenberry.org&gt;");
     }
     
     public void testAddExternalLineWithError() {
-        assertEquals(SiteTestHelper.getRowCount(tester, "line:list"), 1); // header
+        assertEquals(SiteTestHelper.getRowCount(tester, "lineTableView"), 1); // header
 
         clickLink("AddExternalLine");        
         
