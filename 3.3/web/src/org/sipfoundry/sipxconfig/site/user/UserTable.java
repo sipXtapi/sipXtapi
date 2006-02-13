@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -49,7 +49,7 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
         }
     }
 
-    public IPrimaryKeyConvertor getIdConverter() {
+    public IPrimaryKeyConverter getIdConverter() {
         CoreContext context = getCoreContext();
         return new ObjectSourceDataSqueezer(context, User.class);
     }

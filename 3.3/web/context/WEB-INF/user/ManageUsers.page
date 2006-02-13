@@ -41,7 +41,7 @@
   </component>
   <component id="delete" type="Submit">
     <binding name="listener" value="listener:deleteUsers"/>
-    <binding name="label" value="message:label.delete"/>
+    <binding name="value" value="message:label.delete"/>
   </component>
   <component id="groupActions" type="GroupActions">
     <binding name="actionModel" value="actionModel"/>

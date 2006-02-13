@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -84,7 +84,7 @@ public abstract class ListCallGroups extends BasePage implements PageBeginRender
         }
     }
 
-    public IPrimaryKeyConvertor getIdConverter() {
+    public IPrimaryKeyConverter getIdConverter() {
         return new ObjectSourceDataSqueezer(getCoreContext(), CallGroup.class);
     }
 }

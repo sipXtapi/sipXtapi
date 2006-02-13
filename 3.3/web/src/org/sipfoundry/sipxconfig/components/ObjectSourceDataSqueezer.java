@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
  * Read objects by Id for Tapestry pages that need to read individual objects by their primary key. For example
  * table with select boxes. 
  */
-public class ObjectSourceDataSqueezer implements IPrimaryKeyConvertor {
+public class ObjectSourceDataSqueezer implements IPrimaryKeyConverter {
     private DataObjectSource m_source;
 
     private Class m_class;

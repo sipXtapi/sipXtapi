@@ -15,7 +15,7 @@ import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -147,7 +147,7 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
         cycle.activate(ManagePhones.PAGE);
     }
 
-    public IPrimaryKeyConvertor getIdConverter() {
+    public IPrimaryKeyConverter getIdConverter() {
         return new ObjectSourceDataSqueezer(getPhoneContext(), Line.class);
     }
 }

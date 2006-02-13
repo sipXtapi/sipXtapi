@@ -16,7 +16,7 @@ import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -31,7 +31,7 @@ public abstract class GroupTable extends BaseComponent {
     
     public abstract SelectMap getSelections();
     
-    public IPrimaryKeyConvertor getIdConverter() {
+    public IPrimaryKeyConverter getIdConverter() {
         return new ObjectSourceDataSqueezer(getSettingContext(), Group.class);
     }
 

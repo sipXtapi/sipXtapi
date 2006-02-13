@@ -11,6 +11,8 @@
   <parameter name="maxDescriptionLen" required="no"   default-value="255"/>
   <!-- P R O P E R T I E S -->
   <!-- B E A N S -->
+  <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator" lifecycle="page">
+  </bean>
   <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
     <set name="required" value="literal:true"/>
     <set name="minimumLength" value="literal:1"/>
@@ -24,7 +26,7 @@
     <binding name="label" value="literal:Enabled"/>
   </component>
   <component id="enabled" type="Checkbox">
-    <binding name="selected" value="item.enabled"/>
+    <binding name="value" value="item.enabled"/>
   </component>
   <component id="nameLabel" type="FieldPanel">
     <binding name="field" value="components.name"/>
@@ -54,6 +56,7 @@
   </component>
   <component id="description" type="TextArea">
     <binding name="value" value="item.description"/>
+	<binding name="validator" value=""/>
   </component>
   <component id="optFieldset" type="OptionalElement">
     <binding name="element" value="useFieldset ? 'fieldset' : null"/>

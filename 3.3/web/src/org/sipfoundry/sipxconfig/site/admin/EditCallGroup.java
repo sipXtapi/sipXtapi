@@ -19,7 +19,7 @@ import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -186,11 +186,11 @@ public abstract class EditCallGroup extends BasePage implements PageBeginRenderL
         }
     }
 
-    public IPrimaryKeyConvertor getIdConverter() {
+    public IPrimaryKeyConverter getIdConverter() {
         return new RingConverter(getCallGroup());
     }
 
-    public static final class RingConverter implements IPrimaryKeyConvertor {
+    public static final class RingConverter implements IPrimaryKeyConverter {
         private CallGroup m_callGroup;
 
         public RingConverter(CallGroup group) {

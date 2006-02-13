@@ -43,14 +43,14 @@
   </component>
   <component id="delete" type="Submit">
     <binding name="listener" value="listener:deleteGroup"/>
-    <binding name="label" value="message:button.delete"/>
+    <binding name="value" value="message:button.delete"/>
   </component>
   <component id="moveUp" type="Submit">
     <binding name="listener" value="listener:moveUp"/>
-    <binding name="label" value="message:button.moveUp"/>
+    <binding name="value" value="message:button.moveUp"/>
   </component>
   <component id="moveDown" type="Submit">
     <binding name="listener" value="listener:moveDown"/>
-    <binding name="label" value="message:button.moveDown"/>
+    <binding name="value" value="message:button.moveDown"/>
   </component>
 </component-specification>

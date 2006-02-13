@@ -30,9 +30,9 @@
     <binding name="element" value="literal:span"/>
     <binding name="columnSettingsContainer" value="container"/>
   </component>
-  <component id="tablePages" type="contrib:TableFormPages"/>
+  <component id="tablePages" type="contrib:TablePages"/>
   <component id="tableColumns" type="contrib:TableColumns"/>
-  <component id="tableRows" type="contrib:TableFormRows">
+  <component id="tableRows" type="contrib:TableRows">
     <binding name="row" value="row"/>
     <binding name="class" value="beans.rowClass.next"/>
     <binding name="convertor" value="convertor"/>

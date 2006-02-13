@@ -17,8 +17,8 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -47,7 +47,7 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
 
     public abstract void setSelections(SelectMap selected);
 
-    public abstract void setIdConverter(IPrimaryKeyConvertor cvt);
+    public abstract void setIdConverter(IPrimaryKeyConverter cvt);
 
     public abstract PhoneContext getPhoneContext();
 

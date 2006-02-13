@@ -6,6 +6,16 @@
       <create-instance class="org.sipfoundry.sipxconfig.site.UserSession"/>
     </state-object>
   </contribution>
+  <contribution configuration-id="tapestry.data.SqueezeAdaptors">
+    <adaptor object="service:CoreContextAdapter"/>
+  </contribution>
+  <service-point id="CoreContextAdapter" interface="components.IDaoSqueezeAdapter">
+     <invoke-factory>
+       <construct class="components.DaoSqueezeAdapter">
+         <set-object property="dataObjectSource" value="spring:coreContext"/>
+       </construct>
+     </invoke-factory>
+   </service-point>
   <!-- 20MB for no particular reason. Polycom firmware was 11MB
    <configure property-name="maxSize" type="double" value="20480000"/>
    -->

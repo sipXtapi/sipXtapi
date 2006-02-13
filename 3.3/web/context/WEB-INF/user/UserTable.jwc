@@ -28,10 +28,10 @@
     <binding name="initialSortColumn" value="literal:userName"/>
   </component>
   <component id="userNameColumnValue" type="Block"/>
-  <component id="userNameAsLinkConditional" type="Conditional">
+  <component id="userNameAsLinkConditional" type="If">
     <binding name="condition" value="userListener != null"/>
   </component>
-  <component id="userNameAsTextConditional" type="Conditional">
+  <component id="userNameAsTextConditional" type="If">
     <binding name="condition" value="userListener == null"/>
   </component>
   <component id="userNameLink" type="DirectLink">

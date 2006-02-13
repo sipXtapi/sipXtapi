@@ -11,12 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
 
-public class Gateway2Id implements IPrimaryKeyConvertor {
+public class Gateway2Id implements IPrimaryKeyConverter {
     private GatewayContext m_context;
     
     public Object getPrimaryKey(Object objValue) {

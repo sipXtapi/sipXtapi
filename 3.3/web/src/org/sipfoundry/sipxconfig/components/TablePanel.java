@@ -19,7 +19,7 @@ import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
 public abstract class TablePanel extends BaseComponent {
@@ -79,7 +79,7 @@ public abstract class TablePanel extends BaseComponent {
         }
     }
 
-    public IPrimaryKeyConvertor getIdConverter() {
+    public IPrimaryKeyConverter getIdConverter() {
         CoreContext context = getCoreContext();
         return new ObjectSourceDataSqueezer(context, m_itemClass);
     }
