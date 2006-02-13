@@ -1,30 +1,49 @@
 <?xml version="1.0"?>
 
 <module id="sipxconfig" version="1.0.0" package="org.sipfoundry.sipxconfig">
+  
   <contribution configuration-id="tapestry.state.ApplicationObjects">
     <state-object name="userSession" scope="session">
       <create-instance class="org.sipfoundry.sipxconfig.site.UserSession"/>
     </state-object>
   </contribution>
+  
   <contribution configuration-id="tapestry.data.SqueezeAdaptors">
     <adaptor object="service:CoreContextAdapter"/>
   </contribution>
+  
   <service-point id="CoreContextAdapter" interface="components.IDaoSqueezeAdapter">
-     <invoke-factory>
-       <construct class="components.DaoSqueezeAdapter">
-         <set-object property="dataObjectSource" value="spring:coreContext"/>
-       </construct>
-     </invoke-factory>
-   </service-point>
+    <invoke-factory>
+      <construct class="components.DaoSqueezeAdapter">
+        <set-object property="dataObjectSource" value="spring:coreContext"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
+  
   <!-- 20MB for no particular reason. Polycom firmware was 11MB
-   <configure property-name="maxSize" type="double" value="20480000"/>
-   -->
+  <configure property-name="maxSize" type="double" value="20480000"/>
+  -->
+  
   <implementation service-id="hivemind.lib.DefaultSpringBeanFactoryHolder">
     <invoke-factory>
       <construct autowire-services="false" class="org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl">
-        <event-listener service-id="hivemind.ShutdownCoordinator" />
-        <set-object property="context" value="service:tapestry.globals.WebContext" />
+        <event-listener service-id="hivemind.ShutdownCoordinator"/>
+        <set-object property="context" value="service:tapestry.globals.WebContext"/>
       </construct>
     </invoke-factory>
   </implementation>
+  
+  <!-- register download service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="download" object="service:Download"/>
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="Download">
+    <invoke-factory>
+      <construct class="components.DownloadService">
+        <set-object property="response" value="service:tapestry.globals.WebResponse"/>
+        <set-object property="linkFactory" value="infrastructure:linkFactory"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
+  
 </module>
