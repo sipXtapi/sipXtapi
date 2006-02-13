@@ -52,19 +52,19 @@ public class ManageUsersTestUi extends WebTestCase {
         clickLink("ManageUsers");
         
         // all users
-        int allTableCount = SiteTestHelper.getRowCount(tester, "user:list");
+        int allTableCount = SiteTestHelper.getRowCount(tester, "userTable");
         
         // empty group, no users
         selectOption("groupFilter", "seedGroup0");
         SiteTestHelper.submitNoButton(tester);
         SiteTestHelper.assertNoException(tester);
-        int emptyTableCount = SiteTestHelper.getRowCount(tester, "user:list");
+        int emptyTableCount = SiteTestHelper.getRowCount(tester, "userTable");
         assertTrue(allTableCount > emptyTableCount);
 
         // back to all users
         selectOption("groupFilter", "- all -");
         SiteTestHelper.submitNoButton(tester);
-        int allTableCountAgain = SiteTestHelper.getRowCount(tester, "user:list");
+        int allTableCountAgain = SiteTestHelper.getRowCount(tester, "userTable");
         assertEquals(allTableCount, allTableCountAgain);
     }
     

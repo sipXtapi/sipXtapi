@@ -56,7 +56,7 @@
   </component>
   <component id="description" type="TextArea">
     <binding name="value" value="item.description"/>
-	<binding name="validator" value=""/>
+	<binding name="validator" value="bean:descriptionValidator"/>
   </component>
   <component id="optFieldset" type="OptionalElement">
     <binding name="element" value="useFieldset ? 'fieldset' : null"/>

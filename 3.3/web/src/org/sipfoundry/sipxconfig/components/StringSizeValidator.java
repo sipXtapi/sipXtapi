@@ -15,6 +15,7 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IComponent;
@@ -46,8 +47,7 @@ public class StringSizeValidator {
         IBinding binding = m_component.getBinding("value");
         
         // PORT: was binding.getString()
-        String property = binding.getObject().toString();
-        
+        String property = ObjectUtils.toString(binding.getObject());        
         if (null != property && property.length() > m_max) {
             delegate.setFormComponent(m_component);
             delegate.record(getError(), ValidationConstraint.TOO_LARGE);

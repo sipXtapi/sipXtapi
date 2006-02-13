@@ -36,6 +36,6 @@
     <component id="tableValues" type="contrib:TableValues"/>
     
     <component id="refreshButton" type="Submit">
-        <binding name="label" value="message:button.refresh"/>
+        <binding name="value" value="message:button.refresh"/>
     </component>        
 </page-specification>

@@ -42,7 +42,7 @@ public class EditPhoneGroupTestUi extends WebTestCase {
                 "editPhoneGroupTestUi"
             },
         };
-        assertTextInTable("group:list", table[0]);
+        assertTextInTable("tableView", table[0]);
     }
 
     public void testDuplicateNameUserError() {

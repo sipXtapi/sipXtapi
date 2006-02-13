@@ -19,6 +19,9 @@ import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
 /**
  * Marshal/Unmarshal object from dao to tapestry based on ids.
+ * 
+ * FIXME: All beans that implement PrimaryKeySource use the same instance.  Unclear
+ * if there's a way to organize squeezers by context.
  */
 public class DaoSqueezeAdapter implements IDaoSqueezeAdapter {
     /** 1 character safest choice, read code in DataSqueezerImpl.register for rationale */

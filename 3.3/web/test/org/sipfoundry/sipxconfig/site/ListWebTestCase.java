@@ -41,11 +41,18 @@ public abstract class ListWebTestCase extends WebTestCase {
     private boolean m_hasDuplicate = true;
     private boolean m_hasMove = false;
     private boolean m_exactCheck = true;
+    
+    /** T4 sets table id to component name, this is the most common if Table element is used */
+    private String m_tableId = "tableView";
 
     public ListWebTestCase(String pageLink, String resetLink, String idPrefix) {
         m_pageLink = pageLink;
         m_idPrefix = idPrefix;
         m_resetLink = resetLink;
+    }
+    
+    public void setTableId(String tableId) {
+        m_tableId = tableId;
     }
 
     public void setUp() {
@@ -120,9 +127,9 @@ public abstract class ListWebTestCase extends WebTestCase {
         }
         assertEquals(count + 1, SiteTestHelper.getRowCount(tester, buildId("list")));
         if (m_exactCheck) {
-            assertTableRowsEqual(buildId("list"), 1, expected);
+            assertTableRowsEqual(m_tableId, 1, expected);
         } else {
-            assertTableRowsExist(buildId("list"), expected);
+            assertTableRowsExist(m_tableId, expected);
         }
     }
 

@@ -10,6 +10,7 @@
   <property name="returnToEditPhone" />
   <inject property="phoneContext" object="spring:phoneContext"/>
   <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="tapestry" object="spring:tapestry"/>	
   <property name="simpleSearch"  initial-value="true" persist="session"/>
   <!--
       - B E A N S
@@ -41,7 +42,7 @@
     <binding name="value" value="returnToEditPhone"/>
   </component>
   <component id="select" type="Submit">
-    <binding name="listener" value="hivemind:spring:tapestry
+    <binding name="listener" value="tapestry
             .treatUserExceptionAsValidationError(beans.validator, listeners.select)"/>
   </component>
 </page-specification>
