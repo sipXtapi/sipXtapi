@@ -36,13 +36,13 @@ javaCommand() {
   if [ -z "$JAVA_HOME" ]; then
     cmd="$JAVA_HOME/bin/java"
     if [ -f "$cmd" ]; then
-        return cmd
+        echo -n "$cmd"
     fi
   fi
-  return "java"
+  echo -n "java"
 }
 
-: ${JavaCmd:=javaCommand}
+: ${JavaCmd:=`javaCommand`}
 
 # This function determines the correct service name for Postgres.
 postgresService() {
