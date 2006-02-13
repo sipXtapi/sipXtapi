@@ -53,7 +53,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
     public void testEditAttendants() throws IOException {
         seedAttendants(2);
         clickLinkWithText("ManageAttendantsTestUi 1");
-        assertFormPresent("attendant:form");
+        assertElementPresent("attendant:form");
         setFormElement("name", "Name edited");
         clickButton("form:ok");
         String[][] expectedData = {

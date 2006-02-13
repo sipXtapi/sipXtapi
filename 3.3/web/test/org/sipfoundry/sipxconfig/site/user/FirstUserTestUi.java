@@ -63,12 +63,12 @@ public class FirstUserTestUi extends WebTestCase {
         assertCopacetic();
 
         // We should land on the login page
-        assertFormPresent("login:form");
+        assertElementPresent("login:form");
     }
 
     private void assertLandedOnFirstUserPage() {
         assertCopacetic();
-        assertFormPresent("firstuser:form");
+        assertElementPresent("firstuser:form");
     }
 
     /** Assert that we landed on a page with no complaints */

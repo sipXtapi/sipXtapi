@@ -47,7 +47,7 @@ public class EditLineTestUi extends WebTestCase {
     public void testReturnToEditPhone() {
         navigateToAddLine();
         clickButton("user:cancel");
-        assertFormPresent("phone:edit");
+        assertElementPresent("phone:edit");
         SiteTestHelper.assertNoException(tester);        
     }
     
@@ -56,11 +56,11 @@ public class EditLineTestUi extends WebTestCase {
         
         // Click on the phone label at the top of the page, which is a link
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
-        assertFormPresent("phone:edit");
+        assertElementPresent("phone:edit");
         
         // Cancel to go back to the add line page
         clickButton("form:cancel");
-        assertFormPresent("line:add");        
+        assertElementPresent("line:add");        
     }
     
     private void navigateToAddLine() {
@@ -69,7 +69,7 @@ public class EditLineTestUi extends WebTestCase {
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
         clickLinkWithText("Add Line");
         SiteTestHelper.assertNoException(tester);        
-        assertFormPresent("line:add");        
+        assertElementPresent("line:add");        
     }
     
 }

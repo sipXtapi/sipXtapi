@@ -30,7 +30,7 @@ public class RestartReminderTestUi extends WebTestCase {
     
     public void testRestartNow() {
         SiteTestHelper.assertNoException(tester);
-        assertFormPresent("restart:form");
+        assertElementPresent("restart:form");
         
         uncheckCheckbox("checkRestartLater");
         
@@ -43,7 +43,7 @@ public class RestartReminderTestUi extends WebTestCase {
     
     public void testRestartLater() {
         SiteTestHelper.assertNoException(tester);
-        assertFormPresent("restart:form");
+        assertElementPresent("restart:form");
 
         checkCheckbox("checkRestartLater");
         

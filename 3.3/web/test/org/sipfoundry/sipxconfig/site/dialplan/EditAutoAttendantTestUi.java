@@ -84,7 +84,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
 
     public void testCancel() {
         clickLink("NewAutoAttendant");
-        assertFormPresent("attendant:form");
+        assertElementPresent("attendant:form");
         clickButton("form:cancel");
         assertTablePresent("list:attendant");
     }
@@ -101,7 +101,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
     public void testRemoveMenuItems() throws Exception {
         seedPromptFile();
         clickLink("NewAutoAttendant");
-        assertFormPresent("attendant:form");
+        assertElementPresent("attendant:form");
 
         SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
         clickButton("attendant:removeMenuItems");
@@ -118,7 +118,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
 
         clickLink("NewAutoAttendant");
-        assertFormPresent("attendant:form");
+        assertElementPresent("attendant:form");
 
         selectOption("addMenuItemAction", "Auto Attendant");
         clickButton("attendant:addMenuItem");

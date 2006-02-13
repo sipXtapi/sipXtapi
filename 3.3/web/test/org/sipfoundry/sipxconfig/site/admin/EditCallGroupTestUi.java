@@ -32,7 +32,7 @@ public class EditCallGroupTestUi extends WebTestCase {
 
     public void testDisplay() {
         SiteTestHelper.assertNoException(getTester());
-        assertFormPresent("callgroup:form");
+        assertElementPresent("callgroup:edit");
         assertElementPresent("item:name");
         assertElementPresent("item:extension");
         assertElementPresent("item:description");
