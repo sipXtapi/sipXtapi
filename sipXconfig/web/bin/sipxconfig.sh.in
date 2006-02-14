@@ -130,6 +130,7 @@ databaseCommand() {
         -Dlib.dir=${LibDir} \
         -Dlog.dir=${LogDir} \
         -Dtmp.dir=${TmpDir} \
+        -Dorg.apache.lucene.lockdir=${TmpDir}/index \
         -f ${DatabaseProject} \
         $@
 }

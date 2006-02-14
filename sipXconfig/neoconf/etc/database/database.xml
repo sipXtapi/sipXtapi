@@ -76,6 +76,7 @@
     	
   <target name="initialize" depends="tasks" if="initialize">
     <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null">
+        <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index"/>
       <arg value="noexit"/>
     </java>
   </target>
