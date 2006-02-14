@@ -8,6 +8,7 @@ dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
    configpp \
    pkg-upgrade \
+	sipx-dns \
    get_def_addr
 
 LOCAL_SHELLSCRIPTS = \

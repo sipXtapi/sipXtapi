@@ -392,6 +392,11 @@ EOF
     fi
     finish_check $ssl_status
 
+    # check the validity of the watchdog configuration
+    start_check "watchdog"
+    @SIPX_BINDIR@/sipx-validate-xml @SIPX_CONFDIR@/WatchDog.xml >> ${steperrfile} 2>&1 
+    finish_check $?
+
     # Iterate through the processes and let each shell script do its own checks 
     for process in ${sipxchange_processes[@]}
     do

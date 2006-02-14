@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<watchdog>
+<watchdog xmlns='http://www.sipfoundry.org/sipX/schema/xml/watchdog-00-00'>
    <settings>
       <health check_period="15" />
       <processxmlpath location="@SIPX_CONFDIR@" />

@@ -133,7 +133,6 @@ EOF
             ;;
 
         *)
-            echo >&2 "Unknown old version: $Version"
             ;;
     esac
 }
@@ -162,7 +161,6 @@ UpgradeRegistry() {
            ;;
 
        *)
-           echo >&2 "Unknown old version: $Version"
            ;;
     esac
 }
@@ -242,7 +240,6 @@ UpgradeProxy() {
             ;;
 
         *)
-            echo >&2 "Unknown old version: $Version"
             ;;
     esac
 }
@@ -268,9 +265,17 @@ UpgradeSubscriptions() {
             ;;
 
         *)
-           echo >&2 "Unknown old version: $Version"
            ;;
     esac
+}
+
+AddNamespaceToWatchDog () {
+    f=${SysConfDir}/WatchDog.xml
+    if test -r $f && grep '<watchdog>' $f
+    then
+        cp $f $f.OLD
+        sed 's|<watchdog>|<watchdog xmlns="http://www.sipfoundry.org/sipX/schema/xml/watchdog-00-00">|' $f.OLD > $f
+    fi
 }
 
 ##########################
@@ -292,9 +297,11 @@ UpgradePbx() {
             then
                 mv ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant.wav ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant-internal.wav
             fi
+            AddNamespaceToWatchDog
             ;;
 
         2.8* | 2.9* | 3.0*)
+            AddNamespaceToWatchDog
             ;;
 
         '')
@@ -302,7 +309,7 @@ UpgradePbx() {
             ;;
 
         *)
-            echo >&2 "Unknown old version: $Version"
+            AddNamespaceToWatchDog
             ;;
     esac
 }
@@ -322,7 +329,6 @@ UpgradeConfigServer() {
            ;;
 
        *)
-           echo >&2 "Unknown old version: $Version"
            ;;
     esac
 }
