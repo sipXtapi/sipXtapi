@@ -29,7 +29,7 @@
     <binding name="description" value="message:description.www"/>
   </component>
   <component id="wwwCheck" type="Checkbox">
-    <binding name="selected" value="snapshot.www"/>
+    <binding name="value" value="snapshot.www"/>
   </component>
   <component id="credentialsPanel" type="FieldPanel">
     <binding name="field" value="components.credentialsCheck"/>
@@ -37,7 +37,7 @@
     <binding name="description" value="message:description.credentials"/>
   </component>
   <component id="credentialsCheck" type="Checkbox">
-    <binding name="selected" value="snapshot.credentials"/>
+    <binding name="value" value="snapshot.credentials"/>
   </component>
   <component id="actions" type="FormActions">
     <binding name="listener" value="listener:createSnapshot"/>

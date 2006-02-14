@@ -8,7 +8,7 @@
     <binding name="value" value="getMessage('label.' + workingHours.day.name)"/>
   </component>
   <component id="enabled" type="Checkbox">
-    <binding name="selected" value="workingHours.enabled"/>
+    <binding name="value" value="workingHours.enabled"/>
   </component>
   <component id="fromLabel" type="FieldLabel">
     <binding name="field" value="components.from"/>
