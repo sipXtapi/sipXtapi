@@ -60,8 +60,6 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
 
     public abstract void setCallback(ICallback callback);
     
-    public abstract void setValidRule(RuleValidator validator);
-
     public abstract RuleValidator getValidRule();
 
     public Permission[] getCallHandlingPermissions() {
