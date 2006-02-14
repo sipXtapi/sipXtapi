@@ -92,6 +92,7 @@ class ConferenceUserAgent : public resip::InviteSessionHandler,
       virtual void onInfoSuccess(resip::InviteSessionHandle, const resip::SipMessage& msg);
       virtual void onInfoFailure(resip::InviteSessionHandle, const resip::SipMessage& msg);
       virtual void onRefer(resip::InviteSessionHandle, resip::ServerSubscriptionHandle, const resip::SipMessage& msg);
+      virtual void onReferNoSub(resip::InviteSessionHandle, const resip::SipMessage& msg);
       virtual void onReferAccepted(resip::InviteSessionHandle, resip::ClientSubscriptionHandle, const resip::SipMessage& msg);
       virtual void onReferRejected(resip::InviteSessionHandle, const resip::SipMessage& msg);
 
