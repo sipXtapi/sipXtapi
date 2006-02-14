@@ -203,12 +203,12 @@ bool XmlRpcResponse::parseXmlRpcResponse(UtlString& responseContent)
 bool XmlRpcResponse::setResponse(UtlContainable* value)
 {
    bool result = false;
-   assert(mpResponseBody == NULL); // if not true, this has been called twice
+   assert(mpResponseBody == NULL);    // response body should only be created once
    
 
    // Start to construct the XML-RPC body
    mpResponseBody = new XmlRpcBody();
-   assert(mpResponseBody != NULL); // if not true, allocation failed
+   assert(mpResponseBody != NULL);    // if not true, allocation failed
 
    mpResponseBody->append(BEGIN_RESPONSE);   
    mpResponseBody->append(BEGIN_PARAMS);   
@@ -236,10 +236,10 @@ bool XmlRpcResponse::setFault(int faultCode, const char* faultString)
    mFaultString = faultString;
 
    // Start to construct the XML-RPC body for fault response
-   assert(mpResponseBody == NULL); // if not true, this has been called twice
+   assert(mpResponseBody == NULL);    // response body should only be created once
 
    mpResponseBody = new XmlRpcBody();
-   assert(mpResponseBody != NULL); // if not true, allocation failed
+   assert(mpResponseBody != NULL);    // if not true, allocation failed
    
    // Fault response example
    //
