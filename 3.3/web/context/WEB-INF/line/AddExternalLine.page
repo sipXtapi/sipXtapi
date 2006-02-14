@@ -9,7 +9,7 @@
   <property name="phoneId"  persist="session"/>
   <property name="phone" />
   <property name="settings" />
-  <inject property="phoneContext" object="hivemind:spring:phoneContext"/>
+  <inject property="phoneContext" object="spring:phoneContext"/>
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
     <set name="required" value="literal:true"/>

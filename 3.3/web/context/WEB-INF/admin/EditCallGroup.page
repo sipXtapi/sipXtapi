@@ -7,6 +7,7 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="callGroupContext" object="spring:callGroupContext"/>
+  <inject property="tapestry" object="spring:tapestry"/>	
   <property name="callGroup" />
   <property name="callGroupId"  persist="session"/>
   <property name="newUsersIds" />
@@ -25,7 +26,7 @@
      -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="hivemind:spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
+    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.formSubmit)"/>
   </component>
   <component id="common" type="ItemCommon">
     <binding name="item" value="callGroup"/>
