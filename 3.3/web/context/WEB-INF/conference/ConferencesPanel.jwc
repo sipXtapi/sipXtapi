@@ -41,6 +41,6 @@
     <binding name="parameters" value="currentRow.id"/>
   </component>
   <component id="selectedRow" type="Checkbox">
-    <binding name="selected" value="selections.selected[currentRow.id]"/>
+    <binding name="value" value="selections.selected[currentRow.id]"/>
   </component>
 </component-specification>

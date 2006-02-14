@@ -24,13 +24,13 @@
   </component>
   <component id="errors" type="ErrorMsg"/>
   <component id="checkConfigs" type="Checkbox">
-    <binding name="selected" value="backupPlan.configs"/>
+    <binding name="value" value="backupPlan.configs"/>
   </component>
   <component id="checkDatabase" type="Checkbox">
-    <binding name="selected" value="backupPlan.database"/>
+    <binding name="value" value="backupPlan.database"/>
   </component>
   <component id="checkVoicemail" type="Checkbox">
-    <binding name="selected" value="backupPlan.voicemail"/>
+    <binding name="value" value="backupPlan.voicemail"/>
   </component>
   <component id="limitCount" type="PropertySelection">
     <binding name="model" value="hivemind:spring:limitedBackupCountModel"/>
@@ -67,7 +67,7 @@
     <binding name="element" value="literal:br"/>
   </component>
   <component id="dailyScheduleEnabled" type="Checkbox">
-    <binding name="selected" value="schedule.enabled"/>
+    <binding name="value" value="schedule.enabled"/>
   </component>
   <component id="dailyScheduledDay" type="PropertySelection">
     <binding name="model" value="bean:scheduledDaysPropertyModel"/>

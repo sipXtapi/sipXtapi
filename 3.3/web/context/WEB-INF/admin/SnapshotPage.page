@@ -21,7 +21,7 @@
     <binding name="description" value="message:description.logs"/>
   </component>
   <component id="logsCheck" type="Checkbox">
-    <binding name="selected" value="snapshot.logs"/>
+    <binding name="value" value="snapshot.logs"/>
   </component>
   <component id="wwwPanel" type="FieldPanel">
     <binding name="field" value="components.wwwCheck"/>

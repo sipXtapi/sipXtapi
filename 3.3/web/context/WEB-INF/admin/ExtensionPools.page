@@ -21,7 +21,7 @@
     <binding name="delegate" value="bean:validator"/>
   </component>
   <component id="enableExtensionPool" type="Checkbox">
-    <binding name="selected" value="userExtensionPool.enabled"/>
+    <binding name="value" value="userExtensionPool.enabled"/>
   </component>
   <component id="panelStart" type="FieldPanel">
     <binding name="field" value="components.start"/>

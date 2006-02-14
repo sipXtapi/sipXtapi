@@ -81,7 +81,7 @@
   <component id="menuItemValues" type="contrib:TableValues"/>
   <!-- Column 1: select phone -->
   <component id="selectedRow" type="Checkbox">
-    <binding name="selected" value="selections.selected[beans.menuItems.key.name]"/>
+    <binding name="value" value="selections.selected[beans.menuItems.key.name]"/>
   </component>
   <!-- Column 2: key dropdown -->
   <component id="DialpadColumnValue" type="Block"/>

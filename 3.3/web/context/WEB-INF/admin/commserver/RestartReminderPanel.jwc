@@ -20,6 +20,6 @@
 		<binding name="value" value="reminderMsg"/>
 	</component>	
 	<component id="checkRestartLater" type="Checkbox">
-		<binding name="selected" value="restartLater"/>
+		<binding name="value" value="restartLater"/>
 	</component>
 </component-specification>

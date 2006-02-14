@@ -52,7 +52,7 @@
     <binding name="displayName" value="literal:Use caller sensitive forwarding"/>
   </component>
   <component id="callerSensitiveRouting" type="Checkbox">
-    <binding name="selected" value="rule.useMediaServer"/>
+    <binding name="value" value="rule.useMediaServer"/>
   </component>
   <component id="emergencyRoutingLink" type="DirectLink">
     <binding name="listener" value="listener:emergencyRouting"/>
