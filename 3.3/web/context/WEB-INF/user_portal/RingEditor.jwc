@@ -29,13 +29,11 @@
   <component id="expirationLabel" type="FieldLabel">
     <binding name="field" value="components.expiration"/>
   </component>
-  <component id="expiration" type="contrib:NumericField">
-    <binding name="value" value="ring.expiration"/>
-    <binding name="minimum" value="1"/>
-    <binding name="maximum" value="999"/>
-    <binding name="required" value="true"/>
-    <binding name="type" value="literal:int"/>
+  <component id="expiration" type="TextField">
+    <binding name="value" value="ring.expiration"/>    
     <binding name="displayName" value="message:label.ring"/>
+    <binding name="translator" value="translator:number"/>
+    <binding name="validators" value="validators:required,min=1,max=999"/>
   </component>
   <component id="deleteRing" type="DirectLink">
     <binding name="listener" value="deleteListener"/>

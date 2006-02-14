@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-
 <module id="sipxconfig" version="1.0.0" package="org.sipfoundry.sipxconfig">
   
   <contribution configuration-id="tapestry.state.ApplicationObjects">
@@ -22,10 +21,10 @@
   </service-point>
   
   <service-point id="ServiceStatusAdapter" interface="org.apache.tapestry.util.io.SqueezeAdaptor">
-     <invoke-factory>
-       <construct class="site.admin.commserver.ServerStatusSqueezeAdapter"/>
-     </invoke-factory>
-   </service-point>
+    <invoke-factory>
+      <construct class="site.admin.commserver.ServerStatusSqueezeAdapter"/>
+    </invoke-factory>
+  </service-point>
   <!-- TODO: Upload Size=20MB for no particular reason. Polycom firmware was 11MB
   <configure property-name="maxSize" type="double" value="20480000"/>
   -->
@@ -52,4 +51,8 @@
     </invoke-factory>
   </service-point>
   
+  <!-- register additional validators -->
+  <contribution configuration-id="tapestry.form.validator.Validators">
+    <!-- FIXME: put validators from tapestry.xml here /-->
+  </contribution>  
 </module>

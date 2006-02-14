@@ -29,13 +29,11 @@
   <component id="extensionLenLabel" type="FieldLabel">
     <binding name="field" value="components.extensionLen"/>
   </component>
-  <component id="extensionLen" type="contrib:NumericField">
+  <component id="extensionLen" type="TextField">
     <binding name="value" value="rule.localExtensionLen"/>
-    <binding name="minimum" value="1"/>
-    <binding name="maximum" value="99"/>
-    <binding name="required" value="true"/>
-    <binding name="type" value="literal:int"/>
     <binding name="displayName" value="message:label.extensionLen"/>
+    <binding name="translator" value="translator:number"/>
+    <binding name="validators" value="validators:required,min=1,max=99"/>    
   </component>
   <component id="voiceMailLabel" type="FieldLabel">
     <binding name="field" value="components.voiceMail"/>

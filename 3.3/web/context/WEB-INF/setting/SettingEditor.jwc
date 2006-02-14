@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingEditor" allow-body="no" allow-informal-parameters="no">
+<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingEditor" allow-body="no"
+  allow-informal-parameters="no">
   <description>Editor for a single setting</description>
-  <parameter name="setting"  required="yes" />
-  <parameter name="enabled" required="no"  default-value="true" >
+  <parameter name="setting" required="yes"/>
+  <parameter name="enabled" required="no" default-value="true">
   </parameter>
   <component id="fieldPanel" type="FieldPanel">
     <binding name="for" value="'setting:' + setting.name"/>
@@ -13,26 +14,22 @@
     <binding name="description" value="setting.description"/>
     <binding name="highlight" value="modified"/>
   </component>
-  <component id="integerField" type="contrib:NumericField">
+  <component id="integerField" type="TextField">
     <binding name="id" value="'setting:' + setting.name"/>
     <binding name="value" value="setting.value"/>
     <binding name="displayName" value="setting.label"/>
-    <binding name="minimum" value="setting.type.min"/>
-    <binding name="maximum" value="setting.type.max"/>
-    <binding name="required" value="setting.type.required"/>
+    <binding name="translator" value="translator:number"/>
+    <binding name="validators" value="validatorList"/>
     <binding name="disabled" value="! enabled"/>
-    <binding name="type" value="literal:Integer"/>
   </component>
   <component id="integerBlock" type="Block"></component>
-  <component id="realField" type="contrib:NumericField">
+  <component id="realField" type="TextField">
     <binding name="id" value="'setting:' + setting.name"/>
     <binding name="value" value="setting.value"/>
     <binding name="displayName" value="setting.label"/>
-    <binding name="minimum" value="setting.type.min"/>
-    <binding name="maximum" value="setting.type.max"/>
-    <binding name="required" value="setting.type.required"/>
+    <binding name="translator" value="translator:number"/>
+    <binding name="validators" value="validatorList"/>
     <binding name="disabled" value="! enabled"/>
-    <binding name="type" value="literal:Float"/>
   </component>
   <component id="realBlock" type="Block"></component>
   <component id="stringField" type="TextField">
@@ -40,7 +37,7 @@
     <binding name="value" value="stringValue"/>
     <binding name="hidden" value="setting.type.password"/>
     <binding name="displayName" value="setting.label"/>
-    <binding name="validator" value="validator"/>
+    <binding name="validators" value="validatorList"/>
     <binding name="disabled" value="! enabled"/>
     <binding name="maxLength" value="setting.type.maxLen"/>
   </component>
@@ -54,7 +51,7 @@
   <component id="enumBlock" type="Block"></component>
   <component id="booleanField" type="Checkbox">
     <binding name="id" value="'setting:' + setting.name"/>
-    <binding name="selected" value="booleanValue"/>
+    <binding name="value" value="booleanValue"/>
     <binding name="disabled" value="! enabled"/>
   </component>
   <component id="booleanBlock" type="Block"></component>

@@ -37,13 +37,12 @@
     <binding name="label" value="message:label.port"/>
     <binding name="description" value="message:description.port"/>
   </component>
-  <component id="port" type="contrib:NumericField">
+  <component id="port" type="TextField">
     <binding name="value" value="bridge.port"/>
-    <binding name="minimum" value="1024"/>
-    <binding name="maximum" value="65534"/>
     <binding name="displayName" value="message:label.port"/>
-    <binding name="required" value="true"/>
-    <binding name="type" value="literal:int"/>
+    <binding name="validators" value="validators:required,min=1024,max=65534"/>
+    <!-- FIXME: make sure this is an integer -->
+    <!-- binding name="type" value="literal:int"/-->
   </component>
   <component id="settingsFieldset" type="SettingsFieldset">
     <binding name="settings" value="bridge.settings"/>

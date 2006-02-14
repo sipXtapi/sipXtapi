@@ -11,13 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import java.util.List;
+
 import junit.framework.TestCase;
 
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.validator.Max;
+import org.apache.tapestry.form.validator.MaxLength;
+import org.apache.tapestry.form.validator.Min;
+import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.test.Creator;
-import org.apache.tapestry.valid.IValidator;
 import org.apache.tapestry.valid.PatternValidator;
-import org.apache.tapestry.valid.StringValidator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
@@ -34,19 +38,21 @@ public class SettingEditorTest extends TestCase {
     }
 
     public void testValidatorForInteger() {
-        SettingType type = new IntegerSetting();
-        assertNull(SettingEditor.validatorForType(type));
+        IntegerSetting type = new IntegerSetting();
+        List validators = SettingEditor.validatorListForType(type);
+        assertEquals(2, validators.size());
+        assertTrue(validators.get(0) instanceof Min);        
+        assertTrue(validators.get(1) instanceof Max);        
     }
 
     public void testValidatorForString() {
         StringSetting type = new StringSetting();
         type.setMaxLen(15);
         type.setRequired(true);
-        IValidator validator = SettingEditor.validatorForType(type);
-        assertTrue(validator instanceof StringValidator);
-        StringValidator stringValidator = (StringValidator) validator;
-        assertEquals(0, stringValidator.getMinimumLength());
-        assertTrue(stringValidator.isRequired());
+        List validators = SettingEditor.validatorListForType(type);
+        assertEquals(2, validators.size());
+        assertTrue(validators.get(0) instanceof Required);        
+        assertTrue(validators.get(1) instanceof MaxLength);        
     }
 
     public void testValidatorForPattern() {
@@ -54,11 +60,11 @@ public class SettingEditorTest extends TestCase {
         type.setMaxLen(15);
         type.setRequired(true);
         type.setPattern("kuku");
-        IValidator validator = SettingEditor.validatorForType(type);
-        assertTrue(validator instanceof PatternValidator);
-        PatternValidator patternValidator = (PatternValidator) validator;
-        assertEquals("kuku", patternValidator.getPatternString());
-        assertTrue(patternValidator.isRequired());
+        List validators = SettingEditor.validatorListForType(type);
+        assertEquals(3, validators.size());
+        assertTrue(validators.get(0) instanceof Required);        
+        assertTrue(validators.get(1) instanceof MaxLength);        
+        assertTrue(validators.get(2) instanceof PatternValidator);        
     }
 
     public void testEnumModelForType() {
