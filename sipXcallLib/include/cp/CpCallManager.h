@@ -260,6 +260,9 @@ public:
     //! For internal use only
     virtual void getNewCallId(UtlString* callId);
 
+    //! Generate a new Call-Id with the specified prefix.
+    static void getNewCallId(const char* callIdPrefix, UtlString* callId);
+
     //! For internal use only
     void getNewSessionId(UtlString* sessionId);
 
@@ -735,7 +738,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    void getNewCallId(const char* callIdPrefix, UtlString* callId);
 
     /*! Note: you better put a lock with the mCallListMutex around what ever
      * you do with call as this method only locks to retrieve.  There is
@@ -751,6 +753,8 @@ protected:
 
     OsMutex mManagerMutex;
     OsRWMutex mCallListMutex;
+    // Mutex to protect mCallNum.
+    static OsMutex mCallNumMutex;
     UtlHashBag mCallIndices;
     UtlString mLocalAddress;
     UtlString mPublicAddress;
@@ -796,10 +800,10 @@ private:
     CpCallManager& operator=(const CpCallManager& rhs);
 
     UtlString mCallIdPrefix;
-    int mCallNum;
     UtlDList mCallList;
     int mLastMetaEventId;
-
+    // Every CallManager shares the same call counter for generating Call-IDs.
+    static intll mCallNum;
 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 

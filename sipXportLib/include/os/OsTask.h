@@ -235,6 +235,8 @@ public:
      //:Return an Id of the currently executing task
      // This Id is unique within the current process, but not necessarily
      // over the entire host.
+     // Any two simultaneous executions that share their memory space
+     // will have different values from getCurrentTaskId().
 
    static OsTaskBase* getTaskByName(const UtlString& taskName);
      //:Return a pointer to the OsTask object corresponding to the named task
