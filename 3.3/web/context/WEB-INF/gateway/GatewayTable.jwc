@@ -11,16 +11,11 @@
   <!-- P R O P E R T I E S -->
   <property name="currentRow" />
   <property name="selections" />
-  <!-- B E A N S -->
-  <bean name="gateway2id" class="org.sipfoundry.sipxconfig.components.Gateway2Id" lifecycle="page">
-    <set name="context">spring:gatewayContext</set>
-  </bean>
   <!-- C O M P O N E N T S -->
   <component id="table" type="Table">
     <binding name="columns" value="literal:* Name:name,Address:address,Description:description"/>
     <binding name="source" value="gatewayCollection"/>
     <binding name="row" value="currentRow"/>
-    <binding name="convertor" value="bean:gateway2id"/>
     <binding name="selections" value="selections"/>
   </component>
   <component id="NameColumnValue" type="Block"/>

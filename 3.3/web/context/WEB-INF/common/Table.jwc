@@ -8,7 +8,6 @@
   <parameter name="initialSortColumn"  required="no"/>
   <parameter name="row"  required="no" />
   <parameter name="selections"  required="yes"  />
-  <parameter name="convertor"  required="yes" />
   <parameter name="usePager"  required="no"  default-value="false"/>
   <inject property="tableVariables" object="spring:tableVariables"/>
   <!--
@@ -35,7 +34,6 @@
   <component id="tableRows" type="contrib:TableRows">
     <binding name="row" value="row"/>
     <binding name="class" value="beans.rowClass.next"/>
-    <binding name="convertor" value="convertor"/>
   </component>
   <component id="tableValues" type="contrib:TableValues"/>
   <component id="selectedRow" type="contrib:ControlledCheckbox">

@@ -43,11 +43,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     public abstract DialPlanContext getDialPlanContext();
 
-    public abstract void setDialPlanContext(DialPlanContext dialPlanContext);
-
     public abstract GatewayContext getGatewayContext();
-
-    public abstract void setGatewayContext(GatewayContext context);
 
     public abstract String getCurrentSettingSetName();
 

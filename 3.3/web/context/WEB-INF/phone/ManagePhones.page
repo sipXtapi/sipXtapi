@@ -15,6 +15,7 @@
   <inject property="profileManager" object="spring:profileManager"/>
   <inject property="restartManager" object="spring:restartManager"/>
   <inject property="searchManager" object="spring:searchManager"/>
+  <inject property="squeezeAdaptor" object="service:sipxconfig.CoreContextAdapter"/>
   <property name="actionModel" />
   <!--
 	  - B E A N S
@@ -31,7 +32,6 @@
     <binding name="source" value="tableModel"/>
     <binding name="usePager" value="true"/>
     <binding name="row" value="currentRow"/>
-    <binding name="convertor" value="idConverter"/>
     <binding name="selections" value="selections"/>
   </component>
   <component id="addPhone" type="DirectLink">

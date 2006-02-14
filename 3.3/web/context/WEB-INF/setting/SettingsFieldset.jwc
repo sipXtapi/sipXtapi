@@ -10,8 +10,7 @@
   <parameter name="enabled" required="no"  default-value="true" >
   </parameter>
   <property name="showAdvanced"  persist="session"/>
-  <property name="currentSetting" >
-  </property>
+  <property name="currentSetting"/>
   <component id="ifRenderGroupTitle" type="If">
     <binding name="condition" value="renderGroup(currentSetting)"/>
   </component>

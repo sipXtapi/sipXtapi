@@ -27,16 +27,16 @@
   <component id="deleteButton" type="Submit">
     <binding name="selected" value="gatewaysToDelete"/>
     <binding name="tag" value="components.gatewayTable.selections.allSelected"/>
-    <binding name="label" value="message:button.delete"/>
+    <binding name="value" value="message:button.delete"/>
   </component>
   <component id="propagateButton" type="Submit">
     <binding name="selected" value="gatewaysToPropagate"/>
     <binding name="tag" value="components.gatewayTable.selections.allSelected"/>
-    <binding name="label" value="message:button.propagate"/>
+    <binding name="value" value="message:button.propagate"/>
   </component>
   <component id="propagateAllButton" type="Submit">
     <binding name="listener" value="listener:propagateAllGateways"/>
-    <binding name="label" value="message:button.propagateAll"/>
+    <binding name="value" value="message:button.propagateAll"/>
   </component>
   <component id="gatewaysListForm" type="Form">
     <binding name="delegate" value="bean:validator"/>

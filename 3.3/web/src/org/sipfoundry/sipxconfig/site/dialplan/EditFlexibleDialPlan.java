@@ -14,11 +14,9 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 /**
@@ -101,9 +99,5 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         if (null != selectedRows) {
             getDialPlanContext().duplicateRules(selectedRows);
         }
-    }
-
-    public IPrimaryKeyConverter getIdConverter() {
-        return new ObjectSourceDataSqueezer(getDialPlanContext(), DialingRule.class);
     }
 }

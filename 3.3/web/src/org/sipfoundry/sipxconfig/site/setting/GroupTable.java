@@ -16,9 +16,7 @@ import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -31,10 +29,6 @@ public abstract class GroupTable extends BaseComponent {
     
     public abstract SelectMap getSelections();
     
-    public IPrimaryKeyConverter getIdConverter() {
-        return new ObjectSourceDataSqueezer(getSettingContext(), Group.class);
-    }
-
     public void deleteGroup(IRequestCycle cycle_) {
         SettingDao context = getSettingContext();
         context.deleteGroups(getSelections().getAllSelected());

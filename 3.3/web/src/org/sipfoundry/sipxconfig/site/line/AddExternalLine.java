@@ -36,8 +36,6 @@ public abstract class AddExternalLine extends PageWithCallback implements PageBe
     
     public abstract void setPhone(Phone phone);
     
-    public abstract void setPhoneContext(PhoneContext context);
-    
     public abstract PhoneContext getPhoneContext();
     
     public void ok(IRequestCycle cycle_) {

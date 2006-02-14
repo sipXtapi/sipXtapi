@@ -14,17 +14,13 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
-import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 import org.sipfoundry.sipxconfig.components.ExpressionTableColumn;
 import org.sipfoundry.sipxconfig.components.LocalizedTableRendererSource;
 
@@ -78,19 +74,6 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
     private void manageServices(Collection services, SipxProcessContext.Command operation) {
         if (services != null) {
             getSipxProcessContext().manageServices(getServiceLocation(), services, operation);
-        }
-    }
-
-    public static class StatusConvertor implements IPrimaryKeyConverter {
-        public Object getPrimaryKey(Object objValue) {
-            ServiceStatus status = (ServiceStatus) objValue;
-            return status.getServiceName();
-        }
-
-        /** on rewind all services are unknown */
-        public Object getValue(Object objPrimaryKey) {
-            Process process = Process.getEnum((String) objPrimaryKey);
-            return new ServiceStatus(process, Status.UNKNOWN);
         }
     }
 }

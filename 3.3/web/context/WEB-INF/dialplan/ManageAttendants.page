@@ -17,10 +17,6 @@
      - B E A N S
      -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <bean name="idConverter" class="org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer">
-    <set name="class" value="literal:@org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant@class"/>
-    <set name="source" value="literal:spring:dialPlanContext"/>
-  </bean>
   <!--
       - C O M P O N E N T S
       -->
@@ -28,7 +24,6 @@
     <binding name="columns" value="literal:* name,description"/>
     <binding name="source" value="dialPlanContext.autoAttendants"/>
     <binding name="row" value="currentRow"/>
-    <binding name="convertor" value="bean:idConverter"/>
     <binding name="selections" value="selections"/>
   </component>
   <component id="nameColumnValue" type="Block"/>

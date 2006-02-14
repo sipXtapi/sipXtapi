@@ -8,8 +8,7 @@
 	  -->
   <inject property="parkOrbitContext" object="spring:parkOrbitContext"/>
   <inject property="coreContext" object="spring:coreContext"/>
-  <property name="currentRow" >
-  </property>
+  <property name="currentRow"/>
   <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()" />
   <property name="rowsToDelete" />
   <!--
@@ -29,7 +28,6 @@
     <binding name="class" value="bean:rowClass.next"/>
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>
-    <binding name="convertor" value="idConverter"/>
   </component>
   <component id="nameColumnValue" type="Block"/>
   <component id="nameText" type="Insert">

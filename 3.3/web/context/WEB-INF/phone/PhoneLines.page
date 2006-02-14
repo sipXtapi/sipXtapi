@@ -30,7 +30,6 @@
     <binding name="row" value="currentRow"/>
     <binding name="class" value="bean:rowClass.next"/>
     <binding name="selections" value="selections"/>
-    <binding name="convertor" value="idConverter"/>
   </component>
   <component id="addExternalLineLink" type="DirectLink">
     <binding name="listener" value="hivemind:spring:tapestry

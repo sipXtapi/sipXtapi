@@ -24,7 +24,6 @@
     <binding name="columns" value="literal:* userName,lastName,firstName,aliases:aliasesString"/>
     <binding name="initialSortColumn" value="literal:lastName"/>
     <binding name="row" value="currentUser"/>
-    <binding name="convertor" value="idConverter"/>
     <binding name="selections" value="selections"/>
   </component>
 </component-specification>

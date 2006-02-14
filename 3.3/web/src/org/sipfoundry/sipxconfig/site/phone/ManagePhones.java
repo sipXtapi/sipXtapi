@@ -17,13 +17,12 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
+import org.apache.tapestry.util.io.SqueezeAdaptor;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
@@ -47,8 +46,6 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
 
     public abstract void setSelections(SelectMap selected);
 
-    public abstract void setIdConverter(IPrimaryKeyConverter cvt);
-
     public abstract PhoneContext getPhoneContext();
 
     public abstract RestartManager getRestartManager();
@@ -68,14 +65,15 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
     public abstract boolean getSearchMode();
 
     public abstract SearchManager getSearchManager();
+    
+    public abstract SqueezeAdaptor getSqueezeAdaptor();
 
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
         if (!getSearchMode() || StringUtils.isBlank(queryText)) {
             return new PhoneTableModel(getPhoneContext(), getGroupId());
         }
-        ObjectSourceDataSqueezer squeezer = new PhoneDataSqueezer(getPhoneContext());
-        return new SearchPhoneTableModel(getSearchManager(), queryText, squeezer);
+        return new SearchPhoneTableModel(getSearchManager(), queryText, getSqueezeAdaptor());
     }
 
     /**
@@ -149,10 +147,6 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
      * called before page is drawn
      */
     public void pageBeginRender(PageEvent event_) {
-        PhoneContext phoneContext = getPhoneContext();
-
-        setIdConverter(new PhoneDataSqueezer(phoneContext));
-
         // Generate the list of phone items
         if (getSelections() == null) {
             setSelections(new SelectMap());
@@ -186,34 +180,5 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
         setActionModel(model);
-    }
-
-    /**
-     * PhoneSummary is not a make up object contructed of and phone and a phone object.
-     * reconstruct it here from phone and phonecontext
-     */
-    static class PhoneDataSqueezer extends ObjectSourceDataSqueezer {
-
-        PhoneDataSqueezer(PhoneContext context) {
-            super(context, Phone.class);
-        }
-
-        public Object getPrimaryKey(Object objValue) {
-            Object pk = null;
-            if (objValue != null) {
-                pk = ((Phone) objValue).getPrimaryKey();
-            }
-
-            return pk;
-        }
-
-        public Object getValue(Object objPrimaryKey) {
-            Phone phoneMeta = (Phone) super.getValue(objPrimaryKey);
-            // reload object due to PhoneContext API (good) restriction
-            PhoneContext pc = (PhoneContext) getDataObjectSource();
-            Phone phone = pc.loadPhone(phoneMeta.getId());
-
-            return phone;
-        }
     }
 }

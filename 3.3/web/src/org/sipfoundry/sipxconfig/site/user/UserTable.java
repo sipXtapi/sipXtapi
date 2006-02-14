@@ -12,13 +12,10 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 
 public abstract class UserTable extends BaseComponent implements PageBeginRenderListener {
@@ -47,10 +44,5 @@ public abstract class UserTable extends BaseComponent implements PageBeginRender
         if (getSelections() == null) {
             setSelections(new SelectMap());
         }
-    }
-
-    public IPrimaryKeyConverter getIdConverter() {
-        CoreContext context = getCoreContext();
-        return new ObjectSourceDataSqueezer(context, User.class);
     }
 }

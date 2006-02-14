@@ -28,7 +28,6 @@
     <binding name="source" value="dialPlanContext.rules"/>
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>
-    <binding name="convertor" value="idConverter"/>
   </component>
   <component id="NameColumnValue" type="Block"/>
   <component id="nameText" type="Insert">

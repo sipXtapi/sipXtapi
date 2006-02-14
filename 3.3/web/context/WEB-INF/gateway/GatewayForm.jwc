@@ -7,7 +7,7 @@
      - B E A N S 
      -->
   <bean name="gatewayModels" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="literal:gatewayContext.availableGatewayModels"/>
+    <set name="collection" value="gatewayContext.availableGatewayModels"/>
     <set name="labelExpression" value="literal:'label'"/>
   </bean>
   <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">

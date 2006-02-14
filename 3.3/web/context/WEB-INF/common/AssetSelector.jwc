@@ -19,7 +19,7 @@
   <component id="prompt" type="PropertySelection">
     <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(assetSelectionModel)"/>
     <binding name="value" value="asset"/>
-    <binding name="submitOnChange" value="submitOnChange"/>
+    <binding name="onchange" value="submitOnChange ? 'literal:javascript:this.form.submit();' : ''"/>
     <binding name="id" value="id"/>
     <binding name="disabled" value="! enabled"/>
   </component>

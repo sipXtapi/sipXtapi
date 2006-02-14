@@ -6,10 +6,8 @@
 	  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="validRule" object="spring:validRule"/>
-  <property name="ruleId"  persist="session">
-  </property>
-  <property name="rule" >
-  </property>
+  <property name="ruleId"  persist="session"/>
+  <property name="rule"/>
   <!-- not used on this page -->
   <property name="removeGateways" />
   <property name="callback"  persist="session"/>
@@ -69,7 +67,7 @@
   <component id="holidayAttendant" type="PropertySelection">
     <binding name="value" value="rule.holidayAttendant.attendant"/>
     <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
-    <binding name="submitOnChange" value="true"/>
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
   </component>
   <component id="holidayDates" type="HolidaysEditor">
     <binding name="holiday" value="rule.holidayAttendant"/>

@@ -6,8 +6,7 @@
 	  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="gatewayContext" object="spring:gatewayContext"/>
-  <property name="emergencyRouting" >
-  </property>
+  <property name="emergencyRouting"/>
   <property name="exceptionsMap" />
   <property name="exceptionItem" />
   <property name="callback"  persist="session"/>

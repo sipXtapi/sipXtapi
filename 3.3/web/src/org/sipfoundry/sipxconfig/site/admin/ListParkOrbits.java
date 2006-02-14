@@ -14,14 +14,12 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ListParkOrbits extends BasePage implements PageBeginRenderListener {
@@ -73,9 +71,5 @@ public abstract class ListParkOrbits extends BasePage implements PageBeginRender
         if (null != selectedRows) {
             getParkOrbitContext().removeParkOrbits(selectedRows);
         }
-    }
-
-    public IPrimaryKeyConverter getIdConverter() {
-        return new ObjectSourceDataSqueezer(getCoreContext(), ParkOrbit.class);
     }
 }

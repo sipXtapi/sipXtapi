@@ -20,7 +20,7 @@
     <binding name="listener" value="hivemind:spring:tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.submit)"/>
   </component>
   <component id="import" type="Submit">
-    <binding name="label" value="message:label.import"/>
+    <binding name="value" value="message:label.import"/>
   </component>
   <component id="csvPanel" type="FieldPanel">
     <binding name="field" value="components.csv"/>

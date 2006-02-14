@@ -6,10 +6,8 @@
 	  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="validRule" object="spring:validRule"/>
-  <property name="ruleId"  persist="session">
-  </property>
-  <property name="rule"  persist="session">
-  </property>
+  <property name="ruleId"  persist="session"/>
+  <property name="rule"  persist="session"/>
   <!-- used by removeGateways submit button-->
   <property name="removeGateways" />
   <property name="callback"  persist="session"/>

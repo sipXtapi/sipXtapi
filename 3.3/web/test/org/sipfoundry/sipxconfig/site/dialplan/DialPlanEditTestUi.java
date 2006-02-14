@@ -64,18 +64,18 @@ public class DialPlanEditTestUi extends WebTestCase {
     }
 
     public void testDisplayAndClean() {
-        assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
+        assertTableRowsEqual("tableView", 1, DEFAULTS);
         // remove all
         for (int i = 0; i < DEFAULTS.length; i++) {
             SiteTestHelper.selectRow(tester, i, true);
         }
         clickButton("dialplan:delete");
         // should be empty now
-        WebTable rulesTable = getDialog().getWebTableBySummaryOrId("dialplan:list");
+        WebTable rulesTable = getDialog().getWebTableBySummaryOrId("tableView");
         assertEquals(1, rulesTable.getRowCount());
         // test revert
         clickButton("dialplan:revert");
-        assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
+        assertTableRowsEqual("tableView", 1, DEFAULTS);
     }
 
     public void testViewRules() throws Exception {
@@ -125,7 +125,7 @@ public class DialPlanEditTestUi extends WebTestCase {
             checkGateways();
 
             clickButton("form:ok");
-            assertTextInTable("dialplan:list", row[2]);
+            assertTextInTable("tableView", row[2]);
             assertLinkPresentWithText(row[0]);
         }
     }
@@ -146,7 +146,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
             clickButton("form:ok");
 
-            assertTextInTable("dialplan:list", description);
+            assertTextInTable("tableView", description);
             assertLinkPresentWithText(name);
         }
     }
@@ -164,7 +164,7 @@ public class DialPlanEditTestUi extends WebTestCase {
             setFormElement("extension", "33344" + i);
 
             clickButton("form:ok");
-            assertTextInTable("dialplan:list", row[2]);
+            assertTextInTable("tableView", row[2]);
             assertLinkPresentWithText(row[0]);
         }
     }
@@ -175,13 +175,13 @@ public class DialPlanEditTestUi extends WebTestCase {
         clickButton("dialplan:move:up");
         // no changes
         SiteTestHelper.assertNoException(getTester());
-        assertTableRowsEqual("dialplan:list", 1, DEFAULTS);
+        assertTableRowsEqual("tableView", 1, DEFAULTS);
 
         // move first row down
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("dialplan:move:down");
         SiteTestHelper.assertNoException(getTester());
-        WebTable rulesTable = getTester().getDialog().getWebTableBySummaryOrId("dialplan:list");
+        WebTable rulesTable = getTester().getDialog().getWebTableBySummaryOrId("tableView");
         assertEquals(DEFAULTS[0][0], rulesTable.getCellAsText(2, 1));
         assertEquals(DEFAULTS[1][0], rulesTable.getCellAsText(1, 1));
         assertEquals(DEFAULTS[2][0], rulesTable.getCellAsText(3, 1));

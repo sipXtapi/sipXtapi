@@ -10,6 +10,7 @@
   
   <contribution configuration-id="tapestry.data.SqueezeAdaptors">
     <adaptor object="service:CoreContextAdapter"/>
+    <adaptor object="service:ServiceStatusAdapter"/>
   </contribution>
   
   <service-point id="CoreContextAdapter" interface="components.IDaoSqueezeAdapter">
@@ -20,7 +21,12 @@
     </invoke-factory>
   </service-point>
   
-  <!-- 20MB for no particular reason. Polycom firmware was 11MB
+  <service-point id="ServiceStatusAdapter" interface="org.apache.tapestry.util.io.SqueezeAdaptor">
+     <invoke-factory>
+       <construct class="site.admin.commserver.ServerStatusSqueezeAdapter"/>
+     </invoke-factory>
+   </service-point>
+  <!-- TODO: Upload Size=20MB for no particular reason. Polycom firmware was 11MB
   <configure property-name="maxSize" type="double" value="20480000"/>
   -->
   

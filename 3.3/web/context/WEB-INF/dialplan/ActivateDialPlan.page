@@ -6,7 +6,7 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
-  <property name="selected" > @org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@MAPPING_RULES </property>
+  <property name="selected">@org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigFileType@MAPPING_RULES</property>
   <property name="showAdvanced" persist="session"  initial-value="false"/>
   <!--
      - B E A N S
@@ -21,14 +21,14 @@
   <component id="xmlSelector" type="PropertySelection">
     <binding name="model" value="fileSelectionModel"/>
     <binding name="value" value="selected"/>
-    <binding name="submitOnChange" value="literal:true"/>
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
   </component>
   <component id="xmlView" type="TextArea">
     <binding name="value" value="xml"/>
   </component>
   <component id="activate" type="Submit">
     <binding name="listener" value="listener:activate"/>
-    <binding name="label" value="message:button.ok"/>
+    <binding name="value" value="message:button.ok"/>
   </component>
   <component id="cancel" type="CancelButton">
     <binding name="returnPageName" value="literal:EditFlexibleDialPlan"/>

@@ -74,7 +74,7 @@
   </component>
   <component id="menuItemColumns" type="contrib:TableColumns">
   </component>
-  <component id="menuItemRows" type="contrib:TableFormRows">
+  <component id="menuItemRows" type="contrib:TableRows">
     <binding name="row" value="bean:menuItems.currentEntry"/>
     <binding name="class" value="bean:rowClass.next"/>
   </component>

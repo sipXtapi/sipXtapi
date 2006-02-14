@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.gateway;
 
 import junit.framework.TestCase;
 
+import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
@@ -44,7 +45,7 @@ public class EditGatewayTest extends TestCase {
         context.storeGateway(g);
 
         contextControl.replay();
-        m_editGatewayPage.setGatewayContext(context);
+        PropertyUtils.write(m_editGatewayPage, "gatewayContext", context);
         m_editGatewayPage.setGateway(g);
 
         MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
@@ -80,8 +81,8 @@ public class EditGatewayTest extends TestCase {
         dialPlanContextControl.replay();
         contextControl.replay();
 
-        m_editGatewayPage.setDialPlanContext(dialPlanContext);
-        m_editGatewayPage.setGatewayContext(context);
+        PropertyUtils.write(m_editGatewayPage, "dialPlanContext", dialPlanContext);
+        PropertyUtils.write(m_editGatewayPage, "gatewayContext", context);
         m_editGatewayPage.setGateway(g);
         m_editGatewayPage.setRuleId(rule.getId());
         m_editGatewayPage.pageBeginRender(null);
@@ -118,7 +119,7 @@ public class EditGatewayTest extends TestCase {
         contextControl.expectAndReturn(context.getGateway(id), gateway);
         contextControl.replay();
 
-        m_editGatewayPage.setGatewayContext(context);
+        PropertyUtils.write(m_editGatewayPage, "gatewayContext", context);
         m_editGatewayPage.setGatewayId(id);
         m_editGatewayPage.pageBeginRender(null);
 

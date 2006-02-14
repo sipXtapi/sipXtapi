@@ -30,12 +30,12 @@
   <component id="activate" type="Submit">
     <binding name="selected" value="active"/>
     <binding name="tag" value="true"/>
-    <binding name="label" value="literal:Activate"/>
+    <binding name="value" value="literal:Activate"/>
   </component>
   <component id="inactivate" type="Submit">
     <binding name="selected" value="active"/>
     <binding name="tag" value="false"/>
-    <binding name="label" value="literal:Inactivate"/>
+    <binding name="value" value="literal:Inactivate"/>
   </component>
   <component id="applyOkCancel" type="FormActions">
     <binding name="listener" value="listener:onSave"/>

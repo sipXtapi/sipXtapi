@@ -6,8 +6,7 @@
 	  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="gatewayContext" object="spring:gatewayContext"/>
-  <property name="ruleId"  persist="session">
-  </property>
+  <property name="ruleId"  persist="session"/>
   <property name="selectedRows" />
   <property name="gateways" />
   <property name="nextPage" />

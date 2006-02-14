@@ -15,12 +15,10 @@ import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -145,9 +143,5 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
 
     public void cancel(IRequestCycle cycle) {
         cycle.activate(ManagePhones.PAGE);
-    }
-
-    public IPrimaryKeyConverter getIdConverter() {
-        return new ObjectSourceDataSqueezer(getPhoneContext(), Line.class);
     }
 }
