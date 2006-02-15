@@ -71,7 +71,7 @@ public class TapestryContext {
             } catch (ApplicationRuntimeException are) {
                 UserException cause = getUserExceptionCause(are);
                 if (cause != null) {
-                    recordUserException((UserException) cause);
+                    recordUserException(cause);
                 } else {
                     throw are;
                 }
