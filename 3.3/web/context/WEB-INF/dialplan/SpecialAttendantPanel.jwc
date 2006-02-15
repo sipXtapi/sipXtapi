@@ -8,7 +8,7 @@
   <property name="autoAttendant" />
   <inject property="tapestry" object="spring:tapestry"/>
   <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="literal:dialPlanContext.autoAttendants"/>
+    <set name="collection" value="dialPlanContext.autoAttendants"/>
     <set name="labelExpression" value="literal:name"/>
   </bean>
   <bean name="modeModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">

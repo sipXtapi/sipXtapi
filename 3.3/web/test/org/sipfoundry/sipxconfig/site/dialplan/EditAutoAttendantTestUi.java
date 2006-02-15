@@ -55,7 +55,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         clickLink("NewAutoAttendant");
 
         // need to rerender page after prompt is copied in
-        assertTableRowsEqual("attendant:menuItems", 1, FACTORY_DEFAULT);
+        assertTableRowsEqual("menuItemTableView", 1, FACTORY_DEFAULT);
 
         setFormElement("name", "New Attendant");
         setFormElement("description", "created by EditAutoAttendantTestUi.testNewAttendant");
@@ -86,7 +86,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         clickLink("NewAutoAttendant");
         assertElementPresent("attendant:form");
         clickButton("form:cancel");
-        assertTablePresent("list:attendant");
+        assertTablePresent("tableView");
     }
 
     public void testReset() throws Exception {
@@ -95,7 +95,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         selectOption("addMenuItemAction", "Voicemail Login");
         clickButton("attendant:addMenuItem");
         clickButton("attendant:reset");
-        assertTableRowsEqual("attendant:menuItems", 1, FACTORY_DEFAULT);
+        assertTableRowsEqual("menuItemTableView", 1, FACTORY_DEFAULT);
     }
 
     public void testRemoveMenuItems() throws Exception {
@@ -110,7 +110,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
                 KEYS, "Operator", ""
             },
         };
-        assertTableRowsEqual("attendant:menuItems", 1, expectedMenuItems);
+        assertTableRowsEqual("menuItemTableView", 1, expectedMenuItems);
     }
 
     public void testAddMenuItems() throws Exception {
@@ -132,7 +132,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
             },
         };
         expected.appendRows(defaultMenuItems);
-        assertTableRowsEqual("attendant:menuItems", 1, expected);
+        assertTableRowsEqual("menuItemTableView", 1, expected);
         SiteTestHelper.assertOptionSelected(tester, "attendantParameter", "New Attendant");
 
         selectOption("addMenuItemAction", "Deposit Voicemail");
@@ -151,7 +151,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertFormElementEquals("extensionParameter", "3232");
 
         expected.appendRows(vmDepositRow);
-        assertTableRowsEqual("attendant:menuItems", 1, expected);
+        assertTableRowsEqual("menuItemTableView", 1, expected);
     }
 
     public static final String seedPromptFile(String dir) throws IOException {
