@@ -18,7 +18,7 @@
       -->
   <bean name="userGroupSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <set name="collection" value="coreContext.groups"/>
-    <set name="labelExpression" value="literal:'name'"/>
+    <set name="labelExpression" value="literal:name"/>
   </bean>
   <!--
       - C O M P O N E N T S

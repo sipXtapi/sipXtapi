@@ -18,7 +18,7 @@
 	<component id="tableView" type="contrib:TableView">
 		<binding name="source" value="registrationContext.registrations"/>
 		<binding name="pageSize" value="literal:-1"/>
-		<binding name="columns" value="uri,contact,=expiresColumn"/>
+		<binding name="columns" value="literal:uri,contact,=expiresColumn"/>
 	</component>
 	<component id="tableColumns" type="contrib:TableColumns"/>
 	<component id="tableRows" type="contrib:TableRows">

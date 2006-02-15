@@ -33,13 +33,13 @@
   </bean>
   <bean name="localizedMenuItemActions" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator">
     <set name="model" value="literal:beans.menuItemActions"/>
-    <set name="resourcePrefix" value="literal:'menuItemAction.'"/>
+    <set name="resourcePrefix" value="literal:menuItemAction."/>
     <set name="messages" value="literal:messages"/>
   </bean>
   <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <set name="collection" value="literal:dialPlanContext.autoAttendants"/>
-    <set name="labelExpression" value="literal:'name'"/>
-    <set name="valueExpression" value="literal:'systemName'"/>
+    <set name="labelExpression" value="literal:name"/>
+    <set name="valueExpression" value="literal:systemName"/>
   </bean>
   <bean name="menuItems" class="org.sipfoundry.sipxconfig.components.MutableKeyMapAdapter" lifecycle="render">
     <set name="map" value="literal:attendant.menuItems"/>

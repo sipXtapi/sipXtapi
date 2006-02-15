@@ -19,7 +19,7 @@
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <set name="collection" value="literal:dialPlanContext.autoAttendants"/>
-    <set name="labelExpression" value="literal:'name'"/>
+    <set name="labelExpression" value="literal:name"/>
   </bean>
   <!--
      - C O M P O N E N T S

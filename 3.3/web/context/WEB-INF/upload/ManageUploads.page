@@ -12,7 +12,7 @@
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="specifications" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <set name="collection" value="literal:uploadManager.uploadSpecifications"/>
-    <set name="labelExpression" value="literal:'label'"/>
+    <set name="labelExpression" value="literal:label"/>
   </bean>
   <bean name="specificationSelection" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
     <set name="model" value="literal:beans.specifications"/>
