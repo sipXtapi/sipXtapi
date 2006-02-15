@@ -192,7 +192,8 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
 
     public void onApplicationEvent(ApplicationEvent event) {
         Collection services = m_eventsToServices.getServices(event.getClass());
-        if (services != null) {
+        if (!services.isEmpty()) {
+            // do not call if set is empty - it's harmless but it triggers topology.xml parsing
             manageServices(services, Command.RESTART);
         }
     }
