@@ -20,8 +20,8 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.validator.Max;
 import org.apache.tapestry.form.validator.MaxLength;
 import org.apache.tapestry.form.validator.Min;
+import org.apache.tapestry.form.validator.Pattern;
 import org.apache.tapestry.form.validator.Required;
-import org.apache.tapestry.valid.PatternValidator;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
@@ -34,18 +34,6 @@ public abstract class SettingEditor extends BaseComponent {
     public abstract Setting getSetting();
 
     public abstract void setSetting(Setting setting);
-
-    public String getStringValue() {
-        return getSetting().getValue();
-    }
-
-    public void setStringValue(String value) {
-        String cleanValue = value;
-        if (StringUtils.isEmpty(value)) {
-            cleanValue = null;
-        }
-        getSetting().setValue(cleanValue);
-    }
 
     /**
      * This is to support new Tapestry4 types of validators
@@ -85,11 +73,11 @@ public abstract class SettingEditor extends BaseComponent {
             MaxLength maxLen = new MaxLength();
             maxLen.setMaxLength(stringType.getMaxLen());
             validators.add(maxLen);
-            String pattern = stringType.getPattern();
-            if (StringUtils.isNotEmpty(pattern)) {
-                PatternValidator patternValidator = new PatternValidator();
-                patternValidator.setPatternString(pattern);
-                validators.add(patternValidator);
+            String patternString = stringType.getPattern();
+            if (StringUtils.isNotEmpty(patternString)) {
+                Pattern pattern = new Pattern();
+                pattern.setPattern(patternString);
+                validators.add(pattern);
             }
         }
         return validators;

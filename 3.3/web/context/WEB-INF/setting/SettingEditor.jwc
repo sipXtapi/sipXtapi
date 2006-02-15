@@ -34,7 +34,7 @@
   <component id="realBlock" type="Block"></component>
   <component id="stringField" type="TextField">
     <binding name="id" value="'setting:' + setting.name"/>
-    <binding name="value" value="stringValue"/>
+    <binding name="value" value="setting.typedValue"/>
     <binding name="hidden" value="setting.type.password"/>
     <binding name="displayName" value="setting.label"/>
     <binding name="validators" value="validatorList"/>
