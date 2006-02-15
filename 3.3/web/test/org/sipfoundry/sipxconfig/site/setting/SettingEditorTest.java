@@ -19,9 +19,9 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.validator.Max;
 import org.apache.tapestry.form.validator.MaxLength;
 import org.apache.tapestry.form.validator.Min;
+import org.apache.tapestry.form.validator.Pattern;
 import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.test.Creator;
-import org.apache.tapestry.valid.PatternValidator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
@@ -64,7 +64,7 @@ public class SettingEditorTest extends TestCase {
         assertEquals(3, validators.size());
         assertTrue(validators.get(0) instanceof Required);        
         assertTrue(validators.get(1) instanceof MaxLength);        
-        assertTrue(validators.get(2) instanceof PatternValidator);        
+        assertTrue(validators.get(2) instanceof Pattern);        
     }
 
     public void testEnumModelForType() {
