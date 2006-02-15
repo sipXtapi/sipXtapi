@@ -756,6 +756,12 @@ intll SipRegistrarServer::updateOneBinding(
    // updateNumber order is not guaranteed.
    if (imdb->isOutOfSequence(*reg->getUri(), *reg->getCallId(), reg->getCseq()))
    {
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipRegistrarServer::updateOneBinding request out of order\n"
+                    "  To: '%s'\n"
+                    "  Call-Id: '%s'\n"
+                    "  Cseq: %d",
+                    (*reg->getUri()).toString().data(), (*reg->getCallId()).data(), reg->getCseq());
       return -1;
    }
 

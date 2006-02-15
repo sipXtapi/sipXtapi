@@ -67,24 +67,38 @@ int RegistrarSync::run(void* pArg)
       // Wait until there is work to do
       mMutex.acquire();
       
-      // For each Reachable peer, if the local DbUpdateNumber is greater than the
-      // PeerSentDbUpdateNumber, then push a single update.
-      auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
-      RegistrarPeer* peer;
-      while ((peer = static_cast<RegistrarPeer*>((*peers)())))
+      // Loop over all peers, pushing a single update for each peer.  Keep going until
+      // there are no updates left to push to any peer.
+      // There is a benign race condition here: a local registration might happen just
+      // after we have checked the last peer and decided that there is nothing to do.
+      // That's OK because the mutex will have been signalled -- we'll acquire it again
+      // immediately and come right back to the loop.
+      bool pushedUpdate;
+      do
       {
-         if (peer->isReachable())
+         pushedUpdate = false;
+
+         // For each Reachable peer, if the local DbUpdateNumber is greater than the
+         // PeerSentDbUpdateNumber, then push a single update.
+         auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
+         RegistrarPeer* peer;
+         while ((peer = static_cast<RegistrarPeer*>((*peers)())))
          {
-            UtlSList bindings;
-            bool isUpdateToSend = getRegistrarServer().getNextUpdateToSend(peer, bindings);
-            if (isUpdateToSend)
+            if (peer->isReachable())
             {
-               // :LATER: move updating of PeerSentDbUpdateNumber out of
-               // SyncRpcPushUpdates::invoke and into RegistrarSync?
-               SyncRpcPushUpdates::invoke(peer, mRegistrar.primaryName(), &bindings);
+               UtlSList bindings;
+               bool isUpdateToSend = getRegistrarServer().getNextUpdateToSend(peer, bindings);
+               if (isUpdateToSend)
+               {
+                  // :LATER: move updating of PeerSentDbUpdateNumber out of
+                  // SyncRpcPushUpdates::invoke and into RegistrarSync?
+                  SyncRpcPushUpdates::invoke(peer, mRegistrar.primaryName(), &bindings);
+                  pushedUpdate = true;
+               }
             }
          }
       }
+      while (pushedUpdate);
    }
 
    return 0;

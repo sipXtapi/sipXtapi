@@ -736,10 +736,10 @@ bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
       SipRegistrarServer& registrarServer = registrar.getRegistrarServer();
       UtlString errorMsg;
       updateNumber = registrarServer.applyUpdatesToDirectory(timeNow, *updateList, &errorMsg);
-      UtlLongLongInt updateNumberWrapped(updateNumber);
-      response.setResponse(&updateNumberWrapped);
       if (updateNumber > 0)
       {
+         UtlLongLongInt updateNumberWrapped(updateNumber);
+         response.setResponse(&updateNumberWrapped);
          result = true;    // success
       }
       else
