@@ -26,10 +26,10 @@
 
 <p>You can delete a call forwarding row by clicking <em>Delete</em> at the right-hand side of the associated row. You can edit a call forwarding row by editing the associated row's fields and clicking <em>OK</em> or <em>Apply</em>. You can add additional call forwarding rows by clicking <em>Add Number</em>. You can only change the successive hierarchy of the call forwarding rows by directly editing the rows or deleting and recreating rows.</p>
         </div>
-        <span jwcid="@Conditional" condition="ognl:userSession.admin">
+        <span jwcid="@If" condition="ognl:userSession.admin">
      		<span jwcid="userNavigation"/>
         </span>
-        <span jwcid="@Conditional" condition="ognl:! userSession.admin">
+        <span jwcid="@If" condition="ognl:! userSession.admin">
             <h2><span key="title">Call Forwarding</span></h2>
         </span>
         <span jwcid="errors"></span>
