@@ -384,6 +384,13 @@ ConferenceUserAgent::onRefer(resip::InviteSessionHandle,
    assert(0);
 }
 
+void 
+ConferenceUserAgent::onReferNoSub(resip::InviteSessionHandle, 
+                                  const resip::SipMessage& msg)
+{
+   assert(0);
+}
+
 void
 ConferenceUserAgent::onReferAccepted(resip::InviteSessionHandle,
                                      resip::ClientSubscriptionHandle,
