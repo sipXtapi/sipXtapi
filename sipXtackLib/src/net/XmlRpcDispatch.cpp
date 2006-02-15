@@ -329,7 +329,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
                         if (!result)
                         {
                            OsSysLog::add(FAC_SIP, PRI_ERR,
-                                         "XmlRpcDispatch::parseXmlRpcRequest ill formatted xml contents in %s.",
+                                         "XmlRpcDispatch::parseXmlRpcRequest ill-formatted xml contents in %s.",
                                           requestContent.data());
                            response.setFault(EMPTY_PARAM_VALUE_FAULT_CODE, EMPTY_PARAM_VALUE_FAULT_STRING);
                            break;
@@ -342,7 +342,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
             else
             {
                OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "XmlRpcDispatch::parseXmlRpcRequest no such a method %s is registered",
+                             "XmlRpcDispatch::parseXmlRpcRequest no method named %s is registered",
                              methodCall.data());
                response.setFault(UNREGISTERED_METHOD_FAULT_CODE, UNREGISTERED_METHOD_FAULT_STRING);
                result = false;
