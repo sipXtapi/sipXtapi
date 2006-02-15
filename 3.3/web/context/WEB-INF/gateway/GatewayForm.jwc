@@ -8,49 +8,51 @@
      -->
   <bean name="gatewayModels" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <set name="collection" value="gatewayContext.availableGatewayModels"/>
-    <set name="labelExpression" value="literal:'label'"/>
+    <set name="labelExpression" value="literal:label"/>
   </bean>
-  <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    <set name="required" value="literal:true"/>
-    <set name="minimumLength" value="literal:1"/>
-  </bean>
+  
   <!-- 
      - C O M P O N E N T S 
      -->
-  <component id="gatewayNameLabel" type="FieldLabel">
+  <component id="gatewayNameLabel" type="FieldPanel">
     <binding name="field" value="components.gatewayName"/>
+    <binding name="label" value="message:label.name"/>
   </component>
   <component id="gatewayName" type="TextField">
     <binding name="value" value="gateway.name"/>
-    <binding name="validator" value="bean:nameValidator"/>
+    <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.name"/>
   </component>
-  <component id="gatewaySerialLabel" type="FieldLabel">
+  <component id="gatewaySerialLabel" type="FieldPanel">
     <binding name="field" value="components.gatewaySerial"/>
+    <binding name="label" value="message:label.serial"/>
   </component>
   <component id="gatewaySerial" type="TextField">
     <binding name="value" value="gateway.serialNumber"/>
     <binding name="validator" value="hivemind:spring:optionalSerialNumber"/>
     <binding name="displayName" value="message:label.serial"/>
   </component>
-  <component id="gatewayAddressLabel" type="FieldLabel">
+  <component id="gatewayAddressLabel" type="FieldPanel">
     <binding name="field" value="components.gatewayAddress"/>
+    <binding name="label" value="message:label.address"/>
   </component>
   <component id="gatewayAddress" type="TextField">
     <binding name="value" value="gateway.address"/>
-    <binding name="validator" value="bean:nameValidator"/>
+    <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.address"/>
   </component>
-  <component id="gatewayDescriptionLabel" type="FieldLabel">
+  <component id="gatewayDescriptionLabel" type="FieldPanel">
     <binding name="field" value="components.gatewayDescription"/>
-    <binding name="displayName" value="message:label.description"/>
+    <binding name="label" value="message:label.description"/>
   </component>
   <component id="gatewayDescription" type="TextArea">
     <binding name="value" value="gateway.description"/>
+    <binding name="validators" value="validators:maxLength=255"/>
+    <binding name="displayName" value="message:label.description"/>
   </component>
-  <component id="gatewayModelLabel" type="FieldLabel">
+  <component id="gatewayModelLabel" type="FieldPanel">
     <binding name="field" value="components.gatewayModel"/>
-    <binding name="displayName" value="message:label.model"/>
+    <binding name="label" value="message:label.model"/>
   </component>
   <component id="gatewayModel" type="PropertySelection">
     <binding name="model" value="bean:gatewayModels"/>

@@ -2,61 +2,23 @@
   <fieldset>
     <table>
       <tbody>
-        <tr>
-          <td>
-            <label for="gateway:name">
-              <span jwcid="gatewayNameLabel">Name</span>:
-            </label>
-          </td>
-          <td>
-            <input jwcid="gatewayName" id="gateway:name" maxlength="40" type="text" value="boston"/>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label for="gateway:address">
-              <span jwcid="gatewayAddressLabel">Address</span>:
-            </label>
-          </td>
-          <td>
-            <input jwcid="gatewayAddress" id="gateway:address" maxlength="40" type="text"
-              value="10.1.1.15"/>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label for="gateway:serial">
-              <span jwcid="gatewaySerialLabel">Serial Number</span>:
-            </label>
-          </td>
-          <td>
-            <input jwcid="gatewaySerial" id="gateway:serial" maxlength="40" type="text"
-              value="10.1.1.15"/>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label for="gateway:model">
-              <span jwcid="gatewayModelLabel">Model</span>:
-            </label>
-          </td>
-          <td>
-            <select jwcid="gatewayModel" id="gateway:model" size="1">
-              <option>--- select one ---</option>
-            </select>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <label for="gateway:description">
-              <span jwcid="gatewayDescriptionLabel">Description</span>:
-            </label>
-          </td>
-          <td>
-            <textarea jwcid="gatewayDescription" id="gateway:description" cols="60" rows="5"> Default
-              PSTN gateway</textarea>
-          </td>
-        </tr>
+        <label jwcid="gatewayNameLabel" for="gateway:name">
+          <input jwcid="gatewayName" id="gateway:name" maxlength="40" type="text" value="boston"/>
+        </label>
+        <label jwcid="gatewayAddressLabel" for="gateway:address">
+          <input jwcid="gatewayAddress" id="gateway:address" maxlength="40" type="text" value="10.1.1.15"/>
+        </label>
+        <label jwcid="gatewaySerialLabel" for="gateway:serial">
+          <input jwcid="gatewaySerial" id="gateway:serial" maxlength="40" type="text"/>
+        </label>
+        <label jwcid="gatewayModelLabel" for="gateway:model">
+          <select jwcid="gatewayModel" id="gateway:model" size="1">
+            <option>--- select one ---</option>
+          </select>
+        </label>
+        <label jwcid="gatewayDescriptionLabel" for="gateway:description">
+          <textarea jwcid="gatewayDescription" id="gateway:description" cols="60" rows="5"> Default PSTN gateway</textarea>
+        </label>
       </tbody>
     </table>
   </fieldset>

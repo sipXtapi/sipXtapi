@@ -2,24 +2,28 @@
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.gateway.EditGateway">
   <!--
-	  - P R O P E R T I E S
-	  -->
-  <property name="gateway" />
-  <property name="gatewayId"  persist="session"/>
-  <property name="ruleId"  persist="session"/>
+  - P R O P E R T I E S
+  -->
+  <property name="gateway"/>
+  <property name="gatewayId" persist="session"/>
+  <property name="ruleId" persist="session"/>
+  
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="gatewayContext" object="spring:gatewayContext"/>
-  <property name="callback"  persist="session"/>
-  <property name="currentSettingSetName"  persist="session" />
-  <property name="gatewayModel" />
-  <property name="currentSettingSet" />
+  
+  <property name="callback" persist="session"/>
+  <property name="currentSettingSetName" persist="session"/>
+  <property name="gatewayModel"/>
+  <property name="currentSettingSet"/>
+  
   <!--
-     - B E A N S
-     -->
-  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  - B E A N S
+  -->
+  
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>  
   <!--
-     - C O M P O N E N T S
-     -->
+  - C O M P O N E N T S
+  -->
   <component id="gatewayForm" type="GatewayForm">
     <binding name="gateway" value="gateway"/>
   </component>
