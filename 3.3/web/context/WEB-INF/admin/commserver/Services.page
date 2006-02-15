@@ -11,6 +11,8 @@
 	- P R O P E R T I E S
 	-->
 	<inject property="sipxProcessContext" object="spring:sipxProcessContext"/>
+  <inject property="expressionEvaluator" object="service:tapestry.ognl.ExpressionEvaluator"/>
+  
 	<property name="selections"
 		initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
 	<property name="servicesToStart"/>
@@ -21,8 +23,6 @@
 	<!--
 	- B E A N S
 	-->
-	<bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"
-		lifecycle="page"/>
 	<bean name="locationModel"
 		class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel"
 		lifecycle="request">
@@ -67,20 +67,20 @@
 	<component id="startButton" type="Submit">
 		<binding name="selected" value="servicesToStart"/>
 		<binding name="tag" value="selections.allSelected"/>
-		<binding name="label" value="message:button.start"/>
+		<binding name="value" value="message:button.start"/>
 	</component>
 	<component id="stopButton" type="Submit">
 		<binding name="selected" value="servicesToStop"/>
 		<binding name="tag" value="selections.allSelected"/>
-		<binding name="label" value="message:button.stop"/>
+		<binding name="value" value="message:button.stop"/>
 	</component>
 	<component id="restartButton" type="Submit">
 		<binding name="selected" value="servicesToRestart"/>
 		<binding name="tag" value="selections.allSelected"/>
-		<binding name="label" value="message:button.restart"/>
+		<binding name="value" value="message:button.restart"/>
 	</component>
 	<component id="refreshButton" type="Submit">
-		<binding name="label" value="message:button.refresh"/>
+		<binding name="value" value="message:button.refresh"/>
 	</component>
 	
 </page-specification>

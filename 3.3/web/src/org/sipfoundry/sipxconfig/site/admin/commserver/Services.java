@@ -16,12 +16,13 @@ import java.util.Collection;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
+import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.services.ExpressionEvaluator;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.components.ExpressionTableColumn;
 import org.sipfoundry.sipxconfig.components.LocalizedTableRendererSource;
 
 public abstract class Services extends BasePage implements PageBeginRenderListener {
@@ -39,6 +40,8 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
     public abstract Location getServiceLocation();
 
     public abstract void setServiceLocation(Location location);
+    
+    public abstract ExpressionEvaluator getExpressionEvaluator();
 
     public void pageBeginRender(PageEvent event_) {
         Location location = getServiceLocation();
@@ -51,9 +54,9 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
         }
     }
 
-    public ITableColumn getStatusColumn() {
+    public ITableColumn getStatusColumn() {        
         ExpressionTableColumn column = new ExpressionTableColumn(STATUS_COLUMN,
-                getMessages().getMessage(STATUS_COLUMN), "status.name", true);
+                getMessages().getMessage(STATUS_COLUMN), "status.name", true, getExpressionEvaluator());
         ITableRendererSource rendererSource = new LocalizedTableRendererSource(getMessages(),
                 STATUS_COLUMN);
         column.setValueRendererSource(rendererSource);

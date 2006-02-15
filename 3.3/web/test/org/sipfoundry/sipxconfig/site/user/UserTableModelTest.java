@@ -18,10 +18,10 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.contrib.table.model.ITableColumn;
+import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.components.ExpressionTableColumn;
 
 public class UserTableModelTest extends TestCase {
 
@@ -51,7 +51,7 @@ public class UserTableModelTest extends TestCase {
 
         UserTableModel model = new UserTableModel();
         model.setCoreContext(coreContext);
-        ITableColumn col = new ExpressionTableColumn("userName", "userName", true);
+        ITableColumn col = new ExpressionTableColumn("userName", "userName", true, null);
         Iterator i1 = model.getCurrentPageRows(0, 1, col, true);
         assertEquals(page1Array[0], i1.next());
         assertEquals(page1Array[1], i1.next());
