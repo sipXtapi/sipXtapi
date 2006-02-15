@@ -20,7 +20,7 @@
   <component id="tableView" type="contrib:TableView">
     <binding name="source" value="jobContext.jobs"/>
     <binding name="pageSize" value="literal:-1"/>
-    <binding name="columns" value="* name,=startColumn,=stopColumn,status:status.name,error:errorMsg"/>
+    <binding name="columns" value="literal:* name,=startColumn,=stopColumn,status:status.name,error:errorMsg"/>
   </component>
   <component id="tableColumns" type="contrib:TableColumns"/>
   <component id="tableRows" type="contrib:TableRows">
