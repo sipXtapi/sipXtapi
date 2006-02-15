@@ -24,4 +24,6 @@ public interface SettingType {
      * @return the same value coerced to typed value Integer, Boolean etc.
      */
     Object convertToTypedValue(Object value);
+    
+    String convertToStringValue(Object value);
 }

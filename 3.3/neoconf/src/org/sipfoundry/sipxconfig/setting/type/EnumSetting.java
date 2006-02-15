@@ -56,4 +56,8 @@ public class EnumSetting implements SettingType {
             return value;
         }
     }
+    
+    public String convertToStringValue(Object value) {
+        return value.toString();
+    }    
 }

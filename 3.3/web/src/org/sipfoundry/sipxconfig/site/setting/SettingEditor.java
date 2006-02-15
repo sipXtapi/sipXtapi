@@ -24,7 +24,6 @@ import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.valid.PatternValidator;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
@@ -35,16 +34,6 @@ public abstract class SettingEditor extends BaseComponent {
     public abstract Setting getSetting();
 
     public abstract void setSetting(Setting setting);
-
-    public boolean getBooleanValue() {
-        BooleanSetting type = (BooleanSetting) getSetting().getType();
-        return type.getTrueValue().equals(getSetting().getValue());
-    }
-
-    public void setBooleanValue(boolean value) {
-        BooleanSetting type = (BooleanSetting) getSetting().getType();
-        getSetting().setValue(value ? type.getTrueValue() : type.getFalseValue());
-    }
 
     public String getStringValue() {
         return getSetting().getValue();

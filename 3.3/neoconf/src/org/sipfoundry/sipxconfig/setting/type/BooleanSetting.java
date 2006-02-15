@@ -49,4 +49,9 @@ public class BooleanSetting implements SettingType {
         }
         return Boolean.valueOf(value.equals(m_trueValue));
     }
+    
+    public String convertToStringValue(Object value) {
+        Boolean booleanValue = (Boolean) value;
+        return booleanValue.booleanValue() ? m_trueValue : m_falseValue;
+    }
 }

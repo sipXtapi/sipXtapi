@@ -63,4 +63,8 @@ public class StringSetting implements SettingType {
     public Object convertToTypedValue(Object value) {
         return value;
     }
+    
+    public String convertToStringValue(Object value) {
+        return (String) value;
+    }
 }

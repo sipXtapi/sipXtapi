@@ -63,4 +63,8 @@ public class FileSetting implements SettingType {
     public Object convertToTypedValue(Object value) {
         return value;
     }
+    
+    public String convertToStringValue(Object value) {
+        return value.toString();
+    }    
 }

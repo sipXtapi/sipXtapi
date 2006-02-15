@@ -16,7 +16,7 @@
   </component>
   <component id="integerField" type="TextField">
     <binding name="id" value="'setting:' + setting.name"/>
-    <binding name="value" value="setting.value"/>
+    <binding name="value" value="setting.typedValue"/>
     <binding name="displayName" value="setting.label"/>
     <binding name="translator" value="translator:number"/>
     <binding name="validators" value="validatorList"/>
@@ -25,7 +25,7 @@
   <component id="integerBlock" type="Block"></component>
   <component id="realField" type="TextField">
     <binding name="id" value="'setting:' + setting.name"/>
-    <binding name="value" value="setting.value"/>
+    <binding name="value" value="setting.typedValue"/>
     <binding name="displayName" value="setting.label"/>
     <binding name="translator" value="translator:number"/>
     <binding name="validators" value="validatorList"/>
@@ -51,7 +51,7 @@
   <component id="enumBlock" type="Block"></component>
   <component id="booleanField" type="Checkbox">
     <binding name="id" value="'setting:' + setting.name"/>
-    <binding name="value" value="booleanValue"/>
+    <binding name="value" value="setting.typedValue"/>
     <binding name="disabled" value="! enabled"/>
   </component>
   <component id="booleanBlock" type="Block"></component>

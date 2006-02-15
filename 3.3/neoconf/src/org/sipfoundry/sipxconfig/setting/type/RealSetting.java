@@ -56,4 +56,8 @@ public class RealSetting implements SettingType {
     public Object convertToTypedValue(Object value) {
         return CONVERTER.convert(Double.class, value);
     }
+    
+    public String convertToStringValue(Object value) {
+        return value.toString();
+    }
 }
