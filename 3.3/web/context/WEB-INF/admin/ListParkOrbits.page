@@ -4,20 +4,22 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.admin.ListParkOrbits">
   <description>List of call parking extensions (orbits)</description>
   <!--
-	  - P R O P E R T I E S
-	  -->
+  - P R O P E R T I E S
+  -->
   <inject property="parkOrbitContext" object="spring:parkOrbitContext"/>
   <inject property="coreContext" object="spring:coreContext"/>
+  
+  
   <property name="currentRow"/>
-  <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()" />
-  <property name="rowsToDelete" />
+  <property name="selections" initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
+  <property name="rowsToDelete"/>
   <!--
-     - B E A N S
-     -->
+  - B E A N S
+  -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <!--
-     - C O M P O N E N T S
-     -->
+  - C O M P O N E N T S
+  -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
     <binding name="listener" value="listener:formSubmit"/>

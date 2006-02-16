@@ -17,6 +17,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.link.AbstractLinkComponent;
+import org.apache.tapestry.link.StaticLink;
 
 /**
  * Link that allows for downloading files from web server
@@ -34,7 +35,8 @@ public abstract class DownloadLink extends AbstractLinkComponent {
         IEngineService downloadService = getDownloadService();
         File file = getFile(getDirName(), getFileName());
         if (null == file) {
-            return super.getLink(cycle);
+            // FIXME: need to make sure that this link is not rendered for non existing files...
+            return new StaticLink("http://fixme/no/file/here/" + getFileName() + "/" + getDirName());
         }
         Info info = new Info(file.getAbsolutePath(), getContentType());
         return downloadService.getLink(false, info);
