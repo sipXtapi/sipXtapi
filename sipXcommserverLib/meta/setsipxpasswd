@@ -6,6 +6,7 @@ use Getopt::Long;
 use Digest::MD5  qw(md5_hex);
 
 $Credential = 'credential.xml';
+$NoComment = 0;
 $Help=0;
 $DefaultPassword = '1234';
 $Usage = <<HELP;
@@ -18,6 +19,7 @@ setsipxpasswd [ --credential <credential.xml-file-name> ] [ password ]
 HELP
 
 GetOptions( 'credential|c=s' => \$Credential,
+            'no-comment|nc'  => \$NoComment,
             'help|h'         => \$Help
             )
     || exit -1;
@@ -60,7 +62,10 @@ while( <OLD> )
             if ( $user && $realm )
             {
                 ## add a passtoken element for a user that did not have one
-                print NEW "    <passtoken>".&md5_hex("$user:$realm:$Password")."</passtoken>\n";
+                $newtoken = "<passtoken>".&md5_hex("$user:$realm:$Password")."</passtoken>";
+                $newtoken .= " <!-- MD5($user:$realm:$Password) -->"
+                    unless $NoComment;
+                print NEW "$newtoken\n";
                 $user='';
                 $realm='';
             }
@@ -79,7 +84,10 @@ while( <OLD> )
             if ( $user && $realm )
             {
                 ## replace this passtoken element
-                print NEW "    <passtoken>".&md5_hex("$user:$realm:$Password")."</passtoken>\n";
+                $newtoken = "<passtoken>".&md5_hex("$user:$realm:$Password")."</passtoken>";
+                $newtoken .= " <!-- MD5($user:$realm:$Password) -->"
+                    unless $NoComment;
+                print NEW "$newtoken\n";
                 $user='';
                 $realm='';
                 $_ = ''; # discard the old passtoken line

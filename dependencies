@@ -36,9 +36,9 @@ sipXpublisher : sipXcommserverLib
 sipXregistry : sipXcommserverLib
 	@echo sipXregistry
 
-.PHONY: sipXproxy
-sipXproxy : sipXcommserverLib
-	@echo sipXproxy
+.PHONY: sipXrepro
+sipXrepro : sipXcommserverLib
+	@echo sipXrepro
 
 .PHONY: sipXconfig
 sipXconfig : sipXtackLib
@@ -49,7 +49,7 @@ sipXvxml : sipXcallLib sipXcommserverLib sipXmediaAdapterLib
 	@echo sipXvxml
 
 .PHONY: sipXpbx
-sipXpbx : sipXproxy sipXregistry sipXpublisher sipXvxml sipXconfig
+sipXpbx : sipXrepro sipXregistry sipXpublisher sipXvxml sipXconfig
 	@echo sipXpbx
 
 .PHONY: sipXphone
@@ -57,7 +57,9 @@ sipXphone : sipXcallLib
 	@echo sipXphone
 
 .PHONY: bbridge
-bbridge : sipXmediaAdapterLib
+bbridge : resiprocateLib sipXmediaAdapterLib
 	@echo bbridge
 
-
+.PHONY: resiprocateLib
+resiprocateLib : 
+	@echo resiprocateLib

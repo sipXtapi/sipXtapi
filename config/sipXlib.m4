@@ -38,8 +38,10 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_SUBST(SIPX_RUNDIR,  [${localstatedir}/run/sipxpbx])
     AC_SUBST(SIPX_TMPDIR,  [${localstatedir}/sipxdata/tmp])
     AC_SUBST(SIPX_DBDIR,   [${localstatedir}/sipxdata/sipdb])
+    AC_SUBST(SIPX_UPGRADEDIR,[${localstatedir}/sipxdata/upgrade])
     AC_SUBST(SIPX_SCHEMADIR, [${datadir}/sipx/schema])
     AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipx])
+    AC_SUBST(SIPX_VARDIR,  [${localstatedir}/sipxdata])
 
     # temporary - see http://track.sipfoundry.org/browse/XPB-33
     AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
@@ -563,15 +565,16 @@ AC_DEFUN([CHECK_RESIPROCATE],
     AC_ARG_WITH([resiprocate],
         [--with-resiprocate specifies the path to the top of a resiprocate project tree],
         [resiprocate_path=$withval],
-        [resiprocate_path="[$abs_srcdir]/../../resiprocate $prefix/include /usr /usr/local" ]
+        [resiprocate_path="[$abs_top_srcdir]/../../resiprocate $prefix/include /usr /usr/local" ]
     )
 
-    AC_ARG_WITH([resipobj],
-        [--with-resipobj specifies the object directory name to use from resiprocate],
-        [resipobj=$withval],
-        [resipobj="obj.debug.`uname`.`uname -m | tr ' ' _`"]
+    AC_ARG_WITH([resiplib],
+        [--with-resiplib specifies the directory where resiprocate libraries are installed],
+        [resiplib_path=$withval],
+        [resiplib_path="/usr/lib/resiprocate /usr/local/lib/resiprocate" ]
     )
 
+    AC_MSG_CHECKING([for resiprocate sources])
     foundpath=NO
     for dir in $resiprocate_path ; do
         if test -d "$dir/resip";
@@ -582,7 +585,7 @@ AC_DEFUN([CHECK_RESIPROCATE],
     done
     if test x_$foundpath = x_NO
     then
-       AC_MSG_ERROR([resiprocate not found; searched $resiprocate_path])
+       AC_MSG_ERROR([not found; searched $resiprocate_path])
     else
        AC_MSG_RESULT($foundpath)
 
@@ -590,21 +593,87 @@ AC_DEFUN([CHECK_RESIPROCATE],
 
        RESIPROCATE_CFLAGS="-I$RESIPROCATE_PATH"
        RESIPROCATE_CXXFLAGS="-I$RESIPROCATE_PATH"
-
-       RESIPROCATE_LDFLAGS=" -L$RESIPROCATE_PATH/resip/dum/$resipobj"
-       RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/resip/stack/$resipobj"
-       RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/rutil/$resipobj"
-       RESIPROCATE_LDFLAGS=" $RESIPROCATE_LDFLAGS -L$RESIPROCATE_PATH/contrib/ares"
-
-       RESIPROCATE_LIBS=" -ldum -lresip -lrutil -lares"
-
-       AC_SUBST(RESIPROCATE_PATH)
-       AC_SUBST(RESIPROCATE_CFLAGS)
-       AC_SUBST(RESIPROCATE_CXXFLAGS)
-       AC_SUBST(RESIPROCATE_LIBS)
-       AC_SUBST(RESIPROCATE_LDFLAGS)
     fi
+
+    AC_MSG_CHECKING([for resiprocate libraries])
+    foundpath=NO
+    for dir in $resiplib_path ; do
+        if test -f "$dir/libresip.so";
+        then
+            foundpath=$dir;
+            break;
+        fi;
+    done
+    if test x_$foundpath = x_NO
+    then
+       AC_MSG_ERROR([not found; searched $resiplib_path])
+    else
+       AC_MSG_RESULT($foundpath)
+
+       RESIPROCATE_LIB_PATH="$foundpath"
+       RESIPROCATE_LDFLAGS=" -L$foundpath"
+       RESIPROCATE_LIBS=" -ldum -lresip -lrutil -lares"
+    fi
+
+    AC_SUBST(RESIPROCATE_PATH)
+    AC_SUBST(RESIPROCATE_CFLAGS)
+    AC_SUBST(RESIPROCATE_CXXFLAGS)
+
+    AC_SUBST(RESIPROCATE_LIB_PATH)
+    AC_SUBST(RESIPROCATE_LIBS)
+    AC_SUBST(RESIPROCATE_LDFLAGS)
+
 ]) # CHECK_RESIPROCATE
+
+## repro
+# CHECK_REPRO attempts to find the repro project tree
+# 
+# If not found, the configure is aborted.  Otherwise, variables are defined for:
+# REPRO_PATH     - the top of the repro tree
+# REPRO_CFLAGS   
+# REPRO_CXXFLAGS
+# REPRO_LIBS
+# REPRO_LDFLAGS
+AC_DEFUN([CHECK_REPRO],
+[
+    AC_REQUIRE([CHECK_RESIPROCATE])
+    
+    AC_ARG_WITH([reprolib],
+        [--with-reprolib specifies the directory where repro libraries are installed],
+        [reprolib_path=$withval],
+        [reprolib_path="$RESIPROCATE_LIB_PATH /usr/lib/resiprocate /usr/local/lib/resiprocate" ]
+    )
+
+    AC_MSG_CHECKING([for repro libraries])
+    foundpath=NO
+    for dir in $resiplib_path ; do
+        if test -f "$dir/librepro.so";
+        then
+            if test -f "$dir/libtfm.so";
+            then
+                foundpath=$dir;
+                break;
+            else
+                AC_MSG_ERROR([found librepro.so in $foundpath, but libtrf.so not found])
+            fi
+        fi
+    done
+    if test x_$foundpath = x_NO
+    then
+       AC_MSG_ERROR([not found; searched $reprolib_path])
+    else
+       AC_MSG_RESULT($foundpath)
+
+       REPRO_LIB_PATH="$foundpath"
+       REPRO_LDFLAGS=" -L$foundpath"
+       REPRO_LIBS=" -lrepro -ltfm -lNetxx -lpopt -ldb_cxx"
+    fi
+
+    AC_SUBST(REPRO_LIB_PATH)
+    AC_SUBST(REPRO_LIBS)
+    AC_SUBST(REPRO_LDFLAGS)
+
+]) # CHECK_REPRO
 
 
 

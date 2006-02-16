@@ -1,0 +1,172 @@
+#!/bin/bash
+#
+# Copyright (C) 2005 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2005 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+dns_sipsrv () { # ( transport, domain )
+  target=`echo _sip._$1.$2 | tr A-Z a-z`
+  dig  -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
+
+dns_cname () { # ( domain )
+  target=`echo $1 | tr A-Z a-z`
+  dig  -t cname +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
+
+makeArgs() {
+    argStatus=0
+
+    echo -n " --log-type=cerr"
+    echo -n " --log-level=DEBUG"
+    echo -n " --disable-auth"  ## :TODO: temporary to test forking functionality
+    echo -n " --cert-path=@SIPX_CONFDIR@/ssl"
+
+    if [ -n "${SIPXCHANGE_DOMAIN_NAME}" ]
+    then
+        echo -n " --domains=${SIPXCHANGE_DOMAIN_NAME}"
+    else
+        echo -n "SIPXCHANGE_DOMAIN_NAME not defined" 1>&2
+        argStatus=1
+    fi
+
+    if [ -n "${PROXY_SERVER_SIP_PORT}" ]
+    then
+        echo -n " --udp=${PROXY_SERVER_SIP_PORT}"
+        echo -n " --tcp=${PROXY_SERVER_SIP_PORT}"
+    else
+        echo "PROXY_SIP_PORT not defined" 1>&2
+        argStatus=1
+    fi
+
+    if [ -n "${PROXY_SERVER_SIP_SECURE_PORT}" ]
+    then
+        echo -n " --tls=${PROXY_SERVER_SIP_SECURE_PORT}"
+    else
+        echo "PROXY_SERVER_SIP_SECURE_PORT not defined" 1>&2
+        argStatus=1
+    fi
+
+    if [ -n "${REGISTRAR_SERVICE_URI}" ]
+    then
+        echo -n " --route=${REGISTRAR_SERVICE_URI}"
+    else
+        echo "REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT not defined" 1>&2
+        argStatus=1
+    fi
+
+    return $argStatus;
+}
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+#CONFIG_FILES="\
+#  @SIPX_CONFDIR@/repro-config
+#  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  . "$CONFIG_DEFS"
+  Status=$? 
+
+  Args=`makeArgs`
+
+  #for i in $CONFIG_FILES ; do
+  #  if [ -f "${i}.in" ]
+  #  then
+  #     @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+  #  fi
+  #done
+else
+    echo "Configuration definitions '$CONFIG_DEFS' not found." 1>&2
+    Status=1
+fi
+
+logfile="@SIPX_LOGDIR@/sipxrepro.log"
+
+case ${Action} in
+   RUN)
+     # :TODO: the resip installs need much work, but this will work for now
+     export LD_LIBRARY_PATH=/usr/local/lib:@REPRO_LIB_PATH@
+
+     echo $$ > @SIPX_RUNDIR@/sipxrepro.pid
+     echo "Starting '@bindir@/sipxrepro $Args'" >> ${logfile}
+     exec @bindir@/sipxrepro $Args 2>> ${logfile}
+     ;;
+
+   CONFIGTEST)
+     # Check that the domain name resolves to this host.
+     myHostname=`hostname -f`
+     status=$? 
+     Status=$((${Status}+${status}))
+     myDomain=${SIPXCHANGE_DOMAIN_NAME}
+
+     myIp=`@SIPX_BINDIR@/get_def_addr`
+     if [ "${myHostname}" != "${myDomain}" -a "${myIp}" != "${myDomain}" ]
+     then
+         tcpSrv=`dns_sipsrv tcp ${myDomain}`
+         udpSrv=`dns_sipsrv udp ${myDomain}`
+         cName=`dns_cname ${myDomain}`
+         AliasMatched="NO"
+         for tryName in ${tcpSrv} ${udpSrv} ${cName}
+         do
+           if [ "${myHostname}" = "${tryName}" ] 
+           then
+               AliasMatched="YES"
+               break
+           fi
+         done
+
+         if [ $AliasMatched = "NO" ]
+         then
+             Status=1
+             echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to this host '${myHostname}' at ${myIp}" 1>&2
+             echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
+         fi
+     fi
+
+     makeArgs > /dev/null
+     status=$?
+     Status=$((${Status}+${status}))
+
+     # Check that the log file is writable.
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+         echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+         Status=1
+     fi
+     ;;
+esac
+
+exit $Status
+

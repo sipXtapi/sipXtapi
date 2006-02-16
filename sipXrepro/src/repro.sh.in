@@ -1,0 +1,113 @@
+#!/bin/bash
+#
+# Copyright (C) 2005 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2005 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+#CONFIG_FILES="\
+#  @SIPX_CONFDIR@/repro-config
+#  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  . "$CONFIG_DEFS"
+
+  Args=`makeArgs`
+
+  #for i in $CONFIG_FILES ; do
+  #  if [ -f "${i}.in" ]
+  #  then
+  #     @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+  #  fi
+  #done
+else
+    echo "Configuration definitions '$CONFIG_DEFS' not found." 1>&2
+    Status=1
+fi
+
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/repro.pid
+     exec @bindir@/repro $Args
+     ;;
+
+   CONFIGTEST)
+     makeArgs > /dev/null
+     Status=$?
+     
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/repro.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+         echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+         Status=1
+     fi
+
+     ;;
+esac
+
+makeArgs() {
+    argStatus=0
+
+    echo "--log-type=cerr"
+    echo "--log-level=DEBUG"
+    echo "--disable-reg"
+    echo "--cert-path=@SIPX_CONFDIR@/ssl"
+    echo "--recursive-redirect"
+
+    if [ -n "${SIPXCHANGE_DOMAIN_NAME}" ]
+    then
+        echo "--domains=${SIPXCHANGE_DOMAIN_NAME}"
+    else
+        echo "SIPXCHANGE_DOMAIN_NAME not defined" 1>&2
+        argStatus=1
+    fi
+
+    if [ -n "${PROXY_SIP_PORT}" ]
+    then
+        echo "--udp=${PROXY_SIP_PORT}"
+        echo "--tcp=${PROXY_SIP_PORT}"
+    else
+        echo "PROXY_SIP_PORT not defined" 1>&2
+        argStatus=1
+    fi
+
+    if [ -n "${PROXY_SIP_SECURE_PORT}" ]
+    then
+        echo "--tls=${PROXY_SIP_SECURE_PORT}"
+    else
+        echo "PROXY_SIP_SECURE_PORT not defined" 1>&2
+        argStatus=1
+    fi
+
+    return $argStatus;
+}
+
+exit $Status
+

@@ -70,6 +70,27 @@
             <!-- <dependency>??</dependency> -->
         </process>
 
+        <process name="sipXrepro">
+            <dependentdelay wait="1" />
+            <stdout file="/dev/null" />
+            <stderr file="/dev/null" />
+            <stdin  file="" />
+
+            <start control="true">
+                <execute command="@bindir@/sipxrepro.sh"
+                         parameters=""
+                         defaultdir="@SIPX_LOGDIR@" />
+            </start>
+
+            <!-- If no execute, then kill -->
+            <stop control="true" />
+
+            <!-- If no execute, then stop-start -->
+            <restart control="true" />
+
+            <!-- <dependency>??</dependency> -->
+        </process>
+
         <process name="SIPProxy">
             <dependentdelay wait="1" />
             <stdout file="/dev/null" />
