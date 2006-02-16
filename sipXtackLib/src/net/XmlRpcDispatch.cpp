@@ -28,6 +28,7 @@
 #include <net/HttpMessage.h>
 #include "net/XmlRpcDispatch.h"
 
+#undef TEST_HTTP /* turn on to log raw http messages */
 
 XmlRpcMethodContainer::XmlRpcMethodContainer()
 {
@@ -157,14 +158,16 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                                     const HttpMessage& request,
                                     HttpMessage*& response )
 {
+#   ifdef TEST_HTTP
     int len;
     UtlString httpString;
 
     request.getBytes(&httpString , &len);
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "XmlRpcDispatch::processRequest HttpEvent = \n%s\n",
+                  "XmlRpcDispatch::processRequest HttpEvent = \n%s",
                   httpString.data());
-
+#  endif
+    
    // Create a response
    response = new HttpMessage();
    response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION_1_1,
@@ -210,9 +213,10 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    {
       // Create an authentication challenge response
       OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "XmlRpcDispatch::processRequest request does not have authentication = \n%s\n",
-                    httpString.data());
-      responseBody.setFault(AUTHENTICATION_REQUIRED_FAULT_CODE, AUTHENTICATION_REQUIRED_FAULT_STRING);
+                    "XmlRpcDispatch::processRequest request does not have authentication."
+                    );
+      responseBody.setFault(AUTHENTICATION_REQUIRED_FAULT_CODE,
+                            AUTHENTICATION_REQUIRED_FAULT_STRING);
    }
 
 
@@ -275,7 +279,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
 {
    bool result = false;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "XmlRpcDispatch::parseXmlRpcRequest requestBody = \n%s\n",
+                 "XmlRpcDispatch::parseXmlRpcRequest requestBody = \n%s",
                  requestContent.data());
 
    // Parse the XML-RPC response

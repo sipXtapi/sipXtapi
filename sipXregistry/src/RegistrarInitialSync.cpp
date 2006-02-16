@@ -83,7 +83,7 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
       peer->setReceivedFrom(maxUpdateNumber);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "RegistrarInitialSync::restorePeerUpdateNumbers "
-                    "for peer '%s' last received update # = %lld",
+                    "for peer '%s' last received update # = %0#16llx",
                     name, maxUpdateNumber);
    }
 }

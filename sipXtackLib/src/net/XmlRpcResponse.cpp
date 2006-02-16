@@ -224,7 +224,7 @@ bool XmlRpcResponse::setResponse(UtlContainable* value)
    int bodyLength;
    mpResponseBody->getBytes(&bodyString, &bodyLength);
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "mpResponseBody::setResponse XML-RPC response message = \n%s\n", bodyString.data());
+                 "mpResponseBody::setResponse XML-RPC response message = \n%s", bodyString.data());
    return result;
 }
 
@@ -290,7 +290,7 @@ bool XmlRpcResponse::setFault(int faultCode, const char* faultString)
    int bodyLength;
    mpResponseBody->getBytes(&bodyString, &bodyLength);
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "mpResponseBody::setFault XML-RPC response message = \n%s\n", bodyString.data());
+                 "mpResponseBody::setFault XML-RPC response message = \n%s", bodyString.data());
 
    return result;
 }

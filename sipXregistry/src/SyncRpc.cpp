@@ -778,7 +778,7 @@ void SyncRpcPushUpdates::checkLastSentUpdateNumber(intll lastSentUpdateNumber,
       char buf[1024];
       sprintf(buf, 
               "SyncRpcPushUpdates::checkLastSentUpdateNumber "
-              "lastSentUpdateNumber = %lld but peerReceivedDbUpdateNumber = %lld",
+              "lastSentUpdateNumber = %0#16llx but peerReceivedDbUpdateNumber = %0#16llx",
               lastSentUpdateNumber, peerReceivedDbUpdateNumber);
       OsSysLog::add(FAC_SIP, PRI_WARNING, buf);
       peer.markUnReachable();
@@ -801,7 +801,7 @@ bool SyncRpcPushUpdates::checkUpdateNumber(
    {
       const char* msg = 
          "SyncRpcPushUpdates::execute: "
-         "a registry update contains multiple update numbers: %lld and %lld";
+         "a registry update contains multiple update numbers: %0#16llx and %0#16llx";
       char buf[1024];
       int msgLen = sprintf(buf, msg, updateNumber, reg.getUpdateNumber());
       assert(msgLen > 0);

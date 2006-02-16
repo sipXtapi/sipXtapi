@@ -222,7 +222,7 @@ void SipRegistrarServer::setDbUpdateNumber(intll dbUpdateNumber)
    mDbUpdateNumber = dbUpdateNumber;
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipRegistrarServer::setDbUpdateNumber to %lld", mDbUpdateNumber.getValue());
+                 "SipRegistrarServer::setDbUpdateNumber to %0#16llx", mDbUpdateNumber.getValue());
 }
 
 /// Apply valid changes to the database
@@ -716,7 +716,7 @@ SipRegistrarServer::applyUpdatesToDirectory(
             char buf[1024];
             sprintf(buf,
                     "SipRegistrarServer::applyUpdatesToDirectory updates with mixed primaries"
-                    " updateNumber: %lld, primary1: %s, primary2: %s",
+                    " updateNumber: %0#16llx, primary1: %s, primary2: %s",
                     reg->getUpdateNumber(), primary.data(), nextPrimary->data());
             OsSysLog::add(FAC_SIP, PRI_ERR, buf);
             *errorMsg = buf;

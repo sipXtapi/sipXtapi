@@ -175,38 +175,27 @@ public:
             "<value><int>162</int></value>\n"
             "</param>\n"
             "<param>\n"
-            "<value><i8>162162</i8></value>\n"
+            "<value><i8>0x00000000027972</i8></value>\n"
             "</param>\n"
             "<param>\n"
-            "<value>\n"
-            "<array>\n"
-            "<data>\n"
+            "<value><array><data>\n"
             "<value><string>160@pingtel.com</string></value>\n"
             "<value><string>167@pingtel.com</string></value>\n"
             "<value><int>1000</int></value>\n"
             "<value><boolean>1</boolean></value>\n"
-            "</data>\n"
-            "</array>\n"
-            "</value>\n"
+            "</data></array></value>\n"
             "</param>\n"
             "<param>\n"
-            "<value>\n"
-            "<struct>\n"
+            "<value><struct>\n"
             "<member>\n"
-            "<name>acd@pingtel.com</name>\n"
-            "<value>\n"
-            "<array>\n"
-            "<data>\n"
+            "<name>acd@pingtel.com</name><value><array><data>\n"
             "<value><string>160@pingtel.com</string></value>\n"
             "<value><string>167@pingtel.com</string></value>\n"
             "<value><int>1000</int></value>\n"
             "<value><boolean>1</boolean></value>\n"
-            "</data>\n"
-            "</array>\n"
-            "</value>\n"
+            "</data></array></value>\n"
             "</member>\n"
-            "</struct>\n"
-            "</value>\n"
+            "</struct></value>\n"
             "</param>\n"
             "</params>\n"
             "</methodCall>\n"
@@ -245,9 +234,9 @@ public:
          UtlString requestBody;
          int length;
          request.mpRequestBody->getBytes(&requestBody, &length);
-         //printf("body = \n%s\n", requestBody.data()); 
+         printf("body = \n%s\n", requestBody.data()); 
 
-         CPPUNIT_ASSERT(strcmp(requestBody.data(), ref) == 0);
+         ASSERT_STR_EQUAL(ref, requestBody.data());
       }
 
 
@@ -265,68 +254,49 @@ public:
             "<value><int>162</int></value>\n"
             "</param>\n"
             "<param>\n"
-            "<value><i8>162162</i8></value>\n"
+            "<value><i8>0x00000000027972</i8></value>\n"
             "</param>\n"
             "<param>\n"
-            "<value>\n"
-            "<array>\n"
-            "<data>\n"
+            "<value><array><data>\n"
             "<value><string>160@pingtel.com</string></value>\n"
             "<value><string>167@pingtel.com</string></value>\n"
             "<value><int>1000</int></value>\n"
             "<value><boolean>1</boolean></value>\n"
-            "</data>\n"
-            "</array>\n"
-            "</value>\n"
+            "</data></array></value>\n"
             "</param>\n"
             "<param>\n"
-            "<value>\n"
-            "<struct>\n"
+            "<value><struct>\n"
             "<member>\n"
-            "<name>acd@pingtel.com</name>\n"
-            "<value>\n"
-            "<array>\n"
-            "<data>\n"
+            "<name>acd@pingtel.com</name><value><array><data>\n"
             "<value><string>160@pingtel.com</string></value>\n"
             "<value><string>167@pingtel.com</string></value>\n"
             "<value><int>1000</int></value>\n"
             "<value><boolean>1</boolean></value>\n"
-            "</data>\n"
-            "</array>\n"
-            "</value>\n"
+            "</data></array></value>\n"
             "</member>\n"
-            "</struct>\n"
-            "</value>\n"
+            "</struct></value>\n"
             "</param>\n"
             "<param>\n"
-            "<value>\n"
-            "<struct>\n"
+            "<value><struct>\n"
             "<member>\n"
-            "<name>tcp-port</name>\n"
-            "<value><int>5150</int></value>\n"
+            "<name>tcp-port</name><value><int>5150</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>rtp-port</name>\n"
-            "<value><int>9100</int></value>\n"
+            "<name>rtp-port</name><value><int>9100</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>upd-port</name>\n"
-            "<value><int>5150</int></value>\n"
+            "<name>upd-port</name><value><int>5150</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>server-name</name>\n"
-            "<value>sipxacd</value>\n"
+            "<name>server-name</name><value>sipxacd</value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>object-class</name>\n"
-            "<value>acd-server</value>\n"
+            "<name>object-class</name><value>acd-server</value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>agent-state-server-port</name>\n"
-            "<value><int>8101</int></value>\n"
+            "<name>agent-state-server-port</name><value><int>8101</int></value>\n"
             "</member>\n"
-            "</struct>\n"
-            "</value>\n"
+            "</struct></value>\n"
             "</param>\n"
             "</params>\n"
             "</methodCall>\n"
@@ -336,18 +306,14 @@ public:
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<methodResponse>\n"
             "<fault>\n"
-            "<value>\n"
-            "<struct>\n"
+            "<value><struct>\n"
             "<member>\n"
-            "<name>faultCode</name>\n"
-            "<value><int>-3</int></value>\n"
+            "<name>faultCode</name><value><int>-3</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>faultString</name>\n"
-            "<value><string>Method has not been registered</string></value>\n"
+            "<name>faultString</name><value><string>Method has not been registered</string></value>\n"
             "</member>\n"
-            "</struct>\n"
-            "</value>\n"
+            "</struct></value>\n"
             "</fault>\n"
             "</methodResponse>\n"
             ;
@@ -379,7 +345,7 @@ public:
          int length;
          responseBody->getBytes(&body, &length);
          
-         CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
+         ASSERT_STR_EQUAL(faultResponse, body.data());
 
          XmlRpcResponse newResponse;
          char userData[] = "AddExtension"; 
@@ -401,7 +367,7 @@ public:
          responseBody->getBytes(&body, &length);
          //printf("body = \n%s\n", body.data());
 
-         CPPUNIT_ASSERT(strcmp(body.data(), successResponse) == 0);
+         ASSERT_STR_EQUAL(successResponse, body.data());
       }
 
 
@@ -411,18 +377,14 @@ public:
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<methodResponse>\n"
             "<fault>\n"
-            "<value>\n"
-            "<struct>\n"
+            "<value><struct>\n"
             "<member>\n"
-            "<name>faultCode</name>\n"
-            "<value><int>-3</int></value>\n"
+            "<name>faultCode</name><value><int>-3</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>faultString</name>\n"
-            "<value><string>Method has not been registered</string></value>\n"
+            "<name>faultString</name><value><string>Method has not been registered</string></value>\n"
             "</member>\n"
-            "</struct>\n"
-            "</value>\n"
+            "</struct></value>\n"
             "</fault>\n"
             "</methodResponse>\n"
             ;
@@ -443,23 +405,16 @@ public:
             "<methodResponse>\n"
             "<params>\n"
             "<param>\n"
-            "<value>\n"
-            "<struct>\n"
+            "<value><struct>\n"
             "<member>\n"
-            "<name>acd@pingtel.com</name>\n"
-            "<value>\n"
-            "<array>\n"
-            "<data>\n"
-            "<value><string>160@pingtel.com</string></value>\n"
+            "<name>acd@pingtel.com</name><value><array>\n"
+            "<data><value><string>160@pingtel.com</string></value>\n"
             "<value><string>167@pingtel.com</string></value>\n"
             "<value><int>1000</int></value>\n"
             "<value><boolean>1</boolean></value>\n"
-            "</data>\n"
-            "</array>\n"
-            "</value>\n"
+            "</data></array></value>\n"
             "</member>\n"
-            "</struct>\n"
-            "</value>\n"
+            "</struct></value>\n"
             "</param>\n"
             "</params>\n"
             "</methodResponse>\n"
@@ -477,7 +432,7 @@ public:
          CPPUNIT_ASSERT_EQUAL_MESSAGE("faultCode is not the same",
                                       faultCode, -3);
 
-         CPPUNIT_ASSERT(strcmp(faultString.data(), "Method has not been registered") == 0);
+         ASSERT_STR_EQUAL("Method has not been registered", faultString.data());
 
          UtlString successContent1(successResponse1);
 
@@ -488,7 +443,7 @@ public:
          response.getResponse(containable);
          UtlString* responseString = (UtlString *)containable;
 
-         CPPUNIT_ASSERT(strcmp(responseString->data(), "method call \"AddExtension\" successful") == 0);
+         ASSERT_STR_EQUAL("method call \"AddExtension\" successful", responseString->data());
 
          UtlString successContent2(successResponse2);
 
@@ -504,23 +459,16 @@ public:
             "<methodResponse>\n"
             "<params>\n"
             "<param>\n"
-            "<value>\n"
-            "<struct>\n"
+            "<value><struct>\n"
             "<member>\n"
-            "<name>acd@pingtel.com</name>\n"
-            "<value>\n"
-            "<array>\n"
-            "<data>\n"
+            "<name>acd@pingtel.com</name><value><array><data>\n"
             "<value><string>160@pingtel.com</string></value>\n"
             "<value><string>167@pingtel.com</string></value>\n"
             "<value><int>1000</int></value>\n"
             "<value><boolean>1</boolean></value>\n"
-            "</data>\n"
-            "</array>\n"
-            "</value>\n"
+            "</data></array></value>\n"
             "</member>\n"
-            "</struct>\n"
-            "</value>\n"
+            "</struct></value>\n"
             "</param>\n"
             "</params>\n"
             "</methodResponse>\n"
@@ -550,7 +498,7 @@ public:
          response.getBody()->getBytes(&responseBody, &length);
          //printf("body = \n%s\n", responseBody.data()); 
 
-         CPPUNIT_ASSERT(strcmp(responseBody.data(), ref) == 0);
+         ASSERT_STR_EQUAL(ref, responseBody.data());
       }
 
    void testIllFormattedXmlRpcRequest()
@@ -576,16 +524,12 @@ public:
             "<methodName>addExtension</methodName>\n"
             "<params>\n"
             "<param>\n"
-            "<value>\n"
-            "<array>\n"
-            "<data>\n"
+            "<value><array><data>\n"
             "<value><string>160@pingtel.com</string></value>\n"
             "<value><string>167@pingtel.com</string></value>\n"
             "<value><int></int></value>\n"
             "<value><boolean>1</boolean></value>\n"
-            "</data>\n"
-            "</array>\n"
-            "</value>\n"
+            "</data></array></value>\n"
             "</param>\n"
             "</params>\n"
             "</methodCall>\n"
@@ -597,34 +541,26 @@ public:
             "<methodName>addExtension</methodName>\n"
             "<params>\n"
             "<param>\n"
-            "<value>\n"
-            "<struct>\n"
+            "<value><struct>\n"
             "<member>\n"
-            "<name>tcp-port</name>\n"
-            "<value><int>5150</int></value>\n"
+            "<name>tcp-port</name><value><int>5150</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>rtp-port</name>\n"
-            "<value><int></int></value>\n"
+            "<name>rtp-port</name><value><int></int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>upd-port</name>\n"
-            "<value><int>5150</int></value>\n"
+            "<name>upd-port</name><value><int>5150</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>server-name</name>\n"
-            "<value></value>\n"
+            "<name>server-name</name><value></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>object-class</name>\n"
-            "<value></value>\n"
+            "<name>object-class</name><value></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>agent-state-server-port</name>\n"
-            "<value><int>8101</int></value>\n"
+            "<name>agent-state-server-port</name><value><int>8101</int></value>\n"
             "</member>\n"
-            "</struct>\n"
-            "</value>\n"
+            "</struct></value>\n"
             "</param>\n"
             "</params>\n"
             "</methodCall>\n"
@@ -634,18 +570,14 @@ public:
             "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
             "<methodResponse>\n"
             "<fault>\n"
-            "<value>\n"
-            "<struct>\n"
+            "<value><struct>\n"
             "<member>\n"
-            "<name>faultCode</name>\n"
-            "<value><int>-5</int></value>\n"
+            "<name>faultCode</name><value><int>-5</int></value>\n"
             "</member>\n"
             "<member>\n"
-            "<name>faultString</name>\n"
-            "<value><string>Empty param value</string></value>\n"
+            "<name>faultString</name><value><string>Empty param value</string></value>\n"
             "</member>\n"
-            "</struct>\n"
-            "</value>\n"
+            "</struct></value>\n"
             "</fault>\n"
             "</methodResponse>\n"
             ;
@@ -669,7 +601,7 @@ public:
          int length;
          responseBody->getBytes(&body, &length);
 
-         CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
+         ASSERT_STR_EQUAL(faultResponse, body.data());
 
          UtlString requestContent2(ref2);
          XmlRpcResponse response2;
@@ -680,7 +612,7 @@ public:
          responseBody = response2.getBody();
          responseBody->getBytes(&body, &length);
 
-         CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
+         ASSERT_STR_EQUAL(faultResponse, body.data());
 
          UtlString requestContent3(ref3);
          XmlRpcResponse response3;
@@ -691,7 +623,7 @@ public:
          responseBody = response3.getBody();
          responseBody->getBytes(&body, &length);
 
-         CPPUNIT_ASSERT(strcmp(body.data(), faultResponse) == 0);
+         ASSERT_STR_EQUAL(faultResponse, body.data());
       }
 };
 
