@@ -4,17 +4,23 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.admin.JobStatusPage">
   <description>Displays the table with current job status</description>
   <!--
-	  - P R O P E R T I E S
-	  -->
+  - P R O P E R T I E S
+  -->
   <inject property="jobContext" object="spring:jobContext"/>
-  <property name="currentRow" />
+  <inject property="expressionEvaluator" object="service:tapestry.ognl.ExpressionEvaluator"/>
+  
+  <property name="currentRow"/>
+  
   <!--
-	  - B E A N S
-	  -->
+  - B E A N S
+  -->
+  
   <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
+  
   <!--
-	  - C O M P O N E N T S
-	  -->
+  - C O M P O N E N T S
+  -->
+  
   <component id="form" type="Form">
   </component>
   <component id="tableView" type="contrib:TableView">
@@ -26,6 +32,7 @@
   <component id="tableRows" type="contrib:TableRows">
     <binding name="class" value="beans.rowClass.next"/>
     <binding name="row" value="currentRow"/>
+    <binding name="volatile" value="true"/>
   </component>
   <component id="tableValues" type="contrib:TableValues"/>
   <component id="removeButton" type="Submit">

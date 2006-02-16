@@ -16,8 +16,10 @@ import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.contrib.table.model.IAdvancedTableColumn;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
+import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
+import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 
@@ -166,17 +168,17 @@ public final class TapestryUtils {
     /**
      * Creates column model that can be used to display dates
      * 
-     * @param component used only to retrieve localized version of the column
      * @param columnName used as internal column name, user visible name (through getMessage), and
-     *        OGNL expression to calculate the name
+     *        OGNL expression to calculate the date
+     * @param messages used to retrieve column title
      * @return newly create column model
      */
-    public static ITableColumn createDateColumn(AbstractComponent component, String columnName) {
-        return new SimpleTableColumn(columnName, true);
-        // PORT: TODO
-        // ExpressionTableColumn column = new ExpressionTableColumn(columnName, component
-        // .getMessage(columnName), columnName, true);
-        // column.setValueRendererSource(new DateTableRendererSource());
-        //        return column;
+    public static ITableColumn createDateColumn(String columnName, Messages messages,
+            ExpressionEvaluator expressionEvaluator) {
+        String columnTitle = messages.getMessage(columnName);
+        IAdvancedTableColumn column = new ExpressionTableColumn(columnName, columnTitle,
+                columnName, true, expressionEvaluator);
+        column.setValueRendererSource(new DateTableRendererSource());
+        return column;
     }
 }
