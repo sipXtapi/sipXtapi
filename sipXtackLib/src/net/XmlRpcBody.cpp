@@ -117,8 +117,12 @@ bool XmlRpcBody::addValue(UtlContainable* value)
    else if (value->isInstanceOf(UtlString::TYPE))
    {
       UtlString* pValue = (UtlString *)value;
-      paramValue = BEGIN_STRING + *pValue + END_STRING;
-      result = true;
+
+      // Fix XSL-116: XML-RPC must escape special chars in string values
+      result = XmlEscape(paramValue, *pValue);
+
+      paramValue.insert(0, BEGIN_STRING);
+      paramValue.append(END_STRING);
    }
    else if (value->isInstanceOf(UtlDateTime::TYPE))
    {

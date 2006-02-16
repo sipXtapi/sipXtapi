@@ -45,7 +45,7 @@ public:
    bool execute(const HttpRequestContext& context, UtlSList& params, void* userData, XmlRpcResponse& response, XmlRpcMethod::ExecutionStatus& status)
       {
 #ifdef PRINT_OUT
-         for (int i = 0; i < params.entries(); i++)
+         for (unsigned int i = 0; i < params.entries(); i++)
          {
             printf("index = %d\n", i);
             
@@ -68,7 +68,7 @@ public:
                UtlSList* list = (UtlSList *)value;
                UtlSListIterator iterator(*list);
                UtlContainable* pObject;
-               while(pObject = iterator())
+               while((pObject = iterator()))
                {
                   UtlString elementType(pObject->getContainableType());
                   if (elementType.compareTo("UtlInt") == 0)
@@ -90,7 +90,7 @@ public:
                UtlHashMap* map = (UtlHashMap *)value;
                UtlHashMapIterator iterator(*map);
                UtlString* pName;
-               while(pName = (UtlString *)iterator())
+               while((pName = (UtlString *)iterator()))
                {
                   printf("name = %s\n", pName->data());
                   
@@ -113,7 +113,7 @@ public:
                      UtlSList* list = (UtlSList *)pObject;
                      UtlSListIterator iterator(*list);
                      UtlContainable* pList;
-                     while(pList = iterator())
+                     while((pList = iterator()))
                      {
                         UtlString elementType(pList->getContainableType());
                         if (elementType.compareTo("UtlInt") == 0)
@@ -169,7 +169,7 @@ public:
             "<methodName>addExtension</methodName>\n"
             "<params>\n"
             "<param>\n"
-            "<value><string>acd@pingtel.com</string></value>\n"
+            "<value><string>&quot;ACD&quot; &lt;acd@pingtel.com&gt;</string></value>\n"
             "</param>\n"
             "<param>\n"
             "<value><int>162</int></value>\n"
@@ -204,8 +204,9 @@ public:
          Url url;
          XmlRpcRequest request(url, "addExtension");
 
-         UtlString stringValue("acd@pingtel.com");
-         request.addParam(&stringValue);
+         // Use quotes, "<" and ">" to test that XML special chars are escaped properly
+         UtlString stringToEscapeValue("\"ACD\" <acd@pingtel.com>");
+         request.addParam(&stringToEscapeValue);
 
          UtlInt intValue(162);
          request.addParam(&intValue);
@@ -225,6 +226,7 @@ public:
          request.addParam(&list);
          
          UtlHashMap members;
+         UtlString stringValue("acd@pingtel.com");
          members.insertKeyAndValue(&stringValue, &list);
          request.addParam(&members);         
 
@@ -248,7 +250,7 @@ public:
             "<methodName>addExtension</methodName>\n"
             "<params>\n"
             "<param>\n"
-            "<value>acd@pingtel.com</value>\n"
+            "<value>&quot;ACD&quot; &lt;acd@pingtel.com&gt;</value>\n"
             "</param>\n"
             "<param>\n"
             "<value><int>162</int></value>\n"
@@ -323,7 +325,7 @@ public:
             "<methodResponse>\n"
             "<params>\n"
             "<param>\n"
-            "<value><string>method call \"AddExtension\" successful</string></value>\n"
+            "<value><string>method call &quot;AddExtension&quot; successful</string></value>\n"
             "</param>\n"
             "</params>\n"
             "</methodResponse>\n"

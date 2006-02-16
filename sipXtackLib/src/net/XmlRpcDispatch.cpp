@@ -333,7 +333,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
                         if (!result)
                         {
                            OsSysLog::add(FAC_SIP, PRI_ERR,
-                                         "XmlRpcDispatch::parseXmlRpcRequest ill-formatted xml contents in %s.",
+                                         "XmlRpcDispatch::parseXmlRpcRequest ill-formed XML contents in %s.",
                                           requestContent.data());
                            response.setFault(EMPTY_PARAM_VALUE_FAULT_CODE, EMPTY_PARAM_VALUE_FAULT_STRING);
                            break;
@@ -364,9 +364,9 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
    else
    {
       OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "XmlRpcDispatch::parseXmlRpcRequest ill formatted xml contents in %s. Parsing error = %s",
+                    "XmlRpcDispatch::parseXmlRpcRequest ill-formed XML contents in %s. Parsing error = %s",
                      requestContent.data(), doc.ErrorDesc());
-      response.setFault(ILL_FORMED_CONTENTS_FAULT_CODE, UNREGISTERED_METHOD_FAULT_STRING);
+      response.setFault(ILL_FORMED_CONTENTS_FAULT_CODE, ILL_FORMED_CONTENTS_FAULT_STRING);
       result = false;
    }
    

@@ -22,7 +22,7 @@
 #include "net/XmlRpcBody.h"
 
 // DEFINES
-#define ILL_FORMED_CONTENTS_FAULT_STRING "Ill-formed XML-RPC contents"
+#define ILL_FORMED_CONTENTS_FAULT_STRING "Ill-formed XML contents"
 #define METHOD_NAME_FAULT_STRING "Method name is missing"
 #define UNREGISTERED_METHOD_FAULT_STRING "Method has not been registered"
 #define AUTHENTICATION_REQUIRED_FAULT_STRING "Authentication is required"
