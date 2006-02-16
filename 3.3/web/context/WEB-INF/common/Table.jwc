@@ -35,9 +35,9 @@
   <component id="tablePages" type="contrib:TablePages"/>
   <component id="tableColumns" type="contrib:TableColumns"/>
   <component id="tableRows" type="contrib:TableRows">
-    <binding name="row" value="row"/>
+    <inherited-binding name="row" parameter-name="row"/>
     <binding name="class" value="beans.rowClass.next"/>
-    <binding name="converter" value="converter"/>
+    <inherited-binding name="converter" parameter-name="converter"/>
   </component>
   <component id="tableValues" type="contrib:TableValues"/>
   <component id="selectedRow" type="contrib:ControlledCheckbox">
