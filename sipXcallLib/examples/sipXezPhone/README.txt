@@ -71,7 +71,3 @@ The following are known issues in sipXezPhone
 	Tearing down a video call may take 15+ seconds before it is completed.
         This is caused by a CPU spin in the video processing libraries.
         Attempting to setup calls during the call tear down process will fail.
-	
-
-
-  
