@@ -15,7 +15,7 @@
     <set name="enumClass" value="@org.sipfoundry.sipxconfig.site.dialplan.SpecialAttendantPanel$Mode@class"/>
   </bean>
   <bean name="radioRenderer" class="org.apache.tapestry.form.RadioPropertySelectionRenderer" lifecycle="page"/>
-  <component id="modeSelection" type="PropertySelection">
+  <component id="modeSelection" type="FlexiblePropertySelection">
     <binding name="value" value="mode"/>
     <binding name="model" value="modeModel"/>
     <binding name="renderer" value="bean:radioRenderer"/>
