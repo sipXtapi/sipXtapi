@@ -349,7 +349,7 @@ do
     full_locale=`echo $full_locale | sed 's/^[^.]*\.//; s/^[^.]*$//'`
 done
 
-for d in $locale
+for d in $locale rr.$full_locale ap.$full_locale
 do
   echo "" >> ${SystemConfig}
   echo ======== DNS SRV $d >> ${SystemConfig}
