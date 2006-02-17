@@ -53,10 +53,10 @@ int RegistrarInitialSync::run(void* pArg)
    // Get from peers any peer updates that we missed or lost while down
    pullPeerUpdatesFromPeers();
 
-   // Get any updates for unreachable peers from reachable ones.
+   // Get any updates for unreachable peers from reachable ones
    recoverUnReachablePeers();
 
-   // Reset the DbUpdateNumber so that the upper half is the epoch time.
+   // Reset the DbUpdateNumber so that the upper half is the epoch time
    getRegistrarServer().resetDbUpdateNumberEpoch();
 
    // SipRegistrar manages the transition to operational phase, so it will send resets to peers
@@ -125,7 +125,8 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
          // Apply the resulting updates to the DB, if pullUpdates succeeded.
          // A return value of Uninitialized indicates success.  If pullUpdates fails
          // then the peer's state is downgraded to UnReachable or Incompatible.
-         if (state == RegistrarPeer::Uninitialized)
+         if (state == RegistrarPeer::Uninitialized &&
+             bindings.entries() > 0)
          {
             applyUpdatesToDirectory(bindings);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -165,7 +166,8 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers()
          assert(state != RegistrarPeer::Reachable);
 
          // Apply the resulting updates to the DB
-         if (state == RegistrarPeer::Uninitialized)
+         if (state == RegistrarPeer::Uninitialized &&
+             bindings.entries() > 0)
          {
             applyUpdatesToDirectory(bindings);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -188,7 +190,58 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers()
 /// Get any updates for unreachable peers from reachable ones.
 void RegistrarInitialSync::recoverUnReachablePeers()
 {
-   // Defer implementation until after HA 1.0: see XRR-92
+   // In the startup phase no peers are formally in the Reachable state, instead we
+   // look for peers who are reachable but formally in the Uninitialized state.
+   // :TODO: The state machine is confusing because the Reachable state doesn't
+   // match the practical notion of reachability.  Simplify.
+   // loop over reachable peers
+   auto_ptr<UtlSListIterator> peers(mRegistrar.getPeers());
+   RegistrarPeer* reachablePeer;
+   const char* primaryName = getPrimaryName();
+   while ((reachablePeer = static_cast<RegistrarPeer*>((*peers)())))
+   {
+      if (reachablePeer->synchronizationState() == RegistrarPeer::Uninitialized)
+      {
+         // loop over unreachable peers
+         auto_ptr<UtlSListIterator> peers2(mRegistrar.getPeers());
+         RegistrarPeer* unreachablePeer;
+         while ((unreachablePeer = static_cast<RegistrarPeer*>((*peers)())))
+         {
+            if (unreachablePeer->synchronizationState() == RegistrarPeer::UnReachable)
+            {
+               UtlSList bindings;
+               RegistrarPeer::SynchronizationState state =
+                  SyncRpcPullUpdates::invoke(
+                     reachablePeer,                      // the peer we are calling
+                     primaryName,                        // the calling registrar (us)
+                     unreachablePeer->name(),            // peer whose updates we want
+                     unreachablePeer->receivedFrom(),    // want updates above this number
+                     &bindings);                         // put the bindings here
+               assert(state != RegistrarPeer::Reachable);
+
+               // Apply the resulting updates to the DB
+               if (state == RegistrarPeer::Uninitialized &&
+                   bindings.entries() > 0)
+               {
+                  applyUpdatesToDirectory(bindings);
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                "RegistrarInitialSync::recoverUnReachablePeers "
+                                "received %d peer updates from peer '%s' for peer '%s'",
+                                bindings.entries(),
+                                reachablePeer->name(),
+                                unreachablePeer->name());
+               }
+               else
+               {
+                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                "RegistrarInitialSync::recoverUnReachablePeers "
+                                "'%s' is %s",
+                                reachablePeer->name(), reachablePeer->getStateName());
+               }
+            }
+         }
+      }   
+   }
 }
 
 
@@ -218,7 +271,7 @@ void RegistrarInitialSync::applyUpdatesToDirectory(UtlSList& bindings)
    getRegistrarServer().applyUpdatesToDirectory(timeNow, bindings);
 }
 
- 
+
 /// destructor
 RegistrarInitialSync::~RegistrarInitialSync()
 {
