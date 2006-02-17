@@ -47,13 +47,13 @@ public class ManageAttendantsTestUi extends WebTestCase {
                 "ManageAttendantsTestUi 2", SEED_DESCRIPTION
             }
         };
-        assertTableRowsEqual("list:attendant", 1, expectedData);
+        assertTableRowsEqual("tableView", 1, expectedData);
     }
 
     public void testEditAttendants() throws IOException {
         seedAttendants(2);
         clickLinkWithText("ManageAttendantsTestUi 1");
-        assertElementPresent("attendant:form");
+        assertElementPresent("manage:attendant");
         setFormElement("name", "Name edited");
         clickButton("form:ok");
         String[][] expectedData = {
@@ -64,7 +64,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
                 "Name edited", SEED_DESCRIPTION
             }
         };
-        assertTableRowsEqual("list:attendant", 1, expectedData);
+        assertTableRowsEqual("tableView", 1, expectedData);
     }
 
     public void testDeleteAttendants() throws IOException {
@@ -81,7 +81,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
                 "ManageAttendantsTestUi 2", SEED_DESCRIPTION
             }
         };
-        assertTableRowsEqual("list:attendant", 1, expectedData);
+        assertTableRowsEqual("tableView", 1, expectedData);
     }
 
     private void seedAttendants(int count) throws IOException {
