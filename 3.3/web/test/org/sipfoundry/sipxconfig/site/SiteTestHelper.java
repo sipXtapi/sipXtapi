@@ -200,7 +200,7 @@ public class SiteTestHelper {
     public static String getIndexedId(String id, int index) {
         String suffix = "";
         if (index > 0) {
-            suffix = "$" + (index - 1);
+            suffix = "_" + (index - 1);
         }
         return id + suffix;
     }
