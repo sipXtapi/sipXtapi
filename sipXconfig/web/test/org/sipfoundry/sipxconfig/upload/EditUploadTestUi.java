@@ -59,5 +59,9 @@ public class EditUploadTestUi extends WebTestCase {
         clickButton("upload:inactivate");        
     }
     
-    
+    public void testCancel() throws Exception {
+        setFormElement("name", "cancelled");
+        clickButton("form:cancel");
+        assertTextNotPresent("cancelled");       
+    }       
 }
