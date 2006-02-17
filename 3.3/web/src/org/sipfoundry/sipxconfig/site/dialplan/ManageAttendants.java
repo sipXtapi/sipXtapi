@@ -55,12 +55,12 @@ public abstract class ManageAttendants extends BasePage {
         Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getListenerParameters(), 0);
         AutoAttendant attendant = getDialPlanContext().getAutoAttendant(id);
         page.setAttendant(attendant);
-        cycle.activate(page);
+        page.activatePageWithCallback(PAGE, cycle);
     }
     
     public void add(IRequestCycle cycle) {
         EditAutoAttendant page = (EditAutoAttendant) cycle.getPage(EditAutoAttendant.PAGE);
         page.setAttendant(null);
-        cycle.activate(page);
+        page.activatePageWithCallback(PAGE, cycle);
     }
 }

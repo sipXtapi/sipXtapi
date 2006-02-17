@@ -10,10 +10,13 @@
   <property name="currentDialPadId" />
   <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
+  <inject property="tapestry" object="spring:tapestry"/>
   <property name="currentDialPad" />
   <property name="addMenuItemDialPad" />
   <property name="addMenuItemAction" />
   <property name="callback"  persist="session"/>
+  <property name="menuItems"/>
+  
   <!--
       - B E A N S
       -->
@@ -26,23 +29,20 @@
     <set name="required" value="literal:false"/>
   </bean>
   <bean name="dialPadSelectionModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
-    <set name="enumClass" value="literal:@org.sipfoundry.sipxconfig.common.DialPad@class"/>
+    <set name="enumClass" value="@org.sipfoundry.sipxconfig.common.DialPad@class"/>
   </bean>
   <bean name="menuItemActions" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
-    <set name="enumClass" value="literal:@org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction@class"/>
+    <set name="enumClass" value="@org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction@class"/>
   </bean>
   <bean name="localizedMenuItemActions" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator">
-    <set name="model" value="literal:beans.menuItemActions"/>
+    <set name="model" value="bean:menuItemActions"/>
     <set name="resourcePrefix" value="literal:menuItemAction."/>
-    <set name="messages" value="literal:messages"/>
+    <set name="messages" value="messages"/>
   </bean>
   <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="literal:dialPlanContext.autoAttendants"/>
+    <set name="collection" value="dialPlanContext.autoAttendants"/>
     <set name="labelExpression" value="literal:name"/>
     <set name="valueExpression" value="literal:systemName"/>
-  </bean>
-  <bean name="menuItems" class="org.sipfoundry.sipxconfig.components.MutableKeyMapAdapter" lifecycle="render">
-    <set name="map" value="literal:attendant.menuItems"/>
   </bean>
   <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
   <!--
@@ -68,57 +68,57 @@
     <binding name="listener" value="listener:removeMenuItems"/>
   </component>
   <component id="menuItemTableView" type="contrib:TableView">
-    <binding name="source" value="bean:menuItems.entries"/>
-    <binding name="columns">'* !Dialpad, ' + '!Action:, !Parameter:'</binding>
+    <binding name="source" value="menuItems.dialPadKeys"/>
+    <binding name="columns" value="literal:* !Dialpad,!Action:,!Parameter:"/>
     <binding name="pageSize" value="literal:-1"/>
   </component>
   <component id="menuItemColumns" type="contrib:TableColumns">
   </component>
   <component id="menuItemRows" type="contrib:TableRows">
-    <binding name="row" value="bean:menuItems.currentEntry"/>
-    <binding name="class" value="bean:rowClass.next"/>
+    <binding name="row" value="menuItems.currentDialPadKey"/>
+    <binding name="class" value="beans.rowClass.next"/>
   </component>
   <component id="menuItemValues" type="contrib:TableValues"/>
   <!-- Column 1: select phone -->
   <component id="selectedRow" type="Checkbox">
-    <binding name="value" value="selections.selected[beans.menuItems.key.name]"/>
+    <binding name="value" value="selections.selected[menuItems.currentDialPadKey.name]"/>
   </component>
   <!-- Column 2: key dropdown -->
   <component id="DialpadColumnValue" type="Block"/>
   <component id="menuItemKey" type="PropertySelection">
     <binding name="model" value="bean:dialPadSelectionModel"/>
-    <binding name="value" value="bean:menuItems.key"/>
+    <binding name="value" value="menuItems.currentMenuItemDialPadKeyAssignment"/>
   </component>
   <!-- Column 3: action dropdown -->
   <component id="ActionColumnValue" type="Block"/>
   <component id="menuItemAction" type="Insert">
-    <binding name="value" value="messages.getMessage('menuItemAction.' + beans.menuItems.value.action.name, beans.menuItems.value.action.name)"/>
+    <binding name="value" value="getActionName(menuItems.currentMenuItem.action)"/>
   </component>
   <!-- Column 4: optional action parameter -->
   <component id="ParameterColumnValue" type="Block"/>
   <component id="ifExtensionParameter" type="If">
-    <binding name="condition" value="bean:menuItems.value.action.extensionParameter"/>
+    <binding name="condition" value="menuItems.currentMenuItem.action.extensionParameter"/>
   </component>
   <component id="extensionParameter" type="TextField">
-    <binding name="value" value="bean:menuItems.value.parameter"/>
+    <binding name="value" value="menuItems.currentMenuItem.parameter"/>
   </component>
   <component id="ifAttendantParameter" type="If">
-    <binding name="condition" value="bean:menuItems.value.action.attendantParameter"/>
+    <binding name="condition" value="menuItems.currentMenuItem.action.attendantParameter"/>
   </component>
   <component id="attendantParameter" type="PropertySelection">
-    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
-    <binding name="value" value="bean:menuItems.value.parameter"/>
+    <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="value" value="menuItems.currentMenuItem.parameter"/>
   </component>
   <!-- Last Row : Add Menu Item -->
   <component id="addMenuItemRow" type="Any">
-    <binding name="class" value="bean:rowClass.next"/>
+    <binding name="class" value="beans.rowClass.next"/>
   </component>
   <component id="addMenuItemKey" type="PropertySelection">
     <binding name="model" value="bean:dialPadSelectionModel"/>
     <binding name="value" value="addMenuItemDialPad"/>
   </component>
   <component id="addMenuItemAction" type="PropertySelection">
-    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.localizedMenuItemActions)"/>
+    <binding name="model" value="tapestry.instructUserToSelect(beans.localizedMenuItemActions)"/>
     <binding name="value" value="addMenuItemAction"/>
   </component>
   <component id="addMenuItem" type="Submit">
