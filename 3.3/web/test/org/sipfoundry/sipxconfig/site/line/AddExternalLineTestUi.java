@@ -58,7 +58,7 @@ public class AddExternalLineTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-        assertTablePresent("line:list");
+        assertTablePresent("lineTableView");
         assertEquals(SiteTestHelper.getRowCount(tester, "lineTableView"), 2); // 1 plus header
         assertTextPresent("\"Dil Bert\"&lt;sip:dilbert@frakenberry.org&gt;");
     }
@@ -82,8 +82,8 @@ public class AddExternalLineTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         
-        assertTablePresent("line:list");
-        assertEquals(SiteTestHelper.getRowCount(tester, "line:list"), 2); // 1 plus header
+        assertTablePresent("lineTableView");
+        assertEquals(SiteTestHelper.getRowCount(tester, "lineTableView"), 2); // 1 plus header
         
     }
 }
