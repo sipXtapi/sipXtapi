@@ -5,12 +5,13 @@
   <!--
       - P R O P E R T I E S
       -->
-  <property name="attendant"  persist="session"/>
   <inject property="vxmlGenerator" object="spring:vxml"/>
-  <property name="currentDialPadId" />
-  <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="tapestry" object="spring:tapestry"/>
+  
+  <property name="currentDialPadId" />
+  <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
+  <property name="attendant"  persist="session"/>
   <property name="currentDialPad" />
   <property name="addMenuItemDialPad" />
   <property name="addMenuItemAction" />
@@ -45,6 +46,7 @@
     <set name="valueExpression" value="literal:systemName"/>
   </bean>
   <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+  
   <!--
       - C O M P O N E N T S
       -->
@@ -54,12 +56,19 @@
   <component id="common" type="ItemCommon">
     <binding name="item" value="attendant"/>
     <binding name="useEnabled" value="false"/>
+    <binding name="useFieldset" value="false"/>
   </component>
   <!-- auto attendant prompts selection -->
-  <component id="attendantPromptSelector" type="AssetSelectorPanel">
+  <component id="attendantPromptLabel" type="FieldPanel">
+    <binding name="label" value="message:attendant.prompt"/>
+    <binding name="field" value="components.attendantPromptSelector.prompt"/>
+  </component>
+  <component id="attendantPromptSelector" type="AssetSelector">
     <binding name="asset" value="attendant.prompt"/>
     <binding name="assetDir" value="vxmlGenerator.promptsDirectory"/>
     <binding name="errorMsg" value="message:error.select"/>
+    <binding name="contentType" value="literal:audio/x-wav"/>
+    <binding name="selectable" value="true"/>
   </component>
   <component id="reset" type="Submit">
     <binding name="listener" value="listener:reset"/>
