@@ -16,7 +16,7 @@
   <property name="assetSelectionModel" />
   <!-- C O M P O N E N T S -->
   <component id="promptLabel" type="FieldPanel">
-    <binding name="field" value="components.assetSelector"/>
+    <binding name="field" value="components.assetSelector.prompt"/>
     <binding name="label" value="selectLabel"/>
   </component>
   <component id="assetSelector" type="AssetSelector">

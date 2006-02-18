@@ -11,14 +11,13 @@
   <parameter name="assetDir" required="yes"/>
   <parameter name="errorMsg"/>
   <parameter name="submitOnChange" default-value="true"/>
-  <parameter name="contentType"/>
+  <parameter name="contentType" required="yes"/>
   <parameter name="selectable" default-value="false"/>
   <parameter name="enabled" required="no" default-value="true"/>
   
   <!-- P R O P E R T I E S -->
   <property name="uploadAsset"/>
   <property name="deleteAsset"/>
-  <property name="assetSelectionModel"/>
   
   <!-- C O M P O N E N T S -->
   <component id="prompt" type="PropertySelection">

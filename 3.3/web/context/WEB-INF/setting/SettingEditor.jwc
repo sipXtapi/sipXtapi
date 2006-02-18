@@ -7,8 +7,7 @@
   <parameter name="enabled" required="no" default-value="true">
   </parameter>
   <component id="fieldPanel" type="FieldPanel">
-    <binding name="for" value="'setting:' + setting.name"/>
-    <binding name="field" value="components.get(setting.type.name + 'Field')"/>
+    <binding name="field" value="formComponent"/>
     <binding name="label" value="setting.label"/>
     <binding name="defaultValue" value="defaultValue"/>
     <binding name="description" value="setting.description"/>

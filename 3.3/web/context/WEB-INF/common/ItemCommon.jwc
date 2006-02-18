@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification class="org.sipfoundry.sipxconfig.components.ItemCommon" allow-body="no" allow-informal-parameters="no">
+<component-specification class="org.sipfoundry.sipxconfig.components.ItemCommon" allow-body="no"
+  allow-informal-parameters="no">
+
   <!-- P A R A M E T E R S -->
-  <parameter name="item" required="yes"  >
-  </parameter>
-  <parameter name="useEnabled" required="no"  default-value="true" />
-  <parameter name="useExtension" required="no"  default-value="false" />
-  <parameter name="useFieldset" required="no"   default-value="true"/>
-  <parameter name="nameValidator" required="no"   default-value="bean:nameValidator"/>
-  <parameter name="maxDescriptionLen" required="no"   default-value="255"/>
-  <!-- P R O P E R T I E S -->
+  <parameter name="item" required="yes"/>
+  <parameter name="useEnabled" required="no" default-value="true"/>
+  <parameter name="useExtension" required="no" default-value="false"/>
+  <parameter name="useFieldset" required="no" default-value="true"/>
+  <parameter name="nameValidator" required="no" default-value="bean:nameValidator"/>
+  <parameter name="maxDescriptionLen" required="no" default-value="255"/>
+  
   <!-- B E A N S -->
   <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator" lifecycle="page">
   </bean>
@@ -17,6 +18,7 @@
     <set name="required" value="literal:true"/>
     <set name="minimumLength" value="literal:1"/>
   </bean>
+  
   <!-- C O M P O N E N T S -->
   <component id="ifUseEnabled" type="If">
     <binding name="condition" value="useEnabled"/>
@@ -56,7 +58,7 @@
   </component>
   <component id="description" type="TextArea">
     <binding name="value" value="item.description"/>
-	<binding name="validator" value="bean:descriptionValidator"/>
+    <binding name="validator" value="bean:descriptionValidator"/>
   </component>
   <component id="optFieldset" type="OptionalElement">
     <binding name="element" value="useFieldset ? 'fieldset' : null"/>

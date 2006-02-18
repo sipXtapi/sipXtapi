@@ -1,29 +1,31 @@
 <span jwcid="$content$">
-    <table>
-        <tr>
-            <td>
-                <span jwcid="@If" condition="ognl:assetExists and !selectable">
-    				<span jwcid="assetLabel"/>
-                </span>
-                <span jwcid="@If" condition="ognl:selectable">
-    				<input type="text" jwcid="prompt"/>
-                </span>
-            </td>
-            <td>
-                <a jwcid="downloadLink" id="link:download" href="#"><span jwcid="downloadLabel"/></a>
-            </td>
-            <td>
-                <span jwcid="@If" condition="ognl:assetExists and !selectable">
-                    <a jwcid="deleteLink">Delete</a>
-                </span>
-            </td>
-        </tr>            
-        <tr>            
-            <span jwcid="@If" condition="ognl:!assetExists or selectable">
-	            <td colspan="3">
-	                <input type="file" jwcid="promptUpload"/>
-	            </td>
-            </span>
-        </tr>        
-    </table>
+  <table>
+    <tr>
+      <td>
+        <span jwcid="@If" condition="ognl:assetExists and !selectable">
+          <span jwcid="assetLabel"/>
+        </span>
+        <span jwcid="@If" condition="ognl:selectable">
+          <input type="text" jwcid="prompt"/>
+        </span>
+      </td>
+      <td>
+        <a jwcid="downloadLink" id="link:download" href="#">
+          <span jwcid="downloadLabel"/>
+        </a>
+      </td>
+      <td>
+        <span jwcid="@If" condition="ognl:assetExists and !selectable">
+          <a jwcid="deleteLink">Delete</a>
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <span jwcid="@If" condition="ognl:!assetExists or selectable">
+        <td colspan="3">
+          <input type="file" jwcid="promptUpload"/>
+        </td>
+      </span>
+    </tr>
+  </table>
 </span>

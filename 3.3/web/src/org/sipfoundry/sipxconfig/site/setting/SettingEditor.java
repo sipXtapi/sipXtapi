@@ -16,6 +16,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IComponent;
+import org.apache.tapestry.form.IFormComponent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.validator.Max;
 import org.apache.tapestry.form.validator.MaxLength;
@@ -81,6 +83,26 @@ public abstract class SettingEditor extends BaseComponent {
             }
         }
         return validators;
+    }
+
+    /**
+     * In order to make FieldLabel happy we need IFormComponent instance. In most cases this is
+     * actually the widget directly passed to setting editor. However in some cases our widget is
+     * a collection of components, and there is no easy way of extracting a usable IFormElement.
+     * 
+     * I tried searching for IFormComponent among component children: this does not work since
+     * there is no guarantee that found component will be actually renderer (it can be inside of
+     * if block)
+     * 
+     * @return IFormComponent or null if labeled component is not IFormComponent
+     */
+    public IFormComponent getFormComponent() {
+        String componentName = getSetting().getType().getName();
+        IComponent component = getComponent(componentName + "Field");
+        if (component instanceof IFormComponent) {
+            return (IFormComponent) component;
+        }
+        return null;
     }
 
     public IPropertySelectionModel getEnumModel() {

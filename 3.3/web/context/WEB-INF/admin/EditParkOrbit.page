@@ -27,12 +27,18 @@
     <binding name="item" value="parkOrbit"/>
     <binding name="useExtension" value="true"/>
     <binding name="nameValidator" value="hivemind:spring:validSipNameRequired"/>
+    <binding name="useFieldset" value="false"/>
   </component>
-  <component id="musicOnHoldSelector" type="AssetSelectorPanel">
+  <component id="musicLabel" type="FieldPanel">
+    <binding name="field" value="components.musicOnHoldSelector.prompt"/>
+    <binding name="label" value="message:label.music"/>    
+  </component>
+  <component id="musicOnHoldSelector" type="AssetSelector">
     <binding name="asset" value="parkOrbit.music"/>
     <binding name="assetDir" value="orbitsGenerator.audioDirectory"/>
-    <binding name="selectLabel" value="message:label.music"/>
     <binding name="errorMsg" value="message:error.select"/>
+    <binding name="contentType" value="literal:audio/x-wav"/>
+    <binding name="selectable" value="true"></binding>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>
