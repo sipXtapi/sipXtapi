@@ -70,6 +70,8 @@
         <artifactId>maven-war-plugin</artifactId>
         <configuration>
           <warSourceDirectory>context</warSourceDirectory>
+          <!-- we will install .jars separately -->
+					<excludes>**/lib/*.jar</excludes>
         </configuration>
       </plugin>
       <!-- Jetty6 plugin -->
