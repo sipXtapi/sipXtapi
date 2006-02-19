@@ -22,13 +22,6 @@
       - B E A N S
       -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    <set name="required" value="literal:true"/>
-    <set name="minimumLength" value="literal:1"/>
-  </bean>
-  <bean name="extensionValidator" class="org.apache.tapestry.valid.NumberValidator" lifecycle="page">
-    <set name="required" value="literal:false"/>
-  </bean>
   <bean name="dialPadSelectionModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel">
     <set name="enumClass" value="@org.sipfoundry.sipxconfig.common.DialPad@class"/>
   </bean>

@@ -8,16 +8,9 @@
   <parameter name="useEnabled" required="no" default-value="true"/>
   <parameter name="useExtension" required="no" default-value="false"/>
   <parameter name="useFieldset" required="no" default-value="true"/>
-  <parameter name="nameValidator" required="no" default-value="bean:nameValidator"/>
+  <parameter name="nameValidator" required="no" default-value="validators:required"/>
+  <parameter name="extensionValidator" required="no" default-value="validators:required,pattern=^\d+$[Please enter digits only, for example: 123]"/>
   <parameter name="maxDescriptionLen" required="no" default-value="255"/>
-  
-  <!-- B E A N S -->
-  <bean name="descriptionValidator" class="org.sipfoundry.sipxconfig.components.StringSizeValidator" lifecycle="page">
-  </bean>
-  <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    <set name="required" value="literal:true"/>
-    <set name="minimumLength" value="literal:1"/>
-  </bean>
   
   <!-- C O M P O N E N T S -->
   <component id="ifUseEnabled" type="If">
@@ -38,7 +31,7 @@
     <binding name="value" value="item.name"/>
     <binding name="displayName" value="literal:Name"/>
     <binding name="field" value="components.name"/>
-    <binding name="validator" value="nameValidator"/>
+    <binding name="validators" value="nameValidator"/>
   </component>
   <component id="ifUseExtension" type="If">
     <binding name="condition" value="useExtension"/>
@@ -49,7 +42,7 @@
   </component>
   <component id="extension" type="TextField">
     <binding name="value" value="item.extension"/>
-    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
+    <binding name="validators" value="extensionValidator"/>
     <binding name="displayName" value="literal:Extension"/>
   </component>
   <component id="descriptionLabel" type="FieldPanel">
@@ -58,7 +51,7 @@
   </component>
   <component id="description" type="TextArea">
     <binding name="value" value="item.description"/>
-    <binding name="validator" value="bean:descriptionValidator"/>
+    <binding name="validators" value="validators:maxLength=255[Maximum allowed characters is 255]"/>
   </component>
   <component id="optFieldset" type="OptionalElement">
     <binding name="element" value="useFieldset ? 'fieldset' : null"/>
