@@ -9,7 +9,7 @@
   <parameter name="useExtension" required="no" default-value="false"/>
   <parameter name="useFieldset" required="no" default-value="true"/>
   <parameter name="nameValidator" required="no" default-value="validators:required"/>
-  <parameter name="extensionValidator" required="no" default-value="validators:required,pattern=^\d+$[Please enter digits only, for example: 123]"/>
+  <parameter name="extensionValidator" required="no" default-value="spring-validators:required,validPhone"/>
   <parameter name="maxDescriptionLen" required="no" default-value="255"/>
   
   <!-- C O M P O N E N T S -->

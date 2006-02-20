@@ -1,17 +1,14 @@
 <?xml version="1.0"?>
 <module id="sipxconfig" version="1.0.0" package="org.sipfoundry.sipxconfig">
-  
   <contribution configuration-id="tapestry.state.ApplicationObjects">
     <state-object name="userSession" scope="session">
       <create-instance class="org.sipfoundry.sipxconfig.site.UserSession"/>
     </state-object>
   </contribution>
-  
   <contribution configuration-id="tapestry.data.SqueezeAdaptors">
     <adaptor object="service:CoreContextAdapter"/>
     <adaptor object="service:ServiceStatusAdapter"/>
   </contribution>
-  
   <service-point id="CoreContextAdapter" interface="components.IDaoSqueezeAdapter">
     <invoke-factory>
       <construct class="components.DaoSqueezeAdapter">
@@ -19,7 +16,6 @@
       </construct>
     </invoke-factory>
   </service-point>
-  
   <service-point id="ServiceStatusAdapter" interface="org.apache.tapestry.util.io.SqueezeAdaptor">
     <invoke-factory>
       <construct class="site.admin.commserver.ServerStatusSqueezeAdapter"/>
@@ -28,7 +24,6 @@
   <!-- TODO: Upload Size=20MB for no particular reason. Polycom firmware was 11MB
   <configure property-name="maxSize" type="double" value="20480000"/>
   -->
-  
   <implementation service-id="hivemind.lib.DefaultSpringBeanFactoryHolder">
     <invoke-factory>
       <construct autowire-services="false" class="org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl">
@@ -37,7 +32,6 @@
       </construct>
     </invoke-factory>
   </implementation>
-  
   <!-- register download service -->
   <contribution configuration-id="tapestry.services.FactoryServices">
     <service name="download" object="service:Download"/>
@@ -50,9 +44,25 @@
       </construct>
     </invoke-factory>
   </service-point>
-  
-  <!-- register additional validators -->
-  <contribution configuration-id="tapestry.form.validator.Validators">
-    <!-- FIXME: put validators from tapestry.xml here /-->
+
+  <!-- validator hook to spring -->
+  <service-point id="SpringValidatorFactory" interface="org.apache.tapestry.form.validator.ValidatorFactory">
+    <invoke-factory>
+      <construct class="components.SpringValidatorFactory">
+        <set-service property="beanFactorySource" service-id="hivemind.lib.DefaultSpringBeanFactoryHolder"/>
+        <set-service property="hivemindValidatorFactory" service-id="tapestry.form.validator.ValidatorFactory"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <service-point id="SpringValidatorsBindingFactory" interface="org.apache.tapestry.binding.BindingFactory">
+    <invoke-factory>
+      <construct class="org.apache.tapestry.form.validator.ValidatorsBindingFactory">
+        <set-service property="validatorFactory" service-id="SpringValidatorFactory"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <contribution configuration-id="tapestry.bindings.BindingFactories">
+    <binding prefix="spring-validators" service-id="SpringValidatorsBindingFactory"/>
   </contribution>  
+  
 </module>

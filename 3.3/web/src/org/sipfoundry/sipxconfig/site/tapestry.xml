@@ -3,21 +3,28 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <!-- global beans used by tapestry pages -->
 <beans>
-  <!-- V A L I D A T O R S -->
+
+  <!-- T4 V A L I D A T O R S -->
+  <bean name="validSipName" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern">
+      <value>^([a-zA-Z0-9_.!~*'\(\)&amp;=+$,;?/-]|%[0-9a-fA-F]{2})+$</value>
+    </property>
+    <property name="message">
+      <value>Only a limited set of characters is valid in SIP URLs, for example: 321, joedoe, joe!?~*222</value>
+    </property>
+  </bean>  
   <!-- phone validator - only digits, at least one -->
-  <bean name="validPhone" class="org.apache.tapestry.valid.PatternValidator">
-    <property name="patternString">
+  <bean name="validPhone" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern">
       <value>^\d+$</value>
     </property>
-    <property name="patternNotMatchedMessage">
+    <property name="message">
       <value>Please enter digits only, for example: 123</value>
     </property>
   </bean>
-  <bean name="validPhoneRequired" parent="validPhone">
-    <property name="required">
-      <value>true</value>
-    </property>
-  </bean>
+
+
+  <!-- T3 V A L I D A T O R S (to be ported) -->
   <bean name="validHostOrIp" class="org.apache.tapestry.valid.PatternValidator">
     <property name="patternString">
       <value>^((\d{1,3}\.){3}\d{1,3})|(\S*[a-zA-Z]\S*)$</value>
@@ -98,6 +105,7 @@
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
     </property>
   </bean>
+  
   <bean name="validSipUrlUser" class="org.apache.tapestry.valid.PatternValidator">
     <property name="required" value="false"/>
     <property name="patternString">

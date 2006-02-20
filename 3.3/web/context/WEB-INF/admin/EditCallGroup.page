@@ -27,7 +27,7 @@
   <component id="common" type="ItemCommon">
     <binding name="item" value="callGroup"/>
     <binding name="useExtension" value="true"/>
-    <binding name="nameValidator" value="hivemind:spring:validSipNameRequired"/>
+    <binding name="nameValidator" value="spring-validators:required,validSipName"/>
   </component>
   <component id="ringTable" type="UserRingTable">
     <binding name="rings" value="callGroup.rings"/>
