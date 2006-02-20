@@ -40,7 +40,7 @@
   </component>
   <component id="voiceMail" type="TextField">
     <binding name="value" value="rule.voiceMail"/>
-    <binding name="validator" value="hivemind:spring:validPhone"/>
+    <binding name="validators" value="spring-validators:validPhone"/>
     <binding name="displayName" value="message:label.voiceMail"/>
   </component>
   <component id="voiceMailPrefixLabel" type="FieldLabel">
@@ -48,7 +48,7 @@
   </component>
   <component id="voiceMailPrefix" type="TextField">
     <binding name="value" value="rule.voiceMailPrefix"/>
-    <binding name="validator" value="hivemind:spring:validPhone"/>
+    <binding name="validators" value="spring-valdators:validPhone"/>
     <binding name="displayName" value="message:label.voiceMailPrefix"/>
   </component>
   <component id="formActions" type="FormActions">

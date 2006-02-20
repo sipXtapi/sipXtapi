@@ -29,7 +29,7 @@
   </component>
   <component id="start" type="TextField">
     <binding name="value" value="userExtensionPool.firstExtension"/>
-    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
+    <binding name="validators" value="spring-validators:validPhone,required"/>
     <binding name="displayName" value="message:label.start"/>
   </component>
   <component id="panelEnd" type="FieldPanel">

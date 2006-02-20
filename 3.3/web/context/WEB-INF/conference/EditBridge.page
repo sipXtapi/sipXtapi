@@ -29,7 +29,7 @@
   </component>
   <component id="host" type="TextField">
     <binding name="value" value="bridge.host"/>
-    <binding name="validator" value="hivemind:spring:validHostOrIp"/>
+    <binding name="validators" value="spring-validators:validHostOrIp"/>
     <binding name="displayName" value="message:label.host"/>
   </component>
   <component id="portPanel" type="FieldPanel">

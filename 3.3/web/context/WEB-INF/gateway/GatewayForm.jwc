@@ -29,7 +29,8 @@
   </component>
   <component id="gatewaySerial" type="TextField">
     <binding name="value" value="gateway.serialNumber"/>
-    <binding name="validator" value="hivemind:spring:optionalSerialNumber"/>
+    <binding name="validators" value="spring-validators:validSerialNumber"/>
+    <!-- binding name="transformers" value="spring-transformers:toLower"/ -->
     <binding name="displayName" value="message:label.serial"/>
   </component>
   <component id="gatewayAddressLabel" type="FieldPanel">
@@ -47,7 +48,7 @@
   </component>
   <component id="gatewayDescription" type="TextArea">
     <binding name="value" value="gateway.description"/>
-    <binding name="validators" value="validators:maxLength=255"/>
+    <binding name="validators" value="spring-validators:validFieldSize"/>
     <binding name="displayName" value="message:label.description"/>
   </component>
   <component id="gatewayModelLabel" type="FieldPanel">

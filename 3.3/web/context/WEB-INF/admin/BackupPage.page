@@ -75,7 +75,7 @@
   </component>
   <component id="dailyScheduledTime" type="contrib:DateField">
     <binding name="format" value="hivemind:spring:validTime.format"/>
-    <binding name="validator" value="hivemind:spring:validTime"/>
+    <binding name="validators" value="spring-validators:validTime"/>
     <binding name="required" value="true"/>
     <binding name="date" value="schedule.timeOfDay"/>
     <binding name="displayName" value="literal:Time Of Day"/>

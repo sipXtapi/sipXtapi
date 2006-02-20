@@ -49,7 +49,7 @@
   <component id="expirationColumnValue" type="Block"/>
   <component id="expiration" type="TextField">
     <binding name="value" value="currentRow.expiration"/>
-    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
+    <binding name="validators" value="spring-validators:validPhone,required"/>
     <binding name="displayName" value="literal:Ring for"/>
   </component>
   <component id="addRow" type="LinkSubmit">

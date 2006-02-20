@@ -28,7 +28,7 @@
   </component>
   <component id="externalNumber" type="TextField">
     <binding name="value" value="exception.externalNumber"/>
-    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
+    <binding name="validators" value="spring-validators:validPhone,required"/>
     <binding name="displayName" value="literal:External emergency number"/>
   </component>
   <component id="gatewaysLabel" type="FieldLabel">

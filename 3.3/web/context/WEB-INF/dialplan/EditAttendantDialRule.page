@@ -30,7 +30,7 @@
   </component>
   <component id="common" type="ItemCommon">
     <binding name="item" value="rule"/>
-    <binding name="nameValidator" value="hivemind:spring:validSipNameRequired"/>
+    <binding name="nameValidator" value="spring-validators:required,validSipUserId"/>
   </component>
   <component id="extensionPanel" type="FieldPanel">
     <binding name="field" value="components.extension"/>
@@ -38,7 +38,7 @@
   </component>
   <component id="extension" type="TextField">
     <binding name="value" value="rule.extension"/>
-    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
+    <binding name="validators" value="spring-validators:validPhone,required"/>
     <binding name="displayName" value="message:label.extension"/>
   </component>
   <component id="autoAttendantAliasesPanel" type="FieldPanel">
@@ -48,7 +48,7 @@
   </component>
   <component id="autoAttendantAliases" type="TextField">
     <binding name="value" value="rule.attendantAliases"/>
-    <binding name="validator" value="hivemind:spring:validUsernamePatternSequence"/>
+    <binding name="validators" value="spring-validators:validUsernamePatternSequence"/>
     <binding name="displayName" value="message:label.autoAttendantAliases"/>
   </component>
   <component id="afterHoursAttendantPanel" type="FieldPanel">

@@ -29,7 +29,7 @@
   </component>
   <component id="userName" type="TextField">
     <binding name="value" value="userName"/>
-    <binding name="validator" value="bean:nameValidator"/>
+    <binding name="validators" value="spring-validators:nameValidator"/>
     <binding name="displayName" value="message:label.userName"/>
   </component>
   <component id="panelPassword" type="FieldPanel">

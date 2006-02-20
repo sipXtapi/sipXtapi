@@ -17,7 +17,6 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 import net.sourceforge.jwebunit.WebTester;
 
-import org.sipfoundry.sipxconfig.components.StringSizeValidator;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 import com.meterware.httpunit.WebTable;
@@ -96,7 +95,7 @@ public class GatewaysTestUi extends WebTestCase {
         clickLink("addGateway");
         addGateway("bongo");
         clickLinkWithText("bongo");
-        int limit = StringSizeValidator.DEFAULT_MAX_LEN;
+        int limit = 255; // postgres database field size
         char[] descriptionToLong = new char[limit + 1];
         Arrays.fill(descriptionToLong, 'x');
         char[] descriptionOk = new char[limit];

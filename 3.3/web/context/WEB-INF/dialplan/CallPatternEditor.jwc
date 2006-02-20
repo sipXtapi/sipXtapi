@@ -20,7 +20,7 @@
   </component>
   <component id="prefix" type="TextField">
     <binding name="value" value="pattern.prefix"/>
-    <binding name="validator" value="hivemind:spring:validSipUrlUser"/>
+    <binding name="validators" value="spring-validators:validSipUserId"/>
     <binding name="displayName" value="message:label.prefix"/>
   </component>
   <component id="digits" type="PropertySelection">

@@ -3,38 +3,30 @@ package org.sipfoundry.sipxconfig.api;
 import junit.framework.TestCase;
 
 public class PortingTodoTest extends TestCase {
-	private boolean m_fail = true;
+	private boolean m_supress = true;
 	
 	public void testSortableTableModel() {
-		assertTrue("Abstract table model, class need expression evaluator OrderByTableColumn", m_fail);		
+		assertTrue("Abstract table model, class need expression evaluator OrderByTableColumn", m_supress);		
 	}
 	
 	public void testDownloadCapacity() {
-		assertTrue("Set download capacity in hivemodule.xml", m_fail);				
-	}
-	
-	public void testDownloadService() {
-		assertTrue("Port DownloadService and DownloadLink", m_fail);
+		assertTrue("Set download capacity in hivemodule.xml", m_supress);				
 	}
 	
 	public void testDateColumn() {
-		assertTrue("DateColumn needs expression evaluator", m_fail);
+		assertTrue("DateColumn needs expression evaluator", m_supress);
 	}
 	
 	public void testLocalizedTableRenderer() {
-		assertTrue("LocalizedTableRendererSource Message.getMessage w/default value", m_fail);
+		assertTrue("LocalizedTableRendererSource Message.getMessage w/default value", m_supress);
 	}
-	
-	public void testStringSizeValidation() {
-		assertTrue("StringSizeValidator should be unnex.  textareas now validate", m_fail);
-	}
-	
+		
 	public void testTapestryUtilsGetMessages() {
-		assertTrue("TapestryUtils.getMessages", m_fail);
+		assertTrue("TapestryUtils.getMessages", m_supress);
 	}
     
     public void testLogout() {
-        assertTrue("Logout functionality", m_fail);        
+        assertTrue("Logout functionality", m_supress);        
     }
     
     public void testExceptionPage() {
@@ -54,6 +46,6 @@ public class PortingTodoTest extends TestCase {
 //        protected String getExceptionPageName() {
 //            return "InternalErrorPage";
 //        }
-        assertTrue("Exception Page handling", m_fail);                
+        assertTrue("Exception Page handling", m_supress);                
     }
 }
