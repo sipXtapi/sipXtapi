@@ -9,10 +9,6 @@
   <inject property="settingContext" object="spring:settingDao"/>
   <property name="callback"  persist="session"/>
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    <set name="required" value="literal:true"/>
-    <set name="minimumLength" value="literal:1"/>
-  </bean>
   <component id="errorMsg" type="ErrorMsg">
     <binding name="validator" value="bean:validator"/>
   </component>
@@ -21,7 +17,6 @@
   </component>
   <component id="itemCommon" type="ItemCommon">
     <binding name="item" value="group"/>
-    <binding name="nameValidator" value="bean:nameValidator"/>
     <binding name="useEnabled" value="literal:false"/>
     <binding name="useExtension" value="literal:false"/>
   </component>
