@@ -28,6 +28,7 @@ public class PhoneTest extends TestCase {
         assertEquals("123456789012", Phone.cleanSerialNumber("12:34:56:78:90:12"));
         assertEquals("aabbccddeeff", Phone.cleanSerialNumber("AABBCCDDEEFF"));
         assertEquals("totallybogus", Phone.cleanSerialNumber("totallybogus"));
+        assertNull(Phone.cleanSerialNumber(null));
     }
 
     public void testGenerateAndRemoveProfiles() {

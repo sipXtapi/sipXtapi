@@ -323,10 +323,13 @@ public class Phone extends BeanWithGroups {
     }
 
     public void setSerialNumber(String serialNumber) {
-        m_serialNumber = serialNumber;
+        m_serialNumber = cleanSerialNumber(serialNumber);
     }
 
     public static String cleanSerialNumber(String rawNumber) {
+        if (rawNumber == null) {
+            return null;
+        }
         String clean = rawNumber.toLowerCase();
         clean = clean.replaceAll("[:\\s]*", "");
 

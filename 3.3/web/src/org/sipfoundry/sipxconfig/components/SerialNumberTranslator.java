@@ -11,18 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import java.util.Locale;
-
 import org.apache.tapestry.form.IFormComponent;
+import org.apache.tapestry.form.ValidationMessages;
 import org.apache.tapestry.form.translator.StringTranslator;
+import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
  * Converts an input field to lowercase in tapestry
  */
-public class ToLowerTranslator extends StringTranslator {
+public class SerialNumberTranslator extends StringTranslator {
 
-    protected String formatObject(IFormComponent field, Locale locale, Object object) {
-        String s = super.formatObject(field, locale, object);
-        return s.toLowerCase(locale);
+    protected Object parseText(IFormComponent field, ValidationMessages messages, String text) {
+        return Phone.cleanSerialNumber(text);
     }
 }

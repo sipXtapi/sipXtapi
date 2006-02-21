@@ -87,7 +87,7 @@
   </bean>
 
   <!-- T R A N S L A T O R S -->	
-  <bean name="toLower" class="org.sipfoundry.sipxconfig.components.ToLowerTranslator"/>	
+  <bean name="cleanSerialNumber" class="org.sipfoundry.sipxconfig.components.SerialNumberTranslator"/>	
   <bean name="validTime" class="org.sipfoundry.sipxconfig.components.DateWithTimezoneTranslator">
 	  <!-- timezone has to match w/DailyBackupSchedule, at least for Backup page -->
 	  <property name="timeZone">
