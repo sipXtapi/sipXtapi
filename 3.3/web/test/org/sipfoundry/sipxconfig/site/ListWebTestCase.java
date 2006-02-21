@@ -170,7 +170,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester,
                 m_tableId));
         if (m_exactCheck) {
-            assertTableRowsEqual(buildId("list"), 1, expected);
+            assertTableRowsEqual(m_tableId, 1, expected);
         }
     }
 
