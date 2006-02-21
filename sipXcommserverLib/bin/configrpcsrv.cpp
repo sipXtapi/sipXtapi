@@ -28,11 +28,22 @@
 
 // CONSTANTS
 #define HTTP_PORT               8200    // Default HTTP port
+#define MEMCHECK_DELAY          45
 #define TEST_DATASET            "test.conf"
 #define TEST_FILENAME           "configTest.db"
 #define TEST_VERSION            "0.1"
 #define TEST_LOGFILE            "xmlrpcServer.log"
 
+enum Verbosity
+{
+   Quiet,
+   Normal,
+   Verbose
+} Feedback = Quiet;
+
+int MemCheckDelay = 0;
+int HttpPort = HTTP_PORT;
+int Duration = 30000;
 
 class test_Callback : public ConfigRPC_Callback
 {
@@ -41,6 +52,82 @@ class test_Callback : public ConfigRPC_Callback
    }
 };
 
+void showHelp(char* argv[])
+{
+   printf("Usage: \n"
+          "   %s:\n"
+          "   [ {-v|--verbose} | {-q|--quiet} ]\n"
+          "   [ {-d|--duration} <seconds> ]\n",
+          "   [ {-p|--port} <port> ]\n",
+          "   [ {-h|-?|--help} ]\n"
+          , argv[0]
+          );
+}
+
+void parseArgs(int argc, char* argv[])
+{
+   int optResult = 0;
+   
+   const char* short_options = "d:p:vqmh";
+   
+   const struct option long_options[] =
+      {
+         {"verbose", no_argument, NULL, 'v'},
+         {"quiet",   no_argument, NULL, 'q'},
+         {"memcheck",no_argument, &MemCheckDelay, MEMCHECK_DELAY},
+         {"help",    no_argument, NULL, 'h'},
+         {"port",    required_argument, NULL, 'p'},
+         {"duration",required_argument, NULL, 'd'},
+         {0, 0, 0, 0}
+      };
+
+   while (  (optResult = getopt_long (argc, argv, short_options, long_options, NULL))
+          >= 0
+          )
+   {
+      char* optend;
+
+      switch (optResult)
+      {
+      case 'p':
+         HttpPort = strtoul(optarg, &optend, 10);
+         if ( '\0' != *optend )
+         {
+            fprintf( stderr, "Invalid HTTP port %s\n", optarg );
+            exit(1);
+         }
+         break;
+
+      case 'v':
+         Feedback = Verbose;
+         break;
+
+      case 'q':
+         Feedback = Quiet;
+         break;
+         
+      case 'd':
+         Duration = strtoul(optarg, &optend, 10);
+         Duration *= 1000;
+         if ( '\0' != *optend )
+         {
+            fprintf( stderr, "Invalid duration %s\n", optarg );
+            exit(1);
+         }         
+         break;         
+
+      case 'h':
+      case '?':
+         showHelp(argv);
+         exit(0);
+         break;
+
+      default:
+         break;
+      }
+   }
+}
+
 void initLogger(char* argv[])
 {
     UtlString LogFile = TEST_LOGFILE;
@@ -48,24 +135,44 @@ void initLogger(char* argv[])
                          argv[0]); // name for messages from this program
     OsSysLog::setOutputFile(0, // no cache period
                             LogFile); // log file name
-
-    OsSysLog::setLoggingPriority(PRI_DEBUG);
+   switch (Feedback)
+   {
+   case Quiet:
+      OsSysLog::setLoggingPriority(PRI_WARNING);
+      break;
+   case Normal:
+      OsSysLog::setLoggingPriority(PRI_INFO);
+      break;
+   case Verbose:
+      OsSysLog::setLoggingPriority(PRI_DEBUG);
+      break;
+   }
 }
 
 int main(int argc, char *argv[])
 {
     OsConfigDb configDb;
     UtlString configDbFile = TEST_FILENAME;
-
-    if (configDb.loadFromFile(configDbFile) != OS_SUCCESS)
+    
+    parseArgs(argc, argv);
+    
+    if (MemCheckDelay)
     {
-        configDb.set("TestItem1", "Value1");
-        configDb.set("TestItem2", "Value2");
-        configDb.set("TestItem3", "Value3");
-        configDb.set("TestItem3", "Value4");        
- 
-        configDb.storeToFile(configDbFile);
-    }
+        // Delay 45 seconds to allow memcheck start
+        printf("Wating %d seconds for start of memcheck ...", MemCheckDelay);
+        OsTask::delay(MemCheckDelay * 1000);
+        printf("starting\n");
+    }    
+    
+    initLogger(argv);
+
+    // Reset database content an rewrite the file
+    configDb.set("TestItem1", "Value1");
+    configDb.set("TestItem2", "Value2");
+    configDb.set("TestItem3", "Value3");
+    configDb.set("TestItem3", "Value4");        
+
+    configDb.storeToFile(configDbFile);
     
     ConfigRPC_Callback* confCallbacks;
     ConfigRPC*          configRPC;
@@ -82,10 +189,16 @@ int main(int argc, char *argv[])
     // enter the connector RPC methods in the XmlRpcDispatch table
     ConfigRPC::registerMethods(*rpc);
     
-    while (1)
-    {
-        OsTask::delay(500);
-    }
+    printf("Server will be up for %d seconds on port %d\n", Duration/1000, HttpPort);
+    OsTask::delay(Duration);
     
+    if (MemCheckDelay)
+    {
+        // Delay 45 seconds to allow memcheck start
+        printf("Wating %d seconds for stop of memcheck ...", MemCheckDelay);
+        OsTask::delay(MemCheckDelay * 1000);
+        printf("starting\n");
+    }
+ 
     exit(0);
 }
