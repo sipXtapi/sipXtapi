@@ -89,6 +89,7 @@
   <component id="workingHours" type="For">
     <binding name="source" value="rule.workingTimeAttendant.workingHours"/>
     <binding name="value" value="workingHours"/>
+	<binding name="volatile" value="literal:true"/>
   </component>
   <component id="workingDay" type="WorkingHoursEditor">
     <binding name="workingHours" value="workingHours"/>
