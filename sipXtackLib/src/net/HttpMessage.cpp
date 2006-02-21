@@ -659,6 +659,7 @@ int HttpMessage::get(Url& httpUrl,
     OsSysLog::add(FAC_HTTP, PRI_DEBUG, "HttpMessage::get(3) httpUrl = '%s'",
                   httpUrl.toString().data());
     HttpConnectionMap *pConnectionMap = NULL;
+    HttpConnectionMapEntry* pConnectionMapEntry = NULL;
     UtlString uriString;
     httpUrl.getPath(uriString,
                     TRUE); // Put CGI variable in PATH as this is GET
@@ -677,8 +678,7 @@ int HttpMessage::get(Url& httpUrl,
     UtlString key;    
     if (bPersistent)
     { 
-        pConnectionMap = HttpConnectionMap::getHttpConnectionMap();
-        pConnectionMap->getPersistentUriKey(httpUrl, key);
+
     }
  
     // preserve these fields if they are already set
@@ -710,16 +710,26 @@ int HttpMessage::get(Url& httpUrl,
     int connected = 0;    
     int httpStatus = -1;
    
-    //  Set connection header to keep-alive, try to get existing connection
-    if (bPersistent)
-    {
-        request.setHeaderValue("CONNECTION", "Keep-Alive");         
-        httpSocket = pConnectionMap->getPersistentConnection(key.data());
-    }
     int bytesRead = 0;
     int bytesSent = 0;    
     int sendTries = 0;
-    // Try to send request at least once, on persistent connections retry once if it fails
+    // Set connection header to keep-alive, get a map entry for the URI with the asscoiated socket.
+    // If there is no existing map entry, one will be created with the httpSocket set to NULL.
+    if (bPersistent)
+    {
+        pConnectionMap = HttpConnectionMap::getHttpConnectionMap();
+                
+        request.setHeaderValue(HTTP_CONNECTION_FIELD, "Keep-Alive");         
+        pConnectionMapEntry = pConnectionMap->getPersistentConnection(httpUrl, httpSocket);
+        if (pConnectionMapEntry)
+        {
+            // Lock connection
+            pConnectionMapEntry->mLock.acquire();
+        }
+    }            
+    // Try to send request at least once, on persistent connections retry once if it fails.
+    // Retry on persistent connections because the getPersistentConnection call may return
+    // a non-NULL socket, assuming the connection is persistent when the other side is not.
     while (sendTries < HttpMessageRetries && bytesRead == 0)
     {        
         if (httpSocket == NULL)
@@ -764,9 +774,12 @@ int HttpMessage::get(Url& httpUrl,
                   }
                }
             }
-            if (bPersistent)
+            // If we created a new connection and are persistent then remember the socket in the map
+            // and mark connection as being used
+            if (pConnectionMapEntry)
             {
-                pConnectionMap->addPersistentConnection(key.data(), httpSocket);
+                pConnectionMapEntry->mpSocket = httpSocket;
+                pConnectionMapEntry->mbInUse = true;
             }
         }
         else
@@ -780,42 +793,73 @@ int HttpMessage::get(Url& httpUrl,
                          httpHost.data(), httpPort);
            return httpStatus;
         }
-    
-        // Send the request - always returns 1 for some reason
-         if (httpSocket->isReadyToWrite(maxWaitMilliSeconds))
+      
+        // Send the request - most of the time returns 1 for some reason, 0 indicates problem
+        if (httpSocket->isReadyToWrite(maxWaitMilliSeconds))
+        {
             bytesSent = request.write(httpSocket);
+        }
+
+        if (bytesSent == 0)            
+        {
+            if (pConnectionMap)
+            {
+                // No bytes were sent .. if this is a persistent connection and it failed on retry mark it unused 
+                // in the connection map. Set socket to NULL
+                if (sendTries == HttpMessageRetries-1)
+                { 
+                    pConnectionMapEntry->mbInUse = false;
+                }
+                // Close socket to avoid timeouts in subsequent calls
+                httpSocket->close();
+                pConnectionMapEntry->mpSocket = NULL;
+                httpSocket = NULL;
+                OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
+                              "HttpMessage::get Sending failed sending on persistent connection on try %d",
+                              sendTries);      
+            }
+        }
         if(bytesSent > 0 &&
             httpSocket->isReadyToRead(maxWaitMilliSeconds))
         {
             bytesRead = read(httpSocket);
-            // Close a non-persistent connection, release persistent connection lock
-            if (!bPersistent)
+
+            // Close a non-persistent connection
+            if (pConnectionMap == NULL)
             {
                 httpSocket->close();
             }
             else
             {
-                //OsSysLog::add(FAC_SIP, PRI_ERR, "Before ReleasePersistent connection");
-                pConnectionMap->releasePersistentConnectionLock(key.data());
-                //OsSysLog::add(FAC_SIP, PRI_ERR, "After ReleasePersistent connection");                
+                if (bytesRead == 0)
+                {
+                    // No bytes were read .. if this is a persistent connection and it failed on retry mark it unused  
+                    // in the connection map. Set socket to NULL
+                    if (sendTries == HttpMessageRetries-1)                    
+                    {
+                        pConnectionMapEntry->mbInUse = false;
+                    }
+                    pConnectionMapEntry->mpSocket = NULL;
+                    httpSocket = NULL;
+                    OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
+                                  "HttpMessage::get Receiving failed on persistent connection on try %d",
+                                  sendTries);
+                }
+                else
+                {
+                    // On success don't retry for persistent connection, set sendTries 
+                    // to mamximum to break out of loop
+                    sendTries = HttpMessageRetries;
+                }                
             }
-        }
-        if (bytesRead == 0 && bPersistent)
-        {
-            // No bytes were read .. if this is a persistent connection delete it
-            // from the connection map
-            pConnectionMap->removePersistentConnection(key.data());        
-            httpSocket = NULL;
-            OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
-                          "HttpMessage::get Request failed on persistent connection - try reconnecting once");
-        }
-        else
-        {
-            // Don't retry for non-persistent connection, set sendTries to mamximum
-            sendTries = HttpMessageRetries;
         }
         ++sendTries;
     }
+    if (pConnectionMapEntry)
+    {        
+        // Release lock on persistent connection
+        pConnectionMapEntry->mLock.release(); 
+    }    
     if(bytesRead > 0)
     {
         httpStatus = getResponseStatusCode();

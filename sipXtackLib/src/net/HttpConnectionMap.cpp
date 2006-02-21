@@ -58,24 +58,24 @@ OsBSem HttpConnectionMap::mLock(OsBSem::Q_FIFO, OsBSem::FULL);
 
 HttpConnectionMap* HttpConnectionMap::getHttpConnectionMap()
 {
-    mLock.acquire();
+    OsLock lock(mLock);
+
     if (pInstance == NULL)
     {
         pInstance = new HttpConnectionMap();
     }
-    mLock.release();
     return pInstance;
 }
 
 void HttpConnectionMap::releaseHttpConnectionMap()
 {
-    mLock.acquire();    
+    OsLock lock(mLock);
+    
     if (pInstance)
     {
         delete pInstance;
         pInstance = NULL;
     }
-    mLock.release();
 }
 
 void HttpConnectionMap::clearHttpConnectionMap()
@@ -84,102 +84,67 @@ void HttpConnectionMap::clearHttpConnectionMap()
 }
 /* ============================ MANIPULATORS ============================== */
 
-OsConnectionSocket* HttpConnectionMap::getPersistentConnection(const char* key)
+HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& url, OsConnectionSocket*& socket)
 {
-    UtlString keyString(key);
+    OsLock lock(mLock);
+    UtlString keyString;
+    socket = NULL;
+    
+    getPersistentUriKey(url, keyString);    
+    
     HttpConnectionMapEntry* pEntry = dynamic_cast<HttpConnectionMapEntry*>(findValue(&keyString));
-    OsConnectionSocket* socket = NULL;
     
     if (pEntry)
     {
-        socket = pEntry->pSocket;
-        pEntry->mLock.acquire();
+        // Key found - return socket and mark entry InUse if it wasn't already
+        socket = pEntry->mpSocket;
+        pEntry->mbInUse = true;
     }
-
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                  "HttpConnectionMap::getPersistentConnection - Found persistent connection for %s = %p", key, socket);
-
-    return socket;
-}
-
-OsStatus HttpConnectionMap::addPersistentConnection(const char* key, OsConnectionSocket* socket)
-{
-    OsStatus ret = OS_FAILED;
-    
-    if (socket)
+    else
     {
-        HttpConnectionMapEntry* entry = new HttpConnectionMapEntry();
-        if (entry)
+        // Don't remove entry until locking is figured out
+        /*UtlHashMapIterator iterator(*this);
+        UtlString* pKey;
+        HttpConnectionMapEntry* pTemp;
+        
+        while ((pKey = (UtlString*)iterator()))
         {
-            entry->pSocket = socket;
-            entry->mLock.acquire();
-   
-            if (insertKeyAndValue(new UtlString(key), entry) != NULL)
+            pTemp = dynamic_cast<HttpConnectionMapEntry*>(findValue(pKey));
+            
+            if (!pTemp->mbInUse)
             {
-                ret = OS_SUCCESS;
                 OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
-                              "HttpConnectionMap::addPersistentConnection - Adding persistent connection for %s", key);            
+                              "HttpConnectionMap::getPersistentConnection - destroying unused entry for %s", 
+                              pKey->data());                         
+                destroy(pKey);                              
+            }
+        }*/
+
+        // Now create a new one
+        pEntry = new HttpConnectionMapEntry("ConnectionMapEntry-%d");
+        if (pEntry)
+        {
+            if (insertKeyAndValue(new UtlString(keyString.data()), pEntry) != NULL)
+            {
+                OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
+                              "HttpConnectionMap::getPersistentConnection - Adding persistent connection for %s", 
+                              keyString.data());            
             }
             else
             {
-                delete entry;
                 OsSysLog::add(FAC_HTTP, PRI_ERR,   
-                              "HttpConnectionMap::addPersistentConnection - adding %s failed)",
-                               key);               
+                              "HttpConnectionMap::getPersistentConnection - adding %s (entry %p) failed)",
+                               keyString.data(), pEntry);
+                delete pEntry;                               
             }
         }
-        else
-        {
-            OsSysLog::add(FAC_HTTP, PRI_ERR,   
-                          "HttpConnectionMap::addPersistentConnection - allocating entry memory for %s failed)",
-                          key);                 
-        }
     }
-    else
-    {
-        OsSysLog::add(FAC_HTTP, PRI_ERR,   
-                      "HttpConnectionMap::addPersistentConnection - adding %s failed (socket==NULL)",
-                       key);             
-    }
-    return ret;
-}
 
-OsStatus HttpConnectionMap::removePersistentConnection(const char* key)
-{
-    OsStatus ret = OS_FAILED;
-    UtlString keyString(key);
-    HttpConnectionMapEntry* pEntry = dynamic_cast<HttpConnectionMapEntry*>(findValue(&keyString)); 
+    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                  "HttpConnectionMap::getPersistentConnection - Found entry %p for %s, socket %p", 
+                  pEntry, keyString.data(), socket);
 
-    if (pEntry)
-    {
-        destroy(&keyString);        
-        ret = OS_SUCCESS;
-        
-        OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
-                      "HttpConnectionMap::removePersistentConnection - Removing persistent connection for %s", key);        
-    }
-    else
-    {
-        OsSysLog::add(FAC_HTTP, PRI_ERR, 
-                      "HttpConnectionMap::removePersistentConnection - Removing persistent connection for %s failed", key);                
-    }
-    return ret;
-}
-
-void HttpConnectionMap::releasePersistentConnectionLock(const char* key)
-{
-    UtlString keyString(key);
-    HttpConnectionMapEntry* pEntry = dynamic_cast<HttpConnectionMapEntry*>(findValue(&keyString));
-    
-    if (pEntry != NULL)
-    {
-        pEntry->mLock.release();        
-    }
-    else
-    {
-        OsSysLog::add(FAC_HTTP, PRI_ERR, 
-                      "HttpConnectionMap::releasePersistentConnection - release for %s failed - entry not found", key);               
-    }
+    return pEntry;
 }
 
 void HttpConnectionMap::getPersistentUriKey(const Url& url, UtlString& key)
@@ -219,6 +184,7 @@ void HttpConnectionMap::getPersistentUriKey(const Url& url, UtlString& key)
 /* ============================ INQUIRY =================================== */
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
+
 HttpConnectionMap::HttpConnectionMap()
 {
 }
@@ -228,17 +194,26 @@ HttpConnectionMap::~HttpConnectionMap()
     clearHttpConnectionMap();
 }
 
-HttpConnectionMapEntry::HttpConnectionMapEntry() :
-                                 UtlString("HttpConnectionMapEntry"),
-                                 mLock(OsBSem::Q_FIFO, OsBSem::FULL)
+int HttpConnectionMapEntry::count = 0;
+
+HttpConnectionMapEntry::HttpConnectionMapEntry(const UtlString& name) :
+                                 UtlString(""),
+                                 mLock(OsBSem::Q_FIFO, OsBSem::FULL),
+                                 mbInUse(true)
 {
+    char nameBuffer[256];
+    sprintf(nameBuffer, name.data(), count++);
+    this->append(nameBuffer);
+    mpSocket = NULL;
 }
 
 HttpConnectionMapEntry::~HttpConnectionMapEntry()
 {
-    if (pSocket)
+    //OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+    //              "HttpConnectionMapEntry::destructor %s", this->data());    
+    if (mpSocket)
     {
-        delete pSocket;
-        pSocket = NULL;
+        delete mpSocket;
+        mpSocket = NULL;
     }
 }

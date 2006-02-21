@@ -79,6 +79,7 @@
 #define HTTP_WWW_AUTHENTICATE_FIELD "WWW-AUTHENTICATE"
 #define HTTP_HOST_FIELD  "HOST"
 #define HTTP_ACCEPT_FIELD "ACCEPT"
+#define HTTP_CONNECTION_FIELD "CONNECTION"
 
 // Authentication Constants
 //    these are by specification case-independant tokens,

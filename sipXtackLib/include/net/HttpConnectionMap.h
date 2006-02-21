@@ -31,13 +31,15 @@ class HttpConnectionMapEntry : public UtlString
 {
 public:
     /// Constructor
-    HttpConnectionMapEntry();
+    HttpConnectionMapEntry(const UtlString& name);
     
     /// Destructor
     virtual ~HttpConnectionMapEntry();
     
-    OsConnectionSocket* pSocket; //< pointer to a connection socket
-    OsBSem              mLock;   //< protects access to the connection
+    OsConnectionSocket* mpSocket; //< pointer to a connection socket
+    OsBSem              mLock;    //< protects access to the connection
+    bool                mbInUse;  //< true if entry is in use, false if not
+    static int          count;    //< used to udentify the entry
 };
 
 class HttpConnectionMap : public UtlHashMap
@@ -55,46 +57,22 @@ public:
    /// Release instance of connection map
    void releaseHttpConnectionMap();
    
-   /// Clear all entries in map. Close all socketsa nd deletes them.
+   /// Clear all entries in map. Close all sockets and delete them.
    void clearHttpConnectionMap();
-
-   /// Translate Url into key string that will be used for all further access
-   void getPersistentUriKey(const Url& url, UtlString& key);   
    
-   /// Return a socket for an existing connection or NULL. Locks the connection if non-NULL
-   OsConnectionSocket* getPersistentConnection(const char* key);
+   /// Return a map entry for an existing connection or NULL. Locks the connection if non-NULL
+   HttpConnectionMapEntry* getPersistentConnection(const Url& url, OsConnectionSocket*& socket);
    
    /**<
     * @returns
-    * - pointer to a connection socket if connectionb exists
+    * - pointer to a connection map entry and a connection socket. If no entry exists for a 
+    *   given URI one will be created and th socket pointer will be set to NULL.
     * - NULL if the connection does not exist
     */      
-
-   ///  Add a socket to the connection map for a new key. Lock connection if succssful. 
-   OsStatus addPersistentConnection(const char* key, OsConnectionSocket* socket);
-   
-   /**<
-    * @returns
-    * - OS_SUCCESS if sucessful
-    * - OS_FAILED if the connnection could not be added
-    */         
-  
-   /// Release lock on a connection
-   void releasePersistentConnectionLock(const char* key);
-
-   ///* Remove connection from connection map. Close and delete the socket.
-   OsStatus removePersistentConnection(const char* key);
-   
-   /**<
-    * @returns
-    * - OS_SUCCESS if sucessful
-    * - OS_FAILED if the connnection could not be removed
-    */            
 
 /* ============================ MANIPULATORS ============================== */
 /* ============================ ACCESSORS ================================= */
 /* ============================ INQUIRY =================================== */
-
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -105,6 +83,9 @@ private:
 
     //! Destructor
     virtual ~HttpConnectionMap();
+    
+    /// Translate Url into key string that will be used for all further access
+    void getPersistentUriKey(const Url& url, UtlString& key);       
 
     static HttpConnectionMap* pInstance; ///< pointer to the instance
     static OsBSem mLock;                 ///< protects access to map
