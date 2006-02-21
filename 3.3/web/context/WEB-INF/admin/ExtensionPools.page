@@ -8,8 +8,8 @@
       - P R O P E R T I E S
       -->
   <inject property="extensionPoolContext" object="spring:extensionPoolContext"/>
-  <inject property="userExtensionPool" object="spring:extenstionPoolContext.userExtensionPool"/>
-  <property name="callback"  persist="session"/>
+  <property name="userExtensionPool" initial-value="extensionPoolContext.userExtensionPool"/>
+  <property name="callback" persist="session"/>
   <!--
       - B E A N S 
       -->
@@ -38,7 +38,7 @@
   </component>
   <component id="end" type="TextField">
     <binding name="value" value="userExtensionPool.lastExtension"/>
-    <binding name="validator" value="hivemind:spring:validPhoneRequired"/>
+    <binding name="validators" value="spring-validators:validPhone,required"/>
     <binding name="displayName" value="message:label.end"/>
   </component>
   <component id="formActions" type="FormActions">

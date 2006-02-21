@@ -28,25 +28,24 @@ public abstract class ExtensionPoolsPage extends PageWithCallback {
     /**
      * Properties
      */
-    
+
     public abstract ExtensionPoolContext getExtensionPoolContext();
-    public abstract void setExtensionPoolContext(ExtensionPoolContext pool);
-    
+
     public abstract ExtensionPool getUserExtensionPool();
-    public abstract void setUserExtensionPool(ExtensionPool pool);
-    
+
     public abstract ICallback getCallback();
+
     public abstract void setCallback(ICallback callback);
-    
+
     /**
      * Listeners
-     */  
+     */
     public void commit(IRequestCycle cycle_) {
         // Proceed only if Tapestry validation succeeded
         if (!TapestryUtils.isValid(this)) {
             return;
         }
-        
+
         // Complain if the extension pool upper limit is lower than the lower limit
         ExtensionPool pool = getUserExtensionPool();
         if (pool.getFirstExtension() != null && pool.getLastExtension() != null) {
@@ -55,21 +54,21 @@ public abstract class ExtensionPoolsPage extends PageWithCallback {
                 return;
             }
         }
-        
+
         // For now, we are not letting the user edit the pool's nextExtension value,
         // which controls where to start looking for the next free extension.
         // Set it to be the same as the start of the range.
         pool.setNextExtension(pool.getFirstExtension());
-        
+
         getExtensionPoolContext().saveExtensionPool(pool);
     }
-    
+
     /**
      * Utilities
-     */  
+     */
     private void recordError(String messageId) {
         IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
         delegate.record(getMessages().getMessage(messageId), ValidationConstraint.TOO_SMALL);
     }
-    
+
 }
