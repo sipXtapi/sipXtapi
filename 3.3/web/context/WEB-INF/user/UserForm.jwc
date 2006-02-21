@@ -1,28 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification class="org.sipfoundry.sipxconfig.site.user.UserForm" allow-body="no" allow-informal-parameters="no">
+<component-specification class="org.sipfoundry.sipxconfig.site.user.UserForm" allow-body="no"
+  allow-informal-parameters="no">
   <description>UserForm shows/edits a User</description>
-  <parameter name="user"  required="yes" />
-  <parameter name="alwaysShowSipPassword"   default-value="false"/>
+  
+  <parameter name="user" required="yes"/>
+  <parameter name="alwaysShowSipPassword" default-value="false"/>
+  
   <!--
-      - P R O P E R T I E S
-      -->
+  - P R O P E R T I E S
+  -->
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="extensionPoolContext" object="spring:extensionPoolContext"/>
-  <property name="pin" />
-  <property name="showSipPassword"  persist="session"/>
+  
+  <property name="pin"/>
+  <property name="showSipPassword" persist="session"/>
   <!-- space-delimited list of aliases -->
-  <property name="aliasesString" />
+  <property name="aliasesString"/>
+  
   <!--
-      - B E A N S 
-      -->
+  - B E A N S 
+  -->
   <bean name="userGroupSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <set name="collection" value="coreContext.groups"/>
     <set name="labelExpression" value="literal:name"/>
   </bean>
+  
   <!--
-      - C O M P O N E N T S
-      -->
+  - C O M P O N E N T S
+  -->
   <component id="firstNamePanel" type="FieldPanel">
     <binding name="field" value="components.firstName"/>
     <binding name="label" value="message:label.firstName"/>
@@ -79,12 +85,14 @@
     <binding name="validators" value="spring-validators:validUsernamePatternSequence"/>
     <binding name="displayName" value="message:label.aliases"/>
   </component>
+  
   <component id="ifRenderSipPassword" type="If">
     <binding name="condition" value="alwaysShowSipPassword || showSipPassword"/>
   </component>
   <component id="ifRenderToggle" type="If">
     <binding name="condition" value="!alwaysShowSipPassword"/>
   </component>
+  
   <component id="toggleShowSipPassword" type="ToggleLink">
     <binding name="toggle" value="showSipPassword"/>
   </component>
