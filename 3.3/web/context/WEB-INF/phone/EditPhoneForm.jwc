@@ -17,10 +17,6 @@
   <!--
       - B E A N S 
       -->
-  <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    <set name="required" value="literal:false"/>
-    <set name="minimumLength" value="literal:1"/>
-  </bean>
   <bean name="phoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <set name="collection" value="phoneContext.availablePhoneModels"/>
     <set name="labelExpression" value="literal:label"/>
@@ -49,7 +45,7 @@
   <component id="serialNumber" type="TextField">
     <binding name="value" value="phone.serialNumber"/>
     <binding name="validators" value="spring-validators:validSerialNumber"/>
-    <!-- binding name="translator value="spring-translator:toLower"/ -->
+    <binding name="translator" value="translator:toLower"/>
     <binding name="displayName" value="literal:Serial number"/>
   </component>
   <component id="phoneModelLabel" type="FieldLabel">

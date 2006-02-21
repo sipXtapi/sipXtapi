@@ -61,7 +61,8 @@
   <!-- TODO: tolowercase transformer -->
   <bean name="validSerialNumber" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>^([a-f]|:|\d){12}?$</value>
+	  <!-- accept capital. Translator (called after validators) will convert to lower case -->
+      <value>^([a-f]|[A-F]|:|\d){12}?$</value>
     </property>
     <property name="message">
       <value>Please enter exactly 12 hexadecimal digits (0-9 and a-f), for example: 0040214131fa</value>
@@ -91,8 +92,6 @@
         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
     </property>
   </bean>
-
-
   
 	<!-- used in item common - most names in sipXconfig have the same limitation as user URL -->
   <bean id="limitedBackupCountModelPart1"

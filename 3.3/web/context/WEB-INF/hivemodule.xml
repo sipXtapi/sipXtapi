@@ -64,5 +64,10 @@
   <contribution configuration-id="tapestry.bindings.BindingFactories">
     <binding prefix="spring-validators" service-id="SpringValidatorsBindingFactory"/>
   </contribution>  
-  
+
+  <!-- translators -->
+  <contribution configuration-id="tapestry.form.translator.Translators">
+    <bean name="toLower" class="components.ToLowerTranslator"/>
+  </contribution>   
+	
 </module>

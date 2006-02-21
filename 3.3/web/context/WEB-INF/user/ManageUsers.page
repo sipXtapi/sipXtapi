@@ -14,10 +14,6 @@
 	  -->
   <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <bean name="noopValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    <set name="required" value="literal:false"/>
-    <set name="minimumLength" value="literal:0"/>
-  </bean>
   <!--
 	  - C O M P O N E N T S
 	  -->

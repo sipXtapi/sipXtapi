@@ -10,10 +10,6 @@
   <property name="password" />
   <!-- B E A N S -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <bean name="nameValidator" class="org.apache.tapestry.valid.StringValidator" lifecycle="page">
-    <set name="required" value="literal:true"/>
-    <set name="minimumLength" value="literal:1"/>
-  </bean>
   <!-- C O M P O N E N T S -->
   <component id="shell" type="Shell">
     <binding name="stylesheet" value="assets.stylesheet"/>
@@ -29,7 +25,7 @@
   </component>
   <component id="userName" type="TextField">
     <binding name="value" value="userName"/>
-    <binding name="validators" value="spring-validators:nameValidator"/>
+    <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.userName"/>
   </component>
   <component id="panelPassword" type="FieldPanel">
