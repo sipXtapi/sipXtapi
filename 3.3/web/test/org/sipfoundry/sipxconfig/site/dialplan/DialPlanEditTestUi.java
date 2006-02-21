@@ -191,13 +191,13 @@ public class DialPlanEditTestUi extends WebTestCase {
         // no delete link
         assertLinkNotPresent("pattern:delete");
         // add 2 more
-        SiteTestHelper.clickSubmitLink(tester, "pattern:add");
-        SiteTestHelper.clickSubmitLink(tester, "pattern:add");
+        clickLink("pattern:add");
+        clickLink("pattern:add");
 
         // delete 2
 
-        SiteTestHelper.clickSubmitLink(tester, "pattern:delete");
-        SiteTestHelper.clickSubmitLink(tester, "pattern:delete");
+        clickLink("pattern:delete");
+        clickLink("pattern:delete");
         // no delete link again
         assertLinkNotPresent("pattern:delete");
     }
@@ -218,7 +218,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         String[][] gateways = new String[gatewayCount][];
 
         for (int i = 0; i < gatewayCount; i++) {
-            SiteTestHelper.clickSubmitLink(tester, "addGatewayLink");
+            clickLink("gateway:add");
 
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
@@ -254,7 +254,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertEquals(1, SiteTestHelper.getRowCount(tester, "table"));
 
         // test adding existing gateways
-        SiteTestHelper.clickSubmitLink(tester, "selectGatewayLink");
+        clickLink("gateway:select");
         for (int i = 0; i < gatewayCount; i++) {
             SiteTestHelper.selectRow(tester, i, true);
         }

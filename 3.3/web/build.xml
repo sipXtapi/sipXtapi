@@ -102,6 +102,7 @@
     <pathelement path="${easymockclassextension.jar}"/>
     <pathelement path="${httpunit.jar}"/>
     <pathelement path="${jwebunit.jar}"/>
+    <pathelement path="${js.jar}"/>
     <pathelement path="${jetty.jar}"/>
     <pathelement path="${servlet.jsp.jar}"/>
     <pathelement path="${jasper-runtime.jar}"/>

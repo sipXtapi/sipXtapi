@@ -39,7 +39,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         assertElementPresent("item:enabled");
 
         assertLinkPresent("callgroup:addRing");
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "tableView"));
         assertButtonPresent("userring:delete");
         assertButtonPresent("userring:moveUp");
         assertButtonPresent("userring:moveDown");
@@ -48,20 +48,20 @@ public class EditCallGroupTestUi extends WebTestCase {
     public void testAddDeleteRing() throws Exception {
         addUser();
 
-        assertEquals(2, SiteTestHelper.getRowCount(tester, "userring:list"));
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "tableView"));
 
         reopenScreen();
 
-        assertEquals(2, SiteTestHelper.getRowCount(tester, "userring:list"));
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "tableView"));
 
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("userring:delete");
 
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "tableView"));
 
         reopenScreen();
 
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "tableView"));
     }
 
     private void reopenScreen() {
@@ -90,7 +90,8 @@ public class EditCallGroupTestUi extends WebTestCase {
     }
 
     private void addUser() throws Exception {
-        SiteTestHelper.clickSubmitLink(getTester(), "addRow");
+        //SiteTestHelper.clickSubmitLink(getTester(), "addRow");
+        clickLink("callgroup:addRing");
 
         clickButton("user:search");
         SiteTestHelper.selectRow(tester, 0, true);

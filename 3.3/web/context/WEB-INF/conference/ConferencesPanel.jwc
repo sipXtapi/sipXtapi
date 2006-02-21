@@ -40,7 +40,4 @@
     <binding name="listener" value="selectListener"/>
     <binding name="parameters" value="currentRow.id"/>
   </component>
-  <component id="selectedRow" type="Checkbox">
-    <binding name="value" value="selections.selected[currentRow.id]"/>
-  </component>
 </component-specification>

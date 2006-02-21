@@ -34,7 +34,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("resetConferenceBridgeContext");
         clickLink("EditBridge");
-        setWorkingForm("bridge:form");
+        setWorkingForm("form_0");
         setFormElement("name", "bridge_test");
         clickButton("form:apply");
     }
@@ -49,10 +49,6 @@ public class EditBridgeTestUi extends ListWebTestCase {
         return new String[] {
             "conference" + i, "444" + i, "Description" + i
         };
-    }
-
-    protected void clickAddLink() throws Exception {
-        SiteTestHelper.clickSubmitLink(tester, "addLink");
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {

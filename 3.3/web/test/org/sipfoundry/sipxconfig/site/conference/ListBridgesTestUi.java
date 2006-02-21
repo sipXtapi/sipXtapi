@@ -39,10 +39,6 @@ public class ListBridgesTestUi extends ListWebTestCase {
         };
     }
 
-    protected void clickAddLink() throws Exception {
-        SiteTestHelper.clickSubmitLink(tester, "addLink");
-    }
-
     protected Object[] getExpectedTableRow(String[] paramValues) {
         return ArrayUtils.add(paramValues, 1, "false");
     }

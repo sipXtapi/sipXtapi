@@ -55,5 +55,6 @@
 	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/tapestry/4.0/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.0.jar"/>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.6R2.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
