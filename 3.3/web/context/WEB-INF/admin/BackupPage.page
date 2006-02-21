@@ -73,11 +73,10 @@
     <binding name="model" value="bean:scheduledDaysPropertyModel"/>
     <binding name="value" value="schedule.scheduledDay"/>
   </component>
-  <component id="dailyScheduledTime" type="contrib:DateField">
-    <binding name="format" value="hivemind:spring:validTime.format"/>
-    <binding name="validators" value="spring-validators:validTime"/>
-    <binding name="required" value="true"/>
-    <binding name="date" value="schedule.timeOfDay"/>
+  <component id="dailyScheduledTime" type="TextField">
+    <binding name="validators" value="validators:required"/>
+	<binding name="translator" value="hivemind:spring:validTime"/>
+    <binding name="value" value="schedule.timeOfDay"/>
     <binding name="displayName" value="literal:Time Of Day"/>
   </component>
   <component id="ok" type="Submit">

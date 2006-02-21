@@ -18,7 +18,7 @@
      -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="autoAttendants" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="literal:dialPlanContext.autoAttendants"/>
+    <set name="collection" value="dialPlanContext.autoAttendants"/>
     <set name="labelExpression" value="literal:name"/>
   </bean>
   <!--
@@ -58,7 +58,7 @@
   </component>
   <component id="afterHoursAttendant" type="PropertySelection">
     <binding name="value" value="rule.afterHoursAttendant.attendant"/>
-    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants)"/>
   </component>
   <component id="holidayAttendantPanel" type="FieldPanel">
     <binding name="field" value="components.holidayAttendant"/>
@@ -67,7 +67,7 @@
   </component>
   <component id="holidayAttendant" type="PropertySelection">
     <binding name="value" value="rule.holidayAttendant.attendant"/>
-    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants)"/>
     <binding name="onchange" value="literal:javascript:this.form.submit();"/>
   </component>
   <component id="holidayDates" type="HolidaysEditor">
@@ -83,7 +83,7 @@
   </component>
   <component id="workingTimeAttendant" type="PropertySelection">
     <binding name="value" value="rule.workingTimeAttendant.attendant"/>
-    <binding name="model" value="hivemind:spring:tapestry.instructUserToSelect(beans.autoAttendants)"/>
+    <binding name="model" value="tapestry.instructUserToSelect(beans.autoAttendants)"/>
     <binding name="submitOnChange" value="true"/>
   </component>
   <component id="workingHours" type="For">

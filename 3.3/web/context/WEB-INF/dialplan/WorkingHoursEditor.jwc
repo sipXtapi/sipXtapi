@@ -13,22 +13,20 @@
   <component id="fromLabel" type="FieldLabel">
     <binding name="field" value="components.from"/>
   </component>
-  <component id="from" type="contrib:DateField">
-    <binding name="format" value="hivemind:spring:validTime.format"/>
-    <binding name="validators" value="spring-validators:validTime"/>
-    <binding name="required" value="true"/>
-    <binding name="date" value="workingHours.start"/>
+  <component id="from" type="TextField">
+    <binding name="validators" value="validators:required"/>
+	<binding name="translator" value="hivemind:spring:validTime"/>
+    <binding name="value" value="workingHours.start"/>
     <binding name="displayWidth" value="8"/>
     <binding name="displayName" value="message:label.from"/>
   </component>
   <component id="toLabel" type="FieldLabel">
     <binding name="field" value="components.to"/>
   </component>
-  <component id="to" type="contrib:DateField">
-    <binding name="format" value="hivemind:spring:validTime.format"/>
-    <binding name="validators" value="spring-validators:validTime"/>
-    <binding name="required" value="true"/>
-    <binding name="date" value="workingHours.stop"/>
+  <component id="to" type="TextField">
+    <binding name="validators" value="validators:required"/>
+	<binding name="translator" value="hivemind:spring:validTime"/>
+    <binding name="value" value="workingHours.stop"/>
     <binding name="displayWidth" value="8"/>
     <binding name="displayName" value="message:label.to"/>
   </component>
