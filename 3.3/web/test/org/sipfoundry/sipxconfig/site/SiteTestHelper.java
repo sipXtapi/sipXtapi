@@ -116,7 +116,9 @@ public class SiteTestHelper {
      */
     public static void assertNoException(WebTester tester) {
         try {
-            tester.assertElementNotPresent("exceptionDisplay");
+            // FIXME: use better test - exception page can change, we used to test for element with id but that's not possible in T4
+            // tester.assertElementNotPresent("exceptionDisplay");
+            Assert.assertFalse("Exception".equals(tester.getDialog().getResponsePageTitle()));
         } catch (AssertionFailedError e) {
             tester.dumpResponse(System.err);
             throw e;

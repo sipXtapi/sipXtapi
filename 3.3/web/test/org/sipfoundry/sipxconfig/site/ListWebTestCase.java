@@ -175,10 +175,12 @@ public abstract class ListWebTestCase extends WebTestCase {
     }
 
     protected final void addItem(String[] names, String[] values) throws Exception {
+        SiteTestHelper.assertNoException(tester);
         assertEquals(names.length, values.length);
         clickAddLink();
         setAddParams(names, values);
         clickButton("form:ok");
+        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
     }
 
