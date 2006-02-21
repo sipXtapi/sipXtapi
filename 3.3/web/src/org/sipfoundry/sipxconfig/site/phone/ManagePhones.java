@@ -84,7 +84,7 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         Object[] params = cycle.getListenerParameters();
         Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setPhoneId(phoneId);
-        cycle.activate(page);
+        page.activatePageWithCallback(PAGE, cycle);
     }
 
     public void editLine(IRequestCycle cycle) {

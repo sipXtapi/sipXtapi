@@ -323,7 +323,7 @@ public class Phone extends BeanWithGroups {
     }
 
     public void setSerialNumber(String serialNumber) {
-        m_serialNumber = cleanSerialNumber(serialNumber);
+        m_serialNumber = serialNumber;
     }
 
     public static String cleanSerialNumber(String rawNumber) {
