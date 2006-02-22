@@ -846,6 +846,16 @@ int SipRefreshManager::dumpRefreshStates(UtlString& dumpString)
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
+void SipRefreshManager::lock()
+{
+    mRefreshMgrMutex.acquire();
+}
+
+void SipRefreshManager::unlock()
+{
+    mRefreshMgrMutex.release();
+}
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 RefreshDialogState* SipRefreshManager::getAnyDialog(UtlString& messageDialogHandle)
