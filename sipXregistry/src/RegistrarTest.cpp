@@ -143,6 +143,8 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
                mRetryTime = 0;
             }
          }
+
+         delete peers;
       }
       else
       {
