@@ -159,6 +159,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/sipxdialog-config.in
 
 %attr(755,root,root) %{_datadir}/sipx/schema/watchdog.xsd
+%attr(755,root,root) %{_datadir}/sipx/schema/processdefinitions.xsd
 
 %attr(755,root,root) %{_bindir}/sipxpresence.sh
 %attr(755,root,root) %{_bindir}/sipxpresence
