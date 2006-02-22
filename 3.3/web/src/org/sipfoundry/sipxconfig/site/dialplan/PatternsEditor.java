@@ -21,8 +21,9 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 /**
  * PatternsEditor
  * 
- * TODO: we may want to use direct links and rule id's in future. As it's
- * implemented now, this page has problems with stale links.
+ * FIXME: when there are errors we should not add or delete any patters
+ * 
+ * FIXME: for loop should take explicit key converter
  */
 public abstract class PatternsEditor extends BaseComponent {
     private Object m_patternToBeRemoved;
@@ -47,8 +48,8 @@ public abstract class PatternsEditor extends BaseComponent {
     }
 
     /**
-     * Once cannot modify the patterns list inside of the delete listener.
-     * Instead delete listener just sets the flag.
+     * Once cannot modify the patterns list inside of the delete listener. Instead delete listener
+     * just sets the flag.
      */
     private void delayedDelete() {
         if (null != m_patternToBeRemoved) {
@@ -59,12 +60,11 @@ public abstract class PatternsEditor extends BaseComponent {
     }
 
     /**
-     * There is no "componentSubmit" method that would be called after rendering
-     * is done (just before or after form submit listener called). Listeners
-     * cannot really modify values of the properties that are used for rendering
-     * (specifically listener cannot remove the item from the list used in
-     * Foreach). According to e-mail on the Tapestry users list one has to override
-     * renderComponent and put the processing of such delayed listeners there.
+     * There is no "componentSubmit" method that would be called after rendering is done (just
+     * before or after form submit listener called). Listeners cannot really modify values of the
+     * properties that are used for rendering (specifically listener cannot remove the item from
+     * the list used in Foreach). According to e-mail on the Tapestry users list one has to
+     * override renderComponent and put the processing of such delayed listeners there.
      */
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         super.renderComponent(writer, cycle);

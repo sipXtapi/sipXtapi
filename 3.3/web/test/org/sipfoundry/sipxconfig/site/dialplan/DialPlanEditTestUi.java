@@ -93,11 +93,13 @@ public class DialPlanEditTestUi extends WebTestCase {
             setFormElement("name", "");
             clickButton("form:ok");
             // if validation kicks in we are on the same page
-            assertTextPresent("You must enter a value for Name.");
+            SiteTestHelper.assertNoException(tester);
+            SiteTestHelper.assertUserError(tester);
             setFormElement("name", name + "changed");
             clickButton("form:ok");
             // a link corresponding to new name should be in now
-            SiteTestHelper.assertNoException(getTester());
+            SiteTestHelper.assertNoException(tester);
+            SiteTestHelper.assertNoUserError(tester);
             assertLinkPresentWithText(name + "changed");
         }
     }
@@ -109,6 +111,8 @@ public class DialPlanEditTestUi extends WebTestCase {
             // 2 means custom...
             selectOption("ruleTypeSelection", "Custom");
             clickButton("selectRule:next");
+            
+            SiteTestHelper.assertNoException(tester);
 
             assertLinkNotPresent("pattern:delete");
             assertLinkPresent("pattern:add");
@@ -116,9 +120,9 @@ public class DialPlanEditTestUi extends WebTestCase {
             setFormElement("name", row[0]);
             setFormElement("description", row[2]);
             // dial pattern prefix
-            setFormElement("prefix", "333");
+            setFormElement(SiteTestHelper.getIndexedId("prefix", 0), "333");
             // call pattern prefix
-            setFormElement("prefix$0", "444");
+            setFormElement(SiteTestHelper.getIndexedId("prefix", 1), "444");
 
             checkAddDeletePattern();
 
@@ -192,6 +196,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertLinkNotPresent("pattern:delete");
         // add 2 more
         clickLink("pattern:add");
+        SiteTestHelper.assertNoException(tester);
         clickLink("pattern:add");
 
         // delete 2
@@ -210,7 +215,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertButtonPresent("gateway:moveUp");
         assertButtonPresent("gateway:moveDown");
 
-        assertTablePresent("list:gateway");
+        assertTablePresent("table");
 
         // add gateways
 
@@ -229,14 +234,14 @@ public class DialPlanEditTestUi extends WebTestCase {
         }
 
         assertEquals(gatewayCount + 1, SiteTestHelper.getRowCount(tester, "table"));
-        assertTableRowsEqual("list:gateway", 1, gateways);
+        assertTableRowsEqual("table", 1, gateways);
 
         // test moving up/down
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("gateway:moveUp");
         // no changes expected - cannot move up
         SiteTestHelper.assertNoException(getTester());
-        assertTableRowsEqual("list:gateway", 1, gateways);
+        assertTableRowsEqual("table", 1, gateways);
 
         // move down one row - no other changes expected
         clickButton("gateway:moveDown");
@@ -255,6 +260,7 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         // test adding existing gateways
         clickLink("gateway:select");
+        SiteTestHelper.assertNoException(tester);
         for (int i = 0; i < gatewayCount; i++) {
             SiteTestHelper.selectRow(tester, i, true);
         }

@@ -48,7 +48,7 @@
   </component>
   <component id="voiceMailPrefix" type="TextField">
     <binding name="value" value="rule.voiceMailPrefix"/>
-    <binding name="validators" value="spring-valdators:validPhone"/>
+    <binding name="validators" value="spring-validators:validPhone"/>
     <binding name="displayName" value="message:label.voiceMailPrefix"/>
   </component>
   <component id="formActions" type="FormActions">

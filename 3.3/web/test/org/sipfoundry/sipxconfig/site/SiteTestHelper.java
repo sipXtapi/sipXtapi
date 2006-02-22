@@ -132,6 +132,7 @@ public class SiteTestHelper {
     public static void assertNoUserError(WebTester tester) {
         Element element = tester.getDialog().getElement("user:error");
         if (null != element) {
+            tester.dumpResponse(System.err);            
             Assert.fail("User error on page: " + element.getFirstChild().getNodeValue());
         }
     }
@@ -139,6 +140,7 @@ public class SiteTestHelper {
     public static void assertUserError(WebTester tester) {
         Element element = tester.getDialog().getElement("user:error");
         if (null == element) {
+            tester.dumpResponse(System.err);
             Assert.fail("Expected user error on the page.");
         }
     }

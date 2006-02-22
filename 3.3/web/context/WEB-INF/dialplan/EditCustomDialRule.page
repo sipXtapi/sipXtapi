@@ -17,7 +17,7 @@
      -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="permissionsModel" class="org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel" lifecycle="page">
-    <set name="options" value="literal:callHandlingPermissions"/>
+    <set name="options" value="callHandlingPermissions"/>
   </bean>
   <!--
      - C O M P O N E N T S

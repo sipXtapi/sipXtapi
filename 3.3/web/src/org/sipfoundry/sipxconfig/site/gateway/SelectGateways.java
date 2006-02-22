@@ -34,11 +34,7 @@ public abstract class SelectGateways extends BasePage implements PageBeginRender
     // virtual properties
     public abstract DialPlanContext getDialPlanContext();
 
-    public abstract void setDialPlanContext(DialPlanContext manager);
-
     public abstract GatewayContext getGatewayContext();
-
-    public abstract void setGatewayContext(GatewayContext context);
 
     public abstract Integer getRuleId();
 
