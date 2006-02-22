@@ -6,7 +6,10 @@
   <parameter name="patterns" required="yes"/>
   
   <!-- P R O P E R T I E S -->
+  <property name="index"/>
   <property name="pattern"/>
+  <property name="addPattern"/>
+  <property name="indexToRemove"/>
   
   <!-- B E A N S -->
   <bean name="digitsOnlyModel" class="org.sipfoundry.sipxconfig.components.LenSelectionModel" lifecycle="page">
@@ -15,11 +18,12 @@
   </bean>
   <bean name="digitsModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="page">
     <set name="model" value="bean:digitsOnlyModel"/>
-    <set name="extraLabel">"Any number of digits"</set>
+    <set name="extraLabel" value="message:label.anyDigits"/>
   </bean>
   <!-- C O M P O N E N T S -->
   <component id="foreach" type="For">
     <binding name="source" value="patterns"/>
+    <binding name="index" value="index"/>
     <binding name="value" value="pattern"/>
     <!-- FIXME: this is not safe here - list of patterns can change between render and rewind
       however we were not handling this properly before and it is not an easy fix
@@ -32,16 +36,18 @@
   <component id="prefix" type="TextField">
     <binding name="value" value="pattern.prefix"/>
     <binding name="validators" value="spring-validators:validSipUserId"/>
-    <binding name="displayName" value="literal:Prefix"/>
+    <binding name="displayName" value="message:label.prefix"/>
   </component>
   <component id="add" type="LinkSubmit">
-    <binding name="listener" value="listener:add"/>
+    <binding name="selected" value="addPattern"/>
+    <binding name="tag" value="true"/>
   </component>
   <component id="delete" type="LinkSubmit">
-    <binding name="listener" value="listener:delete"/>
+    <binding name="selected" value="indexToRemove"/>
+    <binding name="tag" value="index"/>
   </component>
   <component id="conditionalAdd" type="If">
-    <binding name="condition" value="last"/>
+    <binding name="condition" value="patterns.size - 1 == index"/>
   </component>
   <component id="conditionalDelete" type="If">
     <binding name="condition" value="patterns.size > 1"/>
