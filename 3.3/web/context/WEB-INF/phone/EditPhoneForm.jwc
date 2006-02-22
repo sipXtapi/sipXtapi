@@ -44,7 +44,7 @@
   </component>
   <component id="serialNumber" type="TextField">
     <binding name="value" value="phone.serialNumber"/>
-    <binding name="validators" value="spring-validators:validSerialNumber"/>
+    <binding name="validators" value="spring-validators:validSerialNumber,required"/>
     <binding name="translator" value="hivemind:spring:cleanSerialNumber"/>
     <binding name="displayName" value="literal:Serial number"/>
   </component>
