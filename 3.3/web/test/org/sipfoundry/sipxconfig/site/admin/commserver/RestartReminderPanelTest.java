@@ -15,6 +15,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
@@ -65,7 +66,7 @@ public class RestartReminderPanelTest extends TestCase {
         contextCtrl.replay();
 
         m_restartReminder.setRestartLater(true);
-        m_restartReminder.setSipxProcessContext(context);
+        PropertyUtils.write(m_restartReminder, "sipxProcessContext", context);
 
         m_restartReminder.restart();
 
@@ -79,7 +80,7 @@ public class RestartReminderPanelTest extends TestCase {
         contextCtrl.replay();
 
         m_restartReminder.setRestartLater(false);
-        m_restartReminder.setSipxProcessContext(context);
+        PropertyUtils.write(m_restartReminder, "sipxProcessContext", context);
 
         m_restartReminder.restart();
 
