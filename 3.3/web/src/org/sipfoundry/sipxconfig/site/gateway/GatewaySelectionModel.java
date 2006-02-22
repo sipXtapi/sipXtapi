@@ -54,7 +54,7 @@ public class GatewaySelectionModel implements IPropertySelectionModel {
     }
 
     public Object translateValue(String value) {
-        if(value == null) {
+        if (value == null) {
             return null;
         }
         Integer id = Integer.decode(value);

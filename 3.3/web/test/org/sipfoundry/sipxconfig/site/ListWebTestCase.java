@@ -165,7 +165,10 @@ public abstract class ListWebTestCase extends WebTestCase {
             SiteTestHelper.selectRow(tester, toBeRemoved[i], true);
         }
 
-        clickButton(buildId("delete"));
+        clickDeleteButton();
+        
+        SiteTestHelper.assertNoUserError(tester);
+        SiteTestHelper.assertNoException(tester);
 
         assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester,
                 m_tableId));
@@ -174,10 +177,16 @@ public abstract class ListWebTestCase extends WebTestCase {
         }
     }
 
+    protected void clickDeleteButton() {
+        clickButton(buildId("delete"));
+    }
+
     protected final void addItem(String[] names, String[] values) throws Exception {
         SiteTestHelper.assertNoException(tester);
         assertEquals(names.length, values.length);
         clickAddLink();
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
         setAddParams(names, values);
         clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);

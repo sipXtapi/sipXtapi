@@ -27,8 +27,6 @@ public abstract class TablePanel extends BaseComponent {
 
     public abstract IActionListener getAction();
 
-    public abstract IBinding getChangedBinding();
-
     public abstract CoreContext getCoreContext();
 
     /**
@@ -64,9 +62,9 @@ public abstract class TablePanel extends BaseComponent {
      * Sets changed to true - only if 'changed' parameter was provided
      */
     private void safeSetChanged() {
-        IBinding changed = getChangedBinding();
-        if (changed != null) {
-            changed.setObject(Boolean.TRUE);
+        IBinding changedBinding = getBinding("changed");
+        if (changedBinding != null) {
+            changedBinding.setObject(Boolean.TRUE);
         }
     }
 }

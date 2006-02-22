@@ -116,7 +116,8 @@ public class SiteTestHelper {
      */
     public static void assertNoException(WebTester tester) {
         try {
-            // FIXME: use better test - exception page can change, we used to test for element with id but that's not possible in T4
+            // FIXME: use better test - exception page can change, we used to test for element
+            // with id but that's not possible in T4
             // tester.assertElementNotPresent("exceptionDisplay");
             Assert.assertFalse("Exception".equals(tester.getDialog().getResponsePageTitle()));
         } catch (AssertionFailedError e) {
@@ -132,7 +133,7 @@ public class SiteTestHelper {
     public static void assertNoUserError(WebTester tester) {
         Element element = tester.getDialog().getElement("user:error");
         if (null != element) {
-            tester.dumpResponse(System.err);            
+            tester.dumpResponse(System.err);
             Assert.fail("User error on page: " + element.getFirstChild().getNodeValue());
         }
     }
@@ -379,4 +380,29 @@ public class SiteTestHelper {
         }
     }
 
+    /**
+     * Initializes upload elements on the form using ad hoc created temporary file.
+     * 
+     * Tapestry forms that contain Upload elements cannot be tested by HTTPUnit unless upload
+     * elements are initialized. Looks like HTTPUnit never bother to submit this fields if they
+     * are empty which does not stop tapestry from trying to parse them. NullPointerException in
+     * Upload.rewindFormComponent is the usual sign that this is a problem.
+     * 
+     * @param form form for which upload fields will be initialized
+     * @param fileNamePrefix at least 3 chatracters - use test name
+     */
+    public static void initUploadFields(WebForm form, String fileNamePrefix) {
+        try {
+            File file = File.createTempFile(fileNamePrefix, null);
+            String[] parameterNames = form.getParameterNames();
+            for (int i = 0; i < parameterNames.length; i++) {
+                String paramName = parameterNames[i];
+                if (paramName.startsWith("promptUpload")) {
+                    form.setParameter(paramName, file);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

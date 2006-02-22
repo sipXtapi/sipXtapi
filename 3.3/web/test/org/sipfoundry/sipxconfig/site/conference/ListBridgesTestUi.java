@@ -11,18 +11,21 @@
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
+
 import junit.framework.Test;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
+import com.meterware.httpunit.WebForm;
+
 public class ListBridgesTestUi extends ListWebTestCase {
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ListBridgesTestUi.class);
     }
 
-    public ListBridgesTestUi() {
+    public ListBridgesTestUi() throws Exception {
         super("ListBridges", "resetConferenceBridgeContext", "bridge");
         setHasDuplicate(false);
     }
@@ -37,6 +40,15 @@ public class ListBridgesTestUi extends ListWebTestCase {
         return new String[] {
             "bridge" + i, "host" + i + ".com", "Description" + i
         };
+    }
+
+    protected void setAddParams(String[] names, String[] values) {
+        super.setAddParams(names, values);
+        // make sure that all uploads are happy and set to something
+        WebForm form = getDialog().getForm();
+        SiteTestHelper.initUploadFields(form, "ListBridgesTestUi");
+        // FIXME: this should not be necessary - maxLegs has default value
+        setFormElement("integerField", "0");        
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
