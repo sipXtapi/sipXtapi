@@ -11,17 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
-import java.io.IOException;
-
-import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.engine.IEngineService;
-import org.apache.tapestry.engine.ILink;
 
 
 /**
  * Tapestry Visit object - session parameters for sipXconfig
  */
 public class UserSession {
+    public static final String SESSION_NAME = "userSession";
 
     /**
      * true if we want to display title bar and navigation false for testing and when embedding
@@ -61,15 +57,7 @@ public class UserSession {
         m_admin = admin;
     }
     
-    public ILink getLogoutLink(IEngineService restartService) {
-        return restartService.getLink(false, null);
-    }
-    
-    public void logout(IEngineService restartService, IRequestCycle cycle) {
-        try {
-            restartService.service(cycle);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }            
+    public void logout() {
+        m_userId = null;
     }
 }

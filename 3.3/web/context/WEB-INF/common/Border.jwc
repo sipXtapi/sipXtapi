@@ -3,6 +3,7 @@
 <component-specification class="org.sipfoundry.sipxconfig.components.Border" allow-body="yes" allow-informal-parameters="yes">
   <parameter name="loginRequired" default-value="true" required="no"/>
   <parameter name="restricted" default-value="true" required="no"/>
+  <inject property="applicationLifecycle" object="service:sipxconfig.ApplicationLifecycle"/>
   <inject property="userSession" type="state" object="userSession"/>
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="restartService" object="engine-service:restart"/>

@@ -85,6 +85,8 @@ public abstract class TestPage extends BasePage {
 
     public abstract IndexManager getIndexManager();
     
+    public abstract ApplicationLifecycle getApplicationLifecycle();
+    
     public abstract UserSession getUserSession();
     
     public abstract IEngineService getRestartService();
@@ -117,7 +119,10 @@ public abstract class TestPage extends BasePage {
         resetPhoneContext(cycle);
         resetCallGroupContext(cycle);
         getCoreContext().clear();
-        getUserSession().logout(getRestartService(), cycle);
+        getApplicationLifecycle().logout();
+        // force rendering any new page after logout or infamous "invalid session" after 
+        // any links are clicked
+        cycle.activate(PAGE);
     }
 
     public void newGroup(IRequestCycle cycle) {

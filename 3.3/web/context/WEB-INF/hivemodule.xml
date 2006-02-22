@@ -44,13 +44,13 @@
       </construct>
     </invoke-factory>
   </service-point>
-
   <!-- validator hook to spring -->
   <service-point id="SpringValidatorFactory" interface="org.apache.tapestry.form.validator.ValidatorFactory">
     <invoke-factory>
       <construct class="components.SpringValidatorFactory">
         <set-service property="beanFactorySource" service-id="hivemind.lib.DefaultSpringBeanFactoryHolder"/>
-        <set-service property="hivemindValidatorFactory" service-id="tapestry.form.validator.ValidatorFactory"/>
+        <set-service property="hivemindValidatorFactory" 
+          service-id="tapestry.form.validator.ValidatorFactory"/>
       </construct>
     </invoke-factory>
   </service-point>
@@ -63,6 +63,26 @@
   </service-point>
   <contribution configuration-id="tapestry.bindings.BindingFactories">
     <binding prefix="spring-validators" service-id="SpringValidatorsBindingFactory"/>
-  </contribution>  
-	
+  </contribution>
+  <!-- 
+    - Logout copied from Vlib example, also see
+    - http://thread.gmane.org/gmane.comp.java.tapestry.user/31641
+    -->
+  <service-point id="ApplicationLifecycle" interface="site.ApplicationLifecycle">
+    <invoke-factory model="threaded">
+      <construct class="site.ApplicationLifecycleImpl">
+        <set-object property="stateManager" value="infrastructure:applicationStateManager"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <service-point id="DiscardSessionFilter" interface="org.apache.tapestry.services.WebRequestServicerFilter">
+    <invoke-factory>
+      <construct class="site.DiscardSessionFilter">
+        <set-object property="applicationLifecycle" value="service:ApplicationLifecycle"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <contribution configuration-id="tapestry.request.WebRequestServicerPipeline">
+    <filter name="discard-session" object="service:DiscardSessionFilter"/>
+  </contribution>
 </module>

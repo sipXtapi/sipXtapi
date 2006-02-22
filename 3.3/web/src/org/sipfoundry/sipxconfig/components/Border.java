@@ -13,14 +13,15 @@ package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.engine.IEngineService;
-import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageValidateListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.Home;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 import org.sipfoundry.sipxconfig.site.UserSession;
@@ -35,6 +36,8 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     public abstract boolean isLoginRequired();
     
     public abstract UserSession getUserSession();
+    
+    public abstract ApplicationLifecycle getApplicationLifecycle();
     
     /**
      * When true - only SUPER can see the pages, when false END_USER is accepted as well as admin
@@ -67,8 +70,9 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         }
     }
     
-    public ILink logout() {
-        return getUserSession().getLogoutLink(getRestartService());
+    public IPage logout(IRequestCycle cycle) {
+        getApplicationLifecycle().logout();
+        return cycle.getPage(LoginPage.PAGE);
     }
     
     protected void redirectToLogin(IPage page) {

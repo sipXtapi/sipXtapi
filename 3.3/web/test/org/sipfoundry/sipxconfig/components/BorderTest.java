@@ -18,6 +18,8 @@ import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.engine.IEngineService;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
+import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
 public class BorderTest extends TestCase {
@@ -117,6 +119,10 @@ public class BorderTest extends TestCase {
 
         public UserSession getUserSession() {
             return m_userSession;
+        }
+        
+        public ApplicationLifecycle getApplicationLifecycle() {
+            return new ApplicationLifecycleImpl();
         }
 
         protected void redirectToLogin(IPage page) {
