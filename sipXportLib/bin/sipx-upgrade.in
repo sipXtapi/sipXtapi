@@ -278,6 +278,15 @@ AddNamespaceToWatchDog () {
     fi
 }
 
+AddNamespaceToProcessDefinitions () {
+    f=${SysConfDir}/ProcessDefinitions.xml
+    if test -r $f && grep '<process_definitions>' $f
+    then
+        cp $f $f.OLD
+        sed 's|<process_definitions>|<process_definitions xmlns="http://www.sipfoundry.org/sipX/schema/xml/processdefinitions-00-00">|' $f.OLD > $f
+    fi
+}
+
 ##########################
 ## Upgrade the PBX 
 ##########################
@@ -298,10 +307,12 @@ UpgradePbx() {
                 mv ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant.wav ${LocalStateDir}/sipxdata/mediaserver/data/prompts/customautoattendant-internal.wav
             fi
             AddNamespaceToWatchDog
+            AddNamespaceToProcessDefinitions
             ;;
 
         2.8* | 2.9* | 3.0*)
             AddNamespaceToWatchDog
+            AddNamespaceToProcessDefinitions
             ;;
 
         '')
@@ -310,6 +321,7 @@ UpgradePbx() {
 
         *)
             AddNamespaceToWatchDog
+            AddNamespaceToProcessDefinitions
             ;;
     esac
 }

@@ -1,7 +1,8 @@
 include $(top_builddir)/config/sipXcommon.mak
 
 schemas = \
-	watchdog.xsd
+	watchdog.xsd \
+	processdefinitions.xsd
 
 EXTRA_DATA = $(foreach xsd,$(schemas),$(xsd).in)
 

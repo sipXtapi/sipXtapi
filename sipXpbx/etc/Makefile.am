@@ -9,24 +9,23 @@ pkgconf_DATA = \
     mime.types
 
 pbxconf_files = \
-    WatchDog.xml.in \
-    ProcessDefinitions.xml.in \
-    resourcemap.xml.in \
-    voicemail.xml.in.in \
-    cbadmission.xml.in.in
+    WatchDog.xml \
+    ProcessDefinitions.xml \
+    resourcemap.xml \
+    voicemail.xml.in \
+    cbadmission.xml.in
 
 wwwconf_files = \
-    httpd.conf.in \
-    httpd-sipxchange-common-ssl.conf.in.in \
-    httpd-sipxchange-common.conf.in.in \
-    httpd-sipxchange-configserver.conf.in.in \
-    httpd-sipxchange-mediaserver.conf.in.in \
-    httpd-sipxchange-mediaserver-ssl.conf.in.in
+    httpd.conf \
+    httpd-sipxchange-common-ssl.conf.in \
+    httpd-sipxchange-common.conf.in \
+    httpd-sipxchange-configserver.conf.in \
+    httpd-sipxchange-mediaserver.conf.in \
+    httpd-sipxchange-mediaserver-ssl.conf.in
 
 EXTRA_DIST = \
 	$(pkgconf_DATA) \
-	$(pbxconf_files) \
-	$(wwwconf_files) \
+	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file).in) \
 	sipxchange
 
 if DO_RPMBUILD
@@ -37,23 +36,36 @@ endif
 
 install-exec-hook :
 
-install-data-hook : $(RPM_INSTALL)
-	@for f in $(pbxconf_files) $(wwwconf_files); \
-	do \
-	  target=`basename $$f .in`; \
-	  $(LocalizeSipXconfig) $(srcdir)/$$f > $$target; \
-	  tgtdir=`dirname $(sysconfdir)/sipxpbx/$$target`; \
-	  if [ -f $(DESTDIR)$(sysconfdir)/sipxpbx/$$target ]; \
-	  then \
-		echo "Using existing $(sysconfdir)/sipxpbx/$$target"; \
-	  else \
-		echo ""; echo "Installing default $(sysconfdir)/sipxpbx/$$target"; \
-		$(INSTALL) -D -m 644 $$target $(DESTDIR)$(sysconfdir)/sipxpbx/$$target; \
-	  fi; \
-	done
+install-data-hook : $(RPM_INSTALL) \
+	$(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file))
+
+$(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)$(sysconfdir)/sipxpbx/% : %
+	@if [ -f $@ ]; \
+	then \
+		diff $< $@ > /dev/null 2>&1 \
+		|| ( echo "Using existing $@; new version copied as .NEW"; \
+			$(INSTALL) -D -m 644  $< $@.NEW \
+			); \
+	else \
+		echo ""; echo "Installing default $@"; \
+		$(INSTALL) -D -m 644 $< $@; \
+	fi
+
+$(foreach file,$(pbxconf_files) $(wwwconf_files),$(file)) : % : %.in
+	$(LocalizeSipXconfig) $< > $@
 
 .PHONY : rpm-install
-rpm-install:
-	echo "RPM install of logrotate file"
-	$(INSTALL) -d $(DESTDIR)$(sysconfdir)/logrotate.d
-	$(INSTALL) -D -m 644 $(srcdir)/sipxchange $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange
+rpm-install: $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange
+
+$(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange: sipxchange
+	@if [ -f $@ ]; \
+	then \
+		diff $< $@ > /dev/null 2>&1 \
+		|| ( echo "Using existing $@; new version copied as .NEW"; \
+			$(INSTALL) -D -m 644 $< $@.NEW \
+			); \
+	else \
+		echo ""; echo "Installing default $@"; \
+		$(INSTALL) -D -m 644 $< $@; \
+	fi
+
