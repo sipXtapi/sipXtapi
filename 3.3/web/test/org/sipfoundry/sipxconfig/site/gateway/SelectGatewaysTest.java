@@ -17,6 +17,7 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
@@ -36,12 +37,7 @@ public class SelectGatewaysTest extends TestCase {
         m_page = (SelectGateways) m_pageMaker.newInstance(SelectGateways.class);
     }
 
-    public void testDummy() throws Exception {
-        // we need at least one test
-    }
-    
-    // FIXME: injecting prevents setters....
-    public void _testSelectGateways() {
+    public void testSelectGateways() {
         List gatewaysToAdd = new ArrayList();
         List gateways = new ArrayList(); 
         for(int i = 0; i< 3; i++) {
@@ -71,8 +67,8 @@ public class SelectGatewaysTest extends TestCase {
         contextControl.replay();
         
         // do not have setters for dial plan context and gateway context...
-        // m_page.setDialPlanContext(dialPlanContext);
-        // m_page.setGatewayContext(context);
+        PropertyUtils.write(m_page, "dialPlanContext", dialPlanContext);
+        PropertyUtils.write(m_page, "gatewayContext", context);
         m_page.setRuleId(rule.getId());
         m_page.selectGateways(gatewaysToAdd);
         
