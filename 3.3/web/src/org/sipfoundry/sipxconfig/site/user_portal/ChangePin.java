@@ -71,17 +71,10 @@ public abstract class ChangePin extends BasePage {
         user = loginContext.checkCredentials(user.getUserName(), currentPin);
         if (user == null) {
             IValidationDelegate delegate = TapestryUtils.getValidator(this);
-            delegate.record(getMessages().getMessage("message.badCurrentPin"), ValidationConstraint.CONSISTENCY);
+            delegate.record(getMessages().getMessage("error.badCurrentPin"), ValidationConstraint.CONSISTENCY);
             return;
         }
 
-        // The new PIN is not allowed to be empty
-        if (StringUtils.isEmpty(getNewPin())) {
-            IValidationDelegate delegate = TapestryUtils.getValidator(this);
-            delegate.record(getMessages().getMessage("message.emptyNewPin"), ValidationConstraint.REQUIRED);
-            return;            
-        }
-        
         // Change the PIN
         user.setPin(getNewPin(), coreContext.getAuthorizationRealm());
         coreContext.saveUser(user);

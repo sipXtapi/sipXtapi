@@ -20,7 +20,6 @@
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
-  <component id="errors" type="ErrorMsg"/>
   <component id="currentPinLabel" type="FieldLabel">
     <binding name="field" value="components.currentPin"/>
   </component>
@@ -36,11 +35,10 @@
     <binding name="password" value="newPin"/>
     <binding name="passwordDisplayName" value="message:label.newPin"/>
     <binding name="confirmPasswordDisplayName" value="message:label.confirmNewPin"/>
-    <binding name="passwordMismatchMessage" value="message:newPinMismatch"/>
-    <binding name="passwordValidator" value="hivemind:spring:validPinRequired"/>
+    <binding name="passwordMismatchMessage" value="message:error.pinMismatch"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="listener" value="listener:changePin"/>
-    <binding name="successMessage" value="message:success"/>
+    <binding name="successMessage" value="message:message.success"/>
   </component>
 </page-specification>
