@@ -126,10 +126,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/configrpc/*
 
 %pre
-grep @SIPXPBXUSER@ /etc/group > /dev/null \
-|| /usr/sbin/groupadd @SIPXPBXUSER@ 
-
-grep @SIPXPBXUSER@ /etc/passwd > /dev/null \
+id -u @SIPXPBXUSER@ > /dev/null 2>&1 \
 || /usr/sbin/useradd \
    -c "sipX PBX service" \
    -g @SIPXPBXUSER@ \
