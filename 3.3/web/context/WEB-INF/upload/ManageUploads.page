@@ -44,7 +44,7 @@
         	.treatUserExceptionAsValidationError(beans.validator, listeners.activate)"/>
   </component>
   <component id="inactivate" type="Submit">
-    <binding name="listener" value="hivemind:spring:tapestry
+    <binding name="listener" value="tapestry
         	.treatUserExceptionAsValidationError(beans.validator, listeners.inactivate)"/>
   </component>
   <component id="selectSpecification" type="PropertySelection">

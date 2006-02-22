@@ -49,6 +49,14 @@ public class ManageUploadTestUi extends WebTestCase {
         assertEquals(1, nextTableCount);
     }
     
+    public void testEmptyActivation() throws Exception {
+        seedUpload();
+        SiteTestHelper.home(tester);
+        clickLink("link:upload");
+        clickButton("upload:activate");
+        SiteTestHelper.assertNoException(tester);
+    }
+    
     public void testActivation() throws Exception {
         seedUpload();
         SiteTestHelper.home(tester);
@@ -69,7 +77,7 @@ public class ManageUploadTestUi extends WebTestCase {
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:inactivate");
         expectedData[0][1] = "false";
-        assertTableRowsEqual("upload:list", 1, expectedData);        
+        assertTableRowsEqual("uploadTable", 1, expectedData);        
     }
     
     private void seedUpload() throws Exception {
