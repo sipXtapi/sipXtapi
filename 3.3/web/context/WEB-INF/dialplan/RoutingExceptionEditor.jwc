@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
-<component-specification class="org.apache.tapestry.BaseComponent" allow-body="no" allow-informal-parameters="no">
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification allow-body="no" allow-informal-parameters="no">
   <!-- P A R A M E T E R S -->
-  <parameter name="exception"  required="yes" >
-  </parameter>
-  <parameter name="deleteListener"  required="yes"  />
-  <parameter name="gateways"  required="yes"  />
-  <!-- P R O P E R T I E S -->
+  <parameter name="exception" required="yes"/>
+  <parameter name="deleteListener" required="yes"/>
+  <parameter name="gateways" required="yes"/>
+  
   <!-- B E A N S -->
   <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.gateway.GatewaySelectionModel">
-    <set name="gateways">gateways</set>
+    <set name="gateways" value="gateways"/>
   </bean>
+  
   <!-- C O M P O N E N T S -->
   <component id="deleteException" type="DirectLink">
     <binding name="listener" value="deleteListener"/>
@@ -38,5 +39,6 @@
   <component id="gateways" type="PropertySelection">
     <binding name="value" value="exception.gateway"/>
     <binding name="model" value="bean:gatewayModel"/>
+    <binding name="validators" value="validators:required"/>
   </component>
 </component-specification>

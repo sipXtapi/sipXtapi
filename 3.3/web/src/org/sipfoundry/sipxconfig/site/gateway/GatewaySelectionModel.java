@@ -54,6 +54,9 @@ public class GatewaySelectionModel implements IPropertySelectionModel {
     }
 
     public Object translateValue(String value) {
+        if(value == null) {
+            return null;
+        }
         Integer id = Integer.decode(value);
         for (Iterator i = m_gateways.iterator(); i.hasNext();) {
             Gateway g = (Gateway) i.next();

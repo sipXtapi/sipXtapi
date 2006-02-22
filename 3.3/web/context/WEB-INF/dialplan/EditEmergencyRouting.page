@@ -2,24 +2,24 @@
 <!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditEmergencyRouting">
   <!--
-	  - P R O P E R T I E S
-	  -->
+  - P R O P E R T I E S
+  -->
   <inject property="dialPlanContext" object="spring:dialPlanContext"/>
   <inject property="gatewayContext" object="spring:gatewayContext"/>
   <property name="emergencyRouting"/>
-  <property name="exceptionsMap" />
-  <property name="exceptionItem" />
-  <property name="callback"  persist="session"/>
+  <property name="exceptionsMap"/>
+  <property name="exceptionItem"/>
+  <property name="callback" persist="session"/>
   <!--
-     - B E A N S
-     -->
+  - B E A N S
+  -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.gateway.GatewaySelectionModel">
     <set name="gateways">gatewayContext.gateways</set>
   </bean>
   <!--
-     - C O M P O N E N T S
-     -->
+  - C O M P O N E N T S
+  -->
   <component id="form" type="Form">
     <binding name="delegate" value="bean:validator"/>
   </component>
@@ -37,6 +37,7 @@
   <component id="gateways" type="PropertySelection">
     <binding name="value" value="emergencyRouting.defaultGateway"/>
     <binding name="model" value="bean:gatewayModel"/>
+    <binding name="validators" value="validators:required"/>
   </component>
   <component id="externalNumberLabel" type="FieldLabel">
     <binding name="field" value="components.externalNumber"/>
