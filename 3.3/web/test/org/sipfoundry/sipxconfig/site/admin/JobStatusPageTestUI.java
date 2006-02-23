@@ -31,10 +31,10 @@ public class JobStatusPageTestUI extends WebTestCase {
     public void testDisplayEmpty() throws Exception {
         clickLink("JobStatusPage");
         SiteTestHelper.assertNoException(tester);
-        assertTablePresent("tableView");
+        assertTablePresent("jobs:list");
         assertButtonPresent("jobs:remove");
         assertButtonPresent("jobs:refresh");
-        WebTable table = tester.getDialog().getWebTableBySummaryOrId("tableView");
+        WebTable table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
         assertEquals(1, table.getRowCount());
     }
 
@@ -42,30 +42,30 @@ public class JobStatusPageTestUI extends WebTestCase {
         clickLink("jobs:populate");
         clickLink("JobStatusPage");
         SiteTestHelper.assertNoException(tester);
-        WebTable table = tester.getDialog().getWebTableBySummaryOrId("tableView");
+        WebTable table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
         assertEquals(5, table.getRowCount());
 
         // refresh table
         clickButton("jobs:refresh");
-        table = tester.getDialog().getWebTableBySummaryOrId("tableView");
+        table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
         assertEquals(5, table.getRowCount());
 
         // remove finishedjobs
         clickButton("jobs:remove");
-        table = tester.getDialog().getWebTableBySummaryOrId("tableView");
-        assertEquals(4, table.getRowCount());        
+        table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
+        assertEquals(4, table.getRowCount());
     }
-    
+
     public void testClear() throws Exception {
         clickLink("jobs:populate");
         clickLink("JobStatusPage");
         SiteTestHelper.assertNoException(tester);
-        WebTable table = tester.getDialog().getWebTableBySummaryOrId("tableView");
+        WebTable table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
         assertEquals(5, table.getRowCount());
 
         // remove finishedjobs
         clickButton("jobs:clear");
-        table = tester.getDialog().getWebTableBySummaryOrId("tableView");
-        assertEquals(1, table.getRowCount());        
-    }    
+        table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
+        assertEquals(1, table.getRowCount());
+    }
 }

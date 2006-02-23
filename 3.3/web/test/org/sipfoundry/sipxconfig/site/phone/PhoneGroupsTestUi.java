@@ -43,7 +43,7 @@ public class PhoneGroupsTestUi extends WebTestCase {
                 "2. seedGroup1", ""
             },
         };
-        assertTableRowsEqual("tableView", 2, table);
+        assertTableRowsEqual("group:list", 2, table);
     }
 
     public void testMoveGroups() {
@@ -65,7 +65,7 @@ public class PhoneGroupsTestUi extends WebTestCase {
                 "3. seedGroup2", ""
             },
         };
-        assertTableRowsEqual("tableView", 2, tableUp);
+        assertTableRowsEqual("group:list", 2, tableUp);
 
         // move down
         clickButton("group:moveDown");
@@ -79,7 +79,7 @@ public class PhoneGroupsTestUi extends WebTestCase {
                 "3. seedGroup2", ""
             },
         };
-        assertTableRowsEqual("tableView", 2, tableDown);
+        assertTableRowsEqual("group:list", 2, tableDown);
     }
 
     public void testDelete() {
@@ -97,6 +97,6 @@ public class PhoneGroupsTestUi extends WebTestCase {
                 "2. seedGroup2", ""
             },
         };
-        assertTableRowsEqual("tableView", 2, table);
+        assertTableRowsEqual("group:list", 2, table);
     }
 }

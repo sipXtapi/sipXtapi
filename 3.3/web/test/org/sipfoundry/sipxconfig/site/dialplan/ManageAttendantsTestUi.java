@@ -47,7 +47,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
                 "ManageAttendantsTestUi 2", SEED_DESCRIPTION
             }
         };
-        assertTableRowsEqual("tableView", 1, expectedData);
+        assertTableRowsEqual("list:attendant", 1, expectedData);
     }
 
     public void testEditAttendants() throws IOException {
@@ -65,7 +65,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
                 "Name edited", SEED_DESCRIPTION
             }
         };
-        assertTableRowsEqual("tableView", 1, expectedData);
+        assertTableRowsEqual("list:attendant", 1, expectedData);
     }
 
     public void testDeleteAttendants() throws IOException {
@@ -82,7 +82,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
                 "ManageAttendantsTestUi 2", SEED_DESCRIPTION
             }
         };
-        assertTableRowsEqual("tableView", 1, expectedData);
+        assertTableRowsEqual("list:attendant", 1, expectedData);
     }
 
     private void seedAttendants(int count) throws IOException {

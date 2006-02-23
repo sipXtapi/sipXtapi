@@ -57,7 +57,7 @@ public class NewUserTestUi extends WebTestCase {
         // Instead of specifying exactly what the table should look like, just look
         // for text that we expect to be there. Since UI tests don't reset the DB,
         // there may be users in the table that we don't expect.
-        assertTextInTable("userTable", new String[] {
+        assertTextInTable("user:list", new String[] {
             TestPage.TEST_USER_FIRSTNAME, TestPage.TEST_USER_LASTNAME,
             TestPage.TEST_USER_USERNAME, TestPage.TEST_USER_ALIASES
         });

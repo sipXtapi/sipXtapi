@@ -38,8 +38,8 @@ public class GatewaysTestUi extends WebTestCase {
     public void testAddGateways() throws Exception {
         clickLink("ListGateways");
 
-        assertTablePresent("table");
-        WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("table");
+        assertTablePresent("list:gateway");
+        WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         int lastColumn = gatewaysTable.getColumnCount() - 1;
         assertEquals(3, lastColumn);
 
@@ -47,11 +47,11 @@ public class GatewaysTestUi extends WebTestCase {
 
         addGateway(null);
         // if validation works we are still on the same page
-        assertTableNotPresent("table");
+        assertTableNotPresent("list:gateway");
 
         addGateway("bongo");
-        assertTablePresent("table");
-        gatewaysTable = getDialog().getWebTableBySummaryOrId("table");
+        assertTablePresent("list:gateway");
+        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         // we should have 2 gateway now
         assertEquals(2, gatewaysTable.getRowCount());
         assertEquals("bongoDescription", gatewaysTable.getCellAsText(1, lastColumn));
@@ -59,7 +59,7 @@ public class GatewaysTestUi extends WebTestCase {
         clickLink("addGateway");
         addGateway("kuku");
 
-        gatewaysTable = getDialog().getWebTableBySummaryOrId("table");
+        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         // we should have 2 gateway now
         assertEquals(3, gatewaysTable.getRowCount());
         assertEquals("kukuDescription", gatewaysTable.getCellAsText(2, lastColumn));
@@ -68,16 +68,16 @@ public class GatewaysTestUi extends WebTestCase {
     public void testDeleteGateways() throws Exception {
         addTestGateways(getTester(), 10);
 
-        assertTablePresent("table");
-        WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("table");
+        assertTablePresent("list:gateway");
+        WebTable gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(11, gatewaysTable.getRowCount());
 
         SiteTestHelper.selectRow(tester, 0, true);
         SiteTestHelper.selectRow(tester, 1, true);
         clickButton("list:gateway:delete");
 
-        assertTablePresent("table");
-        gatewaysTable = getDialog().getWebTableBySummaryOrId("table");
+        assertTablePresent("list:gateway");
+        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(9, gatewaysTable.getRowCount());
 
         for (int i = 0; i < 8; i++) {
@@ -85,8 +85,8 @@ public class GatewaysTestUi extends WebTestCase {
         }
         clickButton("list:gateway:delete");
 
-        assertTablePresent("table");
-        gatewaysTable = getDialog().getWebTableBySummaryOrId("table");
+        assertTablePresent("list:gateway");
+        gatewaysTable = getDialog().getWebTableBySummaryOrId("list:gateway");
         assertEquals(1, gatewaysTable.getRowCount());
     }
 
@@ -108,7 +108,7 @@ public class GatewaysTestUi extends WebTestCase {
         tester.clickButton("form:ok");
         SiteTestHelper.assertNoException(tester);
         // we should not get error this time
-        assertTablePresent("table");
+        assertTablePresent("list:gateway");
     }
 
     /**

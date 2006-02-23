@@ -41,11 +41,11 @@ public class ManageUploadTestUi extends WebTestCase {
         seedUpload();
         SiteTestHelper.home(tester);
         clickLink("link:upload");
-        int tableCount = SiteTestHelper.getRowCount(tester, "uploadTable");        
+        int tableCount = SiteTestHelper.getRowCount(tester, "upload:list");        
         assertEquals(2, tableCount);
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:delete");
-        int nextTableCount = SiteTestHelper.getRowCount(tester, "uploadTable");        
+        int nextTableCount = SiteTestHelper.getRowCount(tester, "upload:list");        
         assertEquals(1, nextTableCount);
     }
     
@@ -71,13 +71,13 @@ public class ManageUploadTestUi extends WebTestCase {
                     "manage uploads seed", "true", "Unmanaged TFTP",  ""
                 }
             };
-        assertTableRowsEqual("uploadTable", 1, expectedData);
+        assertTableRowsEqual("upload:list", 1, expectedData);
 
         // inactivate
         SiteTestHelper.enableCheckbox(tester, "checkbox", 0, true);
         clickButton("upload:inactivate");
         expectedData[0][1] = "false";
-        assertTableRowsEqual("uploadTable", 1, expectedData);        
+        assertTableRowsEqual("upload:list", 1, expectedData);        
     }
     
     private void seedUpload() throws Exception {

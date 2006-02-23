@@ -41,18 +41,11 @@ public abstract class ListWebTestCase extends WebTestCase {
     private boolean m_hasDuplicate = true;
     private boolean m_hasMove = false;
     private boolean m_exactCheck = true;
-    
-    /** T4 sets table id to component name, this is the most common if Table element is used */
-    private String m_tableId = "tableView";
 
     public ListWebTestCase(String pageLink, String resetLink, String idPrefix) {
         m_pageLink = pageLink;
         m_idPrefix = idPrefix;
         m_resetLink = resetLink;
-    }
-    
-    public void setTableId(String tableId) {
-        m_tableId = tableId;
     }
 
     public void setUp() {
@@ -105,7 +98,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertFormPresent();
         assertLinkPresent(buildId("add"));
-        assertEquals(1, SiteTestHelper.getRowCount(tester, m_tableId));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, getTableId()));
         assertButtonPresent(buildId("delete"));
 
         if (m_hasDuplicate) {
@@ -125,11 +118,11 @@ public abstract class ListWebTestCase extends WebTestCase {
             addItem(getParamNames(), values);
             expected.appendRow(new ExpectedRow(getExpectedTableRow(values)));
         }
-        assertEquals(count + 1, SiteTestHelper.getRowCount(tester, m_tableId));
+        assertEquals(count + 1, SiteTestHelper.getRowCount(tester, getTableId()));
         if (m_exactCheck) {
-            assertTableRowsEqual(m_tableId, 1, expected);
+            assertTableRowsEqual(getTableId(), 1, expected);
         } else {
-            assertTableRowsExist(m_tableId, expected);
+            assertTableRowsExist(getTableId(), expected);
         }
     }
 
@@ -166,14 +159,14 @@ public abstract class ListWebTestCase extends WebTestCase {
         }
 
         clickDeleteButton();
-        
+
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
 
         assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester,
-                m_tableId));
+                getTableId()));
         if (m_exactCheck) {
-            assertTableRowsEqual(m_tableId, 1, expected);
+            assertTableRowsEqual(getTableId(), 1, expected);
         }
     }
 
@@ -230,5 +223,9 @@ public abstract class ListWebTestCase extends WebTestCase {
 
     protected String getFormId() {
         return buildId("form");
+    }
+
+    protected String getTableId() {
+        return buildId("list");
     }
 }

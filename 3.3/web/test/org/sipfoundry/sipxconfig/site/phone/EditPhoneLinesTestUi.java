@@ -50,12 +50,12 @@ public class EditPhoneLinesTestUi extends WebTestCase {
         clickLinkWithText("Lines");
 
         // checking seed shouldn't be nec. but helpful
-        assertEquals(2, SiteTestHelper.getRowCount(tester, "lineTableView"));
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "line:list"));
 
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("line:delete");
         SiteTestHelper.assertNoException(tester);
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "lineTableView"));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "line:list"));
     }
     
     public void testMaxLines() {

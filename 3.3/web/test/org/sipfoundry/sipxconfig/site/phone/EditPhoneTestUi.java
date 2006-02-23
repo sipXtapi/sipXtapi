@@ -46,11 +46,11 @@ public class EditPhoneTestUi extends WebTestCase {
         String[][] table = new String[][] {
             { "a00000000001", "", "Polycom SoundPoint IP 500" },                
         };
-        assertTextInTable("newPhoneTable", table[0]);        
+        assertTextInTable("phone:list", table[0]);        
     }
 
     public void testAddLine() {
         clickLink("AddLine");
-        assertElementPresent("userTable");
+        assertElementPresent("user:list");
     }
 }

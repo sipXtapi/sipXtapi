@@ -39,7 +39,7 @@ public class EditCallGroupTestUi extends WebTestCase {
         assertElementPresent("item:enabled");
 
         assertLinkPresent("callgroup:addRing");
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "tableView"));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
         assertButtonPresent("userring:delete");
         assertButtonPresent("userring:moveUp");
         assertButtonPresent("userring:moveDown");
@@ -48,20 +48,20 @@ public class EditCallGroupTestUi extends WebTestCase {
     public void testAddDeleteRing() throws Exception {
         addUser();
 
-        assertEquals(2, SiteTestHelper.getRowCount(tester, "tableView"));
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "userring:list"));
 
         reopenScreen();
 
-        assertEquals(2, SiteTestHelper.getRowCount(tester, "tableView"));
+        assertEquals(2, SiteTestHelper.getRowCount(tester, "userring:list"));
 
         SiteTestHelper.selectRow(tester, 0, true);
         clickButton("userring:delete");
 
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "tableView"));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
 
         reopenScreen();
 
-        assertEquals(1, SiteTestHelper.getRowCount(tester, "tableView"));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, "userring:list"));
     }
 
     private void reopenScreen() {

@@ -45,7 +45,7 @@ public class NewPhoneTestUi extends WebTestCase {
                 "000000000000", "", "Polycom SoundPoint IP 500/501"
             },
         };
-        assertTextInTable("newPhoneTable", table[0]);
+        assertTextInTable("phone:list", table[0]);
     }
 
     public void testSaveAndStay() {
@@ -64,7 +64,7 @@ public class NewPhoneTestUi extends WebTestCase {
                 "000000000000", "", "Polycom SoundPoint IP 500/501"
             },
         };
-        assertTextInTable("newPhoneTable", table[0]);
+        assertTextInTable("phone:list", table[0]);
     }
 
     public void testInvalidSerialNumber() {
