@@ -35,7 +35,6 @@ public class ExternalAliases implements AliasProvider {
 
     private String m_addinsDirectory = StringUtils.EMPTY;
 
-    private Digester m_digester = ImdbXmlHelper.configureDigester(AliasMapping.class);
 
     private List getFiles() {
         if (StringUtils.isBlank(m_aliasAddins)) {
@@ -65,20 +64,25 @@ public class ExternalAliases implements AliasProvider {
         List aliases = new ArrayList();
         for (Iterator i = files.iterator(); i.hasNext();) {
             File file = (File) i.next();
-            aliases.addAll(parseAliases(file));
+            List parsedAliases = parseAliases(file);
+            if (parsedAliases != null) {
+                aliases.addAll(parsedAliases);
+            }
         }
         return aliases;
     }
 
     private List parseAliases(File file) {
         try {
-            return (List) m_digester.parse(file);
+            // Digester documentation advises against reusing digester objects
+            Digester digester = ImdbXmlHelper.configureDigester(AliasMapping.class);
+            return (List) digester.parse(file);
         } catch (IOException e) {
             LOG.warn("Errors when reading aliases file.", e);
         } catch (SAXException e) {
             LOG.warn("Errors when parsing aliases file.", e);
         }
-        return Collections.EMPTY_LIST;
+        return null;
     }
 
     public void setAliasAddins(String aliasAddins) {
