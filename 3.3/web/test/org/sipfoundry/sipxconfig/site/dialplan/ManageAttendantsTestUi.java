@@ -53,8 +53,9 @@ public class ManageAttendantsTestUi extends WebTestCase {
     public void testEditAttendants() throws IOException {
         seedAttendants(2);
         clickLinkWithText("ManageAttendantsTestUi 1");
-        assertElementPresent("manage:attendant");
+        assertElementPresent("attendant:menuItems");
         setFormElement("name", "Name edited");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "ManageAttendantsTestUi");
         clickButton("form:ok");
         String[][] expectedData = {
             // Name Ext Description
@@ -85,12 +86,11 @@ public class ManageAttendantsTestUi extends WebTestCase {
     }
 
     private void seedAttendants(int count) throws IOException {
-        String promptTestFile = EditAutoAttendantTestUi.seedPromptFile();
         for (int i = 0; i < count; i++) {
             clickLink("addAttendant");
             setFormElement("name", "ManageAttendantsTestUi " + i);
             setFormElement("description", SEED_DESCRIPTION);
-            selectOption("prompt", promptTestFile);
+            SiteTestHelper.initUploadFields(getDialog().getForm(), "ManageAttendantsTestUi");
             clickButton("form:ok");
             SiteTestHelper.assertNoException(tester);
         }

@@ -55,12 +55,14 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         clickLink("NewAutoAttendant");
 
         // need to rerender page after prompt is copied in
-        assertTableRowsEqual("menuItemTableView", 1, FACTORY_DEFAULT);
+        assertTableRowsEqual("attendant:menuItems", 1, FACTORY_DEFAULT);
 
         setFormElement("name", "New Attendant");
         setFormElement("description", "created by EditAutoAttendantTestUi.testNewAttendant");
-        selectOption("prompt", PROMPT_TEST_FILE);
-        clickButton("form:ok");
+        // need to test by uploading file, this alone will not work: selectOption("prompt",
+        // PROMPT_TEST_FILE);
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
+        clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
     }
 
@@ -76,41 +78,37 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         File actualFile = new File(actualFilename);
         assertTrue(actualFile.exists());
         getDialog().getForm().setParameter("promptUpload", actualFile);
-        clickButton("form:ok");
+        clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         assertTrue(expectedFile.exists());
         assertEquals(actualFile.length(), expectedFile.length());
-    }
-
-    public void testCancel() {
-        clickLink("NewAutoAttendant");
-        assertElementPresent("attendant:form");
-        clickButton("form:cancel");
-        assertTablePresent("tableView");
     }
 
     public void testReset() throws Exception {
         seedPromptFile();
         clickLink("NewAutoAttendant");
         selectOption("addMenuItemAction", "Voicemail Login");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
         clickButton("attendant:addMenuItem");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
         clickButton("attendant:reset");
-        assertTableRowsEqual("menuItemTableView", 1, FACTORY_DEFAULT);
+        assertTableRowsEqual("attendant:menuItems", 1, FACTORY_DEFAULT);
     }
 
     public void testRemoveMenuItems() throws Exception {
         seedPromptFile();
         clickLink("NewAutoAttendant");
         assertElementPresent("attendant:form");
-
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
         SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
+
         clickButton("attendant:removeMenuItems");
         String[][] expectedMenuItems = {
             {
                 KEYS, "Operator", ""
             },
         };
-        assertTableRowsEqual("menuItemTableView", 1, expectedMenuItems);
+        assertTableRowsEqual("attendant:menuItems", 1, expectedMenuItems);
     }
 
     public void testAddMenuItems() throws Exception {
@@ -121,8 +119,10 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertElementPresent("attendant:form");
 
         selectOption("addMenuItemAction", "Auto Attendant");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
         clickButton("attendant:addMenuItem");
         selectOption("attendantParameter", "New Attendant");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
         clickButton("form:apply");
 
         ExpectedTable expected = new ExpectedTable(FACTORY_DEFAULT);
@@ -132,12 +132,14 @@ public class EditAutoAttendantTestUi extends WebTestCase {
             },
         };
         expected.appendRows(defaultMenuItems);
-        assertTableRowsEqual("menuItemTableView", 1, expected);
+        assertTableRowsEqual("attendant:menuItems", 1, expected);
         SiteTestHelper.assertOptionSelected(tester, "attendantParameter", "New Attendant");
 
         selectOption("addMenuItemAction", "Deposit Voicemail");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
         clickButton("attendant:addMenuItem");
         setFormElement("extensionParameter", "3232");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditAutoAttendantTestUI");
         clickButton("form:apply");
 
         String[][] vmDepositRow = {
@@ -151,7 +153,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         assertFormElementEquals("extensionParameter", "3232");
 
         expected.appendRows(vmDepositRow);
-        assertTableRowsEqual("menuItemTableView", 1, expected);
+        assertTableRowsEqual("attendant:menuItems", 1, expected);
     }
 
     public static final String seedPromptFile(String dir) throws IOException {
@@ -171,8 +173,8 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         tester.setFormElement("name", "New Attendant");
         tester.setFormElement("description",
                 "created by EditAutoAttendantTestUi.seedAutoAttendant");
-        tester.selectOption("prompt", PROMPT_TEST_FILE);
-        tester.clickButton("form:ok");
+        SiteTestHelper.initUploadFields(tester.getDialog().getForm(), "EditAutoAttendantTestUI");
+        tester.clickButton("form:apply");
     }
 
     private static final File getCleanPromptsDir(String dir) {
