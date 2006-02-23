@@ -985,7 +985,7 @@ SIPDBManager::getFieldValue (
         break;
 
     case dbField::tpInt8:
-        sprintf ( tempString,"%lld", *(int8*)(base + fd->appOffs) );
+       sprintf ( tempString,"%0#16llx", *(int8*)(base + fd->appOffs) );
         textValue = tempString;
         break;
 /*

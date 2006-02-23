@@ -738,7 +738,8 @@ RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
       {
          OsSysLog::add(
             FAC_SIP, PRI_DEBUG
-            ,"RegistrationDB::getNextUpdateForRegistrar found %d rows for %s with updateNumber > %lld"
+            ,"RegistrationDB::getNextUpdateForRegistrar"
+            " found %d rows for %s with updateNumber > %0#16llx"
             ,numRows
             ,primaryRegistrar.data()
             ,updateNumber);
@@ -759,7 +760,8 @@ RegistrationDB::getNewUpdatesForRegistrar(const UtlString& primaryRegistrar,
    {
       OsSysLog::add(
          FAC_SIP, PRI_DEBUG
-         ,"RegistrationDB::getNewUpdatesForRegistrar found %d rows for %s with updateNumber > %lld"
+         ,"RegistrationDB::getNewUpdatesForRegistrar"
+         " found %d rows for %s with updateNumber > %0#16llx"
          ,numRows
          ,primaryRegistrar.data()
          ,updateNumber);
