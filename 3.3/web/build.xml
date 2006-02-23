@@ -274,7 +274,7 @@
   <!-- 
     - U N I T T E S T   W E B   U I
     -->
-  <target name="test-ui" depends="test-war" if="enable-broken-tests"
+  <target name="test-ui" depends="test-war" 
     description="run junit tests for web interface">
     <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" 
       failureproperty="junit.failed">
@@ -416,7 +416,7 @@
   <!--
 	- Run web services unit tests
 	-->
-  <target name="start-web-server" depends="test-war" if="enable-broken-tests">
+  <target name="start-web-server" depends="test-war">
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
       <classpath refid="base.path"/>
       <classpath refid="test.path"/>
@@ -427,7 +427,7 @@
     </java>    	
   </target>	
 
-  <target name="stop-web-server" if="enable-broken-tests">
+  <target name="stop-web-server">
     <!-- shut down in case other tests relying on web server need to run -->
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
       <classpath refid="base.path"/>
@@ -441,13 +441,11 @@
   </target>	
   
   <target name="test-api" depends="start-web-server,test-api-run,stop-web-server" 
-        if="ruby-bindings-enabled"
+	if="ruby-bindings-enabled"
 	description="Test web services"/>
 
-  <!-- HACK Original IF attribute: if="ruby-bindings-enabled"   -->
-  <target name="test-api-run" depends="ruby-bindings"
-	if="enable-broken-tests"
-	description="Test web services with starting webserver">	
+  <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
+		description="Test web services with starting webserver">	
     <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>    
     <property name="ruby.include.path"
       value="${ruby.bindings.dir}${path.separator}${ruby.webservice-unit-test.src.dir}"/>
