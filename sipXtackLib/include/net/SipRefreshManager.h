@@ -168,6 +168,10 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
+    //! lock for single thread use
+    void lock();
+    //! lock for single thread use
+    void unlock();
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
