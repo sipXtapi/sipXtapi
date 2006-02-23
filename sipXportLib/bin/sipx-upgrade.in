@@ -270,7 +270,7 @@ UpgradeSubscriptions() {
 }
 
 AddNamespaceToWatchDog () {
-    f=${SysConfDir}/WatchDog.xml
+    f=${SysConfDir}/sipxpbx/WatchDog.xml
     if test -r $f && grep '<watchdog>' $f
     then
         cp $f $f.OLD
@@ -279,7 +279,7 @@ AddNamespaceToWatchDog () {
 }
 
 AddNamespaceToProcessDefinitions () {
-    f=${SysConfDir}/ProcessDefinitions.xml
+    f=${SysConfDir}/sipxpbx/ProcessDefinitions.xml
     if test -r $f && grep '<process_definitions>' $f
     then
         cp $f $f.OLD
