@@ -58,8 +58,122 @@ void RegistrarTest::check()
    }
 }
 
+/// Override default run method to do one initial check before waiting for timers
+int RegistrarTest::run(void* pArg)
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest started - staring initial check");
 
-/// Check each unreachable peer.
+   /*
+    * When this thread is first started, all peers should be either Uninitialized or UnReachable,
+    * because the registrarSync.pullUpdates never sets them to Reachable.
+    * So now we make one pass over all peers to invoke registrarSync.reset get the to Reachable.
+    */
+   checkPeers();
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest initial check complete");
+
+   // from here on, we run only when a timer has expired.
+   return OsServerTask::run(pArg);
+}
+
+/// Check each unreachable or uninitialized peer
+void RegistrarTest::checkPeers()
+{
+   // A timer has expired, so it's time to check on UnReachable peers
+   SipRegistrar* sipRegistrar = NULL;
+   UtlSListIterator* peers = NULL;
+
+   sipRegistrar = &mSipRegistrar;
+   peers = sipRegistrar ? sipRegistrar->getPeers() : NULL;
+
+   if (sipRegistrar && peers)
+   {
+      /*
+       * Do a single check of each uninitialized or unreachable peer.
+       */
+      RegistrarPeer* peer;
+      while (   !isShuttingDown()
+             && (peer = dynamic_cast<RegistrarPeer*>((*peers)()))
+             )
+      {
+         RegistrarPeer::SynchronizationState state;
+
+         state = peer->synchronizationState();
+         if (   RegistrarPeer::Uninitialized == state
+             || RegistrarPeer::UnReachable   == state
+             )
+         {
+            OsSysLog::add( FAC_SIP, PRI_DEBUG, "RegistrarTest invoke SyncRpcReset(%s, %s)"
+                          ,sipRegistrar->primaryName().data(), peer->name());
+
+            peer->setState(SyncRpcReset::invoke(sipRegistrar->primaryName(), *peer));
+
+            if (RegistrarPeer::Reachable == peer->synchronizationState())
+            {
+               OsSysLog::add( FAC_SIP, PRI_NOTICE,
+                             "registerSync.reset success to '%s'; update numbering synchronized."
+                             ,peer->name()
+                             );
+            }
+         }
+      }
+         
+      if ( !isShuttingDown() )
+      {
+         /*
+          * If any are still unreachable after all are checked, then
+          * the timer is scheduled to retry, using a standard limited
+          * exponential backoff.
+          */
+
+         bool somePeerIsUnreachable = false;  // be optimistic 
+         peers->reset();
+         OsLock mutex(mLock); // do not do any asynchronous operations holding the lock
+
+         while (   (peer = dynamic_cast<RegistrarPeer*>((*peers)()))
+                && !somePeerIsUnreachable // it only takes one, so don't keep checking
+                )
+         {
+            if ( RegistrarPeer::UnReachable == peer->synchronizationState() )
+            {
+               somePeerIsUnreachable = true;
+            }
+         }
+
+         if (somePeerIsUnreachable)
+         {
+            if ( mRetryTime == 0 )
+            {
+               mRetryTime = REGISTER_TEST_INITIAL_WAIT;
+            }
+            else if ( mRetryTime < REGISTER_TEST_MAX_WAIT ) // has timer reached the backoff limit?
+            {
+               // no - so back off by doubling it
+               mRetryTime *= 2;
+            }
+
+            // start the timer
+            mWaitingForNextCheck = true;
+            mRetryTimer.oneshotAfter(OsTime(mRetryTime,0));
+         }
+         else // there are no UnReachable peers
+         {
+            mWaitingForNextCheck = false;
+            mRetryTime = 0;
+         }
+      }
+
+      delete peers;
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_CRIT,
+                    "RegistrarTest::checkPeers no peers %p %p",
+                    sipRegistrar, peers
+                    );
+   }
+}
+
+// handle the expiration of the check timer
 UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expiration msg
                                         )
 {
@@ -72,87 +186,7 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
        && OsEventMsg::NOTIFY == msgSubType
        )
    {
-      // A timer has expired, so it's time to check on UnReachable peers
-      SipRegistrar* sipRegistrar = NULL;
-      UtlSListIterator* peers = NULL;
-
-      sipRegistrar = &mSipRegistrar;
-      peers = sipRegistrar ? sipRegistrar->getPeers() : NULL;
-
-      if (sipRegistrar && peers)
-      {
-         /*
-          * Do a single check of each uninitialized or unreachable peer.
-          */
-         RegistrarPeer* peer;
-         while (   !isShuttingDown()
-                && (peer = dynamic_cast<RegistrarPeer*>((*peers)()))
-                )
-         {
-            if ( RegistrarPeer::Uninitialized == peer->synchronizationState() ||
-                 RegistrarPeer::UnReachable == peer->synchronizationState() )
-            {
-               OsSysLog::add( FAC_SIP, PRI_DEBUG, "RegistrarTest SyncRpcReset::invoke(%s, %s)"
-                              ,sipRegistrar->primaryName().data(), peer->name());
-               RegistrarPeer::SynchronizationState state =
-                  SyncRpcReset::invoke(sipRegistrar->primaryName(), *peer);
-
-               // Peer state has now been initialized
-               assert(state != RegistrarPeer::Uninitialized);
-
-               peer->setState(state);
-            }
-         }
-         
-         if ( !isShuttingDown() )
-         {
-            /*
-             * If any are still unreachable after all are checked, then
-             * the timer is scheduled to retry, using a standard limited
-             * exponential backoff.
-             */
-
-            bool somePeerIsUnreachable = false;  // be optimistic 
-            peers->reset();
-            OsLock mutex(mLock); // do not do any asynchronous operations holding the lock
-
-            while (   (peer = dynamic_cast<RegistrarPeer*>((*peers)()))
-                   && !somePeerIsUnreachable // it only takes one, so don't keep checking
-                   )
-            {
-               if ( RegistrarPeer::UnReachable == peer->synchronizationState() )
-               {
-                  somePeerIsUnreachable = true;
-               }
-            }
-
-            if (somePeerIsUnreachable)
-            {
-               if ( mRetryTime < REGISTER_TEST_MAX_WAIT ) // has timer reached the backoff limit?
-               {
-                  // no - so back off by doubling it
-                  mRetryTime *= 2;
-               }
-
-               // start the timer
-               mRetryTimer.oneshotAfter(OsTime(mRetryTime,0));
-            }
-            else // there are no UnReachable peers
-            {
-               mWaitingForNextCheck = false;
-               mRetryTime = 0;
-            }
-         }
-
-         delete peers;
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_NOTICE,
-                       "RegistrarTest::handleMessage no peers? %p %p",
-                       sipRegistrar, peers
-                       );
-      }
+      checkPeers();
    }
    else
    {

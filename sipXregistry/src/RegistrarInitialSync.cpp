@@ -125,8 +125,8 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
          // Apply the resulting updates to the DB, if pullUpdates succeeded.
          // A return value of Uninitialized indicates success.  If pullUpdates fails
          // then the peer's state is downgraded to UnReachable or Incompatible.
-         if (state == RegistrarPeer::Uninitialized &&
-             bindings.entries() > 0)
+         if (   state == RegistrarPeer::Uninitialized
+             && bindings.entries() > 0)
          {
             applyUpdatesToDirectory(bindings);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -166,8 +166,9 @@ void RegistrarInitialSync::pullPeerUpdatesFromPeers()
          assert(state != RegistrarPeer::Reachable);
 
          // Apply the resulting updates to the DB
-         if (state == RegistrarPeer::Uninitialized &&
-             bindings.entries() > 0)
+         if (   state == RegistrarPeer::Uninitialized
+             && bindings.entries() > 0
+             )
          {
             applyUpdatesToDirectory(bindings);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -220,8 +221,9 @@ void RegistrarInitialSync::recoverUnReachablePeers()
                assert(state != RegistrarPeer::Reachable);
 
                // Apply the resulting updates to the DB
-               if (state == RegistrarPeer::Uninitialized &&
-                   bindings.entries() > 0)
+               if (   state == RegistrarPeer::Uninitialized
+                   && bindings.entries() > 0
+                   )
                {
                   applyUpdatesToDirectory(bindings);
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,

@@ -51,7 +51,8 @@ public:
       AuthenticationFailure,  ///< connection not authenticated by SSL
       UpdateFailed,           ///< error in applying updates to the registration DB
       UpdateOutOfOrder,       ///< received an update ahead of prior updates
-      MixedUpdateNumbers      ///< received a pushed update with multiple update numbers
+      MixedUpdateNumbers,     ///< received a pushed update with multiple update numbers
+      IncompatiblePeer        ///< peer previously marked Incompatible - must restart to clear
    } FaultCode;
       
 protected:
@@ -75,18 +76,21 @@ protected:
                         ExecutionStatus& status
                         ) = 0;
 
-   /// Common method to do peer authentication and lookup
-   RegistrarPeer* authenticateCaller(
+   /// Common method to do peer validation
+   RegistrarPeer* validCaller(
       const HttpRequestContext& requestContext, ///< request context
       const UtlString&          peerName,       ///< name of the peer who is calling
       XmlRpcResponse&           response,       ///< response to put fault in
-      SipRegistrar&             registrar       ///< registrar
+      SipRegistrar&             registrar,      ///< registrar
+      const char*               callingMethod   ///< calling xml rpc method name
                                       );
    /**<
-    * @returns the pointer to the RegistrarPeer if the peerName is configured
-    * and the HttpRequestContext indicates that the connection is from that peer.
+    * @returns the pointer to the RegistrarPeer if all of the following are true:
+    * - the peerName is configured
+    * - the HttpRequestContext indicates that the connection is from that peer
+    * - the peer state is not Incompatible
     *
-    * On any failure, the response is set appropriately and a NULL is returned.
+    * On any failure, the fault response is set appropriately and a NULL is returned.
     */
 
    /// Handle missing parameters for the execute method

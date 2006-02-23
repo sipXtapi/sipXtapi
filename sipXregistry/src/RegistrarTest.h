@@ -36,16 +36,21 @@ class RegistrarTest : public OsServerTask
    /// destructor
    virtual ~RegistrarTest();
    
+   /// Override default run method to do one initial check before waiting for timers
+   int RegistrarTest::run(void* pArg);
 
    /// Check each unreachable peer.
-   UtlBoolean handleMessage( OsMsg& eventMessage ///< Timer expiration msg
-                            );
+   void RegistrarTest::checkPeers();
    /**<
     * Does a single check of each unreachable peer.
     * If any are still unreachable after all are checked, then
     * the timer is scheduled to retry, using a standard limited
     * exponential backoff.
     */
+   
+   /// handle the expiration of the check timer
+   UtlBoolean handleMessage( OsMsg& eventMessage ///< Timer expiration msg
+                            );
    
    /// Initiate checking of any unreachable peers.
    void check();

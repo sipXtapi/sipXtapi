@@ -62,9 +62,11 @@ void RegistrarSync::sendUpdates()
 /// Task main loop
 int RegistrarSync::run(void* pArg)
 {
-   while (true && !isShuttingDown())
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarSync started");
+
+   while (!isShuttingDown())
    {
-      // Wait until there is work to do
+      // Wait until there is work to do - this is signalled by the sendUpdates method
       mMutex.acquire();
       
       // Loop over all peers, pushing a single update for each peer.  Keep going until

@@ -221,21 +221,22 @@ void SipRegistrar::operationalPhase()
       mSipUserAgent->allowExtension("gruu"); // should be moved to gruu processor?
    }
 
-   mSipUserAgent->start();
-   startRegistrarServer();
-   startRedirectServer();
-
    if (mReplicationConfigured)
    {
-      // Start the sync and test threads.  (We ran the init sync thread earlier.)
-      mRegistrarSync->start();
+      // Start the test and sync threads.  (We ran the init sync thread earlier.)
       mRegistrarTest->start();
+      mRegistrarSync->start();
 
       // Register the pushUpdates and reset methods.
       // (We registered the pullUpdates method earlier because it only needs DB access.)
       SyncRpcPushUpdates::registerSelf(*this);
       SyncRpcReset::registerSelf(*this);
    }
+
+   mSipUserAgent->start();
+   startRegistrarServer();
+   startRedirectServer();
+
 }
 
 /// Get the XML-RPC dispatcher
@@ -386,6 +387,8 @@ void SipRegistrar::configurePeers()
    mReplicationConfigured = false;
    mPeers.destroyAll();
    mPrimaryName.remove(0);
+
+   UtlString peersMsg;
    
    mConfigDb->get("SIP_REGISTRAR_NAME", mPrimaryName);
 
@@ -408,29 +411,33 @@ void SipRegistrar::configurePeers()
                RegistrarPeer* thisPeer = new RegistrarPeer(this, peerName, mHttpPort);
                assert(thisPeer);
 
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "SipRegistrar::configurePeers adding '%s'", peerName.data()
-                             );
-            
                mPeers.append(thisPeer);
+               if (!peersMsg.isNull())
+               {
+                  peersMsg.append(", ");
+               }
+               peersMsg.append(peerName);
             }
          }
 
          if (mPeers.isEmpty())
          {
-            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+            OsSysLog::add(FAC_SIP, PRI_WARNING,
                           "SipRegistrar::configurePeers - no peers configured"
                           );
          }
          else
          {
+            OsSysLog::add(FAC_SIP, PRI_NOTICE,
+                          "SipRegistrar::configurePeers: %s", peersMsg.data()
+                          );
             mReplicationConfigured = true;
          }
       }
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::configurePeers "
+      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar::configurePeers "
                     "SIP_REGISTRAR_NAME not set - replication disbled"
                     );
    }
