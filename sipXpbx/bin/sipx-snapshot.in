@@ -189,10 +189,13 @@ cat > $Work.copy-files <<EOF
 @SIPX_CONFDIR@/fallbackrules.xml.in
 @SIPX_CONFDIR@/forwardingrules.xml
 @SIPX_CONFDIR@/forwardingrules.xml.in
+@SIPX_CONFDIR@/httpd.conf
 @SIPX_CONFDIR@/httpd-sipxchange-common-ssl.conf
 @SIPX_CONFDIR@/httpd-sipxchange-common-ssl.conf.in
 @SIPX_CONFDIR@/httpd-sipxchange-common.conf
 @SIPX_CONFDIR@/httpd-sipxchange-common.conf.in
+@SIPX_CONFDIR@/httpd-sipxchange-configserver.conf
+@SIPX_CONFDIR@/httpd-sipxchange-configserver.conf.in
 @SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf
 @SIPX_CONFDIR@/httpd-sipxchange-mediaserver-ssl.conf.in
 @SIPX_CONFDIR@/httpd-sipxchange-mediaserver.conf
@@ -214,7 +217,7 @@ cat > $Work.copy-files <<EOF
 @SIPX_CONFDIR@/sipxpark-config.in
 @SIPX_CONFDIR@/sipxpresence-config
 @SIPX_CONFDIR@/sipxpresence-config.in
-@SIPX_CONFDIR@/ssl/authorities
+@SIPX_CONFDIR@/ssl/authorities/*.crt
 @SIPX_CONFDIR@/ssl/ssl.crt
 @SIPX_CONFDIR@/status-config
 @SIPX_CONFDIR@/status-config.in
@@ -341,7 +344,8 @@ ifconfig      >> ${SystemConfig}
 
 # Get DNS and hostname information
 locale=""
-full_locale=`hostname --fqdn | tr A-Z a-z`
+full_host=`hostname --fqdn | tr A-Z a-z`
+full_locale=$full_locale
 
 while [ -n "$full_locale" ]
 do
@@ -349,7 +353,7 @@ do
     full_locale=`echo $full_locale | sed 's/^[^.]*\.//; s/^[^.]*$//'`
 done
 
-for d in $locale rr.$full_locale ap.$full_locale
+for d in  rr.$full_host ap.$full_host
 do
   echo "" >> ${SystemConfig}
   echo ======== DNS SRV $d >> ${SystemConfig}
