@@ -225,7 +225,7 @@ int HttpServer::run(void* runArg)
         {
             if (mbPersistentConnection)
             {
-                OsSysLog::add(FAC_SIP, PRI_ERR, "HttpServer: Using persistent connection" );
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Using persistent connection" );
                    
                 // Check for any old HttpConnections that can be deleted
                 int items = mpHttpConnectionList->entries();
@@ -268,7 +268,7 @@ int HttpServer::run(void* runArg)
                 }
                 else
                 {
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                   OsSysLog::add(FAC_SIP, PRI_WARNING,
                                   "HttpServer::run out of persistent connections - sending 503");
                     HttpMessage request;
                     HttpMessage response;

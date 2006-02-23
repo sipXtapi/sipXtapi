@@ -721,11 +721,6 @@ int HttpMessage::get(Url& httpUrl,
                 
         request.setHeaderValue(HTTP_CONNECTION_FIELD, "Keep-Alive");         
         pConnectionMapEntry = pConnectionMap->getPersistentConnection(httpUrl, httpSocket);
-        if (pConnectionMapEntry)
-        {
-            // Lock connection
-            pConnectionMapEntry->mLock.acquire();
-        }
     }            
     // Try to send request at least once, on persistent connections retry once if it fails.
     // Retry on persistent connections because the getPersistentConnection call may return
@@ -804,8 +799,8 @@ int HttpMessage::get(Url& httpUrl,
         {
             if (pConnectionMap)
             {
-                // No bytes were sent .. if this is a persistent connection and it failed on retry mark it unused 
-                // in the connection map. Set socket to NULL
+                // No bytes were sent .. if this is a persistent connection and it failed on retry
+                // mark it unused in the connection map. Set socket to NULL
                 if (sendTries == HttpMessageRetries-1)
                 { 
                     pConnectionMapEntry->mbInUse = false;
@@ -819,8 +814,8 @@ int HttpMessage::get(Url& httpUrl,
                               sendTries);      
             }
         }
-        if(bytesSent > 0 &&
-            httpSocket->isReadyToRead(maxWaitMilliSeconds))
+        else if(   bytesSent > 0
+                && httpSocket->isReadyToRead(maxWaitMilliSeconds))
         {
             bytesRead = read(httpSocket);
 
@@ -833,7 +828,8 @@ int HttpMessage::get(Url& httpUrl,
             {
                 if (bytesRead == 0)
                 {
-                    // No bytes were read .. if this is a persistent connection and it failed on retry mark it unused  
+                    // No bytes were read .. if this is a persistent connection
+                    // and it failed on retry mark it unused  
                     // in the connection map. Set socket to NULL
                     if (sendTries == HttpMessageRetries-1)                    
                     {

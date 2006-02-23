@@ -86,63 +86,53 @@ void HttpConnectionMap::clearHttpConnectionMap()
 
 HttpConnectionMapEntry* HttpConnectionMap::getPersistentConnection(const Url& url, OsConnectionSocket*& socket)
 {
-    OsLock lock(mLock);
     UtlString keyString;
     socket = NULL;
     
     getPersistentUriKey(url, keyString);    
+
+    HttpConnectionMapEntry* pEntry;
     
-    HttpConnectionMapEntry* pEntry = dynamic_cast<HttpConnectionMapEntry*>(findValue(&keyString));
+    { // table lock scope
+       OsLock lock(mLock);
     
+       pEntry = dynamic_cast<HttpConnectionMapEntry*>(findValue(&keyString));
+       if (!pEntry)
+       {
+          // Now create a new one
+          pEntry = new HttpConnectionMapEntry("ConnectionMapEntry-%d");
+          if (pEntry)
+          {
+             if (insertKeyAndValue(new UtlString(keyString.data()), pEntry) != NULL)
+             {
+                OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
+                              "HttpConnectionMap::getPersistentConnection "
+                              "- Adding %s for %s", 
+                              pEntry->data(), keyString.data());            
+             }
+             else
+             {
+                OsSysLog::add(FAC_HTTP, PRI_ERR,   
+                              "HttpConnectionMap::getPersistentConnection "
+                              "- adding %s (entry %s) failed)",
+                              keyString.data(), pEntry->data());
+                delete pEntry;
+                pEntry = NULL;
+             }
+          }
+       }
+    } // end of  table lock
+
     if (pEntry)
     {
-        // Key found - return socket and mark entry InUse if it wasn't already
-        socket = pEntry->mpSocket;
-        pEntry->mbInUse = true;
-    }
-    else
-    {
-        // Don't remove entry until locking is figured out
-        /*UtlHashMapIterator iterator(*this);
-        UtlString* pKey;
-        HttpConnectionMapEntry* pTemp;
-        
-        while ((pKey = (UtlString*)iterator()))
-        {
-            pTemp = dynamic_cast<HttpConnectionMapEntry*>(findValue(pKey));
-            
-            if (!pTemp->mbInUse)
-            {
-                OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
-                              "HttpConnectionMap::getPersistentConnection - destroying unused entry for %s", 
-                              pKey->data());                         
-                destroy(pKey);                              
-            }
-        }*/
+       pEntry->mLock.acquire();
+       socket = pEntry->mpSocket;
+       pEntry->mbInUse = true;
+       OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                     "HttpConnectionMap::getPersistentConnection - Found %s for %s, socket %p", 
+                     pEntry->data(), keyString.data(), socket);
 
-        // Now create a new one
-        pEntry = new HttpConnectionMapEntry("ConnectionMapEntry-%d");
-        if (pEntry)
-        {
-            if (insertKeyAndValue(new UtlString(keyString.data()), pEntry) != NULL)
-            {
-                OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
-                              "HttpConnectionMap::getPersistentConnection - Adding persistent connection for %s", 
-                              keyString.data());            
-            }
-            else
-            {
-                OsSysLog::add(FAC_HTTP, PRI_ERR,   
-                              "HttpConnectionMap::getPersistentConnection - adding %s (entry %p) failed)",
-                               keyString.data(), pEntry);
-                delete pEntry;                               
-            }
-        }
     }
-
-    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                  "HttpConnectionMap::getPersistentConnection - Found entry %p for %s, socket %p", 
-                  pEntry, keyString.data(), socket);
 
     return pEntry;
 }
@@ -197,7 +187,6 @@ HttpConnectionMap::~HttpConnectionMap()
 int HttpConnectionMapEntry::count = 0;
 
 HttpConnectionMapEntry::HttpConnectionMapEntry(const UtlString& name) :
-                                 UtlString(""),
                                  mLock(OsBSem::Q_FIFO, OsBSem::FULL),
                                  mbInUse(true)
 {
