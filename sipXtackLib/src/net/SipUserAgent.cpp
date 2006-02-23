@@ -2574,9 +2574,6 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
    if (getMessageQueue()->isEmpty())
    {
       garbageCollection();
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipUserAgent::handleMessage after GC, %d msgs in queue",
-                    getMessageQueue()->numMsgs());
    }
    return(messageProcessed);
 }
