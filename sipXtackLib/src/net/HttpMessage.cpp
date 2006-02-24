@@ -840,6 +840,7 @@ int HttpMessage::get(Url& httpUrl,
                     {
                         pConnectionMapEntry->mbInUse = false;
                     }
+                    httpSocket->close();
                     pConnectionMapEntry->mpSocket = NULL;
                     httpSocket = NULL;
                     OsSysLog::add(FAC_HTTP, PRI_DEBUG, 

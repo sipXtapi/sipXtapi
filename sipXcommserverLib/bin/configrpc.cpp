@@ -226,7 +226,7 @@ void exitFault(XmlRpcResponse& response)
    int code;
    response.getFault(&code,reason);
    fprintf(stderr, "XML-RPC Fault %d: %s\n", code, reason.data() );
-   exit(1);
+   //exit(1);
 }
 
 void requestVersion(Url& url)
