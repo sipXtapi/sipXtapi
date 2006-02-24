@@ -19,7 +19,6 @@ import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.event.ContextRefreshedEvent;
 
 public class DaoEventPublisherImplTest extends TestCase {
 
@@ -42,10 +41,8 @@ public class DaoEventPublisherImplTest extends TestCase {
         appContextCtrl.setReturnValue(beans);
         appContextCtrl.replay();
 
-        ContextRefreshedEvent event = new ContextRefreshedEvent(appContext);
-
         DaoEventPublisherImpl impl = new DaoEventPublisherImpl();
-        impl.onApplicationEvent(event);
+        impl.setBeanFactory(appContext);
         impl.publishDelete(entity);
 
         appContextCtrl.verify();
@@ -71,10 +68,8 @@ public class DaoEventPublisherImplTest extends TestCase {
         appContextCtrl.setReturnValue(beans);
         appContextCtrl.replay();
 
-        ContextRefreshedEvent event = new ContextRefreshedEvent(appContext);
-
         DaoEventPublisherImpl impl = new DaoEventPublisherImpl();
-        impl.onApplicationEvent(event);
+        impl.setBeanFactory(appContext);
         impl.publishSave(entity);
 
         appContextCtrl.verify();
@@ -83,7 +78,6 @@ public class DaoEventPublisherImplTest extends TestCase {
 
     public void testInitialization() {
         DaoEventPublisherImpl impl = new DaoEventPublisherImpl();
-        impl.onApplicationEvent(null);
 
         try {
             impl.publishSave(new Object());
