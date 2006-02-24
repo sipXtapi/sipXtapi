@@ -56,7 +56,6 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     }
 
     public synchronized void generateAll() {
-        LOG.debug("Generate all datasets");
         m_tasks.addAll(DataSet.getEnumList());
         notifyWorker();
     }
@@ -69,6 +68,7 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     public synchronized void publishEvent(ApplicationEvent event) {
         m_events.add(event);
         // we call notify and not notifyWorker - publishing event is not real work
+        LOG.debug("Notify work on published event");
         notify();
     }
 
