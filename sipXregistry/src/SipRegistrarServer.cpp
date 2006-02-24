@@ -94,11 +94,11 @@ SipRegistrarServer::initialize(
 
     // Minimum Registration Time
     pOsConfigDb->get("SIP_REGISTRAR_MIN_EXPIRES", mMinExpiresTimeStr);
-    if ( mMinExpiresTimeStr.isNull() )
+    if ( !mMinExpiresTimeStr.isNull() )
     {
         mMinExpiresTimeint = atoi(mMinExpiresTimeStr.data());
 
-        if ( mMinExpiresTimeint < 60 )
+        if ( mMinExpiresTimeint < HARD_MINIMUM_EXPIRATION )
         {
            OsSysLog::add(FAC_SIP, PRI_WARNING,
                          "SipRegistrarServer "
@@ -110,7 +110,14 @@ SipRegistrarServer::initialize(
            mMinExpiresTimeStr = min;
         }
     }
-
+    else
+    {
+       char min[10];
+       sprintf(min, "%d", MIN_EXPIRES_TIME);
+       mMinExpiresTimeStr = min;
+       mMinExpiresTimeint = MIN_EXPIRES_TIME;
+    }
+    
     // Maximum/Default Registration Time
     UtlString maxExpiresTimeStr;
     pOsConfigDb->get("SIP_REGISTRAR_MAX_EXPIRES", maxExpiresTimeStr);
