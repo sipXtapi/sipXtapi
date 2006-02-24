@@ -812,6 +812,7 @@ int HttpMessage::get(Url& httpUrl,
                 }
                 // Close socket to avoid timeouts in subsequent calls
                 httpSocket->close();
+                delete httpSocket;
                 pConnectionMapEntry->mpSocket = NULL;
                 httpSocket = NULL;
                 OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
@@ -841,6 +842,7 @@ int HttpMessage::get(Url& httpUrl,
                         pConnectionMapEntry->mbInUse = false;
                     }
                     httpSocket->close();
+                    delete httpSocket;
                     pConnectionMapEntry->mpSocket = NULL;
                     httpSocket = NULL;
                     OsSysLog::add(FAC_HTTP, PRI_DEBUG, 
