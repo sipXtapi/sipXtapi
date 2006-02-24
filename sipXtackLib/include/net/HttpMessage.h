@@ -21,6 +21,7 @@
 #include <os/OsSocket.h>
 #include <os/OsTimeLog.h>
 #include <os/OsMsgQ.h>
+#include <utl/UtlHashMap.h>
 
 // DEFINES
 #define HTTP_NAME_VALUE_DELIMITER ':'
@@ -58,6 +59,8 @@
 #define HTTP_PROXY_UNAUTHORIZED_TEXT "Proxy Authentication Required"
 #define HTTP_UNSUPPORTED_METHOD_CODE 501
 #define HTTP_UNSUPPORTED_METHOD_TEXT "Not Implemented"
+#define HTTP_OUT_OF_RESOURCES_CODE 503
+#define HTTP_OUT_OF_RESOURCES_TEXT "Out of Resources"
 
 // Field names
 #define HTTP_ACCEPT_LANGUAGE_FIELD "ACCEPT-LANGUAGE"
@@ -76,6 +79,7 @@
 #define HTTP_WWW_AUTHENTICATE_FIELD "WWW-AUTHENTICATE"
 #define HTTP_HOST_FIELD  "HOST"
 #define HTTP_ACCEPT_FIELD "ACCEPT"
+#define HTTP_CONNECTION_FIELD "CONNECTION"
 
 // Authentication Constants
 //    these are by specification case-independant tokens,
@@ -107,6 +111,8 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+const int HttpMessageRetries = 2;
+   
 // STRUCTS
 
 // FORWARD DECLARATIONS
@@ -172,7 +178,6 @@ class HttpMessage
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-
     enum HttpEndpointEnum
     {
         SERVER = 0,
@@ -205,18 +210,23 @@ public:
     /*! \param httpUrl - the url to get from the HTTP server.  The URL
      *         may contain a password & user id.
      * \param maxWaitMillSeconds - the maximum time to wait for the response
+     * \param bPersistent - use persistent connections if true
      */
     int get(Url& httpUrl,
-            int maxWaitMilliSeconds);
+            int maxWaitMilliSeconds,
+            bool bPersistent=true);
 
     //! Do an HTTP GET on the given URL
     /*! \param httpUrl - the url to get from the HTTP server.  The URL may contain a password & user id.  Note the only thing that may be required of the URL is the host and port as well as the user ID and password if there is a authentication challenge.
      * \param request - the complete HTTP request that will be sent to the HTTP server including the body.
      * \param maxWaitMillSeconds - the maximum time to wait for the response
+     * \param bPersistent - use persistent connections if true
      */
     int get(Url& httpUrl,
             HttpMessage& request,
-            int maxWaitMilliSeconds);
+            int maxWaitMilliSeconds,
+            bool bPersistent=true);
+            
 
     //!Perform an HTTP GET on the specified URL and pass data to the
     //! specified callbackProc.
@@ -686,7 +696,6 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-
    HttpBody* body;
    long transportTimeStamp;
    int lastResendDuration;
@@ -700,8 +709,7 @@ private:
 #ifdef HTTP_TIMELOG
    OsTimeLog mTimeLog;
 #endif
-
-
+ 
    //! Internal utility
    NameValuePair* getHeaderField(int index, const char* name = NULL) const;
 

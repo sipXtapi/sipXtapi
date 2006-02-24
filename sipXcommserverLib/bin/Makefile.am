@@ -2,6 +2,8 @@ include $(top_builddir)/config/sipXcommon.mak
 
 SUBDIRS = ssl-cert
 
+INCLUDES = -I$(top_srcdir)/include
+
 dist_bin_SCRIPTS = \
    ${PACKAGE}-config \
    configpp \
@@ -14,7 +16,8 @@ LOCAL_SHELLSCRIPTS = \
 EXTRA_DIST = $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript).in)
 
 noinst_PROGRAMS = \
-	sipxconfigrpc
+	sipxconfigrpc \
+  sipxconfigrpcsrv
 
 install-exec-hook: localize_scripts
 
@@ -31,7 +34,13 @@ $(foreach sipxScript,$(LOCAL_SHELLSCRIPTS),$(sipxScript)) : % : $(srcdir)/%.in
 sipxconfigrpc_SOURCES = \
 	configrpc.cpp
 
+sipxconfigrpcsrv_SOURCES = \
+  configrpcsrv.cpp
+
 sipxconfigrpc_LDADD = \
+	../src/libsipXcommserver.la
+
+sipxconfigrpcsrv_LDADD = \
 	../src/libsipXcommserver.la
 
 sipregistrar_CXXFLAGS = \

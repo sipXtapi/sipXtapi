@@ -42,6 +42,8 @@ libsipXtack_la_SOURCES =  \
     ../config/sipxtacklib-buildstamp.h \
     ../config/sipxtacklib-buildstamp.cpp \
     net/HttpBody.cpp \
+    net/HttpConnection.cpp \
+    net/HttpConnectionMap.cpp \
     net/HttpMessage.cpp \
     net/HttpRequestContext.cpp \
     net/HttpServer.cpp \
