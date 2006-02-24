@@ -18,12 +18,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 import org.springframework.context.ApplicationEvent;
 
 public class LazySipxReplicationContextImpl implements SipxReplicationContext {
+    private static final Log LOG = LogFactory.getLog(LazySipxReplicationContextImpl.class);
     /**
      * 7s is the default sleep interval after any replication request is issued
      */
@@ -48,11 +51,13 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     }
 
     public synchronized void generate(DataSet dataSet) {
+        LOG.debug("Generate dataset " + dataSet.getName());
         m_tasks.add(dataSet);
         notifyWorker();
     }
 
     public synchronized void generateAll() {
+        LOG.debug("Generate all datasets");
         m_tasks.addAll(DataSet.getEnumList());
         notifyWorker();
     }
@@ -65,17 +70,21 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     public synchronized void publishEvent(ApplicationEvent event) {
         m_events.add(event);
         // we call notify and not notifyWorker - publishing event is not real work
+        LOG.debug("Notify work scheduled from application event");
         notify();
     }
 
     private void notifyWorker() {
         m_worker.workScheduled();
+        LOG.debug("Notify work scheduled");
         notify();
     }
 
     private synchronized void waitForWork() throws InterruptedException {
         if (m_tasks.isEmpty()) {
+            LOG.debug("Waiting for work");
             wait();
+            LOG.debug("Work received");
         }
     }
 

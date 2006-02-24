@@ -13,8 +13,6 @@
 package org.sipfoundry.sipxconfig.common;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Helper method for creating passtokens
@@ -22,8 +20,6 @@ import org.apache.commons.logging.LogFactory;
 public final class Md5Encoder {
     /** MD5 message digest length */
     public static final int LEN = 32;
-
-    private static final Log LOG = LogFactory.getLog(Md5Encoder.class);
     
     private Md5Encoder() {
         // do not instantiate
@@ -35,9 +31,6 @@ public final class Md5Encoder {
     public static final String digestPassword(String user, String realm, String password) {
         String full = user + ':' + realm + ':' + password;
         String digest = DigestUtils.md5Hex(full);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(full + " -> " + digest);
-        }
         return digest;
     }
 

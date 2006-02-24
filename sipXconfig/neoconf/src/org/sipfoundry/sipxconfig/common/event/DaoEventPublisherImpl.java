@@ -15,11 +15,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
  * Publisher for Dao events
@@ -27,7 +27,7 @@ import org.springframework.context.event.ContextRefreshedEvent;
  * Implementation: we could probably use Spring application context event publishing facility but
  * it would require that our event handling is aware of ApplicationEvent class.
  */
-public class DaoEventPublisherImpl implements DaoEventPublisher, ApplicationListener {
+public class DaoEventPublisherImpl implements DaoEventPublisher, BeanFactoryAware {    
     private Collection m_listeners;
 
     private ListableBeanFactory m_beanFactory;
@@ -62,14 +62,8 @@ public class DaoEventPublisherImpl implements DaoEventPublisher, ApplicationList
         }
     }
 
-    /**
-     * Updates reference to bean factory and cleans the cache of listeners
-     */
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ContextRefreshedEvent) {
-            ContextRefreshedEvent cre = (ContextRefreshedEvent) event;
-            m_beanFactory = cre.getApplicationContext();
-            m_listeners = null;
-        }
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+        m_listeners = null;
     }
 }
