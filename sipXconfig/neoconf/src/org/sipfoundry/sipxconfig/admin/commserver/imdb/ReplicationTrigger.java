@@ -63,7 +63,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     }
 
     void onSaveOrDelete(Object entity) {
-        LOG.debug("onSaveOrDelete for replication");
         Class c = entity.getClass();
         if (Group.class.equals(c)) {
             Group group = (Group) entity;
