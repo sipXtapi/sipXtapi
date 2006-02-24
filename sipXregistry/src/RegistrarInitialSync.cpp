@@ -59,11 +59,11 @@ int RegistrarInitialSync::run(void* pArg)
    // Reset the DbUpdateNumber so that the upper half is the epoch time
    getRegistrarServer().resetDbUpdateNumberEpoch();
 
-   // SipRegistrar manages the transition to operational phase, so it will send resets to peers
-
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarInitialSync complete");
    
-   mFinished.release();
+   // allow SipRegistrar to proceed to operational phase
+   mFinished.release(); 
+
    return 0; // exit thread
 }
 

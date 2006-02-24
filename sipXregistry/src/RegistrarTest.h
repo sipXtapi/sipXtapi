@@ -39,15 +39,6 @@ class RegistrarTest : public OsServerTask
    /// Override default run method to do one initial check before waiting for timers
    int RegistrarTest::run(void* pArg);
 
-   /// Check each unreachable peer.
-   void RegistrarTest::checkPeers();
-   /**<
-    * Does a single check of each unreachable peer.
-    * If any are still unreachable after all are checked, then
-    * the timer is scheduled to retry, using a standard limited
-    * exponential backoff.
-    */
-   
    /// handle the expiration of the check timer
    UtlBoolean handleMessage( OsMsg& eventMessage ///< Timer expiration msg
                             );
@@ -59,13 +50,32 @@ class RegistrarTest : public OsServerTask
     * reachability checks (if already running, this is a no-op).
     */
 
+  protected:
+   /// do the exponential.backoff and start timer
+   void restartTimer();
+   
+   /// Check each unreachable peer.
+   void checkPeers();
+   /**<
+    * Does a single check of each unreachable peer.
+    * If any are still unreachable after all are checked, then
+    * the timer is scheduled to retry, using a standard limited
+    * exponential backoff.
+    */
+   
   private:
 
    /// mutex must be locked with OsLock to access any other member variable.
    OsBSem mLock;
 
    /// Whether or not there is a timer running.
-   bool mWaitingForNextCheck;
+   enum TestState
+   {
+      StartupPhase, ///< In this state, the timer is not started for UnReachable peers
+      TimerRunning, ///< The timer is already running, no need to start it
+      Checking,     ///< The checkPeers method is checking peers; do not start the timer
+      Idle          ///< All peers were reachable, this thread is sleeping, so start the timer
+   } mTestState;
 
    /// The retry timer.
    OsTimer mRetryTimer;

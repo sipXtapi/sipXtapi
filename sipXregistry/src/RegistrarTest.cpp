@@ -32,7 +32,7 @@ const size_t REGISTER_TEST_MAX_WAIT = 32;    // Maximum seconds between tests
 /// constructor
 RegistrarTest::RegistrarTest(SipRegistrar& sipRegistrar) :
    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL),
-   mWaitingForNextCheck(false),
+   mTestState(StartupPhase),
    mRetryTimer(getMessageQueue(),0),
    mRetryTime(0),
    mSipRegistrar(sipRegistrar)
@@ -44,17 +44,9 @@ void RegistrarTest::check()
 {
    OsLock mutex(mLock);
 
-   if ( !mWaitingForNextCheck )
+   if ( Idle == mTestState )
    {
-      mRetryTime = REGISTER_TEST_INITIAL_WAIT;
-      mRetryTimer.oneshotAfter(OsTime(mRetryTime,0));
-      mWaitingForNextCheck = true;
-   }
-   else
-   {
-      /*
-       * There is already a timer running, so just let it expire and do the check then.
-       */
+      restartTimer();
    }
 }
 
@@ -62,7 +54,6 @@ void RegistrarTest::check()
 int RegistrarTest::run(void* pArg)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest started - staring initial check");
-
    /*
     * When this thread is first started, all peers should be either Uninitialized or UnReachable,
     * because the registrarSync.pullUpdates never sets them to Reachable.
@@ -87,6 +78,10 @@ void RegistrarTest::checkPeers()
 
    if (sipRegistrar && peers)
    {
+      {
+         OsLock mutex(mLock);
+         mTestState = Checking; // prevent timers from starting while we poll
+      }
       /*
        * Do a single check of each uninitialized or unreachable peer.
        */
@@ -124,7 +119,6 @@ void RegistrarTest::checkPeers()
           * the timer is scheduled to retry, using a standard limited
           * exponential backoff.
           */
-
          bool somePeerIsUnreachable = false;  // be optimistic 
          peers->reset();
          OsLock mutex(mLock); // do not do any asynchronous operations holding the lock
@@ -141,24 +135,19 @@ void RegistrarTest::checkPeers()
 
          if (somePeerIsUnreachable)
          {
-            if ( mRetryTime == 0 )
-            {
-               mRetryTime = REGISTER_TEST_INITIAL_WAIT;
-            }
-            else if ( mRetryTime < REGISTER_TEST_MAX_WAIT ) // has timer reached the backoff limit?
-            {
-               // no - so back off by doubling it
-               mRetryTime *= 2;
-            }
+            OsSysLog::add( FAC_SIP, PRI_INFO,
+                          "RegistrarTest::checkPeers "
+                          "- at least one peer is UnReachable, staring timer."
+                          );
 
-            // start the timer
-            mWaitingForNextCheck = true;
-            mRetryTimer.oneshotAfter(OsTime(mRetryTime,0));
+            restartTimer();
          }
          else // there are no UnReachable peers
          {
-            mWaitingForNextCheck = false;
-            mRetryTime = 0;
+            OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                          "RegistrarTest::checkPeers - all peers Reachable."
+                          );
+            mTestState = Idle;
          }
       }
 
@@ -198,6 +187,31 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
    
    return handled;
 }
+
+/// See if we need to start a timer and do so if needed
+void RegistrarTest::restartTimer()
+{
+   if ( mRetryTime == 0 || mTestState == Idle )
+   {
+      mRetryTime = REGISTER_TEST_INITIAL_WAIT;
+   }
+   else if ( mRetryTime < REGISTER_TEST_MAX_WAIT ) // has timer reached the backoff limit?
+   {
+      // no - so back off by doubling it
+      mRetryTime *= 2;
+   }
+
+   // start the timer
+   mTestState = TimerRunning;
+   OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                 "RegistrarTest::restartTimer %d"
+                 ,mRetryTime
+                 );
+
+   mRetryTimer.oneshotAfter(OsTime(mRetryTime,0));
+}
+
+   
 
 /// destructor
 RegistrarTest::~RegistrarTest()
