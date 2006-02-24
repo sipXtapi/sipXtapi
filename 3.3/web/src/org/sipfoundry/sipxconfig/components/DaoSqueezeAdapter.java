@@ -20,12 +20,13 @@ import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 /**
  * Marshal/Unmarshal object from dao to tapestry based on ids.
  * 
- * FIXME: All beans that implement PrimaryKeySource use the same instance.  Unclear
- * if there's a way to organize squeezers by context.
+ * All beans that implement PrimaryKeySource use the this squezer instance. One can overwrite it
+ * by passing converter parameter to Tapestry components such as TableRows or For.
+ * 
  */
 public class DaoSqueezeAdapter implements IDaoSqueezeAdapter {
     /** 1 character safest choice, read code in DataSqueezerImpl.register for rationale */
-    private static final String PREFIX = "C"; // Arbitrary 
+    private static final String PREFIX = "C"; // Arbitrary
     private static final String DELIM = ":";
     private DataObjectSource m_dao;
 
@@ -46,8 +47,8 @@ public class DaoSqueezeAdapter implements IDaoSqueezeAdapter {
     }
 
     public Class getDataClass() {
-        // Used to tell what squeezers belong to what objects.  Here inlies
-        // the FIXME issue. Although you can load phone objects from 
+        // Used to tell what squeezers belong to what objects. Here inlies
+        // the FIXME issue. Although you can load phone objects from
         // corecontext, this is not expected behavior and may not work for all
         // objects.
         // see http://thread.gmane.org/gmane.comp.java.tapestry.user/27861
@@ -82,7 +83,6 @@ public class DaoSqueezeAdapter implements IDaoSqueezeAdapter {
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-        // FIXME: Change last parameter to serializabe when interface changes.
-        return getDataObjectSource().load(c, (Integer) key);
+        return getDataObjectSource().load(c, key);
     }
 }
