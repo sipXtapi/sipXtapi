@@ -786,6 +786,11 @@ int HttpMessage::get(Url& httpUrl,
            OsSysLog::add(FAC_SIP, PRI_ERR,
                          "HttpMessage::get socket connection to %s:%d failed, give up...\n",
                          httpHost.data(), httpPort);
+           if (pConnectionMap)
+           {
+               // Release lock on persistent connection
+               pConnectionMapEntry->mLock.release();             
+           }              
            return httpStatus;
         }
       
