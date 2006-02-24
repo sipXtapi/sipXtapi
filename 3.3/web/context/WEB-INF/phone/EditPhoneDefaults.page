@@ -41,13 +41,15 @@
     <binding name="source" value="lineNavigationSettings"/>
     <binding name="value" value="currentNavigationSetting"/>
   </component>
-  <component id="phoneSettingsLink" type="ActionLink">
+  <component id="phoneSettingsLink" type="DirectLink">
     <binding name="listener" value="listener:editPhoneSettings"/>
+	<binding name="parameters" value="currentNavigationSetting.name"/>
   </component>
   <component id="lineSettingsLabel" copy-of="phoneSettingsLabel">
   </component>
-  <component id="lineSettingsLink" type="ActionLink">
+  <component id="lineSettingsLink" type="DirectLink">
     <binding name="listener" value="listener:editLineSettings"/>
+	<binding name="parameters" value="currentNavigationSetting.name"/>
   </component>
   <!-- Edit form -->
   <component id="settingsForm" type="SettingsForm">

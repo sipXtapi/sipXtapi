@@ -81,6 +81,6 @@
   </component>
   <component id="ok" type="Submit">
     <binding name="listener" value="listener:ok"/>
-    <binding name="label" value="literal:OK"/>
+    <binding name="value" value="literal:OK"/>
   </component>
 </page-specification>

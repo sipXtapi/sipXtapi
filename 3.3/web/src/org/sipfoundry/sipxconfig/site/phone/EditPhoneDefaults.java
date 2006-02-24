@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -87,16 +88,16 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         return getPhone().getLine(0).getSettings().getValues();        
     }
     
-    public void editPhoneSettings(IRequestCycle cycle_) {
+    public IPage editPhoneSettings(String settingName) {
         setResourceId(PHONE_SETTINGS);
-        setEditFormSettingName(getCurrentNavigationSetting().getName());
-        editSettings();        
+        setEditFormSettingName(settingName);
+        return getPage();        
     }
         
-    public void editLineSettings(IRequestCycle cycle_) {
+    public IPage editLineSettings(String settingName) {
         setResourceId(LINE_SETTITNGS);
-        setEditFormSettingName(getCurrentNavigationSetting().getName());
-        editSettings();        
+        setEditFormSettingName(settingName);
+        return getPage();        
     }
     
     public void ok(IRequestCycle cycle) {
