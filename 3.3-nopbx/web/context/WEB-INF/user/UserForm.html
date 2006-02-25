@@ -1,0 +1,36 @@
+<span jwcid="$content$">
+  <ul jwcid="ifRenderToggle" element="ul" class="component-links">
+    <li jwcid="toggleShowSipPassword"></li>
+  </ul>
+  <fieldset>
+    <table>
+      <tr jwcid="userIdPanel" for="user:userId">
+        <input jwcid="userId" id="user:userId" type="text"/>
+      </tr>
+      <tr jwcid="lastNamePanel" for="user:lastName">
+        <input jwcid="lastName" id="user:lastName" type="text"/>
+      </tr>
+      <tr jwcid="firstNamePanel" for="user:firstName">
+        <input jwcid="firstName" id="user:firstName" type="text"/>
+      </tr>
+      <tr jwcid="pin"/>
+      <tr jwcid="ifRenderSipPassword">
+        <span jwcid="sipPasswordPanel" for="user:sipPassword">
+          <input jwcid="sipPassword" id="user:sipPassword" type="text"/>
+        </span>
+      </tr>
+      <tr>
+        <td>
+          <label for="select:group">
+            <span key="label.groups"></span>:</label>
+        </td>
+        <td>
+          <span jwcid="groupSelect"/>
+        </td>
+      </tr>
+      <tr jwcid="aliasesPanel" for="user:aliases">
+        <input jwcid="aliases" id="user:aliases" type="text"/>
+      </tr>
+    </table>
+  </fieldset>
+</span>
