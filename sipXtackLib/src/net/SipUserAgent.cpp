@@ -860,7 +860,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          }
          else if(!isUaTransaction)
          {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
+            // this happens all the time in the authproxy, so log only at debug
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipUserAgent::send proxied client transaction does not have parent");
          }
          else if(parentTransaction)
