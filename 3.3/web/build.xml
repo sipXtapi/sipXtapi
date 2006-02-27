@@ -243,7 +243,7 @@
       <classpath refid="test.path"/>
       <classpath location="${junit.jar}"/>
       <classpath location="${log4j.jar}"/>
-	  <classpath location="${server-bindings.jar}"/>
+      <classpath location="${server-bindings.jar}"/>
       <sysproperty key="basedir" value="${basedir}"/>
     </java>
   </target>
@@ -417,15 +417,15 @@
 	- Run web services unit tests
 	-->
   <target name="start-web-server" depends="test-war">
-    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
+    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
       <classpath refid="base.path"/>
       <classpath refid="test.path"/>
       <classpath location="${junit.jar}"/>
       <classpath location="${log4j.jar}"/>
       <classpath location="${server-bindings.jar}"/>
       <sysproperty key="basedir" value="${basedir}"/>
-    </java>    	
-  </target>	
+    </java>
+  </target>
 
   <target name="stop-web-server">
     <!-- shut down in case other tests relying on web server need to run -->
@@ -440,17 +440,23 @@
     </java>    
   </target>	
   
-  <target name="test-api" depends="start-web-server,test-api-run,stop-web-server" 
-	if="ruby-bindings-enabled"
-	description="Test web services"/>
+  <target name="test-api" if="ruby-bindings-enabled" description="Test web services">
+    <parallel>
+      <antcall target="start-web-server"/>
+      <sequential>
+        <echo level="info" message="Waiting 10 seconds for the server to start..."/>
+        <sleep seconds="10"/>
+        <antcall target="test-api-run"/>
+        <antcall target="stop-web-server"/>        
+      </sequential>      
+    </parallel>
+  </target>
 
-  <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
-		description="Test web services with starting webserver">	
-    <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>    
-    <property name="ruby.include.path"
-      value="${ruby.bindings.dir}${path.separator}${ruby.webservice-unit-test.src.dir}"/>
-    <property name="webservice-unit-test-command" 
-  		value="-I${ruby.include.path} ${ruby.flags} ${ruby.webservice-unit-test.src.dir}"/>
+  <target name="test-api-run" depends="ruby-bindings" description="Test web services with starting webserver">
+    <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>
+    <property name="ruby.include.path" value="${ruby.bindings.dir}${path.separator}${ruby.webservice-unit-test.src.dir}"/>
+    <property name="webservice-unit-test-command"
+      value="-I${ruby.include.path} ${ruby.flags} ${ruby.webservice-unit-test.src.dir}"/>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/CallGroupServiceTestApi.rb"/>
     </exec>
@@ -462,10 +468,10 @@
     </exec>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/PhoneServiceTestApi.rb"/>
-    </exec>    
+    </exec>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/UserServiceTestApi.rb"/>
-    </exec>    
+    </exec>
   </target>
   
 </project>

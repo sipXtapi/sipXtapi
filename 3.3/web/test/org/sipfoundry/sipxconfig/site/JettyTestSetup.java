@@ -11,6 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -23,6 +30,10 @@ import org.sipfoundry.sipxconfig.security.AuthenticationDaoImpl;
  * Assumes you've run ant to build test war file first ant build-test-war
  */
 public class JettyTestSetup extends TestSetup {
+
+    private static final int MONITOR_PORT = 9998;
+
+    private static final String MONITOR_KEY = "sipxconfig";
 
     private static Server m_server;
 
@@ -63,24 +74,27 @@ public class JettyTestSetup extends TestSetup {
         // add the sipXconfig web application
         String war = SiteTestHelper.getBuildDirectory() + "/tests/war";
         m_server.addWebApplication("/sipxconfig", war);
-        
+
         // enable dummy admin user for unit testing
         AuthenticationDaoImpl.setDummyAdminUserEnabled(true);
-        
+
+        // start monitor thread that allows stopping server
+        Monitor.monitor(MONITOR_PORT, MONITOR_KEY);
+
         m_server.start();
     }
-    
-    private static void shutdownJetty() {
-        if (m_server != null) {
-            try {
-                m_server.stop();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            m_server = null;
-        }        
+
+    private static void shutdownJetty() throws UnknownHostException, IOException {
+        Socket s = new Socket(InetAddress.getByName("127.0.0.1"), MONITOR_PORT);
+        OutputStream out = s.getOutputStream();
+        OutputStreamWriter writer = new OutputStreamWriter(out);
+        writer.write(MONITOR_KEY);
+        writer.write("\nstop\n");
+        writer.flush();
+        s.shutdownOutput();
+        s.close();
     }
-    
+
     private static void startJetty() {
         TestCase notest = new TestCase() {
             // empty
@@ -91,18 +105,18 @@ public class JettyTestSetup extends TestSetup {
             Runtime.getRuntime().addShutdownHook(new Thread(jetty.shutdownHoook()));
         } catch (Exception e) {
             e.printStackTrace();
-        }        
+        }
     }
 
     /**
      * If you want to run sipXconfig in jetty w/o any tests
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         if (args.length > 0 && "shutdown".equals(args[0])) {
-            shutdownJetty();           
+            shutdownJetty();
         } else {
             startJetty();
-        }        
+        }
     }
 
     Runnable shutdownHoook() {
