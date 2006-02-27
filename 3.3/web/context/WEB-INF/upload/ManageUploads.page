@@ -11,13 +11,13 @@
   <property name="selectedSpecification" />
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <bean name="specifications" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="literal:uploadManager.uploadSpecifications"/>
+    <set name="collection" value="uploadManager.uploadSpecifications"/>
     <set name="labelExpression" value="literal:label"/>
   </bean>
   <bean name="specificationSelection" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
-    <set name="model" value="literal:beans.specifications"/>
-    <set name="extraLabel" value="literal:'Add files...'"/>
-    <set name="extraOption" value="literal:null"/>
+    <set name="model" value="beans.specifications"/>
+    <set name="extraLabel" value="literal:Add files..."/>
+    <set name="extraOption" value="null"/>
   </bean>
   <component id="uploadManagement" type="Form">
     <binding name="delegate" value="bean:validator"/>
