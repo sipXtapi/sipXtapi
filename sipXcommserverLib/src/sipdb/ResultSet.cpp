@@ -56,9 +56,9 @@ ResultSet::destroyAll()
 void
 ResultSet::clear()
 {
-   // I think this would actually be a bug if there was ever anything here to clear,
-   // so I'm going to treat is as a check rather than clearing it out.
-   assert(isEmpty());
+   // Clearing the ResultSet is simple, as the superclass UtlSList is the
+   // entirety of its state.
+   destroyAll();
 }
 
 OsStatus 

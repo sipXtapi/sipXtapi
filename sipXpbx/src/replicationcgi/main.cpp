@@ -978,18 +978,12 @@ void handleInput(const char* pBuf )
                      OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
                            "after cleaning %s database", mappedLocation.data());
 
-
-                     if( iDecodedLength < 5000 )
-                     {
-                        OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
-                              "before updating %s database with %s",
-                                 mappedLocation.data(), pDecodedPayLoadData);
-                     }else
-                     {
-                        OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
-                              "before updating %s database (data not logged as its length is larger than 5000 )",
-                                 mappedLocation.data() );
-                     }
+                     // If the payload data exceeds 5,000 characters, only print
+                     // the first 5,000 characters and follow them with "...".
+                     OsSysLog::add(FAC_REPLICATION_CGI,PRI_DEBUG,
+                                   "before updating %s database with '%.5000s%s'",
+                                   mappedLocation.data(), pDecodedPayLoadData,
+                                   (iDecodedLength <= 5000 ? "" : "..."));
 
                      // Load all rows from an external XML Script
                      OsStatus status = updateDB( pDecodedPayLoadData, mappedLocation );
