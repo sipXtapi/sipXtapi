@@ -3,7 +3,7 @@
 
 SIPfoundry sipXproxy                                         S. Lawrence
                                                            Pingtel Corp.
-                                                        December 7, 2004
+                                                            May 13, 2005
 
 
                sipXproxy Call State Events Specification
@@ -15,23 +15,23 @@ Abstract
    can be used to construct Call Detail Records (CDRs) or other
    indications or records of call state.
 
+
 Table of Contents
 
    1.  Overview . . . . . . . . . . . . . . . . . . . . . . . . . . .  2
-     1.1   Common Elements  . . . . . . . . . . . . . . . . . . . . .  2
+     1.1.  Common Elements  . . . . . . . . . . . . . . . . . . . . .  2
    2.  Observer Message . . . . . . . . . . . . . . . . . . . . . . .  3
    3.  Call State Events  . . . . . . . . . . . . . . . . . . . . . .  3
-     3.1   Call Request . . . . . . . . . . . . . . . . . . . . . . .  3
-     3.2   Call Setup . . . . . . . . . . . . . . . . . . . . . . . .  4
-     3.3   Call Failure . . . . . . . . . . . . . . . . . . . . . . .  4
-     3.4   Call End . . . . . . . . . . . . . . . . . . . . . . . . .  5
+     3.1.  Call Request . . . . . . . . . . . . . . . . . . . . . . .  4
+     3.2.  Call Setup . . . . . . . . . . . . . . . . . . . . . . . .  4
+     3.3.  Call Failure . . . . . . . . . . . . . . . . . . . . . . .  4
+     3.4.  Call End . . . . . . . . . . . . . . . . . . . . . . . . .  5
    4.  Call State Event Logs  . . . . . . . . . . . . . . . . . . . .  5
    5.  Call Resolution  . . . . . . . . . . . . . . . . . . . . . . .  5
-       Author's Address . . . . . . . . . . . . . . . . . . . . . . .  7
-   A.  Call State Event XML Schema  . . . . . . . . . . . . . . . . .  7
-   B.  Example Call State Events  . . . . . . . . . . . . . . . . . . 14
-   C.  Call Detail Record XML Schema  . . . . . . . . . . . . . . . . 16
-
+   Appendix A.  Call State Event XML Schema . . . . . . . . . . . . .  7
+   Appendix B.  Example Call State Events . . . . . . . . . . . . . . 14
+   Appendix C.  Call Detail Record XML Schema . . . . . . . . . . . . 16
+   Author's Address . . . . . . . . . . . . . . . . . . . . . . . . . 19
 
 
 
@@ -54,7 +54,7 @@ Table of Contents
 
 Lawrence                                                        [Page 1]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
 1.  Overview
@@ -88,7 +88,7 @@ Lawrence                                                        [Page 1]
    Call State Events are encoded as XML according to the the schema in
    Appendix A.
 
-1.1  Common Elements
+1.1.  Common Elements
 
    All Call State Events have some elements in common; in fact, most of
    each event consists of the common elements.  These common elements
@@ -101,18 +101,22 @@ Lawrence                                                        [Page 1]
    <obs_time> The (UTC) time at the observer when this event occured;
       this should be expressed to the millisecond, or as near to that as
       the Observer can measure.
-   <call> The call element is a compound element that describes the call
-      itself.  Its dialog component contains the key values used to
-      determine which events are in the same call, and the full To and
-      From header field values for display purposes.
+
+
+
+
 
 
 
 Lawrence                                                        [Page 2]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+   <call> The call element is a compound element that describes the call
+      itself.  Its dialog component contains the key values used to
+      determine which events are in the same call, and the full To and
+      From header field values for display purposes.
       <dialog> This value is used to correlate the separate events
          (which may even come from different observers) for the same
          call.  A dialog value has three components:
@@ -131,6 +135,7 @@ Lawrence                                                        [Page 2]
          a CSE are ordered such that the first element is the Via value
          added by the message originator.
 
+
 2.  Observer Message
 
    XML element name obs_msg
@@ -144,21 +149,16 @@ Lawrence                                                        [Page 2]
    0) event is sent when the Observer starts up.  It is always sent with
    observer sequence number 0 (zero).
 
-   An Observer Message may contain an  is the schema URI that the
+   An Observer Message may contain an is the schema URI that the
    observer is using in generating events.  Observers will typically log
    call events individually, without the call_event_sequence container
-   (which would be the natural place for this URI).  This allows a
-   post-processor to correctly construct an XML document without having
-   the observer having to put the namespace on every element.
+   (which would be the natural place for this URI).  This allows a post-
+   processor to correctly construct an XML document without having the
+   observer having to put the namespace on every element.
+
 
 3.  Call State Events
 
-3.1  Call Request
-
-   XML element name call_request
-   Triggered by A Call Request Event is generated by the sipproxy server
-      when an INVITE request is received that does not have a tag
-      parameter on the To field value.
 
 
 
@@ -166,9 +166,15 @@ Lawrence                                                        [Page 2]
 
 Lawrence                                                        [Page 3]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+3.1.  Call Request
+
+   XML element name call_request
+   Triggered by A Call Request Event is generated by the sipproxy server
+      when an INVITE request is received that does not have a tag
+      parameter on the To field value.
    Description Represents an attempt to create a new call.  The
       <contact> element in this event is the calling party Contact
       header field value.
@@ -180,7 +186,7 @@ Lawrence                                                        [Page 3]
    timestamp (not the observer sequence number) is used to determine the
    original event.
 
-3.2  Call Setup
+3.2.  Call Setup
 
    XML element name call_setup
    Description Indicates acceptance of a call, or acceptance of a
@@ -200,7 +206,7 @@ Lawrence                                                        [Page 3]
    timestamp (obs_time) value; this is the one that actually indicates
    that the call has been set up.
 
-3.3  Call Failure
+3.3.  Call Failure
 
    XML element name cse_failure
    Description Indicates that at least one leg of a Call Request was
@@ -209,6 +215,16 @@ Lawrence                                                        [Page 3]
          Any 5xx or 6xx response to an INVITE request,
          _or_ any 4xx response to an INVITE request _except_:
             401 Authentication Required
+
+
+
+
+
+Lawrence                                                        [Page 4]
+
+                            Call State Events                   May 2005
+
+
             407 Proxy Authentication Required
             408 Request timeout
 
@@ -217,17 +233,9 @@ Lawrence                                                        [Page 3]
    for a given attempt to create a call; these should all have the same
    dialog ids.  A call state processor can only conclude that all given
    Call Request event ended in failure if there are no Call Setup events
-
-
-
-Lawrence                                                        [Page 4]
-
-                            Call State Events              December 2004
-
-
    for it and there are no missing events.
 
-3.4  Call End
+3.4.  Call End
 
    XML element name cse_end
    Description Termination of a successful call.
@@ -235,6 +243,7 @@ Lawrence                                                        [Page 4]
 
    The Call End event is correlated with a Call Setup event using the
    dialog id.
+
 
 4.  Call State Event Logs
 
@@ -245,6 +254,7 @@ Lawrence                                                        [Page 4]
    logged by the authentication proxy in the file configured by the
    SIP_AUTHPROXY_CALL_STATE_LOG directive (by default
    "sipauthproxy_callstate.log" in the log directory).
+
 
 5.  Call Resolution
 
@@ -263,24 +273,21 @@ Lawrence                                                        [Page 4]
 
    In the following algorithm, the notation:
 
-   /dest-ns:dest-element/dest-sub <- /src-ns:src-element/src-sub
-
-    is used to indicate that the contents of element path
-   /dest-element/dest-sub in the namespace dest-ns should be set from
-   the contents of the element /src-element/src-sub from namespace
-   src-ns.
-
-   The namespaces used are:
-
-
 
 
 
 Lawrence                                                        [Page 5]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+   /dest-ns:dest-element/dest-sub <- /src-ns:src-element/src-sub
+
+   is used to indicate that the contents of element path /dest-element/
+   dest-sub in the namespace dest-ns should be set from the contents of
+   the element /src-element/src-sub from namespace src-ns.
+
+   The namespaces used are:
    cdr The Call Detail Records namespace:
       http://www.sipfoundry.org/sipX/schema/xml/cdr-01-00 (see
       Appendix C).
@@ -321,36 +328,30 @@ Lawrence                                                        [Page 5]
 
    6.  Find the last <cse:call_end> event whose <cse:dialog> values
        exactly match those in the selected <cse:call_setup>.  If none is
-       found, this is a partial record, and it will not have a
-       <cdr:call_end> element.  If one is found, set:
-
-   /cdr:call/end <- /cse:call_event/obs_time
-   /cdr:call/completionCode <- CC
-
-        If there was no <cse:call_setup> event, find the last
-       <cse:call_failed> event and set:
+       found, this is a partial record, and it will not have a <cdr:
 
 
 
 Lawrence                                                        [Page 6]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
+
+       call_end> element.  If one is found, set:
+
+   /cdr:call/end <- /cse:call_event/obs_time
+   /cdr:call/completionCode <- CC
+
+       If there was no <cse:call_setup> event, find the last <cse:
+       call_failed> event and set:
 
    /cdr:call/caller/endpoint <- /cse:call_event/call_failed/via
    /cdr:call/end <- /cse:call_event/obs_time
    /cdr:call/completionCode <- UC
 
 
-
-Author's Address
-
-   Scott Lawrence
-   Pingtel Corp.
-
-   Email: slawrence@pingtel.com
-
 Appendix A.  Call State Event XML Schema
+
 
    <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
    <!--
@@ -384,15 +385,15 @@ Appendix A.  Call State Event XML Schema
          <pattern value="(([a-zA-Z0-9]+-)*[a-zA-Z0-9]+\.)*([a-zA-Z0-9]+-)*[a-zA-Z0-9]+">
            <annotation>
              <documentation>dns_token(\.dns_token)+</documentation>
-           </annotation>
 
 
 
 Lawrence                                                        [Page 7]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+           </annotation>
          </pattern>
        </restriction>
      </simpleType>
@@ -440,15 +441,15 @@ Lawrence                                                        [Page 7]
        </annotation>
        <restriction base="normalizedString">
          <pattern value="([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)@([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)">
-            <annotation>
 
 
 
 Lawrence                                                        [Page 8]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+            <annotation>
               <documentation>sip_word@sip_word</documentation>
             </annotation>
          </pattern>
@@ -496,15 +497,15 @@ Lawrence                                                        [Page 8]
 
    <!-- Elements -->
 
-     <element name='call_event_sequence'>
 
 
 
 Lawrence                                                        [Page 9]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+     <element name='call_event_sequence'>
        <annotation>
          <documentation>
            A container for a set of call_event elements
@@ -552,15 +553,15 @@ Lawrence                                                        [Page 9]
        <complexType>
          <sequence>
              <element ref='cse:obs_status'/>
-             <element ref='cse:obs_text' minOccurs='0'/>
 
 
 
 Lawrence                                                       [Page 10]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+             <element ref='cse:obs_text' minOccurs='0'/>
              <element name='schema' type='anyURI' minOccurs='0'>
                <annotation>
                  <documentation>
@@ -608,15 +609,15 @@ Lawrence                                                       [Page 10]
              <element ref='cse:call'/>
              <element ref='cse:contact'/>
              <element ref='cse:via' maxOccurs='unbounded'/>
-         </sequence>
 
 
 
 Lawrence                                                       [Page 11]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+         </sequence>
        </complexType>
      </element>
 
@@ -664,15 +665,15 @@ Lawrence                                                       [Page 11]
      <element name='dialog'>
        <annotation>
          <documentation>
-         This uniquely identifies a call.
 
 
 
 Lawrence                                                       [Page 12]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+         This uniquely identifies a call.
          </documentation>
        </annotation>
        <complexType>
@@ -723,10 +724,9 @@ Lawrence                                                       [Page 12]
 
 
 
-
 Lawrence                                                       [Page 13]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
      <element name='contact' type='normalizedString'/>
@@ -735,7 +735,9 @@ Lawrence                                                       [Page 13]
 
 
 
+
 Appendix B.  Example Call State Events
+
 
    <call_event_sequence
     xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'
@@ -775,16 +777,16 @@ Appendix B.  Example Call State Events
      <call_setup>
        <call>
          <dialog>
-           <call_id>call-1063657885-12@10.1.1.252</call_id>
-           <from_tag>1c954235820</from_tag>
 
 
 
 Lawrence                                                       [Page 14]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+           <call_id>call-1063657885-12@10.1.1.252</call_id>
+           <from_tag>1c954235820</from_tag>
            <to_tag>c1592453082</to_tag>
          </dialog>
          <to>Some Phone&lt;sip:162@example.com&gt;;tag=c1592453082,transport=tcp</to>
@@ -831,21 +833,23 @@ Lawrence                                                       [Page 14]
          <from>"Scott"&lt;sip:scott-ix@kathmandu.example.com&gt;;tag=1c954235820</from>
        </call>
        <via>SIP/2.0/TCP 10.5.6.6;branch=z9hG4bK687e5283dc2bac232577f1f659999999</via>
-     </call_end>
-   </call_event>
 
 
 
 Lawrence                                                       [Page 15]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
+     </call_end>
+   </call_event>
    </call_event_sequence>
 
 
 
+
 Appendix C.  Call Detail Record XML Schema
+
 
    <?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
    <!DOCTYPE schema [
@@ -885,19 +889,19 @@ Appendix C.  Call Detail Record XML Schema
          <element ref='cdr:endpoint' type='normalizedString'/>
          <element ref='cdr:contact' type='cdr:sip_tofrom_value' minOccurs='0'/>
        </sequence>
-     </complexType>
-
-     <simpleType name="call_result">
-       <annotation>
 
 
 
 Lawrence                                                       [Page 16]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
 
 
-         <documentation>
+     </complexType>
+
+     <simpleType name="call_result">
+       <annotation>
+         <documentation><![CDATA[
            Final result of an attempted call.
            These values are adapted from those specified by:
               Network Data Management Usage (NDM-U)
@@ -905,7 +909,7 @@ Lawrence                                                       [Page 16]
               Voice over IP (VoIP)
               Version 3.1-A.0.2
               August 21, 2002
-              © 1999-2002 IPDR, Inc.
+              (C) 1999-2002 IPDR, Inc.]]>
          </documentation>
        </annotation>
        <restriction base="normalizedString">
@@ -941,16 +945,16 @@ Lawrence                                                       [Page 16]
              </documentation>
            </annotation>
          </enumeration>
-       </restriction>
-     </simpleType>
-
-
 
 
 
 Lawrence                                                       [Page 17]
 
-                            Call State Events              December 2004
+                            Call State Events                   May 2005
+
+
+       </restriction>
+     </simpleType>
 
 
    <!-- Elements -->
@@ -1000,9 +1004,61 @@ Lawrence                                                       [Page 17]
 
 
 
-
-
-
-
 Lawrence                                                       [Page 18]
+
+                            Call State Events                   May 2005
+
+
+Author's Address
+
+   Scott Lawrence
+   Pingtel Corp.
+
+   Email: slawrence@pingtel.com
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Lawrence                                                       [Page 19]
 

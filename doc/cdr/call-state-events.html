@@ -1,9 +1,9 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXproxy: sipXproxy Call State Events Specification</title>
-<meta http-equiv="Expires" content="Fri, 13 May 2005 14:24:56 +0000">
+<meta http-equiv="Expires" content="Mon, 27 Feb 2006 16:55:21 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXproxy Call State Events Specification">
-<meta name="generator" content="xml2rfc v1.28 (http://xml.resource.org/)">
+<meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
 <style type='text/css'>
 <!--
     body {
@@ -18,7 +18,7 @@
         font-weight: bold; text-align: right;
         font-family: helvetica, arial, sans-serif;
         background-color: transparent; }
-    td.rfcbug { background-color: #000000 ; width: 30px ; height: 30px ; 
+    td.rfcbug { background-color: #000000 ; width: 30px ; height: 30px ;
         text-align: justify; vertical-align: middle ; padding-top: 2px ; }
     td.rfcbug span.RFC { color: #666666; font-weight: bold; text-decoration: none;
         background-color: #000000 ;
@@ -28,7 +28,7 @@
         text-align: center ;
         font-family: charcoal, monaco, geneva, "MS Sans Serif", helvetica, verdana, sans-serif;
         font-size: x-small ; background-color: #000000; }
-/* info code from SantaKlauss at http://www.madaboutstyle.com/tooltip2.html */
+    /* info code from SantaKlauss at http://www.madaboutstyle.com/tooltip2.html */
     div#counter{margin-top: 100px}
 
     a.info{
@@ -40,7 +40,7 @@
 
     a.info span{display: none}
 
-    a.info:hover span{ /*the span will display just on :hover state*/
+    a.info:hover span.info{ /*the span will display just on :hover state*/
         display:block;
         position:absolute;
         font-size: smaller ;
@@ -58,6 +58,8 @@
     p { margin-left: 2em; margin-right: 2em; }
     p.copyright { font-size: x-small ; }
     p.toc { font-size: small ; font-weight: bold ; margin-left: 3em ;}
+    table.toc { margin: 0 0 0 3em; padding: 0; border: 0; vertical-align: text-top; }
+    td.toc { font-size: small; font-weight: bold; vertical-align: text-top; }
 
     span.emph { font-style: italic; }
     span.strong { font-weight: bold; }
@@ -73,6 +75,7 @@
 
     pre { margin-left: 3em; color: #333333;  background-color: transparent;
         font-family: "Courier New", Courier, monospace ; font-size: small ;
+        text-align: left;
         }
 
     h3 { color: #333333; font-size: medium ;
@@ -94,16 +97,25 @@
         background-color: #666666 ; width: 33% ; }
     td.author { font-weight: bold; margin-left: 4em; font-size: x-small ; }
     td.author-text { font-size: x-small; }
-    table.data { vertical-align: top ; border-collapse: collapse ;
+    table.full { vertical-align: top ; border-collapse: collapse ;
         border-style: solid solid solid solid ;
         border-color: black black black black ;
         font-size: small ; text-align: center ; }
-    table.data th { font-weight: bold ;
-        border-style: solid solid solid solid ;
+    table.headers, table.none { vertical-align: top ; border-collapse: collapse ;
+        border-style: none;
+        font-size: small ; text-align: center ; }
+    table.full th { font-weight: bold ;
+        border-style: solid ;
         border-color: black black black black ; }
-    table.data td {
+    table.headers th { font-weight: bold ;
+        border-style: none none solid none;
+        border-color: black black black black ; }
+    table.none th { font-weight: bold ;
+        border-style: none; }
+    table.full td {
         border-style: solid solid solid solid ;
         border-color: #333333 #333333 #333333 #333333 ; }
+    table.headers td, table.none td { border-style: none; }
 
     hr { height: 1px }
 -->
@@ -114,7 +126,7 @@
 <table summary="layout" width="66%" border="0" cellpadding="0" cellspacing="0"><tr><td><table summary="layout" width="100%" border="0" cellpadding="2" cellspacing="1">
 <tr><td class="header">SIPfoundry sipXproxy</td><td class="header">S. Lawrence</td></tr>
 <tr><td class="header">&nbsp;</td><td class="header">Pingtel Corp.</td></tr>
-<tr><td class="header">&nbsp;</td><td class="header">December 7, 2004</td></tr>
+<tr><td class="header">&nbsp;</td><td class="header">May 13, 2005</td></tr>
 </table></td></tr></table>
 <div align="right"><span class="title"><br />sipXproxy Call State Events Specification</span></div>
 
@@ -130,32 +142,32 @@
 <p class="toc">
 <a href="#anchor1">1.</a>&nbsp;
 Overview<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor2">1.1</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor2">1.1.</a>&nbsp;
 Common Elements<br />
 <a href="#OBS_MSG">2.</a>&nbsp;
 Observer Message<br />
 <a href="#CSE_DESCR">3.</a>&nbsp;
 Call State Events<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor3">3.1</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor3">3.1.</a>&nbsp;
 Call Request<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor4">3.2</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor4">3.2.</a>&nbsp;
 Call Setup<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor5">3.3</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor5">3.3.</a>&nbsp;
 Call Failure<br />
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor6">3.4</a>&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor6">3.4.</a>&nbsp;
 Call End<br />
 <a href="#anchor7">4.</a>&nbsp;
 Call State Event Logs<br />
 <a href="#RESOLUTION">5.</a>&nbsp;
 Call Resolution<br />
+<a href="#CSE_SCHEMA">Appendix&nbsp;A.</a>&nbsp;
+Call State Event XML Schema<br />
+<a href="#CSE_EXAMPLES">Appendix&nbsp;B.</a>&nbsp;
+Example Call State Events<br />
+<a href="#CDR_SCHEMA">Appendix&nbsp;C.</a>&nbsp;
+Call Detail Record XML Schema<br />
 <a href="#rfc.authors">&#167;</a>&nbsp;
 Author's Address<br />
-<a href="#CSE_SCHEMA">A.</a>&nbsp;
-Call State Event XML Schema<br />
-<a href="#CSE_EXAMPLES">B.</a>&nbsp;
-Example Call State Events<br />
-<a href="#CDR_SCHEMA">C.</a>&nbsp;
-Call Detail Record XML Schema<br />
 </p>
 <br clear="all" />
 
@@ -175,7 +187,7 @@ Call Detail Record XML Schema<br />
     
 </p>
 <p>
-    The record of each observed event is called a Call State Event.  <a class="info" href="#CSE_DESCR">Section&nbsp;3<span>Call State Events</span></a>
+    The record of each observed event is called a Call State Event.  <a class="info" href="#CSE_DESCR">Section&nbsp;3<span> (</span><span class="info">Call State Events</span><span>)</span></a>
     describes each of the events to be recorded, the component
     responsible for it (called the "Observer"), the SIP request or
     response from which its information is derived, and the
@@ -195,15 +207,17 @@ Call Detail Record XML Schema<br />
       to determine what happened with the call as whole is called Call
       Resolution; this step uses the events as input and produces a more
       traditional Call Detail Record - a single record per call.  This
-      process is described in <a class="info" href="#RESOLUTION">Section&nbsp;5<span>Call Resolution</span></a>.
+      process is described in <a class="info" href="#RESOLUTION">Section&nbsp;5<span> (</span><span class="info">Call Resolution</span><span>)</span></a>.
     
 </p>
 <p>
     Call State Events are encoded as XML according to the the schema
-    in <a class="info" href="#CSE_SCHEMA">Appendix&nbsp;A<span>Call State Event XML Schema</span></a>.
+    in <a class="info" href="#CSE_SCHEMA">Appendix&nbsp;A<span> (</span><span class="info">Call State Event XML Schema</span><span>)</span></a>.
     
 </p>
-<a name="rfc.section.1.1"></a><h4><a name="anchor2">1.1</a>&nbsp;Common Elements</h4>
+<a name="anchor2"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.1.1"></a><h3>1.1.&nbsp;Common Elements</h3>
 
 <p>
         All Call State Events have some elements in common; in fact, most
@@ -267,6 +281,7 @@ Call Detail Record XML Schema<br />
               
 </dd>
 </dl></blockquote>
+            
 </dd>
 <dt>&lt;from&gt;</dt>
 <dd>
@@ -287,14 +302,17 @@ Call Detail Record XML Schema<br />
             
 </dd>
 </dl></blockquote>
+          
 </dd>
-</dl></blockquote>
-
+</dl></blockquote><p>
+      
+</p>
 <a name="OBS_MSG"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.2"></a><h3>2.&nbsp;Observer Message</h3>
 
-<p></p>
+<p>
+      </p>
 <blockquote class="text"><dl>
 <dt>XML element name</dt>
 <dd>
@@ -312,8 +330,9 @@ Call Detail Record XML Schema<br />
         arbitrary text message for display purposes.
         
 </dd>
-</dl></blockquote>
-
+</dl></blockquote><p>
+      
+</p>
 <p>
       The Observer State Event is defined to signal changes in the
       Observer that may be useful to the interpretation of the Call
@@ -334,9 +353,12 @@ Call Detail Record XML Schema<br />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.3"></a><h3>3.&nbsp;Call State Events</h3>
 
-<a name="rfc.section.3.1"></a><h4><a name="anchor3">3.1</a>&nbsp;Call Request</h4>
+<a name="anchor3"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.1"></a><h3>3.1.&nbsp;Call Request</h3>
 
-<p></p>
+<p>
+      </p>
 <blockquote class="text"><dl>
 <dt>XML element name</dt>
 <dd>
@@ -357,8 +379,9 @@ Call Detail Record XML Schema<br />
         Contact header field value.
         
 </dd>
-</dl></blockquote>
-
+</dl></blockquote><p>
+      
+</p>
 <p>
       Note that in the case of a spiral, where aliases and/or
       redirections cause new INVITE messages to be created, the same
@@ -369,9 +392,12 @@ Call Detail Record XML Schema<br />
       determine the original event.
       
 </p>
-<a name="rfc.section.3.2"></a><h4><a name="anchor4">3.2</a>&nbsp;Call Setup</h4>
+<a name="anchor4"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.2"></a><h3>3.2.&nbsp;Call Setup</h3>
 
-<p></p>
+<p>
+      </p>
 <blockquote class="text"><dl>
 <dt>XML element name</dt>
 <dd>
@@ -390,8 +416,9 @@ Call Detail Record XML Schema<br />
         Any 2xx response to any INVITE request.
         
 </dd>
-</dl></blockquote>
-
+</dl></blockquote><p>
+      
+</p>
 <p>
       This event is correlated with a Call Request event by comparing
       the call_id and from_tag values; the to_tag value will not
@@ -408,9 +435,13 @@ Call Detail Record XML Schema<br />
       indicates that the call has been set up.
       
 </p>
-<a name="rfc.section.3.3"></a><h4><a name="anchor5">3.3</a>&nbsp;Call Failure</h4>
+<a name="anchor5"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.3"></a><h3>3.3.&nbsp;Call Failure</h3>
 
-<p></p>
+<p>
+
+      </p>
 <blockquote class="text"><dl>
 <dt>XML element name</dt>
 <dd>
@@ -425,6 +456,7 @@ Call Detail Record XML Schema<br />
 </dd>
 <dt>Triggered by</dt>
 <dd>
+        
 <blockquote class="text">
 <p>Any 5xx or 6xx response to an INVITE request,
 </p>
@@ -439,11 +471,14 @@ Call Detail Record XML Schema<br />
 <p>408 Request timeout
 </p>
 </blockquote>
+          
 
 </blockquote>
+        
 </dd>
-</dl></blockquote>
-
+</dl></blockquote><p>
+      
+</p>
 <p>
         Depending on the specific failure mode and the retry
         behaviour of the servers and endpoints, there may be
@@ -454,9 +489,12 @@ Call Detail Record XML Schema<br />
         events for it and there are no missing events.
       
 </p>
-<a name="rfc.section.3.4"></a><h4><a name="anchor6">3.4</a>&nbsp;Call End</h4>
+<a name="anchor6"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.3.4"></a><h3>3.4.&nbsp;Call End</h3>
 
-<p></p>
+<p>
+      </p>
 <blockquote class="text"><dl>
 <dt>XML element name</dt>
 <dd>
@@ -473,8 +511,9 @@ Call Detail Record XML Schema<br />
         Any BYE request.
         
 </dd>
-</dl></blockquote>
-
+</dl></blockquote><p>
+      
+</p>
 <p>
       The Call End event is correlated with a Call Setup event using the
       dialog id.
@@ -508,20 +547,21 @@ Call Detail Record XML Schema<br />
         set of Call State Events.
       
 </p>
-<p><span class="strong">
+<p>
+        <span class="strong">
           At this writing, we do not have an implementation of a resolver;
           if you would like to work on one and contribute it, please
           contact the project coordinator through the tracker or the
           sipx-dev mailing list.
         </span>
+      
 </p>
 <p>
         In the following algorithm, the notation:
         </p>
 <pre>
 /dest-ns:dest-element/dest-sub &lt;- /src-ns:src-element/src-sub
-</pre>
-<p>
+</pre><p>
 
         is used to indicate that the contents of element path
         /dest-element/dest-sub in the namespace dest-ns should be set from
@@ -535,16 +575,17 @@ Call Detail Record XML Schema<br />
 <dt>cdr</dt>
 <dd>
             The Call Detail Records namespace:
-            http://www.sipfoundry.org/sipX/schema/xml/cdr-01-00 (see <a class="info" href="#CDR_SCHEMA">Appendix&nbsp;C<span>Call Detail Record XML Schema</span></a>).
+            http://www.sipfoundry.org/sipX/schema/xml/cdr-01-00 (see <a class="info" href="#CDR_SCHEMA">Appendix&nbsp;C<span> (</span><span class="info">Call Detail Record XML Schema</span><span>)</span></a>).
           
 </dd>
 <dt>cse</dt>
 <dd>
-            The Call State Event namespace: http://www.sipfoundry.org/sipX/schema/xml/cse-01-00 (see <a class="info" href="#CSE_SCHEMA">Appendix&nbsp;A<span>Call State Event XML Schema</span></a>).
+            The Call State Event namespace: http://www.sipfoundry.org/sipX/schema/xml/cse-01-00 (see <a class="info" href="#CSE_SCHEMA">Appendix&nbsp;A<span> (</span><span class="info">Call State Event XML Schema</span><span>)</span></a>).
           
 </dd>
-</dl></blockquote>
-
+</dl></blockquote><p>
+      
+</p>
 <p>
         To produce the Call Detail Records for a given set of Call State
         Events:
@@ -575,7 +616,7 @@ Call Detail Record XML Schema<br />
 /cdr:call/caller/contact &lt;- /cse:call_event/call_request/contact
 /cdr:call/start &lt;- /cse:call_event/obs_time
 </pre>
-
+          
 </li>
 <li>
             If there is at least one &lt;cse:call_setup&gt; event, find the first
@@ -585,14 +626,14 @@ Call Detail Record XML Schema<br />
 /cdr:call/called/contact &lt;- /cse:call_event/call_setup/contact
 /cdr:call/setup &lt;- /cse:call_event/obs_time
 </pre>
-
+          
 </li>
 <li>
             Provisionally set
             <pre>
 /cdr:call/completionCode &lt;- CIP
 </pre>
-
+          
 </li>
 <li>
             Find the last &lt;cse:call_end&gt; event whose
@@ -604,7 +645,6 @@ Call Detail Record XML Schema<br />
 /cdr:call/end &lt;- /cse:call_event/obs_time
 /cdr:call/completionCode &lt;- CC
 </pre>
-
             If there was no &lt;cse:call_setup&gt; event, find the last
             &lt;cse:call_failed&gt; event and set: 
             <pre>
@@ -612,27 +652,16 @@ Call Detail Record XML Schema<br />
 /cdr:call/end &lt;- /cse:call_event/obs_time
 /cdr:call/completionCode &lt;- UC
 </pre>
-
+          
 </li>
-</ol>
-
-<a name="rfc.authors"></a><br /><hr />
-<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
-<h3>Author's Address</h3>
-<table width="99%" border="0" cellpadding="0" cellspacing="0">
-<tr><td class="author-text">&nbsp;</td>
-<td class="author-text">Scott Lawrence</td></tr>
-<tr><td class="author-text">&nbsp;</td>
-<td class="author-text">Pingtel Corp.</td></tr>
-<tr><td class="author" align="right">Email:&nbsp;</td>
-<td class="author-text"><a href="mailto:slawrence@pingtel.com">slawrence@pingtel.com</a></td></tr>
-</table>
-
+</ol><p>
+      
+</p>
 <a name="CSE_SCHEMA"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.A"></a><h3>Appendix A.&nbsp;Call State Event XML Schema</h3>
 <pre>
-&lt;?xml version='1.0' encoding='iso-8859-1' standalone='yes'?&gt;
+</pre><pre>&lt;?xml version='1.0' encoding='iso-8859-1' standalone='yes'?&gt;
 &lt;!--
     XML Schema for sipX Call State Events
   --&gt;
@@ -956,14 +985,13 @@ Call Detail Record XML Schema<br />
   &lt;element name='contact' type='normalizedString'/&gt;
 
 &lt;/schema&gt;
-
+</pre><pre>
 </pre>
-
 <a name="CSE_EXAMPLES"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.B"></a><h3>Appendix B.&nbsp;Example Call State Events</h3>
 <pre>
-&lt;call_event_sequence
+</pre><pre>&lt;call_event_sequence
  xmlns='http://www.sipfoundry.org/sipX/schema/xml/cse-01-00'
  &gt;
 &lt;call_event&gt;
@@ -1052,14 +1080,13 @@ Call Detail Record XML Schema<br />
   &lt;/call_end&gt;
 &lt;/call_event&gt;
 &lt;/call_event_sequence&gt;
-
+</pre><pre>
 </pre>
-
 <a name="CDR_SCHEMA"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <a name="rfc.section.C"></a><h3>Appendix C.&nbsp;Call Detail Record XML Schema</h3>
 <pre>
-&lt;?xml version='1.0' encoding='iso-8859-1' standalone='yes'?&gt;
+</pre><pre>&lt;?xml version='1.0' encoding='iso-8859-1' standalone='yes'?&gt;
 &lt;!DOCTYPE schema [
 &lt;!ENTITY % sip_word &quot;([&amp;lt;&amp;gt;&amp;quot;a-zA-Z0-9.!&amp;#x25;*_+`'~():\/[&amp;#x5d;?{}-]+)&quot;&gt;
 &lt;!ENTITY % sip_token &quot;([a-zA-Z0-9.!&amp;#x25;*_+`'~-]+)&quot;&gt;
@@ -1101,7 +1128,7 @@ Call Detail Record XML Schema<br />
 
   &lt;simpleType name=&quot;call_result&quot;&gt;
     &lt;annotation&gt;
-      &lt;documentation&gt;
+      &lt;documentation&gt;&lt;![CDATA[
         Final result of an attempted call.
         These values are adapted from those specified by:
            Network Data Management Usage (NDM-U)
@@ -1109,7 +1136,7 @@ Call Detail Record XML Schema<br />
            Voice over IP (VoIP)
            Version 3.1-A.0.2
            August 21, 2002
-           © 1999-2002 IPDR, Inc.
+           © 1999-2002 IPDR, Inc.]]&gt;
       &lt;/documentation&gt;
     &lt;/annotation&gt;
     &lt;restriction base=&quot;normalizedString&quot;&gt;
@@ -1178,6 +1205,17 @@ Call Detail Record XML Schema<br />
   &lt;/element&gt;
 
 &lt;/schema&gt;
-
+</pre><pre>
 </pre>
+<a name="rfc.authors"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<h3>Author's Address</h3>
+<table width="99%" border="0" cellpadding="0" cellspacing="0">
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Scott Lawrence</td></tr>
+<tr><td class="author-text">&nbsp;</td>
+<td class="author-text">Pingtel Corp.</td></tr>
+<tr><td class="author" align="right">Email:&nbsp;</td>
+<td class="author-text"><a href="mailto:slawrence@pingtel.com">slawrence@pingtel.com</a></td></tr>
+</table>
 </body></html>
