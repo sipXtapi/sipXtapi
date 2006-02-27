@@ -40,7 +40,7 @@
 
   <simpleType name="call_result">
     <annotation>
-      <documentation>
+      <documentation><![CDATA[
         Final result of an attempted call.
         These values are adapted from those specified by:
            Network Data Management Usage (NDM-U) 
@@ -48,7 +48,7 @@
            Voice over IP (VoIP) 
            Version 3.1-A.0.2 
            August 21, 2002
-           © 1999-2002 IPDR, Inc.
+           © 1999-2002 IPDR, Inc.]]>
       </documentation>
     </annotation>
     <restriction base="normalizedString">
