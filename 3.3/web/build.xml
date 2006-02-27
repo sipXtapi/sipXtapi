@@ -417,6 +417,7 @@
 	- Run web services unit tests
 	-->
   <target name="start-web-server" depends="test-war">
+    <echo message="Starting server..."/>
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
       <classpath refid="base.path"/>
       <classpath refid="test.path"/>
@@ -441,11 +442,12 @@
   </target>	
   
   <target name="test-api" if="ruby-bindings-enabled" description="Test web services">
+    <property name="test-api.sleep" value="10"/>
     <parallel>
       <antcall target="start-web-server"/>
       <sequential>
-        <echo level="info" message="Waiting 10 seconds for the server to start..."/>
-        <sleep seconds="10"/>
+        <echo message="Waiting ${test-api.sleep} seconds for the server to start..."/>
+        <sleep seconds="${test-api.sleep}"/>
         <antcall target="test-api-run"/>
         <antcall target="stop-web-server"/>        
       </sequential>      
