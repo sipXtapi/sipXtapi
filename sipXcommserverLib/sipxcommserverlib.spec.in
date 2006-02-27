@@ -86,6 +86,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipdbtest.sh
 %attr(755,root,root) %{_bindir}/xsdvalid
 %attr(755,root,root) %{_bindir}/sipx-validate-xml
+%attr(755,root,root) %{_bindir}/sipx-dns
 %attr(755,root,root) %{_bindir}/ssl-cert/gen-ssl-keys.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/install-cert.sh
 %attr(755,root,root) %{_bindir}/ssl-cert/check-cert.sh
@@ -113,18 +114,19 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
+%{_libdir}/libsipXcommserver.la
 %{_libdir}/libsipXcommserver.a
+%{_libdir}/libsipXcommserverTest.la
+%{_libdir}/libsipXcommserverTest.a
 %doc %{_datadir}/doc/sipx/%name/*
 %{_includedir}/digitmaps/*
 %{_includedir}/fastdb/*
 %{_includedir}/sipdb/*
+%{_includedir}/testlib/*
 %{_includedir}/configrpc/*
 
 %pre
-grep @SIPXPBXUSER@ /etc/group > /dev/null \
-|| /usr/sbin/groupadd @SIPXPBXUSER@ 
-
-grep @SIPXPBXUSER@ /etc/passwd > /dev/null \
+id -u @SIPXPBXUSER@ > /dev/null 2>&1 \
 || /usr/sbin/useradd \
    -c "sipX PBX service" \
    -g @SIPXPBXUSER@ \

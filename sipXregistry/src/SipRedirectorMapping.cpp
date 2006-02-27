@@ -47,38 +47,41 @@ SipRedirectorMapping::initialize(const UtlHashMap& configParameters,
                                  SipUserAgent* pSipUserAgent,
                                  int redirectorNo)
 {
+   UtlString mediaServer;
+   configDb.get("SIP_REGISTRAR_MEDIA_SERVER", mediaServer);
+
+   UtlString voicemailServer;
+   configDb.get("SIP_REGISTRAR_VOICEMAIL_SERVER", voicemailServer);
+
    UtlString s;
-   s = "configDir";
-   const UtlString* configDir =
-      dynamic_cast<UtlString*> (configParameters.findValue(&s));
-   s = "mediaServer";
-   const UtlString* mediaServer =
-      dynamic_cast<UtlString*> (configParameters.findValue(&s));
-   s = "voicemailServer";
-   const UtlString* voicemailServer =
-      dynamic_cast<UtlString*> (configParameters.findValue(&s));
    s = "localDomainHost";
    const UtlString* localDomainHost =
       dynamic_cast<UtlString*> (configParameters.findValue(&s));
+
    s = "mappingRulesFilename";
    const UtlString* mappingRulesFilename =
       dynamic_cast<UtlString*> (configParameters.findValue(&s));
+
    s = "reportingName";
    mName = *dynamic_cast<UtlString*> (configParameters.findValue(&s));
+
    s = "fallback";
    mFallback =
       (*dynamic_cast<UtlString*> (configParameters.findValue(&s))).
       compareTo("true") == 0;
 
-   UtlString fileName =
-      *configDir + OsPathBase::separator + *mappingRulesFilename;
+   UtlString fileName;
+   fileName.append(SIPX_CONFDIR);
+   fileName.append(OsPathBase::separator);
+   fileName.append(*mappingRulesFilename);
+
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipRedirectorMapping::SipRedirectorMapping Loading mapping rules from '%s'",
                  fileName.data());
 
    mMappingRulesLoaded = mMap.loadMappings(fileName,
-                                           *mediaServer,
-                                           *voicemailServer,
+                                           mediaServer,
+                                           voicemailServer,
                                            *localDomainHost);
 
    return mMappingRulesLoaded ? OS_SUCCESS : OS_FAILED;

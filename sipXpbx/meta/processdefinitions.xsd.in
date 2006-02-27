@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+- XML Schema for sipX process configuration: @SIPX_CONFDIR@/ProcessDefinitions.xml
+-
+- Note that the constraints in this file are based on how the file is being used
+- now, and may not represent the full flexibility of the present process management
+- implementation.  
+-->
+<schema
+    xmlns:h='http://www.sipfoundry.org/sipX/schema/xml/processdefinitions-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/processdefinitions-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <annotation>
+    <documentation>
+      Definition of process to start for the sipX process monitor
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='process_definitions'>
+    <complexType>
+      <sequence>
+        <element ref='h:dependentdelay' minOccurs='1' maxOccurs='1' />
+        <element ref='h:workdir' minOccurs='1' maxOccurs='1' />
+        <element ref='h:logfile' minOccurs='1' maxOccurs='1' />
+        <element ref='h:group' minOccurs='1' maxOccurs='unbounded' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='dependentdelay'>
+    <annotation>
+      <documentation>
+        Controls how long to pause before starting a process
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="wait" type="integer"/>
+    </complexType>
+  </element>
+
+  <element name='workdir'>
+    <annotation>
+      <documentation>
+        Configures the directory where process monitor state files are stored.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="location" type="string"/>
+    </complexType>
+  </element>
+
+  <simpleType name="LogLevel">
+    <restriction base="string">
+      <enumeration value="debug" />
+      <enumeration value="info" />
+      <enumeration value="notice" />
+      <enumeration value="warning" />
+      <enumeration value="error" />
+      <!-- there are other levels, but level < error is not allowed -->
+    </restriction>
+  </simpleType>
+
+  <element name='logfile'>
+    <annotation>
+      <documentation>
+        The full path to the log file
+      </documentation>
+    </annotation>
+    <complexType>
+      <simpleContent>
+        <extension base="string">
+          <attribute name="level" type="h:LogLevel" />
+        </extension>
+      </simpleContent>
+    </complexType>
+  </element>
+
+  <element name='group'>
+    <annotation>
+      <documentation>
+        A named set of processes
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:process' minOccurs='1' maxOccurs='unbounded' />
+      </sequence>
+      <attribute name="name" type="string">
+        <annotation>
+          <documentation>
+            The group name (not sure what if anything uses the name).
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name='process'>
+    <annotation>
+      <documentation>
+        Defines a single process to be controlled
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:dependentdelay' minOccurs='0' maxOccurs='1' />
+        <element ref='h:stdout'         minOccurs='1' maxOccurs='1' />
+        <element ref='h:stderr'         minOccurs='1' maxOccurs='1' />
+        <element ref='h:stdin'          minOccurs='1' maxOccurs='1' />
+        <element ref='h:start'          minOccurs='1' maxOccurs='1' />
+        <element ref='h:stop'           minOccurs='1' maxOccurs='1' />
+        <element ref='h:restart'        minOccurs='1' maxOccurs='1' />
+      </sequence>
+      <attribute name="name" type="string">
+        <annotation>
+          <documentation>
+            The process name
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <complexType name='stdFile'>
+    <annotation>
+      <documentation>
+         Configures a path (or an empty value) for a standard file descriptor
+      </documentation>
+    </annotation>
+    <attribute name="file" type="string"/>
+  </complexType>
+
+  <element name='stdout' type='h:stdFile' />
+  <element name='stdin'  type='h:stdFile' />
+  <element name='stderr' type='h:stdFile' />
+
+  <element name='start'>
+    <annotation>
+      <documentation>
+        Defines whether or not and how to start a process.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:execute' minOccurs='1' maxOccurs='1' />
+      </sequence>
+      <attribute name="control" type="boolean">
+        <annotation>
+          <documentation>
+            Whether or not to start the process
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name='execute'>
+    <annotation>
+      <documentation>
+        Defines how to start a process.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="command" type="string">
+        <annotation>
+          <documentation>
+            Command to execute in the process
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="parameters" type="string">
+        <annotation>
+          <documentation>
+            Parameters to be passed to the command
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="defaultdir" type="string">
+        <annotation>
+          <documentation>
+            Path to the working directory for the process
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name='stop'>
+    <annotation>
+      <documentation>
+        Defines whether or not to stop a process.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="control" type="boolean">
+        <annotation>
+          <documentation>
+            Whether or not to start the process
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name='restart'>
+    <annotation>
+      <documentation>
+        Defines whether or not to restart a process.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="control" type="boolean">
+        <annotation>
+          <documentation>
+            Whether or not to restart the process
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+</schema>

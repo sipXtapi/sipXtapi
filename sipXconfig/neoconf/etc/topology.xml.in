@@ -27,4 +27,17 @@
          https://${MY_FULL_HOSTNAME}:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/processmonitor/process.cgi
       </agent_url>
    </location>   
+
+   <!-- REMOVE THIS LINE TO ADD DISTRIBUTED SERVER 
+   <location id="Distributed Comm Server">
+      <component id="CommServer2"  type="comm-server" />         
+      <replication_url>
+         https://DISTRIBUTED_HOSTNAME:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/replication/replication.cgi
+      </replication_url>
+      <agent_url>
+         https://DISTRIBUTED_HOSTNAME:${CONFIG_SERVER_HTTPS_PORT}/cgi-bin/processmonitor/process.cgi
+      </agent_url>
+   </location>   
+   REMOVE THIS LINE TO ADD DISTRIBUTED SERVER -->
+
 </topology>

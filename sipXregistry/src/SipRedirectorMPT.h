@@ -54,8 +54,6 @@ class SipRedirectorMPT : public SipRedirector
    /**
     * Requires the following parameters:
     *
-    * configDir - the directory containing the mapping rules file.
-    *
     * mediaServer - the URI of the Media Server.
     *
     * voicemailServer - the URI of the voicemail server.

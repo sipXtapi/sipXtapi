@@ -38,6 +38,8 @@ open( NEW, ">$Credential.NEW" )
 
 $user='';
 $realm='';
+$sawPass=0;
+$sawPin=0;
 $state='NoItem';
 
 while( <OLD> )
@@ -51,6 +53,8 @@ while( <OLD> )
             $state = 'InItem';
             $user='';
             $realm='';
+            $sawPass=0;
+            $sawPin=0;
         }
     }
     elsif ( $state eq 'InItem' )
@@ -60,7 +64,12 @@ while( <OLD> )
             if ( $user && $realm )
             {
                 ## add a passtoken element for a user that did not have one
-                print NEW "    <passtoken>".&md5_hex("$user:$realm:$Password")."</passtoken>\n";
+                print NEW newtoken('passtoken',$user,$realm,$Password) 
+                    if (! $sawPass);
+                print NEW newtoken('pintoken',$user,$realm,$Password) 
+                    if (! $sawPin);
+                $sawPass=0;
+                $sawPin=0;
                 $user='';
                 $realm='';
             }
@@ -76,12 +85,25 @@ while( <OLD> )
         }
         elsif ( m|<passtoken\b| )
         {
+            $sawPass=1;
             if ( $user && $realm )
             {
                 ## replace this passtoken element
-                print NEW "    <passtoken>".&md5_hex("$user:$realm:$Password")."</passtoken>\n";
-                $user='';
-                $realm='';
+                print NEW newtoken('passtoken',$user,$realm,$Password);
+                $_ = ''; # discard the old passtoken line
+            }
+            else
+            {
+                die "user or realm missing at line $.\n";
+            }
+        }
+        elsif ( m|<pintoken\b| )
+        {
+            $sawPin=1;
+            if ( $user && $realm )
+            {
+                ## replace this passtoken element
+                print NEW newtoken('pintoken',$user,$realm,$Password);
                 $_ = ''; # discard the old passtoken line
             }
             else
@@ -105,3 +127,16 @@ rename "$Credential.NEW", "$Credential"
 exit;
 
 
+sub newtoken
+{
+    my $tokentype=shift;
+    my $user=shift;
+    my $realm=shift;
+    my $password=shift;
+    return 
+        "<$tokentype>"
+        .&md5_hex("$user:$realm:$password")
+        ."</$tokentype>"
+        ."<!-- $password -->\n"
+        ;
+}

@@ -18,8 +18,7 @@
      If the target URI matches a registered address, then the Contact
      addresses sent in the registration are added.  These are stored
      in the in-memory database, but are made persistent in the XML
-     file.  You can read the in-memory database directly using the
-     sipdbtest utility found in the sipXcommserverLib.
+     file.
 
   2) Aliases ($prefix/var/sipxdata/sipdb/alias.xml)
 

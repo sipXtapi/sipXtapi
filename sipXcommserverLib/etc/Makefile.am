@@ -6,12 +6,18 @@ EXTRA_DIST = \
 
 INSTALL=@INSTALL@
 
-install-data-hook :
+install-data-hook : \
+		$(DESTDIR)$(sysconfdir)/sipxpbx/config.defs
+
+$(DESTDIR)$(sysconfdir)/sipxpbx/config.defs: config.defs
 	if [ -f $(DESTDIR)$(sysconfdir)/sipxpbx/config.defs ]; \
 	then \
 		echo "Using existing $(sysconfdir)/sipxpbx/config.defs"; \
+	   $(INSTALL) -D -m 755 config.defs $(DESTDIR)$(sysconfdir)/sipxpbx/config.defs.NEW; \
 	else \
 		echo ""; echo "Installing default $(sysconfdir)/sipxpbx/config.defs"; \
-		$(LocalizeSipXconfig)  $(srcdir)/config.defs.in > config.defs; \
 	   $(INSTALL) -D -m 755 config.defs $(DESTDIR)$(sysconfdir)/sipxpbx/config.defs; \
 	fi
+
+config.defs : $(srcdir)/config.defs.in 
+		$(LocalizeSipXconfig) $(srcdir)/config.defs.in > config.defs;

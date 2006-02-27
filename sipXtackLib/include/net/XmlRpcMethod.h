@@ -19,7 +19,7 @@
 #include <utl/UtlSList.h>
 #include <utl/UtlHashMap.h>
 #include <net/HttpRequestContext.h>
-#include "net/XmlRpcResponse.h"
+#include <net/XmlRpcResponse.h>
 
 // DEFINES
 // MACROS
@@ -29,6 +29,9 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+
+class XmlRpcDispatch;
+
 
 /**
  * A XmlRpcMethod is a dynamically loaded object that is invoked by the XmlRpcDispatch
@@ -46,15 +49,18 @@
  * 
  * All the params in the XML-RPC request are stored in a UtlSList and passed to
  * the service in execute(). All the param values are stored in UtlContainable
- * types. The mapping between XML-RPC value types and UtlContainable types are:
+ * types. The mapping between XML-RPC value types and UtlContainable types is:
  * 
- * <i4> or <int> is UtlInt.
- * <boolean> is UtlBool.
- * <string> is UtlString.
- * <dateTime.iso8601> is UtlDateTime.
- * <array> is UtlSList.
- * <struct> is UtlHashMap.
+ * - <i4> or <int> is UtlInt
+ * - <i8> is UtlLongLongInt
+ * - <boolean> is UtlBool
+ * - <string> is UtlString
+ * - <dateTime.iso8601> is UtlDateTime
+ * - <array> is UtlSList
+ * - <struct> is UtlHashMap
  * 
+ * <i8> is a SIPfoundry extension to XML-RPC that is not compatible with other
+ * XML-RPC implementations. 
  * <double> and <base64> are currently not supported.
  * 
  */
@@ -71,7 +77,6 @@ public:
       REQUIRE_AUTHENTICATION
    } ExecutionStatus;
 
-/* ============================ CREATORS ================================== */
 
    typedef XmlRpcMethod* Get();
    
@@ -87,13 +92,6 @@ public:
                         void* userData, ///< user data
                         XmlRpcResponse& response, ///< request response
                         ExecutionStatus& status) = 0; ///< execution status
-
-/* ============================ MANIPULATORS ============================== */
-
-/* ============================ ACCESSORS ================================= */
-
-
-/* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

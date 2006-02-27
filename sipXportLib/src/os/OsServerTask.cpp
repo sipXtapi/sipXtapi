@@ -40,8 +40,8 @@ OsServerTask::OsServerTask(const UtlString& name,
    {
 
            OsSysLog::add(FAC_KERNEL, PRI_INFO,
-                                "OsServerTask::OsServerTask %s queue: %p",
-                                mName.data(), &mIncomingQ);
+                                "OsServerTask::OsServerTask %s queue: %p queue limit: %d",
+                                mName.data(), &mIncomingQ, maxRequestQMsgs);
    }
 }
 

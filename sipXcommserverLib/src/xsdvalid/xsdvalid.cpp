@@ -287,12 +287,16 @@ int main(int argC, char* argV[])
             XMLPlatformUtils::Initialize();
         }
     }
-
     catch (const XMLException& toCatch)
     {
-         XERCES_STD_QUALIFIER cerr << "Error during initialization! :\n"
-              << StrX(toCatch.getMessage()) << XERCES_STD_QUALIFIER endl;
-         return 1;
+       XERCES_STD_QUALIFIER cerr << "Error during initialization! :\n"
+                                 << StrX(toCatch.getMessage()) << XERCES_STD_QUALIFIER endl;
+       return 1;
+    }
+    catch (...)
+    {
+       XERCES_STD_QUALIFIER cerr << "Unexpected error during initialization!\n";
+       return 1;
     }
 
     // Instantiate the DOM parser.

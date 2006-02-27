@@ -13,6 +13,7 @@
 
 // APPLICATION INCLUDES
 #include <net/XmlRpcMethod.h>
+#include <net/XmlRpcDispatch.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -33,14 +34,6 @@ XmlRpcMethod* XmlRpcMethod::get()
 XmlRpcMethod::~XmlRpcMethod()
 {
 }
-
-/* ============================ MANIPULATORS ============================== */
-
-
-/* ============================ ACCESSORS ================================= */
-
-
-/* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 

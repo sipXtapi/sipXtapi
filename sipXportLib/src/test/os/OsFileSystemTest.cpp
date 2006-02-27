@@ -17,6 +17,7 @@ class OsFileSystemTest : public CppUnit::TestCase
     CPPUNIT_TEST_SUITE(OsFileSystemTest);
     CPPUNIT_TEST(testCreateDir);
     CPPUNIT_TEST(testRemoveDir);
+    CPPUNIT_TEST(testCreateRecursiveDir);
     CPPUNIT_TEST(testRenameDir);
     CPPUNIT_TEST(testGetInfo);
     CPPUNIT_TEST(testRemoveTree);
@@ -50,6 +51,17 @@ public:
         CPPUNIT_ASSERT_MESSAGE("Directory actually exists", OsFileSystem::exists(testDir));
     }
 
+    void testCreateRecursiveDir()
+    {
+        OsStatus stat;
+
+        OsPath testDir = mRootPath + OsPath::separator + "testCreateParentDir" + OsPath::separator + "testCreateDir";
+
+        stat = OsFileSystem::createDir(testDir, TRUE);
+        CPPUNIT_ASSERT_MESSAGE("Creating directory", stat == OS_SUCCESS);
+
+        CPPUNIT_ASSERT_MESSAGE("Directory actually exists", OsFileSystem::exists(testDir));
+    }
 
     void testRemoveDir()
     {

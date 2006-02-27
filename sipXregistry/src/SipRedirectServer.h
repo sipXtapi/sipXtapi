@@ -3,9 +3,6 @@
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
-// Copyright (C) 2005 SIPez LLC.
-// Licensed to SIPfoundry under a Contributor Agreement.
-//
 // Copyright (C) 2004 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 // 
@@ -38,6 +35,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
+class SipRegistrar;
 class SipRedirectServerPrivateStorageIterator;
 
 class SipRedirectServer : public OsServerTask  
@@ -46,35 +44,18 @@ class SipRedirectServer : public OsServerTask
 
   public:
 
-   SipRedirectServer();
+   SipRedirectServer(OsConfigDb*   pOsConfigDb,  ///< Configuration parameters
+                     SipUserAgent* pSipUserAgent ///< User Agent to use when sending responses
+                     );
 
    virtual ~SipRedirectServer();
 
    static SipRedirectServer* getInstance();
    static SipRedirectServer* spInstance;
 
-   /**
-    * Initialize the redirect server.
-    *
-    * pSipUserAgent - SipUserAgent to send replies with.
-    *
-    * configDir, mediaServer, voicemailServer, localDomainHost -
-    * configuration information.
-    *
-    * proxyNormalPort - a port number, which if found on an AOR to register,
-    * will be removed, or PORT_NONE.  Usually the port the proxy is
-    * listening on.
-    *
-    * configFileName - name of the sipXregistry configuration file.
-    */
-   UtlBoolean initialize(
-      SipUserAgent* pSipUserAgent,
-      const UtlString& configDir,
-      const UtlString& mediaServer,
-      const UtlString& voicemailServer,
-      const UtlString& localDomainHost,
-      int              proxyNormalPort,
-      const char* configFileName);
+   /// Read in the configuration for the redirect server.
+   UtlBoolean initialize( OsConfigDb& configDb    ///< Configuration parameters
+                         );
 
    /**
     * Used by redirector asynchronous processing to request that
@@ -112,12 +93,14 @@ class SipRedirectServer : public OsServerTask
     * Lock that is global for this SipRedirectServer to protect
     * mSuspendList and the private storage dependend from it.
     */
-   OsMutex mMutex;
+   OsMutex mRedirectorMutex;
 
   protected:
 
    UtlBoolean mIsStarted;
    SipUserAgent* mpSipUserAgent;
+   SipRegistrar* mpRegistrar;
+   
    UrlMapping mFallback;
    OsStatus mFallbackRulesLoaded;
    // A port number, which if found on an AOR to register,

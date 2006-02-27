@@ -128,15 +128,15 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                if (1 == result)
                {
                   OsSSL::logConnectParams(FAC_KERNEL, PRI_DEBUG
-                                          ,"OsSSLServerSocket::accept %p"
+                                          ,"OsSSLServerSocket::accept"
                                           ,pSSL);
                }
                else
                {
                   OsSSL::logError(FAC_KERNEL, PRI_ERR,
                                   (  result == 0
-                                   ? "OsSSLServerSocket SSL_accept - incompatible client? - %s"
-                                   : "OsSSLServerSocket SSL_accept SSL handshake error - %s"
+                                   ? "OsSSLServerSocket SSL_accept - incompatible client?"
+                                   : "OsSSLServerSocket SSL_accept SSL handshake error"
                                    ),
                                   SSL_get_error(pSSL, result));
                   socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;

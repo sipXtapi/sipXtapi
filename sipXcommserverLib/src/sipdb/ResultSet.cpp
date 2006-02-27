@@ -66,10 +66,8 @@ ResultSet::getIndex(
     const int& index, 
     UtlHashMap& rRecord) const
 {
-    // empty out the record before populating it
-    // they are not mine to destroy so don't destry them
+    // The record must be empty.  We can't clear the content because we don't own it.
     assert(rRecord.isEmpty());
-    // :TODO: rRecord.removeAll();
 
     OsStatus result = OS_FAILED;
     UtlHashMap *m;

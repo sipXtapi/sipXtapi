@@ -371,9 +371,12 @@ rpmBuild()
                     RpmFiles=`ls $RpmPackage*.rpm | grep -v "\.src"`
                     
                     ## Upgrade will install if RPM was not previsously installed
+                    echo "Package to be installed: $RpmFiles "
                     if $Sudo rpm -i $RpmFiles
                     then
                         Success=true
+                    else
+                        echo "Package $RpmFiles failed to install "
                     fi
                 else
                     Success=true
@@ -393,8 +396,8 @@ rpmBuild()
             fi
         fi
         if [ "$Success" = "true" ]; then
-            cp *.rpm $Disttree/RPM/$Distro/$Distrover
-            cp *.tar.* $Disttree/SRC
+            cp -v *.rpm $Disttree/RPM/$Distro/$Distrover
+            cp -v *.tar.* $Disttree/SRC
         fi
     fi
     popd > /dev/null

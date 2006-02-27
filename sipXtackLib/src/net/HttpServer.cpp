@@ -704,7 +704,7 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
 #ifdef TEST_PRINT
                 osPrintf("HttpServer: Trying to open: \"%s\"\n",
                     indexFileName.data());
-                OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"\n",
+                OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"",
                     indexFileName.data());
 #endif
 
@@ -716,7 +716,7 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
 #ifdef TEST_PRINT
                     osPrintf("HttpServer: Trying to open: \"%s\"\n",
                         indexFileName.data());
-                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"\n",
+                    OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer: Trying to open: \"%s\"",
                         indexFileName.data());
 #endif
 
@@ -1608,7 +1608,7 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
         UtlString mapToUri;
         int dirSeparatorIndex;
 
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::mapUri looking for \"%s\"\n",
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "HttpServer::mapUri looking for \"%s\"",
                       mapFromUri.data());
 
         do
@@ -1645,7 +1645,7 @@ UtlBoolean HttpServer::mapUri(OsConfigDb& uriMaps, const char* uri, UtlString& m
         } while(!mapFound && !mapFromUri.isNull() != 0);
     }
 
-    OsSysLog::add(FAC_SIP, PRI_DEBUG, "Map to uri: \"%s\"\n", mappedUri.data());
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "Map to uri: \"%s\"", mappedUri.data());
 
     return(mapFound);
 }

@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+- XML Schema for sipX watchdog configuration
+-->
+<schema
+    xmlns:h='http://www.sipfoundry.org/sipX/schema/xml/watchdog-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/watchdog-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <annotation>
+    <documentation>
+      Definition of process to monitor for the sipX watchdog
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='watchdog'>
+    <complexType>
+      <sequence>
+        <element ref='h:settings' minOccurs='1' maxOccurs='1' />
+        <element ref='h:monitor' minOccurs='1' maxOccurs='1' />
+        <element ref='h:logfile' minOccurs='1' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='settings'>
+    <annotation>
+      <documentation>
+        Global configuration settings for the watchdog process.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:health' minOccurs='1' maxOccurs='1' />
+        <element ref='h:processxmlpath' minOccurs='1' maxOccurs='1' />
+        <element ref='h:email' minOccurs='1' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='health'>
+    <annotation>
+      <documentation>
+        Configures the number of seconds between process status checks.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="check_period" type="decimal"/>
+    </complexType>
+  </element>
+
+  <element name='processxmlpath'>
+    <annotation>
+      <documentation>
+        Configures the directory for the sipX configuration files.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="location" type="string"/>
+    </complexType>
+  </element>
+
+  <element name='email'>
+    <annotation>
+      <documentation>
+        Configures the command used to send email when processes fail
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="execute" type="string"/>
+    </complexType>
+  </element>
+
+  <element name='monitor'>
+    <annotation>
+      <documentation>
+        The list of processes to monitor
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:process' minOccurs='1' maxOccurs='unbounded' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <simpleType name="EnableOrDisable">
+    <restriction base="string">
+      <enumeration value="enable" />
+      <enumeration value="disable" />
+    </restriction>
+  </simpleType>
+
+  <element name='process'>
+    <annotation>
+      <documentation>
+        Defines a single process to be monitored
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:failure_contact' minOccurs='0' maxOccurs='1' />
+      </sequence>
+      <attribute name="name" type="string">
+        <annotation>
+          <documentation>
+            The process name
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="restart" type="h:EnableOrDisable">
+        <annotation>
+          <documentation>
+            Whether or not to attempt to restart this process if it fails;
+            note that this does not control whether or not the process is
+            started initially.
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="max_restarts" type="decimal">
+        <annotation>
+          <documentation>
+            The maximum number of times to attempt to restart this process.
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="report" type="h:EnableOrDisable">
+        <annotation>
+          <documentation>
+            Whether or not to report failures of this process.
+          </documentation>
+        </annotation>
+      </attribute>
+      <attribute name="max_reports" type="decimal">
+        <annotation>
+          <documentation>
+            The maximum number of times to send a failure report.
+          </documentation>
+        </annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <simpleType name="ContactMethod">
+    <restriction base="string">
+      <enumeration value="email" />
+    </restriction>
+  </simpleType>
+
+  <element name='failure_contact'>
+    <annotation>
+      <documentation>
+        How to report a failure for a process
+      </documentation>
+    </annotation>
+    <complexType>
+      <simpleContent>
+        <extension base="string">
+          <attribute name="method" type="h:ContactMethod" />
+        </extension>
+      </simpleContent>
+    </complexType>
+  </element>
+
+  <simpleType name="LogLevel">
+    <restriction base="string">
+      <enumeration value="debug" />
+      <enumeration value="info" />
+      <enumeration value="notice" />
+      <enumeration value="warning" />
+      <enumeration value="error" />
+      <!-- there are other levels, but level < error is not allowed -->
+    </restriction>
+  </simpleType>
+
+  <element name='logfile'>
+    <annotation>
+      <documentation>
+        The full path to the log file
+      </documentation>
+    </annotation>
+    <complexType>
+      <simpleContent>
+        <extension base="string">
+          <attribute name="level" type="h:LogLevel" />
+        </extension>
+      </simpleContent>
+    </complexType>
+  </element>
+
+</schema>

@@ -11,6 +11,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include <limits.h>
 
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
@@ -37,9 +38,13 @@ REGISTER( TableInfo );
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
+
+// Declared in fastdb/sync.h, but including that header file is problematic
+extern char const* keyFileDir;
+
 // CONSTANTS
 
-// environment varialbe name for static data 
+// environment variable name for static data 
 
 static const char* DefaultVarPath = SIPX_TMPDIR;
 static const char* DefaultCfgPath = SIPX_DBDIR;
@@ -52,7 +57,7 @@ static const char* DefaultCfgPath = SIPX_DBDIR;
 SIPDBManager* SIPDBManager::spInstance = NULL;
 dbDatabase*   SIPDBManager::spFastDB = NULL;
 OsMutex       SIPDBManager::sLockMutex (OsMutex::Q_FIFO);
-UtlBoolean     SIPDBManager::gVerboseLoggingEnabled = FALSE;
+UtlBoolean    SIPDBManager::gVerboseLoggingEnabled = FALSE;
 
 /* Helper method to return the process id */
 int 
@@ -83,6 +88,9 @@ SIPDBManager::SIPDBManager ()
     // Get the working and config file paths
     m_absWorkingDirectory = getVarPath() ;
     m_absConfigDirectory = getCfgPath() ;
+
+    // Override the default fastdb tmp dir if SIPX_DB_VAR_PATH was set
+    setFastdbTempDir();
 
     if ( gVerboseLoggingEnabled )
     {
@@ -554,7 +562,7 @@ SIPDBManager::getDatabase ( const UtlString& tablename ) const
         // Begin Tx
         spFastDB->attach();
 
-        // ensure that the table is registerd with the process id.
+        // ensure that the table is registered with the process id.
         dbCursor< TableInfo > cursor ( dbCursorForUpdate );
         dbQuery query;
         query="tablename=",tablename,"and pid=",pid;
@@ -977,7 +985,7 @@ SIPDBManager::getFieldValue (
         break;
 
     case dbField::tpInt8:
-        sprintf ( tempString,"%lld", *(int8*)(base + fd->appOffs) );
+       sprintf ( tempString,"%0#16llx", *(int8*)(base + fd->appOffs) );
         textValue = tempString;
         break;
 /*
@@ -1059,7 +1067,7 @@ SIPDBManager::preloadAllDatabase() const
     // their reference count does not go to 0
     // causing an expensive load by another process
     
-    // If called first thing during startuo, this code 
+    // If called first thing during startup, this code 
     // will force the xml files to be loaded into imdb.
 
     CredentialDB*   pCredentialDB   = CredentialDB::getInstance();
@@ -1248,3 +1256,25 @@ UtlBoolean SIPDBManager::isVerboseLoggingEnabled()
     return bFoundFile ;
 }
 
+/// Override the default fastdb tmp dir if the env var SIPX_DB_VAR_PATH is set
+void SIPDBManager::setFastdbTempDir()
+{
+   // This method must only be called once
+   assert(m_FastDbTmpDirPath.isNull());
+
+   char* pPath = getenv(SIPX_DB_VAR_PATH);
+   if (pPath != NULL && pPath[0] != '\0')
+   {
+      m_FastDbTmpDirPath = pPath;
+         
+      // The path must end in a separator
+      if (m_FastDbTmpDirPath(m_FastDbTmpDirPath.length() - 1) != OsPath::separator)
+      {
+         m_FastDbTmpDirPath.append(OsPath::separator);
+      }
+
+      // Pass the string to fastdb.  It's ugly to reference someone else's pointer
+      // directly like this, but allows us to avoid changing the fastdb code for now.
+      keyFileDir = m_FastDbTmpDirPath;
+   }         
+}

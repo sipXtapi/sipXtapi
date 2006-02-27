@@ -90,11 +90,14 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int serverPort, const char* serverN
     mSSL(NULL)
 {
     mbExternalSSLSocket = FALSE;
-    SSLInitSocket(socketDescriptor, timeoutInSecs);
-    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
-                  "OsSSLConnectionSocket::_(port %d, name '%s', timeout %ld)",
-                  serverPort, serverName, timeoutInSecs
-                  );
+    if (mIsConnected)
+    {
+       SSLInitSocket(socketDescriptor, timeoutInSecs);
+       OsSysLog::add(FAC_KERNEL, PRI_DEBUG, 
+                     "OsSSLConnectionSocket::_(port %d, name '%s', timeout %ld)",
+                     serverPort, serverName, timeoutInSecs
+                     );
+    }
 }
 
 
@@ -301,7 +304,8 @@ void OsSSLConnectionSocket::SSLInitSocket(int socket, long timeoutInSecs)
           else
           {
              OsSSL::logError(FAC_KERNEL, PRI_ERR,
-                             "OsSSLConnectionSocket SSL_connect failed: %s", SSL_get_error(mSSL, err));
+                             "OsSSLConnectionSocket SSL_connect failed: ",
+                             SSL_get_error(mSSL, err));
              mIsConnected = FALSE;
              OsConnectionSocket::close();
              socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;          

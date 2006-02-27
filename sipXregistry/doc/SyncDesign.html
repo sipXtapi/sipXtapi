@@ -1,6 +1,6 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html lang="en"><head><title>SIPfoundry sipXpbx: sipXpbx High Availability</title>
-<meta http-equiv="Expires" content="Wed, 11 Jan 2006 20:04:16 +0000">
+<meta http-equiv="Expires" content="Thu, 09 Feb 2006 23:34:09 +0000">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="sipXpbx High Availability">
 <meta name="generator" content="xml2rfc v1.30 (http://xml.resource.org/)">
@@ -128,7 +128,7 @@
 <tr><td class="header">&nbsp;</td><td class="header">D. Worley</td></tr>
 <tr><td class="header">&nbsp;</td><td class="header">W. Gillett</td></tr>
 <tr><td class="header">&nbsp;</td><td class="header">Pingtel Corp.</td></tr>
-<tr><td class="header">&nbsp;</td><td class="header">December 29, 2005</td></tr>
+<tr><td class="header">&nbsp;</td><td class="header">February 9, 2006</td></tr>
 </table></td></tr></table>
 <div align="right"><span class="title"><br />sipXpbx High Availability</span></div>
 <a name="toc"></a><br /><hr />
@@ -192,6 +192,10 @@ XML-RPC Security<br />
 HTTP Persistent Connections<br />
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#authrrsv">5.11.</a>&nbsp;
 Authorization Proxy Record-Route<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor12">5.12.</a>&nbsp;
+Protocol Versioning<br />
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#anchor13">5.13.</a>&nbsp;
+Loose Ends<br />
 <a href="#rfc.authors">&#167;</a>&nbsp;
 Authors' Addresses<br />
 </p>
@@ -212,7 +216,7 @@ Authors' Addresses<br />
           by implementing only those features that are absolutely required. The first HA
           implementation, targeted for sipXpbx release 3.2, will only address basic calling. Automated
           installation will not be supported; some custom, manual configuration will be
-          required. No more than 2 registrars will be allowed. </span>
+          required. No more than 2 registrars will be supported. </span>
       
 </p>
 <p> 
@@ -792,15 +796,55 @@ Authors' Addresses<br />
           
           </p>
 <blockquote class="text"><dl>
-<dt>PeerReachable</dt>
+<dt>PeerSynchronizationState</dt>
 <dd>
-              This is a boolean that indicates whether or not the peer is
-              believed to be reachable. It is initialized on startup to
-              <span class="verb">false</span>, indicating that the peer
-              is not known to be reachable. It is set to <span class="verb">false</span> by most operations if they fail to
-              reach the peer, and is set to <span class="verb">true</span> the RegistrarTest thread (see <a class="info" href="#registrartest">Section&nbsp;5.7.3.3<span> (</span><span class="info">RegistrarTest</span><span>)</span></a>) when it discovers that it can reach
-              the peer. When it is <span class="verb">false</span>, most
+              This variable indicates whether or not the peer is
+              believed to be reachable.  It has four possible values:
+              
+<blockquote class="text"><dl>
+<dt>Uninitialized</dt>
+<dd>
+                  The initial condition, until a successful reset with the peer.
+                
+</dd>
+<dt>Reachable</dt>
+<dd>
+                  The peer is available for synchronization.
+                
+</dd>
+<dt>UnReachable</dt>
+<dd>
+                  The peer is not available for synchronization.
+                
+</dd>
+<dt>Incompatible</dt>
+<dd>
+                  The peer is incompatible for synchronization.
+                
+</dd>
+</dl></blockquote>
+              PeerSynchronizationState is set on startup to
+              <span class="verb">Uninitialized</span>.
+              It is set to <span class="verb">Reachable</span> by the RegistrarTest thread (see <a class="info" href="#registrartest">Section&nbsp;5.7.3.3<span> (</span><span class="info">RegistrarTest</span><span>)</span></a>) after a successful
+              <a class="info" href="#reset">registrarSync.reset<span> (</span><span class="info">registrarSync.reset method</span><span>)</span></a> call on the peer.
+              This is the only way that a peer can become reachable, because the 
+              reset call initializes PeerSentDbUpdateNumber, a necessary step before
+              synchronization can proceed.
+              
+</dd>
+<dt></dt>
+<dd>
+              PeerSynchronizationState is set to <span class="verb">UnReachable</span> by most operations if they fail to
+              reach the peer.  It is set to <span class="verb">Incompatible</span> when a serious error occurs that 
+              indicates that the peer may be running a different version of the software.
+              
+</dd>
+<dt></dt>
+<dd>
+              When PeerSynchronizationState is <span class="verb">UnReachable</span>, most
               operations do not attempt to contact the peer.
+              When PeerSynchronizationState is <span class="verb">Incompatible</span>, no operations try to contact the peer.
+              The only way out of the <span class="verb">Incompatible</span> state is to restart the registrar.
             
 </dd>
 </dl></blockquote><p>
@@ -1006,7 +1050,7 @@ Authors' Addresses<br />
             not available during the startup phase.  Attempts to invoke
             them result in XML-RPC faults, which causes the caller to
             consider the target of the request to be UnReachable.  This is
-            corrected by the <a class="info" href="#reset">registrarSync.reset<span> (</span><span class="info">registrarSync.reset method</span><span>)</span></a> during the <a class="info" href="#transition">transition from startup to operational
+            corrected by <a class="info" href="#reset">registrarSync.reset<span> (</span><span class="info">registrarSync.reset method</span><span>)</span></a> during the <a class="info" href="#transition">transition from startup to operational
             phase<span> (</span><span class="info">Transition from Startup Phase to Operational Phase</span><span>)</span></a>.
           
 </p>
@@ -1157,9 +1201,9 @@ Authors' Addresses<br />
                 Start the synchronization threads:
                 
 <ul class="text">
-<li><a class="info" href="#registrartest">RegistrarTest<span> (</span><span class="info">RegistrarTest</span><span>)</span></a>
-</li>
 <li><a class="info" href="#registrarsync">RegistrarSync<span> (</span><span class="info">RegistrarSync</span><span>)</span></a>
+</li>
+<li><a class="info" href="#registrartest">RegistrarTest<span> (</span><span class="info">RegistrarTest</span><span>)</span></a>
 </li>
 </ul>
               
@@ -1247,7 +1291,7 @@ Authors' Addresses<br />
 </p>
 <p> 
               The RegistrarSync thread operation is governed by a private
-              static OsCSem (counting semaphore).  The thread main loop
+              static OsBSem (binary semaphore).  The thread main loop
               waits on that semaphore.  The static C++ method <span class="verb">RegistrarSync::sendUpdates</span>; when invoked,
               increments the semaphore value, indicating to the
               RegistrarSync thread that there may be updates available to be
@@ -1305,7 +1349,8 @@ Authors' Addresses<br />
             standard exponential backoff to a maximum interval of one eighth of the maximum
             registration interval. This prevents useless and possibly harmful traffic
             being injected into the network in the event that the loss of connectivity is
-            traffic-related.
+            traffic-related. It also prevents thrashing in the event of any unexpected
+            problem that causes resets to fail many times in a row.
           
 </p>
 <p>
@@ -1391,12 +1436,15 @@ Authors' Addresses<br />
 <p>Inputs:
         </p>
 <pre>
-            string  registrar_name  Owning registrar name
-            i8      update_number
+            string  callingRegistrar         Calling registrar name
+            string  primaryRegistrar         Primary registrar name
+            i8      updateNumber
 </pre><p>
 
-        The server is asked to send all updates for the registrar_name
-        whose update number is greater than update_number.
+        The server is asked to send all updates for which primaryRegistrar is primary
+        and whose update number is greater than updateNumber.  The callingRegistrar
+        input is used for authentication.  RPC requests are only accepted from configured
+        peers.
         
 </p>
 <p>
@@ -1404,7 +1452,7 @@ Authors' Addresses<br />
           </p>
 <pre>
             struct
-              int        numberOfUpdates
+              int        numUpdates
               array      updates
                struct    row
                  string  uri
@@ -1413,18 +1461,18 @@ Authors' Addresses<br />
                  string  contact
                  int     expires
                  string  qvalue
-                 string  instance_id
+                 string  instanceId
                  string  gruu
                  string  primary
-                 i8      update_number
+                 i8      updateNumber
 </pre><p>
 
 
-          The numberOfUpdates is the number of rows in the update array.
+          numUpdates is the number of rows in the update array.
         
 </p>
 <p>
-          A returned numberOfUpdates of zero indicates that the server has no
+          A returned numUpdates of zero indicates that the server has no
           rows in its database for the primary registrar_name greater than
           the requested value; the records for the specified primary
           registrar are synchronized. 
@@ -1440,7 +1488,7 @@ Authors' Addresses<br />
 <a name="rfc.section.5.8.2"></a><h3>5.8.2.&nbsp;registrarSync.reset method</h3>
 
 <p>
-          This method conveys the PeerSentDbUpdateNumber in both directions
+          This method conveys the PeerReceivedDbUpdateNumber in both directions
           between the client and the server, and indicates that the client
           is ready to receive registrarSync.pushUpdates calls.
         
@@ -1449,27 +1497,27 @@ Authors' Addresses<br />
           Inputs:
           </p>
 <pre>
-            string   registrar_name  The clients name
-            i8       update_number
+            string  callingRegistrar          Calling registrar name
+            i8      updateNumber
 </pre><p>
 
-          The sent update_number is the highest update number in the
-          clients database owned by the server: the
-          PeerReceivedDbUpdateNumber in the client for the server.  This
-          value becomes the PeerSentDbUpdateNumber in the server for the
-          client registrar_name.  Note that this value may be less than the
+          The updateNumber input is the client's PeerReceivedDbUpdateNumber for
+          that server.  PeerReceivedDbUpdateNumber is the highest update number
+          in the client's database owned by the server, or zero if there are no
+          such updates.  This value becomes the PeerSentDbUpdateNumber in the server for the
+          callingRegistrar client.  Note that this value may be less than the
           current value for PeerSentDbUpdateNumber, indicating that some
-          previously sent values were lost.
+          previously sent updates were lost.
         
 </p>
 <p>
           Outputs:
           </p>
 <pre>
-            i8  update_number
+            i8  updateNumber
 </pre><p>
 
-          The returned update_number is the highest update number in the
+          The returned updateNumber is the highest update number in the
           server's database owned by the client: the
           PeerReceivedDbUpdateNumber in the server for the client.  The
           client sets PeerSentDbUpdateNumber for the server to this value.
@@ -1480,9 +1528,14 @@ Authors' Addresses<br />
 <p>
           If no fault is returned, the client and server each mark the
           other as Reachable, and call the RegistrarSync::sendUpdates C++
-          method to begin pushing updates to the peer (it is possible that
+          method to begin pushing updates to the peer. It is possible that
           there are no updates to be sent, but determining this is the
-          responsibility of the <a class="info" href="#registrarsync">RegistrarSync<span> (</span><span class="info">RegistrarSync</span><span>)</span></a> thread).
+          responsibility of the <a class="info" href="#registrarsync">RegistrarSync<span> (</span><span class="info">RegistrarSync</span><span>)</span></a> thread.
+        
+</p>
+<p>
+          See <a class="info" href="#registrartest">RegistrarTest<span> (</span><span class="info">RegistrarTest</span><span>)</span></a> for info on how faults
+          are handled.
         
 </p>
 <a name="pushUpdates"></a><br /><hr />
@@ -1498,7 +1551,8 @@ Authors' Addresses<br />
           Inputs:
           </p>
 <pre>
-            string    registrar_name          Calling registrar name
+            string    callingRegistrar     Calling registrar name
+            i8        lastSentUpdateNumber Number of last update sent
             array     updates
               struct  row
                 string  uri
@@ -1507,27 +1561,27 @@ Authors' Addresses<br />
                 string  contact
                 int     expires
                 string  qvalue
-                string  instance_id
+                string  instanceId
                 string  gruu
                 string  primary
-                i8      update_number
+                i8      updateNumber
 </pre><p>
 
-          All rows in the updates array MUST have the same update_number,
+          All rows in the updates array MUST have the same updateNumber,
           and MUST be the complete set of rows from the caller's database
-          that have that update_number.
+          that have that updateNumber.
         
 </p>
 <p>
           Outputs:
           </p>
 <pre>
-            i8    update_number
+            i8    updateNumber
 </pre><p>
 
-          The returned update_number is equal to the sent update number (it
+          The returned updateNumber is equal to the sent update number (it
           is just an acknowledgement); this value is used to update the
-          callers PeerSentDbUpdateNumber for the server.
+          caller's PeerSentDbUpdateNumber for the server.
         
 </p>
 <p>
@@ -1540,6 +1594,24 @@ Authors' Addresses<br />
         
 </p>
 <p>
+          lastSentUpdateNumber is set to zero if this is the first update for this
+          session.  lastSentUpdateNumber is the value of the client's 
+          PeerSentDbUpdateNumber just before pushing the update.
+        
+</p>
+<p>
+          The server <span class="strong">must</span> return a fault if
+          lastSentUpdateNumber does not match the current value of 
+          PeerReceivedDbUpdateNumber.  For example, suppose the server receives
+          update #2 with lastSentUpdateNumber = 1 but PeerReceivedDbUpdateNumber = 0.
+          The server returns a fault because update #2 is out of order -- the server
+          doesn't have update #1.  On receiving the fault response, the client does
+          a reset to resynchronize.  This scenario is improbable but possible
+          because a pushUpdates call going in one direction can cross a reset call
+          going in the other direction.
+        
+</p>
+<p>
           If this method returns any fault, the client marks the server as UnReachable.
         
 </p>
@@ -1547,7 +1619,7 @@ Authors' Addresses<br />
           The update rows are applied to the local database as specified in
           <a class="info" href="#applyUpdatesToDirectory">applyUpdatesToDirectory<span> (</span><span class="info">Applying Updates to the Directory</span><span>)</span></a>.  Note that whether or not any
           rows from this call are applied to the database, the
-          PeerReceivedDbUpdateNumber is set to the update_number and that
+          PeerReceivedDbUpdateNumber is set to the updateNumber and that
           value is returned.  Because the PeerReceivedDbUpdateNumber is not
           persisted locally other than as a side effect of rows in the
           database, then a registry service reset following an update of
@@ -1602,6 +1674,82 @@ Authors' Addresses<br />
           name).</span>
         
 </p>
+<a name="anchor12"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.12"></a><h3>5.12.&nbsp;Protocol Versioning</h3>
+
+<p>
+          Rules for XML-RPC interoperability across versions of the registrar:
+          </p>
+<blockquote class="text">
+<p>
+              Each registrar release should be protocol-interoperable with prior releases,
+              since customers may have different software versions on different machines,
+              even if only temporarily in the course of an overall upgrade.
+            
+</p>
+<p>
+              If we need to make incompatible changes for some reason, then we will change
+              the XML-RPC method names to avoid interoperability problems.  For example,
+              "registrarSync.pullUpdates" would become "registrarSync2.pullUpdates"
+              (append "2" to "registrarSync" to make all the method names different).
+            
+</p>
+</blockquote><p>
+        
+</p>
+<a name="anchor13"></a><br /><hr />
+<table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
+<a name="rfc.section.5.13"></a><h3>5.13.&nbsp;Loose Ends</h3>
+
+<p>This section contains changes that need to be merged into the spec.
+</p>
+<p>1. Checking for out-of-order updates
+</p>
+<p>You've added this text to SyncDesign.xml:
+</p>
+<p>
+The server <span class="strong">must</span> return a fault if
+lastSentUpdateNumber does not match the current value of
+PeerReceivedDbUpdateNumber.  For example, suppose the server receives
+update #2 with lastSentUpdateNumber = 1 but PeerReceivedDbUpdateNumber = 0.
+The server returns a fault because update #2 is out of order -- the server
+doesn't have update #1.  On receiving the fault response, the client does
+a reset to resynchronize.  This scenario is improbable but possible
+because a pushUpdates call going in one direction can cross a reset call
+going in the other direction.
+</p>
+<p>
+I think you can soften these conditions a bit --  The validity test can
+be "lastSentUpdateNumber &lt;= PeerReceivedDbUpdateNumber", because an
+update from a base point that is too far in the past is never a problem.
+</p>
+<p>
+Though you have to update PeerReceivedDbUpdateNumber as:
+</p>
+<p>
+PeerReceivedDbUpdateNumber = max(PeerReceivedDbUpdateNumber,
+                                 updateNumber)
+</p>
+<p>
+because this admits the possibility that updateNumber is less than
+PeerReceivedDbUpdateNumber.
+</p>
+<p>2. Avoid reset thrashing
+</p>
+<p>
+The plausible "reset thrashing" scenarios generally are situations where
+reset always succeeds but the first update immediately thereafter fails,
+triggering another reset.  It seems to me that the exponential backoff
+should only be reset to its initial delay when an update has succeeded.
+</p>
+<p>
+Since a successful update always causes progress (at least in the
+PeerLastSentDbUpdate in the client), there can be no infinite sequence
+of successful updates, and so they can never prevent exponential backoff
+when it is needed.  But there can be an infinite series of successful
+resets.
+</p>
 <a name="rfc.authors"></a><br /><hr />
 <table summary="layout" cellpadding="0" cellspacing="2" class="bug" align="right"><tr><td class="bug"><a href="#toc" class="link2">&nbsp;TOC&nbsp;</a></td></tr></table>
 <h3>Authors' Addresses</h3>
@@ -1625,6 +1773,6 @@ Authors' Addresses<br />
 <tr><td class="author-text">&nbsp;</td>
 <td class="author-text">Pingtel Corp.</td></tr>
 <tr><td class="author" align="right">Email:&nbsp;</td>
-<td class="author-text"><a href="mailto:walter_gillett@hotmail.com">walter_gillett@hotmail.com</a></td></tr>
+<td class="author-text"><a href="mailto:wgillett at pingtel.com">wgillett at pingtel.com</a></td></tr>
 </table>
 </body></html>

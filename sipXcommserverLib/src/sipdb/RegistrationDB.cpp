@@ -10,11 +10,11 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include <sipdb/RegistrationDB.h>
 
 // APPLICATION INCLUDES
 #include "utl/UtlInt.h"
 #include "utl/UtlLongLongInt.h"
+#include "utl/UtlSListIterator.h"
 #include "os/OsLock.h"
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
@@ -23,26 +23,64 @@
 #include "fastdb/fastdb.h"
 
 #include "xmlparser/tinyxml.h"
+#include "sipdb/RegistrationBinding.h"
+#include "sipdb/RegistrationDB.h"
+#include "sipdb/RegistrationRow.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
-#include "sipdb/RegistrationRow.h"
-#include "sipdb/RegistrationDB.h"
 
 REGISTER( RegistrationRow );
+
+
+// Smart DB accessor that attaches the DB on construction, and detaches on destruction.
+// This is necessary to protect process/thread-local storage integrity.
+class SmartDbAccessor
+{
+public:
+   SmartDbAccessor(dbDatabase* fastDB, int lineNo) : mFastDB(fastDB), mLineNo(lineNo)
+      {
+         if (mFastDB != NULL)
+         {
+            mFastDB->attach();
+         }
+         else
+         {
+            OsSysLog::add(FAC_DB, PRI_ERR, "RegistrationDB.cpp line %d - no DB", lineNo);
+         }
+      }
+   ~SmartDbAccessor()
+      {
+         if (mFastDB != NULL)
+         {
+            mFastDB->detach(0);
+         }
+      }
+
+private:
+   dbDatabase* mFastDB;
+   int         mLineNo;
+};
+
+#define SMART_DB_ACCESS SmartDbAccessor accessor(m_pFastDB, __LINE__)
+
 
 // Static Initializers
 RegistrationDB* RegistrationDB::spInstance = NULL;
 OsMutex         RegistrationDB::sLockMutex (OsMutex::Q_FIFO);
+
+UtlString RegistrationDB::gIdentityKey("identity");
 UtlString RegistrationDB::gUriKey("uri");
 UtlString RegistrationDB::gCallidKey("callid");
 UtlString RegistrationDB::gContactKey("contact");
-UtlString RegistrationDB::gExpiresKey("expires");
-UtlString RegistrationDB::gCseqKey("cseq");
 UtlString RegistrationDB::gQvalueKey("qvalue");
 UtlString RegistrationDB::gInstanceIdKey("instance_id");
 UtlString RegistrationDB::gGruuKey("gruu");
+UtlString RegistrationDB::gCseqKey("cseq");
+UtlString RegistrationDB::gExpiresKey("expires");
 UtlString RegistrationDB::gPrimaryKey("primary");
 UtlString RegistrationDB::gUpdateNumberKey("update_number");
+
+UtlString RegistrationDB::nullString("");
 UtlBoolean     grVerboseLoggingEnabled = FALSE;
 
 /* ============================ CREATORS ================================== */
@@ -110,8 +148,6 @@ RegistrationDB::releaseInstance()
 OsStatus
 RegistrationDB::load()
 {
-    // Critical Section here
-    OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
     if ( m_pFastDB != NULL )
@@ -196,18 +232,15 @@ RegistrationDB::load()
 /// Garbage collect and persist database
 ///
 /// Garbage collect - delete all rows older than the specified
-/// time, and then write all remaining entries to the persistant
+/// time, and then write all remaining entries to the persistent
 /// data store (xml file).
 OsStatus RegistrationDB::cleanAndPersist( const int &newerThanTime )
 {
-    // Critical Section here
-    OsLock lock( sLockMutex );
     OsStatus result = OS_SUCCESS;
 
     if ( m_pFastDB != NULL )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
 
         // Purge all expired field entries from the DB
         // Note: callid set to null indicates provisioned entries and
@@ -315,8 +348,6 @@ OsStatus RegistrationDB::cleanAndPersist( const int &newerThanTime )
                  OsFileSystem::remove( fileName );
             }
         }
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
     else
     {
@@ -344,7 +375,6 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
     // Get the remaining fields so that we can substitute the null string
     // if the fetched value is 0 (the null pointer) because the field
     // is not present in the disk file.
-    static UtlString nullString("");
     UtlString* contact = (UtlString*) nvPairs.findValue(&gContactKey);
     UtlString* callId = (UtlString*) nvPairs.findValue(&gCallidKey);
     UtlString* instanceId = (UtlString*) nvPairs.findValue(&gInstanceIdKey);
@@ -368,6 +398,22 @@ RegistrationDB::insertRow (const UtlHashMap& nvPairs)
 
 
 void
+RegistrationDB::updateBinding(const RegistrationBinding& reg)
+{
+   updateBinding(*(reg.getUri()),    // must not be null
+                 *(reg.getContact() ? reg.getContact() : &nullString),
+                 *(reg.getQvalue() ? reg.getQvalue() : &nullString),
+                 *(reg.getCallId() ? reg.getCallId() : &nullString),
+                 reg.getCseq(),
+                 reg.getExpires(),
+                 *(reg.getInstanceId() ? reg.getInstanceId() : &nullString),
+                 *(reg.getGruu() ? reg.getGruu() : &nullString),
+                 *(reg.getPrimary() ? reg.getPrimary() : &nullString),
+                 reg.getUpdateNumber());
+}
+
+
+void
 RegistrationDB::updateBinding( const Url& uri
                               ,const UtlString& contact
                               ,const UtlString& qvalue
@@ -386,11 +432,7 @@ RegistrationDB::updateBinding( const Url& uri
 
     if ( !identity.isNull() && (m_pFastDB != NULL) )
     {
-        // Critical Section here
-        OsLock lock( sLockMutex );
-
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
 
         // Search for a matching row before deciding to update or insert
         dbCursor< RegistrationRow > cursor( dbCursorForUpdate );
@@ -399,6 +441,7 @@ RegistrationDB::updateBinding( const Url& uri
         query="np_identity=",identity,
             "  and contact=",contact;
         int existingBinding = cursor.select( query ) > 0;
+        RegistrationRow row;
         switch ( existingBinding )
         {
             default:
@@ -413,7 +456,6 @@ RegistrationDB::updateBinding( const Url& uri
 
             case 0:
                 // Insert new row
-                RegistrationRow row;
                 row.np_identity   = identity;
                 row.uri           = fullUri;
                 row.callid        = callid;
@@ -442,9 +484,6 @@ RegistrationDB::updateBinding( const Url& uri
                 cursor.update();
                 break;
         }
-
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
     else
     {
@@ -472,8 +511,7 @@ RegistrationDB::expireOldBindings( const Url& uri
 
     if ( !identity.isNull() && ( m_pFastDB != NULL ) )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor(dbCursorForUpdate);
 
         dbQuery query;
@@ -493,8 +531,6 @@ RegistrationDB::expireOldBindings( const Url& uri
               cursor.update();
             } while ( cursor.next() );
         }
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
 }
 
@@ -513,13 +549,8 @@ void RegistrationDB::expireAllBindings( const Url& uri
 
     if ( !identity.isNull() && ( m_pFastDB != NULL ) )
     {
-        // Critical Section here
-        OsLock lock( sLockMutex );
-
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor(dbCursorForUpdate);
-
         dbQuery query;
         query="np_identity=",identity," and expires>=",expirationTime;
 
@@ -535,9 +566,6 @@ void RegistrationDB::expireAllBindings( const Url& uri
               cursor.update();
            } while ( cursor.next() );
         }
-        
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
 }
 
@@ -554,16 +582,13 @@ RegistrationDB::isOutOfSequence( const Url& uri
 
   if ( !identity.isNull() && ( m_pFastDB != NULL) )
     {
-      // Thread Local Storage
-      m_pFastDB->attach();
-
+      SMART_DB_ACCESS;
       dbCursor< RegistrationRow > cursor;
       dbQuery query;
       query="np_identity=",identity,
         " and callid=",callid,
         " and cseq>=",cseq;
       isOlder = ( cursor.select(query) > 0 );
-      m_pFastDB->detach(0);
     }
   else
     {
@@ -583,15 +608,12 @@ RegistrationDB::removeAllRows ()
 {
     if ( m_pFastDB != NULL )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor( dbCursorForUpdate );
         if (cursor.select() > 0)
         {
             cursor.removeAllSelected();
         }
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
 }
 
@@ -603,8 +625,7 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
 
     if ( m_pFastDB != NULL )
     {
-        // must do this first to ensure process/tls integrity
-        m_pFastDB->attach();
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor;
         if ( cursor.select() > 0 )
         {
@@ -641,9 +662,133 @@ RegistrationDB::getAllRows ( ResultSet& rResultSet ) const
                 rResultSet.addValue(record);
             } while (cursor.next());
         }
-        // commit rows and also ensure process/tls integrity
-        m_pFastDB->detach(0);
     }
+}
+
+intll
+RegistrationDB::getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const
+{
+   intll maxUpdateForPrimary = 0LL;
+
+   if ( m_pFastDB != NULL )
+   {
+      SMART_DB_ACCESS;
+      dbCursor<RegistrationRow> cursor;
+      dbQuery query;
+      query = "primary = ", primaryRegistrar, "order by update_number desc";
+   
+      int numRows = cursor.select(query);
+      if (numRows > 0)
+      {
+         maxUpdateForPrimary = cursor->update_number;
+      }
+   }
+   else
+   {
+      assert(false);    // when this method is called, the DB pointer should not be null
+   }
+
+   return maxUpdateForPrimary;
+}
+
+intll
+RegistrationDB::getNextUpdateNumberForRegistrar(const UtlString& primaryRegistrar,
+                                                intll            updateNumber) const
+{
+   intll nextUpdateNumber = 0LL;
+
+   if ( m_pFastDB != NULL )
+   {
+      SMART_DB_ACCESS;
+      dbCursor<RegistrationRow> cursor;
+      dbQuery query;
+      query = "primary = ", primaryRegistrar,
+              " and update_number > ", updateNumber,
+              " order by update_number asc";
+   
+      int numRows = cursor.select(query);
+      if (numRows > 0)
+      {
+         nextUpdateNumber = cursor->update_number;
+      }
+   }
+   else
+   {
+      assert(false);    // when this method is called, the DB pointer should not be null
+   }
+
+   return nextUpdateNumber;
+}
+
+int 
+RegistrationDB::getNextUpdateForRegistrar(const UtlString& primaryRegistrar,
+                                          intll            updateNumber,
+                                          UtlSList&        bindings) const
+{
+   int numRows = 0;
+   intll nextUpdateNumber = getNextUpdateNumberForRegistrar(primaryRegistrar, updateNumber);
+   if (nextUpdateNumber > 0)
+   {
+      dbQuery query;
+      query =
+         "primary = ", primaryRegistrar,
+         " and update_number = ", nextUpdateNumber;
+         numRows = getUpdatesForRegistrar(query, bindings);
+      if (numRows > 0)
+      {
+         OsSysLog::add(
+            FAC_SIP, PRI_DEBUG
+            ,"RegistrationDB::getNextUpdateForRegistrar"
+            " found %d rows for %s with updateNumber > %0#16llx"
+            ,numRows
+            ,primaryRegistrar.data()
+            ,updateNumber);
+      }   
+   }
+   return numRows;
+}
+
+int
+RegistrationDB::getNewUpdatesForRegistrar(const UtlString& primaryRegistrar,
+                                          intll            updateNumber,
+                                          UtlSList&        bindings) const
+{
+   dbQuery query;
+   query = "primary = ", primaryRegistrar, " and update_number > ", updateNumber;
+   int numRows = getUpdatesForRegistrar(query, bindings);
+   if (numRows > 0)
+   {
+      OsSysLog::add(
+         FAC_SIP, PRI_DEBUG
+         ,"RegistrationDB::getNewUpdatesForRegistrar"
+         " found %d rows for %s with updateNumber > %0#16llx"
+         ,numRows
+         ,primaryRegistrar.data()
+         ,updateNumber);
+   }   
+   return numRows;
+}
+
+int
+RegistrationDB::getUpdatesForRegistrar(dbQuery&  query,
+                                       UtlSList& bindings) const
+{
+   int numRows = 0;
+   if ( m_pFastDB != NULL )
+   {
+      SMART_DB_ACCESS;
+      dbCursor<RegistrationRow> cursor(dbCursorForUpdate);
+      numRows = cursor.select(query);
+      if (numRows > 0)
+      {
+         do {
+            RegistrationBinding* reg = copyRowToRegistrationBinding(cursor);
+            bindings.append(reg);
+         }
+         while (cursor.next());
+      }
+   }
+   return numRows;
 }
 
 void
@@ -660,9 +805,7 @@ RegistrationDB::getUnexpiredContacts (
 
     if ( !identity.isNull() && ( m_pFastDB != NULL) )
     {
-        // Thread Local Storage
-        m_pFastDB->attach();
-
+        SMART_DB_ACCESS;
         dbCursor< RegistrationRow > cursor;
         dbQuery query;
         OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -736,8 +879,6 @@ RegistrationDB::getUnexpiredContacts (
 
             } while ( cursor.next() );
         }
-        // Commit rows to memory - multiprocess workaround
-        m_pFastDB->detach(0);
     }
 }
 
@@ -757,3 +898,19 @@ RegistrationDB::getInstance( const UtlString& name )
     return spInstance;
 }
 
+RegistrationBinding*
+RegistrationDB::copyRowToRegistrationBinding(dbCursor<RegistrationRow>& cursor) const
+{
+   RegistrationBinding *reg = new RegistrationBinding();
+   reg->setUri(* new UtlString(cursor->uri));
+   reg->setCallId(* new UtlString(cursor->callid));
+   reg->setContact(* new UtlString(cursor->contact));
+   reg->setQvalue(* new UtlString(cursor->qvalue));
+   reg->setInstanceId(* new UtlString(cursor->instance_id));
+   reg->setGruu(* new UtlString(cursor->gruu));
+   reg->setCseq(cursor->cseq);
+   reg->setExpires(cursor->expires);
+   reg->setPrimary(* new UtlString(cursor->primary));
+   reg->setUpdateNumber(cursor->update_number);
+   return reg;
+}

@@ -32,9 +32,11 @@ case ${Action} in
      ;;
 
    CONFIGTEST)
-     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/Watchdog.xml
-     #Status=$(($Status+$?))
-     ;;
+        @SIPX_BINDIR@/sipx-validate-xml @SIPX_CONFDIR@/WatchDog.xml
+        Status=$(($Status+$?))
+        @SIPX_BINDIR@/sipx-validate-xml @SIPX_CONFDIR@/ProcessDefinitions.xml
+        Status=$(($Status+$?))
+        ;;
 esac
 
 exit $Status

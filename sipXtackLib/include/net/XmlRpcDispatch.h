@@ -76,14 +76,15 @@ class XmlRpcDispatch : public HttpService
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
+   static const char* DEFAULT_URL_PATH;
 
 /* ============================ CREATORS ================================== */
 
    /// Create a dispatch object.
    XmlRpcDispatch(int httpServerPort,           ///< port number for HttpServer
                   bool isSecureServer,          ///< option for HTTP or HTTPS
-                  const char* uriPath = "/RPC2" ///< uri path
-                  ); 
+                  const char* uriPath = DEFAULT_URL_PATH          ///< uri path
+                  );
 
    /// Destructor.
    virtual ~XmlRpcDispatch();
@@ -98,10 +99,13 @@ public:
 /* ============================ ACCESSORS ================================= */
 
    /// Add a method to the RPC dispatch
-   void addMethod(const char* methodName, XmlRpcMethod::Get* method, void* userData);
+   void addMethod(const char* methodName, XmlRpcMethod::Get* method, void* userData = NULL);
 
    /// Remove a method from the RPC dispatch by name
    void removeMethod(const char* methodName);
+
+   /// Return the HTTP server that services RPC requests
+   HttpServer* getHttpServer();
    
 /* ============================ INQUIRY =================================== */
 

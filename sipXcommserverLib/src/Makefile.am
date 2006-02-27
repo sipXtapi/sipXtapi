@@ -38,6 +38,7 @@ libsipXcommserver_la_SOURCES =  \
     sipdb/DialByNameDB.cpp \
     sipdb/ExtensionDB.cpp \
     sipdb/HuntgroupDB.cpp \
+    sipdb/RegistrationBinding.cpp \
     sipdb/PermissionDB.cpp \
     sipdb/RegistrationDB.cpp \
     sipdb/ResultSet.cpp \

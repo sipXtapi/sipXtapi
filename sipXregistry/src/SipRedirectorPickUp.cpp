@@ -153,9 +153,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
    }
    else
    {
-      UtlString s = "configDir";
-      const UtlString* configDir =
-         dynamic_cast<UtlString*> (configParameters.findValue(&s));
+      UtlString s;
       s = "orbitConfigFilename";
       const UtlString* orbitConfigFilename =
          dynamic_cast<UtlString*> (configParameters.findValue(&s));
@@ -170,7 +168,7 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
       {
          // Assemble the full file name.
          UtlString fileName =
-            *configDir + OsPathBase::separator + *orbitConfigFilename;
+            SIPX_CONFDIR + OsPathBase::separator + *orbitConfigFilename;
 
          if (
             // Get the park server's SIP domain so we can forward its
@@ -695,8 +693,8 @@ OsStatus SipRedirectorPickUp::parseOrbitFile(UtlString& fileName)
    {
       // Find all the <orbit> elements.
       for (TiXmlNode* orbit_element = 0;
-           orbit_element = orbits_element->IterateChildren("orbit",
-                                                           orbit_element);
+           (orbit_element = orbits_element->IterateChildren("orbit",
+                                                            orbit_element));
          )
       {
          // Process each <orbit> element.
@@ -805,7 +803,7 @@ void SipRedirectorPrivateStoragePickUp::processNotify(const char* body)
                     "Body parsed, <dialog-info> found");
       // Find all the <dialog> elements.
       for (TiXmlNode* dialog = 0;
-           dialog = dialog_info->IterateChildren("dialog", dialog); )
+           (dialog = dialog_info->IterateChildren("dialog", dialog)); )
       {
          // Process each <dialog> element.
          processNotifyDialogElement(dialog->ToElement());
@@ -1083,16 +1081,16 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
                        "Start processing NOTIFY CallID '%s'", callId.data());
 
          {
-            // This block holds SipRedirectServer::mMutex.
-            OsLock lock(SipRedirectServer::getInstance()->mMutex);
+            // This block holds SipRedirectServer::mRedirectorMutex.
+            OsLock lock(SipRedirectServer::getInstance()->mRedirectorMutex);
 
             // Look for a suspended request whose SUBSCRIBE had this Call-Id.
             SipRedirectServerPrivateStorageIterator itor(mRedirectorNo);
             // Fetch a pointer to each element of myContentSource into
             // pStorage.
             SipRedirectorPrivateStoragePickUp* pStorage;
-            while (pStorage =
-                   dynamic_cast<SipRedirectorPrivateStoragePickUp*> (itor()))
+            while ((pStorage =
+                    dynamic_cast<SipRedirectorPrivateStoragePickUp*> (itor())))
             {
                // Does this request have the same Call-Id?
                if (callId.compareTo(pStorage->mSubscribeCallId) == 0)

@@ -21,6 +21,7 @@ nobase_include_HEADERS =  \
     sipdb/HuntgroupRow.h \
     sipdb/PermissionDB.h \
     sipdb/PermissionRow.h \
+    sipdb/RegistrationBinding.h \
     sipdb/RegistrationDB.h \
     sipdb/RegistrationRow.h \
     sipdb/ResultSet.h \
@@ -62,4 +63,8 @@ nobase_include_HEADERS =  \
     fastdb/ttree.h \
     fastdb/unisock.h \
     fastdb/w32sock.h \
-    fastdb/wwwapi.h
+    fastdb/wwwapi.h \
+	 testlib/RegistrationDbTestContext.h \
+	 testlib/SipDbTestContext.h \
+	 testlib/FileTestContext.h
+

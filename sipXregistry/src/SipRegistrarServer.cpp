@@ -23,12 +23,16 @@
 #include "net/SipUserAgent.h"
 #include "net/NetMd5Codec.h"
 #include "net/NameValueTokenizer.h"
+#include "sipdb/RegistrationBinding.h"
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
+#include "RegistrarSync.h"
+#include "SipRegistrar.h"
 #include "SipRegistrarServer.h"
+#include "SyncRpc.h"
 #include "registry/RegisterPlugin.h"
 
 // DEFINES
@@ -49,12 +53,16 @@
 // CONSTANTS
 const RegEx RegQValue("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); // syntax for a valid q parameter value
 
+#define MIN_EXPIRES_TIME 300
+#define HARD_MINIMUM_EXPIRATION 60
+const char DEFAULT_EXPIRATION_TIME[] = "7200";
+
 // STRUCTS
 // TYPEDEFS
-#define MIN_EXPIRES_TIME 300
 
 // FORWARD DECLARATIONS
 // GLOBAL VARIABLES
+// Static Initializers
 
 static UtlString gUriKey("uri");
 static UtlString gCallidKey("callid");
@@ -65,71 +73,95 @@ static UtlString gQvalueKey("qvalue");
 static UtlString gInstanceIdKey("instance_id");
 static UtlString gGruuKey("gruu");
 
-const UtlString SipRegistrarServer::gDummyLocalRegistrarName("dummy.somewhere.com");
+OsMutex         SipRegistrarServer::sLockMutex(OsMutex::Q_FIFO);
 
-SipRegistrarServer::SipRegistrarServer() :
-    OsServerTask("SipRegistrarServer", NULL, 2000),
+SipRegistrarServer::SipRegistrarServer(SipRegistrar& registrar) :
+    OsServerTask("SipRegistrarServer", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
+    mRegistrar(registrar),
     mIsStarted(FALSE),
     mSipUserAgent(NULL),
-    mDefaultRegistryPeriod(3600),
-    mNonceExpiration(5*60),
-    mDbUpdateNumber(0)
+    mDefaultRegistryPeriod(),
+    mNonceExpiration(5*60)
 {
-    // Set up a periodic timer for nonce garbage collection
-    OsMsgQ* queue = getMessageQueue();
-    OsQueuedEvent* queuedEvent = new OsQueuedEvent(*queue, 0);
-    OsTimer* timer = new OsTimer(*queuedEvent);
-    // Once a minute
-    OsTime lapseTime(60, 0);
-    timer->periodicEvery(lapseTime, lapseTime);
 }
 
-UtlBoolean
+void
 SipRegistrarServer::initialize(
-    SipUserAgent* SipUserAgent,
-    PluginHooks* sipRegisterPlugins,
-    int defaultRegistryPeriod,
-    const UtlString& minExpiresTime,
-    const UtlString& defaultDomain,
-    const UtlString& domainAliases,
-    int              proxyNormalPort,
-    const UtlBoolean& useCredentialDB,
-    const UtlString& realm)
+   OsConfigDb*   pOsConfigDb,      ///< Configuration parameters
+   SipUserAgent* pSipUserAgent)    ///< User Agent to use when sending responses
 {
-    if ( !mIsStarted )
-    {
-        //start the thread
-        start();
-    }
+    mSipUserAgent = pSipUserAgent;
 
-    if ( !minExpiresTime.isNull() )
+    // Minimum Registration Time
+    pOsConfigDb->get("SIP_REGISTRAR_MIN_EXPIRES", mMinExpiresTimeStr);
+    if ( !mMinExpiresTimeStr.isNull() )
     {
-        mMinExpiresTimeStr.append(minExpiresTime);
-        mMinExpiresTimeint = atoi(minExpiresTime.data());
+        mMinExpiresTimeint = atoi(mMinExpiresTimeStr.data());
 
-        if ( mMinExpiresTimeint < 60 )
+        if ( mMinExpiresTimeint < HARD_MINIMUM_EXPIRATION )
         {
-            mMinExpiresTimeint = 60;
-            mMinExpiresTimeStr = "60";
+           OsSysLog::add(FAC_SIP, PRI_WARNING,
+                         "SipRegistrarServer "
+                         "configured minimum (%d) < hard minimum (%d); set to hard minimum",
+                         mMinExpiresTimeint, HARD_MINIMUM_EXPIRATION);
+           mMinExpiresTimeint = HARD_MINIMUM_EXPIRATION;
+           char min[10];
+           sprintf(min, "%d", HARD_MINIMUM_EXPIRATION);
+           mMinExpiresTimeStr = min;
         }
     }
-
-    if ( defaultRegistryPeriod > mMinExpiresTimeint )
+    else
     {
-        mDefaultRegistryPeriod = defaultRegistryPeriod;
+       char min[10];
+       sprintf(min, "%d", MIN_EXPIRES_TIME);
+       mMinExpiresTimeStr = min;
+       mMinExpiresTimeint = MIN_EXPIRES_TIME;
+    }
+    
+    // Maximum/Default Registration Time
+    UtlString maxExpiresTimeStr;
+    pOsConfigDb->get("SIP_REGISTRAR_MAX_EXPIRES", maxExpiresTimeStr);
+    if ( maxExpiresTimeStr.isNull() )
+    {
+       maxExpiresTimeStr = DEFAULT_EXPIRATION_TIME;
+    }
+    int maxExpiresTime = atoi(maxExpiresTimeStr.data());
+    if ( maxExpiresTime >= mMinExpiresTimeint )
+    {
+        mDefaultRegistryPeriod = maxExpiresTime;
+    }
+    else 
+    {
+       OsSysLog::add(FAC_SIP, PRI_WARNING,
+                     "SipRegistrarServer "
+                     "configured maximum (%d) < minimum (%d); set to minimum",
+                     maxExpiresTime, mMinExpiresTimeint
+                     );
+       mDefaultRegistryPeriod = mMinExpiresTimeint;
     }
 
-    if ( !defaultDomain.isNull() )
+    // Domain Name
+    pOsConfigDb->get("SIP_REGISTRAR_DOMAIN_NAME", mDefaultDomain);
+    if ( mDefaultDomain.isNull() )
     {
-        mDefaultDomain.remove(0);
-        mDefaultDomain.append(defaultDomain);
-        Url defaultDomainUrl(mDefaultDomain);
-        mDefaultDomainPort = defaultDomainUrl.getHostPort();
-        defaultDomainUrl.getHostAddress(mDefaultDomainHost);
-
-        addValidDomain(mDefaultDomainHost, mDefaultDomainPort);
+       OsSocket::getHostIp(&mDefaultDomain);
+       OsSysLog::add(FAC_SIP, PRI_CRIT,
+                     "SIP_REGISTRAR_DOMAIN_NAME not configured using IP '%s'",
+                     mDefaultDomain.data()
+                     );
     }
+    // get the url parts for the domain
+    Url defaultDomainUrl(mDefaultDomain);
+    mDefaultDomainPort = defaultDomainUrl.getHostPort();
+    defaultDomainUrl.getHostAddress(mDefaultDomainHost);
+    // make sure that the unspecified domain name is also valid
+    addValidDomain(mDefaultDomainHost, mDefaultDomainPort);
 
+    // Domain Aliases
+    //   (other domain names that this registrar accepts as valid in the request URI)
+    UtlString domainAliases;
+    pOsConfigDb->get("SIP_REGISTRAR_DOMAIN_ALIASES", domainAliases);
+    
     UtlString aliasString;
     int aliasIndex = 0;
     while(NameValueTokenizer::getSubField(domainAliases.data(), aliasIndex,
@@ -144,27 +176,60 @@ SipRegistrarServer::initialize(
        aliasIndex++;
     }
 
-    if ( !realm.isNull() )
-    {
-        mRealm.remove(0);
-        mRealm.append(realm);
-    }
+    // Authentication Realm Name
+    pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_REALM", mRealm);
 
-    mProxyNormalPort = proxyNormalPort;
-    
-    mIsCredentialDB = useCredentialDB;
-    mpSipRegisterPlugins = sipRegisterPlugins;
-    
-    if ( SipUserAgent )
+    mProxyNormalPort = pOsConfigDb->getPort("SIP_REGISTRAR_PROXY_PORT");
+    if (mProxyNormalPort == PORT_DEFAULT)
     {
-        mSipUserAgent = SipUserAgent;
+       mProxyNormalPort = SIP_PORT;
     }
+    
+    // Authentication Scheme:  NONE | DIGEST
+    UtlString authenticateScheme;
+    pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_SCHEME", authenticateScheme);
+    mUseCredentialDB = (authenticateScheme.compareTo("NONE" , UtlString::ignoreCase) != 0);
 
-    if ( !mSipUserAgent )
-    {
-        return FALSE;
-    }
-    return TRUE;
+    /*
+     * Unused Authentication Directives
+     *
+     * These directives are in the configuration files but are not used:
+     *
+     *   pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", authAlgorithm); 
+     *     there may someday be a reason to use that one, since MD5 is aging.
+     *
+     *   pOsConfigDb->get("SIP_REGISTRAR_AUTHENTICATE_QOP", authQop);
+     *     the qop will probably never be used - removed from current config file
+     */
+
+    // Registration Plugins
+    mpSipRegisterPlugins = new PluginHooks( RegisterPlugin::Factory
+                                           ,RegisterPlugin::Prefix
+                                           );
+    mpSipRegisterPlugins->readConfig(*pOsConfigDb);
+   
+}
+
+int SipRegistrarServer::pullUpdates(
+   const UtlString& registrarName,
+   intll            updateNumber,
+   UtlSList&        updates)
+{
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
+   RegistrationDB* imdb = RegistrationDB::getInstance();
+   int numUpdates = imdb->getNewUpdatesForRegistrar(registrarName, updateNumber, updates);
+   return numUpdates;
+}
+
+/// Set the largest update number in the local database for this registrar as primary
+void SipRegistrarServer::setDbUpdateNumber(intll dbUpdateNumber)
+{
+   mDbUpdateNumber = dbUpdateNumber;
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipRegistrarServer::setDbUpdateNumber to %0#16llx", mDbUpdateNumber.getValue());
 }
 
 /// Apply valid changes to the database
@@ -177,6 +242,9 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                              ,const SipMessage& registerMessage
                                              )
 {
+    // Critical Section here
+    OsLock lock(sLockMutex);
+
     RegisterStatus returnStatus = REGISTER_SUCCESS;
     UtlBoolean removeAll = FALSE;
     UtlBoolean isExpiresheader = FALSE;
@@ -209,7 +277,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
     RegistrationDB* imdb = RegistrationDB::getInstance();
 
     // Check that this call-id and cseq are newer than what we have in the db
-    if (! imdb->isOutOfSequence( toUrl, registerCallidStr, registerCseqInt))
+    if (! imdb->isOutOfSequence(toUrl, registerCallidStr, registerCseqInt))
     {
         // ****************************************************************
         // We now make two passes over all the contacts - the first pass
@@ -414,7 +482,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                // number to all the database changes we're about to make.  In some
                // cases we might not actually make any changes.  That's OK, having
                // an update number with no associated changes won't break anything.
-               mDbUpdateNumber++;
+               setDbUpdateNumber(mDbUpdateNumber + 1);
 
                 if ( removeAll )
                 {
@@ -427,9 +495,10 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     {
                         // Expires: 0 && Contact: * - clear all contacts
                         imdb->expireAllBindings( toUrl
-                                                ,registerCallidStr, registerCseqInt
+                                                ,registerCallidStr
+                                                ,registerCseqInt
                                                 ,timeNow
-                                                ,gDummyLocalRegistrarName
+                                                ,primaryName()
                                                 ,mDbUpdateNumber
                                                 );
                     }
@@ -520,7 +589,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                               "SipRegistrarServer::applyRegisterToDirectory"
                                               " - Adding map %s->%s",
-                                       registerToStr.data(), contact.data() );
+                                              registerToStr.data(), contact.data() );
                             }
 
                             UtlString qvalue(*(UtlString*)record.findValue(&gQvalueKey));
@@ -532,7 +601,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                 ,expirationTime
                                                 ,instance_id
                                                 ,gruu
-                                                ,gDummyLocalRegistrarName
+                                                ,primaryName()
                                                 ,mDbUpdateNumber
                                                 );
 
@@ -541,7 +610,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                         // If there were any bindings not dealt with explicitly in this
                         // message that used the same callid, then expire them.
                         imdb->expireOldBindings( toUrl, registerCallidStr, registerCseqInt, 
-                                                 timeNow, gDummyLocalRegistrarName,
+                                                 timeNow, primaryName(),
                                                  mDbUpdateNumber );
                     }
                     else
@@ -569,13 +638,21 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                     {
                        plugin->takeAction(registerMessage, spreadExpirationTime, mSipUserAgent );
                     }
+
+                    // if replication is configured, then trigger replication
+                    if (mRegistrar.isReplicationConfigured())
+                    {
+                       RegistrarSync* sync = mRegistrar.getRegistrarSync();
+                       assert(sync);
+                       sync->sendUpdates();
+                    }
                 }
             }
         }
     }
     else
     {
-       OsSysLog::add( FAC_SIP, PRI_WARNING,
+        OsSysLog::add( FAC_SIP, PRI_WARNING,
                       "SipRegistrarServer::applyRegisterToDirectory request out of order\n"
                       "  To: '%s'\n"
                       "  Call-Id: '%s'\n"
@@ -588,6 +665,153 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 
     return returnStatus;
 }
+    
+
+intll
+SipRegistrarServer::applyUpdatesToDirectory(
+   int timeNow,                   ///< current epoch time
+   const UtlSList& updates,       ///< list of updates to apply
+   UtlString* errorMsg)           ///< fill in the error message on failure
+{
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
+   // We need an error string buffer even if the caller didn't provide one
+   UtlString altErrorMsg;
+   errorMsg = errorMsg ? errorMsg : &altErrorMsg;
+
+   // Loop over the updates and apply them to the DB.
+   // All updates must be for the same primary registrar.
+   UtlSListIterator updateIter(updates);
+   RegistrationBinding* reg;
+   RegistrationDB* imdb = RegistrationDB::getInstance();
+   UtlString primary;
+   UtlString emptyPrimary;
+   const UtlString& myPrimary(mRegistrar.primaryName());
+   RegistrarPeer* peer = NULL;    // peer registrar, or NULL if it's our local registrar
+   intll maxUpdateNumber = 0;     // max update number for these updates
+
+   while ((reg = dynamic_cast<RegistrationBinding*>(updateIter())) &&
+          (maxUpdateNumber >= 0)) // max update number is negative if there's an error
+   {
+      intll updateNumber = reg->getUpdateNumber();
+      if (maxUpdateNumber == 0)   // if this is the first time through the loop
+      {
+         if (reg->getPrimary() != NULL)
+         {
+            primary = *(reg->getPrimary());
+         }
+         if (primary != myPrimary)
+         {
+            peer = mRegistrar.getPeer(primary);
+            if (peer == NULL)
+            {
+               *errorMsg = "SipRegistrarServer::applyUpdatesToDirectory unknown peer ";
+               errorMsg->append(primary.data());
+               OsSysLog::add(FAC_SIP, PRI_ERR, errorMsg->data());
+               maxUpdateNumber = -1;    // indicate error
+            }
+         }
+         maxUpdateNumber = updateNumber;
+      }
+      else
+      {
+         // make sure that all updates are for a single primary
+         const UtlString* nextPrimary = reg->getPrimary() ? reg->getPrimary() : &emptyPrimary;
+         if (primary != *nextPrimary)
+         {
+            char buf[1024];
+            sprintf(buf,
+                    "SipRegistrarServer::applyUpdatesToDirectory updates with mixed primaries"
+                    " updateNumber: %0#16llx, primary1: %s, primary2: %s",
+                    reg->getUpdateNumber(), primary.data(), nextPrimary->data());
+            OsSysLog::add(FAC_SIP, PRI_ERR, buf);
+            *errorMsg = buf;
+            maxUpdateNumber = -1;    // indicate error
+         }
+      }
+
+      // If there were no errors, then apply the update and update state variables
+      if (maxUpdateNumber >= 0)
+      {
+         maxUpdateNumber = updateOneBinding(reg, peer, imdb);
+      }
+   }
+
+   // If we processed any updates and there were no errors, then garbage-collect
+   // and persist the database.
+   if (maxUpdateNumber > 0)
+   {
+      int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
+      imdb->cleanAndPersist(oldestTimeToKeep);
+   }
+
+   return maxUpdateNumber;
+}
+
+
+intll SipRegistrarServer::updateOneBinding(
+   RegistrationBinding* reg,
+   RegistrarPeer* peer,    // NULL if it's the local registrar
+   RegistrationDB* imdb)
+{
+   assert(reg);
+   assert(imdb);
+
+   // Check callId/cseq and accept only updates that are in sequence.
+   // Don't require updateNumbers to be in order because when pulling updates, 
+   // updateNumber order is not guaranteed.
+   if (imdb->isOutOfSequence(*reg->getUri(), *reg->getCallId(), reg->getCseq()))
+   {
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipRegistrarServer::updateOneBinding request out of order\n"
+                    "  To: '%s'\n"
+                    "  Call-Id: '%s'\n"
+                    "  Cseq: %d",
+                    (*reg->getUri()).toString().data(), (*reg->getCallId()).data(), reg->getCseq());
+      return -1;
+   }
+
+   // Update the registrar state and the binding
+
+   intll updateNumber = reg->getUpdateNumber();
+   assert(updateNumber > 0);
+
+   // The return value is the max update number that we have seen for this registrar.
+   intll maxUpdateNumber = updateNumber;
+
+   if (peer != NULL)
+   {
+      // This update is for a peer.  If the updateNumber is bigger than previous
+      // updateNumbers, then increase peerReceivedDbUpdateNumber accordingly.
+      intll receivedFrom = peer->receivedFrom();
+      if (updateNumber > receivedFrom)
+      {
+         peer->setReceivedFrom(updateNumber);
+      }
+      else
+      {
+         maxUpdateNumber = receivedFrom;
+      }
+   }
+   else
+   {
+      // This is a local update pulled from a peer.  If the updateNumber is bigger
+      // than previous updateNumbers, then increase mDbUpdateNumber accordingly.
+      if (updateNumber > mDbUpdateNumber)
+      {
+         setDbUpdateNumber(updateNumber);
+      }
+      else
+      {
+         maxUpdateNumber = mDbUpdateNumber;
+      }
+   }
+
+   imdb->updateBinding(*reg);
+   return maxUpdateNumber;
+}
+
 
 //functions
 UtlBoolean
@@ -643,7 +867,7 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
             *   can use sip:user@domain:mProxyNormalPort, so this normalization
             *   cannot interfere with valid addresses.)
             *
-            * For the strict rules, set the configuraiton parameter
+            * For the strict rules, set the configuration parameter
             *   SIP_REGISTRAR_PROXY_PORT : PORT_NONE
             */
            if (   mProxyNormalPort != PORT_NONE
@@ -652,8 +876,6 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
            {
               toUrl.setHostPort(PORT_NONE);
            }
-           UtlString registeredIdentity;
-           toUrl.getIdentity(registeredIdentity);
            
            // check in credential database if authentication needed
            if ( isAuthorized( toUrl, message, finalResponse ) )
@@ -868,10 +1090,10 @@ SipRegistrarServer::isAuthorized (
     UtlString identity;
     toUrl.getIdentity(identity);
     
-    if ( !mIsCredentialDB )
+    if ( !mUseCredentialDB )
     {
-        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized() "
-                ":: No Credential DB - request is always AUTHORIZED" );
+        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrarServer::isAuthorized() "
+                      ":: No Credential DB - request is always AUTHORIZED" );
         isAuthorized = TRUE;
     }
     else
@@ -880,7 +1102,8 @@ SipRegistrarServer::isAuthorized (
         // if URI not defined in DB, the user is not authorized to modify bindings - NOT DOING ANYMORE
         // check if we requested authentication and this is the req with
         // authorization,validate the authorization
-        OsSysLog::add( FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized()"
+        OsSysLog::add( FAC_AUTH, PRI_DEBUG,
+                      "SipRegistrarServer::isAuthorized()"
                       ": fromUri='%s', toUri='%s', realm='%s' ",
                       fromUri.data(), toUrl.toString().data(), mRealm.data() );
 
@@ -904,7 +1127,8 @@ SipRegistrarServer::isAuthorized (
 
             if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive check that realm is correct
             {
-                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SipRegistrar::isAuthorized() Realm Matches");
+                OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                              "SipRegistrarServer::isAuthorized() Realm Matches");
 
                 // need the request URI to validate the nonce
                 UtlString reqUri;
@@ -935,7 +1159,7 @@ SipRegistrarServer::isAuthorized (
                            ))
                         {
                           OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                                        "SipRegistrar::isAuthorized() "
+                                        "SipRegistrarServer::isAuthorized() "
                                         "response auth hash matches");
                         }
                       else
@@ -1053,6 +1277,96 @@ SipRegistrarServer::isValidDomain(
     }
 
     return isValid;
+}
+
+const UtlString& SipRegistrarServer::primaryName() const
+{
+   return mRegistrar.primaryName();
+}
+
+intll SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName) const
+{
+   // If replication is not configured, then the primaryName will be empty, but it
+   // should never be null.
+   assert(primaryName != NULL);
+   assert(!mRegistrar.isReplicationConfigured() || strlen(primaryName) > 0);
+
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
+   RegistrationDB* imdb = mRegistrar.getRegistrationDB();
+   return imdb->getMaxUpdateNumberForRegistrar(primaryName);
+}
+
+/// Return true if there is a new update to send to the registrar, and return the update
+bool SipRegistrarServer::getNextUpdateToSend(RegistrarPeer *peer,
+                                             UtlSList&      bindings)
+{
+   assert(peer != NULL);
+   bool isNewUpdate = false;
+
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
+   intll peerSentDbUpdateNumber = peer->sentTo();
+
+   // This method must not be called until the peer's sentTo value has been initialized
+   assert(peerSentDbUpdateNumber >= 0);
+
+   if (mDbUpdateNumber > peerSentDbUpdateNumber)    // if there might be updates to send
+   {
+      // Get the next update belonging to us (we're primary) that we haven't sent to
+      // registrarName yet.
+      RegistrationDB* imdb = mRegistrar.getRegistrationDB();
+      int numBindings = imdb->getNextUpdateForRegistrar(primaryName(),
+                                                        peerSentDbUpdateNumber,
+                                                        bindings);
+      assert(static_cast<int>(bindings.entries()) == numBindings);
+      if (numBindings > 0)
+      {
+         isNewUpdate = true;
+      }
+   }
+
+   return isNewUpdate;
+}
+
+/// Get the largest update number in the local database for this registrar as primary
+intll SipRegistrarServer::getDbUpdateNumber() const
+{
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
+   return mDbUpdateNumber.getValue();
+}
+
+/// Reset the upper half of the DbUpdateNumber to the epoch time.
+void SipRegistrarServer::resetDbUpdateNumberEpoch()
+{
+   int timeNow = OsDateTime::getSecsSinceEpoch();
+   intll newEpoch;
+   newEpoch = timeNow;
+   newEpoch <<= 32;
+
+   { // lock before changing the epoch update number
+      OsLock lock(sLockMutex);
+            
+      setDbUpdateNumber(newEpoch);
+   } // release lock before logging
+   
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "SipRegistrarServer::resetDbUpdateNumberEpoch to %llx",
+                 newEpoch
+                 );
+}
+
+/// Recover the DbUpdateNumber from the local database
+void SipRegistrarServer::restoreDbUpdateNumber()
+{
+   // Recover and return the largest update number from the database for this primary.
+   // Call this method after reading the configuration, otherwise the primaryName will
+   // be empty.
+   setDbUpdateNumber(getMaxUpdateNumberForRegistrar(mRegistrar.primaryName()));
 }
 
 SipRegistrarServer::~SipRegistrarServer()

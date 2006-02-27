@@ -546,6 +546,22 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
     AC_SUBST(SIPXCOMMSERVER_LIBS,   ["$SIPXCOMMSERVERLIB/libsipXcommserver.la"])
     AC_SUBST(SIPXCOMMSERVER_LDFLAGS,["-L$SIPXCOMMSERVERLIB"])
 
+    # helper library for unit tests that use sipdb databases
+    SFAC_ARG_WITH_LIB([libsipXcommserverTest.la],
+            [sipxcommservertest],
+            [ --with-sipxcommservertest=<dir> commserver unit test helpers library path ],
+            [sipXcommserverTest])
+
+    if test x_$foundpath != x_; then
+        AC_MSG_RESULT($foundpath)
+    else
+        AC_MSG_ERROR('libsipXcommserverTest.la' not found)
+    fi
+    SIPXCOMMSERVERTESTLIB=$foundpath
+
+    AC_SUBST(SIPXCOMMSERVERTEST_LIBS,   ["$SIPXCOMMSERVERTESTLIB/libsipXcommserverTest.la"])
+    AC_SUBST(SIPXCOMMSERVERTEST_LDFLAGS,["-L$SIPXCOMMSERVERTESTLIB]")
+
 ]) # SFAC_LIB_COMMSERVER
 
 

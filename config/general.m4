@@ -291,7 +291,7 @@ AC_DEFUN([CHECK_SSL],
     found_ssl_lib="no";
     for libsubdir in lib lib64 lib32; do
       for dir in $openssl_path ; do
-        if test -f "$dir/$libsubdir/libssl.so" -o "$dir/$libsubdir/libssl.a"; then
+        if test -f "$dir/$libsubdir/libssl.so" -o -f "$dir/$libsubdir/libssl.a"; then
             found_ssl_lib="yes";
             ssllibdir="$dir/lib"
             break;

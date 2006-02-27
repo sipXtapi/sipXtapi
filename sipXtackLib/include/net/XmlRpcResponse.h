@@ -22,7 +22,7 @@
 #include "net/XmlRpcBody.h"
 
 // DEFINES
-#define ILL_FORMED_CONTENTS_FAULT_STRING "Ill-formed XML-RPC contents"
+#define ILL_FORMED_CONTENTS_FAULT_STRING "Ill-formed XML contents"
 #define METHOD_NAME_FAULT_STRING "Method name is missing"
 #define UNREGISTERED_METHOD_FAULT_STRING "Method has not been registered"
 #define AUTHENTICATION_REQUIRED_FAULT_STRING "Authentication is required"
@@ -106,7 +106,7 @@ public:
    bool parseXmlRpcResponse(UtlString& responseContent); ///< response content from XML-RPC request
    
    /// Get the content of the response
-   XmlRpcBody* getBody() { return mpResponseBody; };
+   XmlRpcBody* getBody();
          
 /* ============================ ACCESSORS ================================= */
 

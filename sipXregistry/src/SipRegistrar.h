@@ -33,104 +33,152 @@
 class OsConfigDb;
 class SipUserAgent;
 class SipMessage;
+class HttpServer;
+class XmlRpcDispatch;
+class RegistrarPeer;
+class RegistrarTest;
+class RegistrarSync;
+class RegistrarInitialSync;
 class SipRedirectServer;
 class SipRegistrarServer;
-//:Class short description which may consist of multiple lines (note the ':')
-// Class detailed description which may extend to multiple lines
-class SipRegistrar : public OsServerTask //public SipServerBase
+class UtlSListIterator;
+
+/// Top Level sipXregistry thread
+/**
+ * This is the top level thread in the service; it spawns
+ * all other threads and controls which are started at which time.
+ */
+class SipRegistrar : public OsServerTask // should be SipServerBase ?
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-    // Singleton globals
-    // Note: this class does not need to be a singleton.  The only method that
-    // assumes singleton is getSipRegistrar
-    static SipRegistrar* spInstance;
-    static OsBSem sLock;
-
-/* ============================ CREATORS ================================== */
-
-
    //:Default constructor
+   SipRegistrar( OsConfigDb* configDb
+                );
 
    virtual
    ~SipRegistrar();
      //:Destructor
 
-/* ============================ MANIPULATORS ============================== */
-   static SipRegistrar* SipRegistrar::startRegistrar(const UtlString workingDir,
-      const char* configFileName);
 
+    static SipRegistrar* getInstance(OsConfigDb* configDb);
 
-    static SipRegistrar* getInstance();
-    // Singleton constructor/accessor
-    // Note: this class does not need to be a singleton.  The only method that
-    // assumes singleton is getSipRegistrar
+    SipRegistrarServer& getRegistrarServer();
 
-         void printMessageLog();
-
+    /// top level task
+    virtual int run(void* pArg);
+    
+    /// Receive SIP or other OS messages.
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
+    /**< Messages are dispatched to either the SipRegistrarServer or SipRedirectServer thread */
 
+    /// Server for XML-RPC requests
+    void startRpcServer();
+    /**<
+     * Begins operation of the HTTP/RPC service
+     * sets mHttpServer and mXmlRpcDispatch
+     */
+    
+    /// Launch all Startup Phase threads and wait until synchronization state is known
+    void startupPhase();
+    /**<
+     * Begin the RegistrarInitialSync thread and wait for it to finish
+     */
+    
+    /// Launch all Operational Phase threads.
+    void operationalPhase();
+    /**<
+     * Begins operation of the SipRegistrarServer and SipRedirectServer.
+     */
 
+    /// Read configuration for replication.
+    void configurePeers();
+    /**<
+     * Sets mReplicationConfigured=true if replication is configured.
+     */
+    
+    /// If replication is configured, then name of this registrar as primary
+    const UtlString& primaryName() const;
+
+    /// Get an iterator over all peers.
+    UtlSListIterator* getPeers();
+    /**<
+     * @returns
+     * - NULL if replication is not configured
+     * - an iterator if replication is configured.
+     *   Caller must delete the iterator when finished with it.
+     */
+
+    /// Get peer state object by name.
+    RegistrarPeer* getPeer(const UtlString& peerName);
+    /**<
+     * @returns NULL if no peer is configured with peerName
+     */
+
+    /// Get the XML-RPC dispatcher
+    XmlRpcDispatch* getXmlRpcDispatch();
+
+    /// Get the RegistrarTest thread object
+    RegistrarTest* getRegistrarTest();
+    
+    /// Get the RegistrarSync thread object
+    RegistrarSync* getRegistrarSync();
+
+    /// Return true if replication is configured, false otherwise
+    bool isReplicationConfigured();
+    
+    /// Get the RegistrationDB object
+    RegistrationDB* getRegistrationDB();
+    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+   // Constants
+   static const int SIP_REGISTRAR_DEFAULT_XMLRPC_PORT;
 
+   // Singleton globals
+   static SipRegistrar* spInstance;
+   static OsBSem sLock;
+
+   // order is important - these two must be before everything below
+   // so that they are initialized first.
+   OsConfigDb* mConfigDb; ///< this is owned by the main routine - do not delete
+   RegistrationDB* mRegistrationDB;
+
+   int             mHttpPort;
+   HttpServer*     mHttpServer;
+   XmlRpcDispatch* mXmlRpcDispatch;
+
+   bool      mReplicationConfigured; /// master switch for replication 
+   UtlString mPrimaryName;           ///< full name of this host as primary 
+   UtlSList  mPeers;                 ///< list of RegisterPeer objects.
+   
    SipUserAgent* mSipUserAgent;
-   UtlString mDefaultDomain;
-   UtlString mDomainAliases;
    
    SipRedirectServer* mRedirectServer;
    OsMsgQ* mRedirectMsgQ;
-   UtlBoolean mRedirectThreadInitialized;
 
    SipRegistrarServer* mRegistrarServer;
    OsMsgQ* mRegistrarMsgQ;
-   UtlBoolean mRegistrarThreadInitialized;
 
-   PluginHooks* mSipRegisterPlugins;
-
-   UtlString mMinExpiresTime;
-   UtlString mRegistryCacheFileName;
-   int mDefaultRegistryPeriod;
-   int mDefaultQvalue;
-   UtlBoolean mIsCredentialDB;
-   UtlString mAuthAlgorithm;
-   UtlString mAuthQop;
-   UtlString mRealm;
-   UtlString mConfigDirectory;
-   UtlString mMediaServer;
-   UtlString mVoicemailServer;
-   UtlString mlocalDomainHost;
-   int       mProxyNormalPort;
-
-   SipRegistrar( SipUserAgent* sipUserAgent,
-                 PluginHooks* sipRegisterPlugins,
-                 int maxExpiresTime,
-                 const UtlString& defaultDomain,
-                 const UtlString& domainAliases,
-                 int              proxyNormalPort,
-                 const UtlString& defaultMinExpiresTime,
-                 const UtlBoolean& useCredentialDB,
-                 const UtlString& defaultAuthAlgorithm,
-                 const UtlString& defaultAuthQop,
-                 const UtlString& defaultRealm,
-                 const UtlString& configDir,
-                 const UtlString& mediaServer,
-                 const UtlString& voicemailServer,
-                 const char* configFileName);
+   RegistrarInitialSync* mRegistrarInitialSync;
+   RegistrarSync* mRegistrarSync;
+   RegistrarTest* mRegistrarTest;
 
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();
    void sendToRegistrarServer(OsMsg& eventMessage);
 
    /* ============================ REDIRECT ==================================== */
-    void startRedirectServer(const char* configFileName);
-    void sendToRedirectServer(OsMsg& eventMessage);
-};
+   void startRedirectServer();
+   void sendToRedirectServer(OsMsg& eventMessage);
 
-/* ============================ INLINE METHODS ============================ */
+   /* ============================ REPLICATION================================== */
+
+   void createReplicationThreads();
+};
 
 #endif  // _SipRegistrar_h_

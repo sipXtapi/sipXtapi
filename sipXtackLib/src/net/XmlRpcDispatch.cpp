@@ -28,6 +28,7 @@
 #include <net/HttpMessage.h>
 #include "net/XmlRpcDispatch.h"
 
+#undef TEST_HTTP /* turn on to log raw http messages */
 
 XmlRpcMethodContainer::XmlRpcMethodContainer()
 {
@@ -75,6 +76,8 @@ void XmlRpcMethodContainer::getData(XmlRpcMethod::Get*& method, void*& userData)
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS
+const char* XmlRpcDispatch::DEFAULT_URL_PATH = "/RPC2";
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -155,14 +158,16 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
                                     const HttpMessage& request,
                                     HttpMessage*& response )
 {
+#   ifdef TEST_HTTP
     int len;
     UtlString httpString;
 
     request.getBytes(&httpString , &len);
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "XmlRpcDispatch::processRequest HttpEvent = \n%s\n",
+                  "XmlRpcDispatch::processRequest HttpEvent = \n%s",
                   httpString.data());
-
+#  endif
+    
    // Create a response
    response = new HttpMessage();
    response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION_1_1,
@@ -208,14 +213,24 @@ void XmlRpcDispatch::processRequest(const HttpRequestContext& requestContext,
    {
       // Create an authentication challenge response
       OsSysLog::add(FAC_SIP, PRI_WARNING,
-                    "XmlRpcDispatch::processRequest request does not have authentication = \n%s\n",
-                    httpString.data());
-      responseBody.setFault(AUTHENTICATION_REQUIRED_FAULT_CODE, AUTHENTICATION_REQUIRED_FAULT_STRING);
+                    "XmlRpcDispatch::processRequest request does not have authentication."
+                    );
+      responseBody.setFault(AUTHENTICATION_REQUIRED_FAULT_CODE,
+                            AUTHENTICATION_REQUIRED_FAULT_STRING);
    }
-   
+
+
    // Send the response back
    responseBody.getBody()->getBytes(&bodyString, &bodyLength);
-      
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "XmlRpcDispatch::processRequest request returned %s\n%s",
+                 (  status == XmlRpcMethod::OK
+                  ? "OK" : "FAILED"
+                  ),
+                 bodyString.data()
+                 );
+   
    response->setBody(new HttpBody(bodyString.data(), bodyLength));
    response->setContentType(CONTENT_TYPE_TEXT_XML);
    response->setContentLength(bodyLength);
@@ -246,6 +261,12 @@ void XmlRpcDispatch::removeMethod(const char* methodName)
 }
 
 
+/// Return the HTTP server that services RPC requests
+HttpServer* XmlRpcDispatch::getHttpServer()
+{
+   return mpHttpServer;
+}
+
 /* ============================ INQUIRY =================================== */
 
 
@@ -258,7 +279,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
 {
    bool result = false;
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "XmlRpcDispatch::parseXmlRpcRequest requestBody = \n%s\n",
+                 "XmlRpcDispatch::parseXmlRpcRequest requestBody = \n%s",
                  requestContent.data());
 
    // Parse the XML-RPC response
@@ -312,7 +333,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
                         if (!result)
                         {
                            OsSysLog::add(FAC_SIP, PRI_ERR,
-                                         "XmlRpcDispatch::parseXmlRpcRequest ill formatted xml contents in %s.",
+                                         "XmlRpcDispatch::parseXmlRpcRequest ill-formed XML contents in %s.",
                                           requestContent.data());
                            response.setFault(EMPTY_PARAM_VALUE_FAULT_CODE, EMPTY_PARAM_VALUE_FAULT_STRING);
                            break;
@@ -325,7 +346,7 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
             else
             {
                OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "XmlRpcDispatch::parseXmlRpcRequest no such a method %s is registered",
+                             "XmlRpcDispatch::parseXmlRpcRequest no method named %s is registered",
                              methodCall.data());
                response.setFault(UNREGISTERED_METHOD_FAULT_CODE, UNREGISTERED_METHOD_FAULT_STRING);
                result = false;
@@ -343,9 +364,9 @@ bool XmlRpcDispatch::parseXmlRpcRequest(UtlString& requestContent,
    else
    {
       OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "XmlRpcDispatch::parseXmlRpcRequest ill formatted xml contents in %s. Parsing error = %s",
+                    "XmlRpcDispatch::parseXmlRpcRequest ill-formed XML contents in %s. Parsing error = %s",
                      requestContent.data(), doc.ErrorDesc());
-      response.setFault(ILL_FORMED_CONTENTS_FAULT_CODE, UNREGISTERED_METHOD_FAULT_STRING);
+      response.setFault(ILL_FORMED_CONTENTS_FAULT_CODE, ILL_FORMED_CONTENTS_FAULT_STRING);
       result = false;
    }
    
@@ -873,7 +894,7 @@ void XmlRpcDispatch::cleanUp(UtlHashMap* map)
    UtlString* pName;
    UtlContainable *key;
    UtlContainable *value;
-   while (pName = (UtlString *) iterator())
+   while ((pName = (UtlString *) iterator()))
    {
       key = map->removeKeyAndValue(pName, value);
       UtlString paramType(value->getContainableType());
@@ -905,7 +926,7 @@ void XmlRpcDispatch::cleanUp(UtlSList* array)
 {
    UtlSListIterator iterator(*array);
    UtlContainable *value;
-   while (value = iterator())
+   while ((value = iterator()))
    {
       value = array->remove(value);
       UtlString paramType(value->getContainableType());

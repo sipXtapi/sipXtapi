@@ -1,9 +1,8 @@
 ## Process this file with automake to produce Makefile.in
 
-bin_PROGRAMS = sipregistrar
+SUBDIRS = test
 
-sipregistrar_LDADD = \
-	@SIPXCOMMSERVER_LIBS@
+bin_PROGRAMS = sipregistrar
 
 sipregistrar_CXXFLAGS = \
 	-I$(top_builddir)/config \
@@ -14,11 +13,29 @@ sipregistrar_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 sipregistrar_SOURCES =  \
+    main.cpp
+
+sipregistrar_LDADD = \
+	libsipXregistry.la
+
+noinst_LTLIBRARIES = libsipXregistry.la
+
+libsipXregistry_la_CXXFLAGS = $(sipregistrar_CXXFLAGS)
+
+libsipXregistry_la_LIBADD = \
+	@SIPXCOMMSERVER_LIBS@
+
+libsipXregistry_la_SOURCES = \
     ../config/sipxregistry-buildstamp.h \
     ../config/sipxregistry-buildstamp.cpp \
-    main.cpp \
     RedirectResumeMsg.cpp \
     RedirectSuspend.cpp \
+	 RegistrarInitialSync.h \
+	 RegistrarInitialSync.cpp \
+    RegistrarTest.h \
+    RegistrarTest.cpp \
+    RegistrarSync.h \
+    RegistrarSync.cpp \
     RegistrarPeer.h \
     RegistrarPeer.cpp \
     SipRedirectorAliasDB.cpp \

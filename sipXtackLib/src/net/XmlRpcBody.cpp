@@ -98,9 +98,9 @@ bool XmlRpcBody::addValue(UtlContainable* value)
    else if (value->isInstanceOf(UtlLongLongInt::TYPE))
    {
       UtlLongLongInt* pValue = (UtlLongLongInt *)value;
-      // allow room for the widest possible value, LLONG_MIN = -9223372036854775808
-      char temp[20];
-      sprintf(temp, "%lld", pValue->getValue());
+      // always encode these in hex - more readable for values this big
+      char temp[19];
+      sprintf(temp, "%0#16llx", static_cast<unsigned long long int>(pValue->getValue()));
       paramValue.append(BEGIN_I8);
       paramValue.append(temp);
       paramValue.append(END_I8);
@@ -117,8 +117,12 @@ bool XmlRpcBody::addValue(UtlContainable* value)
    else if (value->isInstanceOf(UtlString::TYPE))
    {
       UtlString* pValue = (UtlString *)value;
-      paramValue = BEGIN_STRING + *pValue + END_STRING;
-      result = true;
+
+      // Fix XSL-116: XML-RPC must escape special chars in string values
+      result = XmlEscape(paramValue, *pValue);
+
+      paramValue.insert(0, BEGIN_STRING);
+      paramValue.append(END_STRING);
    }
    else if (value->isInstanceOf(UtlDateTime::TYPE))
    {
