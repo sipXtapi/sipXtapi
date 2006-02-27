@@ -147,7 +147,7 @@ SipRedirectorHunt::lookUp(
                   contactUri.setFieldParameter(SIP_Q_FIELD, temp);
                   response.setContactField(contactUri.toString(), contactNum);
 
-                  OsSysLog::add( FAC_SIP, PRI_NOTICE,
+                  OsSysLog::add( FAC_SIP, PRI_INFO,
                                  "SipRedirectorHunt::lookUp set q-value "
                                  "'%s' on '%s'\n",
                                  temp, thisContact.data());
