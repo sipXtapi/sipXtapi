@@ -4588,7 +4588,7 @@ MailboxManager::postMWIStatus ( const UtlString& mailboxIdentity ) const
             HttpMessage *pResponse = new HttpMessage();
 
               writeToLog("postMWIevent - sending ", notifyBodyText.data(), PRI_DEBUG);
-            pResponse->get( statusServerUrl, *pRequest, 20*1000 );
+              pResponse->get( statusServerUrl, *pRequest, 20*1000, false );
 
               writeToLog("postMWIevent", "exiting ", PRI_DEBUG);
 
@@ -5753,7 +5753,7 @@ MailboxManager::setPassword (
    // via it to the config server
    HttpMessage *pResponse = new HttpMessage();
 
-   pResponse->get(userServiceUrl, *pRequest, 20*1000);
+   pResponse->get(userServiceUrl, *pRequest, 20*1000, false);
 
    UtlString status;
 
@@ -5799,7 +5799,7 @@ MailboxManager::setPassword (
       pRequest->addHeaderField("SOAPAction", "#rebuildDataSets");
 
       pResponse = new HttpMessage();
-      pResponse->get(dataSetServiceUrl, *pRequest, 20*1000);
+      pResponse->get(dataSetServiceUrl, *pRequest, 20*1000, false);
       
       pResponse->getResponseStatusText(&status);
 
@@ -5854,7 +5854,7 @@ MailboxManager::setPassword (
    // via it to the config server
    HttpMessage *pResponse = new HttpMessage();
 
-   pResponse->get(userServiceUrl, *pRequest, 20*1000);
+   pResponse->get(userServiceUrl, *pRequest, 20*1000, false);
 
    UtlString status;
 
