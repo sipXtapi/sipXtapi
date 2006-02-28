@@ -42,9 +42,20 @@ public final class TapestryUtils {
         // intentionally empty
     }
 
-    public static final String getMessage(Messages messages, String key, String defaultValue_) {
-        // PORT
-        return messages.getMessage(key);
+    /**
+     * Tapestry4 does not provide a way of detecting if message has been provided. This method is
+     * trying to guess if message has been retrieved or if Tapestry is trying to help by providing
+     * a formatted key as a message.
+     * 
+     * @param defaultValue value that should be used if key is not found
+     * @return found message or default value if key not found
+     */
+    public static final String getMessage(Messages messages, String key, String defaultValue) {
+        String candidate = messages.getMessage(key);
+        if (candidate.equalsIgnoreCase("[" + key + "]")) {
+            return defaultValue;
+        }
+        return candidate;
     }
 
     /**
