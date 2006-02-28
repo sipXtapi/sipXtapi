@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
-import org.apache.commons.lang.StringUtils;
 
 /**
  * Special type of setting used for upload-able file.
