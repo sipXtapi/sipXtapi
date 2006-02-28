@@ -19,7 +19,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/javassist-3.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/junit/src.zip" kind="var" path="SIPX_CONFIG/lib/junit-3.8.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/ognl-2.6.7.jar"/>
+	<classpathentry sourcepath="LIB_SRC/ognl/ognl-2.6.7-dist.zip" kind="var" path="SIPX_CONFIG/lib/ognl-2.6.7.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/postgresql-8.0.309.jdbc3.jar"/>
 	<classpathentry sourcepath="JRE_SRC" kind="var" path="SIPX_CONFIG/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tidy-04aug2000r6.jar"/>

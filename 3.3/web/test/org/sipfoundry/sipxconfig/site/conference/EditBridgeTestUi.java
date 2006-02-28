@@ -37,8 +37,6 @@ public class EditBridgeTestUi extends ListWebTestCase {
         setWorkingForm("form");
         setFormElement("name", "bridge_test");
         SiteTestHelper.initUploadFields(getDialog().getForm(), "EditBridgeTestUi");
-        // FIXME: this should not be necessary - maxLegs has default value
-        setFormElement("integerField", "0");
         clickButton("form:apply");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
@@ -60,23 +58,13 @@ public class EditBridgeTestUi extends ListWebTestCase {
         return ArrayUtils.add(paramValues, 1, "false");
     }
 
-    protected void setAddParams(String[] names, String[] values) {
-        super.setAddParams(names, values);
-        // FIXME: this should not be necessary - maxLegs has default value
-        setFormElement("integerField", "0");
-    }
-
     protected void clickAddLink() throws Exception {
         SiteTestHelper.initUploadFields(getDialog().getForm(), "EditBridgeTestUi");
-        // FIXME: this should not be necessary - maxLegs has default value
-        setFormElement("integerField", "0");
         super.clickAddLink();
     }
 
     protected void clickDeleteButton() {
         SiteTestHelper.initUploadFields(getDialog().getForm(), "EditBridgeTestUi");
-        // FIXME: this should not be necessary - maxLegs has default value
-        setFormElement("integerField", "0");
         super.clickDeleteButton();
     }
 }

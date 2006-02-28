@@ -17,7 +17,7 @@
     <binding name="id" value="'setting:' + setting.name"/>
     <binding name="value" value="setting.typedValue"/>
     <binding name="displayName" value="setting.label"/>
-    <binding name="translator" value="translator:number"/>
+    <binding name="translator" value="translator:number,omitZero=false"/>
     <binding name="validators" value="validatorList"/>
     <binding name="disabled" value="! enabled"/>
   </component>
@@ -26,7 +26,7 @@
     <binding name="id" value="'setting:' + setting.name"/>
     <binding name="value" value="setting.typedValue"/>
     <binding name="displayName" value="setting.label"/>
-    <binding name="translator" value="translator:number"/>
+    <binding name="translator" value="translator:number,omitZero=false"/>
     <binding name="validators" value="validatorList"/>
     <binding name="disabled" value="! enabled"/>
   </component>

@@ -47,8 +47,6 @@ public class ListBridgesTestUi extends ListWebTestCase {
         // make sure that all uploads are happy and set to something
         WebForm form = getDialog().getForm();
         SiteTestHelper.initUploadFields(form, "ListBridgesTestUi");
-        // FIXME: this should not be necessary - maxLegs has default value
-        setFormElement("integerField", "0");        
     }
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
