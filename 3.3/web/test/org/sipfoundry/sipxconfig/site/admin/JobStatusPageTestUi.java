@@ -18,9 +18,9 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 import com.meterware.httpunit.WebTable;
 
-public class JobStatusPageTestUI extends WebTestCase {
+public class JobStatusPageTestUi extends WebTestCase {
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(JobStatusPageTestUI.class);
+        return SiteTestHelper.webTestSuite(JobStatusPageTestUi.class);
     }
 
     public void setUp() {
