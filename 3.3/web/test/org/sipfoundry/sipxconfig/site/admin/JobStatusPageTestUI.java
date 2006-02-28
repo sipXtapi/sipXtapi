@@ -28,16 +28,6 @@ public class JobStatusPageTestUI extends WebTestCase {
         SiteTestHelper.home(getTester());
     }
 
-    public void testDisplayEmpty() throws Exception {
-        clickLink("JobStatusPage");
-        SiteTestHelper.assertNoException(tester);
-        assertTablePresent("jobs:list");
-        assertButtonPresent("jobs:remove");
-        assertButtonPresent("jobs:refresh");
-        WebTable table = tester.getDialog().getWebTableBySummaryOrId("jobs:list");
-        assertEquals(1, table.getRowCount());
-    }
-
     public void testDisplay() throws Exception {
         clickLink("jobs:populate");
         clickLink("JobStatusPage");
