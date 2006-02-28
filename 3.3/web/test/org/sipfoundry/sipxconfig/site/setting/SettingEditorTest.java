@@ -125,20 +125,4 @@ public class SettingEditorTest extends TestCase {
 
         settingCtrl.verify();
     }
-
-    public void testGetDefaultValueForPassword() {
-        StringSetting type = new StringSetting();
-        type.setPassword(true);
-        
-        MockControl settingCtrl = MockControl.createControl(Setting.class);
-        Setting setting = (Setting) settingCtrl.getMock();        
-        settingCtrl.expectAndReturn(setting.getType(), type);        
-        settingCtrl.replay();
-        
-        m_editor.setSetting(setting);
-        
-        assertNull(m_editor.getDefaultValue());
-
-        settingCtrl.verify();
-    }
 }

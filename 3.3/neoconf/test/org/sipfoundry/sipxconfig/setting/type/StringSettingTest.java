@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
+import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.setting.Setting;
+
 import junit.framework.TestCase;
 
 public class StringSettingTest extends TestCase {
@@ -29,4 +32,16 @@ public class StringSettingTest extends TestCase {
         assertNull("Blank string needs to be converted into null", type.convertToStringValue("\t "));
         assertNull(type.convertToStringValue(null));
     }
+
+    public void testGetDefaultValueForPassword() {
+        StringSetting type = new StringSetting();
+        type.setPassword(true);
+        
+        MockControl settingCtrl = MockControl.createStrictControl(Setting.class);
+        settingCtrl.replay();
+        
+        assertNull(type.getLabel("foo"));
+
+        settingCtrl.verify();
+    }    
 }

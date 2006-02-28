@@ -63,4 +63,8 @@ public class RealSetting implements SettingType {
         }
         return value.toString();
     }
+
+    public String getLabel(Object value) {
+        return convertToStringValue(value);
+    }    
 }

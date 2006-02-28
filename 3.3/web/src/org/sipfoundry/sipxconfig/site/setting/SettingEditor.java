@@ -111,14 +111,10 @@ public abstract class SettingEditor extends BaseComponent {
     }
 
     public String getDefaultValue() {
-        SettingType type = getSetting().getType();
-        if (type instanceof StringSetting) {
-            StringSetting stringType = (StringSetting) type;
-            if (stringType.isPassword()) {
-                return null;
-            }
-        }
-        return getSetting().getDefaultValue();
+        Setting setting = getSetting();
+        SettingType type = setting.getType();
+        String label = type.getLabel(setting.getDefaultValue());
+        return label;
     }
 
     static IPropertySelectionModel enumModelForType(SettingType type) {

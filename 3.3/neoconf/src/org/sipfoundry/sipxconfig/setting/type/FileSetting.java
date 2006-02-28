@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Special type of setting used for upload-able file.
  */
@@ -65,6 +67,13 @@ public class FileSetting implements SettingType {
     }
     
     public String convertToStringValue(Object value) {
+        if (value == null) {
+            return null;
+        }
         return value.toString();
+    }    
+
+    public String getLabel(Object value) {
+        return convertToStringValue(value);
     }    
 }

@@ -73,4 +73,11 @@ public class StringSetting implements SettingType {
         }
         return string;
     }
+
+    public String getLabel(Object value) {
+        if (isPassword()) {
+            return null;
+        }
+        return convertToStringValue(value);
+    }    
 }

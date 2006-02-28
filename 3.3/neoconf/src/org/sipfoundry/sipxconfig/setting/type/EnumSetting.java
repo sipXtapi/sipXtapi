@@ -86,4 +86,8 @@ public class EnumSetting implements SettingType {
         }
         return false;
     }
+    
+    public String getLabel(Object value) {
+        return (String) m_enums.get(value);
+    }
 }
