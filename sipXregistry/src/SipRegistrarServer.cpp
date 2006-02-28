@@ -29,6 +29,7 @@
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/CredentialDB.h"
 #include "sipdb/RegistrationDB.h"
+#include "RegistrarPersist.h"
 #include "RegistrarSync.h"
 #include "SipRegistrar.h"
 #include "SipRegistrarServer.h"
@@ -628,8 +629,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                 if ( REGISTER_SUCCESS == returnStatus )
                 {
                     // something changed - garbage collect and persist the database
-                    int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
-                    imdb->cleanAndPersist( oldestTimeToKeep );
+                    scheduleCleanAndPersist();
 
                     // give each RegisterPlugin a chance to do its thing
                     PluginIterator plugins(*mpSipRegisterPlugins);
@@ -742,8 +742,7 @@ SipRegistrarServer::applyUpdatesToDirectory(
    // and persist the database.
    if (maxUpdateNumber > 0)
    {
-      int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
-      imdb->cleanAndPersist(oldestTimeToKeep);
+      scheduleCleanAndPersist();
    }
 
    return maxUpdateNumber;
@@ -1329,6 +1328,26 @@ bool SipRegistrarServer::getNextUpdateToSend(RegistrarPeer *peer,
    }
 
    return isNewUpdate;
+}
+
+/// Schedule garbage collection and persistence of the registration database
+void SipRegistrarServer::scheduleCleanAndPersist()
+{
+   RegistrarPersist* persistThread = mRegistrar.getRegistrarPersist();
+   assert(persistThread);
+   persistThread->scheduleCleanAndPersist();
+}
+  
+/// Garbage-collect and persist the registration database
+void SipRegistrarServer::cleanAndPersist()
+{
+   // Critical Section here
+   OsLock lock(sLockMutex);
+
+   RegistrationDB* imdb = mRegistrar.getRegistrationDB();
+   int timeNow = OsDateTime::getSecsSinceEpoch();
+   int oldestTimeToKeep = timeNow - mDefaultRegistryPeriod;
+   imdb->cleanAndPersist(oldestTimeToKeep);
 }
 
 /// Get the largest update number in the local database for this registrar as primary

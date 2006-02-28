@@ -31,6 +31,7 @@
 #include "SipRedirectServer.h"
 #include "SipRegistrarServer.h"
 #include "RegistrarPeer.h"
+#include "RegistrarPersist.h"
 #include "RegistrarTest.h"
 #include "RegistrarSync.h"
 #include "RegistrarInitialSync.h"
@@ -53,6 +54,7 @@ const char* RegisterPlugin::Factory = "getRegisterPlugin";
 // STATIC VARIABLE INITIALIZATIONS
 
 const int SipRegistrar::SIP_REGISTRAR_DEFAULT_XMLRPC_PORT = 5077;
+
 SipRegistrar* SipRegistrar::spInstance = NULL;
 OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 
@@ -74,7 +76,8 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    mRegistrarMsgQ(NULL),
    mRegistrarInitialSync(NULL),
    mRegistrarSync(NULL),
-   mRegistrarTest(NULL)
+   mRegistrarTest(NULL),
+   mRegistrarPersist(NULL)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar constructed.");
 
@@ -127,6 +130,11 @@ int SipRegistrar::run(void* pArg)
 void SipRegistrar::startupPhase()
 {
    OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar entering startup phase");
+
+   // Create and start the persist thread, before making any changes
+   // to the registration DB.
+   mRegistrarPersist = new RegistrarPersist(*this);
+   mRegistrarPersist->start();
 
    if (mReplicationConfigured)
    {
@@ -245,6 +253,12 @@ XmlRpcDispatch* SipRegistrar::getXmlRpcDispatch()
    return mXmlRpcDispatch;
 }
 
+/// Get the RegistrarPersist thread object
+RegistrarPersist* SipRegistrar::getRegistrarPersist()
+{
+   return mRegistrarPersist;
+}
+
 /// Get the RegistrarTest thread object
 RegistrarTest* SipRegistrar::getRegistrarTest()
 {
@@ -267,8 +281,13 @@ bool SipRegistrar::isReplicationConfigured()
 RegistrationDB* SipRegistrar::getRegistrationDB()
 {
    return mRegistrationDB;
+}    
+
+/// Get the config DB
+OsConfigDb* SipRegistrar::getConfigDB()
+{
+   return mConfigDb;
 }
-    
 
 // Destructor
 SipRegistrar::~SipRegistrar()
@@ -522,7 +541,6 @@ SipRegistrar::sendToRegistrarServer(OsMsg& eventMessage)
        OsSysLog::add(FAC_SIP, PRI_CRIT, "sendToRegistrarServer - queue not initialized.");
     }
 }
-
 
 /// Create replication-related thread objects, but don't start them yet
 void SipRegistrar::createReplicationThreads()

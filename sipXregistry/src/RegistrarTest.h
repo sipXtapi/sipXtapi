@@ -68,7 +68,7 @@ class RegistrarTest : public OsServerTask
    /// mutex must be locked with OsLock to access any other member variable.
    OsBSem mLock;
 
-   /// Whether or not there is a timer running.
+   /// State of the RegistrarTest thread
    enum TestState
    {
       StartupPhase, ///< In this state, the timer is not started for UnReachable peers

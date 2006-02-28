@@ -661,48 +661,61 @@ bool SyncRpcPushUpdates::execute(
    UtlString* callingRegistrar = dynamic_cast<UtlString*>(params.at(0));
    if (callingRegistrar && !callingRegistrar->isNull())
    {
-      // Verify that the caller is a configured peer registrar.
+      // Verify that the caller is a compatible, configured peer registrar.
       SipRegistrar* registrar = static_cast<SipRegistrar*>(userData);
       RegistrarPeer* peer
          = validCaller(requestContext, *callingRegistrar, response, *registrar, METHOD_NAME);
       if (peer)
       {
-         UtlLongLongInt* lastSentUpdateNumber = dynamic_cast<UtlLongLongInt*>(params.at(1));
-         if (lastSentUpdateNumber != NULL)
+         RegistrarPeer::SynchronizationState state = peer->synchronizationState();
+         if (state == RegistrarPeer::Reachable)
          {
-            // check lastSentUpdateNumber <= peerReceivedDbUpdateNumber
-            // sets status and handles any errors
-            checkLastSentUpdateNumber(*lastSentUpdateNumber, *peer, response, status);
-
-            if (status == XmlRpcMethod::OK)
+            // Handle the update
+            UtlLongLongInt* lastSentUpdateNumber = dynamic_cast<UtlLongLongInt*>(params.at(1));
+            if (lastSentUpdateNumber != NULL)
             {
-               UtlSList* updateMaps = dynamic_cast<UtlSList*>(params.at(2));
-               if (updateMaps != NULL)
+               // check lastSentUpdateNumber <= peerReceivedDbUpdateNumber
+               // sets status and handles any errors
+               checkLastSentUpdateNumber(*lastSentUpdateNumber, *peer, response, status);
+
+               if (status == XmlRpcMethod::OK)
                {
-                  result = applyPushedUpdates(*updateMaps, response, status, *peer, *registrar);
-               }
-               else
-               {
-                  handleMissingExecuteParam(METHOD_NAME, "updates", response, status, peer);
+                  UtlSList* updateMaps = dynamic_cast<UtlSList*>(params.at(2));
+                  if (updateMaps != NULL)
+                  {
+                     result = applyPushedUpdates(*updateMaps, response, status, *peer, *registrar);
+                  }
+                  else
+                  {
+                     handleMissingExecuteParam(METHOD_NAME, "updates", response, status, peer);
+                  }
                }
             }
+            else
+            {
+               handleMissingExecuteParam(
+                  METHOD_NAME, "lastSentUpdateNumber", response, status, peer);
+            }
+         }
+         else if (state == RegistrarPeer::UnReachable)
+         {
+            UtlString faultMsg(
+               "SyncRpcPushUpdates::execute rejecting request from UnReachable peer ");
+            faultMsg.append(*callingRegistrar);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, faultMsg.data());
+            response.setFault(SyncRpcMethod::UnreachablePeer, faultMsg);
+            status = XmlRpcMethod::FAILED;
          }
          else
          {
-            handleMissingExecuteParam(
-               METHOD_NAME, "lastSentUpdateNumber", response, status, peer);
+            assert(false);    // should have covered all possible states already
          }
       }
       else
       {
-         /*
-          * Either authentication or peer lookup failed
-          *   errors already logged, and response is set up
-          *
-          * Note - we don't use REQUIRE_AUTHENTICATION
-          * because that requests HTTP digest authentication,
-          * which won't help
-          */
+         // Either authentication or peer lookup failed: errors already logged, response set up.
+         // Note - we don't use REQUIRE_AUTHENTICATION because that requests HTTP digest
+         // authentication, which won't help.
          status = XmlRpcMethod::FAILED;
       }
    }     
@@ -921,9 +934,22 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
    }
    else
    {
-      // fault returned - we are now unsynchronized
-      peer->markUnReachable();
-      resultState = RegistrarPeer::UnReachable;
+      // Fault returned -- we are now unsynchronized
+      int faultCode;
+      UtlString faultMsg;
+      response.getFault(&faultCode, faultMsg);
+      if (faultCode != IncompatiblePeer)
+      {
+         // Mark the peer UnReachable, since there was an error
+         peer->markUnReachable();
+         resultState = RegistrarPeer::UnReachable;
+      }
+      else
+      {
+         // Special case: the peer has declared us Incompatible, so return the favor
+         peer->markIncompatible();
+         resultState = RegistrarPeer::Incompatible;
+      }
    }
 
    return resultState;

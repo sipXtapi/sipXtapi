@@ -99,6 +99,16 @@ public:
     /// Get the largest update number in the local database for this registrar as primary
     intll getDbUpdateNumber() const;
 
+    /// Schedule garbage collection and persistence of the registration database
+    void SipRegistrarServer::scheduleCleanAndPersist();
+
+    /// Garbage-collect and persist the registration database
+    void SipRegistrarServer::cleanAndPersist();
+    /**<
+     * Don't call cleanAndPersist directly.  Instead call scheduleCleanAndPersist so that
+     * persistence is periodic instead of immediate, for efficiency.
+     */
+
     /// Reset the DbUpdateNumber so that the upper half is the epoch time.
     void resetDbUpdateNumberEpoch();
 

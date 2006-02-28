@@ -53,11 +53,12 @@ void RegistrarTest::check()
 /// Override default run method to do one initial check before waiting for timers
 int RegistrarTest::run(void* pArg)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest started - staring initial check");
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest started - starting initial check");
    /*
-    * When this thread is first started, all peers should be either Uninitialized or UnReachable,
-    * because the registrarSync.pullUpdates never sets them to Reachable.
-    * So now we make one pass over all peers to invoke registrarSync.reset get the to Reachable.
+    * When this thread is first started, all peers should be either Uninitialized or
+    * UnReachable, because the registrarSync.pullUpdates never sets them to Reachable.
+    * So now we make one pass over all peers, invoking registrarSync.reset to get them
+    * to Reachable.
     */
    checkPeers();
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarTest initial check complete");
@@ -137,7 +138,7 @@ void RegistrarTest::checkPeers()
          {
             OsSysLog::add( FAC_SIP, PRI_INFO,
                           "RegistrarTest::checkPeers "
-                          "- at least one peer is UnReachable, staring timer."
+                          "- at least one peer is UnReachable, starting timer."
                           );
 
             restartTimer();
@@ -180,7 +181,7 @@ UtlBoolean RegistrarTest::handleMessage( OsMsg& eventMessage ///< Timer expirati
    else
    {
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "RegistrarTest::handleMessage %d/%d",
+                    "RegistrarTest::handleMessage received unexpected message %d/%d",
                     msgType, msgSubType
                     );
    }

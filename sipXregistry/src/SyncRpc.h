@@ -47,6 +47,7 @@ public:
    typedef enum
    {
       UnconfiguredPeer = 300, ///< caller is not a configured peer of this server
+      UnreachablePeer,        ///< caller has been declared UnReachable
       InvalidParameter,       ///< missing parameter or invalid type
       AuthenticationFailure,  ///< connection not authenticated by SSL
       UpdateFailed,           ///< error in applying updates to the registration DB

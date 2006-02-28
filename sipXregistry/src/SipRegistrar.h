@@ -38,6 +38,7 @@ class XmlRpcDispatch;
 class RegistrarPeer;
 class RegistrarTest;
 class RegistrarSync;
+class RegistrarPersist;
 class RegistrarInitialSync;
 class SipRedirectServer;
 class SipRegistrarServer;
@@ -119,6 +120,9 @@ public:
     /// Get the XML-RPC dispatcher
     XmlRpcDispatch* getXmlRpcDispatch();
 
+    /// Get the RegistrarPersist thread object
+    RegistrarPersist* getRegistrarPersist();
+
     /// Get the RegistrarTest thread object
     RegistrarTest* getRegistrarTest();
     
@@ -130,6 +134,9 @@ public:
     
     /// Get the RegistrationDB object
     RegistrationDB* getRegistrationDB();
+
+    /// Get the config DB
+    OsConfigDb* getConfigDB();
     
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -137,6 +144,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    // Constants
+
    static const int SIP_REGISTRAR_DEFAULT_XMLRPC_PORT;
 
    // Singleton globals
@@ -167,6 +175,7 @@ private:
    RegistrarInitialSync* mRegistrarInitialSync;
    RegistrarSync* mRegistrarSync;
    RegistrarTest* mRegistrarTest;
+   RegistrarPersist* mRegistrarPersist;
 
    /* ============================ REGISTRAR =================================== */
    void startRegistrarServer();
@@ -177,7 +186,7 @@ private:
    void sendToRedirectServer(OsMsg& eventMessage);
 
    /* ============================ REPLICATION================================== */
-
+   /// Create replication-related thread objects, but don't start them yet
    void createReplicationThreads();
 };
 
