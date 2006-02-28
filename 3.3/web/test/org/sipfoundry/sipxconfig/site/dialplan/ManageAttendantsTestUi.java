@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.dialplan;
 
-import java.io.IOException;
-
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
@@ -35,7 +33,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
     }
 
-    public void testAddAttendants() throws IOException {
+    public void testAddAttendants() {
         seedAttendants(3);
         String[][] expectedData = {
             // Name Ext Description
@@ -50,7 +48,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
         assertTableRowsEqual("list:attendant", 1, expectedData);
     }
 
-    public void testEditAttendants() throws IOException {
+    public void testEditAttendants() {
         seedAttendants(2);
         clickLinkWithText("ManageAttendantsTestUi 1");
         assertElementPresent("attendant:menuItems");
@@ -68,7 +66,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
         assertTableRowsEqual("list:attendant", 1, expectedData);
     }
 
-    public void testDeleteAttendants() throws IOException {
+    public void testDeleteAttendants() {
         seedAttendants(4);
         // delete 2nd and last for no brilliant reason
         SiteTestHelper.selectRow(tester, 1, true);
@@ -85,7 +83,7 @@ public class ManageAttendantsTestUi extends WebTestCase {
         assertTableRowsEqual("list:attendant", 1, expectedData);
     }
 
-    private void seedAttendants(int count) throws IOException {
+    private void seedAttendants(int count) {
         for (int i = 0; i < count; i++) {
             clickLink("addAttendant");
             setFormElement("name", "ManageAttendantsTestUi " + i);

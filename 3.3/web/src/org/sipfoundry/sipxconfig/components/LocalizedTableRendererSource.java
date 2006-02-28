@@ -46,10 +46,6 @@ public final class LocalizedTableRendererSource implements ITableRendererSource 
         }
 
         String key = m_prefix + objValue;
-        
-        // PORT: 
-        //    getMessage(key, objValue.toString())
-        //  Cannot safely tell if a key wasn't found.  
         String strValue = m_messages.getMessage(key);
         
         return new RenderString(strValue);
