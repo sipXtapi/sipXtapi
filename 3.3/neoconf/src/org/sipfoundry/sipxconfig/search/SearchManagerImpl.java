@@ -25,6 +25,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
@@ -132,8 +133,8 @@ public class SearchManagerImpl implements SearchManager {
             Term classTerm = new Term(Indexer.CLASS_FIELD, entityClass.getName());
             TermQuery classQuery = new TermQuery(classTerm);
             BooleanQuery query = new BooleanQuery();
-            query.add(classQuery, true, false);
-            query.add(userQuery, true, false);
+            query.add(classQuery, BooleanClause.Occur.MUST);
+            query.add(userQuery, BooleanClause.Occur.MUST);
             Sort sort = createSortFromFields(sortFields, orderAscending);
             return search(query, firstResult, pageSize, sort, transformer);
         } catch (ParseException e) {

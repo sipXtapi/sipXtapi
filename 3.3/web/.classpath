@@ -47,11 +47,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/axis-ant-1.3.jar"/>
 	<classpathentry sourcepath="LIB_SRC/easymockclassextension/src.zip" kind="var" path="SIPX_CONFIG/lib/easymockclassextension-1.1.jar"/>
 	<classpathentry kind="var" path="SIPX_BUILD/web/dist/server-bindings.jar"/>
-	<classpathentry sourcepath="LIB_SRC/lucene/src.zip" kind="var" path="SIPX_CONFIG/lib/lucene-1.4.3.jar">
-		<attributes>
-			<attribute value="http://lucene.apache.org/java/docs/api/" name="javadoc_location"/>
-		</attributes>
-	</classpathentry>
+	<classpathentry kind="var" path="SIPX_CONFIG/lib/lucene-core-1.9-final.jar"/>
 	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/tapestry/4.0/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.0.jar"/>

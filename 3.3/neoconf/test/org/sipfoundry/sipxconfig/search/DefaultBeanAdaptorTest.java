@@ -31,7 +31,8 @@ public class DefaultBeanAdaptorTest extends TestCase {
     public void testGetBeanIndentity() throws Exception {
         // cannot mock documents
         Document doc = new Document();
-        doc.add(Field.Keyword("id", "org.sipfoundry.sipxconfig.common.User:36"));
+        doc.add(new Field("id", "org.sipfoundry.sipxconfig.common.User:36", Field.Store.YES,
+                Field.Index.UN_TOKENIZED));
 
         Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertSame(User.class, beanIdentity.getBeanClass());
@@ -41,7 +42,8 @@ public class DefaultBeanAdaptorTest extends TestCase {
     public void testGetBeanIndentityWrongClass() throws Exception {
         // cannot mock documents
         Document doc = new Document();
-        doc.add(Field.Keyword("id", "org.sipfoundry.sipxconfig.common.Xyz:36"));
+        doc.add(new Field("id", "org.sipfoundry.sipxconfig.common.Xyz:36", Field.Store.YES,
+                Field.Index.UN_TOKENIZED));
 
         Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertNull(beanIdentity);
@@ -50,7 +52,8 @@ public class DefaultBeanAdaptorTest extends TestCase {
     public void testGetBeanIndentityWrongId() throws Exception {
         // cannot mock documents
         Document doc = new Document();
-        doc.add(Field.Keyword("id", "org.sipfoundry.sipxconfig.common.User:aaa"));
+        doc.add(new Field("id", "org.sipfoundry.sipxconfig.common.User:aaa", Field.Store.YES,
+                Field.Index.UN_TOKENIZED));
 
         Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertNull(beanIdentity);
@@ -86,11 +89,12 @@ public class DefaultBeanAdaptorTest extends TestCase {
 
     public void test() {
         Document doc = new Document();
-        doc.add(Field.Text("name", "abc"));
-        doc.add(Field.Text("extension", "1234"));
-        doc.add(Field.Text("description", "bongo"));
+        doc.add(new Field("name", "abc", Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(new Field("extension", "1234", Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(new Field("description", "bongo", Field.Store.YES, Field.Index.TOKENIZED));
 
-        doc.add(Field.Keyword("id", "org.sipfoundry.sipxconfig.common.User:36"));
+        doc.add(new Field("id", "org.sipfoundry.sipxconfig.common.User:36", Field.Store.YES,
+                Field.Index.UN_TOKENIZED));
 
         Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertEquals("bongo", beanIdentity.getDescription());
