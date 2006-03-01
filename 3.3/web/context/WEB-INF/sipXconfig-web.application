@@ -6,11 +6,9 @@
 <application name="sipXconfig-web">
     <description>sipXconfig Application</description>
     
-    <property name="org.apache.tapestry.visit-class" value="org.sipfoundry.sipxconfig.site.Visit"/> 
-    <!-- note: SipxconfigEngine creates visit objects using spring factory -->
-    <!-- setting org.apache.tapestry.visit-class here will be ignored -->
-    
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
+	<library id="tacos" specification-path="/net/sf/tacos/Tacos.library"/>
+	
     <!--
       -  P A G E S 
       - NOTE: Assumes page names are unique across directories
@@ -21,7 +19,9 @@
             | sed -e 's,./,,' -e 's/\.page//' | sort
       -
       -->
-    <page name="AddExternalLine" specification-path="line/AddExternalLine.page"/>    <page name="BulkImport" specification-path="admin/BulkImport.page"/>    <page name="EditUpload" specification-path="upload/EditUpload.page"/>    
+    <page name="AddExternalLine" specification-path="line/AddExternalLine.page"/>
+    <page name="BulkImport" specification-path="admin/BulkImport.page"/>
+    <page name="EditUpload" specification-path="upload/EditUpload.page"/>    
     <page name="ManageUploads" specification-path="upload/ManageUploads.page"/>    
     <page name="SearchPage" specification-path="search/SearchPage.page"/>    
     <page name="ListBridges" specification-path="conference/ListBridges.page"/>    
