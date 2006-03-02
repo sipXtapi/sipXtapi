@@ -12,7 +12,7 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     ##
     ## NOTES:
     ##   -D__pingtel_on_posix__   - really used for linux v.s. other
-    ##   -D_REENTRANT             - rougewave ?
+    ##   -D_REENTRANT             - roguewave ?
     ##   -fmessage-length=0       - ?
     ##
     AC_SUBST(SIPX_INCDIR, [${includedir}])
@@ -72,6 +72,9 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     AC_ARG_ENABLE(buildnumber,
                  [  --enable-buildnumber    enable build number as part of RPM name],
                  enable_buildnumber=yes)
+
+    # Enable profiling via gprof
+    ENABLE_PROFILE
 ])
 
 

@@ -1116,7 +1116,7 @@ AC_DEFUN([CHECK_RUBY],
   
   minRubyVersion="1.8.3"
 
-  ## warning about line below: use $ 2 instead of $2 otherwise m4 trys to interpret, 
+  ## warning about line below: use $ 2 instead of $2 otherwise m4 tries to interpret, 
   ## luckily awk doesn't care
   rubyVersion=`ruby --version | awk '{print $ 2}'`
 
@@ -1135,4 +1135,21 @@ AC_DEFUN([CHECK_RUBY_MODULE],
     return "yes"
   fi
   return "no"
+])
+
+
+# ==================== profile with gprof ====================
+AC_DEFUN([ENABLE_PROFILE],
+[
+  AC_ARG_ENABLE(profile,
+                [  --enable-profile        Enable profiling via gprof (no)],
+                [], [enable_profile=no])
+
+  if test x"$enable_profile" = xyes
+  then
+    # Add gprof flags
+    CFLAGS="$CFLAGS -pg -ggdb"
+    CXXFLAGS="$CXXFLAGS -pg -ggdb"
+    LDFLAGS="$LDFLAGS -pg"
+  fi
 ])
