@@ -32,6 +32,7 @@ Args=""
 
 Database=SIPXCONFIG
 RequiredDatabaseVersion=2
+IndexDir=${TmpDir}/index
 
 # This function determines the correct service name for Postgres.
 postgresService() {
@@ -109,12 +110,19 @@ classpath() {
     echo ${Cpath:1}
 }
 
+# Incase system failed suddenly, clear previous locks
+clearIndexLocks() {
+  rm ${IndexDir}/*.lock
+}
+
 # Turn control over to ant to run database command
 databaseCommand() {
 
     runConfigpp
 
     databaseCheck
+
+    clearIndexLocks
 
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \
@@ -130,7 +138,6 @@ databaseCommand() {
         -Dlib.dir=${LibDir} \
         -Dlog.dir=${LogDir} \
         -Dtmp.dir=${TmpDir} \
-        -Dorg.apache.lucene.lockdir=${TmpDir}/index \
         -f ${DatabaseProject} \
         $@
 }
@@ -165,12 +172,15 @@ onWebUi() {
     
     JavaOpts="-server $SIPXCONFIG_OPTS"
 
+    clearIndexLocks
+
     # Used in sipxconfig-jetty.xml only
     SystemProps="\
         -Djava.io.tmpdir=${TmpDir} \
         -Djetty.lib.dir=@sipxconfig.lib.dir@ \
         -Djetty.conf.dir=@sipxpbx.conf.dir@ \
         -Djetty.log.dir=${LogDir} \
+        -Dorg.apache.lucene.lockdir=${IndexDir} \
         -Dorg.apache.commons.logging.LogFactory=org.mortbay.log.Factory"
 
     Classpath=`classpath \
