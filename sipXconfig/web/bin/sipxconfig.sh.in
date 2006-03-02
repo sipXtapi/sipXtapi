@@ -112,7 +112,7 @@ classpath() {
 
 # Incase system failed suddenly, clear previous locks
 clearIndexLocks() {
-  rm ${IndexDir}/*.lock
+  rm ${IndexDir}/*.lock 2>/dev/null
 }
 
 # Turn control over to ant to run database command
