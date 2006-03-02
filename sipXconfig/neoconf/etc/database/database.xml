@@ -183,13 +183,20 @@
       <transaction src="${dblink.sql}"/>
     </sipx-sql>
   </target>
-  <target name="migrate-2.8-run" depends="drop,create,upgrade-no-init,migrate-2.8-setup">
+  <target name="migrate-2.8-run" depends="drop,create-3.0,upgrade-no-init,migrate-2.8-setup">
     <echo>see migration log file for errors or warnings about potential data loss:</echo>
     <echo>  ${migration.log}</echo>
     <exec executable="psql" output="${migration.log}" failonerror="true">
       <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
     </exec>
   </target>
+
+  <target name="create-3.0" depends="createdb">
+    <sipx-sql>
+      <transaction src="${sql.dir}/schema-3.0.sql"/>
+    </sipx-sql>
+  </target>  
+
   <target name="import-2.8-run">
     <fail unless="pds.tar.gz">Missing parameter
 
