@@ -15,6 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDateTime.h"
+#include "os/OsLock.h"
 #include "net/SipMessageEvent.h"
 #include "net/SipUserAgent.h"
 #include "net/NetMd5Codec.h"
@@ -24,6 +25,8 @@
 #include "sipdb/SubscriptionDB.h"
 #include "statusserver/Notifier.h"
 #include "statusserver/PluginXmlParser.h"
+#include "statusserver/StatusServer.h"
+#include "statusserver/SubscribePersistThread.h"
 #include "statusserver/SubscribeServerThread.h"
 #include "statusserver/SubscribeServerPluginBase.h"
 #include "statusserver/StatusPluginReference.h"
@@ -44,12 +47,14 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-SubscribeServerThread::SubscribeServerThread():
+SubscribeServerThread::SubscribeServerThread(StatusServer& statusServer):
     OsServerTask("SubscribeServerThread", NULL, 2000),
+    mStatusServer(statusServer),
     mpSipUserAgent(NULL),
     mIsStarted(FALSE),
     mDefaultSubscribePeriod( 24*60*60 ), //24 hours
-    mPluginTable(NULL)
+    mPluginTable(NULL),
+    mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {}
 
 SubscribeServerThread::~SubscribeServerThread()
@@ -150,6 +155,88 @@ SubscribeServerThread::initialize (
         return FALSE;
     }
     return TRUE;
+}
+
+
+/// Schedule persisting the subscription DB
+void SubscribeServerThread::schedulePersist()
+{
+   SubscribePersistThread* persistThread = mStatusServer.getSubscribePersistThread();
+   assert(persistThread);
+   persistThread->schedulePersist();
+}
+
+
+// Persist the subscription DB.
+// This is actually invoked from the thread SubscribePersistThread, which does the scheduling.
+void SubscribeServerThread::persist()
+{
+   // Critical Section here
+   OsLock mutex(mLock);
+
+   SubscriptionDB::getInstance()->store();
+}
+
+
+/// Insert a row in the subscription DB and schedule persisting the DB
+UtlBoolean SubscribeServerThread::insertRow(
+   const UtlString& uri,
+   const UtlString& callid,
+   const UtlString& contact,
+   const int& expires,
+   const int& subscribeCseq,
+   const UtlString& eventType,
+   const UtlString& id,
+   const UtlString& to,
+   const UtlString& from,
+   const UtlString& key,
+   const UtlString& recordRoute,
+   const int& notifyCseq)
+{
+   UtlBoolean status = false;
+   {
+      // Critical Section here
+      OsLock mutex(mLock);
+      status = SubscriptionDB::getInstance()->insertRow(
+         uri, callid, contact, expires, subscribeCseq, eventType,
+         id, to, from, key, recordRoute, notifyCseq);
+   }
+
+   schedulePersist();
+   return status;
+}
+
+
+/// Remove a row from the subscription DB and schedule persisting the DB
+void SubscribeServerThread::removeRow(
+   const UtlString& to,
+   const UtlString& from,
+   const UtlString& callid,
+   const int& subscribeCseq )
+{
+   {
+      // Critical Section here
+      OsLock mutex(mLock);
+      SubscriptionDB::getInstance()->removeRow(to, from, callid, subscribeCseq);
+   }
+
+   schedulePersist();
+}
+
+
+/// Remove an error row from the subscription DB and schedule persisting the DB
+void SubscribeServerThread::removeErrorRow (
+   const UtlString& to,
+   const UtlString& from,
+   const UtlString& callid )
+{
+   {
+      // Critical Section here
+      OsLock mutex(mLock);
+      SubscriptionDB::getInstance()->removeErrorRow(to, from, callid);
+   }
+
+   schedulePersist();
 }
 
 
@@ -730,14 +817,12 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
                 toUrl.toString().data(), eventType.data());
 
             // note that the subscribe's csequence is used
-            // as a remove filter here so that all
-            SubscriptionDB::getInstance()->removeRow(toUrl.toString(),
-                                                     from,
-                                                     callId,
-                                                     subscribeCseqInt );
+            // as a remove filter here
+            removeRow(toUrl.toString(),
+                      from,
+                      callId,
+                      subscribeCseqInt);
 
-            // Changes to the IMDB are reflected in the filesystem immediately
-            SubscriptionDB::getInstance()->store();
             returnStatus = STATUS_SUCCESS;
             return returnStatus;
         }
@@ -810,23 +895,20 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     // add bindings
     identity.getIdentity( key );
 
-    if ( SubscriptionDB::getInstance()->
-            insertRow( requestUri, // identity,
-                       callId,
-                       contactEntry,
-                       grantedExpirationTime + timeNow,
-                       subscribeCseqInt,
-                       eventType,
-                       eventId,
-                       to,
-                       from,
-                       key,                 // this will be searched for later
-                       route,
-                      1))                  // initial notify cseq (sent to phone)
+    if (insertRow(requestUri, // identity,
+                  callId,
+                  contactEntry,
+                  grantedExpirationTime + timeNow,
+                  subscribeCseqInt,
+                  eventType,
+                  eventId,
+                  to,
+                  from,
+                  key,                 // this will be searched for later
+                  route,
+                  1))                  // initial notify cseq (sent to phone)
     {
        response.setExpiresField(grantedExpirationTime);
-       // persist the IMDB to its xml file
-       SubscriptionDB::getInstance()->store();
        returnStatus = STATUS_SUCCESS;
     }
     else
@@ -842,7 +924,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     return returnStatus;
 }
 
-int SubscribeServerThread::removeErrorSubscription (const SipMessage& sipMessage ) const
+int SubscribeServerThread::removeErrorSubscription (const SipMessage& sipMessage )
 {
     int returnStatus = STATUS_SUCCESS;
     UtlString callId;
@@ -856,10 +938,6 @@ int SubscribeServerThread::removeErrorSubscription (const SipMessage& sipMessage
                   "SubscribeServerThread::removeErrorSubscription %s",
                   callId.data());
 
-    SubscriptionDB::getInstance()->removeErrorRow(from,
-                                                  to,
-                                                  callId);
-    // Changes to the IMDB are reflected in the filesystem immediately
-    SubscriptionDB::getInstance()->store();
+    removeErrorRow(from, to, callId);
     return returnStatus;
 }

@@ -29,10 +29,15 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class SipMessage;    
+class SipMessage;
+class SipUserAgent;  
+class StatusServer;
 class Notifier;
 class PluginXmlParser;
+class StatusPluginReference;
 class SubscribeServerPluginBase;
+class UtlHashMap;
+
 
 class SubscribeServerThread : public OsServerTask  
 {
@@ -46,11 +51,48 @@ public:
         const UtlString& realm,
         PluginXmlParser* pluginTable);
 
-    SubscribeServerThread();
+    SubscribeServerThread(StatusServer& statusServer);
 
     virtual ~SubscribeServerThread();
 
-    //utility functions
+    /// Schedule persisting the subscription DB
+    void schedulePersist();
+
+    //========== Methods that modify subscription DB: requires holding a lock ==========
+
+    /// Persist the subscription DB
+    void persist();
+
+    /// Insert a row in the subscription DB
+    UtlBoolean insertRow (
+        const UtlString& uri,
+        const UtlString& callid,
+        const UtlString& contact,
+        const int& expires,
+        const int& subscribeCseq,
+        const UtlString& eventType,
+        const UtlString& id,
+        const UtlString& to,
+        const UtlString& from,
+        const UtlString& key,
+        const UtlString& recordRoute,
+        const int& notifyCseq);
+
+    /// Remove a row from the subscription DB
+    void removeRow (
+       const UtlString& to,
+       const UtlString& from,
+       const UtlString& callid,
+       const int& subscribeCseq );
+
+    /// Remove an error row from the subscription DB
+    void removeErrorRow (
+       const UtlString& to,
+       const UtlString& from,
+       const UtlString& callid );
+
+    //==================================================================================
+
     typedef enum subcribeStatus
     {
         STATUS_SUCCESS = 0,
@@ -63,6 +105,7 @@ public:
     } SubscribeStatus;
 
 protected:
+    StatusServer& mStatusServer;
     SipUserAgent* mpSipUserAgent;
     UtlBoolean mIsCredentialDB;
     UtlBoolean mIsStarted;
@@ -75,8 +118,10 @@ protected:
     UtlString mDefaultDomainHostFQDN;
     UtlString mDefaultDomainHostIP;
     SipNonceDb mNonceDb;
-
     PluginXmlParser* mPluginTable;
+    
+    /// This semaphore mediates access to the subscription DB
+    OsBSem mLock;
 
     //int addUserToDirectory(const int timeNow, const SipMessage* registerMessage);
     UtlBoolean handleMessage( OsMsg& eventMessage );
@@ -112,8 +157,7 @@ protected:
      * 
      * @return
      */
-    int removeErrorSubscription(const SipMessage& sipMessage
-                                ) const;
+    int removeErrorSubscription(const SipMessage& sipMessage);
 
 };
 #endif // SUBSCRIBESERVERTHREAD_H

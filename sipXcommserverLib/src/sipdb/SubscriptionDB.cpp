@@ -220,8 +220,14 @@ SubscriptionDB::store()
         dbCursor< SubscriptionRow > cursor;
 
         // Select everything in the IMDB and add as item elements if present
-        if ( cursor.select() > 0 )
+        int rows = cursor.select();
+        if ( rows > 0 )
         {
+            OsSysLog::add( FAC_SIP, PRI_DEBUG
+                          ,"SubscriptionDB::store writing %d rows\n"
+                          ,rows
+                          );
+
             // Create an empty document
             TiXmlDocument document;
 
@@ -286,6 +292,10 @@ SubscriptionDB::store()
         } else 
         {
             // database contains no rows so delete the file
+            // :TODO: This is bogus, we should write out a file with no rows
+            // rather than deleting the file, so that when the file is missing
+            // we know that's bad.  Get rid of this clause, we don't
+            // need to treat this as a special case.
             UtlString fileName = 
                 SIPDBManager::getInstance()->
                     getConfigDirectory() + 

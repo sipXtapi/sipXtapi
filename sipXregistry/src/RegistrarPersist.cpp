@@ -44,7 +44,7 @@ RegistrarPersist::RegistrarPersist(SipRegistrar& sipRegistrar) :
    {
       mPersistInterval = SIP_REGISTRAR_DEFAULT_PERSIST_INTERVAL;
    }
-   OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::createRegistrarPersistThread "
+   OsSysLog::add(FAC_SIP, PRI_DEBUG, "RegistrarPersist::RegistrarPersist "
                  "persist interval = %d seconds", mPersistInterval);
 };
 
@@ -56,7 +56,6 @@ RegistrarPersist::~RegistrarPersist()
 
 
 // Start the timer that triggers garbage collection and DB persistence, if it's not running.
-// If we're in the startup phase, then ignore requests to start the timer. 
 void RegistrarPersist::scheduleCleanAndPersist()
 {
    OsLock mutex(mLock);

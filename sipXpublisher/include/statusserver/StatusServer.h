@@ -47,6 +47,7 @@
 // FORWARD DECLARATIONS
 class OsConfigDb;
 class SubscribeServerThread;
+class SubscribePersistThread;
 class StatusServer;
 class HttpServer;
 class Notifier;
@@ -87,10 +88,14 @@ public:
     // Note: this class does not need to be a singleton.  The only method that
     // assumes singleton is getStatusServer
 
+    static OsConfigDb& getConfigDb();
+    SubscribePersistThread* getSubscribePersistThread();
+    SubscribeServerThread* getSubscribeServerThread();
+
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
 
-    // Common conde to parse a list of name/value pairs in the config file
-    // and returns a
+    // Common code to parse a list of name/value pairs in the config file.
+    // Fills in an OsConfigDb with that data.
     static void parseList (
         const UtlString& keyPrefix,
         const UtlString& separatedList,
@@ -102,12 +107,13 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
+    static OsConfigDb& sConfigDb;
     Notifier* mNotifier;
     SipUserAgent* mpSipUserAgent;
-
     SubscribeServerThread* mSubscribeServerThread;
     OsMsgQ* mSubscribeServerThreadQ;
     UtlBoolean mSubscribeThreadInitialized;
+    SubscribePersistThread* mSubscribePersistThread;
     UtlBoolean mIsCredentialDB;
     int mDefaultRegistryPeriod;
     int mDefaultQvalue;
@@ -136,6 +142,9 @@ private:
         const UtlString& defaultRealm,
         const UtlString& configDir,
         HttpServer* httpServer );
+
+    /// Start the thread that periodically persists the subscription DB
+    void startSubscribePersistThread();
 
     /* ============================ SUBSCRIBE =================================== */
     void startSubscribeServerThread();
