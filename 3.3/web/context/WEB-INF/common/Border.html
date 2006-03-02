@@ -1,10 +1,12 @@
 <html jwcid="shell">
-  <script type="text/javascript">
-		djConfig = { isDebug: false, 
-			baseRelativePath: "js/dojo/", 
-			preventBackButtonFix: false };
-	</script>
-  <script type="text/javascript" src="js/dojo/dojo.js"/>  
+  <span jwcid="@If" condition="ognl:useDojo">
+    <script type="text/javascript">  
+  		djConfig = { isDebug: false, 
+  			baseRelativePath: "js/dojo/", 
+  			preventBackButtonFix: false };
+  	</script>
+    <script type="text/javascript" src="js/dojo/dojo.js"/>
+  </span>
   <body jwcid="@Body">
     <div jwcid="renderNavigation">
       <div id="banner">
