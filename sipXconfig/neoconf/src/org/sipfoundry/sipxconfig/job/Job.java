@@ -15,12 +15,16 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
  * Information about the job
  */
 public class Job extends BeanWithId implements Serializable {
+    private static final Log LOG = LogFactory.getLog(Job.class);
+
     private Date m_start;
 
     private Date m_stop;
@@ -59,13 +63,16 @@ public class Job extends BeanWithId implements Serializable {
         m_exception = e;
     }
 
-    // should be private - checkstyle complains
-    protected void stop(JobStatus status) {
+    private void stop(JobStatus status) {
         if (!m_status.equals(JobStatus.IN_PROGRESS)) {
             throw new IllegalStateException();
         }
         m_stop = new Date();
         m_status = status;
+        if (LOG.isDebugEnabled()) {
+            long interval = m_stop.getTime() - m_start.getTime();
+            LOG.debug("Job: " + m_name + " finished " + m_status + " time: " + interval);
+        }
     }
 
     public String getName() {
