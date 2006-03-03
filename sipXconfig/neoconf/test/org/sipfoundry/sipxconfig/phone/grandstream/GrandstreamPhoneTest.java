@@ -11,22 +11,18 @@
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
-import java.awt.image.BufferStrategy;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.io.IOUtils;
 import org.easymock.MockControl;
 import org.easymock.internal.EqualsMatcher;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.SipService;
-
-import com.mchange.v2.async.StrandedTaskReporting;
 
 public class GrandstreamPhoneTest extends TestCase {
 
