@@ -307,6 +307,8 @@
             <xsd:element name="parkOrbit" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="phone" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
             <xsd:element name="user" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
+            <!-- if there is a superadmin already, service will preserve PIN, but all other data cleared -->
+            <xsd:element name="superAdmin" type="xsd:boolean" nillable="true" minOccurs="0" maxOccurs="1"/>
           </xsd:sequence>
         </xsd:complexType>
       </xsd:element>        
