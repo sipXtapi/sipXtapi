@@ -15,17 +15,18 @@
       <Call name="reset"/>
       <!-- Set name="debug">true</Set -->
       <!--
-        -   Verbose levels
-        - ====================
-        -  -1 = INFO OFF
-        -  0  = INFO
-        -  1  = TRACE
-        -->
+      -   Verbose levels
+      - ====================
+      -  -1 = INFO OFF
+      -  0  = INFO
+      -  1  = TRACE
+      -->
       <Set name="verbose">-1</Set>
       <Call name="add">
         <Arg>
           <New class="org.mortbay.log.OutputStreamLogSink">
-            <Set name="filename"><SystemProperty name="jetty.log.dir"/>/sipxconfig.log</Set>
+            <Set name="filename">
+              <SystemProperty name="jetty.log.dir"/>/sipxconfig.log</Set>
             <Set name="retainDays">90</Set>
             <Set name="append">true</Set>
             <Set name="logLabels">true</Set>
@@ -37,6 +38,32 @@
           </New>
         </Arg>
       </Call>
+    </Call>
+    
+    <Call name="setAttribute">
+      <Arg>org.sipfoundry.sipxconfig.*</Arg>
+      <Arg>
+        <New class="org.mortbay.log.LogImpl">
+          <!-- set to true to enable sipxconfig logging -->
+          <Set name="debug">false</Set>
+          <Call name="add">
+            <Arg>
+              <New class="org.mortbay.log.OutputStreamLogSink">
+                <Set name="filename">
+                  <SystemProperty name="jetty.log.dir"/>/sipxconfig.log</Set>
+                <Set name="retainDays">90</Set>
+                <Set name="append">true</Set>
+                <Set name="logLabels">true</Set>
+                <Set name="logStackSize">true</Set>
+                <Set name="logStackTrace">false</Set>
+                <Set name="logOneLine">false</Set>
+                <Set name="suppressStack">false</Set>
+                <Set name="logTimeZone">GMT</Set>
+              </New>
+            </Arg>
+          </Call>
+        </New>
+      </Arg>
     </Call>
   </Call>
 
