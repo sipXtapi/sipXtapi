@@ -17,7 +17,8 @@ PATH=$PATH:$MyDir
 Action=""
 
 # Standard place to find java command
-JavaExecutable='jre/bin/java'
+JdkExecutable='jre/bin/java'
+JreExecutable='bin/java'
 
 # Set when java is found
 JavaCommand=""
@@ -49,25 +50,17 @@ testJava()
     JavaPath=$1
 
     # test java command
-    if [ $Action = "JAVA" ]
-    then
-        CommandCandidate=$JavaPath/$JavaExecutable
-        if $CommandCandidate -version 2>&1 | grep "$JavaVersions" >/dev/null
+    for CommandCandidate in $JavaPath/$JdkExecutable $JavaPath/$JreExecutable
+    do
+        if [ -x $CommandCandidate ]
         then
-            JavaCommand=$CommandCandidate
-            return 0
+            if $CommandCandidate -version 2>&1 | grep "$JavaVersions" >/dev/null
+            then
+    	        JavaCommand=$CommandCandidate
+                return 0
+            fi
         fi
-    fi
-
-    # test java command
-    if [ $Action = "JAVA_HOME" ]
-    then
-        if $JavaPath/$JavaExecutable -help 1>& 2> /dev/null
-        then
-            JavaHome=$JavaPath
-            return 0
-        fi
-    fi
+    done
 
     return 1
 }
@@ -94,14 +87,13 @@ findJava()
         # sipXportLib/config/general.m4. Plans to import general.m4
         # file were scrapped because of carrying all of autoconf
         TRY_JAVA_HOME=`ls -dr /usr/lib/jvm/java-1.* /usr/java/* 2> /dev/null | head -n 1`
-        for dir in $TRY_JAVA_HOME /usr /usr/local/jdk /usr/local/java
+        for dir in /usr/lib/jvm/jre-ibm $TRY_JAVA_HOME /usr /usr/local/jdk /usr/local/java
         do
             if testJava ${dir}
             then
                 break;
             fi
         done
-
     fi
 }
 
@@ -115,8 +107,8 @@ do
         Action=JAVA
         ;;
 
-        --javahome)
-        Action=JAVA_HOME
+        --javabin)
+        Action=JAVA_BIN
         ;;
 
         --version)
@@ -150,12 +142,12 @@ NOJAVA
     echo "$JavaCommand"
     exit 0
 
-elif test "$Action" = "JAVA_HOME"
+elif test "$Action" = "JAVA_BIN"
 then
 
     findJava
 
-    if [ -z $JavaHome ]
+    if [ -z $JavaCommand ]
     then
         cat >&2 <<NOJAVAHOME
 Cannot locate Java VM on you machine. Please either install the Java
@@ -166,7 +158,7 @@ NOJAVAHOME
         exit 1
     fi
 
-    echo "$JavaHome"
+    echo `dirname "$JavaCommand"`
     exit 0
 elif test "$Action" = "VERSION"
 then
@@ -190,13 +182,13 @@ Return settings or paths to programs for sipX family of modules
 
 Usage:
 
-    ./sipx-config [--java] [--javahome] [--version]
+    ./sipx-config [--java] [--javabin] [--version]
 
 Options are:
 
      --java     Locate java vm command
 
-     --javahome Locate path to java vm home directory
+     --javabin  Locate path to java commands in vm home directory
 
      --version  Display version of installed sipx packages
 
