@@ -113,14 +113,15 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 }
 
 #navigation
-{
-	/* make navigation roughly as high as the following ul element that it contains */
-	height: 2em;
-	padding-bottom: 2px;
+{       
+	float: left;
+	width: 100%;
 	margin: 0;
+	padding: 0;
 }
 
-#navigation ul
+#navigation ul,
+#navigation form
 {
 	margin: 0;
 	padding: 0;
@@ -157,7 +158,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 #navigation a {
 	display: block;
 	text-decoration: none;
-	padding: 0.4em 0;
+	padding: 5px 0;
 	border-width: 1px;
 	border-style: solid;
 }
@@ -346,8 +347,9 @@ div.help
 
 div.search 
 {
-	float:right;
-	padding:0 10px 0 0;
+	float: right;
+	padding:0 5px 0 0;
+	margin: 0;
 }
 
 fieldset
