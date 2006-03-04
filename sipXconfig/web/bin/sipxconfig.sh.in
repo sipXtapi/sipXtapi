@@ -170,9 +170,13 @@ onWebUi() {
     createAuthoritiesTruststore
     @bin.dir@/ssl-cert/create-ssl-keystore.sh
     
-    JavaOpts="-server $SIPXCONFIG_OPTS"
+    JavaOpts="$SIPXCONFIG_OPTS"
 
     clearIndexLocks
+
+    X509Algorithm=`$JavaCmd \
+	    -classpath "$Classpath" \
+	    org.sipfoundry.sipxconfig.common.X509Selector`
 
     # Used in sipxconfig-jetty.xml only
     SystemProps="\
@@ -180,6 +184,7 @@ onWebUi() {
         -Djetty.lib.dir=@sipxconfig.lib.dir@ \
         -Djetty.conf.dir=@sipxpbx.conf.dir@ \
         -Djetty.log.dir=${LogDir} \
+        -Djetty.x509.algorithm=${X509Algorithm} \
         -Dorg.apache.lucene.lockdir=${IndexDir} \
         -Dorg.apache.commons.logging.LogFactory=org.mortbay.log.Factory"
 
