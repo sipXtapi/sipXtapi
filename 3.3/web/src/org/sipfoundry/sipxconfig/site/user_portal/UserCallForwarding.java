@@ -11,20 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
-import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.form.ListEditMap;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
+import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -35,7 +35,8 @@ import org.sipfoundry.sipxconfig.site.user.ManageUsers;
 /**
  * UserCallForwarding
  */
-public abstract class UserCallForwarding extends PageWithCallback implements PageBeginRenderListener {
+public abstract class UserCallForwarding extends PageWithCallback implements
+        PageBeginRenderListener {
     public static final String PAGE = "UserCallForwarding";
     private static final String ACTION_ADD = "add";
 
@@ -53,20 +54,12 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
 
     public abstract void setUser(User user);
 
-    public abstract ListEditMap getRingsMap();
-
-    public abstract void setRingsMap(ListEditMap map);
-
-    public abstract Ring getRing();
-
-    public abstract void setRing(Ring ring);
-
     public abstract Integer getUserId();
 
     public abstract void setUserId(Integer userId);
 
     public abstract String getAction();
-    
+
     public abstract UserSession getUserSession();
 
     public void pageBeginRender(PageEvent event_) {
@@ -102,31 +95,12 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
         callSequence = forwardingContext.getCallSequenceForUserId(userId);
         setCallSequence(callSequence);
 
-        ListEditMap map = createListEditMap(callSequence);
-        setRingsMap(map);
-
         if (getCallback() == null && getUserSession().isAdmin()) {
             setCallback(new PageCallback(ManageUsers.PAGE));
-        }        
-    }
-
-    /**
-     * Creates edit map for a collection of rings
-     * 
-     * @param callSequence
-     * @return newly created map
-     */
-    private ListEditMap createListEditMap(CallSequence callSequence) {
-        ListEditMap map = new ListEditMap();
-        Collection calls = callSequence.getRings();
-        for (Iterator i = calls.iterator(); i.hasNext();) {
-            BeanWithId bean = (BeanWithId) i.next();
-            map.add(bean.getId(), bean);
         }
-        return map;
     }
 
-    public void submit(IRequestCycle cycle_) {
+    public void submit() {
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;
@@ -140,7 +114,7 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
         }
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;
@@ -148,23 +122,7 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
         getForwardingContext().saveCallSequence(getCallSequence());
     }
 
-    /**
-     * Called by ListEdit component to retrieve exception object associated with a specific id
-     */
-    public void synchronizeRing(IRequestCycle cycle_) {
-        ListEditMap ringsMap = getRingsMap();
-        Ring ring = (Ring) ringsMap.getValue();
-
-        if (null == ring) {
-            TapestryUtils.staleLinkDetected(this);
-        } else {
-            setRing(ring);
-        }
-    }
-
-    public void deleteRing(IRequestCycle cycle) {
-        Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getListenerParameters(), 0);
+    public void deleteRing(Integer id) {
         ForwardingContext forwardingContext = getForwardingContext();
         Ring ring = forwardingContext.getRing(id);
         CallSequence callSequence = ring.getCallSequence();
@@ -181,5 +139,34 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
 
     public boolean getHasVoiceMail() {
         return getUser().hasPermission(Permission.VOICEMAIL);
+    }
+
+    public IPrimaryKeyConverter getConverter() {
+        return new Converter(getCallSequence());
+    }
+
+    public static final class Converter implements IPrimaryKeyConverter {
+
+        private final CallSequence m_callSequence;
+
+        public Converter(CallSequence callSequence) {
+            m_callSequence = callSequence;
+        }
+
+        public Object getPrimaryKey(Object objValue) {
+            BeanWithId bean = (BeanWithId) objValue;
+            return bean.getPrimaryKey();
+        }
+
+        public Object getValue(Object objPrimaryKey) {
+            List rings = m_callSequence.getRings();
+            for (Iterator i = rings.iterator(); i.hasNext();) {
+                PrimaryKeySource bean = (PrimaryKeySource) i.next();
+                if (bean.getPrimaryKey().equals(objPrimaryKey)) {
+                    return bean;
+                }
+            }
+            return null;
+        }
     }
 }
