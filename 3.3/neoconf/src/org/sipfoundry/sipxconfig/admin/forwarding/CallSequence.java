@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -81,5 +82,13 @@ public class CallSequence extends AbstractCallSequence {
 
     public void setWithVoicemail(boolean withVoicemail) {
         m_withVoicemail = withVoicemail;
+    }
+
+    public void insertRings(Collection rings) {
+        super.insertRings(rings);
+        for (Iterator iter = rings.iterator(); iter.hasNext();) {
+            Ring ring = (Ring) iter.next();
+            ring.setCallSequence(this);
+        }
     }
 }

@@ -10,10 +10,11 @@
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="userSession" type="state" object="userSession"/>
   
-  <property name="callSequence"/>
-  <property name="user"/>
   <property name="ring"/>
   <property name="action"/>
+  <property name="index"/>
+  
+  <property name="rings" persist="session"/>
   <property name="userId" persist="session"/>
   <property name="callback" persist="session"/>
   
@@ -39,13 +40,15 @@
   </component>
   <component id="errors" type="ErrorMsg"/>
   <component id="rings" type="For">
-    <binding name="source" value="callSequence.rings"/>
-    <binding name="converter" value="converter"/>
+    <binding name="source" value="rings"/>
     <binding name="value" value="ring"/>
+    <binding name="index" value="index"/>
+    <binding name="volatile" value="true"/>
   </component>
   <component id="ringEditor" type="RingEditor">
     <binding name="deleteListener" value="listener:deleteRing"/>
     <binding name="ring" value="ring"/>
+    <binding name="index" value="index"/>
   </component>
   <component id="addRingLink" type="LinkSubmit">
     <binding name="selected" value="action"/>

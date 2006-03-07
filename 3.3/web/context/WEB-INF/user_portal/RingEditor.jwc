@@ -4,6 +4,7 @@
 <component-specification class="org.apache.tapestry.BaseComponent" allow-body="no" allow-informal-parameters="no">
   <!-- P A R A M E T E R S -->
   <parameter name="ring" required="yes"/>
+  <parameter name="index" required="yes"/>
   <parameter name="deleteListener" required="yes"/>
   
   <!-- B E A N S -->
@@ -35,6 +36,6 @@
   </component>
   <component id="deleteRing" type="DirectLink">
     <binding name="listener" value="deleteListener"/>
-    <binding name="parameters" value="ring.id"/>
+    <binding name="parameters" value="index"/>
   </component>
 </component-specification>

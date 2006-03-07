@@ -11,11 +11,11 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
@@ -24,7 +24,6 @@ import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
-import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -46,14 +45,6 @@ public abstract class UserCallForwarding extends PageWithCallback implements
 
     public abstract CoreContext getCoreContext();
 
-    public abstract CallSequence getCallSequence();
-
-    public abstract void setCallSequence(CallSequence callSequence);
-
-    public abstract User getUser();
-
-    public abstract void setUser(User user);
-
     public abstract Integer getUserId();
 
     public abstract void setUserId(Integer userId);
@@ -62,42 +53,79 @@ public abstract class UserCallForwarding extends PageWithCallback implements
 
     public abstract UserSession getUserSession();
 
+    public abstract List getRings();
+
+    public abstract void setRings(List rings);
+
     public void pageBeginRender(PageEvent event_) {
-        CallSequence callSequence = getCallSequence();
-        if (callSequence != null) {
+        if (getRings() != null) {
             return;
         }
 
-        Integer userId = getUserId();
-        Integer loggedInUserId = getUserSession().getUserId();
-
-        if (userId == null) {
-            // No userId has been set yet, so make it the logged-in user
-            userId = loggedInUserId;
-        } else {
-            // If the userId is not that of the logged-in user, then make sure
-            // that the logged-in user has admin privileges. If not, then
-            // force the userId to be the one for the logged-in user, so non-admin
-            // users can only see/modify their own settings.
-            if (!userId.equals(loggedInUserId)) {
-                if (!getLoginContext().isAdmin(loggedInUserId)) {
-                    userId = loggedInUserId;
-                }
-            }
-        }
-
+        Integer userId = getActiveUserId();
         setUserId(userId);
 
-        User user = getCoreContext().loadUser(userId);
-        setUser(user);
-
-        ForwardingContext forwardingContext = getForwardingContext();
-        callSequence = forwardingContext.getCallSequenceForUserId(userId);
-        setCallSequence(callSequence);
+        List rings = createDetachedRingList(getCallSequence());
+        setRings(rings);
 
         if (getCallback() == null && getUserSession().isAdmin()) {
             setCallback(new PageCallback(ManageUsers.PAGE));
         }
+    }
+
+    /**
+     * Determine the id of the user for which page will be changing call forwarding setting.
+     * 
+     * If current login user has admin privilidges he can change call forwarding for any user.
+     * However user without admin privilidges can only edit settings for logged in user.
+     * 
+     * @return id of the user for which page will be changing call forwarding setting
+     */
+    private Integer getActiveUserId() {
+        Integer userId = getUserId();
+        Integer loginUserId = getUserSession().getUserId();
+
+        if (userId == null) {
+            // No userId has been set yet, so make it the logged-in user
+            return loginUserId;
+        }
+        // if they are the same it does not matter which one we return
+        if (userId.equals(loginUserId)) {
+            return userId;
+        }
+
+        // If the userId is not that of the logged-in user, then make sure
+        // that the logged-in user has admin privileges. If not, then
+        // force the userId to be the one for the logged-in user, so non-admin
+        // users can only see/modify their own settings.
+        if (getLoginContext().isAdmin(loginUserId)) {
+            return userId;
+        }
+        return loginUserId;
+    }
+
+    /**
+     * Create list of rings that is going to be stored in session.
+     * 
+     * The list is a clone of the list kept by current call sequence, ring objects do not have
+     * valid ids and their call sequence field is set to null.
+     */
+    private List createDetachedRingList(CallSequence callSequence) {
+        List rings = callSequence.getRings();
+        List list = new ArrayList();
+        for (Iterator i = rings.iterator(); i.hasNext();) {
+            BeanWithId ring = (BeanWithId) i.next();
+            Ring dup = (Ring) ring.duplicate();
+            dup.setCallSequence(null);
+            list.add(dup);
+        }
+        return list;
+    }
+
+    private CallSequence getCallSequence() {
+        ForwardingContext forwardingContext = getForwardingContext();
+        Integer userId = getUserId();
+        return forwardingContext.getCallSequenceForUserId(userId);
     }
 
     public void submit() {
@@ -106,11 +134,7 @@ public abstract class UserCallForwarding extends PageWithCallback implements
             return;
         }
         if (ACTION_ADD.equals(getAction())) {
-            CallSequence callSequence = getCallSequence();
-            callSequence.insertRing();
-            getForwardingContext().saveCallSequence(getCallSequence());
-            // read saved rings from database
-            setCallSequence(null);
+            getRings().add(new Ring());
         }
     }
 
@@ -119,15 +143,14 @@ public abstract class UserCallForwarding extends PageWithCallback implements
             // do nothing on errors
             return;
         }
-        getForwardingContext().saveCallSequence(getCallSequence());
+        CallSequence callSequence = getCallSequence();
+        callSequence.clear();
+        callSequence.insertRings(getRings());
+        getForwardingContext().saveCallSequence(callSequence);
     }
 
-    public void deleteRing(Integer id) {
-        ForwardingContext forwardingContext = getForwardingContext();
-        Ring ring = forwardingContext.getRing(id);
-        CallSequence callSequence = ring.getCallSequence();
-        callSequence.removeRing(ring);
-        forwardingContext.saveCallSequence(callSequence);
+    public void deleteRing(int position) {
+        getRings().remove(position);
     }
 
     public String getFirstCallMsg() {
@@ -141,32 +164,9 @@ public abstract class UserCallForwarding extends PageWithCallback implements
         return getUser().hasPermission(Permission.VOICEMAIL);
     }
 
-    public IPrimaryKeyConverter getConverter() {
-        return new Converter(getCallSequence());
-    }
-
-    public static final class Converter implements IPrimaryKeyConverter {
-
-        private final CallSequence m_callSequence;
-
-        public Converter(CallSequence callSequence) {
-            m_callSequence = callSequence;
-        }
-
-        public Object getPrimaryKey(Object objValue) {
-            BeanWithId bean = (BeanWithId) objValue;
-            return bean.getPrimaryKey();
-        }
-
-        public Object getValue(Object objPrimaryKey) {
-            List rings = m_callSequence.getRings();
-            for (Iterator i = rings.iterator(); i.hasNext();) {
-                PrimaryKeySource bean = (PrimaryKeySource) i.next();
-                if (bean.getPrimaryKey().equals(objPrimaryKey)) {
-                    return bean;
-                }
-            }
-            return null;
-        }
+    public User getUser() {
+        Integer userId = getUserId();
+        User user = getCoreContext().loadUser(userId);
+        return user;
     }
 }
