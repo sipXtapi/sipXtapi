@@ -158,7 +158,7 @@ onWebUi() {
     databaseVersionCheck
 
     # createAuthoritiesTruststore
-    # @bin.dir@/ssl-cert/create-ssl-keystore.sh
+    @bin.dir@/ssl-cert/create-ssl-keystore.sh
     
     JavaOpts="-server $SIPXCONFIG_OPTS"
 
