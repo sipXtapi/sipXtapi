@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
@@ -47,7 +46,7 @@ public abstract class ChangePin extends BasePage {
      * Listeners
      */  
     
-    public void changePin(IRequestCycle cycle_) {
+    public void changePin() {
         // Proceed only if Tapestry validation succeeded
         if (!TapestryUtils.isValid(this)) {
             return;

@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -38,7 +37,7 @@ public abstract class FirstUser extends BasePage implements PageBeginRenderListe
         }
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (TapestryUtils.isValid(this)) {            
             // Create the superadmin user
             getCoreContext().createAdminGroupAndInitialUser(getPin());

@@ -67,7 +67,7 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
             setSelections(new SelectMap());
         }
     }
-    
+
     public void addExternalLine(IRequestCycle cycle) {
         Object[] params = cycle.getListenerParameters();
         Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
@@ -75,12 +75,12 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
         AddExternalLine page = (AddExternalLine) cycle.getPage(AddExternalLine.PAGE);
         page.setPhoneId(phoneId);
         page.setCallback(new PageCallback(this));
-        cycle.activate(page);        
+        cycle.activate(page);
     }
-    
+
     private void checkMaxLines(Integer phoneId) {
         Phone phone = getPhoneContext().loadPhone(phoneId);
-        phone.addLine(phone.createLine());        
+        phone.addLine(phone.createLine());
     }
 
     public void addLine(IRequestCycle cycle) {
@@ -100,7 +100,7 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
         cycle.activate(page);
     }
 
-    public void deleteLine(IRequestCycle cycle_) {
+    public void deleteLine() {
         PhoneContext context = getPhoneContext();
         Phone phone = getPhone();
 
@@ -114,11 +114,11 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
         context.storePhone(phone);
     }
 
-    public void moveLineUp(IRequestCycle cycle_) {
+    public void moveLineUp() {
         moveLines(-1);
     }
 
-    public void moveLineDown(IRequestCycle cycle_) {
+    public void moveLineDown() {
         moveLines(1);
     }
 
@@ -130,18 +130,18 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
         context.storePhone(phone);
     }
 
-    public void ok(IRequestCycle cycle) {
-        apply(cycle);
-        cycle.activate(ManagePhones.PAGE);
+    public String ok() {
+        apply();
+        return ManagePhones.PAGE;
     }
 
-    public void apply(IRequestCycle cycle_) {
+    public void apply() {
         PhoneContext dao = getPhoneContext();
         dao.storePhone(getPhone());
         dao.flush();
     }
 
-    public void cancel(IRequestCycle cycle) {
-        cycle.activate(ManagePhones.PAGE);
+    public String cancel() {
+        return ManagePhones.PAGE;
     }
 }

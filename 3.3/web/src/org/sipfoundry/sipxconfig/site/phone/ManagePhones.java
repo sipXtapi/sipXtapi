@@ -65,7 +65,7 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
     public abstract boolean getSearchMode();
 
     public abstract SearchManager getSearchManager();
-    
+
     public abstract SqueezeAdaptor getSqueezeAdaptor();
 
     public IBasicTableModel getTableModel() {
@@ -95,12 +95,11 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         cycle.activate(page);
     }
 
-    public void addPhone(IRequestCycle cycle) {
-        NewPhone page = (NewPhone) cycle.getPage(NewPhone.PAGE);
-        cycle.activate(page);
+    public String addPhone() {
+        return NewPhone.PAGE;
     }
 
-    public void deletePhone(IRequestCycle cycle_) {
+    public void deletePhone() {
         PhoneContext context = getPhoneContext();
 
         Collection ids = getSelections().getAllSelected();
@@ -118,12 +117,12 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         TapestryUtils.recordSuccess(this, msg);
     }
 
-    public void generateProfiles(IRequestCycle cycle_) {
+    public void generateProfiles() {
         Collection phoneIds = getSelections().getAllSelected();
         generateProfiles(phoneIds);
     }
 
-    public void generateAllProfiles(IRequestCycle cycle_) {
+    public void generateAllProfiles() {
         Collection phoneIds = getPhoneContext().getAllPhoneIds();
         generateProfiles(phoneIds);
     }
@@ -135,7 +134,7 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         TapestryUtils.recordSuccess(this, msg);
     }
 
-    public void restart(IRequestCycle cycle_) {
+    public void restart() {
         Collection phoneIds = getSelections().getAllSelected();
         getRestartManager().restart(phoneIds);
         String msg = getMessages().format("msg.success.restart",

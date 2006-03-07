@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.line;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -21,24 +20,24 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public abstract class AddExternalLine extends PageWithCallback implements PageBeginRenderListener {
-    
+
     public static final String PAGE = "AddExternalLine";
-    
+
     public abstract org.sipfoundry.sipxconfig.phone.LineSettings getSettings();
-    
+
     public abstract void setSettings(org.sipfoundry.sipxconfig.phone.LineSettings settings);
-    
+
     public abstract void setPhoneId(Integer phoneId);
-    
+
     public abstract Integer getPhoneId();
-    
+
     public abstract Phone getPhone();
-    
+
     public abstract void setPhone(Phone phone);
-    
+
     public abstract PhoneContext getPhoneContext();
-    
-    public void ok(IRequestCycle cycle_) {
+
+    public void ok() {
         if (TapestryUtils.isValid(this)) {
             getPhoneContext().storePhone(getPhone());
         }
@@ -51,9 +50,8 @@ public abstract class AddExternalLine extends PageWithCallback implements PageBe
             setPhone(phone);
             Line line = phone.createLine();
             phone.addLine(line);
-            org.sipfoundry.sipxconfig.phone.LineSettings settings = 
-                (org.sipfoundry.sipxconfig.phone.LineSettings) line.getAdapter(
-                        org.sipfoundry.sipxconfig.phone.LineSettings.class);
+            org.sipfoundry.sipxconfig.phone.LineSettings settings = (org.sipfoundry.sipxconfig.phone.LineSettings) line
+                    .getAdapter(org.sipfoundry.sipxconfig.phone.LineSettings.class);
             setSettings(settings);
         }
     }

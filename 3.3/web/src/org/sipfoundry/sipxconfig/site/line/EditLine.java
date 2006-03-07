@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.line;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -35,19 +34,19 @@ public abstract class EditLine extends BasePage implements PageBeginRenderListen
     
     public abstract PhoneContext getPhoneContext();
 
-    public void ok(IRequestCycle cycle) {
-        apply(cycle);
-        cycle.activate(ManagePhones.PAGE);
+    public String ok() {
+        apply();
+        return ManagePhones.PAGE;
     }
 
-    public void apply(IRequestCycle cycle_) {
+    public void apply() {
         PhoneContext dao = getPhoneContext();
         dao.storeLine(getLine());
         dao.flush();
     }
     
-    public void cancel(IRequestCycle cycle) {
-        cycle.activate(ManagePhones.PAGE);
+    public String cancel() {
+        return ManagePhones.PAGE;
     }
     
     public void pageBeginRender(PageEvent event_) {

@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -71,7 +70,7 @@ public abstract class EditGroup extends BasePage implements PageBeginRenderListe
     /*
      * If the input is valid, then save changes to the group.
      */
-    public void apply(IRequestCycle cycle_) {
+    public void apply() {
         if (!TapestryUtils.isValid(this)) {
             return;
         }

@@ -15,33 +15,32 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public abstract class GroupTable extends BaseComponent {
-    
+
     public abstract SettingDao getSettingContext();
-    
+
     public abstract List getGroups();
-    
+
     public abstract SelectMap getSelections();
-    
-    public void deleteGroup(IRequestCycle cycle_) {
+
+    public void deleteGroup() {
         SettingDao context = getSettingContext();
         context.deleteGroups(getSelections().getAllSelected());
     }
-    
-    public void moveUp(IRequestCycle cycle_) {
+
+    public void moveUp() {
         moveGroups(-1);
     }
 
-    public void moveDown(IRequestCycle cycle_) {
+    public void moveDown() {
         moveGroups(1);
     }
-    
+
     void moveGroups(int step) {
         SettingDao context = getSettingContext();
         Object[] groupIds = getSelections().getAllSelected().toArray();

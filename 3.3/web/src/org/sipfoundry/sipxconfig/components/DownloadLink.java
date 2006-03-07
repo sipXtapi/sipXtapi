@@ -31,7 +31,7 @@ public abstract class DownloadLink extends AbstractLinkComponent {
 
     public abstract IEngineService getDownloadService();
 
-    public ILink getLink(IRequestCycle cycle) {
+    public ILink getLink(IRequestCycle cycle_) {
         IEngineService downloadService = getDownloadService();
         File file = getFile(getDirName(), getFileName());
         if (null == file) {

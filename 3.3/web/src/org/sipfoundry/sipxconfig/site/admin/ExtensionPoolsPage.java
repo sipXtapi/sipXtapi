@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.AbstractComponent;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
@@ -40,7 +39,7 @@ public abstract class ExtensionPoolsPage extends PageWithCallback {
     /**
      * Listeners
      */
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         // Proceed only if Tapestry validation succeeded
         if (!TapestryUtils.isValid(this)) {
             return;

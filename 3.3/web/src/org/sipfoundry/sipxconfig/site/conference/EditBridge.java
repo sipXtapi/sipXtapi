@@ -51,13 +51,13 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         setBridge(bridge);
     }
 
-    public void apply(IRequestCycle cycle) {
+    public void apply() {
         if (TapestryUtils.isValid(this)) {
-            saveValid(cycle);
+            saveValid();
         }
     }
 
-    private void saveValid(IRequestCycle cycle_) {
+    private void saveValid() {
         Bridge bridge = getBridge();
         boolean isNew = bridge.isNew();
         getConferenceBridgeContext().store(bridge);
@@ -67,14 +67,14 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         }
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         if (getChanged()) {
             setBridge(null);
         }
     }
 
     public void addConference(IRequestCycle cycle) {
-        apply(cycle);
+        apply();
         EditConference editConference = (EditConference) cycle.getPage(EditConference.PAGE);
         editConference.activate(cycle, new PageCallback(this), getBridgeId(), null);
     }

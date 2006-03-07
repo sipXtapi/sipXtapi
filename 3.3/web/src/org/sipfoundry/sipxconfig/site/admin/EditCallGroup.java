@@ -103,7 +103,7 @@ public abstract class EditCallGroup extends BasePage implements PageBeginRenderL
         addRow(cycle, ringTable);
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (!isValid()) {
             return;
         }

@@ -55,11 +55,11 @@ public abstract class ListParkOrbits extends BasePage implements PageBeginRender
         cycle.activate(editPage);
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         delete();
     }
 
-    public void activate(IRequestCycle cycle_) {
+    public void activate() {
         getParkOrbitContext().activateParkOrbits();
     }
 

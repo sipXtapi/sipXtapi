@@ -53,7 +53,7 @@ public abstract class ServerSettings extends BasePage implements PageBeginRender
         cycle.activate(restartPage);
     }
 
-    public void cancel(IRequestCycle cycle_) {
+    public void cancel() {
         // do nothing
     }
 }

@@ -14,25 +14,19 @@ package org.sipfoundry.sipxconfig.site.admin;
 import java.util.Collection;
 
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageBeginRenderListener;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class ListCallGroups extends BasePage implements PageBeginRenderListener {
+public abstract class ListCallGroups extends BasePage {
 
     public static final String PAGE = "ListCallGroups";
 
     public abstract CallGroupContext getCallGroupContext();
 
     public abstract CoreContext getCoreContext();
-
-    public void pageBeginRender(PageEvent event_) {
-        // initialize properties
-    }
 
     public abstract CallGroup getCurrentRow();
 
@@ -57,7 +51,7 @@ public abstract class ListCallGroups extends BasePage implements PageBeginRender
         cycle.activate(editCallGroup);
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         delete();
         duplicate();
     }

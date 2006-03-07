@@ -40,15 +40,15 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
     public abstract void setParentSetting(Setting parent);
 
     public abstract SettingDao getSettingDao();
-    
+
     public abstract void setSettings(Setting setting);
-    
+
     public abstract Setting getSettings();
-    
+
     public abstract void setReturnPage(String returnPage);
-    
+
     public abstract String getReturnPage();
-    
+
     public void editGroupName(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.editGroup(getGroupId(), PAGE);
@@ -66,8 +66,8 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
         if (group != null) {
             return;
         }
-        
-        group  = getSettingDao().loadGroup(getGroupId());
+
+        group = getSettingDao().loadGroup(getGroupId());
         setGroup(group);
         String currentSettingName = getParentSettingName();
         if (currentSettingName == null) {
@@ -80,17 +80,17 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
         setParentSetting(parent);
     }
 
-    public void ok(IRequestCycle cycle) {
-        apply(cycle);
-        cycle.activate(getReturnPage());
+    public String ok() {
+        apply();
+        return getReturnPage();
     }
 
-    public void apply(IRequestCycle cycle_) {
+    public void apply() {
         SettingDao dao = getSettingDao();
         dao.saveGroup(getGroup());
     }
 
-    public void cancel(IRequestCycle cycle) {
-        cycle.activate(getReturnPage());
+    public String cancel() {
+        return getReturnPage();
     }
 }

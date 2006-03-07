@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import java.util.Collection;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
@@ -63,7 +62,7 @@ public abstract class Services extends BasePage implements PageBeginRenderListen
         return column;
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         // Ideally the start/stop/restart operations would be implemented in button listeners.
         // However, Tapestry 3.0 has a bug in it such that when a component listener is
         // triggered, data is available only for those components that precede it in the

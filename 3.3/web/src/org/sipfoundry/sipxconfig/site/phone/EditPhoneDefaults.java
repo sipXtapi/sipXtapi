@@ -101,11 +101,11 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
     }
     
     public void ok(IRequestCycle cycle) {
-        apply(cycle);
+        apply();
         activateReturnPage(cycle);
     }
     
-    public void apply(IRequestCycle cycle_) {
+    public void apply() {
         getSettingDao().saveGroup(getGroup());
     }
 

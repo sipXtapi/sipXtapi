@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -34,7 +33,7 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
 
     public abstract void setUser(User user);
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (TapestryUtils.isValid(this)) {
             getCoreContext().saveUser(getUser());
         }

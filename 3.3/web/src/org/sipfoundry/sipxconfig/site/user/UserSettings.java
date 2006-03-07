@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -20,14 +19,14 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public abstract class UserSettings extends BasePage implements PageBeginRenderListener {
-    
+
     public static final String PAGE = "UserSettings";
-    
+
     public abstract void setParentSettingName(String settingName);
-    
+
     /** REQUIRED PAGE PARAMETER */
-    public abstract void setUserId(Integer userId);    
-    
+    public abstract void setUserId(Integer userId);
+
     public abstract Integer getUserId();
 
     public abstract User getUser();
@@ -56,17 +55,17 @@ public abstract class UserSettings extends BasePage implements PageBeginRenderLi
         setParentSetting(parent);
     }
 
-    public void ok(IRequestCycle cycle) {
-        apply(cycle);
-        cycle.activate(ManageUsers.PAGE);
+    public String ok() {
+        apply();
+        return ManageUsers.PAGE;
     }
 
-    public void apply(IRequestCycle cycle_) {
+    public void apply() {
         CoreContext dao = getCoreContext();
         dao.saveUser(getUser());
     }
 
-    public void cancel(IRequestCycle cycle) {
-        cycle.activate(ManageUsers.PAGE);
-    }    
+    public String cancel() {
+        return ManageUsers.PAGE;
+    }
 }

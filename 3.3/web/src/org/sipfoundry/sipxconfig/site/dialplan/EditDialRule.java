@@ -142,7 +142,7 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
         return !delegate.getHasErrors();
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (isValid()) {
             saveValid();
         }

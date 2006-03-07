@@ -42,7 +42,7 @@ public abstract class ListGateways extends BasePage {
         cycle.activate(page);
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         Collection selectedRows = getGatewaysToDelete();
         if (selectedRows != null) {
             getGatewayContext().deleteGateways(selectedRows);
@@ -53,7 +53,7 @@ public abstract class ListGateways extends BasePage {
         }
     }
 
-    public void propagateAllGateways(IRequestCycle cycle_) {
+    public void propagateAllGateways() {
         getGatewayContext().propagateAllGateways();
     }
 }

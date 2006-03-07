@@ -49,7 +49,7 @@ public abstract class ManageUsers extends BasePage {
         page.activatePageWithCallback(PAGE, cycle);
     }
 
-    public void deleteUsers(IRequestCycle cycle_) {
+    public void deleteUsers() {
         UserTable table = (UserTable) getComponent(USER_TABLE_COMPONENT_ID);
         SelectMap selections = table.getSelections();
         Collection selected = selections.getAllSelected();

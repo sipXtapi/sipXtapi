@@ -49,7 +49,7 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         SelectRuleType.activateEditPage(rule, cycle);
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         move(getRowsToMoveUp(), -1);
         move(getRowsToMoveDown(), 1);
         delete();
@@ -70,13 +70,13 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         manager.moveRules(rows, step);
     }
 
-    public void activate(IRequestCycle cycle) {
+    public String activate() {
         DialPlanContext manager = getDialPlanContext();
         manager.generateDialPlan();
-        cycle.activate(ActivateDialPlan.PAGE);
+        return ActivateDialPlan.PAGE;
     }
 
-    public void revert(IRequestCycle cycle_) {
+    public void revert() {
         DialPlanContext manager = getDialPlanContext();
         manager.resetToFactoryDefault();
     }

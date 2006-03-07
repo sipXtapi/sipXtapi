@@ -57,7 +57,7 @@ public abstract class BulkGroupAction implements OptionAdapter, IActionListener 
     }
 
     public String getSuccessMsg(Messages messages_) {
-        // TODO: use global message repository...
+        // FIXME: use global message repository...
         // messages_.getMessage("msg.actionSuccess");
         return "Operation completed successfully";
     }

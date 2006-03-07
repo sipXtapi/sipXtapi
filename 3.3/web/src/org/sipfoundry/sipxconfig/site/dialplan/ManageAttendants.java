@@ -36,7 +36,7 @@ public abstract class ManageAttendants extends BasePage {
     
     public abstract SelectMap getSelections();
 
-    public void deleteSelected(IRequestCycle cycle_) {        
+    public void deleteSelected() {        
         Collection selectedRows = getSelections().getAllSelected();
         if (selectedRows != null) {
             DialPlanContext manager = getDialPlanContext();

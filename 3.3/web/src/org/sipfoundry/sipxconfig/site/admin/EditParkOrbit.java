@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -57,7 +56,7 @@ public abstract class EditParkOrbit extends BasePage implements PageBeginRenderL
         }
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (!isValid()) {
             return;
         }

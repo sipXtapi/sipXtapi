@@ -68,7 +68,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageBegin
         setExceptionsMap(map);
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (!isValid()) {
             return;
         }
@@ -80,7 +80,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageBegin
     /**
      * Called by ListEdit component to retrieve exception object associated with a specific id
      */
-    public void synchronizeExceptionItem(IRequestCycle cycle_) {
+    public void synchronizeExceptionItem() {
         ListEditMap exceptionsMap = getExceptionsMap();
         RoutingException exception = (RoutingException) exceptionsMap.getValue();
 
@@ -91,7 +91,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageBegin
         }
     }
 
-    public void addException(IRequestCycle cycle_) {
+    public void addException() {
         EmergencyRouting emergencyRouting = getDialPlanContext().getEmergencyRouting();
         emergencyRouting.addException(new RoutingException());
         getDialPlanContext().storeEmergencyRouting(emergencyRouting);

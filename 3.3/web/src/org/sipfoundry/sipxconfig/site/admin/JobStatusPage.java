@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.services.ExpressionEvaluator;
@@ -23,11 +22,11 @@ public abstract class JobStatusPage extends BasePage {
 
     public abstract ExpressionEvaluator getExpressionEvaluator();
 
-    public void remove(IRequestCycle cycle_) {
+    public void remove() {
         getJobContext().removeCompleted();
     }
 
-    public void clear(IRequestCycle cycle_) {
+    public void clear() {
         getJobContext().clear();
     }
 

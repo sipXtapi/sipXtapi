@@ -74,7 +74,7 @@ public abstract class TestPage extends BasePage {
     public abstract ParkOrbitContext getParkOrbitContext();
 
     public abstract UploadManager getUploadManager();
-    
+
     public abstract CoreContext getCoreContext();
 
     public abstract SipxReplicationContext getSipxReplicationContext();
@@ -84,43 +84,43 @@ public abstract class TestPage extends BasePage {
     public abstract JobContext getJobContext();
 
     public abstract IndexManager getIndexManager();
-    
+
     public abstract ApplicationLifecycle getApplicationLifecycle();
-    
+
     public abstract UserSession getUserSession();
-    
+
     public abstract IEngineService getRestartService();
 
-    public void resetDialPlans(IRequestCycle cycle_) {
+    public void resetDialPlans() {
         getDialPlanContext().clear();
         getGatewayContext().clear();
     }
 
-    public void resetPhoneContext(IRequestCycle cycle_) {
+    public void resetPhoneContext() {
         getPhoneContext().clear();
     }
 
-    public void resetCallGroupContext(IRequestCycle cycle_) {
+    public void resetCallGroupContext() {
         getCallGroupContext().clear();
     }
 
-    public void resetParkOrbitContext(IRequestCycle cycle_) {
+    public void resetParkOrbitContext() {
         getParkOrbitContext().clear();
     }
 
-    public void resetConferenceBridgeContext(IRequestCycle cycle_) {
+    public void resetConferenceBridgeContext() {
         getConferenceBridgeContext().clear();
     }
 
     public void resetCoreContext(IRequestCycle cycle) {
         // need to reset all data that could potentially have a reference
         // to users
-        resetDialPlans(cycle);
-        resetPhoneContext(cycle);
-        resetCallGroupContext(cycle);
+        resetDialPlans();
+        resetPhoneContext();
+        resetCallGroupContext();
         getCoreContext().clear();
         getApplicationLifecycle().logout();
-        // force rendering any new page after logout or infamous "invalid session" after 
+        // force rendering any new page after logout or infamous "invalid session" after
         // any links are clicked
         cycle.activate(PAGE);
     }
@@ -139,30 +139,30 @@ public abstract class TestPage extends BasePage {
         cycle.activate(page);
     }
 
-    public void toggleNavigation(IRequestCycle cycle_) {
+    public void toggleNavigation() {
         UserSession userSession = getUserSession();
         userSession.setNavigationVisible(!userSession.isNavigationVisible());
     }
 
-    public void hideNavigation(IRequestCycle cycle_) {
+    public void hideNavigation() {
         getUserSession().setNavigationVisible(false);
     }
 
-    public void toggleAdmin(IRequestCycle cycle) {
+    public void toggleAdmin() {
         UserSession userSession = getUserSession();
         boolean admin = !userSession.isAdmin();
         Integer userId = userSession.getUserId();
         if (userId == null) {
-            login(cycle);
+            login();
         } else {
             userSession.login(userId, admin);
         }
     }
 
-    public void seedTestUser(IRequestCycle cycle_) {
+    public void seedTestUser() {
         createTestUserIfMissing();
     }
-    
+
     private User createTestUserIfMissing() {
         String userName = TEST_USER_USERNAME;
         if (null != getCoreContext().loadUserByUserName(TEST_USER_USERNAME)) {
@@ -181,7 +181,7 @@ public abstract class TestPage extends BasePage {
         return user;
     }
 
-    public void populateUsers(IRequestCycle cycle_) {
+    public void populateUsers() {
         long l = System.currentTimeMillis();
         CoreContext coreContext = getCoreContext();
         String authorizationRealm = coreContext.getAuthorizationRealm();
@@ -196,7 +196,7 @@ public abstract class TestPage extends BasePage {
         }
     }
 
-    public void loginFirstTestUser(IRequestCycle cycle_) {
+    public void loginFirstTestUser() {
         // Find the first test user
         User user = getCoreContext().loadUserByUserName(TEST_USER_USERNAME);
         if (user == null) {
@@ -209,7 +209,7 @@ public abstract class TestPage extends BasePage {
         userSession.login(user.getId(), false);
     }
 
-    public void deleteAllUsers(IRequestCycle cycle_) {
+    public void deleteAllUsers() {
         List users = getCoreContext().loadUsers();
         for (Iterator iter = users.iterator(); iter.hasNext();) {
             User user = (User) iter.next();
@@ -217,11 +217,11 @@ public abstract class TestPage extends BasePage {
         }
     }
 
-    public void indexAll(IRequestCycle cycle_) {
+    public void indexAll() {
         getIndexManager().indexAll();
     }
 
-    public void populateJobs(IRequestCycle cycle_) {
+    public void populateJobs() {
         JobContext jobContext = getJobContext();
         jobContext.clear();
         Serializable[] jobIds = new Serializable[JOBS];
@@ -235,7 +235,7 @@ public abstract class TestPage extends BasePage {
         jobContext.failure(jobIds[JOBS - 1], "something bad happened", null);
     }
 
-    public void populatePhones(IRequestCycle cycle_) {
+    public void populatePhones() {
         List availablePhoneModels = getPhoneContext().getAvailablePhoneModels();
         for (Iterator i = availablePhoneModels.iterator(); i.hasNext();) {
             PhoneModel model = (PhoneModel) i.next();
@@ -245,7 +245,7 @@ public abstract class TestPage extends BasePage {
         }
     }
 
-    public void login(IRequestCycle cycle) {
+    public void login() {
         User user = createTestUserIfMissing();
         getUserSession().login(user.getId(), true);
     }
@@ -257,7 +257,7 @@ public abstract class TestPage extends BasePage {
         sipxReplicationContext.generate(DataSet.getEnum(setName));
     }
 
-    public void throwException(IRequestCycle cycle_) {
+    public void throwException() {
         throw new IllegalArgumentException("Just testing");
     }
 
@@ -265,16 +265,15 @@ public abstract class TestPage extends BasePage {
         EnumEditPageProvider provider = new EnumEditPageProvider();
         provider.validatePages(cycle);
     }
-    
+
     public void newUpload(IRequestCycle cycle) {
         EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
         page.setUploadId(null);
         page.setUploadSpecification(UploadSpecification.UNMANAGED);
         page.activatePageWithCallback(PAGE, cycle);
     }
-    
-    public void resetUploadManager(IRequestCycle cycle_) {
+
+    public void resetUploadManager() {
         getUploadManager().clear();
     }
-
 }

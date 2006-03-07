@@ -55,13 +55,13 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
         setConference(conference);
     }
 
-    public void apply(IRequestCycle cycle) {
+    public void apply() {
         if (TapestryUtils.isValid(this)) {
-            saveValid(cycle);
+            saveValid();
         }
     }
 
-    private void saveValid(IRequestCycle cycle_) {
+    private void saveValid() {
         Conference conference = getConference();
         
         // Make sure the conference is OK to save before we save it.
@@ -81,7 +81,7 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
         }
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         if (getChanged()) {
             setConference(null);
         }

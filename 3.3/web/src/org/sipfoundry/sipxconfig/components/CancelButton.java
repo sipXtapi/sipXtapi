@@ -12,21 +12,20 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IRequestCycle;
 
 /**
  * CancelButton activates return page.
  * 
- * We may want to add functionality of bypassing client and server validation
- * here. Seeting "canceled" property on the form etc.
+ * We may want to add functionality of bypassing client and server validation here. Seeting
+ * "canceled" property on the form etc.
  * 
- * Dynamic navigation get be implemented by binding ognl expression (such as
- * method call) to returnPageName property.
+ * Dynamic navigation get be implemented by binding ognl expression (such as method call) to
+ * returnPageName property.
  */
 public abstract class CancelButton extends BaseComponent {
     public abstract String getReturnPageName();
 
-    public void cancel(IRequestCycle cycle) {
-        cycle.activate(getReturnPageName());
+    public String cancel() {
+        return getReturnPageName();
     }
 }

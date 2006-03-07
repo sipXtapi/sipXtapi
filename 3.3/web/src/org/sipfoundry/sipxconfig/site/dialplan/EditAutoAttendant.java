@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -29,7 +28,8 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class EditAutoAttendant extends PageWithCallback implements PageBeginRenderListener {
+public abstract class EditAutoAttendant extends PageWithCallback implements
+        PageBeginRenderListener {
 
     public static final String PAGE = "EditAutoAttendant";
 
@@ -52,10 +52,10 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
     public abstract void setAddMenuItemAction(AttendantMenuAction action);
 
     public abstract void setMenuItems(AttendantMenuItemMapAdapter menuItems);
-    
+
     public abstract AttendantMenuItemMapAdapter getMenuItems();
-    
-    public void removeMenuItems(IRequestCycle cycle_) {
+
+    public void removeMenuItems() {
         Iterator selected = getSelections().getAllSelected().iterator();
         Map menuItems = getAttendant().getMenuItems();
         while (selected.hasNext()) {
@@ -64,11 +64,11 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
         }
     }
 
-    public void reset(IRequestCycle cycle_) {
+    public void reset() {
         getAttendant().resetToFactoryDefault();
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         IValidationDelegate validator = TapestryUtils.getValidator(this);
         if (!validator.getHasErrors()) {
             getDialPlanContext().storeAutoAttendant(getAttendant());
@@ -76,7 +76,7 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
         }
     }
 
-    public void addMenuItem(IRequestCycle cycle_) {
+    public void addMenuItem() {
         if (getAddMenuItemAction() == null) {
             IValidationDelegate validator = TapestryUtils.getValidator(this);
             validator.record("You must select an action for your new attendant menu item",
@@ -108,7 +108,7 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
     }
 
     public void pageBeginRender(PageEvent event_) {
-        
+
         AutoAttendant aa = getAttendant();
         if (aa == null) {
             aa = new AutoAttendant();
@@ -121,13 +121,12 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
     }
 
     public String getActionName(AttendantMenuAction action) {
-        return getMessages().getMessage("menuItemAction." 
-                + action.getName());
+        return getMessages().getMessage("menuItemAction." + action.getName());
     }
 
     /**
-     * Let's you set keys on map entries without losing your place in the iteration thru the map. 
-     * This is handy in tapestry when you iterate thru a list and your key values can change. 
+     * Let's you set keys on map entries without losing your place in the iteration thru the map.
+     * This is handy in tapestry when you iterate thru a list and your key values can change.
      */
     static class AttendantMenuItemMapAdapter {
 
@@ -136,12 +135,12 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
         private DialPad[] m_dialPadKeys;
 
         private DialPad m_currentDialPadKey;
-        
+
         AttendantMenuItemMapAdapter(Map menuItems) {
             m_menuItems = menuItems;
             m_dialPadKeys = (DialPad[]) menuItems.keySet().toArray(new DialPad[menuItems.size()]);
         }
-        
+
         public void setCurrentDialPadKey(DialPad dialPadKey) {
             m_currentDialPadKey = dialPadKey;
         }
@@ -153,23 +152,23 @@ public abstract class EditAutoAttendant extends PageWithCallback implements Page
         public DialPad[] getDialPadKeys() {
             return m_dialPadKeys;
         }
-        
+
         public void setCurrentMenuItemDialPadKeyAssignment(DialPad dialPadKey) {
             AttendantMenuItem value = (AttendantMenuItem) m_menuItems.get(m_currentDialPadKey);
             m_menuItems.remove(dialPadKey);
             m_menuItems.put(dialPadKey, value);
             m_currentDialPadKey = dialPadKey;
         }
-        
+
         public DialPad getCurrentMenuItemDialPadKeyAssignment() {
             return m_currentDialPadKey;
         }
-        
+
         public AttendantMenuItem getCurrentMenuItem() {
             AttendantMenuItem value = (AttendantMenuItem) m_menuItems.get(m_currentDialPadKey);
             return value;
         }
-        
+
         public void setCurrentMenuItem(AttendantMenuItem menuItem) {
             m_menuItems.put(m_currentDialPadKey, menuItem);
         }

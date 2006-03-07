@@ -46,7 +46,7 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
         cycle.activate(page);
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         save();
     }
 

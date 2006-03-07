@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
@@ -36,7 +35,7 @@ public abstract class MusicOnHoldForm extends BaseComponent implements PageBegin
         }
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         if (!getCommitChanges()) {
             return;
         }
