@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.IActionListener;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
@@ -60,7 +61,7 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     public abstract ICallback getCallback();
 
     public abstract void setCallback(ICallback callback);
-    
+
     public abstract RuleValidator getValidRule();
 
     public Permission[] getCallHandlingPermissions() {
@@ -100,42 +101,42 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
         return ruleFactory.create(ruleType);
     }
 
-    public void addGateway(IRequestCycle cycle) {
+    public IPage addGateway(IRequestCycle cycle) {
         EditGateway editGatewayPage = (EditGateway) cycle.getPage(EditGateway.PAGE);
         Integer id = getRuleId();
         editGatewayPage.setRuleId(id);
         editGatewayPage.setGatewayId(null);
-        editGatewayPage.setCallback(new PageCallback(this));
-        cycle.activate(editGatewayPage);
+        editGatewayPage.setReturnPage(this);
+        return editGatewayPage;
     }
 
-    public void selectGateway(IRequestCycle cycle) {
+    public IPage selectGateway(IRequestCycle cycle) {
         Integer id = getRuleId();
         SelectGateways selectGatewayPage = (SelectGateways) cycle.getPage(SelectGateways.PAGE);
         selectGatewayPage.setRuleId(id);
         selectGatewayPage.setNextPage(cycle.getPage().getPageName());
-        cycle.activate(selectGatewayPage);
+        return selectGatewayPage;
     }
 
     /**
      * Go to emergency routing page. Set callback to return to this page. Used only in
      * EditEmergencyRouting rule
      */
-    public void emergencyRouting(IRequestCycle cycle) {
-        PageCallback callback = new PageCallback(getPage());
+    public IPage emergencyRouting(IRequestCycle cycle) {
         EditEmergencyRouting page = (EditEmergencyRouting) cycle
                 .getPage(EditEmergencyRouting.PAGE);
+        PageCallback callback = new PageCallback(getPage());
         page.setCallback(callback);
-        cycle.activate(page);
+        return page;
     }
 
     private boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
-        AbstractComponent component = (AbstractComponent) getComponent("common");       
-        RuleValidator ruleValidator = getValidRule();        
+        AbstractComponent component = (AbstractComponent) getComponent("common");
+        RuleValidator ruleValidator = getValidRule();
         try {
-            ruleValidator.validate((IFormComponent) component
-                    .getComponent("enabled"), null, getRule());
+            ruleValidator.validate((IFormComponent) component.getComponent("enabled"), null,
+                    getRule());
         } catch (ValidatorException e) {
             delegate.record(e);
         }
@@ -163,7 +164,7 @@ public abstract class EditDialRule extends BasePage implements PageBeginRenderLi
     }
 
     /**
-     * Process submit request for the gatewaysPanel component.  Would be better to make the
+     * Process submit request for the gatewaysPanel component. Would be better to make the
      * component itself process the submit request but I did not find any way to do that.
      * 
      * @param cycle current request cycle

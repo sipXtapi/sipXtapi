@@ -13,11 +13,12 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -38,15 +39,14 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public abstract Collection getRowsToMoveDown();
 
-    public void add(IRequestCycle cycle) {
-        cycle.activate(SelectRuleType.PAGE);
+    public String add() {
+        return SelectRuleType.PAGE;
     }
 
-    public void edit(IRequestCycle cycle) {
-        Integer ruleId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getListenerParameters(), 0);
+    public IPage edit(IRequestCycle cycle, Integer ruleId) {
         DialingRule rule = getDialPlanContext().getRule(ruleId);
-        SelectRuleType.activateEditPage(rule, cycle);
+        DialingRuleType ruleType = rule.getType();
+        return SelectRuleType.getEditDialRulePage(cycle, ruleType, ruleId);
     }
 
     public void formSubmit() {

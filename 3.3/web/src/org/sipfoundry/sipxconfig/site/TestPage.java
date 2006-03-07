@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.html.BasePage;
@@ -26,7 +27,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.job.JobContext;
@@ -112,7 +112,7 @@ public abstract class TestPage extends BasePage {
         getConferenceBridgeContext().clear();
     }
 
-    public void resetCoreContext(IRequestCycle cycle) {
+    public String resetCoreContext() {
         // need to reset all data that could potentially have a reference
         // to users
         resetDialPlans();
@@ -122,21 +122,19 @@ public abstract class TestPage extends BasePage {
         getApplicationLifecycle().logout();
         // force rendering any new page after logout or infamous "invalid session" after
         // any links are clicked
-        cycle.activate(PAGE);
+        return PAGE;
     }
 
-    public void newGroup(IRequestCycle cycle) {
-        String resource = (String) TapestryUtils.assertParameter(String.class, cycle
-                .getListenerParameters(), 0);
+    public IPage newGroup(IRequestCycle cycle, String resource) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.newGroup(resource, PAGE);
-        cycle.activate(page);
+        return page;
     }
 
-    public void goToRestartReminderPage(IRequestCycle cycle) {
+    public IPage goToRestartReminderPage(IRequestCycle cycle) {
         RestartReminder page = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
         page.setNextPage(PAGE);
-        cycle.activate(page);
+        return page;
     }
 
     public void toggleNavigation() {
@@ -250,9 +248,7 @@ public abstract class TestPage extends BasePage {
         getUserSession().login(user.getId(), true);
     }
 
-    public void generateDataSet(IRequestCycle cycle) {
-        String setName = (String) TapestryUtils.assertParameter(String.class, cycle
-                .getListenerParameters(), 0);
+    public void generateDataSet(String setName) {
         SipxReplicationContext sipxReplicationContext = getSipxReplicationContext();
         sipxReplicationContext.generate(DataSet.getEnum(setName));
     }
@@ -266,11 +262,12 @@ public abstract class TestPage extends BasePage {
         provider.validatePages(cycle);
     }
 
-    public void newUpload(IRequestCycle cycle) {
+    public IPage newUpload(IRequestCycle cycle) {
         EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
         page.setUploadId(null);
         page.setUploadSpecification(UploadSpecification.UNMANAGED);
-        page.activatePageWithCallback(PAGE, cycle);
+        page.setReturnPage(PAGE);
+        return page;
     }
 
     public void resetUploadManager() {

@@ -26,7 +26,8 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
-public abstract class SearchPage extends BasePage implements IExternalPage, PageBeginRenderListener {
+public abstract class SearchPage extends BasePage implements IExternalPage,
+        PageBeginRenderListener {
     public static final String PAGE = "SearchPage";
 
     public abstract SearchManager getSearchManager();
@@ -70,15 +71,10 @@ public abstract class SearchPage extends BasePage implements IExternalPage, Page
         return getMessages().format("msg.found", new Integer(foundCount));
     }
 
-    public void activateEditPage(IRequestCycle cycle) {
-        Object[] params = cycle.getListenerParameters();
-        String klass = (String) TapestryUtils.assertParameter(String.class, params, 0);
-        Object id = TapestryUtils.assertParameter(Object.class, params, 1);
+    public IPage activateEditPage(IRequestCycle cycle, String klass, Object id) {
         try {
             IPage page = getEditPageProvider().getPage(cycle, Class.forName(klass), id);
-            if (page != null) {
-                cycle.activate(page);
-            }
+            return page;
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

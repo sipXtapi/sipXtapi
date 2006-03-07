@@ -14,7 +14,6 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -97,9 +96,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageBegin
         getDialPlanContext().storeEmergencyRouting(emergencyRouting);
     }
 
-    public void deleteException(IRequestCycle cycle) {
-        Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getListenerParameters(), 0);
+    public void deleteException(Integer id) {
         getDialPlanContext().removeRoutingException(id);
     }
 

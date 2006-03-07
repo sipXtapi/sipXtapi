@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
@@ -25,42 +26,43 @@ import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ManageAttendants extends BasePage {
-    
-    public static final String PAGE = "ManageAttendants"; 
-    
+
+    public static final String PAGE = "ManageAttendants";
+
     public abstract DialPlanContext getDialPlanContext();
-    
+
     public abstract VxmlGenerator getVxmlGenerator();
 
     public abstract AutoAttendant getCurrentRow();
-    
+
     public abstract SelectMap getSelections();
 
-    public void deleteSelected() {        
+    public void deleteSelected() {
         Collection selectedRows = getSelections().getAllSelected();
         if (selectedRows != null) {
             DialPlanContext manager = getDialPlanContext();
             try {
-                manager.deleteAutoAttendantsByIds(selectedRows, getVxmlGenerator().getScriptsDirectory());
+                manager.deleteAutoAttendantsByIds(selectedRows, getVxmlGenerator()
+                        .getScriptsDirectory());
             } catch (AttendantInUseException e) {
                 IValidationDelegate validator = TapestryUtils.getValidator(this);
                 validator.record(e.getMessage(), ValidationConstraint.CONSISTENCY);
             }
         }
     }
-    
-    public void edit(IRequestCycle cycle) {
+
+    public IPage edit(IRequestCycle cycle, Integer id) {
         EditAutoAttendant page = (EditAutoAttendant) cycle.getPage(EditAutoAttendant.PAGE);
-        
-        Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle.getListenerParameters(), 0);
         AutoAttendant attendant = getDialPlanContext().getAutoAttendant(id);
         page.setAttendant(attendant);
-        page.activatePageWithCallback(PAGE, cycle);
+        page.setReturnPage(PAGE);
+        return page;
     }
-    
-    public void add(IRequestCycle cycle) {
+
+    public IPage add(IRequestCycle cycle) {
         EditAutoAttendant page = (EditAutoAttendant) cycle.getPage(EditAutoAttendant.PAGE);
         page.setAttendant(null);
-        page.activatePageWithCallback(PAGE, cycle);
+        page.setReturnPage(PAGE);
+        return page;
     }
 }

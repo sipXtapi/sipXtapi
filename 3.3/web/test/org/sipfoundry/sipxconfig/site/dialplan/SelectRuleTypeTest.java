@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.TestCase;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
@@ -33,7 +34,7 @@ public class SelectRuleTypeTest extends TestCase {
         verifyPage(DialingRuleType.CUSTOM, "EditCustomDialRule");
         verifyPage(DialingRuleType.INTERNAL, "EditInternalDialRule");
         verifyPage(DialingRuleType.EMERGENCY, "EditEmergencyDialRule");
-        //verifyPage(DialingRuleType.RESTRICTED, "EditRestrictedDialRule");
+        verifyPage(DialingRuleType.ATTENDANT, "EditAttendantDialRule");
         verifyPage(DialingRuleType.LONG_DISTANCE, "EditLongDistanceDialRule");
         verifyPage(DialingRuleType.LOCAL, "EditLocalDialRule");
     }
@@ -47,11 +48,13 @@ public class SelectRuleTypeTest extends TestCase {
         IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
         cycleControl.expectAndReturn(cycle.getPage(pageName), page);
         cycleControl.setMatcher(MockControl.EQUALS_MATCHER);
-        cycle.activate(page);
         cycleControl.replay();
-        m_selectRuleType.next(cycle);
-        cycleControl.verify();
+
+        IPage nextPage = m_selectRuleType.next(cycle);
+        assertSame(nextPage, page);
 
         assertNull(page.getRuleId());
+
+        cycleControl.verify();
     }
 }

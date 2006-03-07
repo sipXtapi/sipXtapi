@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
@@ -36,19 +37,19 @@ public abstract class ListCallGroups extends BasePage {
 
     public abstract Collection getRowsToDuplicate();
 
-    public void add(IRequestCycle cycle) {
+    public IPage add(IRequestCycle cycle) {
         EditCallGroup editCallGroup = (EditCallGroup) cycle.getPage(EditCallGroup.PAGE);
         editCallGroup.setCallGroupId(null);
         editCallGroup.setCallGroup(null);
-        cycle.activate(editCallGroup);
+        return editCallGroup;
     }
 
-    public void edit(IRequestCycle cycle) {
+    public IPage edit(IRequestCycle cycle) {
         EditCallGroup editCallGroup = (EditCallGroup) cycle.getPage(EditCallGroup.PAGE);
         Integer callGroupId = TapestryUtils.getBeanId(cycle);
         editCallGroup.setCallGroupId(callGroupId);
         editCallGroup.setCallGroup(null);
-        cycle.activate(editCallGroup);
+        return editCallGroup;
     }
 
     public void formSubmit() {

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -49,10 +50,10 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
 
     public abstract String getReturnPage();
 
-    public void editGroupName(IRequestCycle cycle) {
+    public IPage editGroupName(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.editGroup(getGroupId(), PAGE);
-        cycle.activate(page);
+        return page;
     }
 
     public void editGroup(Integer groupId, Setting settings, String returnPage) {

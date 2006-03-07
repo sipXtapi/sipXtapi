@@ -100,23 +100,23 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         return getPage();        
     }
     
-    public void ok(IRequestCycle cycle) {
+    public IPage ok(IRequestCycle cycle) {
         apply();
-        activateReturnPage(cycle);
+        return getReturnPage(cycle);
     }
     
     public void apply() {
         getSettingDao().saveGroup(getGroup());
     }
 
-    public void cancel(IRequestCycle cycle) {
-        activateReturnPage(cycle);
+    public IPage cancel(IRequestCycle cycle) {
+        return getReturnPage(cycle);
     }
     
-    private void activateReturnPage(IRequestCycle cycle) {
+    private IPage getReturnPage(IRequestCycle cycle) {
         PhoneModels page = (PhoneModels) cycle.getPage(PhoneModels.PAGE);
         page.setGroupId(getGroupId());
-        cycle.activate(page);
+        return page;
     }
 
     public void pageBeginRender(PageEvent event_) {

@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -58,14 +59,14 @@ public abstract class SelectGateways extends BasePage implements PageBeginRender
         }
     }
 
-    public void formSubmit(IRequestCycle cycle) {
+    public IPage formSubmit(IRequestCycle cycle) {
         Collection selectedRows = getSelectedRows();
         if (selectedRows != null) {
             selectGateways(selectedRows);
         }
         EditDialRule editPage = (EditDialRule) cycle.getPage(getNextPage());
         editPage.setRuleId(getRuleId());
-        cycle.activate(editPage);
+        return editPage;
     }
 
     /**

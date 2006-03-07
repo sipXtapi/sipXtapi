@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.site.line;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -22,9 +22,9 @@ public abstract class LineNavigation extends BaseComponent {
 
     /** REQUIRED PARAMETER */
     public abstract void setLine(Line line);
-    
+
     public abstract Line getLine();
-    
+
     public Setting getSettings() {
         return getLine().getSettings();
     }
@@ -32,39 +32,28 @@ public abstract class LineNavigation extends BaseComponent {
     public abstract void setCurrentSetting(Setting setting);
 
     public abstract Setting getCurrentSetting();
-    
+
     public abstract PhoneContext getPhoneContext();
 
-    public void editLine(IRequestCycle cycle) {
+    public IPage editLine(IRequestCycle cycle, Integer lineId) {
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
-
-        Object[] params = cycle.getListenerParameters();
-        Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setLineId(lineId);
-
-        cycle.activate(page);
+        return page;
     }
-    
-    public void editSettings(IRequestCycle cycle) {
+
+    public IPage editSettings(IRequestCycle cycle, Integer lineId, String section) {
         LineSettings page = (LineSettings) cycle.getPage(LineSettings.PAGE);
-
-        Object[] params = cycle.getListenerParameters();
-        Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setLineId(lineId);
-
-        String section = (String) TapestryUtils.assertParameter(String.class, params, 1);        
         page.setParentSettingName(section);
-        
-        cycle.activate(page);        
+        return page;
     }
-    
+
     /**
      * Used for contructing parameters for EditSettings DirectLink
      */
     public Object[] getEditSettingListenerParameters() {
-        return new Object[] { 
-            getLine().getId(),
-            getCurrentSetting().getName() 
+        return new Object[] {
+            getLine().getId(), getCurrentSetting().getName()
         };
     }
 }

@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.AbstractPage;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
@@ -92,15 +93,15 @@ public abstract class EditCallGroup extends BasePage implements PageBeginRenderL
      * 
      * @param cycle current request cycle
      */
-    public void formSubmit(IRequestCycle cycle) {
+    public IPage formSubmit(IRequestCycle cycle) {
         if (!isValid()) {
-            return;
+            return null;
         }
         UserRingTable ringTable = getUserRingTable();
         if (delete(ringTable) || move(ringTable)) {
             saveValid();
         }
-        addRow(cycle, ringTable);
+        return addRow(cycle, ringTable);
     }
 
     public void commit() {
@@ -116,16 +117,16 @@ public abstract class EditCallGroup extends BasePage implements PageBeginRenderL
      * @param cycle current request cycle
      * @param ringTable component with table of rings
      */
-    private void addRow(IRequestCycle cycle, UserRingTable ringTable) {
+    private IPage addRow(IRequestCycle cycle, UserRingTable ringTable) {
         if (!ringTable.getAddRow()) {
-            return;
+            return null;
         }
         saveValid();
         SelectUsers page = (SelectUsers) cycle.getPage(SelectUsers.PAGE);
         page.setTitle(getMessages().getMessage("title.selectRings"));
         page.setPrompt(getMessages().getMessage("prompt.selectRings"));
         page.setCallback(new SelectRingsCallback(getCallGroupId()));
-        cycle.activate(page);
+        return page;
     }
 
     private boolean isValid() {

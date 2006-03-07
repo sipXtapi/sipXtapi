@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -40,19 +41,19 @@ public abstract class ListParkOrbits extends BasePage implements PageBeginRender
 
     public abstract Collection getRowsToDelete();
 
-    public void add(IRequestCycle cycle) {
+    public IPage add(IRequestCycle cycle) {
         EditParkOrbit editPage = (EditParkOrbit) cycle.getPage(EditParkOrbit.PAGE);
         editPage.setParkOrbitId(null);
         editPage.setParkOrbit(null);
-        cycle.activate(editPage);
+        return editPage;
     }
 
-    public void edit(IRequestCycle cycle) {
+    public IPage edit(IRequestCycle cycle) {
         EditParkOrbit editPage = (EditParkOrbit) cycle.getPage(EditParkOrbit.PAGE);
         Integer callGroupId = TapestryUtils.getBeanId(cycle);
         editPage.setParkOrbitId(callGroupId);
         editPage.setParkOrbit(null);
-        cycle.activate(editPage);
+        return editPage;
     }
 
     public void formSubmit() {

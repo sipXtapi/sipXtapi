@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -20,7 +21,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -68,14 +68,12 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
         }
     }
 
-    public void addExternalLine(IRequestCycle cycle) {
-        Object[] params = cycle.getListenerParameters();
-        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+    public IPage addExternalLine(IRequestCycle cycle, Integer phoneId) {
         checkMaxLines(phoneId);
         AddExternalLine page = (AddExternalLine) cycle.getPage(AddExternalLine.PAGE);
         page.setPhoneId(phoneId);
         page.setCallback(new PageCallback(this));
-        cycle.activate(page);
+        return page;
     }
 
     private void checkMaxLines(Integer phoneId) {
@@ -83,21 +81,17 @@ public abstract class PhoneLines extends BasePage implements PageBeginRenderList
         phone.addLine(phone.createLine());
     }
 
-    public void addLine(IRequestCycle cycle) {
-        Object[] params = cycle.getListenerParameters();
-        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+    public IPage addLine(IRequestCycle cycle, Integer phoneId) {
         checkMaxLines(phoneId);
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
         page.setPhoneId(phoneId);
-        cycle.activate(page);
+        return page;
     }
 
-    public void editLine(IRequestCycle cycle) {
-        Object[] params = cycle.getListenerParameters();
-        Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+    public IPage editLine(IRequestCycle cycle, Integer lineId) {
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
         page.setLineId(lineId);
-        cycle.activate(page);
+        return page;
     }
 
     public void deleteLine() {

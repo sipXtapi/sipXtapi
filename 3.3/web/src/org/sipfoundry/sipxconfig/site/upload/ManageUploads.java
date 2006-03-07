@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.site.upload;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEndRenderListener;
@@ -20,7 +21,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.upload.Upload;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
@@ -40,19 +40,19 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
 
     public abstract SelectMap getSelections();
 
-    public void editUpload(IRequestCycle cycle) {
-        Integer uploadId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getListenerParameters(), 0);
+    public IPage editUpload(IRequestCycle cycle, Integer uploadId) {
         EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
         page.setUploadId(uploadId);
-        page.activatePageWithCallback(PAGE, cycle);
+        page.setReturnPage(PAGE);
+        return page;
     }
 
-    public void addUpload(IRequestCycle cycle) {
+    public IPage addUpload(IRequestCycle cycle) {
         EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
         page.setUploadId(null);
         page.setUploadSpecification(getSelectedSpecification());
-        page.activatePageWithCallback(PAGE, cycle);
+        page.setReturnPage(PAGE);
+        return page;
     }
 
     public void deleteUpload() {

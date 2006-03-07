@@ -13,9 +13,8 @@ package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.callback.ICallback;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -73,29 +72,20 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         }
     }
 
-    public void addConference(IRequestCycle cycle) {
+    public IPage addConference(IRequestCycle cycle) {
         apply();
         EditConference editConference = (EditConference) cycle.getPage(EditConference.PAGE);
-        editConference.activate(cycle, new PageCallback(this), getBridgeId(), null);
+        editConference.setBridgeId(getBridgeId());
+        editConference.setConferenceId(null);
+        editConference.setReturnPage(PAGE);
+        return editConference;
     }
 
-    public void editConference(IRequestCycle cycle) {
-        Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getListenerParameters(), 0);
+    public IPage editConference(IRequestCycle cycle, Integer id) {
         EditConference editConference = (EditConference) cycle.getPage(EditConference.PAGE);
-        editConference.activate(cycle, new PageCallback(this), getBridgeId(), id);
-    }
-
-    /**
-     * Activate this page
-     * 
-     * @param cycle current cycle
-     * @param callback usually page callback to return to activating page
-     * @param bridgeId bridge identifier
-     */
-    public void activate(IRequestCycle cycle, ICallback callback, Serializable bridgeId) {
-        setBridgeId(bridgeId);
-        setCallback(callback);
-        cycle.activate(this);
+        editConference.setBridgeId(getBridgeId());
+        editConference.setConferenceId(id);
+        editConference.setReturnPage(PAGE);
+        return editConference;
     }
 }

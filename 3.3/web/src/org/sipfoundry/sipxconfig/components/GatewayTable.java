@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -43,7 +44,7 @@ public abstract class GatewayTable extends BaseComponent implements PageBeginRen
     /**
      * When user clicks on link to edit a gateway
      */
-    public void edit(IRequestCycle cycle) {
+    public IPage edit(IRequestCycle cycle) {
         String editPageName = getEditPageName();
         EditGateway page = (EditGateway) cycle.getPage(editPageName);
 
@@ -51,6 +52,6 @@ public abstract class GatewayTable extends BaseComponent implements PageBeginRen
         page.setGatewayId(id);
         page.setRuleId(getRuleId());
         page.setCallback(new PageCallback(getPage()));
-        cycle.activate(page);
+        return page;
     }
 }

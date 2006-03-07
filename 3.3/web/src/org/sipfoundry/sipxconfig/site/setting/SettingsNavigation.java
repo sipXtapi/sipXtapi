@@ -12,16 +12,11 @@
 package org.sipfoundry.sipxconfig.site.setting;
 
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class SettingsNavigation extends BaseComponent {
     public abstract void setTab(String section);
 
-    public void activateTab(IRequestCycle cycle) {
-        Object[] params = cycle.getListenerParameters();
-
-        String section = (String) TapestryUtils.assertParameter(String.class, params, 0);
+    public void activateTab(String section) {
         setTab(section);
     }
 }

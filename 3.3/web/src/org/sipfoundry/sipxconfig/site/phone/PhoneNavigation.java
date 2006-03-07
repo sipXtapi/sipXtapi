@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -22,67 +22,52 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Top portion of pages that show tabs, help box, intro text, etc
  */
 public abstract class PhoneNavigation extends BaseComponent {
-    
+
     /** REQUIRED PARAMETER */
     public abstract void setPhone(Phone phone);
-    
+
     public abstract Phone getPhone();
-    
+
     public abstract void setSettings(Setting settings);
-    
+
     public abstract Setting getSettings();
 
     public abstract void setCurrentSetting(Setting setting);
 
     public abstract Setting getCurrentSetting();
-    
+
     public abstract PhoneContext getPhoneContext();
 
-    public void editPhone(IRequestCycle cycle) {
+    public IPage editPhone(IRequestCycle cycle, Integer phoneId) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
-
-        Object[] params = cycle.getListenerParameters();
-        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setPhoneId(phoneId);
-
-        cycle.activate(page);
+        return page;
     }
-    
-    public void editLines(IRequestCycle cycle) {
+
+    public IPage editLines(IRequestCycle cycle, Integer phoneId) {
         PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
-
-        Object[] params = cycle.getListenerParameters();
-        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setPhoneId(phoneId);
-        
-        cycle.activate(page);
+        return page;
     }
-    
-    public void editSettings(IRequestCycle cycle) {
+
+    public IPage editSettings(IRequestCycle cycle, Integer phoneId, String section) {
         PhoneSettings page = (PhoneSettings) cycle.getPage(PhoneSettings.PAGE);
-
-        Object[] params = cycle.getListenerParameters();
-        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setPhoneId(phoneId);
-
-        String section = (String) TapestryUtils.assertParameter(String.class, params, 1);        
         page.setParentSettingName(section);
-        
-        cycle.activate(page);        
+        return page;
     }
-    
+
     /**
      * Used for contructing parameters for EditSettings DirectLink
      */
     public Object[] getEditSettingListenerParameters() {
-        return new Object[] { 
-            getPhone().getId(),
-            getCurrentSetting().getName() 
+        return new Object[] {
+            getPhone().getId(), getCurrentSetting().getName()
         };
     }
-    
+
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         setSettings(getPhone().getSettings());
-    }        
+    }
 }

@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
@@ -37,13 +38,11 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
 
     public abstract PhoneContext getPhoneContext();
 
-    public void addLine(IRequestCycle cycle) {
-        Object[] params = cycle.getListenerParameters();
-        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+    public IPage addLine(IRequestCycle cycle, Integer phoneId) {
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
         page.setReturnToEditPhone(true);
         page.setPhoneId(phoneId);
-        cycle.activate(page);
+        return page;
     }
 
     public void commit() {

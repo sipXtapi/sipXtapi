@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -79,20 +80,17 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
     /**
      * When user clicks on link to edit a phone/phone
      */
-    public void editPhone(IRequestCycle cycle) {
+    public IPage editPhone(IRequestCycle cycle, Integer phoneId) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
-        Object[] params = cycle.getListenerParameters();
-        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setPhoneId(phoneId);
-        page.activatePageWithCallback(PAGE, cycle);
+        page.setReturnPage(PAGE);
+        return page;
     }
 
-    public void editLine(IRequestCycle cycle) {
-        Object[] params = cycle.getListenerParameters();
-        Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+    public IPage editLine(IRequestCycle cycle, Integer lineId) {
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
         page.setLineId(lineId);
-        cycle.activate(page);
+        return page;
     }
 
     public String addPhone() {

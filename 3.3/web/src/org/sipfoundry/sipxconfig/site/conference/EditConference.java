@@ -13,8 +13,6 @@ package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
 
-import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -85,21 +83,5 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
         if (getChanged()) {
             setConference(null);
         }
-    }
-
-    /**
-     * Activate this page
-     * 
-     * @param cycle current cycle
-     * @param callback usually page callback to return to activating page
-     * @param bridgeId bridge identifier
-     * @param conferenceId conference identifier - can be null for new conference to be added
-     */
-    public void activate(IRequestCycle cycle, ICallback callback, Serializable bridgeId,
-            Serializable conferenceId) {
-        setBridgeId(bridgeId);
-        setConferenceId(conferenceId);
-        setCallback(callback);
-        cycle.activate(this);
     }
 }

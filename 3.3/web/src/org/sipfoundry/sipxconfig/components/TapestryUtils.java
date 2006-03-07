@@ -62,6 +62,8 @@ public final class TapestryUtils {
      * Utility method to provide more descriptive unchecked exceptions for unmarshalling object
      * from Tapestry service Parameters.
      * 
+     * Please note that in most cases it is better to use listeners parameters directly.
+     * 
      * @throws IllegalArgumentException if parameter is not there is wrong class type
      */
     public static final Object assertParameter(Class expectedClass, Object[] params, int index) {

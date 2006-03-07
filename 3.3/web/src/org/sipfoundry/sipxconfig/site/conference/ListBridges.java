@@ -11,8 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.conference;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -25,12 +25,16 @@ public abstract class ListBridges extends BasePage {
 
     public void add(IRequestCycle cycle) {
         EditBridge editBridge = (EditBridge) cycle.getPage(EditBridge.PAGE);
-        editBridge.activate(cycle, new PageCallback(this), null);
+        editBridge.setBridgeId(null);
+        editBridge.setReturnPage(PAGE);
+        cycle.activate(editBridge);
     }
 
-    public void edit(IRequestCycle cycle) {
+    public IPage edit(IRequestCycle cycle) {
         Integer bridgeId = TapestryUtils.getBeanId(cycle);
         EditBridge editBridge = (EditBridge) cycle.getPage(EditBridge.PAGE);
-        editBridge.activate(cycle, new PageCallback(this), bridgeId);
+        editBridge.setBridgeId(bridgeId);
+        editBridge.setReturnPage(PAGE);
+        return editBridge;
     }
 }
