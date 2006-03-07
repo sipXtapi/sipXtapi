@@ -232,9 +232,13 @@ UpgradeProxy() {
                 sed 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' $f.OLD > $f
             fi
             ;;
-        2.8* | 2.9* | 3.0*)
+        2.* | 3.0* | 3.1*)
+            # change the default form of the address inserted by the authproxy in the record-route
+            # to use the ip address and port rather than the srv name
+            f=${SysConfDir}/sipxpbx/authproxy-config.in
+            cp $f $f.OLD
+            sed 's/SIP_AUTHPROXY_ROUTE_NAME : ${AUTH_PROXY_SERVER_SIP_SRV_OR_HOSTPORT}/SIP_AUTHPROXY_ROUTE_NAME : ${MY_IP_ADDR}:${AUTH_PROXY_SERVER_SIP_PORT}/'  $f.OLD > $f
             ;;
-
         '')
             # New installation needs no upgrade.
             ;;
