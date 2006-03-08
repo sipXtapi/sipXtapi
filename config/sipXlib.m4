@@ -768,3 +768,14 @@ AC_DEFUN([SFAC_FEATURE_SIPX_EZPHONE],
 
    AC_MSG_RESULT(${enable_sipx_ezphone})
 ])
+
+AC_DEFUN([SFAC_FEATURE_DBTEST],
+[
+   AC_REQUIRE([CHECK_ODBC])
+
+   AC_ARG_ENABLE(dbtests, 
+                 [  --enable-dbtests        run database unit tests (no)],
+                 [], [enable_dbtests=no])
+   AC_MSG_CHECKING([Enable database unit tests])
+   AC_MSG_RESULT(${enable_dbtests})
+])

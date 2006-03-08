@@ -2,6 +2,13 @@ INCLUDES = -I$(top_srcdir)/include
 
 SUBDIRS = testlib
 
+if BUILD_DBTESTS
+db_FILES = \
+  OdbcWrapperTest.cpp
+else
+db_FILES = 
+endif
+
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
 TESTS = testsuite
@@ -19,7 +26,8 @@ testsuite_LDADD = \
 testsuite_SOURCES = \
     RegistryDbTest.cpp \
     ResultSetRpcTest.cpp \
-    UrlMappingTest.cpp
+    UrlMappingTest.cpp \
+    $(db_FILES)
 
 EXTRA_DIST = \
 	mapdata/digits.xml \
