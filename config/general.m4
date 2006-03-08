@@ -1153,3 +1153,83 @@ AC_DEFUN([ENABLE_PROFILE],
     LDFLAGS="$LDFLAGS -pg"
   fi
 ])
+
+# ==================== unixODBC  =========================
+AC_DEFUN([CHECK_ODBC],
+[
+    AC_MSG_CHECKING([for unixODBC])
+
+    # Process the --with-odbc argument which gives the odbc base directory.
+    AC_ARG_WITH(odbc,
+                [--with-odbc=PATH path to odbc install directory],
+                )
+    homeval=$withval
+    # Have to unset withval so we can tell if --with-odbc_includedir was
+    # specified, as AC_ARG_WITH will not unset withval if the option is not
+    # there!
+    withval=
+
+    # Process the --with-odbc_includedir argument which gives the odbc include
+    # directory.
+    AC_ARG_WITH(odbc_includedir,
+                [--with-odbc_includedir=PATH path to pcre include directory (containing sql.h)],
+                )
+    # If withval is set, use that.  If not and homeval is set, use
+    # $homeval/include.  If neither, use null.
+    includeval=${withval:-${homeval:+$homeval/include}}
+    withval=
+
+    # Process the --with-odbc_libdir argument which gives the odbc library
+    # directory.
+    AC_ARG_WITH(odbc_libdir,
+                [--with-odbc_libdir=PATH path to pcre lib directory (containing libodbc.{so,a})],
+                )
+    libval=${withval:-${homeval:+$homeval/lib}}
+
+    # Check for sql.h in the specified include directory if any, and a number
+    # of other likely places.
+    for dir in $includeval /usr/local/include /usr/local/pcre/include /usr/include /usr/include/odbc; do
+        if test -f "$dir/sql.h"; then
+            found_odbc_include="yes";
+            includeval=$dir
+            break;
+        fi
+    done
+
+    # Check for libodbc.{so,a} in the specified lib directory if any, and a
+    # number of other likely places.
+    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib; do
+        if test -f "$dir/libodbc.so" -o -f "$dir/libodbc.a"; then
+            found_odbc_lib="yes";
+            libval=$dir
+            break;
+        fi
+    done
+
+    # Test that we've been able to find both directories, and set the various
+    # makefile variables.
+    if test x_$found_odbc_include != x_yes; then
+        AC_MSG_ERROR(Cannot find sql.h - looked in $includeval)
+    else
+        if test x_$found_odbc_lib != x_yes; then
+            AC_MSG_ERROR(Cannot find libodbc.so or libodbc.a libraries - looked in $libval)
+        else
+            ## Test for version
+            odbc_ver=`odbcinst --version`
+            AX_COMPARE_VERSION([$odbc_ver],[ge],[2.2],
+                               [AC_MSG_RESULT($odbc_ver is ok)],
+                               [AC_MSG_ERROR([unixODBC version must be >= 2.2 - found $odbc_ver])])
+
+            AC_MSG_RESULT([    odbc includes found in $includeval])
+            AC_MSG_RESULT([    odbc libraries found in $libval])
+
+            ODBC_CFLAGS="-I$includeval"
+            ODBC_CXXFLAGS="-I$includeval"
+            AC_SUBST(ODBC_CFLAGS)
+            AC_SUBST(ODBC_CXXFLAGS)
+
+            AC_SUBST(ODBC_LIBS, "-lodbc" )
+            AC_SUBST(ODBC_LDFLAGS, "-L$libval")
+        fi
+    fi
+])dnl
