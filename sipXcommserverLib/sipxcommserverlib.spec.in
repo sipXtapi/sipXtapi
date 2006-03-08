@@ -124,6 +124,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/sipdb/*
 %{_includedir}/testlib/*
 %{_includedir}/configrpc/*
+%{_includedir}/odbc/*
 
 %pre
 id -u @SIPXPBXUSER@ > /dev/null 2>&1 \
