@@ -37,6 +37,9 @@ import org.dom4j.io.SAXReader;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class SipxProcessContextImpl extends SipxReplicationContextImpl implements
         BeanFactoryAware, SipxProcessContext, ApplicationListener {
@@ -60,7 +63,21 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
         }
 
         try {
-            SAXReader reader = new SAXReader();
+            // HACK: configure parser to ignore namespace
+            // alternatively we could use namespace independent paths like this one:
+            // "//*[name()='process']"
+            // or actually use real namespaces prefixes
+            SAXReader reader = new SAXReader(false) {
+                protected void configureReader(XMLReader xmlReader, DefaultHandler handler)
+                        throws DocumentException {
+                    super.configureReader(xmlReader, handler);
+                    try {
+                        setFeature("http://xml.org/sax/features/namespaces", false);
+                    } catch (SAXException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            };
             Document document = reader.read(statusStream);
 
             // Create a ServiceStatus for each process (a.k.a. service) entry.
@@ -71,7 +88,8 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
                 Element element = (Element) i.next();
 
                 // Map the status string to a status enum value. For robustness, if the status
-                // string is unknown, map it to the special "unknown" status value, in case the
+                // string is unknown, map it to the special "unknown" status value, in case
+                // the
                 // process monitor surprises us. We do that here rather than in the getEnum
                 // method because the enum itself shouldn't know about the semantics of its
                 // values.
