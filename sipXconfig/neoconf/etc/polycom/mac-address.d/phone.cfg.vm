@@ -88,7 +88,7 @@
 	<dialplan 
 #foreach ($line in $lines)
   #set ($i = $velocityCount)
-  #set ($group = $line.getSetting('dialplan'))  
+  #set ($group = $line.getSetting('line-dialplan'))  
   #foreach ($setting in $cfg.getSettings($group))
         dialplan.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
@@ -97,7 +97,7 @@
 		<digitmap 
 #foreach ($line in $lines)
   #set ($i = $velocityCount)
-  #set ($group = $line.getSetting('dialplan').getSetting('digitmap'))  
+  #set ($group = $line.getSetting('line-dialplan').getSetting('digitmap'))  
   #foreach ($setting in $cfg.getSettings($group))
         dialplan.${i}.${setting.ProfileName}="$!{setting.Value}"
   #end
@@ -107,7 +107,7 @@
 			<server 
 #foreach ($line in $lines)
   #set ($i = $velocityCount)
-  #set ($group = $line.getSetting('dialplan').getSetting('digitmap').getSetting("routing.1"))  
+  #set ($group = $line.getSetting('line-dialplan').getSetting('digitmap').getSetting("routing.1"))  
      dialplan.${i}.routing.server.1.address="$!{group.getSetting('address').Value}"
      dialplan.${i}.routing.server.1.port="$!{group.getSetting('port').Value}"
 #end	
@@ -115,7 +115,7 @@
 			<emergency 
 #foreach ($line in $lines)
   #set ($i = $velocityCount)
-  #set ($group = $line.getSetting('dialplan').getSetting('digitmap').getSetting("routing.1"))  
+  #set ($group = $line.getSetting('line-dialplan').getSetting('digitmap').getSetting("routing.1"))  
      dialplan.${i}.routing.emergency.1.value="$!{group.getSetting('emergency.1.value').Value}"
      dialplan.${i}.routing.emergency.1.server.1="1"
 #end

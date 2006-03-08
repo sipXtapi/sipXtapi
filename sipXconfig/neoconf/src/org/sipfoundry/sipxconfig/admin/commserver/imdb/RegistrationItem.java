@@ -17,6 +17,7 @@ public class RegistrationItem implements Comparable {
     private String m_uri;
     private String m_contact;
     private long m_expires;
+    private String m_primary;
 
     public String getContact() {
         return m_contact;
@@ -40,6 +41,14 @@ public class RegistrationItem implements Comparable {
 
     public void setUri(String uri) {
         m_uri = uri;
+    }
+    
+    public String getPrimary() {
+        return m_primary;
+    }
+    
+    public void setPrimary(String primary) {
+        m_primary = primary;
     }
 
     public int compareTo(Object other) {
