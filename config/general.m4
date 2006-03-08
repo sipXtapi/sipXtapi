@@ -1172,7 +1172,7 @@ AC_DEFUN([CHECK_ODBC],
     # Process the --with-odbc_includedir argument which gives the odbc include
     # directory.
     AC_ARG_WITH(odbc_includedir,
-                [--with-odbc_includedir=PATH path to pcre include directory (containing sql.h)],
+                [--with-odbc_includedir=PATH path to odbc include directory (containing sql.h)],
                 )
     # If withval is set, use that.  If not and homeval is set, use
     # $homeval/include.  If neither, use null.
@@ -1182,13 +1182,13 @@ AC_DEFUN([CHECK_ODBC],
     # Process the --with-odbc_libdir argument which gives the odbc library
     # directory.
     AC_ARG_WITH(odbc_libdir,
-                [--with-odbc_libdir=PATH path to pcre lib directory (containing libodbc.{so,a})],
+                [--with-odbc_libdir=PATH path to odbc lib directory (containing libodbc.{so,a})],
                 )
     libval=${withval:-${homeval:+$homeval/lib}}
 
     # Check for sql.h in the specified include directory if any, and a number
     # of other likely places.
-    for dir in $includeval /usr/local/include /usr/local/pcre/include /usr/include /usr/include/odbc; do
+    for dir in $includeval /usr/local/include /usr/local/odbc/include /usr/include /usr/include/odbc; do
         if test -f "$dir/sql.h"; then
             found_odbc_include="yes";
             includeval=$dir
@@ -1198,7 +1198,7 @@ AC_DEFUN([CHECK_ODBC],
 
     # Check for libodbc.{so,a} in the specified lib directory if any, and a
     # number of other likely places.
-    for dir in $libval /usr/local/lib /usr/local/pcre/lib /usr/lib; do
+    for dir in $libval /usr/local/lib /usr/local/odbc/lib /usr/lib; do
         if test -f "$dir/libodbc.so" -o -f "$dir/libodbc.a"; then
             found_odbc_lib="yes";
             libval=$dir
