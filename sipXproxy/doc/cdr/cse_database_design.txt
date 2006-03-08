@@ -1,0 +1,82 @@
+Call State Event Database Design Specification
+
+  Functional requirements
+
+    - Events that are now being written to an XML log can be
+      logged into a Postgres call state event database if the proxies
+      are configured to enable CSE database logging.
+
+      No vias are recorded.
+
+  Design notes
+
+    - Design Postgres database schema
+
+      - Schema file (Postgres-specific) will be checked into 
+        sipXproxy/etc/database/schema.sql
+
+    - Design API for ODBC access (write only - read functions needed 
+      for unit tests)
+
+      - API for ODBC access
+
+        // Check if database exixts
+        bool odbcCheckExistence(const char* dbname);
+
+        // Connects to database and returns a handle
+        OdbcHandle* odbcConnect(const char* dbname,
+                                const char* username,
+                                const char* password=NULL,
+                                const char* driver=NULL);
+
+        // Disconnects from databse and frees all associated memory
+        void odbcDisconnect(OdbcHandle* handle);
+
+        // Execute SQL statement, return true or false depending on success
+        bool odbcExecute(OdbcHandle* handle,
+                         const char* sqlStatement);
+
+        // Retrieve number of columns in result set
+        int odbcResultColumns(OdbcHandle* handle);
+
+        // Move to next result row, reset by new result set generating 
+        // statement. Returns true while there is a next row to move to.
+        bool odbGetNextRowHandle* handle);
+
+        // Get column data from current row as string
+        bool odbcGetColumnStringData(OdbcHandle* handle,
+                                     int columnIndex,
+                                     char* data,
+                                     int dataSize);
+
+    - Implement ODBC API
+
+      - Define structure containing ODBC-specific data (handles etc.),
+        used internally for ODBC connectivity and encapsulated by a
+        single handle OdbcHandle that is used in the API to access the
+        database.
+
+      - Implement database access functions.
+      
+      - Unit tests
+        
+        - Only enable ODBC unit tests for local builds, not automated builds
+        - Check connectivty on localhost
+        - Check for validity of inserted data
+
+    - Implement configuration parameters in sipXproxy
+
+      - Add a entry for ODBC output in the proxy configuration file. 
+        Either XML or database option must be set for logging. If both 
+        are set only the database option will take effect.
+
+    - Implement call state database logging for Forking/Auth proxy
+
+      - Derive from existing CallStateEventBuilder class, building
+        a CallStateEventBuilder_DB class. The DB event builder will
+        use the ODBC abtraction layer implemented in the 
+        sipXcommserverLib.
+
+      - Additional work may be required in normalizing from and to URLs and
+        getting rid of from and to tags. That and the amount of work involved
+        still needs to be investigated.
