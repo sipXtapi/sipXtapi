@@ -10,11 +10,11 @@
  */
 
 create table call_state_event (
-   event_id        serial8 not null,
+   id              serial8 not null,
    observer        text not null,
-   seq             int8 not null,
-   time            timestamp not null,
-   type            char(1) not null,
+   event_seq       int8 not null,
+   event_time      timestamp not null,
+   event_type      char(1) not null,
    callid          text not null,
    from_tag        text,
    to_tag          text,
@@ -36,7 +36,7 @@ create table call_state_event (
  */
 
 create table call_state_observer_event (
-   event_id        serial8 not null,
+   id              serial8 not null,
    observer        text not null,
    seq             int8 not null,
    time            timestamp not null,
