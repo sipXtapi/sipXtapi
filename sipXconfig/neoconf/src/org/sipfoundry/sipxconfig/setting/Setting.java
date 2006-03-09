@@ -55,6 +55,8 @@ public interface Setting extends Cloneable {
      * @return the value of this setting coerced to the proper type
      */
     public Object getTypedValue();
+    
+    public void setTypedValue(Object value);
 
     public void setValue(String value);
 

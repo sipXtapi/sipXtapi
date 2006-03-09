@@ -155,6 +155,10 @@ public class SettingImpl implements Setting, Cloneable, NamedObject {
         m_value = value;
     }
     
+    public void setTypedValue(Object value) {
+        setValue(getType().convertToStringValue(value));
+    }
+    
     /**
      * No wrapper, default value is what the real value is
      */

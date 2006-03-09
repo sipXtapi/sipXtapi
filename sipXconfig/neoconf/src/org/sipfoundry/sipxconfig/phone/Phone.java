@@ -327,6 +327,9 @@ public class Phone extends BeanWithGroups {
     }
 
     public static String cleanSerialNumber(String rawNumber) {
+        if (rawNumber == null) {
+            return null;
+        }
         String clean = rawNumber.toLowerCase();
         clean = clean.replaceAll("[:\\s]*", "");
 

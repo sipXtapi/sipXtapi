@@ -24,4 +24,12 @@ public interface SettingType {
      * @return the same value coerced to typed value Integer, Boolean etc.
      */
     Object convertToTypedValue(Object value);
+    
+    String convertToStringValue(Object value);
+    
+    /**
+     * Return human representations of value, not internal reprentations of value,
+     * not always the same, for example boolean or list types 
+     */
+    String getLabel(Object value);
 }

@@ -44,7 +44,7 @@ public class AddExternalLineTestUi extends WebTestCase {
     public void testDisplay() {
         clickLink("AddExternalLine");        
         SiteTestHelper.assertNoException(tester);
-        assertFormPresent("form:externalLine");
+        assertElementPresent("form:externalLine");
     }
     
     public void testAddExternalLine() {

@@ -8,19 +8,17 @@
  */
 package org.sipfoundry.sipxconfig.upload;
 
-import java.io.File;
-
 import junit.framework.Test;
 import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class EditUploadTestUi extends WebTestCase {
-    
+
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(EditUploadTestUi.class);
     }
-    
+
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
@@ -34,29 +32,27 @@ public class EditUploadTestUi extends WebTestCase {
         assertFalse(getDialog().getForm().hasParameterNamed("promptUpload"));
         assertButtonNotPresent("upload:activate");
         assertButtonNotPresent("upload:inactivate");
-        clickButton("form:apply");        
-
-        File f = File.createTempFile("new-upload-test", ".dat");
-        assertTrue(getDialog().getForm().hasParameterNamed("promptUpload"));
-        getDialog().getForm().setParameter("promptUpload", f);
         clickButton("form:apply");
 
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "new-upload-test");
+        clickButton("form:apply");
+
+        SiteTestHelper.assertNoException(tester);
         // download file link implies file uploaded ok
         assertLinkPresentWithText("Download");
     }
-    
+
     public void testActivate() throws Exception {
         setFormElement("name", "new upload");
         assertFalse(getDialog().getForm().hasParameterNamed("promptUpload"));
-        clickButton("form:apply");        
-        File f = File.createTempFile("new-upload-test", ".dat");
-        getDialog().getForm().setParameter("promptUpload", f);
+        clickButton("form:apply");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "new-upload-test");
         assertButtonNotPresent("upload:inactivate");
         assertButtonPresent("upload:activate");
-        clickButton("upload:activate");        
+        clickButton("upload:activate");
         assertButtonNotPresent("upload:activate");
         assertButtonPresent("upload:inactivate");
-        clickButton("upload:inactivate");        
+        clickButton("upload:inactivate");
     }
     
     public void testCancel() throws Exception {

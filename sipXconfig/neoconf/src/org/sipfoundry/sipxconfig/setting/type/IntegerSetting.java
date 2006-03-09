@@ -57,4 +57,15 @@ public class IntegerSetting implements SettingType {
     public Object convertToTypedValue(Object value) {
         return CONVERTER.convert(Integer.class, value);
     }
+
+    public String convertToStringValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
+
+    public String getLabel(Object value) {
+        return convertToStringValue(value);
+    }    
 }

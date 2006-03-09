@@ -19,13 +19,13 @@ import org.apache.tapestry.contrib.table.model.ITableModelSource;
 import org.apache.tapestry.contrib.table.model.ITableRendererSource;
 import org.apache.tapestry.contrib.table.model.simple.ITableColumnEvaluator;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.RenderString;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 
-public abstract class Registrations extends BasePage implements PageRenderListener {
+public abstract class Registrations extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "Registrations";
 
     private static final String EXPIRES_COLUMN = "expires";
@@ -39,9 +39,9 @@ public abstract class Registrations extends BasePage implements PageRenderListen
     public ITableColumn getExpiresColumn() {
         ITableColumnEvaluator eval = new ExpireTimeEvaluator();
         ExpireTimeRendererSource rendererSource = new ExpireTimeRendererSource(
-                getMessage("status.expired"));
+                getMessages().getMessage("status.expired"));
         SimpleTableColumn column = new SimpleTableColumn(EXPIRES_COLUMN,
-                getMessage(EXPIRES_COLUMN), eval, true);
+                getMessages().getMessage(EXPIRES_COLUMN), eval, true);
         column.setValueRendererSource(rendererSource);
         return column;
     }

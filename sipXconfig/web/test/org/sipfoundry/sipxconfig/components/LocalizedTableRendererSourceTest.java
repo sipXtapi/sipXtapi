@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.components;
 
 import junit.framework.TestCase;
 
-import org.apache.tapestry.IMessages;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.valid.RenderString;
@@ -40,9 +40,13 @@ public class LocalizedTableRendererSourceTest extends TestCase {
     }
 
     public void testGetRenderer() {
-        MockControl messagesCtrl = MockControl.createControl(IMessages.class);
-        IMessages messages = (IMessages) messagesCtrl.getMock();
-        messages.getMessage("prefix.bongo", "bongo");
+        MockControl messagesCtrl = MockControl.createControl(Messages.class);
+        Messages messages = (Messages) messagesCtrl.getMock();
+        
+        // PORT
+        //messages.getMessage("prefix.bongo", "bongo");
+        messages.getMessage("prefix.bongo");
+        
         messagesCtrl.setReturnValue("kuku");
         messagesCtrl.replay();
 
@@ -61,9 +65,9 @@ public class LocalizedTableRendererSourceTest extends TestCase {
     }
     
     public void testGetRendererNoPrefix() {
-        MockControl messagesCtrl = MockControl.createControl(IMessages.class);
-        IMessages messages = (IMessages) messagesCtrl.getMock();
-        messages.getMessage("bongo", "bongo");
+        MockControl messagesCtrl = MockControl.createControl(Messages.class);
+        Messages messages = (Messages) messagesCtrl.getMock();
+        messages.getMessage("bongo");
         messagesCtrl.setReturnValue("kuku");
         messagesCtrl.replay();
 

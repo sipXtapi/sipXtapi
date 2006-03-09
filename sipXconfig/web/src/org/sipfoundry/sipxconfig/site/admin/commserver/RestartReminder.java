@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 
 public abstract class RestartReminder extends BasePage {
@@ -25,9 +24,9 @@ public abstract class RestartReminder extends BasePage {
 
     public abstract Object[] getProcesses();
 
-    public void proceed(IRequestCycle cycle) {
+    public String proceed() {
         RestartReminderPanel reminder = (RestartReminderPanel) getComponent("reminder");
         reminder.restart();
-        cycle.activate(getNextPage());
+        return getNextPage();
     }
 }

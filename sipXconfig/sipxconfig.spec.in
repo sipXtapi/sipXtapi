@@ -24,8 +24,8 @@ AutoReqProv: no
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 3.3
-Requires: sipxcommserverlib >= 3.3
+Requires: sipxtacklib >= 3.1
+Requires: sipxcommserverlib >= 3.1
 Requires: postgresql-server >= 7.3
 
 # to serve profile/catalog/apps.  These can be served from

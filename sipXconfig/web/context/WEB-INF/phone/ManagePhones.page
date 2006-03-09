@@ -1,106 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
-	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.ManagePhones">
-	<!--
+  <!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="currentRow" 
-		type="org.sipfoundry.sipxconfig.phone.Phone"/>
-	<property-specification name="groupId"
-        persistent="yes" 
-		type="java.lang.Integer"/>
-	<property-specification name="queryText"
-    	persistent="yes"
-		type="java.lang.String"/>
-	<property-specification name="searchMode"
-    	persistent="yes"
-		type="boolean"
-    	initial-value="false"/>    
-	<property-specification name="currentLine" 
-		type="org.sipfoundry.sipxconfig.phone.Line"/>
-   	<property-specification name="selections" 
-       type="org.sipfoundry.sipxconfig.components.SelectMap"/>
-   	<property-specification name="idConverter" 
-       type="org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor"/>
-	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-    	initial-value="global.phoneContext"/>
-	<property-specification name="profileManager" 
-		type="org.sipfoundry.sipxconfig.phone.ProfileManager" 
-    	initial-value="global.profileManager"/>
-	<property-specification name="restartManager" 
-		type="org.sipfoundry.sipxconfig.phone.RestartManager" 
-    	initial-value="global.restartManager"/>    
-    <property-specification name="searchManager"
-    	type="org.sipfoundry.sipxconfig.search.SearchManager"
-    	initial-value="global.searchManager"/>
-    <property-specification name="actionModel" 
-    	type="org.apache.tapestry.form.IPropertySelectionModel"/>
-	<!--
+  <property name="currentRow" />
+  <property name="groupId" persist="session" />
+  <property name="queryText" persist="session" />
+  <property name="searchMode" persist="session"  initial-value="false"/>
+  <property name="currentLine" />
+  <property name="selections" />
+  <property name="idConverter" />
+  <inject property="phoneContext" object="spring:phoneContext"/>
+  <inject property="profileManager" object="spring:profileManager"/>
+  <inject property="restartManager" object="spring:restartManager"/>
+  <inject property="searchManager" object="spring:searchManager"/>
+  <inject property="squeezeAdaptor" object="service:sipxconfig.CoreContextAdapter"/>
+  <property name="actionModel" />
+  <!--
 	  - B E A N S
 	  -->
-    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-	<!--
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <!--
 	  - C O M P O N E N T S
 	  -->
-	<component id="phoneManagement" type="Form">
-        <binding name="delegate" expression="beans.validator"/>
-	</component>
-    <component id="newPhoneTable" type="Table">
-        <static-binding name="columns" value="* serialNumber,!lines,modelId:model.label,description"/>
-        <binding name="source" expression="tableModel"/>
-        <binding name="usePager" expression="true"/>
-		<binding name="row" expression="currentRow"/>
-        <binding name="convertor" expression="idConverter"/>
-        <binding name="selections" expression="selections"/>
-    </component>
-    
-    <component id="addPhone" type="DirectLink">
-        <binding name="listener" expression="listeners.addPhone"/>
-    </component>
-    <!-- Column 2: edit phone -->
-    <component id="serialNumberColumnValue" type="Block"/>
-    <component id="editPhoneLink" type="DirectLink">
-        <binding name="listener" expression="listeners.editPhone"/>
-        <binding name="parameters" expression="currentRow.primaryKey"/>
-    </component>
-    <component id="phoneLabel" type="Insert"> 
-        <binding name="value" expression="currentRow.serialNumber"/>
-    </component>
-    <!-- Column 3: edit lines -->
-    <component id="linesColumnValue" type="Block"/>
-    <component id="editLines" type="Foreach">
-        <binding name="source" expression="currentRow.lines"/>
-        <binding name="value" expression="currentLine"/>
-    </component>
-    <component id="lineLink" type="DirectLink">
-        <binding name="listener" expression="listeners.editLine"/>
-        <binding name="parameters" expression="currentLine.primaryKey"/>
-    </component>
-    <component id="lineLabel" type="Insert">
-        <binding name="value" expression="currentLine.displayLabel"/>
-    </component>    
-    <component id="sendProfiles" type="Submit">
-        <binding name="listener" expression="listeners.generateProfiles"/>
-    </component>
-    <component id="sendAllProfiles" type="Submit">
-        <binding name="listener" expression="listeners.generateAllProfiles"/>
-    </component>    
-    <component id="restart" type="Submit">
-        <binding name="listener" expression="listeners.restart"/>
-    </component>
-    <component id="delete" type="Submit">
-        <binding name="listener" expression="listeners.deletePhone"/>
-    </component>
-    <component id="groupFilter" type="GroupFilter">
-        <binding name="selectedGroupId" expression="groupId"/>
-        <binding name="groups" expression="phoneContext.groups"/>
-        <binding name="queryText" expression="queryText"/>
-        <binding name="searchMode" expression="searchMode"/>
-    </component>
-    <component id="groupActions" type="GroupActions">
-        <binding name="selectedIds" expression="selections.allSelected"/>
-        <binding name="actionModel" expression="actionModel"/>
-    </component>
+  <component id="phoneManagement" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+  </component>
+  <component id="newPhoneTable" type="Table">
+    <binding name="columns" value="literal:* serialNumber,!lines,modelId:model.label,description"/>
+    <binding name="source" value="tableModel"/>
+    <binding name="usePager" value="true"/>
+    <binding name="row" value="currentRow"/>
+    <binding name="selections" value="selections"/>
+  </component>
+  <component id="addPhone" type="DirectLink">
+    <binding name="listener" value="listener:addPhone"/>
+  </component>
+  <!-- Column 2: edit phone -->
+  <component id="serialNumberColumnValue" type="Block"/>
+  <component id="editPhoneLink" type="DirectLink">
+    <binding name="listener" value="listener:editPhone"/>
+    <binding name="parameters" value="currentRow.primaryKey"/>
+  </component>
+  <component id="phoneLabel" type="Insert">
+    <binding name="value" value="currentRow.serialNumber"/>
+  </component>
+  <!-- Column 3: edit lines -->
+  <component id="linesColumnValue" type="Block"/>
+  <component id="editLines" type="For">
+    <binding name="source" value="currentRow.lines"/>
+    <binding name="value" value="currentLine"/>
+  </component>
+  <component id="lineLink" type="DirectLink">
+    <binding name="listener" value="listener:editLine"/>
+    <binding name="parameters" value="currentLine.primaryKey"/>
+  </component>
+  <component id="lineLabel" type="Insert">
+    <binding name="value" value="currentLine.displayLabel"/>
+  </component>
+  <component id="sendProfiles" type="Submit">
+    <binding name="listener" value="listener:generateProfiles"/>
+  </component>
+  <component id="sendAllProfiles" type="Submit">
+    <binding name="listener" value="listener:generateAllProfiles"/>
+  </component>
+  <component id="restart" type="Submit">
+    <binding name="listener" value="listener:restart"/>
+  </component>
+  <component id="delete" type="Submit">
+    <binding name="listener" value="listener:deletePhone"/>
+  </component>
+  <component id="groupFilter" type="GroupFilter">
+    <binding name="selectedGroupId" value="groupId"/>
+    <binding name="groups" value="phoneContext.groups"/>
+    <binding name="queryText" value="queryText"/>
+    <binding name="searchMode" value="searchMode"/>
+  </component>
+  <component id="groupActions" type="GroupActions">
+    <binding name="selectedIds" value="selections.allSelected"/>
+    <binding name="actionModel" value="actionModel"/>
+  </component>
 </page-specification>

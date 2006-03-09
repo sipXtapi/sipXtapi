@@ -13,20 +13,21 @@ package org.sipfoundry.sipxconfig.site.search;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 
 public abstract class SearchPanel extends BaseComponent {
 
     public abstract String getQuery();
 
-    public void search(IRequestCycle cycle) {
+    public IPage search(IRequestCycle cycle) {
         String query = getQuery();
         if (StringUtils.isEmpty(query)) {
-            return;
+            return null;
         }
         SearchPage page = (SearchPage) cycle.getPage(SearchPage.PAGE);
         page.setQuery(query);
-        cycle.activate(page);
+        return page;
     }
 
 }

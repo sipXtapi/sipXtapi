@@ -100,7 +100,8 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         if (!indexClass(document, bean.getClass())) {
             return false;
         }
-        document.add(Field.Keyword(BeanWithId.ID_PROPERTY, getKeyword(bean, id)));
+        document.add(new Field(BeanWithId.ID_PROPERTY, getKeyword(bean, id), Field.Store.YES,
+                Field.Index.UN_TOKENIZED));
         for (int i = 0; i < fieldNames.length; i++) {
             Object value = state[i];
             if (value != null) {
@@ -113,19 +114,23 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     private boolean indexField(Document document, Object state, String fieldName, Type type) {
         if (Arrays.binarySearch(FIELDS, fieldName) >= 0) {
             // index all fields we know about
-            document.add(Field.Text(fieldName, (String) state));
-            document.add(Field.UnStored(Indexer.DEFAULT_FIELD, (String) state));
+            document.add(new Field(fieldName, (String) state, Field.Store.YES,
+                    Field.Index.TOKENIZED));
+            document.add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO,
+                    Field.Index.TOKENIZED));
             return true;
         } else if (type instanceof StringType) {
             // index all strings
-            document.add(Field.UnStored(Indexer.DEFAULT_FIELD, (String) state));
+            document.add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO,
+                    Field.Index.TOKENIZED));
             return true;
         } else if (fieldName.equals("aliases")) {
             Set aliases = (Set) state;
             for (Iterator a = aliases.iterator(); a.hasNext();) {
                 String alias = (String) a.next();
-                document.add(Field.UnStored("alias", alias));
-                document.add(Field.UnStored(Indexer.DEFAULT_FIELD, alias));
+                document.add(new Field("alias", alias, Field.Store.NO, Field.Index.TOKENIZED));
+                document.add(new Field(Indexer.DEFAULT_FIELD, alias, Field.Store.NO,
+                        Field.Index.TOKENIZED));
             }
             return true;
         }
@@ -136,7 +141,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         for (int i = 0; i < m_indexedClasses.length; i++) {
             Class klass = m_indexedClasses[i];
             if (klass.isAssignableFrom(beanClass)) {
-                doc.add(Field.Keyword(Indexer.CLASS_FIELD, klass.getName()));
+                doc.add(new Field(Indexer.CLASS_FIELD, klass.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
                 return true;
             }
         }

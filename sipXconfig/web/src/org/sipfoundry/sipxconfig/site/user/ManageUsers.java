@@ -15,12 +15,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -36,20 +36,20 @@ public abstract class ManageUsers extends BasePage {
 
     public abstract void setGroupId(Integer groupId);
 
-    public void addUser(IRequestCycle cycle) {
+    public IPage addUser(IRequestCycle cycle) {
         NewUser page = (NewUser) cycle.getPage(NewUser.PAGE);
-        page.activatePageWithCallback(PAGE, cycle);
+        page.setReturnPage(PAGE);
+        return page;
     }
 
-    public void editUser(IRequestCycle cycle) {
-        Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
+    public IPage editUser(IRequestCycle cycle, Integer userId) {
         EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);
         page.setUserId(userId);
-        page.activatePageWithCallback(PAGE, cycle);
+        page.setReturnPage(PAGE);
+        return page;
     }
 
-    public void deleteUsers(IRequestCycle cycle_) {
+    public void deleteUsers() {
         UserTable table = (UserTable) getComponent(USER_TABLE_COMPONENT_ID);
         SelectMap selections = table.getSelections();
         Collection selected = selections.getAllSelected();
@@ -69,13 +69,13 @@ public abstract class ManageUsers extends BasePage {
                 continue;
             }
             if (actions.size() == 0) {
-                actions.add(new OptGroup(getMessage("label.addTo")));
+                actions.add(new OptGroup(getMessages().getMessage("label.addTo")));
             }
             actions.add(new AddToUserGroupAction(g, getCoreContext()));
         }
 
         if (removeFromGroup != null) {
-            actions.add(new OptGroup(getMessage("label.removeFrom")));
+            actions.add(new OptGroup(getMessages().getMessage("label.removeFrom")));
             actions.add(new RemoveFromUserGroupAction(removeFromGroup, getCoreContext()));
         }
 

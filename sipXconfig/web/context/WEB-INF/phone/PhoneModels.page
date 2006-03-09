@@ -1,47 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC
-  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
-
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneModels">
-    <description>add a description</description>
-    
-	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-    	initial-value="global.phoneContext"/>    
-    <property-specification name="groupId"
-        type="java.lang.Integer"
-        persistent="yes"/>
-    <property-specification name="currentPhoneModel"
-        type="org.sipfoundry.sipxconfig.phone.PhoneModel"/>
-	<property-specification name="settingContext" 
-		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
-    	initial-value="global.settingDao"/>    
-    <property-specification name="group"
-        type="org.sipfoundry.sipxconfig.setting.Group"/>
-
-    <component id="phoneModels" type="Foreach">
-        <binding name="source" expression="phoneContext.availablePhoneModels"/>
-        <binding name="value" expression="currentPhoneModel"/>
-    </component>
-    <component id="isUnmanagedPhone" type="Conditional">
-        <binding name="condition" expression="currentPhoneModel.beanId == 'unmanagedPhone'"/>
-    </component>
-    <component id="isManagedPhone" type="Conditional">
-        <binding name="condition" expression="currentPhoneModel.beanId != 'unmanagedPhone'"/>
-    </component>
-    <component id="phoneModel" type="Insert">
-        <binding name="value" expression="currentPhoneModel.label"/>
-    </component>
-    <component id="unmanagedPhoneModel" copy-of="phoneModel"/>
-    <component id="phoneModelLink" type="DirectLink">
-        <binding name="listener" expression="listeners.editPhoneDefaults"/>
-        <binding name="parameters" expression="currentPhoneModel.name"/>
-    </component>
-    <component id="editGroup" type="DirectLink">
-        <binding name="listener" expression="listeners.editGroup"/>
-    </component>
-    <component id="groupLabel" type="GroupLabel">
-        <binding name="group" expression="group"/>
-    </component>    
+  <description>add a description</description>
+  <inject property="phoneContext" object="spring:phoneContext"/>
+  <property name="groupId"  persist="session"/>
+  <property name="currentPhoneModel" />
+  <inject property="settingContext" object="spring:settingDao"/>
+  <property name="group" />
+  <component id="phoneModels" type="For">
+    <binding name="source" value="phoneContext.availablePhoneModels"/>
+    <binding name="value" value="currentPhoneModel"/>
+  </component>
+  <component id="isUnmanagedPhone" type="If">
+    <binding name="condition" value="currentPhoneModel.beanId == 'unmanagedPhone'"/>
+  </component>
+  <component id="isManagedPhone" type="If">
+    <binding name="condition" value="currentPhoneModel.beanId != 'unmanagedPhone'"/>
+  </component>
+  <component id="phoneModel" type="Insert">
+    <binding name="value" value="currentPhoneModel.label"/>
+  </component>
+  <component id="unmanagedPhoneModel" copy-of="phoneModel"/>
+  <component id="phoneModelLink" type="DirectLink">
+    <binding name="listener" value="listener:editPhoneDefaults"/>
+    <binding name="parameters" value="currentPhoneModel.name"/>
+  </component>
+  <component id="editGroup" type="DirectLink">
+    <binding name="listener" value="listener:editGroup"/>
+  </component>
+  <component id="groupLabel" type="GroupLabel">
+    <binding name="group" value="group"/>
+  </component>
 </page-specification>

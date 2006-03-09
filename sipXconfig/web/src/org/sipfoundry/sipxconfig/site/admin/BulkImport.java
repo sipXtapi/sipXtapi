@@ -19,10 +19,7 @@ import java.io.OutputStream;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tapestry.IMessages;
-import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidationConstraint;
@@ -30,16 +27,13 @@ import org.sipfoundry.sipxconfig.bulk.BulkManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class BulkImport extends BasePage implements PageRenderListener {
+public abstract class BulkImport extends BasePage {
 
     public abstract IUploadFile getUploadFile();
 
     public abstract BulkManager getBulkManager();
 
-    public void pageBeginRender(PageEvent event_) {
-    }
-
-    public void submit(IRequestCycle cycle_) {
+    public void submit() {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
@@ -48,7 +42,7 @@ public abstract class BulkImport extends BasePage implements PageRenderListener 
         IUploadFile uploadFile = getUploadFile();
         String filePath = uploadFile.getFilePath(); 
         if (StringUtils.isBlank(filePath)) {
-            validator.record(getMessage("msg.errorNoFile"), ValidationConstraint.REQUIRED);
+            validator.record(getMessages().getMessage("msg.errorNoFile"), ValidationConstraint.REQUIRED);
             return;
         }
         OutputStream os = null;
@@ -58,10 +52,10 @@ public abstract class BulkImport extends BasePage implements PageRenderListener 
             IOUtils.copy(uploadFile.getStream(), os);
             os.close();
             getBulkManager().insertFromCsv(tmpFile, true);
-            validator.recordSuccess(getMessage("msg.success"));
+            validator.recordSuccess(getMessages().getMessage("msg.success"));
         } catch (IOException e) {
             LogFactory.getLog(getClass()).error("Cannot import file", e);
-            IMessages messages = getMessages();
+            Messages messages = getMessages();
             validator.record(messages.format("msg.error", e.getLocalizedMessage()),
                     ValidationConstraint.CONSISTENCY);
         } finally {

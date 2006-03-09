@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.commons.lang.enums.Enum;
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
@@ -58,11 +57,11 @@ public abstract class ActivateDialPlan extends BasePage {
         return model;
     }
 
-    public void activate(IRequestCycle cycle) {
+    public String activate() {
         DialPlanContext manager = getDialPlanContext();
         manager.activateDialPlan();
         RestartReminderPanel reminder = (RestartReminderPanel) getComponent("reminder");
         reminder.restart();
-        cycle.activate(EditFlexibleDialPlan.PAGE);
+        return EditFlexibleDialPlan.PAGE;
     }
 }

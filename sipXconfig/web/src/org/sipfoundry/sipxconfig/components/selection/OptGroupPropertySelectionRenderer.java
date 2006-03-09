@@ -35,15 +35,6 @@ public class OptGroupPropertySelectionRenderer implements IPropertySelectionRend
         m_insideOptGroup = false;
         writer.begin("select");
         writer.attribute("name", component.getName());
-
-        if (component.isDisabled()) {
-            writer.attribute(DISABLED_ATTR, true);
-        }
-
-        if (component.getSubmitOnChange()) {
-            writer.attribute("onchange", "javascript:this.form.submit();");
-        }
-        writer.println();
     }
 
     public final void renderOption(PropertySelection component_, IMarkupWriter writer,

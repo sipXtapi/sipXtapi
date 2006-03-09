@@ -11,9 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
@@ -21,7 +22,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.user.UserTable;
 
-public abstract class AddPhoneUser extends BasePage implements PageRenderListener {
+public abstract class AddPhoneUser extends BasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "AddPhoneUser";
 
@@ -47,7 +48,7 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
 
     public abstract boolean getReturnToEditPhone();
 
-    public void select(IRequestCycle cycle) {
+    public IPage select(IRequestCycle cycle) {
         PhoneContext context = getPhoneContext();
 
         UserTable table = (UserTable) getComponent("searchResults");
@@ -56,19 +57,21 @@ public abstract class AddPhoneUser extends BasePage implements PageRenderListene
 
         PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
         page.setPhoneId(getPhoneId());
-        cycle.activate(page);
+        return page;
     }
 
-    public void cancel(IRequestCycle cycle) {
+    public IPage cancel(IRequestCycle cycle) {
+        IPage pageToActivate = null;
         if (getReturnToEditPhone()) {
             EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
             page.setPhoneId(getPhoneId());
-            cycle.activate(page);
+            pageToActivate = page;
         } else {
             PhoneLines page = (PhoneLines) cycle.getPage(PhoneLines.PAGE);
             page.setPhoneId(getPhoneId());
-            cycle.activate(page);
+            pageToActivate = page;
         }
+        return pageToActivate;
     }
 
     public void pageBeginRender(PageEvent event_) {

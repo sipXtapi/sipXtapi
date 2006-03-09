@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.components;
 
 import junit.framework.TestCase;
 
-import org.apache.tapestry.IMessages;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.easymock.MockControl;
@@ -34,11 +34,11 @@ public class LocalizedOptionModelDecoratorTest extends TestCase {
     }
     
     public void testLocalization() {
-        MockControl messagesControl = MockControl.createStrictControl(IMessages.class);
-        IMessages messages = (IMessages) messagesControl.getMock();
-        messagesControl.expectAndReturn(messages.getMessage("xyz.a", "a"), "localized a");
-        messagesControl.expectAndReturn(messages.getMessage("xyz.b", "b"), "b");
-        messagesControl.expectAndReturn(messages.getMessage("c", "c"), "localized c");
+        MockControl messagesControl = MockControl.createStrictControl(Messages.class);
+        Messages messages = (Messages) messagesControl.getMock();
+        messagesControl.expectAndReturn(messages.getMessage("xyz.a"), "localized a");
+        messagesControl.expectAndReturn(messages.getMessage("xyz.b"), "b");
+        messagesControl.expectAndReturn(messages.getMessage("c"), "localized c");
         messagesControl.replay();
         
         m_localized.setMessages(messages);

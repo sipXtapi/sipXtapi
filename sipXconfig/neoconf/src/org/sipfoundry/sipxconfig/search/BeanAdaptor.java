@@ -82,8 +82,7 @@ public interface BeanAdaptor {
 
         public Object transform(Object identity) {
             Identity i = (Identity) identity;
-            // FIXME: remove cast after DataObjectSource is fixed
-            return m_source.load(i.getBeanClass(), (Integer) i.getBeanId());
+            return m_source.load(i.getBeanClass(), i.getBeanId());
         }
     }
 }

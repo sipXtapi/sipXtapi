@@ -13,18 +13,20 @@ package org.sipfoundry.sipxconfig.components;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.test.AbstractInstantiator;
+import org.apache.tapestry.spec.IComponentSpecification;
+import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
 
 public class OptionalElementTest extends TestCase {
-    private AbstractInstantiator m_maker = new AbstractInstantiator();
+    private Creator m_maker = new Creator();
     private OptionalElement m_oe;
 
     protected void setUp() throws Exception {
-        m_oe = (OptionalElement) m_maker.getInstance(OptionalElement.class);
+        m_oe = (OptionalElement) m_maker.newInstance(OptionalElement.class);
     }
 
     public void testRender() throws Exception {
@@ -33,7 +35,7 @@ public class OptionalElementTest extends TestCase {
         cycle.isRewinding();
         mcCycle.setReturnValue(false, MockControl.ONE_OR_MORE);
         mcCycle.replay();
-
+        
         MockControl mcWriter = MockControl.createControl(IMarkupWriter.class);
         IMarkupWriter writer = (IMarkupWriter) mcWriter.getMock();
 
@@ -65,6 +67,12 @@ public class OptionalElementTest extends TestCase {
         writer.attribute("attr1", "kuku");
         writer.end("bongo");
         mcWriter.replay();
+        
+        MockControl mcComponentSpec = MockControl.createNiceControl(IComponentSpecification.class);
+        IComponentSpecification componentSpec = (IComponentSpecification) mcComponentSpec.getMock();
+        mcComponentSpec.replay();
+        // method available on proxy object, See Creator.java
+        BeanUtils.setProperty(m_oe, "specification", componentSpec);
 
         m_oe.setBinding("attr1", binding);
         m_oe.setElement("bongo");
@@ -73,5 +81,6 @@ public class OptionalElementTest extends TestCase {
         mcBinding.verify();
         mcCycle.verify();
         mcWriter.verify();
+        mcComponentSpec.verify();
     }
 }

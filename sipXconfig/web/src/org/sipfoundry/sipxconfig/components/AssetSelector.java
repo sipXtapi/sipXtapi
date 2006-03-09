@@ -16,10 +16,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
-import org.apache.tapestry.IForm;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IFormComponent;
@@ -29,10 +29,8 @@ import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 
-public abstract class AssetSelector extends BaseComponent implements IFormComponent {
+public abstract class AssetSelector extends BaseComponent {
     public abstract String getAssetDir();
-
-    public abstract void setAssetSelectionModel(IPropertySelectionModel model);
 
     public abstract IUploadFile getUploadAsset();
 
@@ -43,11 +41,11 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
     public abstract String getAsset();
 
     public abstract String getErrorMsg();
-    
+
     public abstract String getContentType();
-    
+
     public abstract boolean getSelectable();
-    
+
     public abstract String getDeleteAsset();
 
     public abstract void setDeleteAsset(String asset);
@@ -56,7 +54,7 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
         boolean isSpecified = file != null && !StringUtils.isBlank(file.getFilePath());
         return isSpecified;
     }
-    
+
     public boolean getAssetExists() {
         return StringUtils.isNotBlank(getAsset());
     }
@@ -69,21 +67,21 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
         String localized = getMessages().getMessage(key);
         return localized;
     }
-    
-    private IPropertySelectionModel createSelectableAssetModel() {
+
+    public IPropertySelectionModel getAssetSelectionModel() {
         File assetDir = new File(getAssetDir());
         // make sure it exists
         assetDir.mkdirs();
+        // TODO: this probably should be replaced by listFiles with a filter that excludes
+        // directories
         String[] assets = assetDir.list();
         if (assets == null) {
-            assets = new String[0];
+            assets = ArrayUtils.EMPTY_STRING_ARRAY;
         }
         return new StringPropertySelectionModel(assets);
     }
-    
+
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
-        IPropertySelectionModel model = createSelectableAssetModel();
-        setAssetSelectionModel(model);
         super.renderComponent(writer, cycle);
         if (!cycle.isRewinding()) {
             return;
@@ -93,9 +91,9 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
         validateNotEmpty(validator, getErrorMsg());
         TapestryUtils.isValid(page);
         checkFileUpload();
-        checkDeleteAsset();        
+        checkDeleteAsset();
     }
-    
+
     private void checkDeleteAsset() {
         if (getDeleteAsset() != null) {
             File assetFile = new File(getAssetDir(), getDeleteAsset());
@@ -104,7 +102,7 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
             setDeleteAsset(null);
         }
     }
-    
+
     private void checkFileUpload() {
         IUploadFile upload = getUploadAsset();
         if (!isUploadFileSpecified(upload)) {
@@ -164,31 +162,12 @@ public abstract class AssetSelector extends BaseComponent implements IFormCompon
         }
     }
 
-    // what follows is empty IFormComponent implementation
-    // we only need getDisplayName to return null - it's used by label component
-
-    public IForm getForm() {
-        return null;
-    }
-
-    public void setForm(IForm form_) {
-        // empty
-    }
-
-    public String getName() {
-        return StringUtils.EMPTY;
-    }
-
-    public void setName(String name_) {
-    }
-
     /**
-     * Implemented in some subclasses to provide a display name (suitable for presentation to the
-     * user as a label or error message). This implementation return null.
+     * It is required that the label field is attached to field component
      * 
+     * @return promtp componnent
      */
-
-    public String getDisplayName() {
-        return null;
+    public IFormComponent getPrompt() {
+        return (IFormComponent) getComponent("prompt");
     }
 }

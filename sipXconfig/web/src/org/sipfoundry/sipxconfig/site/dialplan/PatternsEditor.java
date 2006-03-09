@@ -16,61 +16,52 @@ import java.util.List;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPattern;
 
 /**
- * PatternsEditor
+ * PatternsEditor - list of pattersn with ability to edit, remove and delete
  * 
- * TODO: we may want to use direct links and rule id's in future. As it's
- * implemented now, this page has problems with stale links.
+ * FIXME: when there are errors we should not add or delete any patters
+ * 
+ * FIXME: for loop should take explicit key converter
  */
 public abstract class PatternsEditor extends BaseComponent {
-    private Object m_patternToBeRemoved;
+    public abstract boolean getAddPattern();
+
+    public abstract void setAddPattern(boolean addPattern);
+
+    public abstract int getIndexToRemove();
+
+    public abstract void setIndexToRemove(int index);
 
     public abstract List getPatterns();
 
-    public abstract DialPattern getPattern();
+    public abstract int getIndex();
 
     public boolean isLast() {
-        DialPattern pattern = getPattern();
         List patterns = getPatterns();
-        return pattern == patterns.get(patterns.size() - 1);
-    }
-
-    public void add(IRequestCycle cycle_) {
-        List patterns = getPatterns();
-        patterns.add(new DialPattern());
-    }
-
-    public void delete(IRequestCycle cycle_) {
-        m_patternToBeRemoved = getPattern();
+        return getIndex() == patterns.size() - 1;
     }
 
     /**
-     * Once cannot modify the patterns list inside of the delete listener.
-     * Instead delete listener just sets the flag.
-     */
-    private void delayedDelete() {
-        if (null != m_patternToBeRemoved) {
-            List patterns = getPatterns();
-            patterns.remove(m_patternToBeRemoved);
-            m_patternToBeRemoved = null;
-        }
-    }
-
-    /**
-     * There is no "componentSubmit" method that would be called after rendering
-     * is done (just before or after form submit listener called). Listeners
-     * cannot really modify values of the properties that are used for rendering
-     * (specifically listener cannot remove the item from the list used in
-     * Foreach). According to e-mail on the Tapestry users list one has to override
-     * renderComponent and put the processing of such delayed listeners there.
+     * Process pattern adds/deletes.
      */
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
+        // reset components before rewind
+        setIndexToRemove(-1);
+        setAddPattern(false);
         super.renderComponent(writer, cycle);
-        if (cycle.isRewinding()) {
-            delayedDelete();
+        if (!cycle.isRewinding()) {
+            // nothing else to do
+            return;
+        }
+        List patterns = getPatterns();
+        if (getAddPattern()) {
+            patterns.add(new DialPattern());
+        }
+        int indexToRemove = getIndexToRemove();
+        if (indexToRemove >= 0) {
+            patterns.remove(indexToRemove);
         }
     }
 }

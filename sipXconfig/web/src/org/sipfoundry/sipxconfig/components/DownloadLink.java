@@ -13,40 +13,33 @@ package org.sipfoundry.sipxconfig.components;
 
 import java.io.File;
 
-import org.apache.tapestry.AbstractComponent;
-import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
+import org.apache.tapestry.link.AbstractLinkComponent;
+import org.apache.tapestry.link.StaticLink;
 
 /**
- * Link that allows for dwonlaoding files from web server
+ * Link that allows for downloading files from web server
  */
-public abstract class DownloadLink extends AbstractComponent {
+public abstract class DownloadLink extends AbstractLinkComponent {
     public abstract String getFileName();
 
     public abstract String getDirName();
 
     public abstract String getContentType();
 
-    protected void renderComponent(IMarkupWriter w, IRequestCycle cycle) {
-        if (cycle.isRewinding()) {
-            return;
-        }
+    public abstract IEngineService getDownloadService();
+
+    public ILink getLink(IRequestCycle cycle_) {
+        IEngineService downloadService = getDownloadService();
         File file = getFile(getDirName(), getFileName());
         if (null == file) {
-            return;
+            // FIXME: need to make sure that this link is not rendered for non existing files...
+            return new StaticLink("http://fixme/no/file/here/" + getFileName() + "/" + getDirName());
         }
-
-        IEngineService srv = cycle.getEngine().getService(DownloadService.SERVICE_NAME);
-        ILink lnk = srv.getLink(cycle, this, new Object[] {
-            file.getAbsolutePath(), getContentType()
-        });
-        w.begin("a");
-        w.attribute("href", lnk.getURL());
-        renderInformalParameters(w, cycle);
-        renderBody(w, cycle);
-        w.end();
+        Info info = new Info(file.getAbsolutePath(), getContentType());
+        return downloadService.getLink(false, info);
     }
 
     /**
@@ -62,5 +55,23 @@ public abstract class DownloadLink extends AbstractComponent {
         }
         File file = new File(dirName, fileName);
         return file.canRead() ? file : null;
+    }
+
+    public static final class Info {
+        private String m_path;
+        private String m_contentType;
+
+        public Info(String path, String contentType) {
+            m_path = path;
+            m_contentType = contentType;
+        }
+
+        public String getPath() {
+            return m_path;
+        }
+
+        public String getContentType() {
+            return m_contentType;
+        }
     }
 }

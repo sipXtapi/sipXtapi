@@ -32,7 +32,7 @@ public class BulkImportTestUi extends WebTestCase {
      */
     public void testDisplay() {
         SiteTestHelper.assertNoException(getTester());
-        assertFormPresent("import:form");
+        assertElementPresent("import:form");
         assertElementPresent("import:upload");
         assertButtonPresent("import:ok");
     }

@@ -11,18 +11,17 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class EditParkOrbit extends BasePage implements PageRenderListener {
+public abstract class EditParkOrbit extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "EditParkOrbit";
 
     public abstract ParkOrbitContext getParkOrbitContext();
@@ -57,7 +56,7 @@ public abstract class EditParkOrbit extends BasePage implements PageRenderListen
         }
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (!isValid()) {
             return;
         }

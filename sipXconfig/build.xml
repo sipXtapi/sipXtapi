@@ -63,7 +63,7 @@
   <target name="install" depends="remove-jars,subant-targets.install"/>
 
   <target name="remove-jars" description="Remove all jars from lib dir">
-    <delete>
+    <delete failonerror="false">
       <fileset dir="${dest.dir}${sipxpbx.data.dir}/lib">
         <include name="*.jar"/>
         <include name="*.war"/>

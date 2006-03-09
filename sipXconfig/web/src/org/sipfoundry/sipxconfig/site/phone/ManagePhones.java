@@ -16,14 +16,14 @@ import java.util.Collection;
 import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
+import org.apache.tapestry.util.io.SqueezeAdaptor;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
@@ -39,15 +39,13 @@ import org.sipfoundry.sipxconfig.site.line.EditLine;
 /**
  * List all the phones/phones for management and details drill-down
  */
-public abstract class ManagePhones extends BasePage implements PageRenderListener {
+public abstract class ManagePhones extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "ManagePhones";
 
     /** model of the table */
     public abstract SelectMap getSelections();
 
     public abstract void setSelections(SelectMap selected);
-
-    public abstract void setIdConverter(IPrimaryKeyConvertor cvt);
 
     public abstract PhoneContext getPhoneContext();
 
@@ -69,40 +67,37 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
 
     public abstract SearchManager getSearchManager();
 
+    public abstract SqueezeAdaptor getSqueezeAdaptor();
+
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
         if (!getSearchMode() || StringUtils.isBlank(queryText)) {
             return new PhoneTableModel(getPhoneContext(), getGroupId());
         }
-        ObjectSourceDataSqueezer squeezer = new PhoneDataSqueezer(getPhoneContext());
-        return new SearchPhoneTableModel(getSearchManager(), queryText, squeezer);
+        return new SearchPhoneTableModel(getSearchManager(), queryText, getSqueezeAdaptor());
     }
 
     /**
      * When user clicks on link to edit a phone/phone
      */
-    public void editPhone(IRequestCycle cycle) {
+    public IPage editPhone(IRequestCycle cycle, Integer phoneId) {
         EditPhone page = (EditPhone) cycle.getPage(EditPhone.PAGE);
-        Object[] params = cycle.getServiceParameters();
-        Integer phoneId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setPhoneId(phoneId);
-        cycle.activate(page);
+        page.setReturnPage(PAGE);
+        return page;
     }
 
-    public void editLine(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
-        Integer lineId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
+    public IPage editLine(IRequestCycle cycle, Integer lineId) {
         EditLine page = (EditLine) cycle.getPage(EditLine.PAGE);
         page.setLineId(lineId);
-        cycle.activate(page);
+        return page;
     }
 
-    public void addPhone(IRequestCycle cycle) {
-        NewPhone page = (NewPhone) cycle.getPage(NewPhone.PAGE);
-        cycle.activate(page);
+    public String addPhone() {
+        return NewPhone.PAGE;
     }
 
-    public void deletePhone(IRequestCycle cycle_) {
+    public void deletePhone() {
         PhoneContext context = getPhoneContext();
 
         Collection ids = getSelections().getAllSelected();
@@ -120,12 +115,12 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
         TapestryUtils.recordSuccess(this, msg);
     }
 
-    public void generateProfiles(IRequestCycle cycle_) {
+    public void generateProfiles() {
         Collection phoneIds = getSelections().getAllSelected();
         generateProfiles(phoneIds);
     }
 
-    public void generateAllProfiles(IRequestCycle cycle_) {
+    public void generateAllProfiles() {
         Collection phoneIds = getPhoneContext().getAllPhoneIds();
         generateProfiles(phoneIds);
     }
@@ -137,7 +132,7 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
         TapestryUtils.recordSuccess(this, msg);
     }
 
-    public void restart(IRequestCycle cycle_) {
+    public void restart() {
         Collection phoneIds = getSelections().getAllSelected();
         getRestartManager().restart(phoneIds);
         String msg = getMessages().format("msg.success.restart",
@@ -149,10 +144,6 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
      * called before page is drawn
      */
     public void pageBeginRender(PageEvent event_) {
-        PhoneContext phoneContext = getPhoneContext();
-
-        setIdConverter(new PhoneDataSqueezer(phoneContext));
-
         // Generate the list of phone items
         if (getSelections() == null) {
             setSelections(new SelectMap());
@@ -173,47 +164,18 @@ public abstract class ManagePhones extends BasePage implements PageRenderListene
                 continue;
             }
             if (actions.size() == 0) {
-                actions.add(new OptGroup(getMessage("label.addTo")));
+                actions.add(new OptGroup(getMessages().getMessage("label.addTo")));
             }
             actions.add(new AddToPhoneGroupAction(g, getPhoneContext()));
         }
 
         if (removeFromGroup != null) {
-            actions.add(new OptGroup(getMessage("label.removeFrom")));
+            actions.add(new OptGroup(getMessages().getMessage("label.removeFrom")));
             actions.add(new RemoveFromPhoneGroupAction(removeFromGroup, getPhoneContext()));
         }
 
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
         setActionModel(model);
-    }
-
-    /**
-     * PhoneSummary is not a make up object contructed of and phone and a phone object.
-     * reconstruct it here from phone and phonecontext
-     */
-    static class PhoneDataSqueezer extends ObjectSourceDataSqueezer {
-
-        PhoneDataSqueezer(PhoneContext context) {
-            super(context, Phone.class);
-        }
-
-        public Object getPrimaryKey(Object objValue) {
-            Object pk = null;
-            if (objValue != null) {
-                pk = ((Phone) objValue).getPrimaryKey();
-            }
-
-            return pk;
-        }
-
-        public Object getValue(Object objPrimaryKey) {
-            Phone phoneMeta = (Phone) super.getValue(objPrimaryKey);
-            // reload object due to PhoneContext API (good) restriction
-            PhoneContext pc = (PhoneContext) getDataObjectSource();
-            Phone phone = pc.loadPhone(phoneMeta.getId());
-
-            return phone;
-        }
     }
 }

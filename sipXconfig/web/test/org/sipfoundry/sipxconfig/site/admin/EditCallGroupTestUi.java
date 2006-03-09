@@ -32,7 +32,7 @@ public class EditCallGroupTestUi extends WebTestCase {
 
     public void testDisplay() {
         SiteTestHelper.assertNoException(getTester());
-        assertFormPresent("callgroup:form");
+        assertElementPresent("callgroup:edit");
         assertElementPresent("item:name");
         assertElementPresent("item:extension");
         assertElementPresent("item:description");
@@ -90,7 +90,8 @@ public class EditCallGroupTestUi extends WebTestCase {
     }
 
     private void addUser() throws Exception {
-        SiteTestHelper.clickSubmitLink(getTester(), "addRow");
+        //SiteTestHelper.clickSubmitLink(getTester(), "addRow");
+        clickLink("callgroup:addRing");
 
         clickButton("user:search");
         SiteTestHelper.selectRow(tester, 0, true);

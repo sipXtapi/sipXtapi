@@ -14,10 +14,9 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.form.ListEditMap;
 import org.apache.tapestry.form.PropertySelection;
 import org.apache.tapestry.html.BasePage;
@@ -31,7 +30,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 /**
  * EditEmergencyRouting
  */
-public abstract class EditEmergencyRouting extends BasePage implements PageRenderListener {
+public abstract class EditEmergencyRouting extends BasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "EditEmergencyRouting";
 
@@ -68,7 +67,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
         setExceptionsMap(map);
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (!isValid()) {
             return;
         }
@@ -80,7 +79,7 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
     /**
      * Called by ListEdit component to retrieve exception object associated with a specific id
      */
-    public void synchronizeExceptionItem(IRequestCycle cycle_) {
+    public void synchronizeExceptionItem() {
         ListEditMap exceptionsMap = getExceptionsMap();
         RoutingException exception = (RoutingException) exceptionsMap.getValue();
 
@@ -91,15 +90,13 @@ public abstract class EditEmergencyRouting extends BasePage implements PageRende
         }
     }
 
-    public void addException(IRequestCycle cycle_) {
+    public void addException() {
         EmergencyRouting emergencyRouting = getDialPlanContext().getEmergencyRouting();
         emergencyRouting.addException(new RoutingException());
         getDialPlanContext().storeEmergencyRouting(emergencyRouting);
     }
 
-    public void deleteException(IRequestCycle cycle) {
-        Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
+    public void deleteException(Integer id) {
         getDialPlanContext().removeRoutingException(id);
     }
 

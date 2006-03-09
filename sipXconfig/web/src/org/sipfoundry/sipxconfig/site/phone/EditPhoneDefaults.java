@@ -14,9 +14,10 @@ package org.sipfoundry.sipxconfig.site.phone;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -28,7 +29,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
-public abstract class EditPhoneDefaults extends BasePage implements PageRenderListener {
+public abstract class EditPhoneDefaults extends BasePage implements PageBeginRenderListener {
     
     public static final String PAGE = "EditPhoneDefaults";      
     
@@ -87,35 +88,35 @@ public abstract class EditPhoneDefaults extends BasePage implements PageRenderLi
         return getPhone().getLine(0).getSettings().getValues();        
     }
     
-    public void editPhoneSettings(IRequestCycle cycle_) {
+    public IPage editPhoneSettings(String settingName) {
         setResourceId(PHONE_SETTINGS);
-        setEditFormSettingName(getCurrentNavigationSetting().getName());
-        editSettings();        
+        setEditFormSettingName(settingName);
+        return getPage();        
     }
         
-    public void editLineSettings(IRequestCycle cycle_) {
+    public IPage editLineSettings(String settingName) {
         setResourceId(LINE_SETTITNGS);
-        setEditFormSettingName(getCurrentNavigationSetting().getName());
-        editSettings();        
+        setEditFormSettingName(settingName);
+        return getPage();        
     }
     
-    public void ok(IRequestCycle cycle) {
-        apply(cycle);
-        activateReturnPage(cycle);
+    public IPage ok(IRequestCycle cycle) {
+        apply();
+        return getReturnPage(cycle);
     }
     
-    public void apply(IRequestCycle cycle_) {
+    public void apply() {
         getSettingDao().saveGroup(getGroup());
     }
 
-    public void cancel(IRequestCycle cycle) {
-        activateReturnPage(cycle);
+    public IPage cancel(IRequestCycle cycle) {
+        return getReturnPage(cycle);
     }
     
-    private void activateReturnPage(IRequestCycle cycle) {
+    private IPage getReturnPage(IRequestCycle cycle) {
         PhoneModels page = (PhoneModels) cycle.getPage(PhoneModels.PAGE);
         page.setGroupId(getGroupId());
-        cycle.activate(page);
+        return page;
     }
 
     public void pageBeginRender(PageEvent event_) {

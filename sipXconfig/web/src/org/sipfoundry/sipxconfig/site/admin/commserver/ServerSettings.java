@@ -11,14 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Server;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public abstract class ServerSettings extends BasePage implements PageRenderListener {
+public abstract class ServerSettings extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "ServerSettings";
 
     public abstract Server getServer();
@@ -30,7 +31,7 @@ public abstract class ServerSettings extends BasePage implements PageRenderListe
     public abstract Setting getParentSetting();
 
     public abstract void setParentSetting(Setting parent);
-    
+
     public void pageBeginRender(PageEvent event_) {
         Server server = getServer();
         Setting root = server.getSettings();
@@ -46,14 +47,14 @@ public abstract class ServerSettings extends BasePage implements PageRenderListe
      * getServer().applySettings(); }
      */
 
-    public void apply(IRequestCycle cycle) {
+    public IPage apply(IRequestCycle cycle) {
         getServer().applySettings();
         RestartReminder restartPage = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
         restartPage.setNextPage(PAGE);
-        cycle.activate(restartPage);
+        return restartPage;
     }
 
-    public void cancel(IRequestCycle cycle_) {
+    public void cancel() {
         // do nothing
     }
 }

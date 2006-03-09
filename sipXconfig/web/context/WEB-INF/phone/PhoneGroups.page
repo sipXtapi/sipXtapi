@@ -1,26 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
-	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneGroups">
-
-    <property-specification name="groups" 
-        type="java.util.List"/>
-	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-    	initial-value="global.phoneContext"/>    
-	<property-specification name="settingContext" 
-		type="org.sipfoundry.sipxconfig.setting.SettingDao" 
-    	initial-value="global.settingDao"/>    
-
-    <component id="groupTable" type="GroupTable">
-        <binding name="groups" expression="groups"/>
-        <binding name="memberCounts" expression="memberCounts"/>
-        <binding name="viewGroupListener" expression="listeners.editPhoneGroup"/>
-        <binding name="groupMembersListener" expression="listeners.showGroupMembers"/>
-    </component>
-    
-    <component id="addGroup" type="DirectLink">
-        <binding name="listener" expression="listeners.addGroup"/>
-    </component>
-
+  <property name="groups" />
+  <inject property="phoneContext" object="spring:phoneContext"/>
+  <inject property="settingContext" object="spring:settingDao"/>
+  <component id="groupTable" type="GroupTable">
+    <binding name="groups" value="groups"/>
+    <binding name="memberCounts" value="memberCounts"/>
+    <binding name="viewGroupListener" value="listener:editPhoneGroup"/>
+    <binding name="groupMembersListener" value="listener:showGroupMembers"/>
+  </component>
+  <component id="addGroup" type="DirectLink">
+    <binding name="listener" value="listener:addGroup"/>
+  </component>
 </page-specification>

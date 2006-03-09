@@ -13,8 +13,8 @@ package org.sipfoundry.sipxconfig.site.gateway;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
@@ -34,15 +34,15 @@ public abstract class ListGateways extends BasePage {
     /**
      * When user clicks on link to edit a gateway
      */
-    public void addGateway(IRequestCycle cycle) {
+    public IPage addGateway(IRequestCycle cycle) {
         EditGateway page = (EditGateway) cycle.getPage(EditGateway.PAGE);
         page.setGatewayId(null);
         page.setRuleId(null);
-        page.setCallback(new PageCallback(this));
-        cycle.activate(page);
+        page.setReturnPage(this);
+        return page;
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         Collection selectedRows = getGatewaysToDelete();
         if (selectedRows != null) {
             getGatewayContext().deleteGateways(selectedRows);
@@ -53,7 +53,7 @@ public abstract class ListGateways extends BasePage {
         }
     }
 
-    public void propagateAllGateways(IRequestCycle cycle_) {
+    public void propagateAllGateways() {
         getGatewayContext().propagateAllGateways();
     }
 }

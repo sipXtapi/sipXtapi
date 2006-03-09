@@ -40,65 +40,68 @@
 				</dl>
 			</div>
 			<span jwcid="@ErrorMsg"/>
-			<form name="attendant:form" jwcid="form">
-                <fieldset jwcid="common"/>
-           		<fieldset jwcid="attendantPromptSelector"/>
-				<table jwcid="menuItemTableView" id="attendant:menuItems" 
-					class="component">
-                    <thead>
-						<tr>
-							<th width="5"/>
-							<th jwcid="menuItemColumns"/>
-						</tr>
-                    </thead>
-                    <tbody>
-						<tr jwcid="menuItemRows">
-							<td>
-								<span jwcid="selectedRow"/>
-							</td>
-							<span jwcid="DialpadColumnValue">
-								<span jwcid="menuItemKey"/>
-							</span>
-							<span jwcid="ActionColumnValue">
-								<select jwcid="menuItemAction"/>
-							</span>
-							<span jwcid="ParameterColumnValue">
-								<span jwcid="ifExtensionParameter">
-									<input jwcid="extensionParameter" type="text" />
-								</span>
-								<span jwcid="ifAttendantParameter">
-									<select jwcid="attendantParameter"/>
-								</span>
-							</span>
-							<td jwcid="menuItemValues"/>
-						</tr>
-						<tr jwcid="addMenuItemRow">
-							<td/>
-							<td>
-								<span jwcid="addMenuItemKey"/>
-							</td>
-							<td>
-								<span jwcid="addMenuItemAction"/>
-							</td>
-							<td>
-								<input type="submit" id="attendant:addMenuItem" 
-									jwcid="addMenuItem" value="Add"/>
-							</td>
-						</tr>
-					</tbody>                        
-				</table>
-				<ul class="component-submit">
-					<li>
-						<input jwcid="reset" type="submit" id="attendant:reset" 
-							value="Reset to Defaults"/>
-					</li>
-					<li>
-						<input jwcid="removeMenuItems" value="Remove" 
-							type="submit" id="attendant:removeMenuItems"/>
-					</li>
-				</ul>
-	    		<ul jwcid="formActions"/>
-			</form>
+      <form jwcid="form">
+        <span id="attendant:form"/>
+        <fieldset>
+          <table>
+            <tr jwcid="common"/>
+            <tr jwcid="attendantPromptLabel">
+              <span jwcid="attendantPromptSelector"/>
+            </tr>
+          </table>
+        </fieldset>
+        <table jwcid="menuItemTableView" id="attendant:menuItems" class="component">
+          <thead>
+            <tr>
+              <th width="5"/>
+              <th jwcid="menuItemColumns"/>
+            </tr>
+          </thead>
+          <tbody>
+            <tr jwcid="menuItemRows">
+              <td>
+                <span jwcid="selectedRow"/>
+              </td>
+              <span jwcid="DialpadColumnValue">
+                <span jwcid="menuItemKey"/>
+              </span>
+              <span jwcid="ActionColumnValue">
+                <select jwcid="menuItemAction"/>
+              </span>
+              <span jwcid="ParameterColumnValue">
+                <span jwcid="ifExtensionParameter">
+                  <input jwcid="extensionParameter" type="text"/>
+                </span>
+                <span jwcid="ifAttendantParameter">
+                  <select jwcid="attendantParameter"/>
+                </span>
+              </span>
+              <td jwcid="menuItemValues"/>
+            </tr>
+            <tr jwcid="addMenuItemRow">
+              <td/>
+              <td>
+                <span jwcid="addMenuItemKey"/>
+              </td>
+              <td>
+                <span jwcid="addMenuItemAction"/>
+              </td>
+              <td>
+                <input type="submit" id="attendant:addMenuItem" jwcid="addMenuItem" value="Add"/>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <ul class="component-submit">
+          <li>
+            <input jwcid="reset" type="submit" id="attendant:reset" value="Reset to Defaults"/>
+          </li>
+          <li>
+            <input jwcid="removeMenuItems" value="Remove" type="submit" id="attendant:removeMenuItems"/>
+          </li>
+        </ul>
+        <ul jwcid="formActions"/>
+      </form>
 		</div>
 	</body>
 </html>

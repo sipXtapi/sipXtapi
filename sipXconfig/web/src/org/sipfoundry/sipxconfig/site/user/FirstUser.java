@@ -11,16 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 
-public abstract class FirstUser extends BasePage implements PageRenderListener {
+public abstract class FirstUser extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "FirstUser";
 
     public abstract CoreContext getCoreContext();
@@ -38,7 +37,7 @@ public abstract class FirstUser extends BasePage implements PageRenderListener {
         }
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (TapestryUtils.isValid(this)) {            
             // Create the superadmin user
             getCoreContext().createAdminGroupAndInitialUser(getPin());

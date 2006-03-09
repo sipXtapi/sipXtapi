@@ -13,13 +13,12 @@ package org.sipfoundry.sipxconfig.site.dialplan;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 
 /**
  * List all the gateways, allow adding and deleting gateways
@@ -40,18 +39,17 @@ public abstract class EditFlexibleDialPlan extends BasePage {
 
     public abstract Collection getRowsToMoveDown();
 
-    public void add(IRequestCycle cycle) {
-        cycle.activate(SelectRuleType.PAGE);
+    public String add() {
+        return SelectRuleType.PAGE;
     }
 
-    public void edit(IRequestCycle cycle) {
-        Integer ruleId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
+    public IPage edit(IRequestCycle cycle, Integer ruleId) {
         DialingRule rule = getDialPlanContext().getRule(ruleId);
-        SelectRuleType.activateEditPage(rule, cycle);
+        DialingRuleType ruleType = rule.getType();
+        return SelectRuleType.getEditDialRulePage(cycle, ruleType, ruleId);
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         move(getRowsToMoveUp(), -1);
         move(getRowsToMoveDown(), 1);
         delete();
@@ -72,13 +70,13 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         manager.moveRules(rows, step);
     }
 
-    public void activate(IRequestCycle cycle) {
+    public String activate() {
         DialPlanContext manager = getDialPlanContext();
         manager.generateDialPlan();
-        cycle.activate(ActivateDialPlan.PAGE);
+        return ActivateDialPlan.PAGE;
     }
 
-    public void revert(IRequestCycle cycle_) {
+    public void revert() {
         DialPlanContext manager = getDialPlanContext();
         manager.resetToFactoryDefault();
     }
@@ -101,9 +99,5 @@ public abstract class EditFlexibleDialPlan extends BasePage {
         if (null != selectedRows) {
             getDialPlanContext().duplicateRules(selectedRows);
         }
-    }
-
-    public IPrimaryKeyConvertor getIdConverter() {
-        return new ObjectSourceDataSqueezer(getDialPlanContext(), DialingRule.class);
     }
 }

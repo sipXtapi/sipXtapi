@@ -15,7 +15,7 @@ import java.util.Locale;
 
 import junit.framework.TestCase;
 
-import org.apache.tapestry.ApplicationRuntimeException;
+import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.easymock.MockControl;

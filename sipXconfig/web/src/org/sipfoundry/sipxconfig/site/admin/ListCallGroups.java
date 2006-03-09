@@ -13,28 +13,21 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
-import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class ListCallGroups extends BasePage implements PageRenderListener {
+public abstract class ListCallGroups extends BasePage {
 
     public static final String PAGE = "ListCallGroups";
 
     public abstract CallGroupContext getCallGroupContext();
 
     public abstract CoreContext getCoreContext();
-
-    public void pageBeginRender(PageEvent event_) {
-        // initialize properties
-    }
 
     public abstract CallGroup getCurrentRow();
 
@@ -44,22 +37,22 @@ public abstract class ListCallGroups extends BasePage implements PageRenderListe
 
     public abstract Collection getRowsToDuplicate();
 
-    public void add(IRequestCycle cycle) {
+    public IPage add(IRequestCycle cycle) {
         EditCallGroup editCallGroup = (EditCallGroup) cycle.getPage(EditCallGroup.PAGE);
         editCallGroup.setCallGroupId(null);
         editCallGroup.setCallGroup(null);
-        cycle.activate(editCallGroup);
+        return editCallGroup;
     }
 
-    public void edit(IRequestCycle cycle) {
+    public IPage edit(IRequestCycle cycle) {
         EditCallGroup editCallGroup = (EditCallGroup) cycle.getPage(EditCallGroup.PAGE);
         Integer callGroupId = TapestryUtils.getBeanId(cycle);
         editCallGroup.setCallGroupId(callGroupId);
         editCallGroup.setCallGroup(null);
-        cycle.activate(editCallGroup);
+        return editCallGroup;
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         delete();
         duplicate();
     }
@@ -82,9 +75,5 @@ public abstract class ListCallGroups extends BasePage implements PageRenderListe
         if (null != selectedRows) {
             getCallGroupContext().duplicateCallGroups(selectedRows);
         }
-    }
-
-    public IPrimaryKeyConvertor getIdConverter() {
-        return new ObjectSourceDataSqueezer(getCoreContext(), CallGroup.class);
     }
 }

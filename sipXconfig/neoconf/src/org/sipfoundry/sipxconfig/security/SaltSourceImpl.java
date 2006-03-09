@@ -11,8 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
-import net.sf.acegisecurity.UserDetails;
-import net.sf.acegisecurity.providers.dao.SaltSource;
+import org.acegisecurity.providers.dao.SaltSource;
+import org.acegisecurity.userdetails.UserDetails;
 
 public class SaltSourceImpl implements SaltSource {
     

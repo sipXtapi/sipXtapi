@@ -15,20 +15,29 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.servlet.http.HttpServletResponse;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.engine.AbstractService;
-import org.apache.tapestry.engine.IEngineServiceView;
+import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.engine.ILink;
-import org.apache.tapestry.request.ResponseOutputStream;
+import org.apache.tapestry.services.LinkFactory;
+import org.apache.tapestry.services.ServiceConstants;
+import org.apache.tapestry.util.ContentType;
+import org.apache.tapestry.web.WebResponse;
 
-public class DownloadService extends AbstractService {
+public class DownloadService implements IEngineService {
+    public static final String SERVICE_NAME = "download";
 
-    public static final String SERVICE_NAME = "DownloadService";
+    private static final String PARAM_PATH = "path";
+
+    private static final String PARAM_CONTENT_TYPE = "contentType";
+
+    private LinkFactory m_linkFactory;
+
+    private WebResponse m_response;
 
     public String getName() {
         return SERVICE_NAME;
@@ -37,34 +46,31 @@ public class DownloadService extends AbstractService {
     /**
      * The only parameter is the service parameters[dirName, fileName]
      */
-    public void service(IEngineServiceView iEngineServiceView_, IRequestCycle cycle,
-            ResponseOutputStream responseOutputStream) throws IOException {
+    public void service(IRequestCycle cycle) throws IOException {
         File file = getFile(cycle);
         if (!file.canRead()) {
             return;
         }
 
-        responseOutputStream.setContentType(getContentType(cycle));
-        HttpServletResponse response = cycle.getRequestContext().getResponse();
-        response.setHeader("Expires", "0");
-        response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
-        response.setHeader("Pragma", "public");
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName()
+        m_response.setHeader("Expires", "0");
+        m_response.setHeader("Cache-Control", "must-revalidate, post-check=0, pre-check=0");
+        m_response.setHeader("Pragma", "public");
+        m_response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName()
                 + "\"");
 
+        OutputStream responseOutputStream = m_response.getOutputStream(getContentType(cycle));
         InputStream stream = new FileInputStream(file);
         IOUtils.copy(stream, responseOutputStream);
     }
 
     /**
-     * Retrieves the file object from service parameters (dir, filename)
+     * Retrieves the file object from service parameters (filename, content type)
      * 
      * @param cycle
      * @return nely created file object
      */
     private File getFile(IRequestCycle cycle) {
-        Object[] params = getParameters(cycle);
-        String fileName = (String) params[0];
+        String fileName = cycle.getParameter(PARAM_PATH);
         return new File(fileName);
     }
 
@@ -74,12 +80,28 @@ public class DownloadService extends AbstractService {
      * @param cycle
      * @return nely created file object
      */
-    private String getContentType(IRequestCycle cycle) {
-        Object[] params = getParameters(cycle);
-        return (String) params[1];
+    private ContentType getContentType(IRequestCycle cycle) {
+        String contentType = cycle.getParameter(PARAM_CONTENT_TYPE);
+        return new ContentType(contentType);
     }
 
-    public ILink getLink(IRequestCycle iRequestCycle, IComponent iComponent_, Object[] params) {
-        return constructLink(iRequestCycle, getName(), null, params, false);
+    public ILink getLink(boolean post, Object parameter) {
+        DownloadLink.Info info = (DownloadLink.Info) parameter;
+
+        Map parameters = new HashMap();
+
+        parameters.put(ServiceConstants.SERVICE, getName());
+        parameters.put(PARAM_PATH, info.getPath());
+        parameters.put(PARAM_CONTENT_TYPE, info.getContentType());
+
+        return m_linkFactory.constructLink(this, post, parameters, false);
+    }
+
+    public void setLinkFactory(LinkFactory linkFactory) {
+        m_linkFactory = linkFactory;
+    }
+
+    public void setResponse(WebResponse response) {
+        m_response = response;
     }
 }

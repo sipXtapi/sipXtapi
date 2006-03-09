@@ -31,7 +31,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SipxHibernateDaoSupport extends HibernateDaoSupport {
-    public Object load(Class c, Integer id) {
+    public Object load(Class c, Serializable id) {
         return getHibernateTemplate().load(c, id);
     }
 

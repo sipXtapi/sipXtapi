@@ -1,40 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE component-specification PUBLIC
-  "-//Apache Software Foundation//Tapestry Specification 3.0//EN"
-  "http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+  "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 
-<component-specification class="org.sipfoundry.sipxconfig.site.phone.GroupActions"
-    allow-body="no"
-    allow-informal-parameters="no">
-    
-    <description>Component presents action to add and remove property groups.</description>
-    
-  <parameter name="selectedIds" 
-  	direction="in" 
-  	required="yes" 
-  	type="java.util.Collection"/>
+<component-specification class="org.sipfoundry.sipxconfig.site.phone.GroupActions" allow-body="no"
+  allow-informal-parameters="no">
+  <description>Component presents action to add and remove property groups.</description>
+  <parameter name="selectedIds" required="yes"/>
+  <parameter name="actionModel" required="yes"/>
   
-  <parameter name="actionModel" 
-  	direction="in" 
-  	required="yes" 
-  	type="org.apache.tapestry.form.IPropertySelectionModel"/>
-    
   <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer"/>
-
-  <property-specification name="selectedAction" type="org.apache.tapestry.IActionListener"/>
   
-  <property-specification name="tapestry"
-  	type="org.sipfoundry.sipxconfig.components.TapestryContext"
-  	initial-value="page.global.tapestry"/>
+  <property name="selectedAction"/>
   
-  <component id="actionSelection" type="PropertySelection">
-      <binding name="model" expression="decorateModel(actionModel)"/>
-      <binding name="submitOnChange" expression="true"/>
-      <binding name="value" expression="selectedAction"/>
-      <binding name="renderer" expression="beans.propertyRenderer"/>
+  <inject property="tapestry" object="spring:tapestry"/>
+  
+  <component id="actionSelection" type="FlexiblePropertySelection">
+    <binding name="model" value="decorateModel(actionModel)"/>
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
+    <binding name="value" value="selectedAction"/>
+    <binding name="renderer" value="bean:propertyRenderer"/>
   </component>
-  
-  <component id="ifRenderActions" type="contrib:FormConditional">
-      <binding name="condition" expression="actionModel.optionCount > 0"/>
+  <component id="ifRenderActions" type="If">
+    <binding name="condition" value="actionModel.optionCount > 0"/>
   </component>
 </component-specification>

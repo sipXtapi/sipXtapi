@@ -27,14 +27,12 @@ public abstract class RestartReminderPanel extends BaseComponent {
 
     public abstract SipxProcessContext getSipxProcessContext();
 
-    public abstract void setSipxProcessContext(SipxProcessContext sipxProcessContext);
-
     public abstract Object[] getProcesses();
 
     public abstract void setProcesses(Object[] processes);
 
     public abstract Class getEventClass();
-    
+
     public abstract void setEventClass(Class eventClass);
 
     public void restart() {

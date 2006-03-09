@@ -12,9 +12,8 @@
 package org.sipfoundry.sipxconfig.site.gateway;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -26,7 +25,7 @@ import org.sipfoundry.sipxconfig.setting.SettingSet;
 /**
  * EditGateway
  */
-public abstract class EditGateway extends PageWithCallback implements PageRenderListener {
+public abstract class EditGateway extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "EditGateway";
 
     public abstract Integer getGatewayId();
@@ -43,11 +42,7 @@ public abstract class EditGateway extends PageWithCallback implements PageRender
 
     public abstract DialPlanContext getDialPlanContext();
 
-    public abstract void setDialPlanContext(DialPlanContext dialPlanContext);
-
     public abstract GatewayContext getGatewayContext();
-
-    public abstract void setGatewayContext(GatewayContext context);
 
     public abstract String getCurrentSettingSetName();
 
@@ -58,7 +53,7 @@ public abstract class EditGateway extends PageWithCallback implements PageRender
         return !delegate.getHasErrors();
     }
 
-    public void apply(IRequestCycle cycle_) {
+    public void apply() {
         if (isValid()) {
             saveGateway();
         }
