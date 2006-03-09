@@ -18,13 +18,13 @@ Requires: cgicc >= 3.2.2
 Requires: mod_ssl
 Requires: chkconfig
 
-Requires: sipxcalllib >= 3.1
-Requires: sipxcommserverlib >= 3.1
-Requires: sipxconfig >= 3.1
-Requires: sipxproxy >= 3.1
-Requires: sipxpublisher >= 3.1
-Requires: sipxregistry >= 3.1
-Requires: sipxvxml >= 3.1
+Requires: sipxcalllib >= 3.2
+Requires: sipxcommserverlib >= 3.2
+Requires: sipxconfig >= 3.2
+Requires: sipxproxy >= 3.2
+Requires: sipxpublisher >= 3.2
+Requires: sipxregistry >= 3.2
+Requires: sipxvxml >= 3.2
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -49,8 +49,8 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.1
-Requires: sipxcalllib-devel >= 3.1
+Requires: sipxcommserverlib-devel >= 3.2
+Requires: sipxcalllib-devel >= 3.2
 
 %description devel
 Internal class documentation for the pbx classes
