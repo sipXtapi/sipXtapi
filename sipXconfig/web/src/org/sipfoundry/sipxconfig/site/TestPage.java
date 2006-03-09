@@ -16,7 +16,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -25,7 +27,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.job.JobContext;
@@ -73,7 +74,7 @@ public abstract class TestPage extends BasePage {
     public abstract ParkOrbitContext getParkOrbitContext();
 
     public abstract UploadManager getUploadManager();
-    
+
     public abstract CoreContext getCoreContext();
 
     public abstract SipxReplicationContext getSipxReplicationContext();
@@ -84,77 +85,82 @@ public abstract class TestPage extends BasePage {
 
     public abstract IndexManager getIndexManager();
 
-    public void resetDialPlans(IRequestCycle cycle_) {
+    public abstract ApplicationLifecycle getApplicationLifecycle();
+
+    public abstract UserSession getUserSession();
+
+    public abstract IEngineService getRestartService();
+
+    public void resetDialPlans() {
         getDialPlanContext().clear();
         getGatewayContext().clear();
     }
 
-    public void resetPhoneContext(IRequestCycle cycle_) {
+    public void resetPhoneContext() {
         getPhoneContext().clear();
     }
 
-    public void resetCallGroupContext(IRequestCycle cycle_) {
+    public void resetCallGroupContext() {
         getCallGroupContext().clear();
     }
 
-    public void resetParkOrbitContext(IRequestCycle cycle_) {
+    public void resetParkOrbitContext() {
         getParkOrbitContext().clear();
     }
 
-    public void resetConferenceBridgeContext(IRequestCycle cycle_) {
+    public void resetConferenceBridgeContext() {
         getConferenceBridgeContext().clear();
     }
 
-    public void resetCoreContext(IRequestCycle cycle) {
+    public String resetCoreContext() {
         // need to reset all data that could potentially have a reference
         // to users
-        resetDialPlans(cycle);
-        resetPhoneContext(cycle);
-        resetCallGroupContext(cycle);
+        resetDialPlans();
+        resetPhoneContext();
+        resetCallGroupContext();
         getCoreContext().clear();
-        Visit visit = (Visit) getVisit();
-        visit.logout(cycle);
+        getApplicationLifecycle().logout();
+        // force rendering any new page after logout or infamous "invalid session" after
+        // any links are clicked
+        return PAGE;
     }
 
-    public void newGroup(IRequestCycle cycle) {
-        String resource = (String) TapestryUtils.assertParameter(String.class, cycle
-                .getServiceParameters(), 0);
+    public IPage newGroup(IRequestCycle cycle, String resource) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.newGroup(resource, PAGE);
-        cycle.activate(page);
+        return page;
     }
 
-    public void goToRestartReminderPage(IRequestCycle cycle) {
+    public IPage goToRestartReminderPage(IRequestCycle cycle) {
         RestartReminder page = (RestartReminder) cycle.getPage(RestartReminder.PAGE);
         page.setNextPage(PAGE);
-        cycle.activate(page);
+        return page;
     }
 
-    public void toggleNavigation(IRequestCycle cycle_) {
-        Visit visit = (Visit) getVisit();
-        visit.setNavigationVisible(!visit.isNavigationVisible());
+    public void toggleNavigation() {
+        UserSession userSession = getUserSession();
+        userSession.setNavigationVisible(!userSession.isNavigationVisible());
     }
 
-    public void hideNavigation(IRequestCycle cycle_) {
-        Visit visit = (Visit) getVisit();
-        visit.setNavigationVisible(false);
+    public void hideNavigation() {
+        getUserSession().setNavigationVisible(false);
     }
 
-    public void toggleAdmin(IRequestCycle cycle) {
-        Visit visit = (Visit) getVisit();
-        boolean admin = !visit.isAdmin();
-        Integer userId = visit.getUserId();
+    public void toggleAdmin() {
+        UserSession userSession = getUserSession();
+        boolean admin = !userSession.isAdmin();
+        Integer userId = userSession.getUserId();
         if (userId == null) {
-            login(cycle);
+            login();
         } else {
-            visit.login(userId, admin);
+            userSession.login(userId, admin);
         }
     }
 
-    public void seedTestUser(IRequestCycle cycle_) {
+    public void seedTestUser() {
         createTestUserIfMissing();
     }
-    
+
     private User createTestUserIfMissing() {
         String userName = TEST_USER_USERNAME;
         if (null != getCoreContext().loadUserByUserName(TEST_USER_USERNAME)) {
@@ -173,7 +179,7 @@ public abstract class TestPage extends BasePage {
         return user;
     }
 
-    public void populateUsers(IRequestCycle cycle_) {
+    public void populateUsers() {
         long l = System.currentTimeMillis();
         CoreContext coreContext = getCoreContext();
         String authorizationRealm = coreContext.getAuthorizationRealm();
@@ -188,7 +194,7 @@ public abstract class TestPage extends BasePage {
         }
     }
 
-    public void loginFirstTestUser(IRequestCycle cycle_) {
+    public void loginFirstTestUser() {
         // Find the first test user
         User user = getCoreContext().loadUserByUserName(TEST_USER_USERNAME);
         if (user == null) {
@@ -197,11 +203,11 @@ public abstract class TestPage extends BasePage {
         }
 
         // Log it in
-        Visit visit = (Visit) getVisit();
-        visit.login(user.getId(), false);
+        UserSession userSession = getUserSession();
+        userSession.login(user.getId(), false);
     }
 
-    public void deleteAllUsers(IRequestCycle cycle_) {
+    public void deleteAllUsers() {
         List users = getCoreContext().loadUsers();
         for (Iterator iter = users.iterator(); iter.hasNext();) {
             User user = (User) iter.next();
@@ -209,11 +215,11 @@ public abstract class TestPage extends BasePage {
         }
     }
 
-    public void indexAll(IRequestCycle cycle_) {
+    public void indexAll() {
         getIndexManager().indexAll();
     }
 
-    public void populateJobs(IRequestCycle cycle_) {
+    public void populateJobs() {
         JobContext jobContext = getJobContext();
         jobContext.clear();
         Serializable[] jobIds = new Serializable[JOBS];
@@ -227,7 +233,7 @@ public abstract class TestPage extends BasePage {
         jobContext.failure(jobIds[JOBS - 1], "something bad happened", null);
     }
 
-    public void populatePhones(IRequestCycle cycle_) {
+    public void populatePhones() {
         List availablePhoneModels = getPhoneContext().getAvailablePhoneModels();
         for (Iterator i = availablePhoneModels.iterator(); i.hasNext();) {
             PhoneModel model = (PhoneModel) i.next();
@@ -237,20 +243,17 @@ public abstract class TestPage extends BasePage {
         }
     }
 
-    public void login(IRequestCycle cycle) {
+    public void login() {
         User user = createTestUserIfMissing();
-        Visit visit = (Visit) getVisit();
-        visit.login(user.getId(), true);
+        getUserSession().login(user.getId(), true);
     }
 
-    public void generateDataSet(IRequestCycle cycle) {
-        String setName = (String) TapestryUtils.assertParameter(String.class, cycle
-                .getServiceParameters(), 0);
+    public void generateDataSet(String setName) {
         SipxReplicationContext sipxReplicationContext = getSipxReplicationContext();
         sipxReplicationContext.generate(DataSet.getEnum(setName));
     }
 
-    public void throwException(IRequestCycle cycle_) {
+    public void throwException() {
         throw new IllegalArgumentException("Just testing");
     }
 
@@ -258,16 +261,16 @@ public abstract class TestPage extends BasePage {
         EnumEditPageProvider provider = new EnumEditPageProvider();
         provider.validatePages(cycle);
     }
-    
-    public void newUpload(IRequestCycle cycle) {
+
+    public IPage newUpload(IRequestCycle cycle) {
         EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
         page.setUploadId(null);
         page.setUploadSpecification(UploadSpecification.UNMANAGED);
-        page.activatePageWithCallback(PAGE, cycle);
-    }
-    
-    public void resetUploadManager(IRequestCycle cycle_) {
-        getUploadManager().clear();
+        page.setReturnPage(PAGE);
+        return page;
     }
 
+    public void resetUploadManager() {
+        getUploadManager().clear();
+    }
 }

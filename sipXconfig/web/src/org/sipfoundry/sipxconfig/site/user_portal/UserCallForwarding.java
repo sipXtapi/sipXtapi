@@ -11,14 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.site.user_portal;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
-import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.PageCallback;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
-import org.apache.tapestry.form.ListEditMap;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.Ring;
@@ -29,13 +28,14 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.login.LoginContext;
-import org.sipfoundry.sipxconfig.site.Visit;
+import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.user.ManageUsers;
 
 /**
  * UserCallForwarding
  */
-public abstract class UserCallForwarding extends PageWithCallback implements PageRenderListener {
+public abstract class UserCallForwarding extends PageWithCallback implements
+        PageBeginRenderListener {
     public static final String PAGE = "UserCallForwarding";
     private static final String ACTION_ADD = "add";
 
@@ -45,140 +45,128 @@ public abstract class UserCallForwarding extends PageWithCallback implements Pag
 
     public abstract CoreContext getCoreContext();
 
-    public abstract CallSequence getCallSequence();
-
-    public abstract void setCallSequence(CallSequence callSequence);
-
-    public abstract User getUser();
-
-    public abstract void setUser(User user);
-
-    public abstract ListEditMap getRingsMap();
-
-    public abstract void setRingsMap(ListEditMap map);
-
-    public abstract Ring getRing();
-
-    public abstract void setRing(Ring ring);
-
     public abstract Integer getUserId();
 
     public abstract void setUserId(Integer userId);
 
     public abstract String getAction();
 
+    public abstract UserSession getUserSession();
+
+    public abstract List getRings();
+
+    public abstract void setRings(List rings);
+
     public void pageBeginRender(PageEvent event_) {
-        CallSequence callSequence = getCallSequence();
-        if (callSequence != null) {
+        if (getRings() != null) {
             return;
         }
 
-        Integer userId = getUserId();
-        Visit visit = (Visit) getVisit();
-        Integer loggedInUserId = visit.getUserId();
-
-        if (userId == null) {
-            // No userId has been set yet, so make it the logged-in user
-            userId = loggedInUserId;
-        } else {
-            // If the userId is not that of the logged-in user, then make sure
-            // that the logged-in user has admin privileges. If not, then
-            // force the userId to be the one for the logged-in user, so non-admin
-            // users can only see/modify their own settings.
-            if (!userId.equals(loggedInUserId)) {
-                if (!getLoginContext().isAdmin(loggedInUserId)) {
-                    userId = loggedInUserId;
-                }
-            }
-        }
-
+        Integer userId = getActiveUserId();
         setUserId(userId);
 
-        User user = getCoreContext().loadUser(userId);
-        setUser(user);
+        List rings = createDetachedRingList(getCallSequence());
+        setRings(rings);
 
-        ForwardingContext forwardingContext = getForwardingContext();
-        callSequence = forwardingContext.getCallSequenceForUserId(userId);
-        setCallSequence(callSequence);
-
-        ListEditMap map = createListEditMap(callSequence);
-        setRingsMap(map);
-
-        if (getCallback() == null && ((Visit) getVisit()).isAdmin()) {
+        if (getCallback() == null && getUserSession().isAdmin()) {
             setCallback(new PageCallback(ManageUsers.PAGE));
-        }        
+        }
     }
 
     /**
-     * Creates edit map for a collection of rings
+     * Determine the id of the user for which page will be changing call forwarding setting.
      * 
-     * @param callSequence
-     * @return newly created map
+     * If current login user has admin privilidges he can change call forwarding for any user.
+     * However user without admin privilidges can only edit settings for logged in user.
+     * 
+     * @return id of the user for which page will be changing call forwarding setting
      */
-    private ListEditMap createListEditMap(CallSequence callSequence) {
-        ListEditMap map = new ListEditMap();
-        Collection calls = callSequence.getRings();
-        for (Iterator i = calls.iterator(); i.hasNext();) {
-            BeanWithId bean = (BeanWithId) i.next();
-            map.add(bean.getId(), bean);
+    private Integer getActiveUserId() {
+        Integer userId = getUserId();
+        Integer loginUserId = getUserSession().getUserId();
+
+        if (userId == null) {
+            // No userId has been set yet, so make it the logged-in user
+            return loginUserId;
         }
-        return map;
+        // if they are the same it does not matter which one we return
+        if (userId.equals(loginUserId)) {
+            return userId;
+        }
+
+        // If the userId is not that of the logged-in user, then make sure
+        // that the logged-in user has admin privileges. If not, then
+        // force the userId to be the one for the logged-in user, so non-admin
+        // users can only see/modify their own settings.
+        if (getLoginContext().isAdmin(loginUserId)) {
+            return userId;
+        }
+        return loginUserId;
     }
 
-    public void submit(IRequestCycle cycle_) {
+    /**
+     * Create list of rings that is going to be stored in session.
+     * 
+     * The list is a clone of the list kept by current call sequence, ring objects do not have
+     * valid ids and their call sequence field is set to null.
+     */
+    private List createDetachedRingList(CallSequence callSequence) {
+        List rings = callSequence.getRings();
+        List list = new ArrayList();
+        for (Iterator i = rings.iterator(); i.hasNext();) {
+            BeanWithId ring = (BeanWithId) i.next();
+            Ring dup = (Ring) ring.duplicate();
+            dup.setCallSequence(null);
+            list.add(dup);
+        }
+        return list;
+    }
+
+    private CallSequence getCallSequence() {
+        ForwardingContext forwardingContext = getForwardingContext();
+        Integer userId = getUserId();
+        return forwardingContext.getCallSequenceForUserId(userId);
+    }
+
+    public void submit() {
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;
         }
         if (ACTION_ADD.equals(getAction())) {
-            CallSequence callSequence = getCallSequence();
-            callSequence.insertRing();
-            getForwardingContext().saveCallSequence(getCallSequence());
-            // read saved rings from database
-            setCallSequence(null);
+            getRings().add(new Ring());
         }
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;
         }
-        getForwardingContext().saveCallSequence(getCallSequence());
+        CallSequence callSequence = getCallSequence();
+        callSequence.clear();
+        callSequence.insertRings(getRings());
+        getForwardingContext().saveCallSequence(callSequence);
     }
 
-    /**
-     * Called by ListEdit component to retrieve exception object associated with a specific id
-     */
-    public void synchronizeRing(IRequestCycle cycle_) {
-        ListEditMap ringsMap = getRingsMap();
-        Ring ring = (Ring) ringsMap.getValue();
-
-        if (null == ring) {
-            TapestryUtils.staleLinkDetected(this);
-        } else {
-            setRing(ring);
-        }
-    }
-
-    public void deleteRing(IRequestCycle cycle) {
-        Integer id = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
-        ForwardingContext forwardingContext = getForwardingContext();
-        Ring ring = forwardingContext.getRing(id);
-        CallSequence callSequence = ring.getCallSequence();
-        callSequence.removeRing(ring);
-        forwardingContext.saveCallSequence(callSequence);
+    public void deleteRing(int position) {
+        getRings().remove(position);
     }
 
     public String getFirstCallMsg() {
         Object[] params = {
             getUser().getUserName()
         };
-        return format("msg.first", params);
+        return getMessages().format("msg.first", params);
     }
 
     public boolean getHasVoiceMail() {
         return getUser().hasPermission(Permission.VOICEMAIL);
+    }
+
+    public User getUser() {
+        Integer userId = getUserId();
+        User user = getCoreContext().loadUser(userId);
+        return user;
     }
 }

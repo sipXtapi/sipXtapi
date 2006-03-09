@@ -21,7 +21,7 @@ import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang.ObjectUtils;
 
 public class EnumSetting implements SettingType {
-    private static final Converter CONVERTER = new IntegerConverter(null);
+    private static final Converter CONVERTER = new IntegerConverter();
 
     private Map m_enums = new LinkedMap();
 
@@ -49,11 +49,45 @@ public class EnumSetting implements SettingType {
      * implementation tries to coerce the value to integer, if that fails strings are used.
      */
     public Object convertToTypedValue(Object value) {
+        if (!isKey(value)) {
+            return null;
+        }
         try {
             return CONVERTER.convert(Integer.class, value);
 
         } catch (ConversionException e) {
             return value;
         }
+    }
+
+    public String convertToStringValue(Object value) {
+        if (!isKey(value)) {
+            return null;
+        }
+        return value.toString();
+    }
+
+    /**
+     * Check if the value is known by this enum
+     * 
+     * @param key
+     * @return true if this is one of the enumeration values
+     */
+    boolean isKey(Object key) {
+        if (key == null) {
+            return false;
+        }
+        if (m_enums.containsKey(key)) {
+            return true;
+        }
+        // if key is not a string also check for a key converted to string
+        if (!(key instanceof String)) {
+            return m_enums.containsKey(key.toString());
+        }
+        return false;
+    }
+    
+    public String getLabel(Object value) {
+        return (String) m_enums.get(value);
     }
 }

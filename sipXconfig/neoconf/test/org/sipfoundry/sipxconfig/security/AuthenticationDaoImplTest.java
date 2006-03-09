@@ -12,8 +12,8 @@
 package org.sipfoundry.sipxconfig.security;
 
 import junit.framework.TestCase;
-import net.sf.acegisecurity.UserDetails;
 
+import org.acegisecurity.userdetails.UserDetails;
 import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;

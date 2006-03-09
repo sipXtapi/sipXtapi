@@ -12,10 +12,10 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user_portal.UserCallForwarding;
 
@@ -23,62 +23,49 @@ public abstract class UserNavigation extends BaseComponent {
 
     /** REQUIRED PARAMETER */
     public abstract void setUser(User user);
-    
+
     public abstract User getUser();
-    
+
     public abstract void setSettings(Setting settings);
-    
+
     public abstract Setting getSettings();
 
     public abstract void setCurrentSetting(Setting setting);
 
     public abstract Setting getCurrentSetting();
-    
+
     public abstract CoreContext getCoreContext();
 
-    public void editCallForwarding(IRequestCycle cycle) {
+    public IPage editCallForwarding(IRequestCycle cycle, Integer userId) {
         UserCallForwarding page = (UserCallForwarding) cycle.getPage(UserCallForwarding.PAGE);
-        Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, cycle
-                .getServiceParameters(), 0);
         page.setUserId(userId);
-        cycle.activate(page);
+        return page;
     }
 
-    public void editUser(IRequestCycle cycle) {
+    public IPage editUser(IRequestCycle cycle, Integer userId) {
         EditUser page = (EditUser) cycle.getPage(EditUser.PAGE);
-
-        Object[] params = cycle.getServiceParameters();
-        Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setUserId(userId);
-
-        cycle.activate(page);
+        return page;
     }
-    
-    public void editSettings(IRequestCycle cycle) {
+
+    public IPage editSettings(IRequestCycle cycle, Integer userId, String section) {
         UserSettings page = (UserSettings) cycle.getPage(UserSettings.PAGE);
-
-        Object[] params = cycle.getServiceParameters();
-        Integer userId = (Integer) TapestryUtils.assertParameter(Integer.class, params, 0);
         page.setUserId(userId);
-
-        String section = (String) TapestryUtils.assertParameter(String.class, params, 1);        
         page.setParentSettingName(section);
-        
-        cycle.activate(page);        
+        return page;
     }
-    
+
     /**
      * Used for contructing parameters for EditSettings DirectLink
      */
     public Object[] getEditSettingListenerParameters() {
-        return new Object[] { 
-            getUser().getId(),
-            getCurrentSetting().getName() 
+        return new Object[] {
+            getUser().getId(), getCurrentSetting().getName()
         };
     }
-    
+
     public void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         setSettings(getUser().getSettings());
-    }  
+    }
 }

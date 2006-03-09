@@ -3,27 +3,34 @@
     <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
 </head>
 <body jwcid="$content$">
-	<div jwcid="@Border">
-        <h2><span key="title">Job Status</span></h2>
-		<form jwcid="form" id="jobs:form">
-			<table jwcid="tableView" id="jobs:list" class="component">
-		        <thead>
-		            <tr>
-		                <span jwcid="tableColumns"/>
-		            </tr>
-		        </thead>
-		        <tbody>
-		            <span jwcid="tableRows">
-		                <span jwcid="tableValues"/>
-		            </span>
-		        </tbody>
-		 	</table>
-			<ul class="component-submit">
-				<li><input jwcid="removeButton" type="submit" id="jobs:remove"/></li>
-				<li><input jwcid="clearButton" type="submit" id="jobs:clear"/></li>
-				<li><input jwcid="refreshButton" type="submit" id="jobs:refresh"/></li>
-			</ul>
-		</form>
-    </div>
+  <div jwcid="@Border">
+    <h2>
+      <span key="title">Job Status</span></h2>
+    <form jwcid="form" id="jobs:form">
+      <table jwcid="tableView" id="jobs:list" class="component">
+        <thead>
+          <tr>
+            <span jwcid="tableColumns"/>
+          </tr>
+        </thead>
+        <tbody>
+          <span jwcid="tableRows">
+            <span jwcid="tableValues"/>
+          </span>
+        </tbody>
+      </table>
+      <ul class="component-submit">
+        <li>
+          <input jwcid="removeButton" type="submit" id="jobs:remove"/>
+        </li>
+        <li>
+          <input jwcid="clearButton" type="submit" id="jobs:clear"/>
+        </li>
+        <li>
+          <input jwcid="refreshButton" type="submit" id="jobs:refresh"/>
+        </li>
+      </ul>
+    </form>
+  </div>
 </body>
 </html>

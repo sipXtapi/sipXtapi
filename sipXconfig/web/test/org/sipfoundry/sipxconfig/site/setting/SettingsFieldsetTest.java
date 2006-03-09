@@ -13,7 +13,7 @@ package org.sipfoundry.sipxconfig.site.setting;
 
 import junit.framework.TestCase;
 
-import org.apache.tapestry.test.AbstractInstantiator;
+import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
@@ -24,8 +24,8 @@ public class SettingsFieldsetTest extends TestCase {
     private SettingsFieldset m_fieldset;
 
     protected void setUp() throws Exception {
-        AbstractInstantiator instantiator = new AbstractInstantiator();
-        m_fieldset = (SettingsFieldset) instantiator.getInstance(SettingsFieldset.class);
+        Creator instantiator = new Creator();
+        m_fieldset = (SettingsFieldset) instantiator.newInstance(SettingsFieldset.class);
         m_fieldset.setSettings(new SettingSet("x"));
     }
 

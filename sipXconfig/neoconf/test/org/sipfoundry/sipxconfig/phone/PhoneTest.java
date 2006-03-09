@@ -23,17 +23,12 @@ import org.sipfoundry.sipxconfig.common.User;
 public class PhoneTest extends TestCase {
 
     public void testSetSerialNumber() {
-        Phone phone = new Phone();
-        phone.setSerialNumber("123456789012");
-        assertEquals("123456789012", phone.getSerialNumber());
-        phone.setSerialNumber("1234 5678 9012");
-        assertEquals("123456789012", phone.getSerialNumber());
-        phone.setSerialNumber("12:34:56:78:90:12");
-        assertEquals("123456789012", phone.getSerialNumber());
-        phone.setSerialNumber("AABBCCDDEEFF");
-        assertEquals("aabbccddeeff", phone.getSerialNumber());
-        phone.setSerialNumber("totallybogus");
-        assertEquals("totallybogus", phone.getSerialNumber());
+        assertEquals("123456789012", Phone.cleanSerialNumber("123456789012"));
+        assertEquals("123456789012", Phone.cleanSerialNumber("1234 5678 9012"));
+        assertEquals("123456789012", Phone.cleanSerialNumber("12:34:56:78:90:12"));
+        assertEquals("aabbccddeeff", Phone.cleanSerialNumber("AABBCCDDEEFF"));
+        assertEquals("totallybogus", Phone.cleanSerialNumber("totallybogus"));
+        assertNull(Phone.cleanSerialNumber(null));
     }
 
     public void testGenerateAndRemoveProfiles() {

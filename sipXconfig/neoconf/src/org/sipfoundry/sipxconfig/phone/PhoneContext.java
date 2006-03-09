@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public interface PhoneContext extends DataObjectSource {
 
     public Integer getPhoneIdBySerialNumber(String serialNumber);
 
-    public Object load(Class c, Integer id);
+    public Object load(Class c, Serializable id);
 
     public void storePhone(Phone phone);
 

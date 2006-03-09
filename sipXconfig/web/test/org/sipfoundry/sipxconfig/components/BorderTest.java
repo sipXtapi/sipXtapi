@@ -15,14 +15,17 @@ import junit.framework.TestCase;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.PageRedirectException;
+import org.apache.tapestry.engine.IEngineService;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
-import org.sipfoundry.sipxconfig.site.Visit;
+import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
+import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
+import org.sipfoundry.sipxconfig.site.UserSession;
 
 public class BorderTest extends TestCase {
 
     public void testLogin() {
-        Border restricted = new MockBorder(true, true, new Visit());
+        Border restricted = new MockBorder(true, true, new UserSession());
         try {
             restricted.pageValidate(null);
             fail("should redirect");
@@ -32,12 +35,12 @@ public class BorderTest extends TestCase {
     }
 
     public void testLoginNotRequired() {
-        Border nologin = new MockBorder(true, false, new Visit());
+        Border nologin = new MockBorder(true, false, new UserSession());
         nologin.pageValidate(null);
     }
 
     public void testRestricted() {
-        Border restricted = new MockBorder(true, true, new MockVisit(false));
+        Border restricted = new MockBorder(true, true, new MockUserSession(false));
 
         try {
             restricted.pageValidate(null);
@@ -48,7 +51,7 @@ public class BorderTest extends TestCase {
     }
 
     public void testRestrictedAdmin() {
-        Border restricted = new MockBorder(true, true, new MockVisit(true));
+        Border restricted = new MockBorder(true, true, new MockUserSession(true));
 
         try {
             restricted.pageValidate(null);
@@ -58,7 +61,7 @@ public class BorderTest extends TestCase {
     }
 
     public void testUnrestricted() {
-        Border unrestricted = new MockBorder(false, true, new MockVisit(false));
+        Border unrestricted = new MockBorder(false, true, new MockUserSession(false));
 
         try {
             unrestricted.pageValidate(null);
@@ -68,7 +71,7 @@ public class BorderTest extends TestCase {
     }
 
     public void testUnrestrictedAdmin() {
-        Border unrestricted = new MockBorder(false, true, new MockVisit(true));
+        Border unrestricted = new MockBorder(false, true, new MockUserSession(true));
 
         try {
             unrestricted.pageValidate(null);
@@ -77,11 +80,11 @@ public class BorderTest extends TestCase {
         }
     }
 
-    private static class MockVisit extends Visit {
+    private static class MockUserSession extends UserSession {
         private final boolean m_admin;
 
-        MockVisit(boolean admin) {
-            m_admin = admin;
+        MockUserSession(boolean admin) {
+            m_admin = admin;            
         }
 
         public Integer getUserId() {
@@ -91,17 +94,19 @@ public class BorderTest extends TestCase {
         public boolean isAdmin() {
             return m_admin;
         }
+        
+        
     }
 
     private static class MockBorder extends Border {
         private final boolean m_restricted;
         private final boolean m_loginRequired;
-        private final Visit m_visit;
+        private final UserSession m_userSession;
 
-        MockBorder(boolean restricted, boolean loginRequired, Visit visit) {
+        MockBorder(boolean restricted, boolean loginRequired, UserSession userSession) {
             m_restricted = restricted;
             m_loginRequired = loginRequired;
-            m_visit = visit;
+            m_userSession = userSession;
         }
 
         public boolean isLoginRequired() {
@@ -112,12 +117,20 @@ public class BorderTest extends TestCase {
             return m_restricted;
         }
 
-        protected Visit getVisit() {
-            return m_visit;
+        public UserSession getUserSession() {
+            return m_userSession;
+        }
+        
+        public ApplicationLifecycle getApplicationLifecycle() {
+            return new ApplicationLifecycleImpl();
         }
 
         protected void redirectToLogin(IPage page) {
             throw new PageRedirectException("LoginPage");
+        }
+        
+        public IEngineService getRestartService() {
+            return null;
         }
 
         public CoreContext getCoreContext() {

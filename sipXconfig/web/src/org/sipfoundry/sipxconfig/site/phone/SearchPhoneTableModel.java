@@ -17,7 +17,7 @@ import java.util.List;
 import org.apache.commons.collections.Transformer;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
+import org.apache.tapestry.util.io.SqueezeAdaptor;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
 import org.sipfoundry.sipxconfig.search.SearchManager;
@@ -29,10 +29,10 @@ import org.sipfoundry.sipxconfig.search.SearchManager;
 public class SearchPhoneTableModel implements IBasicTableModel {
     private String m_queryText;
     private SearchManager m_searchManager;
-    private ObjectSourceDataSqueezer m_squeezer;
+    private SqueezeAdaptor m_squeezer;
 
     public SearchPhoneTableModel(SearchManager searchManager, String queryText,
-            ObjectSourceDataSqueezer squeezer) {
+            SqueezeAdaptor squeezer) {
         m_queryText = queryText;
         m_searchManager = searchManager;
         m_squeezer = squeezer;
@@ -66,7 +66,7 @@ public class SearchPhoneTableModel implements IBasicTableModel {
     private class IdToPhone implements Transformer {
         public Object transform(Object input) {
             BeanAdaptor.Identity identity = (BeanAdaptor.Identity) input;
-            return m_squeezer.getValue(identity.getBeanId());
+            return m_squeezer.unsqueeze(null, identity.getBeanId().toString());
         }
     }
 }

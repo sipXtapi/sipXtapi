@@ -44,7 +44,9 @@ public class SiteTestHelper {
      * unnec. dependencies
      */
     public static final String TEST_USER = "testuser";
-    
+
+    public static final String TEST_PAGE_URL = "/app?page=TestPage&service=page";
+
     /**
      * The name of the checkbox used in standard tables
      */
@@ -77,7 +79,7 @@ public class SiteTestHelper {
      * Go to TestPage.html. Log in if the login arg is true. Includes hack for slow machines.
      */
     public static void home(WebTester tester, boolean login) {
-        tester.beginAt("/app?service=page/TestPage");
+        tester.beginAt(TEST_PAGE_URL);
         if (login) {
             tester.clickLink("login");
         }
@@ -86,7 +88,7 @@ public class SiteTestHelper {
         // when the machine you're running it on is slow and you're
         // running a batch of tests, calling beginAt("/") twice seems
         // to get webunit to catch up.
-        tester.beginAt("/app?service=page/TestPage");
+        tester.beginAt(TEST_PAGE_URL);
         assertNoException(tester);
     }
 
@@ -115,6 +117,7 @@ public class SiteTestHelper {
     public static void assertNoException(WebTester tester) {
         try {
             tester.assertElementNotPresent("exceptionDisplay");
+            Assert.assertFalse("Exception".equals(tester.getDialog().getResponsePageTitle()));
         } catch (AssertionFailedError e) {
             tester.dumpResponse(System.err);
             throw e;
@@ -128,6 +131,7 @@ public class SiteTestHelper {
     public static void assertNoUserError(WebTester tester) {
         Element element = tester.getDialog().getElement("user:error");
         if (null != element) {
+            tester.dumpResponse(System.err);
             Assert.fail("User error on page: " + element.getFirstChild().getNodeValue());
         }
     }
@@ -135,6 +139,7 @@ public class SiteTestHelper {
     public static void assertUserError(WebTester tester) {
         Element element = tester.getDialog().getElement("user:error");
         if (null == element) {
+            tester.dumpResponse(System.err);
             Assert.fail("Expected user error on the page.");
         }
     }
@@ -197,7 +202,7 @@ public class SiteTestHelper {
     public static String getIndexedId(String id, int index) {
         String suffix = "";
         if (index > 0) {
-            suffix = "$" + (index - 1);
+            suffix = "_" + (index - 1);
         }
         return id + suffix;
     }
@@ -302,21 +307,21 @@ public class SiteTestHelper {
 
         TestUtil.saveSysDirProperties(sysProps, args[0]);
     }
-    
+
     private static Properties s_sysProps;
-    
+
     public static String getTftpDirectory() {
         return getSystemProperties().getProperty("localTftp.uploadDirectory");
     }
-    
+
     private static Properties getSystemProperties() {
         if (s_sysProps == null) {
             s_sysProps = new Properties();
-            File sipxconfig = new File(getBuildDirectory() 
+            File sipxconfig = new File(getBuildDirectory()
                     + "/tests/war/WEB-INF/classes/sipxconfig.properties");
             try {
                 InputStream sipxconfigSteam = new FileInputStream(sipxconfig);
-                    s_sysProps.load(sipxconfigSteam);
+                s_sysProps.load(sipxconfigSteam);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -325,28 +330,21 @@ public class SiteTestHelper {
     }
 
     /**
-     * Utility function to click on Tapestry submit links from JWebUnit
+     * Utility function to click on Tapestry submit forms without a button
      * 
-     * The linkSubmit component is using a java script to set a value of a hidden field and then
-     * submit a form. HttpUnit/JWebUnit and rhino.jar do not support java script used by Tapestry
-     * so we try to emulate the behavior by using HTTP unit function. See: XCF-349
-     * 
-     * In addition to that we need to make JWebUnit happy: it does not know we submitted form
-     * request independently, we need to reinject the response back into the dialog. I could not
-     * find any reasonable way of doing that, so I used reflection to set private field. I guess
-     * being able to test more pages is the most important factor here.
+     * Make JWebUnit happy: it does not know we submitted form request independently, we need to
+     * reinject the response back into the dialog. I could not find any reasonable way of doing
+     * that, so I used reflection to set private field. I guess being able to test more pages is
+     * the most important factor here.
      * 
      * There is no guarantee that it will work with new version of Tapestry or JWebUnit
      * 
-     * @param linkName - name of the link component (link id will NOT work)
      */
-    public static void clickSubmitLink(WebTester tester, String linkName) throws Exception {
+    public static void submitNoButton(WebTester tester) throws Exception {
         // submit the form after setting hidden field
         HttpUnitDialog dialog = tester.getDialog();
         WebForm form = dialog.getForm();
-        if (linkName != null) {
-            form.getScriptableObject().setParameterValue("_linkSubmit", linkName);
-        }
+
         WebResponse response = form.submitNoButton();
 
         // set response directly in current JWebUnit object
@@ -356,10 +354,6 @@ public class SiteTestHelper {
         respField.set(dialog, response);
 
         Assert.assertSame(tester.getDialog().getResponse(), response);
-    }
-
-    public static void submitNoButton(WebTester tester) throws Exception {
-        clickSubmitLink(tester, null);
     }
 
     public static void seedUser(WebTester tester) {
@@ -384,4 +378,29 @@ public class SiteTestHelper {
         }
     }
 
+    /**
+     * Initializes upload elements on the form using ad hoc created temporary file.
+     * 
+     * Tapestry forms that contain Upload elements cannot be tested by HTTPUnit unless upload
+     * elements are initialized. Looks like HTTPUnit never bother to submit this fields if they
+     * are empty which does not stop tapestry from trying to parse them. NullPointerException in
+     * Upload.rewindFormComponent is the usual sign that this is a problem.
+     * 
+     * @param form form for which upload fields will be initialized
+     * @param fileNamePrefix at least 3 chatracters - use test name
+     */
+    public static void initUploadFields(WebForm form, String fileNamePrefix) {
+        try {
+            File file = File.createTempFile(fileNamePrefix, null);
+            String[] parameterNames = form.getParameterNames();
+            for (int i = 0; i < parameterNames.length; i++) {
+                String paramName = parameterNames[i];
+                if (paramName.startsWith("promptUpload")) {
+                    form.setParameter(paramName, file);
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

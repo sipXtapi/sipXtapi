@@ -32,6 +32,8 @@ public class DailyBackupSchedule extends BeanWithId {
     public static final DateFormat LOCAL_TIME_OF_DAY_FORMAT = DateFormat
             .getTimeInstance(DateFormat.SHORT);
 
+    public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
+
     static final long ONCE_A_DAY = 1000 * 60 * 60 * 24;
 
     static final int DAYS_PER_WEEK = 7;
@@ -39,8 +41,6 @@ public class DailyBackupSchedule extends BeanWithId {
     static final long ONCE_A_WEEK = ONCE_A_DAY * DAYS_PER_WEEK;
 
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
-
-    private static final TimeZone GMT = TimeZone.getTimeZone("GMT");
 
     private boolean m_enabled;
 

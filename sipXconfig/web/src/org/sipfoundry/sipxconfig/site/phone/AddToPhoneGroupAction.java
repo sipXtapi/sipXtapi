@@ -11,8 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.IComponent;
-import org.apache.tapestry.IMessages;
 import org.apache.tapestry.IRequestCycle;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -34,7 +34,7 @@ public class AddToPhoneGroupAction extends BulkGroupAction {
         m_phoneContext = phoneContext;
     }
 
-    public String getSuccessMsg(IMessages messages) {
+    public String getSuccessMsg(Messages messages) {
         return messages.format("msg.success.addToPhoneGroupAction", Integer.toString(getIds()
                 .size()), getGroup().getName());
     }

@@ -54,7 +54,7 @@ public class BorderTestUi extends WebTestCase {
 
         // login form should be visible
         SiteTestHelper.assertNoException(getTester());
-        assertFormPresent("login:form");
+        assertElementPresent("login:form");
         SiteTestHelper.assertNoUserError(getTester());
     }
 

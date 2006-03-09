@@ -54,7 +54,7 @@ public abstract class HolidaysEditor extends BaseComponent {
      * remove unnecessary days.
      * 
      */
-    public void onDayRender(IRequestCycle cycle_) {
+    public void onDayRender() {
         Integer index = (Integer) getListEditMap().getKey();
         setMaxDayIndex(index.intValue());
     }

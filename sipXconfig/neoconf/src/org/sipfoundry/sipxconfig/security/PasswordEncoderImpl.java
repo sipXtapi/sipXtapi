@@ -11,9 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.security;
 
+import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.sipfoundry.sipxconfig.login.LoginContext;
 
-public class PasswordEncoderImpl implements net.sf.acegisecurity.providers.encoding.PasswordEncoder {
+public class PasswordEncoderImpl implements PasswordEncoder {
     private LoginContext m_loginContext;
 
     public boolean isPasswordValid(String encPass, String rawPass, Object salt) {

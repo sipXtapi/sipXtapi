@@ -28,7 +28,6 @@ public class ChangePinTestUi extends WebTestCase {
     
     private static final String MSG_WRONG_PIN = "The current PIN that you entered is incorrect";
     private static final String MSG_PIN_MISMATCH = "The new PIN and confirmed new PIN don't match";
-    private static final String MSG_EMPTY_NEW_PIN="You must enter a value for New PIN";
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ChangePinTestUi.class);
@@ -75,7 +74,7 @@ public class ChangePinTestUi extends WebTestCase {
     public void testEmptyNewPin() throws Exception {
         changePin(CURRENT_PIN, "");
         SiteTestHelper.assertNoException(tester);
-        assertTextPresent(MSG_EMPTY_NEW_PIN);
+        SiteTestHelper.assertUserError(tester);
     }
     
     public void testWrongPin() throws Exception {

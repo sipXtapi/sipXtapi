@@ -15,18 +15,19 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.IExternalPage;
-import org.apache.tapestry.IMessages;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
-public abstract class SearchPage extends BasePage implements IExternalPage, PageRenderListener {
+public abstract class SearchPage extends BasePage implements IExternalPage,
+        PageBeginRenderListener {
     public static final String PAGE = "SearchPage";
 
     public abstract SearchManager getSearchManager();
@@ -70,15 +71,10 @@ public abstract class SearchPage extends BasePage implements IExternalPage, Page
         return getMessages().format("msg.found", new Integer(foundCount));
     }
 
-    public void activateEditPage(IRequestCycle cycle) {
-        Object[] params = cycle.getServiceParameters();
-        String klass = (String) TapestryUtils.assertParameter(String.class, params, 0);
-        Object id = TapestryUtils.assertParameter(Object.class, params, 1);
+    public IPage activateEditPage(IRequestCycle cycle, String klass, Object id) {
         try {
             IPage page = getEditPageProvider().getPage(cycle, Class.forName(klass), id);
-            if (page != null) {
-                cycle.activate(page);
-            }
+            return page;
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
@@ -92,14 +88,14 @@ public abstract class SearchPage extends BasePage implements IExternalPage, Page
      * @return name for the class of found item or label.default.type
      */
     public String getResultItemType() {
-        IMessages messages = getMessages();
+        Messages messages = getMessages();
         BeanAdaptor.Identity item = getResultItem();
         for (Class k = item.getBeanClass(); k != Object.class; k = k.getSuperclass()) {
-            String typeName = messages.getMessage(k.getName(), null);
+            String typeName = TapestryUtils.getMessage(messages, k.getName(), null);
             if (typeName != null) {
                 return typeName;
             }
         }
-        return getMessage("label.default.type");
+        return getMessages().getMessage("label.default.type");
     }
 }

@@ -11,15 +11,16 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class GroupSettings extends BasePage implements PageRenderListener {
+public abstract class GroupSettings extends BasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "GroupSettings";
 
@@ -40,19 +41,19 @@ public abstract class GroupSettings extends BasePage implements PageRenderListen
     public abstract void setParentSetting(Setting parent);
 
     public abstract SettingDao getSettingDao();
-    
+
     public abstract void setSettings(Setting setting);
-    
+
     public abstract Setting getSettings();
-    
+
     public abstract void setReturnPage(String returnPage);
-    
+
     public abstract String getReturnPage();
-    
-    public void editGroupName(IRequestCycle cycle) {
+
+    public IPage editGroupName(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.editGroup(getGroupId(), PAGE);
-        cycle.activate(page);
+        return page;
     }
 
     public void editGroup(Integer groupId, Setting settings, String returnPage) {
@@ -66,8 +67,8 @@ public abstract class GroupSettings extends BasePage implements PageRenderListen
         if (group != null) {
             return;
         }
-        
-        group  = getSettingDao().loadGroup(getGroupId());
+
+        group = getSettingDao().loadGroup(getGroupId());
         setGroup(group);
         String currentSettingName = getParentSettingName();
         if (currentSettingName == null) {
@@ -80,17 +81,17 @@ public abstract class GroupSettings extends BasePage implements PageRenderListen
         setParentSetting(parent);
     }
 
-    public void ok(IRequestCycle cycle) {
-        apply(cycle);
-        cycle.activate(getReturnPage());
+    public String ok() {
+        apply();
+        return getReturnPage();
     }
 
-    public void apply(IRequestCycle cycle_) {
+    public void apply() {
         SettingDao dao = getSettingDao();
         dao.saveGroup(getGroup());
     }
 
-    public void cancel(IRequestCycle cycle) {
-        cycle.activate(getReturnPage());
+    public String cancel() {
+        return getReturnPage();
     }
 }

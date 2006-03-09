@@ -47,11 +47,13 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         GatewaysTestUi.addTestGateways(getTester(), 3);
         SiteTestHelper.home(getTester());
         clickLink("EmergencyRouting");        
-        // SiteTestHelper.clickSubmitLink(getTester(),"addExceptionLink");
+        setFormElement(SiteTestHelper.getIndexedId("externalNumber", 0), "12");
         clickLink("erouting:addException");
         SiteTestHelper.assertNoException(tester);
-        setFormElement("externalNumber", "33");
-        setFormElement("externalNumber$0", "911");
+        SiteTestHelper.assertNoUserError(tester);
+        tester.dumpResponse();
+        setFormElement(SiteTestHelper.getIndexedId("externalNumber", 0), "33");
+        setFormElement(SiteTestHelper.getIndexedId("externalNumber", 1), "911");
         setFormElement("callers", "11, 22");
         clickButton("form:apply");
     }
@@ -60,6 +62,6 @@ public class EditEmergencyRoutingTestUi extends WebTestCase {
         assertLinkPresent("erouting:addException");
         clickButton("form:apply");
         // activate dial plans page active
-        assertElementPresent("user:error");
+        SiteTestHelper.assertUserError(tester);
     }
 }

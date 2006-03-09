@@ -1,43 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 3.0//EN" 
-	"http://jakarta.apache.org/tapestry/dtd/Tapestry_3_0.dtd">
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <page-specification class="org.sipfoundry.sipxconfig.site.phone.NewPhone">
-	<!--
+  <!--
 	  - P R O P E R T I E S
 	  -->
-	<property-specification name="phoneContext" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneContext" 
-    	initial-value="global.phoneContext"/>    
-	<property-specification name="phone" 
-		type="org.sipfoundry.sipxconfig.phone.Phone"
-        initial-value="new org.sipfoundry.sipxconfig.phone.Phone()"/>
-	<property-specification name="phoneModel" 
-		type="org.sipfoundry.sipxconfig.phone.PhoneModel"
-        initial-value="phone.model"/>
-	<property-specification name="stay" 
-		type="boolean"/>
-    <!--
+  <inject property="phoneContext" object="spring:phoneContext"/>
+  <property name="phone"  initial-value="new org.sipfoundry.sipxconfig.phone.Phone()"/>
+  <property name="phoneModel"  initial-value="phone.model"/>
+  <property name="stay" />
+  <inject property="tapestry" object="spring:tapestry" />
+  <!--
       - B E A N S
       -->
-    <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-    <!--
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <!--
       - C O M P O N E N T S
       -->
-    <component id="form" type="Form">
-        <binding name="delegate" expression="beans.validator"/>
-    </component>
-    <component id="editPhoneForm" type="EditPhoneForm">
-        <binding name="phone" expression="phone"/>
-        <binding name="validator" expression="beans.validator"/>
-        <binding name="phoneModel" expression="phoneModel"/>        
-    </component>    
-    <component id="ok" type="Submit">
-        <binding name="listener" expression="global.tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.finish)"/>
-    </component>
-    <component id="cancel" type="Submit">
-        <binding name="listener" expression="listeners.cancel"/>
-    </component>
-    <component id="stay" type="Checkbox">
-        <binding name="selected" expression="stay"/>
-    </component>
+  <component id="form" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+  </component>
+  <component id="editPhoneForm" type="EditPhoneForm">
+    <binding name="phone" value="phone"/>
+    <binding name="validator" value="bean:validator"/>
+    <binding name="phoneModel" value="phoneModel"/>
+  </component>
+  <component id="ok" type="Submit">
+    <binding name="listener" value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.finish)"/>
+  </component>
+  <component id="cancel" type="Submit">
+    <binding name="listener" value="listener:cancel"/>
+  </component>
+  <component id="stay" type="Checkbox">
+    <binding name="value" value="stay"/>
+  </component>
 </page-specification>

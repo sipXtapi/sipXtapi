@@ -32,10 +32,6 @@ public class OptGroupPropertySelectionRendererTest extends TestCase {
         PropertySelection propertySelection = (PropertySelection) propertySelectionCtrl.getMock();
         propertySelection.getName();
         propertySelectionCtrl.setReturnValue("bongo");
-        propertySelection.isDisabled();
-        propertySelectionCtrl.setReturnValue(false);
-        propertySelection.getSubmitOnChange();
-        propertySelectionCtrl.setReturnValue(false);
 
         propertySelectionCtrl.replay();
 
@@ -43,35 +39,6 @@ public class OptGroupPropertySelectionRendererTest extends TestCase {
         IMarkupWriter writer = (IMarkupWriter) writerCtrl.getMock();
         writer.begin("select");
         writer.attribute("name", "bongo");
-        writer.println();
-        writerCtrl.replay();
-
-        m_renderer.beginRender(propertySelection, writer, null);
-
-        writerCtrl.verify();
-        propertySelectionCtrl.verify();
-    }
-
-    public void testBeginRenderDisabled() {
-        MockControl propertySelectionCtrl = MockClassControl
-                .createControl(PropertySelection.class);
-        PropertySelection propertySelection = (PropertySelection) propertySelectionCtrl.getMock();
-        propertySelection.getName();
-        propertySelectionCtrl.setReturnValue("bongo");
-        propertySelection.isDisabled();
-        propertySelectionCtrl.setReturnValue(true);
-        propertySelection.getSubmitOnChange();
-        propertySelectionCtrl.setReturnValue(true);
-
-        propertySelectionCtrl.replay();
-
-        MockControl writerCtrl = MockControl.createStrictControl(IMarkupWriter.class);
-        IMarkupWriter writer = (IMarkupWriter) writerCtrl.getMock();
-        writer.begin("select");
-        writer.attribute("name", "bongo");
-        writer.attribute("disabled", true);
-        writer.attribute("onchange", "javascript:this.form.submit();");
-        writer.println();
         writerCtrl.replay();
 
         m_renderer.beginRender(propertySelection, writer, null);

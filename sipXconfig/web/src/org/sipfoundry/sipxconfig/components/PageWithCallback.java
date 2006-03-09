@@ -11,27 +11,27 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.html.BasePage;
 
 public abstract class PageWithCallback extends BasePage {
-    
+
     public abstract ICallback getCallback();
+
     public abstract void setCallback(ICallback callback);
-    
+
     /**
-     * Activate this page, setting a callback that will navigate back to the named
-     * return page on OK or Cancel.
+     * Set a callback that will navigate back to the named return page on OK or Cancel.
      */
-    public void activatePageWithCallback(String returnPageName, IRequestCycle cycle) {
-        // Set the callback
+    public void setReturnPage(String returnPageName) {
         ICallback callback = new PageCallback(returnPageName);
         setCallback(callback);
-
-        // Go to the page
-        cycle.activate(this);        
     }
 
+    public void setReturnPage(IPage returnPage) {
+        ICallback callback = new PageCallback(returnPage);
+        setCallback(callback);
+    }
 }

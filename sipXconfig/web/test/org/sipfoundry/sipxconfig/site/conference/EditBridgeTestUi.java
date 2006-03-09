@@ -34,9 +34,12 @@ public class EditBridgeTestUi extends ListWebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("resetConferenceBridgeContext");
         clickLink("EditBridge");
-        setWorkingForm("bridge:form");
+        setWorkingForm("form");
         setFormElement("name", "bridge_test");
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditBridgeTestUi");
         clickButton("form:apply");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
     }
 
     protected String[] getParamNames() {
@@ -51,11 +54,17 @@ public class EditBridgeTestUi extends ListWebTestCase {
         };
     }
 
-    protected void clickAddLink() throws Exception {
-        SiteTestHelper.clickSubmitLink(tester, "addLink");
-    }
-
     protected Object[] getExpectedTableRow(String[] paramValues) {
         return ArrayUtils.add(paramValues, 1, "false");
+    }
+
+    protected void clickAddLink() throws Exception {
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditBridgeTestUi");
+        super.clickAddLink();
+    }
+
+    protected void clickDeleteButton() {
+        SiteTestHelper.initUploadFields(getDialog().getForm(), "EditBridgeTestUi");
+        super.clickDeleteButton();
     }
 }

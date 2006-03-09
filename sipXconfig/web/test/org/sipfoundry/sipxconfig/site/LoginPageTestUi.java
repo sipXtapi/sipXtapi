@@ -23,7 +23,7 @@ public class LoginPageTestUi extends WebTestCase {
 
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        tester.beginAt("/app?service=page/TestPage");
+        tester.beginAt(SiteTestHelper.TEST_PAGE_URL);
         clickLink("seedTestUser");
         clickLink("ManageUsers");   // will redirect to login page
     }    
@@ -70,7 +70,7 @@ public class LoginPageTestUi extends WebTestCase {
         
         // still on the same page
         SiteTestHelper.assertNoException(getTester());
-        assertFormPresent("login:form");
+        assertElementPresent("login:form");
         assertElementPresent("user:error");
     }
 }

@@ -32,6 +32,6 @@ public class OptGroup implements OptionAdapter {
     }
 
     public String squeezeOption(Object option_, int index_) {
-        return "optgroup. + m_label";
+        return "optgroup." + m_label;
     }
 }

@@ -12,10 +12,11 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.FormActions;
@@ -23,7 +24,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
 
-public abstract class NewUser extends PageWithCallback implements PageRenderListener {
+public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "NewUser";
     private static final int SIP_PASSWORD_LEN = 8;
@@ -38,9 +39,9 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
 
     public abstract String getButtonPressed();
 
-    public void onCommit(IRequestCycle cycle) {
+    public IPage onCommit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
-            return;
+            return null;
         }
         // Save the user
         CoreContext core = getCoreContext();
@@ -51,18 +52,21 @@ public abstract class NewUser extends PageWithCallback implements PageRenderList
         if (FormActions.APPLY.equals(getButtonPressed())) {
             EditUser edit = (EditUser) cycle.getPage(EditUser.PAGE);
             edit.setUserId(user.getId());
-            cycle.activate(edit);
+            return edit;
         }
+        
+        return null;
     }
 
-    public void extensionPools(IRequestCycle cycle) {
+    public IPage extensionPools(IRequestCycle cycle) {
         ExtensionPoolsPage poolsPage = (ExtensionPoolsPage) cycle
                 .getPage(ExtensionPoolsPage.PAGE);
-        poolsPage.activatePageWithCallback(PAGE, cycle);
+        poolsPage.setReturnPage(PAGE);
+        return poolsPage;
     }
 
-    public void activatePageWithCallback(String returnPageName, IRequestCycle cycle) {
-        super.activatePageWithCallback(returnPageName, cycle);
+    public void setReturnPage(String returnPageName) {
+        super.setReturnPage(returnPageName);
         setCallback(new OptionalStay(getCallback()));
     }
 

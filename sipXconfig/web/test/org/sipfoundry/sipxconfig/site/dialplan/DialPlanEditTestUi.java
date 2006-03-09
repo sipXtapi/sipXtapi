@@ -93,11 +93,13 @@ public class DialPlanEditTestUi extends WebTestCase {
             setFormElement("name", "");
             clickButton("form:ok");
             // if validation kicks in we are on the same page
-            assertTextPresent("You must enter a value for Name.");
+            SiteTestHelper.assertNoException(tester);
+            SiteTestHelper.assertUserError(tester);
             setFormElement("name", name + "changed");
             clickButton("form:ok");
             // a link corresponding to new name should be in now
-            SiteTestHelper.assertNoException(getTester());
+            SiteTestHelper.assertNoException(tester);
+            SiteTestHelper.assertNoUserError(tester);
             assertLinkPresentWithText(name + "changed");
         }
     }
@@ -109,6 +111,8 @@ public class DialPlanEditTestUi extends WebTestCase {
             // 2 means custom...
             selectOption("ruleTypeSelection", "Custom");
             clickButton("selectRule:next");
+            
+            SiteTestHelper.assertNoException(tester);
 
             assertLinkNotPresent("pattern:delete");
             assertLinkPresent("pattern:add");
@@ -116,9 +120,9 @@ public class DialPlanEditTestUi extends WebTestCase {
             setFormElement("name", row[0]);
             setFormElement("description", row[2]);
             // dial pattern prefix
-            setFormElement("prefix", "333");
+            setFormElement(SiteTestHelper.getIndexedId("prefix", 0), "333");
             // call pattern prefix
-            setFormElement("prefix$0", "444");
+            setFormElement(SiteTestHelper.getIndexedId("prefix", 1), "444");
 
             checkAddDeletePattern();
 
@@ -191,13 +195,14 @@ public class DialPlanEditTestUi extends WebTestCase {
         // no delete link
         assertLinkNotPresent("pattern:delete");
         // add 2 more
-        SiteTestHelper.clickSubmitLink(tester, "pattern:add");
-        SiteTestHelper.clickSubmitLink(tester, "pattern:add");
+        clickLink("pattern:add");
+        SiteTestHelper.assertNoException(tester);
+        clickLink("pattern:add");
 
         // delete 2
 
-        SiteTestHelper.clickSubmitLink(tester, "pattern:delete");
-        SiteTestHelper.clickSubmitLink(tester, "pattern:delete");
+        clickLink("pattern:delete");
+        clickLink("pattern:delete");
         // no delete link again
         assertLinkNotPresent("pattern:delete");
     }
@@ -218,7 +223,7 @@ public class DialPlanEditTestUi extends WebTestCase {
         String[][] gateways = new String[gatewayCount][];
 
         for (int i = 0; i < gatewayCount; i++) {
-            SiteTestHelper.clickSubmitLink(tester, "addGatewayLink");
+            clickLink("gateway:add");
 
             // Give the new gateway a name that is extremely unlikely to collide
             // with any existing gateway names
@@ -254,7 +259,8 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertEquals(1, SiteTestHelper.getRowCount(tester, "list:gateway"));
 
         // test adding existing gateways
-        SiteTestHelper.clickSubmitLink(tester, "selectGatewayLink");
+        clickLink("gateway:select");
+        SiteTestHelper.assertNoException(tester);
         for (int i = 0; i < gatewayCount; i++) {
             SiteTestHelper.selectRow(tester, i, true);
         }

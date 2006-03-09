@@ -182,8 +182,7 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
         return row[index.getValue()];
     }
 
-    // FIXME: this should be private but checkstyle complains...
-    static void setProperty(Object bean, String[] row, Index index) {
+    private static void setProperty(Object bean, String[] row, Index index) {
         String value = get(row, index);
         if (value.length() == 0) {
             return;

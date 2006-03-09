@@ -12,27 +12,24 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import org.apache.tapestry.form.IFormComponent;
-import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.form.ValidationMessages;
+import org.apache.tapestry.form.validator.BaseValidator;
 import org.apache.tapestry.valid.ValidationConstraint;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 
-public class RuleValidator {
-    private String m_gatewaysRequiredMessage;
+public class RuleValidator extends BaseValidator {
 
-    void validate(IDialingRule rule, IValidationDelegate delegate, IFormComponent component) {
+    public void validate(IFormComponent field, ValidationMessages messages, Object object) throws ValidatorException {
+        IDialingRule rule = (IDialingRule) object;
         if (!rule.isEnabled()) {
             // only validate enabled rules
             return;
         }
         if (!rule.isInternal() && rule.getGateways().size() <= 0) {
             // rule is invalid - external rules have to have gateways
-            delegate.setFormComponent(component);
-            delegate.record(m_gatewaysRequiredMessage, ValidationConstraint.CONSISTENCY);
             rule.setEnabled(false);
+            throw new ValidatorException(getMessage(), ValidationConstraint.CONSISTENCY);
         }
-    }
-
-    public void setGatewaysRequiredMessage(String gatewaysRequiredMessage) {
-        m_gatewaysRequiredMessage = gatewaysRequiredMessage;
     }
 }

@@ -13,18 +13,17 @@ package org.sipfoundry.sipxconfig.site.admin;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class ListParkOrbits extends BasePage implements PageRenderListener {
+public abstract class ListParkOrbits extends BasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "ListParkOrbits";
 
@@ -42,26 +41,26 @@ public abstract class ListParkOrbits extends BasePage implements PageRenderListe
 
     public abstract Collection getRowsToDelete();
 
-    public void add(IRequestCycle cycle) {
+    public IPage add(IRequestCycle cycle) {
         EditParkOrbit editPage = (EditParkOrbit) cycle.getPage(EditParkOrbit.PAGE);
         editPage.setParkOrbitId(null);
         editPage.setParkOrbit(null);
-        cycle.activate(editPage);
+        return editPage;
     }
 
-    public void edit(IRequestCycle cycle) {
+    public IPage edit(IRequestCycle cycle) {
         EditParkOrbit editPage = (EditParkOrbit) cycle.getPage(EditParkOrbit.PAGE);
         Integer callGroupId = TapestryUtils.getBeanId(cycle);
         editPage.setParkOrbitId(callGroupId);
         editPage.setParkOrbit(null);
-        cycle.activate(editPage);
+        return editPage;
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         delete();
     }
 
-    public void activate(IRequestCycle cycle_) {
+    public void activate() {
         getParkOrbitContext().activateParkOrbits();
     }
 
@@ -73,9 +72,5 @@ public abstract class ListParkOrbits extends BasePage implements PageRenderListe
         if (null != selectedRows) {
             getParkOrbitContext().removeParkOrbits(selectedRows);
         }
-    }
-
-    public IPrimaryKeyConvertor getIdConverter() {
-        return new ObjectSourceDataSqueezer(getCoreContext(), ParkOrbit.class);
     }
 }

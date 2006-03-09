@@ -11,14 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
+import java.io.File;
+
 import junit.framework.Test;
 
 import org.sipfoundry.sipxconfig.site.ListWebTestCase;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-import org.sipfoundry.sipxconfig.site.dialplan.EditAutoAttendantTestUi;
 
 public class ListParkOrbitsTestUi extends ListWebTestCase {
-    private String m_musicOnHoldFileName;
+    private File m_tempFile;
 
     public static Test suite() throws Exception {
         return SiteTestHelper.webTestSuite(ListParkOrbitsTestUi.class);
@@ -27,7 +28,7 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
     public ListParkOrbitsTestUi() throws Exception {
         super("ListParkOrbits", "resetParkOrbitContext", "orbits");
         setHasDuplicate(false);
-        m_musicOnHoldFileName = EditAutoAttendantTestUi.seedPromptFile("parkserver/music");
+        m_tempFile = File.createTempFile("ListParkOrbitsTestUi", null);
     }
 
     public void setUp() {
@@ -50,12 +51,12 @@ public class ListParkOrbitsTestUi extends ListWebTestCase {
 
     protected Object[] getExpectedTableRow(String[] paramValues) {
         return new Object[] {
-            paramValues[0], "false", paramValues[1], m_musicOnHoldFileName
+            paramValues[0], "false", paramValues[1], m_tempFile.getName()
         };
     }
 
     protected void setAddParams(String[] names, String[] values) {
         super.setAddParams(names, values);
-        tester.selectOption("prompt", m_musicOnHoldFileName);
+        getDialog().getForm().setParameter("promptUpload", m_tempFile);
     }
 }

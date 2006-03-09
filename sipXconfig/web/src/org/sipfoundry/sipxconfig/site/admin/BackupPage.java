@@ -16,9 +16,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
@@ -27,7 +26,7 @@ import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.DailyBackupSchedule;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class BackupPage extends BasePage implements PageRenderListener {
+public abstract class BackupPage extends BasePage implements PageBeginRenderListener {
 
     /**
      * Conceivable, available backup limits. Otherwise arbitrary.
@@ -76,14 +75,14 @@ public abstract class BackupPage extends BasePage implements PageRenderListener 
         }
     }
 
-    public void submit(IRequestCycle cycle_) {
+    public void submit() {
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;
         }
     }
 
-    public void backup(IRequestCycle cycle_) {
+    public void backup() {
         if (!TapestryUtils.isValid(this)) {
             // do nothing on errors
             return;
@@ -99,7 +98,7 @@ public abstract class BackupPage extends BasePage implements PageRenderListener 
         }
     }
     
-    public void ok(IRequestCycle cycle_) {
+    public void ok() {
         AdminContext adminContext = getAdminContext();
         BackupPlan plan = getBackupPlan();
         adminContext.storeBackupPlan(plan);

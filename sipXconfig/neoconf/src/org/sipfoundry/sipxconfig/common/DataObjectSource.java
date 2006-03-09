@@ -11,12 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import java.io.Serializable;
+
 /**
  * Support common data object marshalling
  */
 public interface DataObjectSource {
 
     /** Read object from data source by class and object id */
-    // FIXME: change second parameter to serializable
-    public Object load(Class c, Integer serializable);
+    public Object load(Class c, Serializable serializable);
 }

@@ -17,24 +17,24 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.tapestry.test.AbstractInstantiator;
+import org.apache.hivemind.util.PropertyUtils;
+import org.apache.tapestry.test.Creator;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-import org.sipfoundry.sipxconfig.site.gateway.SelectGateways;
 
 /**
  * SelectGatewaysTest
  */
 public class SelectGatewaysTest extends TestCase {
-    private AbstractInstantiator m_pageMaker = new AbstractInstantiator();
+    private Creator m_pageMaker = new Creator();
     private SelectGateways m_page;
 
     protected void setUp() throws Exception {
-        m_page = (SelectGateways) m_pageMaker.getInstance(SelectGateways.class);
+        m_page = (SelectGateways) m_pageMaker.newInstance(SelectGateways.class);
     }
 
     public void testSelectGateways() {
@@ -66,8 +66,9 @@ public class SelectGatewaysTest extends TestCase {
         dialPlanContextControl.replay();
         contextControl.replay();
         
-        m_page.setDialPlanContext(dialPlanContext);
-        m_page.setGatewayContext(context);
+        // do not have setters for dial plan context and gateway context...
+        PropertyUtils.write(m_page, "dialPlanContext", dialPlanContext);
+        PropertyUtils.write(m_page, "gatewayContext", context);
         m_page.setRuleId(rule.getId());
         m_page.selectGateways(gatewaysToAdd);
         

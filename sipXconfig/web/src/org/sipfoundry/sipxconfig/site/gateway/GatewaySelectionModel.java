@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.form.IPropertySelectionModel;
-
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 
 /**
@@ -55,6 +54,9 @@ public class GatewaySelectionModel implements IPropertySelectionModel {
     }
 
     public Object translateValue(String value) {
+        if (value == null) {
+            return null;
+        }
         Integer id = Integer.decode(value);
         for (Iterator i = m_gateways.iterator(); i.hasNext();) {
             Gateway g = (Gateway) i.next();

@@ -29,7 +29,7 @@ public abstract class SpecialAttendantPanel extends BaseComponent {
 
     public abstract void setMode(Mode mode);
 
-    public void onApply(IRequestCycle cycle_) {
+    public void onApply() {
         boolean enable = Mode.SPECIAL.equals(getMode());
         getDialPlanContext().specialAutoAttendantMode(enable, getAutoAttendant());
     }

@@ -98,7 +98,7 @@ public abstract class ListWebTestCase extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         assertFormPresent();
         assertLinkPresent(buildId("add"));
-        assertEquals(1, SiteTestHelper.getRowCount(tester, buildId("list")));
+        assertEquals(1, SiteTestHelper.getRowCount(tester, getTableId()));
         assertButtonPresent(buildId("delete"));
 
         if (m_hasDuplicate) {
@@ -118,11 +118,11 @@ public abstract class ListWebTestCase extends WebTestCase {
             addItem(getParamNames(), values);
             expected.appendRow(new ExpectedRow(getExpectedTableRow(values)));
         }
-        assertEquals(count + 1, SiteTestHelper.getRowCount(tester, buildId("list")));
+        assertEquals(count + 1, SiteTestHelper.getRowCount(tester, getTableId()));
         if (m_exactCheck) {
-            assertTableRowsEqual(buildId("list"), 1, expected);
+            assertTableRowsEqual(getTableId(), 1, expected);
         } else {
-            assertTableRowsExist(buildId("list"), expected);
+            assertTableRowsExist(getTableId(), expected);
         }
     }
 
@@ -158,20 +158,31 @@ public abstract class ListWebTestCase extends WebTestCase {
             SiteTestHelper.selectRow(tester, toBeRemoved[i], true);
         }
 
-        clickButton(buildId("delete"));
+        clickDeleteButton();
+
+        SiteTestHelper.assertNoUserError(tester);
+        SiteTestHelper.assertNoException(tester);
 
         assertEquals(count + 1 - toBeRemoved.length, SiteTestHelper.getRowCount(tester,
-                buildId("list")));
+                getTableId()));
         if (m_exactCheck) {
-            assertTableRowsEqual(buildId("list"), 1, expected);
+            assertTableRowsEqual(getTableId(), 1, expected);
         }
     }
 
+    protected void clickDeleteButton() {
+        clickButton(buildId("delete"));
+    }
+
     protected final void addItem(String[] names, String[] values) throws Exception {
+        SiteTestHelper.assertNoException(tester);
         assertEquals(names.length, values.length);
         clickAddLink();
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
         setAddParams(names, values);
         clickButton("form:ok");
+        SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
     }
 
@@ -212,5 +223,9 @@ public abstract class ListWebTestCase extends WebTestCase {
 
     protected String getFormId() {
         return buildId("form");
+    }
+
+    protected String getTableId() {
+        return buildId("list");
     }
 }

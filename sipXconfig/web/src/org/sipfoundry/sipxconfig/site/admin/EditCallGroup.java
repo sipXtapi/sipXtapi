@@ -16,12 +16,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.tapestry.AbstractPage;
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
@@ -32,7 +33,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
 import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 
-public abstract class EditCallGroup extends BasePage implements PageRenderListener {
+public abstract class EditCallGroup extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "EditCallGroup";
 
     public abstract CallGroupContext getCallGroupContext();
@@ -92,18 +93,18 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
      * 
      * @param cycle current request cycle
      */
-    public void formSubmit(IRequestCycle cycle) {
+    public IPage formSubmit(IRequestCycle cycle) {
         if (!isValid()) {
-            return;
+            return null;
         }
         UserRingTable ringTable = getUserRingTable();
         if (delete(ringTable) || move(ringTable)) {
             saveValid();
         }
-        addRow(cycle, ringTable);
+        return addRow(cycle, ringTable);
     }
 
-    public void commit(IRequestCycle cycle_) {
+    public void commit() {
         if (!isValid()) {
             return;
         }
@@ -116,16 +117,16 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
      * @param cycle current request cycle
      * @param ringTable component with table of rings
      */
-    private void addRow(IRequestCycle cycle, UserRingTable ringTable) {
+    private IPage addRow(IRequestCycle cycle, UserRingTable ringTable) {
         if (!ringTable.getAddRow()) {
-            return;
+            return null;
         }
         saveValid();
         SelectUsers page = (SelectUsers) cycle.getPage(SelectUsers.PAGE);
-        page.setTitle(getMessage("title.selectRings"));
-        page.setPrompt(getMessage("prompt.selectRings"));
+        page.setTitle(getMessages().getMessage("title.selectRings"));
+        page.setPrompt(getMessages().getMessage("prompt.selectRings"));
         page.setCallback(new SelectRingsCallback(getCallGroupId()));
-        cycle.activate(page);
+        return page;
     }
 
     private boolean isValid() {
@@ -186,11 +187,11 @@ public abstract class EditCallGroup extends BasePage implements PageRenderListen
         }
     }
 
-    public IPrimaryKeyConvertor getIdConverter() {
+    public IPrimaryKeyConverter getIdConverter() {
         return new RingConverter(getCallGroup());
     }
 
-    public static final class RingConverter implements IPrimaryKeyConvertor {
+    public static final class RingConverter implements IPrimaryKeyConverter {
         private CallGroup m_callGroup;
 
         public RingConverter(CallGroup group) {

@@ -18,7 +18,6 @@ import ognl.OgnlException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.util.prop.OgnlUtils;
 
 public class ObjectSelectionModel implements IPropertySelectionModel {
 
@@ -62,11 +61,10 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
     public Object getOption(int index) {
         if (StringUtils.isBlank(m_valueExpression)) {
             return m_objects[index];
-        }
-        
-        parseValueExpression();
+        }        
 
         try {
+            parseValueExpression();
             Object objValue = Ognl.getValue(m_parsedValueExpression, m_objects[index]);
             return objValue;
         } catch (OgnlException e) {
@@ -82,9 +80,8 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
             return StringUtils.EMPTY;
         }
 
-        parseLabelExpression();
-
         try {
+            parseLabelExpression();
             Object objValue = Ognl.getValue(m_parsedLabelExpression, m_objects[index]);
             return safeToString(objValue);
         } catch (OgnlException e) {
@@ -92,15 +89,15 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
         }
     }
         
-    private synchronized void parseLabelExpression() {
+    private synchronized void parseLabelExpression() throws OgnlException {
         if (m_parsedLabelExpression == null) {
-            m_parsedLabelExpression = OgnlUtils.getParsedExpression(m_labelExpression);
+            m_parsedLabelExpression = Ognl.parseExpression(m_labelExpression);
         }
     }
 
-    private synchronized void parseValueExpression() {
+    private synchronized void parseValueExpression() throws OgnlException {
         if (m_parsedValueExpression == null) {
-            m_parsedValueExpression = OgnlUtils.getParsedExpression(m_valueExpression);
+            m_parsedValueExpression = Ognl.parseExpression(m_valueExpression);
         }
     }
 

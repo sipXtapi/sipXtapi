@@ -29,7 +29,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  * values of those keys, which is also bad.  We feel that the unsaved object problems are
  * easier to deal with.  
  */
-public class BeanWithId implements Cloneable, PrimaryKeySource {
+public class BeanWithId implements PrimaryKeySource, Cloneable {
     public static final Integer UNSAVED_ID = new Integer(-1);
     public static final String ID_PROPERTY = "id";
 

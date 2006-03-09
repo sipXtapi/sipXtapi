@@ -28,7 +28,7 @@ public class DynamicSessionFactoryBean extends LocalSessionFactoryBean implement
     public static final String HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
             + "<!DOCTYPE hibernate-mapping PUBLIC \"-//Hibernate/Hibernate Mapping DTD 3.0//EN\" "
             + "   \"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd\">";
-    public static final String MAPPING_PATTERN = "<hibernate-mapping>"
+    public static final String MAPPING_PATTERN = "<hibernate-mapping default-lazy=\"false\">"
             + "<subclass name=\"{0}\" extends=\"{1}\" discriminator-value=\"{2}\"/>"
             + "</hibernate-mapping>";
 

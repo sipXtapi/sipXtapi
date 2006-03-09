@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.form.IPropertySelectionModel;
 
@@ -24,7 +25,7 @@ public class ExtraOptionModelDecorator implements IPropertySelectionModel {
     private IPropertySelectionModel m_model;
 
     private Object m_extraOption = RESERVED;
-    
+
     private String m_extraLabel = StringUtils.EMPTY;
 
     public String getLabel(int index) {
@@ -47,18 +48,13 @@ public class ExtraOptionModelDecorator implements IPropertySelectionModel {
 
     public String getValue(int index) {
         if (index == 0) {
-            return safeToString(m_extraOption);
+            return ObjectUtils.toString(m_extraOption);
         }
         return m_model.getValue(index - 1);
     }
-    
-    private static final String safeToString(Object x) {
-        // presumes blank string is not a valid value in decorated model
-        return x == null ? StringUtils.EMPTY : x.toString();
-    }
 
     public Object translateValue(String value) {
-        if (value.equals(safeToString(m_extraOption))) {
+        if (ObjectUtils.equals(value, ObjectUtils.toString(m_extraOption))) {
             return m_extraOption;
         }
         return m_model.translateValue(value);
@@ -75,7 +71,7 @@ public class ExtraOptionModelDecorator implements IPropertySelectionModel {
     public void setModel(IPropertySelectionModel model) {
         m_model = model;
     }
-    
+
     public ExtraOptionModelDecorator decorate(IPropertySelectionModel model) {
         setModel(model);
         return this;

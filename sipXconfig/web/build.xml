@@ -35,8 +35,10 @@
     <pathelement path="${hibernate.jar}"/>
     <pathelement path="${servlet.jar}"/>
     <pathelement path="${tapestry.jar}"/>
+    <pathelement path="${hivemind.jar}"/>
+    <pathelement path="${hivemind-lib.jar}"/>
     <pathelement path="${tapestry-contrib.jar}"/>
-    <pathelement path="${tapestry-checkboxes.jar}"/>
+    <pathelement path="${tacos.jar}"/>
     <pathelement path="${ognl.jar}"/>
 	<pathelement location="${server-bindings.jar}"/>
   </path>
@@ -100,6 +102,7 @@
     <pathelement path="${easymockclassextension.jar}"/>
     <pathelement path="${httpunit.jar}"/>
     <pathelement path="${jwebunit.jar}"/>
+    <pathelement path="${js.jar}"/>
     <pathelement path="${jetty.jar}"/>
     <pathelement path="${servlet.jsp.jar}"/>
     <pathelement path="${jasper-runtime.jar}"/>
@@ -159,6 +162,8 @@
   <target name="install" depends="war" 
     description="Copy war file into lib dir and web related configuration files">
 
+    <mkdir dir="${dest.dir}${sipxpbx.run.dir}"/>
+
     <!-- startup script -->
     <copy file="bin/sipxconfig.sh.in" 
       tofile="${dest.dir}${bin.dir}/sipxconfig.sh"/>
@@ -210,8 +215,10 @@
       <fileset file="${wsdl4j.jar}"/>
       <fileset file="${sipxconfig.war}"/>
       <fileset file="${tapestry.jar}"/>
+      <fileset file="${hivemind.jar}"/>
+      <fileset file="${hivemind-lib.jar}"/>
       <fileset file="${tapestry-contrib.jar}"/>
-      <fileset file="${tapestry-checkboxes.jar}"/>
+      <fileset file="${tacos.jar}"/>
       <fileset file="${ognl.jar}"/>
       <!-- SOAP -->
       <fileset file="${axis.jar}"/>
@@ -229,14 +236,14 @@
     description="Runs Jetty on current code, development purpose only">
   	<echo/>
     <echo>Web UI will be available at URL:</echo>
-  	<echo>  http://localhost:9999/sipxconfig/app?service=page/TestPage</echo>
+  	<echo>http://localhost:9999/sipxconfig/app?page=TestPage&amp;service=page</echo>
   	<echo/>
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
       <classpath refid="base.path"/>
       <classpath refid="test.path"/>
       <classpath location="${junit.jar}"/>
       <classpath location="${log4j.jar}"/>
-	  <classpath location="${server-bindings.jar}"/>
+      <classpath location="${server-bindings.jar}"/>
       <sysproperty key="basedir" value="${basedir}"/>
     </java>
   </target>
@@ -312,35 +319,31 @@
   <!--
 	- Compile WSDL into java server-side bindings.
 	-->
-  <target name="server.bindings" 
-	  unless="server-config.wsdd.uptodate">
+  <target name="generate.server.bindings" unless="server-config.wsdd.uptodate">
     <delete dir="${server.bindings.src}"/>
     <mkdir dir="${server.bindings.src}"/>
-    <wsdl2java      
-        url="${src.dir}/org/sipfoundry/sipxconfig/api/sipxconfig.wsdl"
-        output="${server.bindings.src}"
-        serverside="true"
-        noWrapped="true">
-        <mapping namespace="urn:ConfigService" 
-            package="org.sipfoundry.sipxconfig.api"/>
+    <wsdl2java url="${src.dir}/org/sipfoundry/sipxconfig/api/sipxconfig.wsdl" output="${server.bindings.src}"
+      serverside="true" noWrapped="true">
+      <mapping namespace="urn:ConfigService" package="org.sipfoundry.sipxconfig.api"/>
     </wsdl2java>
     <!-- generted impl classes are just stubbed -->
     <delete>
-          <fileset dir="${server.bindings.src}">
+      <fileset dir="${server.bindings.src}">
         <include name="**/*BindingImpl.java"/>
-          </fileset>
+      </fileset>
     </delete>
-    <sipx-javac srcdir="${server.bindings.src}"
-       destdir="${server.bindings.dir}"
-       classpathref="base.path">
+  </target>
+	
+  
+  <target name="server.bindings" depends="generate.server.bindings" unless="server-config.wsdd.uptodate">
+    <sipx-javac srcdir="${server.bindings.src}" destdir="${server.bindings.dir}" classpathref="base.path">
       <classpath>
         <pathelement path="${classes.dir}"/>
       </classpath>
-    </sipx-javac>   
-	<jar destfile="${server-bindings.jar}"
-		basedir="${server.bindings.dir}"/>
+    </sipx-javac>
+    <jar destfile="${server-bindings.jar}" basedir="${server.bindings.dir}"/>    
   </target>
-	
+  
   <!-- 
 	- aggregate axis generated WSDD files into 1 server-config.wsdd 
 	-->
@@ -414,15 +417,16 @@
 	- Run web services unit tests
 	-->
   <target name="start-web-server" depends="test-war">
-    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
+    <echo message="Starting server..."/>
+    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
       <classpath refid="base.path"/>
       <classpath refid="test.path"/>
       <classpath location="${junit.jar}"/>
       <classpath location="${log4j.jar}"/>
       <classpath location="${server-bindings.jar}"/>
       <sysproperty key="basedir" value="${basedir}"/>
-    </java>    	
-  </target>	
+    </java>
+  </target>
 
   <target name="stop-web-server">
     <!-- shut down in case other tests relying on web server need to run -->
@@ -437,17 +441,24 @@
     </java>    
   </target>	
   
-  <target name="test-api" depends="start-web-server,test-api-run,stop-web-server" 
-	if="ruby-bindings-enabled"
-	description="Test web services"/>
+  <target name="test-api" if="ruby-bindings-enabled" description="Test web services">
+    <property name="test-api.sleep" value="10"/>
+    <parallel>
+      <antcall target="start-web-server"/>
+      <sequential>
+        <echo message="Waiting ${test-api.sleep} seconds for the server to start..."/>
+        <sleep seconds="${test-api.sleep}"/>
+        <antcall target="test-api-run"/>
+        <antcall target="stop-web-server"/>        
+      </sequential>      
+    </parallel>
+  </target>
 
-  <target name="test-api-run" depends="ruby-bindings" if="ruby-bindings-enabled"
-		description="Test web services with starting webserver">	
-    <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>    
-    <property name="ruby.include.path"
-      value="${ruby.bindings.dir}${path.separator}${ruby.webservice-unit-test.src.dir}"/>
-    <property name="webservice-unit-test-command" 
-  		value="-I${ruby.include.path} ${ruby.flags} ${ruby.webservice-unit-test.src.dir}"/>
+  <target name="test-api-run" depends="ruby-bindings" description="Test web services with starting webserver">
+    <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>
+    <property name="ruby.include.path" value="${ruby.bindings.dir}${path.separator}${ruby.webservice-unit-test.src.dir}"/>
+    <property name="webservice-unit-test-command"
+      value="-I${ruby.include.path} ${ruby.flags} ${ruby.webservice-unit-test.src.dir}"/>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/CallGroupServiceTestApi.rb"/>
     </exec>
@@ -459,10 +470,10 @@
     </exec>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/PhoneServiceTestApi.rb"/>
-    </exec>    
+    </exec>
     <exec executable="${ruby}" failonerror="true">
       <arg line="${webservice-unit-test-command}/UserServiceTestApi.rb"/>
-    </exec>    
+    </exec>
   </target>
   
 </project>

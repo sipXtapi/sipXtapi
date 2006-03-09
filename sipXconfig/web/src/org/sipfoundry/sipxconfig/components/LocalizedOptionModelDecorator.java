@@ -11,7 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import org.apache.tapestry.IMessages;
+import org.apache.hivemind.Messages;
 import org.apache.tapestry.form.IPropertySelectionModel;
 
 /**
@@ -20,7 +20,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
  */
 public class LocalizedOptionModelDecorator implements IPropertySelectionModel {
     
-    private IMessages m_messages;
+    private Messages m_messages;
     
     private String m_prefix;
     
@@ -30,7 +30,7 @@ public class LocalizedOptionModelDecorator implements IPropertySelectionModel {
         m_prefix = prefix;
     }
     
-    public void setMessages(IMessages messages) {
+    public void setMessages(Messages messages) {
         m_messages = messages;
     }
 

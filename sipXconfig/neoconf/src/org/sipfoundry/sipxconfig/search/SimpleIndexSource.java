@@ -37,7 +37,7 @@ public class SimpleIndexSource implements IndexSource {
 
     private int m_maxFieldLength = IndexWriter.DEFAULT_MAX_FIELD_LENGTH;
 
-    private int m_minMergeDocs = IndexWriter.DEFAULT_MIN_MERGE_DOCS;
+    private int m_minMergeDocs = IndexWriter.DEFAULT_MAX_BUFFERED_DOCS;
 
     private Directory getDirectory() {
         try {
@@ -76,8 +76,10 @@ public class SimpleIndexSource implements IndexSource {
         m_maxFieldLength = maxFieldLength;
     }
 
-    public void setWriteLockTimeout(long writeLockTimeout) {
-        IndexWriter.WRITE_LOCK_TIMEOUT = writeLockTimeout;
+    public void setWriteLockTimeout(long writeLockTimeout_) {
+        // FIXME: do we still to change lock timeout?
+        // not supported now
+        // IndexWriter.WRITE_LOCK_TIMEOUT = writeLockTimeout;        
     }
 
     public IndexReader getReader() throws IOException {
@@ -88,8 +90,8 @@ public class SimpleIndexSource implements IndexSource {
     public IndexWriter getWriter(boolean createNew) throws IOException {
         IndexWriter writer = new IndexWriter(getDirectory(), m_analyzer, createNew
                 || m_createIndex);
-        writer.maxFieldLength = m_maxFieldLength;
-        writer.minMergeDocs = m_minMergeDocs;
+        writer.setMaxFieldLength(m_maxFieldLength);
+        writer.setMaxBufferedDocs(m_minMergeDocs);
         m_createIndex = false;
         return writer;
     }

@@ -19,24 +19,13 @@ import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IBinding;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.contrib.table.model.IPrimaryKeyConvertor;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
 public abstract class TablePanel extends BaseComponent {
-    private Class m_itemClass;
-
-    /**
-     * @param itemClass common base class of items displayed in this table
-     */
-    public TablePanel(Class itemClass) {
-        m_itemClass = itemClass;
-    }
 
     public abstract Collection getRowsToDelete();
 
     public abstract IActionListener getAction();
-
-    public abstract IBinding getChangedBinding();
 
     public abstract CoreContext getCoreContext();
 
@@ -73,14 +62,9 @@ public abstract class TablePanel extends BaseComponent {
      * Sets changed to true - only if 'changed' parameter was provided
      */
     private void safeSetChanged() {
-        IBinding changed = getChangedBinding();
-        if (changed != null) {
-            changed.setBoolean(true);
+        IBinding changedBinding = getBinding("changed");
+        if (changedBinding != null) {
+            changedBinding.setObject(Boolean.TRUE);
         }
-    }
-
-    public IPrimaryKeyConvertor getIdConverter() {
-        CoreContext context = getCoreContext();
-        return new ObjectSourceDataSqueezer(context, m_itemClass);
     }
 }

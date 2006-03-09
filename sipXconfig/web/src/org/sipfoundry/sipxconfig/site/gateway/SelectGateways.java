@@ -15,9 +15,10 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -28,17 +29,13 @@ import org.sipfoundry.sipxconfig.site.dialplan.EditDialRule;
 /**
  * List all the gateways, allow adding and deleting gateways
  */
-public abstract class SelectGateways extends BasePage implements PageRenderListener {
+public abstract class SelectGateways extends BasePage implements PageBeginRenderListener {
     public static final String PAGE = "SelectGateways";
 
     // virtual properties
     public abstract DialPlanContext getDialPlanContext();
 
-    public abstract void setDialPlanContext(DialPlanContext manager);
-
     public abstract GatewayContext getGatewayContext();
-
-    public abstract void setGatewayContext(GatewayContext context);
 
     public abstract Integer getRuleId();
 
@@ -62,14 +59,14 @@ public abstract class SelectGateways extends BasePage implements PageRenderListe
         }
     }
 
-    public void formSubmit(IRequestCycle cycle) {
+    public IPage formSubmit(IRequestCycle cycle) {
         Collection selectedRows = getSelectedRows();
         if (selectedRows != null) {
             selectGateways(selectedRows);
         }
         EditDialRule editPage = (EditDialRule) cycle.getPage(getNextPage());
         editPage.setRuleId(getRuleId());
-        cycle.activate(editPage);
+        return editPage;
     }
 
     /**

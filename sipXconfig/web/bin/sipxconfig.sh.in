@@ -15,7 +15,6 @@ Args=""
 # (or end user I suppose) can override
 : ${SslDir:=@sipxpbx.conf.dir@/ssl}
 : ${AuthoritiesDir:=$SslDir/authorities}
-: ${JavaCmd:=`@bin.dir@/sipx-config --java`}
 : ${ConfigDefs:=@sipxpbx.conf.dir@/config.defs}
 : ${Configpp:=@bin.dir@/configpp}
 : ${ConfigFiles:=@sipxpbx.conf.dir@/sipxconfig.properties @sipxpbx.conf.dir@/topology.xml}
@@ -34,6 +33,18 @@ Database=SIPXCONFIG
 RequiredDatabaseVersion=2
 IndexDir=${TmpDir}/index
 
+javaCommand() {
+  if [ -z "$JAVA_HOME" ]; then
+    cmd="$JAVA_HOME/bin/java"
+    if [ -f "$cmd" ]; then
+        echo -n "$cmd"
+    fi
+  fi
+  echo -n "java"
+}
+
+: ${JavaCmd:=`javaCommand`}
+
 # This function determines the correct service name for Postgres.
 postgresService() {
     # If the user has already specified $Service, do not modify it.
@@ -50,13 +61,6 @@ postgresService() {
     
     # Most other distributions use the name postgresql.
     echo -e postgresql
-}
-
-# Create copies for files that are capable of being restored to original (XCF-96)
-makeRestoreBackup() {
-  if [ ! -f $1.default ]; then
-    cp $1 $1.default
-  fi
 }
 
 # Search/replace variables used in config.defs into config files
@@ -161,13 +165,7 @@ onWebUi() {
     databaseCommand upgrade
     databaseVersionCheck
 
-    makeRestoreBackup @sipxpbx.conf.dir@/config.defs
-    makeRestoreBackup @sipxpbx.conf.dir@/proxy-config.in
-    makeRestoreBackup @sipxpbx.conf.dir@/registrar-config.in
-    makeRestoreBackup @sipxpbx.conf.dir@/status-config.in
-    makeRestoreBackup @sipxpbx.conf.dir@/authproxy-config.in
-
-    createAuthoritiesTruststore
+    # createAuthoritiesTruststore
     @bin.dir@/ssl-cert/create-ssl-keystore.sh
     
     JavaOpts="$SIPXCONFIG_OPTS"

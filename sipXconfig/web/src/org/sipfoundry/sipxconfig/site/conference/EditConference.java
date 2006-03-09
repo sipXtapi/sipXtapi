@@ -13,17 +13,15 @@ package org.sipfoundry.sipxconfig.site.conference;
 
 import java.io.Serializable;
 
-import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.callback.ICallback;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 
-public abstract class EditConference extends PageWithCallback implements PageRenderListener {
+public abstract class EditConference extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "EditConference";
 
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
@@ -55,13 +53,13 @@ public abstract class EditConference extends PageWithCallback implements PageRen
         setConference(conference);
     }
 
-    public void apply(IRequestCycle cycle) {
+    public void apply() {
         if (TapestryUtils.isValid(this)) {
-            saveValid(cycle);
+            saveValid();
         }
     }
 
-    private void saveValid(IRequestCycle cycle_) {
+    private void saveValid() {
         Conference conference = getConference();
         
         // Make sure the conference is OK to save before we save it.
@@ -81,25 +79,9 @@ public abstract class EditConference extends PageWithCallback implements PageRen
         }
     }
 
-    public void formSubmit(IRequestCycle cycle_) {
+    public void formSubmit() {
         if (getChanged()) {
             setConference(null);
         }
-    }
-
-    /**
-     * Activate this page
-     * 
-     * @param cycle current cycle
-     * @param callback usually page callback to return to activating page
-     * @param bridgeId bridge identifier
-     * @param conferenceId conference identifier - can be null for new conference to be added
-     */
-    public void activate(IRequestCycle cycle, ICallback callback, Serializable bridgeId,
-            Serializable conferenceId) {
-        setBridgeId(bridgeId);
-        setConferenceId(conferenceId);
-        setCallback(callback);
-        cycle.activate(this);
     }
 }

@@ -55,7 +55,7 @@ public abstract class UserSearch extends BaseComponent {
 
     public abstract String getQuery();
 
-    public void search(IRequestCycle cycle_) {
+    public void search() {
         List results = null;
         String query = getQuery();
 

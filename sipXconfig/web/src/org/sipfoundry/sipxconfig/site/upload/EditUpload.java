@@ -11,37 +11,36 @@
  */
 package org.sipfoundry.sipxconfig.site.upload;
 
-import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.event.PageRenderListener;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.upload.Upload;
 import org.sipfoundry.sipxconfig.upload.UploadManager;
 import org.sipfoundry.sipxconfig.upload.UploadSpecification;
 
-public abstract class EditUpload extends PageWithCallback implements PageRenderListener {
-    
+public abstract class EditUpload extends PageWithCallback implements PageBeginRenderListener {
+
     public static final String PAGE = "EditUpload";
-    
+
     public abstract Upload getUpload();
-    
+
     public abstract void setUpload(Upload upload);
-    
+
     public abstract Integer getUploadId();
-    
+
     public abstract void setUploadId(Integer id);
-    
+
     public abstract UploadSpecification getUploadSpecification();
-    
+
     public abstract void setUploadSpecification(UploadSpecification specification);
-    
+
     public abstract UploadManager getUploadManager();
-    
+
     public abstract boolean isActive();
-    
+
     public abstract void setActive(boolean deployed);
-    
+
     public void pageBeginRender(PageEvent event_) {
         Upload upload = getUpload();
         if (upload == null) {
@@ -55,7 +54,7 @@ public abstract class EditUpload extends PageWithCallback implements PageRenderL
             setActive(upload.isDeployed());
         }
     }
-    
+
     private void checkDeploymentStatus() {
         Upload upload = getUpload();
         if (isActive() != upload.isDeployed()) {
@@ -65,15 +64,15 @@ public abstract class EditUpload extends PageWithCallback implements PageRenderL
                 getUploadManager().deploy(upload);
             }
             setActive(upload.isDeployed());
-        }        
+        }
     }
-    
-    public void onSave(IRequestCycle cycle_) {
+
+    public void onSave() {
         if (TapestryUtils.isValid(this)) {
             Upload upload = getUpload();
             getUploadManager().saveUpload(upload);
-            setUploadId(upload.getId());           
-            checkDeploymentStatus();            
+            setUploadId(upload.getId());
+            checkDeploymentStatus();
         }
-    }    
+    }
 }

@@ -27,22 +27,25 @@ public class ExtensionPoolsTestUi extends WebTestCase {
         SiteTestHelper.home(getTester());
         clickLink("ExtensionPools");
     }
-    
+
     public void testDisplayExtensionPool() throws Exception {
-        assertTextNotPresent("An exception has occurred.");
-        assertTextPresent("User Extension Pool");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        assertElementPresent("extPool:start");
+        assertElementPresent("extPool:end");
+        assertElementPresent("extPool:enable");
     }
-    
+
     public void testChangeExtensionPool() throws Exception {
         final String start = "100";
         final String end = "199";
         checkCheckbox("enableExtensionPool");
         setFormElement("start", start);
         setFormElement("end", end);
-        clickButton("form:apply");        
+        clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
         SiteTestHelper.assertNoException(tester);
-        
+
         // Go away and back and verify that our changes took effect
         SiteTestHelper.home(getTester());
         clickLink("ExtensionPools");
@@ -50,5 +53,13 @@ public class ExtensionPoolsTestUi extends WebTestCase {
         assertFormElementEquals("start", start);
         assertFormElementEquals("end", end);
     }
-    
+
+    public void testValidation() {
+        setFormElement("start", "");
+        setFormElement("end", "444");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertUserError(tester);
+    }
+
 }
