@@ -50,6 +50,8 @@ public class TestServiceImpl implements TestService {
         // Clear the call group context not only when requested, but also when the
         // core context is going to be cleared.  Otherwise we get database integrity
         // problems, because the user ring objects in a call group reference users.
+        String preserveAdminPintoken = null;
+        String adminUsername = "superadmin";
         if (Boolean.TRUE.equals(resetServices.getCallGroup())
             || Boolean.TRUE.equals(resetServices.getUser())) {
             m_callGroupContext.clear();
@@ -64,7 +66,20 @@ public class TestServiceImpl implements TestService {
             m_phoneContext.clear();
         }
         if (Boolean.TRUE.equals(resetServices.getUser())) {
+            org.sipfoundry.sipxconfig.common.User superadmin = m_coreContext.loadUserByUserName(adminUsername);
+            if (superadmin != null) {
+                preserveAdminPintoken = superadmin.getPintoken();
+            }
+            
             m_coreContext.clear();            
+        }        
+        if (Boolean.TRUE.equals(resetServices.getSuperAdmin())) {
+            m_coreContext.createAdminGroupAndInitialUser("");
+            if (preserveAdminPintoken != null) {
+                org.sipfoundry.sipxconfig.common.User superadmin = m_coreContext.loadUserByUserName(adminUsername);
+                superadmin.setPintoken(preserveAdminPintoken);
+                m_coreContext.saveUser(superadmin);
+            }
         }        
     }
 }

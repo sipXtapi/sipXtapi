@@ -31,7 +31,8 @@ public final class ImdbXmlHelper {
         digester.setValidating(false);
         digester.setNamespaceAware(false);
 
-        digester.push(new ArrayList());
+        digester.addObjectCreate("items", ArrayList.class);
+        
         digester.addObjectCreate(ImdbXmlHelper.PATTERN, itemClass);
         SetNestedPropertiesRule rule = new SetNestedPropertiesRule();
         // ignore all properties that we are not interested in

@@ -355,7 +355,7 @@
     </group>
   </group>
   <!-- SIMILIAR SECTION EXISTS IN phone.xml to control dialplans for entire phone -->
-  <group name="dialplan">
+  <group name="line-dialplan">
     <label>Dial Plan</label>
     <setting name="impossibleMatchHandling">
       <type>

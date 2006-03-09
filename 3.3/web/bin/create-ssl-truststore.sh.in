@@ -101,9 +101,9 @@ do
     caname="`$openssl x509 -noout -text -in $Certificate |\
          grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`" || exit 1
 
-    JavaHome=`sipx-config --javahome`
+    JavaBin=`sipx-config --javabin`
     openssl x509 -in $Certificate | \
-        $JavaHome/jre/bin/keytool -import -noprompt -alias "$caname" \
+        $JavaBin/keytool -import -noprompt -alias "$caname" \
         -keystore $TrustStore -storepass "$Password" || exit 1
     chown @sipxpbx.user@ $TrustStore
     chmod 600 $TrustStore

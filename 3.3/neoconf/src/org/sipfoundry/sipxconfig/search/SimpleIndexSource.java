@@ -76,7 +76,7 @@ public class SimpleIndexSource implements IndexSource {
         m_maxFieldLength = maxFieldLength;
     }
 
-    public void setWriteLockTimeout(long writeLockTimeout) {
+    public void setWriteLockTimeout(long writeLockTimeout_) {
         // FIXME: do we still to change lock timeout?
         // not supported now
         // IndexWriter.WRITE_LOCK_TIMEOUT = writeLockTimeout;        

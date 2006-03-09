@@ -19,17 +19,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
-import org.springframework.context.event.ContextRefreshedEvent;
 
 /**
  * Finds all the beans that implement AliasProvider interface and retrieves the aliases for that
  * beans
  */
-public class AliasCollector implements AliasProvider, ApplicationListener {
+public class AliasCollector implements AliasProvider, BeanFactoryAware {
 
     private Collection m_aliasProviders;
 
@@ -78,19 +77,13 @@ public class AliasCollector implements AliasProvider, ApplicationListener {
         }
         return m_aliasProviders;
     }
-
-    /**
-     * Updates reference to bean factory and cleans the cache of listeners
-     */
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ContextRefreshedEvent) {
-            ContextRefreshedEvent cre = (ContextRefreshedEvent) event;
-            m_beanFactory = cre.getApplicationContext();
-            m_aliasProviders = null;
-        }
-    }
     
     public void setAliasProviderBeanIds(List aliasProviderBeanIds) {
         m_aliasProviderBeanIds = aliasProviderBeanIds;
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+        m_aliasProviders = null;
     }
 }

@@ -37,10 +37,12 @@ public abstract class LazyDaemon extends Thread {
                 waitForWork();
                 long quietPeriod = 0;
                 do {
+                    LOG.debug("Waiting for quiet period, ms: " + m_sleepInterval);
                     sleep(m_sleepInterval);
                     quietPeriod = System.currentTimeMillis() - m_workAddedTimestamp;                    
                 } while(quietPeriod < m_sleepInterval);                
                 try {
+                    LOG.debug("Staring work");
                     moreWork = work();
                 } catch (Throwable e) {
                     LOG.error(getName() + "exception in background task.", e);

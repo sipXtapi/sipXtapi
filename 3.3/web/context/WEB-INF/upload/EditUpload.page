@@ -14,7 +14,6 @@
   </component>
   <component id="uploadForm" type="Form">
     <binding name="delegate" value="bean:validator"/>
-    <binding name="listener" value="components.applyOkCancel.listeners.onApply"/>
   </component>
   <component id="settingsFieldset" type="SettingsFieldset">
     <binding name="settings" value="upload.settings"/>
@@ -31,11 +30,13 @@
     <binding name="selected" value="active"/>
     <binding name="tag" value="true"/>
     <binding name="value" value="literal:Activate"/>
+    <binding name="listener" value="components.applyOkCancel.listeners.onApply"/>
   </component>
   <component id="inactivate" type="Submit">
     <binding name="selected" value="active"/>
     <binding name="tag" value="false"/>
     <binding name="value" value="literal:Inactivate"/>
+    <binding name="listener" value="components.applyOkCancel.listeners.onApply"/>
   </component>
   <component id="applyOkCancel" type="FormActions">
     <binding name="listener" value="listener:onSave"/>

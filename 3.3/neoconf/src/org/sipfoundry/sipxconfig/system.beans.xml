@@ -160,6 +160,10 @@
     </property>
   </bean>
   
+  <bean id="readOnlyHibernateInterceptor" parent="hibernateInterceptor">
+    <property name="flushModeName" value="FLUSH_NEVER"/>    
+  </bean>
+  
   <!-- springInstantiator will force hibernate to create new objects through Spring -->
   <bean id="springInstantiator"
     class="org.sipfoundry.sipxconfig.search.IndexingInterceptor">

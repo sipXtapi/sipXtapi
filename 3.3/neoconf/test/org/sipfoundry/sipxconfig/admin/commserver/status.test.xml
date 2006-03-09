@@ -13,7 +13,7 @@ with sipxpbx running.  (Inserted this comment via manual editing.) -->
 <!-- Set the defaultdir for all processes to SIPX_LOGDIR as the
      working directory, so that any core files they produce will be put
      there. -->
-<process_definitions>
+<process_definitions xmlns="http://www.sipfoundry.org/sipX/schema/xml/processdefinitions-00-00">
     <dependentdelay wait="2" />
     <workdir location="/opt/sipx-3.0/var/tmp" />
     <!-- =============================================== -->

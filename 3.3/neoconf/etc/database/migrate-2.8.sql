@@ -119,10 +119,6 @@ begin
       insert into user_group (user_id, group_id) values (usr.id, my_group_id);
     end if;
 
-    if usr.extension is not null then
-        insert into user_alias (user_id, alias) values (usr.id, usr.extension);
-    end if;
-
   end loop; 
 
   next_id := max(user_id) + 1 from users;
@@ -216,8 +212,11 @@ begin
     if found then
       raise notice ''DATA LOSS: extension conflicts with alias % '',
           user_extension.extension;
+    else
+      insert into user_alias (user_id, alias) 
+          values (user_extension.user_id, user_extension.extension);
     end if;
-     
+
   end loop;
 
   return 1;

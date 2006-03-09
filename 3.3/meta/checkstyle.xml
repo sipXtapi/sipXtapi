@@ -185,7 +185,7 @@
     <!-- Making sure logging is used -->
     <module name="GenericIllegalRegexp">
       <property name="severity" value="warning"/>
-      <property name="format" value="System\.(out|err)"/>
+      <property name="format" value="System\.(out|err)\.print"/>
       <property name="ignoreComments" value="true"/>
       <property name="message"
         value="System.err or System.out used: use commons logging instead."/>
