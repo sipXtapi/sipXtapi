@@ -51,7 +51,7 @@ public:
         const UtlString& name = "registration" );
 
     /// releaseInstance - cleans up the singleton (for use at exit)
-    static void releaseInstance();
+    static void releaseInstance(bool bCloseDB=false);
 
     /// Queries
 

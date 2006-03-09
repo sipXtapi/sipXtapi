@@ -124,7 +124,7 @@ RegistrationDB::~RegistrationDB()
 /* ============================ MANIPULATORS ============================== */
 
 void
-RegistrationDB::releaseInstance()
+RegistrationDB::releaseInstance(bool bCloseDB)
 {
     OsSysLog::add(FAC_DB, PRI_DEBUG, "<><>## RegistrationDB:: releaseInstance() spInstance=%p", spInstance);
 
@@ -136,6 +136,12 @@ RegistrationDB::releaseInstance()
 
         // unregister this table/process from the IMDB
         SIPDBManager::getInstance()->removeDatabase ( spInstance->mDatabaseName );
+        
+        // Close DB if requested
+        if (bCloseDB)
+        {
+           SIPDBManager::getInstance()->closeDatabase();            
+        }
 
         // NULL out the fastDB pointer also
         spInstance->m_pFastDB = NULL;

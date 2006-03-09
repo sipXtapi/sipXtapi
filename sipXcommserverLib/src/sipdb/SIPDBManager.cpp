@@ -646,6 +646,25 @@ SIPDBManager::removeDatabase ( const UtlString& tablename ) const
     }
 }
 
+void
+SIPDBManager::closeDatabase () const
+{
+    // remove all rows from the imdb with this tablename
+    OsLock lock( sLockMutex );
+
+    if ( gVerboseLoggingEnabled )
+    {
+       OsSysLog::add(FAC_DB, PRI_DEBUG, 
+           "SIPDBManager::closeDatabase");
+    }
+
+    // one dbDatabase construction call allowed per process
+    if ( spFastDB != NULL )
+    {
+        spFastDB->close();      
+    }
+}
+
 void 
 SIPDBManager::setDatabaseChangedFlag (
     const UtlString& tablename, 

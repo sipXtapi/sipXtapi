@@ -92,10 +92,15 @@ public:
     dbDatabase* getDatabase ( const UtlString& tablename ) const;
 
     /**
-     * unregisters the database from the IMDB and calls close to
-     * decrement the user count etc.
+     * unregisters the database from the IMDB - it does *not* call close
+     *  to decrement the user count etc.
      */
     void removeDatabase ( const UtlString& tablename ) const;
+    
+    /**
+     * calls close to decrement the user count etc.
+     */
+    void closeDatabase () const;    
 
     /** counts the number of processes attached to the DB */
     int getNumDatabaseProcesses ( const UtlString& tablename ) const;

@@ -19,6 +19,7 @@
 #include "utl/UtlSListIterator.h"
 #include "net/Url.h"
 #include "os/OsDateTime.h"
+#include "os/OsSysLog.h"
 
 #include "sipdb/RegistrationDB.h"
 #include "sipdb/RegistrationBinding.h"
@@ -55,7 +56,7 @@ public:
       {
          RegistrationDB* regDb = RegistrationDB::getInstance();
          regDb->removeAllRows();  
-         regDb->releaseInstance();         
+         regDb->releaseInstance(true);         
       }
 
    void testGetMaxUpdateNumberForRegistrar()
