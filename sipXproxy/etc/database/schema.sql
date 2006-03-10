@@ -12,7 +12,11 @@
 
 ---------------------------------- CSE Tables ----------------------------------
 
-create table call_state_event (
+/*
+ * The call_state_events holds events that describe the lifecycle of a call:
+ * call request, call setup, call end or call failure.
+ */
+create table call_state_events (
    id              serial8 not null,
    observer        text not null,
    event_seq       int8 not null,
@@ -31,7 +35,12 @@ create table call_state_event (
 );
 
 
-create table call_state_observer_event (
+/*
+ * The call_state_observer_events holds events relating to the event observer
+ * state, for example, that the observer has restarted.  The forking proxy
+ * and auth proxy are event observers.
+ */
+create table call_state_observer_events (
    id              serial8 not null,
    observer        text not null,
    event_seq       int8 not null,
@@ -47,33 +56,33 @@ create table call_state_observer_event (
 ---------------------------------- CDR Tables ----------------------------------
 
 /* 
- * The fromto table holds SIP AORs appearing in From or To headers, not including tags.
- * Example: "Bob <sip:bob@biloxi.com>".
+ * The aors table holds SIP addresses of record (AORs) appearing in From or To
+ * headers, not including tags.  Example: "Bob <sip:bob@biloxi.com>".
  */
-create table fromto(
+create table aors (
   id serial8 not null,                  /* Row ID */
-  fromto_value text not null unique,    /* SIP AOR */
+  value text not null unique,           /* SIP AOR */
   primary key (id) 
 );
 
 
 /*
- * The contact table holds SIP contact URLs.  Example: "<sip:bob@192.0.2.4>".
+ * The contacts table holds SIP contact URLs.  Example: "<sip:bob@192.0.2.4>".
  */
-create table contact(
+create table contacts (
   id serial8 not null,                  /* Row ID */
-  contact_value text not null unique,   /* SIP contact */
+  value text not null unique,           /* SIP contact */
   primary key (id) 
 );
 
 
 /*
- * The dialog table holds the SIP call ID, from tag, and to tag, which together
+ * The dialogs table holds the SIP call ID, from tag, and to tag, which together
  * uniquely identify a SIP call.  This info is not relevant for billing, but it
  * is useful if one wants to do post-processing on the CDRs, or to link a CDR
  * back to the call state events (CSE) from which the CDR was created.
  */
-create table dialog(
+create table dialogs (
   id serial8 not null,                  /* Row ID */
   call_id text not null,                /* SIP call ID */
   from_tag text not null,               /* SIP from tag */
@@ -84,7 +93,7 @@ create table dialog(
 
 
 /*
- * Each row records info about a single SIP call.
+ * The cdrs table records info about SIP calls.
  *
  * Start, connect, and end times are nullable to allow for partial CDRs where the
  * call cannot be completely analyzed.  For example, if we can't find a BYE or 
@@ -100,13 +109,13 @@ create table dialog(
  * Our codes will have similar semantics, and there will be a mapping between them,
  * but we won't use the IPDR codes directly, to save space.
  */
-create table cdr(
+create table cdrs (
   id serial8 not null,              /* Row ID */
-  dialog_id int8 not null,          /* Dialog ID: foreign key to dialog table */
-  from_id int8 not null,            /* From AOR: foreign key to fromto table */
+  dialog_id int8 not null,          /* Dialog ID: foreign key to dialogs table */
+  from_id int8 not null,            /* From AOR: foreign key to aors table */
   from_contact_id int8 not null,    /* From contact: foreign key to contact table */
-  to_id int8 not null,              /* To AOR: foreign key to fromto table */
-  to_contact_id int8 not null,      /* To contact: foreign key to contact table */
+  to_id int8 not null,              /* To AOR: foreign key to aors table */
+  to_contact_id int8 not null,      /* To contact: foreign key to contacts table */
   start_time timestamp,             /* Start time in GMT: initial INVITE received */
   connect_time timestamp,           /* Connect time in GMT: ACK received for 200 OK */
   end_time timestamp,               /* End time in GMT: BYE received, or other ending */
@@ -120,27 +129,41 @@ create table cdr(
 
 /* Add foreign key constraints */
 
-alter table cdr
-  add constraint fk_cdr_dialog
+alter table cdrs
+  add constraint fk_cdrs_dialogs
   foreign key (dialog_id)
-  references dialog;
+  references dialogs;
 
-alter table cdr
-  add constraint fk_cdr_fromto_from
+alter table cdrs
+  add constraint fk_cdrs_aors_from
   foreign key (from_id)
-  references fromto;
+  references aors;
 
-alter table cdr
-  add constraint fk_cdr_contact_from
+alter table cdrs
+  add constraint fk_cdrs_contacts_from
   foreign key (from_contact_id)
-  references contact;
+  references contacts;
 
-alter table cdr
-  add constraint fk_cdr_fromto_to
+alter table cdrs
+  add constraint fk_cdrs_aors_to
   foreign key (to_id)
-  references fromto;
+  references aors;
 
-alter table cdr
-  add constraint fk_cdr_contact_to
+alter table cdrs
+  add constraint fk_cdrs_contacts_to
   foreign key (to_contact_id)
-  references contact;
+  references contacts;
+
+
+---------------------------------- Functions ----------------------------------
+
+/*
+ * Return the host part of a SIP contact URI.  For example, given the input
+ * "sip:bob@192.0.2.4:999", return "192.0.2.4".
+ * The host part of the URI starts after the "@".  If there is a port number, 
+ * then the host substring ends before ":".  Otherwise it goes to the end of
+ * the string.
+ */
+CREATE FUNCTION contact_host(text) RETURNS text AS $$
+  SELECT substring($1 from '@([^\:]*)');
+$$ LANGUAGE SQL;
