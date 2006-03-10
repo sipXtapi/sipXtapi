@@ -272,7 +272,7 @@ int
 main(int argc, char* argv[] )
 {
    // Configuration Database (used for OsSysLog)
-   OsConfigDb configDb;
+   OsConfigDb* configDb = new OsConfigDb();
 
    // Register Signal handlers to close IMDB
    pt_signal(SIGINT,   sigHandler);    // Trap Ctrl-C on NT
@@ -338,29 +338,29 @@ main(int argc, char* argv[] )
       OsPathBase::separator +
       CONFIG_SETTINGS_FILE;
 
-   bool configLoaded = ( configDb.loadFromFile(fileName) == OS_SUCCESS );
+   bool configLoaded = ( configDb->loadFromFile(fileName) == OS_SUCCESS );
    if (!configLoaded)
    {
-      configDb.set("SIP_REGISTRAR_UDP_PORT", "5070");
-      configDb.set("SIP_REGISTRAR_TCP_PORT", "5070");
-      configDb.set("SIP_REGISTRAR_TLS_PORT", "5071");
-      configDb.set("SIP_REGISTRAR_PROXY_PORT", "5060");
-      configDb.set("SIP_REGISTRAR_MAX_EXPIRES", "");
-      configDb.set("SIP_REGISTRAR_MIN_EXPIRES", "");
-      configDb.set("SIP_REGISTRAR_DOMAIN_NAME", "");
-      //configDb.set("SIP_REGISTRAR_AUTHENTICATE_SCHEME", "");
-      configDb.set("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", "");
-      configDb.set("SIP_REGISTRAR_AUTHENTICATE_QOP", "");
-      configDb.set("SIP_REGISTRAR_AUTHENTICATE_REALM", "");
+      configDb->set("SIP_REGISTRAR_UDP_PORT", "5070");
+      configDb->set("SIP_REGISTRAR_TCP_PORT", "5070");
+      configDb->set("SIP_REGISTRAR_TLS_PORT", "5071");
+      configDb->set("SIP_REGISTRAR_PROXY_PORT", "5060");
+      configDb->set("SIP_REGISTRAR_MAX_EXPIRES", "");
+      configDb->set("SIP_REGISTRAR_MIN_EXPIRES", "");
+      configDb->set("SIP_REGISTRAR_DOMAIN_NAME", "");
+      //configDb->set("SIP_REGISTRAR_AUTHENTICATE_SCHEME", "");
+      configDb->set("SIP_REGISTRAR_AUTHENTICATE_ALGORITHM", "");
+      configDb->set("SIP_REGISTRAR_AUTHENTICATE_QOP", "");
+      configDb->set("SIP_REGISTRAR_AUTHENTICATE_REALM", "");
 
-      configDb.set("SIP_REGISTRAR_MEDIA_SERVER", "");
-      configDb.set("SIP_REGISTRAR_VOICEMAIL_SERVER", "");
-      configDb.set(CONFIG_SETTING_LOG_DIR, "");
-      configDb.set(CONFIG_SETTING_LOG_LEVEL, "");
-      configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
+      configDb->set("SIP_REGISTRAR_MEDIA_SERVER", "");
+      configDb->set("SIP_REGISTRAR_VOICEMAIL_SERVER", "");
+      configDb->set(CONFIG_SETTING_LOG_DIR, "");
+      configDb->set(CONFIG_SETTING_LOG_LEVEL, "");
+      configDb->set(CONFIG_SETTING_LOG_CONSOLE, "");
    }
 
-   initSysLog(&configDb) ;
+   initSysLog(configDb) ;
    OsSysLog::add(FAC_SIP, PRI_NOTICE,
                  "SipRegistrar >>>>>>>>>>>>>>>> STARTED"
                  );
@@ -370,7 +370,7 @@ main(int argc, char* argv[] )
    }
    else
    {
-      if (configDb.storeToFile(fileName) == OS_SUCCESS)
+      if (configDb->storeToFile(fileName) == OS_SUCCESS)
       {
          OsSysLog::add( FAC_SIP, PRI_INFO, "Default config written to: %s",
                        fileName.data()
@@ -386,7 +386,7 @@ main(int argc, char* argv[] )
    // Fetch Pointer to the OsServer task object, note that
    // object uses the IMDB so it is important to shut this thread
    // cleanly before the signal handler exits
-   SipRegistrar* registrar = SipRegistrar::getInstance(&configDb);
+   SipRegistrar* registrar = SipRegistrar::getInstance(configDb);
 
    registrar->start();
 
@@ -436,6 +436,11 @@ main(int argc, char* argv[] )
 
    // now deregister this process's database references from the IMDB
    closeIMDBConnections();
+
+   if ( configDb != NULL )
+   {
+      delete configDb;
+   }
 
    // Flush the log file
    OsSysLog::flush();
