@@ -35,36 +35,33 @@ struct OdbcControlStruct {
 
 typedef OdbcControlStruct* OdbcHandle;  
 
-/// Checks the existence of the data source
+/// Tries to establish DSN-less connection to the database
 /*! \param dbname (in) - name of the data source
- * \returns  true if data source exists otherwise FALSE   
- */
-bool odbcCheckExistence(const char* dbname);
-
-/// Connects to the data source
-/*! \param dbname (in) - name of the data source
+ * \param servername (in) - server name
  * \param username (in) - name of the user
  * \param password (in) - password to connect to data source
  * \param driver (in) - driver name used to connect
  * \returns  a handle representing the connection   
  */
 OdbcHandle odbcConnect(const char* dbname,
+                       const char* servername,
                        const char* username,
-                       const char* password=NULL,
-                       const char* driver=NULL);
+                       const char* driver,                       
+                       const char* password=NULL);
                         
 /// Disconnects from data source and frees all resources
 /*! \param handle (in) - handle returned by odbcConnect
+ * \returns  true if disconnected sucessfully, otherwise false
  */                        
-void odbcDisconnect(const OdbcHandle handle);
+bool odbcDisconnect(OdbcHandle &handle);
 
 /// Executes an SQL statement
 /*! \param handle (in) - handle returned by odbcConnect
  * \param sqlStatement (in) - pointer to string containing the SQL statement
- * \returns  true if connected to data source otherwise FALSE  
+ * \returns  true if connected to data source otherwise false  
  */   
 bool odbcExecute(const OdbcHandle handle,
-                 const char sqlStatement); 
+                 const char* sqlStatement); 
                  
 /// Returns the number of columns in a result set
 /*! \param handle (in) - handle returned by odbcConnect
@@ -89,5 +86,11 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
                              int columnIndex,
                              char* data,
                              int dataSize);
+                             
+// Clears the result set and enables further retrieval
+/*! \param handle (in) - handle returned by odbcConnect
+ * \returns   true if result set could be cleared
+ */                                                    
+bool odbcClearResultSet(const OdbcHandle handle);
 
 #endif // _ODBCWRAPPER_H_
