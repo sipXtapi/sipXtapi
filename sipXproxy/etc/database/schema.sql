@@ -7,8 +7,33 @@
  */
 
 /* 
- * Schema for Call State Events (CSE) and Call Detail Records (CDR)
+ * Schema for Call Resolver data, including Call State Events (CSE) and
+ * Call Detail Records (CDR).
  */
+
+
+---------------------------------- Versioning ----------------------------------
+/*
+ * Follow the sipXconfig model
+ */
+
+create table version_history(
+  version int4 not null primary key,
+  applied date not null
+);
+
+/**
+ * CHANGE VERSION HERE ----------------------------> X <------------------
+ *
+ * For sipX v??? (first release with Call Resolver), the database version is 1.
+ * Activate this line of code when we ship the Call Resolver.
+ */
+-- insert into version_history (version, applied) values (1, now());
+
+create table patch(
+  name varchar(32) not null primary key
+);
+
 
 ---------------------------------- CSE Tables ----------------------------------
 
@@ -56,22 +81,15 @@ create table call_state_observer_events (
 ---------------------------------- CDR Tables ----------------------------------
 
 /* 
- * The aors table holds SIP addresses of record (AORs) appearing in From or To
- * headers, not including tags.  Example: "Bob <sip:bob@biloxi.com>".
+ * The parties table holds the SIP address of record (AOR) and contact URL for
+ * a party in a SIP call, the caller or callee.
+ * AOR example: "Bob <sip:bob@biloxi.com>".
+ * Contact example: "<sip:bob@192.0.2.4>".
  */
-create table aors (
+create table parties (
   id serial8 not null,                  /* Row ID */
-  value text not null unique,           /* SIP AOR */
-  primary key (id) 
-);
-
-
-/*
- * The contacts table holds SIP contact URLs.  Example: "<sip:bob@192.0.2.4>".
- */
-create table contacts (
-  id serial8 not null,                  /* Row ID */
-  value text not null unique,           /* SIP contact */
+  aor text not null,                    /* SIP AOR */
+  contact text not null,                /* SIP contact URL */
   primary key (id) 
 );
 
@@ -112,10 +130,8 @@ create table dialogs (
 create table cdrs (
   id serial8 not null,              /* Row ID */
   dialog_id int8 not null,          /* Dialog ID: foreign key to dialogs table */
-  from_id int8 not null,            /* From AOR: foreign key to aors table */
-  from_contact_id int8 not null,    /* From contact: foreign key to contact table */
-  to_id int8 not null,              /* To AOR: foreign key to aors table */
-  to_contact_id int8 not null,      /* To contact: foreign key to contacts table */
+  caller_id int8 not null,          /* Caller info: foreign key to parties table */
+  callee_id int8 not null,          /* Callee info: foreign key to parties table */
   start_time timestamp,             /* Start time in GMT: initial INVITE received */
   connect_time timestamp,           /* Connect time in GMT: ACK received for 200 OK */
   end_time timestamp,               /* End time in GMT: BYE received, or other ending */
@@ -135,35 +151,31 @@ alter table cdrs
   references dialogs;
 
 alter table cdrs
-  add constraint fk_cdrs_aors_from
-  foreign key (from_id)
-  references aors;
+  add constraint fk_cdrs_parties_caller
+  foreign key (caller_id)
+  references parties;
 
 alter table cdrs
-  add constraint fk_cdrs_contacts_from
-  foreign key (from_contact_id)
-  references contacts;
-
-alter table cdrs
-  add constraint fk_cdrs_aors_to
-  foreign key (to_id)
-  references aors;
-
-alter table cdrs
-  add constraint fk_cdrs_contacts_to
-  foreign key (to_contact_id)
-  references contacts;
+  add constraint fk_cdrs_parties_callee
+  foreign key (callee_id)
+  references parties;
 
 
----------------------------------- Functions ----------------------------------
+---------------------------------- Views ----------------------------------
 
 /*
- * Return the host part of a SIP contact URI.  For example, given the input
- * "sip:bob@192.0.2.4:999", return "192.0.2.4".
- * The host part of the URI starts after the "@".  If there is a port number, 
- * then the host substring ends before ":".  Otherwise it goes to the end of
- * the string.
+ * Simplify the presentation of CDRs by showing all CDR data in a single view so that the
+ * user doesn't have to be confronted with normalization into different tables.
+ * Do not include SIP dialog info in the view since it is not of interest for billing,
+ * it is only used to link the CDR back to raw CSE data, or for CDR post-processing.
  */
-CREATE FUNCTION contact_host(text) RETURNS text AS $$
-  SELECT substring($1 from '@([^\:]*)');
-$$ LANGUAGE SQL;
+
+create view view_cdrs as
+  select cdr.id, 
+         caller.aor as caller_aor, caller.contact as caller_contact,
+         callee.aor as callee_aor, callee.contact as callee_contact,
+         start_time, connect_time, end_time,
+         termination, failure
+  from cdrs cdr, parties caller, parties callee
+  where cdr.caller_id = caller.id
+  and   cdr.callee_id = callee.id
