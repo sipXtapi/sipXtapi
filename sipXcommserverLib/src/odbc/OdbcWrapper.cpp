@@ -1,8 +1,8 @@
 //
-// Copyright (C) 2005 SIPfoundry Inc.
-// Licensed by SIPfoundry under the LGPL license.
+// Copyright (C) 2006 SIPfoundry Inc.
+// Licensed by SIPfondry under the LGPL license.
 //
-// Copyright (C) 2005 Pingtel Corp.
+// Copyright (C) 2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
@@ -111,8 +111,8 @@ OdbcHandle odbcConnect(const char* dbname,
             if (!SQL_SUCCEEDED(sqlRet))
             {
                OsSysLog::add(FAC_ODBC, PRI_ERR,
-                             "odbcConnect: Failed to connect %s",
-                             connectionString.data());   
+                             "odbcConnect: Failed to connect %s, error code %d",
+                             connectionString.data(), sqlRet);   
                              
                SQLFreeHandle(SQL_HANDLE_DBC, handle->mConnectionHandle);
                SQLFreeHandle(SQL_HANDLE_ENV, handle->mEnvironmentHandle);
@@ -200,8 +200,8 @@ bool odbcExecute(const OdbcHandle handle,
       if (!SQL_SUCCEEDED(sqlRet))
       {
          OsSysLog::add(FAC_ODBC, PRI_ERR,
-                       "odbcExecute: statement %s failed",
-                       sqlStatement);
+                       "odbcExecute: statement %s failed, error code %d",
+                       sqlStatement, sqlRet);
       }
       else
       {
@@ -232,7 +232,8 @@ int odbcResultColumns(const OdbcHandle handle)
       if (!SQL_SUCCEEDED(sqlRet))
       {
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
-                       "odbcResultColumns: SQLNumResultCols failed");         
+                       "odbcResultColumns: SQLNumResultCols failed, "
+                       "error code %d", sqlRet);         
       }
       else
       {
@@ -262,7 +263,8 @@ bool odbcGetNextRow(const OdbcHandle handle)
       if (!SQL_SUCCEEDED(sqlRet))
       {
          OsSysLog::add(FAC_ODBC, PRI_DEBUG,
-                       "odbcGetNextRow: SQLFetch failed");         
+                       "odbcGetNextRow: SQLFetch failed, error code %d",
+                       sqlRet);         
       }
       else
       {
@@ -299,8 +301,9 @@ bool odbcGetColumnStringData(const OdbcHandle handle,
       if (!SQL_SUCCEEDED(sqlRet))
       {
          OsSysLog::add(FAC_ODBC, PRI_WARNING,
-                       "odbcGetColumnStringData: SQLGetData on column %d failed",
-                       columnIndex);              
+                       "odbcGetColumnStringData: SQLGetData on column %d "
+                       "failed, error code %d",
+                       columnIndex, sqlRet);              
       }                           
       else
       {
@@ -333,7 +336,8 @@ bool odbcClearResultSet(const OdbcHandle handle)
       if (!SQL_SUCCEEDED(sqlRet))
       {
          OsSysLog::add(FAC_ODBC, PRI_WARNING,
-                       "odbcClearResultSet: SQLFreeStmt failed");          
+                       "odbcClearResultSet: SQLFreeStmt failed, "
+                       "error code %d", sqlRet);          
       }
       else
       {
