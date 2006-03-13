@@ -75,8 +75,15 @@ Call State Event Database Design Specification
 
         Configuration parameters are: 
   
-        - Database logging enabled/disabled
-        - Host name
+        - SIP_AUTHPROXY_CALL_STATE_DB : DISBALE/ENABLE
+
+            DISABLED is the default, will direct CSE logging to PostgreSQL
+            database "SIPXCDR".
+
+        - SIP_AUTHPROXY_CALL_STATE_DB_HOST : [hostname]
+
+            If not specified will default to "localhost", can be used to have 
+            CSE database located on  another server.
 
     - Implement call state database logging for Forking/Auth proxy
 
