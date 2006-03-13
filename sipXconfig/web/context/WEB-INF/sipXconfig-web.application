@@ -131,6 +131,7 @@
     <component-type type="SettingsNavigation" specification-path="setting/SettingsNavigation.jwc"/>
     <component-type type="SpecialAttendantPanel" specification-path="dialplan/SpecialAttendantPanel.jwc"/>
     <component-type type="Table" specification-path="common/Table.jwc"/>
+    <component-type type="TabNavigation" specification-path="common/TabNavigation.jwc"/>
     <component-type type="ToggleLink" specification-path="common/ToggleLink.jwc"/>
     <component-type type="UserForm" specification-path="user/UserForm.jwc"/>
     <component-type type="UserNavigation" specification-path="user/UserNavigation.jwc"/>
