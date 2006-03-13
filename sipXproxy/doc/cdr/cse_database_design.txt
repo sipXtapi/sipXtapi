@@ -12,12 +12,12 @@ Call State Event Database Design Specification
 
     - Design Postgres database schema
 
-      - Schema file (Postgres-specific) will be checked into 
+      - Schema file (Postgres-specific) is in
         sipXproxy/etc/database/schema.sql
 
     - Design API for ODBC access (write only - read functions needed 
-      for unit tests). Connections will be 'DSN-less' with specifying
-      database name, host name, and driver so no global odbc.ini 
+      for unit tests). Connections will be 'DSN-less', specifying
+      database name, host name, and driver directly so no global odbc.ini 
       configuration file is needed.
 
       - API for ODBC access
@@ -29,7 +29,7 @@ Call State Event Database Design Specification
                                const char* driver,
                                const char* password=NULL);
 
-        // Disconnects from databse and frees all associated memory
+        // Disconnects from database and frees all associated memory
         void odbcDisconnect(OdbcHandle &handle);
 
         // Execute SQL statement, return true or false depending on success
@@ -75,27 +75,27 @@ Call State Event Database Design Specification
 
         Configuration parameters in authproxy-config.in are: 
   
-        - SIP_AUTHPROXY_CALL_STATE_DB : DISBALE/ENABLE
+        - SIP_AUTHPROXY_CALL_STATE_DB : DISABLE/ENABLE
 
             DISABLED is the default, will direct CSE logging to PostgreSQL
             database "SIPXCDR".
 
         - SIP_AUTHPROXY_CALL_STATE_DB_HOST : [hostname]
 
-            If not specified will default to "localhost", can be used to have 
-            CSE database located on  another server.
+            If not specified will default to "localhost", can be used in the
+            future to have CSE database located on another server.
 
         Configuration parameters in proxy-config.in are: 
   
-        - SIP_PROXY_CALL_STATE_DB : DISBALE/ENABLE
+        - SIP_PROXY_CALL_STATE_DB : DISABLE/ENABLE
 
             DISABLED is the default, will direct CSE logging to PostgreSQL
             database "SIPXCDR".
 
         - SIP_PROXY_CALL_STATE_DB_HOST : [hostname]
 
-            If not specified will default to "localhost", can be used to have 
-            CSE database located on  another server.
+            If not specified will default to "localhost", can be used in the
+            future to have CSE database located on another server.
 
     - Implement call state database logging for Forking/Auth proxy
 
@@ -104,6 +104,6 @@ Call State Event Database Design Specification
         use the ODBC abtraction layer implemented in the 
         sipXcommserverLib.
 
-      - Additional work may be required in normalizing from and to URLs and
+      - Additional work may be required in normalizing caller and callee URLs and
         getting rid of from and to tags. That and the amount of work involved
         still needs to be investigated.
