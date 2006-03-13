@@ -16,38 +16,41 @@ Call State Event Database Design Specification
         sipXproxy/etc/database/schema.sql
 
     - Design API for ODBC access (write only - read functions needed 
-      for unit tests)
+      for unit tests). Connections will be 'DSN-less' with specifying
+      database name, host name, and driver so no global odbc.ini 
+      configuration file is needed.
 
       - API for ODBC access
 
-        // Check if database exixts
-        bool odbcCheckExistence(const char* dbname);
-
         // Connects to database and returns a handle
-        OdbcHandle* odbcConnect(const char* dbname,
-                                const char* username,
-                                const char* password=NULL,
-                                const char* driver=NULL);
+        OdbcHandle odbcConnect(const char* dbname,
+                               const char* servername,
+                               const char* username,
+                               const char* driver,
+                               const char* password=NULL);
 
         // Disconnects from databse and frees all associated memory
-        void odbcDisconnect(OdbcHandle* handle);
+        void odbcDisconnect(OdbcHandle &handle);
 
         // Execute SQL statement, return true or false depending on success
-        bool odbcExecute(OdbcHandle* handle,
+        bool odbcExecute(const OdbcHandle handle,
                          const char* sqlStatement);
 
         // Retrieve number of columns in result set
-        int odbcResultColumns(OdbcHandle* handle);
+        int odbcResultColumns(const OdbcHandle handle);
 
         // Move to next result row, reset by new result set generating 
         // statement. Returns true while there is a next row to move to.
-        bool odbGetNextRowHandle* handle);
+        bool odbGetNextRow(const OdbcHandle handle);
 
         // Get column data from current row as string
-        bool odbcGetColumnStringData(OdbcHandle* handle,
+        bool odbcGetColumnStringData(const OdbcHandle handle,
                                      int columnIndex,
                                      char* data,
                                      int dataSize);
+
+        // Clear result set - necessary to execute new fetch statement
+        bool odbcClearResultSet(const OdbcHandle handle);
 
     - Implement ODBC API
 
@@ -69,6 +72,11 @@ Call State Event Database Design Specification
       - Add a entry for ODBC output in the proxy configuration file. 
         Either XML or database option must be set for logging. If both 
         are set only the database option will take effect.
+
+        Configuration parameters are: 
+  
+        - Database logging enabled/disabled
+        - Host name
 
     - Implement call state database logging for Forking/Auth proxy
 
