@@ -143,7 +143,8 @@ OdbcHandle odbcConnect(const char* dbname,
                {              
                   OsSysLog::add(FAC_ODBC, PRI_DEBUG,
                                 "odbcConnect: Connected to database "
-                                "%s", connectionString.data());
+                                "%s, OdbcHandle %p", 
+                                connectionString.data(), handle);
                 }
             }
          }
@@ -164,18 +165,31 @@ bool odbcDisconnect(OdbcHandle &handle)
    
    if (handle)
    {
-      SQLDisconnect(handle->mConnectionHandle);
-      SQLFreeHandle(SQL_HANDLE_STMT, handle->mStatementHandle);
-      SQLFreeHandle(SQL_HANDLE_DBC, handle->mConnectionHandle);
-      SQLFreeHandle(SQL_HANDLE_ENV, handle->mEnvironmentHandle);
+      SQLRETURN sqlRet;
+            
+      SQLFreeStmt(handle->mStatementHandle, SQL_CLOSE);
       
-      delete handle;
-      handle = NULL;
-      
-      OsSysLog::add(FAC_ODBC, PRI_DEBUG,
-                    "odbcDisconnect - disconnecting from database");
-      ret = true;
-   }
+      sqlRet = SQLDisconnect(handle->mConnectionHandle);
+      if (!SQL_SUCCEEDED(sqlRet))
+      {
+         OsSysLog::add(FAC_ODBC, PRI_ERR,
+                       "odbcDisconnect - failed disconnecting from "
+                       "database, erro code %d", sqlRet);
+      }
+      else
+      {
+         SQLFreeHandle(SQL_HANDLE_STMT, handle->mStatementHandle);
+         SQLFreeHandle(SQL_HANDLE_DBC, handle->mConnectionHandle);
+         SQLFreeHandle(SQL_HANDLE_ENV, handle->mEnvironmentHandle);
+         
+         delete handle;
+         handle = NULL;
+         
+         OsSysLog::add(FAC_ODBC, PRI_DEBUG,
+                       "odbcDisconnect - disconnecting from database");
+         ret = true;
+      }
+   }      
    else
    {
       OsSysLog::add(FAC_ODBC, PRI_ERR,

@@ -27,7 +27,8 @@ class OdbcWrapperTest : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE(OdbcWrapperTest);
    CPPUNIT_TEST(testOdbcConnect);
    CPPUNIT_TEST(testOdbcExecute);
-   CPPUNIT_TEST(testOdbcValidateData);
+   CPPUNIT_TEST(testOdbcValidateObserverData);
+   CPPUNIT_TEST(testOdbcValidateEventData);   
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -75,7 +76,7 @@ public:
          
          if (handle)
          {
-            // Clear database
+            // Clear tables
             sprintf(sqlStatement, "DELETE FROM call_state_events *;");
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
             sprintf(sqlStatement, "DELETE FROM call_state_observer_events *;");
@@ -117,15 +118,15 @@ public:
                     "2,"
                     "timestamp \'2006-03-10 13:00:10.573\',"
                     "\'S\',"
-                    "\'call-111111\',"
-                    "\'12345\',"
-                    "\'67890\',"
-                    "\'sip:153@example.com\',"
-                    "\'sip:202@example.com\',"
-                    "\'10.1.1.71\',"
-                    "\'refer-header\',"
+                    "\'call-111112\',"
+                    "\'54321\',"
+                    "\'09876\',"
+                    "\'sip:156@example.com\',"
+                    "\'sip:215@example.com\',"
+                    "\'10.1.20.71\',"
+                    "\'refer-header-2\',"
                     "0,"
-                    "\'No Reason\');");
+                    "\'No Reason-2\');");
                  
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));            
        
@@ -133,7 +134,7 @@ public:
          }
       }
    
-   void testOdbcValidateData()
+   void testOdbcValidateObserverData()
       {
          OdbcHandle handle = NULL;
          char sqlStatement[256];
@@ -174,21 +175,104 @@ public:
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 8, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, 
                            "http://www.sipfoundry.org/sipX/scgema/xml/cse-01-00") == 0); 
-                          
-            // End of rows 
-            CPPUNIT_ASSERT(!odbcGetNextRow(handle));
-            
-            CPPUNIT_ASSERT(odbcClearResultSet(handle));
-            
+                           
+            CPPUNIT_ASSERT(odbcDisconnect(handle));                           
+         }
+      }
+      
+   void testOdbcValidateEventData()
+      {
+         OdbcHandle handle = NULL;
+         char sqlStatement[256];
+      
+         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
+                                            "localhost",
+                                            "postgres",
+                                            "{PostgreSQL}"))!=NULL);
+         
+         if (handle)
+         {
+            int cols;           
+          
             // Get data from call_state_events
             sprintf(sqlStatement, "SELECT * FROM call_state_events;");
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
             
-            CPPUNIT_ASSERT((cols=odbcResultColumns(handle)) == 14);            
+            CPPUNIT_ASSERT((cols=odbcResultColumns(handle)) == 14);   
+
+            CPPUNIT_ASSERT(odbcGetNextRow(handle));
             
-            CPPUNIT_ASSERT(odbcDisconnect(handle));     
+            char buffer[256];            
+
+            // First record
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 2, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "10.1.20.3:5060") == 0);
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 3, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "1") == 0);
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 4, buffer, 256));
+            // When returning a timestamp as string data the fractional component
+            // is truncated - this is expected behavior
+            CPPUNIT_ASSERT(strcmp(buffer, "2006-03-10 13:00:00") == 0);            
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 5, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "R") == 0);            
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 6, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "call-111111") == 0);
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 7, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "12345") == 0);    
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 8, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "67890") == 0);               
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 9, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "sip:153@example.com") == 0);               
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 10, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "sip:202@example.com") == 0);                                       
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 11, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "10.1.1.71") == 0);               
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 12, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "refer-header") == 0);                                       
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 13, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 14, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "No Reason") == 0);                           
+            
+            CPPUNIT_ASSERT(odbcGetNextRow(handle));            
+
+            // Second record            
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 2, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "10.1.20.3:5060") == 0);
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 3, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "2") == 0);
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 4, buffer, 256));
+            // When returning a timestamp as string data the fractional component
+            // is truncated - this is expected behavior
+            CPPUNIT_ASSERT(strcmp(buffer, "2006-03-10 13:00:10") == 0);            
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 5, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "S") == 0);            
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 6, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "call-111112") == 0);
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 7, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "54321") == 0);    
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 8, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "09876") == 0);               
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 9, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "sip:156@example.com") == 0);               
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 10, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "sip:215@example.com") == 0);                                       
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 11, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "10.1.20.71") == 0);               
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 12, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "refer-header-2") == 0);                                       
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 13, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 14, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "No Reason-2") == 0);                                       
+            
+            // End of rows 
+            CPPUNIT_ASSERT(!odbcGetNextRow(handle));
+           
+            CPPUNIT_ASSERT(odbcDisconnect(handle));
          }
-      }
+      }  
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OdbcWrapperTest);
