@@ -82,6 +82,7 @@
         <Set name="LowResourcePersistTimeMs">2000</Set>
         <Set name="acceptQueueSize">0</Set>
         <Set name="algorithm"><SystemProperty name="jetty.x509.algorithm"/></Set>
+        <Set name="protocol">SSLv3</Set>
       </New>
     </Arg>
   </Call>

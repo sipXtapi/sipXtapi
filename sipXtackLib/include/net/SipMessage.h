@@ -167,7 +167,7 @@ class SipUserAgent;
 #define SIP_UNSUPPORTED_URI_SCHEME_TEXT "Unsupported URI Scheme"
 
 #define SIP_BAD_EXTENSION_CODE 420
-#define SIP_BAD_EXTENSION_TEXT "Bad Extension"
+#define SIP_BAD_EXTENSION_TEXT "Extension Not Supported"
 
 #define SIP_TOO_BRIEF_CODE 423
 #define SIP_TOO_BRIEF_TEXT "Registration Too Brief"
