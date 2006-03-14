@@ -104,6 +104,6 @@ Call State Event Database Design Specification
         use the ODBC abtraction layer implemented in the 
         sipXcommserverLib.
 
-      - Additional work may be required in normalizing caller and callee URLs and
+      - Additional work may be required in normalizing from and to URLs and
         getting rid of from and to tags. That and the amount of work involved
         still needs to be investigated.
