@@ -165,7 +165,7 @@ onWebUi() {
     databaseCommand upgrade
     databaseVersionCheck
 
-    # createAuthoritiesTruststore
+    createAuthoritiesTruststore
     @bin.dir@/ssl-cert/create-ssl-keystore.sh
     
     JavaOpts="$SIPXCONFIG_OPTS"
