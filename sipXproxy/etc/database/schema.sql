@@ -164,16 +164,16 @@ alter table cdrs
 ---------------------------------- Views ----------------------------------
 
 /*
- * Simplify the presentation of CDRs by showing all CDR data in a single view so that the
- * user doesn't have to be confronted with normalization into different tables.
+ * Simplify the presentation of CDRs by showing commonly used CDR data in a single
+ * view so that the user doesn't have to be confronted with normalization into
+ * different tables.
  * Do not include SIP dialog info in the view since it is not of interest for billing,
  * it is only used to link the CDR back to raw CSE data, or for CDR post-processing.
  */
 
 create view view_cdrs as
   select cdr.id, 
-         caller.aor as caller_aor, caller.contact as caller_contact,
-         callee.aor as callee_aor, callee.contact as callee_contact,
+         caller.aor as caller_aor, callee.aor as callee_aor,
          start_time, connect_time, end_time,
          termination, failure
   from cdrs cdr, parties caller, parties callee
