@@ -47,7 +47,7 @@ create table call_state_events (
    event_seq       int8 not null,
    event_time      timestamp not null,
    event_type      char(1) not null,
-   callid          text not null,
+   call_id         text not null,
    from_tag        text,
    to_tag          text,
    from_url        text not null,
