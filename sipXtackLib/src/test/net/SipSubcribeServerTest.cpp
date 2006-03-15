@@ -262,7 +262,7 @@ Voice-Message: 0/0 (0/0)\r\n";
        secondNotifyBody->getBytes(&notifyBodyBytes, &notifyBodySize);
        CPPUNIT_ASSERT(notifyBodyBytes);
        ASSERT_STR_EQUAL(mwiStateString, notifyBodyBytes);
-       CPPUNIT_ASSERT(notifyBodySize == strlen(mwiStateString));
+       CPPUNIT_ASSERT(notifyBodySize == (int)strlen(mwiStateString));
        CPPUNIT_ASSERT(notifyBodySize > 10);  // just to make sure both aren't null
        UtlString secondNotifyDialogHandle;
        secondNotify->getDialogHandle(secondNotifyDialogHandle);

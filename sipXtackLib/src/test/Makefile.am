@@ -33,8 +33,11 @@ testsuite_SOURCES = \
     net/SipMessageTest.cpp \
     net/SipPresenceEventTest.cpp \
     net/SipPublishContentMgrTest.cpp \
+    net/SipRefreshManagerTest.cpp \
     net/SipServerShutdownTest.cpp \
     net/SipSrvLookupTest.cpp \
+    net/SipSubcribeServerTest.cpp \
+    net/SipSubcriptionClientTest.cpp \
     net/SipSubcriptionMgrTest.cpp \
     net/SipUserAgentTest.cpp \
     net/UrlTest.cpp \
