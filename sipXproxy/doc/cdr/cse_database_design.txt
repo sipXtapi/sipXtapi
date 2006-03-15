@@ -121,7 +121,7 @@ Call State Event Database Design Specification
       3.3 Unit tests
         
         - Only enable ODBC unit tests for local builds, not automated builds
-        - Check connectivty on localhost
+        - Check connectivity on localhost
         - Check for validity of inserted data
 
 
@@ -141,7 +141,7 @@ Call State Event Database Design Specification
         - SIP_AUTHPROXY_CALL_STATE_DB_HOST : [hostname]
 
             If not specified will default to "localhost", can be used in the 
-            future to have CSE database located on  another server.
+            future to have CSE database located on another server.
 
         Configuration parameters in proxy-config.in are: 
   
@@ -158,11 +158,7 @@ Call State Event Database Design Specification
 
     5. Implement call state database logging for Forking/Auth proxy
 
-      5.1 Derive from existing CallStateEventBuilder class, buildiing
+      5.1 Derive from existing CallStateEventBuilder class, building
           a CallStateEventBuilder_DB class. When logging call state events
           to a database the observer will use the ODBC abstraction layer 
           implemented in the sipXcommserverLib.
-
-      5.2 Additional work may be required in normalizing caller and callee
-          URLs and getting rid of from and to tags. That and the amount of 
-          work involved still needs to be investigated.
