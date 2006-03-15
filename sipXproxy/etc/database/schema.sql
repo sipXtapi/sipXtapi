@@ -80,20 +80,6 @@ create table call_state_observer_events (
 
 ---------------------------------- CDR Tables ----------------------------------
 
-/* 
- * The parties table holds the SIP address of record (AOR) and contact URL for
- * a party in a SIP call, the caller or callee.
- * AOR example: "Bob <sip:bob@biloxi.com>".
- * Contact example: "<sip:bob@192.0.2.4>".
- */
-create table parties (
-  id serial8 not null,                  /* Row ID */
-  aor text not null,                    /* SIP AOR */
-  contact text not null,                /* SIP contact URL */
-  primary key (id) 
-);
-
-
 /*
  * The dialogs table holds the SIP call ID, from tag, and to tag, which together
  * uniquely identify a SIP call.  This info is not relevant for billing, but it
@@ -110,6 +96,20 @@ create table dialogs (
 );
 
 
+/* 
+ * The parties table holds the SIP address of record (AOR) and contact URL for
+ * a party in a SIP call, the caller or callee.
+ * AOR example: "Bob <sip:bob@biloxi.com>".
+ * Contact example: "<sip:bob@192.0.2.4>".
+ */
+create table parties (
+  id serial8 not null,                  /* Row ID */
+  aor text not null,                    /* SIP AOR */
+  contact text not null,                /* SIP contact URL */
+  primary key (id) 
+);
+
+
 /*
  * The cdrs table records info about SIP calls.
  *
@@ -121,44 +121,32 @@ create table dialogs (
  * satisfied by a NULL value.
  *
  * The termination code column holds an single char value indicating why the call
- * was terminated, for example, "N" to indicate normal completion.  Enum values TBD.
- * The IPDR defines a standard set of three-letter termination codes
- * (see http://www.ipdr.org/public/Service_Specifications/3.X/VoIP3.5-A.0.1.pdf).
- * Our codes will have similar semantics, and there will be a mapping between them,
- * but we won't use the IPDR codes directly, to save space.
+ * was terminated.  Codes are:
+ * 
+ *   R: call requested -- got a call_request event, but no other events.
+ *   I: call in progress -- got both call_request and call_setup events.
+ *   C: successful call completion -- call_request, call_setup, and call_end with
+ *      no errors.
+ *   F: call failed -- an error occurred.
  */
 create table cdrs (
   id serial8 not null,              /* Row ID */
-  dialog_id int8 not null,          /* Dialog ID: foreign key to dialogs table */
-  caller_id int8 not null,          /* Caller info: foreign key to parties table */
-  callee_id int8 not null,          /* Callee info: foreign key to parties table */
+  dialog_id int8 not null           /* Dialog ID: foreign key to dialogs table */
+    references dialogs (id),
+  caller_id int8 not null           /* Caller info: foreign key to parties table */
+    references parties (id),
+  callee_id int8 not null           /* Callee info: foreign key to parties table */
+    references parties (id),
   start_time timestamp,             /* Start time in GMT: initial INVITE received */
   connect_time timestamp,           /* Connect time in GMT: ACK received for 200 OK */
   end_time timestamp,               /* End time in GMT: BYE received, or other ending */
   check (connect_time > start_time),
   check (end_time > connect_time),
   termination char(1),              /* Why the call was terminated */
-  failure int2,                     /* SIP error code if the call failed, e.g., 4xx */
+  failure_status int2,              /* SIP error code if the call failed, e.g., 4xx */
+  failure_reason text,              /* Text describing the reason for a call failure */
   primary key (id)
 );
-
-
-/* Add foreign key constraints */
-
-alter table cdrs
-  add constraint fk_cdrs_dialogs
-  foreign key (dialog_id)
-  references dialogs;
-
-alter table cdrs
-  add constraint fk_cdrs_parties_caller
-  foreign key (caller_id)
-  references parties;
-
-alter table cdrs
-  add constraint fk_cdrs_parties_callee
-  foreign key (callee_id)
-  references parties;
 
 
 ---------------------------------- Views ----------------------------------
@@ -175,7 +163,7 @@ create view view_cdrs as
   select cdr.id, 
          caller.aor as caller_aor, callee.aor as callee_aor,
          start_time, connect_time, end_time,
-         termination, failure
+         termination, failure_status, failure_reason
   from cdrs cdr, parties caller, parties callee
   where cdr.caller_id = caller.id
   and   cdr.callee_id = callee.id

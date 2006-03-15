@@ -23,18 +23,10 @@
  * to the cdrs table.
  */
 create table call_directions (
-  id int8 not null,
+  id int8 not null references cdrs (id),
   direction char(1) not null,
   primary key (id)
 );
-
-
-/* Add foreign key constraints */
-
-alter table call_directions
-  add constraint call_directions_fk_cdrs
-  foreign key (id)
-  references cdrs;
 
 
 ---------------------------------- Views ----------------------------------
@@ -49,7 +41,7 @@ create view view_cdrs_cleveland as
   select cdr.id, 
          caller_aor, callee_aor,
          start_time, connect_time, end_time,
-         termination, failure,
+         termination, failure_status, failure_reason,
          direction
   from view_cdrs cdr, call_directions call_dir
   where cdr.id = call_dir.id
