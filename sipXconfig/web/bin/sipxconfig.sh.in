@@ -34,10 +34,11 @@ RequiredDatabaseVersion=2
 IndexDir=${TmpDir}/index
 
 javaCommand() {
-  if [ -z "$JAVA_HOME" ]; then
+  if [ -n "$JAVA_HOME" ]; then
     cmd="$JAVA_HOME/bin/java"
     if [ -f "$cmd" ]; then
         echo -n "$cmd"
+        return
     fi
   fi
   echo -n "java"
@@ -184,7 +185,7 @@ onWebUi() {
         -Djetty.log.dir=${LogDir} \
         -Djetty.x509.algorithm=${X509Algorithm} \
         -Dorg.apache.lucene.lockdir=${IndexDir} \
-        -Dorg.apache.commons.logging.LogFactory=org.mortbay.log.Factory"
+        -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger"
 
     Classpath=`classpath \
         @sipxpbx.conf.dir@ \
