@@ -679,7 +679,9 @@ StatusServer::initHttpServer (
                 pServerSocket, 
                 pUserPasswordDigestDb,
                 authRealm, 
-                pValidIpAddressDB);
+                pValidIpAddressDB,
+                false /* no persistent tcp connection */
+                                        );
 #else /* ! HAVE_SSL */
             // SSL is not configured in, so we cannot open the requested
             // socket.
