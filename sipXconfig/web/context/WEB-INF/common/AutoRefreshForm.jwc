@@ -3,28 +3,33 @@
   "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
 <component-specification allow-body="yes" allow-informal-parameters="yes">
 
-  <property name="interval" initial-value="30" persist="session"/>
-  <property name="auto" initial-value="false" persist="session"/>
+  <property name="interval" initial-value="30" persist="session" />
+  <property name="auto" initial-value="false" persist="session" />
 
-  <component id="form" type="Form"></component>
+  <component id="intervalForm" type="tacos:AjaxForm"></component>
 
-  <component id="refresh" type="Submit">
+  <component id="refreshForm" type="tacos:AjaxForm"></component>
+
+  <component id="refresh" type="tacos:AjaxSubmit">
     <binding name="value" value="message:button.refresh" />
-    <!-- TODO: check Ajax/Tacos
-      <binding name="updateComponents" value="{'tableView'}"></binding>
-      <binding name="effects">template:{highlight:{any:'[255,255,184], 500, 500'}}</binding>
-    -->
+    <binding name="updateComponents" value="{'refreshedContent'}"></binding>
+    <binding name="statusElement" value="literal:refreshStatus"></binding>
   </component>
-  
+
   <component id="auto" type="Checkbox">
-    <binding name="value" value="auto"/>
+    <binding name="value" value="auto" />
+  </component>
+
+  <component id="interval" type="tacos:InlineEditBox">
+    <binding name="value" value="interval" />
   </component>
   
+  <!-- uncomment to use standard text field  
   <component id="interval" type="TextField">
     <binding name="value" value="interval" />
     <binding name="translator" value="translator:number" />
     <binding name="validators" value="validators:required,min=30,max=6000" />
-    <binding name="displayName" value="message:label.interval"/>
   </component>
+   -->
 
 </component-specification>

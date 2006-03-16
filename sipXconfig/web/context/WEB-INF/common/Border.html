@@ -1,11 +1,11 @@
 <html jwcid="shell">
   <span jwcid="@If" condition="ognl:useDojo">
-    <script type="text/javascript">  
-  		djConfig = { isDebug: false, 
-  			baseRelativePath: "js/dojo/", 
-  			preventBackButtonFix: false };
-  	</script>
-    <script type="text/javascript" src="js/dojo/dojo.js"/>
+    <script type="text/javascript">    
+djConfig = { isDebug: true,
+    baseRelativePath:'<span jwcid="@Insert" value="ognl:baseURL + '/js/dojo/'" />',
+    preventBackButtonFix: false};
+		</script>
+    <script jwcid="@Any" type="text/javascript" src="ognl:baseURL + '/js/dojo/dojo.js'"></script>
   </span>
   <body jwcid="@Body">
     <div jwcid="renderNavigation">

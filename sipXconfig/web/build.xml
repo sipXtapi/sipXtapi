@@ -132,6 +132,7 @@
       <fileset dir="context">
         <include name="css/**/*"/>
         <include name="images/**/*"/>
+        <include name="js/**/*"/>
       </fileset>
       <webinf dir="context/WEB-INF">
         <!-- avoid warning about already there -->

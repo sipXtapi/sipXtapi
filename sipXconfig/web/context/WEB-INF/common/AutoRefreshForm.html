@@ -1,15 +1,17 @@
 <span jwcid="$content$">
-  <form jwcid="form">
+  <form jwcid="intervalForm">
     <ul class="component-links">
       <li><span jwcid="auto"/></li>
-      <li>auto refresh every</li>
-      <li><input jwcid="interval" maxlength="4" size="4"/></li>
-      <li>seconds</li>
+      <li>auto refresh every <div jwcid="interval" maxlength="4" size="4">30</div>&nbsp;seconds</li>
     </ul>
-    <span jwcid="@RenderBody"/>
+	</form>
+  <form jwcid="refreshForm">
+    <div jwcid="@Any" element="div" id="refreshedContent">
+	    <div jwcid="@RenderBody"/>      
+    </div>
     <ul class="component-submit">
       <li>
-        <input jwcid="refresh" type="submit" id="calls:stats:refesh"/>
+        <input jwcid="refresh" type="submit"/>
       </li>
     </ul>
   </form>
