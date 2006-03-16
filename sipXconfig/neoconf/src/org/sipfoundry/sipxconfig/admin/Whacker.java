@@ -43,7 +43,7 @@ public class Whacker implements ApplicationListener {
 
     private SipxProcessContext m_processContext;
     private boolean m_enabled = true;
-    private String m_timeOfDay = "3:42 AM"; // in the local timezone
+    private String m_timeOfDay = DailyBackupSchedule.convertUsTime("3:42 AM"); // in the local timezone
     private String m_scheduledDay = "Sunday";
     private Timer m_timer;
     private boolean m_allowStaleDate;       // for testing only
