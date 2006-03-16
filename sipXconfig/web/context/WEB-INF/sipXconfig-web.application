@@ -91,6 +91,7 @@
       -->
     <component-type type="AdminNavigation" specification-path="common/AdminNavigation.jwc"/>
     <component-type type="AssetSelector" specification-path="common/AssetSelector.jwc"/>
+    <component-type type="AutoRefreshForm" specification-path="common/AutoRefreshForm.jwc"/>
     <component-type type="Border" specification-path="common/Border.jwc"/>
     <component-type type="BridgesPanel" specification-path="conference/BridgesPanel.jwc"/>
     <component-type type="CallPatternEditor" specification-path="dialplan/CallPatternEditor.jwc"/>
