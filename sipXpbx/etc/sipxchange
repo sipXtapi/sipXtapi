@@ -17,7 +17,7 @@ missingok
 
 # Java does not reopen log file periodically, make a copy
 # and truncate current log file.  May lose some data, but 
-# 3.2 will address this with signals
+# this will address in future release
 /var/log/sipxpbx/sipxconfig.log {
    copytruncate
 }
