@@ -44,53 +44,44 @@ public:
       
    void tearDown()
       {
+         OdbcHandle handle = NULL;
+         
+         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
+                                            "localhost",
+                                            "postgres",
+                                            "{PostgreSQL}"))!=NULL);
+         if (handle)
+         {                                                     
+            char sqlStatement[256];            
+            // Clear tables
+            sprintf(sqlStatement, "DELETE FROM call_state_events *;");
+            CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
+            sprintf(sqlStatement, "DELETE FROM observer_state_events *;");
+            CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));             
+         }
 #ifdef ODBC_LOGGING         
          OsSysLog::flush();
 #endif         
       }
       
-   void testOdbcConnect()
+   void databaseWrite(OdbcHandle handle)
       {
-         OdbcHandle handle = NULL;
-       
-         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
-                                            "localhost",
-                                            "postgres",
-                                            "{PostgreSQL}"))!=NULL);
-         
          if (handle)
          {
-            CPPUNIT_ASSERT(odbcDisconnect(handle));
-         }
-      }
-      
-   void testOdbcExecute()
-      {
-         OdbcHandle handle = NULL;
-         char sqlStatement[256];
-        
-         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
-                                            "localhost",
-                                            "postgres",
-                                            "{PostgreSQL}"))!=NULL);
-         
-         if (handle)
-         {
+           char sqlStatement[256];            
             // Clear tables
             sprintf(sqlStatement, "DELETE FROM call_state_events *;");
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
-            sprintf(sqlStatement, "DELETE FROM call_state_observer_events *;");
+            sprintf(sqlStatement, "DELETE FROM observer_state_events *;");
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));            
             
             sprintf(sqlStatement,
-                    "INSERT INTO call_state_observer_events VALUES (DEFAULT,"
+                    "INSERT INTO observer_state_events VALUES (DEFAULT,"
                     "\'10.1.20.3:5060\',"
                     "0,"
                     "timestamp \'2006-03-10 12:59:00.666\',"
-                    "\'R\',"
                     "101,"
-                    "\'AuthProxyCseObserver\',"
-                    "\'http://www.sipfoundry.org/sipX/scgema/xml/cse-01-00\');");
+                    "\'AuthProxyCseObserver\');");
                  
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
        
@@ -128,7 +119,36 @@ public:
                     "0,"
                     "\'No Reason-2\');");
                  
-            CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));            
+            CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement)); 
+         }
+      }
+      
+   void testOdbcConnect()
+      {
+         OdbcHandle handle = NULL;
+       
+         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
+                                            "localhost",
+                                            "postgres",
+                                            "{PostgreSQL}"))!=NULL);
+         
+         if (handle)
+         {
+            CPPUNIT_ASSERT(odbcDisconnect(handle));
+         }
+      }
+      
+   void testOdbcExecute()
+      {
+         OdbcHandle handle = NULL;
+         
+         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
+                                            "localhost",
+                                            "postgres",
+                                            "{PostgreSQL}"))!=NULL);
+         if (handle)
+         {
+            databaseWrite(handle);
        
             CPPUNIT_ASSERT(odbcDisconnect(handle));
          }
@@ -146,13 +166,14 @@ public:
          
          if (handle)
          {
+            databaseWrite(handle);
             int cols;            
             
             // Get data from call_state_observer_events
-            sprintf(sqlStatement, "SELECT * FROM call_state_observer_events;");
+            sprintf(sqlStatement, "SELECT * FROM observer_state_events;");
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
             
-            CPPUNIT_ASSERT((cols=odbcResultColumns(handle)) == 8);
+            CPPUNIT_ASSERT((cols=odbcResultColumns(handle)) == 6);
             
             CPPUNIT_ASSERT(odbcGetNextRow(handle));
             
@@ -166,15 +187,11 @@ public:
             // When returning a timestamp as string data the fractional component
             // is truncated - this is expected behavior
             CPPUNIT_ASSERT(strcmp(buffer, "2006-03-10 12:59:00") == 0);            
+     
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 5, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "R") == 0);            
-            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 6, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "101") == 0);
-            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 7, buffer, 256));
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 6, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "AuthProxyCseObserver") == 0);    
-            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 8, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, 
-                           "http://www.sipfoundry.org/sipX/scgema/xml/cse-01-00") == 0); 
                            
             CPPUNIT_ASSERT(odbcDisconnect(handle));                           
          }
@@ -192,6 +209,8 @@ public:
          
          if (handle)
          {
+            databaseWrite(handle);
+            
             int cols;           
           
             // Get data from call_state_events
@@ -272,7 +291,6 @@ public:
             CPPUNIT_ASSERT(odbcDisconnect(handle));
          }
       }  
-
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(OdbcWrapperTest);

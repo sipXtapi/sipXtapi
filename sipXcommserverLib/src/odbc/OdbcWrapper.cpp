@@ -174,7 +174,7 @@ bool odbcDisconnect(OdbcHandle &handle)
       {
          OsSysLog::add(FAC_ODBC, PRI_ERR,
                        "odbcDisconnect - failed disconnecting from "
-                       "database, erro code %d", sqlRet);
+                       "database, error code %d", sqlRet);
       }
       else
       {
