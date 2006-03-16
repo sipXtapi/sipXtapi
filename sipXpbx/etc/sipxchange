@@ -15,14 +15,11 @@ missingok
 /var/log/sipxpbx/sip?[!c]*.log /var/log/sipxpbx/[!s]*.log {
 }
 
-# Java does not reopen log file periodically but special logger
-# is looking for this signal (See XCF-955)
+# Java does not reopen log file periodically, make a copy
+# and truncate current log file.  May lose some data, but 
+# this will be addressed in future release
 /var/log/sipxpbx/sipxconfig.log {
-    notifempty
-    sharedscripts
-    postrotate
-        /bin/kill -USR2 `cat /var/run/sipxpbx/sipxconfig.pid 2>/dev/null` 2> /dev/null || true
-    endscript
+   copytruncate
 }
 
 /var/log/sipxpbx/httpd_error_log /var/log/sipxpbx/httpd_access_log {

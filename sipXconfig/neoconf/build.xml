@@ -27,11 +27,10 @@
 		<pathelement location="${velocity.jar}" />
 		<pathelement location="${commons-digester.jar}"/>
 		<pathelement location="${commons-collections.jar}" />
-		<pathelement location="${commons-codec.jar}" />
+    <pathelement location="${commons-codec.jar}" />
 		<pathelement location="${commons-io.jar}" />
-		<pathelement location="${xmlrpc.jar}" />
-		<pathelement location="${acegi-security.jar}" />
-		<pathelement location="${log4j.jar}" />
+    <pathelement location="${xmlrpc.jar}" />
+    <pathelement location="${acegi-security.jar}" />
 	</path>
 
 	<!-- 

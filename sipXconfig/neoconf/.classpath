@@ -55,6 +55,5 @@
 	<classpathentry sourcepath="/LIB_SRC/lucene/lucene-1.9-final-src.zip" kind="var" path="SIPX_CONFIG/lib/lucene-core-1.9-final.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/acegi-security-1.0.0-RC1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/junitperf/1.9/src.zip" kind="var" path="SIPX_CONFIG/lib/junitperf-1.9.1.jar"/>
-	<classpathentry sourcepath="/LIB_SRC/log4j/src.zip" kind="var" path="SIPX_CONFIG/lib/log4j-1.2.8.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
