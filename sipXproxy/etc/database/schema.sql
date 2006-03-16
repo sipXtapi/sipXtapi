@@ -86,7 +86,6 @@ create table call_state_observer_events (
    observer        text not null,       /* DNS name of the system that observed the event */
    event_seq       int8 not null,       /* Sequence number of this event at the observer */
    event_time      timestamp not null,  /* Observer (UTC) time when this event occurred */
-   event_type      char(1) not null,
    status          int2 not null,       /* Status code */
    msg             text,                /* Explanatory message from observer */
    primary key     (id)
