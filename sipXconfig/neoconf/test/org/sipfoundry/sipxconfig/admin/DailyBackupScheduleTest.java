@@ -14,23 +14,41 @@ package org.sipfoundry.sipxconfig.admin;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import junit.framework.TestCase;
 
 public class DailyBackupScheduleTest extends TestCase {
-    
+        
     private DailyBackupSchedule schedule;
     
     protected void setUp() {
         schedule = new DailyBackupSchedule();
     }
 
-    public void testGetTimeOfDay() {
+    public void testGetTimeOfDay() throws Exception {
         Date midnight = schedule.getTimeOfDay();
         String actual = DailyBackupSchedule.GMT_TIME_OF_DAY_FORMAT.format(midnight);
-        assertEquals("12:00 AM", actual);
+        String expected = DailyBackupSchedule.convertUsTime("12:00 AM"); 
+        assertEquals(expected, actual);
         
         assertEquals(0, schedule.getTimeOfDay().getTime()); // midnight gmt
+    }
+    
+    static {
+        // helpful testing testConvertUsDate
+        // Locale.setDefault(Locale.UK);
+    }
+    public void testConvertUsDate() {
+        String time = DailyBackupSchedule.convertUsTime("12:00 AM");
+
+        // very hard to test w/preturbing the JVM, but here incase
+        // other locales act weird
+        if (!Locale.US.equals(Locale.getDefault())) {
+            assertFalse("12:00 AM".equals(time));
+        } else {
+            assertEquals("12:00 AM", time);            
+        }
     }
     
     public void testGetTimerPeriod() {
