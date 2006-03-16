@@ -74,14 +74,14 @@ create table call_state_events (
 
 
 /*
- * The call_state_observer_events holds events relating to the event observer
+ * The observer_state_events table holds events relating to the event observer
  * state, for example, that the observer has restarted.  The forking proxy
  * and auth proxy are event observers.
  *
  * Status codes:
  *   101 - Observer Reset
  */
-create table call_state_observer_events (
+create table observer_state_events (
    id              serial8 not null,
    observer        text not null,       /* DNS name of the system that observed the event */
    event_seq       int8 not null,       /* Sequence number of this event at the observer */
