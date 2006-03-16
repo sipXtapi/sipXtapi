@@ -80,22 +80,6 @@ create table call_state_observer_events (
 
 ---------------------------------- CDR Tables ----------------------------------
 
-/*
- * The dialogs table holds the SIP call ID, from tag, and to tag, which together
- * uniquely identify a SIP call.  This info is not relevant for billing, but it
- * is useful if one wants to do post-processing on the CDRs, or to link a CDR
- * back to the call state events (CSE) from which the CDR was created.
- */
-create table dialogs (
-  id serial8 not null,                  /* Row ID */
-  call_id text not null,                /* SIP call ID */
-  from_tag text not null,               /* SIP from tag */
-  to_tag text not null,                 /* SIP to tag */
-  unique (call_id, from_tag, to_tag),
-  primary key (id) 
-);
-
-
 /* 
  * The parties table holds the SIP address of record (AOR) and contact URL for
  * a party in a SIP call, the caller or callee.
@@ -131,8 +115,9 @@ create table parties (
  */
 create table cdrs (
   id serial8 not null,              /* Row ID */
-  dialog_id int8 not null           /* Dialog ID: foreign key to dialogs table */
-    references dialogs (id),
+  call_id text not null,            /* SIP call ID from the INVITE */
+  from_tag text not null,           /* SIP from tag provided by caller in the INVITE */
+  to_tag text not null,             /* SIP to tag provided by callee in the 200 OK */
   caller_id int8 not null           /* Caller info: foreign key to parties table */
     references parties (id),
   callee_id int8 not null           /* Callee info: foreign key to parties table */
