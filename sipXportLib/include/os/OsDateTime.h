@@ -128,6 +128,10 @@ public:
      //:Return the current local time as an OsDateTime value in the
      // following format:
      // Mon, 8/26/2002 07:21:32 PM EST
+     
+   /// Set the dateString to the time as UTC time in a Postgres compatible format:
+   ///   2002-08-26 19:21:32.000
+   void OsDateTimeBase::getSqlTimeStringZ(UtlString& dateString);
 
    /// Set the dateString to the time as UTC time in the following format:
    ///   2002-08-26T19:21:32.000Z
