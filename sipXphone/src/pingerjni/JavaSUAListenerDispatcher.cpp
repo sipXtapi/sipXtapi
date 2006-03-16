@@ -75,8 +75,8 @@ OsMutex	JavaSUAListenerDispatcher::m_sMutexListeners(OsMutex::Q_FIFO) ;
 // Constructor
 JavaSUAListenerDispatcher::JavaSUAListenerDispatcher()
     : OsServerTask(m_sTaskName)
-    , m_htSipListeners(8, TRUE)
-    , m_htLineListeners(8, TRUE)
+    , m_htSipListeners()
+    , m_htLineListeners()
 {
 }
 

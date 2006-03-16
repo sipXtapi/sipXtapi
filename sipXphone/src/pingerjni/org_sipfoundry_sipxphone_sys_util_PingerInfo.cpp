@@ -20,6 +20,7 @@
 #include "licensemanager/BaseLicenseManager.h"
 #include <net/SipLine.h>
 #include <net/SipLineMgr.h>
+#include <net/SipRefreshMgr.h>
 #include <pinger/Pinger.h>
 
 #include "pinger/PingerInfo.h"
