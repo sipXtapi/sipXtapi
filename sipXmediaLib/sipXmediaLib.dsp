@@ -41,7 +41,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "include" /I "..\sipXportLib\include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\gips\include" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "DISABLE_MEM_POOLS" /D "HAVE_GIPS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "include" /I "..\sipXportLib\include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\gips\include" /D "NDEBUG" /D "WIN32" /D "_MBCS" /D "_LIB" /D "DISABLE_MEM_POOLS" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -72,7 +72,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"Debug\sipXmediaLibd.lib"
 
 !ENDIF 
 

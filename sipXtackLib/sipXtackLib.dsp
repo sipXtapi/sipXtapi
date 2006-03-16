@@ -72,7 +72,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"Debug\sipXtackLibd.lib"
 
 !ENDIF 
 
@@ -286,6 +286,10 @@ SOURCE=.\src\net\SipObserverCriteria.cpp
 # Begin Source File
 
 SOURCE=.\src\net\SipPimClient.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\net\SipPresenceEvent.cpp
 # End Source File
 # Begin Source File
 
@@ -590,6 +594,10 @@ SOURCE=.\include\net\SipObserverCriteria.h
 # Begin Source File
 
 SOURCE=.\include\net\SipPimClient.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\SipPresenceEvent.h
 # End Source File
 # Begin Source File
 
