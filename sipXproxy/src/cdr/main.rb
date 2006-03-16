@@ -15,7 +15,6 @@ require 'parsedate'
 # application requirements
 require 'call_resolver'
 
-module Cdr
 
 # Parse command-line options
 #   start: date/time from which to start analyzing call events
@@ -48,11 +47,6 @@ opts.each do |opt, arg|
     redo_flag = true
 
   end
-end
-
-# If the end time is not provided, then set it to 1 day after the start time.
-if !end_time
-  end_time = start_time.next
 end
 
 # Invoke the Call Resolver

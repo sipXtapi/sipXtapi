@@ -1,0 +1,56 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+# Call State Event (CSE) test data.
+# Construct multiple test cases for the Call Resolver by creating sets of CSEs.
+
+# Event types are:
+#    'R' - Call Request
+#    'S' - Call Setup
+#    'E' - Call End
+#    'F' - Call Failure
+
+#-------------------------------------------------------------------------------
+
+# Simple success case: call request, call connect, call end.
+# Should yield a single CDR.
+
+testSimpleSuccess_1:
+  id: 1
+  observer:   O
+  event_seq:  1
+  event_time: 1990-05-17T07:30:00.000Z
+  event_type: R
+  call_id:    testSimpleSuccess
+  from_tag:   f
+  to_tag:
+  from_url :  sip:alice@example.com; tag=f
+  to_url :    sip:bob@example.com
+  contact :   sip:alice@1.1.1.1
+
+testSimpleSuccess_2:
+  id: 2
+  observer:   O
+  event_seq:  2
+  event_time: 1990-05-17T07:31:00.000Z
+  event_type: S
+  call_id:    testSimpleSuccess
+  from_tag:   f
+  to_tag:     t
+  from_url :  sip:alice@example.com; tag=f
+  to_url :    sip:bob@example.com; tag=t
+  contact :   sip:bob@2.2.2.2
+
+testSimpleSuccess_3:
+  id: 3
+  observer:   O
+  event_seq:  3
+  event_time: 1990-05-17T07:40:00.000Z
+  event_type: E
+  call_id:    testSimpleSuccess
+  from_tag:   f
+  to_tag:     t
+  from_url :  sip:alice@example.com; tag=f
+  to_url :    sip:bob@example.com; tag=t
+  contact :   
+
+#-------------------------------------------------------------------------------
