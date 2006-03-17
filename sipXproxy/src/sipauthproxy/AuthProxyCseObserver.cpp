@@ -205,7 +205,8 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             }
             if (0==method.compareTo(SIP_REFER_METHOD, UtlString::ignoreCase))
             {
-               OsSysLog::add(FAC_SIP, PRI_DEBUG, "Seen REFER method!");
+               thisMsgIs = aCallTransfer;
+               sipMsg->getContactEntry(0, &contact);               
             }
             if (0==method.compareTo(SIP_BYE_METHOD, UtlString::ignoreCase))
             {
@@ -268,6 +269,7 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
                         : thisMsgIs == aCallEnd      ? "a Call End"
                         : thisMsgIs == aCallFailure  ? "a Call Failure"
                         : thisMsgIs == aCallSetup    ? "a Call Setup"
+                        : thisMsgIs == aCallTransfer ? "a Call Transfer"
                         : "BROKEN"
                         )); 
 #        endif
@@ -301,6 +303,11 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             UtlString fromField;
             sipMsg->getFromField(&fromField);
 
+            UtlString referTo;
+            UtlString referredBy;            
+            sipMsg->getReferToField(referTo);
+            sipMsg->getReferredByField(referredBy);            
+
             // generate the call state event record
             if (mpBuilder)
             {
@@ -317,6 +324,11 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
                case aCallEnd:
                   mpBuilder->callEndEvent(mSequenceNumber, timeNow);
                   break;
+                  
+               case aCallTransfer:
+                  mpBuilder->callTransferEvent(mSequenceNumber, timeNow, 
+                                               contact, referTo, referredBy);
+                  break;   
    
                default:
                   // shouldn't be possible to get here

@@ -122,6 +122,20 @@ class CallStateEventBuilder
    virtual void callEndEvent(const int sequenceNumber,
                              const OsTime& timestamp      ///< obtain using getCurTime(OsTime)
                              );
+                             
+   /// Begin a Call Transfer Event - a REFER request has been observed
+   /**
+    * Requires:
+    *   - callEndEvent
+    *   - addCallData
+    *   - completeCallEvent
+    */
+   virtual void callTransferEvent(const int sequenceNumber,
+                                  const OsTime& timestamp,   ///< obtain using getCurTime(OsTime)
+                                  const UtlString& contact,
+                                  const UtlString& refer_to,
+                                  const UtlString& referred_by
+                                  );
 
    /// Add the dialog and call information for the event being built.
    virtual void addCallData(const UtlString& callId,
@@ -162,6 +176,7 @@ class CallStateEventBuilder
          CallSetupEvent,
          CallFailureEvent,
          CallEndEvent,
+         CallTransferEvent,
          AddCallData,
          AddVia,
          CompleteCallEvent

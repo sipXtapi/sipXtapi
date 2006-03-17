@@ -92,6 +92,7 @@ bool CallStateEventBuilder::builderStateIsOk( BuilderMethod method )
          case CallSetupEvent:
          case CallFailureEvent:
          case CallEndEvent:
+         case CallTransferEvent:
             VALID(CallEventStarted);
             break;
          default:
@@ -238,6 +239,25 @@ void CallStateEventBuilder::callEndEvent(const int sequenceNumber,
 {
    bool CalledBaseClassMethod_callEndEvent = false;
    assert(CalledBaseClassMethod_callEndEvent);
+}
+
+
+/// Begin a Call Transfer Event - a REFER request has been observed
+/**
+ * Requires:
+ *   - callEndEvent
+ *   - addCallData
+ *   - addEventVia (at least for via index zero)
+ *   - completeCallEvent
+ */
+void CallStateEventBuilder::callTransferEvent(int sequenceNumber, 
+                                              const OsTime& timeStamp, 
+                                              const UtlString& contact,
+                                              const UtlString& refer_to,
+                                              const UtlString& referred_by)
+{
+   bool CalledBaseClassMethod_callTransferEvent = false;
+   assert(CalledBaseClassMethod_callTransferEvent);    
 }
 
 

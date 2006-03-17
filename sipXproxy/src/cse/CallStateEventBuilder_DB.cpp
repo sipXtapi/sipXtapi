@@ -25,6 +25,7 @@ static const char CallRequestType = 'R';
 static const char CallSetupType = 'S';
 static const char CallEndType = 'E';
 static const char CallFailureType = 'F';
+static const char CallTransferType = 'T';
 
 static const char* ModuleName = 
   "CallStateEventBuilder_DB";
@@ -40,10 +41,13 @@ static const char* CallEvent_Start =
   "timestamp \'";
 
 static const char* CallEvent_NoFailure =
-  "0, \'\'";
+  "0,\'\'";
   
 static const char* CallEvent_DefaultElement =
   "\'\',";
+  
+static const char* CallEvent_DefaultReferElement =
+  "\'\',\'\',";  
 
 // STRUCTS
 // TYPEDEFS
@@ -230,6 +234,34 @@ void CallStateEventBuilder_DB::callEndEvent(const int sequenceNumber,
 }
 
 
+/// Begin a Call Transfer Event - a REFER request has been observed
+/**
+ * Requires:
+ *   - callTransferEvent
+ *   - addCallData
+ *   - completeCallEvent
+ */
+void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber, 
+                                                  const OsTime& timeStamp, 
+                                                  const UtlString& contact,
+                                                  const UtlString& refer_to,
+                                                  const UtlString& referred_by) 
+{
+   if (builderStateIsOk(CallTransferEvent))
+   {
+      newEvent(sequenceNumber, timeStamp, CallEventTable, CallTransferType);
+      mContactElement = "\'" + contact + "\',";
+      mReferElement = "\'"+ refer_to + "\',\'" + referred_by + "\',";
+   }
+   else
+   {
+      assert(false);
+      OsSysLog::add(FAC_SIP, PRI_ERR, 
+                    "%s::callEndEvent not allowed.", ModuleName);
+   }   
+}
+
+
 /// Add the dialog and call information for the event being built.
 void CallStateEventBuilder_DB::addCallData(const UtlString& callId,
                                             const UtlString& fromTag,  /// may be a null string
@@ -296,7 +328,7 @@ void CallStateEventBuilder_DB::reset()
    mViaHeader = CallEvent_DefaultElement;
    mLaterElement = CallEvent_DefaultElement;
    mContactElement = CallEvent_DefaultElement;
-   mReferElement = CallEvent_DefaultElement;
+   mReferElement = CallEvent_DefaultReferElement;
    mFailureElement = CallEvent_NoFailure;
    mEndElement.remove(0);
    mEventComplete = false;
