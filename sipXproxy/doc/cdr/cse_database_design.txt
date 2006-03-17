@@ -67,7 +67,7 @@ Call State Event Database Design Specification
                        party.
         refer_to       Refer-To header field value, filled in on a REFER 
                        request.
-        referred-by    Referred-By header field value, filled in on a REFER
+        referred_by    Referred-By header field value, filled in on a REFER
                        request.
         failure_status Only relevant in Call Failure events, contains the
                        4xx, 5xx, or 6xx status code.
