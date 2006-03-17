@@ -97,7 +97,8 @@ public:
                     "\'sip:153@example.com\',"
                     "\'sip:202@example.com\',"
                     "\'10.1.1.71\',"
-                    "\'refer-header\',"
+                    "\'refer-to\',"
+                    "\'referred-by\',"                    
                     "0,"
                     "\'No Reason\');");
                  
@@ -115,7 +116,8 @@ public:
                     "\'sip:156@example.com\',"
                     "\'sip:215@example.com\',"
                     "\'10.1.20.71\',"
-                    "\'refer-header-2\',"
+                    "\'refer-to-2\',"
+                    "\'referred-by-2\',"                    
                     "0,"
                     "\'No Reason-2\');");
                  
@@ -217,7 +219,7 @@ public:
             sprintf(sqlStatement, "SELECT * FROM call_state_events;");
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
             
-            CPPUNIT_ASSERT((cols=odbcResultColumns(handle)) == 14);   
+            CPPUNIT_ASSERT((cols=odbcResultColumns(handle)) == 15);   
 
             CPPUNIT_ASSERT(odbcGetNextRow(handle));
             
@@ -247,10 +249,12 @@ public:
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 11, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "10.1.1.71") == 0);               
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 12, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "refer-header") == 0);                                       
+            CPPUNIT_ASSERT(strcmp(buffer, "refer-to") == 0);   
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 13, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(strcmp(buffer, "referred-by") == 0);                                                   
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 14, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 15, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "No Reason") == 0);                           
             
             CPPUNIT_ASSERT(odbcGetNextRow(handle));            
@@ -279,10 +283,12 @@ public:
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 11, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "10.1.20.71") == 0);               
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 12, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "refer-header-2") == 0);                                       
+            CPPUNIT_ASSERT(strcmp(buffer, "refer-to-2") == 0);
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 13, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(strcmp(buffer, "referred-by-2") == 0);                  
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 14, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 15, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "No Reason-2") == 0);                                       
             
             // End of rows 
