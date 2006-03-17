@@ -66,7 +66,8 @@ create table call_state_events (
    to_url          text not null,       /* Full To header field value */
    contact         text,    /* Contact header field value. For Call Request this is the
                                calling party, for Call Setup this is the called party. */
-   refer           text,                /* Refer header field value (empty at this time) */
+   refer_to        text,                /* Refer-To header field value */
+   referred_by     text,                /* Referred-By header field value */
    failure_status  int2,    /* For Call Failure events, holds 4xx, 5xx, or 6xx status code */
    failure_reason  text,    /* For Call Failure events, holds error text */
    primary key     (id)
