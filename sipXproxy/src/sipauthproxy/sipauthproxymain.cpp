@@ -40,17 +40,31 @@
 
 #define CONFIG_SETTING_CALL_STATE         "SIP_AUTHPROXY_CALL_STATE"
 #define CONFIG_SETTING_CALL_STATE_LOG     "SIP_AUTHPROXY_CALL_STATE_LOG"
-#define CONFIG_SETTING_CALL_STATE_DB      "SIP_AUTHPROXY_CALL_STATE_DB"
-#define CONFIG_SETTING_CALL_STATE_DB_HOST "SIP_AUTHPROXY_CALL_STATE_DB_HOST"
 #define CALL_STATE_LOG_FILE_DEFAULT SIPX_LOGDIR "/sipauthproxy_callstate.log"
-#define CALL_STATE_DATABASE_NAME          "SIPXCDR"
-#define CALL_STATE_DATABASE_USER          "postgres"
-#define CALL_STATE_DATABASE_DRIVER        "{PostgreSQL}"
 
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+static const char* CONFIG_SETTING_CALL_STATE_DB =
+   "SIP_AUTHPROXY_CALL_STATE_DB";
+static const char* CONFIG_SETTING_CALL_STATE_DB_HOST =
+   "SIP_AUTHPROXY_CALL_STATE_DB_HOST";
+static const char* CONFIG_SETTING_CALL_STATE_DB_NAME =
+   "SIP_AUTHPROXY_CALL_STATE_DB_NAME";   
+static const char* CONFIG_SETTING_CALL_STATE_DB_USER =
+   "SIP_AUTHPROXY_CALL_STATE_DB_USER";   
+static const char* CONFIG_SETTING_CALL_STATE_DB_DRIVER =
+   "SIP_AUTHPROXY_CALL_STATE_DB_DRIVER";   
+static const char* CALL_STATE_DATABASE_HOST =
+   "localhost";   
+static const char* CALL_STATE_DATABASE_NAME =
+   "SIPXCDR";
+static const char* CALL_STATE_DATABASE_USER =
+   "postgres";
+static const char* CALL_STATE_DATABASE_DRIVER =
+   "{PostgreSQL}";
+   
 // STRUCTS
 // TYPEDEFS
 typedef void (*sighandler_t)(int);
@@ -382,7 +396,10 @@ main( int argc, char* argv[] )
         configDb.set(CONFIG_SETTING_CALL_STATE, "DISABLE");
         configDb.set(CONFIG_SETTING_CALL_STATE_LOG, "");
         configDb.set(CONFIG_SETTING_CALL_STATE_DB, "DISABLE");
-        configDb.set(CONFIG_SETTING_CALL_STATE_DB_HOST, "localhost");
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_HOST, CALL_STATE_DATABASE_HOST);
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_NAME, CALL_STATE_DATABASE_NAME);
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_USER, CALL_STATE_DATABASE_USER);
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_DRIVER, CALL_STATE_DATABASE_DRIVER);
 
         if (configDb.storeToFile(ConfigfileName) != OS_SUCCESS)
         {
@@ -540,24 +557,51 @@ main( int argc, char* argv[] )
     else
     {
        enableCallStateDbObserver = false;
-       OsSysLog::add(FAC_SIP, PRI_ERR, "SipAuthProxyMain:: invalid configuration value for "
-                     CONFIG_SETTING_CALL_STATE_DB " '%s' - should be 'enable' or 'disable'",
-                     enableCallStateDbObserverSetting.data()
+       OsSysLog::add(FAC_SIP, PRI_ERR, "SipAuthProxyMain:: invalid configuration value for %s "
+                     " '%s' - should be 'enable' or 'disable'",
+                     CONFIG_SETTING_CALL_STATE_DB, enableCallStateDbObserverSetting.data()
                      );
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_DB " : %s",
+    OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB,
                   enableCallStateDbObserver ? "ENABLE" : "DISABLE" );
 
     UtlString callStateDbHostName;
+    UtlString callStateDbName;
+    UtlString callStateDbUserName;
+    UtlString callStateDbDriver;    
     if (enableCallStateDbObserver)
     {
        configDb.get(CONFIG_SETTING_CALL_STATE_DB_HOST, callStateDbHostName);
        if (callStateDbHostName.isNull())
        {
-          callStateDbHostName = "localhost";
+          callStateDbHostName = CALL_STATE_DATABASE_HOST;
        }
-       OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_DB_HOST " : %s",
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB_HOST,
                      callStateDbHostName.data());
+                     
+       configDb.get(CONFIG_SETTING_CALL_STATE_DB_NAME, callStateDbName);
+       if (callStateDbName.isNull())
+       {
+          callStateDbName = CALL_STATE_DATABASE_NAME;
+       }
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",  CONFIG_SETTING_CALL_STATE_DB_NAME,
+                     callStateDbName.data());
+                     
+       configDb.get(CONFIG_SETTING_CALL_STATE_DB_USER, callStateDbUserName);
+       if (callStateDbUserName.isNull())
+       {
+          callStateDbUserName = CALL_STATE_DATABASE_USER;
+       }
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB_USER,
+                     callStateDbUserName.data());                                          
+                     
+       configDb.get(CONFIG_SETTING_CALL_STATE_DB_DRIVER, callStateDbDriver);
+       if (callStateDbDriver.isNull())
+       {
+          callStateDbDriver = CALL_STATE_DATABASE_DRIVER;
+       }
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",  CONFIG_SETTING_CALL_STATE_DB_DRIVER,
+                     callStateDbDriver.data());                          
     }    
     
     // Select logging method - database takes priority over XML file
@@ -673,10 +717,10 @@ main( int argc, char* argv[] )
     else if (enableCallStateDbObserver)
     {
        pEventWriter = new CallStateEventWriter(CallStateEventWriter::CseLogDatabase,
-                                               CALL_STATE_DATABASE_NAME,
+                                               callStateDbName.data(),
                                                callStateDbHostName.data(),
-                                               CALL_STATE_DATABASE_USER,
-                                               CALL_STATE_DATABASE_DRIVER);      
+                                               callStateDbUserName,
+                                               callStateDbDriver);      
     }                                            
        
     if (pEventWriter)

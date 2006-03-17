@@ -60,11 +60,25 @@
 #define CONFIG_SETTING_LOG_DIR        "SIP_PROXY_LOG_DIR"
 #define CONFIG_SETTING_CALL_STATE     "SIP_PROXY_CALL_STATE"
 #define CONFIG_SETTING_CALL_STATE_LOG "SIP_PROXY_CALL_STATE_LOG"
-#define CONFIG_SETTING_CALL_STATE_DB      "SIP_PROXY_CALL_STATE_DB"
-#define CONFIG_SETTING_CALL_STATE_DB_HOST "SIP_PROXY_CALL_STATE_DB_HOST"
-#define CALL_STATE_DATABASE_NAME          "SIPXCDR"
-#define CALL_STATE_DATABASE_USER          "postgres"
-#define CALL_STATE_DATABASE_DRIVER        "{PostgreSQL}"
+
+static const char* CONFIG_SETTING_CALL_STATE_DB =
+   "SIP_PROXY_CALL_STATE_DB";
+static const char* CONFIG_SETTING_CALL_STATE_DB_HOST =
+   "SIP_PROXY_CALL_STATE_DB_HOST";
+static const char* CONFIG_SETTING_CALL_STATE_DB_NAME =
+   "SIP_PROXY_CALL_STATE_DB_NAME";   
+static const char* CONFIG_SETTING_CALL_STATE_DB_USER =
+   "SIP_PROXY_CALL_STATE_DB_USER";   
+static const char* CONFIG_SETTING_CALL_STATE_DB_DRIVER =
+   "SIP_PROXY_CALL_STATE_DB_DRIVER";   
+static const char* CALL_STATE_DATABASE_HOST =
+   "localhost";   
+static const char* CALL_STATE_DATABASE_NAME =
+   "SIPXCDR";
+static const char* CALL_STATE_DATABASE_USER =
+   "postgres";
+static const char* CALL_STATE_DATABASE_DRIVER =
+   "{PostgreSQL}";
 
 #define PRINT_ROUTE_RULE(APPEND_STRING, FROM_HOST, TO_HOST) \
     APPEND_STRING.append("\t<route mappingType=\"local\">\n\t\t<routeFrom>"); \
@@ -560,7 +574,10 @@ main(int argc, char* argv[])
         configDb.set(CONFIG_SETTING_CALL_STATE, "DISABLE");
         configDb.set(CONFIG_SETTING_CALL_STATE_LOG, "");
         configDb.set(CONFIG_SETTING_CALL_STATE_DB, "DISABLE");
-        configDb.set(CONFIG_SETTING_CALL_STATE_DB_HOST, "localhost");        
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_HOST, CALL_STATE_DATABASE_HOST);
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_NAME, CALL_STATE_DATABASE_NAME);
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_USER, CALL_STATE_DATABASE_USER);
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_DRIVER, CALL_STATE_DATABASE_DRIVER);             
 
         if(configDb.storeToFile(ConfigfileName) != OS_SUCCESS)
         {
@@ -779,23 +796,50 @@ main(int argc, char* argv[])
     {
        enableCallStateDbObserver = false;
        OsSysLog::add(FAC_SIP, PRI_ERR, "SipForkingProxyMain:: invalid configuration value for "
-                     CONFIG_SETTING_CALL_STATE_DB " '%s' - should be 'enable' or 'disable'",
+                     "%s '%s' - should be 'enable' or 'disable'", CONFIG_SETTING_CALL_STATE_DB,
                      enableCallStateDbObserverSetting.data()
                      );
     }
-    OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_DB " : %s",
+    OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB,
                   enableCallStateDbObserver ? "ENABLE" : "DISABLE" );
 
     UtlString callStateDbHostName;
+    UtlString callStateDbName;
+    UtlString callStateDbUserName;
+    UtlString callStateDbDriver;    
     if (enableCallStateDbObserver)
     {
        configDb.get(CONFIG_SETTING_CALL_STATE_DB_HOST, callStateDbHostName);
        if (callStateDbHostName.isNull())
        {
-          callStateDbHostName = "localhost";
+          callStateDbHostName = CALL_STATE_DATABASE_HOST;
        }
-       OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_DB_HOST " : %s",
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB_HOST,
                      callStateDbHostName.data());
+                     
+       configDb.get(CONFIG_SETTING_CALL_STATE_DB_NAME, callStateDbName);
+       if (callStateDbName.isNull())
+       {
+          callStateDbName = CALL_STATE_DATABASE_NAME;
+       }
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",  CONFIG_SETTING_CALL_STATE_DB_NAME,
+                     callStateDbName.data());
+                     
+       configDb.get(CONFIG_SETTING_CALL_STATE_DB_USER, callStateDbUserName);
+       if (callStateDbUserName.isNull())
+       {
+          callStateDbUserName = CALL_STATE_DATABASE_USER;
+       }
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s", CONFIG_SETTING_CALL_STATE_DB_USER,
+                     callStateDbUserName.data());                                          
+                     
+       configDb.get(CONFIG_SETTING_CALL_STATE_DB_DRIVER, callStateDbDriver);
+       if (callStateDbDriver.isNull())
+       {
+          callStateDbDriver = CALL_STATE_DATABASE_DRIVER;
+       }
+       OsSysLog::add(FAC_SIP, PRI_INFO, "%s : %s",  CONFIG_SETTING_CALL_STATE_DB_DRIVER,
+                     callStateDbDriver.data());                          
     }    
     
     // Select logging method - database takes priority over XML file

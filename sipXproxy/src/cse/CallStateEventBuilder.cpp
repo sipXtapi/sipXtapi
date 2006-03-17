@@ -13,6 +13,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "CallStateEventBuilder.h"
+#include "os/OsSysLog.h"
 
 // DEFINES
 // MACROS
@@ -67,7 +68,6 @@ CallStateEventBuilder::CallStateEventBuilder(const char* observerDnsName ///< th
 bool CallStateEventBuilder::builderStateIsOk( BuilderMethod method )
 {
    bool isValid = false; // pessimism is safe
-   
 #  define VALID(newState) { isValid = true; buildState = (newState); }
 #  define INVALID /* no-op, because isValid is already false, but useful as documentation */
    

@@ -350,7 +350,6 @@ void CallStateEventBuilder_DB::newEvent(int sequenceNumber,
    OsDateTime timeValue(timestamp);
    UtlString timeString;
    timeValue.getSqlTimeStringZ(timeString);
-   
    mCurrentEvent.append(timeString.data()); 
    mCurrentEvent.append("\',");
    if (eventType != '-')

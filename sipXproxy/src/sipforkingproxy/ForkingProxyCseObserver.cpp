@@ -70,13 +70,23 @@ ForkingProxyCseObserver::ForkingProxyCseObserver(SipUserAgent&         sipUserAg
             if (!mpWriter->writeLog(event.data()))
             {      
                OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "ForkingProxyCseObserver initial event log write failed");
+                             "ForkingProxyCseObserver initial event log write failed - disabling writer");
+               mpWriter = NULL;
             }
-            mpWriter->flush(); // try to ensure that at least the sequence restart gets to the file 
+            else
+            {
+               mpWriter->flush(); // try to ensure that at least the sequence restart gets to the file 
+            }
          }
          else
          {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "ForkingProxyCseObserver initial event log write failed - disabling writer");
+            mpWriter = NULL;
             
+            // Set correct state even if nothing is written
+            mpBuilder->observerEvent(mSequenceNumber, timeNow, CallStateEventBuilder::ObserverReset, "");                 
+            mpBuilder->finishElement(event);                         
          }
       }
    }

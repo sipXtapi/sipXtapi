@@ -74,12 +74,23 @@ AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&         sipUserAgent,
             if (!mpWriter->writeLog(event.data()))
             {      
                OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "AuthProxyCseObserver initial event log write failed");
+                             "AuthProxyCseObserver initial event log write failed - disabling writer");
+               mpWriter = NULL;                 
             }
-            mpWriter->flush(); // try to ensure that at least the sequence restart gets to the file 
+            else
+            {
+               mpWriter->flush(); // try to ensure that at least the sequence restart gets to the file 
+            }
          }
          else
          {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "AuthProxyCseObserver initial event log write failed - disabling writer");
+            mpWriter = NULL;
+            
+            // Set correct state even if nothing is written
+            mpBuilder->observerEvent(mSequenceNumber, timeNow, CallStateEventBuilder::ObserverReset, "");                 
+            mpBuilder->finishElement(event);             
          }
       }
    }
@@ -306,7 +317,7 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             UtlString referTo;
             UtlString referredBy;            
             sipMsg->getReferToField(referTo);
-            sipMsg->getReferredByField(referredBy);            
+            sipMsg->getReferredByField(referredBy);   
 
             // generate the call state event record
             if (mpBuilder)
@@ -337,7 +348,6 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
                }
    
                mpBuilder->addCallData(callId, fromTag, toTag, fromField, toField);
-   
                UtlString via;
                for (int i=0; sipMsg->getViaField(&via, i); i++)
                {
@@ -345,14 +355,14 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
                }
    
                mpBuilder->completeCallEvent();
-               
+                 
                // get the completed record
                UtlString event;
                mpBuilder->finishElement(event);
                
                if (mpWriter)
                {
-                  mpWriter->writeLog(event.data());
+                 mpWriter->writeLog(event.data());
                }
             }
             else

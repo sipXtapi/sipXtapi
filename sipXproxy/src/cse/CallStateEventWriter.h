@@ -76,6 +76,9 @@ class CallStateEventWriter
    /// Get log type, either CseLogFile or CseLogDatabase
    CseLogType getLogType() {return mLogType;}
    
+   /// Get writeable state of log
+   bool isWriteable() {return mbWriteable;}
+   
    /// Flush log - only functional for file
    void flush();
    
@@ -95,6 +98,8 @@ class CallStateEventWriter
    
    OsFile*           mEventFile;   
    OdbcHandle        mHandle;
+   
+   bool              mbWriteable;   // Indicates if openLog was successful
    
    /// no copy constructor or assignment operator
    CallStateEventWriter(const CallStateEventWriter& rCallStateEventWriter);

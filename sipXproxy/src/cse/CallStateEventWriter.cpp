@@ -49,7 +49,8 @@ CallStateEventWriter::CallStateEventWriter(CseLogType logType,
                           mLogDriver(logDriver),
                           mLogPassword(logPassword),
                           mEventFile(NULL),
-                          mHandle(NULL)                          
+                          mHandle(NULL),
+                          mbWriteable(false)
 {
    switch (mLogType)
    {
@@ -77,50 +78,60 @@ bool CallStateEventWriter::openLog()
 {
    bool bRet = false;
    
-   switch (mLogType)
+   if (!mbWriteable)
    {
-   case CseLogFile:
+      switch (mLogType)
       {
-      OsPath callStateLogPath(mLogName);
-      mEventFile = new OsFile(callStateLogPath);
-
-      OsStatus callStateLogStatus = mEventFile->open(OsFile::CREATE|OsFile::APPEND);
-      if (OS_SUCCESS == callStateLogStatus)
-      {
-         OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                       "%s::openLog opened %s", ModuleName, mLogName.data());         
-         bRet = true;
-      }
-      else
-      {
-         OsSysLog::add(FAC_CDR, PRI_ERR,
-                       "%s::openLog failed (%d) to open Call State Event Log '%s'",
-                       ModuleName, callStateLogStatus, mLogName.data());         
-         if (mEventFile)
+      case CseLogFile:
          {
-            delete mEventFile;
-         }              
-         mEventFile = NULL;
+         OsPath callStateLogPath(mLogName);
+         mEventFile = new OsFile(callStateLogPath);
+   
+         OsStatus callStateLogStatus = mEventFile->open(OsFile::CREATE|OsFile::APPEND);
+         if (OS_SUCCESS == callStateLogStatus)
+         {
+            OsSysLog::add(FAC_CDR, PRI_DEBUG,
+                          "%s::openLog opened %s", ModuleName, mLogName.data());       
+            mbWriteable = true;
+            bRet = true;
+         }
+         else
+         {
+            OsSysLog::add(FAC_CDR, PRI_ERR,
+                          "%s::openLog failed (%d) to open Call State Event Log '%s'",
+                          ModuleName, callStateLogStatus, mLogName.data());         
+            if (mEventFile)
+            {
+               delete mEventFile;
+            }              
+            mEventFile = NULL;
+         }
+         break;
+         }
+      case CseLogDatabase:
+         if ((mHandle=odbcConnect(mLogName, mLogLocation, mLogUserName, mLogDriver, mLogPassword)) != NULL)
+         {
+            OsSysLog::add(FAC_CDR, PRI_DEBUG,
+                          "%s::openLog connected to database %s", ModuleName, mLogName.data()); 
+            mbWriteable = true;
+            bRet = true;
+         }
+         else
+         {
+            OsSysLog::add(FAC_CDR, PRI_ERR,
+                          "%s::openLog connection to database %s failed", 
+                          ModuleName, mLogName.data());             
+         }
+         break;
+      default:
+        OsSysLog::add(FAC_CDR, PRI_ERR,
+                      "%s::openLog %s", ModuleName, ErrUnknownLogType);
       }
-      break;
-      }
-   case CseLogDatabase:
-      if ((mHandle=odbcConnect(mLogName, mLogLocation, mLogUserName, mLogDriver, mLogPassword)) != NULL)
-      {
-         OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                       "%s::openLog connected to database %s", ModuleName, mLogName.data()); 
-         bRet = true;
-      }
-      else
-      {
-         OsSysLog::add(FAC_CDR, PRI_ERR,
-                       "%s::openLog connection to database %s failed", 
-                       ModuleName, mLogName.data());             
-      }
-      break;
-   default:
+   }
+   else
+   {
      OsSysLog::add(FAC_CDR, PRI_ERR,
-                   "%s::openLog %s", ModuleName, ErrUnknownLogType);
+                   "%s::openLog log %s already open", ModuleName, mLogName);
    }
    return bRet;
 }
@@ -139,6 +150,7 @@ bool CallStateEventWriter::closeLog()
          delete mEventFile;
          mEventFile = NULL;
       }
+      mbWriteable = false;
       bRet = true;
          
       OsSysLog::add(FAC_CDR, PRI_DEBUG,
@@ -150,6 +162,7 @@ bool CallStateEventWriter::closeLog()
          odbcDisconnect(mHandle);
          mHandle = NULL;
       }
+      mbWriteable = false;
       bRet = true;
          
       OsSysLog::add(FAC_CDR, PRI_DEBUG,
@@ -165,35 +178,43 @@ bool CallStateEventWriter::closeLog()
 bool CallStateEventWriter::writeLog(const char* event)
 {
    bool bRet = false;
-   
-   switch (mLogType)
-   {
-   case CseLogFile:
+
+   if (mbWriteable)
+   {   
+      switch (mLogType)
       {
-         if (mEventFile)
+      case CseLogFile:
          {
-            // write it to the log file
-            unsigned long written;
-            mEventFile->write(event, strlen(event), written);         
-            OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                          "%s::writeLog", ModuleName);
+            if (mEventFile)
+            {
+               // write it to the log file
+               unsigned long written;
+               mEventFile->write(event, strlen(event), written);         
+               OsSysLog::add(FAC_CDR, PRI_DEBUG,
+                             "%s::writeLog", ModuleName);
+               bRet = true;
+            }
+         break;
+         }
+      case CseLogDatabase:
+         if (mHandle)
+         {
+            odbcExecute(mHandle, event);
             bRet = true;
          }
-      break;
+         OsSysLog::add(FAC_CDR, PRI_DEBUG,
+                       "%s::writeLog", ModuleName);      
+         break;
+      default:
+        OsSysLog::add(FAC_CDR, PRI_ERR,
+                      "%s::writeLog %s", ModuleName, ErrUnknownLogType);         
       }
-   case CseLogDatabase:
-      if (mHandle)
-      {
-         odbcExecute(mHandle, event);
-         bRet = true;
-      }
-      OsSysLog::add(FAC_CDR, PRI_DEBUG,
-                    "%s::writeLog", ModuleName);      
-      break;
-   default:
-     OsSysLog::add(FAC_CDR, PRI_ERR,
-                   "%s::writeLog %s", ModuleName, ErrUnknownLogType);         
-   } 
+   }
+   else
+   {
+      OsSysLog::add(FAC_CDR, PRI_ERR,
+                    "%s::writeLog log %s not writeable", ModuleName, mLogName);            
+   }
    return bRet;
 }
 
