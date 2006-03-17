@@ -42,21 +42,24 @@ public
 
     @@log.info "resolve: start = #{start_time.to_s}, end = #{end_time.to_s}, redo = #{redo_flag}"
 
-    # Load CSEs from the specified time window
+    # Load CSEs from the specified time window, sorted by call_id then by event_time.
     events = load_call_state_events(start_time, end_time)
     
   end
 
 private
 
-  # Load and return CSEs in the specified time window
+  # Load and return CSEs from the specified time window,
+  # sorted by call_id then by event_time.
   def load_call_state_events(start_time, end_time)
     events = 
       CallStateEvent.find(:all,
                           :conditions => ["event_time >= :start and event_time <= :end",
-                            {:start => start_time, :end => end_time}])
-    @@log.debug "load_call_state_events: loaded #{events.length} events between #{start_time.to_s} and #{end_time.to_s}"
+                                          {:start => start_time, :end => end_time}],
+                          :order => "call_id, event_time")
+    @@log.debug("load_call_state_events: loaded #{events.length} events between "\
+                + "#{start_time.to_s} and #{end_time.to_s}")
     return events;
   end
-
+  
 end    # class CallResolver

@@ -52,5 +52,3 @@ end
 # Invoke the Call Resolver
 cr = CallResolver.new
 cr.resolve(start_time, end_time, redo_flag)
-
-end    # module Cdr

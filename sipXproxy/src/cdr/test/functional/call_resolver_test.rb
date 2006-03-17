@@ -15,19 +15,33 @@ require 'parsedate'
 require '../../call_resolver'
 
 
-class PartyTest < Test::Unit::TestCase
+class CallResolverTest < Test::Unit::TestCase
   fixtures :call_state_events
 
+  def setup
+    @resolver = CallResolver.new
+  end
+
   def test_load_call_state_events
-    resolver = CallResolver.new
-    start_time = DateTime.parse('1990-05-17T07:30:00.000Z')
-    end_time = DateTime.parse('1990-05-17T07:45:00.000Z')
+    start_time = Time.parse('1990-05-17T07:30:00.000Z')
+    end_time = Time.parse('1990-05-17T07:45:00.000Z')
 
     # Load events.  Do a low level message send to bypass access control on 
     # this private method.
-    events = resolver.send(:load_call_state_events, start_time, end_time)
+    events = @resolver.send(:load_call_state_events, start_time, end_time)
 
-    assert_equal(3, events.length, "Loaded the wrong number of events")
+    # Verify that the events got loaded and they are in the right order
+    assert_equal(4, events.length, 'Loaded the wrong number of events')
+    assert_equal('aaaCallId', events[0].call_id, 'Wrong call ID')
+    events[1..3].each do |event|
+      assert_equal('testSimpleSuccess', event.call_id, 'Wrong call ID')
+    end
+    expected_times = ['1990-05-17T07:33:00.000Z', '1990-05-17T07:30:00.000Z',
+                      '1990-05-17T07:31:00.000Z', '1990-05-17T07:40:00.000Z']
+    events.each_index do |index|
+      assert_equal(Time.parse(expected_times[index]), events[index].event_time,
+                   'Wrong event time')
+    end
   end
-
+  
 end

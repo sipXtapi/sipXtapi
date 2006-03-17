@@ -7,15 +7,18 @@
 #    'R' - Call Request
 #    'S' - Call Setup
 #    'E' - Call End
+#    'T' - Transfer
 #    'F' - Call Failure
 
 #-------------------------------------------------------------------------------
 
 # Simple success case: call request, call connect, call end.
 # Should yield a single CDR.
+# Mess with the time order and throw in an extra event so we can verify that
+# sorting works properly.
 
 testSimpleSuccess_1:
-  id: 1
+  id:         1
   observer:   O
   event_seq:  1
   event_time: 1990-05-17T07:30:00.000Z
@@ -23,25 +26,25 @@ testSimpleSuccess_1:
   call_id:    testSimpleSuccess
   from_tag:   f
   to_tag:
-  from_url :  sip:alice@example.com; tag=f
-  to_url :    sip:bob@example.com
-  contact :   sip:alice@1.1.1.1
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com
+  contact:    sip:alice@1.1.1.1
 
-testSimpleSuccess_2:
-  id: 2
+testSimpleSuccess_Junk:
+  id:         4
   observer:   O
-  event_seq:  2
-  event_time: 1990-05-17T07:31:00.000Z
-  event_type: S
-  call_id:    testSimpleSuccess
+  event_seq:  4
+  event_time: 1990-05-17T07:33:00.000Z
+  event_type: F
+  call_id:    aaaCallId
   from_tag:   f
   to_tag:     t
-  from_url :  sip:alice@example.com; tag=f
-  to_url :    sip:bob@example.com; tag=t
-  contact :   sip:bob@2.2.2.2
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:
 
 testSimpleSuccess_3:
-  id: 3
+  id:         3
   observer:   O
   event_seq:  3
   event_time: 1990-05-17T07:40:00.000Z
@@ -49,8 +52,21 @@ testSimpleSuccess_3:
   call_id:    testSimpleSuccess
   from_tag:   f
   to_tag:     t
-  from_url :  sip:alice@example.com; tag=f
-  to_url :    sip:bob@example.com; tag=t
-  contact :   
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact :
+  
+testSimpleSuccess_2:
+  id:         2
+  observer:   O
+  event_seq:  2
+  event_time: 1990-05-17T07:31:00.000Z
+  event_type: S
+  call_id:    testSimpleSuccess
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:    sip:bob@2.2.2.2
 
 #-------------------------------------------------------------------------------

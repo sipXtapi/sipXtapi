@@ -61,7 +61,7 @@ Call State Event Database Design Specification
         to_tag         Value from the tag attribute of the SIP To header.
                        (element is optional and will not appear in all events.
         from_url       Full From header field value.
-        to_url         Full From header field value.
+        to_url         Full To header field value.
         contact        Contact header field value. For Call Request this is
                        the calling party, for Call Setup this is the called
                        party.
