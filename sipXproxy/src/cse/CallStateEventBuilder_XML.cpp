@@ -476,7 +476,7 @@ void CallStateEventBuilder_XML::newEvent(int sequenceNumber,
 }
 
 /// Copies the element into the provided UtlString
-bool  CallStateEventBuilder_XML::xmlElement(UtlString& event)
+bool  CallStateEventBuilder_XML::finishElement(UtlString& event)
 /**<
  * @returns
  * - true if the returned element is validly constructed

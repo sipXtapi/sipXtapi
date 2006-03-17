@@ -60,6 +60,11 @@
 #define CONFIG_SETTING_LOG_DIR        "SIP_PROXY_LOG_DIR"
 #define CONFIG_SETTING_CALL_STATE     "SIP_PROXY_CALL_STATE"
 #define CONFIG_SETTING_CALL_STATE_LOG "SIP_PROXY_CALL_STATE_LOG"
+#define CONFIG_SETTING_CALL_STATE_DB      "SIP_PROXY_CALL_STATE_DB"
+#define CONFIG_SETTING_CALL_STATE_DB_HOST "SIP_PROXY_CALL_STATE_DB_HOST"
+#define CALL_STATE_DATABASE_NAME          "SIPXCDR"
+#define CALL_STATE_DATABASE_USER          "postgres"
+#define CALL_STATE_DATABASE_DRIVER        "{PostgreSQL}"
 
 #define PRINT_ROUTE_RULE(APPEND_STRING, FROM_HOST, TO_HOST) \
     APPEND_STRING.append("\t<route mappingType=\"local\">\n\t\t<routeFrom>"); \
@@ -554,6 +559,8 @@ main(int argc, char* argv[])
         configDb.set(CONFIG_SETTING_LOG_CONSOLE, "");
         configDb.set(CONFIG_SETTING_CALL_STATE, "DISABLE");
         configDb.set(CONFIG_SETTING_CALL_STATE_LOG, "");
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB, "DISABLE");
+        configDb.set(CONFIG_SETTING_CALL_STATE_DB_HOST, "localhost");        
 
         if(configDb.storeToFile(ConfigfileName) != OS_SUCCESS)
         {
@@ -719,31 +726,30 @@ main(int argc, char* argv[])
     UtlString enableCallStateObserverSetting;
     configDb.get(CONFIG_SETTING_CALL_STATE, enableCallStateObserverSetting);
 
-    bool enableCallStateObserver;
+    bool enableCallStateLogObserver;
     if (   (enableCallStateObserverSetting.isNull())
         || (0== enableCallStateObserverSetting.compareTo("disable", UtlString::ignoreCase))
         )
     {
-       enableCallStateObserver = false;
+       enableCallStateLogObserver = false;
     }
     else if (0 == enableCallStateObserverSetting.compareTo("enable", UtlString::ignoreCase))
     {
-       enableCallStateObserver = true;
+       enableCallStateLogObserver = true;
     }
     else
     {
-       enableCallStateObserver = false;
+       enableCallStateLogObserver = false;
        OsSysLog::add(FAC_SIP, PRI_ERR, "SipForkingProxyMain invalid configuration value for "
                      CONFIG_SETTING_CALL_STATE " '%s' - should be 'enable' or 'disable'",
                      enableCallStateObserverSetting.data()
                      );
     }
     OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE " : %s",
-                  enableCallStateObserver ? "ENABLE" : "DISABLE" );
+                  enableCallStateLogObserver ? "ENABLE" : "DISABLE" );
 
     UtlString callStateLogFileName;
-    OsFile* callStateLog = NULL;
-    if (enableCallStateObserver)
+    if (enableCallStateLogObserver)
     {
        configDb.get(CONFIG_SETTING_CALL_STATE_LOG, callStateLogFileName);
        if (callStateLogFileName.isNull())
@@ -753,6 +759,52 @@ main(int argc, char* argv[])
        OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_LOG " : %s",
                      callStateLogFileName.data());
     }
+    
+    // Check if CSE logging should go into a database
+    UtlString enableCallStateDbObserverSetting;
+    configDb.get(CONFIG_SETTING_CALL_STATE_DB, enableCallStateDbObserverSetting);
+
+    bool enableCallStateDbObserver;
+    if (   (enableCallStateDbObserverSetting.isNull())
+        || ((0 == enableCallStateDbObserverSetting.compareTo("disable", UtlString::ignoreCase)))
+        )
+    {
+       enableCallStateDbObserver = false;
+    }
+    else if (0 == enableCallStateDbObserverSetting.compareTo("enable", UtlString::ignoreCase))
+    {
+       enableCallStateDbObserver = true;
+    }
+    else
+    {
+       enableCallStateDbObserver = false;
+       OsSysLog::add(FAC_SIP, PRI_ERR, "SipForkingProxyMain:: invalid configuration value for "
+                     CONFIG_SETTING_CALL_STATE_DB " '%s' - should be 'enable' or 'disable'",
+                     enableCallStateDbObserverSetting.data()
+                     );
+    }
+    OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_DB " : %s",
+                  enableCallStateDbObserver ? "ENABLE" : "DISABLE" );
+
+    UtlString callStateDbHostName;
+    if (enableCallStateDbObserver)
+    {
+       configDb.get(CONFIG_SETTING_CALL_STATE_DB_HOST, callStateDbHostName);
+       if (callStateDbHostName.isNull())
+       {
+          callStateDbHostName = "localhost";
+       }
+       OsSysLog::add(FAC_SIP, PRI_INFO, CONFIG_SETTING_CALL_STATE_DB_HOST " : %s",
+                     callStateDbHostName.data());
+    }    
+    
+    // Select logging method - database takes priority over XML file
+    if (enableCallStateLogObserver && enableCallStateDbObserver)
+    {
+       enableCallStateLogObserver = false;
+       OsSysLog::add(FAC_SIP, PRI_WARNING, "SipForkingProxyMain:: both XML and database call state "
+                     "logging was enabled - turning off XML log, only use database logging");       
+    }    
     // This is an obnoxious special option to work around a 
     // problem with Sonus gateways.  The Sonus proxy or  redirect
     // server gives a list of possible gateways to recurse in a
@@ -929,35 +981,45 @@ main(int argc, char* argv[])
     router.start();
 
     ForkingProxyCseObserver* cseObserver = NULL;
-    if (enableCallStateObserver)
+    CallStateEventWriter* pEventWriter = NULL;
+    if (enableCallStateLogObserver)
     {
        // Set up the call state event log file
-       OsPath callStateLogPath(callStateLogFileName);
-       callStateLog = new OsFile(callStateLogPath);
-
-       OsStatus callStateLogStatus = callStateLog->open(OsFile::CREATE|OsFile::APPEND);
-       if (OS_SUCCESS == callStateLogStatus)
-       {
-          UtlString observerId(domainName);
-          
-          char portString[12];
-          sprintf(portString,":%d", proxyUdpPort);
-          observerId.append(portString);
-          
-          // and start the observer
-          cseObserver = new ForkingProxyCseObserver(sipUserAgent, observerId, callStateLog);
-          cseObserver->start();
-       }
-       else
-       {
-          OsSysLog::add(FAC_SIP, PRI_ERR,
-                        "SipForkingProxyMain() failed (%d) to open Call State Event Log '%s'",
-                        callStateLogStatus, callStateLogFileName.data()
-                        );
-          enableCallStateObserver = false;
-       }
-       
+       pEventWriter = new CallStateEventWriter(CallStateEventWriter::CseLogFile, 
+                                               callStateLogFileName.data());
     }
+    else if (enableCallStateDbObserver)
+    {
+       pEventWriter = new CallStateEventWriter(CallStateEventWriter::CseLogDatabase,
+                                               CALL_STATE_DATABASE_NAME,
+                                               callStateDbHostName.data(),
+                                               CALL_STATE_DATABASE_USER,
+                                               CALL_STATE_DATABASE_DRIVER);      
+    }                                            
+       
+    if (pEventWriter)
+    {
+       // get the identifier for this observer
+       int protocol = OsSocket::UDP;
+       UtlString domainName;
+       int port;
+       sipUserAgent.getViaInfo(protocol, domainName, port);
+
+       char portString[12];
+       sprintf(portString,":%d", port);
+       domainName.append(portString);
+       
+       // and start the observer
+       cseObserver = new ForkingProxyCseObserver(sipUserAgent, domainName, pEventWriter);
+       cseObserver->start();
+    }
+    else
+    {
+       OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "SipForkingProxyMain:: EventWriter could not be allocated"
+                     );
+       enableCallStateLogObserver = false;
+    }   
     
     // Do not exit, let the proxy do its stuff
     while( !gShutdownFlag )
@@ -995,10 +1057,16 @@ main(int argc, char* argv[])
     }
 
     // flush and close the call state event log
-    if (enableCallStateObserver)
+    if (enableCallStateLogObserver || enableCallStateDbObserver)
     {
-       delete cseObserver;
-       callStateLog->close();
+      if (cseObserver)
+      {
+         delete cseObserver;
+      }
+      if (pEventWriter)
+      {
+         delete pEventWriter;
+      }
     }
     
     // Flush the log file

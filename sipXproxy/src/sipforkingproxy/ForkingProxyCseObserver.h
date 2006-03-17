@@ -18,6 +18,8 @@
 #include <os/OsFS.h>
 #include <os/OsTimer.h>
 #include "CallStateEventBuilder_XML.h"
+#include "CallStateEventBuilder_DB.h"
+#include "CallStateEventWriter.h"
 
 // DEFINES
 // MACROS
@@ -37,9 +39,9 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   ForkingProxyCseObserver(SipUserAgent&    sipUserAgent,
-                           const UtlString& dnsName,
-                           OsFile*          eventFile
+   ForkingProxyCseObserver(SipUserAgent&         sipUserAgent,
+                           const UtlString&      dnsName,
+                           CallStateEventWriter* pWriter
                            );
      //:Default constructor
 
@@ -56,11 +58,12 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   SipUserAgent*             mpSipUserAgent;
-   CallStateEventBuilder_XML mBuilder;
-   OsFile*                   mEventFile;
-   int                       mSequenceNumber;
-   OsTimer*                  mFlushTimer;
+   SipUserAgent*              mpSipUserAgent;
+   CallStateEventBuilder*     mpBuilder;
+   CallStateEventWriter*      mpWriter;
+   
+   int                        mSequenceNumber;
+   OsTimer*                   mFlushTimer;
    
    /// no copy constructor or assignment operator
    ForkingProxyCseObserver(const ForkingProxyCseObserver& rForkingProxyCseObserver);

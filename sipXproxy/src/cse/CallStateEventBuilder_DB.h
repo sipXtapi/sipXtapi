@@ -1,14 +1,14 @@
 //
-// Copyright (C) 2004 SIPfoundry Inc.
+// Copyright (C) 2006 SIPfoundry Inc.
 // License by SIPfoundry under the LGPL license.
 // 
-// Copyright (C) 2004 Pingtel Corp.
+// Copyright (C) 2006 Pingtel Corp.
 // Licensed to SIPfoundry under a Contributor Agreement.
 //
 //////////////////////////////////////////////////////////////////////////////
 
-#ifndef _CallStateEventBuilder_XML_h_
-#define _CallStateEventBuilder_XML_h_
+#ifndef _CallStateEventBuilder_DB_h_
+#define _CallStateEventBuilder_DB_h_
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -25,12 +25,12 @@
 // FORWARD DECLARATIONS
 
 /**
- * This CallStateEventBuilder constructs events as XML elements according
+ * This CallStateEventBuilder constructs events as database rows according
  * to the specification doc/cdr/call-state-events.html
  *
  * for usage of the event generation interfaces, see CallStateEventBuilder
  */
-class CallStateEventBuilder_XML : public CallStateEventBuilder
+class CallStateEventBuilder_DB : public CallStateEventBuilder
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
   public:
@@ -38,11 +38,11 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
 /* ============================ CREATORS ================================== */
 
    /// Instantiate an event builder and set the observer name for its events
-   CallStateEventBuilder_XML(const char* observerDnsName ///< the DNS name to be recorded in all events
+   CallStateEventBuilder_DB(const char* observerDnsName ///< the DNS name to be recorded in all events
                              );
 
    /// Destructor
-   ~CallStateEventBuilder_XML();
+   virtual ~CallStateEventBuilder_DB();
 
    /// Generate a metadata event.
    void observerEvent(int sequenceNumber, ///< for ObserverReset, this should be zero
@@ -142,20 +142,29 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
   private:
    UtlString mCurrentEvent;
    UtlString mCallInfo;
-   UtlString mViaHeader;
+   UtlString mReferHeader;
    UtlString mLaterElement;
+   UtlString mContactElement;
+   UtlString mReferElement;
+   UtlString mFailureElement;
+   UtlString mViaHeader;
    UtlString mEndElement;
    bool      mEventComplete;
    
    void newEvent(int sequenceNumber,
                  const OsTime& timestamp,
-                 const char* elementStart
+                 const char* elementStart,
+                 const char eventType = '-'
                  );
 
    void reset();
+
+   /// no copy constructor or assignment operator   
+   CallStateEventBuilder_DB(const CallStateEventBuilder_DB& rCallStateEventBuilderDB); 
+   CallStateEventBuilder_DB operator=(const CallStateEventBuilder_DB& rCallStateEventBuilderDB);        
 };
 
 /* ============================ INLINE METHODS ============================ */
 
-#endif    // _CallStateEventBuilder_XML_h_
+#endif    // _CallStateEventBuilder_DB_h_
 

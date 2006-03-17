@@ -16,7 +16,10 @@
 // APPLICATION INCLUDES
 #include <os/OsServerTask.h>
 #include <os/OsFS.h>
+#include <odbc/OdbcWrapper.h>
 #include "CallStateEventBuilder_XML.h"
+#include "CallStateEventBuilder_DB.h"
+#include "CallStateEventWriter.h"
 
 // DEFINES
 // MACROS
@@ -37,9 +40,9 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   AuthProxyCseObserver(SipUserAgent&    sipUserAgent,
-                           const UtlString& dnsName,
-                           OsFile*          eventFile
+   AuthProxyCseObserver(SipUserAgent&            sipUserAgent,
+                           const UtlString&      dnsName,
+                           CallStateEventWriter* pEventWriter
                            );
      //:Default constructor
 
@@ -57,8 +60,8 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    SipUserAgent*             mpSipUserAgent;
-   CallStateEventBuilder_XML mBuilder;
-   OsFile*                   mEventFile;
+   CallStateEventBuilder*    mpBuilder;       // Event builder
+   CallStateEventWriter*     mpWriter;        // Event writer
    int                       mSequenceNumber;
    OsTimer*                  mFlushTimer;
    

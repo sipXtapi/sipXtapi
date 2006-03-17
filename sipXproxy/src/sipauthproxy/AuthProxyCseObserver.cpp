@@ -36,35 +36,53 @@ const int AuthProxyCallStateFlushInterval = 20; /* seconds */
 /* ============================ CREATORS ================================== */
 
 // Constructor
-AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&    sipUserAgent,
-                                           const UtlString& dnsName,
-                                           OsFile*          eventFile
+AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&         sipUserAgent,
+                                           const UtlString&      dnsName,
+                                           CallStateEventWriter* pWriter
                                            ) :
    OsServerTask("AuthProxyCseObserver-%d", NULL, 2000),
    mpSipUserAgent(&sipUserAgent),
-   mBuilder(dnsName),
-   mEventFile(eventFile),
+   mpBuilder(NULL),
+   mpWriter(pWriter),
    mSequenceNumber(0)
 {
    OsTime timeNow;
    OsDateTime::getCurTime(timeNow);
    
-   mBuilder.observerEvent(mSequenceNumber, timeNow, CallStateEventBuilder::ObserverReset,
-                         "AuthProxyCseObserver");
    UtlString event;
-   mBuilder.xmlElement(event);
-
-   unsigned long written;
-   OsStatus writeStatus = mEventFile->write(event.data(), event.length(), written);
-   if (OS_SUCCESS != writeStatus)
+   // Define AuthProxyCseObserver as string constant
+   
+   if (mpWriter)
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "AuthProxyCseObserver initial event log write failed %d",
-                    writeStatus
-                    );
-   }
-   mEventFile->flush(); // try to ensure that at least the sequence restart gets to the file
+      switch (pWriter->getLogType())
+      {
+      case CallStateEventWriter::CseLogFile:
+         mpBuilder = new CallStateEventBuilder_XML(dnsName);
+         break;
+      case CallStateEventWriter::CseLogDatabase:
+         mpBuilder = new CallStateEventBuilder_DB(dnsName);
+         break;
+      }
+      if (mpBuilder)
+      {
+         if (pWriter->openLog())
+         {
+            mpBuilder->observerEvent(mSequenceNumber, timeNow, CallStateEventBuilder::ObserverReset,
+                                     "AuthProxyCseObserver");      
+            mpBuilder->finishElement(event);      
 
+            if (!mpWriter->writeLog(event.data()))
+            {      
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "AuthProxyCseObserver initial event log write failed");
+            }
+            mpWriter->flush(); // try to ensure that at least the sequence restart gets to the file 
+         }
+         else
+         {
+         }
+      }
+   }
    // get my inbound OsMsg queue
    OsMsgQ* myTaskQueue = getMessageQueue();
 
@@ -104,12 +122,31 @@ AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&    sipUserAgent,
                                    NULL, // any session
                                    NULL // no observerData
                                    );
+   sipUserAgent.addMessageObserver(*myTaskQueue,
+                                   SIP_REFER_METHOD,
+                                   TRUE, // Requests,
+                                   FALSE, //Responses,
+                                   TRUE, //Incoming,
+                                   FALSE, //OutGoing,
+                                   "", //eventName,
+                                   NULL, // any session
+                                   NULL // no observerData
+                                   );                                   
 }
 
 // Destructor
 AuthProxyCseObserver::~AuthProxyCseObserver()
 {
-   mEventFile->flush(); // try to get buffered records to the file...
+   if (mpBuilder)
+   {
+      delete mpBuilder;
+      mpBuilder = NULL;
+   }
+   if (mpWriter)
+   {
+      mpWriter->flush();
+      mpWriter = NULL;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -123,7 +160,10 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
       switch (eventMessage.getMsgSubType())
       {
       case OsEventMsg::NOTIFY:
-         mEventFile->flush(); // try to get buffered records to the file...
+         if (mpWriter)
+         {
+            mpWriter->flush();
+         }
          break;
       }
       break ;
@@ -149,7 +189,8 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
                UnInteresting,
                aCallSetup,
                aCallFailure,
-               aCallEnd
+               aCallEnd,
+               aCallTransfer
             } thisMsgIs = UnInteresting;
          
          if (!sipMsg->isResponse())
@@ -161,6 +202,10 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             {
                thisMsgIs = aCallSetup;
                sipMsg->getContactEntry(0, &contact);
+            }
+            if (0==method.compareTo(SIP_REFER_METHOD, UtlString::ignoreCase))
+            {
+               OsSysLog::add(FAC_SIP, PRI_DEBUG, "Seen REFER method!");
             }
             if (0==method.compareTo(SIP_BYE_METHOD, UtlString::ignoreCase))
             {
@@ -257,43 +302,51 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             sipMsg->getFromField(&fromField);
 
             // generate the call state event record
-            switch (thisMsgIs)
+            if (mpBuilder)
             {
-            case aCallSetup:
-               mBuilder.callSetupEvent(mSequenceNumber, timeNow, contact);
-               break;
-
-            case aCallFailure:
-               mBuilder.callFailureEvent(mSequenceNumber, timeNow, rspStatus, rspText);
-               break;
+               switch (thisMsgIs)
+               {
+               case aCallSetup:
+                  mpBuilder->callSetupEvent(mSequenceNumber, timeNow, contact);
+                  break;
+   
+               case aCallFailure:
+                  mpBuilder->callFailureEvent(mSequenceNumber, timeNow, rspStatus, rspText);
+                  break;
+                  
+               case aCallEnd:
+                  mpBuilder->callEndEvent(mSequenceNumber, timeNow);
+                  break;
+   
+               default:
+                  // shouldn't be possible to get here
+                  OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver invalid thisMsgIs");
+                  break;
+               }
+   
+               mpBuilder->addCallData(callId, fromTag, toTag, fromField, toField);
+   
+               UtlString via;
+               for (int i=0; sipMsg->getViaField(&via, i); i++)
+               {
+                  mpBuilder->addEventVia(via);
+               }
+   
+               mpBuilder->completeCallEvent();
                
-            case aCallEnd:
-               mBuilder.callEndEvent(mSequenceNumber, timeNow);
-               break;
-
-            default:
-               // shouldn't be possible to get here
-               OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver invalid thisMsgIs");
-               break;
+               // get the completed record
+               UtlString event;
+               mpBuilder->finishElement(event);
+               
+               if (mpWriter)
+               {
+                  mpWriter->writeLog(event.data());
+               }
             }
-
-            mBuilder.addCallData(callId, fromTag, toTag, fromField, toField);
-
-            UtlString via;
-            for (int i=0; sipMsg->getViaField(&via, i); i++)
+            else
             {
-               mBuilder.addEventVia(via);
+               OsSysLog::add(FAC_SIP, PRI_ERR, "AuthProxyCseObserver - no CallStateEventBuilder!");               
             }
-
-            mBuilder.completeCallEvent();
-            
-            // get the completed record
-            UtlString event;
-            mBuilder.xmlElement(event);
-
-            // and write it to the file
-            unsigned long written;
-            mEventFile->write(event.data(), event.length(), written);
          }
       }
       else

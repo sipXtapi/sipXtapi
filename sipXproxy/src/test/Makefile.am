@@ -27,6 +27,7 @@ testsuite_SOURCES = \
    $(top_srcdir)/src/sipforkingproxy/ForwardRules.cpp \
    ForwardRulesTest.cpp \
    CallStateEventBuilder_XMLTest.cpp \
+   CallStateEventBuilder_DBTest.cpp \
    $(top_srcdir)/src/sipauthproxy/SipAaa.cpp \
    SipAaaTest.cpp
 
