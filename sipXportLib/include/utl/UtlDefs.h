@@ -1,10 +1,15 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// Copyright (C) 2005 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
-//////
 
 
 #ifndef _UtlDefs_h_
@@ -34,7 +39,11 @@
 // STRUCTS
 // TYPEDEFS
 typedef int UtlBoolean ;
-typedef long long int intll;
+#ifdef DONT_USE_LONG_LONG
+typedef long int intll;
+#else
+typedef long long intll;
+#endif
 typedef const char* const UtlContainableType ;
 
 // FORWARD DECLARATIONS

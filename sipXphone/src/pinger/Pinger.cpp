@@ -43,6 +43,7 @@
 #include "net/NameValueTokenizer.h"
 #include "net/QoS.h"
 #include "net/SipConfigServerAgent.h"
+#include "net/SipRefreshMgr.h"
 #include "net/MimeBodyPart.h"
 #include "net/SipLine.h"
 #include "utl/UtlTokenizer.h"
@@ -100,8 +101,8 @@
 #include "pingerjni/VoicemailNotifyStateListener.h"
 #include "pingerjni/JXAPI.h"
 
-#include "cp/CpMediaInterfaceFactoryInterface.h"
-#include "cp/CpMediaInterfaceFactory.h"
+#include <mi/CpMediaInterfaceFactoryImpl.h>
+#include <mi/CpMediaInterfaceFactory.h>
 
 #include "web/Webui.h"
 
@@ -2461,7 +2462,7 @@ void Pinger::initSipUserAgent(OsConfigDb* config)
                 stunRefreshPeriod = 0 ;
        }
       
-       mpSipUserAgentTask->enableStun(stunServer.data(), stunRefreshPeriod) ;
+       mpSipUserAgentTask->enableStun(stunServer.data(), stunRefreshPeriod, 0) ;
    }
    
 
@@ -2754,13 +2755,13 @@ void Pinger::initCallManager(OsConfigDb* config)
                 stunRefreshPeriod = 0 ;
        }
       
-       mpCallMgrTask->enableStun(stunServer.data(), stunRefreshPeriod) ;
+       mpCallMgrTask->enableStun(stunServer.data(), stunRefreshPeriod, 0) ;
    }
 
    // create the call manager task
    mpCallMgrTask->start();         // start the task running
 
-   CpMediaInterfaceFactoryInterface* pInterface = 
+   CpMediaInterfaceFactoryImpl* pInterface = 
          mpCallMgrTask->getMediaInterfaceFactory()->getFactoryImplementation() ;
 
    if (pInterface)
@@ -2776,11 +2777,11 @@ void Pinger::initCallManager(OsConfigDb* config)
       enableAEC.toUpper() ;
       if (enableAEC == "ENABLE")
       {
-         pInterface->enableAEC(true) ;
+         pInterface->enableAudioAEC(true) ;
       }
       else
       {
-         pInterface->enableAEC(false) ;
+         pInterface->enableAudioAEC(false) ;
       }
    }
 
@@ -2827,13 +2828,13 @@ void pingerStart(int startType)
 
 void pingerStop(void)
 {
-   OsNameDb* pNameDb = OsNameDb::getNameDb();
+   //OsNameDb* pNameDb = OsNameDb::getNameDb();
    Pinger* pPinger   = Pinger::getPingerTask();
 
    pPinger->requestShutdown();
    delete pPinger;
 
-   delete pNameDb;
+   //delete pNameDb;
 }
 
 // Until we get the hardware keypad working, we use the following helper

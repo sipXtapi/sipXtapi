@@ -16,6 +16,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -28,17 +29,20 @@ public class DailyBackupSchedule extends BeanWithId {
     
     public static final DateFormat GMT_TIME_OF_DAY_FORMAT = DateFormat
             .getTimeInstance(DateFormat.SHORT);
-
+    
     public static final DateFormat LOCAL_TIME_OF_DAY_FORMAT = DateFormat
             .getTimeInstance(DateFormat.SHORT);
 
     public static final TimeZone GMT = TimeZone.getTimeZone("GMT");
-
+   
     static final long ONCE_A_DAY = 1000 * 60 * 60 * 24;
 
     static final int DAYS_PER_WEEK = 7;
     
     static final long ONCE_A_WEEK = ONCE_A_DAY * DAYS_PER_WEEK;
+
+    private static final DateFormat GMT_TIME_OF_DAY_FORMAT_US = DateFormat
+            .getTimeInstance(DateFormat.SHORT, Locale.US);
 
     private static final Log LOG = LogFactory.getLog(BackupPlan.class);
 
@@ -56,7 +60,25 @@ public class DailyBackupSchedule extends BeanWithId {
         // Storing dates in GMT keeps times consistent if timezones change
         // disadvantage, conversions of date outside this converter appear
         // wrong unless you live in grenwich
-        GMT_TIME_OF_DAY_FORMAT.setTimeZone(GMT);        
+        GMT_TIME_OF_DAY_FORMAT.setTimeZone(GMT);
+        GMT_TIME_OF_DAY_FORMAT_US.setTimeZone(GMT);
+    }
+    
+    /**
+     * Convienent for converting time strings in unit tests and default values 
+     * 
+     * @throws RuntimeException is date is invalid
+     * @param usDate String format in US, e.g."3:00 PM"
+     * @return date in local format, e.g. "15:00"
+     */
+    public static final String convertUsTime(String usDate) {
+        try {
+            Date d = GMT_TIME_OF_DAY_FORMAT_US.parse(usDate);
+            String localDate = GMT_TIME_OF_DAY_FORMAT.format(d);
+            return localDate;
+        } catch (ParseException e) {
+            throw new RuntimeException("Date invalid ", e);
+        }
     }
 
     public BackupPlan getBackupPlan() {

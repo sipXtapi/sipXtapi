@@ -132,6 +132,7 @@
       <fileset dir="context">
         <include name="css/**/*"/>
         <include name="images/**/*"/>
+        <include name="js/**/*"/>
       </fileset>
       <webinf dir="context/WEB-INF">
         <!-- avoid warning about already there -->
@@ -152,10 +153,6 @@
       <lib dir="${dist.dir}">
 		  <include name="server-bindings.jar"/>
 	  </lib>
-      <classes dir="etc">
-        <include name="*.xml"/>
-        <include name="*.properties"/>
-      </classes>
     </war>
   </target>
 		
@@ -207,7 +204,8 @@
     <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
     <copy todir="${dest.dir}${sipxpbx.conf.dir}">
       <fileset dir="etc">
-        <include name="sipxconfig-jetty.xml"/>
+        <include name="*.xml"/>
+        <include name="*.properties"/>
       </fileset>
     </copy>
   	

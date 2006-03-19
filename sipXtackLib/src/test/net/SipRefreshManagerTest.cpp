@@ -47,7 +47,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                        const char* responseText, 
                        SipUserAgent& userAgent,
                        int waitMilliSeconds,
-                       SipMessage*& request)
+                       const SipMessage*& request)
     {
         UtlBoolean gotRequest = FALSE;
         request = NULL;
@@ -125,7 +125,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         smLastResponseCode = responseCode;
         smExpiration = expiration;
         smCallbackCount++;
-        printf("subStateCallback \n\trequestState: %d\n\tearlyDialogHandle: %s\n\tdialogHandle: %s\n\tapplicationData: %p\n\tresponseCode: %d\n\tresponseText: %s\n\texpiration: %d\n\tresponse: %p\n\tcallback count: %d\n",
+        printf("subStateCallback \n\trequestState: %d\n\tearlyDialogHandle: %s\n\tdialogHandle: %s\n\tapplicationData: %p\n\tresponseCode: %d\n\tresponseText: %s\n\texpiration: %ld\n\tresponse: %p\n\tcallback count: %d\n",
             requestState, 
             earlyDialogHandle ? earlyDialogHandle : "",
             dialogHandle ? dialogHandle : "",
@@ -178,8 +178,8 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         userAgent->start();
         int transactionTimeoutPeriod = 
             userAgent->getSipStateTransactionTimeout() / 1000;
-        int errorRefreshPeriod = expPeriod * 0.1;
-        int normalRefreshPeriod = expPeriod * 0.55;
+        int errorRefreshPeriod = (int) (expPeriod * 0.1);
+        int normalRefreshPeriod = (int) (expPeriod * 0.55);
         if(errorRefreshPeriod < transactionTimeoutPeriod)
         {
             errorRefreshPeriod = transactionTimeoutPeriod;
@@ -216,13 +216,13 @@ class SipRefreshManagerTest : public CppUnit::TestCase
         // Send a request
         UtlString earlyDialogHandle;
         long start = OsDateTime::getSecsSinceEpoch();
-        /*CPPUNIT_ASSERT*/(refreshMgr->initiateRefresh(mwiSubscribeRequest,
+        CPPUNIT_ASSERT(refreshMgr->initiateRefresh(mwiSubscribeRequest,
                                                     this,
                                                     subStateCallback,
                                                     earlyDialogHandle));
 
         // Wait for the request and send a response
-        SipMessage* initialRequest = NULL;
+        const SipMessage* initialRequest = NULL;
         CPPUNIT_ASSERT(respond(*incomingServerMsgQueue, 
                         202, // response code
                         "Got request and accepted",
@@ -242,7 +242,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
             }
         }
 
-        printf("expiration: %d lag: %d\n", 
+        printf("expiration: %ld lag: %ld\n", 
             smExpiration, 
             smExpiration - start - expPeriod);
         CPPUNIT_ASSERT(initialRequest);
@@ -255,7 +255,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
         // Wait for the refresh
         printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
-        SipMessage* firstRefresh;
+        const SipMessage* firstRefresh;
         CPPUNIT_ASSERT(respond(*incomingServerMsgQueue, 
                         203, // response code
                         "Got request and accepted",
@@ -279,7 +279,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
             }
         }
         long secondExpiration = smExpiration;
-        printf("real refresh period: %d expires at: %d\n", firstRefreshAt - start, smExpiration);
+        printf("real refresh period: %ld expires at: %ld\n", firstRefreshAt - start, smExpiration);
         CPPUNIT_ASSERT(smCallbackCount == 2);
         CPPUNIT_ASSERT(smLatestSubState == SipRefreshManager::REFRESH_REQUEST_SUCCEEDED);
         CPPUNIT_ASSERT(smExpiration + 5 >= firstExpiration + firstRefreshAt - start);
@@ -287,7 +287,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
         // This time do not respond and confirm that the expiration
         // still stands
-        SipMessage* secondRefresh = NULL;
+        const SipMessage* secondRefresh = NULL;
         printf("waiting for refresh in %d seconds\n", normalRefreshPeriod);
         CPPUNIT_ASSERT(removeMessage(*incomingServerMsgQueue,
                                      expPeriod * 1000, // milliseconds to wait for request
@@ -322,7 +322,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
         // Empty the queue of the resends for the prior transaction that
         // we did not respond to.
-        SipMessage* dupSecondRefresh = NULL;
+        const SipMessage* dupSecondRefresh = NULL;
         long startDupRemoval = OsDateTime::getSecsSinceEpoch();
         for(int duplicateRequestCount = 0; duplicateRequestCount < 3; duplicateRequestCount++)
         {
@@ -338,13 +338,13 @@ class SipRefreshManagerTest : public CppUnit::TestCase
             }
         }
         long endDupRemoval = OsDateTime::getSecsSinceEpoch();
-        printf("duplicate removal started at %d lasted: %d\n",
+        printf("duplicate removal started at %ld lasted: %ld\n",
             startDupRemoval, endDupRemoval - startDupRemoval);
 
         // The next refresh should be sooner as the prior request
         // failed
         printf("waiting for refresh in %d seconds\n", errorRefreshPeriod);
-        SipMessage* thirdRefresh = NULL;
+        const SipMessage* thirdRefresh = NULL;
         CPPUNIT_ASSERT(respond(*incomingServerMsgQueue, 
                                 204, // response code
                                 "Got request and accepted",
@@ -352,7 +352,7 @@ class SipRefreshManagerTest : public CppUnit::TestCase
                                 expPeriod * 1000, // milliseconds to wait for request
                                 thirdRefresh));
         long thirdRefreshAt = OsDateTime::getSecsSinceEpoch();
-        printf("actual refresh period: %d\n", thirdRefreshAt - secondRefreshAt);
+        printf("actual refresh period: %ld\n", thirdRefreshAt - secondRefreshAt);
         CPPUNIT_ASSERT(thirdRefreshAt - secondRefreshAt <= errorRefreshPeriod + 5);
 
         // Wait for the response and callback

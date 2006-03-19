@@ -17,13 +17,9 @@ AC_PROG_CXX
 AC_PROG_CC
 
 # Checks for header files.
-## Check to see that we are using the minimum required version of glib-2
-## and set up the CFLAGS and LDFLAGS for it
-AM_PATH_GLIB_2_0( [2.2.0],
-  AC_MSG_RESULT(found glib2),
-  AC_MSG_ERROR(glib2 is required),
-  gthread
-)
+
+SFAC_LIB_MEDIA
+SFAC_LIB_MEDIAADAPTER
 
 ## TODO: Should these be passed in via environment vars and/or 
 ## configure line parameters. From subversion? Cruisecontrol?
@@ -37,8 +33,8 @@ CHECK_ANT
 CHECK_PCRE
 CHECK_SSL
 
-CFLAGS="$GLIB_CFLAGS $PCRE_CFLAGS $CFLAGS"
-CXXFLAGS="$GLIB_CFLAGS $PCRE_CXXFLAGS $CXXFLAGS"
+CFLAGS="$PCRE_CFLAGS $CFLAGS"
+CXXFLAGS="$PCRE_CXXFLAGS $CXXFLAGS"
 
 AC_DEFINE_UNQUOTED([CONFIG_PREFIX_USER_DATA], ["${prefix}/share/sipxphone/"], [Where user data is located])
 AC_DEFINE_UNQUOTED([CONFIG_PREFIX_SHARED_DATA], ["${prefix}/share/sipxphone/"], [Where shared data is located])
