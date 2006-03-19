@@ -134,6 +134,7 @@ create table cdrs (
   call_id text not null,            /* SIP call ID from the INVITE */
   from_tag text not null,           /* SIP from tag provided by caller in the INVITE */
   to_tag text not null,             /* SIP to tag provided by callee in the 200 OK */
+  unique (call_id, from_tag, to_tag),
   caller_id int8 not null           /* Caller info: foreign key to parties table */
     references parties (id),
   callee_id int8 not null           /* Callee info: foreign key to parties table */
