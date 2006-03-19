@@ -22,26 +22,30 @@ class CallResolverTest < Test::Unit::TestCase
     @resolver = CallResolver.new
   end
 
-  def test_load_call_state_events
+  def test_load_call_ids
     start_time = Time.parse('1990-05-17T07:30:00.000Z')
     end_time = Time.parse('1990-05-17T07:45:00.000Z')
 
-    # Load events.  Do a low level message send to bypass access control on 
+    # Load call IDs.  Do a low level message send to bypass access control on 
     # this private method.
-    events = @resolver.send(:load_call_state_events, start_time, end_time)
-
-    # Verify that the events got loaded and they are in the right order
-    assert_equal(4, events.length, 'Loaded the wrong number of events')
-    assert_equal('aaaCallId', events[0].call_id, 'Wrong call ID')
-    events[1..3].each do |event|
-      assert_equal('testSimpleSuccess', event.call_id, 'Wrong call ID')
-    end
-    expected_times = ['1990-05-17T07:33:00.000Z', '1990-05-17T07:30:00.000Z',
-                      '1990-05-17T07:31:00.000Z', '1990-05-17T07:40:00.000Z']
-    events.each_index do |index|
-      assert_equal(Time.parse(expected_times[index]), events[index].event_time,
-                   'Wrong event time')
-    end
+    call_ids = @resolver.send(:load_call_ids, start_time, end_time)
+    
+    # call IDs can come back in any order, so sort them to guarantee order
+    call_ids.sort!
+    
+    # verify results
+    assert_equal(2, call_ids.length, 'Wrong number of call IDs')
+    assert_equal('testSimpleSuccess',                      call_ids[0], 'Wrong call ID')
+    assert_equal('testSimpleSuccessBogusCallInTimeWindow', call_ids[1], 'Wrong call ID')
+  end
+  
+  def test_load_events
+    # load events
+    events = @resolver.send(:load_events, 'testSimpleSuccess')
+    
+    # verify results
+    assert_equal(3, events.length)
+    events.each_index {|index| assert_equal(events[index].event_seq, index + 1)}
   end
   
 end

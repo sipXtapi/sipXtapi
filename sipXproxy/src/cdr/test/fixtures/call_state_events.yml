@@ -14,9 +14,21 @@
 
 # Simple success case: call request, call connect, call end.
 # Should yield a single CDR.
-# Mess with the time order and throw in an extra event so we can verify that
-# sorting works properly.
+# Throw in junk events for testing purposes
 
+testSimpleSuccess_Junk_Early:
+  id:         5
+  observer:   O
+  event_seq:  5
+  event_time: 1990-05-16T07:33:00.000Z
+  event_type: F
+  call_id:    testSimpleSuccessBogusCallEarly
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:
+  
 testSimpleSuccess_1:
   id:         1
   observer:   O
@@ -36,7 +48,7 @@ testSimpleSuccess_Junk:
   event_seq:  4
   event_time: 1990-05-17T07:33:00.000Z
   event_type: F
-  call_id:    aaaCallId
+  call_id:    testSimpleSuccessBogusCallInTimeWindow
   from_tag:   f
   to_tag:     t
   from_url:   sip:alice@example.com; tag=f
@@ -69,4 +81,17 @@ testSimpleSuccess_2:
   to_url:     sip:bob@example.com; tag=t
   contact:    sip:bob@2.2.2.2
 
+testSimpleSuccess_Junk_Late:
+  id:         6
+  observer:   O
+  event_seq:  6
+  event_time: 1990-05-18T07:33:00.000Z
+  event_type: F
+  call_id:    testSimpleSuccessBogusCallLate
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:
+  
 #-------------------------------------------------------------------------------
