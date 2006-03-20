@@ -21,6 +21,7 @@ public
 
   def initialize
     # Set up logging.
+    # :TODO: set up standard log entry format, e.g., include a timestamp
     # :TODO: write to $SIPX_PREFIX/var/log/sipxpbx/sipcallresolver.log
     # :TODO: figure out interactions between Ruby log rotation and sipX log rotation
     @@log = Logger.new(STDOUT)
@@ -41,7 +42,8 @@ public
     # If end_time is not provided, then set it to 1 day after the start time.
     end_time ||= start_time.next
 
-    log.info "resolve: start = #{start_time.to_s}, end = #{end_time.to_s}, redo = #{redo_flag}"
+    log.info("resolve: start = #{start_time.to_s}, end = #{end_time.to_s},
+             redo = #{redo_flag}")
 
     # Load the call IDs for the specified time window
     call_ids = load_call_ids(start_time, end_time)
@@ -56,13 +58,6 @@ private
   def log
     return @@log
   end
-  
-  # Set up data members.  Use accessors, otherwise derived classes will have no
-  # chance to get at this data, should we decide to make any data protected.
-  attr_accessor(
-    :caller,                       # calling party
-    :callee,                       # called party
-    :cdr)                          # CDR under construction
   
   # Load the call IDs for the specified time window.
   def load_call_ids(start_time, end_time)
@@ -79,9 +74,10 @@ private
   
   # Resolve the call with the given call_id to yield 0-1 CDRs.  Persist the CDRs.
   # Return true if a CDR was created, false otherwise.
+  # :TODO: catch non-fatal exceptions thrown by Call Resolver code.  Discard the
+  # CDR when such exceptions happen and log an error.
   def resolve_call(call_id)
     made_cdr = false              # assume failure
-    init_state                    # clear state variables for CDR processing
     
     # Load all events with this call_id, in ascending chronological order.
     # Don't constrain the query to a time window.  That allows us to handle calls
@@ -91,8 +87,8 @@ private
     # Find the first (earliest) call request event.
     call_req = find_first_call_request(events)
     if call_req
-      # Read info from it
-      read_call_request(call_req)
+      # Read info from it and start constructing the CDR.
+      partial_cdr = read_call_request(call_req)
       
       # Group remaining events into call legs by the to tag.  Construct a hash
       # table where the key is the to tag and the object is an event array
@@ -114,26 +110,8 @@ private
       # created for this call in a previous run.
       made_cdr = save_cdr
     end
-    
-=begin    
-    Create a Dialog instance, dialog. Set dialog.call_id and dialog.from_tag from the event.
-Create a Party instance, caller, for the caller:
-Set caller.aor to the aor part of the from_url value from the call_request, stripping any tags from the from_url. (Convert aor to a canonical format using Url class?)
-Set caller.contact to the contact value of the call_request.
-Create a Party instance, callee, for the callee:
-Set callee.aor to the aor part of the to_url value from the call_request, stripping any tags from the to_url. 
-Create a Cdr instance, cdr:
-Set cdr.start_time to the timestamp from the call_request.
-Set cdr.termination provisionally to “R” meaning “call requested”.
-If no call_request event is found, then bail out.
-=end
 
     return made_cdr
-  end
-  
-  # Clear state variables so that results from one CDR don't pollute the next CDR
-  def init_state
-    caller = callee = cdr = nil
   end
     
   # Load all events with the given call_id, in ascending chronological order.
@@ -143,16 +121,50 @@ If no call_request event is found, then bail out.
         :all,
         :conditions => ["call_id = :call_id", {:call_id => call_id}],
         :order => "event_time")
-    log.debug("load_events: loaded #{events.length} events for call_id #{call_id}")
+    log.debug("load_events: loaded #{events.length} events with call_id = #{call_id}")
     return events
+  end
+  
+  # Find and return the first (earliest) call request event.
+  # Return nil if there is no such event.
+  def find_first_call_request(events)
+    event = events.find do |event|
+      event.event_type == CallStateEvent::CALL_REQUEST_TYPE
+    end
+
+    if log.debug?
+      message = event ? "found #{event}" : "no call request found"
+      log.debug('find_first_call_request: ' + message);
+    end
+    
+    return event
+  end
+
+  # Read info from the call request event and start constructing the CDR.
+  # Return the new CDR.
+  def read_call_request(call_req)
+    caller = Party.new(:aor => call_req.caller_aor,
+                       :contact => call_req.contact)
+    callee = Party.new(:aor => call_req.callee_aor)
+    cdr = Cdr.new(:call_id => call_req.call_id,
+                  :from_tag => call_req.from_tag,
+                  :start_time => call_req.start_time,
+                  :termination => Cdr.CALL_REQUESTED_TERM)
+    PartialCdr.new(cdr, caller, callee)
   end
   
 end    # class CallResolver
 
 
-
-
-
-
-
-
+# PartialCdr holds data for a CDR that is under construction: the CDR and the
+# associated caller and callee parties.  Because this data has not yet been
+# written to the DB, we can't use the foreign key relationships that usually
+# link the CDR to the caller and callee.
+class PartialCdr
+  attr_reader :cdr, :caller, :callee
+  def initialize(cdr, caller, callee)
+    @cdr = cdr
+    @caller = caller
+    @callee = callee
+  end
+end

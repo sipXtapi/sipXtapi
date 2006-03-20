@@ -10,6 +10,13 @@
 class CallStateEvent < ActiveRecord::Base
 
 public
+  
+  # Constants representing event types
+  CALL_REQUEST_TYPE =  'R'
+  CALL_SETUP_TYPE =    'S'
+  CALL_END_TYPE =      'E'
+  CALL_TRANSFER_TYPE = 'T'
+  CALL_FAILURE_TYPE =  'F'
 
   def inspect
     to_s
@@ -45,13 +52,38 @@ public
     end
   end
 
+  # Return the AOR part of the from_url, or nil if there is no from_url.
+  # Raise BadSipHeaderException if the tag is missing from the from_url.
+  def caller_aor
+    from_url = self.from_url
+    if from_url
+      Utils.get_aor_from_header(from_url)
+    else
+      nil
+    end
+  end
+
+  # Return the AOR part of the to_url, or nil if there is no to_url.
+  # Raise BadSipHeaderException if the tag is missing from the to_url when
+  # it should be there.  All events except call request should have the to tag.
+  def callee_aor
+    to_url = self.to_url
+    if to_url
+      Utils.get_aor_from_header(
+        to_url,
+        self.event_type != CALL_REQUEST_TYPE)   # whether to tag is required
+    else
+      nil
+    end
+  end
+
 private
 
   # Map event type codes to human-readable strings
-  EVENT_TYPE_NAMES = { 'R' => 'call_request',
-                       'S' => 'call_setup',
-                       'E' => 'call_end',
-                       'T' => 'call_transfer',
-                       'F' => 'call_failure' }
+  EVENT_TYPE_NAMES = { CALL_REQUEST_TYPE =>  'call_request',
+                       CALL_SETUP_TYPE =>    'call_setup',
+                       CALL_END_TYPE =>      'call_end',
+                       CALL_TRANSFER_TYPE => 'call_transfer',
+                       CALL_FAILURE_TYPE =>  'call_failure' }
 
 end
