@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 public abstract class ManageAttendants extends BasePage {
 
     public static final String PAGE = "ManageAttendants";
+    public static final String DEFAULTS_PAGE = "EditAttendantDefaults";
 
     public abstract DialPlanContext getDialPlanContext();
 
@@ -69,7 +70,7 @@ public abstract class ManageAttendants extends BasePage {
     }
     
     public IPage defaultGroup(IRequestCycle cycle) {
-        GroupSettings page = (GroupSettings) cycle.getPage(GroupSettings.PAGE);
+        GroupSettings page = (GroupSettings) cycle.getPage(DEFAULTS_PAGE);
         Group defaultGroup = getDialPlanContext().getDefaultAutoAttendantGroup();
         page.editGroup(defaultGroup.getId(), getDialPlanContext().getAttendantSettingModel(), PAGE);
         return page;        
