@@ -365,4 +365,5 @@ bool odbcClearResultSet(const OdbcHandle handle)
       OsSysLog::add(FAC_ODBC, PRI_ERR,
                     "odbcClearResultSet: handle == NULL");          
    }
+   return ret;
 }
