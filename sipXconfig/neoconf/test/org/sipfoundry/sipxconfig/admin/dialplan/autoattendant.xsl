@@ -6,7 +6,10 @@
   - Select and copy context of select node
   -->
 <xsl:template match="vxml">
-  <xsl:apply-templates select="form[@id='aa']/field[@name='menu']/filled/if" mode="content"/>	
+	<vxml>
+		<xsl:apply-templates select="form[@id='aa']/property" mode="content"/>	
+		<xsl:apply-templates select="form[@id='aa']/field[@name='menu']/filled/if" mode="content"/>	
+	</vxml>
 </xsl:template>
 
 <xsl:template match='text()|*' mode="content">

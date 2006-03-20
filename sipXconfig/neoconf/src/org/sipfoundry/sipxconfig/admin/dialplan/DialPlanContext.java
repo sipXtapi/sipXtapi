@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * DialPlanContext
@@ -88,4 +89,6 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
     public Group getDefaultAutoAttendantGroup();
 
     public AutoAttendant newAutoAttendantWithDefaultGroup();
+    
+    public Setting getAttendantSettingModel();
 }

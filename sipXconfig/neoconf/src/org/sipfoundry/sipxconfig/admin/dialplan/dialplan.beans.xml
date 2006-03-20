@@ -168,6 +168,9 @@
       <ref bean="settingDao"/>
     </property>
     <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+    <property name="attendantSettingModel">
+      <ref local="attendantSettingModel"/>
+    </property>
   </bean>
   
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean"

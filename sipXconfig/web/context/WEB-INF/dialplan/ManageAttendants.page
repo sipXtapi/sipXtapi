@@ -37,6 +37,9 @@
   <component id="addAttendantLink" type="DirectLink">
     <binding name="listener" value="listener:add"/>
   </component>
+  <component id="defaultAttendantGroupLink" type="DirectLink">
+    <binding name="listener" value="listener:defaultGroup"/>
+  </component>
   <component id="deleteButton" type="Submit">
     <binding name="listener" value="listener:deleteSelected"/>
   </component>
