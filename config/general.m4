@@ -252,7 +252,7 @@ AC_DEFUN([CHECK_ANT],
 #
 AC_DEFUN([CHECK_SSL],
 [   AC_ARG_WITH(openssl,
-                [--with-openssl=PATH to openssl source directory],
+                [  --with-openssl=PATH to openssl source directory],
                 [openssl_path=$withval],
                 [openssl_path="/usr/local /usr/local/ssl /usr/ssl /usr/pkg /usr / /sw/lib"]
                 )
@@ -369,7 +369,7 @@ AC_DEFUN([CHECK_LIBRT],
 AC_DEFUN([CHECK_XERCES],
 [   AC_MSG_CHECKING([for xerces])
     AC_ARG_WITH(xerces,
-                [--with-xerces=PATH to xerces source directory],
+                [  --with-xerces=PATH to xerces source directory],
                 [xerces_path=$with_val],
                 [xerces_path="/usr/local/xercesc /usr/lib/xercesc /usr/xercesc /usr/pkg /usr/local /usr"]
                 )
@@ -735,7 +735,7 @@ AC_DEFUN([CHECK_PCRE],
 [   AC_MSG_CHECKING([for pcre])
     # Process the --with-pcre argument which gives the pcre base directory.
     AC_ARG_WITH(pcre,
-                [--with-pcre=PATH path to pcre install directory],
+                [  --with-pcre=PATH path to pcre install directory],
                 )
     homeval=$withval
     # Have to unset withval so we can tell if --with-pcre_includedir was
@@ -746,7 +746,7 @@ AC_DEFUN([CHECK_PCRE],
     # Process the --with-pcre_includedir argument which gives the pcre include
     # directory.
     AC_ARG_WITH(pcre_includedir,
-                [--with-pcre_includedir=PATH path to pcre include directory (containing pcre.h)],
+                [  --with-pcre_includedir=PATH path to pcre include directory (containing pcre.h)],
                 )
     # If withval is set, use that.  If not and homeval is set, use
     # $homeval/include.  If neither, use null.
@@ -756,7 +756,7 @@ AC_DEFUN([CHECK_PCRE],
     # Process the --with-pcre_libdir argument which gives the pcre library
     # directory.
     AC_ARG_WITH(pcre_libdir,
-                [--with-pcre_libdir=PATH path to pcre lib directory (containing libpcre.{so,a})],
+                [  --with-pcre_libdir=PATH path to pcre lib directory (containing libpcre.{so,a})],
                 )
     libval=${withval:-${homeval:+$homeval/lib}}
 
@@ -1161,7 +1161,7 @@ AC_DEFUN([CHECK_ODBC],
 
     # Process the --with-odbc argument which gives the odbc base directory.
     AC_ARG_WITH(odbc,
-                [--with-odbc=PATH path to odbc install directory],
+                [  --with-odbc=PATH path to odbc install directory],
                 )
     homeval=$withval
     # Have to unset withval so we can tell if --with-odbc_includedir was
@@ -1172,7 +1172,7 @@ AC_DEFUN([CHECK_ODBC],
     # Process the --with-odbc_includedir argument which gives the odbc include
     # directory.
     AC_ARG_WITH(odbc_includedir,
-                [--with-odbc_includedir=PATH path to odbc include directory (containing sql.h)],
+                [  --with-odbc_includedir=PATH path to odbc include directory (containing sql.h)],
                 )
     # If withval is set, use that.  If not and homeval is set, use
     # $homeval/include.  If neither, use null.
@@ -1182,7 +1182,7 @@ AC_DEFUN([CHECK_ODBC],
     # Process the --with-odbc_libdir argument which gives the odbc library
     # directory.
     AC_ARG_WITH(odbc_libdir,
-                [--with-odbc_libdir=PATH path to odbc lib directory (containing libodbc.{so,a})],
+                [  --with-odbc_libdir=PATH path to odbc lib directory (containing libodbc.{so,a})],
                 )
     libval=${withval:-${homeval:+$homeval/lib}}
 
