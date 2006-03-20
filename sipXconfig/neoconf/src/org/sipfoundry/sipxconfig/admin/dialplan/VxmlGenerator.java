@@ -30,7 +30,7 @@ public class VxmlGenerator {
 
     private VelocityEngine m_velocityEngine;
     
-    private String m_template = "autoattendant.vm";
+    private String m_template = "sipxvxml/autoattendant.vm";
 
     public String getTemplate() {
         return m_template;

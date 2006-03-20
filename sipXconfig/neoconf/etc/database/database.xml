@@ -99,14 +99,17 @@
   </target>
 
   <target name="version2" description="upgrade from version 1" unless="version3">
-
-    <!-- antcall target="your version 2 patch here " -->
+    <antcall target="attendant_settings"/>
 
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="3" -->
 
   </target>
 
+  <target name="attendant_settings" unless="attendant_settings">
+    <db-patch patch="attendant_settings"/>
+  </target>    
+  
   <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
     <sipx-sql>
     	alter table meetme_conference add constraint conference_name_key unique(name);
