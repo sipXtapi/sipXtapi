@@ -15,11 +15,10 @@
 
 // APPLICATION INCLUDES
 #include <os/OsServerTask.h>
-#include <os/OsFS.h>
-#include <odbc/OdbcWrapper.h>
 #include "CallStateEventBuilder_XML.h"
 #include "CallStateEventBuilder_DB.h"
-#include "CallStateEventWriter.h"
+#include "CallStateEventWriter_XML.h"
+#include "CallStateEventWriter_DB.h"
 
 // DEFINES
 // MACROS

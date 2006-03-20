@@ -13,7 +13,11 @@ libcse_la_SOURCES =  \
     CallStateEventBuilder_DB.h \
     CallStateEventBuilder_DB.cpp \
     CallStateEventWriter.h \
-    CallStateEventWriter.cpp
+    CallStateEventWriter.cpp \
+    CallStateEventWriter_XML.h \
+    CallStateEventWriter_XML.cpp \
+    CallStateEventWriter_DB.h \
+    CallStateEventWriter_DB.cpp
 
 
 

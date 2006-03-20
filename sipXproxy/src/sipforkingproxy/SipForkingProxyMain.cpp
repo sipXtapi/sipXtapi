@@ -1029,16 +1029,14 @@ main(int argc, char* argv[])
     if (enableCallStateLogObserver)
     {
        // Set up the call state event log file
-       pEventWriter = new CallStateEventWriter(CallStateEventWriter::CseLogFile, 
-                                               callStateLogFileName.data());
+       pEventWriter = new CallStateEventWriter_XML(callStateLogFileName.data());
     }
     else if (enableCallStateDbObserver)
     {
-       pEventWriter = new CallStateEventWriter(CallStateEventWriter::CseLogDatabase,
-                                               CALL_STATE_DATABASE_NAME,
-                                               callStateDbHostName.data(),
-                                               CALL_STATE_DATABASE_USER,
-                                               CALL_STATE_DATABASE_DRIVER);      
+       pEventWriter = new CallStateEventWriter_DB(callStateDbName.data(),
+                                                  callStateDbHostName.data(),
+                                                  callStateDbUserName,
+                                                  callStateDbDriver);      
     }                                            
        
     if (pEventWriter)
