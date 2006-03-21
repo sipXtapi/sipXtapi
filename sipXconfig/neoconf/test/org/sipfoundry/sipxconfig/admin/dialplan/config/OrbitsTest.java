@@ -32,7 +32,7 @@ public class OrbitsTest extends XMLTestCase {
         }, {
             "sales", "400", "basia.wav", "test description"
         }, {
-            "CEO orbit", "179", "marketing.wav", ""
+            "CEO orbit", "179", "marketing.wav", null
         }
     };
 

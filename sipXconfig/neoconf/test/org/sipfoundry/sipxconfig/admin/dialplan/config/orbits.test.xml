@@ -13,6 +13,5 @@
        <name>CEO orbit</name>
        <extension>179</extension>
 	   <background-audio>file:///var/sipxdata/parkserver/music/marketing.wav</background-audio>
-       <description/>
     </orbit>
 </orbits>

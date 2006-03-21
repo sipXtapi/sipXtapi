@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.parkorbit.BackgroundMusic;
@@ -53,7 +54,10 @@ public class Orbits extends XmlFile {
             orbit.addElement("name").setText(parkOrbit.getName());
             orbit.addElement("extension").setText(parkOrbit.getExtension());
             addBackgroundAudio(orbit, dir, parkOrbit);
-            orbit.addElement("description").setText(parkOrbit.getDescription());
+            String description = parkOrbit.getDescription();
+            if (StringUtils.isNotBlank(description)) {
+                orbit.addElement("description").setText(description);
+            }
         }
     }
 
@@ -83,7 +87,7 @@ public class Orbits extends XmlFile {
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
     }
-    
+
     public ConfigFileType getType() {
         return ConfigFileType.ORBITS;
     }
