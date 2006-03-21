@@ -19,7 +19,8 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 
 editscripts_IN = \
     sipauthproxy.sh.in \
-    sipproxy.sh.in
+    sipproxy.sh.in \
+    sipxcallresolver.sh.in
 
 editscripts :
 	@for f in $(editscripts_IN); \

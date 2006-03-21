@@ -14,6 +14,9 @@ editdata_IN = \
     etc/proxy-config.in \
     etc/forwardingrules.xml.in
 
+sql_schemas = \
+    etc/database/schema.sql
+
 editdata :
 	@for cfgfile in $(editdata_IN); \
 	do \
@@ -48,9 +51,19 @@ EXTRA_DIST = \
     config/sipXprojtop.mak \
     config/sipXcommon.mak.in \
     $(editdata_IN) \
+    $(sql_schemas) \
     sipxproxy.spec
 
 install-exec-hook : editdata
+
+install-data-hook :
+	$(INSTALL) -d -m 755 $(DESTDIR)$(sysconfdir)/sipxpbx/cdr
+	@for sql_file in $(sql_schemas); \
+  do \
+    echo "Installing CDR schema"; \
+    target=`basename $$sql_file`;\
+    $(INSTALL) -D -m 644 $(srcdir)/$$sql_file $(DESTDIR)$(sysconfdir)/sipxpbx/cdr/$$target; \
+  done
 
 .PHONY : editdata
 
