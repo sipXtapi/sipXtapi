@@ -16,6 +16,12 @@
 #include "os/OsSysLog.h"
 #include "odbc/OdbcWrapper.h"
 
+#ifdef TESTDATABASE
+#define DATABASE_NAME   TESTDATABASE
+#else
+#define DATABASE_NAME   "SIPXCDR-TEST"
+#endif
+
 // DEFINES
 #define ODBC_LOGGING
 // CONSTANTS
@@ -46,7 +52,7 @@ public:
       {
          OdbcHandle handle = NULL;
          
-         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
+         CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
                                             "postgres",
                                             "{PostgreSQL}"))!=NULL);
@@ -68,7 +74,7 @@ public:
       {
          if (handle)
          {
-           char sqlStatement[256];            
+            char sqlStatement[256];            
             // Clear tables
             sprintf(sqlStatement, "DELETE FROM call_state_events *;");
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
@@ -129,7 +135,7 @@ public:
       {
          OdbcHandle handle = NULL;
        
-         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
+         CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
                                             "postgres",
                                             "{PostgreSQL}"))!=NULL);
@@ -144,7 +150,7 @@ public:
       {
          OdbcHandle handle = NULL;
          
-         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
+         CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
                                             "postgres",
                                             "{PostgreSQL}"))!=NULL);
@@ -161,7 +167,7 @@ public:
          OdbcHandle handle = NULL;
          char sqlStatement[256];
       
-         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
+         CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
                                             "postgres",
                                             "{PostgreSQL}"))!=NULL);
@@ -204,7 +210,7 @@ public:
          OdbcHandle handle = NULL;
          char sqlStatement[256];
       
-         CPPUNIT_ASSERT((handle=odbcConnect("SIPXCDR",
+         CPPUNIT_ASSERT((handle=odbcConnect(DATABASE_NAME,
                                             "localhost",
                                             "postgres",
                                             "{PostgreSQL}"))!=NULL);
