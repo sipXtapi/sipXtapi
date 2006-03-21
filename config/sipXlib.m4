@@ -776,6 +776,20 @@ AC_DEFUN([SFAC_FEATURE_DBTEST],
    AC_ARG_ENABLE(dbtests, 
                  [  --enable-dbtests        run database unit tests (no)],
                  [], [enable_dbtests=no])
-   AC_MSG_CHECKING([Enable database unit tests])
+   AC_MSG_CHECKING([for enabling database unit tests])
    AC_MSG_RESULT(${enable_dbtests})
+   AC_MSG_CHECKING([for running PostgreSQL])
+
+   if psql -l -U postgres &>/dev/null
+   then
+     AC_MSG_RESULT(running)
+     # Run tests in a separate test database
+       
+     SIPXTEST_DATABASE=SIPXCDR-TEST
+     AC_SUBST(SIPXTEST_DATABASE)
+   else
+     AC_MSG_RESULT(not running - disabling test)
+     enable_dbtests=no
+   fi
+   
 ])
