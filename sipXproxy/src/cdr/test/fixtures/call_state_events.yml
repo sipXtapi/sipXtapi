@@ -14,13 +14,14 @@
 
 # Simple success case: call request, call connect, call end.
 # Should yield a single CDR.
-# Throw in junk events for testing purposes
+# Throw in junk events for testing purposes.
+# Scramble the order of listing events to test sorting.
 
 testSimpleSuccess_Junk_Early:
   id:         5
   observer:   O
   event_seq:  5
-  event_time: 1990-05-16T07:33:00.000Z
+  event_time: 1990-05-16T19:33:00.000Z
   event_type: F
   call_id:    testSimpleSuccessBogusCallEarly
   from_tag:   f
@@ -33,7 +34,7 @@ testSimpleSuccess_1:
   id:         1
   observer:   O
   event_seq:  1
-  event_time: 1990-05-17T07:30:00.000Z
+  event_time: 1990-05-17T19:30:00.000Z
   event_type: R
   call_id:    testSimpleSuccess
   from_tag:   f
@@ -46,7 +47,7 @@ testSimpleSuccess_Junk:
   id:         4
   observer:   O
   event_seq:  4
-  event_time: 1990-05-17T07:33:00.000Z
+  event_time: 1990-05-17T19:33:00.000Z
   event_type: F
   call_id:    testSimpleSuccessBogusCallInTimeWindow
   from_tag:   f
@@ -59,7 +60,7 @@ testSimpleSuccess_3:
   id:         3
   observer:   O
   event_seq:  3
-  event_time: 1990-05-17T07:40:00.000Z
+  event_time: 1990-05-17T19:40:00.000Z
   event_type: E
   call_id:    testSimpleSuccess
   from_tag:   f
@@ -72,7 +73,7 @@ testSimpleSuccess_2:
   id:         2
   observer:   O
   event_seq:  2
-  event_time: 1990-05-17T07:31:00.000Z
+  event_time: 1990-05-17T19:31:00.000Z
   event_type: S
   call_id:    testSimpleSuccess
   from_tag:   f
@@ -85,7 +86,7 @@ testSimpleSuccess_Junk_Late:
   id:         6
   observer:   O
   event_seq:  6
-  event_time: 1990-05-18T07:33:00.000Z
+  event_time: 1990-05-18T19:33:00.000Z
   event_type: F
   call_id:    testSimpleSuccessBogusCallLate
   from_tag:   f
@@ -95,3 +96,90 @@ testSimpleSuccess_Junk_Late:
   contact:
   
 #-------------------------------------------------------------------------------
+
+# Complicated success case: include multiple call legs.
+# First call leg fails immediately.
+# Second call leg: phone answers but gets an immediate BYE because another phone
+# gets answered first.
+# Third call leg: phone answers and we get a real conversation.
+# List events in reverse order to test sorting.
+
+testComplicatedSuccess_15:
+  id:         15
+  observer:   O
+  event_seq:  15
+  event_time: 1999-08-13T06:10:00.000Z
+  event_type: E
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:     t2
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com; tag=t2
+  contact:    sip:cathy@3.3.3.3
+
+testComplicatedSuccess_14:
+  id:         14
+  observer:   O
+  event_seq:  14
+  event_time: 1999-08-13T06:03:00.000Z
+  event_type: S
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:     t2
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com; tag=t2
+  contact:    sip:cathy@3.3.3.3
+
+testComplicatedSuccess_13:
+  id:         13
+  observer:   O
+  event_seq:  13
+  event_time: 1999-08-13T06:02:00.000Z
+  event_type: E
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:     t1
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com; tag=t1
+  contact:    sip:cathy@2.2.2.2
+
+testComplicatedSuccess_12:
+  id:         12
+  observer:   O
+  event_seq:  12
+  event_time: 1999-08-13T06:01:00.000Z
+  event_type: S
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:     t1
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com; tag=t1
+  contact:    sip:cathy@2.2.2.2
+
+testComplicatedSuccess_11:
+  id:             11
+  observer:       O
+  event_seq:      11
+  event_time:     1999-08-13T06:01:00.000Z
+  event_type:     F
+  call_id:        testComplicatedSuccess
+  from_tag:       f
+  to_tag:         t0
+  from_url:       sip:cathy@example.com; tag=f
+  to_url:         sip:heathcliff@example.com; tag=t0
+  contact:        sip:cathy@1.1.1.1
+  failure_status: 486
+  failure_reason: Busy Doing My Taxes
+
+testComplicatedSuccess_10:
+  id:         10
+  observer:   O
+  event_seq:  10
+  event_time: 1999-08-13T06:00:00.000Z
+  event_type: R
+  call_id:    testComplicatedSuccess
+  from_tag:   f
+  to_tag:
+  from_url:   sip:cathy@example.com; tag=f
+  to_url:     sip:heathcliff@example.com
+  contact:    sip:cathy@1.1.1.1

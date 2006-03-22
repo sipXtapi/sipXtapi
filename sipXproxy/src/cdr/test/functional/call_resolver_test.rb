@@ -25,8 +25,8 @@ public
   end
 
   def test_load_call_ids
-    start_time = Time.parse('1990-05-17T07:30:00.000Z')
-    end_time = Time.parse('1990-05-17T07:45:00.000Z')
+    start_time = Time.parse('1990-05-17T19:30:00.000Z')
+    end_time = Time.parse('1990-05-17T19:45:00.000Z')
 
     # Load call IDs.  Do a low level message send to bypass access control on 
     # this private method.
@@ -58,7 +58,7 @@ public
     # load events
     call_id = 'testSimpleSuccess'
     events = @resolver.send(:load_events, call_id)
-    
+     
     # find the first call_request event
     call_req = @resolver.send(:find_first_call_request, events)
     assert_not_nil(call_req, 'No call request event found')
@@ -92,4 +92,67 @@ public
     assert_equal(Cdr.CALL_REQUESTED_TERM, cdr.termination)
   end
 
+  def test_best_call_leg
+    # load events for the simple case
+    call_id = 'testSimpleSuccess'
+    events = @resolver.send(:load_events, call_id)
+     
+    # Pick the call leg with the best outcome and longest duration to be the
+    # basis for the CDR.
+    to_tag = @resolver.send(:best_call_leg, events)
+    assert_equal('t', to_tag, 'Wrong to_tag for best call leg')
+    
+    # load events for the complicated case
+    call_id = 'testComplicatedSuccess'
+    events = @resolver.send(:load_events, call_id)
+     
+    to_tag = @resolver.send(:best_call_leg, events)
+    assert_equal('t2', to_tag, 'Wrong to_tag for best call leg')
+    
+    # try again, drop the final call_end event
+    to_tag = @resolver.send(:best_call_leg, events[0..4])
+    assert_equal('t1', to_tag, 'Wrong to_tag for best call leg')
+    
+    # try again with three events
+    to_tag = @resolver.send(:best_call_leg, events[0..2])
+    assert_equal('t0', to_tag, 'Wrong to_tag for best call leg')
+    
+    # try again with two events
+    to_tag = @resolver.send(:best_call_leg, events[0..1])
+    assert_equal('t0', to_tag, 'Wrong to_tag for best call leg')
+    
+    # try again with just the call request
+    to_tag = @resolver.send(:best_call_leg, events[0..0])
+    assert_nil(to_tag, 'Wrong to_tag for best call leg')
+  end
+
+  def test_create_cdr
+    # load events for the simple case
+    call_id = 'testSimpleSuccess'
+    events = @resolver.send(:load_events, call_id)
+    
+    # fill in cdr_data with info from the events
+    to_tag = 't'
+    cdr_data = CdrData.new
+    status = @resolver.send(:create_cdr, cdr_data, events, to_tag)
+    assert_equal(true, status)
+    
+    # define variables for cdr_data components
+    cdr = cdr_data.cdr
+    caller = cdr_data.caller
+    callee = cdr_data.callee
+    
+    # Check that the CDR is filled in as expected.  It will only be partially
+    # filled in because we are testing just one part of the process.
+    assert_equal(to_tag, cdr.to_tag, 'Wrong to_tag')
+    assert_equal(Time.parse('1990-05-17T19:31:00.000Z'), cdr.connect_time,
+                            'Wrong connect_time')
+    assert_equal(Time.parse('1990-05-17T19:40:00.000Z'), cdr.end_time,
+                            'Wrong end_time')
+    assert_equal('sip:bob@2.2.2.2', callee.contact, 'Wrong callee contact')
+    assert_equal(Cdr::CALL_COMPLETED_TERM, cdr.termination, 'Wrong termination code')
+    assert_nil(cdr.failure_status)
+    assert_nil(cdr.failure_reason)
+  end
+ 
 end

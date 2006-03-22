@@ -77,6 +77,23 @@ public
     end
   end
 
+  # Convenience methods for checking the event type
+  def call_request?
+    self.event_type == CALL_REQUEST_TYPE
+  end
+  def call_setup?
+    self.event_type == CALL_SETUP_TYPE
+  end
+  def call_end?
+    self.event_type == CALL_END_TYPE
+  end
+  def call_transfer?
+    self.event_type == CALL_TRANSFER_TYPE
+  end
+  def call_failure?
+    self.event_type == CALL_FAILURE_TYPE
+  end
+
 private
 
   # Map event type codes to human-readable strings

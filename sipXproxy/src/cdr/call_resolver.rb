@@ -80,35 +80,36 @@ private
     made_cdr = false              # assume failure
     
     # Load all events with this call_id, in ascending chronological order.
-    # Don't constrain the query to a time window.  That allows us to handle calls
-    # that span time windows.
+    # Don't constrain the query to a time window.  That allows us to handle
+    # calls that span time windows.
     events = load_events(call_id)
     
     # Find the first (earliest) call request event.
     call_req = find_first_call_request(events)
     if call_req
       # Read info from it and start constructing the CDR.
-      partial_cdr = read_call_request(call_req)
+      cdr_data = read_call_request(call_req)
       
-      # Group remaining events into call legs by the to tag.  Construct a hash
-      # table where the key is the to tag and the object is an event array
-      # containing the events for that call leg.
-      # For example, the forking proxy might ring multiple phones.  The dialog
-      # with each phone is a separate call leg.
-      call_legs = group_call_legs(events)
-      
+      # The forking proxy might ring multiple phones.  The dialog with each
+      # phone is a separate call leg.
       # Pick the call leg with the best outcome and longest duration to be the
       # basis for the CDR.
-      call_leg = best_call_leg(call_legs)
+      to_tag = best_call_leg(events)
       
-      # Create the CDR from the call leg events
-      create_cdr
+      if to_tag                         # if there are any complete call legs
+        # Fill the CDR from the call leg events.  The returned status is true
+        # if that succeeded, false otherwise.
+        status = create_cdr(cdr_data, events, to_tag)
       
-      # Save the CDR and associated data, within a transaction.  Be sure not to
-      # duplicate existing data.  For example, the caller may already be present
-      # in the parties table from a previous call, or a complete CDR may have been
-      # created for this call in a previous run.
-      made_cdr = save_cdr
+        if status
+          # Save the CDR and associated data, within a transaction.
+          # Be sure not to duplicate existing data.  For example, the caller
+          # may already be present in the parties table from a previous call,
+          # or a complete CDR may have been created for this call in a
+          # previous run.
+          made_cdr = save_cdr
+        end
+      end
     end
 
     return made_cdr
@@ -128,9 +129,7 @@ private
   # Find and return the first (earliest) call request event.
   # Return nil if there is no such event.
   def find_first_call_request(events)
-    event = events.find do |event|
-      event.event_type == CallStateEvent::CALL_REQUEST_TYPE
-    end
+    event = events.find {|event| event.call_request?}
 
     if log.debug?
       message = event ? "found #{event}" : "no call request found"
@@ -150,19 +149,105 @@ private
                   :from_tag => call_req.from_tag,
                   :start_time => call_req.start_time,
                   :termination => Cdr.CALL_REQUESTED_TERM)
-    PartialCdr.new(cdr, caller, callee)
+    CdrData.new(cdr, caller, callee)
+  end
+
+  # Pick the call leg with the best outcome and longest duration to be the
+  # basis for the CDR.  Return the to_tag for that call leg.  A call leg is a
+  # set of events with a common to_tag.
+  # Return nil if there is no such call leg.
+  def best_call_leg(events)     # array of events with a given call ID
+    to_tag = nil                # result: the to_tag for the best call leg
+    
+    # If there are no call_end events, then the call failed
+    call_failed = !events.any? {|event| event.call_end?}
+    
+    # Find the call leg with the best outcome and longest duration.
+    # If the call succeeded, then look for the call end event with the biggest
+    # timestamp.  Otherwise look for the call failure event with the biggest
+    # timestamp.  Events have already been sorted for us in timestamp order.
+    final_event_type = call_failed ?
+                       CallStateEvent::CALL_FAILURE_TYPE :
+                       CallStateEvent::CALL_END_TYPE
+    events.reverse_each do |event|
+      if event.event_type == final_event_type
+        to_tag = event.to_tag
+        break
+      end
+    end
+    
+    if !to_tag
+      # If there is no final event, then try to at least find a call_setup event
+      events.reverse_each do |event|
+        if event.call_setup?
+          to_tag = event.to_tag
+          break
+        end
+      end
+    end
+
+    to_tag
+  end
+  
+  # Fill in the CDR from a call leg consisting of the events with the given
+  # to_tag.  Return true if successful, false otherwise.
+  def create_cdr(cdr_data, events, to_tag)
+    status = false                # return value: did we fill in the CDR?
+    
+    # get the events for the call leg
+    call_leg = events.find_all {|event| event.to_tag == to_tag}
+    
+    # find the call_setup event
+    call_setup = call_leg.find {|event| event.call_setup?}
+    if call_setup
+      cdr = cdr_data.cdr
+      
+      # The call was set up, so mark it provisionally as in progress.
+      cdr.termination = Cdr::CALL_IN_PROGRESS_TERM
+ 
+      # We have enough data now to build the CDR.
+      status = true
+      
+      # get data from the call_setup event
+      cdr_data.callee.contact = call_setup.contact
+      cdr.to_tag = call_setup.to_tag
+      cdr.connect_time = call_setup.event_time
+      
+      # get data from the call_end or call_failure event
+      call_end = call_leg.find {|event| event.call_end?}
+      if call_end
+        cdr.termination = Cdr::CALL_COMPLETED_TERM    # successful completion
+        cdr.end_time = call_end.event_time
+      else
+        # Couldn't find a call_end, try for call_failure
+        call_failure = call_leg.find {|event| event.call_failure?}
+        if call_failure
+          # found a call_failure event, use it
+          # :TODO: consider optimizing space usage by not setting the
+          # failure_reason if it is the default value for the failure_status
+          # code. For example, the 486 error has the default reason "Busy Here".
+          cdr.termination = Cdr::CALL_FAILURE_TERM
+          cdr.end_time = call_failure.event_time
+          cdr.failure_status = call_failure.failure_status
+          cdr.failure_reason = call_failure.failure_reason
+        end
+      end
+    end
+    
+    status
   end
   
 end    # class CallResolver
 
 
-# PartialCdr holds data for a CDR that is under construction: the CDR and the
+# CdrData holds data for a CDR that is under construction: the CDR and the
 # associated caller and callee parties.  Because this data has not yet been
 # written to the DB, we can't use the foreign key relationships that usually
 # link the CDR to the caller and callee.
-class PartialCdr
+class CdrData
   attr_reader :cdr, :caller, :callee
-  def initialize(cdr, caller, callee)
+
+  def initialize(cdr = Cdr.new, caller = Party.new, callee = Party.new)
     @cdr = cdr
     @caller = caller
     @callee = callee
