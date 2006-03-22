@@ -106,6 +106,7 @@ create table parties (
   id serial8 not null,                  /* Row ID */
   aor text not null,                    /* SIP AOR */
   contact text not null,                /* SIP contact URL */
+  unique (aor, contact),
   primary key (id) 
 );
 
