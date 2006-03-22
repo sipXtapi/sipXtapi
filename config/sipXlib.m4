@@ -773,23 +773,40 @@ AC_DEFUN([SFAC_FEATURE_DBTEST],
 [
    AC_REQUIRE([CHECK_ODBC])
 
-   AC_ARG_ENABLE(dbtests, 
-                 [  --enable-dbtests        run database unit tests (no)],
-                 [], [enable_dbtests=no])
+   AC_ARG_WITH(dbtests, 
+               [  --with-dbtests=dbname run database unit tests (no)],
+               [enable_dbtests=yes], 
+               [enable_dbtests=no])
    AC_MSG_CHECKING([for enabling database unit tests])
-   AC_MSG_RESULT(${enable_dbtests})
-   AC_MSG_CHECKING([for running PostgreSQL])
-
-   if psql -l -U postgres &>/dev/null
+   if test x$enable_dbtests = xyes
    then
-     AC_MSG_RESULT(running)
-     # Run tests in a separate test database
-       
-     SIPXTEST_DATABASE=SIPXCDR-TEST
-     AC_SUBST(SIPXTEST_DATABASE)
-   else
-     AC_MSG_RESULT(not running - disabling test)
+     if test x$withval = x
+     then
+       SIPXTEST_DATABASE=SIPXDB-TEST
+     else
+       # Allow for --with-dbtests without parameters
+       if test x$withval = xyes
+       then
+         SIPXTEST_DATABASE=SIPXDB-TEST
+       else
+         SIPXTEST_DATABASE=$withval
+       fi
+     fi
+     AC_MSG_RESULT([${enable_dbtests} - using database $SIPXTEST_DATABASE])
+
+     AC_MSG_CHECKING([for running PostgreSQL])
+
+     if psql -l -U postgres &>/dev/null
+     then
+       AC_MSG_RESULT(running)
+       # Run tests in a separate test database
+       AC_SUBST(SIPXTEST_DATABASE)
+     else
+       AC_MSG_RESULT(not running - disabling test)
      enable_dbtests=no
+     fi
+
+   else
+     AC_MSG_RESULT(${enable_dbtests})
    fi
-   
 ])
