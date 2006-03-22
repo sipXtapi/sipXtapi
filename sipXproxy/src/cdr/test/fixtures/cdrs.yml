@@ -1,5 +1,13 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+# CDR test data
+
 first:
-  id: 1
-another:
-  id: 2
+  id:           1
+  call_id:      call1
+  from_tag:     f1
+  to_tag:       t1
+  caller_id:    1
+  callee_id:    2
+  start_time:   1990-05-17T19:30:00.000Z
+  connect_time: 1990-05-17T19:31:00.000Z
+  end_time:     1990-05-17T19:40:00.000Z
+  termination:  F

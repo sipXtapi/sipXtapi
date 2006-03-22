@@ -16,8 +16,11 @@ require '../../call_resolver'
 
 
 class CallResolverTest < Test::Unit::TestCase
-  fixtures :call_state_events
-
+  fixtures :call_state_events, :parties, :cdrs
+  
+  TEST_AOR = 'aor'
+  TEST_CONTACT = 'contact'
+ 
 public
 
   def setup
@@ -42,22 +45,16 @@ public
   end
   
   def test_load_events
-    # load events
-    call_id = 'testSimpleSuccess'
-    events = @resolver.send(:load_events, call_id)
-    
-    # verify results
+    events = load_simple_success_events
     assert_equal(3, events.length)
     events.each_index do |index|
       assert_equal(events[index].event_seq, index + 1, 'Events are not in the right order')
-      assert_equal(call_id, events[index].call_id)
+      assert_equal('testSimpleSuccess', events[index].call_id)
     end
   end
   
   def test_find_first_call_request
-    # load events
-    call_id = 'testSimpleSuccess'
-    events = @resolver.send(:load_events, call_id)
+    events = load_simple_success_events
      
     # find the first call_request event
     call_req = @resolver.send(:find_first_call_request, events)
@@ -68,13 +65,13 @@ public
                  "Wrong call request sequence number #{call_req.event_seq}")
   end
   
-  def test_read_call_request(call_req)
-    partial_cdr = @resolver.send(
-                    :read_call_request,
-                    @resolver.send(:find_first_call_request, events))
-    cdr = partial_cdr.cdr
-    caller = partial_cdr.caller
-    callee = partial_cdr.callee
+  def test_read_call_request
+    cdr_data = @resolver.send(
+                 :read_call_request,
+                 call_state_events('testSimpleSuccess_1'))
+    cdr = cdr_data.cdr
+    caller = cdr_data.caller
+    callee = cdr_data.callee
     
     # verify the caller
     assert_equal('sip:alice@example.com', caller.aor)
@@ -85,17 +82,15 @@ public
     assert_nil(callee.contact)
 
     # verify the CDR
-    assert_equal('testSimpleSuccess', cdr.caller_id)
+    assert_equal('testSimpleSuccess', cdr.call_id)
     assert_equal('f', cdr.from_tag)
     assert_nil(cdr.to_tag)    # don't have the to tag yet
-    assert_equal(Time.parse('1990-05-17T07:30:00.000Z'), cdr.start_time)
-    assert_equal(Cdr.CALL_REQUESTED_TERM, cdr.termination)
+    assert_equal(Time.parse('1990-05-17T19:30:00.000Z'), cdr.start_time)
+    assert_equal(Cdr::CALL_REQUESTED_TERM, cdr.termination)
   end
 
   def test_best_call_leg
-    # load events for the simple case
-    call_id = 'testSimpleSuccess'
-    events = @resolver.send(:load_events, call_id)
+    events = load_simple_success_events
      
     # Pick the call leg with the best outcome and longest duration to be the
     # basis for the CDR.
@@ -127,9 +122,7 @@ public
   end
 
   def test_create_cdr
-    # load events for the simple case
-    call_id = 'testSimpleSuccess'
-    events = @resolver.send(:load_events, call_id)
+    events = load_simple_success_events
     
     # fill in cdr_data with info from the events
     to_tag = 't'
@@ -155,4 +148,105 @@ public
     assert_nil(cdr.failure_reason)
   end
  
+  def test_find_party
+    # For a clean test, make sure there is no preexisting Party with the aor
+    # and contact that we are using.
+    Party.delete_all("aor = '#{TEST_AOR}' and contact = '#{TEST_CONTACT}'")
+    
+    # Create a Party
+    party = Party.new(:aor => 'aor', :contact => 'contact')
+    
+    # The Party shouldn't be in the DB
+    assert_nil(@resolver.send(:find_party, party))
+               
+    # Save the Party, now it should be in the DB
+    party.save
+    assert_equal(party, @resolver.send(:find_party, party),
+                 'Could not find the saved Party in the database')
+  end
+  
+  def test_save_party_if_new
+    # For a clean test, make sure there is no preexisting Party with the aor
+    # and contact that we are using.
+    Party.delete_all("aor = '#{TEST_AOR}' and contact = '#{TEST_CONTACT}'")
+    
+    # Create a Party
+    party = Party.new(:aor => 'aor', :contact => 'contact')
+    
+    # Save it
+    saved_party = @resolver.send(:save_party_if_new, party)
+    assert_equal(saved_party, party)
+    
+    # Make a new Party just like the last one.  When we try to save it, we
+    # should get back the one that is already in the DB.
+    party2 = Party.new(:aor => 'aor', :contact => 'contact')
+    save_again_party = @resolver.send(:save_party_if_new, party2)
+    assert_equal(saved_party.id, save_again_party.id)
+    assert(party2.new_record?, 'Party record should not have been saved')
+  end
+  
+  def test_find_cdr_by_dialog
+    cdr = @resolver.send(:find_cdr_by_dialog, 'call1', 'f1', 't1')
+    assert(cdr, "Couldn't find CDR")
+    cdr = @resolver.send(:find_cdr_by_dialog, 'extra_bogus_call_id', 'f1', 't1')
+    assert_nil(cdr, "Found a CDR that shouldn't exist")
+  end
+  
+  def test_save_cdr
+    # Try to save a CDR with a dialog ID that already exists in the DB =>
+    # should just get back the existing CDR.
+    cdr = Cdr.new(:call_id => 'call1', :from_tag => 'f1', :to_tag => 't1')
+    caller = Party.new(:aor => 'sip:alice@example.com',
+                       :contact => 'sip:alice@1.1.1.1')
+    callee = Party.new(:aor => 'sip:bob@example.com',
+                       :contact => 'sip:bob@2.2.2.2')
+    cdr_data = CdrData.new(cdr, caller, callee)
+    cdr_count_before_save = Cdr.count
+    @resolver.send(:save_cdr, cdr_data)
+    assert_equal(cdr_count_before_save, Cdr.count,
+                 'The CDR count must not increase')
+    
+    # Save a new CDR => it should end up in the DB
+    call_id2 = 'call2'
+    from_tag2 = 'f2'
+    to_tag2 = 't2'
+    cdr = Cdr.new(:call_id => call_id2, :from_tag => from_tag2, :to_tag => to_tag2)
+    cdr_data.cdr = cdr
+    @resolver.send(:save_cdr, cdr_data)
+    assert_equal(cdr_count_before_save + 1, Cdr.count,
+                 'The CDR was not saved to the database')
+    cdr = @resolver.send(:find_cdr_by_dialog, call_id2, from_tag2, to_tag2)
+    assert_not_nil(cdr, "Didn't find saved CDR")
+    
+    # Save a new CDR with a new caller and callee => everything gets persisted
+    call_id3 = 'call3'
+    from_tag3 = 'f3'
+    to_tag3 = 't3'
+    cdr = Cdr.new(:call_id => call_id3, :from_tag => from_tag3, :to_tag => to_tag3)
+    caller = Party.new(:aor => 'sip:varda@example.com',
+                       :contact => 'sip:varda@3.3.3.3')
+    callee = Party.new(:aor => 'sip:thor@example.com',
+                       :contact => 'sip:thor@4.4.4.4')
+    cdr_data = CdrData.new(cdr, caller, callee)
+    cdr_count_before_save = Cdr.count
+    party_count_before_save = Party.count
+    @resolver.send(:save_cdr, cdr_data)
+    assert_equal(cdr_count_before_save + 1, Cdr.count,
+                 'The CDR was not saved to the database')
+    assert_equal(party_count_before_save + 2, Party.count,
+                 'The caller and/or callee was not saved to the database')
+    cdr = @resolver.send(:find_cdr_by_dialog, call_id3, from_tag3, to_tag3)
+    assert_not_nil(cdr, "Didn't find saved CDR")
+     
+  end
+  
+  #-----------------------------------------------------------------------------
+  # Helper methods
+  
+  # load and return events for the simple case
+  def load_simple_success_events
+    call_id = 'testSimpleSuccess'
+    @resolver.send(:load_events, call_id)
+  end
+  
 end

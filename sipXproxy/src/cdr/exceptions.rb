@@ -8,7 +8,7 @@
 ##############################################################################
 
 # CallResolverException is the base class for all Call Resolver exceptions.
-class CallResolverException < RuntimeError
+class CallResolverException < StandardError
 end
 
 # BadSipHeaderException indicates a bad SIP header.

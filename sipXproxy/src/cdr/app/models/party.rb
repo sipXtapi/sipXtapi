@@ -8,4 +8,15 @@
 ##############################################################################
 
 class Party < ActiveRecord::Base
+  def ==(party)
+    self.aor == party.aor && self.contact == party.contact
+  end
+  
+  def eql?(party)
+    self == party
+  end
+  
+  def hash
+    return self.aor.hash + self.contact.hash
+  end
 end

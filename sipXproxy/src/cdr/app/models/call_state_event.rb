@@ -7,6 +7,8 @@
 #
 ##############################################################################
 
+require '../../utils'
+
 class CallStateEvent < ActiveRecord::Base
 
 public

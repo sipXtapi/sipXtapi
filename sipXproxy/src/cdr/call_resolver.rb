@@ -73,12 +73,9 @@ private
   end
   
   # Resolve the call with the given call_id to yield 0-1 CDRs.  Persist the CDRs.
-  # Return true if a CDR was created, false otherwise.
   # :TODO: catch non-fatal exceptions thrown by Call Resolver code.  Discard the
   # CDR when such exceptions happen and log an error.
   def resolve_call(call_id)
-    made_cdr = false              # assume failure
-    
     # Load all events with this call_id, in ascending chronological order.
     # Don't constrain the query to a time window.  That allows us to handle
     # calls that span time windows.
@@ -103,16 +100,10 @@ private
       
         if status
           # Save the CDR and associated data, within a transaction.
-          # Be sure not to duplicate existing data.  For example, the caller
-          # may already be present in the parties table from a previous call,
-          # or a complete CDR may have been created for this call in a
-          # previous run.
-          made_cdr = save_cdr
+          save_cdr(cdr_data)
         end
       end
     end
-
-    return made_cdr
   end
     
   # Load all events with the given call_id, in ascending chronological order.
@@ -147,8 +138,8 @@ private
     callee = Party.new(:aor => call_req.callee_aor)
     cdr = Cdr.new(:call_id => call_req.call_id,
                   :from_tag => call_req.from_tag,
-                  :start_time => call_req.start_time,
-                  :termination => Cdr.CALL_REQUESTED_TERM)
+                  :start_time => call_req.event_time,
+                  :termination => Cdr::CALL_REQUESTED_TERM)
     CdrData.new(cdr, caller, callee)
   end
 
@@ -226,7 +217,7 @@ private
           # :TODO: consider optimizing space usage by not setting the
           # failure_reason if it is the default value for the failure_status
           # code. For example, the 486 error has the default reason "Busy Here".
-          cdr.termination = Cdr::CALL_FAILURE_TERM
+          cdr.termination = Cdr::CALL_FAILED_TERM
           cdr.end_time = call_failure.event_time
           cdr.failure_status = call_failure.failure_status
           cdr.failure_reason = call_failure.failure_reason
@@ -235,6 +226,86 @@ private
     end
     
     status
+  end
+
+  # Save the CDR and associated data, within a transaction.
+  # Be sure not to duplicate existing data.  For example, the caller
+  # may already be present in the parties table from a previous call,
+  # or a complete CDR may have been created for this call in a
+  # previous run.
+  # Raise a CallResolverException if the save fails for some reason.
+  # :TODO: support the redo flag for recomputing CDRs
+  def save_cdr(cdr_data)
+    # define variables for cdr_data components
+    cdr = cdr_data.cdr
+    caller = cdr_data.caller
+    callee = cdr_data.callee
+    
+    Cdr.transaction do
+      # Continue only if a complete CDR doesn't already exists.
+      db_cdr = find_cdr_by_dialog(cdr.call_id, cdr.from_tag, cdr.to_tag)
+      if (!db_cdr or !db_cdr.complete?)
+      
+        # save the caller and callee if they don't already exist
+        caller = save_party_if_new(caller)
+        callee = save_party_if_new(callee)
+        cdr.caller_id = caller.id
+        cdr.callee_id = callee.id
+        
+        # save the CDR
+        if !cdr.save
+          raise(CallResolverException, 'save_cdr: save failed', caller)
+        end
+      end
+    end
+  end
+  
+  # Given the parameters identifying a SIP dialog -- call_id, from_tag, and
+  # to_tag -- return the CDR, or nil if a CDR could not be found.
+  def find_cdr_by_dialog(call_id, from_tag, to_tag)
+    Cdr.find(
+      :first,
+      :conditions =>
+        ["call_id = :call_id and from_tag = :from_tag and to_tag = :to_tag",
+         {:call_id => call_id, :from_tag => from_tag, :to_tag => to_tag}])
+  end
+  
+  # Given an in-memory Party, find that Party in the database and return it.
+  # If the Party is not in the database, then return nil.
+  def find_party(party)
+    Party.find_by_aor_and_contact(party.aor, party.contact)
+  end
+  
+  # Save the input Party if it is not already in the database.
+  # Return the Party, either the saved input Party or the Party with equal
+  # values that was already in the database.
+  def save_party_if_new(party)
+    party_in_db = find_party(party)
+    if !party_in_db
+      begin
+        if party.save
+          party_in_db = party
+        else
+          raise(CallResolverException, 'save_party_if_new: save failed', caller)
+        end
+      rescue ActiveRecord::StatementInvalid
+        # Because we are doing optimistic locking, there is a small chance that
+        # a Party got saved just after we did the check above, resulting in a
+        # DB integrity violation when we try to save a duplicate.  In this case
+        # return the Party that is in the database.
+        log.debug("save_party_if_new: unusual race condition detected")
+        party_in_db = find_party(party)
+        
+        # The Party had better be in the database now.  If not then rethrow,
+        # we are lost in the woods without a flashlight.
+        if !party_in_db
+          log.error("save_party_if_new: party should be in database but isn't")
+          raise
+        end
+      end
+    end
+    
+    party_in_db
   end
   
 end    # class CallResolver
@@ -245,7 +316,7 @@ end    # class CallResolver
 # written to the DB, we can't use the foreign key relationships that usually
 # link the CDR to the caller and callee.
 class CdrData
-  attr_reader :cdr, :caller, :callee
+  attr_accessor :cdr, :caller, :callee
 
   def initialize(cdr = Cdr.new, caller = Party.new, callee = Party.new)
     @cdr = cdr
