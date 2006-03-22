@@ -61,6 +61,7 @@
     <page name="ListParkOrbits" specification-path="admin/ListParkOrbits.page"/>    
     <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
+    <page name="ManagePresence" specification-path="user_portal/ManagePresence.page"/>
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
     <page name="NewUser" specification-path="user/NewUser.page"/>
