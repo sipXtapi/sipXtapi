@@ -18,6 +18,8 @@ import java.util.List;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * DialPlanContext
@@ -39,7 +41,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
     public abstract void storeAutoAttendant(AutoAttendant attendant);
 
     public abstract void deleteAutoAttendant(AutoAttendant attendant, String scriptsDir);
-    
+
     public abstract AutoAttendant getOperator();
 
     public abstract AutoAttendant getAutoAttendant(Integer id);
@@ -47,7 +49,7 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
     public abstract List getAutoAttendants();
 
     public abstract void deleteAutoAttendantsByIds(Collection attendantsIds, String scriptsDir);
-    
+
     public abstract void specialAutoAttendantMode(boolean enabled, AutoAttendant attendant);
 
     public abstract void removeGateways(Collection gatewaysIds);
@@ -83,4 +85,10 @@ public interface DialPlanContext extends DataObjectSource, AliasOwner {
     public abstract EmergencyRouting getEmergencyRouting();
 
     public abstract void removeRoutingException(Serializable routingExceptionId);
+
+    public Group getDefaultAutoAttendantGroup();
+
+    public AutoAttendant newAutoAttendantWithDefaultGroup();
+    
+    public Setting getAttendantSettingModel();
 }

@@ -63,6 +63,10 @@
     <binding name="contentType" value="literal:audio/x-wav"/>
     <binding name="selectable" value="true"/>
   </component>
+  <component id="settingsFieldset" type="SettingsFieldset">
+    <binding name="settings" value="attendant.settings"/>
+    <binding name="renderGroupTitle" value="false"/>
+  </component>
   <component id="reset" type="Submit">
     <binding name="listener" value="listener:reset"/>
   </component>

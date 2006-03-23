@@ -14,8 +14,9 @@
   <var name="transferextn"/>
 
   <form id="aa">
-    <property name="interdigittimeout" value="3s" />
-    <property name="timeout" value="7s" />
+#set( $dtmf = $attendant.Settings.getSetting('dtmf'))
+    <property name="interdigittimeout" value="${dtmf.getSetting('interDigitTimeout').Value}s" />
+    <property name="timeout" value="${dtmf.getSetting('overallDigitTimeout').Value}s" />
 
     <!-- Parameters passed in from the calling subroutine -->
     <var name="from" />
@@ -29,7 +30,7 @@
     <var name="autoattendantprompturl" />
 
     <!-- Play the autoattendant main menu -->
-    <field name="menu" type="digits?minlength=1;maxlength=10">
+    <field name="menu" type="digits?minlength=1;maxlength=${dtmf.getSetting('maxDigits').Value}">
       <prompt>
 	<audio expr="securemediaserverurl + aa_promptsalias + '${attendant.Prompt}'" />
       </prompt>

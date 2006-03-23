@@ -111,7 +111,7 @@ public abstract class EditAutoAttendant extends PageWithCallback implements
 
         AutoAttendant aa = getAttendant();
         if (aa == null) {
-            aa = new AutoAttendant();
+            aa = getDialPlanContext().newAutoAttendantWithDefaultGroup();
             aa.resetToFactoryDefault();
             setAttendant(aa);
         }

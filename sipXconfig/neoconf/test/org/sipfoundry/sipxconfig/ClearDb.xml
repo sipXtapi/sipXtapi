@@ -10,10 +10,16 @@
   <table name="patch"/>
   <table name="initialization_task"/>
   <table name="upload"/>
+
+  <!-- settings -->  
+  <table name="value_storage"/>
+  <table name="group_storage"/>
+  <table name="setting_value"/>  
   
   <!-- dial plans related -->
   <table name="dial_plan"/>
   <table name="auto_attendant"/>
+  <table name="attendant_group"/>
   <table name="attendant_menu_item"/>
   <table name="dialing_rule"/>
   <table name="custom_dialing_rule"/>
@@ -31,12 +37,7 @@
   
   <!-- park orbit -->
   <table name="park_orbit"/>
-  
-  <!-- settings -->  
-  <table name="value_storage"/>
-  <table name="group_storage"/>
-  <table name="setting_value"/>  
-    
+      
   <!-- users -->
   <table name="users"/>
   <table name="user_alias"/>

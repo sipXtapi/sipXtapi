@@ -29,6 +29,7 @@ import org.dbunit.database.DatabaseConfig;
 import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
+import org.dbunit.dataset.ReplacementDataSet;
 import org.dbunit.dataset.xml.FlatDtdDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
@@ -202,6 +203,13 @@ public final class TestHelper {
         // we do not want to use metadata since DBTestUnit resolves relative DTDs incorrectly
         // we are checking XML validity in separate Ant tasks (test-dataset)
         return new FlatXmlDataSet(datasetStream, false);
+    }
+    
+    public static ReplacementDataSet loadReplaceableDataSetFlat(String fileResource) throws Exception {
+    		IDataSet ds = loadDataSetFlat(fileResource);
+    		ReplacementDataSet relaceable = new ReplacementDataSet(ds);
+    		relaceable.addReplacementObject("[null]", null);
+    		return relaceable;    		
     }
 
     public static void cleanInsert(String resource) throws Exception {

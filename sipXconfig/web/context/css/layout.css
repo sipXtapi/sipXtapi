@@ -239,7 +239,8 @@ ul.component-links
 	text-align:right;
 }
 
-ul.component-links li
+ul.component-links li,
+ul.component-links li form
 {
 	display:inline;
 	padding-left:1em;

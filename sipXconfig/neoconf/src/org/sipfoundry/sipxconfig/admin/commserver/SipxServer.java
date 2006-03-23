@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -137,8 +138,21 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         return aliases;
     }
 
+    public String getPresenceServiceUri() {
+        Object[] params = new Object[] {
+            getPresenceServerLocation(), 
+            String.valueOf(getPresenceServerApiPort())
+        };
+        return MessageFormat.format("http://{0}:{1}/RPC2", params);
+    }
+
     private String getPresenceServerLocation() {
         return getSettingValue(ServerSettings.PRESENCE_SERVER_LOCATION);
+    }
+
+    private int getPresenceServerApiPort() {
+        return ((Integer) getSettingTypedValue(ServerSettings.PRESENCE_API_PORT))
+                .intValue();
     }
 
     private int getPresenceServerPort() {

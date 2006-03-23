@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
@@ -34,6 +35,9 @@ import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
@@ -45,18 +49,32 @@ import org.springframework.context.ApplicationListener;
 public class DialPlanContextImpl extends SipxHibernateDaoSupport implements BeanFactoryAware,
         DialPlanContext, ApplicationListener {
     private static final String DIALING_RULE_IDS_WITH_NAME_QUERY = "dialingRuleIdsWithName";
+
     private static final String OPERATOR_CONSTANT = "operator";
+
     private static final String VALUE = "value";
+
     private static final String AUTO_ATTENDANT = "auto attendant";
+
     private static final String DIALING_RULE = "dialing rule";
 
     private transient ConfigGenerator m_generator;
+
     private DialingRuleFactory m_ruleFactory;
+
     private CoreContext m_coreContext;
+
     private AliasManager m_aliasManager;
+
     private BeanFactory m_beanFactory;
+
     private SipxReplicationContext m_sipxReplicationContext;
+
+    private SettingDao m_settingDao;
+
     private String m_scriptsDirectory;
+    
+    private Setting m_attendantSettingModel;
 
     /**
      * Loads dial plan, creates a new one if none exist
@@ -235,6 +253,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (!m_aliasManager.canObjectUseAlias(aa, name)) {
             throw new NameInUseException(AUTO_ATTENDANT, name);
         }
+        clearUnsavedValueStorage(aa.getValueStorage());
         getHibernateTemplate().saveOrUpdate(aa);
     }
 
@@ -271,6 +290,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         if (attendant.isOperator()) {
             throw new AttendantInUseException();
         }
+
+        attendant.setValueStorage(clearUnsavedValueStorage(attendant.getValueStorage()));
+        getHibernateTemplate().refresh(attendant);
 
         Collection attendantRules = getHibernateTemplate().loadAll(AttendantRule.class);
         Collection affectedRules = new ArrayList();
@@ -320,7 +342,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         ConfigGenerator generator = getGenerator();
         generator.activate(m_sipxReplicationContext, m_scriptsDirectory);
         // notify the world we are done with activating dial plan
-        m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));        
+        m_sipxReplicationContext.publishEvent(new DialPlanActivatedEvent(this));
     }
 
     public void applyEmergencyRouting() {
@@ -502,4 +524,33 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
                 "attendantRuleIdsWithExtension", VALUE, extension);
     }
 
+    public void setSettingDao(SettingDao settingDao) {
+        m_settingDao = settingDao;
+    }
+
+    public Group getDefaultAutoAttendantGroup() {
+        return m_settingDao.getGroupCreateIfNotFound("auto_attendant", "default");
+    }
+
+    public AutoAttendant newAutoAttendantWithDefaultGroup() {
+        AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME,
+                AutoAttendant.class);
+
+        // All auttendant share same group, default
+        Set groups = aa.getGroups();
+        if (groups == null || groups.size() == 0) {
+            aa.addGroup(getDefaultAutoAttendantGroup());
+        }
+
+        return aa;
+    }
+
+    public void setAttendantSettingModel(Setting attendantSettingModel) {
+        m_attendantSettingModel = attendantSettingModel;
+    }
+    
+    public Setting getAttendantSettingModel() {
+        // return copy so original model stays intact
+        return m_attendantSettingModel.copy();
+    }
 }

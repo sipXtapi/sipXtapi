@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+	"-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+	"http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+  <input-symbol key="refreshButton" required="yes"/>
+  <input-symbol key="interval" required="yes"/>
+  
+  <let key="initRefresh" unique="yes">initRefresh</let>
+  
+  <body>
+    <unique>
+function ${initRefresh}(buttonName, interval) {
+  dojo.debug("Registering auto refresh: " + interval);
+  var click = function() {
+    dojo.debug("Clicking: " + buttonName);
+    dojo.byId(buttonName).click();     
+  }
+  window.setTimeout(click, interval * 1000);
+}
+    </unique>
+  </body>
+  <initialization>
+${initRefresh}("refresh", ${interval});
+  </initialization>
+</script>

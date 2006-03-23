@@ -29,6 +29,7 @@
     <page name="AddPhoneUser" specification-path="phone/AddPhoneUser.page"/>
     <page name="BackupPage" specification-path="admin/BackupPage.page"/>
     <page name="ChangePin" specification-path="user_portal/ChangePin.page"/>
+    <page name="EditAttendantDefaults" specification-path="dialplan/EditAttendantDefaults.page"/>
     <page name="EditAttendantDialRule" specification-path="dialplan/EditAttendantDialRule.page"/>
 	<page name="EditAutoAttendant" specification-path="dialplan/EditAutoAttendant.page"/>
     <page name="EditCallGroup" specification-path="admin/EditCallGroup.page"/>
@@ -60,6 +61,7 @@
     <page name="ListParkOrbits" specification-path="admin/ListParkOrbits.page"/>    
     <page name="ManageAttendants" specification-path="dialplan/ManageAttendants.page"/>    
     <page name="ManagePhones" specification-path="phone/ManagePhones.page"/>
+    <page name="ManagePresence" specification-path="user_portal/ManagePresence.page"/>
     <page name="ManageUsers" specification-path="user/ManageUsers.page"/> 
     <page name="NewPhone" specification-path="phone/NewPhone.page"/>
     <page name="NewUser" specification-path="user/NewUser.page"/>

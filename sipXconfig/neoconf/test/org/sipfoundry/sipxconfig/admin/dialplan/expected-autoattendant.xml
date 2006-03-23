@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <vxml>
 	<form id="aa">
+		<property name="interdigittimeout" value="3s"/>
+		<property name="timeout" value="7s"/>
 		<field name="menu">
 			<filled>
 				<if cond="menu=='0'" >

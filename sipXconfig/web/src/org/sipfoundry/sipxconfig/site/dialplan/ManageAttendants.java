@@ -24,10 +24,13 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.VxmlGenerator;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
 public abstract class ManageAttendants extends BasePage {
 
     public static final String PAGE = "ManageAttendants";
+    public static final String DEFAULTS_PAGE = "EditAttendantDefaults";
 
     public abstract DialPlanContext getDialPlanContext();
 
@@ -64,5 +67,12 @@ public abstract class ManageAttendants extends BasePage {
         page.setAttendant(null);
         page.setReturnPage(PAGE);
         return page;
+    }
+    
+    public IPage defaultGroup(IRequestCycle cycle) {
+        GroupSettings page = (GroupSettings) cycle.getPage(DEFAULTS_PAGE);
+        Group defaultGroup = getDialPlanContext().getDefaultAutoAttendantGroup();
+        page.editGroup(defaultGroup.getId(), getDialPlanContext().getAttendantSettingModel(), PAGE);
+        return page;        
     }
 }

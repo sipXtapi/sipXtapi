@@ -33,6 +33,7 @@
       classpath*:/org/sipfoundry/sipxconfig/common/common.beans.xml
       classpath*:/org/sipfoundry/sipxconfig/search/search.beans.xml
       classpath*:/org/sipfoundry/sipxconfig/upload/upload.beans.xml
+      classpath*:/org/sipfoundry/sipxconfig/presence/presence.beans.xml
     </param-value>
   </context-param>
   

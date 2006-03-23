@@ -164,7 +164,13 @@
     <property name="ruleFactory">
       <ref bean="dialRuleFactory"></ref>
     </property>
+    <property name="settingDao">
+      <ref bean="settingDao"/>
+    </property>
     <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+    <property name="attendantSettingModel">
+      <ref local="attendantSettingModel"/>
+    </property>
   </bean>
   
   <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean"
@@ -195,6 +201,18 @@
     </property>
     <property name="authRules">
       <ref local="authRules"/>
+    </property>
+  </bean>
+  
+  <!-- A T T E N D A N T -->
+  <bean id="attendantSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel">
+    <property name="resource" value="sipxvxml/autoattendant.xml"/>
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+  <bean id="autoAttendant"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" singleton="false">
+    <property name="settingModel">
+      <ref local="attendantSettingModel"/>
     </property>
   </bean>
   

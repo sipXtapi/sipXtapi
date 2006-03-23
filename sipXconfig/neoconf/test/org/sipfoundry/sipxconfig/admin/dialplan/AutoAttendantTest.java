@@ -48,7 +48,8 @@ public class AutoAttendantTest extends XMLTestCase {
 
     public void testActivateDefaultAttendant() throws Exception {
         AutoAttendant aa = new AutoAttendant();
-        aa.setPrompt("prompt.wav");
+        aa.setSettingModel(TestHelper.loadSettings("sipxvxml/autoattendant.xml"));
+        aa.setPrompt("prompt.wav");        
         aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
         aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.DISCONNECT));
         StringWriter actualXml = new StringWriter();
@@ -65,8 +66,8 @@ public class AutoAttendantTest extends XMLTestCase {
         StringWriter expected = new StringWriter();
         XmlUnitHelper.style(getReader("autoattendant.xsl"), expectedRdr, expected, null);
 
+        System.out.println(actual.toString());
         XMLAssert.assertXMLEqual(expected.toString(), actual.toString());
-        System.out.print(actualXml.toString());
     }
 
     private Reader getReader(String resource) {

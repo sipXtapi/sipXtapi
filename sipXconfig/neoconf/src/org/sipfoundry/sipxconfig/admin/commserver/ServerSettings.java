@@ -32,8 +32,9 @@ public interface ServerSettings {
     static final String PRESENCE_SERVER_SIP_PORT = "presence/PRESENCE_SERVER_SIP_PORT";
     // note: the name of the setting is misleading - this is actually full host name not just a
     // domain name
-    static final String PRESENCE_SERVER_LOCATION = "presence/SIP_PRESENCE_DOMAIN_NAME";
-
+    static final String PRESENCE_SERVER_LOCATION = "presence/SIP_PRESENCE_DOMAIN_NAME";   
+    static final String PRESENCE_API_PORT = "presence/SIP_PRESENCE_HTTP_PORT";
+    
     public String getDomainName();
 
     public String getPresenceSignInCode();
@@ -41,4 +42,6 @@ public interface ServerSettings {
     public String getPresenceSignOutCode();
 
     public String getPresenceServerSipPort();
+    
+    public String getPresenceApiPort();
 }
