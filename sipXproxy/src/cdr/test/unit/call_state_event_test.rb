@@ -8,7 +8,7 @@
 ##############################################################################
 
 require File.dirname(__FILE__) + '/../test_helper'
-require '../../utils'
+require File.dirname(__FILE__) + '/../../utils'
 
 class CallStateEventTest < Test::Unit::TestCase
   fixtures :call_state_events

@@ -165,7 +165,6 @@ testComplicatedSuccess_11:
   to_tag:         t0
   from_url:       sip:cathy@example.com; tag=f
   to_url:         sip:heathcliff@example.com; tag=t0
-  contact:        sip:cathy@1.1.1.1
   failure_status: 486
   failure_reason: Busy Doing My Taxes
 
@@ -181,3 +180,93 @@ testComplicatedSuccess_10:
   from_url:   sip:cathy@example.com; tag=f
   to_url:     sip:heathcliff@example.com
   contact:    sip:cathy@1.1.1.1
+
+  
+#-------------------------------------------------------------------------------
+
+# Call that failed
+
+testFailed_20:
+  id:         20
+  observer:   O
+  event_seq:  20
+  event_time: 2000-1-1T00:00:00.000Z
+  event_type: R
+  call_id:    testFailed
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@1.1.1.1
+
+testFailed_21:
+  id:         21
+  observer:   O
+  event_seq:  21
+  event_time: 2000-1-1T01:00:00.000Z
+  event_type: S
+  call_id:    testFailed
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  contact:    sip:keith@2.2.2.2
+
+testFailed_22:
+  id:         22
+  observer:   O
+  event_seq:  22
+  event_time: 2000-1-1T02:00:00.000Z
+  event_type: F
+  call_id:    testFailed
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  failure_status: 486
+  failure_reason: You Can't Always Get What You Want
+
+  
+#-------------------------------------------------------------------------------
+
+# Another successful call, just so we can check that time windows are being
+# done right
+
+testAnotherSuccess_30:
+  id:         30
+  observer:   O
+  event_seq:  30
+  event_time: 2001-1-1T00:00:00.000Z
+  event_type: R
+  call_id:    testAnotherSuccess
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@1.1.1.1
+
+testAnotherSuccess_31:
+  id:         31
+  observer:   O
+  event_seq:  31
+  event_time: 2001-1-1T01:00:00.000Z
+  event_type: S
+  call_id:    testAnotherSuccess
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  contact:    sip:keith@2.2.2.2
+
+testAnotherSuccess_32:
+  id:         32
+  observer:   O
+  event_seq:  32
+  event_time: 2001-1-1T02:00:00.000Z
+  event_type: E
+  call_id:    testAnotherSuccess
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+

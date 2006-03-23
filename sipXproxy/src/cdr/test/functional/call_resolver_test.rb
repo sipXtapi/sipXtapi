@@ -146,6 +146,18 @@ public
     assert_equal(Cdr::CALL_COMPLETED_TERM, cdr.termination, 'Wrong termination code')
     assert_nil(cdr.failure_status)
     assert_nil(cdr.failure_reason)
+    
+    # Test a failed call.  Check only that the failure info has been filled in
+    # properly.  We've checked other info in the case above.
+    call_id = 'testFailed'
+    events = @resolver.send(:load_events, call_id)
+    cdr_data = CdrData.new
+    status = @resolver.send(:create_cdr, cdr_data, events, to_tag)
+    assert_equal(true, status)
+    cdr = cdr_data.cdr
+    assert_equal(Cdr::CALL_FAILED_TERM, cdr.termination, 'Wrong termination code')
+    assert_equal(486, cdr.failure_status)
+    assert_equal("You Can't Always Get What You Want", cdr.failure_reason) 
   end
  
   def test_find_party
@@ -236,8 +248,23 @@ public
     assert_equal(party_count_before_save + 2, Party.count,
                  'The caller and/or callee was not saved to the database')
     cdr = @resolver.send(:find_cdr_by_dialog, call_id3, from_tag3, to_tag3)
-    assert_not_nil(cdr, "Didn't find saved CDR")
-     
+    assert_not_nil(cdr, "Didn't find saved CDR")     
+  end
+  
+  def test_resolve_call
+    ['testSimpleSuccess', 'testComplicatedSuccess', 'testFailed'].each do |call_id|
+      @resolver.send(:resolve_call, call_id)
+      cdr = Cdr.find_by_call_id(call_id)
+      assert_not_nil(cdr, 'CDR was not created')
+    end
+  end
+    
+  def test_resolve
+    Cdr.delete_all
+    start_time = Time.parse('1990-01-1T000:00:00.000Z')
+    end_time = Time.parse('2000-12-31T00:00.000Z')
+    @resolver.resolve(start_time, end_time)
+    assert_equal(3, Cdr.count, 'Wrong number of CDRs')
   end
   
   #-----------------------------------------------------------------------------

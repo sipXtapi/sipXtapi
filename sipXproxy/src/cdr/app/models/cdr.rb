@@ -28,4 +28,19 @@ public
     is_complete
   end
   
+  # Return a text description of the termination status for this CDR.
+  def termination_text
+    return nil if !termination
+    text = TERMINATION_NAMES[termination]    
+  end
+  
+private
+
+  # Map termination codes to human-readable strings
+  TERMINATION_NAMES = { 
+    CALL_REQUESTED_TERM   => 'requested',
+    CALL_IN_PROGRESS_TERM => 'in progress',
+    CALL_COMPLETED_TERM   => 'completed',
+    CALL_FAILED_TERM      => 'failed'}
+  
 end

@@ -7,9 +7,15 @@
 #
 ##############################################################################
 
+# system requires
 require 'rubygems'            # Ruby packaging and installation framework
 require_gem 'activerecord'    # object-relational mapping layer for Rails
 require 'logger'              # writes log messages to a file or stream
+
+# application requires
+require File.dirname(__FILE__) + '/app/models/call_state_event'
+require File.dirname(__FILE__) + '/app/models/cdr'
+require File.dirname(__FILE__) + '/app/models/party'
 
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
@@ -38,7 +44,8 @@ public
 
   # Resolve CSEs to CDRs.
   # :TODO: Support redo_flag.
-  def resolve(start_time, end_time, redo_flag)
+  # :TODO: Open a database connection if one is not already open.
+  def resolve(start_time, end_time, redo_flag = false)
     # If end_time is not provided, then set it to 1 day after the start time.
     end_time ||= start_time.next
 
@@ -73,9 +80,11 @@ private
   end
   
   # Resolve the call with the given call_id to yield 0-1 CDRs.  Persist the CDRs.
-  # :TODO: catch non-fatal exceptions thrown by Call Resolver code.  Discard the
+  # :NOW: catch non-fatal exceptions thrown by Call Resolver code.  Discard the
   # CDR when such exceptions happen and log an error.
   def resolve_call(call_id)
+    log.debug("Resolving a call: call ID = #{call_id}")
+    
     # Load all events with this call_id, in ascending chronological order.
     # Don't constrain the query to a time window.  That allows us to handle
     # calls that span time windows.
@@ -99,6 +108,13 @@ private
         status = create_cdr(cdr_data, events, to_tag)
       
         if status
+          if log.debug?
+            cdr = cdr_data.cdr
+            log.debug("Resolved a call from #{cdr_data.caller.aor} to " +
+                      "#{cdr_data.callee.aor} at #{cdr.start_time}, status = " +
+                      "#{cdr.termination_text}")
+          end
+          
           # Save the CDR and associated data, within a transaction.
           save_cdr(cdr_data)
         end
@@ -243,6 +259,10 @@ private
     
     Cdr.transaction do
       # Continue only if a complete CDR doesn't already exists.
+      # :TODO: Check for race condition allowing CDR to sneak into DB,
+      # triggering exception on save -- see save_party_if_new.
+      # :NOW: The case of an incomplete CDR is not being handled right
+      # since we will try to save a duplicate CDR, fix that.
       db_cdr = find_cdr_by_dialog(cdr.call_id, cdr.from_tag, cdr.to_tag)
       if (!db_cdr or !db_cdr.complete?)
       

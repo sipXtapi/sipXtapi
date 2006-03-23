@@ -8,8 +8,8 @@
 ##############################################################################
 
 require File.dirname(__FILE__) + '/../test_helper'
-require '../../utils'
-require '../../exceptions'
+require File.dirname(__FILE__) + '/../../utils'
+require File.dirname(__FILE__) + '/../../exceptions'
 
 class UtilsTest < Test::Unit::TestCase
 
