@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.login;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.User;
@@ -41,7 +42,7 @@ public class LoginContextImpl implements LoginContext {
         // Special case: if the password is empty and the pintoken is empty, then declare a match.
         // We have publicized the ability for admins to reset users to have an empty password by
         // zeroing out the pintoken entry in the database.
-        if (password.length() == 0 && pintoken.length() == 0) {
+        if (StringUtils.isBlank(password) && pintoken.length() == 0) {
             return user;
         }
 
