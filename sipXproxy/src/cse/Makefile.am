@@ -1,5 +1,10 @@
 ## Process this file with automake to produce Makefile.in
 
+# Only go into test subdir if --with-dbtests was specified
+if BUILD_DBTESTS
+SUBDIRS = . test
+endif
+
 noinst_LTLIBRARIES = libcse.la
 
 libcse_la_LIBADD =  \
