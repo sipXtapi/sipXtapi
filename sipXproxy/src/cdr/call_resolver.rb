@@ -11,6 +11,7 @@
 require 'rubygems'            # Ruby packaging and installation framework
 require_gem 'activerecord'    # object-relational mapping layer for Rails
 require 'logger'              # writes log messages to a file or stream
+require 'rbconfig'            # use this to verify the Ruby configuration
 
 # set up the load path
 thisdir = File.dirname(__FILE__)
@@ -22,6 +23,9 @@ require 'call_state_event'
 require 'cdr'
 require 'exceptions'
 require 'party'
+
+# module includes
+include Config
 
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
@@ -47,6 +51,8 @@ public
 #    else
 #      log.level = Logger::INFO
 #    end
+
+    test_configuration
   end
 
   # Resolve CSEs to CDRs.
@@ -89,6 +95,8 @@ public
   end
 
 private
+  # Constants
+  MIN_RUBY_VERSION = 1.8
 
   # Log reader. Provide instance-level accessor to reduce typing.
   def log
@@ -404,6 +412,15 @@ private
     end
     
     party_in_db
+  end
+
+  def test_configuration
+    # Check that the Ruby version meets our needs
+    ruby_version = CONFIG['ruby_version'].to_f
+    if ruby_version < MIN_RUBY_VERSION
+      log.error("test_configuration: Ruby version must be >= #{MIN_RUBY_VERSION}, "+
+                "but it's only #{ruby_version}")
+    end
   end
   
 end    # class CallResolver

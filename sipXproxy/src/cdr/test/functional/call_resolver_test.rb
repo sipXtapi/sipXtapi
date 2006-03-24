@@ -15,6 +15,7 @@ require 'parsedate'
 require File.dirname(__FILE__) + '/../../call_resolver'
 
 
+# :TODO: Make it easy to run all the unit tests, possibly via Rakefile, for build loop.
 class CallResolverTest < Test::Unit::TestCase
   fixtures :call_state_events, :parties, :cdrs
   
