@@ -237,8 +237,8 @@
   	<echo>http://localhost:9999/sipxconfig/app?page=TestPage&amp;service=page</echo>
   	<echo/>
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
-      <classpath refid="base.path"/>
       <classpath refid="test.path"/>
+      <classpath refid="base.path"/>
       <classpath location="${junit.jar}"/>
       <classpath location="${log4j.jar}"/>
       <classpath location="${server-bindings.jar}"/>
