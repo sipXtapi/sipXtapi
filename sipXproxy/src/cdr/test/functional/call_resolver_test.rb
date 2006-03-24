@@ -12,7 +12,7 @@ require File.dirname(__FILE__) + '/../test_helper'
 require 'parsedate'
 
 # application requirements
-require '../../call_resolver'
+require File.dirname(__FILE__) + '/../../call_resolver'
 
 
 class CallResolverTest < Test::Unit::TestCase
@@ -20,6 +20,9 @@ class CallResolverTest < Test::Unit::TestCase
   
   TEST_AOR = 'aor'
   TEST_CONTACT = 'contact'
+  TEST_CALL_ID = 'call ID'
+  TEST_FROM_TAG = 'f'
+  TEST_TO_TAG = 't'
  
 public
 
@@ -177,6 +180,50 @@ public
                  'Could not find the saved Party in the database')
   end
   
+  def test_save_cdr
+    # For a clean test, make sure there is no preexisting CDR with the call
+    # ID that we are using.
+    Cdr.delete_all("call_id = '#{TEST_CALL_ID}'")
+    
+    # Create a new complete CDR.  Fill in mandatory fields so we don't get
+    # database integrity exceptions on save. 
+    cdr = Cdr.new(:call_id =>     TEST_CALL_ID,
+                  :from_tag =>    TEST_FROM_TAG,
+                  :to_tag =>      TEST_TO_TAG,
+                  :caller_id =>   1,
+                  :callee_id =>   2,
+                  :termination => 'C')
+    
+    # Try to save it and confirm that it was saved.  Use a clone so we don't
+    # modify the original and can reuse it.
+    saved_cdr = @resolver.send(:save_cdr, cdr.clone)
+    assert(saved_cdr.id, 'ID of object saved to database must be non-nil')
+    
+    # Try to save another clone.  We should get back the CDR that is already in
+    # the database.  The clone should not be saved because we have not passed in
+    # replace=true (second optional input to save_cdr) and the existing CDR is
+    # complete.
+    cdr2 = cdr.clone
+    save_again_cdr = @resolver.send(:save_cdr, cdr2)
+    assert_equal(saved_cdr.id, save_again_cdr.id)
+    assert(cdr2.new_record?, 'Cdr record should not have been saved')
+    
+    # Pass in replace=true, now the save should happen.  Tweak cdr2 so we can
+    # check that it worked.
+    cdr2.termination = 'I'
+    saved_cdr = @resolver.send(:save_cdr, cdr2, true)
+    assert_equal(cdr2.termination, saved_cdr.termination,
+                 'Cdr record was not saved even though replace=true')
+    
+    # Try to save another clone without setting replace=true.  Should work
+    # because the saved CDR is incomplete.
+    cdr3 = cdr.clone
+    cdr3.termination = 'R'    # tweak the CDR so we can verify the save
+    saved_cdr = @resolver.send(:save_cdr, cdr3, true)
+    assert_equal(cdr3.termination, saved_cdr.termination,
+      'Cdr record was not saved, should have replaced incomplete CDR')    
+  end
+  
   def test_save_party_if_new
     # For a clean test, make sure there is no preexisting Party with the aor
     # and contact that we are using.
@@ -204,7 +251,23 @@ public
     assert_nil(cdr, "Found a CDR that shouldn't exist")
   end
   
-  def test_save_cdr
+  def test_find_cdr
+    # Find a CDR we know is in the DB
+    cdr_to_find = Cdr.new(:call_id => 'call1', :from_tag => 'f1', :to_tag => 't1')
+    cdr = @resolver.send(:find_cdr, cdr_to_find)
+    assert(cdr, "Couldn't find CDR")
+    
+    # Try to find a CDR we know is not in the DB
+    cdr_to_find.call_id = 'extra_bogus_call_id'
+    cdr = @resolver.send(:find_cdr, cdr_to_find)
+    assert_nil(cdr, "Found a CDR that shouldn't exist")
+    
+    # Trigger an ArgumentError
+    cdr_to_find.call_id = nil
+    assert_raise(ArgumentError) {cdr = @resolver.send(:find_cdr, cdr_to_find)}
+  end
+  
+  def test_save_cdr_data
     # Try to save a CDR with a dialog ID that already exists in the DB =>
     # should just get back the existing CDR.
     cdr = Cdr.new(:call_id => 'call1', :from_tag => 'f1', :to_tag => 't1')
@@ -214,7 +277,7 @@ public
                        :contact => 'sip:bob@2.2.2.2')
     cdr_data = CdrData.new(cdr, caller, callee)
     cdr_count_before_save = Cdr.count
-    @resolver.send(:save_cdr, cdr_data)
+    @resolver.send(:save_cdr_data, cdr_data)
     assert_equal(cdr_count_before_save, Cdr.count,
                  'The CDR count must not increase')
     
@@ -224,7 +287,7 @@ public
     to_tag2 = 't2'
     cdr = Cdr.new(:call_id => call_id2, :from_tag => from_tag2, :to_tag => to_tag2)
     cdr_data.cdr = cdr
-    @resolver.send(:save_cdr, cdr_data)
+    @resolver.send(:save_cdr_data, cdr_data)
     assert_equal(cdr_count_before_save + 1, Cdr.count,
                  'The CDR was not saved to the database')
     cdr = @resolver.send(:find_cdr_by_dialog, call_id2, from_tag2, to_tag2)
@@ -242,7 +305,7 @@ public
     cdr_data = CdrData.new(cdr, caller, callee)
     cdr_count_before_save = Cdr.count
     party_count_before_save = Party.count
-    @resolver.send(:save_cdr, cdr_data)
+    @resolver.send(:save_cdr_data, cdr_data)
     assert_equal(cdr_count_before_save + 1, Cdr.count,
                  'The CDR was not saved to the database')
     assert_equal(party_count_before_save + 2, Party.count,
