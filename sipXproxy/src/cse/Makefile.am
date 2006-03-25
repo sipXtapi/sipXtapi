@@ -5,6 +5,8 @@ if BUILD_DBTESTS
 SUBDIRS = . test
 endif
 
+DIST_SUBDIRS = .
+
 noinst_LTLIBRARIES = libcse.la
 
 libcse_la_LIBADD =  \

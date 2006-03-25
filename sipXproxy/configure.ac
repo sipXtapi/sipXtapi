@@ -42,9 +42,13 @@ AC_CONFIG_FILES([bin/Makefile])
 AC_CONFIG_FILES([src/sipforkingproxy/Makefile])
 AC_CONFIG_FILES([src/sipauthproxy/Makefile])
 AC_CONFIG_FILES([src/cse/Makefile])
-AC_CONFIG_FILES([src/cse/test/Makefile])
 AC_CONFIG_FILES([src/test/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
 AC_CONFIG_FILES([meta/Makefile])
+
+if test x$enable_dbtests = xyes
+then
+  AC_CONFIG_FILES([src/cse/test/Makefile])
+fi
 AC_OUTPUT
 
