@@ -51,7 +51,7 @@ public:
 
    HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
                        const char* realm, OsConfigDb* validIpAddressDB = NULL,
-                       bool bPersistentConnection = true);
+                       bool bPersistentConnection = false);
      //:Default constructor
 
    virtual
@@ -108,6 +108,10 @@ public:
 
     void addHttpService(const char* fileUrl, HttpService* service);
 
+    /// set permission for access to mapped file names
+    void allowFileAccess(bool fileAccess ///< true => allow access, false => disallow access
+                         );
+    
     void setPasswordDigest(const char* user, const char* password,
                            UtlString& userPasswordDigest);
 
@@ -184,8 +188,8 @@ private:
    UtlString mRealm;
    UtlHashMap mRequestProcessorMethods;
    UtlHashMap mHttpServices;
-
-        UtlHashBag mValidIpAddrList;
+   bool       mAllowMappedFiles;
+   UtlHashBag mValidIpAddrList;
    UtlBoolean mbPersistentConnection;
    int mHttpConnections;
    UtlSList* mpHttpConnectionList;

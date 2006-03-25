@@ -122,9 +122,10 @@ MwiPlugin::handleSubscribeRequest (
         "eventtype", "message-summary");
 
     // Synchronously call the Voicemail CGI to get the
-    // message summary in its body contents.
+    // message summary in its body contents. Set to use
+    // persistent connections.
     HttpMessage httpResponse;
-    int httpStatus = httpResponse.get( voicemailCGIUrl, 5*60*1000);
+    int httpStatus = httpResponse.get( voicemailCGIUrl, 3*1000 /* 3 sec */, true /* persistent */);
     if ( HTTP_OK_CODE == httpStatus )
       {
         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))

@@ -114,6 +114,7 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
                                  NULL);
    
    // Set the http server root to the current directory
+   mpHttpServer->allowFileAccess(false);
    mpHttpServer->addUriMap("/", osBaseUriDirectory.data());
    mpHttpServer->start();
    
