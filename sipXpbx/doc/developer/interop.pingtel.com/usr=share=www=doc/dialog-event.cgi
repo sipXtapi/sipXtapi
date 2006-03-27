@@ -26,6 +26,9 @@ print &header,
     &start_html('Dialog event package analysis'), "\n",
     &h1("Dialog event package analysis for extension $extension"), "\n";
 
+# The count of NOTIFYs without body XML.
+my($empty_notifies) = 0;
+
 # Start a block.  Any exit from the block will print &end_html.
 HTML:{
 
@@ -38,6 +41,12 @@ HTML:{
 
     # Get the dialog event package.
     my($notify) = &find_last_notify($extension);
+
+    # Squawk if there are empty bodies.
+    print &p(&strong(&escapeHTML("NOTIFY bodies without <dialog-info> elements:")),
+	     ($empty_notifies > 0 ? &red(&escapeHTML("$empty_notifies found.")) :
+	      "None found.")),
+	  "\n";
 
     # If we can't find a NOTIFY.
     if ($notify eq '') {
@@ -78,15 +87,24 @@ HTML:{
 	$depth += $delta;
     }
 
-    # Content-Type.
+    # Content-Type header test.
 
     my($ok) =
 	$headers =~ m%\nContent-Type\s*:\s*application/dialog-info\+xml\s*[;\n]%;
-    print &p(&strong('Content-Type:') . " " .
+    print &p(&strong('Content-Type', &code('application/dialog-info+xml'),
+		     'header:'),
 	     ($ok ? "Present" : &red("Absent"))),
 	"\n";
 
-    print &p(&escapeHTML("Reformatted, it looks like this:")),
+    # Subscription-State header test.
+
+    my($ok) =
+	$headers =~ m%\nSubscription-State\s*:%;
+    print &p(&strong('Subscription-State header:'),
+	     ($ok ? "Present" : &red("Absent"))),
+          "\n";
+
+    print &p(&escapeHTML("Reformatted, the body looks like this:")),
     "\n";
     print &pre(&escapeHTML(join("\n", @body))),
     "\n";
@@ -106,7 +124,7 @@ HTML:{
 	last HTML;
     }
 
-    print &p(&escapeHTML("XML syntax: Passed")),
+    print &p(&strong("XML syntax:"), " Passed"),
     "\n";
 
     # Select a dialog element.
@@ -139,7 +157,7 @@ HTML:{
 	last HTML;
     }
 
-    print &p(&escapeHTML("Analyzing <dialog> with id='" .
+    print &p(&escapeHTML("Analyzing the <dialog> element with id='" .
 			 $dialog->[0]->{'id'} . "'.")),
 	"\n";
 
@@ -211,7 +229,7 @@ HTML:{
 	    print &p(&strong('Guideline 6(4):') . " Local target '" .
 		     &code($i) . "' " .
 		     ($c ? "is" : &red("is not")) .
-		     " a contact."),
+		     " an IP address."),
 		     "\n";
 	}
     }
@@ -238,9 +256,9 @@ HTML:{
 	my($g) = $i =~ /^sip:\d+\@$sip_domain;opaque=/;
 	print &p(&strong('Guideline 6(8):') . " Remote target '" . &code($i) .
 		 "' " .
-		 ($c ? "is a contact" :
+		 ($c ? "is an IP address" :
 		  $g ? "is a GRUU in " . &code($sip_domain) :
-		  &red("is neither a contact nor a GRUU") . " in " .
+		  &red("is neither an IP address nor a GRUU") . " in " .
 		  &code($sip_domain)) . "."),
 		 "\n";
     }
@@ -261,11 +279,13 @@ sub find_last_notify {
     while (<LOG>) {
 	next unless /:INCOMING:/;
 	next unless /----\\nNOTIFY\s/i;
-	next unless /\\r\\nFrom:\s*sip:$extension@/i;
-	next unless /\\nEvent:\s+dialog\b/i;
-	# Do not record "terminated" notices, as they may not have complete
-	# information.
-	next if m%<state>terminated</state>%;
+	next unless /\\r\\nFrom\s*:\s*<?sips?:$extension@/i;
+	next unless /\\nEvent\s*:\s*dialog\b/i;
+	# Count the number of empty bodies.
+	$empty_notifies++ unless /<dialog-info/;
+	# Make sure a <state> that isn't "terminated" is present, as
+	# terminated notices may not have complete information.
+	next unless m%<state>(?!terminated)\w+</state>%;
 	# This line passes the tests, save it.
 	$log_line = $_;
     }
