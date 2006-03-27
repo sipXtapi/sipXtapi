@@ -149,6 +149,12 @@ class SipRedirectorPickUp : public SipRedirector
    // Counter for CSeq for SUBSCRIBES.
    unsigned int mCSeq;
 
+   // Switch for "no early-only" workaround.
+   UtlBoolean mNoEarlyOnly;
+
+   // Switch for "reversed Replaces" workaround.
+   UtlBoolean mReversedReplaces;
+
    // Support functions.
    SipRedirector::LookUpStatus lookUpDialog(
       const UtlString& requestString,

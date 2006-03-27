@@ -45,6 +45,12 @@
 // The parameter giving the call pick-up wait time.
 #define CONFIG_SETTING_WAIT \
     "SIP_REGISTRAR_CALL_PICKUP_WAIT"
+// The parameter for activating the "no early-only" workaround.
+#define CONFIG_SETTING_NEO \
+    "SIP_REGISTRAR_PICKUP_NO_EARLY_ONLY"
+// The parameter for activating the "reversed Replaces" workaround.
+#define CONFIG_SETTING_RR \
+    "SIP_REGISTRAR_PICKUP_REVERSED_REPLACES"
 // The default call pick-up wait time, in seconds and microseconds.
 #define DEFAULT_WAIT_TIME_SECS        1
 #define DEFAULT_WAIT_TIME_USECS       0
@@ -85,6 +91,23 @@ SipRedirectorPickUp::initialize(const UtlHashMap& configParameters,
    // It will be OS_SUCCESS if this redirector is configured to do any work,
    // and OS_FAILED if not.
    OsStatus r = OS_FAILED;
+
+   // Fetch the configuration parameters for the workaround features.
+   {
+      UtlString temp;
+      char c;
+
+      // No early-only.
+      mNoEarlyOnly = 
+         configDb.get(CONFIG_SETTING_NEO, temp) == OS_SUCCESS &&
+         !temp.isNull() &&
+         ((c = temp(0)), c == 'y' || c == 'Y');
+      // Reversed Replaces.
+      mReversedReplaces = 
+         configDb.get(CONFIG_SETTING_RR, temp) == OS_SUCCESS &&
+         !temp.isNull() &&
+         ((c = temp(0)), c == 'y' || c == 'Y');
+   }   
 
    // Fetch the call pick-up festure code from the config file.
    // If it is null, it doesn't count.
@@ -510,14 +533,10 @@ SipRedirectorPickUp::lookUpDialog(
          header_value.append(dialog_info->mTargetDialogLocalTag);
          // If the state filtering is "early", add "early-only", so we
          // don't pick up a call that has just been answered.
-         if (dialog_info->mStateFilter == stateEarly)
+         if (dialog_info->mStateFilter == stateEarly &&
+             !mNoEarlyOnly)
          {
-            // If env. var. PINGTEL_NEO is set, do not add "early-only".
-            char* v = getenv("PINGTEL_NEO");
-            if (!(v != NULL && v[0] != '\0'))
-            {
-               header_value.append(";early-only");
-            }
+            header_value.append(";early-only");
          }
 
          // Add a header parameter to specify the Replaces: header.
@@ -533,10 +552,9 @@ SipRedirectorPickUp::lookUpDialog(
          // Record the URI as a contact.
          addContact(response, requestString, contact_URI, "pick-up");
 
-         // If env. var. PINGTEL_RR is set, also add a Replaces: with
+         // If "reversed Replaces" is configured, also add a Replaces: with
          // the to-tag and from-tag reversed.
-         char* v = getenv("PINGTEL_RR");
-         if (v != NULL && v[0] != '\0')
+         if (mReversedReplaces)
          {
             Url c(dialog_info->mTargetDialogRemoteURI);
 
@@ -545,14 +563,10 @@ SipRedirectorPickUp::lookUpDialog(
             h.append(dialog_info->mTargetDialogLocalTag);
             h.append(";from-tag=");
             h.append(dialog_info->mTargetDialogRemoteTag);
-            if (dialog_info->mStateFilter == stateEarly)
+            if (dialog_info->mStateFilter == stateEarly &&
+                !mNoEarlyOnly)
             {
-               // If env. var. PINGTEL_NEO is set, do not add "early-only".
-               char* v = getenv("PINGTEL_NEO");
-               if (!(v != NULL && v[0] != '\0'))
-               {
-                  h.append(";early-only");
-               }
+               h.append(";early-only");
             }
 
             c.setHeaderParameter("Replaces", h.data());
