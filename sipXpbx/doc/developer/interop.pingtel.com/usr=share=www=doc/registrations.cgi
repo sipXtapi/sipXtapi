@@ -124,9 +124,12 @@ print <<EOF;
 (1.0 = highest, 0.0 = lowest).<br/>
 "Expires" is the number of seconds until this registration expires.<br/>
 "Instance ID" is the <code>+sip.instance</code> given for this contact.
+<!--
 Registrations for extensions <code>1gg7</code>, <code>1gg8</code>, and
 <code>1gg9</code> will have their <code>+sip.instance</code> values removed
-and so will not be assigned GRUUs.<br/>
+and so will not be assigned GRUUs.
+-->
+<br/>
 "GRUU" is the GRUU that was assigned for this contact.
 A GRUU will only be assigned if a <code>+sip.instance</code> was provided.<br/>
 "Call-Id" is the Call-Id of the REGISTER request that established this
