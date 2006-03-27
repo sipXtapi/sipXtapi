@@ -60,7 +60,7 @@ mkdir -p %{upgrade_archive_root}
 tar --directory ${RPM_BUILD_ROOT} \
     -czf %{upgrade_archive_root}/%{this_archive} \
     etc \
-    var/sipxdata
+    var/sipxdata/sipdb
 
 %clean
 rm -rf $RPM_BUILD_ROOT
