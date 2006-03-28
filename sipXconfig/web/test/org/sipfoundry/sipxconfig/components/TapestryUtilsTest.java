@@ -102,13 +102,13 @@ public class TapestryUtilsTest extends TestCase {
         Iterator i;
         
         actual = TapestryUtils.getAutoCompleteCandidates(items, null);
-        assertEquals(0, actual.size());
+        assertEquals(5, actual.size());
         
         actual =  TapestryUtils.getAutoCompleteCandidates(items, "");
-        assertEquals(0, actual.size());
+        assertEquals(5, actual.size());
 
         actual =  TapestryUtils.getAutoCompleteCandidates(items, " ");
-        assertEquals(0, actual.size());
+        assertEquals(5, actual.size());
 
         actual =  TapestryUtils.getAutoCompleteCandidates(items, "n");
         assertEquals(0, actual.size());
@@ -136,7 +136,7 @@ public class TapestryUtilsTest extends TestCase {
         assertEquals(0, actual.size());
 
         actual =  TapestryUtils.getAutoCompleteCandidates(items, "peacock ");
-        assertEquals(0, actual.size());
+        assertEquals(5, actual.size());
         
         actual =  TapestryUtils.getAutoCompleteCandidates(items, "peacock x");
         assertEquals(0, actual.size());

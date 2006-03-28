@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.components;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -211,24 +210,33 @@ public final class TapestryUtils {
      * @return collection of Strings of possible auto completed items
      */
     public static Collection getAutoCompleteCandidates(Collection namedItems, String currentValue) {
-        if (StringUtils.isBlank(currentValue) || currentValue.endsWith(" ")) {
-            return Collections.EMPTY_LIST;
+        String targetGroup;
+        String prefix;
+        if (StringUtils.isBlank(currentValue)) {
+            targetGroup = null;
+            prefix = "";
+        } else if (currentValue.endsWith(" ")) {
+            targetGroup = null;
+            prefix = currentValue;            
+        } else {
+            String[] groups = currentValue.split("\\s+");
+            int ignore = groups.length - 1;
+            targetGroup = groups[ignore];            
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < ignore; i++) {
+                sb.append(groups[i]).append(' ');
+            }
+            prefix = sb.toString();
         }
         
-        String[] groups = currentValue.split("\\s+");
-        int ignore = groups.length - 1;
-        String targetGroup = groups[ignore];
-        StringBuffer prefix = new StringBuffer();
-        for (int i = 0; i < ignore; i++) {
-            prefix.append(groups[i]).append(' ');
-        }
         List candidates = new ArrayList();
         for (Iterator i = namedItems.iterator(); i.hasNext();) {
             NamedObject candidate = (NamedObject) i.next();
-            if (candidate.getName().startsWith(targetGroup)) {
-                candidates.add(prefix.toString() + candidate.getName());
+            if (targetGroup == null || candidate.getName().startsWith(targetGroup)) {
+                candidates.add(prefix + candidate.getName());
             }               
         }
+        
         return candidates;        
     }
 }
