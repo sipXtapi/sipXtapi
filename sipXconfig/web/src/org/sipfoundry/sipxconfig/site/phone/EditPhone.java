@@ -19,6 +19,8 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 /**
  * Tapestry Page support for editing and creating new phones
@@ -37,6 +39,7 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
     public abstract void setPhoneId(Integer id);
 
     public abstract PhoneContext getPhoneContext();
+    public abstract SettingDao getSettingDao();
 
     public IPage addLine(IRequestCycle cycle, Integer phoneId) {
         AddPhoneUser page = (AddPhoneUser) cycle.getPage(AddPhoneUser.PAGE);
@@ -53,7 +56,9 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
         boolean valid = TapestryUtils.isValid(this);
         if (valid) {
             PhoneContext dao = getPhoneContext();
-            dao.storePhone(getPhone());
+            Phone phone = getPhone();
+            EditGroup.saveGroups(getSettingDao(), phone.getGroups());            
+            dao.storePhone(phone);
         }
 
         return valid;

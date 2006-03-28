@@ -12,7 +12,9 @@
 package org.sipfoundry.sipxconfig.site.user;
 
 import java.text.MessageFormat;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.util.PropertyUtils;
@@ -21,14 +23,16 @@ import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.event.PageEndRenderListener;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.ExtensionPoolContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class UserForm extends BaseComponent {
+public abstract class UserForm extends BaseComponent implements PageEndRenderListener {
     // Display this dummy PIN value (masked) to indicate that a PIN exists.
     // We can't use a real PIN.  We don't know the real PIN and if we did,
     // we shouldn't show it.
@@ -37,6 +41,7 @@ public abstract class UserForm extends BaseComponent {
     private static final String DUMMY_PIN = "`p1n6P0\361g";
     
     public abstract CoreContext getCoreContext();
+    public abstract SettingDao getSettingDao();
     public abstract ExtensionPoolContext getExtensionPoolContext();
     
     public abstract User getUser();
@@ -48,31 +53,52 @@ public abstract class UserForm extends BaseComponent {
     public abstract String getAliasesString();
     public abstract void setAliasesString(String aliasesString);
     
+    public abstract String getGroupsString();    
+    public abstract void setGroupsString(String groups);
+    public abstract Collection getGroupsCandidates();
+    public abstract void setGroupCandidates(Collection groupsList);
+    
+    public void buildGroupCanidates(String groupsString) {
+        List allGroups = getCoreContext().getGroups();
+        Collection candidates = TapestryUtils.getAutoCompleteCandidates(allGroups, groupsString);
+        setGroupCandidates(candidates);        
+    }
+    
     // Update the User object if input data is valid
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         
         if (!cycle.isRewinding()) {
+            User user = getUser();        
             // Automatically assign a numeric extension if appropriate
             assignExtension();
             
             // Init the aliases string before rendering, if necessary
             if (StringUtils.isEmpty(getAliasesString())) {
-                setAliasesString(getUser().getAliasesString());
+                setAliasesString(user.getAliasesString());
             }
 
             initializePin();
+
+            if (getGroupsString() == null) {
+                List groups = user.getGroupsAsList();
+                if (groups != null && groups.size() > 0) {
+                    String groupsString = getSettingDao().getGroupsAsString(groups); 
+                    setGroupsString(groupsString);
+                }
+            }
         }
         
         super.renderComponent(writer, cycle);
         
         if (cycle.isRewinding()) {
+            User user = getUser();        
             // Don't take any actions if the page is not valid
             if (!TapestryUtils.isValid((AbstractPage) getPage())) {
                 return;
             }
 
             // Set the user aliases from the aliases string
-            getUser().setAliasesString(getAliasesString());
+            user.setAliasesString(getAliasesString());
             
             // Make sure that the user ID and aliases don't collide with any other
             // user IDs or aliases.  Report an error if there is a collision.
@@ -82,6 +108,12 @@ public abstract class UserForm extends BaseComponent {
             
             // Update the user's PIN and aliases
             updatePin();
+
+            String groupsString = getGroupsString();
+            if (groupsString != null) {
+                List groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID, groupsString);
+                user.setGroupsAsList(groups);
+            }
         }
     }
 
@@ -100,6 +132,8 @@ public abstract class UserForm extends BaseComponent {
             getUser().setUserName(extStr);
         }
     }
+    
+    
     
     // Make sure that the user ID and aliases don't collide with any other
     // user IDs or aliases.  Report an error if there is a collision.
@@ -161,6 +195,5 @@ public abstract class UserForm extends BaseComponent {
                 getMessages().getMessage(messageId), new Object[] {arg});
         
         delegate.record(message, ValidationConstraint.CONSISTENCY);
-    }
-    
+    }      
 }

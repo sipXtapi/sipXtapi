@@ -18,12 +18,16 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 public abstract class EditUser extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "EditUser";
 
     public abstract CoreContext getCoreContext();
+    
+    public abstract SettingDao getSettingDao();
 
     public abstract Integer getUserId();
 
@@ -35,7 +39,9 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
 
     public void commit() {
         if (TapestryUtils.isValid(this)) {
-            getCoreContext().saveUser(getUser());
+            User user = getUser();
+            EditGroup.saveGroups(getSettingDao(), user.getGroups());
+            getCoreContext().saveUser(user);
         }
     }
 

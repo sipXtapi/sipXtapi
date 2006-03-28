@@ -7,6 +7,7 @@
   <property name="phone" />
   <property name="phoneId"  persist="session"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
+  <inject property="settingDao" object="spring:settingDao"/>
   <property name="callback"  persist="session"/>
   <!--
       - B E A N S

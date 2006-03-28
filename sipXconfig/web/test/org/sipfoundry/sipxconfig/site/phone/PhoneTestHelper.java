@@ -43,9 +43,9 @@ public class PhoneTestHelper {
     }
 
     public void seedPhone(int count) {
-        SiteTestHelper.home(m_tester);
-        endpoint = new Phone[count];
-        for (int i = 0; i < endpoint.length; i++) {
+	    SiteTestHelper.home(m_tester);
+	    endpoint = new Phone[count];
+	    for (int i = 0; i < endpoint.length; i++) {
             endpoint[i] = new Phone();
             String serNum = "000000000000" + i;
             endpoint[i].setSerialNumber(serNum.substring(serNum.length() - 12));
@@ -54,7 +54,7 @@ public class PhoneTestHelper {
             m_tester.setFormElement("phoneModel", "2");
             m_tester.clickButton("phone:ok");
             SiteTestHelper.home(m_tester);
-        }
+	    }
     }
 
     public void seedLine(int count) {

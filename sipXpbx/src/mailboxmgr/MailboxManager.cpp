@@ -4587,10 +4587,34 @@ MailboxManager::postMWIStatus ( const UtlString& mailboxIdentity ) const
             // via it to the embedded web server on statusserver:8100
             HttpMessage *pResponse = new HttpMessage();
 
-              writeToLog("postMWIevent - sending ", notifyBodyText.data(), PRI_DEBUG);
-              pResponse->get( statusServerUrl, *pRequest, 20*1000, false );
+            UtlString updateMsg;
+            updateMsg.append("update mailbox '");
+            updateMsg.append(mailboxIdentity);
+            updateMsg.append("'\n");
+            updateMsg.append(notifyBodyText.data());
+            writeToLog("postMWIevent ", updateMsg.data(), PRI_INFO);
+            pResponse->get( statusServerUrl, *pRequest,
+                           2000 /* two seconds */, false /* not persistent */
+                           );
+            writeToLog("postMWIevent", "exiting ", PRI_DEBUG);
 
-              writeToLog("postMWIevent", "exiting ", PRI_DEBUG);
+            UtlString status;
+            pResponse->getResponseStatusText(&status);
+            OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                          "postMWIEvent status = %s\n", status.data());
+
+            if (status.compareTo("OK") == 0)
+            {
+              OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                            "postMWIEvent successful with status = %s\n", status.data());
+              result = OS_SUCCESS;
+            }
+            else
+            {
+              OsSysLog::add(FAC_MEDIASERVER_CGI, PRI_DEBUG,
+                            "postMWIEvent failed with status = %s\n", status.data());
+              result = OS_FAILED;
+            }
 
             delete pResponse;
             delete pRequest;
@@ -5753,7 +5777,7 @@ MailboxManager::setPassword (
    // via it to the config server
    HttpMessage *pResponse = new HttpMessage();
 
-   pResponse->get(userServiceUrl, *pRequest, 20*1000, false);
+   pResponse->get(userServiceUrl, *pRequest, 5*1000, false);
 
    UtlString status;
 
@@ -5799,7 +5823,7 @@ MailboxManager::setPassword (
       pRequest->addHeaderField("SOAPAction", "#rebuildDataSets");
 
       pResponse = new HttpMessage();
-      pResponse->get(dataSetServiceUrl, *pRequest, 20*1000, false);
+      pResponse->get(dataSetServiceUrl, *pRequest, 5*1000, false);
       
       pResponse->getResponseStatusText(&status);
 
@@ -5854,7 +5878,7 @@ MailboxManager::setPassword (
    // via it to the config server
    HttpMessage *pResponse = new HttpMessage();
 
-   pResponse->get(userServiceUrl, *pRequest, 20*1000, false);
+   pResponse->get(userServiceUrl, *pRequest, 5*1000, false);
 
    UtlString status;
 

@@ -5,6 +5,7 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="phoneContext" object="spring:phoneContext"/>
+  <inject property="settingDao" object="spring:settingDao"/>
   <property name="phone"  initial-value="new org.sipfoundry.sipxconfig.phone.Phone()"/>
   <property name="phoneModel"  initial-value="phone.model"/>
   <property name="stay" />

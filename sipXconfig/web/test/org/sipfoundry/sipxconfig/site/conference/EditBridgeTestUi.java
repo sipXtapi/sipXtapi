@@ -32,6 +32,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        SiteTestHelper.setScriptingEnabled(true);
         clickLink("resetConferenceBridgeContext");
         clickLink("EditBridge");
         setWorkingForm("form");

@@ -17,6 +17,7 @@
   </component>
   <component id="itemCommon" type="ItemCommon">
     <binding name="item" value="group"/>
+    <binding name="nameValidator" value="spring-validators:required,noWhitespace"/>
     <binding name="useEnabled" value="literal:false"/>
     <binding name="useExtension" value="literal:false"/>
   </component>

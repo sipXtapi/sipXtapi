@@ -81,6 +81,7 @@ SipRedirectorMPT::initialize(const UtlHashMap& configParameters,
    // Set up the HTTP server on socket 65008.
    OsServerSocket* socket = new OsServerSocket(50, 65008);
    mpServer = new HttpServer(socket, NULL, NULL, NULL);
+   mpServer->allowFileAccess(false);
    mpServer->addRequestProcessor("/map.html", &displayForm);
    mpServer->start();
 

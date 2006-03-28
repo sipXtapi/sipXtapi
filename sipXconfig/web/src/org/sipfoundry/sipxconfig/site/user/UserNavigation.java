@@ -39,6 +39,7 @@ public abstract class UserNavigation extends BaseComponent {
     public IPage editCallForwarding(IRequestCycle cycle, Integer userId) {
         UserCallForwarding page = (UserCallForwarding) cycle.getPage(UserCallForwarding.PAGE);
         page.setUserId(userId);
+        page.setRings(null);
         return page;
     }
 

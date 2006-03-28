@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
+import com.meterware.httpunit.HttpUnitOptions;
 import com.meterware.httpunit.WebForm;
 import com.meterware.httpunit.WebResponse;
 
@@ -73,12 +74,18 @@ public class SiteTestHelper {
      */
     public static void home(WebTester tester) {
         home(tester, true);
+        
     }
 
     /**
      * Go to TestPage.html. Log in if the login arg is true. Includes hack for slow machines.
+     * And disables javascript be default too
      */
     public static void home(WebTester tester, boolean login) {
+        
+        // default is to disable javascript, re-enable at will        
+        setScriptingEnabled(false);
+        
         tester.beginAt(TEST_PAGE_URL);
         if (login) {
             tester.clickLink("login");
@@ -402,5 +409,13 @@ public class SiteTestHelper {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Turn on/off javascript, make sure to restore state
+     * to true after you're done
+     */
+    public static void setScriptingEnabled(boolean enabled) {   
+        HttpUnitOptions.setScriptingEnabled(enabled);
     }
 }

@@ -73,4 +73,11 @@ public class LoginPageTestUi extends WebTestCase {
         assertElementPresent("login:form");
         assertElementPresent("user:error");
     }
+    
+    public void testLoginBlankPassword() throws Exception {
+        WebForm form = tester.getDialog().getForm();
+        form.setParameter("userName", TestPage.TEST_USER_USERNAME);
+        clickButton("login:submit");        
+        assertElementPresent("user:error");
+    }
 }

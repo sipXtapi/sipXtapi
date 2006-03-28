@@ -16,6 +16,8 @@ import org.apache.tapestry.valid.IValidationDelegate;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 /**
  * First page of wizard-like UI for creating a new phone
@@ -33,6 +35,8 @@ public abstract class NewPhone extends BasePage {
     public abstract void setPhone(Phone phone);
 
     public abstract PhoneContext getPhoneContext();
+    
+    public abstract SettingDao getSettingDao();
 
     public abstract boolean isStay();
 
@@ -50,7 +54,8 @@ public abstract class NewPhone extends BasePage {
         phone.setSerialNumber(prototype.getSerialNumber());
         phone.setGroups(prototype.getGroups());
         phone.setDescription(prototype.getDescription());
-
+        phone.setGroupsAsList(prototype.getGroupsAsList());
+        EditGroup.saveGroups(getSettingDao(), phone.getGroups());
         getPhoneContext().storePhone(phone);
 
         if (isStay()) {

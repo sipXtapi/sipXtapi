@@ -51,6 +51,10 @@ public abstract class ListWebTestCase extends WebTestCase {
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
+        
+        // assumption true for list bridges at least
+        SiteTestHelper.setScriptingEnabled(true);
+        
         clickLink(m_resetLink);
         clickLink(m_pageLink);
     }

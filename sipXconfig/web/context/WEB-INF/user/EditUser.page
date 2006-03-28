@@ -6,6 +6,7 @@
   <property name="userId"  persist="session"/>
   <property name="user" />
   <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="settingDao" object="spring:settingDao"/>
   <property name="callback"  persist="session"/>
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <component id="form" type="Form">

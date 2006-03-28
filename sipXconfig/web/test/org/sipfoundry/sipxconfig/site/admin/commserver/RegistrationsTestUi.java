@@ -27,7 +27,7 @@ public class RegistrationsTestUi extends WebTestCase {
     protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(tester);
-
+        SiteTestHelper.setScriptingEnabled(true);
         clickLink("Registrations");
     }
 

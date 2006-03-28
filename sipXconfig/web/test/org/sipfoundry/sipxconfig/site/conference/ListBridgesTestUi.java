@@ -52,4 +52,8 @@ public class ListBridgesTestUi extends ListWebTestCase {
     protected Object[] getExpectedTableRow(String[] paramValues) {
         return ArrayUtils.add(paramValues, 1, "false");
     }
+    
+    public void setUp() {
+        super.setUp();
+    }
 }

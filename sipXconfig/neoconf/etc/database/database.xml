@@ -100,10 +100,19 @@
 
   <target name="version2" description="upgrade from version 1" unless="version3">
     <antcall target="attendant_settings"/>
+    <antcall target="group-names-no-spaces"/>
 
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="3" -->
 
+  </target>
+  
+  <target name="group-names-no-spaces" unless="group-names-no-spaces">
+    <!-- remove spaces to enable things like auto-completion -->
+    <sipx-sql>
+     	update group_storage set name = replace(name, ' ', '-');
+    </sipx-sql>
+    	<mark-patch-applied patch="group-names-no-spaces"/>    
   </target>
 
   <target name="attendant_settings" unless="attendant_settings">

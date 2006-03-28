@@ -11,12 +11,14 @@
   - P R O P E R T I E S
   -->
   <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="settingDao" object="spring:settingDao"/>
   <inject property="extensionPoolContext" object="spring:extensionPoolContext"/>
   
   <property name="pin"/>
   <property name="showSipPassword" persist="session"/>
   <!-- space-delimited list of aliases -->
   <property name="aliasesString"/>
+  <property name="groupsString"/>
   
   <!--
   - B E A N S 
@@ -69,11 +71,17 @@
   <component id="sipPassword" type="TextField">
     <binding name="value" value="user.sipPassword"/>
   </component>
-  <component id="groupSelect" type="contrib:Palette">
-    <binding name="selected" value="user.groupsAsList"/>
-    <binding name="model" value="bean:userGroupSelectionModel"/>
-    <binding name="sort" value="@org.apache.tapestry.contrib.palette.SortMode@LABEL"/>
-    <binding name="rows" value="3"/>
+  <component id="groupsPanel" type="FieldPanel">
+    <!-- Bug, give the right value for field, and autocomplete renders double -->
+    <binding name="field" value="components.groupsX"/>
+    <binding name="label" value="message:label.groups"/>
+    <binding name="description" value="message:description.groups"/>
+  </component>
+  <component id="groups" type="tacos:Autocompleter">
+    <binding name="value" value="groupsString"/>
+    <binding name="size" value="50"/>
+    <binding name="listSource" value="groupCandidates"/>
+    <binding name="listener" value="listener:buildGroupCanidates"/>
   </component>
   <component id="aliasesPanel" type="FieldPanel">
     <binding name="field" value="components.aliases"/>
@@ -82,6 +90,7 @@
   </component>
   <component id="aliases" type="TextField">
     <binding name="value" value="aliasesString"/>
+    <binding name="size" value="50"/>
     <binding name="validators" value="spring-validators:validUsernamePatternSequence"/>
     <binding name="displayName" value="message:label.aliases"/>
   </component>

@@ -18,8 +18,10 @@ import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.engine.IEngineService;
+import org.apache.tapestry.engine.ILink;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageValidateListener;
+import org.apache.tapestry.link.StaticLink;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.Home;
@@ -70,9 +72,9 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         }
     }
     
-    public IPage logout(IRequestCycle cycle) {
+    public ILink logout(IRequestCycle cycle) {
         getApplicationLifecycle().logout();
-        return cycle.getPage(LoginPage.PAGE);
+        return new StaticLink(cycle.getAbsoluteURL("/"));
     }
     
     protected void redirectToLogin(IPage page) {
