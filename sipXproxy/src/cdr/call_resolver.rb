@@ -11,7 +11,6 @@
 require 'rubygems'            # Ruby packaging and installation framework
 require_gem 'activerecord'    # object-relational mapping layer for Rails
 require 'logger'              # writes log messages to a file or stream
-require 'rbconfig'            # use this to verify the Ruby configuration
 
 # set up the load path
 thisdir = File.dirname(__FILE__)
@@ -23,9 +22,6 @@ require 'call_state_event'
 require 'cdr'
 require 'exceptions'
 require 'party'
-
-# module includes
-include Config
 
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
@@ -88,9 +84,8 @@ public
 private
   # Constants
   
-  # We require at least Ruby 1.8, specifically at least 1.8.4
-  MIN_RUBY_VERSION = 1.8
-  MIN_RUBY_FULL_VERSION = '1.8.4'
+  # We require at least Ruby 1.8.4
+  MIN_RUBY_VERSION = '1.8.4'
 
   # Log reader. Provide instance-level accessor to reduce typing.
   def log
@@ -433,32 +428,14 @@ private
 
   def check_ruby_version
     # Check that the Ruby version meets our needs
-    
-    # Check the base version
-    version = CONFIG['ruby_version'].to_f
-    if version < MIN_RUBY_VERSION
-      log.error("check_ruby_version: Ruby version must be >= #{MIN_RUBY_VERSION}, "+
-                "but it's only #{version}")
-    end
-    
-    # Check the full version.  This technique uses some implementation details
-    # that might change or might not be portable.  An alternative might be to
-    # eval a shell command "ruby --version" but that's expensive.  Too bad the
-    # configured Ruby version (see above) is not detailed enough.
-    full_version = CONFIG['LIBRUBY']    # returns, for example, "libruby.so.1.8.4"
-    libruby = 'libruby.so.'             # version follows this string
-    dot = full_version.index(libruby)
-    if dot
-      full_version = full_version[(dot + libruby.length)..-1]
-      #log.debug("Ruby version = #{full_version}")
-      if (full_version <=> MIN_RUBY_FULL_VERSION) < 0
-        log.error("check_ruby_version: Ruby version must be >= #{MIN_RUBY_FULL_VERSION}, "+
-                  "but it's only #{full_version}")
-      end
-    else
-      log.error('check_ruby_version: unable to determine Ruby version')
-    end
-    
+    version = `ruby --version`    # e.g., "ruby 1.8.4 (2005-12-24) [i386-linux]\n"
+    pieces = version.split(' ')
+    version = pieces[1]
+    #log.debug("Ruby version = #{version}")
+    if (version <=> MIN_RUBY_VERSION) < 0
+      log.error("check_ruby_version: Ruby version must be >= "+
+                "#{MIN_RUBY_VERSION}, but it's only #{version}")
+    end    
   end
   
 end    # class CallResolver
