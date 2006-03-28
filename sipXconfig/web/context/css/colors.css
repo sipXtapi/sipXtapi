@@ -208,3 +208,19 @@ td.selected-cell select
 {
 	background-color: #FFFFFF;
 }
+
+div.auto_complete {
+  background: #fff;
+}
+
+div.auto_complete ul {
+  border:1px solid #888;
+}
+
+div.auto_complete ul li.selected {
+  background-color: #ffb;
+}
+
+div.auto_complete ul strong.highlight {
+  color: #800;
+}

@@ -36,10 +36,6 @@ public class EditPhoneTestUi extends WebTestCase {
         setFormElement("serialNumber", "a00000000000");
     }
 
-    protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
     public void testEditPhone() {
         setFormElement("serialNumber", "a00000000001");
         clickButton("form:ok");

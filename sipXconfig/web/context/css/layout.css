@@ -456,3 +456,24 @@ table.tapestry-palette td.controls
 	vertical-align: middle;
 	width: 60px;
 }
+
+div.auto_complete {
+  width: 350px;
+}
+
+div.auto_complete ul {
+  margin:0;
+  padding:0;
+  width:100%;
+  list-style-type:none;
+}
+
+div.auto_complete ul li {
+  margin:0;
+  padding:3px;
+}
+
+div.auto_complete ul strong.highlight {
+  margin:0;
+  padding:0;
+}

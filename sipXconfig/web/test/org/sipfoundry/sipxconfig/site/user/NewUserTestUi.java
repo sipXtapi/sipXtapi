@@ -140,4 +140,15 @@ public class NewUserTestUi extends WebTestCase {
         clickButton("form:cancel");
         assertElementNotPresent("page:newuser");
     }
+    
+    public void testAddGroups() {
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        setFormElement("userId", "x");
+        setFormElement("password", "1234");
+        setFormElement("confirmPassword", "1234");
+        setFormElement("groups", "a b c");
+        clickButton("form:apply");
+        assertFormElementEquals("groups", "a b c");
+    }
 }

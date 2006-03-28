@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 
@@ -70,9 +71,19 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
 
     public int compareTo(Object arg0) {
         Group b = (Group) arg0;
-        Integer w = m_weight != null ? m_weight : new Integer(-1);
-        
-        return w.compareTo(b.getWeight());
+        Integer w1 = defaultWeight(m_weight);
+        Integer w2 = defaultWeight(b.getWeight());        
+        int cmp = w1.compareTo(w2);
+        if (cmp == 0) {
+            String s1 = StringUtils.defaultString(getName()); 
+            String s2 = StringUtils.defaultString(b.getName()); 
+            cmp = s1.compareTo(s2);
+        }
+        return cmp;
+    }
+    
+    private Integer defaultWeight(Integer weight) {
+        return weight != null ? weight : new Integer(-1);
     }
 
     /**

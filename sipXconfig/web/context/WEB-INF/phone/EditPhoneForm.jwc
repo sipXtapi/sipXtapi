@@ -12,19 +12,17 @@
       - P R O P E R T I E S
       -->
   <property name="phoneSelectionModel"  persist="session"/>
+  <property name="groupsString"/>
+  <inject property="settingDao" object="spring:settingDao"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
-  
-  <!--
-      - B E A N S 
+    <!--
+      - B E A N S
       -->
   <bean name="phoneSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
     <set name="collection" value="phoneContext.availablePhoneModels"/>
     <set name="labelExpression" value="literal:label"/>
   </bean>
-  <bean name="phoneGroupSelectionModel" class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">
-    <set name="collection" value="phoneContext.groups"/>
-    <set name="labelExpression" value="literal:name"/>
-  </bean>
+ 
   <!--
       - C O M P O N E N T S
       -->
@@ -57,10 +55,17 @@
     <binding name="value" value="phoneModel"/>
     <binding name="disabled" value="!phone.isNew()"/>
   </component>
-  <component id="groupSelect" type="contrib:Palette">
-    <binding name="selected" value="phone.groupsAsList"/>
-    <binding name="model" value="bean:phoneGroupSelectionModel"/>
-    <binding name="sort" value="@org.apache.tapestry.contrib.palette.SortMode@LABEL"/>
-    <binding name="rows" value="3"/>
+  <component id="groupsPanel" type="FieldPanel">
+    <!-- Bug, give the right value for field, and autocomplete renders double -->
+    <binding name="field" value="components.groupsX"/>
+    <binding name="label" value="message:label.groups"/>
+    <binding name="description" value="message:description.groups"/>    
   </component>
+  <component id="groups" type="tacos:Autocompleter">
+    <binding name="value" value="groupsString"/>
+    <binding name="size" value="50"/>
+    <binding name="listSource" value="groupCandidates"/>
+    <binding name="listener" value="listener:buildGroupCanidates"/>
+  </component>
+  
 </component-specification>

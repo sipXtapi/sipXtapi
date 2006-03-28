@@ -23,6 +23,7 @@ import org.apache.commons.collections.functors.ChainedTransformer;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -113,15 +114,29 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
     }
 
     public String getGroupsAsString(List groups) {
-        String groupsString = StringUtils.join(groups.iterator(), ", ");
+        String groupsString = StringUtils.join(getNames(groups).iterator(), " ");
         return groupsString;
     }
+    
+    public Collection getNames(Collection namedObject) {
+        Transformer toName = new Transformer() {
+            public Object transform(Object input) {
+                return ((NamedObject) input).getName();
+            }            
+        };
+        return CollectionUtils.collect(namedObject, toName);
+    }
 
-    public List getGroupsByString(String resource, String groupString) {
-        String[] groupNames = groupString.split(",\\w");
+    public List getGroupsByString(String resource, String groupString) {        
+        String[] groupNames = groupString.trim().split("\\s+");
         List groups = new ArrayList(groupNames.length);
         for (int i = 0; i < groupNames.length; i++) {
             Group g = getGroupByName(resource, groupNames[i]);
+            if (g == null) {
+                g = new Group();
+                g.setResource(resource);
+                g.setName(groupNames[i]);
+            }
             groups.add(g);
         }
 

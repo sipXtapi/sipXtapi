@@ -19,14 +19,8 @@
           <input jwcid="sipPassword" id="user:sipPassword" type="text"/>
         </span>
       </tr>
-      <tr>
-        <td>
-          <label for="select:group">
-            <span key="label.groups"></span>:</label>
-        </td>
-        <td>
-          <span jwcid="groupSelect"/>
-        </td>
+      <tr jwcid="groupsPanel" for="user:groups">
+          <span class="auto_complete" jwcid="groups"/>
       </tr>
       <tr jwcid="aliasesPanel" for="user:aliases">
         <input jwcid="aliases" id="user:aliases" type="text"/>

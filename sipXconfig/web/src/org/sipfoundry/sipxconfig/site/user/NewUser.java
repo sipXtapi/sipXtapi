@@ -22,7 +22,9 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.FormActions;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
+import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
 public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
 
@@ -30,6 +32,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     private static final int SIP_PASSWORD_LEN = 8;
 
     public abstract CoreContext getCoreContext();
+    public abstract SettingDao getSettingDao();
 
     public abstract User getUser();
 
@@ -38,7 +41,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     public abstract boolean isStay();
 
     public abstract String getButtonPressed();
-
+    
     public IPage onCommit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {
             return null;
@@ -46,6 +49,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         // Save the user
         CoreContext core = getCoreContext();
         User user = getUser();
+        EditGroup.saveGroups(getSettingDao(), user.getGroups());
         core.saveUser(user);
 
         // On saving the user, transfer control to edituser page.
@@ -57,7 +61,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         
         return null;
     }
-
+    
     public IPage extensionPools(IRequestCycle cycle) {
         ExtensionPoolsPage poolsPage = (ExtensionPoolsPage) cycle
                 .getPage(ExtensionPoolsPage.PAGE);

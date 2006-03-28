@@ -59,4 +59,18 @@ public class GroupTest extends TestCase {
         assertEquals("granny smith", m_root.getSetting("fruit/apple").getValue());
         assertEquals("snowpea", m_root.getSetting("vegetable/pea").getValue());
     }
+    
+    public void testCompare() {
+        assertEquals(0, new Group().compareTo(new Group()));
+        
+        Group g1 = new Group();
+        g1.setName("a");
+        Group g2 = new Group();
+        g2.setName("b");
+        assertTrue(g1.compareTo(g2) < 0);
+        
+        g1.setWeight(new Integer(5));
+        g2.setWeight(new Integer(3));
+        assertTrue(g1.compareTo(g2) > 0);
+    }
 }

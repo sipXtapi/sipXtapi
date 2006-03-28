@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.site.setting;
 
+import java.util.Collection;
+import java.util.Iterator;
+
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -39,6 +42,12 @@ public abstract class EditGroup extends BasePage implements PageBeginRenderListe
     public abstract SettingDao getSettingContext();
 
     public abstract void setCallback(ICallback callback);
+
+    public static void saveGroups(SettingDao dao, Collection groups) {
+        for (Iterator i = groups.iterator(); i.hasNext();) {
+            dao.saveGroup((Group) i.next());
+        }
+    }
 
     public void pageBeginRender(PageEvent event_) {
         Group group = getGroup();

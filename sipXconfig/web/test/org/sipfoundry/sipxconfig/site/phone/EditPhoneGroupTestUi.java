@@ -53,4 +53,12 @@ public class EditPhoneGroupTestUi extends WebTestCase {
         clickButton("form:ok");
         assertTextPresent("A group with name: seedGroup0 already exists");
     }
+    
+    public void testWhitespaceIllegal() {
+        tester.reset();
+        clickLink("NewPhoneGroup");
+        setFormElement("name", "seed group");
+        clickButton("form:ok");
+        assertTextPresent("Cannot contain spaces");        
+    }
 }

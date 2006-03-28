@@ -31,6 +31,9 @@ public interface SettingDao extends DataObjectSource {
     
     public Group getGroupByName(String resource, String name);
     
+    /**
+     * Will create but not save groups that do not exist yet
+     */
     public List getGroupsByString(String resource, String groupString);
 
     public String getGroupsAsString(List groups);

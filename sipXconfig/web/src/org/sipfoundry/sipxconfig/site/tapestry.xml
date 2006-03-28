@@ -85,6 +85,15 @@
       <value>Add at least one gateway before enabling the rule.</value>
     </property>
   </bean>
+  <bean name="noWhitespace" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern">
+      <value>\S*</value>
+    </property>
+    <property name="message">
+      <value>Cannot contain spaces or other whitespace characters.</value>
+    </property>
+  </bean>
+  
 
   <!-- T R A N S L A T O R S -->	
   <bean name="cleanSerialNumber" class="org.sipfoundry.sipxconfig.components.SerialNumberTranslator"/>	

@@ -11,6 +11,13 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
@@ -22,6 +29,7 @@ import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
 import org.apache.tapestry.services.ExpressionEvaluator;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 
 /**
  * Utility method for tapestry pages and components
@@ -193,5 +201,34 @@ public final class TapestryUtils {
                 columnName, true, expressionEvaluator);
         column.setValueRendererSource(new DateTableRendererSource());
         return column;
+    }
+    
+    /**
+     * For auto completetion of space delimited fields. Collection is represented named
+     * 
+     * @param namedItems collection of objects that implement NamedItem
+     * @param currentValue what user have entered so far including
+     * @return collection of Strings of possible auto completed items
+     */
+    public static Collection getAutoCompleteCandidates(Collection namedItems, String currentValue) {
+        if (StringUtils.isBlank(currentValue) || currentValue.endsWith(" ")) {
+            return Collections.EMPTY_LIST;
+        }
+        
+        String[] groups = currentValue.split("\\s+");
+        int ignore = groups.length - 1;
+        String targetGroup = groups[ignore];
+        StringBuffer prefix = new StringBuffer();
+        for (int i = 0; i < ignore; i++) {
+            prefix.append(groups[i]).append(' ');
+        }
+        List candidates = new ArrayList();
+        for (Iterator i = namedItems.iterator(); i.hasNext();) {
+            NamedObject candidate = (NamedObject) i.next();
+            if (candidate.getName().startsWith(targetGroup)) {
+                candidates.add(prefix.toString() + candidate.getName());
+            }               
+        }
+        return candidates;        
     }
 }
