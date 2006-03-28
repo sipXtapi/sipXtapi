@@ -31,6 +31,10 @@ SipxAuxils="\
   pcre \
   sipx-w3c-libwww \
   xerces-c \
+  ruby-gems \
+  ruby-devel \
+  ruby \
+  ruby-libs
   "
 
 while [ "$#" -ne 0 ]
