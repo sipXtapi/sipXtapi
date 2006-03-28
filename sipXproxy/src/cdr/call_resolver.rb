@@ -35,24 +35,15 @@ class CallResolver
 
 public
 
-  def initialize
-    # Set up logging.
-    # :TODO: set up standard log entry format, e.g., include a timestamp
-    # :TODO: write to $SIPX_PREFIX/var/log/sipxpbx/sipcallresolver.log
-    # :TODO: figure out interactions between Ruby log rotation and sipX log rotation
-    @@log = Logger.new(STDOUT)
+  def initialize(config_file = nil)
+    # Load the configuration from the config file.  If the config_file arg is
+    # nil, then find the config file in the default location.
+    load_config(config_file)
+    
+    init_logging
 
-    # Hardwire logging to DEBUG level for now until I figure out why running Ruby
-    # in debug mode isn't working.
-    # :TODO: Make log level configurable.
-    # :TODO: Fix running Ruby in debug mode.
-#    if $DEBUG then
-      log.level = Logger::DEBUG
-#    else
-#      log.level = Logger::INFO
-#    end
-
-    test_configuration
+    # Check that the Ruby version meets our needs.
+    check_ruby_version
   end
 
   # Resolve CSEs to CDRs.
@@ -96,7 +87,10 @@ public
 
 private
   # Constants
+  
+  # We require at least Ruby 1.8, specifically at least 1.8.4
   MIN_RUBY_VERSION = 1.8
+  MIN_RUBY_FULL_VERSION = '1.8.4'
 
   # Log reader. Provide instance-level accessor to reduce typing.
   def log
@@ -413,14 +407,58 @@ private
     
     party_in_db
   end
+  
+  # Load the configuration from the config file.  If the config_file arg is
+  # nil, then find the config file in the default location.
+  def load_config(config_file)
+  end
+  
+  # Set up logging.
+  # :TODO: set up standard log entry format, e.g., include a timestamp
+  # :TODO: write to $SIPX_PREFIX/var/log/sipxpbx/sipcallresolver.log
+  # :TODO: figure out interactions between Ruby log rotation and sipX log rotation
+  def init_logging
+    @@log = Logger.new(STDOUT)
 
-  def test_configuration
+    # Hardwire logging to DEBUG level for now until I figure out why running Ruby
+    # in debug mode isn't working.
+    # :TODO: Make log level configurable.
+    # :TODO: Fix running Ruby in debug mode.
+#    if $DEBUG then
+      log.level = Logger::DEBUG
+#    else
+#      log.level = Logger::INFO
+#    end
+  end    
+
+  def check_ruby_version
     # Check that the Ruby version meets our needs
-    ruby_version = CONFIG['ruby_version'].to_f
-    if ruby_version < MIN_RUBY_VERSION
-      log.error("test_configuration: Ruby version must be >= #{MIN_RUBY_VERSION}, "+
-                "but it's only #{ruby_version}")
+    
+    # Check the base version
+    version = CONFIG['ruby_version'].to_f
+    if version < MIN_RUBY_VERSION
+      log.error("check_ruby_version: Ruby version must be >= #{MIN_RUBY_VERSION}, "+
+                "but it's only #{version}")
     end
+    
+    # Check the full version.  This technique uses some implementation details
+    # that might change or might not be portable.  An alternative might be to
+    # eval a shell command "ruby --version" but that's expensive.  Too bad the
+    # configured Ruby version (see above) is not detailed enough.
+    full_version = CONFIG['LIBRUBY']    # returns, for example, "libruby.so.1.8.4"
+    libruby = 'libruby.so.'             # version follows this string
+    dot = full_version.index(libruby)
+    if dot
+      full_version = full_version[(dot + libruby.length)..-1]
+      #log.debug("Ruby version = #{full_version}")
+      if (full_version <=> MIN_RUBY_FULL_VERSION) < 0
+        log.error("check_ruby_version: Ruby version must be >= #{MIN_RUBY_FULL_VERSION}, "+
+                  "but it's only #{full_version}")
+      end
+    else
+      log.error('check_ruby_version: unable to determine Ruby version')
+    end
+    
   end
   
 end    # class CallResolver
