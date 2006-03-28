@@ -34,6 +34,8 @@ public abstract class LoginPage extends BasePage implements PageBeginRenderListe
 
     public static final String PAGE = "LoginPage";
 
+    private static final Log LOG = LogFactory.getLog(LoginPage.class);
+
     public abstract CoreContext getCoreContext();
 
     public abstract LoginContext getLoginContext();
@@ -51,9 +53,6 @@ public abstract class LoginPage extends BasePage implements PageBeginRenderListe
     public abstract void setCallback(ICallback callback);
 
     public abstract UserSession getUserSession();
-    
-    private final static Log LOG = LogFactory.getLog(LoginPage.class);
-    
 
     public void pageBeginRender(PageEvent event) {
         
@@ -103,10 +102,11 @@ public abstract class LoginPage extends BasePage implements PageBeginRenderListe
     }
     
     public String getVoicemailHref() {
-        String home = getRequestCycle().getAbsoluteURL("/");
+        String root = "/";
+        String home = getRequestCycle().getAbsoluteURL(root);
         try {
             URL url = new URL(home);
-            URL voicemail = new URL(url.getProtocol(), url.getHost(), 8091, "/");
+            URL voicemail = new URL(url.getProtocol(), url.getHost(), 8091, root);
             return voicemail.toString();
         } catch (MalformedURLException e) {
             LOG.error(e);
