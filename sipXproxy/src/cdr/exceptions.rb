@@ -11,7 +11,6 @@
 class CallResolverException < StandardError
 end
 
-# BadSipHeaderException indicates a bad SIP header.
 class BadSipHeaderException < CallResolverException
   attr :header
   
@@ -26,3 +25,5 @@ class BadSipHeaderException < CallResolverException
   
 end
 
+class ConfigException < CallResolverException
+end

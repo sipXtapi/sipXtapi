@@ -16,7 +16,7 @@ require 'rbconfig'            # use this to verify the Ruby configuration
 # set up the load path
 thisdir = File.dirname(__FILE__)
 $:.unshift(thisdir)
-$:.unshift(File.join(thisdir, "app/models"))
+$:.unshift(File.join(thisdir, "app", "models"))
 
 # application requires
 require 'call_state_event'
