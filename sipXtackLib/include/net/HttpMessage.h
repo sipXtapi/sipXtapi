@@ -225,7 +225,7 @@ public:
     int get(Url& httpUrl,
             HttpMessage& request,
             int maxWaitMilliSeconds,
-            bool bPersistent=true);
+            bool bPersistent=false);
             
 
     //!Perform an HTTP GET on the specified URL and pass data to the

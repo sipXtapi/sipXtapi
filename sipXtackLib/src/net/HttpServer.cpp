@@ -83,6 +83,7 @@ HttpServer::HttpServer(OsServerSocket *pSocket, OsConfigDb* userPasswordDb,
    mpValidIpAddressDB(validIpAddressDB),
    mpNonceDb(new OsConfigDb),
    mRealm(realm),
+   mAllowMappedFiles(true), // :TODO: should be false, but allow now for backward compatibility
    mbPersistentConnection(bPersistentConnection),
    mHttpConnections(0),
    mpHttpConnectionList(new UtlSList)
@@ -321,6 +322,11 @@ int HttpServer::run(void* runArg)
         }
     } // while (! isShuttingDown && mpServerSocket->isOk()) 
 
+    if ( ! isShuttingDown() )
+    {
+       OsSysLog::add( FAC_SIP, PRI_ERR, "HttpServer: exit due to port failure" );
+    }
+    
     httpStatus = OS_TASK_NOT_STARTED;
 
     return(TRUE);
@@ -643,10 +649,15 @@ void HttpServer::processRequest(const HttpMessage& request,
                 {
                     pService->processRequest(requestContext, request, response);
                 }
-                else
+                else if (mAllowMappedFiles)
                 {
                     // Use the default request processor
                     processFileRequest(requestContext, request, response);
+                }
+                else
+                {
+                   // This is not allowed, but there is no reason to tell them that
+                   processFileNotFound(requestContext, request, response);
                 }
             }
         }
@@ -656,9 +667,16 @@ void HttpServer::processRequest(const HttpMessage& request,
         }
         else
         {
-            processNotSupportedRequest(requestContext, request, response);
+           processNotSupportedRequest(requestContext, request, response);
         }
     }
+}
+
+/// set permission for access to mapped file names
+void HttpServer::allowFileAccess(bool fileAccess ///< true => allow access, false => disallow access
+                                 )
+{
+   mAllowMappedFiles = fileAccess;
 }
 
 void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
@@ -669,6 +687,7 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
     request.getRequestUri(&uri);
     UtlString uriFileName;
     UtlString method;
+
     requestContext.getEnvironmentVariable(HttpRequestContext::HTTP_ENV_MAPPED_FILE,
         uriFileName);
     request.getRequestMethod(&method);
@@ -823,11 +842,7 @@ void HttpServer::processFileRequest(const HttpRequestContext& requestContext,
         {
             processFileNotFound(requestContext, request, response);
         }
-
     }
-        uri.remove(0);
-        uriFileName.remove(0);
-        method.remove(0);
 }
 
 void HttpServer::constructFileList(UtlString & indexText, UtlString uri, UtlString uriFileName)

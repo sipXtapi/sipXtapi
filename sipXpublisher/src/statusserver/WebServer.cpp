@@ -161,6 +161,7 @@ void WebServer::initWebServer( HttpServer* pHttpServer )
         // New user interface
         OsSysLog::add(FAC_SIP, PRI_DEBUG, "WebServer::add requests to web server") ;
 
+        pHttpServer->allowFileAccess(false);
         pHttpServer->addRequestProcessor("/cgi/StatusEvent.cgi", ProcessEvent);       
     }
     else 

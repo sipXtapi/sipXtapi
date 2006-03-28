@@ -101,8 +101,8 @@ Notifier::sendNotifyForeachSubscription (
 
     if (  numSubscriptions > 0 )
     {
-        OsSysLog::add( FAC_SIP, PRI_DEBUG, "Notifier::sendNotifyForeachSubscription - "
-                       "Got at least %d unexpired subscription", numSubscriptions );
+        OsSysLog::add( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
+                      " %d '%s' msgs for '%s'", numSubscriptions, event, key );
 
         // There may be any number of subscriptions
         // for the same identity and event type!
@@ -170,6 +170,11 @@ Notifier::sendNotifyForeachSubscription (
             mpSubscriptionDB->updateUnexpiredSubscription (
                to, from, callid, event, id, timeNow, notifycseq );
         }
+    }
+    else
+    {
+       OsSysLog::add( FAC_SIP, PRI_INFO, "Notifier::sendNotifyForeachSubscription: "
+                     " no '%s' subscriptions for '%s'", event, key );
     }
 }
 

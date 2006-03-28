@@ -139,7 +139,6 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                                    : "OsSSLServerSocket SSL_accept SSL handshake error"
                                    ),
                                   SSL_get_error(pSSL, result));
-                  socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
 
                   // SSL failed, so clear this out.
                   delete newSocket;
@@ -151,14 +150,12 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                OsSysLog::add(FAC_KERNEL, PRI_ERR,
                              "OsSSLServerSocket::accept - new OsSSLConnectionSocket failed"
                              );
-               socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
             }            
          }
          else
          {
             OsSysLog::add(FAC_KERNEL, PRI_ERR
                           , "OsSSLConnectionSocket::accept - Error creating new SSL connection.");
-            socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
          }
       }
    }
