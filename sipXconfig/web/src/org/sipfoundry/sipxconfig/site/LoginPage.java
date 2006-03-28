@@ -11,8 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.site;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -47,8 +51,12 @@ public abstract class LoginPage extends BasePage implements PageBeginRenderListe
     public abstract void setCallback(ICallback callback);
 
     public abstract UserSession getUserSession();
+    
+    private final static Log LOG = LogFactory.getLog(LoginPage.class);
+    
 
-    public void pageBeginRender(PageEvent event_) {
+    public void pageBeginRender(PageEvent event) {
+        
         // If there are no users in the DB, then redirect to the FirstUser page to make one.
         // For most pages, Border takes care of this check, but LoginPage doesn't have a Border.
         int userCount = getCoreContext().getUsersCount();
@@ -92,5 +100,17 @@ public abstract class LoginPage extends BasePage implements PageBeginRenderListe
         // data. Trying to execute a callback under these circumstances is hazardous -- see
         // XCF-590.
         return Home.PAGE;
+    }
+    
+    public String getVoicemailHref() {
+        String home = getRequestCycle().getAbsoluteURL("/");
+        try {
+            URL url = new URL(home);
+            URL voicemail = new URL(url.getProtocol(), url.getHost(), 8091, "/");
+            return voicemail.toString();
+        } catch (MalformedURLException e) {
+            LOG.error(e);
+            return home;
+        }
     }
 }
