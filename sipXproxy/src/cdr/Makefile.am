@@ -22,7 +22,13 @@ callresolver_files = \
   config/routes.rb \
   config/environments/development.rb \
   config/environments/production.rb \
-  config/environments/test.rb
+  config/environments/test.rb \
+  log/test.log \
+  test/test_helper.rb \
+  test/fixtures/call_state_events.yml \
+  test/fixtures/cdrs.yml \
+  test/fixtures/parties.yml \
+  test/functional/call_resolver_test.rb
     
 
 install-data-hook: install-callresolver
