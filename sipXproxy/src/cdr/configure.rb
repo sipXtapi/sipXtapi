@@ -16,10 +16,6 @@
 # system requires
 require 'logger'              # writes log messages to a file or stream
 
-# set up the load path
-thisdir = File.dirname(__FILE__)
-$:.unshift(thisdir)
-
 # application requires
 require 'exceptions'
 

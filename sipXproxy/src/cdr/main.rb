@@ -8,12 +8,12 @@
 #
 ##############################################################################
 
-# system requirements
+# system requires
 require 'getoptlong'
 require 'parsedate'
 
-# application requirements
-require 'call_resolver'
+# application requires
+require File.join(File.dirname(__FILE__), 'call_resolver')
 
 
 # Parse command-line options
