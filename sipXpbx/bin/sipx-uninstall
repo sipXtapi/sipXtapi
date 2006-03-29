@@ -33,6 +33,7 @@ SipxAuxils="\
   sipx-w3c-libwww \
   xerces-c \
   ruby-gems \
+  irb \
   ruby-devel \
   ruby \
   ruby-libs

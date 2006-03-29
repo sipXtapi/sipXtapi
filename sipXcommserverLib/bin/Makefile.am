@@ -9,7 +9,8 @@ dist_bin_SCRIPTS = \
    configpp \
    pkg-upgrade \
 	sipx-dns \
-   get_def_addr
+   get_def_addr \
+   pgpatch.sh
 
 LOCAL_SHELLSCRIPTS = \
    sipx-validate-xml
