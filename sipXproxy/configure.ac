@@ -45,6 +45,7 @@ AC_CONFIG_FILES([src/cse/Makefile])
 AC_CONFIG_FILES([src/test/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
 AC_CONFIG_FILES([meta/Makefile])
+AC_CONFIG_FILES([src/cdr/Makefile])
 
 if test x$enable_dbtests = xyes
 then

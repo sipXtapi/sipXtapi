@@ -12,6 +12,7 @@ Url:      http://www.sipfoundry.org/sipXregistry
 Source:   %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= 3.3
+Requires: ruby >= 1.8.4
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -79,6 +80,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipauthproxy
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
+%attr(755,root,root) %{_bindir}/callresolver
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
@@ -103,6 +105,7 @@ sipx-upgrade -p sipxproxy -c
 
 %post
 sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
+sipxcallresolver.sh --setup
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
