@@ -20,6 +20,7 @@ SipxProjects="\
 SipxLibs="\
   sipXcommserverLib \
   sipXcallLib \
+  sipXmediaAdapterLib \
   sipXmediaLib \
   sipXtackLib \
   sipXportLib \
