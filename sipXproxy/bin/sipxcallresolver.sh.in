@@ -11,23 +11,26 @@ Action=RUN
 Status=0
 Args=""
 
+resolverArgs=""
+
 # Declare script variables in a manner that unit test
 # (or end user I suppose) can override
-: ${SslDir:=@sipxpbx.conf.dir@/ssl}
+: ${SslDir:=@SIPX_CONFDIR@/ssl}
 : ${AuthoritiesDir:=$SslDir/authorities}
-: ${ConfigDefs:=@sipxpbx.conf.dir@/config.defs}
-: ${Configpp:=@bin.dir@/configpp}
-: ${ConfigFiles:=@sipxpbx.conf.dir@/authproxy-config @sipxpbx.conf.dir@/proxy-config}
-: ${PidFile:=@sipxpbx.run.dir@/sipxconfig.pid}
-: ${LibDir:=@sipxconfig.lib.dir@}
+: ${ConfigDefs:=@SIPX_CONFDIR@/config.defs}
+: ${Configpp:=@bindir@/configpp}
+: ${ConfigFiles:=@SIPX_CONFDIR@/authproxy-config @SIPX_CONFDIR@/proxy-config}
+: ${PidFile:=@SIPX_RUNDIR@/sipxconfig.pid}
+: ${LibDir:=@SIPX_LIBDIR@}
 : ${Psql:=psql}
 : ${ServiceDir:=/etc/init.d}
 : ${SubstituteUser:=su}
 : ${Chown:=chown}
-: ${LogDir:=@sipxpbx.log.dir@}
-: ${TmpDir:=@sipxpbx.tmp.dir@}
-: ${RunningUser:=@sipxpbx.user@}
-: ${PgUSer:=postgres}
+: ${LogDir:=@SIPX_LOGDIR@}
+: ${TmpDir:=@SIPX_TMPDIR@}
+: ${RunningUser:=@SIPXPBXUSER@}
+: ${PgUser:=postgres}
+: ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
 
 Database=SIPXCDR
 
@@ -87,6 +90,7 @@ databaseCommand() {
     case ${1} in
        create)
          createdb -U ${PgUser} ${Database} >/dev/null
+         ${Psql} -U ${PgUser} -d ${Database} -f ${PgSchema} >/dev/null
        ;;
        
        drop)
@@ -117,6 +121,25 @@ databaseCheck() {
     fi
 }
 
+configCheck() {
+   authConfig=`cat @SIPX_CONFDIR@/authproxy-config.in | grep SIP_AUTHPROXY_CALL_STATE_DB`
+   if [ -z "${authConfig}" ]; then
+     echo "Warning: authProxy is not configured to write call state events to a database"
+     return 1
+   else
+     echo "authProxy is configured to write call state events to a database"   
+     return 0
+   fi
+   proxyConfig=`cat @SIPX_CONFDIR@/proxy-config.in | grep SIP_PROXY_CALL_STATE_DB`
+   if [ -z "${proxyConfig}" ]; then
+     echo "Warning: proxy is not configured to write call state events to a database"
+     return 1
+   else
+     echo "proxy is configured to write call state events to a database"   
+     return 0
+   fi   
+}
+
 # Check the database version.  If it is wrong, then exit, because it's dangerous to
 # run sipXconfig on top of the wrong database version.
 databaseVersionCheck() {
@@ -143,14 +166,16 @@ databaseVersionCheck() {
 onSetup() {
    if ! databaseCheck
    then
-       pgpatch
+       @bindir@/pgpatch.sh
        databaseCommand create
+   else
+       echo "Database ${Database} exists"
    fi
 }
 
 # Start CDR call resolver
-onStartup() {
-    echo "Call resolver not yet available"
+onStartup() { 
+    ruby @bindir@/callresolver/main.rb ${resolverArgs}
 }
 
 # simple diagnostics
@@ -158,12 +183,14 @@ configtest() {
     if ! databaseCheck; then
       Status=1
     fi
+    
+    configCheck
 
     # Print out a success message if everything is OK, to give the user some feedback.
     # If there is an error then the test will yield an error message.
     if [ $Status = 0 ]
     then
-	echo "The config test succeeded."
+      echo "The config test succeeded."
     fi
 }
 
@@ -189,8 +216,20 @@ do
             Action=NOP
             ;;
 
-        -h|--help|*)
+        -h|--help)
             Action=HELP
+            ;;
+            
+        *)
+            if [ "${1}" = --start ]; then
+              resolverArgs="${resolverArgs} ${1} "
+            elif [ "${1}" = --end ]; then
+              resolverArgs="${resolverArgs} ${1} "
+            elif [ "${1}" = --redo ]; then
+              resolverArgs="${resolverArgs} ${1} "
+            else
+              resolverArgs="${resolverArgs} \"${1}\" "
+            fi
             ;;
     esac           
 
