@@ -29,6 +29,9 @@ callresolver_files = \
   test/fixtures/cdrs.yml \
   test/fixtures/parties.yml \
   test/functional/call_resolver_test.rb
+
+EXTRA_DIST = \
+  $(callresolver_files)
     
 
 install-data-hook: install-callresolver
