@@ -3,7 +3,66 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+Version 3.3.2
 
+** Bug
+    * [XCF-928] - DailyBackupScheduleTest not working on machines w/locale outside US
+    * [XCF-929] - Startup reports parsing error w/Whacker
+    * [XCF-947] - Web UI doesn't work in IE when using IBM's JVM 
+    * [XCF-954] - Replication fails - sipxconfig claims that certificate is not installed.
+    * [XCF-957] - Exception occurred, while an attempt was made to add a Call Park extension.
+    * [XCF-962] - Internal error on login page when password empty
+    * [XCF-965] - Forwarding-settings are displayed incorrectly in the admin web-interface.
+
+** New Feature
+    * [XCF-937] - extend configuration options for autoattendant
+    * [XCF-959] - Presence Server sign-in/sign-out interface
+
+
+** Improvement
+    * [XCF-955] - Use OS signals to fresh log file to be inline w/linux system log rotator
+
+	
+Version 3.3.1
+
+** Bug
+    * [XCF-920] - show/hide advanced settings link does not work on Edit User page
+    * [XCF-924] - start-web-server ant target not working after T4 upgrade
+    * [XCF-927] - 0 is displayed as empty string - settings screen
+    * [XCF-930] - [PINMISMATCH] displayed instead of error message on user screen
+    * [XCF-932] - search results for dialing rules display Java object type instead of user readable name
+    * [XCF-943] - interacting with user call forwarding screen may leave emtpy rows in 'ring' table
+
+** Task
+    * [XCF-753] - upgrade to Tapestry 4.0
+
+** Improvement
+    * [XCF-700] - improve displaying default values for enumeration and boolean settings
+    * [XCF-807] - upgrade to Acegi Security 1.0 when it is released
+
+
+Version 3.2
+
+** Bug
+    * [XCF-636] - For Cisco - if change parameter to blank, configserver should set the value to its default
+    * [XCF-911] - Error message (probably benign?) displayed when attempted to upgrade sipxchange from 3.0 to the current version.
+    * [XCF-916] - Cancel button on Device Files page continues to create Device Files entry
+    * [XCF-922] - external aliases only parsed once
+    * [XCF-923] - Replication breaks after first call to SOAP API
+    * [XCF-931] - Migration from 2.8 to 3.2 does not run initialization tasks
+    * [XCF-933] - Sporadic lucene index lock-ups during SOAP replication
+    * [XCF-938] - JVM crashes on replication, appears more times on SMP machines
+    * [XCF-939] - Uninstall should remove lucene index and Jetty scratch dir
+    * [XCF-970] - pkg-upgrade script for sipXregistry includes upgrade tarballs themselves
+
+** New Feature
+    * [XCF-318] - Configurable dialing permission types
+    * [XCF-684] - Configure Time Zone in one place for all the phones
+    * [XCF-903] - show HA replication info on the Registrations page
+
+** Improvement
+    * [XCF-774] - it should be possible to redirect huntgroup to autoattendant	
+	
 Version 3.1.3
 ** Bug
     * [XCF-442] - KPhoneTest requires configured database
