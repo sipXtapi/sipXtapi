@@ -39,8 +39,8 @@ all: BUILDSTAMP
 BUILDSTAMP: SVN-VERSION
 	@echo "Generating BUILDSTAMP" 
 	sipxSvnVersion=`cat @abs_top_builddir@/SVN-VERSION` ; \
-	sipxBuildTime=`date -u --iso-8601=seconds | sed 's/+0000//'` ; \
-	sipxBuildHost=`hostname --short` ; \
+	sipxBuildTime=`date -u '+%FT%T'` ; \
+	sipxBuildHost=`uname -n` ; \
 	SIPX_BUILDSTAMP="$${sipxSvnVersion} $${sipxBuildTime} $${sipxBuildHost}" ; \
 	echo "$${SIPX_BUILDSTAMP}" > BUILDSTAMP ; \
 	${LocalizeSipXconfig} \
