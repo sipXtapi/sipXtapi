@@ -5,8 +5,11 @@ RemoveDevels="no"
 RemoveDebugs="no"
 RemoveDB="yes"
 RemoveCfg="yes"
+RemoveGems="no"
 Interactive="yes"
+ForceUninstall="no"
 User=`whoami`
+PgUser="postgres"
 
 SipxProjects="\
   sipXpbx \
@@ -38,6 +41,20 @@ SipxAuxils="\
   ruby \
   ruby-libs
   "
+RubyGems="\
+  postgres-pr \
+  rails \
+  rake \
+  actionwebservice \
+  actionmailer \
+  actionpack \
+  activerecord \
+  activesupport \
+  "\
+Databases="\
+  SIPXCONFIG
+  SIPXCDR
+  "
 
 while [ "$#" -ne 0 ]
 do
@@ -62,12 +79,21 @@ do
       Interactive="no"
       ;;
 
+    --gems)
+      RemoveGems="yes"
+      ;;
+
+    --force)
+      ForceUninstall="yes"
+      ;;
+
     --help | -h)
-      echo "Usage: sipx-uninstall [--auxils] [--devels] [--debugs] [--nodb]"
+      echo "Usage: sipx-uninstall [--auxils] [--devels] [--debugs] [--gems] [--nodb]"
       echo
       echo "       --auxils  Attempts to additionally uninstall auxiliary RPMs"
       echo "       --devels  Attempts to additionally uninstall sipX*-devel RPMs"
       echo "       --debugs  Attempts to additionally uninstall sipX*-debug RPMs"
+      echo "       --gems    Attempts to additionally uninstall ruby gems"
       echo "       --nodb    Leaves database intact"
       echo
       exit 0
@@ -101,10 +127,14 @@ else
 fi
 
 if [ -z "$PortLib" ]; then
-  if [ "$Interactive" = "yes" ]; then
-    echo "Cannot find installed sipX RPMs - uninstall aborted"
+  if [ "$ForceUninstall" = "no" ]; then
+    if [ "$Interactive" = "yes" ]; then
+      echo "Cannot find installed sipX RPMs - uninstall aborted"
+    fi
+    exit 2
+  else
+    echo "sipx RPMs not found - continuing anyway"
   fi
-  exit 2
 fi
 
 if [ "$Interactive" = "yes" ]; then
@@ -158,8 +188,10 @@ fi
 
 if [ "$RemoveDB" = "yes" ]; then
   echo -n "Clearing database... "
-  dropdb -U postgres SIPXCONFIG &>/dev/null
-  echo "done"
+  for db in $Databases; do
+    echo -n $db
+    dropdb -U $PgUser $db &>/dev/null
+  echo " done"
 fi
 
 echo "Removing sipx RPMs..."
@@ -185,6 +217,16 @@ for Project in $SipxLibs; do
   rpm -e $Lower
   echo " done"
 done
+
+# Remove gems before ruby-gems rpms
+
+if [ "$RemoveGems" = "yes" ]; then
+  echo -n "Removing ruby gems..."
+  for gem in $RubyGems; do
+    gem uninstall $gem -i -x
+  done
+  echo " done"
+fi
 
 if [ "$RemoveAuxils" = "yes" ]; then
   echo -n "Removing auxiliary RPMs..."
