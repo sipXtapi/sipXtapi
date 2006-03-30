@@ -370,7 +370,7 @@ AC_DEFUN([CHECK_XERCES],
 [   AC_MSG_CHECKING([for xerces])
     AC_ARG_WITH(xerces,
                 [--with-xerces=PATH to xerces source directory],
-                [xerces_path=$with_val],
+                [xerces_path=$withval],
                 [xerces_path="/usr/local/xercesc /usr/lib/xercesc /usr/xercesc /usr/pkg /usr/local /usr"]
                 )
     for dir in $xerces_path ; do
