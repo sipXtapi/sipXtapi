@@ -19,10 +19,32 @@ AC_PROG_LIBTOOL
 # Checks for programs.
 AC_PROG_CXX
 AC_PROG_CC
+AC_PROG_AWK
+AC_PROG_INSTALL
+AM_CONDITIONAL(ISGCC, [test `echo $GCC` = true])
 
 # Checks for libraries.
 CHECK_LIBRT
+AC_CHECK_LIB(socket, socket, LIBS="$LIBS -lsocket")
+AC_CHECK_LIB(nsl,getdomainname, LIBS="$LIBS -lnsl")
 CHECK_CPPUNIT
+
+AC_MSG_CHECKING(whether MSG_NOSIGNAL exists)
+AC_TRY_COMPILE([#include <sys/socket.h>],
+[
+int main()
+{
+        int f=MSG_NOSIGNAL;
+}
+],
+        # Yes, we have it...
+        AC_MSG_RESULT(yes)
+,
+        # We'll have to use signals
+[       AC_MSG_RESULT(no)
+        CPPFLAGS="$CPPFLAGS -DMSG_NOSIGNAL=0"
+])
+
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
