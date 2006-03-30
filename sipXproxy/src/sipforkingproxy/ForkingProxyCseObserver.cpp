@@ -34,34 +34,62 @@ const int ForkingProxyCallStateFlushInterval = 20; /* seconds */
 /* ============================ CREATORS ================================== */
 
 // Constructor
-ForkingProxyCseObserver::ForkingProxyCseObserver(SipUserAgent&    sipUserAgent,
-                                                 const UtlString& dnsName,
-                                                 OsFile*          eventFile
+ForkingProxyCseObserver::ForkingProxyCseObserver(SipUserAgent&         sipUserAgent,
+                                                 const UtlString&      dnsName,
+                                                 CallStateEventWriter* pWriter
                                                  ) :
    OsServerTask("ForkingProxyCseObserver-%d", NULL, 2000),
    mpSipUserAgent(&sipUserAgent),
-   mBuilder(dnsName),
-   mEventFile(eventFile),
+   mpBuilder(NULL),
+   mpWriter(pWriter),
    mSequenceNumber(0)
 {
    OsTime timeNow;
    OsDateTime::getCurTime(timeNow);
-
-   mBuilder.observerEvent(mSequenceNumber, timeNow, CallStateEventBuilder::ObserverReset,
-                         "ForkingProxyCseObserver");
    UtlString event;
-   mBuilder.xmlElement(event);
 
-   unsigned long written;
-   OsStatus writeStatus = mEventFile->write(event.data(), event.length(), written);
-   if (OS_SUCCESS != writeStatus)
+   if (mpWriter)
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR,
-                    "ForkingProxyCseObserver initial event log write failed %d",
-                    writeStatus
-                    );
+      switch (pWriter->getLogType())
+      {
+      case CallStateEventWriter::CseLogFile:
+         mpBuilder = new CallStateEventBuilder_XML(dnsName);
+         break;
+      case CallStateEventWriter::CseLogDatabase:
+         mpBuilder = new CallStateEventBuilder_DB(dnsName);
+         break;
+      }
+      if (mpBuilder)
+      {
+         if (pWriter->openLog())
+         {
+            mpBuilder->observerEvent(mSequenceNumber, timeNow, CallStateEventBuilder::ObserverReset,
+                                     "ForkingProxyCseObserver");      
+            mpBuilder->finishElement(event);      
+
+            if (!mpWriter->writeLog(event.data()))
+            {      
+               OsSysLog::add(FAC_SIP, PRI_ERR,
+                             "ForkingProxyCseObserver initial event log write failed - disabling writer");
+               mpWriter = NULL;
+            }
+            else
+            {
+               mpWriter->flush(); // try to ensure that at least the sequence restart gets to the file 
+            }
+         }
+         else
+         {
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "ForkingProxyCseObserver initial event log write failed - disabling writer");
+            mpWriter = NULL;
+            
+            // Set correct state even if nothing is written
+            mpBuilder->observerEvent(mSequenceNumber, timeNow, CallStateEventBuilder::ObserverReset, "");                 
+            mpBuilder->finishElement(event);                         
+         }
+      }
    }
-   mEventFile->flush(); // try to ensure that at least the sequence restart gets to the file
 
    // get my inbound OsMsg queue
    OsMsgQ* myTaskQueue = getMessageQueue();
@@ -87,7 +115,16 @@ ForkingProxyCseObserver::ForkingProxyCseObserver(SipUserAgent&    sipUserAgent,
 // Destructor
 ForkingProxyCseObserver::~ForkingProxyCseObserver()
 {
-   mEventFile->flush(); // try to get buffered records to the file...
+   if (mpBuilder)
+   {
+      delete mpBuilder;
+      mpBuilder = NULL;
+   }
+   if (mpWriter)
+   {
+      mpWriter->flush();
+      mpWriter = NULL;
+   }
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -101,7 +138,10 @@ UtlBoolean ForkingProxyCseObserver::handleMessage(OsMsg& eventMessage)
       switch (eventMessage.getMsgSubType())
       {
       case OsEventMsg::NOTIFY:
-         mEventFile->flush(); // try to get buffered records to the file...
+         if (mpWriter)
+         {
+            mpWriter->flush();
+         }
          break;
       }
       break ;
@@ -150,23 +190,28 @@ UtlBoolean ForkingProxyCseObserver::handleMessage(OsMsg& eventMessage)
             sipRequest->getFromField(&fromField);
 
             // construct the event record
-            mBuilder.callRequestEvent(mSequenceNumber, timeNow, contact);
-            mBuilder.addCallData(callId, fromTag, toTag, fromField, toField);
-
-            UtlString via;
-            for (int i=0; sipRequest->getViaField(&via, i); i++)
+            if (mpBuilder)
             {
-               mBuilder.addEventVia(via);
-            }
-            mBuilder.completeCallEvent();
-            
-            // get the complete event record
-            UtlString event;
-            mBuilder.xmlElement(event);
+               mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact);
+               mpBuilder->addCallData(callId, fromTag, toTag, fromField, toField);
 
-            // write it to the log file
-            unsigned long written;
-            mEventFile->write(event.data(), event.length(), written);
+               UtlString via;
+               for (int i=0; sipRequest->getViaField(&via, i); i++)
+               {
+                  mpBuilder->addEventVia(via);
+               }
+               mpBuilder->completeCallEvent();
+            
+               // get the complete event record
+               UtlString event;
+               mpBuilder->finishElement(event);
+               
+               // write it to the log
+               if (mpWriter)
+               {
+                  mpWriter->writeLog(event.data());
+               }               
+            }
          }
       }
       else

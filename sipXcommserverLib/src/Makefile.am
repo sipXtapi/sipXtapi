@@ -8,6 +8,8 @@ libexec_SCRIPTS = sipx-utils.sh
 
 lib_LTLIBRARIES = libsipXcommserver.la
 
+EXTRA_DIST = \
+    $(libexec_SCRIPTS)
 
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
@@ -19,17 +21,19 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
-libsipXcommserver_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age}
+libsipXcommserver_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age} @ODBC_LDFLAGS@
 
 libsipXcommserver_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
-	-DSIPX_DBDIR=\"@SIPX_DBDIR@\"
+	-DSIPX_DBDIR=\"@SIPX_DBDIR@\" \
+  @ODBC_CXXFLAGS@
 
 libsipXcommserver_la_LIBADD = \
-	@SIPXTACK_LIBS@
+	@SIPXTACK_LIBS@ \
+  @ODBC_LIBS@
 
 libsipXcommserver_la_SOURCES =  \
 	 ../config/sipxcommserverlib-buildstamp.h \
@@ -66,4 +70,5 @@ libsipXcommserver_la_SOURCES =  \
     fastdb/w32sock.cpp \
     fastdb/wwwapi.cpp \
     digitmaps/UrlMapping.cpp \
-	 configrpc/ConfigRPC.cpp
+    configrpc/ConfigRPC.cpp \
+    odbc/OdbcWrapper.cpp

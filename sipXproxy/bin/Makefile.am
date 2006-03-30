@@ -5,7 +5,8 @@ bin_SCRIPTS = \
 
 editscripts_IN = \
     sipauthproxy.sh \
-    sipproxy.sh
+    sipproxy.sh \
+    sipxcallresolver.sh
 
 EXTRA_DIST = \
 	$(foreach file,$(editscripts_IN),$(file).in) \

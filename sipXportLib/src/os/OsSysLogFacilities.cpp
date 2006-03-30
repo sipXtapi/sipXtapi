@@ -59,6 +59,9 @@ const char* OsSysLog::sFacilityNames[] =
    "OS",
    "SIPXTAPI",
    "AUDIO",
+   "CONFERENCE",
+   "ODBC",
+   "CDR",
    "UNKNOWN",
 } ;
 
