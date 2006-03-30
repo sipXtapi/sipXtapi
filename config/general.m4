@@ -488,7 +488,7 @@ AC_DEFUN([CHECK_APACHE2],
    ## This makes it easier for the uninitiated to see what versions of Apache
    ## might be compatible with this mod_cplusplus.  But compatibility is really
    ## controlled by the MMN value.
-   apache2_version=`awk -f $srcdir/config/apache_version.awk $incdir/ap_release.h`
+   apache2_version=`$AWK -f $srcdir/config/apache_version.awk $incdir/ap_release.h`
    AC_SUBST(APACHE2_VERSION, $apache2_version)
    AC_MSG_RESULT(apache2_version=$apache2_version)
    AC_MSG_RESULT(apache2_version=$apache2_version)
@@ -789,7 +789,11 @@ AC_DEFUN([CHECK_PCRE],
             AC_MSG_ERROR(Cannot find libpcre.so or libpcre.a libraries - looked in $libval)
         else
             ## Test for version
-            pcre_ver=`pcre-config --version`
+	    if test x$homeval != x; then
+            	pcre_ver=`$homeval/bin/pcre-config --version`
+	    else
+		pcre_ver=`pcre-config --version`
+	    fi
             AX_COMPARE_VERSION([$pcre_ver],[ge],[4.5],
                                [AC_MSG_RESULT($pcre_ver is ok)],
                                [AC_MSG_ERROR([pcre version must be >= 4.5 - found $pcre_ver])])
@@ -957,8 +961,8 @@ x$B" | sed 's/^ *//' | sort -r | sed "s/x${A}/true/;s/x${B}/false/;1q"`
     [0],[
       # A count of zero means use the length of the shorter version.
       # Determine the number of characters in A and B.
-      ax_compare_version_len_A=`echo "$A" | awk '{print(length)}'`
-      ax_compare_version_len_B=`echo "$B" | awk '{print(length)}'`
+      ax_compare_version_len_A=`echo "$A" | $AWK '{print(length)}'`
+      ax_compare_version_len_B=`echo "$B" | $AWK '{print(length)}'`
 
       # Set A to no more than B's length and B to no more than A's length.
       A=`echo "$A" | sed "s/\(.\{$ax_compare_version_len_B\}\).*/\1/"`
@@ -1118,7 +1122,7 @@ AC_DEFUN([CHECK_RUBY],
 
   ## warning about line below: use $ 2 instead of $2 otherwise m4 tries to interpret, 
   ## luckily awk doesn't care
-  rubyVersion=`ruby --version | awk '{print $ 2}'`
+  rubyVersion=`ruby --version | $AWK '{print $ 2}'`
 
   AX_COMPARE_VERSION([$rubyVersion],[ge],[$minRubyVersion],
        [AC_MSG_RESULT($rubyVersion is ok)],
