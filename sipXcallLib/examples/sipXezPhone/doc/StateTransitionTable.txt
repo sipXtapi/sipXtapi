@@ -1,0 +1,41 @@
+sipXezPhone States
+
+
+State           Transition Event        Next State
+--------        -----------------       -----------------
+
+IDLE
+                OnDial                  DIALING
+                OnRinging               RINGING
+
+DIALING
+                OnRemoteAlerting        REMOTE_ALERTING
+                OnRemoteBusy            REMOTE_BUSY
+                OnFlashButton           IDLE
+                OnConnected             CONNECTED
+                OnDisconnected          IDLE
+
+REMOTE_ALERTING
+                OnFlashButton           IDLE
+                OnConnected             CONNECTED
+                OnDisconnected          IDLE
+
+REMOTE_BUSY
+                OnFlashButton           IDLE
+
+CONNECTED
+                OnFlashButton           DISCONNECT_REQUESTED
+                OnDisconnected          IDLE
+
+DISCONNECT_REQUESTED
+                OnDisconnected          IDLE
+
+RINGING
+                OnConnected             CONNECTED
+                OnFlashButton           CALL_REJECT
+                OnDisconnected          IDLE
+
+OUTGOING_CALL_REJECT
+                OnOutgoingCallRejected  IDLE
+
+ERROR

@@ -1,0 +1,2 @@
+# Set --with-gips for Pingtel build
+--enable-buildnumber --with-gips=/home/cruisecontrol/work/sipxchange/gips

@@ -1,0 +1,28 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleGrabberCallback", "SampleGrabberCallback.vcproj", "{96B2BDA8-55B3-4D4C-A962-314F98E39000}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleGrabberCallbackPS", "SampleGrabberCallbackPS.vcproj", "{A9419A83-28BA-4490-A1EE-EC1A596DE56C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{96B2BDA8-55B3-4D4C-A962-314F98E39000} = {96B2BDA8-55B3-4D4C-A962-314F98E39000}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{96B2BDA8-55B3-4D4C-A962-314F98E39000}.Debug.ActiveCfg = Debug|Win32
+		{96B2BDA8-55B3-4D4C-A962-314F98E39000}.Debug.Build.0 = Debug|Win32
+		{96B2BDA8-55B3-4D4C-A962-314F98E39000}.Release.ActiveCfg = Release|Win32
+		{96B2BDA8-55B3-4D4C-A962-314F98E39000}.Release.Build.0 = Release|Win32
+		{A9419A83-28BA-4490-A1EE-EC1A596DE56C}.Debug.ActiveCfg = Debug|Win32
+		{A9419A83-28BA-4490-A1EE-EC1A596DE56C}.Release.ActiveCfg = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
