@@ -20,6 +20,7 @@ $:.unshift(File.join(thisdir, "app", "models"))
 # application requires
 require 'call_state_event'
 require 'cdr'
+require 'configure'
 require 'exceptions'
 require 'party'
 
@@ -84,9 +85,48 @@ public
 private
   # Constants
   
-  # We require at least Ruby 1.8.4
+  # The Call Resolver only runs on this Ruby version or later
   MIN_RUBY_VERSION = '1.8.4'
+  
+  # Default config file path
+  DEFAULT_CONFIG_FILE = '/etc/sipxpbx/callresolver-config'
+  
+  # If set, then this becomes a prefix to the default config file path
+  SIPX_PREFIX = 'SIPX_PREFIX'
 
+  # Configuration parameters and defaults
+  
+  # String constants
+  ENABLED = 'ENABLED'
+  
+  # The directory holding log files.  The default value is prefixed by
+  # $SIPX_PREFIX if that environment variable is defined.
+  LOG_DIR_CONFIG = 'SIP_CALLRESOLVER_LOG_DIR'
+  LOG_DIR_CONFIG_DEFAULT = '/var/log/sipxpbx'
+  
+  # Logging severity level
+  LOG_LEVEL_CONFIG = 'SIP_CALLRESOLVER_LOG_LEVEL'
+  LOG_LEVEL_CONFIG_DEFAULT = Logger::INFO
+  
+  # Map from the name of a log level to a Logger level value.
+  # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
+  # ALERT, EMERG) and Logger log levels (DEBUG, INFO, WARN, ERROR, FATAL) into
+  # Logger log levels.
+  LOG_LEVEL_MAP = {
+    "DEBUG"   => Logger::DEBUG, 
+    "INFO"    => Logger::INFO, 
+    "NOTICE"  => Logger::INFO, 
+    "WARN"    => Logger::WARN,
+    "WARNING" => Logger::WARN,
+    "ERR"     => Logger::ERROR, 
+    "CRIT"    => Logger::FATAL,
+    "ALERT"   => Logger::FATAL,
+    "EMERG"   => Logger::FATAL
+  }
+
+
+  # Methods
+  
   # Log reader. Provide instance-level accessor to reduce typing.
   def log
     return @@log
@@ -406,6 +446,74 @@ private
   # Load the configuration from the config file.  If the config_file arg is
   # nil, then find the config file in the default location.
   def load_config(config_file)
+    config_file = find_config_file(config_file)
+    @config = Configure.new(config_file)
+
+    # Read config params, applying defaults
+    set_log_dir_config(@config)
+    set_log_level_config(@config)
+  end
+  
+  # Set the log directory from the configuration.  Return the log directory.
+  def set_log_dir_config(config)
+    # Look up the config param
+    @log_dir = config[LOG_DIR_CONFIG]
+    
+    # Apply the default if the param was not specified
+    if !@log_dir
+      @log_dir = LOG_DIR_CONFIG_DEFAULT
+      
+      # Prepend the prefix dir if $SIPX_PREFIX is defined
+      prefix = ENV[SIPX_PREFIX]
+      if prefix
+        @log_dir = File.join(prefix, @log_dir)
+      end      
+    end
+    
+    @log_dir
+  end
+  
+  # Set the log level from the configuration.  Return the log level.
+  def set_log_level_config(config)
+    # Look up the config param
+    log_level_name = config[LOG_LEVEL_CONFIG]
+    
+    # Apply the default if the param was not specified
+    log_level_name ||= LOG_LEVEL_CONFIG_DEFAULT
+    
+    # Convert the log level name to a Logger log level
+    @log_level = log_level_from_name(log_level_name)
+    
+    # If we don't recognize the name, then refuse to run.  Would be nice to
+    # log a warning and continue, but there is no log yet!
+    if !@log_level
+      raise(CallResolverException, "Unknown log level: #{log_level_name}")   
+    end
+    
+    @log_level
+  end
+
+  # Given the name of a log level, return the log level value, or nil if the
+  # name is not recognized.
+  # We accept sipX log levels and Logger log levels and map them into Logger log
+  # levels.
+  def log_level_from_name(name)
+    LOG_LEVEL_MAP[name]
+  end
+  
+  # If config_file is nil then find the config file in the default location.
+  # Return the config file.
+  # Don't check file existence, let the Configure class worry about that.
+  def find_config_file(config_file)
+    if !config_file
+      config_file = DEFAULT_CONFIG_FILE
+      prefix = ENV[SIPX_PREFIX]
+      if prefix
+        config_file = File.join(prefix, config_file)
+      end
+    end
+    
+    config_file
   end
   
   # Set up logging.
@@ -415,15 +523,14 @@ private
   def init_logging
     @@log = Logger.new(STDOUT)
 
-    # Hardwire logging to DEBUG level for now until I figure out why running Ruby
-    # in debug mode isn't working.
-    # :TODO: Make log level configurable.
-    # :TODO: Fix running Ruby in debug mode.
-#    if $DEBUG then
+    # Set the log level from the configuration
+    log.level = @log_level
+
+    # Override the log level to DEBUG if $DEBUG is set.
+    # :TODO: figure out why this isn't working.
+    if $DEBUG then
       log.level = Logger::DEBUG
-#    else
-#      log.level = Logger::INFO
-#    end
+    end
   end    
 
   def check_ruby_version

@@ -7,7 +7,8 @@
 #
 ##############################################################################
 
-require File.dirname(__FILE__) + '/../../utils'
+require File.join(File.dirname(__FILE__), '..', '..', 'utils')
+
 
 class CallStateEvent < ActiveRecord::Base
 

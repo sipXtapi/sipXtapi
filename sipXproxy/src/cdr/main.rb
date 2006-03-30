@@ -1,4 +1,4 @@
-#!/usr/bin/env ruby -w
+#!/usr/bin/env ruby
 #
 # Copyright (C) 2006 SIPfoundry Inc.
 # Licensed by SIPfoundry under the LGPL license.

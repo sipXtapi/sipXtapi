@@ -8,11 +8,11 @@
 ##############################################################################
 
 # system requirements
-require File.dirname(__FILE__) + '/../test_helper'
 require 'parsedate'
+require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 # application requirements
-require File.dirname(__FILE__) + '/../../call_resolver'
+require File.join(File.dirname(__FILE__), '..', '..', 'call_resolver')
 
 
 # :TODO: Make it easy to run all the unit tests, possibly via Rakefile, for build loop.
@@ -28,7 +28,10 @@ class CallResolverTest < Test::Unit::TestCase
 public
 
   def setup
-    @resolver = CallResolver.new
+    # Create the CallResolver, giving it the location of the test config file.
+    # This relative pathname assumes that the working directory has been set
+    # to the location of this file.
+    @resolver = CallResolver.new('data/callresolver-config')
   end
 
   def test_load_call_ids
@@ -329,6 +332,26 @@ public
     end_time = Time.parse('2000-12-31T00:00.000Z')
     @resolver.resolve(start_time, end_time)
     assert_equal(3, Cdr.count, 'Wrong number of CDRs')
+  end
+  
+  def test_log_level_from_name
+    log_level_map = {
+      "DEBUG"   => Logger::DEBUG, 
+      "INFO"    => Logger::INFO, 
+      "NOTICE"  => Logger::INFO, 
+      "WARN"    => Logger::WARN,
+      "WARNING" => Logger::WARN,
+      "ERR"     => Logger::ERROR, 
+      "CRIT"    => Logger::FATAL,
+      "ALERT"   => Logger::FATAL,
+      "EMERG"   => Logger::FATAL
+    }
+    
+    log_level_map.each do |key, value|
+      assert_equal(value, @resolver.send(:log_level_from_name, key))
+    end
+  
+    assert_nil(@resolver.send(:log_level_from_name, 'Unknown log level name'))
   end
   
   #-----------------------------------------------------------------------------

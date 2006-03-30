@@ -32,7 +32,7 @@ public
     
     if !log
       @log = Logger.new(STDOUT)
-      @log.level = Logger::DEBUG
+      @log.level = Logger::ERROR
     end
     
     # create a Hash to hold the param name to value map

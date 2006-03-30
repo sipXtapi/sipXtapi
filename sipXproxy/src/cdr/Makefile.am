@@ -25,6 +25,7 @@ callresolver_files = \
   config/environments/test.rb \
   log/test.log \
   test/test_helper.rb \
+  test/functional/data/callresolver-config \
   test/fixtures/call_state_events.yml \
   test/fixtures/cdrs.yml \
   test/fixtures/parties.yml \

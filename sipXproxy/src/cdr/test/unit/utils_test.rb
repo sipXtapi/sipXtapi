@@ -7,9 +7,17 @@
 #
 ##############################################################################
 
-require File.dirname(__FILE__) + '/../test_helper'
-require File.dirname(__FILE__) + '/../../utils'
-require File.dirname(__FILE__) + '/../../exceptions'
+# set up the load path
+$thisdir = File.dirname(__FILE__)
+$:.unshift($thisdir)
+$:.unshift(File.join($thisdir, ".."))
+$:.unshift(File.join($thisdir, "..", ".."))
+
+# application requires
+require 'test_helper'
+require 'utils'
+require 'exceptions'
+
 
 class UtilsTest < Test::Unit::TestCase
 

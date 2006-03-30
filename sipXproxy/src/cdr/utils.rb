@@ -7,7 +7,7 @@
 #
 ##############################################################################
 
-require File.dirname(__FILE__) + '/exceptions'
+require File.join(File.dirname(__FILE__), 'exceptions')
 
 class Utils
   # Utils has only class methods, so don't allow instantiation.
