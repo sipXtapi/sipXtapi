@@ -25,21 +25,7 @@ do
     shift # always consume 1
 done
 
-dns_sipsrv () { # ( transport, domain )
-  target=`echo _sip._$1.$2 | tr A-Z a-z`
-  dig  -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
-  | tr A-Z a-z \
-  | awk "\$1 == \"${target}.\" { print \$NF }" \
-  | sed 's/\.$//'
-  }
-
-dns_cname () { # ( domain )
-  target=`echo $1 | tr A-Z a-z`
-  dig  -t cname +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
-  | tr A-Z a-z \
-  | awk "\$1 == \"${target}.\" { print \$NF }" \
-  | sed 's/\.$//'
-  }
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
@@ -90,24 +76,11 @@ case ${Action} in
      myIp=`@SIPX_BINDIR@/get_def_addr`
      if [ "${myHostname}" != "${myDomain}" -a "${myIp}" != "${myDomain}" ]
      then
-         tcpSrv=`dns_sipsrv tcp ${myDomain}`
-         udpSrv=`dns_sipsrv udp ${myDomain}`
-         cName=`dns_cname ${myDomain}`
-         AliasMatched="NO"
-         for tryName in ${tcpSrv} ${udpSrv} ${cName}
-         do
-           if [ "${myHostname}" = "${tryName}" ] 
-           then
-               AliasMatched="YES"
-               break
-           fi
-         done
-
-         if [ $AliasMatched = "NO" ]
+         if ! sip_resolves_to $myDomain $myHostName
          then
-             Status=1
              echo "    SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to this host '${myHostname}' at ${myIp}" 1>&2
              echo "    See the installation guide on setting the DNS SRV records and domain names" 1>&2
+             Status=1
          fi
      fi
      ;;

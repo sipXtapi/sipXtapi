@@ -47,7 +47,7 @@ $(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx
 			$(INSTALL) -D -m 644  $< $@.NEW \
 			); \
 	else \
-		echo ""; echo "Installing default $@"; \
+		echo "Installing default $@"; \
 		$(INSTALL) -D -m 644 $< $@; \
 	fi
 
@@ -65,7 +65,7 @@ $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange: sipxchange
 			$(INSTALL) -D -m 644 $< $@.NEW \
 			); \
 	else \
-		echo ""; echo "Installing default $@"; \
+		echo "Installing default $@"; \
 		$(INSTALL) -D -m 644 $< $@; \
 	fi
 

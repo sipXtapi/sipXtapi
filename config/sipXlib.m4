@@ -17,6 +17,7 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     ##
     AC_SUBST(SIPX_INCDIR, [${includedir}])
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
+    AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}])
 
     SF_CXX_C_FLAGS="-D__pingtel_on_posix__ -D_linux_ -D_REENTRANT -D_FILE_OFFSET_BITS=64 -fmessage-length=0"
 

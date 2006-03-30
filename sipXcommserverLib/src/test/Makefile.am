@@ -19,7 +19,7 @@ endif
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
-TESTS = testsuite
+TESTS = testsuite sipx_config_value_test
 
 check_PROGRAMS = testsuite sandbox
 
@@ -46,7 +46,8 @@ EXTRA_DIST = \
 	mapdata/specials.xml \
 	mapdata/userpat.xml \
 	mapdata/vdigits.xml \
-	regdbdata/getMaxUpdate.xml
+	regdbdata/getMaxUpdate.xml \
+	sipx_config_value/testdata
 
 # [DEBUG ASSISTANT] List a single unit test to isolate a unit test for
 # debugging or when developing a new unit test. As courtesy remove all

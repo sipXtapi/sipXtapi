@@ -48,6 +48,10 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
     }
 
     public IPage addUpload(IRequestCycle cycle) {
+        if (getSelectedSpecification() == null) {
+            return null;
+        }
+
         EditUpload page = (EditUpload) cycle.getPage(EditUpload.PAGE);
         page.setUploadId(null);
         page.setUploadSpecification(getSelectedSpecification());
@@ -91,12 +95,6 @@ public abstract class ManageUploads extends BasePage implements PageBeginRenderL
     public void pageBeginRender(PageEvent event_) {
         if (getUpload() == null) {
             setUpload(getUploadManager().getUpload());
-        }
-    }
-
-    public void pageEndRender(PageEvent event) {
-        if (getSelectedSpecification() != null) {
-            addUpload(event.getRequestCycle());
         }
     }
 }

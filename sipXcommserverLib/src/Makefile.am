@@ -4,6 +4,8 @@ SUBDIRS = . sipdbtest xsdvalid test
 
 INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/include/fastdb
 
+libexec_SCRIPTS = sipx-utils.sh
+
 lib_LTLIBRARIES = libsipXcommserver.la
 
 
