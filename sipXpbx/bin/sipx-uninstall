@@ -50,7 +50,7 @@ RubyGems="\
   actionpack \
   activerecord \
   activesupport \
-  "\
+  "
 Databases="\
   SIPXCONFIG
   SIPXCDR
@@ -133,6 +133,7 @@ if [ -z "$PortLib" ]; then
     fi
     exit 2
   else
+    echo
     echo "sipx RPMs not found - continuing anyway"
   fi
 fi
@@ -189,9 +190,10 @@ fi
 if [ "$RemoveDB" = "yes" ]; then
   echo -n "Clearing database... "
   for db in $Databases; do
-    echo -n $db
+    echo -n "$db "
     dropdb -U $PgUser $db &>/dev/null
-  echo " done"
+  done
+  echo "done"
 fi
 
 echo "Removing sipx RPMs..."
