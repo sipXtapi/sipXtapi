@@ -66,5 +66,12 @@ void osPrintf(const char* format , ...)
 #include "stdio.h"
 #include "time.h"
 
+#if defined(__sun) && defined(__SVR4)
+#include <strings.h>
+#include <sys/sockio.h>
+#include <netdb.h>
+extern int getdomainname(char *name, int namelen);
+#endif
+
 #endif  // _OsDefs_h_
 
