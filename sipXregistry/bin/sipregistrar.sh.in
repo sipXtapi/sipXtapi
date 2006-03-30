@@ -25,6 +25,8 @@ do
     shift # always consume 1
 done
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
 CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 
 CONFIG_FILES="\
@@ -53,6 +55,7 @@ case ${Action} in
      ;;
 
    CONFIGTEST)
+     # check validity of xml routing rules
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/mappingrules.xml
      Status=$(($Status+$?))
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/fallbackrules.xml
@@ -64,6 +67,35 @@ case ${Action} in
      || @bindir@/sipx-validate-xml @SIPX_DBDIR@/alias.xml
      Status=$(($Status+$?))
 
+     # if this system is configured for HA, check that both have valid routes
+     SyncWith=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_SYNC_WITH`
+     if [ -n "$SyncWith" ]
+     then
+         myRegDomain=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_DOMAIN_NAME`
+         myHostName=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_NAME`
+         if [ "$myRegDomain" = "$myHostName" ]
+         then
+             cat <<EOF
+    In redundant configuration, SIP_REGISTRAR_NAME ($myHostName)
+               should not equal SIP_REGISTRAR_DOMAIN_NAME ($(myRegDomain)
+EOF
+             Status=$(($Status+1))
+         fi
+         for h in ${SyncWith}
+         do
+           if ! sip_resolves_to $myRegDomain $h 
+           then
+               cat <<EOF
+    Warning: SIP Domain '$myRegDomain' does not resolve to registrar host '$h'
+             This is ok only if the proxy on $h is configured to forward to the 
+             correct set of registrars.  The recommended configuration is to always
+             run a registrar on each host that runs a proxy.
+EOF
+               Status=1
+           fi
+         done
+     fi
+     
      # Check that the log file is writable.
      logfile="@SIPX_LOGDIR@/sipregistrar.log"
      if [ -e $logfile -a ! -w $logfile ]
