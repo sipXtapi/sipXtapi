@@ -32,6 +32,53 @@ class CallResolver
 
 public
 
+  # Constants
+  #
+  # Make them all public for unit testing.  Otherwise most of them would not
+  # be public.
+  
+  # The Call Resolver only runs on this Ruby version or later
+  MIN_RUBY_VERSION = '1.8.4'
+  
+  # Default config file path
+  DEFAULT_CONFIG_FILE = '/etc/sipxpbx/callresolver-config'
+  
+  # If set, then this becomes a prefix to the default config file path
+  SIPX_PREFIX = 'SIPX_PREFIX'
+
+  # Configuration parameters and defaults
+  
+  # String constants
+  ENABLED = 'ENABLED'
+  
+  # The directory holding log files.  The default value is prefixed by
+  # $SIPX_PREFIX if that environment variable is defined.
+  LOG_DIR_CONFIG = 'SIP_CALLRESOLVER_LOG_DIR'
+  LOG_DIR_CONFIG_DEFAULT = '/var/log/sipxpbx'
+  
+  # Logging severity level
+  LOG_LEVEL_CONFIG = 'SIP_CALLRESOLVER_LOG_LEVEL'
+  LOG_LEVEL_CONFIG_DEFAULT = 'INFO'
+  
+  # Map from the name of a log level to a Logger level value.
+  # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
+  # ALERT, EMERG) and Logger log levels (DEBUG, INFO, WARN, ERROR, FATAL) into
+  # Logger log levels.
+  LOG_LEVEL_MAP = {
+    "DEBUG"   => Logger::DEBUG, 
+    "INFO"    => Logger::INFO, 
+    "NOTICE"  => Logger::INFO, 
+    "WARN"    => Logger::WARN,
+    "WARNING" => Logger::WARN,
+    "ERR"     => Logger::ERROR, 
+    "CRIT"    => Logger::FATAL,
+    "ALERT"   => Logger::FATAL,
+    "EMERG"   => Logger::FATAL
+  }
+
+
+  # Methods
+
   def initialize(config_file = nil)
     # Load the configuration from the config file.  If the config_file arg is
     # nil, then find the config file in the default location.
@@ -45,11 +92,6 @@ public
 
   # Resolve CSEs to CDRs.
   # :TODO: Support redo_flag.
-  # :TODO: The method name "create_cdr" is confusing because the CDR is actually
-  #        created by "read_call_request".  Rename these two methods and the
-  #        associated test methods for clarity.
-  # :TODO: Implement a last-resort catcher that catches all exceptions, logs an
-  #        error, and shuts down the Call Resolver by exiting the process.
   # :TODO: Verify that AORs, contacts, and from/to tags are consistent.
   #        The AORs and from tags must always be the same but contacts and to
   #        tags can vary when a call forks. If there are inconsistencies then
@@ -81,56 +123,13 @@ public
     # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
     call_ids.each {|call_id| resolve_call(call_id)}
   end
-
-private
-  # Constants
-  
-  # The Call Resolver only runs on this Ruby version or later
-  MIN_RUBY_VERSION = '1.8.4'
-  
-  # Default config file path
-  DEFAULT_CONFIG_FILE = '/etc/sipxpbx/callresolver-config'
-  
-  # If set, then this becomes a prefix to the default config file path
-  SIPX_PREFIX = 'SIPX_PREFIX'
-
-  # Configuration parameters and defaults
-  
-  # String constants
-  ENABLED = 'ENABLED'
-  
-  # The directory holding log files.  The default value is prefixed by
-  # $SIPX_PREFIX if that environment variable is defined.
-  LOG_DIR_CONFIG = 'SIP_CALLRESOLVER_LOG_DIR'
-  LOG_DIR_CONFIG_DEFAULT = '/var/log/sipxpbx'
-  
-  # Logging severity level
-  LOG_LEVEL_CONFIG = 'SIP_CALLRESOLVER_LOG_LEVEL'
-  LOG_LEVEL_CONFIG_DEFAULT = Logger::INFO
-  
-  # Map from the name of a log level to a Logger level value.
-  # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
-  # ALERT, EMERG) and Logger log levels (DEBUG, INFO, WARN, ERROR, FATAL) into
-  # Logger log levels.
-  LOG_LEVEL_MAP = {
-    "DEBUG"   => Logger::DEBUG, 
-    "INFO"    => Logger::INFO, 
-    "NOTICE"  => Logger::INFO, 
-    "WARN"    => Logger::WARN,
-    "WARNING" => Logger::WARN,
-    "ERR"     => Logger::ERROR, 
-    "CRIT"    => Logger::FATAL,
-    "ALERT"   => Logger::FATAL,
-    "EMERG"   => Logger::FATAL
-  }
-
-
-  # Methods
   
   # Log reader. Provide instance-level accessor to reduce typing.
   def log
     return @@log
   end
+
+private
   
   # Load the call IDs for the specified time window.
   def load_call_ids(start_time, end_time)
@@ -159,7 +158,7 @@ private
       call_req = find_first_call_request(events)
       if call_req
         # Read info from it and start constructing the CDR.
-        cdr_data = read_call_request(call_req)
+        cdr_data = start_cdr(call_req)
         
         # The forking proxy might ring multiple phones.  The dialog with each
         # phone is a separate call leg.
@@ -170,7 +169,7 @@ private
         if to_tag                         # if there are any complete call legs
           # Fill the CDR from the call leg events.  The returned status is true
           # if that succeeded, false otherwise.
-          status = create_cdr(cdr_data, events, to_tag)
+          status = finish_cdr(cdr_data, events, to_tag)
         
           if status
             if log.debug?
@@ -185,6 +184,9 @@ private
           end
         end
       end
+    # Don't let a single bad call blow up the whole run, if the exception was
+    # raised by our code.  If it's an exception that we don't know about, then
+    # bail out.
     rescue CallResolverException
       log.error("resolve_call: error with call ID = \"#{call_id}\", no CDR created: #{$!}") 
     end
@@ -216,7 +218,7 @@ private
 
   # Read info from the call request event and start constructing the CDR.
   # Return the new CDR.
-  def read_call_request(call_req)
+  def start_cdr(call_req)
     caller = Party.new(:aor => call_req.caller_aor,
                        :contact => call_req.contact)
     callee = Party.new(:aor => call_req.callee_aor)
@@ -266,7 +268,7 @@ private
   
   # Fill in the CDR from a call leg consisting of the events with the given
   # to_tag.  Return true if successful, false otherwise.
-  def create_cdr(cdr_data, events, to_tag)
+  def finish_cdr(cdr_data, events, to_tag)
     status = false                # return value: did we fill in the CDR?
     
     # get the events for the call leg
@@ -446,8 +448,19 @@ private
   # Load the configuration from the config file.  If the config_file arg is
   # nil, then find the config file in the default location.
   def load_config(config_file)
-    config_file = find_config_file(config_file)
-    @config = Configure.new(config_file)
+    # If the config_file is nil, then apply defaults
+    config_file = apply_config_file_default(config_file)
+    
+    if File.exists?(config_file)
+      # Load the config file
+      @config = Configure.new(config_file)
+    else
+      # Couldn't find the config_file, so use defaults.
+      # (Ideally we would log an error rather than printing it, but we haven't
+      # created the log object yet because that depends on the config.)
+      puts("Config file \"#{config_file}\" not found, using defaults")
+      @config = {}
+    end
 
     # Read config params, applying defaults
     set_log_dir_config(@config)
@@ -501,10 +514,10 @@ private
     LOG_LEVEL_MAP[name]
   end
   
-  # If config_file is nil then find the config file in the default location.
-  # Return the config file.
-  # Don't check file existence, let the Configure class worry about that.
-  def find_config_file(config_file)
+  # Given a config_file name, if it is non-nil then just return it.
+  # If it's nil then return the default config file path, prepending
+  # $SIPX_PREFIX if that has been set.
+  def apply_config_file_default(config_file)
     if !config_file
       config_file = DEFAULT_CONFIG_FILE
       prefix = ENV[SIPX_PREFIX]

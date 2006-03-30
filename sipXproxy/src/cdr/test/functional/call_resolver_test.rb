@@ -7,12 +7,14 @@
 #
 ##############################################################################
 
+$SOURCE_DIR = File.dirname(__FILE__)    # directory in which this file is located
+
 # system requirements
 require 'parsedate'
-require File.join(File.dirname(__FILE__), '..', 'test_helper')
+require File.join($SOURCE_DIR, '..', 'test_helper')
 
 # application requirements
-require File.join(File.dirname(__FILE__), '..', '..', 'call_resolver')
+require File.join($SOURCE_DIR, '..', '..', 'call_resolver')
 
 
 # :TODO: Make it easy to run all the unit tests, possibly via Rakefile, for build loop.
@@ -29,9 +31,7 @@ public
 
   def setup
     # Create the CallResolver, giving it the location of the test config file.
-    # This relative pathname assumes that the working directory has been set
-    # to the location of this file.
-    @resolver = CallResolver.new('data/callresolver-config')
+    @resolver = CallResolver.new(File.join($SOURCE_DIR, 'data/callresolver-config'))
   end
 
   def test_load_call_ids
@@ -72,9 +72,9 @@ public
                  "Wrong call request sequence number #{call_req.event_seq}")
   end
   
-  def test_read_call_request
+  def test_start_cdr
     cdr_data = @resolver.send(
-                 :read_call_request,
+                 :start_cdr,
                  call_state_events('testSimpleSuccess_1'))
     cdr = cdr_data.cdr
     caller = cdr_data.caller
@@ -128,13 +128,13 @@ public
     assert_nil(to_tag, 'Wrong to_tag for best call leg')
   end
 
-  def test_create_cdr
+  def test_finish_cdr
     events = load_simple_success_events
     
     # fill in cdr_data with info from the events
     to_tag = 't'
     cdr_data = CdrData.new
-    status = @resolver.send(:create_cdr, cdr_data, events, to_tag)
+    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
     assert_equal(true, status)
     
     # define variables for cdr_data components
@@ -159,7 +159,7 @@ public
     call_id = 'testFailed'
     events = @resolver.send(:load_events, call_id)
     cdr_data = CdrData.new
-    status = @resolver.send(:create_cdr, cdr_data, events, to_tag)
+    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
     assert_equal(true, status)
     cdr = cdr_data.cdr
     assert_equal(Cdr::CALL_FAILED_TERM, cdr.termination, 'Wrong termination code')
@@ -335,23 +335,20 @@ public
   end
   
   def test_log_level_from_name
-    log_level_map = {
-      "DEBUG"   => Logger::DEBUG, 
-      "INFO"    => Logger::INFO, 
-      "NOTICE"  => Logger::INFO, 
-      "WARN"    => Logger::WARN,
-      "WARNING" => Logger::WARN,
-      "ERR"     => Logger::ERROR, 
-      "CRIT"    => Logger::FATAL,
-      "ALERT"   => Logger::FATAL,
-      "EMERG"   => Logger::FATAL
-    }
-    
-    log_level_map.each do |key, value|
+    CallResolver::LOG_LEVEL_MAP.each do |key, value|
       assert_equal(value, @resolver.send(:log_level_from_name, key))
     end
-  
     assert_nil(@resolver.send(:log_level_from_name, 'Unknown log level name'))
+  end
+  
+  def test_set_log_dir_config
+    ENV[CallResolver::SIPX_PREFIX] = nil
+    
+    # Pass in an empty config, should get the default log dir value
+    assert_equal(CallResolver::LOG_DIR_CONFIG_DEFAULT,
+                 @resolver.send(:set_log_dir_config, {}))
+    
+    
   end
   
   #-----------------------------------------------------------------------------

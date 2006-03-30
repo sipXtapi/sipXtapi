@@ -38,10 +38,10 @@ opts.each do |opt, arg|
   case opt
 
   when "--start"
-    start_time = DateTime.parse(arg)
+    start_time = Time.parse(arg)
 
   when "--end"
-    end_time = DateTime.parse(arg)
+    end_time = Time.parse(arg)
 
   when "--redo"
     redo_flag = true
@@ -51,4 +51,8 @@ end
 
 # Invoke the Call Resolver
 cr = CallResolver.new
-cr.resolve(start_time, end_time, redo_flag)
+begin
+  cr.resolve(start_time, end_time, redo_flag)
+rescue
+  cr.log.error("Call Resolver exiting due to error: #{$!}") 
+end      
