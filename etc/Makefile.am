@@ -1,4 +1,6 @@
 
+SUBDIRS = database
+
 INSTALL=@INSTALL@
 
 include $(top_builddir)/config/sipXcommon.mak
@@ -12,7 +14,7 @@ cfgfiles_IN = \
 EXTRA_DIST = \
     $(cfgfiles_IN)
 
-install-exec-hook : $(foreach file,$(editdata_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) \
+install-exec-hook : $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) \
 						  upgrade-auth-rules
 
 $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %
@@ -20,7 +22,7 @@ $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DEST
 	then \
 		echo "Installing default $@"; \
 		$(INSTALL) -D -m 644 $< $@; \
-	else
+	else \
 		diff $< $@ > /dev/null 2>&1 \
 		|| (  echo "Using existing $@ - new file is $@.NEW" \
 		    ; $(INSTALL) -D -m 644 $< $@.NEW; \
@@ -33,3 +35,4 @@ upgrade-auth-rules:
 	perl -pi \
 	-e 's|<mappings>|<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00">|' \
 	$(DESTDIR)$(sysconfdir)/sipxpbx/authrules.xml.in
+

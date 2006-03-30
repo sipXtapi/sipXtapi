@@ -12,6 +12,7 @@ Url:      http://www.sipfoundry.org/sipXregistry
 Source:   %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= 3.3
+Requires: ruby >= 1.8.4
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -78,15 +79,20 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipauthproxy.sh
 %attr(755,root,root) %{_bindir}/sipauthproxy
 %attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_bindir}/sipxcallresolver.sh
+%attr(755,root,root) %{_bindir}/callresolver
 
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/proxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authrules.xml.in
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/schema.sql
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/cleveland.sql
 
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -100,6 +106,7 @@ sipx-upgrade -p sipxproxy -c
 
 %post
 sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
+sipxcallresolver.sh --setup
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz

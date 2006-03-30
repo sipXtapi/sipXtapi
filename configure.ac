@@ -29,6 +29,13 @@ SFAC_LIB_COMMSERVER
 
 SFAC_FEATURE_SIP_TLS
 
+SFAC_FEATURE_DBTEST
+AM_CONDITIONAL(BUILD_DBTESTS, test x$enable_dbtests = xyes)
+if test x$enable_dbtests = xyes
+then
+  CHECK_RUBY
+fi
+
 AC_CONFIG_FILES([Makefile src/Makefile])
 AC_CONFIG_FILES([config/sipXcommon.mak])
 AC_CONFIG_FILES([bin/Makefile])
@@ -39,5 +46,13 @@ AC_CONFIG_FILES([src/test/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
 AC_CONFIG_FILES([meta/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
+AC_CONFIG_FILES([etc/database/Makefile])
+AC_CONFIG_FILES([src/cdr/Makefile])
+
+if test x$enable_dbtests = xyes
+then
+  AC_CONFIG_FILES([src/cse/test/Makefile])
+fi
+
 AC_OUTPUT
 
