@@ -19,7 +19,11 @@ testsuite_CXXFLAGS = \
 	@PCRE_CFLAGS@ @CPPUNIT_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DTEST_DIR=\"@abs_builddir@\" \
-	-fno-gcse -O0
+	-O0
+
+if ISGCC
+testsuite_CXXFLAGS += -fno-gcse
+endif
 
 # ORDER NOTE: the utl/UtlLinkTest and utl/UtlChainTest must be before
 #             any test that uses any UtlContainer.

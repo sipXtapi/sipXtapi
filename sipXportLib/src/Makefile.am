@@ -20,15 +20,18 @@ version_Age=0
 libsipXport_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
 	@PCRE_LDFLAGS@ \
-	@SSL_LDFLAGS@
+	@SSL_LDFLAGS@ 
 
 libsipXport_la_LIBADD = \
 	@PCRE_LIBS@ \
 	@SSL_LIBS@ \
 	@RT_LIBS@ \
 	-ldl \
-	-lpthread  \
-	-lstdc++
+	-lpthread  
+
+if ISGCC
+libsipXport_la_LIBADD += -lstdc++
+endif
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
