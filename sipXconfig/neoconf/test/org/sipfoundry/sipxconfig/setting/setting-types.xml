@@ -121,5 +121,22 @@
       </type>
       <value/>
     </setting>
+    <setting name="enum_setting_2">
+      <label>Another enum setting</label>
+      <type>
+        <enum>
+          <option>
+              <value>VALUE_0</value>
+          </option>
+          <option>
+              <value>VALUE_1</value>
+          </option>
+          <option>
+              <value>VALUE_2</value>
+          </option>
+        </enum>
+      </type>
+      <value>VALUE_0</value>
+    </setting>
   </group>
 </model>

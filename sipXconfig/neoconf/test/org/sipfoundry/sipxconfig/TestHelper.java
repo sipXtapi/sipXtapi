@@ -68,6 +68,10 @@ public final class TestHelper {
         // 1.5.
         System.setProperty("javax.xml.parsers.SAXParserFactory",
                 "org.apache.xerces.jaxp.SAXParserFactoryImpl");
+        
+        // Activate log configuration on test/log4j.properties 
+        // System.setProperty("org.apache.commons.logging.Log", 
+        //        "org.apache.commons.logging.impl.Log4JLogger");                
     }
 
     public static ApplicationContext getApplicationContext() {
