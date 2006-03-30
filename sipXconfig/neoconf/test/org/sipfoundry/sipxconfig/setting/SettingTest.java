@@ -127,5 +127,4 @@ public class SettingTest extends TestCase {
         assertSame(banana, anotherFruit.getSetting("banana"));
         assertSame(m_apple, anotherFruit.getSetting("apple"));
     }    
-    
 }

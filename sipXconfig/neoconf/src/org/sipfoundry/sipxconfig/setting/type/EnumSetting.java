@@ -21,7 +21,7 @@ import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.lang.ObjectUtils;
 
 public class EnumSetting implements SettingType {
-    private static final Converter CONVERTER = new IntegerConverter(null);
+    private static final Converter CONVERTER = new IntegerConverter();
 
     private Map m_enums = new LinkedMap();
 
@@ -49,6 +49,10 @@ public class EnumSetting implements SettingType {
      * implementation tries to coerce the value to integer, if that fails strings are used.
      */
     public Object convertToTypedValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        
         try {
             return CONVERTER.convert(Integer.class, value);
 
