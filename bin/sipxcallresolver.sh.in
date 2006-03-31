@@ -175,7 +175,7 @@ onSetup() {
 
 # Start CDR call resolver
 onStartup() { 
-    ruby @bindir@/callresolver/main.rb ${resolverArgs}
+    ruby @bindir@/sipxcallresolver/main.rb ${resolverArgs}
 }
 
 # simple diagnostics
@@ -193,6 +193,25 @@ configtest() {
       echo "The config test succeeded."
     fi
 }
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/callresolver-config
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
 
 while [ $# -ne 0 ]
 do
