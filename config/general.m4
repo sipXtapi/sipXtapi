@@ -318,7 +318,7 @@ AC_DEFUN([CHECK_SSL],
         AC_MSG_ERROR(['libssl.so' not found; tried $openssl_path, each with lib, lib/openssl, and lib/ssl])
     else
         AC_MSG_RESULT($ssllibdir)
-        AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir")
+        AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir -R$ssllibdir")
         AC_SUBST(SSL_LIBS,"-lssl -lcrypto")
     fi
 
