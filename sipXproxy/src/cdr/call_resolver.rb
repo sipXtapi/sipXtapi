@@ -55,13 +55,13 @@ public
   # Configuration parameters and defaults
   
   # String constants
-  DISABLED = 'DISABLED'
-  ENABLED = 'ENABLED'
+  DISABLE = 'DISABLE'
+  ENABLE = 'ENABLE'
 
-  # Whether console logging is enabled or disabled.  Legal values are "ENABLED"
-  # or "DISABLED".  Comparison is case-insensitive with this and other values.
+  # Whether console logging is enabled or disabled.  Legal values are "ENABLE"
+  # or "DISABLE".  Comparison is case-insensitive with this and other values.
   LOG_CONSOLE_CONFIG = 'SIP_CALLRESOLVER_LOG_CONSOLE'
-  LOG_CONSOLE_CONFIG_DEFAULT = DISABLED
+  LOG_CONSOLE_CONFIG_DEFAULT = DISABLE
   
   # The directory holding log files.  The default value is prefixed by
   # $SIPX_PREFIX if that environment variable is defined.
@@ -145,14 +145,13 @@ public
       # Backstop exception handler: don't let any exceptions propagate back
       # to the caller.  Log the error and the stack trace.  The log message has to
       # go on a single line, unfortunately.  Embed "\n" for syslogviewer.
-      log.error("Call Resolver is exiting due to an error: \"#{$!}\". " +
-                "Stack trace:\\n" + $!.backtrace.to_s.gsub(/'/, '\nfrom '))
+      start_line = "\n        from "    # start each backtrace line with this
+      log.error("Exiting because of error: \"#{$!}\"" + start_line +
+                $!.backtrace.inject{|trace, line| trace + start_line + line})
       
     ensure
-      # If we were logging to a file and not to STDOUT, then close the file
-      if @log && !@log_device.equal?(STDOUT)
-        @log.close
-      end
+      @log.close
+
     end
   end
 
@@ -514,13 +513,13 @@ private
     @log_console ||= LOG_CONSOLE_CONFIG_DEFAULT
 
     # Convert to a boolean
-    if @log_console.casecmp(ENABLED) == 0
+    if @log_console.casecmp(ENABLE) == 0
       @log_console = true
-    elsif @log_console.casecmp(DISABLED) == 0
+    elsif @log_console.casecmp(DISABLE) == 0
       @log_console = false
     else
       raise(ConfigException, "Unrecognized value \"#{@log_console}\" for " +
-            "#{LOG_CONSOLE_CONFIG}.  Must be ENABLED or DISABLED.")
+            "#{LOG_CONSOLE_CONFIG}.  Must be ENABLE or DISABLE.")
     end
   end
   
@@ -597,8 +596,11 @@ private
         # dir.
         log_file = File.join(@log_dir, LOG_FILE_NAME)
         @log_device = File.open(log_file, 'a+')
-        if !@log_device
-          puts("Unable to open log file \"#{log_file}\" for writing")
+        if @log_device
+          puts("Logging to file \"#{log_file}\"")
+        else
+          puts("Unable to open log file \"#{log_file}\" for writing, logging " +
+               "to the console")
           @log_device = STDOUT
         end
       else
@@ -617,10 +619,6 @@ private
     # :TODO: figure out why this isn't working.
     if $DEBUG then
       @log.level = Logger::DEBUG
-    end
-    
-    if @log.level == Logger::DEBUG
-      puts("Log device = \"#{@log_device}\"")
     end
     
     @log

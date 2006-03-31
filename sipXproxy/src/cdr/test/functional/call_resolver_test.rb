@@ -345,13 +345,13 @@ public
     # Pass in an empty config, should get the default value of false
     assert(!@resolver.send(:set_log_console_config, {}))
     
-    # Pass in ENABLED, get true
-    # Pass in DISABLED, get false
+    # Pass in ENABLE, get true
+    # Pass in DISABLE, get false
     # Comparison is case-insensitive
     assert(@resolver.send(:set_log_console_config,
-      {CallResolver::LOG_CONSOLE_CONFIG => 'EnAbLeD'}))
+      {CallResolver::LOG_CONSOLE_CONFIG => 'EnAbLe'}))
     assert(!@resolver.send(:set_log_console_config,
-      {CallResolver::LOG_CONSOLE_CONFIG => 'dIsAbLeD'}))
+      {CallResolver::LOG_CONSOLE_CONFIG => 'dIsAbLe'}))
     
     # Pass in bogus value, get exception
     assert_raise(ConfigException) do
