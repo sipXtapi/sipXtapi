@@ -87,7 +87,9 @@ private
             if @log.debug?
               @log.debug("Name = #{name}, value=#{value}, line number #{line_num}")
             end
-            @map[name] = value
+            if value.length > 0
+              @map[name] = value
+            end
           end
           line_num += 1
         end

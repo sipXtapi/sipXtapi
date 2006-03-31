@@ -341,6 +341,25 @@ public
     assert_nil(@resolver.send(:log_level_from_name, 'Unknown log level name'))
   end
   
+  def test_set_log_console_config
+    # Pass in an empty config, should get the default value of false
+    assert(!@resolver.send(:set_log_console_config, {}))
+    
+    # Pass in ENABLED, get true
+    # Pass in DISABLED, get false
+    # Comparison is case-insensitive
+    assert(@resolver.send(:set_log_console_config,
+      {CallResolver::LOG_CONSOLE_CONFIG => 'EnAbLeD'}))
+    assert(!@resolver.send(:set_log_console_config,
+      {CallResolver::LOG_CONSOLE_CONFIG => 'dIsAbLeD'}))
+    
+    # Pass in bogus value, get exception
+    assert_raise(ConfigException) do
+      @resolver.send(:set_log_console_config,
+        {CallResolver::LOG_CONSOLE_CONFIG => 'jacket'})
+    end
+  end
+  
   def test_set_log_dir_config
     ENV[CallResolver::SIPX_PREFIX] = nil
     
@@ -348,7 +367,36 @@ public
     assert_equal(CallResolver::LOG_DIR_CONFIG_DEFAULT,
                  @resolver.send(:set_log_dir_config, {}))
     
+    # Set $SIPX_PREFIX and try again, this time the prefix should be added
+    prefix = '/whatever'
+    ENV[CallResolver::SIPX_PREFIX] = prefix
+    assert_equal(File.join(prefix, CallResolver::LOG_DIR_CONFIG_DEFAULT),
+                 @resolver.send(:set_log_dir_config, {}))
     
+    # Configure the dir
+    log_dir = 'No\phone\I\just\want\to\be\alone\today'
+    assert_equal(log_dir,
+                 @resolver.send(:set_log_dir_config,
+                                {CallResolver::LOG_DIR_CONFIG => log_dir}))
+  end
+  
+  def test_set_log_level_config
+    # Pass in an empty config, should get the default log dir value
+    assert_equal(Logger::INFO,
+                 @resolver.send(:set_log_level_config, {}))
+    
+    # Pass in level names, get the right values
+    CallResolver::LOG_LEVEL_MAP.each do |key, value|
+      assert_equal(value,
+                   @resolver.send(:set_log_level_config,
+                                  {CallResolver::LOG_LEVEL_CONFIG => key}))
+    end
+    
+    # Don't allow unknown log levels
+    assert_raise(CallResolverException) do
+      @resolver.send(:set_log_level_config,
+                     {CallResolver::LOG_LEVEL_CONFIG => 'Unknown log level name'})
+    end
   end
   
   #-----------------------------------------------------------------------------

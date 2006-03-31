@@ -51,8 +51,4 @@ end
 
 # Invoke the Call Resolver
 cr = CallResolver.new
-begin
-  cr.resolve(start_time, end_time, redo_flag)
-rescue
-  cr.log.error("Call Resolver exiting due to error: #{$!}") 
-end      
+cr.resolve(start_time, end_time, redo_flag)

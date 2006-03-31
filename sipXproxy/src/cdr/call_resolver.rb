@@ -24,6 +24,12 @@ require 'configure'
 require 'exceptions'
 require 'party'
 
+# :NOW: set up standard log entry format, e.g., include a timestamp
+# :NOW: scope the log file open/close reliably within a resolve call
+# :NOW: unit tests for new logging/config functions
+# :NOW: write to log file in standard location
+# :NOW: figure out interactions between Ruby log rotation and sipX log rotation
+
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
 # records (CDRs).  It loads CSEs from a database and writes CDRs back into the
@@ -49,7 +55,13 @@ public
   # Configuration parameters and defaults
   
   # String constants
+  DISABLED = 'DISABLED'
   ENABLED = 'ENABLED'
+
+  # Whether console logging is enabled or disabled.  Legal values are "ENABLED"
+  # or "DISABLED".  Comparison is case-insensitive with this and other values.
+  LOG_CONSOLE_CONFIG = 'SIP_CALLRESOLVER_LOG_CONSOLE'
+  LOG_CONSOLE_CONFIG_DEFAULT = DISABLED
   
   # The directory holding log files.  The default value is prefixed by
   # $SIPX_PREFIX if that environment variable is defined.
@@ -58,7 +70,9 @@ public
   
   # Logging severity level
   LOG_LEVEL_CONFIG = 'SIP_CALLRESOLVER_LOG_LEVEL'
-  LOG_LEVEL_CONFIG_DEFAULT = 'INFO'
+  LOG_LEVEL_CONFIG_DEFAULT = 'NOTICE'
+  
+  LOG_FILE_NAME = 'sipcallresolver.log'
   
   # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
@@ -83,8 +97,9 @@ public
     # Load the configuration from the config file.  If the config_file arg is
     # nil, then find the config file in the default location.
     load_config(config_file)
-    
-    init_logging
+
+    @log_device = nil
+    @log = nil
 
     # Check that the Ruby version meets our needs.
     check_ruby_version
@@ -101,35 +116,56 @@ public
   #        When we support distributed proxies, events out of order may indicate
   #        that clocks are out of sync, which will hose the Call Resolver.
   def resolve(start_time, end_time, redo_flag = false)
-    # If end_time is not provided, then set it to 1 day after the start time.
-    end_time ||= start_time.next
-
-    log.info("resolve: start = #{start_time.to_s}, end = #{end_time.to_s},
-             redo = #{redo_flag}")
-
-    # Connect to the database
-    # :TODO: read these parameters from the Call Resolver config file
-    unless ActiveRecord::Base.connected?
-      ActiveRecord::Base.establish_connection(
-        :adapter  => "postgresql",
-        :host     => "localhost",
-        :username => "postgres",
-        :database => "SIPXCDR")
-    end
-
-    # Load the call IDs for the specified time window
-    call_ids = load_call_ids(start_time, end_time)
-
-    # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
-    call_ids.each {|call_id| resolve_call(call_id)}
-  end
+    begin
+      init_logging
+      
+      # If end_time is not provided, then set it to 1 day after the start time.
+      end_time ||= start_time.next
   
-  # Log reader. Provide instance-level accessor to reduce typing.
-  def log
-    return @@log
+      log.info("resolve: start = #{start_time.to_s}, end = #{end_time.to_s},
+               redo = #{redo_flag}")
+  
+      # Connect to the database
+      # :TODO: read these parameters from the Call Resolver config file
+      unless ActiveRecord::Base.connected?
+        ActiveRecord::Base.establish_connection(
+          :adapter  => "postgresql",
+          :host     => "localhost",
+          :username => "postgres",
+          :database => "SIPXCDR")
+      end
+  
+      # Load the call IDs for the specified time window
+      call_ids = load_call_ids(start_time, end_time)
+  
+      # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
+      call_ids.each {|call_id| resolve_call(call_id)}
+      
+    rescue
+      # Backstop exception handler: don't let any exceptions propagate back
+      # to the caller.  Log the error and the stack trace.  The log message has to
+      # go on a single line, unfortunately.  Embed "\n" for syslogviewer.
+      log.error("Call Resolver is exiting due to an error: \"#{$!}\". " +
+                "Stack trace:\\n" + $!.backtrace.to_s.gsub(/'/, '\nfrom '))
+      
+    ensure
+      # If we were logging to a file and not to STDOUT, then close the file
+      if @log && !@log_device.equal?(STDOUT)
+        @log.close
+      end
+    end
   end
 
 private
+  
+  def log
+    # For unit testing, create a Logger for stdout if there is no @log yet
+    if !@log
+      @log = Logger.new(STDOUT)
+    end
+    
+    @log
+  end
   
   # Load the call IDs for the specified time window.
   def load_call_ids(start_time, end_time)
@@ -463,8 +499,29 @@ private
     end
 
     # Read config params, applying defaults
+    set_log_console_config(@config)
     set_log_dir_config(@config)
     set_log_level_config(@config)
+  end
+  
+  # Set the console logging from the configuration.
+  # Return the console logging boolean.
+  def set_log_console_config(config)
+    # Look up the config param
+    @log_console = config[LOG_CONSOLE_CONFIG]
+    
+    # Apply the default if the param was not specified
+    @log_console ||= LOG_CONSOLE_CONFIG_DEFAULT
+
+    # Convert to a boolean
+    if @log_console.casecmp(ENABLED) == 0
+      @log_console = true
+    elsif @log_console.casecmp(DISABLED) == 0
+      @log_console = false
+    else
+      raise(ConfigException, "Unrecognized value \"#{@log_console}\" for " +
+            "#{LOG_CONSOLE_CONFIG}.  Must be ENABLED or DISABLED.")
+    end
   end
   
   # Set the log directory from the configuration.  Return the log directory.
@@ -529,21 +586,44 @@ private
     config_file
   end
   
-  # Set up logging.
-  # :TODO: set up standard log entry format, e.g., include a timestamp
-  # :TODO: write to $SIPX_PREFIX/var/log/sipxpbx/sipcallresolver.log
-  # :TODO: figure out interactions between Ruby log rotation and sipX log rotation
+  # Set up logging.  Return the Logger.
   def init_logging
-    @@log = Logger.new(STDOUT)
+    # If console logging was specified, then do that.  Otherwise log to a file.
+    if @log_console
+      @log_device = STDOUT
+    else
+      if File.exists?(@log_dir)
+        # Try to open a log file with the standard name in the specified log
+        # dir.
+        log_file = File.join(@log_dir, LOG_FILE_NAME)
+        @log_device = File.open(log_file, 'a+')
+        if !@log_device
+          puts("Unable to open log file \"#{log_file}\" for writing")
+          @log_device = STDOUT
+        end
+      else
+        puts("Unable to open log file, log directory \"#{@log_dir}\" does not " +
+             "exist.  Log messages will go to the console.")
+        @log_device = STDOUT
+      end
+    end
+
+    @log = Logger.new(@log_device)
 
     # Set the log level from the configuration
-    log.level = @log_level
+    @log.level = @log_level
 
     # Override the log level to DEBUG if $DEBUG is set.
     # :TODO: figure out why this isn't working.
     if $DEBUG then
-      log.level = Logger::DEBUG
+      @log.level = Logger::DEBUG
     end
+    
+    if @log.level == Logger::DEBUG
+      puts("Log device = \"#{@log_device}\"")
+    end
+    
+    @log
   end    
 
   def check_ruby_version
