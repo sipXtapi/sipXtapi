@@ -32,7 +32,9 @@ class ConfigureTest < Test::Unit::TestCase
     # Load a valid config file and check the results
     config = Configure.new(config_file_path('config.txt'))
     assert_equal('sam:/ann', config['SIP_CALLRESOLVER_LOG_DIR'])
-    assert_equal("DEBUG", config['SIP_CALLRESOLVER_LOG_LEVEL'])
+    assert_equal('DEBUG', config['SIP_CALLRESOLVER_LOG_LEVEL'])
+    assert_nil(config['EMPTY_PARAM'], 'Params that are in the file but empty must have nil values')
+    assert_nil(config['NOT_THERE_PARAM'], 'Params that are not in the file must have nil values')
   end
   
   # Given the name of a config_file in the data directory, return the path

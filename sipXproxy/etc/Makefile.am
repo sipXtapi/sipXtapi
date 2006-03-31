@@ -8,6 +8,7 @@ include $(top_builddir)/config/sipXcommon.mak
 cfgfiles_IN = \
     authproxy-config.in \
     authrules.xml.in \
+    callresolver-config.in \
     proxy-config.in \
     forwardingrules.xml.in
 
