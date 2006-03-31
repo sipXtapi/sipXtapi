@@ -27,7 +27,6 @@ foreach $registration (sort registration_cmp @registrations) {
     # Ignore registrations that have expired.
     my($AOR) = $registration->{'AOR'};
     my($extension) = $AOR =~ /sips?:(\d+)@/;
-#print "G $AOR ", $registration->{'instance_id'}, " ", $gruu{$AOR, $registration->{'instance_id'}}, "\n";
     $table_body .= 
 	&Tr({-align => 'left'},
 	    &td([
@@ -69,7 +68,6 @@ print <<EOF;
 "User-Agent" is the value from the User-Agent header in the REGISTER.<br/>
 "q" is the q-value which shows the preference of this contact for this AOR
 (1.0 = highest, 0.0 = lowest).<br/>
-"Expires" is the number of seconds until this registration expires.<br/>
 "Instance ID" is the <code>+sip.instance</code> given for this contact.
 <!--
 Registrations for extensions <code>1gg7</code>, <code>1gg8</code>, and
@@ -84,10 +82,6 @@ registration.
 Multiple registrations for the same contact with different
 Call-Id values show that the UA is incorrectly using different Call-Id values
 for successive REGISTERs.<br/>
-"CSeq" is the CSeq number of the REGISTER.
-A <font color='red'>red</font> value means that the UA has incorrectly
-sent more than 2 registrations in the last 5 minutes, which means that
-it is re-registering too frequently.</p>
 EOF
 
 # End the HTML.
@@ -145,7 +139,6 @@ sub process_log_file {
 	    $contact =~ s/;expires=\d+//i;
 
 	    # Check to see if we've seen this contact before.
-    #print "A $contact\n";
 	    next if defined($contacts_seen{$contact});
 	    $contacts_seen{$contact} = 1;
 
@@ -165,8 +158,6 @@ sub process_log_file {
 	    # Remove the to-tag.
 	    $registration->{'AOR'} =~ s/;tag=[^;]+//;
 
-    #print "B ", $registration->{'AOR'}, "\n";
-    #print "C \n", $_;
 	    # Save the values.
 	    push(@registrations, $registration);	
         } elsif (/:OUTGOING:/ &&
@@ -192,7 +183,6 @@ sub process_log_file {
 
 	    # Get the AOR.
 	    ($aor) = /\nTo:\s*(.*)\n/i;
-#print "I $aor\n";
 	    # Remove the to-tag.
 	    $aor =~ s/;tag=[^;]+//;
 
@@ -204,10 +194,6 @@ sub process_log_file {
 	    # Remember the GRUU.
 	    $gruu{$aor, $instance_id} = $gruu
 		if $instance_id ne '' && $gruu ne '';
-#print "F $aor $instance_id $gruu\n"
-#		if $instance_id ne '' && $gruu ne '';
-#    print "H $_\n"
-#		if $instance_id ne '' && $gruu ne '';
         }
     }
     close LOG;
