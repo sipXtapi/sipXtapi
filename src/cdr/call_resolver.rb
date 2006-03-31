@@ -24,6 +24,12 @@ require 'configure'
 require 'exceptions'
 require 'party'
 
+# :NOW: set up standard log entry format, e.g., include a timestamp
+# :NOW: scope the log file open/close reliably within a resolve call
+# :NOW: unit tests for new logging/config functions
+# :NOW: write to log file in standard location
+# :NOW: figure out interactions between Ruby log rotation and sipX log rotation
+
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
 # records (CDRs).  It loads CSEs from a database and writes CDRs back into the
@@ -32,58 +38,10 @@ class CallResolver
 
 public
 
-  def initialize(config_file = nil)
-    # Load the configuration from the config file.  If the config_file arg is
-    # nil, then find the config file in the default location.
-    load_config(config_file)
-    
-    init_logging
-
-    # Check that the Ruby version meets our needs.
-    check_ruby_version
-  end
-
-  # Resolve CSEs to CDRs.
-  # :TODO: Support redo_flag.
-  # :TODO: The method name "create_cdr" is confusing because the CDR is actually
-  #        created by "read_call_request".  Rename these two methods and the
-  #        associated test methods for clarity.
-  # :TODO: Implement a last-resort catcher that catches all exceptions, logs an
-  #        error, and shuts down the Call Resolver by exiting the process.
-  # :TODO: Verify that AORs, contacts, and from/to tags are consistent.
-  #        The AORs and from tags must always be the same but contacts and to
-  #        tags can vary when a call forks. If there are inconsistencies then
-  #        discard the CSEs and log an error.
-  # :TODO: Verify event time order.  Be sure that start_time, connect_time, and
-  #        end_time are in the right order or we'll get DB integrity violations.
-  #        When we support distributed proxies, events out of order may indicate
-  #        that clocks are out of sync, which will hose the Call Resolver.
-  def resolve(start_time, end_time, redo_flag = false)
-    # If end_time is not provided, then set it to 1 day after the start time.
-    end_time ||= start_time.next
-
-    log.info("resolve: start = #{start_time.to_s}, end = #{end_time.to_s},
-             redo = #{redo_flag}")
-
-    # Connect to the database
-    # :TODO: read these parameters from the Call Resolver config file
-    unless ActiveRecord::Base.connected?
-      ActiveRecord::Base.establish_connection(
-        :adapter  => "postgresql",
-        :host     => "localhost",
-        :username => "postgres",
-        :database => "SIPXCDR")
-    end
-
-    # Load the call IDs for the specified time window
-    call_ids = load_call_ids(start_time, end_time)
-
-    # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
-    call_ids.each {|call_id| resolve_call(call_id)}
-  end
-
-private
   # Constants
+  #
+  # Make them all public for unit testing.  Otherwise most of them would not
+  # be public.
   
   # The Call Resolver only runs on this Ruby version or later
   MIN_RUBY_VERSION = '1.8.4'
@@ -97,7 +55,13 @@ private
   # Configuration parameters and defaults
   
   # String constants
-  ENABLED = 'ENABLED'
+  DISABLE = 'DISABLE'
+  ENABLE = 'ENABLE'
+
+  # Whether console logging is enabled or disabled.  Legal values are "ENABLE"
+  # or "DISABLE".  Comparison is case-insensitive with this and other values.
+  LOG_CONSOLE_CONFIG = 'SIP_CALLRESOLVER_LOG_CONSOLE'
+  LOG_CONSOLE_CONFIG_DEFAULT = DISABLE
   
   # The directory holding log files.  The default value is prefixed by
   # $SIPX_PREFIX if that environment variable is defined.
@@ -106,7 +70,9 @@ private
   
   # Logging severity level
   LOG_LEVEL_CONFIG = 'SIP_CALLRESOLVER_LOG_LEVEL'
-  LOG_LEVEL_CONFIG_DEFAULT = Logger::INFO
+  LOG_LEVEL_CONFIG_DEFAULT = 'NOTICE'
+  
+  LOG_FILE_NAME = 'sipcallresolver.log'
   
   # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
@@ -126,10 +92,78 @@ private
 
 
   # Methods
+
+  def initialize(config_file = nil)
+    # Load the configuration from the config file.  If the config_file arg is
+    # nil, then find the config file in the default location.
+    load_config(config_file)
+
+    @log_device = nil
+    @log = nil
+
+    # Check that the Ruby version meets our needs.
+    check_ruby_version
+  end
+
+  # Resolve CSEs to CDRs.
+  # :TODO: Support redo_flag.
+  # :TODO: Verify that AORs, contacts, and from/to tags are consistent.
+  #        The AORs and from tags must always be the same but contacts and to
+  #        tags can vary when a call forks. If there are inconsistencies then
+  #        discard the CSEs and log an error.
+  # :TODO: Verify event time order.  Be sure that start_time, connect_time, and
+  #        end_time are in the right order or we'll get DB integrity violations.
+  #        When we support distributed proxies, events out of order may indicate
+  #        that clocks are out of sync, which will hose the Call Resolver.
+  def resolve(start_time, end_time, redo_flag = false)
+    begin
+      init_logging
+      
+      # If end_time is not provided, then set it to 1 day after the start time.
+      end_time ||= start_time.next
   
-  # Log reader. Provide instance-level accessor to reduce typing.
+      log.info("resolve: start = #{start_time.to_s}, end = #{end_time.to_s},
+               redo = #{redo_flag}")
+  
+      # Connect to the database
+      # :TODO: read these parameters from the Call Resolver config file
+      unless ActiveRecord::Base.connected?
+        ActiveRecord::Base.establish_connection(
+          :adapter  => "postgresql",
+          :host     => "localhost",
+          :username => "postgres",
+          :database => "SIPXCDR")
+      end
+  
+      # Load the call IDs for the specified time window
+      call_ids = load_call_ids(start_time, end_time)
+  
+      # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
+      call_ids.each {|call_id| resolve_call(call_id)}
+      
+    rescue
+      # Backstop exception handler: don't let any exceptions propagate back
+      # to the caller.  Log the error and the stack trace.  The log message has to
+      # go on a single line, unfortunately.  Embed "\n" for syslogviewer.
+      start_line = "\n        from "    # start each backtrace line with this
+      log.error("Exiting because of error: \"#{$!}\"" + start_line +
+                $!.backtrace.inject{|trace, line| trace + start_line + line})
+      
+    ensure
+      @log.close
+
+    end
+  end
+
+private
+  
   def log
-    return @@log
+    # For unit testing, create a Logger for stdout if there is no @log yet
+    if !@log
+      @log = Logger.new(STDOUT)
+    end
+    
+    @log
   end
   
   # Load the call IDs for the specified time window.
@@ -159,7 +193,7 @@ private
       call_req = find_first_call_request(events)
       if call_req
         # Read info from it and start constructing the CDR.
-        cdr_data = read_call_request(call_req)
+        cdr_data = start_cdr(call_req)
         
         # The forking proxy might ring multiple phones.  The dialog with each
         # phone is a separate call leg.
@@ -170,7 +204,7 @@ private
         if to_tag                         # if there are any complete call legs
           # Fill the CDR from the call leg events.  The returned status is true
           # if that succeeded, false otherwise.
-          status = create_cdr(cdr_data, events, to_tag)
+          status = finish_cdr(cdr_data, events, to_tag)
         
           if status
             if log.debug?
@@ -185,6 +219,9 @@ private
           end
         end
       end
+    # Don't let a single bad call blow up the whole run, if the exception was
+    # raised by our code.  If it's an exception that we don't know about, then
+    # bail out.
     rescue CallResolverException
       log.error("resolve_call: error with call ID = \"#{call_id}\", no CDR created: #{$!}") 
     end
@@ -216,7 +253,7 @@ private
 
   # Read info from the call request event and start constructing the CDR.
   # Return the new CDR.
-  def read_call_request(call_req)
+  def start_cdr(call_req)
     caller = Party.new(:aor => call_req.caller_aor,
                        :contact => call_req.contact)
     callee = Party.new(:aor => call_req.callee_aor)
@@ -266,7 +303,7 @@ private
   
   # Fill in the CDR from a call leg consisting of the events with the given
   # to_tag.  Return true if successful, false otherwise.
-  def create_cdr(cdr_data, events, to_tag)
+  def finish_cdr(cdr_data, events, to_tag)
     status = false                # return value: did we fill in the CDR?
     
     # get the events for the call leg
@@ -446,12 +483,44 @@ private
   # Load the configuration from the config file.  If the config_file arg is
   # nil, then find the config file in the default location.
   def load_config(config_file)
-    config_file = find_config_file(config_file)
-    @config = Configure.new(config_file)
+    # If the config_file is nil, then apply defaults
+    config_file = apply_config_file_default(config_file)
+    
+    if File.exists?(config_file)
+      # Load the config file
+      @config = Configure.new(config_file)
+    else
+      # Couldn't find the config_file, so use defaults.
+      # (Ideally we would log an error rather than printing it, but we haven't
+      # created the log object yet because that depends on the config.)
+      puts("Config file \"#{config_file}\" not found, using defaults")
+      @config = {}
+    end
 
     # Read config params, applying defaults
+    set_log_console_config(@config)
     set_log_dir_config(@config)
     set_log_level_config(@config)
+  end
+  
+  # Set the console logging from the configuration.
+  # Return the console logging boolean.
+  def set_log_console_config(config)
+    # Look up the config param
+    @log_console = config[LOG_CONSOLE_CONFIG]
+    
+    # Apply the default if the param was not specified
+    @log_console ||= LOG_CONSOLE_CONFIG_DEFAULT
+
+    # Convert to a boolean
+    if @log_console.casecmp(ENABLE) == 0
+      @log_console = true
+    elsif @log_console.casecmp(DISABLE) == 0
+      @log_console = false
+    else
+      raise(ConfigException, "Unrecognized value \"#{@log_console}\" for " +
+            "#{LOG_CONSOLE_CONFIG}.  Must be ENABLE or DISABLE.")
+    end
   end
   
   # Set the log directory from the configuration.  Return the log directory.
@@ -501,10 +570,10 @@ private
     LOG_LEVEL_MAP[name]
   end
   
-  # If config_file is nil then find the config file in the default location.
-  # Return the config file.
-  # Don't check file existence, let the Configure class worry about that.
-  def find_config_file(config_file)
+  # Given a config_file name, if it is non-nil then just return it.
+  # If it's nil then return the default config file path, prepending
+  # $SIPX_PREFIX if that has been set.
+  def apply_config_file_default(config_file)
     if !config_file
       config_file = DEFAULT_CONFIG_FILE
       prefix = ENV[SIPX_PREFIX]
@@ -516,21 +585,43 @@ private
     config_file
   end
   
-  # Set up logging.
-  # :TODO: set up standard log entry format, e.g., include a timestamp
-  # :TODO: write to $SIPX_PREFIX/var/log/sipxpbx/sipcallresolver.log
-  # :TODO: figure out interactions between Ruby log rotation and sipX log rotation
+  # Set up logging.  Return the Logger.
   def init_logging
-    @@log = Logger.new(STDOUT)
+    # If console logging was specified, then do that.  Otherwise log to a file.
+    if @log_console
+      @log_device = STDOUT
+    else
+      if File.exists?(@log_dir)
+        # Try to open a log file with the standard name in the specified log
+        # dir.
+        log_file = File.join(@log_dir, LOG_FILE_NAME)
+        @log_device = File.open(log_file, 'a+')
+        if @log_device
+          puts("Logging to file \"#{log_file}\"")
+        else
+          puts("Unable to open log file \"#{log_file}\" for writing, logging " +
+               "to the console")
+          @log_device = STDOUT
+        end
+      else
+        puts("Unable to open log file, log directory \"#{@log_dir}\" does not " +
+             "exist.  Log messages will go to the console.")
+        @log_device = STDOUT
+      end
+    end
+
+    @log = Logger.new(@log_device)
 
     # Set the log level from the configuration
-    log.level = @log_level
+    @log.level = @log_level
 
     # Override the log level to DEBUG if $DEBUG is set.
     # :TODO: figure out why this isn't working.
     if $DEBUG then
-      log.level = Logger::DEBUG
+      @log.level = Logger::DEBUG
     end
+    
+    @log
   end    
 
   def check_ruby_version
