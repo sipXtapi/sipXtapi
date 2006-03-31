@@ -1,4 +1,4 @@
-callresolver_dir=@bindir@/callresolver
+callresolver_dir=@bindir@/sipxcallresolver
 
 # To generate a new list
 #   find -type f -printf "\t%h/%f \\\\\n" \
