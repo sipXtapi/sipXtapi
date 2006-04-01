@@ -12,7 +12,8 @@ check_PROGRAMS = testsuite sandbox UtlListPerformance UtlHashMapPerformance
 ## gdb console just before stepping into function in sipXportLib
 testsuite_LDADD = \
     sipxunit/libsipXunit.la \
-    ../libsipXport.la
+    ../libsipXport.la \
+       @SSL_LDFLAGS@
 
 testsuite_CXXFLAGS = \
 	-I$(top_srcdir)/include \

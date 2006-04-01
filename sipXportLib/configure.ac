@@ -24,9 +24,11 @@ AC_PROG_INSTALL
 AM_CONDITIONAL(ISGCC, [test `echo $GCC` = true])
 
 # Checks for libraries.
+AC_SEARCH_LIBS([gethostbyname], [nsl])
+AC_SEARCH_LIBS([socket], [socket], [], [
+      AC_CHECK_LIB([socket], [socket], [LIBS="-lsocket -lnsl $LIBS"],
+              [], [-lnsl])])
 CHECK_LIBRT
-AC_CHECK_LIB(socket, socket, LIBS="$LIBS -lsocket")
-AC_CHECK_LIB(nsl,getdomainname, LIBS="$LIBS -lnsl")
 CHECK_CPPUNIT
 
 AC_MSG_CHECKING(whether MSG_NOSIGNAL exists)
@@ -44,7 +46,6 @@ int main()
 [       AC_MSG_RESULT(no)
         CPPFLAGS="$CPPFLAGS -DMSG_NOSIGNAL=0"
 ])
-
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
