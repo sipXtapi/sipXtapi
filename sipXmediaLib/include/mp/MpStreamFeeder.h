@@ -45,7 +45,7 @@ typedef enum tagFeederState
    PrefetchedState,
    RendereringState,
    StoppedState,
-   FailedState,
+   FailedState
 
 } FeederState ;
 

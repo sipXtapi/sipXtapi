@@ -49,7 +49,7 @@ public:
    enum SourceType
    {
       SourceUrl,
-      SourceBuffer,
+      SourceBuffer
    } ;
 
 /* ============================ CREATORS ================================== */

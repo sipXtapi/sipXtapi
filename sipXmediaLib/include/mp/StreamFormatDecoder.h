@@ -31,7 +31,7 @@ typedef enum                  // Format Decoder Event
    DecodingUnderrunEvent,     // Supply cannot meet demand
    DecodingThrottledEvent,    // Being throttled in frame generation
    DecodingCompletedEvent,    // Completed decoding
-   DecodingErrorEvent,        // Error while decoding
+   DecodingErrorEvent         // Error while decoding
 
 } StreamDecoderEvent;
 

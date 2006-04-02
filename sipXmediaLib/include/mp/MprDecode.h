@@ -88,7 +88,7 @@ private:
    enum AddlMsgTypes
    {
       SELECT_CODECS = MpFlowGraphMsg::RESOURCE_SPECIFIC_START,
-      DESELECT_CODECS,
+      DESELECT_CODECS
    };
 
    enum { MAX_RTP_FRAMES = 25};
