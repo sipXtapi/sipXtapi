@@ -33,6 +33,7 @@ class CallStateEventBuilder_DBTest : public CppUnit::TestCase
    CPPUNIT_TEST(testFailure);
    CPPUNIT_TEST(testRefer);
    CPPUNIT_TEST(testEnd);
+   CPPUNIT_TEST(testSingleQuotes);
    CPPUNIT_TEST_SUITE_END();
 
 
@@ -205,7 +206,7 @@ public:
          incrementTime(1);
          
          UtlString referTo("<sip:200@example.com>");
-         UtlString referredBy("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19");         
+         UtlString referredBy("\'Joe Caller\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19");         
          
          builder.callTransferEvent(1, testTime, "Contact <sip:requestor@sip.net>", referTo, referredBy);
          CPPUNIT_ASSERT(!builder.finishElement(event));
@@ -229,7 +230,46 @@ public:
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
       }
-      
+     
+   void testSingleQuotes()
+      {
+         UtlString event;
+         
+         incrementTime(5);
+         
+         CallStateEventBuilder_DB builder("observer.example.com");
+         builder.observerEvent(0, testTime, CallStateEventBuilder::ObserverReset, "testFailure");
+         
+         CPPUNIT_ASSERT(builder.finishElement(event));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO observer_state_events VALUES (DEFAULT,'observer.example.com',0,timestamp '2004-12-15 11:42:41.015',101,'testFailure');"));
+
+         incrementTime(1);
+         
+         UtlString referTo("<sip:200@example.com>");
+         UtlString referredBy("\'Joe Caller\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19");         
+         
+         builder.callTransferEvent(1, testTime, "Contact <sip:requestor@sip.net>", referTo, referredBy);
+         CPPUNIT_ASSERT(!builder.finishElement(event));
+
+         UtlString callId("9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98");
+         UtlString fromTag("7448633");
+         UtlString toTag("b8e5bK3a19");
+         UtlString fromField("\'Éê½­ÌÎ\'<sip:1002@sip.net>;tag=7448633");
+         UtlString toField("\'Joe Caller\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19");
+         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         CPPUNIT_ASSERT(!builder.finishElement(event));
+         
+         UtlString viaField("SIP/2.0/UDP 10.1.30.248:7005");
+         builder.addEventVia(viaField);
+         CPPUNIT_ASSERT(!builder.finishElement(event));
+
+         builder.completeCallEvent();
+         CPPUNIT_ASSERT(builder.finishElement(event));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','T','9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','Contact <sip:requestor@sip.net>','<sip:200@example.com>','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19',0,'');"));
+
+         CPPUNIT_ASSERT(!builder.finishElement(event));
+         CPPUNIT_ASSERT(event.isNull());
+      }      
 
    void testEnd()
       {

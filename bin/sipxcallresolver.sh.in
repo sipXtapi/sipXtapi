@@ -246,6 +246,8 @@ do
               resolverArgs="${resolverArgs} ${1} "
             elif [ "${1}" = --redo ]; then
               resolverArgs="${resolverArgs} ${1} "
+            elif [ "${1}" = --daily ]; then
+              resolverArgs="${resolverArgs} ${1} "
             else
               resolverArgs="${resolverArgs} \"${1}\" "
             fi
