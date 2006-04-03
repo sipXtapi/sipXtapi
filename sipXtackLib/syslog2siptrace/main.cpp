@@ -13,7 +13,7 @@
 #if defined(_WIN32)
 #   include <io.h>
 #   include <string.h>
-#elif defined(__linux__)
+#elif defined(__linux__) || defined (__sun)
 #   include <unistd.h>
 #endif
 
