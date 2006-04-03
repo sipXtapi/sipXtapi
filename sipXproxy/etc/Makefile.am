@@ -12,7 +12,7 @@ cfgfiles_IN = \
 EXTRA_DIST = \
     $(cfgfiles_IN)
 
-install-exec-hook : $(foreach file,$(editdata_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) \
+install-exec-hook : $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) \
 						  upgrade-auth-rules
 
 $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DESTDIR)/$(sysconfdir)/sipxpbx/% : %
@@ -20,7 +20,7 @@ $(foreach file,$(cfgfiles_IN),$(DESTDIR)/$(sysconfdir)/sipxpbx/$(file)) : $(DEST
 	then \
 		echo "Installing default $@"; \
 		$(INSTALL) -D -m 644 $< $@; \
-	else
+	else \
 		diff $< $@ > /dev/null 2>&1 \
 		|| (  echo "Using existing $@ - new file is $@.NEW" \
 		    ; $(INSTALL) -D -m 644 $< $@.NEW; \
