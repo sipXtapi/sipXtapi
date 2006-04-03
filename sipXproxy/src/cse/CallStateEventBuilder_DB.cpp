@@ -137,7 +137,17 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
    {
       newEvent(sequenceNumber, timestamp, CallEventTable, CallRequestType);
 
-      mContactElement = "\'" + contact + "\',";
+      // Translate singe quotes
+      if (contact.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString ncontact(contact);
+         ncontact.replace('\'', '"');
+         mContactElement = "\'" + ncontact + "\',";         
+      }
+      else
+      {
+         mContactElement = "\'" + contact + "\',";
+      }
    }
    else
    {
@@ -166,7 +176,16 @@ void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
    {
       newEvent(sequenceNumber, timestamp, CallEventTable, CallSetupType);
 
-      mContactElement = "\'" + contact + "\',";
+      if (contact.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString ncontact(contact);
+         ncontact.replace('\'', '"');
+         mContactElement = "\'" + ncontact + "\',";         
+      }
+      else
+      {
+         mContactElement = "\'" + contact + "\',";
+      }
    }
    else
    {
@@ -250,8 +269,40 @@ void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber,
    if (builderStateIsOk(CallTransferEvent))
    {
       newEvent(sequenceNumber, timeStamp, CallEventTable, CallTransferType);
-      mContactElement = "\'" + contact + "\',";
-      mReferElement = "\'"+ refer_to + "\',\'" + referred_by + "\',";
+      
+      if (contact.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString ncontact(contact);
+         ncontact.replace('\'', '"');
+         mContactElement = "\'" + ncontact + "\',";         
+      }
+      else
+      {
+         mContactElement = "\'" + contact + "\',";           
+      }
+      
+      if (refer_to.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString nrefer_to(refer_to);
+         nrefer_to.replace('\'', '"');
+         mReferElement = "\'" + nrefer_to + "\',";         
+      }
+      else
+      {
+         mReferElement = "\'" + refer_to + "\',";           
+      }
+      
+      if (referred_by.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString nreferred_by(referred_by);
+         nreferred_by.replace('\'', '"');
+         mReferElement += "\'" + nreferred_by + "\',";         
+      }
+      else
+      {
+         mReferElement += "\'" + referred_by + "\',";           
+      }                                          
+    
    }
    else
    {
@@ -272,11 +323,60 @@ void CallStateEventBuilder_DB::addCallData(const UtlString& callId,
 {
    if (builderStateIsOk(AddCallData))
    {
-      mCallInfo = "\'" + callId + "\',";
-      mCallInfo += "\'" + fromTag + "\',";
-      mCallInfo += "\'" + toTag + "\',";
-      mCallInfo += "\'" + fromField + "\',";
-      mCallInfo += "\'" + toField + "\',";
+      if (callId.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString ncallId(callId);
+         ncallId.replace('\'', '"');
+         mCallInfo = "\'" + ncallId + "\',";         
+      }
+      else
+      {
+         mCallInfo = "\'" + callId + "\',";           
+      }
+      
+      if (fromTag.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString nfromTag(fromTag);
+         nfromTag.replace('\'', '"');
+         mCallInfo += "\'" + nfromTag + "\',";         
+      }
+      else
+      {
+         mCallInfo += "\'" + fromTag + "\',";           
+      }      
+
+      if (toTag.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString ntoTag(toTag);
+         ntoTag.replace('\'', '"');
+         mCallInfo += "\'" + ntoTag + "\',";         
+      }
+      else
+      {
+         mCallInfo += "\'" + toTag + "\',";           
+      }
+      
+      if (fromField.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString nfromField(fromField);
+         nfromField.replace('\'', '"');
+         mCallInfo += "\'" + nfromField + "\',";         
+      }
+      else
+      {
+         mCallInfo += "\'" + fromField + "\',";           
+      }  
+      
+      if (toField.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString ntoField(toField);
+         ntoField.replace('\'', '"');
+         mCallInfo += "\'" + ntoField + "\',";         
+      }
+      else
+      {
+         mCallInfo += "\'" + toField + "\',";           
+      }          
    }
    else
    {
