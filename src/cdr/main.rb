@@ -15,6 +15,8 @@ require 'parsedate'
 # application requires
 require File.join(File.dirname(__FILE__), 'call_resolver')
 
+require 'call_direction_plugin'
+
 
 # Parse command-line options
 #   start: date/time from which to start analyzing call events
@@ -47,8 +49,14 @@ opts.each do |opt, arg|
     redo_flag = true
 
   end
-end
+end 
 
-# Invoke the Call Resolver
-cr = CallResolver.new
-cr.resolve(start_time, end_time, redo_flag)
+# Create a Call Resolver
+resolver = CallResolver.new
+
+# Add the Call Direction Plugin as an observer so that it can compute call direction
+# *** temporarily disabled ***
+#resolver.add_observer(CallDirectionPlugin.new(resolver))
+
+# Resolve calls that occurred during the specified time window
+resolver.resolve(start_time, end_time, redo_flag)

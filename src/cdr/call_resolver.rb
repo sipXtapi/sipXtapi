@@ -11,6 +11,7 @@
 require 'rubygems'            # Ruby packaging and installation framework
 require_gem 'activerecord'    # object-relational mapping layer for Rails
 require 'logger'              # writes log messages to a file or stream
+require 'observer'            # for Observer pattern a.k.a Publish/Subscribe
 
 # set up the load path
 thisdir = File.dirname(__FILE__)
@@ -24,24 +25,29 @@ require 'configure'
 require 'exceptions'
 require 'party'
 
-# :NOW: set up standard log entry format, e.g., include a timestamp
-# :NOW: scope the log file open/close reliably within a resolve call
-# :NOW: unit tests for new logging/config functions
-# :NOW: write to log file in standard location
-# :NOW: figure out interactions between Ruby log rotation and sipX log rotation
-
+# :TODO: log timestamps for the beginning and end of each resolver run
+# :TODO: log the number of calls analyzed and how many succeeded vs. dups or failures
+# :TODO: figure out interactions between Ruby log rotation and sipX log rotation
+# :TODO: Support redo_flag (XPR-131).
+# :TODO: Verify that AORs, contacts, and from/to tags are consistent.
+#        The AORs and from tags must always be the same but contacts and to
+#        tags can vary when a call forks. If there are inconsistencies then
+#        discard the CSEs and log an error.
+# :TODO: Verify event time order.  Be sure that start_time, connect_time, and
+#        end_time are in the right order or we'll get DB integrity violations.
+#        When we support distributed proxies, events out of order may indicate
+#        that clocks are out of sync, which will hose the Call Resolver.
+# :TODO: Refactor the code so that the core algorithms are DB-independent so that
+#        we can write unit tests that don't require a DB, making it easier to run
+#        unit tests in the build loop
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
 # records (CDRs).  It loads CSEs from a database and writes CDRs back into the
 # same database.
 class CallResolver
-
-public
+  include Observable    # so we can notify Call Resolver plugins of events
 
   # Constants
-  #
-  # Make them all public for unit testing.  Otherwise most of them would not
-  # be public.
   
   # The Call Resolver only runs on this Ruby version or later
   MIN_RUBY_VERSION = '1.8.4'
@@ -90,6 +96,10 @@ public
     "EMERG"   => Logger::FATAL
   }
 
+  # Names of events that we send to plugins.
+  EVENT_NEW_CDR = 'a new CDR has been created in the database'
+
+public
 
   # Methods
 
@@ -106,15 +116,6 @@ public
   end
 
   # Resolve CSEs to CDRs.
-  # :TODO: Support redo_flag.
-  # :TODO: Verify that AORs, contacts, and from/to tags are consistent.
-  #        The AORs and from tags must always be the same but contacts and to
-  #        tags can vary when a call forks. If there are inconsistencies then
-  #        discard the CSEs and log an error.
-  # :TODO: Verify event time order.  Be sure that start_time, connect_time, and
-  #        end_time are in the right order or we'll get DB integrity violations.
-  #        When we support distributed proxies, events out of order may indicate
-  #        that clocks are out of sync, which will hose the Call Resolver.
   def resolve(start_time, end_time, redo_flag = false)
     begin
       init_logging
@@ -154,8 +155,6 @@ public
 
     end
   end
-
-private
   
   def log
     # For unit testing, create a Logger for stdout if there is no @log yet
@@ -165,6 +164,8 @@ private
     
     @log
   end
+
+private
   
   # Load the call IDs for the specified time window.
   def load_call_ids(start_time, end_time)
@@ -365,18 +366,36 @@ private
     Cdr.transaction do
       # Continue only if a complete CDR doesn't already exist
       db_cdr = find_cdr_by_dialog(cdr.call_id, cdr.from_tag, cdr.to_tag)
-      if (!db_cdr or !db_cdr.complete?)
       
+      # If we found an existing CDR, then log that for debugging
+      if db_cdr and log.debug?
+        log.debug("save_cdr_data: found an existing CDR.  Call ID = #{db_cdr.call_id}, " +
+                  "termination = #{db_cdr.termination}, ID = #{db_cdr.id}.")
+      end
+      
+      # Save the CDR as long as there is no existing, complete CDR for that call ID.
+      if (!db_cdr or !db_cdr.complete?)
         # Save the caller and callee if they don't already exist
         caller = save_party_if_new(caller)
         callee = save_party_if_new(callee)
         cdr.caller_id = caller.id
         cdr.callee_id = callee.id
         
-        # Save the CDR.  If there is an incomplete CDR already, then
-        # replace it.
+        # Save the CDR.  If there is an incomplete CDR already, then replace it.
         save_cdr(cdr)
+
+        # If we got here without an exception, then the save succeeded.
+        # Call the Observable method indicating a state change.
+        changed
       end
+    end
+    
+    # If we created a new CDR, then notify plugins.
+    # "notify_observers" is a method of the Observable module, which is mixed
+    # in to the CallResolver.
+    if !cdr.new_record?
+      notify_observers(EVENT_NEW_CDR,       # event type
+                       cdr)                 # the new CDR
     end
   end
   

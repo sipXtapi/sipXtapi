@@ -11,10 +11,13 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 
 class CdrTest < Test::Unit::TestCase
-  fixtures :parties, :cdrs
+  # We must include call_directions here because of the foreign key from
+  # call_directions to cdrs.  If we don't clear call_directions then we won't
+  # be able to clear cdrs.
+  fixtures :parties, :cdrs, :call_directions
 
   def test_load_cdrs
-    assert_kind_of Cdr, cdrs(:first)
+    assert_kind_of(Cdr, cdrs(:first))
   end
   
   def test_complete?
