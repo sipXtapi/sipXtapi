@@ -398,6 +398,55 @@ public
                      {CallResolver::LOG_LEVEL_CONFIG => 'Unknown log level name'})
     end
   end
+
+  def test_set_daily_run_config
+    # Pass in an empty config, should get the default value of false
+    assert(!@resolver.send(:set_daily_run_config, {}))
+    
+    # Pass in ENABLE, get true
+    # Pass in DISABLE, get false
+    # Comparison is case-insensitive
+    assert(@resolver.send(:set_daily_run_config,
+      {CallResolver::DAILY_ENABLE_RUN => 'EnAbLe'}))
+    assert(!@resolver.send(:set_daily_run_config,
+      {CallResolver::DAILY_ENABLE_RUN => 'dIsAbLe'}))
+    
+    # Pass in bogus value, get exception
+    assert_raise(ConfigException) do
+      @resolver.send(:set_daily_run_config,
+        {CallResolver::DAILY_ENABLE_RUN => 'jacket'})
+    end
+  end
+
+  def test_get_daily_start_time
+    # Get today's date, cut out the date and paste our start time into
+    # a time string
+    today = Time.now
+    todayString = today.strftime("%m/%d/%YT")
+    startString = todayString + "04:00:00"
+    # Convert to time, start same time yesterday
+    daily_start_time = Time.parse(startString)
+    daily_end_time = daily_start_time
+    daily_start_time -= 86400   # 24 hours
+
+    # Pass in an empty config, should get the default value of false
+    assert(daily_start_time == @resolver.send(:get_daily_start_time, {}))
+
+    startString = todayString + "04:00:10"
+    # Convert to time, start same time yesterday
+    daily_start_time = Time.parse(startString)
+    daily_end_time = daily_start_time
+    daily_start_time -= 86400   # 24 hours
+
+    # Pass in a value
+    assert(daily_start_time == @resolver.send(:get_daily_start_time,
+      {CallResolver::DAILY_START_TIME => '04:00:10'}))
+
+    # Pass in a value, this should fail
+    assert(!(daily_start_time == @resolver.send(:get_daily_start_time,
+      {CallResolver::DAILY_START_TIME => '04:00:11'})))
+    
+  end
   
   #-----------------------------------------------------------------------------
   # Helper methods

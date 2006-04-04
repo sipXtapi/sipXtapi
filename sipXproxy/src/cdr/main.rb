@@ -14,6 +14,7 @@ require 'parsedate'
 
 # application requires
 require File.join(File.dirname(__FILE__), 'call_resolver')
+require File.join(File.dirname(__FILE__), 'configure')
 
 require 'call_direction_plugin'
 
@@ -27,12 +28,14 @@ require 'call_direction_plugin'
 opts = GetoptLong.new(
   [ "--start", "-s", GetoptLong::REQUIRED_ARGUMENT ],
   [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
-  [ "--redo",  "-r", GetoptLong::NO_ARGUMENT ]
+  [ "--redo",  "-r", GetoptLong::NO_ARGUMENT ],
+  [ "--daily", "-d", GetoptLong::NO_ARGUMENT ]
 )
 
 # Init options
 start_time = end_time = nil
 redo_flag = false
+daily_flag = false
 
 # Extract option values
 # Convert start and end strings to date/time values.
@@ -48,6 +51,9 @@ opts.each do |opt, arg|
   when "--redo"
     redo_flag = true
 
+  when "--daily"
+    daily_flag = true
+
   end
 end 
 
@@ -59,4 +65,4 @@ resolver = CallResolver.new
 #resolver.add_observer(CallDirectionPlugin.new(resolver))
 
 # Resolve calls that occurred during the specified time window
-resolver.resolve(start_time, end_time, redo_flag)
+resolver.resolve(start_time, end_time, redo_flag, daily_flag)

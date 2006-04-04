@@ -198,14 +198,14 @@
   </group>
   <group name="callresolver">
 		<label>Call Resolver</label>
-    <setting name="SIP_CALLRESOLVER_RUN_DAILY">
+    <setting name="SIP_CALLRESOLVER_DAILY_RUN">
       <label>Schedule to run Call Resolver daily</label>
       <profileName>callresolver-config.in</profileName>
       <type refid="enablestate"/>
       <value>DISABLE</value>
       <description>Schedule a daily automatic run of Call Resolver.</description>
     </setting>
-    <setting name="SIP_CALLRESOLVER_RUN_STARTIME">
+    <setting name="SIP_CALLRESOLVER_DAILY_START_TIME">
       <label>Start time of Call Resolver 24 hour time frame</label>
       <profileName>callresolver-config.in</profileName>
       <type></type>

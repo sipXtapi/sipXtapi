@@ -79,6 +79,12 @@ class CallResolver
   LOG_LEVEL_CONFIG_DEFAULT = 'NOTICE'
   
   LOG_FILE_NAME = 'sipcallresolver.log'
+
+  DAILY_START_TIME = 'SIP_CALLRESOLVER_DAILY_START_TIME'
+  DAILY_START_TIME_DEFAULT = '04:00:00'
+
+  DAILY_ENABLE_RUN = 'SIP_CALLRESOLVER_DAILY_RUN'
+  DAILY_ENABLE_RUN_DEFAULT = DISABLE
   
   # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
@@ -116,32 +122,49 @@ public
   end
 
   # Resolve CSEs to CDRs.
-  def resolve(start_time, end_time, redo_flag = false)
+  def resolve(start_time, end_time, redo_flag = false, daily_flag = false)
     begin
+      run_resolver = true
+
       init_logging
+
+      if daily_flag
+        if set_daily_run_config(@config) 
+          get_daily_start_time(@config)
+          
+          # Get start time and end time
+          start_time = @daily_start_time
+          end_time = @daily_end_time
+        else
+          log.info("resolve: Seen --daily_flag, daily run enable was disabled");
+          run_resolver = false
+        end
+      end
       
-      # If end_time is not provided, then set it to 1 day after the start time.
-      end_time ||= start_time.next
+      if run_resolver
+        # If end_time is not provided, then set it to 1 day after the start time.
+        end_time ||= start_time.next
   
-      log.info("resolve: start = #{start_time.to_s}, end = #{end_time.to_s},
-               redo = #{redo_flag}")
+        log.info("resolve: start = #{start_time.to_s}, end = #{end_time.to_s},
+                 redo = #{redo_flag}, daily = #{daily_flag}")
   
-      # Connect to the database
-      # :TODO: read these parameters from the Call Resolver config file
-      unless ActiveRecord::Base.connected?
-        ActiveRecord::Base.establish_connection(
-          :adapter  => "postgresql",
-          :host     => "localhost",
-          :username => "postgres",
-          :database => "SIPXCDR")
+        # Connect to the database
+        # :TODO: read these parameters from the Call Resolver config file
+        unless ActiveRecord::Base.connected?
+          ActiveRecord::Base.establish_connection(
+            :adapter  => "postgresql",
+            :host     => "localhost",
+            :username => "postgres",
+            :database => "SIPXCDR")
+        end
+  
+        # Load the call IDs for the specified time window
+        call_ids = load_call_ids(start_time, end_time)
+  
+        # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
+        call_ids.each {|call_id| resolve_call(call_id)}
       end
   
-      # Load the call IDs for the specified time window
-      call_ids = load_call_ids(start_time, end_time)
-  
-      # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
-      call_ids.each {|call_id| resolve_call(call_id)}
-      
     rescue
       # Backstop exception handler: don't let any exceptions propagate back
       # to the caller.  Log the error and the stack trace.  The log message has to
@@ -641,6 +664,47 @@ private
     end
     
     @log
+  end
+
+  # Set the daily run enable from configuration.
+  # Return the daily run boolean.
+  def set_daily_run_config(config)
+    # Look up the config param
+    @daily_run = config[DAILY_ENABLE_RUN]
+    
+    # Apply the default if the param was not specified
+    @daily_run ||= DAILY_ENABLE_RUN_DEFAULT
+
+    # Convert to a boolean
+    if @daily_run.casecmp(ENABLE) == 0
+      @daily_run = true
+    elsif @daily_run.casecmp(DISABLE) == 0
+      @daily_run = false
+    else
+      raise(ConfigException, "Unrecognized value \"#{@daily_run}\" for " +
+            "#{DAILY_ENABLE_RUN}.  Must be ENABLE or DISABLE.")
+    end
+  end
+
+  # Compute the start time of the daily call resolver run
+  def get_daily_start_time(config)
+    # Look up the config param
+    daily_start = config[DAILY_START_TIME]
+    
+    # Apply the default if the param was not specified
+    daily_start ||= DAILY_START_TIME_DEFAULT
+    
+    # Get today's date, cut out the date and paste our start time into
+    # a time string
+    today = Time.now
+    todayString = today.strftime("%m/%d/%YT")
+
+    startString = todayString + daily_start
+    
+    # Convert to time, start same time yesterday
+    @daily_start_time = Time.parse(startString)
+    @daily_end_time = @daily_start_time
+    @daily_start_time -= 86400   # 24 hours
   end    
 
   def check_ruby_version

@@ -90,11 +90,11 @@ databaseCommand() {
     case ${1} in
        create)
          createdb -U ${PgUser} ${Database} >/dev/null
-         ${Psql} -U ${PgUser} -d ${Database} -f ${PgSchema} >/dev/null
+         ${Psql} -U ${PgUser} -d ${Database} -f ${PgSchema} >/dev/null 2>&1
        ;;
        
        drop)
-         dropdb -U ${PgUser} --encoding=UNICODE ${Database} >/dev/null
+         dropdb -U ${PgUser} --encoding=UNICODE ${Database} >/dev/null 2>&1
        ;;
    esac
 }
@@ -168,8 +168,6 @@ onSetup() {
    then
        @bindir@/pgpatch.sh
        databaseCommand create
-   else
-       echo "Database ${Database} exists"
    fi
 }
 
