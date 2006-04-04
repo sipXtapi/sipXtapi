@@ -139,8 +139,8 @@ Call State Event Database Design Specification
   
         - SIP_AUTHPROXY_CALL_STATE_DB : DISABLE/ENABLE
 
-            DISABLED is the default, will direct CSE logging to PostgreSQL
-            database "SIPXCDR".
+            ENABLE will direct CSE logging to PostgreSQL database "SIPXCDR".
+            (default: DISABLE)
 
         - SIP_AUTHPROXY_CALL_STATE_DB_HOST : [hostname]
 
@@ -151,8 +151,8 @@ Call State Event Database Design Specification
   
         - SIP_PROXY_CALL_STATE_DB : DISABLE/ENABLE
 
-            DISABLED is the default, will direct CSE logging to PostgreSQL
-            database "SIPXCDR".
+            ENABLE will direct CSE logging to PostgreSQL database "SIPXCDR".
+            (default: DISABLE)
 
         - SIP_PROXY_CALL_STATE_DB_HOST : [hostname]
 
