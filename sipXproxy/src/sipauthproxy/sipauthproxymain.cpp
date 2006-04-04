@@ -739,10 +739,15 @@ main( int argc, char* argv[] )
     }
     else
     {
-       OsSysLog::add(FAC_SIP, PRI_ERR,
-                     "SipAuthProxyMain:: EventWriter could not be allocated"
-                     );
-       enableCallStateLogObserver = false;
+      // Only log error if any event logging was enabled
+      if (enableCallStateLogObserver || enableCallStateDbObserver)
+      {      
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipAuthProxyMain:: EventWriter could not be allocated"
+                       );
+         enableCallStateLogObserver = false;
+         enableCallStateDbObserver = false;
+      }
     }
 
     // Do not exit, let the proxy do its stuff
