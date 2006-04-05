@@ -61,7 +61,7 @@ end
 resolver = CallResolver.new
 
 # Add the Call Direction Plugin as an observer so that it can compute call direction
-# *** temporarily disabled ***
+#*** disable until fully working***
 #resolver.add_observer(CallDirectionPlugin.new(resolver))
 
 # Resolve calls that occurred during the specified time window

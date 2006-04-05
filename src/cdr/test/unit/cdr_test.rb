@@ -20,6 +20,13 @@ class CdrTest < Test::Unit::TestCase
     assert_kind_of(Cdr, cdrs(:first))
   end
   
+  # Test that the belongs_to declarations of foreign key relationships work.
+  def test_belongs_to
+    cdr = cdrs(:first)
+    assert_equal('sip:alice@example.com', cdr.caller.aor)
+    assert_equal('sip:bob@example.com', cdr.callee.aor)
+  end
+  
   def test_complete?
     cdr = Cdr.new
     

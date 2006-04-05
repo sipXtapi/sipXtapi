@@ -11,6 +11,14 @@
 class CallResolverException < StandardError
 end
 
+class BadContactException < CallResolverException
+  attr_reader :contact
+  
+  def initialize(contact)
+    @contact = contact
+  end
+end
+
 class BadSipHeaderException < CallResolverException
   attr :header
   
@@ -26,4 +34,12 @@ class BadSipHeaderException < CallResolverException
 end
 
 class ConfigException < CallResolverException
+end
+
+class GatewayNameResolutionException < CallResolverException
+  attr_accessor :gateway
+  
+  def initialize(gateway)
+    @gateway = gateway
+  end
 end
