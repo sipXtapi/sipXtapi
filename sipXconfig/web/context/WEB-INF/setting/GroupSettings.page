@@ -21,6 +21,7 @@
     <binding name="okListener" value="listener:ok"/>
     <binding name="applyListener" value="listener:apply"/>
     <binding name="validator" value="bean:validator"/>
+    <binding name="isRequiredEnabled" value="literal:false"/>
   </component>
   <component id="editGroup" type="DirectLink">
     <binding name="listener" value="listener:editGroupName"/>
