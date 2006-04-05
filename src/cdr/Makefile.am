@@ -12,10 +12,15 @@ callresolver_files = \
   exceptions.rb \
   main.rb \
   utils.rb \
+  socket_utils.rb \
+  call_direction_plugin.rb \
   app/controllers/application.rb \
   app/models/call_state_event.rb \
   app/models/cdr.rb \
   app/models/party.rb \
+  app/models/call_direction.rb \
+  app/models/gateway.rb \
+  config/README.txt \
   config/boot.rb \
   config/database.yml \
   config/environment.rb \
@@ -29,11 +34,11 @@ callresolver_files = \
   test/fixtures/call_state_events.yml \
   test/fixtures/cdrs.yml \
   test/fixtures/parties.yml \
+  test/fixtures/call_directions.yml \
   test/functional/call_resolver_test.rb
 
 EXTRA_DIST = \
   $(callresolver_files)
-    
 
 install-data-hook: install-callresolver
 
