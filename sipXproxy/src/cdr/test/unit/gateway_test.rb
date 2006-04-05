@@ -58,8 +58,10 @@ class GatewayTest < Test::Unit::TestCase
     # only way I could make this work.  Note that even though the ID name is
     # "gateway_id", ActiveRecord always sets the primary key through an id=
     # method regardless of the actual name of the key.
+    # Use a real domain name for the gateway address, so we can play with name
+    # resolution (but not in this test).
     test_bean_id = 'gwGeneric'
-    test_gateway_address = '10.1.1.1'
+    test_gateway_address = 'www.pingtel.com'
     test_serial_number = '0123456789AB'
     gateway = Gateway.new(:name => test_gateway_name,
                           :address => test_gateway_address,

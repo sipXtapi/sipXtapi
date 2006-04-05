@@ -27,4 +27,12 @@ class CallDirectionTest < Test::Unit::TestCase
     assert_equal('I', call_dir.direction)
   end
   
+  # Test that the foreign key relationships work.
+  def test_foreign_keys
+    call_dir = call_directions(:first)
+    cdr = call_dir.cdr
+    assert_equal('call1', cdr.call_id)
+    assert_equal('I', cdr.call_direction.direction)
+  end
+  
 end

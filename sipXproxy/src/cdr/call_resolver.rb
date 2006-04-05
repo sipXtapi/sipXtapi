@@ -116,6 +116,7 @@ public
 
     @log_device = nil
     @log = nil
+    init_logging
 
     # Check that the Ruby version meets our needs.
     check_ruby_version
@@ -126,8 +127,6 @@ public
     begin
       run_resolver = true
 
-      init_logging
-
       if daily_flag
         if set_daily_run_config(@config) 
           get_daily_start_time(@config)
@@ -136,7 +135,7 @@ public
           start_time = @daily_start_time
           end_time = @daily_end_time
         else
-          log.info("resolve: Seen --daily_flag, daily run enable was disabled");
+          log.error("resolve: the --daily_flag is set, but the daily run is disabled in the configuration");
           run_resolver = false
         end
       end
@@ -172,21 +171,10 @@ public
       start_line = "\n        from "    # start each backtrace line with this
       log.error("Exiting because of error: \"#{$!}\"" + start_line +
                 $!.backtrace.inject{|trace, line| trace + start_line + line})
-      
-    ensure
-      @log.close
-
     end
   end
   
-  def log
-    # For unit testing, create a Logger for stdout if there is no @log yet
-    if !@log
-      @log = Logger.new(STDOUT)
-    end
-    
-    @log
-  end
+  attr_reader :log
 
 private
   
@@ -639,7 +627,7 @@ private
         log_file = File.join(@log_dir, LOG_FILE_NAME)
         @log_device = File.open(log_file, 'a+')
         if @log_device
-          puts("Logging to file \"#{log_file}\"")
+          #puts("Logging to file \"#{log_file}\"")
         else
           puts("Unable to open log file \"#{log_file}\" for writing, logging " +
                "to the console")
