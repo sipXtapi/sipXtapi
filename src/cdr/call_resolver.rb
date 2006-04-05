@@ -317,47 +317,59 @@ private
   # to_tag.  Return true if successful, false otherwise.
   def finish_cdr(cdr_data, events, to_tag)
     status = false                # return value: did we fill in the CDR?
+    cdr = cdr_data.cdr      
     
-    # get the events for the call leg
+    # Get the events for the call leg
     call_leg = events.find_all {|event| event.to_tag == to_tag}
     
-    # find the call_setup event
+    # Find the call_setup event
     call_setup = call_leg.find {|event| event.call_setup?}
     if call_setup
-      cdr = cdr_data.cdr
-      
       # The call was set up, so mark it provisionally as in progress.
       cdr.termination = Cdr::CALL_IN_PROGRESS_TERM
  
       # We have enough data now to build the CDR.
       status = true
       
-      # get data from the call_setup event
+      # Get data from the call_setup event
       cdr_data.callee.contact = call_setup.contact
       cdr.to_tag = call_setup.to_tag
       cdr.connect_time = call_setup.event_time
       
-      # get data from the call_end or call_failure event
+      # Get data from the call_end or call_failure event
       call_end = call_leg.find {|event| event.call_end?}
       if call_end
         cdr.termination = Cdr::CALL_COMPLETED_TERM    # successful completion
         cdr.end_time = call_end.event_time
       else
-        # Couldn't find a call_end, try for call_failure
-        call_failure = call_leg.find {|event| event.call_failure?}
-        if call_failure
-          # found a call_failure event, use it
-          # :TODO: consider optimizing space usage by not setting the
-          # failure_reason if it is the default value for the failure_status
-          # code. For example, the 486 error has the default reason "Busy Here".
-          cdr.termination = Cdr::CALL_FAILED_TERM
-          cdr.end_time = call_failure.event_time
-          cdr.failure_status = call_failure.failure_status
-          cdr.failure_reason = call_failure.failure_reason
-        end
+        # Couldn't find a call_end event, try for call_failure
+        status = handle_call_failure(call_leg, cdr)
       end
+    else
+      # No call_setup event, so look for a call_failure event
+      status = handle_call_failure(call_leg, cdr)
     end
     
+    status
+  end
+
+  # Look for a call_failure event in the call_leg events array.  If we find one,
+  # then fill in CDR info and return success.  Otherwise return failure.
+  def handle_call_failure(call_leg, cdr)
+    status = false      
+    call_failure = call_leg.find {|event| event.call_failure?}
+    if call_failure
+      # found a call_failure event, use it
+      # :TODO: consider optimizing space usage by not setting the
+      # failure_reason if it is the default value for the failure_status
+      # code. For example, the 486 error has the default reason "Busy Here".      
+      cdr.to_tag = call_failure.to_tag  # may already be filled in from call_setup
+      cdr.termination = Cdr::CALL_FAILED_TERM
+      cdr.end_time = call_failure.event_time
+      cdr.failure_status = call_failure.failure_status
+      cdr.failure_reason = call_failure.failure_reason
+      status = true
+    end
     status
   end
 
