@@ -66,7 +66,8 @@ private
         line_num = 1
         file.each_line do |line|
           line.strip!   # trim leading and trailing whitespace
-          if line[0] != COMMENT_CHAR    # ignore comment lines
+          if line.length > 0 and                  # ignore empty lines
+             line[0] != COMMENT_CHAR              # ignore comment lines
             # discard any trailing comments
             comment = line.index(COMMENT_CHAR)
             if comment

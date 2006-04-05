@@ -156,11 +156,22 @@ public
     
     # Test a failed call.  Check only that the failure info has been filled in
     # properly.  We've checked other info in the case above.
+    # This set of events has call request, call setup, call failed.
     call_id = 'testFailed'
     events = @resolver.send(:load_events, call_id)
+    check_failed_call(events, to_tag)
+    
+    # Try again without the call setup event.
+    events.delete_if {|event| event.call_setup?}
+    check_failed_call(events, to_tag)
+  end
+
+  # Helper method for test_finish_cdr.  Check that failure info has been filled
+  # in properly.
+  def check_failed_call(events, to_tag)
     cdr_data = CdrData.new
     status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
-    assert_equal(true, status)
+    assert_equal(true, status, 'Finishing the CDR failed')
     cdr = cdr_data.cdr
     assert_equal(Cdr::CALL_FAILED_TERM, cdr.termination, 'Wrong termination code')
     assert_equal(486, cdr.failure_status)
