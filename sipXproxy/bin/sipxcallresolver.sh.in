@@ -173,7 +173,7 @@ onSetup() {
 
 # Start CDR call resolver
 onStartup() { 
-    ruby @bindir@/sipxcallresolver/main.rb ${resolverArgs}
+    ruby @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ${resolverArgs}
 }
 
 # simple diagnostics
