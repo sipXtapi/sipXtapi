@@ -1,51 +1,40 @@
-callresolver_dir=@bindir@/sipxcallresolver
+include $(top_builddir)/config/sipXcommon.mak
 
-# To generate a new list
-#   find -type f -printf "\t%h/%f \\\\\n" \
-#      egrep -v "(\.svn|Makefile.*)" \
-#      sed -e 's,\.\/,    ,g' \
-#       sort > Makefile.guts
+INSTALL = @INSTALL@
 
-callresolver_files = \
-  call_resolver.rb \
-  configure.rb \
-  exceptions.rb \
-  main.rb \
-  utils.rb \
-  socket_utils.rb \
-  call_direction_plugin.rb \
-  app/controllers/application.rb \
-  app/models/call_state_event.rb \
-  app/models/cdr.rb \
-  app/models/party.rb \
-  app/models/gateway.rb \
-  config/README.txt \
-  config/boot.rb \
-  config/database.yml \
-  config/environment.rb \
-  config/routes.rb \
-  config/environments/development.rb \
-  config/environments/production.rb \
-  config/environments/test.rb \
-  log/test.log \
-  test/test_helper.rb \
-  test/functional/data/callresolver-config \
-  test/fixtures/call_state_events.yml \
-  test/fixtures/cdrs.yml \
-  test/fixtures/parties.yml \
-  test/functional/call_resolver_test.rb
+rake=$(RAKE) builddir="$$builddir"
+GEM_LIB_DIR=$(libdir)/ruby/gems/1.8
+callresolver_dir=$(datadir)/sipxpbx/lib
 
-EXTRA_DIST = \
-  $(callresolver_files)
+clean :
+	builddir=$(srcdir); \
+	cd $(srcdir) && rake clobber
 
-install-data-hook: install-callresolver
+if IS_RPMBUILD
+INSTALL_GEM = install-gem-for-rpm
+else
+INSTALL_GEM = install-gem
+endif
 
-.PHONY: install-callresolver
+install : $(INSTALL_GEM) 
 
-install-callresolver: $(callresolver_dir) $(foreach rbfile,$(callresolver_files),$(DESTDIR)$(callresolver_dir)/$(rbfile))
+.PHONY: package-gem
+package-gem :
+	pushd .; rm -rf $(srcdir)/pkg; \
+	cd $(srcdir) && rake callresolver_version=1.0.0 builddir=$(top_builddir)/src/cdr package; \
+	popd
 
-$(foreach rbfile,$(callresolver_files),$(DESTDIR)$(callresolver_dir)/$(rbfile)) : $(DESTDIR)$(callresolver_dir)/% : $(srcdir)/%
-	$(INSTALL) -D -m 644 $< $@
+.PHONY: install-gem 
+install-gem : package-gem
+	$(mkdir_p) $(GEM_LIB_DIR)
+	gem install \
+	  --install-dir $(GEM_LIB_DIR) \
+	  --local $(srcdir)/pkg/sipxcallresolver
 
-$(callresolver_dir):
+# gems are copied into installation and will be installed on host machine
+# later
+.PHONY: install-gem-for-rpm
+install-gem-for-rpm : package-gem
+	echo "Installing call resolver gem"
 	$(INSTALL) -d -m755 $(DESTDIR)$(callresolver_dir)
+	$(INSTALL) pkg/sipxcallresolver*.gem $(DESTDIR)$(callresolver_dir)

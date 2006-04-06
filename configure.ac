@@ -19,6 +19,9 @@ AC_PROG_CC
 ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
+SFAC_INIT_FLAGS
+AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
+
 # Checks for libraries.
 
 # Checks for header files.
