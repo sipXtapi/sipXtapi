@@ -75,7 +75,7 @@ class CallResolver
   LOG_LEVEL_CONFIG_DEFAULT = 'NOTICE'
   
   LOG_FILE_NAME = 'sipcallresolver.log'
-
+  
   DAILY_START_TIME = 'SIP_CALLRESOLVER_DAILY_START_TIME'
   DAILY_START_TIME_DEFAULT = '04:00:00'
 
@@ -200,7 +200,7 @@ private
     # calls that span time windows.
     begin
       events = load_events(call_id)
-      
+
       # Find the first (earliest) call request event.
       call_req = find_first_call_request(events)
       if call_req
@@ -211,12 +211,14 @@ private
         # phone is a separate call leg.
         # Pick the call leg with the best outcome and longest duration to be the
         # basis for the CDR.
-        to_tag = best_call_leg(events)
-        
+        tags = best_call_leg(events)
+        from_tag = tags[0]
+        to_tag = tags[1]
+
         if to_tag                         # if there are any complete call legs
           # Fill the CDR from the call leg events.  The returned status is true
           # if that succeeded, false otherwise.
-          status = finish_cdr(cdr_data, events, to_tag)
+          status = finish_cdr(cdr_data, events, from_tag, to_tag)
         
           if status
             if log.debug?
@@ -282,6 +284,7 @@ private
   # Return nil if there is no such call leg.
   def best_call_leg(events)     # array of events with a given call ID
     to_tag = nil                # result: the to_tag for the best call leg
+    from_tag = nil
     
     # If there are no call_end events, then the call failed
     call_failed = !events.any? {|event| event.call_end?}
@@ -296,6 +299,7 @@ private
     events.reverse_each do |event|
       if event.event_type == final_event_type
         to_tag = event.to_tag
+        from_tag = event.from_tag
         break
       end
     end
@@ -305,25 +309,27 @@ private
       events.reverse_each do |event|
         if event.call_setup?
           to_tag = event.to_tag
+          from_tag = event.from_tag
           break
         end
       end
     end
 
-    to_tag
+    [ from_tag, to_tag ]
   end
   
   # Fill in the CDR from a call leg consisting of the events with the given
   # to_tag.  Return true if successful, false otherwise.
-  def finish_cdr(cdr_data, events, to_tag)
+  def finish_cdr(cdr_data, events, from_tag, to_tag)
     status = false                # return value: did we fill in the CDR?
     cdr = cdr_data.cdr      
-    
+
     # Get the events for the call leg
-    call_leg = events.find_all {|event| event.to_tag == to_tag}
-    
+    call_leg = events.find_all {|event| event.to_tag == to_tag or event.from_tag == to_tag}
+
     # Find the call_setup event
     call_setup = call_leg.find {|event| event.call_setup?}
+
     if call_setup
       # The call was set up, so mark it provisionally as in progress.
       cdr.termination = Cdr::CALL_IN_PROGRESS_TERM

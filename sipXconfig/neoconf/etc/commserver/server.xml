@@ -234,5 +234,12 @@
       <value>NOTICE</value>
       <description>Resolving call state events into Call Detail Records.</description>
     </setting>
+    <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" advanced="yes">
+      <label>Call Direction Processing</label>
+      <profileName>callresolver-config.in</profileName>
+      <type refid="enablestate"/>
+      <value>DISABLE</value>
+      <description>Enable Call Direction processing of Call Detail Records.</description>
+    </setting>
   </group>
 </model>

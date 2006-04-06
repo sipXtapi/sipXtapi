@@ -101,30 +101,36 @@ public
      
     # Pick the call leg with the best outcome and longest duration to be the
     # basis for the CDR.
-    to_tag = @resolver.send(:best_call_leg, events)
+    tags = @resolver.send(:best_call_leg, events)
+    to_tag = tags[1]
     assert_equal('t', to_tag, 'Wrong to_tag for best call leg')
     
     # load events for the complicated case
     call_id = 'testComplicatedSuccess'
     events = @resolver.send(:load_events, call_id)
      
-    to_tag = @resolver.send(:best_call_leg, events)
+    tags = @resolver.send(:best_call_leg, events)
+    to_tag = tags[1]
     assert_equal('t2', to_tag, 'Wrong to_tag for best call leg')
     
     # try again, drop the final call_end event
-    to_tag = @resolver.send(:best_call_leg, events[0..4])
+    tags = @resolver.send(:best_call_leg, events[0..4])
+    to_tag = tags[1]
     assert_equal('t1', to_tag, 'Wrong to_tag for best call leg')
     
     # try again with three events
-    to_tag = @resolver.send(:best_call_leg, events[0..2])
+    tags = @resolver.send(:best_call_leg, events[0..2])
+    to_tag = tags[1]
     assert_equal('t0', to_tag, 'Wrong to_tag for best call leg')
     
     # try again with two events
-    to_tag = @resolver.send(:best_call_leg, events[0..1])
+    tags = @resolver.send(:best_call_leg, events[0..1])
+    to_tag = tags[1]
     assert_equal('t0', to_tag, 'Wrong to_tag for best call leg')
     
     # try again with just the call request
-    to_tag = @resolver.send(:best_call_leg, events[0..0])
+    tags = @resolver.send(:best_call_leg, events[0..0])
+    to_tag = tags[1]
     assert_nil(to_tag, 'Wrong to_tag for best call leg')
   end
 
@@ -133,8 +139,9 @@ public
     
     # fill in cdr_data with info from the events
     to_tag = 't'
+    from_tag = 'f'
     cdr_data = CdrData.new
-    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
+    status = @resolver.send(:finish_cdr, cdr_data, events, from_tag, to_tag)
     assert_equal(true, status)
     
     # define variables for cdr_data components
@@ -170,7 +177,7 @@ public
   # in properly.
   def check_failed_call(events, to_tag)
     cdr_data = CdrData.new
-    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
+    status = @resolver.send(:finish_cdr, cdr_data, events, 'f', to_tag)
     assert_equal(true, status, 'Finishing the CDR failed')
     cdr = cdr_data.cdr
     assert_equal(Cdr::CALL_FAILED_TERM, cdr.termination, 'Wrong termination code')
