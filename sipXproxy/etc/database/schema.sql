@@ -148,6 +148,7 @@ create table cdrs (
   termination char(1),              /* Why the call was terminated */
   failure_status int2,              /* SIP error code if the call failed, e.g., 4xx */
   failure_reason text,              /* Text describing the reason for a call failure */
+  call_direction char(1),           /* Customer-specific, see the cleveland.sql file */
   primary key (id)
 );
 

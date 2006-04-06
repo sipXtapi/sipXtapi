@@ -11,10 +11,9 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 
 class PartyTest < Test::Unit::TestCase
-  # We must include cdrs and call_directions here because of foreign key
-  # relationships.  If we don't clear both cdrs and call_directions then we
-  # won't be able to clear parties.
-  fixtures :parties, :cdrs, :call_directions
+  # We must include cdrs here because of the foreign keys from cdrs to parties.
+  # If we don't clear cdrs then we won't be able to clear parties.
+  fixtures :parties, :cdrs
 
   def setup
     @party_new =

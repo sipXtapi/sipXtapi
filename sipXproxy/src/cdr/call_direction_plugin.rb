@@ -9,19 +9,28 @@
 
 # Application requires.  Assume that the load path has been set up for us.
 require 'call_resolver'
-require 'call_direction'
+require 'configure'
 require 'exceptions'
 
 
 # CallDirectionPlugin computes call direction for a CDR, a customer-specific
 # requirement.  We do this in a plugin to keep the core CallResolver generic.
-# :NOW: Read call direction config param and compute call direction only if
-# that param is set
 class CallDirectionPlugin
   
 public
+
   SIPXCONFIG_DATABASE = 'SIPXCONFIG'
   GATEWAY_TABLE_NAME = 'gateway'
+  
+  # Configuration parameters
+  CALL_DIRECTION = 'SIP_CALLRESOLVER_CALL_DIRECTION'
+  CALL_DIRECTION_DEFAULT = Configure::DISABLE
+  
+  # Call direction: single-char codes stored in the call_direction column.
+  INCOMING = 'I'        # calls that come in from a PSTN gateway
+  OUTGOING = 'O'        # calls that go out to a PSTN gateway
+  INTRANETWORK = 'A'    # calls that are pure SIP and don't go through a gateway
+
   
   def initialize(resolver)
     @resolver = resolver
@@ -44,15 +53,18 @@ public
     # names to IP addresses so we have a canonical format for address matching.
     # Catch any exceptions in name resolution and discard such gateways.
     @gateways = Gateway.find(:all)
+    gateway = nil
     begin
       # Compute the IP address purely for side effect here
-      @gateways.each {|g| g.ip_address}
-    rescue GatewayNameResolutionException
-      g = $!.gateway
-      log.error("Unable to resolve the domain name \"#{g.address}\" for the " +
-                "gateway named \"#{g.name}\".  This gateway will not be used " +
+      @gateways.each do |g|
+        gateway = g
+        g.ip_address
+      end
+    rescue NameResolutionException
+      log.error("Unable to resolve the domain name \"#{gateway.address}\" for the " +
+                "gateway named \"#{gateway.name}\".  This gateway will not be used " +
                 "when computing call direction.")
-      @gateways.delete(g)
+      @gateways.delete(gateway)
     end
     
     if log.debug?
@@ -80,77 +92,67 @@ public
     
   end
   
-  # When CallResolver tells us that a new CDR has been created, compute and
-  # save call direction for that CDR.
+  # When CallResolver tells us that a new CDR has been created, then compute
+  # call direction for that CDR.
   def update(event_type,    # Call Resolver event type
              cdr)           # Cdr object
     
     # The "new CDR" event is the only event type handled by this plugin
     if event_type == CallResolver::EVENT_NEW_CDR
-      find_call_direction(cdr)
+      set_call_direction(cdr)
     end
+  end
+  
+  # Return true if call direction is enabled, false otherwise, based on the config.
+  # :TODO: Factor out the code for ENABLE/DISABLE config params into a shared method.
+  def CallDirectionPlugin.call_direction?(config)
+    # Look up the config param
+    call_direction = config[CALL_DIRECTION]
+    
+    # Apply the default if the param was not specified
+    call_direction ||= CALL_DIRECTION_DEFAULT
+
+    # Convert to a boolean
+    if call_direction.casecmp(Configure::ENABLE) == 0
+      call_direction = true
+    elsif call_direction.casecmp(Configure::DISABLE) == 0
+      call_direction = false
+    else
+      raise(ConfigException, "Unrecognized value \"#{call_direction}\" for " +
+            "#{CALL_DIRECTION}.  Must be ENABLE or DISABLE.")
+    end
+    
+    call_direction
   end
 
 private
 
-  # Find call direction for the CDR and save it
-  def find_call_direction(cdr)
+  # For use by test code
+  attr_writer :gateways
+
+  # Compute and set call direction for the CDR
+  def set_call_direction(cdr)
     # Compute the call direction, based on whether the from or to contact
     # is a gateway address. At most one of them can be a gateway address.
-    direction = CallDirection::INTRANETWORK
+    call_direction = INTRANETWORK
     if is_gateway_address(cdr.caller.contact)
-      direction = CallDirection::INCOMING
+      call_direction = INCOMING
     elsif is_gateway_address(cdr.callee.contact)
-      direction = CallDirection::OUTGOING
+      call_direction = OUTGOING
     end
     log.debug("CallDirectionPlugin#update: CDR has call ID = #{cdr.call_id}, " +
-              "ID = #{cdr.id}, direction = #{direction}")
+              "call_direction = #{call_direction}")
       
-    # Save the call direction.  Watch out for preexisting rows in the DB.
-    call_direction = CallDirection.find(:first,
-                                        :conditions => ["id = :id", {:id => cdr.id}])
-    call_direction ||= CallDirection.new(:id => cdr.id)
-    call_direction.direction = direction
-    call_direction.save
+    # Update the CDR's call_direction
+    cdr.call_direction = call_direction
   end
 
   def is_gateway_address(contact)
-    contact_ip_addr = contact_ip_addr(contact)
-    @gateways.any? {|g| g.ip_address.equals(contact_ip_addr)}
+    contact_ip_addr = Utils.contact_ip_addr(contact)
+    @gateways.any? {|g| g.ip_address == contact_ip_addr}
   end
 
-  def contact_ip_addr(contact)
-    # Find the colon at the end of "sip:" or "sips:".  Strip the colon and
-    # everything before it.
-    colon_index = contact.index(':')
-    if !colon_index
-      raise(BadContactException.new(contact),
-            "Bad contact, can't find colon: \"#{contact}\"",
-            caller)
-    end
-    contact = contact[(colon_index + 1)..-1]
-    
-    # If there is a semicolon indicating contact params, then strip the params
-    # :NOW: This should be done in call resolver itself
-    semi_index = contact.index(';')
-    if semi_index
-      contact = contact[0..semi_index]
-    end
-    
-    # If there is an ">" at the end, then remove it
-    gt_index = contact.index('>')
-    if gt_index
-      contact = contact[0..gt_index]
-    end
-    
-    # If there is another colon indicating a port #, then remove the port #
-    colon_index = contact.index(':')
-    if colon_index
-      contact = contact[0..colon_index]
-    end
-  end
-
-  # Share the Call Resolver's Logger
+  # Use the Call Resolver's Logger
   def log
     @resolver.log
   end

@@ -36,10 +36,10 @@ end
 class ConfigException < CallResolverException
 end
 
-class GatewayNameResolutionException < CallResolverException
-  attr_accessor :gateway
+class NameResolutionException < CallResolverException
+  attr_accessor :domain_name    # the domain name that failed to resolve
   
-  def initialize(gateway)
-    @gateway = gateway
+  def initialize(domain_name)
+    @domain_name = domain_name
   end
 end

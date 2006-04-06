@@ -229,42 +229,117 @@ testFailed_22:
   
 #-------------------------------------------------------------------------------
 
-# Another successful call, just so we can check that time windows are being
-# done right
+# More successful calls. Use them for testing call direction.
 
-testAnotherSuccess_30:
+testAnotherSuccess1_30:
   id:         30
   observer:   O
   event_seq:  30
   event_time: 2001-1-1T00:00:00.000Z
   event_type: R
-  call_id:    testAnotherSuccess
+  call_id:    testAnotherSuccess1
   from_tag:   f
   to_tag:
   from_url:   sip:mick@example.com; tag=f
   to_url:     sip:keith@example.com
   contact:    sip:mick@1.1.1.1
 
-testAnotherSuccess_31:
+testAnotherSuccess1_31:
   id:         31
   observer:   O
   event_seq:  31
   event_time: 2001-1-1T01:00:00.000Z
   event_type: S
-  call_id:    testAnotherSuccess
+  call_id:    testAnotherSuccess1
   from_tag:   f
   to_tag:     t
   from_url:   sip:mick@example.com; tag=f
   to_url:     sip:keith@example.com; tag=t
   contact:    sip:keith@2.2.2.2
 
-testAnotherSuccess_32:
+testAnotherSuccess1_32:
   id:         32
   observer:   O
   event_seq:  32
   event_time: 2001-1-1T02:00:00.000Z
   event_type: E
-  call_id:    testAnotherSuccess
+  call_id:    testAnotherSuccess1
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+
+testAnotherSuccess2_40:
+  id:         40
+  observer:   O
+  event_seq:  40
+  event_time: 2001-1-1T00:00:00.000Z
+  event_type: R
+  call_id:    testAnotherSuccess2
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@2.2.2.2
+
+testAnotherSuccess2_41:
+  id:         41
+  observer:   O
+  event_seq:  41
+  event_time: 2001-1-1T01:00:00.000Z
+  event_type: S
+  call_id:    testAnotherSuccess2
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  contact:    sip:keith@1.1.1.1
+
+testAnotherSuccess2_42:
+  id:         42
+  observer:   O
+  event_seq:  42
+  event_time: 2001-1-1T02:00:00.000Z
+  event_type: E
+  call_id:    testAnotherSuccess2
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+
+testAnotherSuccess3_50:
+  id:         50
+  observer:   O
+  event_seq:  50
+  event_time: 2001-1-1T00:00:00.000Z
+  event_type: R
+  call_id:    testAnotherSuccess3
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@2.2.2.2
+
+testAnotherSuccess3_51:
+  id:         51
+  observer:   O
+  event_seq:  51
+  event_time: 2001-1-1T01:00:00.000Z
+  event_type: S
+  call_id:    testAnotherSuccess3
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  contact:    sip:keith@3.3.3.3
+
+testAnotherSuccess3_52:
+  id:         52
+  observer:   O
+  event_seq:  52
+  event_time: 2001-1-1T02:00:00.000Z
+  event_type: E
+  call_id:    testAnotherSuccess3
   from_tag:   f
   to_tag:     t
   from_url:   sip:mick@example.com; tag=f

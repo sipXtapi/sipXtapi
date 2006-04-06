@@ -418,14 +418,14 @@ public
     # Pass in DISABLE, get false
     # Comparison is case-insensitive
     assert(@resolver.send(:set_daily_run_config,
-      {CallResolver::DAILY_ENABLE_RUN => 'EnAbLe'}))
+      {CallResolver::DAILY_RUN => 'EnAbLe'}))
     assert(!@resolver.send(:set_daily_run_config,
-      {CallResolver::DAILY_ENABLE_RUN => 'dIsAbLe'}))
+      {CallResolver::DAILY_RUN => 'dIsAbLe'}))
     
     # Pass in bogus value, get exception
     assert_raise(ConfigException) do
       @resolver.send(:set_daily_run_config,
-        {CallResolver::DAILY_ENABLE_RUN => 'jacket'})
+        {CallResolver::DAILY_RUN => 'jacket'})
     end
   end
 
@@ -455,8 +455,7 @@ public
 
     # Pass in a value, this should fail
     assert(!(daily_start_time == @resolver.send(:get_daily_start_time,
-      {CallResolver::DAILY_START_TIME => '04:00:11'})))
-    
+      {CallResolver::DAILY_START_TIME => '04:00:11'})))    
   end
   
   #-----------------------------------------------------------------------------
