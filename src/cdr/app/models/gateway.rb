@@ -12,7 +12,7 @@ require 'ipaddr'
 
 # Application requires.  Assume that the load path includes this file's dir.
 require 'exceptions'
-require 'socket_utils'
+require 'utils'
 
 
 # Gateway models a gateway defined in the sipXconfig database. Gateways in the
@@ -45,26 +45,12 @@ public
         else
           # The gateway address is not an IP address, so it must be a domain name.
           # Try to resolve it.
-          @ip_address = ip_address_from_domain_name(addr)
+          @ip_address = Utils.ip_address_from_domain_name(addr)
         end
       end
     end
     
     @ip_address
-  end
-  
-private
-  
-  def ip_address_from_domain_name(domain_name)
-    ip_address = nil
-    begin
-      ip_address = IPSocket.getaddress(domain_name)
-    rescue SocketError
-      raise(GatewayNameResolutionException.new(self),
-            "Unable to resolve the gateway domain name \"#{domain_name}\" to an IP address: #{$!}",
-            caller)
-    end
-    ip_address
   end
   
 end

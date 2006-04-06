@@ -59,15 +59,11 @@ class CallResolver
   SIPX_PREFIX = 'SIPX_PREFIX'
 
   # Configuration parameters and defaults
-  
-  # String constants
-  DISABLE = 'DISABLE'
-  ENABLE = 'ENABLE'
 
   # Whether console logging is enabled or disabled.  Legal values are "ENABLE"
   # or "DISABLE".  Comparison is case-insensitive with this and other values.
   LOG_CONSOLE_CONFIG = 'SIP_CALLRESOLVER_LOG_CONSOLE'
-  LOG_CONSOLE_CONFIG_DEFAULT = DISABLE
+  LOG_CONSOLE_CONFIG_DEFAULT = Configure::DISABLE
   
   # The directory holding log files.  The default value is prefixed by
   # $SIPX_PREFIX if that environment variable is defined.
@@ -83,8 +79,9 @@ class CallResolver
   DAILY_START_TIME = 'SIP_CALLRESOLVER_DAILY_START_TIME'
   DAILY_START_TIME_DEFAULT = '04:00:00'
 
-  DAILY_ENABLE_RUN = 'SIP_CALLRESOLVER_DAILY_RUN'
-  DAILY_ENABLE_RUN_DEFAULT = DISABLE
+  DAILY_RUN = 'SIP_CALLRESOLVER_DAILY_RUN'
+  DAILY_RUN_DEFAULT = Configure::DISABLE
+  
   
   # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
@@ -174,7 +171,10 @@ public
     end
   end
   
-  attr_reader :log
+  # Allow other components to use the Call Resolver log, since all logging should
+  # go to a single shared file.
+  # Make the configuration available.
+  attr_reader :log, :config
 
 private
   
@@ -403,22 +403,19 @@ private
         callee = save_party_if_new(callee)
         cdr.caller_id = caller.id
         cdr.callee_id = callee.id
+
+        # Call the Observable method indicating a state change.
+        changed
+    
+        # Notify plugins of the new CDR.
+        # "notify_observers" is a method of the Observable module, which is mixed
+        # in to the CallResolver.
+        notify_observers(EVENT_NEW_CDR,       # event type
+                         cdr)                 # the new CDR
         
         # Save the CDR.  If there is an incomplete CDR already, then replace it.
         save_cdr(cdr)
-
-        # If we got here without an exception, then the save succeeded.
-        # Call the Observable method indicating a state change.
-        changed
       end
-    end
-    
-    # If we created a new CDR, then notify plugins.
-    # "notify_observers" is a method of the Observable module, which is mixed
-    # in to the CallResolver.
-    if !cdr.new_record?
-      notify_observers(EVENT_NEW_CDR,       # event type
-                       cdr)                 # the new CDR
     end
   end
   
@@ -555,9 +552,9 @@ private
     @log_console ||= LOG_CONSOLE_CONFIG_DEFAULT
 
     # Convert to a boolean
-    if @log_console.casecmp(ENABLE) == 0
+    if @log_console.casecmp(Configure::ENABLE) == 0
       @log_console = true
-    elsif @log_console.casecmp(DISABLE) == 0
+    elsif @log_console.casecmp(Configure::DISABLE) == 0
       @log_console = false
     else
       raise(ConfigException, "Unrecognized value \"#{@log_console}\" for " +
@@ -666,23 +663,23 @@ private
     @log
   end
 
-  # Set the daily run enable from configuration.
-  # Return the daily run boolean.
+  # Enable/disable the daily run from the configuration.
+  # Return true if daily runs are enabled, false otherwise.
   def set_daily_run_config(config)
     # Look up the config param
-    @daily_run = config[DAILY_ENABLE_RUN]
+    @daily_run = config[DAILY_RUN]
     
     # Apply the default if the param was not specified
-    @daily_run ||= DAILY_ENABLE_RUN_DEFAULT
+    @daily_run ||= DAILY_RUN_DEFAULT
 
     # Convert to a boolean
-    if @daily_run.casecmp(ENABLE) == 0
+    if @daily_run.casecmp(Configure::ENABLE) == 0
       @daily_run = true
-    elsif @daily_run.casecmp(DISABLE) == 0
+    elsif @daily_run.casecmp(Configure::DISABLE) == 0
       @daily_run = false
     else
       raise(ConfigException, "Unrecognized value \"#{@daily_run}\" for " +
-            "#{DAILY_ENABLE_RUN}.  Must be ENABLE or DISABLE.")
+            "#{DAILY_RUN}.  Must be ENABLE or DISABLE.")
     end
   end
 
@@ -705,7 +702,7 @@ private
     @daily_start_time = Time.parse(startString)
     @daily_end_time = @daily_start_time
     @daily_start_time -= 86400   # 24 hours
-  end    
+  end
 
   def check_ruby_version
     # Check that the Ruby version meets our needs

@@ -23,6 +23,10 @@ require 'exceptions'
 class Configure
 
 public
+  
+  # String constants
+  DISABLE = 'DISABLE'
+  ENABLE = 'ENABLE'
 
   # Initialize inputs:
   #   config_file - relative or absolute path to config file (String)

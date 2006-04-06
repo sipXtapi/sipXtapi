@@ -7,27 +7,23 @@
  */
 
 /* 
- * Additional customer-specific Call Resolver tables.
+ * This file contains SQL for the "call direction" feature needed by a specific customer.
  */
 
+
+---------------------------------- Tables ----------------------------------
+
 /*
- * Call direction is considered to be: 
+ * For cleanliness we could put call direction in its own table, separate 
+ * from the cdrs table.  But that's overkill just for a single char(1) column.
+ * So this column is in the cdrs table, see schema.sql.
+ *
+ * Call direction is encoded in char(1) as follows: 
  *
  *   Incoming (I): for calls that come in from a PSTN gateway
  *   Outgoing (O): for calls that go out to a PSTN gateway
  *   Intranetwork (A): for calls that are pure SIP and don't go through a gateway
- *
- * The direction column holds a single char value for call direction with the 
- * values indicated above.  Because call_directions is just an extension to the 
- * cdrs table, the id is both the primary key for this table and a foreign key
- * to the cdrs table.
  */
-create table call_directions (
-  id int8 not null references cdrs (id),
-  direction char(1) not null,
-  primary key (id)
-);
-
 
 ---------------------------------- Views ----------------------------------
 
@@ -38,10 +34,10 @@ create table call_directions (
  */
 
 create view view_cdrs_cleveland as
-  select cdr.id, 
-         caller_aor, callee_aor,
-         start_time, connect_time, end_time,
-         termination, failure_status, failure_reason,
-         direction
-  from view_cdrs cdr, call_directions call_dir
-  where cdr.id = call_dir.id
+  select view_cdr.id, 
+         view_cdr.caller_aor, view_cdr.callee_aor,
+         view_cdr.start_time, view_cdr.connect_time, view_cdr.end_time,
+         view_cdr.termination, view_cdr.failure_status, view_cdr.failure_reason,
+         cdr.call_direction
+  from view_cdrs view_cdr, cdrs cdr
+  where view_cdr.id = cdr.id

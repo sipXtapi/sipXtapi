@@ -39,5 +39,21 @@ class UtilsTest < Test::Unit::TestCase
       Utils.get_aor_from_header('From: Alice <sip:alice@atlanta.com>', false)
     end
   end
+  
+  def test_contact_host
+    contacts = ["\"Jorma Kaukonen\"<sip:187@10.1.1.170:1234>;tag=1c32681",
+                "<sip:187@10.1.1.170:1234>",
+                "sip:187@10.1.1.170:1234",
+                "sip:187@10.1.1.170"]
+    contacts.each do |contact|
+      assert_equal("10.1.1.170", Utils.contact_host(contact))
+    end
+  end
+
+  def test_remove_part_of_str_beginning_with_char
+    str = "a.b.c"
+    assert_equal("a", Utils.remove_part_of_str_beginning_with_char(str, "."))
+    assert_equal(str, Utils.remove_part_of_str_beginning_with_char(str, "^"))    
+  end
 
 end
