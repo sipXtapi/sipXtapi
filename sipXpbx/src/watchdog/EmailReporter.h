@@ -71,7 +71,7 @@ public:
    //: Sets the external command to execute which runs the email
    //: Program.
    
-   void EmailReporter::flush();
+   void flush();
    //: forces the queue to be cleared
 
 /* ============================ ACCESSORS ================================= */

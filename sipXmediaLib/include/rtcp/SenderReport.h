@@ -286,7 +286,7 @@ public:
  *
  *
  */
-unsigned long CSenderReport::ParseSenderReport(unsigned char *puchReportBuffer);
+unsigned long ParseSenderReport(unsigned char *puchReportBuffer);
 
 /**
  *

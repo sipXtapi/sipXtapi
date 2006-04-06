@@ -184,7 +184,7 @@ protected:
     /**
      * The UtlList constructor is protected - only subclasses may be instantiated
      */
-    UtlList::UtlList();
+    UtlList();
     
     friend class UtlListIterator;
 

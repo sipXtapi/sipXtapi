@@ -345,7 +345,7 @@ rpmBuild()
         if [ -d .svn ]; then
             svnversion . \
             | perl -p \
-                -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", $1 ); s/\d+/$padded/; }' \
+                -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", $1 ); s/\d+/$padded/; };' \
                 -e 's/:/./; s/M/.M/;' \
             > SVN-VERSION
         else 

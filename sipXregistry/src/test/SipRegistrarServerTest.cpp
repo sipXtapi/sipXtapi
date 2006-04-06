@@ -50,9 +50,6 @@ public:
                                                  );
          testDbContext.inputFile("updatesToPull.xml");
 
-         // Create the SipRegistrar for testing, without starting the associated thread
-         initSipRegistrar();
-
          // Pull all updates with primary = R1 and updateNumber > 1.
          UtlSList updates;
          int numUpdates = getRegistrarServer().pullUpdates(
@@ -64,11 +61,8 @@ public:
          CPPUNIT_ASSERT_EQUAL(1, numUpdates);
       }
 
-private:
-   SipRegistrar*      mRegistrar;
-
    // Create the registrar for testing, without starting the associated thread
-   void initSipRegistrar()
+   void setUp()
       {
          // Create and initialize the registrar, but don't start it.
          // For unit testing, we just need the registrar object, not the thread.
@@ -80,10 +74,19 @@ private:
          CPPUNIT_ASSERT(!mRegistrar->isReplicationConfigured());
       }
 
+   void tearDown()
+      {
+         delete mRegistrar;
+      }
+   
+private:
+   SipRegistrar*      mRegistrar;
+
    SipRegistrarServer& getRegistrarServer()
       {
          return mRegistrar->getRegistrarServer();
       }
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipRegistrarServerTest);

@@ -37,7 +37,7 @@ class RegistrarTest : public OsServerTask
    virtual ~RegistrarTest();
    
    /// Override default run method to do one initial check before waiting for timers
-   int RegistrarTest::run(void* pArg);
+   int run(void* pArg);
 
    /// handle the expiration of the check timer
    UtlBoolean handleMessage( OsMsg& eventMessage ///< Timer expiration msg

@@ -188,11 +188,11 @@ class SipRedirectorPickUpTask : public OsServerTask
 {
   public:
 
-   SipRedirectorPickUpTask::SipRedirectorPickUpTask(
+   SipRedirectorPickUpTask(
       SipUserAgent* pSipUserAgent,
       int redirectorNo);
 
-   SipRedirectorPickUpTask::~SipRedirectorPickUpTask();
+   ~SipRedirectorPickUpTask();
 
    virtual UtlBoolean handleMessage(OsMsg& rMsg);
 
@@ -214,7 +214,7 @@ class SipRedirectorPickUpNotification : public OsNotification
 {
   public:
 
-   SipRedirectorPickUpNotification::SipRedirectorPickUpNotification(
+   SipRedirectorPickUpNotification(
       RequestSeqNo requestSeqNo,
       int redirectorNo);
 

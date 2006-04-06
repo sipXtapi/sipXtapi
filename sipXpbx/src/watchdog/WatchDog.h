@@ -57,7 +57,7 @@ public:
    WatchDog& operator=(const WatchDog& rhs);
      //:Assignment operator
    
-   UtlBoolean WatchDog::handleMessage(OsMsg &rMsg);
+   UtlBoolean handleMessage(OsMsg &rMsg);
     //: Handles our timer message
 /* ============================ ACCESSORS ================================= */
 

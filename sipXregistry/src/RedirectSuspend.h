@@ -51,10 +51,10 @@ class RedirectSuspend : public UtlContainable
 public:
 
    // Constructor
-   RedirectSuspend::RedirectSuspend(int noRedirectors);
+   RedirectSuspend(int noRedirectors);
 
    // Destructor
-   RedirectSuspend::~RedirectSuspend();
+   ~RedirectSuspend();
 
    // The request sequence number does not need to be stored, as these
    // objects are always looked up via their sequence numbers.

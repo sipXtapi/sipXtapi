@@ -246,7 +246,7 @@ private:    // Private Member Functions
 
  Returns:       bool.
  ***********************************************************************|><|*/
-    virtual bool  CNetworkChannel::Bind(SOCKADDR_IN *lpAddr=NULL);
+    virtual bool  Bind(SOCKADDR_IN *lpAddr=NULL);
 
 
 /*|><|***********************************************************************
