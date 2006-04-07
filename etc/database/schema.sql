@@ -98,11 +98,13 @@ create table observer_state_events (
  * a party in a SIP call, the caller or callee.
  * AOR example: "Bob <sip:bob@biloxi.com>".
  * Contact example: "<sip:bob@192.0.2.4>".
+ * Sometimes we have just the AOR and the contact is null, so we can't put a 
+ * not null constraint on the contact column.
  */
 create table parties (
   id serial8 not null primary key,
   aor text not null,                    /* SIP AOR */
-  contact text not null,                /* SIP contact URL */
+  contact text,                         /* SIP contact URL */
   unique (aor, contact)
 );
 
