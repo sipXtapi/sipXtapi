@@ -30,7 +30,9 @@ AC_DEFUN([SFAC_INIT_FLAGS],
 	CXXFLAGS="$CXXFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
 	CFLAGS="$CFLAGS $SF_CXX_C_FLAGS $SF_CXX_WARNINGS"
     fi
-AM_CONDITIONAL(ISGCC, [test  x_"${GCC}" != x_])
+
+    AM_CONDITIONAL(ISGCC, [test  x_"${GCC}" != x_])
+
     ## NOTE: These are not expanded (e.g. contain $(prefix)) and are only
     ## fit for Makefiles. You can however write a Makefile that transforms
     ## *.in to * with the concrete values. 
