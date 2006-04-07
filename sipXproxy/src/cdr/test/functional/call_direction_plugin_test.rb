@@ -48,7 +48,7 @@ public
   end
   
   def test_call_direction
-    # Clear out the gateways and set up a single test gateway
+    # Set up a single test gateway
     @plugin.send(:gateways=, [Gateway.new(:address => "1.1.1.1")])
     
     # Resolve calls, computing call direction via the plugin
@@ -66,4 +66,21 @@ public
     assert_equal('A', cdrs[2].call_direction)
   end
   
+  def test_call_direction_with_null_contact
+    # Set up a single test gateway
+    @plugin.send(:gateways=, [Gateway.new(:address => "1.1.1.1")])
+    
+    # Resolve the test call
+    start_time = Time.parse('2001-1-2T00:00:00.000Z')
+    end_time = Time.parse('2001-1-2T01:01:00.000Z')
+    @resolver.add_observer(@plugin)
+    @resolver.resolve(start_time, end_time)    
+
+    # Check that call direction came out as expected
+    cdr = Cdr.find(:first,
+                   :conditions => ["start_time = :start_time", {:start_time => start_time}])
+    assert(cdr, "Resolved the test call but didn't get a CDR")
+    assert_equal(CallDirectionPlugin::INTRANETWORK, cdr.call_direction)
+  end
+        
 end

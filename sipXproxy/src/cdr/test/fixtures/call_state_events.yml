@@ -223,7 +223,7 @@ testFailed_22:
   to_tag:     t
   from_url:   sip:mick@example.com; tag=f
   to_url:     sip:keith@example.com; tag=t
-  failure_status: 486
+  failure_status: 499
   failure_reason: You Can't Always Get What You Want
 
   
@@ -345,3 +345,35 @@ testAnotherSuccess3_52:
   from_url:   sip:mick@example.com; tag=f
   to_url:     sip:keith@example.com; tag=t
 
+  
+#-------------------------------------------------------------------------------
+
+# Call that failed, caller contact is not a gateway, and callee has no contact
+# Test case for XPR-138
+
+testFailed_60:
+  id:         60
+  observer:   O
+  event_seq:  60
+  event_time: 2001-1-2T00:00:00.000Z
+  event_type: R
+  call_id:    testFailedNoCalleeContact
+  from_tag:   f
+  to_tag:
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com
+  contact:    sip:mick@3.3.3.3
+
+testFailed_61:
+  id:         61
+  observer:   O
+  event_seq:  61
+  event_time: 2001-1-2T01:00:00.000Z
+  event_type: F
+  call_id:    testFailedNoCalleeContact
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:mick@example.com; tag=f
+  to_url:     sip:keith@example.com; tag=t
+  failure_status: 499
+  failure_reason: I Feel Stupid and Contagious

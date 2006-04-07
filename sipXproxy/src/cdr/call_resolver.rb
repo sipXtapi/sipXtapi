@@ -175,6 +175,8 @@ public
   # go to a single shared file.
   # Make the configuration available.
   attr_reader :log, :config
+  
+  attr_accessor :log_console, :log_level
 
 private
   
@@ -417,7 +419,7 @@ private
         # "notify_observers" is a method of the Observable module, which is mixed
         # in to the CallResolver.
         notify_observers(EVENT_NEW_CDR,       # event type
-                         cdr)                 # the new CDR
+                         cdr_data)            # the new CDR
         
         # Save the CDR.  If there is an incomplete CDR already, then replace it.
         save_cdr(cdr)
