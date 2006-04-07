@@ -44,8 +44,6 @@ void SipDbTestContext::setFastDbEnvironment()
    int status = setenv("SIPX_DB_CFG_PATH", mTestWorkingDir, 1);
    status += setenv("SIPX_DB_VAR_PATH", mTestWorkingDir, 1);
 
-   printf("SETTING ENV '%s'\n");
-   
    CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), 0, status);
 }
 
