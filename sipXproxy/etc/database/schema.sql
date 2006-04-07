@@ -14,7 +14,7 @@
 
 ---------------------------------- Versioning ----------------------------------
 /*
- * Follow the sipXconfig model
+ * Follow the sipXconfig model for version history
  */
 
 create table version_history(
@@ -25,10 +25,9 @@ create table version_history(
 /**
  * CHANGE VERSION HERE ----------------------------> X <------------------
  *
- * For sipX v??? (first release with Call Resolver), the database version is 1.
- * Activate this line of code when we ship the Call Resolver.
+ * For the initial sipX release with Call Resolver, the database version is 1.
  */
--- insert into version_history (version, applied) values (1, now());
+insert into version_history (version, applied) values (1, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -55,7 +54,7 @@ create table patch(
  *           408 Request timeout
  */
 create table call_state_events (
-   id              serial8 not null,
+   id              serial8 not null primary key,
    observer        text not null,       /* DNS name of the system that observed the event */
    event_seq       int8 not null,       /* Sequence number of this event at the observer */
    event_time      timestamp not null,  /* Observer (UTC) time when this event occurred */
@@ -70,8 +69,7 @@ create table call_state_events (
    refer_to        text,                /* Refer-To header field value */
    referred_by     text,                /* Referred-By header field value */
    failure_status  int2,    /* For Call Failure events, holds 4xx, 5xx, or 6xx status code */
-   failure_reason  text,    /* For Call Failure events, holds error text */
-   primary key     (id)
+   failure_reason  text     /* For Call Failure events, holds error text */
 );
 
 
@@ -84,13 +82,12 @@ create table call_state_events (
  *   101 - Observer Reset
  */
 create table observer_state_events (
-   id              serial8 not null,
+   id              serial8 not null primary key,
    observer        text not null,       /* DNS name of the system that observed the event */
    event_seq       int8 not null,       /* Sequence number of this event at the observer */
    event_time      timestamp not null,  /* Observer (UTC) time when this event occurred */
    status          int2 not null,       /* Status code */
-   msg             text,                /* Explanatory message from observer */
-   primary key     (id)
+   msg             text                 /* Explanatory message from observer */
 );
 
 
@@ -103,11 +100,10 @@ create table observer_state_events (
  * Contact example: "<sip:bob@192.0.2.4>".
  */
 create table parties (
-  id serial8 not null,                  /* Row ID */
+  id serial8 not null primary key,
   aor text not null,                    /* SIP AOR */
   contact text not null,                /* SIP contact URL */
-  unique (aor, contact),
-  primary key (id) 
+  unique (aor, contact)
 );
 
 
@@ -131,7 +127,7 @@ create table parties (
  *   F: call failed -- an error occurred.
  */
 create table cdrs (
-  id serial8 not null,              /* Row ID */
+  id serial8 not null primary key,
   call_id text not null,            /* SIP call ID from the INVITE */
   from_tag text not null,           /* SIP from tag provided by caller in the INVITE */
   to_tag text not null,             /* SIP to tag provided by callee in the 200 OK */
@@ -148,8 +144,7 @@ create table cdrs (
   termination char(1),              /* Why the call was terminated */
   failure_status int2,              /* SIP error code if the call failed, e.g., 4xx */
   failure_reason text,              /* Text describing the reason for a call failure */
-  call_direction char(1),           /* Customer-specific, see the cleveland.sql file */
-  primary key (id)
+  call_direction char(1)            /* Customer-specific, see the cleveland.sql file */
 );
 
 
