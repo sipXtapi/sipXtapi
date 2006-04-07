@@ -95,11 +95,11 @@ public
   # When CallResolver tells us that a new CDR has been created, then compute
   # call direction for that CDR.
   def update(event_type,    # Call Resolver event type
-             cdr)           # Cdr object
+             cdr_data)      # CdrData object
     
     # The "new CDR" event is the only event type handled by this plugin
     if event_type == CallResolver::EVENT_NEW_CDR
-      set_call_direction(cdr)
+      set_call_direction(cdr_data)
     end
   end
   
@@ -130,14 +130,20 @@ private
   # For use by test code
   attr_writer :gateways
 
-  # Compute and set call direction for the CDR
-  def set_call_direction(cdr)
+  # Compute and set call direction for the CDR.
+  # The cdr_data input is a CdrData object.
+  def set_call_direction(cdr_data)
+    # Define variables for cdr_data components
+    cdr = cdr_data.cdr
+    caller = cdr_data.caller
+    callee = cdr_data.callee
+
     # Compute the call direction, based on whether the from or to contact
     # is a gateway address. At most one of them can be a gateway address.
     call_direction = INTRANETWORK
-    if is_gateway_address(cdr.caller.contact)
+    if caller.contact and is_gateway_address(caller.contact)
       call_direction = INCOMING
-    elsif is_gateway_address(cdr.callee.contact)
+    elsif callee.contact and is_gateway_address(callee.contact)
       call_direction = OUTGOING
     end
     log.debug("CallDirectionPlugin#update: CDR has call ID = #{cdr.call_id}, " +

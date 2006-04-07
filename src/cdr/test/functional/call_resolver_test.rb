@@ -181,7 +181,7 @@ public
     assert_equal(true, status, 'Finishing the CDR failed')
     cdr = cdr_data.cdr
     assert_equal(Cdr::CALL_FAILED_TERM, cdr.termination, 'Wrong termination code')
-    assert_equal(486, cdr.failure_status)
+    assert_equal(499, cdr.failure_status)
     assert_equal("You Can't Always Get What You Want", cdr.failure_reason) 
   end
  
