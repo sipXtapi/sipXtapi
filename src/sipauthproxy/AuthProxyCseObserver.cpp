@@ -104,16 +104,6 @@ AuthProxyCseObserver::AuthProxyCseObserver(SipUserAgent&         sipUserAgent,
 
   // Register to get incoming requests
    sipUserAgent.addMessageObserver(*myTaskQueue,
-                                   SIP_ACK_METHOD,
-                                   TRUE, // Requests,
-                                   FALSE, //Responses,
-                                   TRUE, //Incoming,
-                                   FALSE, //OutGoing,
-                                   "", //eventName,
-                                   NULL, // any session
-                                   NULL // no observerData
-                                   );
-   sipUserAgent.addMessageObserver(*myTaskQueue,
                                    SIP_BYE_METHOD,
                                    TRUE, // Requests,
                                    FALSE, //Responses,
@@ -209,17 +199,12 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             // sipMsg is a Request
             sipMsg->getRequestMethod(&method);
 
-            if (0==method.compareTo(SIP_ACK_METHOD, UtlString::ignoreCase))
-            {
-               thisMsgIs = aCallSetup;
-               sipMsg->getContactEntry(0, &contact);
-            }
             if (0==method.compareTo(SIP_REFER_METHOD, UtlString::ignoreCase))
             {
                thisMsgIs = aCallTransfer;
                sipMsg->getContactEntry(0, &contact);               
             }
-            if (0==method.compareTo(SIP_BYE_METHOD, UtlString::ignoreCase))
+            else if (0==method.compareTo(SIP_BYE_METHOD, UtlString::ignoreCase))
             {
                thisMsgIs = aCallEnd; // no additional information needed
             }
@@ -228,22 +213,10 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
                // other request methods are not interesting
             }
          }
-         else 
+         else // this is a response
          {
-            /*****************
-             * At present, none of this happens.  It turns out that in a proxy
-             * the SipUserAgent will not return responses - they are forwarded
-             * at a lower layer in the stack and don't make it up to the
-             * queueMessageToObservers routine.
-             *
-             * For the time being, this means that we don't see what we need to
-             * generate CallFailure events.  The code to recognize and record them
-             * has been left here in case we need it and figure out where/how
-             * to get the right messages dispatched to it.
-             *****************/
             int seq;
-            
-            if (sipMsg->getCSeqField(&seq, &method))
+            if (sipMsg->getCSeqField(&seq, &method)) // get the method out of cseq field
             {
                if (0==method.compareTo(SIP_INVITE_METHOD, UtlString::ignoreCase))
                {
@@ -261,6 +234,13 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
                      // a final failure - this is a CallFailure
                      thisMsgIs = aCallFailure;
                      sipMsg->getResponseStatusText(&rspText);
+                  }
+                  else if (   ( rspStatus >= SIP_2XX_CLASS_CODE )
+                           && ( rspStatus <  SIP_3XX_CLASS_CODE )
+                           )
+                  {
+                     thisMsgIs = aCallSetup;
+                     sipMsg->getContactEntry(0, &contact);
                   }
                }
                else
