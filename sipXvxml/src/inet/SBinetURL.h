@@ -56,7 +56,7 @@ public:
 
   void AppendQueryArgs(const VXIMap* m_queryArgs);
 
-  HTAssocList* SBinetURL::QueryArgsToHtList(const VXIMap* queryArgs);
+  HTAssocList* QueryArgsToHtList(const VXIMap* queryArgs);
 
   VXIinetResult ContentTypeFromUrl(SBinetString* strContentType) const;
 

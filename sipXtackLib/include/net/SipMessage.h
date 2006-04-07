@@ -847,7 +847,7 @@ public:
     void setSupportedField(const char* supportedField);
 
     //! Test whether "token" is present in the Supported: header.
-    UtlBoolean SipMessage::isInSupportedField(const char* token) const;
+    UtlBoolean isInSupportedField(const char* token) const;
 
     //! Get the SIP-IF-MATCH field from the PUBLISH request
     UtlBoolean getSipIfMatchField(UtlString& sipIfMatchField) const;
@@ -946,7 +946,7 @@ public:
     // This method is needed to cover the symetrical situation which is
     // specific to SIP authorization (i.e. authentication and authorize
     // fields may be in either requests or responses
-    UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
+    UtlBoolean verifyMd5Authorization(const char* userId,
                                                  const char* password,
                                                  const char* nonce,
                                                  const char* realm,

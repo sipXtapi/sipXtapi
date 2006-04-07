@@ -60,7 +60,7 @@ public:
    /**
     * public interface for destroying this media interface
     */ 
-   virtual void CpMediaInterfaceFactoryImpl::release();
+   virtual void release();
 
 /* ============================ MANIPULATORS ============================== */
 

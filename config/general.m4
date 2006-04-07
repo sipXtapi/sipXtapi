@@ -414,7 +414,7 @@ AC_DEFUN([CHECK_APR],
     AC_ARG_WITH(apr,
                 [--with-apr=PATH to apr header files directory],
                 [apr_path=$withval],
-                [apr_path="/usr/include/httpd /usr/include/apr-0 /usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2"
+                [apr_path="/usr/include/httpd /usr/include/apr-1 /usr/include/apr-0 /usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2"
                 ]
                )
     for apr_dir in $apr_path ; do
@@ -464,64 +464,8 @@ AC_DEFUN([CHECK_APACHE2],
 
    CHECK_APR
 
-   AC_ARG_WITH([apache-modules],
-               [--with-apache-modules=PATH where apache modules are installed],
-               [ apache2_mod_search_path="$withval"
-                 apache2_mod_override="$withval"
-                ],
-               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules /usr/lib/apache2 /usr/lib/apache2/modules"
-                 apache2_mod_override=""
-                ]
-              )
-
-   ## Get the version numbers for this Apache installation.
-   ## APACHE2_MMN is the module magic number, which is the version of
-   ## the API that modules have to interface to.
-   ## Some versions have a $incdir/.mmn file containing only the MMN, but
-   ## we can't depend on that.
-   apache2_mmn=`sed <$incdir/ap_mmn.h \
-                -e '/#define MODULE_MAGIC_NUMBER_MAJOR/!d' \
-                -e 's/#define MODULE_MAGIC_NUMBER_MAJOR //'`
-   AC_SUBST(APACHE2_MMN, $apache2_mmn)
-   AC_MSG_RESULT(apachd2_mmn=$apache2_mmn)
-   ## APACHE2_VERSION is the Apache version number.
-   ## This makes it easier for the uninitiated to see what versions of Apache
-   ## might be compatible with this mod_cplusplus.  But compatibility is really
-   ## controlled by the MMN value.
-   apache2_version=`awk -f $srcdir/config/apache_version.awk $incdir/ap_release.h`
-   AC_SUBST(APACHE2_VERSION, $apache2_version)
-   AC_MSG_RESULT(apache2_version=$apache2_version)
-   AC_MSG_RESULT(apache2_version=$apache2_version)
-
-   ## Apache Modules Directory
-   AC_MSG_CHECKING([for apache2 modules directory])
-   found_apache2_mod="no";
-   tried_path=""
-   ## Older versions of Apache seem to always have mod_access.so in their
-   ## modules directory.  Newer ones can have it linked into the httpd
-   ## executable, but they seem to have an httpd.exp file in the modules
-   ## directory.  So we check for either.
-   for apache2_moddir in $apache2_mod_search_path; do
-     if test -f "$apache2_moddir/mod_access.so"; then
-       found_apache2_mod="yes";
-       break;
-     elif test -f "$apache2_moddir/httpd.exp"; then
-       found_apache2_mod="yes";
-       break;
-     else
-       tried_path="${tried_path} $apache2_moddir"
-     fi
-   done
-   if test x_$found_apache2_mod = x_yes; then
-       AC_MSG_RESULT($apache2_moddir)
-       AC_SUBST(APACHE2_MOD, $apache2_moddir)
-   elif test x_$apache2_mod_override != x_; then
-       AC_SUBST(APACHE2_MOD, $apache2_mod_override)
-       AC_MSG_WARN('mod_access.so' and 'httpd.exp' not found; using explicit value: $apache2_mod_override)
-   else
-       AC_MSG_ERROR('mod_access.so' and 'httpd.exp' not found; tried: $tried_path)
-   fi
-
+   ## Apache httpd executable
+   AC_MSG_CHECKING([for Apache2 httpd])
    AC_ARG_WITH([apache-httpd],
                [--with-apache-httpd=PATH the apache2 httpd executable],
                [ apache2_bin_search_path="$withval"
@@ -530,8 +474,6 @@ AC_DEFUN([CHECK_APACHE2],
                  ]
                )
 
-   ## Apache httpd executable
-   AC_MSG_CHECKING([for Apache2 httpd])
    found_apache2_httpd="no";
    for apache2_httpd_dir in $apache2_bin_search_path; do
      if test -x "$apache2_httpd_dir/httpd"; then
@@ -555,6 +497,84 @@ AC_DEFUN([CHECK_APACHE2],
        AC_MSG_ERROR('httpd' not found; tried: $apache2_bin_search_path)
    fi
 
+   ## Get the version numbers for this Apache installation.
+   ## APACHE2_MMN is the module magic number, which is the version of
+   ## the API that modules have to interface to.
+   ## Some versions have a $incdir/.mmn file containing only the MMN, but
+   ## we can't depend on that.
+   apache2_mmn=`sed <$incdir/ap_mmn.h \
+                -e '/#define MODULE_MAGIC_NUMBER_MAJOR/!d' \
+                -e 's/#define MODULE_MAGIC_NUMBER_MAJOR //'`
+   AC_SUBST(APACHE2_MMN, $apache2_mmn)
+   AC_MSG_RESULT(apachd2_mmn=$apache2_mmn)
+   ## APACHE2_VERSION is the Apache version number.
+   ## This makes it easier for the uninitiated to see what versions of Apache
+   ## might be compatible with this mod_cplusplus.  But compatibility is really
+   ## controlled by the MMN value.
+   apache2_version=`$apache2_httpd -version | sed -n -e 's,Server version: Apache/,,p'`
+   AC_SUBST(APACHE2_VERSION, $apache2_version)
+   AC_MSG_RESULT(apache2_version=$apache2_version)
+   AC_MSG_CHECKING(which apache host access module to use)
+   case $apache2_version in
+   2.2.*)
+      apache2_host_access="authz_host_module"
+      apache2_mod_access="mod_authz_host.so"
+      ;;
+   2.0.*)
+      apache2_host_access="access_module"
+      apache2_mod_access="mod_access.so"
+      ;;
+   *)
+      apache2_host_access="UNKNOWN"
+      apache2_mod_access="UNKNOWN"
+      AC_MSG_ERROR(Unknown apache version $apache2_version)
+      ;;
+   esac
+   AC_MSG_RESULT($apache2_host_access = $apache2_mod_access)
+   AC_SUBST(APACHE2_HOST_ACCESS, $apache2_host_access)
+   AC_SUBST(APACHE2_MOD_ACCESS, $apache2_mod_access)
+
+   ## Apache Modules Directory
+   AC_MSG_CHECKING([for apache2 modules directory])
+   AC_ARG_WITH([apache-modules],
+               [--with-apache-modules=PATH where apache modules are installed],
+               [ apache2_mod_search_path="$withval"
+                 apache2_mod_override="$withval"
+                ],
+               [ apache2_mod_search_path="/usr/local/apache2/modules /usr/apache2/modules /etc/httpd/modules /usr/lib/httpd/modules /usr/lib/apache2 /usr/lib/apache2/modules"
+                 apache2_mod_override=""
+                ]
+              )
+   found_apache2_mod="no";
+   tried_path=""
+   ## Older versions of Apache seem to always have mod_access.so in their
+   ## modules directory.  Newer ones can have it linked into the httpd
+   ## executable, but they seem to have an httpd.exp file in the modules
+   ## directory.  apache 2.2 has mod_cgi.so, So we check for any of them.
+   for apache2_moddir in $apache2_mod_search_path; do
+     if test -f "$apache2_moddir/$apache2_mod_access"; then
+       found_apache2_mod="yes";
+       break;
+     elif test -f "$apache2_moddir/httpd.exp"; then
+       found_apache2_mod="yes";
+       break;
+     elif test -f "$apache2_moddir/mod_cgi.so"; then
+       found_apache2_mod="yes";
+       break;
+     else
+       tried_path="${tried_path} $apache2_moddir"
+     fi
+   done
+   if test x_$found_apache2_mod = x_yes; then
+       AC_MSG_RESULT($apache2_moddir)
+       AC_SUBST(APACHE2_MOD, $apache2_moddir)
+   elif test x_$apache2_mod_override != x_; then
+       AC_SUBST(APACHE2_MOD, $apache2_mod_override)
+       AC_MSG_WARN('$apache2_mod_access', 'mod_cgi.so', and 'httpd.exp' not found; using explicit value: $tried_path)
+   else
+       AC_MSG_ERROR('$apache2_mod_access' and 'httpd.exp' not found; tried: $tried_path)
+   fi
+
    ## Apache apxs executable
    AC_ARG_WITH([apache-apxs],
                [--with-apache-apxs=PATH the apache2 apxs executable],
@@ -573,7 +593,7 @@ AC_DEFUN([CHECK_APACHE2],
        apache2_apxs="$apache2_apxs_dir/apxs2";
        break;
 
-     ## Apache < 2.0.50
+     ## Apache < 2.0.50 or Apache >= 2.2
      elif test -x "$apache2_apxs_dir/apxs"; then
        found_apache2_apxs="yes";
        apache2_apxs="$apache2_apxs_dir/apxs";
@@ -718,7 +738,17 @@ AC_DEFUN([CHECK_LIBWWW],
         LIBWWW_LIBS="$LIBWWW_LIBS -lwwwfile -lwwwutils -lwwwmime -lwwwstream -lmd5";
         LIBWWW_LIBS="$LIBWWW_LIBS -lpics -lwwwnews -lwwwdir -lwwwtelnet -lwwwftp";
         LIBWWW_LIBS="$LIBWWW_LIBS -lwwwmux -lwwwhtml -lwwwgopher -lwwwtrans -lwwwzip";
-        LIBWWW_LIBS="$LIBWWW_LIBS -lwwwssl -lwwwxml -lxmlparse -lxmltok";
+        LIBWWW_LIBS="$LIBWWW_LIBS -lwwwssl -lwwwxml";
+        # These two have been moved into something else in FC5, so check to see if they are there
+        if test -f $lwwwdir/lib/libxmlparse.so -o -f $lwwwdir/lib/libxmlparse.a
+        then
+           LIBWWW_LIBS="$LIBWWW_LIBS -lxmlparse"
+        fi
+        if test -f $lwwwdir/lib/libxmltok.so -o -f $lwwwdir/lib/libxmltok.a
+        then
+           LIBWWW_LIBS="$LIBWWW_LIBS -lxmltok"
+        fi
+
         AC_SUBST(LIBWWW_LIBS)
 
         LIBWWW_LDFLAGS="-L$lwwwdir/lib";
@@ -1153,3 +1183,86 @@ AC_DEFUN([ENABLE_PROFILE],
     LDFLAGS="$LDFLAGS -pg"
   fi
 ])
+
+# ==================== unixODBC  =========================
+AC_DEFUN([CHECK_ODBC],
+[
+    AC_MSG_CHECKING([for unixODBC])
+
+    # Process the --with-odbc argument which gives the odbc base directory.
+    AC_ARG_WITH(odbc,
+                [  --with-odbc=PATH path to odbc install directory],
+                [odbc_homeval=$with_val],
+                [odbc_homeval=""]
+                )
+    
+    # Process the --with-odbc_includedir argument which gives the odbc include
+    # directory.
+    AC_ARG_WITH(odbc_includedir,
+                [  --with-odbc_includedir=PATH path to odbc include directory (containing sql.h)],
+                [includeval=$with_val],
+                [if test -n "$odbc_homeval";
+                 then includeval="$odbc_homeval/include";
+                 else includeval="/usr/include /usr/include/odbc /usr/local/include /usr/local/odbc/include";
+                 fi
+                ]
+                )
+    # Check for sql.h
+    found_odbc_include="no";
+    for dir in $includeval ; do
+        if test -f "$dir/sql.h"; then
+            found_odbc_include="yes";
+            includeval=$dir
+            break;
+        fi
+    done
+
+    # Process the --with-odbc_libdir argument which gives the odbc library
+    # directory.
+    AC_ARG_WITH(odbc_libdir,
+                [  --with-odbc_libdir=PATH path to odbc lib directory (containing libodbc.{so,a})],
+                [libval=$with_val],
+                [if test -n "$odbc_homeval";
+                 then libval="$odbc_homeval/lib";
+                 else libval="/usr/lib /usr/lib/odbc /usr/local/lib /usr/local/odbc/lib";
+                 fi
+                ]
+                )
+    # Check for libodbc.{so,a}
+    found_odbc_lib="no";
+    for dir in $libval; do
+        if test -f "$dir/libodbc.so" -o -f "$dir/libodbc.a"; then
+            found_odbc_lib="yes";
+            libval=$dir
+            break;
+        fi
+    done
+
+    # Test that we've been able to find both directories, and set the various
+    # makefile variables.
+    if test x_$found_odbc_include != x_yes; then
+        AC_MSG_ERROR(Cannot find sql.h - looked in $includeval)
+    else
+        if test x_$found_odbc_lib != x_yes; then
+            AC_MSG_ERROR(Cannot find libodbc.so or libodbc.a libraries - looked in $libval)
+        else
+            ## Test for version
+            odbc_ver=`odbcinst --version`
+            AX_COMPARE_VERSION([$odbc_ver],[ge],[2.2],
+                               [AC_MSG_RESULT($odbc_ver is ok)],
+                               [AC_MSG_ERROR([unixODBC version must be >= 2.2 - found $odbc_ver])])
+
+            AC_MSG_RESULT([    odbc includes found in $includeval])
+            AC_MSG_RESULT([    odbc libraries found in $libval])
+
+            ODBC_CFLAGS="-I$includeval"
+            ODBC_CXXFLAGS="-I$includeval"
+            AC_SUBST(ODBC_CFLAGS)
+            AC_SUBST(ODBC_CXXFLAGS)
+
+            AC_SUBST(ODBC_LIBS, "-lodbc" )
+            AC_SUBST(ODBC_LDFLAGS, "-L$libval")
+        fi
+    fi
+])dnl
+

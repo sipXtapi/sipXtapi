@@ -100,7 +100,7 @@ private:
 
   void ProcessRootScripts(VXMLElement & doc);
 
-  void VXI::AttemptDocumentLoad(const vxistring & rawURL,
+  void AttemptDocumentLoad(const vxistring & rawURL,
                                 const VXIMapHolder & urlProperties,
                                 VXMLDocument & doc,
                                 VXIMapHolder & docProperties,

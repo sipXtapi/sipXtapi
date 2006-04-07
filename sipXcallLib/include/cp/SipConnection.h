@@ -181,7 +181,7 @@ protected:
     UtlBoolean doHangUp(const char* dialString = NULL,
         const char* callerId = NULL);
 
-    void SipConnection::buildFromToAddresses(const char* dialString,
+    void buildFromToAddresses(const char* dialString,
         const char* callerId,
         const char* callerDisplayName,
         UtlString& fromAddress,

@@ -172,7 +172,7 @@ public:
 
 /* ============================ ACCESSORS ================================= */
 
-   int MpMediaTask::numHandledMsgErrs();
+   int numHandledMsgErrs();
     //: Debug aid for tracking state. See MpMediaTaskTest
 
    UtlBoolean getDebugMode(void) const;
@@ -241,7 +241,7 @@ public:
      //:Returns TRUE if the indicated flow graph is presently being managed 
      //:by the media processing task, otherwise FALSE.
 
-   void MpMediaTask::getQueueUsage(int& numMsgs, int& softLimit,
+   void getQueueUsage(int& numMsgs, int& softLimit,
                                    int& hardLimit);
      //:Return usage information on the Media Task's message queue.
 

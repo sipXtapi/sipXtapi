@@ -57,7 +57,7 @@ OSBrecWordList::~OSBrecWordList()
 {
   for (WORDS::iterator i = words.begin(); i != words.end(); ++i)
   {
-    if ((i != 0) && (*i != 0))
+    if (*i != 0)
     {
        delete *i;
        *i = 0;
@@ -481,7 +481,7 @@ OSBrecData::~OSBrecData()
 {
   for (GRAMMARS::iterator i = grammars.begin(); i != grammars.end(); ++i)
   {
-    if ((i != 0) && (*i != 0))  
+    if (*i != 0)  
     {
        delete *i;
        *i = 0;
@@ -494,7 +494,7 @@ void OSBrecData::Clear()
 {
   for (GRAMMARS::iterator i = grammars.begin(); i != grammars.end(); ++i)
   {
-    if ((i != 0) && (*i != 0))
+    if (*i != 0)  
     {
        delete *i;
        *i = 0;

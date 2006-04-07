@@ -6,9 +6,6 @@ INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/include/fastdb
 
 libexec_SCRIPTS = sipx-utils.sh
 
-EXTRA_DIST = \
-	$(libexec_SCRIPTS)
-
 lib_LTLIBRARIES = libsipXcommserver.la
 
 EXTRA_DIST = \
