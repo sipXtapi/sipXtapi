@@ -488,7 +488,7 @@ AC_DEFUN([CHECK_APACHE2],
    ## This makes it easier for the uninitiated to see what versions of Apache
    ## might be compatible with this mod_cplusplus.  But compatibility is really
    ## controlled by the MMN value.
-   apache2_version=`$AWK -f $srcdir/config/apache_version.awk $incdir/ap_release.h`
+   apache2_version=`awk -f $srcdir/config/apache_version.awk $incdir/ap_release.h`
    AC_SUBST(APACHE2_VERSION, $apache2_version)
    AC_MSG_RESULT(apache2_version=$apache2_version)
    AC_MSG_RESULT(apache2_version=$apache2_version)
