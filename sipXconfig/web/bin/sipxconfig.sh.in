@@ -30,7 +30,7 @@ Args=""
 : ${RunningUser:=@sipxpbx.user@}
 
 Database=SIPXCONFIG
-RequiredDatabaseVersion=2
+RequiredDatabaseVersion=3
 IndexDir=${TmpDir}/index
 
 javaCommand() {
