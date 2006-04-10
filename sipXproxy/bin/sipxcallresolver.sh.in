@@ -31,6 +31,7 @@ resolverArgs=""
 : ${RunningUser:=@SIPXPBXUSER@}
 : ${PgUser:=postgres}
 : ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
+: ${PgPluginSchema:=@SIPX_CONFDIR@/cdr/cleveland.sql}
 
 Database=SIPXCDR
 
@@ -91,6 +92,7 @@ databaseCommand() {
        create)
          createdb -U ${PgUser} ${Database} >/dev/null
          ${Psql} -U ${PgUser} -d ${Database} -f ${PgSchema} >/dev/null 2>&1
+         ${Psql} -U ${PgUser} -d ${Database} -f ${PgPluginSchema} >/dev/null 2>&1
        ;;
        
        drop)
