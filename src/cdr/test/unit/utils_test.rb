@@ -56,4 +56,18 @@ class UtilsTest < Test::Unit::TestCase
     assert_equal(str, Utils.remove_part_of_str_beginning_with_char(str, "^"))    
   end
 
+  def test_contact_without_params
+    contact_with_no_params = '<sip:100@10.1.20.3:5100>'
+    assert_equal(contact_with_no_params, Utils.contact_without_params(contact_with_no_params))
+    
+    contact_with_one_long_param = '<sip:100@10.1.20.3:5100;play=https%3A%2F%2Flocalhost%3A8091%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Dautoattendant%26name%3Daa_41>'
+    assert_equal('<sip:100@10.1.20.3:5100>', Utils.contact_without_params(contact_with_one_long_param))
+    
+    contact_with_lots_of_params = '<sip:alice@example.com;one;more;for;you;nineteen;for;me>'
+    assert_equal('<sip:alice@example.com>', Utils.contact_without_params(contact_with_lots_of_params))
+    
+    contact_with_no_greater_than_sign_at_end = 'sip:alice@example.com;one;more;for;you;nineteen;for;me'
+    assert_equal('sip:alice@example.com', Utils.contact_without_params(contact_with_no_greater_than_sign_at_end))
+  end
+
 end

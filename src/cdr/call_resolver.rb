@@ -271,7 +271,7 @@ private
   # Return the new CDR.
   def start_cdr(call_req)
     caller = Party.new(:aor => call_req.caller_aor,
-                       :contact => call_req.contact)
+                       :contact => Utils.contact_without_params(call_req.contact))
     callee = Party.new(:aor => call_req.callee_aor)
     cdr = Cdr.new(:call_id => call_req.call_id,
                   :from_tag => call_req.from_tag,
@@ -340,7 +340,7 @@ private
       status = true
       
       # Get data from the call_setup event
-      cdr_data.callee.contact = call_setup.contact
+      cdr_data.callee.contact = Utils.contact_without_params(call_setup.contact)
       cdr.to_tag = call_setup.to_tag
       cdr.connect_time = call_setup.event_time
       

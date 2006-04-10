@@ -464,6 +464,18 @@ public
     assert(!(daily_start_time == @resolver.send(:get_daily_start_time,
       {CallResolver::DAILY_START_TIME => '04:00:11'})))    
   end
+
+  # Test that contact params are stripped off of the contact URLs recorded in CDRs
+  def test_contact_param_stripping
+    start_time = Time.parse('2001-1-3T00:00:00.000Z')
+    end_time = Time.parse('2001-1-3T00:00:00.000Z')
+    @resolver.resolve(start_time, end_time)
+    
+    assert(Party.find(:first,
+                      :conditions => "contact = 'sip:alice_with_params@1.1.1.1'"))
+    assert(Party.find(:first,
+                      :conditions => "contact = '<sip:bob_with_params@2.2.2.2>'"))
+   end
   
   #-----------------------------------------------------------------------------
   # Helper methods
@@ -473,5 +485,5 @@ public
     call_id = 'testSimpleSuccess'
     @resolver.send(:load_events, call_id)
   end
-  
+ 
 end

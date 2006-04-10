@@ -377,3 +377,47 @@ testFailed_61:
   to_url:     sip:keith@example.com; tag=t
   failure_status: 499
   failure_reason: I Feel Stupid and Contagious
+
+
+#-------------------------------------------------------------------------------
+
+# Success case.  Test that contact params are stripped off of contact URLs.
+
+testContactParamStripping_1:
+  id:         71
+  observer:   O
+  event_seq:  71
+  event_time: 2001-1-3T00:00:00.000Z
+  event_type: R
+  call_id:    testContactParamStripping
+  from_tag:   f
+  to_tag:
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com
+  contact:    sip:alice_with_params@1.1.1.1;param_to_be_stripped
+
+testContactParamStripping_2:
+  id:         72
+  observer:   O
+  event_seq:  72
+  event_time: 2001-1-3T01:00:00.000Z
+  event_type: S
+  call_id:    testContactParamStripping
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:    <sip:bob_with_params@2.2.2.2;param1;param2>
+  
+testContactParamStripping_3:
+  id:         73
+  observer:   O
+  event_seq:  73
+  event_time: 2001-1-3T02:00:00.000Z
+  event_type: E
+  call_id:    testContactParamStripping
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact :
