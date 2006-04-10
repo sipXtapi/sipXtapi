@@ -108,4 +108,17 @@ public
     ip_address
   end
 
+  # Given a contact URL with params, like <sip:101@10.1.20.3:5100;play=https%3A%2F%2Flocalhost>,
+  # remove the params, which are preceded by semicolons.  Usually there is a '>' at the end
+  # matching a '<' at the beginning.  If so then leave it in place.
+  def Utils.contact_without_params(contact)
+    semi_index = contact.index(';')
+    if semi_index
+      gt_index = contact.index('>')
+      contact = contact[0...semi_index]
+      contact << '>' if gt_index
+    end
+    contact
+  end
+
 end

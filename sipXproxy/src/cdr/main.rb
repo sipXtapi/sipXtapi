@@ -14,18 +14,26 @@ require 'parsedate'
 
 # application requires
 require File.join(File.dirname(__FILE__), 'call_resolver')
-
 require 'call_direction_plugin'
 
+
+# Create a Call Resolver
+resolver = CallResolver.new
+
+if resolver.log.debug?
+  resolver.log.debug("main called with these args: #{ARGV.join(' ')}")
+end
 
 # Parse command-line options
 #   start: date/time from which to start analyzing call events
 #   end:   date/time at which to end the analysis (defaults to 1 day later)
 #   redo:  if true then calculate all CDRs, even those already done before
 #          (defaults to false)
+#   daily: perform daily processing based on the configuration -- resolve
+#          calls and/or purge old data
 # :TODO: Print out a helpful message if the caller enters no options or screws up
 opts = GetoptLong.new(
-  [ "--start", "-s", GetoptLong::REQUIRED_ARGUMENT ],
+  [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
   [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
   [ "--redo",  "-r", GetoptLong::NO_ARGUMENT ],
   [ "--daily", "-d", GetoptLong::NO_ARGUMENT ]
@@ -55,9 +63,6 @@ opts.each do |opt, arg|
 
   end
 end 
-
-# Create a Call Resolver
-resolver = CallResolver.new
 
 # Add the Call Direction Plugin as an observer so that it can compute call direction
 if CallDirectionPlugin.call_direction?(resolver.config)
