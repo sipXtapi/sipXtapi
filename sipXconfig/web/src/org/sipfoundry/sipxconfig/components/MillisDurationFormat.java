@@ -31,7 +31,7 @@ public class MillisDurationFormat extends Format {
         DateUtils.MILLIS_PER_DAY, DateUtils.MILLIS_PER_HOUR, DateUtils.MILLIS_PER_MINUTE,
         DateUtils.MILLIS_PER_SECOND
     };
-    
+
     // TODO: move to properties file
     private static final String[] LABELS = {
         "{0,choice,0#0 days|1#1 day|2<{0} days}", "{0,choice,0#0 hours|1#1 hour|2<{0} hours}",
@@ -42,6 +42,7 @@ public class MillisDurationFormat extends Format {
     private int m_maxField = DAYS;
     private String[] m_labels = LABELS;
     private String m_separator = SEPARATOR;
+    private boolean m_showZero;
 
     public void setMaxField(int maxField) {
         m_maxField = maxField;
@@ -60,10 +61,18 @@ public class MillisDurationFormat extends Format {
         m_separator = separator;
     }
 
+    public void setShowZero(boolean showZero) {
+        m_showZero = showZero;
+    }
+
     public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
         // only works for numbers - class exception otherwise
         Number millisNumber = (Number) obj;
         long millis = millisNumber.longValue();
+
+        if (millis < DateUtils.MILLIS_PER_SECOND && !m_showZero) {
+            return toAppendTo;
+        }
 
         boolean bAdded = false;
         for (int i = m_maxField; i < INTERVALS.length; i++) {
