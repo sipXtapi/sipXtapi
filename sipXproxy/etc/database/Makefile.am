@@ -4,8 +4,7 @@ INSTALL=@INSTALL@
 include $(top_builddir)/config/sipXcommon.mak
 
 sql_schemas = \
-    schema.sql \
-    cleveland.sql
+    schema.sql
 
 EXTRA_DIST = \
     $(sql_schemas)

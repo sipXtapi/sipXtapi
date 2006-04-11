@@ -146,7 +146,7 @@ create table cdrs (
   termination char(1),              /* Why the call was terminated */
   failure_status int2,              /* SIP error code if the call failed, e.g., 4xx */
   failure_reason text,              /* Text describing the reason for a call failure */
-  call_direction char(1)            /* Customer-specific, see the cleveland.sql file */
+  call_direction char(1)            /* Plugin feature, see below */
 );
 
 
@@ -167,4 +167,38 @@ create view view_cdrs as
          termination, failure_status, failure_reason
   from cdrs cdr, parties caller, parties callee
   where cdr.caller_id = caller.id
-  and   cdr.callee_id = callee.id
+  and   cdr.callee_id = callee.id;
+
+
+---------------------------------- Plugins ----------------------------------
+
+/*
+ * Call Direction
+ */
+
+/*
+ * "Call direction" is an application-level plugin. 
+ * The purist approach would be to put call direction in its own table, separate 
+ * from the cdrs table, but that would be overkill just for a single char(1) column.
+ * So this column is in the cdrs table, see above.
+ *
+ * Call direction is encoded in char(1) as follows: 
+ *
+ *   Incoming (I): for calls that come in from a PSTN gateway
+ *   Outgoing (O): for calls that go out to a PSTN gateway
+ *   Intranetwork (A): for calls that are pure SIP and don't go through a gateway
+ */
+
+/*
+ * Define "view_cdrs_with_call_direction" to be a superset of "view_cdrs" defined 
+ * above, with the addition of the call_direction column.
+ */
+
+create view view_cdrs_with_call_direction as
+  select view_cdr.id, 
+         view_cdr.caller_aor, view_cdr.callee_aor,
+         view_cdr.start_time, view_cdr.connect_time, view_cdr.end_time,
+         view_cdr.termination, view_cdr.failure_status, view_cdr.failure_reason,
+         cdr.call_direction
+  from view_cdrs view_cdr, cdrs cdr
+  where view_cdr.id = cdr.id;
