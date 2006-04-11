@@ -61,13 +61,14 @@ width="133" align="left" />
 <p>
 This test server is provided by <a
 href='http://www.pingtel.com/'>Pingtel</a> for open interoperability
-testing of SIP user agents.  It is the Pingtel proxy software (based on the
-<a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx open source project</a>)
+testing of SIP user agents.  It is the sipXpbx <a href='http://www.sipfoundry.org/sipXpbx/'>sipXpbx open source software</a>
 with a <a href='#config'>custom configuration</a>.  This configuration
 is designed to exercise issues we have found are important to
 interoperability between User Agents and Proxies.
 </p>
-
+<p>
+<a href='sipx-version.cgi'>Display the sipX version running on this server</a>
+</p>
 <p>
 This server is freely available to all, <strong>but Pingtel does not
 provide any free support for diagnosing problems you have with these
@@ -116,13 +117,17 @@ SIPfoundry Interoperability Initiative
 
 <hr />
 
-<h2>Tests</h2>
+<h2>Addresses</h2>
 
 <p>
 The tests below are organized so that they can be used by more than
 one tester at a time - if you pick your own group of extensions.  Pick
-a number between 10 and 99 - in the addresses below, this group number
-is shown as "<span class='group'>gg</span>".  Each group consists of 9
+a number between 10 and 99 - this is your <span class='group'>group
+number</span>; in the addresses below, the group number
+is shown as "<span class='group'>gg</span>".  To see if the group
+number you have chosen is in use, check the
+<a href="registrations.cgi">registrations page</a> - look for any
+User values that use that group number.   Each group consists of 9
 addresses that you can register:
 <pre>
     1<span class='group'>gg</span>1@interop.pingtel.com
@@ -135,10 +140,8 @@ addresses that you can register:
     1<span class='group'>gg</span>8@interop.pingtel.com
     1<span class='group'>gg</span>9@interop.pingtel.com
 </pre>
-Before you register the first address, check the
-<a href="registrations.cgi">registrations page</a>
-to see what groups other people are using.
-</p>
+
+<!-- REMOVED TEMPORARILY until we are sure that TCP is working right.
 
 <h2>DNS SRV</h2>
 
@@ -146,6 +149,8 @@ to see what groups other people are using.
 The SRV records for <code>interop.pingtel.com</code> are set to prefer
 TCP; your user agent should choose TCP over UDP.
 </p>
+
+-->
 
 <h2>Registration</h2>
 
@@ -167,11 +172,15 @@ The credentials for the test addresses are:
   <dd><code>1234</code></dd>
 </dl>
 
-<h2>Registration Tests</h2>
-
 <p>
 The database of current registration information can be seen on the
 <a href="registrations.cgi">registrations page</a>.
+</p>
+
+<p>
+Confirm that your UA is refreshing its registration correctly - note
+that the registrar randomizes the expiration time of each register
+request, so it will normally be less than the requested time.
 </p>
 
 <!--
@@ -200,12 +209,12 @@ this error.
 </p>
 -->
 
-<h2>Message Waiting</h2>
+<h2>Message Waiting Indication (MWI)</h2>
 
 <p>
 The 1<span class='group'>gg</span>1 and 1<span
 class='group'>gg</span>2 each has a voicemail box; they may SUBSCRIBE
-for the <code>message-waiting</code> event package.  You can call the
+for the <code>message-summary</code> event package.  You can call the
 voicemail box directly by calling user
 <code>2<span class='group'>gg</span>1</code> or <code>2<span class='group'>gg</span>2</code>.
 to deposit voicemail.
@@ -216,12 +225,13 @@ to deposit voicemail.
 <p>
 A call to "<code>100@interop.pingtel.com</code>" will be answered by an
 auto-attendant - when you enter a registered extension at the prompt,
-the auto-attendant will transfer your call (REFER without Replaces).
+the auto-attendant will blind-transfer your call (REFER without Replaces).
 </p>
 
 <p>
 If your user agent(s) can do consultative transfer (REFER with
-Replaces), then you should also try that through the proxy.
+Replaces), then you should also try that through the proxy using
+another UA.
 </p>
 
 <h2>Authenticated INVITE (407 Proxy Authentication Required)</h2>
@@ -299,7 +309,8 @@ Any call to <code>9999</code> will return a 483 Too Many Hops.  As a
 diagnostic aid, this software returns part of the failed request in
 the body of the 483 response.  This allows you to test whether or not
 your user interface conveys the reason for the failure (and is not
-troubled by the response body).
+troubled by the response body).  This is being considered for
+standardization; see <a href='http://www.ietf.org/internet-drafts/draft-ietf-sip-hop-limit-diagnostics-00.txt'>draft-ietf-sip-hop-limit-diagnostics-00.txt</a>.
 </p>
 
 <h2>Call Pick-Up</h2>
