@@ -21,6 +21,7 @@ testSimpleSuccess_Junk_Early:
   event_seq:  5
   event_time: 1990-05-16T19:33:00.000Z
   event_type: F
+  cseq:       500
   call_id:    testSimpleSuccessBogusCallEarly
   from_tag:   f
   to_tag:     t
@@ -34,6 +35,7 @@ testSimpleSuccess_1:
   event_seq:  1
   event_time: 1990-05-17T19:30:00.000Z
   event_type: R
+  cseq:       1  
   call_id:    testSimpleSuccess
   from_tag:   f
   to_tag:
@@ -47,6 +49,7 @@ testSimpleSuccess_Junk:
   event_seq:  4
   event_time: 1990-05-17T19:33:00.000Z
   event_type: F
+  cseq:       501   
   call_id:    testSimpleSuccessBogusCallInTimeWindow
   from_tag:   f
   to_tag:     t
@@ -60,6 +63,7 @@ testSimpleSuccess_3:
   event_seq:  3
   event_time: 1990-05-17T19:40:00.000Z
   event_type: E
+  cseq:       3   
   call_id:    testSimpleSuccess
   from_tag:   f
   to_tag:     t
@@ -73,6 +77,7 @@ testSimpleSuccess_2:
   event_seq:  2
   event_time: 1990-05-17T19:31:00.000Z
   event_type: S
+  cseq:       2   
   call_id:    testSimpleSuccess
   from_tag:   f
   to_tag:     t
@@ -86,6 +91,7 @@ testSimpleSuccess_Junk_Late:
   event_seq:  6
   event_time: 1990-05-18T19:33:00.000Z
   event_type: F
+  cseq:       503   
   call_id:    testSimpleSuccessBogusCallLate
   from_tag:   f
   to_tag:     t
@@ -107,6 +113,7 @@ testSimpleSuccess_CalleeEnd_Junk_Early:
   event_seq:  5
   event_time: 1990-05-16T19:43:00.000Z
   event_type: F
+  cseq:       501   
   call_id:    testSimpleSuccess_CalleeEndBogusCallEarly
   from_tag:   f
   to_tag:     t
@@ -120,6 +127,7 @@ testSimpleSuccess_CalleeEnd_1:
   event_seq:  1
   event_time: 1990-05-17T19:40:00.000Z
   event_type: R
+  cseq:       1   
   call_id:    testSimpleSuccess_CalleeEnd
   from_tag:   f
   to_tag:
@@ -133,6 +141,7 @@ testSimpleSuccess_CalleeEnd_Junk:
   event_seq:  4
   event_time: 1990-05-17T19:43:00.000Z
   event_type: F
+  cseq:       502   
   call_id:    testSimpleSuccess_CalleeEndBogusCallInTimeWindow
   from_tag:   f
   to_tag:     t
@@ -146,6 +155,7 @@ testSimpleSuccess_CalleeEnd_3:
   event_seq:  3
   event_time: 1990-05-17T19:50:00.000Z
   event_type: E
+  cseq:       3   
   call_id:    testSimpleSuccess_CalleeEnd
   from_tag:   t
   to_tag:     f
@@ -159,6 +169,7 @@ testSimpleSuccess_CalleeEnd_2:
   event_seq:  2
   event_time: 1990-05-17T19:41:00.000Z
   event_type: S
+  cseq:       2   
   call_id:    testSimpleSuccess_CalleeEnd
   from_tag:   f
   to_tag:     t
@@ -172,6 +183,7 @@ testSimpleSuccess_CalleeEnd_Junk_Late:
   event_seq:  6
   event_time: 1990-05-18T19:43:00.000Z
   event_type: F
+  cseq:       502   
   call_id:    testSimpleSuccess_CalleeEndBogusCallLate
   from_tag:   f
   to_tag:     t
@@ -194,6 +206,7 @@ testComplicatedSuccess_15:
   event_seq:  15
   event_time: 1999-08-13T06:10:00.000Z
   event_type: E
+  cseq:       3   
   call_id:    testComplicatedSuccess
   from_tag:   f
   to_tag:     t2
@@ -207,6 +220,7 @@ testComplicatedSuccess_14:
   event_seq:  14
   event_time: 1999-08-13T06:03:00.000Z
   event_type: S
+  cseq:       2   
   call_id:    testComplicatedSuccess
   from_tag:   f
   to_tag:     t2
@@ -220,6 +234,7 @@ testComplicatedSuccess_13:
   event_seq:  13
   event_time: 1999-08-13T06:02:00.000Z
   event_type: E
+  cseq:       5   
   call_id:    testComplicatedSuccess
   from_tag:   f
   to_tag:     t1
@@ -233,6 +248,7 @@ testComplicatedSuccess_12:
   event_seq:  12
   event_time: 1999-08-13T06:01:00.000Z
   event_type: S
+  cseq:       4   
   call_id:    testComplicatedSuccess
   from_tag:   f
   to_tag:     t1
@@ -246,6 +262,7 @@ testComplicatedSuccess_11:
   event_seq:      11
   event_time:     1999-08-13T06:01:00.000Z
   event_type:     F
+  cseq:           502   
   call_id:        testComplicatedSuccess
   from_tag:       f
   to_tag:         t0
@@ -260,6 +277,7 @@ testComplicatedSuccess_10:
   event_seq:  10
   event_time: 1999-08-13T06:00:00.000Z
   event_type: R
+  cseq:       6   
   call_id:    testComplicatedSuccess
   from_tag:   f
   to_tag:
@@ -278,6 +296,7 @@ testFailed_20:
   event_seq:  20
   event_time: 2000-1-1T00:00:00.000Z
   event_type: R
+  cseq:       1   
   call_id:    testFailed
   from_tag:   f
   to_tag:
@@ -291,6 +310,7 @@ testFailed_21:
   event_seq:  21
   event_time: 2000-1-1T01:00:00.000Z
   event_type: S
+  cseq:       2   
   call_id:    testFailed
   from_tag:   f
   to_tag:     t
@@ -304,6 +324,7 @@ testFailed_22:
   event_seq:  22
   event_time: 2000-1-1T02:00:00.000Z
   event_type: F
+  cseq:       3   
   call_id:    testFailed
   from_tag:   f
   to_tag:     t
@@ -323,6 +344,7 @@ testAnotherSuccess1_30:
   event_seq:  30
   event_time: 2001-1-1T00:00:00.000Z
   event_type: R
+  cseq:       1   
   call_id:    testAnotherSuccess1
   from_tag:   f
   to_tag:
@@ -336,6 +358,7 @@ testAnotherSuccess1_31:
   event_seq:  31
   event_time: 2001-1-1T01:00:00.000Z
   event_type: S
+  cseq:       2   
   call_id:    testAnotherSuccess1
   from_tag:   f
   to_tag:     t
@@ -349,6 +372,7 @@ testAnotherSuccess1_32:
   event_seq:  32
   event_time: 2001-1-1T02:00:00.000Z
   event_type: E
+  cseq:       3   
   call_id:    testAnotherSuccess1
   from_tag:   f
   to_tag:     t
@@ -361,6 +385,7 @@ testAnotherSuccess2_40:
   event_seq:  40
   event_time: 2001-1-1T00:00:00.000Z
   event_type: R
+  cseq:       4   
   call_id:    testAnotherSuccess2
   from_tag:   f
   to_tag:
@@ -374,6 +399,7 @@ testAnotherSuccess2_41:
   event_seq:  41
   event_time: 2001-1-1T01:00:00.000Z
   event_type: S
+  cseq:       5   
   call_id:    testAnotherSuccess2
   from_tag:   f
   to_tag:     t
@@ -387,6 +413,7 @@ testAnotherSuccess2_42:
   event_seq:  42
   event_time: 2001-1-1T02:00:00.000Z
   event_type: E
+  cseq:       6   
   call_id:    testAnotherSuccess2
   from_tag:   f
   to_tag:     t
@@ -399,6 +426,7 @@ testAnotherSuccess3_50:
   event_seq:  50
   event_time: 2001-1-1T00:00:00.000Z
   event_type: R
+  cseq:       7   
   call_id:    testAnotherSuccess3
   from_tag:   f
   to_tag:
@@ -412,6 +440,7 @@ testAnotherSuccess3_51:
   event_seq:  51
   event_time: 2001-1-1T01:00:00.000Z
   event_type: S
+  cseq:       8   
   call_id:    testAnotherSuccess3
   from_tag:   f
   to_tag:     t
@@ -425,6 +454,7 @@ testAnotherSuccess3_52:
   event_seq:  52
   event_time: 2001-1-1T02:00:00.000Z
   event_type: E
+  cseq:       9   
   call_id:    testAnotherSuccess3
   from_tag:   f
   to_tag:     t
@@ -443,6 +473,7 @@ testFailed_60:
   event_seq:  60
   event_time: 2001-1-2T00:00:00.000Z
   event_type: R
+  cseq:       1   
   call_id:    testFailedNoCalleeContact
   from_tag:   f
   to_tag:
@@ -456,6 +487,7 @@ testFailed_61:
   event_seq:  61
   event_time: 2001-1-2T01:00:00.000Z
   event_type: F
+  cseq:       2   
   call_id:    testFailedNoCalleeContact
   from_tag:   f
   to_tag:     t
@@ -475,6 +507,7 @@ testContactParamStripping_1:
   event_seq:  71
   event_time: 2001-1-3T00:00:00.000Z
   event_type: R
+  cseq:       1   
   call_id:    testContactParamStripping
   from_tag:   f
   to_tag:
@@ -488,6 +521,7 @@ testContactParamStripping_2:
   event_seq:  72
   event_time: 2001-1-3T01:00:00.000Z
   event_type: S
+  cseq:       2   
   call_id:    testContactParamStripping
   from_tag:   f
   to_tag:     t
@@ -501,6 +535,7 @@ testContactParamStripping_3:
   event_seq:  73
   event_time: 2001-1-3T02:00:00.000Z
   event_type: E
+  cseq:       3   
   call_id:    testContactParamStripping
   from_tag:   f
   to_tag:     t

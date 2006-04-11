@@ -213,6 +213,21 @@
       <description>Start time of the 24 hour time frame in which Call resolver will
                    attempt call resolution.</description>
     </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE">
+      <label>Schedule to purge CDR database</label>
+      <profileName>callresolver-config.in</profileName>
+      <type refid="enablestate"/>
+      <value>ENABLE</value>
+      <description>Schedule automatic purging of CDR database.</description>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE">
+      <label>Purge messages older than (in days)</label>
+      <profileName>callresolver-config.in</profileName>
+      <type></type>
+      <value>35</value>
+      <description>Age in days of messages to be automatically purged from the
+                   CDR database.</description>
+    </setting>
     <setting name="SIP_AUTHPROXY_CALL_STATE_DB">
       <label>Authorization Proxy Call State Event Logging</label>
       <profileName>authproxy-config.in</profileName>
