@@ -46,7 +46,7 @@ public
     call_ids.sort!
     
     # verify results
-    assert_equal(2, call_ids.length, 'Wrong number of call IDs')
+    assert_equal(4, call_ids.length, 'Wrong number of call IDs')
     assert_equal('testSimpleSuccess',                      call_ids[0], 'Wrong call ID')
     assert_equal('testSimpleSuccessBogusCallInTimeWindow', call_ids[1], 'Wrong call ID')
   end
@@ -171,6 +171,34 @@ public
     # Try again without the call setup event.
     events.delete_if {|event| event.call_setup?}
     check_failed_call(events, to_tag)
+  end
+  
+  def test_finish_cdr_callee_hangs_up
+    events = load_simple_success_events_callee_hangs_up
+    
+    # fill in cdr_data with info from the events
+    to_tag = 't'
+    from_tag = 'f'
+    cdr_data = CdrData.new
+    status = @resolver.send(:finish_cdr, cdr_data, events, from_tag, to_tag)
+    assert_equal(true, status)
+    
+    # define variables for cdr_data components
+    cdr = cdr_data.cdr
+    caller = cdr_data.caller
+    callee = cdr_data.callee
+    
+    # Check that the CDR is filled in as expected.  It will only be partially
+    # filled in because we are testing just one part of the process.
+    assert_equal(to_tag, cdr.to_tag, 'Wrong to_tag')
+    assert_equal(Time.parse('1990-05-17T19:41:00.000Z'), cdr.connect_time,
+                            'Wrong connect_time')
+    assert_equal(Time.parse('1990-05-17T19:50:00.000Z'), cdr.end_time,
+                            'Wrong end_time')
+    assert_equal('sip:bob@2.2.2.2', callee.contact, 'Wrong callee contact')
+    assert_equal(Cdr::CALL_COMPLETED_TERM, cdr.termination, 'Wrong termination code')
+    assert_nil(cdr.failure_status)
+    assert_nil(cdr.failure_reason)
   end
 
   # Helper method for test_finish_cdr.  Check that failure info has been filled
@@ -349,7 +377,7 @@ public
     start_time = Time.parse('1990-01-1T000:00:00.000Z')
     end_time = Time.parse('2000-12-31T00:00.000Z')
     @resolver.resolve(start_time, end_time)
-    assert_equal(3, Cdr.count, 'Wrong number of CDRs')
+    assert_equal(4, Cdr.count, 'Wrong number of CDRs')
   end
   
   def test_log_level_from_name
@@ -477,6 +505,42 @@ public
                       :conditions => "contact = '<sip:bob_with_params@2.2.2.2>'"))
    end
   
+  def test_set_purge_enable_config
+    # Pass in an empty config, should get the default value of true
+    assert(@resolver.send(:set_purge_enable_config, {}))
+    
+    # Pass in ENABLE, get true
+    # Pass in DISABLE, get false
+    # Comparison is case-insensitive
+    assert(@resolver.send(:set_purge_enable_config,
+      {CallResolver::PURGE_ENABLE => 'EnAbLe'}))
+    assert(!@resolver.send(:set_purge_enable_config,
+      {CallResolver::PURGE_ENABLE => 'dIsAbLe'}))
+    
+    # Pass in bogus value, get exception
+    assert_raise(ConfigException) do
+      @resolver.send(:set_purge_enable_config,
+        {CallResolver::PURGE_ENABLE => 'jacket'})
+    end
+  end
+  
+  def test_get_purge_start_time
+    # Get today's date minus the default age
+    purge_start_time = Time.now - (86400 * 35) # 35 days
+
+    # Pass in an empty config, should get the default value of false, allow
+    # for 1 second difference in times
+    assert((@resolver.send(:get_purge_start_time, {}) - purge_start_time) < 1) 
+
+    purgeAge = 23
+    # Get today's date minus different age
+    purge_start_time = Time.now - (86400 * purgeAge)
+
+    # Pass in a value, allow for 1 second difference in times
+    assert((@resolver.send(:get_purge_start_time,
+      {CallResolver::DAILY_START_TIME => '23'}) - purge_start_time) < 1)
+  end  
+  
   #-----------------------------------------------------------------------------
   # Helper methods
   
@@ -486,4 +550,10 @@ public
     @resolver.send(:load_events, call_id)
   end
  
+  # load and return events for the simple case
+  def load_simple_success_events_callee_hangs_up
+    call_id = 'testSimpleSuccess_CalleeEnd'
+    @resolver.send(:load_events, call_id)
+  end  
+  
 end
