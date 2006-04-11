@@ -41,7 +41,7 @@ public
     
     # create a Hash to hold the param name to value map
     @map = Hash.new
-    
+    puts "Config file : #{@config_file}"
     # parse the config file and fill in the map
     parse_config(@config_file)
   end

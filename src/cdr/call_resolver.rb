@@ -57,6 +57,9 @@ class CallResolver
   
   # If set, then this becomes a prefix to the default config file path
   SIPX_PREFIX = 'SIPX_PREFIX'
+  
+  # How many seconds are there in a day
+  SECONDS_IN_A_DAY = 86400
 
   # Configuration parameters and defaults
 
@@ -76,11 +79,20 @@ class CallResolver
   
   LOG_FILE_NAME = 'sipcallresolver.log'
   
+  # Configuration parameters for daily (nightly) run of the 
+  # call resolver - resolving and purging executed in the
+  # same time window
   DAILY_START_TIME = 'SIP_CALLRESOLVER_DAILY_START_TIME'
   DAILY_START_TIME_DEFAULT = '04:00:00'
 
   DAILY_RUN = 'SIP_CALLRESOLVER_DAILY_RUN'
   DAILY_RUN_DEFAULT = Configure::DISABLE
+  
+  PURGE_ENABLE = 'SIP_CALLRESOLVER_PURGE'
+  PURGE_ENABLE_DEFAULT = Configure::ENABLE
+  
+  PURGE_AGE = 'SIP_CALLRESOLVER_PURGE_AGE'
+  PURGE_AGE_DEFAULT = '35'
   
   
   # Map from the name of a log level to a Logger level value.
@@ -123,8 +135,11 @@ public
   def resolve(start_time, end_time, redo_flag = false, daily_flag = false)
     begin
       run_resolver = true
+      do_purge = false
 
       if daily_flag
+        do_purge = set_purge_enable_config(@config)
+      
         if set_daily_run_config(@config) 
           get_daily_start_time(@config)
           
@@ -153,7 +168,13 @@ public
             :username => "postgres",
             :database => "SIPXCDR")
         end
-  
+        
+        # Purge at the start if enabled
+        if do_purge
+          purge_start = get_purge_start_time(@config)
+          purge(purge_start)        
+        end
+        
         # Load the call IDs for the specified time window
         call_ids = load_call_ids(start_time, end_time)
   
@@ -527,6 +548,20 @@ private
     party_in_db
   end
   
+  # Purge records from call state event and cdr tables, making sure
+  # to delete unreferenced entries in the parties table.
+  def purge(start_time)
+    # Start with call state events
+    log.debug("purge: purging - event_time <= #{start_time}")    
+    CallStateEvent.delete_all(["event_time <= '#{start_time}'"])
+    
+    # Now do the CDRs
+    Cdr.delete_all(["end_time <= '#{start_time}'"])
+    
+    # Clean up the parties table if entries are no longer referenced by CDRs
+    Party.delete_all(["not exists (select * from cdrs where caller_id = parties.id or callee_id = parties.id)"])
+  end
+  
   # Load the configuration from the config file.  If the config_file arg is
   # nil, then find the config file in the default location.
   def load_config(config_file)
@@ -708,9 +743,51 @@ private
     
     # Convert to time, start same time yesterday
     @daily_start_time = Time.parse(startString)
+    log.debug("get_daily_start_time: String #{startString}, time #{@daily_start_time}")    
     @daily_end_time = @daily_start_time
-    @daily_start_time -= 86400   # 24 hours
+    @daily_start_time -= SECONDS_IN_A_DAY   # 24 hours
   end
+  
+  # Enable/disable the daily run from the configuration.
+  # Return true if daily runs are enabled, false otherwise.
+  def set_purge_enable_config(config)
+    # Look up the config param
+    @purge_enable = config[PURGE_ENABLE]
+    
+    # Apply the default if the param was not specified
+    @purge_enable ||= PURGE_ENABLE_DEFAULT
+
+    # Convert to a boolean
+    if @purge_enable.casecmp(Configure::ENABLE) == 0
+      @purge_enable = true
+    elsif @purge_enable.casecmp(Configure::DISABLE) == 0
+      @purge_enable = false
+    else
+      raise(ConfigException, "Unrecognized value \"#{@purge_enable}\" for " +
+            "#{PURGE_ENABLE}.  Must be ENABLE or DISABLE.")
+    end
+  end  
+  
+  # Compute start time of records to be purged from configuration
+  def get_purge_start_time(config)
+    # Look up the config param
+    purge_age = config[PURGE_AGE]
+    
+    # Apply the default if the param was not specified
+    purge_age ||= PURGE_AGE_DEFAULT
+    
+    # Convert to number
+    purge_age = purge_age.to_i
+    
+    if (purge_age <= 0)
+      raise(ConfigException, "Illegal value \"#{@purge_age}\" for " +
+            "#{PURGE_AGE}.  Must be a number greater than 0.")
+    end
+                
+    # Get today's date
+    today = Time.now
+    @purge_start_time = today - (SECONDS_IN_A_DAY * purge_age)   # 24 hours * age
+  end  
 
   def check_ruby_version
     # Check that the Ruby version meets our needs
