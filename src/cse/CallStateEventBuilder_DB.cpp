@@ -323,15 +323,17 @@ void CallStateEventBuilder_DB::addCallData(const UtlString& callId,
 {
    if (builderStateIsOk(AddCallData))
    {
+      // Allow for cseq field
+      mCallInfo = "0,";
       if (callId.index('\'') != UTL_NOT_FOUND)
       {
          UtlString ncallId(callId);
          ncallId.replace('\'', '"');
-         mCallInfo = "\'" + ncallId + "\',";         
+         mCallInfo += "\'" + ncallId + "\',";         
       }
       else
       {
-         mCallInfo = "\'" + callId + "\',";           
+         mCallInfo += "\'" + callId + "\',";           
       }
       
       if (fromTag.index('\'') != UTL_NOT_FOUND)
