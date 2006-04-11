@@ -59,6 +59,7 @@ create table call_state_events (
    event_seq       int8 not null,       /* Sequence number of this event at the observer */
    event_time      timestamp not null,  /* Observer (UTC) time when this event occurred */
    event_type      char(1) not null,
+   cseq            int4 not null,       /* Value from CSEQ header */ 
    call_id         text not null,       /* Value from SIP Call-Id header */
    from_tag        text,                /* Value from tag attribute of the SIP From header */
    to_tag          text,                /* Value from tag attribute of the SIP To header */

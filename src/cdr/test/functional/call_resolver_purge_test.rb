@@ -138,6 +138,9 @@ public
   
   def make_call(from, to, id, days_old)
     cse = CallStateEvent.new
+    # Adjust the time a bit so that all records are slightly older 
+    # than 'now - age'
+    cse.cseq = 1
     cse.event_time = Time.now - (SECONDS_IN_A_DAY * days_old) - 50
     cse.contact = from
     cse.from_url = from + "; tag=f"
@@ -156,7 +159,10 @@ public
     
     cse.save
  
-    cse = CallStateEvent.new    
+    cse = CallStateEvent.new
+    # Adjust the time a bit so that all records are slightly older 
+    # than 'now - age'    
+    cse.cseq = 2
     cse.event_time = Time.now - (SECONDS_IN_A_DAY * days_old) - 30
     cse.contact = to
     cse.from_url = from + "; tag=f"
@@ -176,6 +182,9 @@ public
     cse.save
 
     cse = CallStateEvent.new    
+    # Adjust the time a bit so that all records are slightly older 
+    # than 'now - age'       
+    cse.cseq = 3
     cse.event_time = Time.now - (SECONDS_IN_A_DAY * days_old) - 10
     cse.contact = from
     cse.from_url = from + "; tag=f"
