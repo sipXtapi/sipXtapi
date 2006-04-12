@@ -46,8 +46,8 @@ clover.jar=@CLOVER_JAR@
 ruby=@RUBY@
 wsdl2ruby=@WSDL2RUBY@
 @RUBY_BINDINGS_ENABLED@
-
 agent.wsdl=${top.dir}/agent/lib/sipxconfig-agent.wsdl
 agent.bindings.src.dir=${top.build.dir}/neoconf/dist/agent-bindings-src
 agent.bindings.dir=${top.build.dir}/neoconf/dist/agent-bindings-classes
 agent-bindings.jar=${top.build.dir}/neoconf/dist/agent-bindings.jar
+

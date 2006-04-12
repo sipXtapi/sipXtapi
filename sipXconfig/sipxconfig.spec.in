@@ -25,8 +25,8 @@ AutoReqProv: no
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 3.1
-Requires: sipxcommserverlib >= 3.1
+Requires: sipxtacklib >= 3.3
+Requires: sipxcommserverlib >= 3.3
 Requires: postgresql-server >= 7.3
 Requires: ruby >= 1.8.4
 Requires: ruby-gems >= 0.8.11

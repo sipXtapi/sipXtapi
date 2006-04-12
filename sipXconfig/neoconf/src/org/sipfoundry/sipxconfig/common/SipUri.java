@@ -14,10 +14,16 @@ package org.sipfoundry.sipxconfig.common;
 import java.text.MessageFormat;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
 public class SipUri {
+    public static final String SIP_PREFIX = "sip:";
+
+    private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)@.+");
+
     private String m_uri;
 
     public SipUri(User user, String domainName) {
@@ -74,6 +80,22 @@ public class SipUri {
             quote ? "<" : StringUtils.EMPTY, userName, domain, quote ? ">" : StringUtils.EMPTY
         };
         return MessageFormat.format("{0}sip:{1}@{2}{3}", params);
+    }
+
+    public static String normalize(String uri) {
+        String result = uri.trim();
+        if (result.startsWith(SIP_PREFIX)) {
+            return result;
+        }
+        return SIP_PREFIX + result;
+    }
+
+    public static String extractUser(String uri) {
+        Matcher matcher = EXTRACT_USER_RE.matcher(uri);
+        if (matcher.matches()) {
+            return matcher.group(1);
+        }
+        return null;
     }
 
     public static String format(String name, String domain, Map urlParams) {

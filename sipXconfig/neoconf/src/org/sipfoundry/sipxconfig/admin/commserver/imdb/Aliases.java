@@ -10,8 +10,8 @@
  * $
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
-
 import java.util.Collection;
+
 import java.util.Iterator;
 
 import org.dom4j.Element;
@@ -46,5 +46,5 @@ public class Aliases extends DataSetGenerator {
     
     public void setAliasProvider(AliasProvider aliasProvider) {
         m_aliasProvider = aliasProvider;
-    }
+    }    
 }
