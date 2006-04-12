@@ -7,6 +7,7 @@
   <input-symbol key="interval" required="yes"/>
   
   <let key="initRefresh" unique="yes">initRefresh</let>
+  <let key="timeoutId" unique="yes">timeoutId</let>
   
   <body>
     <unique>
@@ -16,7 +17,17 @@ function ${initRefresh}(buttonName, interval) {
     dojo.debug("Clicking: " + buttonName);
     dojo.byId(buttonName).click();     
   }
-  window.setTimeout(click, interval * 1000);
+  
+  if (window.${timeoutId}) {
+     dojo.debug('clearing timeout ' + window.${timeoutId});
+     window.clearTimeout(window.${timeoutId});
+     window.${timeoutId} = 0;
+  } else {
+      dojo.debug('previous timeout 0 or undefined');
+  }
+  
+  window.${timeoutId} = window.setTimeout(click, interval * 1000);
+  dojo.debug('setting timeout ' + window.${timeoutId});
 }
     </unique>
   </body>

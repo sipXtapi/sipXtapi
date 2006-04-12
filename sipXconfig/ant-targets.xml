@@ -40,6 +40,20 @@
     -->
   <property name="test.src.dir" value="${src.dir}/test"/>
 
+  <path id="axis.path">
+    <pathelement location="${jaxrpc.jar}"/>
+    <pathelement location="${commons-discovery.jar}"/>
+    <pathelement location="${saaj.jar}"/>
+    <pathelement location="${wsdl4j.jar}"/>
+    <pathelement location="${axis-ant.jar}"/>
+    <pathelement location="${axis-schema.jar}"/>		
+    <pathelement location="${activation.jar}"/>
+    <pathelement location="${javamail.jar}"/>
+    <pathelement location="${axis.jar}"/>	
+    <!-- add this for Windows -->
+    <pathelement path="${commons-logging.jar}"/>
+  </path>
+
   <import file="dependencies.xml"/>
 
   <target name="classpath">
@@ -69,6 +83,15 @@
         <pathelement location="${regexp.jar}"/>
      </classpath> 
    </taskdef> 
+
+  <!-- SOAP bindings task -->
+  <taskdef name="wsdl2java" 
+	    classname="org.apache.axis.tools.ant.wsdl.Wsdl2javaAntTask">
+		<classpath refid="axis.path"/>
+		<classpath>
+		    <pathelement location="${axis-ant.jar}"/>
+		</classpath>	
+  </taskdef>
 
   <!-- Common target before doing a checkin -->
   <target name="precommit" depends="clean,default,test-all,style,install"/>

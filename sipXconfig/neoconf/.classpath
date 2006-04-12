@@ -52,8 +52,9 @@
 	<classpathentry sourcepath="LIB_SRC/xmlrpc/src.zip" kind="var" path="SIPX_CONFIG/lib/xmlrpc-2.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/antlr/2.7.5/src.zip" kind="var" path="SIPX_CONFIG/lib/antlr-2.7.5H3.jar"/>
 	<classpathentry sourcepath="LIB_SRC/c3p0/src.zip" kind="var" path="SIPX_CONFIG/lib/c3p0-0.9.0.2.jar"/>
-	<classpathentry sourcepath="/LIB_SRC/lucene/lucene-1.9-final-src.zip" kind="var" path="SIPX_CONFIG/lib/lucene-core-1.9-final.jar"/>
+	<classpathentry sourcepath="LIB_SRC/lucene/lucene-1.9-final-src.zip" kind="var" path="SIPX_CONFIG/lib/lucene-core-1.9-final.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/acegi-security-1.0.0-RC1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/junitperf/1.9/src.zip" kind="var" path="SIPX_CONFIG/lib/junitperf-1.9.1.jar"/>
+ 	<classpathentry kind="var" path="SIPX_BUILD/neoconf/dist/agent-bindings.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

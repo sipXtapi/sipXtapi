@@ -30,6 +30,7 @@ AC_SUBST(BUILDDIR_EXPAND, [`cd $builddir && pwd`])
 
 # turn off the doxygen support shared from other sipX projects
 AM_CONDITIONAL(DOC,false)
+AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 
 CHECK_JDK
 CHECK_ANT
@@ -39,13 +40,17 @@ AC_ARG_ENABLE(ruby-bindings,
   [  --enable-ruby-bindings       Build optional ruby bindings to web services],
   enable_ruby_binding=yes, )
 
+CHECK_RUBY([1.8.4])
+CHECK_RUBY_MODULE([soap/wsdlDriver])
+CHECK_GEM([0.8.11])
+CHECK_RAKE([0.7.0])
+CHECK_RUBY_GEM([file-tail])
+
 AC_SUBST(RUBY_BINDINGS_ENABLED, [])
 if test x$enable_ruby_binding == xyes ; then
   RUBY_BINDINGS_ENABLED=ruby-bindings-enabled=
-  CHECK_RUBY
   SFAC_SRCDIR_EXPAND
   AC_PATH_PROG([WSDL2RUBY], wsd2lruby.rb, $abs_srcdir/web/meta/wsdl2ruby.rb)
-  # TODO: Check for SOAP4R and http-access2 modules
 fi
 
 AC_CONFIG_FILES([
@@ -56,6 +61,7 @@ AC_CONFIG_FILES([
     web/Makefile
     meta/Makefile
     doc/Makefile
+    agent/Makefile
 ])
 
 AC_OUTPUT
