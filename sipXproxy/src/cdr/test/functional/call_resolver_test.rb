@@ -27,6 +27,8 @@ class CallResolverTest < Test::Unit::TestCase
   TEST_FROM_TAG = 'f'
   TEST_TO_TAG = 't'
  
+  SECONDS_IN_A_DAY = 24 * 60 * 60
+ 
 public
 
   def setup
@@ -473,7 +475,7 @@ public
     # Convert to time, start same time yesterday
     daily_start_time = Time.parse(startString)
     daily_end_time = daily_start_time
-    daily_start_time -= 86400   # 24 hours
+    daily_start_time -= SECONDS_IN_A_DAY   # subtract one day's worth of seconds
 
     # Pass in an empty config, should get the default value of false
     assert(daily_start_time == @resolver.send(:get_daily_start_time, {}))
@@ -482,7 +484,7 @@ public
     # Convert to time, start same time yesterday
     daily_start_time = Time.parse(startString)
     daily_end_time = daily_start_time
-    daily_start_time -= 86400   # 24 hours
+    daily_start_time -= SECONDS_IN_A_DAY   # subtract one day's worth of seconds
 
     # Pass in a value
     assert(daily_start_time == @resolver.send(:get_daily_start_time,
@@ -526,7 +528,8 @@ public
   
   def test_get_purge_start_time
     # Get today's date minus the default age
-    purge_start_time = Time.now - (86400 * 35) # 35 days
+    purge_start_time =
+      Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_DEFAULT.to_i)
 
     # Pass in an empty config, should get the default value of false, allow
     # for 1 second difference in times
@@ -534,7 +537,7 @@ public
 
     purgeAge = 23
     # Get today's date minus different age
-    purge_start_time = Time.now - (86400 * purgeAge)
+    purge_start_time = Time.now - (SECONDS_IN_A_DAY * purgeAge)
 
     # Pass in a value, allow for 1 second difference in times
     assert((@resolver.send(:get_purge_start_time,
