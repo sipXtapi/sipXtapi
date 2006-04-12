@@ -560,6 +560,7 @@ private
     
     # Clean up the parties table if entries are no longer referenced by CDRs
     Party.delete_all(["not exists (select * from cdrs where caller_id = parties.id or callee_id = parties.id)"])
+    ActiveRecord::Base.active_connections["ActiveRecord::Base"].execute("VACUUM")
   end
   
   # Load the configuration from the config file.  If the config_file arg is

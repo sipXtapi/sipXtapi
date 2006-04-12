@@ -36,7 +36,8 @@ opts = GetoptLong.new(
   [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
   [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
   [ "--redo",  "-r", GetoptLong::NO_ARGUMENT ],
-  [ "--daily", "-d", GetoptLong::NO_ARGUMENT ]
+  [ "--daily", "-d", GetoptLong::NO_ARGUMENT ],
+  [ "--help",  "-h", GetoptLong::NO_ARGUMENT ]
 )
 
 # Init options
@@ -60,6 +61,22 @@ opts.each do |opt, arg|
 
   when "--daily"
     daily_flag = true
+ 
+  when "--help"
+    print <<EOT
+usage: sipxcallresolver.sh [--start "time" [--end "time"]] [--daily] [--help]
+
+  --start "time"  Specifies the start time of the window in which calls are to 
+                  be resolved. The time format is ISO 8601.
+  --end "time"    Specifies the end time of the window in which call are to be
+                  resolved. The time format is ISO 8601.
+  --daily         Indicates that the call resolver is called in 'daily' mode.
+                  The time window for call to be resolved is automatically set
+                  to 24 hours, starting at the time specified in the configuration
+                  file as SIP_CALLRESOLVER_DAILY_START_TIME. It will also purge
+                  records older than specified in SIP_CALLRESOLVER_PURGE_AGE.
+
+EOT
 
   end
 end 
