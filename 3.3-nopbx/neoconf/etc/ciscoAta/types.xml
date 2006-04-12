@@ -1,5 +1,0 @@
- <type id="bitmap">
-	<string>
-	  <pattern>0x[0-9a-fA-F]+</pattern>
-  </string>
- </type>
