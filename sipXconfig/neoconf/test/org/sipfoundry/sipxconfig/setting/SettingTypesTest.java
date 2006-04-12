@@ -17,7 +17,6 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;

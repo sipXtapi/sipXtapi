@@ -14,11 +14,10 @@ package org.sipfoundry.sipxconfig.site.phone;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections.Transformer;
 import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.util.io.SqueezeAdaptor;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
@@ -29,13 +28,13 @@ import org.sipfoundry.sipxconfig.search.SearchManager;
 public class SearchPhoneTableModel implements IBasicTableModel {
     private String m_queryText;
     private SearchManager m_searchManager;
-    private SqueezeAdaptor m_squeezer;
+    private PhoneContext m_phoneContext;
 
     public SearchPhoneTableModel(SearchManager searchManager, String queryText,
-            SqueezeAdaptor squeezer) {
+            PhoneContext phoneContext) {
         m_queryText = queryText;
         m_searchManager = searchManager;
-        m_squeezer = squeezer;
+        m_phoneContext = phoneContext;
     }
 
     public SearchPhoneTableModel() {
@@ -50,6 +49,10 @@ public class SearchPhoneTableModel implements IBasicTableModel {
         m_searchManager = searchManager;
     }
 
+    public void setPhoneContext(PhoneContext phoneContext) {
+        m_phoneContext = phoneContext;
+    }
+
     public int getRowCount() {
         List phones = m_searchManager.search(Phone.class, m_queryText, null);
         return phones.size();
@@ -57,16 +60,10 @@ public class SearchPhoneTableModel implements IBasicTableModel {
 
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
             boolean orderAscending) {
-        String[] orderBy = PhoneTableModel.orderByFromSortColum(objSortColumn);        
+        String[] orderBy = PhoneTableModel.orderByFromSortColum(objSortColumn);
+        BeanAdaptor.IdentityToBean identityToBean = new BeanAdaptor.IdentityToBean(m_phoneContext);
         List page = m_searchManager.search(Phone.class, m_queryText, firstRow, pageSize, orderBy,
-                orderAscending, new IdToPhone());
+                orderAscending, identityToBean);
         return page.iterator();
-    }
-
-    private class IdToPhone implements Transformer {
-        public Object transform(Object input) {
-            BeanAdaptor.Identity identity = (BeanAdaptor.Identity) input;
-            return m_squeezer.unsqueeze(null, identity.getBeanId().toString());
-        }
     }
 }

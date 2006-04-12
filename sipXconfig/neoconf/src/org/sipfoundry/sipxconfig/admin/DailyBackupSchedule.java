@@ -67,8 +67,8 @@ public class DailyBackupSchedule extends BeanWithId {
     /**
      * Convienent for converting time strings in unit tests and default values 
      * 
-     * @throws RuntimeException is date is invalid
      * @param usDate String format in US, e.g."3:00 PM"
+     * @throws RuntimeException is date is invalid
      * @return date in local format, e.g. "15:00"
      */
     public static final String convertUsTime(String usDate) {

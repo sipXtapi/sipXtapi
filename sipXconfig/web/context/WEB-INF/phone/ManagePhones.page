@@ -15,7 +15,6 @@
   <inject property="profileManager" object="spring:profileManager"/>
   <inject property="restartManager" object="spring:restartManager"/>
   <inject property="searchManager" object="spring:searchManager"/>
-  <inject property="squeezeAdaptor" object="service:sipxconfig.CoreContextAdapter"/>
   <property name="actionModel" />
   <!--
 	  - B E A N S
