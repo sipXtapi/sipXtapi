@@ -44,7 +44,7 @@ CHECK_RUBY([1.8.4])
 CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_GEM([0.8.11])
 CHECK_RAKE([0.7.0])
-CHECK_RUBY_GEM([file-tail])
+# CHECK_RUBY_GEM([file-tail])
 
 AC_SUBST(RUBY_BINDINGS_ENABLED, [])
 if test x$enable_ruby_binding == xyes ; then
