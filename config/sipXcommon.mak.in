@@ -26,6 +26,9 @@ LocalizeSipXconfig = sed \
 		  -e 's,@wwwdir\@,@wwwdir@,g' \
 		  -e 's,@host\@,@host@,g' \
 		  -e 's,@PERL\@,@PERL@,g' \
+		  -e 's,@RUBY\@,@RUBY@,g' \
+		  -e 's,@RAKE\@,@RAKE@,g' \
+		  -e 's,@GEM\@,@GEM@,g' \
 		  -e 's,@APACHE2_HTTPD\@,@APACHE2_HTTPD@,g' \
 		  -e 's,@APACHE2_MOD\@,@APACHE2_MOD@,g' \
 		  -e 's,@CLOVER_HOME\@,@CLOVER_HOME@,g' \

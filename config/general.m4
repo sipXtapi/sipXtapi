@@ -1144,15 +1144,65 @@ AC_DEFUN([CHECK_RUBY],
     AC_MSG_ERROR([ruby is required])
   fi
   
-  minRubyVersion="1.8.3"
+  minRubyVersion=[$1]
+  AC_MSG_CHECKING([for ruby minimum version $minRubyVersion])
 
-  ## warning about line below: use $ 2 instead of $2 otherwise m4 tries to interpret, 
-  ## luckily awk doesn't care
-  rubyVersion=`ruby --version | awk '{print $ 2}'`
+  ## warning about line below: use $ 2 instead of $2 otherwise m4 trys to 
+  ## interpret, luckily awk doesn't care
+  rubyVersion=`$RUBY --version | awk '{print $ 2}'`
 
   AX_COMPARE_VERSION([$rubyVersion],[ge],[$minRubyVersion],
        [AC_MSG_RESULT($rubyVersion is ok)],
        [AC_MSG_ERROR([ruby version must be >= $minRubyVersion - found $rubyVersion])])
+])
+
+# ==================== Ruby Gem ====================
+# Like Perl's CPAN
+AC_DEFUN([CHECK_GEM],
+[
+  AC_PATH_PROG([GEM], gem)
+
+  minGemVersion=[$1]
+  if test "x$GEM" == "x" ; then
+    AC_MSG_RESULT([* to install ruby gems follow your distro instructions, ])
+    AC_MSG_RESULT([* locate the rpm on pbone or run the following commands: ])
+cat 1>&2 <<GEMS_HOWTO
+ wget http://rubyforge.org/frs/download.php/5207/rubygems-${minGemVersion}.tgz
+ tar -xzf rubygems-${minGemVersion}.tgz
+ cd rubygems-${minGemVersion}
+ sudo ruby setup.rb config
+ sudo ruby setup.rb install
+GEMS_HOWTO
+    AC_MSG_ERROR([ruby gem command is required])
+  fi
+  
+  AC_MSG_CHECKING([for gem minimum version $minGemVersion])
+
+  gemVersion=`$GEM --version`
+
+  AX_COMPARE_VERSION([$gemVersion],[ge],[$minGemVersion],
+       [AC_MSG_RESULT($gemVersion is ok)],
+       [AC_MSG_ERROR([gem version must be >= $minGemVersion - found $gemVersion])])
+])
+
+# ==================== Rake ====================
+# build files
+AC_DEFUN([CHECK_RAKE],
+[
+  AC_PATH_PROG([RAKE], rake)
+
+  if test "x$RAKE" == "x" ; then
+    AC_MSG_ERROR([rake is required.  type 'gem install rake --no-rdoc'])
+  fi
+  
+  minRakeVersion=[$1]
+  AC_MSG_CHECKING([for rake minimum version $minRakeVersion])
+
+  rakeVersion=`$RAKE --version | awk '{print $ 3}'`
+
+  AX_COMPARE_VERSION([$rakeVersion],[ge],[$minRakeVersion],
+       [AC_MSG_RESULT($rakeVersion is ok)],
+       [AC_MSG_ERROR([rake version must be >= $minRakeVersion - found $rakeVersion])])
 ])
 
 ##
@@ -1161,10 +1211,31 @@ AC_DEFUN([CHECK_RUBY],
 AC_DEFUN([CHECK_RUBY_MODULE],
 [
   rubyModule=[$1]
-  if test $RUBY -e "require '$rubyModule'" 2> /dev/null ; then
-    return "yes"
+  AC_MSG_CHECKING([for ruby module $rubyModule])
+
+  if $RUBY -r $rubyModule -e '' 2> /dev/null
+  then
+    AC_MSG_RESULT([ok])
+  else
+    AC_MSG_ERROR([Required ruby $rubyModule is missing])
   fi
-  return "no"
+])
+
+##
+##  pass module path (e.g. wsdl/soap/wsl2ruby)
+##
+AC_DEFUN([CHECK_RUBY_GEM],
+[
+  rubyGem=[$1]
+  AC_MSG_CHECKING([for ruby gem $rubyGem])
+  
+  if $GEM list --local | egrep "^$rubyGem"
+  then
+    AC_MSG_RESULT([ok])
+  else
+    AC_MSG_RESULT([missing])
+    AC_MSG_ERROR([type 'gem install $rubyGem --no-rdoc' to install])
+  fi
 ])
 
 
