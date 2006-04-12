@@ -31,6 +31,8 @@ resolverArgs=""
 : ${RunningUser:=@SIPXPBXUSER@}
 : ${PgUser:=postgres}
 : ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
+: ${DbVersion:=1}
+: ${DbPatchDir:=@SIPX_CONFDIR@/cdr}
 
 Database=SIPXCDR
 
@@ -78,6 +80,46 @@ classpath() {
     done
     # trim first colon
     echo ${Cpath:1}
+}
+
+# How to add a database patch:
+#
+# Add a file containing SQL statements in the sipXproxy/etc/database directory.
+# Be sure to add the file to the sql_schemas list in Makefile.am and to the %files
+# section in sipxproxy.spec.in
+#
+# Define an upgrade path - put the file name (without extension .sql) in one or 
+# more of the upgrade lists below. If we currently have database version 3 then
+# add the file to UpgradePatches1 (upgrading a version 1 database) and UpgradePatches2
+# (upgrading a version 2 database).
+
+UpgradePatches1=""
+
+# Apply database patches
+databasePatch() {
+    versionString=`${Psql} -U ${PgUser} -d ${Database} -c "select max(version) from version_history"`
+    version=`echo $versionString | cut -d ' ' -f 3`
+    case ${version} in
+        1)
+            UpgradePatches=$UpgradePatches1
+            ;;
+
+        *)
+            UpgradePatches=""
+            ;;
+    esac
+
+    if [ -n "${UpgradePatches}" ]; then
+        for patch in $UpgradePatches; do
+            if [ -f ${DbPatchDir}/${patch}.sql ]; then
+                ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >/dev/null 2>&1
+                ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}')" >/dev/null 2>&1
+            else
+                echo "Error: Database patch file ${patch}.sql not found."
+            fi
+        done
+        ${Psql} -U ${PgUser} -d ${Database} -c "insert into version_history values (${DbVersion}, now())" >/dev/null 2>&1
+    fi
 }
 
 # Setup database
@@ -149,13 +191,13 @@ databaseVersionCheck() {
 	echo "Error: could not get the database version.  Exiting now."
 	exit 1
     fi
-    if [ "$dbver" != $RequiredDatabaseVersion ]
+    if [ "$dbver" != $DbVersion ]
     then
         if [ "$dbver" == 0 ]
         then
-            echo "Error: bad ${Database} database version.  This database was created by a prerelease version of sipXconfig.  You should drop and recreate the database via \"sipxconfig.sh --database drop create\".  Exiting now."
+            echo "Error: bad ${Database} database version.  This database was created by a prerelease version of sipXconfig.  You should drop and recreate the database via \"sipxcallresolver.sh --database drop create\".  Exiting now."
         else
-            echo "Error: bad ${Database} database version.  Expected version $RequiredDatabaseVersion, got version $dbver.  This database was created or modified by a newer version of sipXconfig.  Exiting now."
+            echo "Error: bad ${Database} database version.  Expected version $DbVersion, got version $dbver.  This database was created or modified by a newer version of sipxcallresolver.  Exiting now."
         fi
         exit 1
     fi
@@ -229,6 +271,10 @@ do
             break 2
             ;;    
 
+        --patch)
+            Action=PATCH
+            ;;
+
         --nop)
             Action=NOP
             ;;
@@ -268,6 +314,9 @@ then
 elif [ ${Action} = SETUP ]
 then
     onSetup
+elif [ ${Action} = PATCH ]
+then
+    databasePatch
 elif [ ${Action} = HELP ]
 then
 
