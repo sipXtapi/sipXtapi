@@ -221,7 +221,7 @@ public final class TapestryUtils {
         } else {
             String[] groups = currentValue.split("\\s+");
             int ignore = groups.length - 1;
-            targetGroup = groups[ignore];            
+            targetGroup = groups[ignore].toLowerCase();            
             StringBuffer sb = new StringBuffer();
             for (int i = 0; i < ignore; i++) {
                 sb.append(groups[i]).append(' ');
@@ -232,8 +232,14 @@ public final class TapestryUtils {
         List candidates = new ArrayList();
         for (Iterator i = namedItems.iterator(); i.hasNext();) {
             NamedObject candidate = (NamedObject) i.next();
-            if (targetGroup == null || candidate.getName().startsWith(targetGroup)) {
-                candidates.add(prefix + candidate.getName());
+            String candidateName = candidate.getName();
+            // candidates suggestions are case insensitve, doesn't mean groups are
+            // though
+            if (targetGroup == null || candidateName.toLowerCase().startsWith(targetGroup)) {
+                // do not list items twice
+                if (prefix.indexOf(candidateName + ' ') < 0) {
+                    candidates.add(prefix + candidateName);
+                }
             }               
         }
         
