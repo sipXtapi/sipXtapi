@@ -416,7 +416,7 @@ public
                  @resolver.send(:set_log_dir_config, {}))
     
     # Set $SIPX_PREFIX and try again, this time the prefix should be added
-    prefix = '/whatever'
+    prefix = '/test_prefix_ignore_this_error_message'
     ENV[CallResolver::SIPX_PREFIX] = prefix
     assert_equal(File.join(prefix, CallResolver::LOG_DIR_CONFIG_DEFAULT),
                  @resolver.send(:set_log_dir_config, {}))
@@ -471,28 +471,15 @@ public
     # a time string
     today = Time.now
     todayString = today.strftime("%m/%d/%YT")
-    startString = todayString + "04:00:00"
+    startString = todayString + CallResolver::DAILY_RUN_TIME
     # Convert to time, start same time yesterday
     daily_start_time = Time.parse(startString)
     daily_end_time = daily_start_time
     daily_start_time -= SECONDS_IN_A_DAY   # subtract one day's worth of seconds
 
-    # Pass in an empty config, should get the default value of false
+    # Pass in an empty config, should get the default value always since this
+    # parameter is not configurable
     assert(daily_start_time == @resolver.send(:get_daily_start_time, {}))
-
-    startString = todayString + "04:00:10"
-    # Convert to time, start same time yesterday
-    daily_start_time = Time.parse(startString)
-    daily_end_time = daily_start_time
-    daily_start_time -= SECONDS_IN_A_DAY   # subtract one day's worth of seconds
-
-    # Pass in a value
-    assert(daily_start_time == @resolver.send(:get_daily_start_time,
-      {CallResolver::DAILY_START_TIME => '04:00:10'}))
-
-    # Pass in a value, this should fail
-    assert(!(daily_start_time == @resolver.send(:get_daily_start_time,
-      {CallResolver::DAILY_START_TIME => '04:00:11'})))    
   end
 
   # Test that contact params are stripped off of the contact URLs recorded in CDRs
@@ -527,21 +514,23 @@ public
   end
   
   def test_get_purge_start_time
-    # Get today's date minus the default age
+    # Get the default purge time: today's date minus the default age
     purge_start_time =
       Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_DEFAULT.to_i)
 
-    # Pass in an empty config, should get the default value of false, allow
+    # Pass in an empty config, should get the default purge time, allow
     # for 1 second difference in times
     assert((@resolver.send(:get_purge_start_time, {}) - purge_start_time) < 1) 
 
-    purgeAge = 23
+    purgeAgeStr = '23'
+    purgeAge = purgeAgeStr.to_i
+    
     # Get today's date minus different age
     purge_start_time = Time.now - (SECONDS_IN_A_DAY * purgeAge)
 
     # Pass in a value, allow for 1 second difference in times
     assert((@resolver.send(:get_purge_start_time,
-      {CallResolver::DAILY_START_TIME => '23'}) - purge_start_time) < 1)
+      {CallResolver::PURGE_AGE => purgeAgeStr}) - purge_start_time) < 1)
   end  
   
   #-----------------------------------------------------------------------------

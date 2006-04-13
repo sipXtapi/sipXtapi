@@ -70,12 +70,11 @@ usage: sipxcallresolver.sh [--start "time" [--end "time"]] [--daily] [--help]
                   be resolved. The time format is ISO 8601.
   --end "time"    Specifies the end time of the window in which call are to be
                   resolved. The time format is ISO 8601.
-  --daily         Indicates that the call resolver is called in 'daily' mode.
-                  The time window for call to be resolved is automatically set
-                  to 24 hours, starting at the time specified in the configuration
-                  file as SIP_CALLRESOLVER_DAILY_START_TIME. It will also purge
-                  records older than specified in SIP_CALLRESOLVER_PURGE_AGE.
-
+  --daily         Indicates that the call resolver is called in 'daily' mode:
+                  * Create CDRs for calls in the previous 24 hours
+                  * Purge CSE and CDR data older than 35 days
+                  You can change the purge age by setting the configuration
+                  parameter SIP_CALLRESOLVER_PURGE_AGE (units are days).
 EOT
 
   end

@@ -61,6 +61,9 @@ class CallResolver
   # How many seconds are there in a day
   SECONDS_IN_A_DAY = 86400
 
+  # If the daily run is enabled, then it happens at 4 AM, always
+  DAILY_RUN_TIME = '04:00'
+
   # Configuration parameters and defaults
 
   # Whether console logging is enabled or disabled.  Legal values are "ENABLE"
@@ -78,12 +81,6 @@ class CallResolver
   LOG_LEVEL_CONFIG_DEFAULT = 'NOTICE'
   
   LOG_FILE_NAME = 'sipcallresolver.log'
-  
-  # Configuration parameters for daily (nightly) run of the 
-  # call resolver - resolving and purging executed in the
-  # same time window
-  DAILY_START_TIME = 'SIP_CALLRESOLVER_DAILY_START_TIME'
-  DAILY_START_TIME_DEFAULT = '04:00:00'
 
   DAILY_RUN = 'SIP_CALLRESOLVER_DAILY_RUN'
   DAILY_RUN_DEFAULT = Configure::DISABLE
@@ -729,19 +726,18 @@ private
     end
   end
 
-  # Compute the start time of the daily call resolver run
+  # Compute the start time of the daily call resolver run.
+  # We decided not to make this configurable.  Too comlicated given that the
+  # cron job always runs at a fixed time.
   def get_daily_start_time(config)
-    # Look up the config param
-    daily_start = config[DAILY_START_TIME]
+    # Always start the time window at the time the resolver runs
+    daily_start = DAILY_RUN_TIME
     
-    # Apply the default if the param was not specified
-    daily_start ||= DAILY_START_TIME_DEFAULT
-    
+    # Turn the start time into a date/time.
     # Get today's date, cut out the date and paste our start time into
-    # a time string
+    # a time string.
     today = Time.now
     todayString = today.strftime("%m/%d/%YT")
-
     startString = todayString + daily_start
     
     # Convert to time, start same time yesterday
