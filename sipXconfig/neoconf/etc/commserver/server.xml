@@ -229,7 +229,9 @@
     <setting name="SIP_CALLRESOLVER_PURGE_AGE">
       <label>Age of Data to Purge</label>
       <profileName>callresolver-config.in</profileName>
-      <type></type>
+			<type>
+				<integer min="1" max="365"></integer>
+			</type>
       <value>35</value>
       <description>When purging, remove data older than this (in days).</description>
     </setting>

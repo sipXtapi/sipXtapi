@@ -135,9 +135,9 @@ public
       do_purge = false
 
       if daily_flag
-        do_purge = set_purge_enable_config(@config)
-      
         if set_daily_run_config(@config) 
+          # Purge only if daily run is configured      
+          do_purge = set_purge_enable_config(@config)        
           get_daily_start_time(@config)
           
           # Get start time and end time
