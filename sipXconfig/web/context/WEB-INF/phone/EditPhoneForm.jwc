@@ -65,6 +65,7 @@
     <binding name="value" value="groupsString"/>
     <binding name="size" value="50"/>
     <binding name="listSource" value="groupCandidates"/>
+    <binding name="translator" value="translator:string,empty="/>
     <binding name="listener" value="listener:buildGroupCanidates"/>
   </component>
   
