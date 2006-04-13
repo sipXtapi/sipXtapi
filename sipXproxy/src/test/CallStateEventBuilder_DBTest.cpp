@@ -102,7 +102,7 @@ public:
          UtlString toTag;
          UtlString fromField("\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=8633744");
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(1,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7003");
@@ -111,7 +111,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.012','R',0,'08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98','8633744','','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=8633744','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>','Contact <sip:requestor@sip.net>','','',0,'');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.012','R',1,'08799710-9147-486B-A28D-FFDEB031106B@10.90.10.98','8633744','','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=8633744','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>','Contact <sip:requestor@sip.net>','','',0,'');"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -139,7 +139,7 @@ public:
          UtlString toTag("19b8e5bK3a");
          UtlString fromField("\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3744863");
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=19b8e5bK3a");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(2,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7004");
@@ -148,7 +148,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.014','S',0,'08799710-9147-A28D-486B-FFDEB031106B@10.90.10.98','3744863','19b8e5bK3a','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3744863','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=19b8e5bK3a','Contact <sip:responder@sip.net>','','',0,'');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.014','S',2,'08799710-9147-A28D-486B-FFDEB031106B@10.90.10.98','3744863','19b8e5bK3a','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3744863','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=19b8e5bK3a','Contact <sip:responder@sip.net>','','',0,'');"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -176,7 +176,7 @@ public:
          UtlString toTag("b8e5bK3a19");
          UtlString fromField("\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633");
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(3, callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7005");
@@ -185,7 +185,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','F',0,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','','','',403,'Forbidden <dummy>');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','F',3,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','','','',403,'Forbidden <dummy>');"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -216,7 +216,7 @@ public:
          UtlString toTag("b8e5bK3a19");
          UtlString fromField("\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633");
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(4, callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7005");
@@ -225,7 +225,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','T',0,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','Contact <sip:requestor@sip.net>','<sip:200@example.com>','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19',0,'');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','T',4,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','Contact <sip:requestor@sip.net>','<sip:200@example.com>','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19',0,'');"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -256,7 +256,7 @@ public:
          UtlString toTag("b8e5bK3a19");
          UtlString fromField("\'Éê½­ÌÎ\'<sip:1002@sip.net>;tag=7448633");
          UtlString toField("\'Joe Caller\'<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(5, callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7005");
@@ -265,7 +265,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','T',0,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','Contact <sip:requestor@sip.net>','<sip:200@example.com>','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19',0,'');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.016','T',5,'9147-08799710-A28D-486B-FFDEB031106B@10.90.10.98','7448633','b8e5bK3a19','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19','Contact <sip:requestor@sip.net>','<sip:200@example.com>','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19',0,'');"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());
@@ -293,7 +293,7 @@ public:
          UtlString toTag("a19b8e5bK3");
          UtlString fromField("\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3374486");
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=a19b8e5bK3");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(6,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7006");
@@ -302,7 +302,7 @@ public:
 
          builder.completeCallEvent();
          CPPUNIT_ASSERT(builder.finishElement(event));
-         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.018','E',0,'9147-A28D-08799710-486B-FFDEB031106B@10.90.10.98','3374486','a19b8e5bK3','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3374486','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=a19b8e5bK3','','','',0,'');"));
+         CPPUNIT_ASSERT(expect(event,"INSERT INTO call_state_events VALUES (DEFAULT,'observer.example.com',1,timestamp '2004-12-15 11:42:41.018','E',6,'9147-A28D-08799710-486B-FFDEB031106B@10.90.10.98','3374486','a19b8e5bK3','\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3374486','\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=a19b8e5bK3','','','',0,'');"));
 
          CPPUNIT_ASSERT(!builder.finishElement(event));
          CPPUNIT_ASSERT(event.isNull());

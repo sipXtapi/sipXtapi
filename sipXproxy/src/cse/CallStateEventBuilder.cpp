@@ -262,7 +262,8 @@ void CallStateEventBuilder::callTransferEvent(int sequenceNumber,
 
 
 /// Add the dialog and call information for the event being built.
-void CallStateEventBuilder::addCallData(const UtlString& callId,
+void CallStateEventBuilder::addCallData(const int cseqNumber,
+                                        const UtlString& callId,
                                         const UtlString& fromTag,  /// may be a null string
                                         const UtlString& toTag,    /// may be a null string
                                         const UtlString& fromField,

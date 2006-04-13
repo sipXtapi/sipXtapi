@@ -188,12 +188,16 @@ UtlBoolean ForkingProxyCseObserver::handleMessage(OsMsg& eventMessage)
             
             UtlString fromField;
             sipRequest->getFromField(&fromField);
+            
+            UtlString responseMethod;
+            int cseqNumber;
+            sipRequest->getCSeqField(&cseqNumber, &responseMethod);
 
             // construct the event record
             if (mpBuilder)
             {
                mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact);
-               mpBuilder->addCallData(callId, fromTag, toTag, fromField, toField);
+               mpBuilder->addCallData(cseqNumber, callId, fromTag, toTag, fromField, toField);
 
                UtlString via;
                for (int i=0; sipRequest->getViaField(&via, i); i++)

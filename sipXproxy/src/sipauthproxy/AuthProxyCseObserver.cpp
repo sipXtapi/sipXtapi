@@ -298,6 +298,10 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             UtlString referredBy;            
             sipMsg->getReferToField(referTo);
             sipMsg->getReferredByField(referredBy);   
+            
+            UtlString responseMethod;
+            int cseqNumber;
+            sipMsg->getCSeqField(&cseqNumber, &responseMethod);            
 
             // generate the call state event record
             if (mpBuilder)
@@ -327,7 +331,7 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
                   break;
                }
    
-               mpBuilder->addCallData(callId, fromTag, toTag, fromField, toField);
+               mpBuilder->addCallData(cseqNumber, callId, fromTag, toTag, fromField, toField);
                UtlString via;
                for (int i=0; sipMsg->getViaField(&via, i); i++)
                {

@@ -121,7 +121,8 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
                                               
 
    /// Add the dialog and call information for the event being built.
-   void addCallData(const UtlString& callId,
+   void addCallData(const int cseqNumber,
+                    const UtlString& callId,
                     const UtlString& fromTag,  /// may be a null string
                     const UtlString& toTag,    /// may be a null string
                     const UtlString& fromField,

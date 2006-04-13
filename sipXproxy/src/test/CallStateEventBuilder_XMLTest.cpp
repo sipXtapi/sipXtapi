@@ -102,7 +102,7 @@ public:
          UtlString toTag;
          UtlString fromField("\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=8633744");
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(1,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7003");
@@ -139,7 +139,7 @@ public:
          UtlString toTag("19b8e5bK3a");
          UtlString fromField("\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3744863");
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=19b8e5bK3a");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(2,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7004");
@@ -176,7 +176,7 @@ public:
          UtlString toTag("b8e5bK3a19");
          UtlString fromField("\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=7448633");
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=b8e5bK3a19");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(3,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7005");
@@ -213,7 +213,7 @@ public:
          UtlString toTag("a19b8e5bK3");
          UtlString fromField("\"Éê½­ÌÎ\"<sip:1002@sip.net>;tag=3374486");
          UtlString toField("\"Joe Caller\"<sip:jcaller@rhe-sipx.example.com>;tag=a19b8e5bK3");
-         builder.addCallData(callId, fromTag, toTag, fromField, toField);
+         builder.addCallData(4,callId, fromTag, toTag, fromField, toField);
          CPPUNIT_ASSERT(!builder.finishElement(event));
          
          UtlString viaField("SIP/2.0/UDP 10.1.30.248:7006");
