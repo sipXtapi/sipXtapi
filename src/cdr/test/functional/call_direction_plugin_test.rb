@@ -82,5 +82,24 @@ public
     assert(cdr, "Resolved the test call but didn't get a CDR")
     assert_equal(CallDirectionPlugin::INTRANETWORK, cdr.call_direction)
   end
+  
+  def test_call_direction_strip_port
+    # Set up a single test gateway
+    @plugin.send(:gateways=, [Gateway.new(:address => "1.1.1.1:7001")])
+    
+    # Resolve calls, computing call direction via the plugin
+    Cdr.delete_all
+    start_time = Time.parse('2001-1-1T00:00:00.000Z')
+    end_time = Time.parse('2001-1-1T20:01:00.000Z')
+    @resolver.add_observer(@plugin)
+    @resolver.resolve(start_time, end_time)
+    assert_equal(3, Cdr.count, 'Wrong number of CDRs')
+    
+    # Check that call direction came out as expected
+    cdrs = Cdr.find(:all)
+    assert_equal('I', cdrs[0].call_direction)
+    assert_equal('O', cdrs[1].call_direction)
+    assert_equal('A', cdrs[2].call_direction)
+  end  
         
 end

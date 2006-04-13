@@ -39,6 +39,9 @@ public
       # If the gateway address is a domain name, then resolve it to an IP addr.
       addr = self.address
       if addr
+        # Strip a possible port number off the IPv4 address
+        # TODO - handle IPv6
+        addr = SocketUtils.strip_v4_port(addr)
         if SocketUtils.valid_ipaddr?(addr)
           # The gateway address is an IP address.
           @ip_address = addr
