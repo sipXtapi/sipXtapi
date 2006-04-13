@@ -46,6 +46,10 @@ public
           # The gateway address is an IP address.
           @ip_address = addr
         else
+          # Strip a possible port number from domain name
+          if /\A(.+):\d+\Z/ =~ addr
+            addr = $1
+          end          
           # The gateway address is not an IP address, so it must be a domain name.
           # Try to resolve it.
           @ip_address = Utils.ip_address_from_domain_name(addr)
