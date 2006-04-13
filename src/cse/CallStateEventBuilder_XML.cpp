@@ -371,7 +371,8 @@ void CallStateEventBuilder_XML::callTransferEvent(int mSequenceNumber,
 
 
 /// Add the dialog and call information for the event being built.
-void CallStateEventBuilder_XML::addCallData(const UtlString& callId,
+void CallStateEventBuilder_XML::addCallData(const int cseqNumber,
+                                            const UtlString& callId,
                                             const UtlString& fromTag,  /// may be a null string
                                             const UtlString& toTag,    /// may be a null string
                                             const UtlString& fromField,

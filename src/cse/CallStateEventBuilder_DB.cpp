@@ -314,17 +314,20 @@ void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber,
 
 
 /// Add the dialog and call information for the event being built.
-void CallStateEventBuilder_DB::addCallData(const UtlString& callId,
-                                            const UtlString& fromTag,  /// may be a null string
-                                            const UtlString& toTag,    /// may be a null string
-                                            const UtlString& fromField,
-                                            const UtlString& toField
-                                            )
+void CallStateEventBuilder_DB::addCallData(const int cseqNumber,
+                                           const UtlString& callId,
+                                           const UtlString& fromTag,  /// may be a null string
+                                           const UtlString& toTag,    /// may be a null string
+                                           const UtlString& fromField,
+                                           const UtlString& toField
+                                           )
 {
    if (builderStateIsOk(AddCallData))
    {
       // Allow for cseq field
-      mCallInfo = "0,";
+      char buffer[32];
+      snprintf(buffer, 31, "%d,", cseqNumber);
+      mCallInfo = buffer;
       if (callId.index('\'') != UTL_NOT_FOUND)
       {
          UtlString ncallId(callId);
