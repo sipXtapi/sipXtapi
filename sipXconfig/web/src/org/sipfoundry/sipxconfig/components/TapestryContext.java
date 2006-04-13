@@ -11,6 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.util.Collection;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IComponent;
@@ -18,6 +22,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 /**
@@ -100,5 +105,15 @@ public class TapestryContext {
         private void recordUserException(UserException e) {
             m_validator.record(new ValidatorException(e.getMessage()));
         }
+    }
+    
+    /**
+     * Join a list of names objects into a string give a delimitor
+     * Example
+     *  <span jwcid="@Insert" value="ognl:tapestry.joinNamed(items, ', ')"/> 
+     */
+    public String joinNamed(Collection namedItems, String delim) {
+        Collection names = CollectionUtils.collect(namedItems, new NamedObject.ToName());
+        return StringUtils.join(names.iterator(), delim);
     }
 }

@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import junit.framework.TestCase;
@@ -20,6 +22,7 @@ import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 public class TapestryContextTest extends TestCase {
     private TapestryContext m_context;
@@ -127,5 +130,12 @@ public class TapestryContextTest extends TestCase {
         actionControl.verify();
         validatorControl.verify();
     }
-
+    
+    public void joinNamed() {
+        Group[] groups = new Group[] { new Group(), new Group()};
+        groups[0].setName("robin");
+        groups[1].setName("crow");
+        List asList = Arrays.asList(groups);
+        assertEquals("robin, crow", new TapestryContext().joinNamed(asList, ", "));
+    }
 }

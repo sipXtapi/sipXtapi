@@ -4,13 +4,14 @@
 </head>
 <body jwcid="$content$">
 	<div jwcid="@Border" useDojo="true">
-    <h2 id="page:newuser">New User</h2>
     <div class="help">
 		<b>Quick Links</b>
 		<ul>
 			<li><a jwcid="extensionPoolsLink" href="#">Extension Pool</a></li>
 		</ul>
 	</div>    
+    <span jwcid="@GroupCloud" groups="ognl:coreContext.groups"/>
+    <h2 id="page:newuser">New User</h2>
         <span jwcid="@ErrorMsg"/>
         <div id="settings-content">
 	        <form jwcid="form">

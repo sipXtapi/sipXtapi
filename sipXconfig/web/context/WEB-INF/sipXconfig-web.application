@@ -110,6 +110,7 @@
     <component-type type="GatewaysPanel" specification-path="gateway/GatewaysPanel.jwc"/>
     <component-type type="GatewayTable" specification-path="gateway/GatewayTable.jwc"/>
     <component-type type="GroupActions" specification-path="phone/GroupActions.jwc"/>
+    <component-type type="GroupCloud" specification-path="setting/GroupCloud.jwc"/>
     <component-type type="GroupFilter" specification-path="setting/GroupFilter.jwc"/>
     <component-type type="GroupLabel" specification-path="setting/GroupLabel.jwc"/>
     <component-type type="GroupSelect" specification-path="setting/GroupSelect.jwc"/>
