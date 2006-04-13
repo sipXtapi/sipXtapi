@@ -34,5 +34,14 @@ public
   def SocketUtils.valid_ipaddr?(addr)
     valid_v4_ipaddr?(addr) || valid_v6_ipaddr?(addr)
   end
+  
+  def SocketUtils.strip_v4_port(addr)
+    # Look for string with IPv4 format and a colon with a trailing number
+    if /\A(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}):\d+\Z/ =~ addr
+      return $1
+    else
+      return addr
+    end
+  end
 
 end
