@@ -748,7 +748,7 @@ private
   end
   
   # Enable/disable the daily run from the configuration.
-  # Return true if daily runs are enabled, false otherwise.
+  # Return true if purging is enabled, false otherwise.
   def set_purge_enable_config(config)
     # Look up the config param
     @purge_enable = config[PURGE_ENABLE]
