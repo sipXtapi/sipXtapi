@@ -61,6 +61,26 @@ public class SipUriTest extends TestCase {
         assertEquals("<sip:name@sipfoundry.org>", uri.toString());
     }
 
+    public void testExtractUser() {
+        assertNull(SipUri.extractUser("name"));
+        assertEquals("name", SipUri.extractUser("sip:name@sipfoundry.org"));
+        assertEquals("name", SipUri.extractUser("<sip:name@sipfoundry.org>"));
+        assertEquals("name", SipUri.extractUser("   <sip:name@sipfoundry.org>"));
+        assertEquals("name", SipUri.extractUser("name@sipfoundry.org"));
+        assertEquals("name", SipUri.extractUser("name@sipfoundry@.org"));
+    }
+    
+    public void testExtractFullUser() {
+        assertNull(SipUri.extractFullUser("name"));
+        assertEquals("name", SipUri.extractFullUser("sip:name@sipfoundry.org"));
+        assertEquals("name", SipUri.extractFullUser("<sip:name@sipfoundry.org>"));
+        assertEquals("name", SipUri.extractFullUser("   <sip:name@sipfoundry.org>"));
+        assertEquals("name", SipUri.extractFullUser("name@sipfoundry.org"));
+        assertEquals("name", SipUri.extractFullUser("name@sipfoundry@.org"));
+        
+        assertEquals("first last - name", SipUri.extractFullUser("\"first last\"<sip:name@sipfoundry.org>"));        
+    }
+    
     public void testUrlParams() {
         Map urlParams = new TreeMap();
         urlParams.put("a-key", "aa");

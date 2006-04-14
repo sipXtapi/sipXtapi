@@ -23,6 +23,8 @@ public class SipUri {
     public static final String SIP_PREFIX = "sip:";
 
     private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)@.+");
+    private static final Pattern EXTRACT_FULL_USER_RE = Pattern
+            .compile("(?:\"(.*)\")?\\s*<?(?:sip:)?(.+?)@.+");
 
     private String m_uri;
 
@@ -96,6 +98,32 @@ public class SipUri {
             return matcher.group(1);
         }
         return null;
+    }
+
+    /**
+     * Extract user id and optional user info
+     * 
+     * <!--
+     *  
+     * 154@example.org => 154 
+     * sip:user@exampl.org => user 
+     * "Full name"<sip:202@example.org> =>Full name - 202 
+     * 
+     * -->
+     * 
+     */
+    public static String extractFullUser(String uri) {
+        Matcher matcher = EXTRACT_FULL_USER_RE.matcher(uri);
+        if (!matcher.matches()) {
+            return null;
+        }
+        String fullName = matcher.group(1);
+        String userId = matcher.group(2);
+
+        if (fullName == null) {
+            return userId;
+        }
+        return fullName + " - " + userId;
     }
 
     public static String format(String name, String domain, Map urlParams) {
