@@ -6002,6 +6002,9 @@ MailboxManager::getTimeBasedAAName ( UtlString& rName,
                             rAAName = scheduleFile.mAfterHourMenu;
                         }
                     }
+                    else {
+                        rAAName = scheduleFile.mAfterHourMenu;
+                    }
                 }
             }
             else
