@@ -40,7 +40,7 @@ public class PhoneTestDriver {
     public PhoneDefaults defaults;
     
     public PhoneTestDriver(Phone _phone) {
-        this(_phone, "EST");
+        this(_phone, "Etc/GMT+5"); // no DST for consistent results
     }
     
     public PhoneTestDriver(Phone _phone, String timezone) {

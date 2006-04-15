@@ -412,11 +412,11 @@ public:
 
     /// Escape a string as a gen_value, which is what field-parameters
     //! use for values.
-    static void Url::gen_value_escape(UtlString& escapedText);
+    static void gen_value_escape(UtlString& escapedText);
 
     /// Un-escape a string as a gen_value, which is what field-parameters
     //! use for values.
-    static void Url::gen_value_unescape(UtlString& escapedText);
+    static void gen_value_unescape(UtlString& escapedText);
 
 /* ============================ INQUIRY =================================== */
 

@@ -207,4 +207,22 @@ public class SettingTypesTest extends TestCase {
         assertEquals("/tmp", fileType.getDirectory());
         assertEquals("audio/x-wav", fileType.getContentType());
     }
+    
+    public void testGetEnumsWithNoLabels() {
+        Setting setting = group.getSetting("enum_setting_2");
+        EnumSetting enums = (EnumSetting) setting.getType();
+        assertEquals(3, enums.getEnums().size());
+    }
+
+    
+    public void testGetEnumTypeValue() {
+        Setting setting = group.getSetting("enum_setting_2");
+        Object value = setting.getTypedValue();
+        assertEquals("VALUE_0", value);
+        
+        setting.setValue("VALUE_2");
+        Object value2 = setting.getTypedValue();
+        assertEquals("VALUE_2", value2);        
+    }
+        
 }

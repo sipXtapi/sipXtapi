@@ -47,6 +47,7 @@ dt
 
 dd
 {
+	text-indent:0;
 	margin-top:5px;
 	margin-bottom:5px;
 }
@@ -274,7 +275,7 @@ table.component thead tr th
 	border-width:1px;
 	border-style: solid;
 	white-space:nowrap;
-	padding:3px;
+	padding:3px 5px;
 }
 
 table.component th a
@@ -286,8 +287,7 @@ table.component tbody tr td
 {
 	white-space:nowrap;
 	border-collapse:collapse;
-	padding-bottom:3px;
-	padding-top:3px;
+	padding:3px 5px;
 }
 
 table.component tfoot tr td

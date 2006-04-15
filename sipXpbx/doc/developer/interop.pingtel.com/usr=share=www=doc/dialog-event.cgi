@@ -39,6 +39,13 @@ HTML:{
 	last HTML;
     }
 
+    # Get the user-agent.
+    my($user_agent) = &user_agent($log_file, $extension);
+    if ($user_agent ne '') {
+	print &p(&strong(&escapeHTML("User-Agent:")), $user_agent),
+	      "\n";
+    }
+
     # Get the dialog event package.
     my($notify) = &find_last_notify($extension);
 
@@ -98,7 +105,7 @@ HTML:{
 
     # Subscription-State header test.
 
-    my($ok) =
+    $ok =
 	$headers =~ m%\nSubscription-State\s*:%;
     print &p(&strong('Subscription-State header:'),
 	     ($ok ? "Present" : &red("Absent"))),
@@ -186,7 +193,6 @@ HTML:{
     # The local and remote URIs.
 
     my($local_identity, $local_target, $remote_identity, $remote_target);
-    my($i);
     for ($i = 1; $i <= $#$dialog; $i += 2) {
 	if ($dialog->[$i] eq 'local') {
 	    ($local_identity, $local_target) = &get_URIs($dialog->[$i+1]);
@@ -216,6 +222,9 @@ HTML:{
 	my($gruu) = &get_GRUU;
 	if ($gruu ne '') {
 	    # If the UA has a GRUU, the local target should be the GRUU.
+	    my($i) = &strip($local_target);
+	    # Copy any sip:/sips: prefix from $i to $gruu.
+	    $gruu = $1 . $gruu if $i =~ /^(sips?:)/;
 	    print &p(&strong('Guideline 6(4):') . " Local target '" .
 		     &code(&escapeHTML($i)) . "' " .
 		     ($i eq $gruu ? "is" : &red("is not")) .
@@ -252,8 +261,9 @@ HTML:{
 	"\n";
     if ($remote_target ne '') {
 	my($i) = &strip($remote_target);
-	my($c) = $i =~ /^sip:((.*)\@)?[0-9.]+(:\d+)?$/;
-	my($g) = $i =~ /^sip:\d+\@$sip_domain;opaque=/;
+	my($c) = $i =~ /^sips?:((.*)\@)?[0-9.]+(:\d+)?$/;
+	my($g) = ($i =~ /^sips?:\d+\@$sip_domain;opaque=/ ||
+		  $i =~ /^sips?:gruu~/);
 	print &p(&strong('Guideline 6(8):') . " Remote target '" . &code($i) .
 		 "' " .
 		 ($c ? "is an IP address" :
@@ -313,9 +323,9 @@ sub get_GRUU {
 	my $i;
 	for ($i = 1; $i < $#$c; $i += 2) {
 	    if ($c->[$i] eq 'item') {
-		my $d = $c->[$i+1];
-		my $aor, $gruu;
-		my $i;
+		my($d) = $c->[$i+1];
+		my($aor, $gruu);
+		my($i);
 		for ($i = 1; $i < $#$d; $i += 2) {
 		    $e = $d->[$i];
 		    $f = $d->[$i+1];
@@ -379,4 +389,34 @@ sub strip {
     $uri =~ s/^sips?:/sip:/i;
     $uri =~ s/;.*$//;
     return $uri;
+}
+
+# Find the user-agent value for a particular extension.
+sub user_agent {
+    my($log_file, $extension) = @_;
+    my($user_agent);
+
+    # Read through the log file and find all the REGISTERs.
+    my($log_line) = '';
+    open(LOG, $log_file) ||
+	die "Error opening file '$log_file' for input: $!\n";
+    while (<LOG>) {
+	next unless /:INCOMING:/;
+	next unless /----\\nREGISTER\s/i;
+	# This line passes the tests, process it.
+
+	# Normalize the log line.
+	s/^.*?----\\n//;
+	s/====*END====*\\n"\n$//;
+        s/\\(.)/$unescape{$1}/eg;
+        s/\r\n/\n/g;
+
+        # Get the extension.
+        if ($extension eq (/\nTo:.*?sips?:(\d+)@/i)[0]) {
+            # If the extension matches, return the user-agent.
+            ($user_agent) = /\nUser-Agent:\s*(.*)\n/i;
+            return $user_agent;
+        }
+    }
+    close LOG;
 }

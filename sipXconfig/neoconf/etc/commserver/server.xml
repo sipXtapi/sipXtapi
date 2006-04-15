@@ -15,6 +15,12 @@
       <option><value>EMERG</value></option>
     </enum>
   </type>
+  <type id="enablestate">
+    <enum>
+      <option><value>DISABLE</value></option>
+      <option><value>ENABLE</value></option>
+    </enum>
+  </type>
   <type id="feature-code">
     <string>
       <pattern>[0-9*#]+</pattern>
@@ -189,5 +195,59 @@
       <value>NOTICE</value>
       <description>Monitoring presence events.</description>
     </setting>		
+  </group>
+  <group name="cdr">
+    <label>Call Detail Records</label>
+    <setting name="SIP_CALLRESOLVER_DAILY_RUN">
+      <label>Create Call Detail Records (CDRs) Daily</label>
+      <profileName>callresolver-config.in</profileName>
+      <type refid="enablestate"/>
+      <value>DISABLE</value>
+      <description>Schedule the call resolver to create CDRs daily.</description>
+    </setting>
+    <setting name="SIP_AUTHPROXY_CALL_STATE_DB">
+      <label>Authorization Proxy Call State Event Logging</label>
+      <profileName>authproxy-config.in</profileName>
+      <type refid="enablestate"/>
+      <value>DISABLE</value>
+      <description>Log call state events to a database. Required for CDRs.</description>
+    </setting>
+    <setting name="SIP_PROXY_CALL_STATE_DB">
+      <label>Forking Proxy Call State Event Logging</label>
+      <profileName>proxy-config.in</profileName>
+      <type refid="enablestate"/>
+      <value>DISABLE</value>
+      <description>Log call state events to a database. Required for CDRs.</description>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE">
+      <label>Purge the CDR Database Daily</label>
+      <profileName>callresolver-config.in</profileName>
+      <type refid="enablestate"/>
+      <value>ENABLE</value>
+      <description>Schedule a daily purge of the CDR database, including call state events.</description>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE">
+      <label>Age of Data to Purge</label>
+      <profileName>callresolver-config.in</profileName>
+			<type>
+				<integer min="1" max="365"></integer>
+			</type>
+      <value>35</value>
+      <description>When purging, remove data older than this (in days).</description>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
+      <label>Call Resolver Log Level</label>
+      <profileName>callresolver-config.in</profileName>
+      <type refid="loglevel"/>
+      <value>NOTICE</value>
+      <description>Logging level for the call resolver.</description>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" advanced="yes">
+      <label>Call Direction</label>
+      <profileName>callresolver-config.in</profileName>
+      <type refid="enablestate"/>
+      <value>DISABLE</value>
+      <description>Compute call direction, based on whether the call went through a gateway.</description>
+    </setting>
   </group>
 </model>

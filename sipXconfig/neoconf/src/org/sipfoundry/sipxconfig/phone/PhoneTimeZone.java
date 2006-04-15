@@ -76,7 +76,6 @@ public class PhoneTimeZone {
             m_tz = TimeZone.getTimeZone(s_tzname);
         }
         String tzn = m_tz.getID();
-
         // Until there is a setting for DST rule, it must be guessed here based on the timezone name
 
         if (tzn.matches("^US/.*")) {
@@ -159,11 +158,11 @@ public class PhoneTimeZone {
     }
 
     public int getOffsetWithDst() {
-        int offset = m_tz.getRawOffset();
+        int offset = getOffset();
         if (getDstActive()) {
             offset += getDstOffset();
         }
-        return offset / MSEC;
+        return offset;
 
     }
 

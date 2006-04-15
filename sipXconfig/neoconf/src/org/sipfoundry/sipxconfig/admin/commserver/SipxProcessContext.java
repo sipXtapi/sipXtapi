@@ -31,6 +31,7 @@ public interface SipxProcessContext {
         public static final Process PRESENCE_SERVER = new Process("PresenceServer");
         public static final Process CONFIG_SERVER = new Process("ConfigServer");
         public static final Process KEEP_ALIVE = new Process("KeepAlive");
+        public static final Process CONFIG_AGENT = new Process("ConfigAgent");
 
         private Process(String name) {
             super(name);

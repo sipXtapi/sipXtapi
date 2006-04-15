@@ -22,10 +22,19 @@ public class MillisDurationFormatTest extends TestCase {
         m_format = new MillisDurationFormat();
     }
 
-    public void testFormat() {
-        assertEquals("0 seconds", m_format.format(new Long(0)));
+    public void testZeroFormat() {
+        assertEquals("", m_format.format(new Long(0)));                
+        assertEquals("", m_format.format(new Long(1)));
+        assertEquals("", m_format.format(new Long(999)));
+
+        m_format.setShowZero(true);
+        
+        assertEquals("0 seconds", m_format.format(new Long(0)));                
         assertEquals("0 seconds", m_format.format(new Long(1)));
-        assertEquals("0 seconds", m_format.format(new Long(999)));
+        assertEquals("0 seconds", m_format.format(new Long(999)));        
+    }
+    
+    public void testFormat() {
         assertEquals("1 second", m_format.format(new Long(1000)));
 
         assertEquals("5 seconds", m_format.format(new Long(5000)));
@@ -41,9 +50,9 @@ public class MillisDurationFormatTest extends TestCase {
 
     public void testFormatSeconds() {
         m_format.setMaxField(MillisDurationFormat.SECONDS);
-        assertEquals("0 seconds", m_format.format(new Long(0)));
-        assertEquals("0 seconds", m_format.format(new Long(1)));
-        assertEquals("0 seconds", m_format.format(new Long(999)));
+        assertEquals("", m_format.format(new Long(0)));
+        assertEquals("", m_format.format(new Long(1)));
+        assertEquals("", m_format.format(new Long(999)));
         assertEquals("1 second", m_format.format(new Long(1000)));
 
         assertEquals("5 seconds", m_format.format(new Long(5000)));
@@ -60,7 +69,7 @@ public class MillisDurationFormatTest extends TestCase {
     public void testFormatNoLabels() {
         m_format.setMaxField(MillisDurationFormat.SECONDS);
         m_format.setUseLabels(false);
-        assertEquals("0", m_format.format(new Long(0)));
+        assertEquals("", m_format.format(new Long(0)));
         assertEquals("1", m_format.format(new Long(1000)));
 
         assertEquals("5", m_format.format(new Long(5000)));
@@ -77,7 +86,7 @@ public class MillisDurationFormatTest extends TestCase {
         m_format.setMaxField(MillisDurationFormat.HOURS);
         m_format.setUseLabels(false);
         m_format.setSeparator(":");
-        assertEquals("0", m_format.format(new Long(0)));
+        assertEquals("", m_format.format(new Long(0)));
         assertEquals("3:0:5", m_format.format(new Long(3 * DateUtils.MILLIS_PER_HOUR + 5050)));
     }
 }

@@ -39,7 +39,7 @@ public class SettingEditorTest extends TestCase {
 
     public void testValidatorForInteger() {
         IntegerSetting type = new IntegerSetting();
-        List validators = SettingEditor.validatorListForType(type);
+        List validators = SettingEditor.validatorListForType(type, true);
         assertEquals(2, validators.size());
         assertTrue(validators.get(0) instanceof Min);        
         assertTrue(validators.get(1) instanceof Max);        
@@ -49,10 +49,19 @@ public class SettingEditorTest extends TestCase {
         StringSetting type = new StringSetting();
         type.setMaxLen(15);
         type.setRequired(true);
-        List validators = SettingEditor.validatorListForType(type);
+        List validators = SettingEditor.validatorListForType(type, true);
         assertEquals(2, validators.size());
         assertTrue(validators.get(0) instanceof Required);        
         assertTrue(validators.get(1) instanceof MaxLength);        
+    }
+
+    public void testValidatorForStringRequiredDisabled() {
+        StringSetting type = new StringSetting();
+        type.setMaxLen(15);
+        type.setRequired(true);
+        List validators = SettingEditor.validatorListForType(type, false);
+        assertEquals(1, validators.size());
+        assertTrue(validators.get(0) instanceof MaxLength);        
     }
 
     public void testValidatorForPattern() {
@@ -60,7 +69,7 @@ public class SettingEditorTest extends TestCase {
         type.setMaxLen(15);
         type.setRequired(true);
         type.setPattern("kuku");
-        List validators = SettingEditor.validatorListForType(type);
+        List validators = SettingEditor.validatorListForType(type, true);
         assertEquals(3, validators.size());
         assertTrue(validators.get(0) instanceof Required);        
         assertTrue(validators.get(1) instanceof MaxLength);        

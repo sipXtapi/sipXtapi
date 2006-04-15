@@ -1,0 +1,8 @@
+#!/bin/bash
+
+sipxcallresolver.sh --daily
+
+# This cron job is run as root and could change ownership of
+# configuration and log files - change them back
+chown @SIPXPBXUSER@:@SIPXPBXUSER@ @SIPX_LOGDIR@/sipcallresolver.log
+chown @SIPXPBXUSER@:@SIPXPBXUSER@ @SIPX_CONFDIR@/callresolver-config*

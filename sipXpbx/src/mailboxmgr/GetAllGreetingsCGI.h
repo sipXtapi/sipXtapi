@@ -58,7 +58,7 @@ public:
         OsStatus handleOpenVXIRequest( UtlString* out ) ;
 
     OsStatus
-    GetAllGreetingsCGI::generateManageGreetingsHtml( const UtlString& greetingType,
+    generateManageGreetingsHtml( const UtlString& greetingType,
                                                      const UtlString& defaultGreetingFilename,
                                                      const UtlString& activeGreetingType ,
                                                      const UtlString& displayName,

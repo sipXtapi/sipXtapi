@@ -11,9 +11,11 @@ create table version_history(
  *
  * For sipXconfig v3.0, the database version is 1.
  * For sipXconfig v3.2, the database version is 2.
+ * For sipXconfig v3.3-r6543, the database version is 3.
  */
 insert into version_history (version, applied) values (1, now());
 insert into version_history (version, applied) values (2, now());
+insert into version_history (version, applied) values (3, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -69,7 +71,14 @@ create table auto_attendant (
    prompt varchar(255),
    system_id varchar(255),
    description varchar(255),
+   value_storage_id int4,
+   group_id int4,
    primary key (auto_attendant_id)
+);
+create table attendant_group (
+   auto_attendant_id int4 not null,
+   group_id int4 not null,
+   primary key (auto_attendant_id, group_id)
 );
 create table park_orbit (
    park_orbit_id int4 not null,

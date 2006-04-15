@@ -91,7 +91,7 @@ public:
     /**
      * Get the ContainableType for the list as a contained object.
      */
-    UtlContainableType UtlSortedList::getContainableType() const;
+    UtlContainableType getContainableType() const;
     
     static const UtlContainableType TYPE; ///< constant for class type comparisons.
 

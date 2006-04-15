@@ -127,7 +127,10 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return CollectionUtils.collect(namedObject, toName);
     }
 
-    public List getGroupsByString(String resource, String groupString) {        
+    public List getGroupsByString(String resource, String groupString) {
+        if (StringUtils.isBlank(groupString)) {
+            return new ArrayList(0);
+        }
         String[] groupNames = groupString.trim().split("\\s+");
         List groups = new ArrayList(groupNames.length);
         for (int i = 0; i < groupNames.length; i++) {

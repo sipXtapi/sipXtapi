@@ -4,7 +4,7 @@
 	</head>
 	<body jwcid="$content$">
 		<div jwcid="@Border" useDojo="true">
-      <span id="phone:edit"/>
+      <span id="phone:edit"><!-- non-empty to avoid IE JS error --></span>
 			<div class="help">
 				<b>Quick Links</b>
 				<ul>
@@ -13,6 +13,8 @@
 					</li>
 				</ul>
 			</div>
+      <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
+      <h2>Edit Phone</h2>
 			<span jwcid="editPhoneNavigation">The serial number is a unique ID for 
 				this phone. Usually it's the phone's MAC address. </span>
 			<div id="settings-content">

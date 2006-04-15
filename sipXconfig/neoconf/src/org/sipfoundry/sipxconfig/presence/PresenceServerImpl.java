@@ -15,6 +15,8 @@ import java.net.MalformedURLException;
 import java.util.Hashtable;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxServer;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -26,6 +28,7 @@ import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
  */
 public class PresenceServerImpl implements PresenceServer {    
     public static final String OBJECT_CLASS_KEY = "object-class";
+    private static final Log LOG = LogFactory.getLog(PresenceServerImpl.class); 
     private CoreContext m_coreContext;
     private SipxServer m_sipxServer;
     private boolean m_enabled;
@@ -55,12 +58,23 @@ public class PresenceServerImpl implements PresenceServer {
     }   
     
     public PresenceStatus getStatus(User user) {
-        Hashtable response = signInAction(SignIn.STATUS, user);
-        String status = (String) response.get(SignIn.RESULT_TEXT);
-        return PresenceStatus.resolve(status);
+        PresenceStatus status = PresenceStatus.NOT_AVAILABLE; 
+        if (m_enabled) {
+            try {
+                Hashtable response = signInAction(SignIn.STATUS, user);
+                String statusId = (String) response.get(SignIn.RESULT_TEXT);
+                status = PresenceStatus.resolve(statusId);
+            } catch (Exception e) {
+                LOG.error(e);
+            }
+        }
+        return status;
     }
     
     private Hashtable signInAction(String action, User user) {        
+        if (!m_enabled) {
+            return null;
+        }
         XmlRpcProxyFactoryBean factory = new XmlRpcProxyFactoryBean();
         factory.setServiceInterface(SignIn.class);
         factory.setServiceUrl(m_sipxServer.getPresenceServiceUri());

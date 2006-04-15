@@ -9,9 +9,13 @@
         <span jwcid="auto"/>
       </form>
     </li>
-    <li>Refresh every
-      <div jwcid="interval" maxlength="4" size="4">30</div>&nbsp;seconds</li>
+    <li>
+      <span key="refreshEvery">Refresh every</span>&nbsp;
+      <div jwcid="interval" maxlength="4" size="4">30</div>&nbsp;
+      <span key="seconds">seconds</span>
+    </li>
   </ul>
+  <span jwcid="@QuickHelp" value="message:refreshHelp"/>
   <form jwcid="refreshForm">
     <div jwcid="@Any" element="div" id="refreshedContent">
       <div jwcid="@RenderBody"/>

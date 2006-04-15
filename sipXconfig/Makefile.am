@@ -11,7 +11,7 @@ edit = $(LocalizeSipXconfig) \
     -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g'
 
 
-SUBDIRS = . bin neoconf web meta $(doc_SUBDIRS)
+SUBDIRS = . bin neoconf web meta agent $(doc_SUBDIRS)
 
 EXTRA_DIST = \
     config/sipX-config.in \
@@ -35,6 +35,7 @@ EXTRA_DIST = \
     sipxconfig.spec \
     web \
     meta \
+    agent \
     lib
 
 # BUILT_SOURCES is special autoconf variable to be checked on every make

@@ -360,8 +360,19 @@ void CallStateEventBuilder_XML::callEndEvent(const int sequenceNumber,
 }
 
 
+void CallStateEventBuilder_XML::callTransferEvent(int mSequenceNumber, 
+                                                  const OsTime& timeStamp, 
+                                                  const UtlString& contact,
+                                                  const UtlString& refer_to,
+                                                  const UtlString& referred_by) 
+{
+   // Not logging transfer events in XML
+}
+
+
 /// Add the dialog and call information for the event being built.
-void CallStateEventBuilder_XML::addCallData(const UtlString& callId,
+void CallStateEventBuilder_XML::addCallData(const int cseqNumber,
+                                            const UtlString& callId,
                                             const UtlString& fromTag,  /// may be a null string
                                             const UtlString& toTag,    /// may be a null string
                                             const UtlString& fromField,
@@ -476,7 +487,7 @@ void CallStateEventBuilder_XML::newEvent(int sequenceNumber,
 }
 
 /// Copies the element into the provided UtlString
-bool  CallStateEventBuilder_XML::xmlElement(UtlString& event)
+bool  CallStateEventBuilder_XML::finishElement(UtlString& event)
 /**<
  * @returns
  * - true if the returned element is validly constructed

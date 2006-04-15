@@ -23,7 +23,6 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.html.BasePage;
-import org.apache.tapestry.util.io.SqueezeAdaptor;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
@@ -67,14 +66,12 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
 
     public abstract SearchManager getSearchManager();
 
-    public abstract SqueezeAdaptor getSqueezeAdaptor();
-
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
         if (!getSearchMode() || StringUtils.isBlank(queryText)) {
             return new PhoneTableModel(getPhoneContext(), getGroupId());
         }
-        return new SearchPhoneTableModel(getSearchManager(), queryText, getSqueezeAdaptor());
+        return new SearchPhoneTableModel(getSearchManager(), queryText, getPhoneContext());
     }
 
     /**

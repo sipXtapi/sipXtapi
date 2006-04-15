@@ -64,6 +64,7 @@ nobase_include_HEADERS =  \
     fastdb/unisock.h \
     fastdb/w32sock.h \
     fastdb/wwwapi.h \
+    odbc/OdbcWrapper.h \
 	 testlib/RegistrationDbTestContext.h \
 	 testlib/SipDbTestContext.h \
 	 testlib/FileTestContext.h

@@ -13,6 +13,7 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "CallStateEventBuilder.h"
+#include "os/OsSysLog.h"
 
 // DEFINES
 // MACROS
@@ -67,7 +68,6 @@ CallStateEventBuilder::CallStateEventBuilder(const char* observerDnsName ///< th
 bool CallStateEventBuilder::builderStateIsOk( BuilderMethod method )
 {
    bool isValid = false; // pessimism is safe
-   
 #  define VALID(newState) { isValid = true; buildState = (newState); }
 #  define INVALID /* no-op, because isValid is already false, but useful as documentation */
    
@@ -92,6 +92,7 @@ bool CallStateEventBuilder::builderStateIsOk( BuilderMethod method )
          case CallSetupEvent:
          case CallFailureEvent:
          case CallEndEvent:
+         case CallTransferEvent:
             VALID(CallEventStarted);
             break;
          default:
@@ -241,8 +242,28 @@ void CallStateEventBuilder::callEndEvent(const int sequenceNumber,
 }
 
 
+/// Begin a Call Transfer Event - a REFER request has been observed
+/**
+ * Requires:
+ *   - callEndEvent
+ *   - addCallData
+ *   - addEventVia (at least for via index zero)
+ *   - completeCallEvent
+ */
+void CallStateEventBuilder::callTransferEvent(int sequenceNumber, 
+                                              const OsTime& timeStamp, 
+                                              const UtlString& contact,
+                                              const UtlString& refer_to,
+                                              const UtlString& referred_by)
+{
+   bool CalledBaseClassMethod_callTransferEvent = false;
+   assert(CalledBaseClassMethod_callTransferEvent);    
+}
+
+
 /// Add the dialog and call information for the event being built.
-void CallStateEventBuilder::addCallData(const UtlString& callId,
+void CallStateEventBuilder::addCallData(const int cseqNumber,
+                                        const UtlString& callId,
                                         const UtlString& fromTag,  /// may be a null string
                                         const UtlString& toTag,    /// may be a null string
                                         const UtlString& fromField,

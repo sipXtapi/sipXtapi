@@ -72,7 +72,7 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-    static StatusServer* StatusServer::startStatusServer(
+    static StatusServer* startStatusServer(
         const UtlString workingDir,
         const char* configFileName);
 

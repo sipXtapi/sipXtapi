@@ -13,6 +13,7 @@ Url: http://www.sipfoundry.org/sipXconfig
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
 %define sipxpbxconf %{_sysconfdir}/sipxpbx
 %define sipxpbxdata %{_datadir}/sipxpbx
+%define sipxconfiglib %{_datadir}/sipxpbx/lib
 
 # Should match sipXlib.m4:SIPX_CONFIGPHONEDIR
 %define phonedir %{_localstatedir}/sipxdata/configserver/phone
@@ -24,13 +25,13 @@ AutoReqProv: no
 
 Source: %name-%version.tar.gz
 
-Requires: sipxtacklib >= 3.1
-Requires: sipxcommserverlib >= 3.1
+Requires: sipxtacklib >= 3.3
+Requires: sipxcommserverlib >= 3.3
 Requires: postgresql-server >= 7.3
+Requires: ruby >= 1.8.4
+Requires: ruby-gems >= 0.8.11
 
-# to serve profile/catalog/apps.  These can be served from
-# tomcat eventually to improve scalability by reducing server
-# depenedency.
+# only used to serve phone profiles under http devices
 Requires: httpd >= 2.0
 
 Prefix: %_prefix
@@ -42,15 +43,15 @@ BuildRoot: %{_tmppath}/%name-%version-root
 
 %description
   Configuring one phone can be a daunting task, configuring a hundred
-phones can be maddening. sipXconfig leverages JBoss, Tomcat, Axis
-SOAP, postgresql and other J2EE technologies to get the job done.
+phones can be maddening. sipXconfig leverages Jetty, Axis
+SOAP, postgresql and other JEE technologies to get the job done.
 
 %prep
 %setup -q
 
 %build
 
-%configure @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -105,6 +106,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 
+# does not complain is package already exist
+gem install --no-rdoc --local %{sipxconfiglib}/file-tail-*.gem
+gem install --local %{sipxconfiglib}/sipXconfig-agent-*.gem
+
 sipxconfig.sh --setup
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
@@ -116,3 +121,15 @@ mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
+%preun
+# prevent uninstalling during an upgrade
+#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
+if [ "$1" = "0" ] ; then
+  gem uninstall sipXconfig-agent || true
+fi
+# can't be sure no other programs rely file-tail, so leave it
+
+%postun
+# uninstall lucene index and Jetty scratch dir on every install
+rm -rf /var/sipxdata/tmp/index 2> /dev/null
+rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig 2> /dev/null

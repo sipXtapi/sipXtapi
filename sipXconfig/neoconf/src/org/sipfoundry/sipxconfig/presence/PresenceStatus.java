@@ -17,6 +17,7 @@ import org.apache.commons.lang.enums.Enum;
 public final class PresenceStatus extends Enum {     
     public static final PresenceStatus OPEN = new PresenceStatus("open");
     public static final PresenceStatus CLOSED = new PresenceStatus("closed");
+    public static final PresenceStatus NOT_AVAILABLE = new PresenceStatus("na");
     private PresenceStatus(String name) {
         super(name);
     }

@@ -54,4 +54,11 @@ public class SettingDaoTestDb extends SipxDatabaseTestCase {
         assertEquals("g0", groups[0].getName());
         assertEquals("g4", groups[4].getName());        
     }
+    
+    public void testGetGroupsByEmptyString() throws Exception {
+        assertEquals(0, dao.getGroupsByString("foo", "").size());
+        assertEquals(0, dao.getGroupsByString("foo", "  ").size());
+        assertEquals(0, dao.getGroupsByString("foo", null).size());
+    }
+    
 }

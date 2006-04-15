@@ -88,8 +88,8 @@ public:
      //!param: pPacket - (in) Pointer to a media buffer
      //!retcode: length of packet to hand to jitter buffer, 0 means don't.
 
-   virtual int MpDecoderBase::reportBufferLength(int iAvePackets);
-   virtual void MpDecoderBase::FrameIncrement(void);
+   virtual int reportBufferLength(int iAvePackets);
+   virtual void FrameIncrement(void);
 
    virtual UtlBoolean handleSetDtmfNotify(OsNotification* pNotify);
      //:Handle the FLOWGRAPH_SET_DTMF_NOTIFY message.

@@ -65,7 +65,7 @@ public:
       //:Assignment operator
 
     OsPathBase&
-    OsPathBase::operator+=(const OsPathBase& rhs);
+    operator+=(const OsPathBase& rhs);
       //:+= operator
 
     static void setSeparator(UtlString &rSeparator);

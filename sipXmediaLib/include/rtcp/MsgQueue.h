@@ -620,7 +620,7 @@ bool CMsgQueue::CreateMessageTask();
 
 #elif defined(__pingtel_on_posix__)
       OsMsgQ * m_pMsgQ;
-      static void * CMsgQueue::InitMessageThread(void * argument1);
+      static void * InitMessageThread(void * argument1);
 #else
 #error Unsupported target platform.
 #endif

@@ -9,6 +9,7 @@
   </parameter>
   <parameter name="enabled" required="no"  default-value="true" >
   </parameter>
+  <parameter name="isRequiredEnabled" required="no" default-value="true"/>
   <property name="showAdvanced"  persist="session"/>
   <property name="currentSetting"/>
   <component id="ifRenderGroupTitle" type="If">
@@ -34,6 +35,7 @@
   <component id="settingEditor" type="SettingEditor">
     <binding name="setting" value="currentSetting"/>
     <binding name="enabled" value="enabled"/>
+    <binding name="isRequiredEnabled" value="isRequiredEnabled"/>
   </component>
   <component id="groupLabel" type="Insert">
     <binding name="value" value="currentSetting.label"/>

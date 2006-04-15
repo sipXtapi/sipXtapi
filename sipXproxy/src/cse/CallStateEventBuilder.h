@@ -52,7 +52,7 @@ class CallStateEventBuilder
                          );
 
    /// Destructor
-   ~CallStateEventBuilder();
+   virtual ~CallStateEventBuilder();
 
 
    /// Meta-events about the observer itself
@@ -65,11 +65,11 @@ class CallStateEventBuilder
     * Generate a metadata event.
     * This method generates a complete event - it does not require that the callEventComplete method be called.
     */
-   void observerEvent(int sequenceNumber, ///< for ObserverReset, this should be zero
-                      const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                      ObserverEvent eventCode,
-                      const char* eventMsg ///< for human consumption
-                      );
+   virtual void observerEvent(int sequenceNumber, ///< for ObserverReset, this should be zero
+                              const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                              ObserverEvent eventCode,
+                              const char* eventMsg ///< for human consumption
+                              );
 
    /// Begin a Call Request Event - an INVITE without a to tag has been observed
    /**
@@ -79,10 +79,10 @@ class CallStateEventBuilder
     *   - addEventVia (at least for via index zero)
     *   - completeCallEvent
     */
-   void callRequestEvent(int sequenceNumber,
-                         const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                         const UtlString& contact
-                         );
+   virtual void callRequestEvent(int sequenceNumber,
+                                 const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                                 const UtlString& contact
+                                 );
 
    /// Begin a Call Setup Event - a 2xx response to an INVITE has been observed
    /**
@@ -92,10 +92,10 @@ class CallStateEventBuilder
     *   - addEventVia (at least for via index zero)
     *   - completeCallEvent
     */
-   void callSetupEvent(int sequenceNumber,
-                       const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                       const UtlString& contact
-                       );
+   virtual void callSetupEvent(int sequenceNumber,
+                               const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                               const UtlString& contact
+                               );
 
    /// Begin a Call Failure Event - an error response to an INVITE has been observed
    /**
@@ -105,11 +105,11 @@ class CallStateEventBuilder
     *   - addEventVia (at least for via index zero)
     *   - completeCallEvent
     */
-   void callFailureEvent(int sequenceNumber,
-                         const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                         int statusCode,
-                         const UtlString& statusMsg
-                         );
+   virtual void callFailureEvent(int sequenceNumber,
+                                 const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                                 int statusCode,
+                                 const UtlString& statusMsg
+                                 );
 
    /// Begin a Call End Event - a BYE request has been observed
    /**
@@ -119,17 +119,32 @@ class CallStateEventBuilder
     *   - addEventVia (at least for via index zero)
     *   - completeCallEvent
     */
-   void callEndEvent(const int sequenceNumber,
-                     const OsTime& timestamp      ///< obtain using getCurTime(OsTime)
-                     );
+   virtual void callEndEvent(const int sequenceNumber,
+                             const OsTime& timestamp      ///< obtain using getCurTime(OsTime)
+                             );
+                             
+   /// Begin a Call Transfer Event - a REFER request has been observed
+   /**
+    * Requires:
+    *   - callEndEvent
+    *   - addCallData
+    *   - completeCallEvent
+    */
+   virtual void callTransferEvent(const int sequenceNumber,
+                                  const OsTime& timestamp,   ///< obtain using getCurTime(OsTime)
+                                  const UtlString& contact,
+                                  const UtlString& refer_to,
+                                  const UtlString& referred_by
+                                  );
 
    /// Add the dialog and call information for the event being built.
-   void addCallData(const UtlString& callId,
-                    const UtlString& fromTag,  /// may be a null string
-                    const UtlString& toTag,    /// may be a null string
-                    const UtlString& fromField,
-                    const UtlString& toField
-                    );
+   virtual void addCallData(const int cseqNumber,
+                            const UtlString& callId,
+                            const UtlString& fromTag,  /// may be a null string
+                            const UtlString& toTag,    /// may be a null string
+                            const UtlString& fromField,
+                            const UtlString& toField
+                            );
    
    /// Add a via element for the event
    /**
@@ -137,11 +152,13 @@ class CallStateEventBuilder
     * Calls to this routine are in reverse cronological order - the last
     * call for an event should be the via added by the message originator
     */
-   void addEventVia(const UtlString& via
-                    );
+   virtual void addEventVia(const UtlString& via
+                            );
 
    /// Indicates that all information for the current call event has been added.
-   void completeCallEvent();
+   virtual void completeCallEvent();
+   
+   virtual bool finishElement(UtlString& event) = 0;
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
@@ -160,6 +177,7 @@ class CallStateEventBuilder
          CallSetupEvent,
          CallFailureEvent,
          CallEndEvent,
+         CallTransferEvent,
          AddCallData,
          AddVia,
          CompleteCallEvent

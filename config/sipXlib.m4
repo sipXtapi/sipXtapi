@@ -17,6 +17,7 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     ##
     AC_SUBST(SIPX_INCDIR, [${includedir}])
     AC_SUBST(SIPX_LIBDIR, [${libdir}])
+    AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}])
 
     if test x_"${GCC}" != x_
     then 
@@ -562,7 +563,7 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
     SFAC_ARG_WITH_LIB([libsipXcommserverTest.la],
             [sipxcommservertest],
             [ --with-sipxcommservertest=<dir> commserver unit test helpers library path ],
-            [sipXcommserverTest])
+            [sipXcommserverLib])
 
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
@@ -716,7 +717,7 @@ AC_DEFUN([SFAC_ARG_WITH_LIB],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ lib_path=$withval ],
-        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit" ]
+        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit `pwd`/../[$4]/src/test/testlib" ]
     )
     foundpath=""
     for dir in $lib_path ; do
@@ -776,4 +777,46 @@ AC_DEFUN([SFAC_FEATURE_SIPX_EZPHONE],
    AM_CONDITIONAL(BUILDEZPHONE, test x$enable_sipx_ezphone = xyes)
 
    AC_MSG_RESULT(${enable_sipx_ezphone})
+])
+
+AC_DEFUN([SFAC_FEATURE_DBTEST],
+[
+   AC_REQUIRE([CHECK_ODBC])
+
+   AC_ARG_WITH(dbtests, 
+               [  --with-dbtests=dbname run database unit tests (no)],
+               [enable_dbtests=yes], 
+               [enable_dbtests=no])
+   AC_MSG_CHECKING([for enabling database unit tests])
+   if test x$enable_dbtests = xyes
+   then
+     if test x$withval = x
+     then
+       SIPXTEST_DATABASE=SIPXDB-TEST
+     else
+       # Allow for --with-dbtests without parameters
+       if test x$withval = xyes
+       then
+         SIPXTEST_DATABASE=SIPXDB-TEST
+       else
+         SIPXTEST_DATABASE=$withval
+       fi
+     fi
+     AC_MSG_RESULT([${enable_dbtests} - using database $SIPXTEST_DATABASE])
+
+     AC_MSG_CHECKING([for running PostgreSQL])
+
+     if psql -l -U postgres &>/dev/null
+     then
+       AC_MSG_RESULT(running)
+       # Run tests in a separate test database
+       AC_SUBST(SIPXTEST_DATABASE)
+     else
+       AC_MSG_RESULT(not running - disabling test)
+     enable_dbtests=no
+     fi
+
+   else
+     AC_MSG_RESULT(${enable_dbtests})
+   fi
 ])

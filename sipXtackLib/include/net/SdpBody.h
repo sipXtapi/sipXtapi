@@ -347,7 +347,7 @@ class SdpBody : public HttpBody
                                int& videoFmtp) const;
 
    // Get the crypto field for SRTP
-   UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,                  ///< mediaIndex of crypto field
+   UtlBoolean getSrtpCryptoField(int mediaIndex,                  ///< mediaIndex of crypto field
                                           int index,                       ///< Index inside of media type
                                           SdpSrtpParameters& params) const;
 

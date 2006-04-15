@@ -47,12 +47,15 @@ $(foreach file,$(pbxconf_files) $(wwwconf_files),$(DESTDIR)$(sysconfdir)/sipxpbx
 			$(INSTALL) -D -m 644  $< $@.NEW \
 			); \
 	else \
-		echo ""; echo "Installing default $@"; \
+		echo "Installing default $@"; \
 		$(INSTALL) -D -m 644 $< $@; \
 	fi
 
 $(foreach file,$(pbxconf_files) $(wwwconf_files),$(file)) : % : %.in
-	$(LocalizeSipXconfig) $< > $@
+	$(LocalizeSipXconfig) \
+	-e 's,@APACHE2_HOST_ACCESS\@,@APACHE2_HOST_ACCESS@,g' \
+	-e 's,@APACHE2_MOD_ACCESS\@,@APACHE2_MOD_ACCESS@,g' \
+	$< > $@
 
 .PHONY : rpm-install
 rpm-install: $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange
@@ -65,7 +68,7 @@ $(DESTDIR)$(sysconfdir)/logrotate.d/sipxchange: sipxchange
 			$(INSTALL) -D -m 644 $< $@.NEW \
 			); \
 	else \
-		echo ""; echo "Installing default $@"; \
+		echo "Installing default $@"; \
 		$(INSTALL) -D -m 644 $< $@; \
 	fi
 

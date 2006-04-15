@@ -396,6 +396,17 @@ void OsDateTimeBase::getHttpTimeString(UtlString& dateString)
     dateString = dateBuffer;
 }
 
+/// Set the dateString to the time as UTC time in a Postgres compatible format:
+///   2002-08-26 19:21:32.000
+void OsDateTimeBase::getSqlTimeStringZ(UtlString& dateString)
+{
+   dateString.resize(24);
+   sprintf(const_cast<char*>(dateString.data()), "%4d-%02d-%02d %02d:%02d:%02d.%03d", 
+           mYear, mMonth+1, mDay, 
+           mHour, mMinute, mSecond, mMicrosecond/MICROSECS_PER_MILLISEC
+           );
+}
+
 /// Set the dateString to the time as UTC time in the following format:
 ///   2002-08-26T19:21:32.000Z
 void OsDateTimeBase::getIsoTimeStringZ(UtlString& dateString)

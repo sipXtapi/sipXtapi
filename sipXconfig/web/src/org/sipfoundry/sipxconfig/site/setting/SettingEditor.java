@@ -36,6 +36,8 @@ public abstract class SettingEditor extends BaseComponent {
     public abstract Setting getSetting();
 
     public abstract void setSetting(Setting setting);
+    
+    public abstract boolean isRequiredEnabled();
 
     /**
      * This is to support new Tapestry4 types of validators
@@ -44,12 +46,12 @@ public abstract class SettingEditor extends BaseComponent {
      */
     public List getValidatorList() {
         SettingType type = getSetting().getType();
-        return validatorListForType(type);
+        return validatorListForType(type, isRequiredEnabled());
     }
 
-    static List validatorListForType(SettingType type) {
+    static List validatorListForType(SettingType type, boolean isRequiredEnabled) {
         List validators = new ArrayList();
-        if (type.isRequired()) {
+        if (type.isRequired() && isRequiredEnabled) {
             validators.add(new Required());
         }
         if (type instanceof IntegerSetting) {

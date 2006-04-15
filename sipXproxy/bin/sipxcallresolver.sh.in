@@ -1,0 +1,363 @@
+#!/bin/bash
+#
+# Copyright (C) 2006 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+# Copyright (C) 2006 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+
+
+Action=RUN
+Status=0
+Args=""
+
+resolverArgs=""
+
+# Declare script variables in a manner that unit test
+# (or end user I suppose) can override
+: ${SslDir:=@SIPX_CONFDIR@/ssl}
+: ${AuthoritiesDir:=$SslDir/authorities}
+: ${ConfigDefs:=@SIPX_CONFDIR@/config.defs}
+: ${Configpp:=@bindir@/configpp}
+: ${ConfigFiles:=@SIPX_CONFDIR@/authproxy-config @SIPX_CONFDIR@/proxy-config}
+: ${PidFile:=@SIPX_RUNDIR@/sipxconfig.pid}
+: ${LibDir:=@SIPX_LIBDIR@}
+: ${Psql:=psql}
+: ${ServiceDir:=/etc/init.d}
+: ${SubstituteUser:=su}
+: ${Chown:=chown}
+: ${LogDir:=@SIPX_LOGDIR@}
+: ${TmpDir:=@SIPX_TMPDIR@}
+: ${RunningUser:=@SIPXPBXUSER@}
+: ${PgUser:=postgres}
+: ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
+: ${DbVersion:=1}
+: ${DbPatchDir:=@SIPX_CONFDIR@/cdr}
+
+Database=SIPXCDR
+
+# This function determines the correct service name for Postgres.
+postgresService() {
+    # If the user has already specified $Service, do not modify it.
+    if test -n "$POSTGRES_SERVICE"
+    then
+        echo -e "$POSTGRES_SERVICE"
+    fi
+    
+    if [ -f /etc/init.d/rhdb ]
+    then
+	    # Red Hat Enterprise uses the name rhdb.
+        echo -e rhdb
+    fi
+    
+    # Most other distributions use the name postgresql.
+    echo -e postgresql
+}
+
+# Search/replace variables used in config.defs into config files
+runConfigpp() {
+    
+    # If the "config.defs" file exists and the <name>.in file exists for a
+    # configuration file, then run the config preprocessor to generate the
+    # fully resolved configuration file.
+    if [ -f "$ConfigDefs" ]
+    then
+      for i in $ConfigFiles ; do
+        if [ -f "${i}.in" ]
+          then
+            ${Configpp} --defs "${ConfigDefs}" --in "${i}.in" --out "$i"
+          fi
+      done
+    fi
+}
+
+# Take a list of files or directories 
+# and expand pathnames to create a string for PATH-based variables 
+classpath() {
+    Cpath=""
+    for f in $@; do
+      Cpath=$Cpath:$f
+    done
+    # trim first colon
+    echo ${Cpath:1}
+}
+
+# How to add a database patch:
+#
+# Add a file containing SQL statements in the sipXproxy/etc/database directory.
+# Be sure to add the file to the sql_schemas list in Makefile.am and to the %files
+# section in sipxproxy.spec.in
+#
+# Define an upgrade path - put the file name (without extension .sql) in one or 
+# more of the upgrade lists below. If we currently have database version 3 then
+# add the file to UpgradePatches1 (upgrading a version 1 database) and UpgradePatches2
+# (upgrading a version 2 database).
+
+UpgradePatches1=""
+
+# Apply database patches
+databasePatch() {
+    versionString=`${Psql} -U ${PgUser} -d ${Database} -c "select max(version) from version_history"`
+    version=`echo $versionString | cut -d ' ' -f 3`
+    case ${version} in
+        1)
+            UpgradePatches=$UpgradePatches1
+            ;;
+
+        *)
+            UpgradePatches=""
+            ;;
+    esac
+
+    if [ -n "${UpgradePatches}" ]; then
+        for patch in $UpgradePatches; do
+            if [ -f ${DbPatchDir}/${patch}.sql ]; then
+                ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >/dev/null 2>&1
+                ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}')" >/dev/null 2>&1
+            else
+                echo "Error: Database patch file ${patch}.sql not found."
+            fi
+        done
+        ${Psql} -U ${PgUser} -d ${Database} -c "insert into version_history values (${DbVersion}, now())" >/dev/null 2>&1
+    fi
+}
+
+# Setup database
+databaseCommand() {
+
+    runConfigpp
+
+    databaseCheck
+    
+    case ${1} in
+       create)
+         createdb -U ${PgUser} ${Database} >/dev/null
+         ${Psql} -U ${PgUser} -d ${Database} -f ${PgSchema} >/dev/null 2>&1
+       ;;
+       
+       drop)
+         dropdb -U ${PgUser} --encoding=UNICODE ${Database} >/dev/null 2>&1
+       ;;
+   esac
+}
+
+runningUserCheck() {
+  CurrentUser=`id -un`
+  if [ "$CurrentUser" != "$RunningUser" ]; then
+    echo "Only user @sipxpbx.user@ can run this command." 1>&2
+    return 1
+  fi
+  return 0
+}
+
+# Return false if postgres is 
+#  1. not running 
+#  2. running but not setup to communicate w/java or ${Psql} command
+#  3. Database is not created
+databaseCheck() {
+    if ! ${Psql} -l -U postgres | grep "${Database}" >/dev/null
+    then        
+        return 1
+    else
+        return 0
+    fi
+}
+
+configCheck() {
+   authConfig=`cat @SIPX_CONFDIR@/authproxy-config.in | grep SIP_AUTHPROXY_CALL_STATE_DB`
+   if [ -z "${authConfig}" ]; then
+     echo "Warning: authProxy is not configured to write call state events to a database"
+     return 1
+   else
+     echo "authProxy is configured to write call state events to a database"   
+     return 0
+   fi
+   proxyConfig=`cat @SIPX_CONFDIR@/proxy-config.in | grep SIP_PROXY_CALL_STATE_DB`
+   if [ -z "${proxyConfig}" ]; then
+     echo "Warning: proxy is not configured to write call state events to a database"
+     return 1
+   else
+     echo "proxy is configured to write call state events to a database"   
+     return 0
+   fi   
+}
+
+# Check the database version.  If it is wrong, then exit, because it's dangerous to
+# run sipXconfig on top of the wrong database version.
+databaseVersionCheck() {
+    dbver=`${Psql} -c "select max(vh.version) from version_history vh;" ${Database} postgres | sed -n 's/^\s*\([0-9][0-9]*\)\s*$/\1/p'`
+    if [ "$dbver" = "" ]
+    then
+	echo "Error: could not get the database version.  Exiting now."
+	exit 1
+    fi
+    if [ "$dbver" != $DbVersion ]
+    then
+        if [ "$dbver" == 0 ]
+        then
+            echo "Error: bad ${Database} database version.  This database was created by a prerelease version of sipXconfig.  You should drop and recreate the database via \"sipxcallresolver.sh --database drop create\".  Exiting now."
+        else
+            echo "Error: bad ${Database} database version.  Expected version $DbVersion, got version $dbver.  This database was created or modified by a newer version of sipxcallresolver.  Exiting now."
+        fi
+        exit 1
+    fi
+}
+
+# Called after installation or upgrade by distro's package infrastructure
+# but can be called manually and is harmless if called multiple times.
+onSetup() {
+   if ! databaseCheck
+   then
+       @bindir@/pgpatch.sh
+       databaseCommand create
+   fi
+}
+
+# Start CDR call resolver
+onStartup() { 
+    ruby @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ${resolverArgs}
+}
+
+# simple diagnostics
+configtest() {
+    if ! databaseCheck; then
+      Status=1
+    fi
+    
+    configCheck
+
+    # Print out a success message if everything is OK, to give the user some feedback.
+    # If there is an error then the test will yield an error message.
+    if [ $Status = 0 ]
+    then
+      echo "The config test succeeded."
+    fi
+}
+
+CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/callresolver-config
+  "
+
+# If the "config.defs" file exists and the <name>.in file exists for a
+# configuration file, then run the config preprocessor to generate the
+# fully resolved configuration file.
+if [ -f "$CONFIG_DEFS" ]
+then
+  for i in $CONFIG_FILES ; do
+    if [ -f "${i}.in" ]
+    then
+       @bindir@/configpp --defs "${CONFIG_DEFS}" --in "${i}.in" --out "$i"
+    fi
+  done
+fi
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        -c|--configtest)
+            Action=CONFIGTEST
+            ;;
+            
+        -s|--setup)
+            Action=SETUP
+            ;;
+
+        -d|--database)
+            Action=DATABASE
+            shift
+            Args="${@}"
+            break 2
+            ;;    
+
+        --patch)
+            Action=PATCH
+            ;;
+
+        --nop)
+            Action=NOP
+            ;;
+
+        -h|--help)
+            Action=HELP
+            ;;
+            
+        *)
+            if [ "${1}" = --start ]; then
+              resolverArgs="${resolverArgs} ${1} "
+            elif [ "${1}" = --end ]; then
+              resolverArgs="${resolverArgs} ${1} "
+            elif [ "${1}" = --redo ]; then
+              resolverArgs="${resolverArgs} ${1} "
+            elif [ "${1}" = --daily ]; then
+              resolverArgs="${resolverArgs} ${1} "
+            else
+              resolverArgs="${resolverArgs} \"${1}\" "
+            fi
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+if [ ${Action} = CONFIGTEST ]
+then
+    configtest
+    exit $Status
+elif [ ${Action} = DATABASE ] 
+then
+    databaseCommand $Args
+elif [ ${Action} = RUN ] 
+then
+    onStartup
+elif [ ${Action} = SETUP ]
+then
+    onSetup
+elif [ ${Action} = PATCH ]
+then
+    databasePatch
+elif [ ${Action} = HELP ]
+then
+
+cat <<USAGE
+Usage: sipxcdr.sh [-d|--database commands ...]
+                  [-c|--configtest]
+                  [-s|--setup]
+                  [-h|--help]
+                     
+Set up CDR database and processing for sipXpbx.
+
+Options include:
+
+  none                 Starts CDR call resolver
+
+  --database commands  Runs an operation on the database. Database commands 
+                       are detailed below 
+
+  --configtest         Run diagnostics
+
+  --setup              Initialize postgresql for communicating with sipxconfig
+                       and create initial database. Will most likely need 
+                       root permissions.
+
+Common Database commands include:
+
+   drop                Drops ${Database} database
+
+   create              Create new ${Database} database
+
+   -p                  Full list all available commands
+
+Notable environment variables:
+
+    POSTGRES_SERVICE   a guess is made to determine the name for the
+                       Postgres service.
+                       If the guess is incorrect, then set this to the name of
+                       the script in /etc/init.d that starts/stops
+                       the Postgres database.  The possibilities that
+                       we are aware of are "postgresql" and "rhdb".
+
+USAGE
+
+fi

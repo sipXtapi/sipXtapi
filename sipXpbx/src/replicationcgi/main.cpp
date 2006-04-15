@@ -937,6 +937,9 @@ void handleInput(const char* pBuf )
                NetBase64Codec::decode(
                  iEncodedLength, pEncodedPayLoadData,
                  iDecodedLength, (char*)pDecodedPayLoadData);
+                 
+               // Added the termination character at the end of the string
+               pDecodedPayLoadData[iDecodedLength] = '\0';
 
                if( pStrTargetDataResourceMap != NULL )
                {

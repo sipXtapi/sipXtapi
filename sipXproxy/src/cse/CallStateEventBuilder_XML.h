@@ -104,10 +104,25 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
     *   - addCallData
     *   - addEventVia (at least for via index zero)
     *   - completeCallEvent
-    */
+    */                     
+
+   /// Begin a Call transfer event - a REFER event has been observed
+   void callTransferEvent(int sequenceNumber, 
+                          const OsTime& timeStamp, 
+                          const UtlString& contact,
+                          const UtlString& refer_to,
+                          const UtlString& referred_by); 
+   /**<
+    * Requires:
+    *   - callTransferEvent
+    *   - addCallData
+    *   - completeCallEvent
+    */                     
+                                              
 
    /// Add the dialog and call information for the event being built.
-   void addCallData(const UtlString& callId,
+   void addCallData(const int cseqNumber,
+                    const UtlString& callId,
                     const UtlString& fromTag,  /// may be a null string
                     const UtlString& toTag,    /// may be a null string
                     const UtlString& fromField,
@@ -127,7 +142,7 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
    void completeCallEvent();
 
    /// Copies the element into the provided UtlString
-   bool xmlElement(UtlString& event);
+   bool finishElement(UtlString& event);
    /**<
     * @returns
     * - true if the returned element is validly constructed

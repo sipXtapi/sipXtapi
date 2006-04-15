@@ -26,11 +26,13 @@
 	<bean name="locationModel"
 		class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel"
 		lifecycle="request">
-		<set name="array" value="literal:sipxProcessContext.locations"/>
+		<set name="array" value="sipxProcessContext.locations"/>
 		<set name="labelExpression" value="literal:id"/>
 	</bean>
 	<bean name="validator"
 		class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="serverStatusConverter" 
+    class="org.sipfoundry.sipxconfig.site.admin.commserver.ServerStatusSqueezeAdapter"/>
 	
 	<!--
 	- C O M P O N E N T S
@@ -62,6 +64,7 @@
 		<binding name="selections" value="selections"/>
 		<binding name="columns" value="literal:* serviceName,=statusColumn"/>
 		<binding name="usePager" value="false"/>
+    <binding name="converter" value="bean:serverStatusConverter"/>
 	</component>
 	
 	<component id="startButton" type="Submit">

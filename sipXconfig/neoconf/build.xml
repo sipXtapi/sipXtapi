@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <!--  -->
 
 <project name="neoconf" default="default">
@@ -31,6 +30,8 @@
 		<pathelement location="${commons-io.jar}" />
     <pathelement location="${xmlrpc.jar}" />
     <pathelement location="${acegi-security.jar}" />
+    <path refid="axis.path"/> 
+    <pathelement location="${agent-bindings.jar}"/>
 	</path>
 
 	<!-- 
@@ -150,6 +151,7 @@
       <fileset file="${xmlrpc.jar}" />
       <fileset file="${antlr.jar}" />
       <fileset file="${lucene.jar}" />      
+      <fileset file="${agent-bindings.jar}"/>
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot"/>
@@ -163,8 +165,7 @@
 	
 	
 	<!-- D E F A U L T -->
-	<target name="default" depends="jar"/>
-    	
+	<target name="default" depends="agent.bindings,jar"/>    	
 	
 	<!-- J A R -->
 	<target name="jar" depends="compile,manifest" description="assemble sipxconfig jar library">
@@ -294,5 +295,25 @@
 		</java>
 		<echo level="info" message="Please remember to commit new sipxconfig-db.dtd file"/>
 	</target>
+
+  <target name="generate.agent.bindings">
+    <delete dir="${agent.bindings.src.dir}"/>
+    <mkdir dir="${agent.bindings.src.dir}"/>
+    <wsdl2java url="${agent.wsdl}" output="${agent.bindings.src.dir}" noWrapped="true">
+      <mapping namespace="urn:StatsService" package="org.sipfoundry.sipxconfig.agent.stats"/>
+    </wsdl2java>     
+  </target>
+  
+  <target name="agent.bindings" depends="generate.agent.bindings">
+    <delete dir="${agent.bindings.dir}"/>
+    <mkdir dir="${agent.bindings.dir}"/>
+    <sipx-javac srcdir="${agent.bindings.src.dir}" destdir="${agent.bindings.dir}" classpathref="base.path">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+        <path refid="axis.path"/>
+      </classpath>
+    </sipx-javac>
+    <jar destfile="${agent-bindings.jar}" basedir="${agent.bindings.dir}"/>        
+  </target>
     
 </project>

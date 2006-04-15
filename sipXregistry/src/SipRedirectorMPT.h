@@ -33,7 +33,7 @@
 class MPTWriterTask : public OsTask {
   public:
 
-   MPTWriterTask::MPTWriterTask(void* pArg);
+   MPTWriterTask(void* pArg);
 
    virtual int run(void* pArg);
 };

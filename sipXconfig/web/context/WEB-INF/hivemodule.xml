@@ -9,7 +9,6 @@
   <!-- globally defined squeeze adaptors -->
   <contribution configuration-id="tapestry.data.SqueezeAdaptors">
     <adaptor object="service:CoreContextAdapter"/>
-    <adaptor object="service:ServiceStatusAdapter"/>
   </contribution>
   <service-point id="CoreContextAdapter" interface="components.IDaoSqueezeAdapter">
     <invoke-factory>
@@ -18,17 +17,12 @@
       </construct>
     </invoke-factory>
   </service-point>
-  <service-point id="ServiceStatusAdapter" interface="org.apache.tapestry.util.io.SqueezeAdaptor">
-    <invoke-factory>
-      <construct class="site.admin.commserver.ServerStatusSqueezeAdapter"/>
-    </invoke-factory>
-  </service-point>
   <!-- Upload Size=20MB for no particular reason. Polycom firmware was 11MB -->
   <implementation service-id="tapestry.multipart.MultipartDecoder">
     <create-instance class="org.apache.tapestry.multipart.MultipartDecoderImpl_Bug368,maxSize=20480000" 
        model="threaded" />
   </implementation>
-  <!-- Sping/Tapestry integration -->
+  <!-- Spring/Tapestry integration -->
   <implementation service-id="hivemind.lib.DefaultSpringBeanFactoryHolder">
     <invoke-factory>
       <construct autowire-services="false" class="org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl">

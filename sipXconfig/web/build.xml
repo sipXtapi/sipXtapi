@@ -12,21 +12,7 @@
   <property name="ruby.flags" value="-w ${ruby.debug}"/>
   <property name="server-bindings.jar" value="${dist.dir}/server-bindings.jar"/>
   <patternset id="test-ui.classes" includes="**/${test.name}TestUi.class"/> 
-  
-  <path id="axis.path">
-    <pathelement location="${jaxrpc.jar}"/>
-    <pathelement location="${commons-discovery.jar}"/>
-    <pathelement location="${saaj.jar}"/>
-    <pathelement location="${wsdl4j.jar}"/>
-    <pathelement location="${axis-ant.jar}"/>
-    <pathelement location="${axis-schema.jar}"/>		
-    <pathelement location="${activation.jar}"/>
-    <pathelement location="${javamail.jar}"/>
-    <pathelement location="${axis.jar}"/>	
-    <!-- add this for Windows -->
-    <pathelement path="${commons-logging.jar}"/>
-  </path>
-  
+    
   <!-- common path unit tests need that interfaces w/sipXconfig lib 
        all spring jars at this point -->
   <path id="compile.dependencies">
@@ -90,6 +76,7 @@
     <pathelement path="${commons-discovery.jar}"/>
     <pathelement path="${activation.jar}"/>
     <pathelement path="${axis-schema.jar}"/>
+    <pathelement path="${agent-bindings.jar}"/>
   </path>
 
   <path id="base.path">
@@ -290,14 +277,6 @@
   </target>
   
   <!-- W E B   S E R V I C E -->
-  <taskdef name="wsdl2java" 
-	    classname="org.apache.axis.tools.ant.wsdl.Wsdl2javaAntTask">
-	<classpath refid="axis.path"/>
-	<classpath>
-	    <pathelement location="${axis-ant.jar}"/>
-	</classpath>	
-  </taskdef>
-
   <target name="wsdl.init">
 	<mkdir dir="${server.bindings.dir}"/>
 	  <uptodate property="server-config.wsdd.uptodate" targetfile="${server-bindings.jar}">
@@ -330,8 +309,7 @@
         <include name="**/*BindingImpl.java"/>
       </fileset>
     </delete>
-  </target>
-	
+  </target>  	
   
   <target name="server.bindings" depends="generate.server.bindings" unless="server-config.wsdd.uptodate">
     <sipx-javac srcdir="${server.bindings.src}" destdir="${server.bindings.dir}" classpathref="base.path">
@@ -414,7 +392,7 @@
   <!--
 	- Run web services unit tests
 	-->
-  <target name="start-web-server" depends="test-war">
+  <target name="start-web-server">
     <echo message="Starting server..."/>
     <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
       <classpath refid="base.path"/>
@@ -439,8 +417,10 @@
     </java>    
   </target>	
   
-  <target name="test-api" if="ruby-bindings-enabled" description="Test web services">
-    <property name="test-api.sleep" value="10"/>
+  <target name="test-api" if="ruby-bindings-enabled" depends="test-war,ruby-bindings" 
+        description="Test web services">
+
+    <property name="test-api.sleep" value="15"/>
     <parallel>
       <antcall target="start-web-server"/>
       <sequential>
@@ -452,7 +432,7 @@
     </parallel>
   </target>
 
-  <target name="test-api-run" depends="ruby-bindings" description="Test web services with starting webserver">
+  <target name="test-api-run" description="Test web services with starting webserver">
     <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>
     <property name="ruby.include.path" value="${ruby.bindings.dir}${path.separator}${ruby.webservice-unit-test.src.dir}"/>
     <property name="webservice-unit-test-command"

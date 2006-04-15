@@ -11,30 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
-import org.apache.tapestry.services.DataSqueezer;
-import org.apache.tapestry.util.io.SqueezeAdaptor;
+import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus.Status;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
 
-public class ServerStatusSqueezeAdapter implements SqueezeAdaptor {
-    private static final String PREFIX = "D"; // Arbitrary
+public class ServerStatusSqueezeAdapter implements IPrimaryKeyConverter {
 
-    public String getPrefix() {
-        return PREFIX;
-    }
-
-    public Class getDataClass() {
-        return ServiceStatus.class;
-    }
-
-    public String squeeze(DataSqueezer squeezer, Object data) {
-        ServiceStatus status = (ServiceStatus) data;
+    public Object getPrimaryKey(Object value) {
+        ServiceStatus status = (ServiceStatus) value;
         return status.getServiceName();
     }
 
-    public Object unsqueeze(DataSqueezer squeezer, String string) {
-        Process process = Process.getEnum(string);
+    public Object getValue(Object primaryKey) {
+        Process process = Process.getEnum((String) primaryKey);
         return new ServiceStatus(process, Status.UNKNOWN);
     }
 }

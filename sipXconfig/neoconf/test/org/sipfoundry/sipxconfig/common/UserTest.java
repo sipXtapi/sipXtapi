@@ -166,7 +166,7 @@ public class UserTest extends TestCase {
 
     
     private String getPintoken(String username, String pin) {
-        pin = (String) ObjectUtils.defaultIfNull(pin, StringUtils.EMPTY);   // handle null pin
-        return Md5Encoder.digestPassword(username, REALM, pin);
+        String safePin = (String) ObjectUtils.defaultIfNull(pin, StringUtils.EMPTY);   // handle null pin
+        return Md5Encoder.digestPassword(username, REALM, safePin);
     }
 }
