@@ -554,7 +554,7 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
     SFAC_ARG_WITH_LIB([libsipXcommserverTest.la],
             [sipxcommservertest],
             [ --with-sipxcommservertest=<dir> commserver unit test helpers library path ],
-            [sipXcommserverTest])
+            [sipXcommserverLib])
 
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
@@ -708,7 +708,7 @@ AC_DEFUN([SFAC_ARG_WITH_LIB],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ lib_path=$withval ],
-        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit" ]
+        [ lib_path="$libdir $prefix/lib /usr/lib /usr/local/lib `pwd`/../[$4]/src `pwd`/../[$4]/sipXmediaMediaProcessing/src `pwd`/../[$4]/src/test/sipxunit `pwd`/../[$4]/src/test/testlib" ]
     )
     foundpath=""
     for dir in $lib_path ; do
