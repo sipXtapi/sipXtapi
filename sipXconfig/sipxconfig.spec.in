@@ -59,10 +59,6 @@ make
 rm -rf /var/sipxdata/tmp/index
 rm -rf /var/sipxdata/tmp/Jetty__8443__sipxconfig
 
-%preun
-gem uninstall sipXconfig-agent
-# can't be sure no other programs rely file-tail, so leave it
-
 %install
 
 # makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
