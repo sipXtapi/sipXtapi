@@ -16,10 +16,10 @@
     </enum>
   </type>
   <type id="enablestate">
-    <enum>
-      <option><value>DISABLE</value></option>
-      <option><value>ENABLE</value></option>
-    </enum>
+    <boolean>
+      <true><value>ENABLE</value></true>
+      <false><value>DISABLE</value></false>
+    </boolean>
   </type>
   <type id="feature-code">
     <string>
@@ -53,24 +53,24 @@
       <value>7</value>
       <description>Number of days voice mail messages will be kept on the system.</description>
     </setting>
-		<setting name="EXTENSION_LENGTH">
-			<label>Maximum internal extension length</label>
-			<profileName>config.defs</profileName>
-			<type>
-				<integer min="1" max="99"></integer>
-			</type>
-			<value>3</value>
-			<description>Longest internal extension in the system dialing plan. When user is prompted by
-				autoattendant to enter extension this value is used to determine if entire extension has been
-				entered.</description>
-		</setting>
+    <setting name="EXTENSION_LENGTH">
+      <label>Maximum internal extension length</label>
+      <profileName>config.defs</profileName>
+      <type>
+        <integer min="1" max="99"></integer>
+      </type>
+      <value>3</value>
+      <description>Longest internal extension in the system dialing plan. When user is prompted by
+        autoattendant to enter extension this value is used to determine if entire extension has been
+        entered.</description>
+    </setting>
     <setting name="SMTP_SERVER">
       <label>SMTP server</label>
       <profileName>config.defs</profileName>
       <type></type>
       <value></value>
       <description>IP address or DNS name of SMTP server used for Voice Mail notification</description>
-    </setting>		
+    </setting>    
   </group>
   <group name="call-pick-up" hidden="yes">
     <label>Call Pickup</label>
@@ -112,30 +112,30 @@
       <description>Number of seconds that the original call will ring after the pickup code is
         dialed.</description>
     </setting>
-	</group>		
+  </group>    
   <group name="presence">
-		<label>Presence Server</label>
-		<setting name="SIP_PRESENCE_SIGN_IN_CODE">
+    <label>Presence Server</label>
+    <setting name="SIP_PRESENCE_SIGN_IN_CODE">
       <label>Presence sign in</label>
       <profileName>sipxpresence-config.in</profileName>
       <type refid="feature-code"/>
       <value>*88</value>
       <description>Code to dial to sign in to the presence monitor.</description>
     </setting>
-		<setting name="SIP_PRESENCE_SIGN_OUT_CODE">
+    <setting name="SIP_PRESENCE_SIGN_OUT_CODE">
       <label>Presence sign out</label>
       <profileName>sipxpresence-config.in</profileName>
       <type refid="feature-code"/>
       <value>*86</value>
       <description>Code to dial to sign out from the presence monitor.</description>
     </setting>
-		<setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
+    <setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
       <label>SIP port</label>
       <profileName>config.defs</profileName>
       <type refid="port-number"/>
       <value>5130</value>
       <description>The IP port on which the presence server listens to SIP messages.</description>
-    </setting>		
+    </setting>    
     <setting name="SIP_PRESENCE_DOMAIN_NAME" hidden="yes">
       <label>Presence server location</label>
       <!-- treat as read-only: we are taking this from sipxpresence-config and not from sipxpresence-config.in -->
@@ -194,60 +194,77 @@
       <type refid="loglevel"/>
       <value>NOTICE</value>
       <description>Monitoring presence events.</description>
-    </setting>		
+    </setting>    
   </group>
   <group name="cdr">
-    <label>Call Detail Records</label>
+    <label>Call Detail Records (CDRs)</label>
     <setting name="SIP_CALLRESOLVER_DAILY_RUN">
-      <label>Create Call Detail Records (CDRs) Daily</label>
+      <label>Create CDRs Daily</label>
       <profileName>callresolver-config.in</profileName>
       <type refid="enablestate"/>
       <value>DISABLE</value>
-      <description>Schedule the call resolver to create CDRs daily.</description>
-    </setting>
-    <setting name="SIP_AUTHPROXY_CALL_STATE_DB">
-      <label>Authorization Proxy Call State Event Logging</label>
-      <profileName>authproxy-config.in</profileName>
-      <type refid="enablestate"/>
-      <value>DISABLE</value>
-      <description>Log call state events to a database. Required for CDRs.</description>
+      <description>Schedule the call resolver to create CDRs daily.
+                   If you enable this setting, then you should also enable 
+                   call state event (CSE) logging for the forking proxy and
+                   authorization proxy, since CDRs are created from CSEs.</description>
     </setting>
     <setting name="SIP_PROXY_CALL_STATE_DB">
-      <label>Forking Proxy Call State Event Logging</label>
+      <label>Log Forking Proxy Events</label>
       <profileName>proxy-config.in</profileName>
       <type refid="enablestate"/>
       <value>DISABLE</value>
-      <description>Log call state events to a database. Required for CDRs.</description>
+      <description>Log forking proxy CSEs to the CDR database.</description>
+    </setting>
+    <setting name="SIP_AUTHPROXY_CALL_STATE_DB">
+      <label>Log Authorization Proxy Events</label>
+      <profileName>authproxy-config.in</profileName>
+      <type refid="enablestate"/>
+      <value>DISABLE</value>
+      <description>Log authorization proxy CSEs to the CDR database.</description>
     </setting>
     <setting name="SIP_CALLRESOLVER_PURGE">
       <label>Purge the CDR Database Daily</label>
       <profileName>callresolver-config.in</profileName>
       <type refid="enablestate"/>
       <value>ENABLE</value>
-      <description>Schedule a daily purge of the CDR database, including call state events.</description>
+      <description>Schedule a daily purge of the CDR database.
+                   Purge both CSEs and CDRs.
+                   Purging happens only if CDR creation is enabled.</description>
     </setting>
-    <setting name="SIP_CALLRESOLVER_PURGE_AGE">
-      <label>Age of Data to Purge</label>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE_CDR">
+      <label>Purge Age for CDRs</label>
       <profileName>callresolver-config.in</profileName>
-			<type>
-				<integer min="1" max="365"></integer>
-			</type>
+        <type>
+          <integer min="1" max="365"></integer>
+        </type>
       <value>35</value>
-      <description>When purging, remove data older than this (in days).</description>
+      <description>If daily purging is enabled, then remove CDRs older than this (in days).</description>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE_CSE" advanced="yes">
+      <label>Purge Age for CSEs</label>
+      <profileName>callresolver-config.in</profileName>
+      <type>
+        <integer min="1" max="365"></integer>
+      </type>
+      <value>7</value>
+      <description>If daily purging is enabled, then remove CSEs older than this (in days).</description>
     </setting>
     <setting name="SIP_CALLRESOLVER_LOG_LEVEL">
       <label>Call Resolver Log Level</label>
       <profileName>callresolver-config.in</profileName>
       <type refid="loglevel"/>
       <value>NOTICE</value>
-      <description>Logging level for the call resolver.</description>
+      <description>Log level for the call resolver.  The call resolver is the program
+                   that creates CDRs.</description>
     </setting>
     <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" advanced="yes">
       <label>Call Direction</label>
       <profileName>callresolver-config.in</profileName>
       <type refid="enablestate"/>
       <value>DISABLE</value>
-      <description>Compute call direction, based on whether the call went through a gateway.</description>
+      <description>Compute call direction. Call direction labels calls as incoming,
+                   outgoing, or intranetwork based on whether the call came from a
+                   PSTN gateway, went to a PSTN gateway, or neither, respectively.</description>
     </setting>
   </group>
 </model>
