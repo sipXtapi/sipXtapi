@@ -88,8 +88,8 @@ class CallResolver
   PURGE_ENABLE = 'SIP_CALLRESOLVER_PURGE'
   PURGE_ENABLE_DEFAULT = Configure::ENABLE
   
-  PURGE_AGE = 'SIP_CALLRESOLVER_PURGE_AGE'
-  PURGE_AGE_DEFAULT = '35'
+  PURGE_AGE_CDR = 'SIP_CALLRESOLVER_PURGE_AGE_CDR'
+  PURGE_AGE_CDR_DEFAULT = '35'
   
   
   # Map from the name of a log level to a Logger level value.
@@ -770,17 +770,17 @@ private
   # Compute start time of records to be purged from configuration
   def get_purge_start_time(config)
     # Look up the config param
-    purge_age = config[PURGE_AGE]
+    purge_age = config[PURGE_AGE_CDR]
     
     # Apply the default if the param was not specified
-    purge_age ||= PURGE_AGE_DEFAULT
+    purge_age ||= PURGE_AGE_CDR_DEFAULT
     
     # Convert to number
     purge_age = purge_age.to_i
     
     if (purge_age <= 0)
       raise(ConfigException, "Illegal value \"#{@purge_age}\" for " +
-            "#{PURGE_AGE}.  Must be a number greater than 0.")
+            "#{PURGE_AGE_CDR}.  Must be a number greater than 0.")
     end
                 
     # Get today's date

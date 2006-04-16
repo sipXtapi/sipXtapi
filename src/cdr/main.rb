@@ -74,7 +74,7 @@ usage: sipxcallresolver.sh [--start "time" [--end "time"]] [--daily] [--help]
                   * Create CDRs for calls in the previous 24 hours
                   * Purge CSE and CDR data older than 35 days
                   You can change the purge age by setting the configuration
-                  parameter SIP_CALLRESOLVER_PURGE_AGE (units are days).
+                  parameter SIP_CALLRESOLVER_PURGE_AGE_CDR (units are days).
 EOT
 
   end
