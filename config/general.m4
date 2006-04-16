@@ -1267,7 +1267,7 @@ AC_DEFUN([CHECK_ODBC],
     # Process the --with-odbc argument which gives the odbc base directory.
     AC_ARG_WITH(odbc,
                 [  --with-odbc=PATH path to odbc install directory],
-                [odbc_homeval=$with_val],
+                [odbc_homeval=$withval],
                 [odbc_homeval=""]
                 )
     
@@ -1275,7 +1275,7 @@ AC_DEFUN([CHECK_ODBC],
     # directory.
     AC_ARG_WITH(odbc_includedir,
                 [  --with-odbc_includedir=PATH path to odbc include directory (containing sql.h)],
-                [includeval=$with_val],
+                [includeval=$withval],
                 [if test -n "$odbc_homeval";
                  then includeval="$odbc_homeval/include";
                  else includeval="/usr/include /usr/include/odbc /usr/local/include /usr/local/odbc/include";
@@ -1296,7 +1296,7 @@ AC_DEFUN([CHECK_ODBC],
     # directory.
     AC_ARG_WITH(odbc_libdir,
                 [  --with-odbc_libdir=PATH path to odbc lib directory (containing libodbc.{so,a})],
-                [libval=$with_val],
+                [libval=$withval],
                 [if test -n "$odbc_homeval";
                  then libval="$odbc_homeval/lib";
                  else libval="/usr/lib /usr/lib/odbc /usr/local/lib /usr/local/odbc/lib";
