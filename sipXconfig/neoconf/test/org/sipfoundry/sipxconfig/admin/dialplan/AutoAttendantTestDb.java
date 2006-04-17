@@ -89,7 +89,16 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         ITable expected = expectedRds.getTable("setting_value");
         Assertion.assertEquals(expected, actual);        
     }
-
+    
+    public void testNewAutoAttendantWithDefaultGroup() throws Exception {
+        AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
+        Group defaultGroup = m_context.getDefaultAutoAttendantGroup();
+        m_context.storeAutoAttendant(aa);
+        ITable t = TestHelper.getConnection().createDataSet().getTable(
+            "attendant_group");
+        assertEquals(defaultGroup.getId(), t.getValue(0, "group_id"));
+    }
+    
     public void testDelete() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/seedAttendant.xml");
         AutoAttendant aa = m_context.getAutoAttendant(new Integer(1000));

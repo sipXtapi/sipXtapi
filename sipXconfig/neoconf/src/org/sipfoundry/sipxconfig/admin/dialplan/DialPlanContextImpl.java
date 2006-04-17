@@ -418,6 +418,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         AutoAttendant operator = getOperator();
         if (operator == null) {
             operator = AutoAttendant.createOperator();
+            operator.addGroup(getDefaultAutoAttendantGroup());
             storeAutoAttendant(operator);
             DialPlan dialPlan = getDialPlan();
             dialPlan.setOperator(operator);
@@ -536,7 +537,7 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME,
                 AutoAttendant.class);
 
-        // All auttendant share same group, default
+        // All auto attendants share same group: default
         Set groups = aa.getGroups();
         if (groups == null || groups.size() == 0) {
             aa.addGroup(getDefaultAutoAttendantGroup());

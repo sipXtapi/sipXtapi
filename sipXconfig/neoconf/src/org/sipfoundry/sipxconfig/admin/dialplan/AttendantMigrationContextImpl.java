@@ -23,6 +23,7 @@ import org.hibernate.classic.Session;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport implements
         AttendantMigrationContext {
@@ -61,6 +62,19 @@ public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport imple
             }
         }
         cleanSchema();
+    }
+    
+    public void setAttendantDefaults() {
+        Group defaultGroup = m_dialPlanContext.getDefaultAutoAttendantGroup();
+        Iterator i = m_dialPlanContext.getAutoAttendants().iterator();
+        while (i.hasNext()) {
+            AutoAttendant aa = (AutoAttendant) i.next();
+            if (aa.getGroups().size() == 0) {
+                aa.addGroup(defaultGroup);
+                m_dialPlanContext.storeAutoAttendant(aa);
+            }
+            System.out.print(aa.getGroups());
+        }
     }
 
     private void migrateAttendant(Integer attendantId, String aliases, String extension) {

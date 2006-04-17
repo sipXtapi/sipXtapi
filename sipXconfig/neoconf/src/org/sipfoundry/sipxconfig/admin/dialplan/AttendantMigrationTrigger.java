@@ -28,6 +28,8 @@ public class AttendantMigrationTrigger implements ApplicationListener {
             String taskName = task.getTask();
             if ("dial_plan_migrate_attendant_rules".equals(taskName)) {
                 m_attendantMigrationContext.migrateAttendantRules();
+            } else if ("attendant_defaults".equals(taskName)) {
+                m_attendantMigrationContext.setAttendantDefaults();
             }
         }
     }

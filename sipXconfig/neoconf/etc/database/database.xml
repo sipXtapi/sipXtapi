@@ -39,7 +39,7 @@
 	
   <!-- sets flag if any initialization needs to be done -->
   <target name="tasks">
-    <sipx-sql print="yes" output="${tmp.dir}/tasks.properties" showheaders="no">
+    <sipx-sql print="yes" output="${tmp.dir}/tasks.properties" showheaders="no">      
       select 'initialize=true' from initialization_task having count(*) > 0;
     </sipx-sql>    
     <loadproperties srcfile="${tmp.dir}/tasks.properties"/>
@@ -106,9 +106,18 @@
   <target name="version2" description="upgrade from version 1" unless="version3">
     <antcall target="attendant_settings"/>
     <antcall target="group-names-no-spaces"/>
+    <antcall target="attendant_defaults"/>
     <sipx-version version="3"/>
   </target>
   
+  <target name="attendant_defaults" unless="attendant_defaults">
+    <!-- remove spaces to enable things like auto-completion -->
+    <sipx-sql>
+      insert into initialization_task (name) values ('attendant_defaults');
+    </sipx-sql>
+    	<mark-patch-applied patch="attendant_defaults"/>    
+  </target>
+
   <target name="group-names-no-spaces" unless="group-names-no-spaces">
     <!-- remove spaces to enable things like auto-completion -->
     <sipx-sql>
