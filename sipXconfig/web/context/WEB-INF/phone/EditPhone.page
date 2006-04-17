@@ -8,6 +8,7 @@
   <property name="phoneId"  persist="session"/>
   <inject property="phoneContext" object="spring:phoneContext"/>
   <inject property="settingDao" object="spring:settingDao"/>
+  <inject property="profileManager" object="spring:profileManager"/>
   <property name="callback"  persist="session"/>
   <!--
       - B E A N S
@@ -35,5 +36,9 @@
   <component id="formActions" type="FormActions">
     <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>
+  </component>
+  <component id="generateProfile" type="Submit">
+    <binding name="value" value="message:button.generateProfile"/>
+    <binding name="listener" value="listener:generateProfile"/>    
   </component>
 </page-specification>

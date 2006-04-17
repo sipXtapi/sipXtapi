@@ -49,4 +49,9 @@ public class EditPhoneTestUi extends WebTestCase {
         clickLink("AddLine");
         assertElementPresent("user:list");
     }
+    
+    public void testGenerateProfiles() {
+        clickButton("generateProfile");
+        assertElementPresent("user:success");
+    }
 }
