@@ -72,7 +72,7 @@
       <description>IP address or DNS name of SMTP server used for Voice Mail notification</description>
     </setting>    
   </group>
-  <group name="call-pick-up" hidden="yes">
+  <group name="call-pick-up">
     <label>Call Pickup</label>
     <setting name="SIP_REGISTRAR_GLOBAL_CALL_PICKUP_CODE">
       <label>Global call pickup code</label>
