@@ -91,6 +91,9 @@ class CallResolver
   PURGE_AGE_CDR = 'SIP_CALLRESOLVER_PURGE_AGE_CDR'
   PURGE_AGE_CDR_DEFAULT = '35'
   
+  PURGE_AGE_CSE = 'SIP_CALLRESOLVER_PURGE_AGE_CSE'
+  PURGE_AGE_CSE_DEFAULT = '7'
+  
   
   # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
@@ -128,8 +131,9 @@ public
     check_ruby_version
   end
 
-  # Resolve CSEs to CDRs.
-  def resolve(start_time, end_time, redo_flag = false, daily_flag = false)
+  # Resolve CSEs to CDRs. Parameters purge_flag and purge_time are not used at this time
+  # and will enable specific purge actions in the future.
+  def resolve(start_time, end_time, redo_flag = false, daily_flag = false, purge_flag = false, purge_time = 0)
     begin
       run_resolver = true
       do_purge = false
@@ -148,14 +152,17 @@ public
           run_resolver = false
         end
       end
-      
+        
       if run_resolver
+        # If the start time is not provided set it to 1 day before now
+        start_time ||= Time.now() - SECONDS_IN_A_DAY
         # If end_time is not provided, then set it to 1 day after the start time.
-        end_time ||= start_time.next
+        end_time ||= start_time + SECONDS_IN_A_DAY
   
         log.info("resolve: start = #{start_time.to_s}, end = #{end_time.to_s},
-                 redo = #{redo_flag}, daily = #{daily_flag}")
-  
+                  redo = #{redo_flag}, daily = #{daily_flag}, purge_flag = #{purge_flag},
+                  purge_time = #{purge_time}")
+
         # Connect to the database
         # :TODO: read these parameters from the Call Resolver config file
         unless ActiveRecord::Base.connected?
@@ -167,9 +174,18 @@ public
         end
         
         # Purge at the start if enabled
-        if do_purge
-          purge_start = get_purge_start_time(@config)
-          purge(purge_start)        
+        if do_purge || purge_flag
+          # Was a purge age explicitely set
+          if purge_time != 0
+            purge_start_cdr = Time.now() - (SECONDS_IN_A_DAY * purge_time)
+            purge_start_cse = Time.now() - (SECONDS_IN_A_DAY * purge_time)         
+            log.info("Purge override CSEs: #{purge_start_cse}, CDRs: #{purge_start_cdr}")
+          else
+            purge_start_cdr = get_purge_start_time(@config)
+            purge_start_cse = get_purge_start_time_cse(@config)
+            log.info("Normal purge CSEs: #{purge_start_cse}, CDRs: #{purge_start_cdr}")
+          end  
+          purge(purge_start_cse, purge_start_cdr)        
         end
         
         # Load the call IDs for the specified time window
@@ -547,13 +563,14 @@ private
   
   # Purge records from call state event and cdr tables, making sure
   # to delete unreferenced entries in the parties table.
-  def purge(start_time)
+  def purge(start_time_cse, start_time_cdr)
     # Start with call state events
-    log.debug("purge: purging - event_time <= #{start_time}")    
-    CallStateEvent.delete_all(["event_time <= '#{start_time}'"])
+    log.debug("purge: purging CSEs - event_time <= #{start_time_cse}")    
+    CallStateEvent.delete_all(["event_time <= '#{start_time_cse}'"])
     
     # Now do the CDRs
-    Cdr.delete_all(["end_time <= '#{start_time}'"])
+    log.debug("purge: purging CDRs - event_time <= #{start_time_cdr}")      
+    Cdr.delete_all(["end_time <= '#{start_time_cdr}'"])
     
     # Clean up the parties table if entries are no longer referenced by CDRs
     Party.delete_all(["not exists (select * from cdrs where caller_id = parties.id or callee_id = parties.id)"])
@@ -767,7 +784,7 @@ private
     end
   end  
   
-  # Compute start time of records to be purged from configuration
+  # Compute start time of CDR records to be purged from configuration
   def get_purge_start_time(config)
     # Look up the config param
     purge_age = config[PURGE_AGE_CDR]
@@ -782,10 +799,30 @@ private
       raise(ConfigException, "Illegal value \"#{@purge_age}\" for " +
             "#{PURGE_AGE_CDR}.  Must be a number greater than 0.")
     end
+    # Get today's date
+    today = Time.now
+    @purge_start_time_cdr = today - (SECONDS_IN_A_DAY * purge_age)   # 24 hours * age
+  end    
+    
+  # Compute start time of CSE records to be purged from configuration
+  def get_purge_start_time_cse(config)
+    # Look up the config param
+    purge_age = config[PURGE_AGE_CSE]
+    
+    # Apply the default if the param was not specified
+    purge_age ||= PURGE_AGE_CSE_DEFAULT
+    
+    # Convert to number
+    purge_age = purge_age.to_i
+    
+    if (purge_age <= 0)
+      raise(ConfigException, "Illegal value \"#{@purge_age}\" for " +
+            "#{PURGE_AGE_CSE}.  Must be a number greater than 0.")
+    end    
                 
     # Get today's date
     today = Time.now
-    @purge_start_time = today - (SECONDS_IN_A_DAY * purge_age)   # 24 hours * age
+    @purge_start_time_cse = today - (SECONDS_IN_A_DAY * purge_age)   # 24 hours * age
   end  
 
   def check_ruby_version

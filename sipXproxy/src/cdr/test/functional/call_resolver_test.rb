@@ -533,6 +533,26 @@ public
       {CallResolver::PURGE_AGE_CDR => purgeAgeStr}) - purge_start_time) < 1)
   end  
   
+  def test_get_purge_start_time_cse
+    # Get the default purge time: today's date minus the default age
+    purge_start_time =
+      Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_CSE_DEFAULT.to_i)
+
+    # Pass in an empty config, should get the default purge time, allow
+    # for 1 second difference in times
+    assert((@resolver.send(:get_purge_start_time_cse, {}) - purge_start_time) < 1) 
+
+    purgeAgeStr = '23'
+    purgeAge = purgeAgeStr.to_i
+    
+    # Get today's date minus different age
+    purge_start_time = Time.now - (SECONDS_IN_A_DAY * purgeAge)
+
+    # Pass in a value, allow for 1 second difference in times
+    assert((@resolver.send(:get_purge_start_time_cse,
+      {CallResolver::PURGE_AGE_CSE => purgeAgeStr}) - purge_start_time) < 1)
+  end    
+  
   #-----------------------------------------------------------------------------
   # Helper methods
   

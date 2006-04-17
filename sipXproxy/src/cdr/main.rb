@@ -42,6 +42,8 @@ opts = GetoptLong.new(
 
 # Init options
 start_time = end_time = nil
+purge_flag = false
+purge_time = 0
 redo_flag = false
 daily_flag = false
 
@@ -55,7 +57,7 @@ opts.each do |opt, arg|
 
   when "--end"
     end_time = Time.parse(arg)
-
+    
   when "--redo"
     redo_flag = true
 
