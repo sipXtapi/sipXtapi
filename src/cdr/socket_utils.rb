@@ -1,9 +1,11 @@
-# This file is intentionally lacking the standard SIPfoundry copyright header,
-# because the code below is really part of Ruby. This is a temporary hack.
-# Copied these methods from the Ruby file ipaddr.rb, which has the code for
-# these methods, but inexplicably hides them so they can't be used. Add "ipaddr"
-# to the method names for clarity.
-# :TODO: post to Ruby forums and find out how to fix this.
+#
+# Copyright (C) 2006 SIPfoundry Inc.
+# Licensed by SIPfoundry under the LGPL license.
+# 
+# Copyright (C) 2006 Pingtel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+#
+##############################################################################
 
 class SocketUtils
   
@@ -11,28 +13,17 @@ class SocketUtils
   private_class_method :new
 
 public
- 
-  def SocketUtils.valid_v4_ipaddr?(addr)
-    if /\A(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\Z/ =~ addr
-      return $~.captures.all? {|i| i.to_i < 256}
+  
+  def SocketUtils.ip_address_from_domain_name(domain_name)
+    ip_address = nil
+    begin
+      ip_address = IPSocket.getaddress(domain_name)
+    rescue SocketError
+      raise(NameResolutionException.new(domain_name),
+            "Unable to resolve the domain name \"#{domain_name}\" to an IP address: #{$!}",
+            caller)
     end
-    return false
-  end
-
-  def SocketUtils.valid_v6_ipaddr?(addr)
-    # IPv6 (normal)
-    return true if /\A[\dA-Fa-f]{1,4}(:[\dA-Fa-f]{1,4})*\Z/ =~ addr
-    return true if /\A[\dA-Fa-f]{1,4}(:[\dA-Fa-f]{1,4})*::([\dA-Fa-f]{1,4}(:[\dA-Fa-f]{1,4})*)?\Z/ =~ addr
-    return true if /\A::([\dA-Fa-f]{1,4}(:[\dA-Fa-f]{1,4})*)?\Z/ =~ addr
-    # IPv6 (IPv4 compat)
-    return true if /\A[\dA-Fa-f]{1,4}(:[\dA-Fa-f]{1,4})*:/ =~ addr && valid_v4?($')
-    return true if /\A[\dA-Fa-f]{1,4}(:[\dA-Fa-f]{1,4})*::([\dA-Fa-f]{1,4}(:[\dA-Fa-f]{1,4})*:)?/ =~ addr && valid_v4?($')
-    return true if /\A::([\dA-Fa-f]{1,4}(:[\dA-Fa-f]{1,4})*:)?/ =~ addr && valid_v4?($')
-     false
-  end
-
-  def SocketUtils.valid_ipaddr?(addr)
-    valid_v4_ipaddr?(addr) || valid_v6_ipaddr?(addr)
+    ip_address
   end
   
   def SocketUtils.strip_v4_port(addr)
