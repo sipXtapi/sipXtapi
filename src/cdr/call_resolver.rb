@@ -136,12 +136,10 @@ public
   def resolve(start_time, end_time, redo_flag = false, daily_flag = false, purge_flag = false, purge_time = 0)
     begin
       run_resolver = true
-      do_purge = false
+      do_purge = set_purge_enable_config(@config) 
 
       if daily_flag
         if set_daily_run_config(@config) 
-          # Purge only if daily run is configured      
-          do_purge = set_purge_enable_config(@config)        
           get_daily_start_time(@config)
           
           # Get start time and end time
