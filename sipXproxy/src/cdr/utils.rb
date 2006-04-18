@@ -10,6 +10,7 @@
 require 'ipaddr'
 
 require File.join(File.dirname(__FILE__), 'exceptions')
+require File.join(File.dirname(__FILE__), 'sipx_ipsocket')
 require File.join(File.dirname(__FILE__), 'socket_utils')
 
 
@@ -55,10 +56,10 @@ public
     host = contact_host(contact)
 
     # Resolve the host to an IP address, if it's a domain name
-    if SocketUtils.valid_ipaddr?(host)
+    if SipxIPSocket.valid_ipaddr?(host)
       host
     else
-      ip_address_from_domain_name(host)
+      SocketUtils.ip_address_from_domain_name(host)
     end
   end
 
@@ -94,18 +95,6 @@ public
     end
     
     aor
-  end
-  
-  def Utils.ip_address_from_domain_name(domain_name)
-    ip_address = nil
-    begin
-      ip_address = IPSocket.getaddress(domain_name)
-    rescue SocketError
-      raise(NameResolutionException.new(domain_name),
-            "Unable to resolve the domain name \"#{domain_name}\" to an IP address: #{$!}",
-            caller)
-    end
-    ip_address
   end
 
   # Given a contact URL with params, like <sip:101@10.1.20.3:5100;play=https%3A%2F%2Flocalhost>,

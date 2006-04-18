@@ -12,10 +12,12 @@ require 'ipaddr'
 
 # Application requires.  Assume that the load path includes this file's dir.
 require 'exceptions'
+require 'sipx_ipsocket'
+require 'socket_utils'
 require 'utils'
 
 
-# Gateway models a gateway defined in the sipXconfig database. Gateways in the
+# The Gateway class models a gateway defined in the sipXconfig database. Gateways in the
 # database can be given addresses that are either domain names or IP addresses.
 # Resolve domain names to IP addresses so that the address will be in a
 # canonical form for matching. Assume that the gateway address will not change
@@ -42,7 +44,7 @@ public
         # Strip a possible port number off the IPv4 address
         # TODO - handle IPv6
         addr = SocketUtils.strip_v4_port(addr)
-        if SocketUtils.valid_ipaddr?(addr)
+        if SipxIPSocket.valid_ipaddr?(addr)
           # The gateway address is an IP address.
           @ip_address = addr
         else
@@ -52,7 +54,7 @@ public
           end          
           # The gateway address is not an IP address, so it must be a domain name.
           # Try to resolve it.
-          @ip_address = Utils.ip_address_from_domain_name(addr)
+          @ip_address = SocketUtils.ip_address_from_domain_name(addr)
         end
       end
     end
