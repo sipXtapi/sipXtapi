@@ -228,8 +228,7 @@
       <type refid="enablestate"/>
       <value>ENABLE</value>
       <description>Schedule a daily purge of the CDR database.
-                   Purge both CSEs and CDRs.
-                   Purging happens only if CDR creation is enabled.</description>
+                   Purge both CSEs and CDRs.</description>
     </setting>
     <setting name="SIP_CALLRESOLVER_PURGE_AGE_CDR">
       <label>Purge Age for CDRs</label>
