@@ -30,7 +30,7 @@
     "<HEAD>\n" \
         "<TITLE>MediaServer User UI</TITLE>\n" \
         "<link rel=\"stylesheet\" href=\"/style/voicemail.css\" type=\"text/css\">\n" \
-        "<SCRIPT src=\"/userui/jsFunctions.js\"></SCRIPT>\n" \    
+        "<SCRIPT src=\"/userui/jsFunctions.js\"></SCRIPT>\n" \
     "</HEAD>\n" \
     "<BODY class=\"bglight\">\n"
 
