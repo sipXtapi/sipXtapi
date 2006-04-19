@@ -34,5 +34,7 @@ public interface ForwardingContext extends AliasProvider {
 
     public List getForwardingAuthExceptions();
 
+    public void clear();
+
     public void flush();
 }

@@ -31,4 +31,14 @@ public class RingTest extends TestCase {
         assertEquals("<sip:555@sipfoundry.org?expires=45>;q=1.0",contact);
     }
 
+    public void testCalculateAorContact() {
+        ForkQueueValue q = new ForkQueueValue(3);
+        Ring ring = new Ring();
+        ring.setNumber("joe@example.com");
+        ring.setExpiration(45);
+        ring.setType(Ring.Type.IMMEDIATE);
+        
+        String contact = ring.calculateContact("shouldnt-be-used.com", q, false);
+        assertEquals("<sip:joe@example.com?expires=45>;q=1.0",contact);
+    }
 }

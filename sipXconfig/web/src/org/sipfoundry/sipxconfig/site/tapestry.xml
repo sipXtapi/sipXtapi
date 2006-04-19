@@ -26,6 +26,14 @@
       <value>Please enter digits only, for example: 123</value>
     </property>
   </bean>
+  <bean name="validPhoneOrAor" class="org.apache.tapestry.form.validator.Pattern">
+    <property name="pattern">
+      <value>^(\d+|\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,6})$</value>
+    </property>
+    <property name="message">
+      <value>Please enter digits or sip address only, for example: 123 or john@example.com</value>
+    </property>	  
+  </bean>
   <bean name="validHostOrIp" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
       <value>^((\d{1,3}\.){3}\d{1,3})|(\S*[a-zA-Z]\S*)$</value>

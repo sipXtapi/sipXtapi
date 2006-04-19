@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -77,6 +78,8 @@ public abstract class TestPage extends BasePage {
 
     public abstract CoreContext getCoreContext();
 
+    public abstract ForwardingContext getForwardingContext();
+
     public abstract SipxReplicationContext getSipxReplicationContext();
 
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
@@ -91,6 +94,10 @@ public abstract class TestPage extends BasePage {
 
     public abstract IEngineService getRestartService();
 
+    public void resetCallForwarding() {
+        getForwardingContext().clear();
+    }
+    
     public void resetDialPlans() {
         getDialPlanContext().clear();
         getGatewayContext().clear();

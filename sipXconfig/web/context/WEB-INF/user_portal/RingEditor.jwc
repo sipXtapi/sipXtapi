@@ -22,7 +22,9 @@
   </component>
   <component id="number" type="TextField">
     <binding name="value" value="ring.number"/>
-    <binding name="validators" value="spring-validators:validPhone,required"/>
+    <binding name="validators" value="spring-validators:validPhoneOrAor,required"/>
+    <binding name="maxlength" value="255"/>
+    <binding name="size" value="20"/>
     <binding name="displayName" value="message:label.forward"/>
   </component>
   <component id="expirationLabel" type="FieldLabel">
