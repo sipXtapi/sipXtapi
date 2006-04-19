@@ -136,10 +136,12 @@ public
   def resolve(start_time, end_time, redo_flag = false, daily_flag = false, purge_flag = false, purge_time = 0)
     begin
       run_resolver = true
-      do_purge = set_purge_enable_config(@config) 
+      do_purge = false
 
       if daily_flag
-        if set_daily_run_config(@config) 
+        # Only do a purge on a daily basis - not always
+        do_purge = set_purge_enable_config(@config) 
+        if set_daily_run_config(@config)
           get_daily_start_time(@config)
           
           # Get start time and end time
@@ -151,7 +153,7 @@ public
         end
       end
         
-      if run_resolver
+      if run_resolver || do_purge
         # If the start time is not provided set it to 1 day before now
         start_time ||= Time.now() - SECONDS_IN_A_DAY
         # If end_time is not provided, then set it to 1 day after the start time.
@@ -176,7 +178,7 @@ public
           # Was a purge age explicitely set
           if purge_time != 0
             purge_start_cdr = Time.now() - (SECONDS_IN_A_DAY * purge_time)
-            purge_start_cse = Time.now() - (SECONDS_IN_A_DAY * purge_time)         
+            purge_start_cse = purge_start_cdr         
             log.info("Purge override CSEs: #{purge_start_cse}, CDRs: #{purge_start_cdr}")
           else
             purge_start_cdr = get_purge_start_time(@config)
@@ -186,12 +188,14 @@ public
           purge(purge_start_cse, purge_start_cdr)        
         end
         
-        # Load the call IDs for the specified time window
-        call_ids = load_call_ids(start_time, end_time)
+        if run_resolver
+          # Load the call IDs for the specified time window
+          call_ids = load_call_ids(start_time, end_time)
   
-        # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
-        call_ids.each {|call_id| resolve_call(call_id)}
-      end
+          # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
+          call_ids.each {|call_id| resolve_call(call_id)}
+        end
+      end 
   
     rescue
       # Backstop exception handler: don't let any exceptions propagate back
