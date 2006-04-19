@@ -72,15 +72,27 @@ usage: sipxcallresolver.sh [--start "time" [--end "time"]] [--daily] [--help]
                   be resolved. The time format is ISO 8601.
   --end "time"    Specifies the end time of the window in which call are to be
                   resolved. The time format is ISO 8601.
-  --daily         Indicates that the call resolver is called in 'daily' mode:
+  --daily         Indicates that the call resolver is called in "daily" mode:
                   * Create CDRs for calls in the previous 24 hours
                   * Purge CSE and CDR data older than 35 days
                   You can change the purge age by setting the configuration
                   parameter SIP_CALLRESOLVER_PURGE_AGE_CDR (units are days).
+                  In daily mode, the "start" and "end" args are not used.
 EOT
+    exit
 
   end
 end 
+
+# Print out the location of the config file for troubleshooting.
+# We can't just log it, because if the config is messed up then it may be hard
+# to find the log file.
+config_file = resolver.config.config_file
+if config_file
+  puts("Reading config from #{config_file}")
+else
+  puts("Unable to locate config file, using default settings")
+end
 
 # Add the Call Direction Plugin as an observer so that it can compute call direction
 if CallDirectionPlugin.call_direction?(resolver.config)
@@ -88,5 +100,9 @@ if CallDirectionPlugin.call_direction?(resolver.config)
   resolver.add_observer(CallDirectionPlugin.new(resolver))
 end
 
-# Resolve calls that occurred during the specified time window
-resolver.resolve(start_time, end_time, redo_flag, daily_flag)
+if daily_flag
+  resolver.daily_run
+else
+  # Resolve calls that occurred during the specified time window
+  resolver.resolve(start_time, end_time, redo_flag)
+end

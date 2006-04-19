@@ -20,10 +20,6 @@ require 'socket_utils'
 
 class SocketUtilsTest < Test::Unit::TestCase
 
-  def test_ip_address_from_domain_name
-    assert_equal('216.142.118.36', SocketUtils.ip_address_from_domain_name('www.pingtel.com'))
-  end
-
   def test_strip_v4_port
     assert_equal('1.1.1.1', SocketUtils.strip_v4_port('1.1.1.1:123'))
     assert_equal('1.1.1.1', SocketUtils.strip_v4_port('1.1.1.1'))
