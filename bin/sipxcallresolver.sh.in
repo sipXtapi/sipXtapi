@@ -265,7 +265,7 @@ configCheck() {
 
    echo "Checking configuration..."   
    proxyConfig=`cat @SIPX_CONFDIR@/proxy-config.in | grep SIP_PROXY_CALL_STATE_DB`
-   if ! expr match "$proxyConfig" '.*[eE][nN][aA][bB][lL][eE].*' >/dev/null; then
+   if ! expr match "$proxyConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
       echo
       echo "  Error: proxy is not configured to log call state events to a database."
       echo "         Add the line"
@@ -276,10 +276,10 @@ configCheck() {
       echo
       Status=0
    else
-      echo "  proxy configured for logging."
+      echo "  proxy configured for logging"
    fi
    authConfig=`cat @SIPX_CONFDIR@/authproxy-config.in | grep SIP_AUTHPROXY_CALL_STATE_DB`
-   if ! expr match "$authConfig" '.*[eE][nN][aA][bB][lL][eE].*' >/dev/null; then
+   if ! expr match "$authConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
       echo
       echo "  Error: authproxy is not configured to log call state events to a database."
       echo "         Add the line"
@@ -290,12 +290,12 @@ configCheck() {
       echo
       Status=0
    else
-      echo "  authproxy configured for logging."
+      echo "  authproxy configured for logging"
    fi
    
    resolveOk=1
    resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_DAILY_RUN`
-   if ! expr match "$resolveConfig" '.*[eE][nN][aA][bB][lL][eE].*' >/dev/null; then
+   if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
       echo
       echo "  Warning: call resolver is not configured for daily runs. This"
       echo "           will prevent the call resolver from automatically"
@@ -310,8 +310,8 @@ configCheck() {
       Status=0
    fi
 
-   resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_PURGE `
-   if ! expr match "$resolveConfig" '.*[eE][nN][aA][bB][lL][eE].*' >/dev/null; then
+   resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_PURGE`
+   if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
       echo
       echo "  Warning: call resolver is not configured for purging old records."
       echo "           This will prevent the call resolver from automatically"
@@ -327,13 +327,13 @@ configCheck() {
    fi
    
    if [ $resolveOk = 1 ]; then
-      echo "  call resolver configuration ok."
+      echo "  call resolver configuration ok"
    fi   
    
-   echo -n "Checking for @prefix@/etc/cron.daily/callresolver_run..."
-   if [ -f @prefix@/etc/cron.daily/callresolver_run ]; then
-      if [ -x @prefix@/etc/cron.daily/callresolver_run ]; then
-         echo " ok."
+   echo -n "Checking for @SIPX_SYSCONFDIR@/cron.daily/callresolver_run..."
+   if [ -f @SIPX_SYSCONFDIR@/cron.daily/callresolver_run ]; then
+      if [ -x @SIPX_SYSCONFDIR@/cron.daily/callresolver_run ]; then
+         echo " ok"
       else  
          echo
          echo "  Error: File found but not executable"
@@ -342,14 +342,14 @@ configCheck() {
       fi
    else
       echo
-      echo "  Error: @prefix@/etc/cron.daily/callresolver_run not found."
+      echo "  Error: @SIPX_SYSCONFDIR@/etc/cron.daily/callresolver_run not found."
       echo
       Status=0
    fi
    
-   echo -n "Checking for @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb"
+   echo -n "Checking for @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb..."
    if [ -f @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ]; then
-      echo " ok."
+      echo " ok"
    else
       echo
       echo "  Error: @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb not found."
