@@ -41,7 +41,8 @@ public
     
     # create a Hash to hold the param name to value map
     @map = Hash.new
-    puts "Config file : #{@config_file}"
+    
+    
     # parse the config file and fill in the map
     parse_config(@config_file)
   end
@@ -50,6 +51,8 @@ public
   def [](param_name)
     return @map[param_name]
   end
+
+  attr_reader :config_file
 
 private
 

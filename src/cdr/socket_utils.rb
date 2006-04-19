@@ -14,6 +14,7 @@ class SocketUtils
 
 public
   
+  # :TODO: Use Resolv#getaddresses and remove this function
   def SocketUtils.ip_address_from_domain_name(domain_name)
     ip_address = nil
     begin

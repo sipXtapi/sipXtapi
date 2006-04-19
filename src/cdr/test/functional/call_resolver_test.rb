@@ -32,8 +32,25 @@ class CallResolverTest < Test::Unit::TestCase
 public
 
   def setup
+    super
+    
     # Create the CallResolver, giving it the location of the test config file.
     @resolver = CallResolver.new(File.join($SOURCE_DIR, 'data/callresolver-config'))
+  end
+
+  def test_connect_to_cdr_database
+    # Ensure that we are disconnected first
+    if ActiveRecord::Base.connected?
+      ActiveRecord::Base.remove_connection
+    end
+    assert(!ActiveRecord::Base.connected?, 'Must be disconnected from database')
+    
+    # Connect to the database and verify that we are connected.
+    # Rails quirk: we can't assert "connected?" because the connection has been
+    # established but is not active yet, so "connected?" is not true.  But if we
+    # try to retrieve the connection, then it must exist.
+    @resolver.send(:connect_to_cdr_database)
+    assert(ActiveRecord::Base.retrieve_connection, 'Must be connected to database')
   end
 
   def test_load_call_ids
@@ -513,44 +530,44 @@ public
     end
   end
   
-  def test_get_purge_start_time
+  def test_get_purge_start_time_cdr
     # Get the default purge time: today's date minus the default age
-    purge_start_time =
+    purge_start_time_cdr =
       Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_CDR_DEFAULT.to_i)
 
     # Pass in an empty config, should get the default purge time, allow
     # for 1 second difference in times
-    assert((@resolver.send(:get_purge_start_time, {}) - purge_start_time) < 1) 
+    assert((@resolver.send(:get_purge_start_time_cdr, {}) - purge_start_time_cdr) < 1) 
 
     purgeAgeStr = '23'
     purgeAge = purgeAgeStr.to_i
     
     # Get today's date minus different age
-    purge_start_time = Time.now - (SECONDS_IN_A_DAY * purgeAge)
+    purge_start_time_cdr = Time.now - (SECONDS_IN_A_DAY * purgeAge)
 
     # Pass in a value, allow for 1 second difference in times
-    assert((@resolver.send(:get_purge_start_time,
-      {CallResolver::PURGE_AGE_CDR => purgeAgeStr}) - purge_start_time) < 1)
+    assert((@resolver.send(:get_purge_start_time_cdr,
+      {CallResolver::PURGE_AGE_CDR => purgeAgeStr}) - purge_start_time_cdr) < 1)
   end  
   
   def test_get_purge_start_time_cse
     # Get the default purge time: today's date minus the default age
-    purge_start_time =
+    purge_start_time_cse =
       Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_CSE_DEFAULT.to_i)
 
     # Pass in an empty config, should get the default purge time, allow
     # for 1 second difference in times
-    assert((@resolver.send(:get_purge_start_time_cse, {}) - purge_start_time) < 1) 
+    assert((@resolver.send(:get_purge_start_time_cse, {}) - purge_start_time_cse) < 1) 
 
     purgeAgeStr = '23'
     purgeAge = purgeAgeStr.to_i
     
     # Get today's date minus different age
-    purge_start_time = Time.now - (SECONDS_IN_A_DAY * purgeAge)
+    purge_start_time_cse = Time.now - (SECONDS_IN_A_DAY * purgeAge)
 
     # Pass in a value, allow for 1 second difference in times
     assert((@resolver.send(:get_purge_start_time_cse,
-      {CallResolver::PURGE_AGE_CSE => purgeAgeStr}) - purge_start_time) < 1)
+      {CallResolver::PURGE_AGE_CSE => purgeAgeStr}) - purge_start_time_cse) < 1)
   end    
   
   #-----------------------------------------------------------------------------
