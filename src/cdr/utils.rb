@@ -23,6 +23,7 @@ public
   # Take a contact string like "Jorma Kaukonen"<sip:187@10.1.1.170:1234>;tag=1c32681
   # and extract just the host part, in this case "10.1.1.170".  The "@" is optional,
   # could be just "sip:10.1.1.170" for example.
+  # :TODO: Use regex here, much simpler
   def Utils.contact_host(contact)
     # Find the colon at the end of "sip:" or "sips:".  Strip the colon and
     # everything before it.
@@ -76,6 +77,7 @@ public
   # Return just the AOR part of a SIP From or To header, stripping the tag if
   # one is present.
   # If there is no tag then raise BadSipHeaderException if is_tag_required is true.
+  # :TODO: Use regex here, much simpler
   def Utils.get_aor_from_header(header, is_tag_required = true)
     aor = nil
     
@@ -94,12 +96,18 @@ public
       aor = header
     end
     
+    # put '>' at the end to balance '<' at the start, if necessary
+    if aor[0] == ?< and aor[-1] != ?>
+      aor << '>'
+    end
+    
     aor
   end
 
   # Given a contact URL with params, like <sip:101@10.1.20.3:5100;play=https%3A%2F%2Flocalhost>,
   # remove the params, which are preceded by semicolons.  Usually there is a '>' at the end
   # matching a '<' at the beginning.  If so then leave it in place.
+  # :TODO: Use regex here, much simpler
   def Utils.contact_without_params(contact)
     semi_index = contact.index(';')
     if semi_index
