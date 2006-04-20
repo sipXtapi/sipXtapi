@@ -16,37 +16,34 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 
-
-public interface GatewayContext {    
+public interface GatewayContext {
     public static final String CONTEXT_BEAN_NAME = "gatewayContext";
 
-    public abstract List getGateways();
-    
-    public abstract List getGatewayByIds(Collection gatewayIds);
+    List getGateways();
 
-    public abstract Gateway getGateway(Integer id);
+    Collection getAllGatewayIds();
 
-    public abstract void storeGateway(Gateway gateway);
+    List getGatewayByIds(Collection gatewayIds);
 
-    public abstract void clear();
+    Gateway getGateway(Integer id);
 
-    public abstract boolean deleteGateway(Integer id);
+    void storeGateway(Gateway gateway);
 
-    public abstract void deleteGateways(Collection selectedRows);
-    
-    public void propagateGateways(Collection selectedRows);
-    
+    void clear();
+
+    boolean deleteGateway(Integer id);
+
+    void deleteGateways(Collection selectedRows);
+
     /**
      * Returns the list of gateways available for a specific rule
      * 
      * @param ruleId id of the rule for which gateways are checked
      * @return collection of available gateways
      */
-    public abstract Collection getAvailableGateways(Integer ruleId);
-    
-    public abstract Gateway newGateway(PhoneModel model);
-    
-    public List getAvailableGatewayModels();
+    Collection getAvailableGateways(Integer ruleId);
 
-    public abstract void propagateAllGateways();
+    Gateway newGateway(PhoneModel model);
+
+    List getAvailableGatewayModels();
 }

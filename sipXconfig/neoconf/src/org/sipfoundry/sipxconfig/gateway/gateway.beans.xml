@@ -132,4 +132,18 @@
     </property>
   </bean>
   
+  <bean id="eagerGatewayProfileManager" class="org.sipfoundry.sipxconfig.gateway.GatewayProfileManagerImpl">
+    <property name="gatewayContext">
+      <ref local="gatewayContext"/>
+    </property>
+    <property name="jobContext" ref="jobContext"/>
+  </bean>
+  
+  <bean id="gatewayProfileManager" class="org.sipfoundry.sipxconfig.phone.LazyProfileManagerImpl"
+    init-method="init">
+    <property name="target">
+      <ref local="eagerGatewayProfileManager"/>
+    </property>
+    <property name="sleepInterval" value="5000"/>
+  </bean>  
 </beans>

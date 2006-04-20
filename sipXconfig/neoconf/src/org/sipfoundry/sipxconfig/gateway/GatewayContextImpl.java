@@ -60,6 +60,10 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         List gateways = getHibernateTemplate().loadAll(Gateway.class);
         return gateways;
     }
+    
+    public Collection getAllGatewayIds() {
+        return getHibernateTemplate().findByNamedQuery("gatewayIds");
+    }
 
     public Gateway getGateway(Integer id) {
         return (Gateway) getHibernateTemplate().load(Gateway.class, id);
@@ -93,22 +97,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         for (Iterator i = selectedRows.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             deleteGateway(id);
-        }
-    }
-
-    public void propagateGateways(Collection selectedRows) {
-        for (Iterator i = selectedRows.iterator(); i.hasNext();) {
-            Integer id = (Integer) i.next();
-            Gateway g = getGateway(id);
-            g.generateProfiles();
-        }
-    }
-
-    public void propagateAllGateways() {
-        List gateways = getGateways();
-        for (Iterator i = gateways.iterator(); i.hasNext();) {
-            Gateway g = (Gateway) i.next();
-            g.generateProfiles();
         }
     }
 
