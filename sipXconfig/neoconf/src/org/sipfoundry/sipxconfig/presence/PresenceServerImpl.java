@@ -26,13 +26,13 @@ import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 /**
  * Interaction with PresenceServer
  */
-public class PresenceServerImpl implements PresenceServer {    
+public class PresenceServerImpl implements PresenceServer {
     public static final String OBJECT_CLASS_KEY = "object-class";
-    private static final Log LOG = LogFactory.getLog(PresenceServerImpl.class); 
+    private static final Log LOG = LogFactory.getLog(PresenceServerImpl.class);
     private CoreContext m_coreContext;
     private SipxServer m_sipxServer;
     private boolean m_enabled;
-    
+
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
     }
@@ -40,11 +40,11 @@ public class PresenceServerImpl implements PresenceServer {
     public void setSipxServer(SipxServer sipxServer) {
         m_sipxServer = sipxServer;
     }
-    
+
     public boolean isEnabled() {
         return m_enabled;
     }
-    
+
     public void setEnabled(boolean enabled) {
         m_enabled = enabled;
     }
@@ -52,13 +52,13 @@ public class PresenceServerImpl implements PresenceServer {
     public void signIn(User user) {
         signInAction(SignIn.SIGN_IN, user);
     }
-    
+
     public void signOut(User user) {
         signInAction(SignIn.SIGN_OUT, user);
-    }   
-    
+    }
+
     public PresenceStatus getStatus(User user) {
-        PresenceStatus status = PresenceStatus.NOT_AVAILABLE; 
+        PresenceStatus status = PresenceStatus.NOT_AVAILABLE;
         if (m_enabled) {
             try {
                 Hashtable response = signInAction(SignIn.STATUS, user);
@@ -70,8 +70,8 @@ public class PresenceServerImpl implements PresenceServer {
         }
         return status;
     }
-    
-    private Hashtable signInAction(String action, User user) {        
+
+    private Hashtable signInAction(String action, User user) {
         if (!m_enabled) {
             return null;
         }
@@ -86,7 +86,7 @@ public class PresenceServerImpl implements PresenceServer {
         SignIn api = (SignIn) factory.getObject();
         return userAction(api, action, user);
     }
-    
+
     Hashtable userAction(SignIn api, String actionId, User user) {
         Hashtable action = new Hashtable();
         String domainName = m_coreContext.getDomainName();
@@ -96,7 +96,7 @@ public class PresenceServerImpl implements PresenceServer {
         checkErrorCode(response);
         return response;
     }
-    
+
     static void checkErrorCode(Hashtable response) {
         Integer resultCode = (Integer) response.get(SignIn.RESULT_CODE);
         if (!SignIn.SUCCESS.equals(resultCode)) {
@@ -105,13 +105,13 @@ public class PresenceServerImpl implements PresenceServer {
             throw new SignInException(message);
         }
     }
-    
+
     static class SignInException extends UserException {
         SignInException(String msg) {
             super(msg);
         }
     }
-    
+
     /**
      * Raw API from presense server. Not very useful outside this context
      */
@@ -123,6 +123,7 @@ public class PresenceServerImpl implements PresenceServer {
         public static final String SIGN_IN = "sign-in";
         public static final String STATUS = "sign-in-status";
         public static final String SIGN_OUT = "sign-out";
+
         public Hashtable action(Hashtable params);
-    };
+    }
 }

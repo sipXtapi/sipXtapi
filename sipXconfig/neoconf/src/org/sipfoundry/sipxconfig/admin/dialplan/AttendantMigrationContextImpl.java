@@ -73,7 +73,6 @@ public class AttendantMigrationContextImpl extends SipxHibernateDaoSupport imple
                 aa.addGroup(defaultGroup);
                 m_dialPlanContext.storeAutoAttendant(aa);
             }
-            System.out.print(aa.getGroups());
         }
     }
 
