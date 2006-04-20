@@ -27,6 +27,10 @@ class UtilsTest < Test::Unit::TestCase
     assert_equal('From: Alice <sip:alice@atlanta.com>',
                  Utils.get_aor_from_header(header))
     
+    # another good input
+    header = '<sip:100@pingtel.com;user=phone>'
+    assert_equal('<sip:100@pingtel.com>', Utils.get_aor_from_header(header))
+    
     # Test get_aor_from_header with a bad input: there is no tag.
     # Must raise an exception.
     assert_raise(BadSipHeaderException) do
