@@ -11,9 +11,6 @@ EXTRA_DIST = \
 
 lib_LTLIBRARIES = libsipXcommserver.la
 
-EXTRA_DIST = \
-    $(libexec_SCRIPTS)
-
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
 version_Current=1
@@ -24,7 +21,7 @@ version_Revision=0
 #       increment if any interfaces have been added
 version_Age=0
 
-libsipXcommserver_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age} @ODBC_LDFLAGS@
+libsipXcommserver_la_LDFLAGS = -version-info ${version_Current}:${version_Revision}:${version_Age} @ODBC_LDFLAGS@ @XERCES_LDFLAGS@
 
 libsipXcommserver_la_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\" \
@@ -32,11 +29,13 @@ libsipXcommserver_la_CXXFLAGS = \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
 	-DSIPX_DBDIR=\"@SIPX_DBDIR@\" \
-  @ODBC_CXXFLAGS@
+  @ODBC_CXXFLAGS@ \
+  @XERCES_CXXFLAGS@
 
 libsipXcommserver_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
-  @ODBC_LIBS@
+  @ODBC_LIBS@ \
+  @XERCES_LIBS@
 
 libsipXcommserver_la_SOURCES =  \
 	 ../config/sipxcommserverlib-buildstamp.h \

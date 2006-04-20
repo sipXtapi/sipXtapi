@@ -119,7 +119,7 @@ typedef signed   long long db_int8;
 #endif
 #endif
 
-#if !defined(bool) && (defined(__SUNPRO_CC) || defined(__IBMCPP__))
+#if defined(__IBMCPP__)
 #define bool  char
 #define true  (1)
 #define false (0)
