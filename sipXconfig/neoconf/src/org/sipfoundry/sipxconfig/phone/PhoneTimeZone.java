@@ -76,14 +76,18 @@ public class PhoneTimeZone {
             m_tz = TimeZone.getTimeZone(s_tzname);
         }
         String tzn = m_tz.getID();
-        // Until there is a setting for DST rule, it must be guessed here based on the timezone name
 
-        if (tzn.matches("^US/.*")) {
-            setDstRule(DST_US);
-        } else if (tzn.matches("^Europe/.*")) {
+        // Until there is a setting for DST rule, it must be guessed here based on the timezone name
+        //
+        // XCF-977 - Doing string compares on ID is not predicable!  On my gentoo system, I get
+        // US/Eastern but on a FC4 machine I get America/New_York.  Both running java1.5.0.06
+        // We'll wait for XCF-874 to address this properly.  Until then, do not break whatever
+        // seems to work for some systems in Europe, but default everyone else to US.  Otherwise
+        // the default of zero is not very helpful
+        if (tzn.matches("^Europe/.*")) {
             setDstRule(DST_EU);
         } else {
-            setDstRule(EMPTY);
+            setDstRule(DST_US);
         }
     }
 
