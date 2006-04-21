@@ -66,11 +66,29 @@ public
     
     # verify results
     assert_equal(4, call_ids.length, 'Wrong number of call IDs')
-    assert_equal('testSimpleSuccess',                      call_ids[0], 'Wrong call ID')
-    assert_equal('testSimpleSuccessBogusCallInTimeWindow', call_ids[1], 'Wrong call ID')
+    assert_equal('testSimpleSuccess',
+                 call_ids[0],
+                 'Wrong first call ID')
+    assert_equal('testSimpleSuccessBogusCallInTimeWindow',
+                 call_ids[1],
+                 'Wrong second call ID')
   end
   
-  def test_load_events
+  def test_load_events_in_time_window
+    start_time = Time.parse('1990-05-17T19:30:00.000Z')
+    end_time = Time.parse('1990-05-17T19:45:00.000Z')
+    events = @resolver.send(:load_events_in_time_window, start_time, end_time)
+    assert_equal(7, events.length, 'Wrong number of events')
+    assert_equal('testSimpleSuccess', events[0].call_id, 'Wrong first call ID')
+    assert_equal('testSimpleSuccess_CalleeEndBogusCallInTimeWindow',
+                 events[6].call_id,
+                 'Wrong last call ID')
+    assert_equal(1, events[0].cseq, 'Wrong first cseq')
+    assert_equal(2, events[1].cseq, 'Wrong second cseq')
+    assert_equal(3, events[2].cseq, 'Wrong third cseq')
+  end
+  
+  def test_load_events_with_call_id
     events = load_simple_success_events
     assert_equal(3, events.length)
     events.each_index do |index|
@@ -126,7 +144,7 @@ public
     
     # load events for the complicated case
     call_id = 'testComplicatedSuccess'
-    events = @resolver.send(:load_events, call_id)
+    events = @resolver.send(:load_events_with_call_id, call_id)
      
     tags = @resolver.send(:best_call_leg, events)
     to_tag = tags[1]
@@ -184,7 +202,7 @@ public
     # properly.  We've checked other info in the case above.
     # This set of events has call request, call setup, call failed.
     call_id = 'testFailed'
-    events = @resolver.send(:load_events, call_id)
+    events = @resolver.send(:load_events_with_call_id, call_id)
     check_failed_call(events, to_tag)
     
     # Try again without the call setup event.
@@ -385,7 +403,8 @@ public
   
   def test_resolve_call
     ['testSimpleSuccess', 'testComplicatedSuccess', 'testFailed'].each do |call_id|
-      @resolver.send(:resolve_call, call_id)
+      events = @resolver.send(:load_events_with_call_id, call_id)
+      @resolver.send(:resolve_call, events)
       cdr = Cdr.find_by_call_id(call_id)
       assert_not_nil(cdr, 'CDR was not created')
     end
@@ -502,7 +521,7 @@ public
   # Test that contact params are stripped off of the contact URLs recorded in CDRs
   def test_contact_param_stripping
     start_time = Time.parse('2001-1-3T00:00:00.000Z')
-    end_time = Time.parse('2001-1-3T00:00:00.000Z')
+    end_time = Time.parse('2001-1-3T03:00:00.000Z')
     @resolver.resolve(start_time, end_time)
     
     assert(Party.find(:first,
@@ -576,13 +595,13 @@ public
   # load and return events for the simple case
   def load_simple_success_events
     call_id = 'testSimpleSuccess'
-    @resolver.send(:load_events, call_id)
+    @resolver.send(:load_events_with_call_id, call_id)
   end
  
   # load and return events for the simple case
   def load_simple_success_events_callee_hangs_up
     call_id = 'testSimpleSuccess_CalleeEnd'
-    @resolver.send(:load_events, call_id)
+    @resolver.send(:load_events_with_call_id, call_id)
   end  
   
 end
