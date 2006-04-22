@@ -50,4 +50,26 @@ public class UserCallForwardingTestUi extends WebTestCase {
         assertButtonNotPresent("form:cancel");
         assertButtonPresent("form:apply");
     }
+    
+    public void testAddAddress() throws Exception {
+        SiteTestHelper.home(getTester());
+        tester.clickLink("resetCallForwarding");
+        SiteTestHelper.setScriptingEnabled(true);
+        tester.clickLink("loginFirstTestUser");
+        clickLink("UserCallForwarding");
+
+        // Javascript submit link
+        clickLink("addRingLink");        
+        setFormElement("number", "123");
+        clickButton("form:apply");
+        assertElementPresent("user:success");
+
+        setFormElement("number", "john@example.com");
+        clickButton("form:apply");
+        assertElementPresent("user:success");
+
+        setFormElement("number", "john@example@bogus.com");
+        clickButton("form:apply");
+        assertElementPresent("user:error");
+    }
 }

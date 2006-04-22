@@ -15,6 +15,7 @@ Args=""
 # (or end user I suppose) can override
 : ${SslDir:=@sipxpbx.conf.dir@/ssl}
 : ${AuthoritiesDir:=$SslDir/authorities}
+: ${JavaCmd:=`@bin.dir@/sipx-config --java`}
 : ${ConfigDefs:=@sipxpbx.conf.dir@/config.defs}
 : ${Configpp:=@bin.dir@/configpp}
 : ${ConfigFiles:=@sipxpbx.conf.dir@/sipxconfig.properties @sipxpbx.conf.dir@/topology.xml}
@@ -32,19 +33,6 @@ Args=""
 Database=SIPXCONFIG
 RequiredDatabaseVersion=3
 IndexDir=${TmpDir}/index
-
-javaCommand() {
-  if [ -n "$JAVA_HOME" ]; then
-    cmd="$JAVA_HOME/bin/java"
-    if [ -f "$cmd" ]; then
-        echo -n "$cmd"
-        return
-    fi
-  fi
-  echo -n "java"
-}
-
-: ${JavaCmd:=`javaCommand`}
 
 # This function determines the correct service name for Postgres.
 postgresService() {

@@ -5,6 +5,8 @@
 	  - P R O P E R T I E S
 	  -->
   <inject property="gatewayContext" object="spring:gatewayContext"/>
+  <inject property="gatewayProfileManager" object="spring:gatewayProfileManager"/>
+  
   <property name="gatewaysToDelete" />
   <property name="gatewaysToPropagate" />
   <!--

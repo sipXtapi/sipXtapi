@@ -23,4 +23,7 @@
     
   </class>
   
+  <query name="gatewayIds">
+    <![CDATA[select g.id from Gateway g]]>        
+  </query>  
 </hibernate-mapping>

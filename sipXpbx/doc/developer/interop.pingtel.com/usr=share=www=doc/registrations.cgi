@@ -4,19 +4,21 @@ use CGI qw/:standard/;
 use XML::Parser;
 use strict;
 
+my($Prefix) = $ARGV[0];
+
 # The un-escape table for backslash escapes.
 my(%unescape) = ("r", "\r",
 		 "n", "\n",
 		 "\"", "\"",
 		 "\\", "\\");
 
-my($registration_file) = $ARGV[0] || '/var/sipxdata/sipdb/registration.xml';
+my($registration_file) = "$Prefix/var/sipxdata/sipdb/registration.xml";
 
 # Read and process the registrar log files.
 my(%user_agent);
 # Read at least 24 hours of log data in chronological order.
-&process_log_file('/var/log/sipxpbx/sipregistrar.log.1');
-&process_log_file('/var/log/sipxpbx/sipregistrar.log');
+&process_log_file("$Prefix/var/log/sipxpbx/sipregistrar.log.1");
+&process_log_file("$Prefix/var/log/sipxpbx/sipregistrar.log");
 
 # Read and parse the registrations file.
 my($parser) = new XML::Parser(Style => 'Tree');

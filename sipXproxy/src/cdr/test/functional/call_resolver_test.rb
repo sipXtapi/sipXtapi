@@ -32,8 +32,25 @@ class CallResolverTest < Test::Unit::TestCase
 public
 
   def setup
+    super
+    
     # Create the CallResolver, giving it the location of the test config file.
     @resolver = CallResolver.new(File.join($SOURCE_DIR, 'data/callresolver-config'))
+  end
+
+  def test_connect_to_cdr_database
+    # Ensure that we are disconnected first
+    if ActiveRecord::Base.connected?
+      ActiveRecord::Base.remove_connection
+    end
+    assert(!ActiveRecord::Base.connected?, 'Must be disconnected from database')
+    
+    # Connect to the database and verify that we are connected.
+    # Rails quirk: we can't assert "connected?" because the connection has been
+    # established but is not active yet, so "connected?" is not true.  But if we
+    # try to retrieve the connection, then it must exist.
+    @resolver.send(:connect_to_cdr_database)
+    assert(ActiveRecord::Base.retrieve_connection, 'Must be connected to database')
   end
 
   def test_load_call_ids
@@ -49,11 +66,29 @@ public
     
     # verify results
     assert_equal(4, call_ids.length, 'Wrong number of call IDs')
-    assert_equal('testSimpleSuccess',                      call_ids[0], 'Wrong call ID')
-    assert_equal('testSimpleSuccessBogusCallInTimeWindow', call_ids[1], 'Wrong call ID')
+    assert_equal('testSimpleSuccess',
+                 call_ids[0],
+                 'Wrong first call ID')
+    assert_equal('testSimpleSuccessBogusCallInTimeWindow',
+                 call_ids[1],
+                 'Wrong second call ID')
   end
   
-  def test_load_events
+  def test_load_events_in_time_window
+    start_time = Time.parse('1990-05-17T19:30:00.000Z')
+    end_time = Time.parse('1990-05-17T19:45:00.000Z')
+    events = @resolver.send(:load_events_in_time_window, start_time, end_time)
+    assert_equal(7, events.length, 'Wrong number of events')
+    assert_equal('testSimpleSuccess', events[0].call_id, 'Wrong first call ID')
+    assert_equal('testSimpleSuccess_CalleeEndBogusCallInTimeWindow',
+                 events[6].call_id,
+                 'Wrong last call ID')
+    assert_equal(1, events[0].cseq, 'Wrong first cseq')
+    assert_equal(2, events[1].cseq, 'Wrong second cseq')
+    assert_equal(3, events[2].cseq, 'Wrong third cseq')
+  end
+  
+  def test_load_events_with_call_id
     events = load_simple_success_events
     assert_equal(3, events.length)
     events.each_index do |index|
@@ -109,7 +144,7 @@ public
     
     # load events for the complicated case
     call_id = 'testComplicatedSuccess'
-    events = @resolver.send(:load_events, call_id)
+    events = @resolver.send(:load_events_with_call_id, call_id)
      
     tags = @resolver.send(:best_call_leg, events)
     to_tag = tags[1]
@@ -167,7 +202,7 @@ public
     # properly.  We've checked other info in the case above.
     # This set of events has call request, call setup, call failed.
     call_id = 'testFailed'
-    events = @resolver.send(:load_events, call_id)
+    events = @resolver.send(:load_events_with_call_id, call_id)
     check_failed_call(events, to_tag)
     
     # Try again without the call setup event.
@@ -368,7 +403,8 @@ public
   
   def test_resolve_call
     ['testSimpleSuccess', 'testComplicatedSuccess', 'testFailed'].each do |call_id|
-      @resolver.send(:resolve_call, call_id)
+      events = @resolver.send(:load_events_with_call_id, call_id)
+      @resolver.send(:resolve_call, events)
       cdr = Cdr.find_by_call_id(call_id)
       assert_not_nil(cdr, 'CDR was not created')
     end
@@ -485,7 +521,7 @@ public
   # Test that contact params are stripped off of the contact URLs recorded in CDRs
   def test_contact_param_stripping
     start_time = Time.parse('2001-1-3T00:00:00.000Z')
-    end_time = Time.parse('2001-1-3T00:00:00.000Z')
+    end_time = Time.parse('2001-1-3T03:00:00.000Z')
     @resolver.resolve(start_time, end_time)
     
     assert(Party.find(:first,
@@ -513,25 +549,45 @@ public
     end
   end
   
-  def test_get_purge_start_time
+  def test_get_purge_start_time_cdr
     # Get the default purge time: today's date minus the default age
-    purge_start_time =
-      Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_DEFAULT.to_i)
+    purge_start_time_cdr =
+      Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_CDR_DEFAULT.to_i)
 
     # Pass in an empty config, should get the default purge time, allow
     # for 1 second difference in times
-    assert((@resolver.send(:get_purge_start_time, {}) - purge_start_time) < 1) 
+    assert((@resolver.send(:get_purge_start_time_cdr, {}) - purge_start_time_cdr) < 1) 
 
     purgeAgeStr = '23'
     purgeAge = purgeAgeStr.to_i
     
     # Get today's date minus different age
-    purge_start_time = Time.now - (SECONDS_IN_A_DAY * purgeAge)
+    purge_start_time_cdr = Time.now - (SECONDS_IN_A_DAY * purgeAge)
 
     # Pass in a value, allow for 1 second difference in times
-    assert((@resolver.send(:get_purge_start_time,
-      {CallResolver::PURGE_AGE => purgeAgeStr}) - purge_start_time) < 1)
+    assert((@resolver.send(:get_purge_start_time_cdr,
+      {CallResolver::PURGE_AGE_CDR => purgeAgeStr}) - purge_start_time_cdr) < 1)
   end  
+  
+  def test_get_purge_start_time_cse
+    # Get the default purge time: today's date minus the default age
+    purge_start_time_cse =
+      Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_CSE_DEFAULT.to_i)
+
+    # Pass in an empty config, should get the default purge time, allow
+    # for 1 second difference in times
+    assert((@resolver.send(:get_purge_start_time_cse, {}) - purge_start_time_cse) < 1) 
+
+    purgeAgeStr = '23'
+    purgeAge = purgeAgeStr.to_i
+    
+    # Get today's date minus different age
+    purge_start_time_cse = Time.now - (SECONDS_IN_A_DAY * purgeAge)
+
+    # Pass in a value, allow for 1 second difference in times
+    assert((@resolver.send(:get_purge_start_time_cse,
+      {CallResolver::PURGE_AGE_CSE => purgeAgeStr}) - purge_start_time_cse) < 1)
+  end    
   
   #-----------------------------------------------------------------------------
   # Helper methods
@@ -539,13 +595,13 @@ public
   # load and return events for the simple case
   def load_simple_success_events
     call_id = 'testSimpleSuccess'
-    @resolver.send(:load_events, call_id)
+    @resolver.send(:load_events_with_call_id, call_id)
   end
  
   # load and return events for the simple case
   def load_simple_success_events_callee_hangs_up
     call_id = 'testSimpleSuccess_CalleeEnd'
-    @resolver.send(:load_events, call_id)
+    @resolver.send(:load_events_with_call_id, call_id)
   end  
   
 end

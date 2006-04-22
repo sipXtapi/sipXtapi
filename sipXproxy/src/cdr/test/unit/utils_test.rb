@@ -27,6 +27,10 @@ class UtilsTest < Test::Unit::TestCase
     assert_equal('From: Alice <sip:alice@atlanta.com>',
                  Utils.get_aor_from_header(header))
     
+    # another good input
+    header = '<sip:100@pingtel.com;user=phone>'
+    assert_equal('<sip:100@pingtel.com>', Utils.get_aor_from_header(header))
+    
     # Test get_aor_from_header with a bad input: there is no tag.
     # Must raise an exception.
     assert_raise(BadSipHeaderException) do
@@ -68,6 +72,12 @@ class UtilsTest < Test::Unit::TestCase
     
     contact_with_no_greater_than_sign_at_end = 'sip:alice@example.com;one;more;for;you;nineteen;for;me'
     assert_equal('sip:alice@example.com', Utils.contact_without_params(contact_with_no_greater_than_sign_at_end))
+  end
+
+  def test_strip_v4_port
+    assert_equal('1.1.1.1', SocketUtils.strip_v4_port('1.1.1.1:123'))
+    assert_equal('1.1.1.1', SocketUtils.strip_v4_port('1.1.1.1'))
+    assert_equal('domain.com', SocketUtils.strip_v4_port('domain.com'))
   end
 
 end

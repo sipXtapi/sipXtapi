@@ -10,6 +10,7 @@
 require 'ipaddr'
 
 require File.join(File.dirname(__FILE__), 'exceptions')
+require File.join(File.dirname(__FILE__), 'sipx_ipsocket')
 require File.join(File.dirname(__FILE__), 'socket_utils')
 
 
@@ -22,6 +23,7 @@ public
   # Take a contact string like "Jorma Kaukonen"<sip:187@10.1.1.170:1234>;tag=1c32681
   # and extract just the host part, in this case "10.1.1.170".  The "@" is optional,
   # could be just "sip:10.1.1.170" for example.
+  # :LATER: Use regex here, much simpler
   def Utils.contact_host(contact)
     # Find the colon at the end of "sip:" or "sips:".  Strip the colon and
     # everything before it.
@@ -55,10 +57,10 @@ public
     host = contact_host(contact)
 
     # Resolve the host to an IP address, if it's a domain name
-    if SocketUtils.valid_ipaddr?(host)
+    if SipxIPSocket.valid_ipaddr?(host)
       host
     else
-      ip_address_from_domain_name(host)
+      SocketUtils.ip_address_from_domain_name(host)
     end
   end
 
@@ -75,6 +77,7 @@ public
   # Return just the AOR part of a SIP From or To header, stripping the tag if
   # one is present.
   # If there is no tag then raise BadSipHeaderException if is_tag_required is true.
+  # :LATER: Use regex here, much simpler
   def Utils.get_aor_from_header(header, is_tag_required = true)
     aor = nil
     
@@ -93,24 +96,18 @@ public
       aor = header
     end
     
-    aor
-  end
-  
-  def Utils.ip_address_from_domain_name(domain_name)
-    ip_address = nil
-    begin
-      ip_address = IPSocket.getaddress(domain_name)
-    rescue SocketError
-      raise(NameResolutionException.new(domain_name),
-            "Unable to resolve the domain name \"#{domain_name}\" to an IP address: #{$!}",
-            caller)
+    # put '>' at the end to balance '<' at the start, if necessary
+    if aor[0] == ?< and aor[-1] != ?>
+      aor << '>'
     end
-    ip_address
+    
+    aor
   end
 
   # Given a contact URL with params, like <sip:101@10.1.20.3:5100;play=https%3A%2F%2Flocalhost>,
   # remove the params, which are preceded by semicolons.  Usually there is a '>' at the end
   # matching a '<' at the beginning.  If so then leave it in place.
+  # :LATER: Use regex here, much simpler
   def Utils.contact_without_params(contact)
     semi_index = contact.index(';')
     if semi_index

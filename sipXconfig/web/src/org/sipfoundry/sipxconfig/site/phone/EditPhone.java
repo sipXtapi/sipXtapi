@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.site.phone;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
@@ -19,6 +22,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.ProfileManager;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 
@@ -39,6 +43,7 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
     public abstract void setPhoneId(Integer id);
 
     public abstract PhoneContext getPhoneContext();
+    public abstract ProfileManager getProfileManager();
     public abstract SettingDao getSettingDao();
 
     public IPage addLine(IRequestCycle cycle, Integer phoneId) {
@@ -62,6 +67,13 @@ public abstract class EditPhone extends PageWithCallback implements PageBeginRen
         }
 
         return valid;
+    }
+    
+    public void generateProfile() {
+        Collection phoneIds = Collections.singleton(getPhone().getId());
+        getProfileManager().generateProfilesAndRestart(phoneIds);
+        String msg = getMessages().getMessage("msg.success.profiles");
+        TapestryUtils.recordSuccess(this, msg);
     }
 
     public void pageBeginRender(PageEvent event_) {

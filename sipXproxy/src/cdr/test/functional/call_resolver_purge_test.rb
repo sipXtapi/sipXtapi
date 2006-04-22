@@ -53,7 +53,7 @@ public
     resolve(5)
     
     # Purge records older than 35 days
-    purge(35)
+    purge(35,35)
     
     assert_equal(CallStateEvent.count,9, 'Wrong number of call state events')
     assert_equal(Cdr.count, 3, 'Wrong number of CDRs')
@@ -76,7 +76,7 @@ public
     resolve(5)
     
     # Purge records older than 35 days
-    purge(35)
+    purge(35,35)
     
     assert_equal(CallStateEvent.count,9, 'Wrong number of call state events')
     assert_equal(Cdr.count, 3, 'Wrong number of CDRs')
@@ -97,7 +97,7 @@ public
     resolve(5)
     
     # Purge records older than 9 days
-    purge(9)
+    purge(9,9)
     
     assert_equal(CallStateEvent.count,0, 'Wrong number of call state events')
     assert_equal(Cdr.count, 0, 'Wrong number of CDRs')
@@ -115,10 +115,33 @@ public
     resolve(2)
     
     # Purge records older than  or as old as 11 days
-    purge(11)
+    purge(11,11)
     
     assert_equal(CallStateEvent.count, 3, 'Wrong number of call state events')
     assert_equal(Cdr.count, 1, 'Wrong number of CDRs')
+    assert_equal(Party.count, 2, 'Wrong number of parties')  
+  end  
+  
+  def test_purge_remove_cse_separately
+    # Make sure we have a clean database at the start of each test
+    assert(clean_db)
+  
+    make_call("sip:200@example.com", "sip:201@example.com", "id-1", 1)    # 1 day old       
+    make_call("sip:201@example.com", "sip:200@example.com", "id-2", 2)    # 2 days old
+    make_call("sip:200@example.com", "sip:201@example.com", "id-3", 10)   # 10 days old          
+    # 40 days old with two parties that are not used in newer calls
+    make_call("sip:203@example.com", "sip:205@example.com", "id-4", 40) 
+    # 36 days old with one party that are not used in newer calls
+    make_call("sip:204@example.com", "sip:206@example.com", "id-5", 36)     
+    
+    # Resolve - expect to find 5 resolved calls
+    resolve(5)
+    
+    # Purge CSE records older than 5 days, CDRs older than 35
+    purge(5,35)
+    
+    assert_equal(CallStateEvent.count,6, 'Wrong number of call state events')
+    assert_equal(Cdr.count, 3, 'Wrong number of CDRs')
     assert_equal(Party.count, 2, 'Wrong number of parties')  
   end  
   
@@ -131,9 +154,10 @@ public
     assert_equal(expected, Cdr.count, 'Wrong number of CDRs')
   end
 
-  def purge(age)
-    start_time = Time.now - (SECONDS_IN_A_DAY * age)
-    @resolver.send(:purge, start_time)
+  def purge(age_cse, age_cdr)
+    cse_start_time = Time.now - (SECONDS_IN_A_DAY * age_cse)
+    cdr_start_time = Time.now - (SECONDS_IN_A_DAY * age_cdr)
+    @resolver.send(:purge, cse_start_time, cdr_start_time)
   end  
   
   def make_call(from, to, id, days_old)

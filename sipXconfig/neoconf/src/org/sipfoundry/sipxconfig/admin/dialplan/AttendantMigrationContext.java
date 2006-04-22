@@ -15,4 +15,6 @@ public interface AttendantMigrationContext {
     public static final String CONTEXT_BEAN_NAME = "attendantMigrationContext";
 
     void migrateAttendantRules();
+    
+    void setAttendantDefaults();
 }

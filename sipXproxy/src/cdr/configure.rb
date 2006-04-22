@@ -7,9 +7,11 @@
 #
 ##############################################################################
 
-# The Configure class reads in config params from the standard sipX config file,
-# call-resolver-config.  (Don't use the name "Config" for this class because
-# "Config" is the name of an existing Ruby module.)
+# The Configure class reads in config params from a standard sipX config file
+# and creates a map of param-values that is publicly available via the "[]"
+# operator.  This class is generic, it is not specifically for Call Resolver.
+# We would have used the name "Config" for this class, but "Config" is the name
+# of an existing Ruby module.
 # There is also a config subdirectory of this project.  That contains Rails
 # code that is only used for unit testing.
 
@@ -41,7 +43,8 @@ public
     
     # create a Hash to hold the param name to value map
     @map = Hash.new
-    puts "Config file : #{@config_file}"
+    
+    
     # parse the config file and fill in the map
     parse_config(@config_file)
   end
@@ -50,6 +53,8 @@ public
   def [](param_name)
     return @map[param_name]
   end
+
+  attr_reader :config_file
 
 private
 

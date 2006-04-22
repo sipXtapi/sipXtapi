@@ -22,9 +22,9 @@ import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 public abstract class AbstractRing extends BeanWithId implements DataCollectionItem {
     public static final String TYPE_PROP = "type";
-    
+
     private static final int DEFAULT_EXPIRATION = 30;
-    private static final String FORMAT = "<sip:{0}@{1}{4}?expires={2}>;{3}"; 
+    private static final String FORMAT = "<sip:{0}{1}{4}?expires={2}>;{3}";
     private static final String IGNORE_VOICEMAIL_FIELD_PARAM = ";sipx-noroute=Voicemail";
 
     private int m_expiration = DEFAULT_EXPIRATION;
@@ -62,7 +62,7 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
         public Type(String name) {
             super(name);
         }
-        
+
         public static Type getEnum(String type) {
             return (Type) getEnum(Type.class, type);
         }
@@ -84,6 +84,10 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
      */
     protected abstract Object getUserPart();
 
+    static boolean isAor(String userPart) {
+        return userPart.indexOf('@') >= 0;
+    }
+
     /**
      * Calculates contact for line or alias. See FORMAT field.
      * 
@@ -93,11 +97,21 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
      */
     public final String calculateContact(String domain, ForkQueueValue q,
             boolean appendIgnoreVoicemail) {
+
+        // XCF-963 Allow forwarding to user supplied AORs
+        String domainPart;
+        String userPart = getUserPart().toString();
+        if (isAor(userPart)) {
+            domainPart = StringUtils.EMPTY;
+        } else {
+            domainPart = '@' + domain;
+        }
+
         MessageFormat format = new MessageFormat(FORMAT);
         String urlParams = appendIgnoreVoicemail ? IGNORE_VOICEMAIL_FIELD_PARAM
                 : StringUtils.EMPTY;
         Object[] params = new Object[] {
-            getUserPart(), domain, new Integer(m_expiration), q.getValue(m_type), urlParams
+            userPart, domainPart, new Integer(m_expiration), q.getValue(m_type), urlParams
         };
         return format.format(params);
     }

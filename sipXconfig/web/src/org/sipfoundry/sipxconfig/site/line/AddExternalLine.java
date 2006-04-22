@@ -39,6 +39,14 @@ public abstract class AddExternalLine extends PageWithCallback implements PageBe
 
     public void ok() {
         if (TapestryUtils.isValid(this)) {
+            
+            // XCF-914 - At least polycom need authid as well as the userid 
+            // set when line is registering with a proxy in a domain other that 
+            // the outbound proxy.
+            org.sipfoundry.sipxconfig.phone.LineSettings settings = getSettings();
+            String userId = settings.getUserId();
+            settings.setAuthorizationId(userId);            
+            
             getPhoneContext().storePhone(getPhone());
         }
     }

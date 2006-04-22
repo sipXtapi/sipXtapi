@@ -22,24 +22,17 @@ $:.unshift(File.join(thisdir, "app", "models"))
 require 'call_state_event'
 require 'cdr'
 require 'configure'
+require 'database_url'
 require 'exceptions'
 require 'party'
 
-# :TODO: log timestamps for the beginning and end of each resolver run
-# :TODO: log the number of calls analyzed and how many succeeded vs. dups or failures
-# :TODO: figure out interactions between Ruby log rotation and sipX log rotation
-# :TODO: Support redo_flag (XPR-131).
+# :TODO: log the number of calls analyzed and how many succeeded vs. dups or
+#        failures, also termination status
+# :TODO: factor out the call resolver config into a separate class
 # :TODO: Verify that AORs, contacts, and from/to tags are consistent.
 #        The AORs and from tags must always be the same but contacts and to
 #        tags can vary when a call forks. If there are inconsistencies then
 #        discard the CSEs and log an error.
-# :TODO: Verify event time order.  Be sure that start_time, connect_time, and
-#        end_time are in the right order or we'll get DB integrity violations.
-#        When we support distributed proxies, events out of order may indicate
-#        that clocks are out of sync, which will hose the Call Resolver.
-# :TODO: Refactor the code so that the core algorithms are DB-independent so that
-#        we can write unit tests that don't require a DB, making it easier to run
-#        unit tests in the build loop
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
 # records (CDRs).  It loads CSEs from a database and writes CDRs back into the
@@ -49,64 +42,8 @@ class CallResolver
 
   # Constants
   
-  # The Call Resolver only runs on this Ruby version or later
-  MIN_RUBY_VERSION = '1.8.4'
-  
-  # Default config file path
-  DEFAULT_CONFIG_FILE = '/etc/sipxpbx/callresolver-config'
-  
-  # If set, then this becomes a prefix to the default config file path
-  SIPX_PREFIX = 'SIPX_PREFIX'
-  
   # How many seconds are there in a day
   SECONDS_IN_A_DAY = 86400
-
-  # If the daily run is enabled, then it happens at 4 AM, always
-  DAILY_RUN_TIME = '04:00'
-
-  # Configuration parameters and defaults
-
-  # Whether console logging is enabled or disabled.  Legal values are "ENABLE"
-  # or "DISABLE".  Comparison is case-insensitive with this and other values.
-  LOG_CONSOLE_CONFIG = 'SIP_CALLRESOLVER_LOG_CONSOLE'
-  LOG_CONSOLE_CONFIG_DEFAULT = Configure::DISABLE
-  
-  # The directory holding log files.  The default value is prefixed by
-  # $SIPX_PREFIX if that environment variable is defined.
-  LOG_DIR_CONFIG = 'SIP_CALLRESOLVER_LOG_DIR'
-  LOG_DIR_CONFIG_DEFAULT = '/var/log/sipxpbx'
-  
-  # Logging severity level
-  LOG_LEVEL_CONFIG = 'SIP_CALLRESOLVER_LOG_LEVEL'
-  LOG_LEVEL_CONFIG_DEFAULT = 'NOTICE'
-  
-  LOG_FILE_NAME = 'sipcallresolver.log'
-
-  DAILY_RUN = 'SIP_CALLRESOLVER_DAILY_RUN'
-  DAILY_RUN_DEFAULT = Configure::DISABLE
-  
-  PURGE_ENABLE = 'SIP_CALLRESOLVER_PURGE'
-  PURGE_ENABLE_DEFAULT = Configure::ENABLE
-  
-  PURGE_AGE = 'SIP_CALLRESOLVER_PURGE_AGE'
-  PURGE_AGE_DEFAULT = '35'
-  
-  
-  # Map from the name of a log level to a Logger level value.
-  # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
-  # ALERT, EMERG) and Logger log levels (DEBUG, INFO, WARN, ERROR, FATAL) into
-  # Logger log levels.
-  LOG_LEVEL_MAP = {
-    "DEBUG"   => Logger::DEBUG, 
-    "INFO"    => Logger::INFO, 
-    "NOTICE"  => Logger::INFO, 
-    "WARN"    => Logger::WARN,
-    "WARNING" => Logger::WARN,
-    "ERR"     => Logger::ERROR, 
-    "CRIT"    => Logger::FATAL,
-    "ALERT"   => Logger::FATAL,
-    "EMERG"   => Logger::FATAL
-  }
 
   # Names of events that we send to plugins.
   EVENT_NEW_CDR = 'a new CDR has been created in the database'
@@ -123,61 +60,94 @@ public
     @log_device = nil
     @log = nil
     init_logging
-
-    # Check that the Ruby version meets our needs.
-    check_ruby_version
   end
 
-  # Resolve CSEs to CDRs.
-  def resolve(start_time, end_time, redo_flag = false, daily_flag = false)
-    begin
-      run_resolver = true
-      do_purge = false
+  # Run daily processing, including purging and/or call resolution
+  def daily_run(purge_flag = false, purge_time = 0)
+    run_resolver = true
+    do_purge = false
 
-      if daily_flag
-        if set_daily_run_config(@config) 
-          # Purge only if daily run is configured      
-          do_purge = set_purge_enable_config(@config)        
-          get_daily_start_time(@config)
-          
-          # Get start time and end time
-          start_time = @daily_start_time
-          end_time = @daily_end_time
-        else
-          log.error("resolve: the --daily_flag is set, but the daily run is disabled in the configuration");
-          run_resolver = false
-        end
-      end
+    # Only do a purge on a daily basis - not always
+    do_purge = set_purge_enable_config(@config) 
+    if set_daily_run_config(@config)
+      get_daily_start_time(@config)
       
-      if run_resolver
-        # If end_time is not provided, then set it to 1 day after the start time.
-        end_time ||= start_time.next
+      # Get start time and end time
+      start_time = @daily_start_time
+      end_time = @daily_end_time
+    else
+      log.error("resolve: the --daily_flag is set, but the daily run is disabled in the configuration");
+      run_resolver = false
+    end
+    
+    # Resolve CDRs if enabled
+    if run_resolver
+      resolve(start_time, end_time)
+    end
+        
+    # Purge if enabled
+    if do_purge || purge_flag
+      # Was a purge age explicitly set?
+      if purge_time != 0
+        purge_start_cdr = Time.now() - (SECONDS_IN_A_DAY * purge_time)
+        purge_start_cse = purge_start_cdr         
+        log.info("Purge override CSEs: #{purge_start_cse}, CDRs: #{purge_start_cdr}")
+      else
+        purge_start_cdr = get_purge_start_time_cdr(@config)
+        purge_start_cse = get_purge_start_time_cse(@config)
+        log.info("Normal purge CSEs: #{purge_start_cse}, CDRs: #{purge_start_cdr}")
+      end  
+      purge(purge_start_cse, purge_start_cdr)        
+    end
+  end
+
+  # Resolve CSEs to CDRs
+  def resolve(start_time, end_time, redo_flag = false)
+    connect_to_cdr_database
+    
+    begin
+      # Default the start time to 1 day before now
+      start_time ||= Time.now() - SECONDS_IN_A_DAY
+      
+      # Default the end_time to 1 day after the start time
+      end_time ||= start_time + SECONDS_IN_A_DAY
   
-        log.info("resolve: start = #{start_time.to_s}, end = #{end_time.to_s},
-                 redo = #{redo_flag}, daily = #{daily_flag}")
-  
-        # Connect to the database
-        # :TODO: read these parameters from the Call Resolver config file
-        unless ActiveRecord::Base.connected?
-          ActiveRecord::Base.establish_connection(
-            :adapter  => "postgresql",
-            :host     => "localhost",
-            :username => "postgres",
-            :database => "SIPXCDR")
+      start_run = Time.now
+      log.info("resolve: Resolving calls from #{start_time.to_s} to " +
+               "#{end_time.to_s}.  Running at #{start_run}.")
+
+      # Load all CSEs in the time window, sorted by call ID.
+      # :TODO: For performance/scalability (XPR-144) we can't just load all the
+      # data at once.  Split the time window into subwindows and do one
+      # subwindow at a time, noting incomplete CDRs and carrying those calls
+      # forward into the next subwindow.
+      events = load_events_in_time_window(start_time, end_time)
+      
+      # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
+      # The events array is subdivided into contiguous chunks with the same call
+      # ID, each of which is the data for a single call.
+      call_start = 0                          # index of first event in the call
+      while call_start < events.length
+        call_id = events[call_start].call_id  # call ID of current call
+        
+        # Look for the next event with a different call ID.  If we don't find
+        # one, then the current call goes to the end of the events array.
+        call_end = events.length - 1
+        events[call_start + 1..-1].each_with_index do |event, index|
+          if event.call_id != call_id
+            call_end = index + call_start
+            break
+          end
         end
         
-        # Purge at the start if enabled
-        if do_purge
-          purge_start = get_purge_start_time(@config)
-          purge(purge_start)        
-        end
+        # Resolve the call
+        resolve_call(events[call_start..call_end])
         
-        # Load the call IDs for the specified time window
-        call_ids = load_call_ids(start_time, end_time)
-  
-        # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
-        call_ids.each {|call_id| resolve_call(call_id)}
+        call_start = call_end + 1
       end
+
+      end_run = Time.now
+      log.info("resolve: Done at #{end_run}.  Analysis took #{end_run - start_run} seconds.")
   
     rescue
       # Backstop exception handler: don't let any exceptions propagate back
@@ -190,13 +160,99 @@ public
   end
   
   # Allow other components to use the Call Resolver log, since all logging should
-  # go to a single shared file.
-  # Make the configuration available.
+  # go to a single shared file.  Make the configuration available.
   attr_reader :log, :config
   
   attr_accessor :log_console, :log_level
 
 private
+  
+  def connect_to_cdr_database
+    unless ActiveRecord::Base.connected?
+      ActiveRecord::Base.establish_connection(cdr_database_url.to_hash)
+    end
+  end
+
+  def cdr_database_url
+    # :TODO: read CDR database URL params from the Call Resolver config file
+    # rather than just hardwiring default values.
+    @cdr_database_url = DatabaseUrl.new unless @cdr_database_url
+    @cdr_database_url
+  end
+
+  # Resolve the call, given an events array for that call, to yield 0-1 CDRs.
+  # Persist the CDRs.  Do this as a single transaction.
+  def resolve_call(events)
+    call_id = events[0].call_id
+    log.debug("Resolving a call: call ID = #{call_id} with #{events.length} events")
+    
+    # Load all events with this call_id, in ascending chronological order.
+    # Don't constrain the query to a time window.  That allows us to handle
+    # calls that span time windows.
+    begin
+      Cdr.transaction do
+        # Find the first (earliest) call request event.
+        call_req = find_first_call_request(events)
+        if call_req
+          # Read info from it and start constructing the CDR.
+          cdr_data = start_cdr(call_req)
+          
+          # The forking proxy might ring multiple phones.  The dialog with each
+          # phone is a separate call leg.
+          # Pick the call leg with the best outcome and longest duration to be the
+          # basis for the CDR.
+          tags = best_call_leg(events)
+          from_tag = tags[0]
+          to_tag = tags[1]
+  
+          if to_tag                         # if there are any complete call legs
+            # Fill the CDR from the call leg events.  The returned status is true
+            # if that succeeded, false otherwise.
+            status = finish_cdr(cdr_data, events, from_tag, to_tag)
+          
+            if status
+              if log.debug?
+                cdr = cdr_data.cdr
+                log.debug("Resolved a call from #{cdr_data.caller.aor} to " +
+                          "#{cdr_data.callee.aor} at #{cdr.start_time}, status = " +
+                          "#{cdr.termination_text}")
+              end
+              
+              # Save the CDR and associated data
+              save_cdr_data(cdr_data)
+            end
+          end
+        end
+      end
+    # Don't let a single bad call blow up the whole run, if the exception was
+    # raised by our code.  If it's an exception that we don't know about, then
+    # bail out.
+    rescue CallResolverException
+      log.error("resolve_call: error with call ID = \"#{call_id}\", no CDR created: #{$!}") 
+    end
+  end
+    
+  # Load all events in the time window, sorted by call ID then by cseq.
+  def load_events_in_time_window(start_time, end_time)
+    events =
+      CallStateEvent.find(
+        :all,
+        :conditions => "event_time >= '#{start_time}' and event_time < '#{end_time}'",
+        :order => "call_id, cseq")
+    log.debug("load_events: loaded #{events.length} events between #{start_time} and #{end_time}")
+    events
+  end
+   
+  # Load all events with the given call_id, in ascending chronological order.
+  def load_events_with_call_id(call_id)
+    events =
+      CallStateEvent.find(
+        :all,
+        :conditions => ["call_id = :call_id", {:call_id => call_id}],
+        :order => "event_time")
+    log.debug("load_events: loaded #{events.length} events with call_id = #{call_id}")
+    return events
+  end
   
   # Load the call IDs for the specified time window.
   def load_call_ids(start_time, end_time)
@@ -209,68 +265,7 @@ private
     results.collect do |obj|
       obj.call_id
     end
-  end
-  
-  # Resolve the call with the given call_id to yield 0-1 CDRs.  Persist the CDRs.
-  def resolve_call(call_id)
-    log.debug("Resolving a call: call ID = #{call_id}")
-    
-    # Load all events with this call_id, in ascending chronological order.
-    # Don't constrain the query to a time window.  That allows us to handle
-    # calls that span time windows.
-    begin
-      events = load_events(call_id)
-
-      # Find the first (earliest) call request event.
-      call_req = find_first_call_request(events)
-      if call_req
-        # Read info from it and start constructing the CDR.
-        cdr_data = start_cdr(call_req)
-        
-        # The forking proxy might ring multiple phones.  The dialog with each
-        # phone is a separate call leg.
-        # Pick the call leg with the best outcome and longest duration to be the
-        # basis for the CDR.
-        tags = best_call_leg(events)
-        from_tag = tags[0]
-        to_tag = tags[1]
-
-        if to_tag                         # if there are any complete call legs
-          # Fill the CDR from the call leg events.  The returned status is true
-          # if that succeeded, false otherwise.
-          status = finish_cdr(cdr_data, events, from_tag, to_tag)
-        
-          if status
-            if log.debug?
-              cdr = cdr_data.cdr
-              log.debug("Resolved a call from #{cdr_data.caller.aor} to " +
-                        "#{cdr_data.callee.aor} at #{cdr.start_time}, status = " +
-                        "#{cdr.termination_text}")
-            end
-            
-            # Save the CDR and associated data, within a transaction.
-            save_cdr_data(cdr_data)
-          end
-        end
-      end
-    # Don't let a single bad call blow up the whole run, if the exception was
-    # raised by our code.  If it's an exception that we don't know about, then
-    # bail out.
-    rescue CallResolverException
-      log.error("resolve_call: error with call ID = \"#{call_id}\", no CDR created: #{$!}") 
-    end
-  end
-    
-  # Load all events with the given call_id, in ascending chronological order.
-  def load_events(call_id)
-    events =
-      CallStateEvent.find(
-        :all,
-        :conditions => ["call_id = :call_id", {:call_id => call_id}],
-        :order => "event_time")
-    log.debug("load_events: loaded #{events.length} events with call_id = #{call_id}")
-    return events
-  end
+  end  
   
   # Find and return the first (earliest) call request event.
   # Return nil if there is no such event.
@@ -399,7 +394,7 @@ private
     status
   end
 
-  # Save the CDR and associated data, within a transaction.
+  # Save the CDR and associated data.
   # Be sure not to duplicate existing data.  For example, the caller
   # may already be present in the parties table from a previous call,
   # or a complete CDR may have been created for this call in a
@@ -412,36 +407,34 @@ private
     caller = cdr_data.caller
     callee = cdr_data.callee
     
-    Cdr.transaction do
-      # Continue only if a complete CDR doesn't already exist
-      db_cdr = find_cdr_by_dialog(cdr.call_id, cdr.from_tag, cdr.to_tag)
-      
-      # If we found an existing CDR, then log that for debugging
-      if db_cdr and log.debug?
-        log.debug("save_cdr_data: found an existing CDR.  Call ID = #{db_cdr.call_id}, " +
-                  "termination = #{db_cdr.termination}, ID = #{db_cdr.id}.")
-      end
-      
-      # Save the CDR as long as there is no existing, complete CDR for that call ID.
-      if (!db_cdr or !db_cdr.complete?)
-        # Save the caller and callee if they don't already exist
-        caller = save_party_if_new(caller)
-        callee = save_party_if_new(callee)
-        cdr.caller_id = caller.id
-        cdr.callee_id = callee.id
-
-        # Call the Observable method indicating a state change.
-        changed
+    # Continue only if a complete CDR doesn't already exist
+    db_cdr = find_cdr_by_dialog(cdr.call_id, cdr.from_tag, cdr.to_tag)
     
-        # Notify plugins of the new CDR.
-        # "notify_observers" is a method of the Observable module, which is mixed
-        # in to the CallResolver.
-        notify_observers(EVENT_NEW_CDR,       # event type
-                         cdr_data)            # the new CDR
-        
-        # Save the CDR.  If there is an incomplete CDR already, then replace it.
-        save_cdr(cdr)
-      end
+    # If we found an existing CDR, then log that for debugging
+    if db_cdr and log.debug?
+      log.debug("save_cdr_data: found an existing CDR.  Call ID = #{db_cdr.call_id}, " +
+                "termination = #{db_cdr.termination}, ID = #{db_cdr.id}.")
+    end
+    
+    # Save the CDR as long as there is no existing, complete CDR for that call ID.
+    if (!db_cdr or !db_cdr.complete?)
+      # Save the caller and callee if they don't already exist
+      caller = save_party_if_new(caller)
+      callee = save_party_if_new(callee)
+      cdr.caller_id = caller.id
+      cdr.callee_id = callee.id
+
+      # Call the Observable method indicating a state change.
+      changed
+  
+      # Notify plugins of the new CDR.
+      # "notify_observers" is a method of the Observable module, which is mixed
+      # in to the CallResolver.
+      notify_observers(EVENT_NEW_CDR,       # event type
+                       cdr_data)            # the new CDR
+      
+      # Save the CDR.  If there is an incomplete CDR already, then replace it.
+      save_cdr(cdr)
     end
   end
   
@@ -503,7 +496,9 @@ private
     end  
     
     if do_save
-      if cdr.save
+      # Save the CDR.  Call "save!" rather than "save" so that we'll get an
+      # exception if the save fails.
+      if cdr.save!
         cdr_in_db = cdr
       else
         raise(CallResolverException, 'save_cdr: save failed', caller)
@@ -520,7 +515,9 @@ private
     party_in_db = find_party(party)
     if !party_in_db
       begin
-        if party.save
+        # Save the party.  Call "save!" rather than "save" so that we'll get an
+        # exception if the save fails.          
+        if party.save!
           party_in_db = party
         else
           raise(CallResolverException, 'save_party_if_new: save failed', caller)
@@ -547,20 +544,89 @@ private
   
   # Purge records from call state event and cdr tables, making sure
   # to delete unreferenced entries in the parties table.
-  def purge(start_time)
-    # Start with call state events
-    log.debug("purge: purging - event_time <= #{start_time}")    
-    CallStateEvent.delete_all(["event_time <= '#{start_time}'"])
+  def purge(start_time_cse, start_time_cdr)
+    connect_to_cdr_database
     
-    # Now do the CDRs
-    Cdr.delete_all(["end_time <= '#{start_time}'"])
+    # Purge CSEs
+    CallStateEvent.transaction do
+      log.debug("purge: purging CSEs where event_time <= #{start_time_cse}")    
+      CallStateEvent.delete_all(["event_time <= '#{start_time_cse}'"])
+    end
     
-    # Clean up the parties table if entries are no longer referenced by CDRs
-    Party.delete_all(["not exists (select * from cdrs where caller_id = parties.id or callee_id = parties.id)"])
-
-    # Garbage-collect deleted records.  See http://www.postgresql.org/docs/8.0/static/sql-vacuum.html .
-    ActiveRecord::Base.active_connections["ActiveRecord::Base"].execute("VACUUM ANALYZE")
+    # Purge CDRs
+    Cdr.transaction do
+      log.debug("purge: purging CDRs where event_time <= #{start_time_cdr}")      
+      Cdr.delete_all(["end_time <= '#{start_time_cdr}'"])
+      
+      # Clean up the parties table, removing entries that are no longer referenced by CDRs
+      Party.delete_all(["not exists (select * from cdrs where caller_id = parties.id or callee_id = parties.id)"])
+    end    
+  
+    # Garbage-collect deleted records and tune performance.
+    # See http://www.postgresql.org/docs/8.0/static/sql-vacuum.html .
+    # :TODO: For HA, purge multiple databases, both CSE and CDR
+    # Must be done outside of a transaction or we'll get an error.
+    ActiveRecord::Base.connection.execute("VACUUM ANALYZE")
   end
+  
+  #-----------------------------------------------------------------------------
+  # Configuration
+  
+  # Default config file path
+  DEFAULT_CONFIG_FILE = '/etc/sipxpbx/callresolver-config'
+  
+  # If set, then this becomes a prefix to the default config file path
+  SIPX_PREFIX = 'SIPX_PREFIX'
+
+  # If the daily run is enabled, then it happens at 4 AM, always
+  DAILY_RUN_TIME = '04:00'
+
+  # Configuration parameters and defaults
+
+  # Whether console logging is enabled or disabled.  Legal values are "ENABLE"
+  # or "DISABLE".  Comparison is case-insensitive with this and other values.
+  LOG_CONSOLE_CONFIG = 'SIP_CALLRESOLVER_LOG_CONSOLE'
+  LOG_CONSOLE_CONFIG_DEFAULT = Configure::DISABLE
+  
+  # The directory holding log files.  The default value is prefixed by
+  # $SIPX_PREFIX if that environment variable is defined.
+  LOG_DIR_CONFIG = 'SIP_CALLRESOLVER_LOG_DIR'
+  LOG_DIR_CONFIG_DEFAULT = '/var/log/sipxpbx'
+  
+  # Logging severity level
+  LOG_LEVEL_CONFIG = 'SIP_CALLRESOLVER_LOG_LEVEL'
+  LOG_LEVEL_CONFIG_DEFAULT = 'NOTICE'
+  
+  LOG_FILE_NAME = 'sipcallresolver.log'
+
+  DAILY_RUN = 'SIP_CALLRESOLVER_DAILY_RUN'
+  DAILY_RUN_DEFAULT = Configure::DISABLE
+  
+  PURGE_ENABLE = 'SIP_CALLRESOLVER_PURGE'
+  PURGE_ENABLE_DEFAULT = Configure::ENABLE
+  
+  PURGE_AGE_CDR = 'SIP_CALLRESOLVER_PURGE_AGE_CDR'
+  PURGE_AGE_CDR_DEFAULT = '35'
+  
+  PURGE_AGE_CSE = 'SIP_CALLRESOLVER_PURGE_AGE_CSE'
+  PURGE_AGE_CSE_DEFAULT = '7'
+  
+  
+  # Map from the name of a log level to a Logger level value.
+  # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
+  # ALERT, EMERG) and Logger log levels (DEBUG, INFO, WARN, ERROR, FATAL) into
+  # Logger log levels.
+  LOG_LEVEL_MAP = {
+    "DEBUG"   => Logger::DEBUG, 
+    "INFO"    => Logger::INFO, 
+    "NOTICE"  => Logger::INFO, 
+    "WARN"    => Logger::WARN,
+    "WARNING" => Logger::WARN,
+    "ERR"     => Logger::ERROR, 
+    "CRIT"    => Logger::FATAL,
+    "ALERT"   => Logger::FATAL,
+    "EMERG"   => Logger::FATAL
+  }
   
   # Load the configuration from the config file.  If the config_file arg is
   # nil, then find the config file in the default location.
@@ -572,10 +638,6 @@ private
       # Load the config file
       @config = Configure.new(config_file)
     else
-      # Couldn't find the config_file, so use defaults.
-      # (Ideally we would log an error rather than printing it, but we haven't
-      # created the log object yet because that depends on the config.)
-      puts("Config file \"#{config_file}\" not found, using defaults")
       @config = {}
     end
 
@@ -727,7 +789,7 @@ private
   end
 
   # Compute the start time of the daily call resolver run.
-  # We decided not to make this configurable.  Too comlicated given that the
+  # We decided not to make this configurable.  Too complicated given that the
   # cron job always runs at a fixed time.
   def get_daily_start_time(config)
     # Always start the time window at the time the resolver runs
@@ -742,7 +804,7 @@ private
     
     # Convert to time, start same time yesterday
     @daily_start_time = Time.parse(startString)
-    log.debug("get_daily_start_time: String #{startString}, time #{@daily_start_time}")    
+    #log.debug("get_daily_start_time: String #{startString}, time #{@daily_start_time}")    
     @daily_end_time = @daily_start_time
     @daily_start_time -= SECONDS_IN_A_DAY   # 24 hours
   end
@@ -767,39 +829,68 @@ private
     end
   end  
   
-  # Compute start time of records to be purged from configuration
-  def get_purge_start_time(config)
+  # Compute start time of CDR records to be purged from configuration
+  def get_purge_start_time_cdr(config)
     # Look up the config param
-    purge_age = config[PURGE_AGE]
+    purge_age = config[PURGE_AGE_CDR]
     
     # Apply the default if the param was not specified
-    purge_age ||= PURGE_AGE_DEFAULT
+    purge_age ||= PURGE_AGE_CDR_DEFAULT
     
     # Convert to number
     purge_age = purge_age.to_i
     
     if (purge_age <= 0)
       raise(ConfigException, "Illegal value \"#{@purge_age}\" for " +
-            "#{PURGE_AGE}.  Must be a number greater than 0.")
+            "#{PURGE_AGE_CDR}.  Must be a number greater than 0.")
     end
+    # Get today's date
+    today = Time.now
+    @purge_start_time_cdr = today - (SECONDS_IN_A_DAY * purge_age)
+  end    
+    
+  # Compute start time of CSE records to be purged from configuration
+  def get_purge_start_time_cse(config)
+    # Look up the config param
+    purge_age = config[PURGE_AGE_CSE]
+    
+    # Apply the default if the param was not specified
+    purge_age ||= PURGE_AGE_CSE_DEFAULT
+    
+    # Convert to number
+    purge_age = purge_age.to_i
+    
+    if (purge_age <= 0)
+      raise(ConfigException, "Illegal value \"#{@purge_age}\" for " +
+            "#{PURGE_AGE_CSE}.  Must be a number greater than 0.")
+    end    
                 
     # Get today's date
     today = Time.now
-    @purge_start_time = today - (SECONDS_IN_A_DAY * purge_age)   # 24 hours * age
-  end  
-
-  def check_ruby_version
-    # Check that the Ruby version meets our needs
-    version = `ruby --version`    # e.g., "ruby 1.8.4 (2005-12-24) [i386-linux]\n"
-    pieces = version.split(' ')
-    version = pieces[1]
-    #log.debug("Ruby version = #{version}")
-    if (version <=> MIN_RUBY_VERSION) < 0
-      log.error("check_ruby_version: Ruby version must be >= "+
-                "#{MIN_RUBY_VERSION}, but it's only #{version}")
-    end    
+    @purge_start_time_cse = today - (SECONDS_IN_A_DAY * purge_age)
   end
   
+  # Return an array of CSE database URLs.  With an HA configuration, there are
+  # multiple CSE databases.  Note that usually one of these URLs is identical
+  # to the CDR database URL, since a standard master server runs both the
+  # proxies and the call resolver, which share the SIPXCDR database.
+  # :TODO: Base these URLs on the config rather than just hardwiring the single
+  # SIPXCDR URL (XPB-562).
+  def cse_database_urls
+    unless @cse_database_urls
+      @cse_database_urls = [cdr_database_url]
+    end
+    
+    @cse_database_urls
+  end
+  
+  # For testing purposes, make it possible to override the CSE database URLs
+  def cse_database_urls=(urls)
+    @cse_database_urls = urls
+  end
+  
+  #-----------------------------------------------------------------------------
+
 end    # class CallResolver
 
 

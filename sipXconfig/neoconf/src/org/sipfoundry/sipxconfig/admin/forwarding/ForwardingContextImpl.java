@@ -121,6 +121,15 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     public UserDeleteListener createUserDeleteListener() {
         return new OnUserDelete();
     }
+    
+    public void clear() {
+        Collection sequences = loadAllCallSequences();
+        for (Iterator i = sequences.iterator(); i.hasNext();) {
+            CallSequence sequence = (CallSequence) i.next();
+            sequence.clear();
+            saveCallSequence(sequence);
+        }
+    }
 
     private class OnUserDelete extends UserDeleteListener {
         protected void onUserDelete(User user) {

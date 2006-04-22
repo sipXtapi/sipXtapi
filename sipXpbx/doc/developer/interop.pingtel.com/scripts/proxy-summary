@@ -10,6 +10,7 @@ RECIPIENTS="interop-config@pingtel.com"
 REPORT=${TMPDIR:-/tmp}/proxy-summary.$$
 
 (
+  hostname -f
   date
   echo
 
@@ -52,6 +53,6 @@ REPORT=${TMPDIR:-/tmp}/proxy-summary.$$
 ) >$REPORT
 
 # Send the report to people.
-mail -s 'Interop usage summary' $RECIPIENTS <$REPORT
+mail -s "Interop usage summary for $( hostname -f )" $RECIPIENTS <$REPORT
 
 rm $REPORT

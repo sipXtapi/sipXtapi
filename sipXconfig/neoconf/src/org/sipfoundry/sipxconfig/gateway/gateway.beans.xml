@@ -12,6 +12,7 @@
     <constructor-arg><value>Unmanaged gateway</value></constructor-arg>
   </bean>
 
+  <!-- Audiocodes -->  
   <bean id="gmAutiocodesMP" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
     <property name="modelFilesContext" ref="modelFilesContext"/>
     <property name="proxyNameSetting" value="SIP_Params/PROXYNAME"/>
@@ -67,13 +68,12 @@
   </bean>
   
   <!-- gateway beans -->
-  
   <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">
     <property name="tftpRoot">
       <value>${sysdir.phone}/profile/tftproot</value>
     </property>
   </bean>
-  
+    
   <bean id="smAudiocodesMediant" class="org.sipfoundry.sipxconfig.setting.SettingModel">
     <property name="resource" value="audiocodes/mediant-gateway.xml"/>
     <property name="modelFilesContext" ref="modelFilesContext"/>
@@ -100,7 +100,29 @@
     <property name="defaults" ref="phoneDefaults"/>
   </bean>
   
-    
+  <!-- ACME begin -->
+  <!-- This is just an example of how to register new gateway -->
+  <!--
+  <bean id="gmAcme" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <constructor-arg><value>gwAcme</value></constructor-arg>
+    <constructor-arg><value>1000</value></constructor-arg>
+    <constructor-arg><value>Acme 1000</value></constructor-arg>
+  </bean>  
+  
+  <bean id="smAcme" class="org.sipfoundry.sipxconfig.setting.SettingModel">
+    <property name="resource" value="acme/acme-gateway.xml"/>
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+  
+  <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" singleton="false"
+    parent="gwGeneric">
+    <property name="settingModel">
+      <ref local="smAcme"></ref>
+    </property>
+  </bean>
+  -->    
+  <!-- ACME end -->
+      
   <!-- gateway context -->
   <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
     <property name="dialPlanContext">
@@ -118,6 +140,10 @@
         <ref local="gmAudiocodesTP260_2_Span"/>
         <ref local="gmAudiocodesTP260_4_Span"/>
         <ref local="gmAudiocodesTP260_8_Span"/>
+        <!-- 
+          testing and example only
+        <ref local="gmAcme"/>
+        -->  
       </list>
     </property>
   </bean>
@@ -132,4 +158,18 @@
     </property>
   </bean>
   
+  <bean id="eagerGatewayProfileManager" class="org.sipfoundry.sipxconfig.gateway.GatewayProfileManagerImpl">
+    <property name="gatewayContext">
+      <ref local="gatewayContext"/>
+    </property>
+    <property name="jobContext" ref="jobContext"/>
+  </bean>
+  
+  <bean id="gatewayProfileManager" class="org.sipfoundry.sipxconfig.phone.LazyProfileManagerImpl"
+    init-method="init">
+    <property name="target">
+      <ref local="eagerGatewayProfileManager"/>
+    </property>
+    <property name="sleepInterval" value="5000"/>
+  </bean>  
 </beans>

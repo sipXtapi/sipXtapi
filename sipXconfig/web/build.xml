@@ -173,6 +173,7 @@
       propertyfile="${top.build.dir}/build.properties">
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
       <replacefilter token="@openssl@" property="openssl"/>
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-truststore.sh" perm="ugo+x"/>
 
@@ -184,6 +185,7 @@
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
       <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
       <replacefilter token="@openssl@" property="openssl"/>
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
     </replace>
     <chmod file="${dest.dir}${bin.dir}/ssl-cert/create-ssl-keystore.sh" perm="ugo+x"/>
 

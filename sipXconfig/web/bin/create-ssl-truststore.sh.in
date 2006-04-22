@@ -101,7 +101,7 @@ do
     caname="`$openssl x509 -noout -text -in $Certificate |\
          grep Subject: | sed -e 's;.*CN=;;' -e 's;/Em.*;;'`" || exit 1
 
-    JavaBin=`sipx-config --javabin`
+    JavaBin=`@bin.dir@/sipx-config --javabin`
     openssl x509 -in $Certificate | \
         $JavaBin/keytool -import -noprompt -alias "$caname" \
         -keystore $TrustStore -storepass "$Password" || exit 1

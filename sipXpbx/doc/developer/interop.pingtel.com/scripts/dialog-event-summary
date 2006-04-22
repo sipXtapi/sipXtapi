@@ -21,6 +21,7 @@ $indent{'remote'} = '      ';
 $indent{'state'} = '      ';
 $indent{'target'} = '        ';
 
+system('hostname -f');
 system('date');
 print "\n";
 
@@ -65,6 +66,7 @@ while (<LOG>) {
     $body =~ s/\n//g;
     $body =~ s/^\s+//;
     $body =~ s/\s+$//;
+print $body, "\n";
     # Insert newlines in the expected places.
     $body =~ s/>\s*</>\n</g;
 

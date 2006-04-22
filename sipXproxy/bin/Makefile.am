@@ -1,6 +1,7 @@
 include $(top_builddir)/config/sipXcommon.mak
 
 GEM_LIB_DIR=$(libdir)/ruby/gems/1.8/gems
+SIPX_SYSCONFDIR=$(sysconfdir)
 
 bin_SCRIPTS = \
 	${PACKAGE}-config
@@ -32,7 +33,8 @@ $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bind
 	$(INSTALL) -D -m 755 $< $@
 
 $(foreach file,$(editscripts_IN),$(file)) : % : %.in
-	$(LocalizeSipXconfig) -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' $< > $@
+	$(LocalizeSipXconfig) -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
+                        -e 's,@SIPX_SYSCONFDIR\@,$(SIPX_SYSCONFDIR),g' $< > $@
 
 $(DESTDIR)$(sysconfdir)/cron.daily/callresolver_run: callresolver_run.in
 	$(LocalizeSipXconfig) $(srcdir)/callresolver_run.in > callresolver_run
