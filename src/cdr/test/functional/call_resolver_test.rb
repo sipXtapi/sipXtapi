@@ -53,6 +53,56 @@ public
     assert(ActiveRecord::Base.retrieve_connection, 'Must be connected to database')
   end
 
+  def test_merge_events_for_call
+    call_id1 = 'call_id1'
+    call_id2 = 'call_id2'
+    call_id3 = 'call_id3'
+    
+    e1 = CallStateEvent.new(:call_id => call_id1)
+    e2 = CallStateEvent.new(:call_id => call_id1)
+        
+    e3 = CallStateEvent.new(:call_id => call_id2, :cseq => 1)
+    e4 = CallStateEvent.new(:call_id => call_id2, :cseq => 2)
+    e5 = CallStateEvent.new(:call_id => call_id2, :cseq => 3)
+    e6 = CallStateEvent.new(:call_id => call_id2, :cseq => 4)
+    
+    e7 = CallStateEvent.new(:call_id => call_id3)
+    
+    call1 = [e1, e2]
+    call2_part1 = [e3, e5]
+    call2_part2 = [e4, e6]
+    call2 = [e3, e4, e5, e6]
+    call3 = [e7]
+    all_calls = [[call1, call2_part1],           # call arrays for first DB
+                 [call2_part2, call3]]           # call arrays for second DB
+    call_map = Hash.new
+    @resolver.send(:merge_events_for_call, all_calls, call_map)
+    assert_equal(3, call_map.size)
+    assert_equal(call1, call_map[call_id1])
+    assert_equal(call2, call_map[call_id2])
+    assert_equal(call3, call_map[call_id3])
+  end
+
+  def test_split_events_by_call
+    call1 = 'call1'
+    call2 = 'call2'
+    call3 = 'call3'
+    e1 = CallStateEvent.new(:call_id => call1)
+    e2 = CallStateEvent.new(:call_id => call2)
+    e3 = CallStateEvent.new(:call_id => call2)
+    e4 = CallStateEvent.new(:call_id => call3)
+    e5 = CallStateEvent.new(:call_id => call3)
+    e6 = CallStateEvent.new(:call_id => call3)
+    events = [e1, e2, e3, e4, e5, e6]
+    spl = @resolver.send(:split_events_by_call, events)
+    assert_equal([e1], spl[0])
+    assert_equal([e2, e3], spl[1])
+    assert_equal([e4, e5, e6], spl[2])
+    
+    # check empty events array as input
+    assert_equal([], @resolver.send(:split_events_by_call, []))
+  end
+
   def test_load_call_ids
     start_time = Time.parse('1990-05-17T19:30:00.000Z')
     end_time = Time.parse('1990-05-17T19:45:00.000Z')

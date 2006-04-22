@@ -65,4 +65,14 @@ public
     haash
   end
   
+  # Print a descriptive string for the database.  Since the adapter and username
+  # are currently always the same, don't print them.
+  def to_s
+    _database = database or '<default database>'
+    _host = host or '<default host>'
+    str = "#{_database} at #{_host}"
+    str += ":#{port}" if port
+    str
+  end
+  
 end

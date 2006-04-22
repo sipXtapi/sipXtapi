@@ -26,6 +26,7 @@ require 'database_url'
 require 'exceptions'
 require 'party'
 
+
 # :TODO: log the number of calls analyzed and how many succeeded vs. dups or
 #        failures, also termination status
 # :TODO: factor out the call resolver config into a separate class
@@ -161,12 +162,15 @@ public
   
   # Allow other components to use the Call Resolver log, since all logging should
   # go to a single shared file.  Make the configuration available.
-  attr_reader :log, :config
+  attr_reader :log, :log_device, :config
   
   attr_accessor :log_console, :log_level
 
 private
   
+  # Connect to the CDR database, if not already connected.  The CDR database
+  # is the default database for all models.  Because there is only one CDR
+  # database, the caller doesn't need to provide an URL.
   def connect_to_cdr_database
     unless ActiveRecord::Base.connected?
       ActiveRecord::Base.establish_connection(cdr_database_url.to_hash)
@@ -178,6 +182,13 @@ private
     # rather than just hardwiring default values.
     @cdr_database_url = DatabaseUrl.new unless @cdr_database_url
     @cdr_database_url
+  end
+
+  # Connect the CallStateEvent class to the CSE database at the specified URL.
+  # With HA there are multiple CSE databases.
+  def connect_to_cse_database(db_url)    
+    log.debug("connect_to_cse_database: #{db_url}")
+    CallStateEvent.establish_connection(db_url)
   end
 
   # Resolve the call, given an events array for that call, to yield 0-1 CDRs.
@@ -211,11 +222,11 @@ private
             status = finish_cdr(cdr_data, events, from_tag, to_tag)
           
             if status
-              if log.debug?
+              log.debug do
                 cdr = cdr_data.cdr
-                log.debug("Resolved a call from #{cdr_data.caller.aor} to " +
-                          "#{cdr_data.callee.aor} at #{cdr.start_time}, status = " +
-                          "#{cdr.termination_text}")
+                "Resolved a call from #{cdr_data.caller.aor} to " +
+                "#{cdr_data.callee.aor} at #{cdr.start_time}, status = " +
+                "#{cdr.termination_text}"
               end
               
               # Save the CDR and associated data
@@ -231,8 +242,95 @@ private
       log.error("resolve_call: error with call ID = \"#{call_id}\", no CDR created: #{$!}") 
     end
   end
+
+  # Load all events in the time window from HA distributed servers
+  # Return a hash where the key is a call ID and values
+  # are event arrays for that call ID, sorted by cseq.
+  # :NOW: unit test this method
+  def load_distrib_events_in_time_window(start_time, end_time)
+    call_map = Hash.new
     
+    # all_calls holds arrays, one array of event subarrays for each database.
+    # Each subarray holds events for one call, sorted by cseq.
+    all_calls = []
+    
+    cse_database_urls.each do |db_url|
+      connect_to_cse_database(db_url)
+      
+      # Load events from this database
+      events = load_events_in_time_window(start_time, end_time)
+      log.debug("load_distrib_events_in_time_window: loaded #{events.length} " +
+                "events from #{db_url}")
+      
+      # Divide the events into subarrays, one for each call.  Save the result.
+      calls = split_events_by_call(events)
+      all_calls << calls
+    end
+    
+    # Put the event arrays in the hash table, merging on collisions
+    merge_events_for_call(all_calls, call_map)
+
+    call_map
+  end
+    
+  # Put call event arrays in the hash table, merging on collisions. The
+  # all_calls arg is an array of arrays, one for each CSE database. Each array
+  # contains event arrays, where each event array is for a single call.
+  def merge_events_for_call(all_calls, call_map)
+    all_calls.each do |calls|
+      calls.each do |call|
+        call_id = call[0].call_id
+        # If there is a hash entry already, then merge this partial call into
+        # it, keeping the cseq sort. Otherwise create a new hash entry.
+        # Typically each call comes completely from one server, but that is not
+        # always true.
+        entry = call_map[call_id]
+        if entry
+          # merge the events together and re-sort by cseq
+          entry += call
+          entry.sort!{|x, y| x.cseq <=> y.cseq}
+          
+          # not sure why I have to do this -- entry has been modified in place,
+          # yes? -- but otherwise the hash entry doesn't get updated correctly
+          call_map[call_id] = entry   
+        else
+          # create a new hash entry
+          call_map[call_id] = call
+        end
+      end
+    end
+  end
+
+  # Given an events array where the events for a given call are contiguous,
+  # split the array into subarrays, one for each call.  Return the array of
+  # subarrays.
+  def split_events_by_call(events)
+    calls = []
+    call_start = 0                          # index of first event in the call
+    while call_start < events.length
+      call_id = events[call_start].call_id  # call ID of current call
+      
+      # Look for the next event with a different call ID.  If we don't find
+      # one, then the current call goes to the end of the events array.
+      call_end = events.length - 1
+      events[call_start + 1..-1].each_with_index do |event, index|
+        if event.call_id != call_id
+          call_end = index + call_start
+          break
+        end
+      end
+  
+      # Add the subarray to the calls array
+      calls << events[call_start..call_end]
+  
+      # On to the next call
+      call_start = call_end + 1
+    end
+    calls
+  end
+
   # Load all events in the time window, sorted by call ID then by cseq.
+  # Return the events in an array.
   def load_events_in_time_window(start_time, end_time)
     events =
       CallStateEvent.find(
@@ -272,9 +370,9 @@ private
   def find_first_call_request(events)
     event = events.find {|event| event.call_request?}
 
-    if log.debug?
+    log.debug do
       message = event ? "found #{event}" : "no call request found"
-      log.debug('find_first_call_request: ' + message);
+      'find_first_call_request: ' + message
     end
     
     return event
@@ -411,9 +509,11 @@ private
     db_cdr = find_cdr_by_dialog(cdr.call_id, cdr.from_tag, cdr.to_tag)
     
     # If we found an existing CDR, then log that for debugging
-    if db_cdr and log.debug?
-      log.debug("save_cdr_data: found an existing CDR.  Call ID = #{db_cdr.call_id}, " +
-                "termination = #{db_cdr.termination}, ID = #{db_cdr.id}.")
+    if db_cdr
+      log.debug do
+        "save_cdr_data: found an existing CDR.  Call ID = #{db_cdr.call_id}, " +
+        "termination = #{db_cdr.termination}, ID = #{db_cdr.id}."
+      end
     end
     
     # Save the CDR as long as there is no existing, complete CDR for that call ID.
@@ -736,16 +836,22 @@ private
       @log_device = STDOUT
     else
       if File.exists?(@log_dir)
-        # Try to open a log file with the standard name in the specified log
-        # dir.
         log_file = File.join(@log_dir, LOG_FILE_NAME)
-        @log_device = File.open(log_file, 'a+')
-        if @log_device
-          #puts("Logging to file \"#{log_file}\"")
+        @log_device = log_file
+        # If the file exists, then it must be writable. If it doesn't exist,
+        # then the directory must be writable.
+        if File.exists?(log_file)
+          if !File.writable?(log_file)
+            puts("init_logging: Log file \"#{log_file}\" exists but is not writable. " +
+                 "Log messages will go to the console.")
+            @log_device = STDOUT
+          end
         else
-          puts("Unable to open log file \"#{log_file}\" for writing, logging " +
-               "to the console")
-          @log_device = STDOUT
+          if !File.writable?(@log_dir)
+            puts("init_logging: Log directory \"#{@log_dir}\" is not writable. " +
+                 "Log messages will go to the console.")
+            @log_device = STDOUT
+          end
         end
       else
         puts("Unable to open log file, log directory \"#{@log_dir}\" does not " +
@@ -753,7 +859,6 @@ private
         @log_device = STDOUT
       end
     end
-
     @log = Logger.new(@log_device)
 
     # Set the log level from the configuration
