@@ -68,9 +68,7 @@ private
   def parse_config(config_file)
     begin
       File.open(config_file, 'r') do |file|
-        if @log.debug?
-          @log.debug("Parsing config file #{config_file}")  
-        end
+        @log.debug("Parsing config file #{config_file}")  
         
         line_num = 1
         file.each_line do |line|
@@ -94,8 +92,8 @@ private
             name.strip!
             value = line[(sep + 1)..-1]
             value.strip!
-            if @log.debug?
-              @log.debug("Name = #{name}, value=#{value}, line number #{line_num}")
+            @log.debug do
+              "Name = #{name}, value=#{value}, line number #{line_num}"
             end
             if value.length > 0
               @map[name] = value

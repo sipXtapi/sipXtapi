@@ -94,6 +94,8 @@ else
   puts("Unable to locate config file, using default settings")
 end
 
+puts("Logging to #{resolver.log_device == STDOUT ? 'the console' : resolver.log_device}")
+
 # Add the Call Direction Plugin as an observer so that it can compute call direction
 if CallDirectionPlugin.call_direction?(resolver.config)
   resolver.log.info("Call direction is enabled")
