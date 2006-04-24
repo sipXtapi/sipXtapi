@@ -639,6 +639,46 @@ public
       {CallResolver::PURGE_AGE_CSE => purgeAgeStr}) - purge_start_time_cse) < 1)
   end    
   
+  def test_get_cse_hosts
+    # Get the defcault entry - array with length 1 and default port 5432
+    port_array = @resolver.send(:get_cse_hosts, {})
+    
+    assert(port_array.length == 1, 'Wrong number of entries in array')
+    assert(port_array[0] == 5432, 'Wrong port number')
+    assert(!@resolver.send(:get_ha_enabled))
+    
+    # Pass in other list, no localhost
+    hostString = 'test.example.com:5433, test2.example.com:5434'
+    port_array = @resolver.send(:get_cse_hosts, 
+      {CallResolver::CSE_HOSTS => hostString})    
+      
+    assert(port_array.length == 2, 'Wrong number of entries in array')
+    assert(@resolver.send(:get_ha_enabled))
+    assert(port_array[0] == 5433, 'Wrong port number in first entry')
+    assert(port_array[1] == 5434, 'Wrong port number in second entry')      
+
+    # Pass in other list, localhost, no port
+    hostString = 'test.example.com:5433,localhost'
+    port_array = @resolver.send(:get_cse_hosts, 
+      {CallResolver::CSE_HOSTS => hostString})    
+      
+    assert(port_array.length == 2, 'Wrong number of entries in array')
+    assert(@resolver.send(:get_ha_enabled))
+    assert(port_array[0] == 5433, 'Wrong port number in first entry')
+    assert(port_array[1] == 5432, 'Wrong port number in second entry') 
+    
+    # Pass in other list, localhost, no port
+    hostString = 'test.example.com:5433,localhost:6666'
+    port_array = @resolver.send(:get_cse_hosts, 
+      {CallResolver::CSE_HOSTS => hostString})    
+      
+    assert(port_array.length == 2, 'Wrong number of entries in array')
+    assert(@resolver.send(:get_ha_enabled))
+    assert(port_array[0] == 5433, 'Wrong port number in first entry')
+    assert(port_array[1] == 6666, 'Wrong port number in second entry')               
+        
+  end
+  
   #-----------------------------------------------------------------------------
   # Helper methods
   
