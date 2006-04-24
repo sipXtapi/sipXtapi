@@ -56,14 +56,14 @@ public class VersionInfo {
         return getClass().getPackage().getSpecificationTitle();
     }
     
-    public String getLongVersionString() {
+    public String getVersionString() {
         Object[] params = {
-            getTitle(), getVersion(), getBuild()
+            getVersion(), getBuild()
         };
         // remove nulls
         for (int i = 0; i < params.length; i++) {
             params[i] = ObjectUtils.defaultIfNull(params[i], StringUtils.EMPTY);
         }
-        return MessageFormat.format("{0} {1} ({2})", params);
+        return MessageFormat.format("{0} ({1})", params);
     }
 }
