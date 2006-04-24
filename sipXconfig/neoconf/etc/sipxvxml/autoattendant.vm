@@ -63,20 +63,20 @@
 	<reprompt/>
       </noinput>
       <noinput count="3">
-		   <if cond="failedoption == '0'">
-		      <prompt bargein="false">
-		          <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
-		      </prompt>
-		      <disconnect />
-		   <else />
-		      <prompt bargein="false">
-		         <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
-		      </prompt>
-		      <assign name="operation" expr="'transfer_to_extension'" />
-		      <assign name="extension" expr="'${onfail.getSetting('transfer-extension').Value}'" />
-		      <goto nextitem="menuaction" />
-		   </if>
-		</noinput>
+        <if cond="failedoption == '0'">
+          <prompt bargein="false">
+            <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+          </prompt>
+          <disconnect />
+        <else />
+          <prompt bargein="false">
+            <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+          </prompt>
+          <assign name="operation" expr="'transfer_to_extension'" />
+          <assign name="extension" expr="'${onfail.getSetting('transfer-extension').Value}'" />
+          <goto nextitem="menuaction" />
+        </if>
+      </noinput>
     </field>
 
     <block name="menuaction">
@@ -184,27 +184,27 @@
       </filled>
     </subdialog>
 
-	<block name="invalidoptions">
-		<if cond="dial_attempts == '2'">
-		   <if cond="failedoption == '0'">
-		      <prompt bargein="false">
-		      	<audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
-		      </prompt>
-		      <disconnect />
-		   <else />
-		      <prompt bargein="false">
-		         <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
-		      </prompt>
-		      <assign name="operation" expr="'transfer_to_extension'" />
-		      <assign name="extension" expr="'100'" />
-		      <goto nextitem="menuaction" />
-		   </if>
-		<else/>
-		   <assign name="dial_attempts" expr="dial_attempts + 1" />
-		   <clear namelist="menu" />
-		   <goto nextitem="menu" />
-		</if>
-	</block>
+    <block name="invalidoptions">
+      <if cond="dial_attempts == '2'">
+        <if cond="failedoption == '0'">
+          <prompt bargein="false">
+            <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+          </prompt>
+          <disconnect />
+        <else />
+          <prompt bargein="false">
+            <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+          </prompt>
+          <assign name="operation" expr="'transfer_to_extension'" />
+          <assign name="extension" expr="'${onfail.getSetting('transfer-extension').Value}'" />
+          <goto nextitem="menuaction" />
+        </if>
+      <else/>
+        <assign name="dial_attempts" expr="dial_attempts + 1" />
+        <clear namelist="menu" />
+        <goto nextitem="menu" />
+      </if>
+    </block>
   </form>
 
   <form id="transferform">
