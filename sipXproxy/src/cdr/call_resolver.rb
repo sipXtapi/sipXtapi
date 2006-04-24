@@ -61,6 +61,7 @@ public
     @log_device = nil
     @log = nil
     init_logging
+    @ha_enabled = false
   end
 
   # Run daily processing, including purging and/or call resolution
@@ -711,6 +712,12 @@ private
   PURGE_AGE_CSE = 'SIP_CALLRESOLVER_PURGE_AGE_CSE'
   PURGE_AGE_CSE_DEFAULT = '7'
   
+  CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
+  CSE_HOSTS_DEFAULT = 'localhost:5432'  
+  
+  CSE_LOCALHOST = 'localhost'
+  POSTGRES_DEFAULT_PORT = 5432
+  
   
   # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
@@ -993,6 +1000,57 @@ private
   def cse_database_urls=(urls)
     @cse_database_urls = urls
   end
+  
+  # Get possible distributed CSE hosts from configuration file. Generate
+  # an stunnel configuration script and return an array of ports. Call resolver
+  # then connects to each of these ports on 'localhost'
+  def get_cse_hosts(config)
+    host_list = config[CSE_HOSTS]
+    
+    host_list ||= CSE_HOSTS_DEFAULT
+    
+    @host_url_list = Array.new
+    @host_port_list = Array.new
+    @ha_enabled = false
+    # Split host list into separate host:port names, then build two
+    # arrays of URLs and ports.
+    host_array = host_list.split(',')
+    host_array.each do |host_string|
+      host_elements = host_string.split(':')
+      # Strip leading and trailing whitespace
+      host_elements[0] = host_elements[0].strip
+      # Test if port was specified      
+      if host_elements.length == 1
+        # Supply default port for localhost
+        if host_elements[0] == CSE_LOCALHOST
+          host_elements[1] = POSTGRES_DEFAULT_PORT
+        else
+          raise(ConfigException, "No port specified for host \"#{host_elements[0]}\". " +
+                                  "A port number for hosts other than  \"localhost\" must be specified.")
+        end
+      else
+        # Strip whitespace from port
+        host_elements[1] = host_elements[1].strip
+      end
+      @host_url_list << host_elements[0]
+      host_port = host_elements[1].to_i
+      if host_port == 0
+        raise(ConfigException, "Port for #{host_elements[0]} is invalid.")
+      end
+      @host_port_list << host_port
+      log.debug("get_cse_hosts: host name #{host_elements[0]}, host port: #{host_elements[1]}")
+      # If at least one of the hosts != 'localhost' we are HA enabled
+      if host_elements[0] != 'localhost' && ! @ha_enabled
+        @ha_enabled = true
+        log.debug("get_cse_host: Found host other than localhost - enable HA")
+      end
+    end
+    @host_port_list
+  end  
+  
+  def get_ha_enabled
+    @ha_enabled
+  end  
   
   #-----------------------------------------------------------------------------
 

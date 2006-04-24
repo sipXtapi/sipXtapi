@@ -139,6 +139,29 @@ runningUserCheck() {
   return 0
 }
 
+# Check if call resolver is configured for HA
+HAcheck() {
+   # Quietly check if we're setup for HA - we have to do database tests differently
+   resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_CSE_HOSTS`
+   host_list=`expr match "$resolveConfig" '.*CSE_HOSTS\s*:\s*\(.*\)'`
+   
+   ha_with_localhost=0   
+
+   if [ -z "$host_list" ]; then
+      # Normal setup
+      return 1
+   else
+      if expr match "$host_list" '.*localhost.*' >/dev/null; then
+         # HA setup with localhost
+         ha_with_localhost=1 
+      else
+         # HA setup without localhost
+         ha_with_localhost=0
+      fi
+      return 0
+   fi
+}
+
 # Return false if postgres is 
 #  1. not running 
 #  2. running but not setup to communicate w/java or ${Psql} command
@@ -249,18 +272,23 @@ proxyCheck() {
 
 configCheck() {
    Status=1
+   db_check=1
    
    if ! proxyCheck; then
      Status=0
    fi
-   
-   echo "Checking database..."
-   if ! databaseCheck; then
-      Status=0
+ 
+   if [ $db_check = 1 ]; then
+     echo "Checking database..."
+     if ! databaseCheck; then
+        Status=0
+     else
+        if databaseVersionCheck; then
+           echo "  ok"
+        fi
+     fi
    else
-      if databaseVersionCheck; then
-         echo "  ok"
-      fi
+      echo "Machine is configured for HA without a database on localhost - skip database check"
    fi
 
    echo "Checking configuration..."   
@@ -504,7 +532,11 @@ then
     databaseCommand $Args
 elif [ ${Action} = RUN ] 
 then
-    onStartup
+   if [ "${user}" != "root" ]; then
+      echo "Error: Must be root to run call resolver"
+      exit 1
+   fi
+   onStartup
 elif [ ${Action} = SETUP ]
 then
     onSetup

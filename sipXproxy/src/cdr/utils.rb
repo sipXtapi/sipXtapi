@@ -117,5 +117,10 @@ public
     end
     contact
   end
+  
+  # Wrapper around raise function call to raise a CallResolverException
+  def Utils.raise_callresolver_exception(msg)
+    raise(CallResolverException, msg, caller)
+  end
 
 end
