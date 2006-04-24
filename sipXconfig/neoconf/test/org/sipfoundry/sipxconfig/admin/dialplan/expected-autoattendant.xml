@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <vxml>
 	<form id="aa">
+		<var name="failedoption" expr="1"/>
 		<property name="interdigittimeout" value="3s"/>
 		<property name="timeout" value="7s"/>
 		<field name="menu">
@@ -19,6 +20,11 @@
 					<goto nextitem="menuaction"/>
 				</if>
 			</filled>
+      <noinput count="3">
+        <if cond="failedoption == '0'">
+          <assign name="extension" expr="'999'" />
+        </if>
+      </noinput>
 		</field>
 	</form>
 </vxml>
