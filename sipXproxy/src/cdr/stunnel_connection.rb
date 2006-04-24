@@ -21,15 +21,12 @@ class StunnelConnection
   
   STUNNEL_CONFIG_FILE = 'stunnel-config.tmp'
   STUNNEL_EXEC = '/usr/sbin/stunnel'
-  
-  CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
-  CSE_HOSTS_DEFAULT = 'localhost:5432'
+ 
   CSE_STUNNEL_DEBUG_LEVEL = 'SIP_CALLRESOLVER_STUNNEL_DEBUG'
   
   # Default debug level NOTICE  
   CSE_STUNNEL_DEBUG_LEVEL_DEFAULT = '5'
   CSE_CONNECT_PORT = '9300'
-  CSE_PG_PORT = '5432'
   
   # No default for the CA file name - if HA is configured this has to be set
   CSE_CA = 'SIP_CALLRESOLVER_CSE_CA'
@@ -84,9 +81,9 @@ private
   # Get possible distributed CSE hosts from configuration file. Generate
   # an stunnel configuration script and return an array of ports.
   def get_stunnel_config(config)
-    host_list = config[CSE_HOSTS]
+    host_list = config[CallResolver::CSE_HOSTS]
     
-    host_list ||= CSE_HOSTS_DEFAULT
+    host_list ||= CallResolver::CSE_HOSTS_DEFAULT
 
     host_url_list = Array.new
     host_port_list = Array.new
@@ -102,7 +99,8 @@ private
       if host_elements.length == 1
         # Supply default port for localhost
         if host_elements[0] == CallResolver::CSE_LOCALHOST
-          host_elements[1] = CSE_PG_PORT
+          host_elements[1] = CallResolver::POSTGRES_DEFAULT_PORT.to_s
+          puts "i\'m here" 
         else
           Utils.raise_callresolver_exception("No port specified for host \"#{host_elements[0]}\". " +
                                              "A port number for hosts other than  \"localhost\" must be specified.")

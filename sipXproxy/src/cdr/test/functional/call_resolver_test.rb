@@ -640,11 +640,11 @@ public
   end    
   
   def test_get_cse_hosts
-    # Get the defcault entry - array with length 1 and default port 5432
+    # Get the default entry - array with length 1 and default port 5432
     port_array = @resolver.send(:get_cse_hosts, {})
     
     assert(port_array.length == 1, 'Wrong number of entries in array')
-    assert(port_array[0] == 5432, 'Wrong port number')
+    assert(port_array[0] == CallResolver::POSTGRES_DEFAULT_PORT , 'Wrong port number')
     assert(!@resolver.send(:get_ha_enabled))
     
     # Pass in other list, no localhost
@@ -665,7 +665,7 @@ public
     assert(port_array.length == 2, 'Wrong number of entries in array')
     assert(@resolver.send(:get_ha_enabled))
     assert(port_array[0] == 5433, 'Wrong port number in first entry')
-    assert(port_array[1] == 5432, 'Wrong port number in second entry') 
+    assert(port_array[1] == CallResolver::POSTGRES_DEFAULT_PORT, 'Wrong port number in second entry') 
     
     # Pass in other list, localhost, no port
     hostString = 'test.example.com:5433,localhost:6666'
