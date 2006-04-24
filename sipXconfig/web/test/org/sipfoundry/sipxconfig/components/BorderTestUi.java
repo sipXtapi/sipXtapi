@@ -57,5 +57,10 @@ public class BorderTestUi extends WebTestCase {
         assertElementPresent("login:form");
         SiteTestHelper.assertNoUserError(getTester());
     }
-
+    
+    public void testHelp() {
+        clickLink("toggleNavigation");
+        tester.dumpResponse();
+        assertLinkPresent("link.help");
+    }
 }

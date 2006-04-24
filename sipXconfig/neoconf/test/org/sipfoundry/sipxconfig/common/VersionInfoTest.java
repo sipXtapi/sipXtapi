@@ -20,6 +20,14 @@ public class VersionInfoTest extends TestCase {
         VersionInfo info = new VersionInfo();
         assertEquals("  ()", info.getLongVersionString());
     }
+    
+    public void testGetVersionIds() {
+        Integer[] ids = VersionInfo.versionStringToVersionIds("12.34.56");
+        assertEquals(3, ids.length);
+        assertEquals(12, ids[0].intValue());
+        assertEquals(34, ids[1].intValue());
+        assertEquals(56, ids[2].intValue());
+    }
 
     public void testGetLongVersionString() {
         VersionInfo info = new VersionInfo() {
