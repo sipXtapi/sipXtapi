@@ -14,18 +14,24 @@ package org.sipfoundry.sipxconfig.api;
 import java.rmi.RemoteException;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class TestServiceImpl implements TestService {    
+    private ForwardingContext m_forwardingContext;
     private CallGroupContext m_callGroupContext;
     private ConferenceBridgeContext m_conferenceBridgeContext;
     private CoreContext m_coreContext;
     private ParkOrbitContext m_parkOrbitContext;
     private PhoneContext m_phoneContext; 
-
+    
+    public void setForwardingContext(ForwardingContext forwardingContext) {
+        m_forwardingContext = forwardingContext;
+    }
+    
     public void setCallGroupContext(CallGroupContext callGroupContext) {
         m_callGroupContext = callGroupContext;
     }
@@ -52,8 +58,7 @@ public class TestServiceImpl implements TestService {
         // problems, because the user ring objects in a call group reference users.
         String preserveAdminPintoken = null;
         String adminUsername = "superadmin";
-        if (Boolean.TRUE.equals(resetServices.getCallGroup())
-            || Boolean.TRUE.equals(resetServices.getUser())) {
+        if (Boolean.TRUE.equals(resetServices.getCallGroup())) {
             m_callGroupContext.clear();
         }
         if (Boolean.TRUE.equals(resetServices.getConferenceBridge())) {
@@ -66,6 +71,12 @@ public class TestServiceImpl implements TestService {
             m_phoneContext.clear();
         }
         if (Boolean.TRUE.equals(resetServices.getUser())) {
+            // kludge: XCF-1010: have to clear these too, any leftover data            
+            // from any other tests will cause contraint violations
+            // on user context delete
+            m_forwardingContext.clear();
+            m_callGroupContext.clear();
+            
             org.sipfoundry.sipxconfig.common.User superadmin = m_coreContext.loadUserByUserName(adminUsername);
             if (superadmin != null) {
                 preserveAdminPintoken = superadmin.getPintoken();
