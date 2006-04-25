@@ -33,7 +33,7 @@ configtest() {
       echo 
       echo "Error: Could not find @SIPX_CONFDIR@/ssl/ssl.key -"
       echo "       copy the SSL certificates from the master to this machine before"
-      echo"        running --setup."
+      echo "       running --setup."
       echo
       return 1
    fi
@@ -42,7 +42,7 @@ configtest() {
       echo 
       echo "Error: Could not find @SIPX_CONFDIR@/ssl/ssl.crt -"
       echo "       copy the SSL certificates from the master to this machine before"
-      echo"        running --setup."
+      echo "       running --setup."
       echo
       return 1
    fi
@@ -231,7 +231,7 @@ Set up distributed machine for HA.
 
 Options include:
 
-  --configtest         Run diagnostics
+  --configtest         Run diagnostics. Will need root permissions.
 
   --setup              Initialize the distributed machine for communicating with the
                        call resolver on the master machine. Will need root permissions.
