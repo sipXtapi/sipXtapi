@@ -88,6 +88,6 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     }
     
     public VersionInfo getVersionInfo() {
-        return m_version;
+        return new VersionInfo();
     }
 }
