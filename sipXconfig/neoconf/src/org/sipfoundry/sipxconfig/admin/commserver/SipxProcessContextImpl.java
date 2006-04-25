@@ -238,10 +238,16 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             for (Iterator i = m_map.entrySet().iterator(); i.hasNext();) {
                 Map.Entry entry = (Map.Entry) i.next();
                 Class klass = (Class) entry.getKey();
+                Collection servicesForKlass = (Collection) entry.getValue();
                 if (klass.isAssignableFrom(eventClass)) {
-                    services.addAll((Collection) entry.getValue());
+                    services.addAll(servicesForKlass);
                 }
             }
+            // do that again this time removing collected services...
+            for (Iterator i = m_map.values().iterator(); i.hasNext();) {
+                Collection servicesForKlass = (Collection) i.next();
+                servicesForKlass.removeAll(services);
+            }            
             return services;
         }
     }
