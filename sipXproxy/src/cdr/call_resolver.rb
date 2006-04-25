@@ -252,13 +252,13 @@ private
 
   # Load all events in the time window from HA distributed servers
   # Return a hash where the key is a call ID and values
-  # are event arrays for that call ID, sorted by cseq.
+  # are event arrays for that call ID, sorted by time.
   # :NOW: use this method in call resolution
   def load_distrib_events_in_time_window(start_time, end_time)
     call_map = Hash.new
     
     # all_calls holds arrays, one array of event subarrays for each database.
-    # Each subarray holds events for one call, sorted by cseq.
+    # Each subarray holds events for one call, sorted by time.
     all_calls = []
     
     cse_database_urls.each do |db_url|
@@ -288,14 +288,14 @@ private
       calls.each do |call|
         call_id = call[0].call_id
         # If there is a hash entry already, then merge this partial call into
-        # it, keeping the cseq sort. Otherwise create a new hash entry.
+        # it, keeping the time sort. Otherwise create a new hash entry.
         # Typically each call comes completely from one server, but that is not
         # always true.
         entry = call_map[call_id]
         if entry
-          # merge the events together and re-sort by cseq
+          # merge the events together and re-sort by time
           entry += call
-          entry.sort!{|x, y| x.cseq <=> y.cseq}
+          entry.sort!{|x, y| x.event_time <=> y.event_time}
           
           # not sure why I have to do this -- entry has been modified in place,
           # yes? -- but otherwise the hash entry doesn't get updated correctly
@@ -336,14 +336,14 @@ private
     calls
   end
 
-  # Load all events in the time window, sorted by call ID then by cseq.
+  # Load all events in the time window, sorted by call ID then by time.
   # Return the events in an array.
   def load_events_in_time_window(start_time, end_time)
     events =
       CallStateEvent.find(
         :all,
         :conditions => "event_time >= '#{start_time}' and event_time < '#{end_time}'",
-        :order => "call_id, cseq")
+        :order => "call_id, event_time")
     log.debug("load_events: loaded #{events.length} events between #{start_time} and #{end_time}")
     events
   end
