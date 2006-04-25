@@ -37,6 +37,9 @@ public class VersionInfo {
     }
     
     static Integer[] versionStringToVersionIds(String version) {
+        if (StringUtils.isBlank(version)) {
+            return new Integer[0];
+        }
         String[] sids = version.split("\\.");
         Integer[] ids = new Integer[sids.length];
         for (int i = 0; i < ids.length; i++) {

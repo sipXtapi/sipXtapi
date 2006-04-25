@@ -27,6 +27,7 @@ public class VersionInfoTest extends TestCase {
         assertEquals(12, ids[0].intValue());
         assertEquals(34, ids[1].intValue());
         assertEquals(56, ids[2].intValue());
+        assertEquals(0, VersionInfo.versionStringToVersionIds(null).length);
     }
 
     public void testGetLongVersionString() {
