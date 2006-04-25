@@ -27,6 +27,9 @@
       voIpProt.server.2.retryTimeOut="0" 
       voIpProt.server.2.retryMaxCount="0" 
       voIpProt.server.2.expires.lineSeize="30" 
+      voIpProt.server.dhcp.available="0"
+      voIpProt.server.dhcp.option=""
+      voIpProt.server.dhcp.type=""
       />
     <SIP 
       voIpProt.SIP.useRFC2543hold="0" 
@@ -2348,7 +2351,9 @@
     <SNTP 
       tcpIpApp.sntp.resyncPeriod="86400" 
       tcpIpApp.sntp.address="pool.ntp.org" 
+      tcpIpApp.sntp.address.overrideDHCP="0"
       tcpIpApp.sntp.gmtOffset="-18000" 
+      tcpIpApp.sntp.gmtOffset.overrideDHCP="0"
       tcpIpApp.sntp.daylightSavings.enable="1" 
       tcpIpApp.sntp.daylightSavings.fixedDayEnable="0" 
       tcpIpApp.sntp.daylightSavings.start.month="4" 
@@ -4213,6 +4218,9 @@
         sec.pwd.length.admin="1" 
         sec.pwd.length.user="2"/>
     </pwd>
+      <encryption>
+         <upload sec.encryption.upload.dir="0" sec.encryption.upload.overrides="0"/>
+      </encryption>
   </security>
   
     <provisioning 

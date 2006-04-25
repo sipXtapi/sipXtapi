@@ -26,6 +26,10 @@
     voIpProt.server.2.retryTimeOut="0"
     voIpProt.server.2.retryMaxCount="0"
     voIpProt.server.2.expires.lineSeize="30"
+#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.server.dhcp'))
+#foreach ($setting in $cfg.getSettings($group))
+        voIpProt.server.dhcp.${setting.ProfileName}="$!{setting.Value}"
+#end        
           />
 		<SIP 
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('protocol'))  
@@ -3256,6 +3260,9 @@
 #end        
              />
 		</pwd>
+                <encryption>
+                    <upload sec.encryption.upload.dir="0" sec.encryption.upload.overrides="0"/>
+                </encryption>		
 	</security>
 	<provisioning prov.fileSystem.rfs0.minFreeSpace="5" 
 		prov.fileSystem.ffs0.4meg.minFreeSpace="420" 

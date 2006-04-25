@@ -688,6 +688,16 @@
       <value>pool.ntp.org</value>
       <description>Address of the SNTP server.</description>
     </setting>
+    <setting name="address.overrideDHCP">
+      <label>Address from DHCP</label>
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>
+        Obtain SNTP Server address from  DHCP         
+      </description>
+    </setting>
     <setting name="gmtOffset">
       <!-- 43200 == 12h -->
       <type>
@@ -696,6 +706,16 @@
       <value>-18000</value>
       <description>Offset in seconds of the local time zone from GMT. Note: 3600 seconds per 
         hour</description>
+    </setting>
+    <setting name="gmtOffset.overrideDHCP">
+      <label>Offset from DHCP</label>
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>
+        Obtain GMT Offset from  DHCP         
+      </description>
     </setting>
     <setting name="daylightSavings.enable">
       <type>
@@ -1645,6 +1665,44 @@
           policy. </description>
       </setting>
     </group>
+  </group>
+  <group name="voIpProt.server.dhcp">
+    <label>SIP Settings in DHCP</label>
+    <description>Obtain SIP server IP address information from DHCP</description>
+    <setting name="available">
+      <label>Enabled</label>
+      <type><boolean/></type>
+      <value>0</value>
+      <description>Check with the DHCP server for SIP server IP address</description>
+    </setting>
+    <setting name="option">
+      <label>Option</label>
+      <type><integer min="128" max="255"/></type>
+      <value/>
+      <description>If Enabled, the Option to request from the DHCP server if
+        Allowable range is 128 – 255. There is no
+        default value for this parameter, it must be
+        filled in with a valid value.</description>
+    </setting>
+    <setting name="type">
+      <label>Type</label>
+      <type>
+        <enum>
+          <option>
+            <label>IP Address</label>
+            <value>0</value>
+          </option>          
+          <option>
+            <label>String</label>
+            <value>1</value>
+          </option>          
+        </enum>
+      </type>
+      <value/>
+      <description>If Enabled, type to request from the DHCP server.
+        There is no default value for this parameter,
+        it must be filled in with a valid value.</description>
+    </setting>
   </group>
   <!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line -->
   <group name="dialplan">
