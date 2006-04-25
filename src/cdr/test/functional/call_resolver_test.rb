@@ -71,8 +71,8 @@ public
     cse_url1 = DatabaseUrl.new(TEST_DB1)
     cse_url2 = DatabaseUrl.new(TEST_DB2)
     
-    # Use the same event time for all events
-    event_time = '1990-05-17T19:30:00.000Z'
+    # Pick an arbitrary base event time for all events
+    start_time = Time.now
     
     # Test loading the events.  Restore the CallStateEvent DB connection after
     # the test if there was one.  Restore the CSE database URLs.
@@ -81,33 +81,33 @@ public
     begin
       # Put events for the first call and part of the second call into the first
       # test DB.
-      # Note: we only need cseq values on the call that is split across two DBs,
-      # because only that one will be cseq-sorted when it gets merged.
+      # Note: only the time values on the call that is split across two DBs
+      # matter, because only that call will be time-sorted when the events get
+      # merged.
       CallStateEvent.establish_connection(DatabaseUrl.new(TEST_DB1).to_hash)
       CallStateEvent.destroy_all
-      e1_1 = create_test_cse(CALL_ID1, event_time)
-      e1_2 = create_test_cse(CALL_ID1, event_time)
-      e2_1 = create_test_cse(CALL_ID2, event_time, 1)
-      e2_3 = create_test_cse(CALL_ID2, event_time, 3)
+      e1_1 = create_test_cse(CALL_ID1, start_time)
+      e1_2 = create_test_cse(CALL_ID1, start_time)
+      e2_1 = create_test_cse(CALL_ID2, start_time + 1)
+      e2_3 = create_test_cse(CALL_ID2, start_time + 3)
       
       # Put events for the rest of the second call and the third call into the
       # second test DB.
       CallStateEvent.establish_connection(DatabaseUrl.new(TEST_DB2).to_hash)
       CallStateEvent.destroy_all
-      e2_2 = create_test_cse(CALL_ID2, event_time, 2)
-      e2_4 = create_test_cse(CALL_ID2, event_time, 4)
-      e3_1 = create_test_cse(CALL_ID3, event_time, 1)
+      e2_2 = create_test_cse(CALL_ID2, start_time + 2)
+      e2_4 = create_test_cse(CALL_ID2, start_time + 4)
+      e3_1 = create_test_cse(CALL_ID3, start_time)
       
       call1 = [e1_1, e1_2]
       call2_part1 = [e2_1, e2_3]
       call2_part2 = [e2_2, e2_4]
-      call2 = (call2_part1 + call2_part2).sort!{|x, y| x.cseq <=> y.cseq}
+      call2 = (call2_part1 + call2_part2).sort!{|x, y| x.event_time <=> y.event_time}
       call3 = [e3_1]
       all_calls = [[call1, call2_part1],           # call arrays for first DB
                    [call2_part2, call3]]           # call arrays for second DB
       
-      start_time = Time.parse(event_time)
-      end_time = start_time + 1
+      end_time = start_time + 10
       @resolver.send(:cse_database_urls=, [cse_url1, cse_url2])
       call_map = @resolver.send(:load_distrib_events_in_time_window, start_time, end_time)
       expected_call_map_entries = [call1, call2, call3]
@@ -128,12 +128,12 @@ public
 
   # Create a test CSE.  Fill in dummy values for fields we don't care about but
   # have to be filled in because of not-null DB constraints
-  def create_test_cse(call_id, event_time, cseq = 0)
+  def create_test_cse(call_id, event_time)
     CallStateEvent.create(:observer => 'observer',
                           :event_seq => 0,
                           :event_time => event_time,
                           :event_type => CallStateEvent::CALL_REQUEST_TYPE,
-                          :cseq => cseq,
+                          :cseq => 0,
                           :call_id => call_id,
                           :from_url => 'from_url',
                           :to_url => 'to_url')    
@@ -142,11 +142,12 @@ public
   def test_merge_events_for_call    
     e1 = CallStateEvent.new(:call_id => CALL_ID1)
     e2 = CallStateEvent.new(:call_id => CALL_ID1)
-        
-    e3 = CallStateEvent.new(:call_id => CALL_ID2, :cseq => 1)
-    e4 = CallStateEvent.new(:call_id => CALL_ID2, :cseq => 2)
-    e5 = CallStateEvent.new(:call_id => CALL_ID2, :cseq => 3)
-    e6 = CallStateEvent.new(:call_id => CALL_ID2, :cseq => 4)
+    
+    time = Time.now;
+    e3 = CallStateEvent.new(:call_id => CALL_ID2, :event_time => time)
+    e4 = CallStateEvent.new(:call_id => CALL_ID2, :event_time => time + 1)
+    e5 = CallStateEvent.new(:call_id => CALL_ID2, :event_time => time + 2)
+    e6 = CallStateEvent.new(:call_id => CALL_ID2, :event_time => time + 3)
     
     e7 = CallStateEvent.new(:call_id => CALL_ID3)
     
