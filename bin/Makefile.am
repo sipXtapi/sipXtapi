@@ -9,12 +9,13 @@ bin_SCRIPTS = \
 editscripts_IN = \
     sipauthproxy.sh \
     sipproxy.sh \
+    sipxha-distrib.sh \
     sipxcallresolver.sh
 
 EXTRA_DIST = \
-	$(foreach file,$(editscripts_IN),$(file).in) \
+   $(foreach file,$(editscripts_IN),$(file).in) \
    $(bin_SCRIPTS) \
-  callresolver_run.in
+   callresolver_run.in
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
