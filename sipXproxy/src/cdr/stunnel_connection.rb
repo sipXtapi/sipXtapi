@@ -8,7 +8,9 @@
 ##############################################################################
 
 # Application requires.  Assume that the load path has been set up for us.
+require 'call_resolver'
 require 'configure'
+require 'database_url'
 require 'exceptions'
 require 'utils'
 
@@ -17,7 +19,8 @@ require 'utils'
 class StunnelConnection
 
   # Constants
-  SIPX_PREFIX = 'SIPX_PREFIX'  
+  LOCALHOST = 'localhost'
+  SIPX_PREFIX = 'SIPX_PREFIX'
   
   STUNNEL_CONFIG_FILE = 'stunnel-config.tmp'
   STUNNEL_EXEC = '/usr/sbin/stunnel'
@@ -56,13 +59,13 @@ public
         # Get the Pid of the process we just started (stored as instance variable),
         # also check if it really started
         if ! check_stunnel_running
-          Utils.raise_callresolver_exception("stunnel could not be started.")
+          Utils.raise_exception("stunnel could not be started.")
         else
           @connection_established = true
         end
       else
-        Utils.raise_callresolver_exception(CallResolverException, "stunnel is already running with Pid #{@pid}. It must be shut " +
-              " down before restarting the call resolver.", caller)
+        Utils.raise_exception("stunnel is already running with Pid #{@pid}. It must be shut " +
+              " down before restarting the call resolver.")
       end
     end
   end
@@ -98,11 +101,11 @@ private
       # Test if port was specified      
       if host_elements.length == 1
         # Supply default port for localhost
-        if host_elements[0] == CallResolver::CSE_LOCALHOST
-          host_elements[1] = CallResolver::POSTGRES_DEFAULT_PORT.to_s
+        if host_elements[0] == LOCALHOST
+          host_elements[1] = DatabaseUrl::DEFAULT_DATABASE_PORT.to_s
           puts "i\'m here" 
         else
-          Utils.raise_callresolver_exception("No port specified for host \"#{host_elements[0]}\". " +
+          Utils.raise_exception("No port specified for host \"#{host_elements[0]}\". " +
                                              "A port number for hosts other than  \"localhost\" must be specified.")
         end
       else
@@ -125,11 +128,11 @@ private
       err_msg = "No CA file name specified. If hosts other than \"localhost\" " +
                 "are specified in #{CSE_HOSTS} then this parameter must be set."
       if ca_file == nil
-        Utils.raise_callresolver_exception(err_msg)
+        Utils.raise_exception(err_msg)
       else
         ca_file = ca_file.strip       
         if ca_file.length == 0
-          Utils.raise_callresolver_exception(err_msg)        
+          Utils.raise_exception(err_msg)        
         end
       end
       debug_level = config[CSE_STUNNEL_DEBUG_LEVEL]
@@ -160,7 +163,7 @@ private
     
     host_list.each_with_index do |host, i|
       # Don't generate entry for localhost
-      if host_list[i] != CallResolver::CSE_LOCALHOST
+      if host_list[i] != LOCALHOST
         config_file.puts ""
         config_file.puts "[Postgres-#{i}]"
         config_file.puts "accept = #{port_list[i]}"

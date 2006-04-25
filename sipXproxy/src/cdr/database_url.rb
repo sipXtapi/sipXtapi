@@ -11,44 +11,45 @@
 # needed for ActiveRecord::Base.establish_connection.
 class DatabaseUrl
   
-  ADAPTER_DEFAULT  = 'postgresql'
-  HOST_DEFAULT     = 'localhost'
-  USERNAME_DEFAULT = 'postgres'
   DATABASE_DEFAULT = 'SIPXCDR'
+  DEFAULT_DATABASE_PORT = 5432
+  ADAPTER_DEFAULT  = 'postgresql'
+  HOST_DEFAULT     = 'localhost'  
+  USERNAME_DEFAULT = 'postgres'
   
 public
 
-  attr_reader :adapter, :host, :username, :database, :port
+  attr_accessor :adapter, :host, :username, :database, :port
   
-  def initialize(adapter  = ADAPTER_DEFAULT,
+  def initialize(database = DATABASE_DEFAULT,
+                 port     = DEFAULT_DATABASE_PORT,
+                 adapter  = ADAPTER_DEFAULT,
                  host     = HOST_DEFAULT,
-                 username = USERNAME_DEFAULT,
-                 database = DATABASE_DEFAULT,
-                 port     = nil)
+                 username = USERNAME_DEFAULT)
+    @database = database
+    @port = port if port
     @adapter = adapter
     @host = host
     @username = username
-    @database = database
-    @port = port if port
   end
   
   # Return the params in a hash.  Intended for use with
   # ActiveRecord::Base.establish_connection, which takes a hash as input.
   def to_hash
-    h = {:adapter => adapter,
+    h = {:database => database,
+         :port => port,
+         :adapter => adapter,
          :host => host,
-         :username => username,
-         :database => database}
-    h[:port] = port if port
+         :username => username}
     h 
   end
   
   def ==(url)
+    (database ? (url.database and database == url.database) : !url.database) and
+    (port ? (url.port and port == url.port) : !url.port) and
     (adapter ? (url.adapter and adapter == url.adapter) : !url.adapter) and
     (host ? (url.host and host == url.host) : !url.host) and
-    (username ? (url.username and username == url.username) : !url.username) and  
-    (database ? (url.database and database == url.database) : !url.database) and
-    (port ? (url.port and port == url.port) : !url.port)
+    (username ? (url.username and username == url.username) : !url.username)  
   end
   
   def eql?(url)
@@ -57,11 +58,11 @@ public
   
   def hash
     haash = 0
+    haash += database.hash if database
+    haash += port.hash if port
     haash += adapter.hash if adapter
     haash += host.hash if host
     haash += username.hash if username
-    haash += database.hash if database
-    haash += port.hash if port
     haash
   end
   

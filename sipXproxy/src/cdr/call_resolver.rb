@@ -23,6 +23,7 @@ require 'call_state_event'
 require 'cdr'
 require 'configure'
 require 'database_url'
+require 'database_utils'
 require 'exceptions'
 require 'party'
 
@@ -42,12 +43,17 @@ class CallResolver
   include Observable    # so we can notify Call Resolver plugins of events
 
   # Constants
-  
+
+  LOCALHOST = 'localhost'
+
   # How many seconds are there in a day
   SECONDS_IN_A_DAY = 86400
 
   # Names of events that we send to plugins.
   EVENT_NEW_CDR = 'a new CDR has been created in the database'
+  
+  # SQL command to garbage-collect and analyze a PostgreSQL database
+  POSTGRESQL_TUNE_UP_DATABASE = "VACUUM ANALYZE"
 
 public
 
@@ -189,7 +195,7 @@ private
   # With HA there are multiple CSE databases.
   def connect_to_cse_database(db_url)    
     log.debug("connect_to_cse_database: #{db_url}")
-    CallStateEvent.establish_connection(db_url)
+    CallStateEvent.establish_connection(db_url.to_hash)
   end
 
   # Resolve the call, given an events array for that call, to yield 0-1 CDRs.
@@ -247,7 +253,7 @@ private
   # Load all events in the time window from HA distributed servers
   # Return a hash where the key is a call ID and values
   # are event arrays for that call ID, sorted by cseq.
-  # :NOW: unit test this method
+  # :NOW: use this method in call resolution
   def load_distrib_events_in_time_window(start_time, end_time)
     call_map = Hash.new
     
@@ -667,7 +673,7 @@ private
     # See http://www.postgresql.org/docs/8.0/static/sql-vacuum.html .
     # :TODO: For HA, purge multiple databases, both CSE and CDR
     # Must be done outside of a transaction or we'll get an error.
-    ActiveRecord::Base.connection.execute("VACUUM ANALYZE")
+    ActiveRecord::Base.connection.execute(POSTGRESQL_TUNE_UP_DATABASE)
   end
   
   #-----------------------------------------------------------------------------
@@ -713,11 +719,8 @@ private
   PURGE_AGE_CSE_DEFAULT = '7'
   
   CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
-  CSE_HOSTS_DEFAULT = 'localhost:5432'  
-  
-  CSE_LOCALHOST = 'localhost'
-  POSTGRES_DEFAULT_PORT = 5432
-  
+  CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DEFAULT_DATABASE_PORT}"
+
   
   # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
@@ -1022,8 +1025,8 @@ private
       # Test if port was specified      
       if host_elements.length == 1
         # Supply default port for localhost
-        if host_elements[0] == CSE_LOCALHOST
-          host_elements[1] = POSTGRES_DEFAULT_PORT
+        if host_elements[0] == LOCALHOST
+          host_elements[1] = DatabaseUrl::DEFAULT_DATABASE_PORT
         else
           raise(ConfigException, "No port specified for host \"#{host_elements[0]}\". " +
                                   "A port number for hosts other than  \"localhost\" must be specified.")
