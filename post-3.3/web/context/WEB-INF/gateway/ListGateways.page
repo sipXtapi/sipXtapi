@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.gateway.ListGateways">
+  <!--
+	  - P R O P E R T I E S
+	  -->
+  <inject property="gatewayContext" object="spring:gatewayContext"/>
+  <inject property="gatewayProfileManager" object="spring:gatewayProfileManager"/>
+  
+  <property name="gatewaysToDelete" />
+  <property name="gatewaysToPropagate" />
+  <!--
+     - B E A N S
+     -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <!--
+     - C O M P O N E N T S
+     -->
+  <component id="gatewayTable" type="GatewayTable">
+    <binding name="gatewayCollection" value="gatewayContext.gateways"/>
+    <binding name="editPageName" value="literal:EditGateway"/>
+  </component>
+  <component id="addGatewayLink" type="DirectLink">
+    <binding name="listener" value="listener:addGateway"/>
+  </component>
+  <component id="dialPlansLink" type="PageLink">
+    <binding name="page" value="literal:EditFlexibleDialPlan"/>
+  </component>
+  <component id="deleteButton" type="Submit">
+    <binding name="selected" value="gatewaysToDelete"/>
+    <binding name="tag" value="components.gatewayTable.selections.allSelected"/>
+    <binding name="value" value="message:button.delete"/>
+  </component>
+  <component id="propagateButton" type="Submit">
+    <binding name="selected" value="gatewaysToPropagate"/>
+    <binding name="tag" value="components.gatewayTable.selections.allSelected"/>
+    <binding name="value" value="message:button.propagate"/>
+  </component>
+  <component id="propagateAllButton" type="Submit">
+    <binding name="listener" value="listener:propagateAllGateways"/>
+    <binding name="value" value="message:button.propagateAll"/>
+  </component>
+  <component id="gatewaysListForm" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+    <binding name="listener" value="listener:formSubmit"/>
+  </component>
+  <!--
+	  - A S S E T S
+	  -->
+</page-specification>

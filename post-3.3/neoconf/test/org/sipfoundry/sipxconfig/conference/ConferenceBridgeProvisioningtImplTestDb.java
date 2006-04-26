@@ -1,0 +1,115 @@
+/*
+ * 
+ * 
+ * Copyright (C) 2005 SIPfoundry Inc.
+ * Licensed by SIPfoundry under the LGPL license.
+ * 
+ * Copyright (C) 2005 Pingtel Corp.
+ * Licensed to SIPfoundry under a Contributor Agreement.
+ * 
+ * $
+ */
+package org.sipfoundry.sipxconfig.conference;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Map;
+
+import org.easymock.AbstractMatcher;
+import org.easymock.MockControl;
+import org.easymock.classextension.MockClassControl;
+import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbParameter;
+import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbSettingAdaptor;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+
+public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCase {
+
+    private ConferenceBridgeContext m_context;
+
+    protected void setUp() throws Exception {
+        m_context = (ConferenceBridgeContext) TestHelper.getApplicationContext().getBean(
+                ConferenceBridgeContext.CONTEXT_BEAN_NAME);
+
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("conference/users.db.xml");
+    }
+
+    public void testDeploy() throws Exception {
+        MockControl dbCtrl = MockControl.createControl(ConfigDbParameter.class);
+        ConfigDbParameter db = (ConfigDbParameter) dbCtrl.getMock();
+        dbCtrl.setDefaultMatcher(new SettingMatcher());
+        db.set("bbridge.conf", new Hashtable());
+        // do not check params for now - we just verify that the function has been called once
+        dbCtrl.setReturnValue(10);
+
+        dbCtrl.replay();
+
+        ConfigDbSettingAdaptor adaptor = new ConfigDbSettingAdaptor();
+        adaptor.setConfigDbParameter(db);
+
+        TestHelper.insertFlat("conference/participants.db.xml");
+        Bridge bridge = m_context.loadBridge(new Integer(2005));
+
+        MockControl hibernateCtrl = MockClassControl.createControl(HibernateTemplate.class);
+        HibernateTemplate hibernate = (HibernateTemplate) hibernateCtrl.getMock();
+        hibernate.saveOrUpdateAll(bridge.getConferences());
+        hibernateCtrl.replay();
+
+        ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
+        impl.setHibernateTemplate(hibernate);
+
+        impl.deploy(bridge, adaptor);
+
+        dbCtrl.verify();
+        hibernateCtrl.verify();
+    }
+
+    public void testGenerateAdmissionData() throws Exception {
+        TestHelper.insertFlat("conference/participants.db.xml");
+        Bridge bridge = m_context.loadBridge(new Integer(2005));
+
+        MockControl hibernateCtrl = MockClassControl.createControl(HibernateTemplate.class);
+        HibernateTemplate hibernate = (HibernateTemplate) hibernateCtrl.getMock();
+        hibernate.loadAll(Conference.class);
+        hibernateCtrl.setReturnValue(new ArrayList(bridge.getConferences()));
+        hibernateCtrl.replay();
+
+        MockControl replicationCtrl = MockControl.createControl(SipxReplicationContext.class);
+        replicationCtrl.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
+        SipxReplicationContext replication = (SipxReplicationContext) replicationCtrl.getMock();
+        replication.replicate(null);
+        replicationCtrl.replay();
+
+        ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
+        impl.setHibernateTemplate(hibernate);
+        impl.setSipxReplicationContext(replication);
+
+        impl.generateAdmissionData();
+
+        replicationCtrl.verify();
+        hibernateCtrl.verify();
+    }
+
+    static class SettingMatcher extends AbstractMatcher {
+        protected boolean argumentMatches(Object expected, Object actual) {
+            if (!(expected instanceof Map)) {
+                return super.argumentMatches(expected, actual);
+            }
+            Map args = (Map) expected;
+            // uncomment to see parameters sent to XML/RPC
+            // MapUtils.debugPrint(System.err, "expected:", args);
+            for (Iterator i = args.keySet().iterator(); i.hasNext();) {
+                String name = (String) i.next();
+                // all settings should start with the same prefix
+                if (!name.startsWith("BOSTON_BRIDGE")) {
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+}

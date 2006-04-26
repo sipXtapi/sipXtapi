@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  
+  <bean id="uploadManagerImpl"
+    class="org.sipfoundry.sipxconfig.upload.UploadManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
+  
+  <bean id="uploadManager"
+    class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.upload.UploadManager</value>
+    </property>
+    <property name="target">
+      <ref local="uploadManagerImpl"/>
+    </property>
+  </bean>
+  
+  <bean id="upload" class="org.sipfoundry.sipxconfig.upload.Upload"
+    singleton="false">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+  
+</beans>

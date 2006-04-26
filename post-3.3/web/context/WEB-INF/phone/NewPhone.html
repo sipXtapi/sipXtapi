@@ -1,0 +1,25 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+	</head>
+	<body jwcid="$content$">
+		<div jwcid="@Border" useDojo="true">
+    <span jwcid="@GroupCloud" groups="ognl:phoneContext.groups"/>
+            <h2>New Phone</h2>
+            <p>The serial number is a unique ID for this device. 
+            Generally it's the phone's MAC address.</p>
+            <form jwcid="form" name="phone:new">
+            <span jwcid="editPhoneForm"/>
+                <checkbox jwcid="stay"/> Create another phone after this one?
+				<ul class="form-actions">
+					<li>
+						<input type="submit" jwcid="ok" id="phone:ok" value="OK"/>
+					</li>
+					<li>
+						<input type="submit" jwcid="cancel" id="phone:cancel" value="Cancel"/>
+					</li>
+				</ul>
+           </form>
+     </div>  
+</body>
+</html>
