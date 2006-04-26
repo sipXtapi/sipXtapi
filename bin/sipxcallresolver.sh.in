@@ -82,7 +82,7 @@ runConfigpp() {
 # add the file to UpgradePatches1 (upgrading a version 1 database) and UpgradePatches2
 # (upgrading a version 2 database).
 
-UpgradePatches1=""
+UpgradePatches1="test"
 
 # Apply database patches
 databasePatch() {
@@ -101,8 +101,12 @@ databasePatch() {
     if [ -n "${UpgradePatches}" ]; then
         for patch in $UpgradePatches; do
             if [ -f ${DbPatchDir}/${patch}.sql ]; then
-                ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >/dev/null 2>&1
-                ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}')" >/dev/null 2>&1
+                # Apply patch only if not found in the patch list
+                if ! ${Psql} -U ${PgUser} -d ${Database} -c "select name from patch where name = '${patch}'" | grep ${patch} >/dev/null 2>&1; then
+                   echo "Applying patch ${patch}"
+                   ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >/dev/null 2>&1
+                   ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}', now())" >/dev/null 2>&1
+                fi
             else
                 echo "Error: Database patch file ${patch}.sql not found."
             fi
