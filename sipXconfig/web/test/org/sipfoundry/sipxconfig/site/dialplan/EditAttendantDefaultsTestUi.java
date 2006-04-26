@@ -17,9 +17,9 @@ import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 import net.sourceforge.jwebunit.WebTestCase;
 
-public class EditAttendantDefaults extends WebTestCase {
+public class EditAttendantDefaultsTestUi extends WebTestCase {
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditAttendantDefaults.class);
+        return SiteTestHelper.webTestSuite(EditAttendantDefaultsTestUi.class);
     }
 
     public void setUp() {
