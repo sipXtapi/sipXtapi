@@ -119,8 +119,8 @@ public
   end
   
   # Raise a CallResolverException.  Include the stack trace.
-  def Utils.raise_exception(msg)
-    raise(CallResolverException, msg, caller)
+  def Utils.raise_exception(msg, klass = CallResolverException)
+    raise(klass, msg, caller)
   end
 
 end

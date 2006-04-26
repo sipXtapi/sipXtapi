@@ -102,7 +102,7 @@ private
       if host_elements.length == 1
         # Supply default port for localhost
         if host_elements[0] == LOCALHOST
-          host_elements[1] = DatabaseUrl::DEFAULT_DATABASE_PORT.to_s
+          host_elements[1] = DatabaseUrl::DATABASE_PORT_DEFAULT.to_s
           puts "i\'m here" 
         else
           Utils.raise_exception("No port specified for host \"#{host_elements[0]}\". " +

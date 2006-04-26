@@ -12,24 +12,24 @@
 class DatabaseUrl
   
   DATABASE_DEFAULT = 'SIPXCDR'
-  DEFAULT_DATABASE_PORT = 5432
-  ADAPTER_DEFAULT  = 'postgresql'
+  DATABASE_PORT_DEFAULT = 5432                # Default port used by PostgreSQL
   HOST_DEFAULT     = 'localhost'  
+  ADAPTER_DEFAULT  = 'postgresql'
   USERNAME_DEFAULT = 'postgres'
   
 public
 
-  attr_accessor :adapter, :host, :username, :database, :port
+  attr_accessor :database, :port, :host, :adapter, :username 
   
   def initialize(database = DATABASE_DEFAULT,
-                 port     = DEFAULT_DATABASE_PORT,
-                 adapter  = ADAPTER_DEFAULT,
+                 port     = DATABASE_PORT_DEFAULT,
                  host     = HOST_DEFAULT,
+                 adapter  = ADAPTER_DEFAULT,
                  username = USERNAME_DEFAULT)
     @database = database
     @port = port if port
-    @adapter = adapter
     @host = host
+    @adapter = adapter
     @username = username
   end
   
@@ -38,8 +38,8 @@ public
   def to_hash
     h = {:database => database,
          :port => port,
-         :adapter => adapter,
          :host => host,
+         :adapter => adapter,
          :username => username}
     h 
   end
@@ -47,8 +47,8 @@ public
   def ==(url)
     (database ? (url.database and database == url.database) : !url.database) and
     (port ? (url.port and port == url.port) : !url.port) and
-    (adapter ? (url.adapter and adapter == url.adapter) : !url.adapter) and
     (host ? (url.host and host == url.host) : !url.host) and
+    (adapter ? (url.adapter and adapter == url.adapter) : !url.adapter) and
     (username ? (url.username and username == url.username) : !url.username)  
   end
   
@@ -60,8 +60,8 @@ public
     haash = 0
     haash += database.hash if database
     haash += port.hash if port
-    haash += adapter.hash if adapter
     haash += host.hash if host
+    haash += adapter.hash if adapter
     haash += username.hash if username
     haash
   end
