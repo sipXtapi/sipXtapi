@@ -36,6 +36,8 @@ class CallResolverTest < Test::Unit::TestCase
   TEST_DB1 = 'SIPXCSE_TEST1'
   TEST_DB2 = 'SIPXCSE_TEST2'
  
+  LOCALHOST = 'localhost'
+ 
 public
 
   def setup
@@ -727,17 +729,45 @@ public
       {CallResolver::PURGE_AGE_CSE => purgeAgeStr}) - purge_start_time_cse) < 1)
   end    
   
-  def test_get_cse_hosts
+  def test_cse_database_urls
+    # Clear the CSE DB URLs to ensure that they will get recreated
+    @resolver.send(:cse_database_urls=, nil)
+    
+    # Create URLs given the host port list
+    host_port_list = [1, 2, 3]
+    @resolver.send(:host_port_list=, host_port_list)
+    urls = @resolver.send(:cse_database_urls)
+    assert_equal(3, urls.size)
+    urls.each_with_index do |url, i|
+      assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
+      assert_equal(host_port_list[i], url.port)
+      assert_equal(LOCALHOST, url.host)
+    end
+
+    # If the host port list is empty or nil, then we should get the default URL
+    [nil, []].each do |host_port_list|
+      @resolver.send(:cse_database_urls=, nil)
+      @resolver.send(:host_port_list=, host_port_list)
+      urls = @resolver.send(:cse_database_urls)
+      assert_equal(1, urls.size)
+      url = urls[0]
+      assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
+      assert_equal(DatabaseUrl::DATABASE_PORT_DEFAULT, url.port)
+      assert_equal(LOCALHOST, url.host)
+    end
+  end
+  
+  def test_set_cse_hosts_config
     # Get the default entry - array with length 1 and default port
-    port_array = @resolver.send(:get_cse_hosts, {})
+    port_array = @resolver.send(:set_cse_hosts_config, {})
     
     assert(port_array.length == 1, 'Wrong number of entries in array')
-    assert(port_array[0] == DatabaseUrl::DEFAULT_DATABASE_PORT , 'Wrong port number')
+    assert(port_array[0] == DatabaseUrl::DATABASE_PORT_DEFAULT , 'Wrong port number')
     assert(!@resolver.send(:get_ha_enabled))
     
     # Pass in other list, no localhost
     hostString = 'test.example.com:5433, test2.example.com:5434'
-    port_array = @resolver.send(:get_cse_hosts, 
+    port_array = @resolver.send(:set_cse_hosts_config, 
       {CallResolver::CSE_HOSTS => hostString})    
       
     assert(port_array.length == 2, 'Wrong number of entries in array')
@@ -747,17 +777,17 @@ public
 
     # Pass in other list, localhost, no port
     hostString = 'test.example.com:5433,localhost'
-    port_array = @resolver.send(:get_cse_hosts, 
+    port_array = @resolver.send(:set_cse_hosts_config, 
       {CallResolver::CSE_HOSTS => hostString})    
       
     assert(port_array.length == 2, 'Wrong number of entries in array')
     assert(@resolver.send(:get_ha_enabled))
     assert(port_array[0] == 5433, 'Wrong port number in first entry')
-    assert(port_array[1] == DatabaseUrl::DEFAULT_DATABASE_PORT, 'Wrong port number in second entry') 
+    assert(port_array[1] == DatabaseUrl::DATABASE_PORT_DEFAULT, 'Wrong port number in second entry') 
     
     # Pass in other list, localhost, no port
     hostString = 'test.example.com:5433,localhost:6666'
-    port_array = @resolver.send(:get_cse_hosts, 
+    port_array = @resolver.send(:set_cse_hosts_config, 
       {CallResolver::CSE_HOSTS => hostString})    
       
     assert(port_array.length == 2, 'Wrong number of entries in array')

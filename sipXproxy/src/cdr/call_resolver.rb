@@ -60,14 +60,18 @@ public
   # Methods
 
   def initialize(config_file = nil)
-    # Load the configuration from the config file.  If the config_file arg is
-    # nil, then find the config file in the default location.
-    load_config(config_file)
-
-    @log_device = nil
-    @log = nil
-    init_logging
     @ha_enabled = false
+
+    # Load the config file.  If the config_file arg is
+    # nil, then find the config file in the default location.
+    load_config_file(config_file)
+
+    # Read logging config and initialize logging.  Do this before initializing
+    # the rest of the config so we can use logging there.
+    init_logging
+    
+    # Finish setting up the config
+    finish_config
   end
 
   # Run daily processing, including purging and/or call resolution
@@ -174,6 +178,10 @@ public
   attr_accessor :log_console, :log_level
 
 private
+    
+  # For testing purposes only.  Test code calls these methods using low-level
+  # message sending.
+  attr_writer :cse_database_urls, :host_port_list
   
   # Connect to the CDR database, if not already connected.  The CDR database
   # is the default database for all models.  Because there is only one CDR
@@ -719,7 +727,7 @@ private
   PURGE_AGE_CSE_DEFAULT = '7'
   
   CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
-  CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DEFAULT_DATABASE_PORT}"
+  CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DATABASE_PORT_DEFAULT}"
 
   
   # Map from the name of a log level to a Logger level value.
@@ -740,7 +748,7 @@ private
   
   # Load the configuration from the config file.  If the config_file arg is
   # nil, then find the config file in the default location.
-  def load_config(config_file)
+  def load_config_file(config_file)
     # If the config_file is nil, then apply defaults
     config_file = apply_config_file_default(config_file)
     
@@ -750,11 +758,13 @@ private
     else
       @config = {}
     end
-
+  end
+  
+  # Finish setting up the config
+  # :TODO: read the rest of the config here, not on demand
+  def finish_config
     # Read config params, applying defaults
-    set_log_console_config(@config)
-    set_log_dir_config(@config)
-    set_log_level_config(@config)
+    set_cse_hosts_config(@config)
   end
   
   # Set the console logging from the configuration.
@@ -841,6 +851,14 @@ private
   
   # Set up logging.  Return the Logger.
   def init_logging
+    @log_device = nil
+    @log = nil
+
+    # Read the logging config
+    set_log_console_config(@config)
+    set_log_dir_config(@config)
+    set_log_level_config(@config)
+
     # If console logging was specified, then do that.  Otherwise log to a file.
     if @log_console
       @log_device = STDOUT
@@ -989,31 +1007,35 @@ private
   # multiple CSE databases.  Note that usually one of these URLs is identical
   # to the CDR database URL, since a standard master server runs both the
   # proxies and the call resolver, which share the SIPXCDR database.
-  # :TODO: Base these URLs on the config rather than just hardwiring the single
-  # SIPXCDR URL (XPB-562).
   def cse_database_urls
     unless @cse_database_urls
-      @cse_database_urls = [cdr_database_url]
+      @cse_database_urls = []
+      if @host_port_list and (@host_port_list.size > 0)
+        # Build the list of CSE DB URLs.  From Call Resolver's point of view,
+        # each URL is 'localhost:<port>'.  Stunnel takes care of forwarding the
+        # local port to the database on a remote host.
+        @host_port_list.each do |port|
+          url = DatabaseUrl.new(DatabaseUrl::DATABASE_DEFAULT, port)
+          @cse_database_urls << url
+        end
+      else
+        @cse_database_urls << cdr_database_url
+      end
     end
     
     @cse_database_urls
   end
   
-  # For testing purposes, make it possible to override the CSE database URLs
-  def cse_database_urls=(urls)
-    @cse_database_urls = urls
-  end
-  
-  # Get possible distributed CSE hosts from configuration file. Generate
-  # an stunnel configuration script and return an array of ports. Call resolver
-  # then connects to each of these ports on 'localhost'
-  def get_cse_hosts(config)
-    host_list = config[CSE_HOSTS]
-    
+  # Get distributed CSE hosts from the configuration. Initialize @host_url_list
+  # to a list of hostnames and @host_port_list to the corresponding list of
+  # ports. Call resolver connects to each of these ports on 'localhost' via the
+  # magic of stunnel, so it doesn't ever use the hostnames.
+  def set_cse_hosts_config(config)
+    host_list = config[CSE_HOSTS]    
     host_list ||= CSE_HOSTS_DEFAULT
     
-    @host_url_list = Array.new
-    @host_port_list = Array.new
+    @host_url_list = []
+    @host_port_list = []
     @ha_enabled = false
     # Split host list into separate host:port names, then build two
     # arrays of URLs and ports.
@@ -1026,10 +1048,12 @@ private
       if host_elements.length == 1
         # Supply default port for localhost
         if host_elements[0] == LOCALHOST
-          host_elements[1] = DatabaseUrl::DEFAULT_DATABASE_PORT
+          host_elements[1] = DatabaseUrl::DATABASE_PORT_DEFAULT
         else
-          raise(ConfigException, "No port specified for host \"#{host_elements[0]}\". " +
-                                  "A port number for hosts other than  \"localhost\" must be specified.")
+          Utils.raise_exception(
+            "No port specified for host \"#{host_elements[0]}\". " +
+            "A port number for hosts other than  \"localhost\" must be specified.",
+            ConfigException)
         end
       else
         # Strip whitespace from port
@@ -1041,7 +1065,7 @@ private
         raise(ConfigException, "Port for #{host_elements[0]} is invalid.")
       end
       @host_port_list << host_port
-      log.debug("get_cse_hosts: host name #{host_elements[0]}, host port: #{host_elements[1]}")
+      log.debug("set_cse_hosts_config: host name #{host_elements[0]}, host port: #{host_elements[1]}")
       # If at least one of the hosts != 'localhost' we are HA enabled
       if host_elements[0] != 'localhost' && ! @ha_enabled
         @ha_enabled = true
