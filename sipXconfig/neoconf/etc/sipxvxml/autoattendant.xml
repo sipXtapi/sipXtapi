@@ -32,4 +32,26 @@
 				user's request.</description>
 		</setting>
 	</group>
+  <group name="onfail">
+		<label>Invalid Response</label>
+    <description>What to do when there are three invalid responses or when a
+      timeout occurs waiting for a response.</description>
+		<setting name="transfer">
+			<label>Transfer the call</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Transfer the call to a designated extension.  Otherwise the call will be
+         disconnected.</description>
+		</setting>
+		<setting name="transfer-extension">
+			<label>Transfer Extension</label>
+			<type>
+				<string/>
+			</type>
+			<value>100</value>
+			<description>Transfer the user to this extension</description>
+		</setting>    
+  </group>
 </model>

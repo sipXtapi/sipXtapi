@@ -15,6 +15,7 @@ require 'parsedate'
 # application requires
 require File.join(File.dirname(__FILE__), 'call_resolver')
 require 'call_direction_plugin'
+require 'stunnel_connection'
 
 
 # Create a Call Resolver
@@ -94,15 +95,38 @@ else
   puts("Unable to locate config file, using default settings")
 end
 
-# Add the Call Direction Plugin as an observer so that it can compute call direction
-if CallDirectionPlugin.call_direction?(resolver.config)
-  resolver.log.info("Call direction is enabled")
-  resolver.add_observer(CallDirectionPlugin.new(resolver))
-end
 
-if daily_flag
-  resolver.daily_run
-else
-  # Resolve calls that occurred during the specified time window
-  resolver.resolve(start_time, end_time, redo_flag)
-end
+stunnel_connection = StunnelConnection.new(resolver)
+
+puts("Logging to #{resolver.log_device == STDOUT ? 'the console' : resolver.log_device}")
+
+begin
+  stunnel_connection.open(resolver.config)
+
+  # Add the Call Direction Plugin as an observer so that it can compute call direction
+  if CallDirectionPlugin.call_direction?(resolver.config)
+    resolver.log.info("Call direction is enabled")
+    resolver.add_observer(CallDirectionPlugin.new(resolver))
+  end
+
+  if daily_flag
+    resolver.daily_run
+  else
+    # Resolve calls that occurred during the specified time window
+    resolver.resolve(start_time, end_time, redo_flag)
+  end  
+  
+rescue
+  # Backstop exception handler: don't let any exceptions propagate back
+  # to the caller.  Log the error and the stack trace.  The log message has to
+  # go on a single line, unfortunately.  Embed "\n" for syslogviewer.
+  start_line = "\n        from "    # start each backtrace line with this
+  resolver.log.error"Exiting because of error: \"#{$!}\"" + start_line +
+                    $!.backtrace.inject{|trace, line| trace + start_line + line}
+                
+ensure
+  stunnel_connection.close
+                    
+end  
+
+

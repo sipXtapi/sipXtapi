@@ -18,7 +18,16 @@ public class VersionInfoTest extends TestCase {
     public void testGetLongVersionStringEmpty() {
         // no package information during tests
         VersionInfo info = new VersionInfo();
-        assertEquals("  ()", info.getLongVersionString());
+        assertEquals(" ()", info.getVersionString());
+    }
+    
+    public void testGetVersionIds() {
+        Integer[] ids = VersionInfo.versionStringToVersionIds("12.34.56");
+        assertEquals(3, ids.length);
+        assertEquals(12, ids[0].intValue());
+        assertEquals(34, ids[1].intValue());
+        assertEquals(56, ids[2].intValue());
+        assertEquals(0, VersionInfo.versionStringToVersionIds(null).length);
     }
 
     public void testGetLongVersionString() {
@@ -35,6 +44,6 @@ public class VersionInfoTest extends TestCase {
                 return "version";
             }
         };
-        assertEquals("title version (build)", info.getLongVersionString());
+        assertEquals("version (build)", info.getVersionString());
     }
 }

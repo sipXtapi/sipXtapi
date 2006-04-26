@@ -251,6 +251,11 @@ public class DialPlanEditTestUi extends WebTestCase {
         assertEquals(gateways[1][0], gatewayTable.getCellAsText(1, 1));
         assertEquals(gateways[2][0], gatewayTable.getCellAsText(3, 1));
 
+        // click the gateway link - and then click cancel
+        clickLinkWithText(gateways[0][0]);
+        SiteTestHelper.assertNoException(tester);
+        clickButton("form:cancel");
+
         // test removal
         for (int i = 0; i < gatewayCount; i++) {
             SiteTestHelper.selectRow(tester, i, true);
@@ -261,6 +266,11 @@ public class DialPlanEditTestUi extends WebTestCase {
 
         // test adding existing gateways
         clickLink("gateway:select");
+        // one more time check if gateway edit is working
+        clickLinkWithText(gateways[0][0]);
+        SiteTestHelper.assertNoException(tester);
+        clickButton("form:cancel");        
+        
         SiteTestHelper.assertNoException(tester);
         for (int i = 0; i < gatewayCount; i++) {
             SiteTestHelper.selectRow(tester, i, true);

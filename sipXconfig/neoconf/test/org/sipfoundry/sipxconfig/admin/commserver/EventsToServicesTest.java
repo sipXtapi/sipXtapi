@@ -52,9 +52,10 @@ public class EventsToServicesTest extends TestCase {
         Collection services = ets.getServices(Object.class);
         assertEquals(3, services.size());
         assertFalse(services.contains("b"));
-
+        
         services = ets.getServices(Integer.class);
-        assertEquals(5, services.size());
+        // 5 - 3 two remaining services should be here
+        assertEquals(2, services.size());
         assertTrue(services.contains("b"));
     }
 }

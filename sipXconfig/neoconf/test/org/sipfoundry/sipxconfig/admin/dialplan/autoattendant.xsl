@@ -7,8 +7,10 @@
   -->
 <xsl:template match="vxml">
 	<vxml>
+		<xsl:apply-templates select="form[@id='aa']/var[@name='failedoption']" mode="content"/>	
 		<xsl:apply-templates select="form[@id='aa']/property" mode="content"/>	
 		<xsl:apply-templates select="form[@id='aa']/field[@name='menu']/filled/if" mode="content"/>	
+		<xsl:apply-templates select="form[@id='aa']/field[@name='menu']/noinput[@count='3']/if/assign[@name='extension']" mode="content"/>	
 	</vxml>
 </xsl:template>
 

@@ -22,20 +22,20 @@ class DatabaseUrlTest < Test::Unit::TestCase
   end
   
   def test_create_url
-    url = DatabaseUrl.new('adapter', 'host', 'username', 'database', 'port')
-    assert_equal('adapter', url.adapter)
-    assert_equal('host', url.host)
-    assert_equal('username', url.username)
+    url = DatabaseUrl.new('database', 'port', 'host', 'adapter', 'username')
     assert_equal('database', url.database)
     assert_equal('port', url.port)
+    assert_equal('host', url.host)
+    assert_equal('adapter', url.adapter)
+    assert_equal('username', url.username)
     
     h = url.to_hash
     assert_equal(5, h.size());
-    assert_equal('adapter', h[:adapter])
-    assert_equal('host', h[:host])
-    assert_equal('username', h[:username])
     assert_equal('database', h[:database])
     assert_equal('port', h[:port])
+    assert_equal('host', h[:host])
+    assert_equal('adapter', h[:adapter])
+    assert_equal('username', h[:username])
   end
   
   def test_equality

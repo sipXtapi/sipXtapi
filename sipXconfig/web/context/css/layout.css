@@ -131,7 +131,7 @@ li.tab.active a:link,li.tab.active a:hover,li.tab.active a:visited
 #navigation li {
 	float: left;
 	position: relative;
-	width: 12em;
+	width: 10em;
 	text-align:center;
 	margin: 0;
 	padding: 0;

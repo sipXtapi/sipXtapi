@@ -6,7 +6,7 @@
   </parameter>
   <parameter name="ruleId"  required="no" default-value="null" >
   </parameter>
-  <parameter name="editPageName"  required="yes" >
+  <parameter name="editPageName" required="yes" >
   </parameter>
   <!-- P R O P E R T I E S -->
   <property name="currentRow" />
@@ -24,6 +24,6 @@
   </component>
   <component id="editRowLink" type="DirectLink">
     <binding name="listener" value="listener:edit"/>
-    <binding name="parameters" value="currentRow.id"/>
+    <binding name="parameters" value="{currentRow.id, ruleId}"/>
   </component>
 </component-specification>

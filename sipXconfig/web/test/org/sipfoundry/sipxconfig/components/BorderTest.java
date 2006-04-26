@@ -79,7 +79,7 @@ public class BorderTest extends TestCase {
             fail("unexpected expected");
         }
     }
-
+    
     private static class MockUserSession extends UserSession {
         private final boolean m_admin;
 

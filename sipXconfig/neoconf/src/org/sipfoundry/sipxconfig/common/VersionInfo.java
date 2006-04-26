@@ -27,7 +27,27 @@ public class VersionInfo {
     public String getVersion() {
         return getClass().getPackage().getSpecificationVersion();
     }
-
+    
+    /**
+     * Split version into convienient ids for comparison 
+     * @return
+     */
+    public Integer[] getVersionIds() {
+        return versionStringToVersionIds(getVersion());
+    }
+    
+    static Integer[] versionStringToVersionIds(String version) {
+        if (StringUtils.isBlank(version)) {
+            return new Integer[0];
+        }
+        String[] sids = version.split("\\.");
+        Integer[] ids = new Integer[sids.length];
+        for (int i = 0; i < ids.length; i++) {
+            ids[i] = new Integer(sids[i]);
+        }
+        return ids;
+    }
+    
     /**
      * @return more specific build information
      */
@@ -38,15 +58,15 @@ public class VersionInfo {
     public String getTitle() {
         return getClass().getPackage().getSpecificationTitle();
     }
-
-    public String getLongVersionString() {
+    
+    public String getVersionString() {
         Object[] params = {
-            getTitle(), getVersion(), getBuild()
+            getVersion(), getBuild()
         };
         // remove nulls
         for (int i = 0; i < params.length; i++) {
             params[i] = ObjectUtils.defaultIfNull(params[i], StringUtils.EMPTY);
         }
-        return MessageFormat.format("{0} {1} ({2})", params);
+        return MessageFormat.format("{0} ({1})", params);
     }
 }

@@ -28,8 +28,6 @@ public abstract class GatewayTable extends BaseComponent implements PageBeginRen
 
     public abstract String getEditPageName();
 
-    public abstract Integer getRuleId();
-
     public abstract SelectMap getSelections();
 
     public abstract void setSelections(SelectMap selected);
@@ -44,13 +42,11 @@ public abstract class GatewayTable extends BaseComponent implements PageBeginRen
     /**
      * When user clicks on link to edit a gateway
      */
-    public IPage edit(IRequestCycle cycle) {
+    public IPage edit(IRequestCycle cycle, Integer id, Integer ruleId) {
         String editPageName = getEditPageName();
         EditGateway page = (EditGateway) cycle.getPage(editPageName);
-
-        Integer id = (Integer) cycle.getListenerParameters()[0];
         page.setGatewayId(id);
-        page.setRuleId(getRuleId());
+        page.setRuleId(ruleId);
         page.setCallback(new PageCallback(getPage()));
         return page;
     }

@@ -28,6 +28,15 @@ class CallResolverTest < Test::Unit::TestCase
   TEST_TO_TAG = 't'
  
   SECONDS_IN_A_DAY = 24 * 60 * 60
+  
+  CALL_ID1 = 'call_id1'
+  CALL_ID2 = 'call_id2'
+  CALL_ID3 = 'call_id3'
+  
+  TEST_DB1 = 'SIPXCSE_TEST1'
+  TEST_DB2 = 'SIPXCSE_TEST2'
+ 
+  LOCALHOST = 'localhost'
  
 public
 
@@ -47,10 +56,141 @@ public
     
     # Connect to the database and verify that we are connected.
     # Rails quirk: we can't assert "connected?" because the connection has been
-    # established but is not active yet, so "connected?" is not true.  But if we
-    # try to retrieve the connection, then it must exist.
+    # established but is not active yet, so "connected?" is not true.  But we
+    # can check that the connection exists.
     @resolver.send(:connect_to_cdr_database)
-    assert(ActiveRecord::Base.retrieve_connection, 'Must be connected to database')
+    assert(ActiveRecord::Base.connection, 'Must be connected to database')
+  end
+
+  def test_load_distrib_events_in_time_window
+    # Create the two test databases if they don't already exist.
+    # Note: using existing databases to save time may fail if the schema changes
+    # in, which case you should manually delete the databases and run the test
+    # again.
+    DatabaseUtils.create_database(TEST_DB1)
+    DatabaseUtils.create_database(TEST_DB2)
+    
+    cse_url1 = DatabaseUrl.new(TEST_DB1)
+    cse_url2 = DatabaseUrl.new(TEST_DB2)
+    
+    # Pick an arbitrary base event time for all events
+    start_time = Time.now
+    
+    # Test loading the events.  Restore the CallStateEvent DB connection after
+    # the test if there was one.  Restore the CSE database URLs.
+    conn = CallStateEvent.remove_connection
+    cse_database_urls = @resolver.send(:cse_database_urls)
+    begin
+      # Put events for the first call and part of the second call into the first
+      # test DB.
+      # Note: only the time values on the call that is split across two DBs
+      # matter, because only that call will be time-sorted when the events get
+      # merged.
+      CallStateEvent.establish_connection(DatabaseUrl.new(TEST_DB1).to_hash)
+      CallStateEvent.destroy_all
+      e1_1 = create_test_cse(CALL_ID1, start_time)
+      e1_2 = create_test_cse(CALL_ID1, start_time)
+      e2_1 = create_test_cse(CALL_ID2, start_time + 1)
+      e2_3 = create_test_cse(CALL_ID2, start_time + 3)
+      
+      # Put events for the rest of the second call and the third call into the
+      # second test DB.
+      CallStateEvent.establish_connection(DatabaseUrl.new(TEST_DB2).to_hash)
+      CallStateEvent.destroy_all
+      e2_2 = create_test_cse(CALL_ID2, start_time + 2)
+      e2_4 = create_test_cse(CALL_ID2, start_time + 4)
+      e3_1 = create_test_cse(CALL_ID3, start_time)
+      
+      call1 = [e1_1, e1_2]
+      call2_part1 = [e2_1, e2_3]
+      call2_part2 = [e2_2, e2_4]
+      call2 = (call2_part1 + call2_part2).sort!{|x, y| x.event_time <=> y.event_time}
+      call3 = [e3_1]
+      all_calls = [[call1, call2_part1],           # call arrays for first DB
+                   [call2_part2, call3]]           # call arrays for second DB
+      
+      end_time = start_time + 10
+      @resolver.send(:cse_database_urls=, [cse_url1, cse_url2])
+      call_map = @resolver.send(:load_distrib_events_in_time_window, start_time, end_time)
+      expected_call_map_entries = [call1, call2, call3]
+      check_call_map(all_calls, call_map, expected_call_map_entries)
+    
+    ensure
+      # Restore the original connection, or at least clear the test connection
+      if conn
+        CallStateEvent.establish_connection(conn)
+      else
+        CallStateEvent.remove_connection
+      end
+      
+      # Restore original DB URLs
+      @resolver.send(:cse_database_urls=, cse_database_urls)
+    end
+  end
+
+  # Create a test CSE.  Fill in dummy values for fields we don't care about but
+  # have to be filled in because of not-null DB constraints
+  def create_test_cse(call_id, event_time)
+    CallStateEvent.create(:observer => 'observer',
+                          :event_seq => 0,
+                          :event_time => event_time,
+                          :event_type => CallStateEvent::CALL_REQUEST_TYPE,
+                          :cseq => 0,
+                          :call_id => call_id,
+                          :from_url => 'from_url',
+                          :to_url => 'to_url')    
+  end
+
+  def test_merge_events_for_call    
+    e1 = CallStateEvent.new(:call_id => CALL_ID1)
+    e2 = CallStateEvent.new(:call_id => CALL_ID1)
+    
+    time = Time.now;
+    e3 = CallStateEvent.new(:call_id => CALL_ID2, :event_time => time)
+    e4 = CallStateEvent.new(:call_id => CALL_ID2, :event_time => time + 1)
+    e5 = CallStateEvent.new(:call_id => CALL_ID2, :event_time => time + 2)
+    e6 = CallStateEvent.new(:call_id => CALL_ID2, :event_time => time + 3)
+    
+    e7 = CallStateEvent.new(:call_id => CALL_ID3)
+    
+    call1 = [e1, e2]
+    call2_part1 = [e3, e5]
+    call2_part2 = [e4, e6]
+    call2 = [e3, e4, e5, e6]
+    call3 = [e7]
+    all_calls = [[call1, call2_part1],           # call arrays for first DB
+                 [call2_part2, call3]]           # call arrays for second DB
+    call_map = {}
+    @resolver.send(:merge_events_for_call, all_calls, call_map)
+    expected_call_map_entries = [call1, call2, call3]
+    check_call_map(all_calls, call_map, expected_call_map_entries)
+  end
+
+  def check_call_map(all_calls, call_map, expected_call_map_entries)
+    assert_equal(expected_call_map_entries.size, call_map.size)
+    [CALL_ID1, CALL_ID2, CALL_ID3].each_with_index do |call_id, i|
+      assert_equal(expected_call_map_entries[i], call_map[call_id])
+    end
+  end
+
+  def test_split_events_by_call
+    call1 = 'call1'
+    call2 = 'call2'
+    call3 = 'call3'
+    e1 = CallStateEvent.new(:call_id => call1)
+    e2 = CallStateEvent.new(:call_id => call2)
+    e3 = CallStateEvent.new(:call_id => call2)
+    e4 = CallStateEvent.new(:call_id => call3)
+    e5 = CallStateEvent.new(:call_id => call3)
+    e6 = CallStateEvent.new(:call_id => call3)
+    events = [e1, e2, e3, e4, e5, e6]
+    spl = @resolver.send(:split_events_by_call, events)
+    assert_equal([e1], spl[0])
+    assert_equal([e2, e3], spl[1])
+    assert_equal([e4, e5, e6], spl[2])
+    
+    # check empty events array as input
+    assert_equal([], @resolver.send(:split_events_by_call, []))
   end
 
   def test_load_call_ids
@@ -398,7 +538,7 @@ public
     assert_equal(party_count_before_save + 2, Party.count,
                  'The caller and/or callee was not saved to the database')
     cdr = @resolver.send(:find_cdr_by_dialog, call_id3, from_tag3, to_tag3)
-    assert_not_nil(cdr, "Didn't find saved CDR")     
+    assert_not_nil(cdr, "Didn't find saved CDR")
   end
   
   def test_resolve_call
@@ -588,6 +728,74 @@ public
     assert((@resolver.send(:get_purge_start_time_cse,
       {CallResolver::PURGE_AGE_CSE => purgeAgeStr}) - purge_start_time_cse) < 1)
   end    
+  
+  def test_cse_database_urls
+    # Clear the CSE DB URLs to ensure that they will get recreated
+    @resolver.send(:cse_database_urls=, nil)
+    
+    # Create URLs given the host port list
+    host_port_list = [1, 2, 3]
+    @resolver.send(:host_port_list=, host_port_list)
+    urls = @resolver.send(:cse_database_urls)
+    assert_equal(3, urls.size)
+    urls.each_with_index do |url, i|
+      assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
+      assert_equal(host_port_list[i], url.port)
+      assert_equal(LOCALHOST, url.host)
+    end
+
+    # If the host port list is empty or nil, then we should get the default URL
+    [nil, []].each do |host_port_list|
+      @resolver.send(:cse_database_urls=, nil)
+      @resolver.send(:host_port_list=, host_port_list)
+      urls = @resolver.send(:cse_database_urls)
+      assert_equal(1, urls.size)
+      url = urls[0]
+      assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
+      assert_equal(DatabaseUrl::DATABASE_PORT_DEFAULT, url.port)
+      assert_equal(LOCALHOST, url.host)
+    end
+  end
+  
+  def test_set_cse_hosts_config
+    # Get the default entry - array with length 1 and default port
+    port_array = @resolver.send(:set_cse_hosts_config, {})
+    
+    assert(port_array.length == 1, 'Wrong number of entries in array')
+    assert(port_array[0] == DatabaseUrl::DATABASE_PORT_DEFAULT , 'Wrong port number')
+    assert(!@resolver.send(:get_ha_enabled))
+    
+    # Pass in other list, no localhost
+    hostString = 'test.example.com:5433, test2.example.com:5434'
+    port_array = @resolver.send(:set_cse_hosts_config, 
+      {CallResolver::CSE_HOSTS => hostString})    
+      
+    assert(port_array.length == 2, 'Wrong number of entries in array')
+    assert(@resolver.send(:get_ha_enabled))
+    assert(port_array[0] == 5433, 'Wrong port number in first entry')
+    assert(port_array[1] == 5434, 'Wrong port number in second entry')      
+
+    # Pass in other list, localhost, no port
+    hostString = 'test.example.com:5433,localhost'
+    port_array = @resolver.send(:set_cse_hosts_config, 
+      {CallResolver::CSE_HOSTS => hostString})    
+      
+    assert(port_array.length == 2, 'Wrong number of entries in array')
+    assert(@resolver.send(:get_ha_enabled))
+    assert(port_array[0] == 5433, 'Wrong port number in first entry')
+    assert(port_array[1] == DatabaseUrl::DATABASE_PORT_DEFAULT, 'Wrong port number in second entry') 
+    
+    # Pass in other list, localhost, no port
+    hostString = 'test.example.com:5433,localhost:6666'
+    port_array = @resolver.send(:set_cse_hosts_config, 
+      {CallResolver::CSE_HOSTS => hostString})    
+      
+    assert(port_array.length == 2, 'Wrong number of entries in array')
+    assert(@resolver.send(:get_ha_enabled))
+    assert(port_array[0] == 5433, 'Wrong port number in first entry')
+    assert(port_array[1] == 6666, 'Wrong port number in second entry')               
+        
+  end
   
   #-----------------------------------------------------------------------------
   # Helper methods

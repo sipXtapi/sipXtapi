@@ -23,8 +23,10 @@ require 'call_state_event'
 require 'cdr'
 require 'configure'
 require 'database_url'
+require 'database_utils'
 require 'exceptions'
 require 'party'
+
 
 # :TODO: log the number of calls analyzed and how many succeeded vs. dups or
 #        failures, also termination status
@@ -41,25 +43,35 @@ class CallResolver
   include Observable    # so we can notify Call Resolver plugins of events
 
   # Constants
-  
+
+  LOCALHOST = 'localhost'
+
   # How many seconds are there in a day
   SECONDS_IN_A_DAY = 86400
 
   # Names of events that we send to plugins.
   EVENT_NEW_CDR = 'a new CDR has been created in the database'
+  
+  # SQL command to garbage-collect and analyze a PostgreSQL database
+  POSTGRESQL_TUNE_UP_DATABASE = "VACUUM ANALYZE"
 
 public
 
   # Methods
 
   def initialize(config_file = nil)
-    # Load the configuration from the config file.  If the config_file arg is
-    # nil, then find the config file in the default location.
-    load_config(config_file)
+    @ha_enabled = false
 
-    @log_device = nil
-    @log = nil
+    # Load the config file.  If the config_file arg is
+    # nil, then find the config file in the default location.
+    load_config_file(config_file)
+
+    # Read logging config and initialize logging.  Do this before initializing
+    # the rest of the config so we can use logging there.
     init_logging
+    
+    # Finish setting up the config
+    finish_config
   end
 
   # Run daily processing, including purging and/or call resolution
@@ -116,34 +128,18 @@ public
       log.info("resolve: Resolving calls from #{start_time.to_s} to " +
                "#{end_time.to_s}.  Running at #{start_run}.")
 
-      # Load all CSEs in the time window, sorted by call ID.
+      # Load all CSEs in the time window.  The call_map is a hash where each key
+      # is a call ID and the value is an array of events for that call ID,
+      # sorted by time.
       # :TODO: For performance/scalability (XPR-144) we can't just load all the
       # data at once.  Split the time window into subwindows and do one
       # subwindow at a time, noting incomplete CDRs and carrying those calls
       # forward into the next subwindow.
-      events = load_events_in_time_window(start_time, end_time)
+      call_map = load_distrib_events_in_time_window(start_time, end_time)
       
       # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
-      # The events array is subdivided into contiguous chunks with the same call
-      # ID, each of which is the data for a single call.
-      call_start = 0                          # index of first event in the call
-      while call_start < events.length
-        call_id = events[call_start].call_id  # call ID of current call
-        
-        # Look for the next event with a different call ID.  If we don't find
-        # one, then the current call goes to the end of the events array.
-        call_end = events.length - 1
-        events[call_start + 1..-1].each_with_index do |event, index|
-          if event.call_id != call_id
-            call_end = index + call_start
-            break
-          end
-        end
-        
-        # Resolve the call
-        resolve_call(events[call_start..call_end])
-        
-        call_start = call_end + 1
+      call_map.each_value do |call|
+        resolve_call(call)
       end
 
       end_run = Time.now
@@ -161,12 +157,19 @@ public
   
   # Allow other components to use the Call Resolver log, since all logging should
   # go to a single shared file.  Make the configuration available.
-  attr_reader :log, :config
+  attr_reader :log, :log_device, :config
   
   attr_accessor :log_console, :log_level
 
 private
+    
+  # For testing purposes only.  Test code calls these methods using low-level
+  # message sending.
+  attr_writer :cse_database_urls, :host_port_list
   
+  # Connect to the CDR database, if not already connected.  The CDR database
+  # is the default database for all models.  Because there is only one CDR
+  # database, the caller doesn't need to provide an URL.
   def connect_to_cdr_database
     unless ActiveRecord::Base.connected?
       ActiveRecord::Base.establish_connection(cdr_database_url.to_hash)
@@ -178,6 +181,13 @@ private
     # rather than just hardwiring default values.
     @cdr_database_url = DatabaseUrl.new unless @cdr_database_url
     @cdr_database_url
+  end
+
+  # Connect the CallStateEvent class to the CSE database at the specified URL.
+  # With HA there are multiple CSE databases.
+  def connect_to_cse_database(db_url)    
+    log.debug("connect_to_cse_database: #{db_url}")
+    CallStateEvent.establish_connection(db_url.to_hash)
   end
 
   # Resolve the call, given an events array for that call, to yield 0-1 CDRs.
@@ -211,11 +221,11 @@ private
             status = finish_cdr(cdr_data, events, from_tag, to_tag)
           
             if status
-              if log.debug?
+              log.debug do
                 cdr = cdr_data.cdr
-                log.debug("Resolved a call from #{cdr_data.caller.aor} to " +
-                          "#{cdr_data.callee.aor} at #{cdr.start_time}, status = " +
-                          "#{cdr.termination_text}")
+                "Resolved a call from #{cdr_data.caller.aor} to " +
+                "#{cdr_data.callee.aor} at #{cdr.start_time}, status = " +
+                "#{cdr.termination_text}"
               end
               
               # Save the CDR and associated data
@@ -231,14 +241,100 @@ private
       log.error("resolve_call: error with call ID = \"#{call_id}\", no CDR created: #{$!}") 
     end
   end
+
+  # Load all events in the time window from HA distributed servers.
+  # Return a hash where the key is a call ID and values
+  # are event arrays for that call ID, sorted by time.
+  def load_distrib_events_in_time_window(start_time, end_time)
+    call_map = {}
     
-  # Load all events in the time window, sorted by call ID then by cseq.
+    # all_calls holds arrays, one array of event subarrays for each database.
+    # Each subarray holds events for one call, sorted by time.
+    all_calls = []
+    
+    cse_database_urls.each do |db_url|
+      connect_to_cse_database(db_url)
+      
+      # Load events from this database
+      events = load_events_in_time_window(start_time, end_time)
+      log.debug("load_distrib_events_in_time_window: loaded #{events.length} " +
+                "events from #{db_url}")
+      
+      # Divide the events into subarrays, one for each call.  Save the result.
+      calls = split_events_by_call(events)
+      all_calls << calls
+    end
+    
+    # Put the event arrays in the hash table, merging on collisions
+    merge_events_for_call(all_calls, call_map)
+
+    call_map
+  end
+    
+  # Put call event arrays in the hash table, merging on collisions. The
+  # all_calls arg is an array of arrays, one for each CSE database. Each array
+  # contains event arrays, where each event array is for a single call.
+  def merge_events_for_call(all_calls, call_map)
+    all_calls.each do |calls|
+      calls.each do |call|
+        call_id = call[0].call_id
+        # If there is a hash entry already, then merge this partial call into
+        # it, keeping the time sort. Otherwise create a new hash entry.
+        # Typically each call comes completely from one server, but that is not
+        # always true.
+        entry = call_map[call_id]
+        if entry
+          # merge the events together and re-sort by time
+          entry += call
+          entry.sort!{|x, y| x.event_time <=> y.event_time}
+          
+          # not sure why I have to do this -- entry has been modified in place,
+          # yes? -- but otherwise the hash entry doesn't get updated correctly
+          call_map[call_id] = entry   
+        else
+          # create a new hash entry
+          call_map[call_id] = call
+        end
+      end
+    end
+  end
+
+  # Given an events array where the events for a given call are contiguous,
+  # split the array into subarrays, one for each call.  Return the array of
+  # subarrays.
+  def split_events_by_call(events)
+    calls = []
+    call_start = 0                          # index of first event in the call
+    while call_start < events.length
+      call_id = events[call_start].call_id  # call ID of current call
+      
+      # Look for the next event with a different call ID.  If we don't find
+      # one, then the current call goes to the end of the events array.
+      call_end = events.length - 1
+      events[call_start + 1..-1].each_with_index do |event, index|
+        if event.call_id != call_id
+          call_end = index + call_start
+          break
+        end
+      end
+  
+      # Add the subarray to the calls array
+      calls << events[call_start..call_end]
+  
+      # On to the next call
+      call_start = call_end + 1
+    end
+    calls
+  end
+
+  # Load all events in the time window, sorted by call ID then by time.
+  # Return the events in an array.
   def load_events_in_time_window(start_time, end_time)
     events =
       CallStateEvent.find(
         :all,
         :conditions => "event_time >= '#{start_time}' and event_time < '#{end_time}'",
-        :order => "call_id, cseq")
+        :order => "call_id, event_time")
     log.debug("load_events: loaded #{events.length} events between #{start_time} and #{end_time}")
     events
   end
@@ -272,9 +368,9 @@ private
   def find_first_call_request(events)
     event = events.find {|event| event.call_request?}
 
-    if log.debug?
+    log.debug do
       message = event ? "found #{event}" : "no call request found"
-      log.debug('find_first_call_request: ' + message);
+      'find_first_call_request: ' + message
     end
     
     return event
@@ -411,9 +507,11 @@ private
     db_cdr = find_cdr_by_dialog(cdr.call_id, cdr.from_tag, cdr.to_tag)
     
     # If we found an existing CDR, then log that for debugging
-    if db_cdr and log.debug?
-      log.debug("save_cdr_data: found an existing CDR.  Call ID = #{db_cdr.call_id}, " +
-                "termination = #{db_cdr.termination}, ID = #{db_cdr.id}.")
+    if db_cdr
+      log.debug do
+        "save_cdr_data: found an existing CDR.  Call ID = #{db_cdr.call_id}, " +
+        "termination = #{db_cdr.termination}, ID = #{db_cdr.id}."
+      end
     end
     
     # Save the CDR as long as there is no existing, complete CDR for that call ID.
@@ -566,7 +664,7 @@ private
     # See http://www.postgresql.org/docs/8.0/static/sql-vacuum.html .
     # :TODO: For HA, purge multiple databases, both CSE and CDR
     # Must be done outside of a transaction or we'll get an error.
-    ActiveRecord::Base.connection.execute("VACUUM ANALYZE")
+    ActiveRecord::Base.connection.execute(POSTGRESQL_TUNE_UP_DATABASE)
   end
   
   #-----------------------------------------------------------------------------
@@ -611,6 +709,9 @@ private
   PURGE_AGE_CSE = 'SIP_CALLRESOLVER_PURGE_AGE_CSE'
   PURGE_AGE_CSE_DEFAULT = '7'
   
+  CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
+  CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DATABASE_PORT_DEFAULT}"
+
   
   # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
@@ -630,7 +731,7 @@ private
   
   # Load the configuration from the config file.  If the config_file arg is
   # nil, then find the config file in the default location.
-  def load_config(config_file)
+  def load_config_file(config_file)
     # If the config_file is nil, then apply defaults
     config_file = apply_config_file_default(config_file)
     
@@ -640,11 +741,13 @@ private
     else
       @config = {}
     end
-
+  end
+  
+  # Finish setting up the config
+  # :TODO: read the rest of the config here, not on demand
+  def finish_config
     # Read config params, applying defaults
-    set_log_console_config(@config)
-    set_log_dir_config(@config)
-    set_log_level_config(@config)
+    set_cse_hosts_config(@config)
   end
   
   # Set the console logging from the configuration.
@@ -731,21 +834,35 @@ private
   
   # Set up logging.  Return the Logger.
   def init_logging
+    @log_device = nil
+    @log = nil
+
+    # Read the logging config
+    set_log_console_config(@config)
+    set_log_dir_config(@config)
+    set_log_level_config(@config)
+
     # If console logging was specified, then do that.  Otherwise log to a file.
     if @log_console
       @log_device = STDOUT
     else
       if File.exists?(@log_dir)
-        # Try to open a log file with the standard name in the specified log
-        # dir.
         log_file = File.join(@log_dir, LOG_FILE_NAME)
-        @log_device = File.open(log_file, 'a+')
-        if @log_device
-          #puts("Logging to file \"#{log_file}\"")
+        @log_device = log_file
+        # If the file exists, then it must be writable. If it doesn't exist,
+        # then the directory must be writable.
+        if File.exists?(log_file)
+          if !File.writable?(log_file)
+            puts("init_logging: Log file \"#{log_file}\" exists but is not writable. " +
+                 "Log messages will go to the console.")
+            @log_device = STDOUT
+          end
         else
-          puts("Unable to open log file \"#{log_file}\" for writing, logging " +
-               "to the console")
-          @log_device = STDOUT
+          if !File.writable?(@log_dir)
+            puts("init_logging: Log directory \"#{@log_dir}\" is not writable. " +
+                 "Log messages will go to the console.")
+            @log_device = STDOUT
+          end
         end
       else
         puts("Unable to open log file, log directory \"#{@log_dir}\" does not " +
@@ -753,7 +870,6 @@ private
         @log_device = STDOUT
       end
     end
-
     @log = Logger.new(@log_device)
 
     # Set the log level from the configuration
@@ -874,20 +990,77 @@ private
   # multiple CSE databases.  Note that usually one of these URLs is identical
   # to the CDR database URL, since a standard master server runs both the
   # proxies and the call resolver, which share the SIPXCDR database.
-  # :TODO: Base these URLs on the config rather than just hardwiring the single
-  # SIPXCDR URL (XPB-562).
   def cse_database_urls
     unless @cse_database_urls
-      @cse_database_urls = [cdr_database_url]
+      @cse_database_urls = []
+      if @host_port_list and (@host_port_list.size > 0)
+        # Build the list of CSE DB URLs.  From Call Resolver's point of view,
+        # each URL is 'localhost:<port>'.  Stunnel takes care of forwarding the
+        # local port to the database on a remote host.
+        @host_port_list.each do |port|
+          url = DatabaseUrl.new(DatabaseUrl::DATABASE_DEFAULT, port)
+          @cse_database_urls << url
+        end
+      else
+        @cse_database_urls << cdr_database_url
+      end
     end
     
     @cse_database_urls
   end
   
-  # For testing purposes, make it possible to override the CSE database URLs
-  def cse_database_urls=(urls)
-    @cse_database_urls = urls
-  end
+  # Get distributed CSE hosts from the configuration. Initialize @host_url_list
+  # to a list of hostnames and @host_port_list to the corresponding list of
+  # ports. Call resolver connects to each of these ports on 'localhost' via the
+  # magic of stunnel, so it doesn't ever use the hostnames.
+  def set_cse_hosts_config(config)
+    host_list = config[CSE_HOSTS]    
+    host_list ||= CSE_HOSTS_DEFAULT
+    
+    @host_url_list = []
+    @host_port_list = []
+    @ha_enabled = false
+    # Split host list into separate host:port names, then build two
+    # arrays of URLs and ports.
+    host_array = host_list.split(',')
+    host_array.each do |host_string|
+      host_elements = host_string.split(':')
+      # Strip leading and trailing whitespace
+      host_elements[0] = host_elements[0].strip
+      # Test if port was specified      
+      if host_elements.length == 1
+        # Supply default port for localhost
+        if host_elements[0] == LOCALHOST
+          host_elements[1] = DatabaseUrl::DATABASE_PORT_DEFAULT
+        else
+          Utils.raise_exception(
+            "No port specified for host \"#{host_elements[0]}\". " +
+            "A port number for hosts other than  \"localhost\" must be specified.",
+            ConfigException)
+        end
+      else
+        # Strip whitespace from port
+        host_elements[1] = host_elements[1].strip
+      end
+      @host_url_list << host_elements[0]
+      host_port = host_elements[1].to_i
+      if host_port == 0
+        raise(ConfigException, "Port for #{host_elements[0]} is invalid.")
+      end
+      @host_port_list << host_port
+      log.debug("set_cse_hosts_config: host name #{host_elements[0]}, host port: #{host_elements[1]}")
+      # If at least one of the hosts != 'localhost' we are HA enabled
+      if host_elements[0] != 'localhost' && ! @ha_enabled
+        @ha_enabled = true
+        log.debug("get_cse_host: Found host other than localhost - enable HA")
+      end
+    end
+    @host_port_list
+  end  
+  
+  def get_ha_enabled
+    @ha_enabled
+  end  
   
   #-----------------------------------------------------------------------------
 

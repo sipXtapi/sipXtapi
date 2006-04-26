@@ -23,6 +23,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageValidateListener;
 import org.apache.tapestry.link.StaticLink;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.Home;
 import org.sipfoundry.sipxconfig.site.LoginPage;
@@ -30,6 +31,8 @@ import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 public abstract class Border extends BaseComponent implements PageValidateListener {
+    private VersionInfo m_version = new VersionInfo();
+
     public abstract CoreContext getCoreContext();
     
     /**
@@ -47,7 +50,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     public abstract boolean isRestricted();
 
     public abstract IEngineService getRestartService();
-
+    
     public void pageValidate(PageEvent event_) {
         if (!isLoginRequired()) {
             return;
@@ -82,5 +85,9 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         LoginPage loginPage = (LoginPage) page.getRequestCycle().getPage(LoginPage.PAGE);
         loginPage.setCallback(callback);
         throw new PageRedirectException(loginPage);
+    }
+    
+    public VersionInfo getVersionInfo() {
+        return m_version;
     }
 }

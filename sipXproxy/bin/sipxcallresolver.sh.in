@@ -139,6 +139,29 @@ runningUserCheck() {
   return 0
 }
 
+# Check if call resolver is configured for HA
+HAcheck() {
+   # Quietly check if we're setup for HA - we have to do database tests differently
+   resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_CSE_HOSTS`
+   host_list=`expr match "$resolveConfig" '.*CSE_HOSTS\s*:\s*\(.*\)'`
+   
+   ha_with_localhost=0   
+
+   if [ -z "$host_list" ]; then
+      # Normal setup
+      return 1
+   else
+      if expr match "$host_list" '.*localhost.*' >/dev/null; then
+         # HA setup with localhost
+         ha_with_localhost=1 
+      else
+         # HA setup without localhost
+         ha_with_localhost=0
+      fi
+      return 0
+   fi
+}
+
 # Return false if postgres is 
 #  1. not running 
 #  2. running but not setup to communicate w/java or ${Psql} command
@@ -249,18 +272,23 @@ proxyCheck() {
 
 configCheck() {
    Status=1
+   db_check=1
    
    if ! proxyCheck; then
      Status=0
    fi
-   
-   echo "Checking database..."
-   if ! databaseCheck; then
-      Status=0
+ 
+   if [ $db_check = 1 ]; then
+     echo "Checking database..."
+     if ! databaseCheck; then
+        Status=0
+     else
+        if databaseVersionCheck; then
+           echo "  ok"
+        fi
+     fi
    else
-      if databaseVersionCheck; then
-         echo "  ok"
-      fi
+      echo "Machine is configured for HA without a database on localhost - skip database check"
    fi
 
    echo "Checking configuration..."   
@@ -293,69 +321,72 @@ configCheck() {
       echo "  authproxy configured for logging"
    fi
    
-   resolveOk=1
-   resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_DAILY_RUN`
-   if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
-      echo
-      echo "  Warning: call resolver is not configured for daily runs. This"
-      echo "           will prevent the call resolver from automatically"
-      echo "           resolving calls and purging old database records"
-      echo "           on a regular basis. Add the line"
-      echo              
-      echo "              SIP_CALLRESOLVER_DAILY_RUN : ENABLE"
-      echo
-      echo "           to @SIPX_CONFDIR@/callresolver-config.in"
-      echo 
-      resolveOk=0
-      Status=0
-   fi
-
-   resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_PURGE`
-   if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
-      echo
-      echo "  Warning: call resolver is not configured for purging old records."
-      echo "           This will prevent the call resolver from automatically"
-      echo "           purging old database records on a regular basis. Add"
-      echo "           the line"
-      echo              
-      echo "              SIP_CALLRESOLVER_PURGE  : ENABLE"
-      echo
-      echo "           to @SIPX_CONFDIR@/callresolver-config.in"
-      echo
-      resolveOk=0
-      Status=0
-   fi
-   
-   if [ $resolveOk = 1 ]; then
-      echo "  call resolver configuration ok"
-   fi   
-   
-   echo -n "Checking for @SIPX_SYSCONFDIR@/cron.daily/callresolver_run..."
-   if [ -f @SIPX_SYSCONFDIR@/cron.daily/callresolver_run ]; then
-      if [ -x @SIPX_SYSCONFDIR@/cron.daily/callresolver_run ]; then
-         echo " ok"
-      else  
+   # Don't check configuration of call resolver for distributed machines
+   if [ ${Action} = CONFIGTEST ]; then
+      resolveOk=1
+      resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_DAILY_RUN`
+      if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
          echo
-         echo "  Error: File found but not executable"
+         echo "  Warning: call resolver is not configured for daily runs. This"
+         echo "           will prevent the call resolver from automatically"
+         echo "           resolving calls and purging old database records"
+         echo "           on a regular basis. Add the line"
+         echo              
+         echo "              SIP_CALLRESOLVER_DAILY_RUN : ENABLE"
+         echo
+         echo "           to @SIPX_CONFDIR@/callresolver-config.in"
+         echo 
+         resolveOk=0
+         Status=0
+      fi
+
+      resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_PURGE`
+      if ! expr match "$resolveConfig" '.*:\s*[eE][nN][aA][bB][lL][eE]\s*$' >/dev/null; then
+         echo
+         echo "  Warning: call resolver is not configured for purging old records."
+         echo "           This will prevent the call resolver from automatically"
+         echo "           purging old database records on a regular basis. Add"
+         echo "           the line"
+         echo              
+         echo "              SIP_CALLRESOLVER_PURGE  : ENABLE"
+         echo
+         echo "           to @SIPX_CONFDIR@/callresolver-config.in"
+         echo
+         resolveOk=0
+         Status=0
+      fi
+   
+      if [ $resolveOk = 1 ]; then
+         echo "  call resolver configuration ok"
+      fi   
+   
+      echo -n "Checking for @SIPX_SYSCONFDIR@/cron.daily/callresolver_run..."
+      if [ -f @SIPX_SYSCONFDIR@/cron.daily/callresolver_run ]; then
+         if [ -x @SIPX_SYSCONFDIR@/cron.daily/callresolver_run ]; then
+            echo " ok"
+         else  
+            echo
+            echo "  Error: File found but not executable"
+            echo
+            Status=0
+         fi
+      else
+         echo
+         echo "  Error: @SIPX_SYSCONFDIR@/etc/cron.daily/callresolver_run not found."
          echo
          Status=0
       fi
-   else
-      echo
-      echo "  Error: @SIPX_SYSCONFDIR@/etc/cron.daily/callresolver_run not found."
-      echo
-      Status=0
-   fi
    
-   echo -n "Checking for @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb..."
-   if [ -f @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ]; then
-      echo " ok"
-   else
-      echo
-      echo "  Error: @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb not found."
-      echo
-      Status=0
-   fi   
+      echo -n "Checking for @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb..."
+      if [ -f @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ]; then
+         echo " ok"
+      else
+         echo
+         echo "  Error: @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb not found."
+         echo
+         Status=0
+      fi   
+   fi
 }
 
 # Check the database version.  If it is wrong, then exit, because it's dangerous to
@@ -468,6 +499,10 @@ do
         --patch)
             Action=PATCH
             ;;
+            
+        --distrib-configtest)
+            Action=DISTRIBTEST
+            ;;
 
         --nop)
             Action=NOP
@@ -499,12 +534,20 @@ if [ ${Action} = CONFIGTEST ]
 then
     configtest
     exit $Status
+elif [ ${Action} = DISTRIBTEST ]
+then
+    configtest
+    exit $Status
 elif [ ${Action} = DATABASE ] 
 then
     databaseCommand $Args
 elif [ ${Action} = RUN ] 
 then
-    onStartup
+   if [ "${user}" != "root" ]; then
+      echo "Error: Must be root to run call resolver"
+      exit 1
+   fi
+   onStartup
 elif [ ${Action} = SETUP ]
 then
     onSetup
