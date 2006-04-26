@@ -42,7 +42,7 @@ public
     end
     
     # create a Hash to hold the param name to value map
-    @map = Hash.new
+    @map = {}
     
     
     # parse the config file and fill in the map

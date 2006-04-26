@@ -51,7 +51,9 @@ public
     # Set up a single test gateway
     @plugin.send(:gateways=, [Gateway.new(:address => "1.1.1.1")])
     
-    # Resolve calls, computing call direction via the plugin
+    # Resolve calls, computing call direction via the plugin. Calls will be
+    # loaded in call ID order: testAnotherSuccess1, testAnotherSuccess2, then
+    # testFailed.
     Cdr.delete_all
     start_time = Time.parse('2001-1-1T00:00:00.000Z')
     end_time = Time.parse('2001-1-1T20:01:00.000Z')
@@ -61,9 +63,7 @@ public
     
     # Check that call direction came out as expected
     cdrs = Cdr.find(:all)
-    assert_equal('I', cdrs[0].call_direction)
-    assert_equal('O', cdrs[1].call_direction)
-    assert_equal('A', cdrs[2].call_direction)
+    check_call_direction(cdrs)
   end
   
   def test_call_direction_with_null_contact
@@ -97,9 +97,23 @@ public
     
     # Check that call direction came out as expected
     cdrs = Cdr.find(:all)
-    assert_equal('I', cdrs[0].call_direction)
-    assert_equal('O', cdrs[1].call_direction)
-    assert_equal('A', cdrs[2].call_direction)
+    check_call_direction(cdrs)
   end  
-        
+
+  def check_call_direction(cdrs)
+    cdrs.each do |cdr|
+      call_direction = cdr.call_direction
+      case cdr.call_id
+      when 'testAnotherSuccess1'
+        assert_equal('I', call_direction)
+      when 'testAnotherSuccess2'
+        assert_equal('O', call_direction)
+      when 'testAnotherSuccess3'
+        assert_equal('A', call_direction)
+      else
+        assert(false, "Unexpected call ID #{cdr.call_id}")
+      end
+    end
+  end
+  
 end

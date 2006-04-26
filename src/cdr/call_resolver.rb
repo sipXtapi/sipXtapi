@@ -128,34 +128,18 @@ public
       log.info("resolve: Resolving calls from #{start_time.to_s} to " +
                "#{end_time.to_s}.  Running at #{start_run}.")
 
-      # Load all CSEs in the time window, sorted by call ID.
+      # Load all CSEs in the time window.  The call_map is a hash where each key
+      # is a call ID and the value is an array of events for that call ID,
+      # sorted by time.
       # :TODO: For performance/scalability (XPR-144) we can't just load all the
       # data at once.  Split the time window into subwindows and do one
       # subwindow at a time, noting incomplete CDRs and carrying those calls
       # forward into the next subwindow.
-      events = load_events_in_time_window(start_time, end_time)
+      call_map = load_distrib_events_in_time_window(start_time, end_time)
       
       # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
-      # The events array is subdivided into contiguous chunks with the same call
-      # ID, each of which is the data for a single call.
-      call_start = 0                          # index of first event in the call
-      while call_start < events.length
-        call_id = events[call_start].call_id  # call ID of current call
-        
-        # Look for the next event with a different call ID.  If we don't find
-        # one, then the current call goes to the end of the events array.
-        call_end = events.length - 1
-        events[call_start + 1..-1].each_with_index do |event, index|
-          if event.call_id != call_id
-            call_end = index + call_start
-            break
-          end
-        end
-        
-        # Resolve the call
-        resolve_call(events[call_start..call_end])
-        
-        call_start = call_end + 1
+      call_map.each_value do |call|
+        resolve_call(call)
       end
 
       end_run = Time.now
@@ -258,12 +242,11 @@ private
     end
   end
 
-  # Load all events in the time window from HA distributed servers
+  # Load all events in the time window from HA distributed servers.
   # Return a hash where the key is a call ID and values
   # are event arrays for that call ID, sorted by time.
-  # :NOW: use this method in call resolution
   def load_distrib_events_in_time_window(start_time, end_time)
-    call_map = Hash.new
+    call_map = {}
     
     # all_calls holds arrays, one array of event subarrays for each database.
     # Each subarray holds events for one call, sorted by time.

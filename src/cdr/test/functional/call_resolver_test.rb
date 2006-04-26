@@ -160,7 +160,7 @@ public
     call3 = [e7]
     all_calls = [[call1, call2_part1],           # call arrays for first DB
                  [call2_part2, call3]]           # call arrays for second DB
-    call_map = Hash.new
+    call_map = {}
     @resolver.send(:merge_events_for_call, all_calls, call_map)
     expected_call_map_entries = [call1, call2, call3]
     check_call_map(all_calls, call_map, expected_call_map_entries)
