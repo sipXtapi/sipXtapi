@@ -8,7 +8,7 @@
 ##############################################################################
 
 # Application requires.  Assume that the load path has been set up for us.
-require 'call_resolver'
+require 'call_resolver_configure'
 require 'configure'
 require 'database_url'
 require 'exceptions'
@@ -84,12 +84,9 @@ private
   # Get possible distributed CSE hosts from configuration file. Generate
   # an stunnel configuration script and return an array of ports.
   def get_stunnel_config(config)
-    host_list = config[CallResolver::CSE_HOSTS]
-    
-    host_list ||= CallResolver::CSE_HOSTS_DEFAULT
-
-    host_url_list = Array.new
-    host_port_list = Array.new
+    host_list = config.host_list
+    host_url_list = []
+    host_port_list = []
     @ha_enabled = false
     # Split host list into separate host:port names, then build two
     # arrays of URLs and ports.
@@ -105,8 +102,9 @@ private
           host_elements[1] = DatabaseUrl::DATABASE_PORT_DEFAULT.to_s
           puts "i\'m here" 
         else
-          Utils.raise_exception("No port specified for host \"#{host_elements[0]}\". " +
-                                             "A port number for hosts other than  \"localhost\" must be specified.")
+          Utils.raise_exception(
+            "No port specified for host \"#{host_elements[0]}\". " +
+            "A port number for hosts other than  \"localhost\" must be specified.")
         end
       else
         # Strip whitespace from port
