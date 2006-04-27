@@ -430,6 +430,8 @@ onSetup() {
    then
        @bindir@/pgpatch.sh
        databaseCommand create
+   else
+       databasePatch
    fi
 }
 
@@ -439,6 +441,7 @@ onStartup() {
     if ! databaseVersionCheck; then
        exit 1
     fi
+    databasePatch
     ruby @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ${resolverArgs}
 }
 

@@ -183,6 +183,8 @@ cat > $Work.copy-files <<EOF
 @SIPX_CONFDIR@/authproxy-config.in
 @SIPX_CONFDIR@/authrules.xml
 @SIPX_CONFDIR@/authrules.xml.in
+@SIPX_CONFDIR@/callresolver-config
+@SIPX_CONFDIR@/callresolver-config.in
 @SIPX_CONFDIR@/config.defs
 @SIPX_CONFDIR@/destinations.xml
 @SIPX_CONFDIR@/fallbackrules.xml
@@ -251,12 +253,14 @@ then
 @SIPX_LOGDIR@/mediaserver.log
 @SIPX_LOGDIR@/mediaserver_cgi.log
 @SIPX_LOGDIR@/sipauthproxy.log
+@SIPX_LOGDIR@/sipcallresolver.log
 @SIPX_LOGDIR@/sipproxy.log
 @SIPX_LOGDIR@/sipregistrar.log
 @SIPX_LOGDIR@/sipstatus.log
 @SIPX_LOGDIR@/sipxconfig.log
 @SIPX_LOGDIR@/sipxpark.log
 @SIPX_LOGDIR@/sipxpresence.log
+@SIPX_LOGDIR@/stunnel.log
 @SIPX_LOGDIR@/vxmlengine.log
 @SIPX_LOGDIR@/watchdog.log
 EOF
