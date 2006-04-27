@@ -89,7 +89,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         if (dup != null) {
             throw new NameInUseException(dup);
         }
-        if (!user.isNew()) {            
+        if (!user.isNew()) {
             String origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
             if (!origUserName.equals(user.getUserName())) {
                 String origPintoken = (String) getOriginalValue(user, "pintoken");
@@ -101,7 +101,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         }
         getHibernateTemplate().saveOrUpdate(user);
     }
-    
+
     public static class ChangePintokenRequiredException extends UserException {
         public ChangePintokenRequiredException(String msg) {
             super(msg);
@@ -302,6 +302,10 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                 createAdminGroupAndInitialUserTask();
             }
         }
+        // read permissions from settings file
+        if (event instanceof ApplicationInitializedEvent) {
+            Permission.init(getUserSettingsModel());
+        }
     }
 
     /**
@@ -357,14 +361,13 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public List getGroups() {
         return m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
     }
-    
 
     public Group getGroupByName(String userGroupName, boolean createIfNotFound) {
         if (createIfNotFound) {
             return m_settingDao.getGroupCreateIfNotFound(USER_GROUP_RESOURCE_ID, userGroupName);
         }
         return m_settingDao.getGroupByName(USER_GROUP_RESOURCE_ID, userGroupName);
-    }    
+    }
 
     public Setting getUserSettingsModel() {
         // return copy so original model stays intact
