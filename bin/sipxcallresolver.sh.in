@@ -92,7 +92,7 @@ databasePatch() {
         1)
             UpgradePatches=$UpgradePatches1
             ;;
-
+            
         *)
             UpgradePatches=""
             ;;
@@ -104,13 +104,16 @@ databasePatch() {
                 # Apply patch only if not found in the patch list
                 if ! ${Psql} -U ${PgUser} -d ${Database} -c "select name from patch where name = '${patch}'" | grep ${patch} >/dev/null 2>&1; then
                    ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >/dev/null 2>&1
-                   ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}', now())" >/dev/null 2>&1
+                   ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}')" >/dev/null 2>&1
                 fi
             else
                 echo "Error: Database patch file ${patch}.sql not found."
             fi
         done
-        ${Psql} -U ${PgUser} -d ${Database} -c "insert into version_history values (${DbVersion}, now())" >/dev/null 2>&1
+        # Apply new version only if it's not in the table already
+        if ! ${Psql} -U ${PgUser} -d ${Database} -c "select version from version_history where version = '${DbVersion}'" | grep ${DbVersion} >/dev/null 2>&1; then
+           ${Psql} -U ${PgUser} -d ${Database} -c "insert into version_history values (${DbVersion}, now())" >/dev/null 2>&1
+        fi
     fi
 }
 
@@ -466,11 +469,11 @@ onSetup() {
 
 # Start CDR call resolver
 onStartup() { 
+    databasePatch
     # Check database version - don't run if it's wrong
     if ! databaseVersionCheck; then
        exit 1
     fi
-    databasePatch
     ruby @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ${resolverArgs}
 }
 
