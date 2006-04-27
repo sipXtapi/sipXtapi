@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.NamedObject;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -41,7 +41,7 @@ public class Bridge extends BeanWithSettings implements NamedObject {
 
     private Set m_conferences = new HashSet();
 
-    private PhoneDefaults m_systemDefaults;
+    private DeviceDefaults m_systemDefaults;
 
     private String m_audioDirectory;
 
@@ -126,7 +126,7 @@ public class Bridge extends BeanWithSettings implements NamedObject {
         m_conferences = conferences;
     }
 
-    public void setSystemDefaults(PhoneDefaults systemDefaults) {
+    public void setSystemDefaults(DeviceDefaults systemDefaults) {
         m_systemDefaults = systemDefaults;
     }
 

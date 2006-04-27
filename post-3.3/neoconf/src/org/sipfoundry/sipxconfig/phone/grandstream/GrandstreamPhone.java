@@ -20,10 +20,10 @@ import java.util.Iterator;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.phone.RestartException;
@@ -145,7 +145,7 @@ public class GrandstreamPhone extends Phone {
     
     protected void defaultSettings() { 
         super.defaultSettings(); 
-        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+        DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
         Setting upgroot = getSettings().getSetting("upgrade");
         setDefaultIfExists(upgroot, "__TFTPServer-213", defaults.getTftpServer());
         setDefaultIfExists(upgroot, "__TFTPServerOld-41", defaults.getTftpServer());
@@ -193,7 +193,7 @@ public class GrandstreamPhone extends Phone {
 
     protected void defaultLineSettings(Line line) { 
         super.defaultLineSettings(line); 
-        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+        DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
 
         GrandstreamModel model = (GrandstreamModel) getModel();
         int cfgtyp = model.getLineCfgType();

@@ -16,7 +16,7 @@ import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 
 public class BridgeTest extends TestCase {
@@ -57,8 +57,8 @@ public class BridgeTest extends TestCase {
     public void testGetDefaults() {
         final String audioDir = "/really/strange/directory";
 
-        MockControl defaultsCtrl = MockClassControl.createControl(PhoneDefaults.class);
-        PhoneDefaults defaults = (PhoneDefaults) defaultsCtrl.getMock();
+        MockControl defaultsCtrl = MockClassControl.createControl(DeviceDefaults.class);
+        DeviceDefaults defaults = (DeviceDefaults) defaultsCtrl.getMock();
         defaults.getDomainName();
         defaultsCtrl.setReturnValue("xyz.org");
         defaultsCtrl.replay();

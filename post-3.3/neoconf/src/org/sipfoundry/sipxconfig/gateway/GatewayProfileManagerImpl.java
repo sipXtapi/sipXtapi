@@ -17,8 +17,8 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
-import org.sipfoundry.sipxconfig.phone.ProfileManager;
 
 public class GatewayProfileManagerImpl implements ProfileManager {
     private static final Log LOG = LogFactory.getLog(GatewayProfileManagerImpl.class);

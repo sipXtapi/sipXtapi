@@ -17,8 +17,8 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
-import org.sipfoundry.sipxconfig.phone.ProfileManager;
 
 /**
  * List all the gateways, allow adding and deleting gateways

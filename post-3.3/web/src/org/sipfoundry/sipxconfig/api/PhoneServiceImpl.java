@@ -21,11 +21,11 @@ import org.apache.commons.collections.CollectionUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
-import org.sipfoundry.sipxconfig.phone.ProfileManager;
-import org.sipfoundry.sipxconfig.phone.RestartManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 

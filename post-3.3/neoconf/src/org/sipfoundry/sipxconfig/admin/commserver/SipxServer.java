@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ConfigFileStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -35,7 +35,7 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
     private SipxReplicationContext m_sipxReplicationContext;
 
-    private PhoneDefaults m_phoneDefaults;
+    private DeviceDefaults m_deviceDefaults;
 
     private CoreContext m_coreContext;
 
@@ -65,8 +65,8 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         m_sipxReplicationContext = sipxReplicationContext;
     }
 
-    public void setPhoneDefaults(PhoneDefaults phoneDefaults) {
-        m_phoneDefaults = phoneDefaults;
+    public void setPhoneDefaults(DeviceDefaults deviceDefaults) {
+        m_deviceDefaults = deviceDefaults;
     }
 
     public void setCoreContext(CoreContext coreContext) {
@@ -100,7 +100,7 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
         // unwelcome dependencies, resolve when domain name editing
         // refactored.
-        m_phoneDefaults.setDomainName(m_domainName);
+        m_deviceDefaults.setDomainName(m_domainName);
         m_coreContext.setDomainName(m_domainName);
 
         m_sipxReplicationContext.generateAll();

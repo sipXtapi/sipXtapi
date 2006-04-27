@@ -11,9 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
-import java.io.IOException;
-import java.io.Writer;
-
+import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -40,10 +38,7 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     private PhoneModel m_model;
 
-    public void generateProfiles(Writer writer_) throws IOException {
-        // generic gateways does not support generating profiles
-        throw new UnsupportedOperationException();
-    }
+    private VelocityEngine m_velocityEngine;
 
     public void generateProfiles() {
         // do nothing for generic gateways - we do not generate profile for it
@@ -112,6 +107,14 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     public void setTftpRoot(String tftpRoot) {
         m_tftpRoot = tftpRoot;
     }
+    
+    public VelocityEngine getVelocityEngine() {
+        return m_velocityEngine;
+    }
+
+    public void setVelocityEngine(VelocityEngine velocityEngine) {
+        m_velocityEngine = velocityEngine;
+    }    
 
     public PhoneModel getModel() {
         return m_model;

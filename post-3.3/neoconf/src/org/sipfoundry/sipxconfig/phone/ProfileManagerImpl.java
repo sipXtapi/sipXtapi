@@ -17,6 +17,8 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class ProfileManagerImpl implements ProfileManager {

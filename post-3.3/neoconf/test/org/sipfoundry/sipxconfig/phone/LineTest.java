@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class LineTest extends TestCase {
@@ -35,7 +36,7 @@ public class LineTest extends TestCase {
     }
     
     public void testNoUserGetUriAndDisplayLabel() {
-        PhoneDefaults defaults = new PhoneDefaults();
+        DeviceDefaults defaults = new DeviceDefaults();
         
         MockControl phoneContextCtrl = MockControl.createNiceControl(PhoneContext.class);
         PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();

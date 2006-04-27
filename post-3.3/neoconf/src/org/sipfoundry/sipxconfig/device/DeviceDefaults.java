@@ -9,17 +9,21 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.device;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 
 /**
  * Sets up phone and line objects with system defaults.
  */
-public class PhoneDefaults {
+public class DeviceDefaults {
 
     private static final String DEFAULT_SIP_PORT = "5060";
 
@@ -28,8 +32,8 @@ public class PhoneDefaults {
     private String m_profileRootUrl;
 
     private String m_domainName;
-    
-    private String m_fullyQualifiedDomainName; 
+
+    private String m_fullyQualifiedDomainName;
 
     private String m_authorizationRealm;
 
@@ -58,8 +62,8 @@ public class PhoneDefaults {
     }
 
     /**
-     * Only use this function when IP address of the proxy is needed. 
-     * In most cases you should be able to use SIP domain name
+     * Only use this function when IP address of the proxy is needed. In most cases you should be
+     * able to use SIP domain name
      */
     public String getProxyServerAddr() {
         return m_proxyServerAddr;
@@ -70,8 +74,8 @@ public class PhoneDefaults {
     }
 
     /**
-     * Only use this function when port of the the proxy is needed. 
-     * In most cases you should be able to use SIP domain name
+     * Only use this function when port of the the proxy is needed. In most cases you should be
+     * able to use SIP domain name
      */
     public String getProxyServerSipPort() {
         return m_proxyServerSipPort;
@@ -154,13 +158,13 @@ public class PhoneDefaults {
         }
     }
 
-    public String getUri(LineSettings settings) {        
+    public String getUri(LineSettings settings) {
         StringBuffer sb = new StringBuffer();
         sb.append("sip:").append(settings.getUserId());
-        
-        // HACK: Although getDomainName may make more sense, in practice 
+
+        // HACK: Although getDomainName may make more sense, in practice
         // phones do not store domain name and therefore would return
-        // null.  This is because LineSettings is typically backed by 
+        // null. This is because LineSettings is typically backed by
         // SettingBeanAdapter and setX(foo) does not always mean foo == getX()
         // if there's no mapping. All phones need a registration server.
         // Real fix might be to remove SettingBeanAdapter with something more
