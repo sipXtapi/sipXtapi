@@ -110,7 +110,7 @@ public
                    [call2_part2, call3]]           # call arrays for second DB
       
       end_time = start_time + 10
-      @resolver.send(:cse_database_urls=, [cse_url1, cse_url2])
+      @resolver.config.send(:cse_database_urls=, [cse_url1, cse_url2])
       call_map = @resolver.send(:load_distrib_events_in_time_window, start_time, end_time)
       expected_call_map_entries = [call1, call2, call3]
       check_call_map(all_calls, call_map, expected_call_map_entries)
@@ -124,7 +124,7 @@ public
       end
       
       # Restore original DB URLs
-      @resolver.send(:cse_database_urls=, cse_database_urls)
+      @resolver.config.send(:cse_database_urls=, cse_database_urls)
     end
   end
 
@@ -557,106 +557,6 @@ public
     @resolver.resolve(start_time, end_time)
     assert_equal(4, Cdr.count, 'Wrong number of CDRs')
   end
-  
-  def test_log_level_from_name
-    CallResolver::LOG_LEVEL_MAP.each do |key, value|
-      assert_equal(value, @resolver.send(:log_level_from_name, key))
-    end
-    assert_nil(@resolver.send(:log_level_from_name, 'Unknown log level name'))
-  end
-  
-  def test_set_log_console_config
-    # Pass in an empty config, should get the default value of false
-    assert(!@resolver.send(:set_log_console_config, {}))
-    
-    # Pass in ENABLE, get true
-    # Pass in DISABLE, get false
-    # Comparison is case-insensitive
-    assert(@resolver.send(:set_log_console_config,
-      {CallResolver::LOG_CONSOLE_CONFIG => 'EnAbLe'}))
-    assert(!@resolver.send(:set_log_console_config,
-      {CallResolver::LOG_CONSOLE_CONFIG => 'dIsAbLe'}))
-    
-    # Pass in bogus value, get exception
-    assert_raise(ConfigException) do
-      @resolver.send(:set_log_console_config,
-        {CallResolver::LOG_CONSOLE_CONFIG => 'jacket'})
-    end
-  end
-  
-  def test_set_log_dir_config
-    ENV[CallResolver::SIPX_PREFIX] = nil
-    
-    # Pass in an empty config, should get the default log dir value
-    assert_equal(CallResolver::LOG_DIR_CONFIG_DEFAULT,
-                 @resolver.send(:set_log_dir_config, {}))
-    
-    # Set $SIPX_PREFIX and try again, this time the prefix should be added
-    prefix = '/test_prefix_ignore_this_error_message'
-    ENV[CallResolver::SIPX_PREFIX] = prefix
-    assert_equal(File.join(prefix, CallResolver::LOG_DIR_CONFIG_DEFAULT),
-                 @resolver.send(:set_log_dir_config, {}))
-    
-    # Configure the dir
-    log_dir = 'No\phone\I\just\want\to\be\alone\today'
-    assert_equal(log_dir,
-                 @resolver.send(:set_log_dir_config,
-                                {CallResolver::LOG_DIR_CONFIG => log_dir}))
-  end
-  
-  def test_set_log_level_config
-    # Pass in an empty config, should get the default log dir value
-    assert_equal(Logger::INFO,
-                 @resolver.send(:set_log_level_config, {}))
-    
-    # Pass in level names, get the right values
-    CallResolver::LOG_LEVEL_MAP.each do |key, value|
-      assert_equal(value,
-                   @resolver.send(:set_log_level_config,
-                                  {CallResolver::LOG_LEVEL_CONFIG => key}))
-    end
-    
-    # Don't allow unknown log levels
-    assert_raise(CallResolverException) do
-      @resolver.send(:set_log_level_config,
-                     {CallResolver::LOG_LEVEL_CONFIG => 'Unknown log level name'})
-    end
-  end
-
-  def test_set_daily_run_config
-    # Pass in an empty config, should get the default value of false
-    assert(!@resolver.send(:set_daily_run_config, {}))
-    
-    # Pass in ENABLE, get true
-    # Pass in DISABLE, get false
-    # Comparison is case-insensitive
-    assert(@resolver.send(:set_daily_run_config,
-      {CallResolver::DAILY_RUN => 'EnAbLe'}))
-    assert(!@resolver.send(:set_daily_run_config,
-      {CallResolver::DAILY_RUN => 'dIsAbLe'}))
-    
-    # Pass in bogus value, get exception
-    assert_raise(ConfigException) do
-      @resolver.send(:set_daily_run_config,
-        {CallResolver::DAILY_RUN => 'jacket'})
-    end
-  end
-
-  def test_get_daily_start_time
-    # Get today's date, cut out the date and paste our start time into
-    # a time string
-    today = Time.now
-    todayString = today.strftime("%m/%d/%YT")
-    startString = todayString + CallResolver::DAILY_RUN_TIME
-    # Convert to time, start same time yesterday
-    daily_start_time = Time.parse(startString)
-    daily_end_time = daily_start_time
-    daily_start_time -= SECONDS_IN_A_DAY   # subtract one day's worth of seconds
-
-    # Pass in an empty config, should get the default value always since this
-    # parameter is not configurable
-    assert(daily_start_time == @resolver.send(:get_daily_start_time, {}))
-  end
 
   # Test that contact params are stripped off of the contact URLs recorded in CDRs
   def test_contact_param_stripping
@@ -669,134 +569,7 @@ public
     assert(Party.find(:first,
                       :conditions => "contact = '<sip:bob_with_params@2.2.2.2>'"))
    end
-  
-  def test_set_purge_enable_config
-    # Pass in an empty config, should get the default value of true
-    assert(@resolver.send(:set_purge_enable_config, {}))
-    
-    # Pass in ENABLE, get true
-    # Pass in DISABLE, get false
-    # Comparison is case-insensitive
-    assert(@resolver.send(:set_purge_enable_config,
-      {CallResolver::PURGE_ENABLE => 'EnAbLe'}))
-    assert(!@resolver.send(:set_purge_enable_config,
-      {CallResolver::PURGE_ENABLE => 'dIsAbLe'}))
-    
-    # Pass in bogus value, get exception
-    assert_raise(ConfigException) do
-      @resolver.send(:set_purge_enable_config,
-        {CallResolver::PURGE_ENABLE => 'jacket'})
-    end
-  end
-  
-  def test_get_purge_start_time_cdr
-    # Get the default purge time: today's date minus the default age
-    purge_start_time_cdr =
-      Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_CDR_DEFAULT.to_i)
 
-    # Pass in an empty config, should get the default purge time, allow
-    # for 1 second difference in times
-    assert((@resolver.send(:get_purge_start_time_cdr, {}) - purge_start_time_cdr) < 1) 
-
-    purgeAgeStr = '23'
-    purgeAge = purgeAgeStr.to_i
-    
-    # Get today's date minus different age
-    purge_start_time_cdr = Time.now - (SECONDS_IN_A_DAY * purgeAge)
-
-    # Pass in a value, allow for 1 second difference in times
-    assert((@resolver.send(:get_purge_start_time_cdr,
-      {CallResolver::PURGE_AGE_CDR => purgeAgeStr}) - purge_start_time_cdr) < 1)
-  end  
-  
-  def test_get_purge_start_time_cse
-    # Get the default purge time: today's date minus the default age
-    purge_start_time_cse =
-      Time.now - (SECONDS_IN_A_DAY * CallResolver::PURGE_AGE_CSE_DEFAULT.to_i)
-
-    # Pass in an empty config, should get the default purge time, allow
-    # for 1 second difference in times
-    assert((@resolver.send(:get_purge_start_time_cse, {}) - purge_start_time_cse) < 1) 
-
-    purgeAgeStr = '23'
-    purgeAge = purgeAgeStr.to_i
-    
-    # Get today's date minus different age
-    purge_start_time_cse = Time.now - (SECONDS_IN_A_DAY * purgeAge)
-
-    # Pass in a value, allow for 1 second difference in times
-    assert((@resolver.send(:get_purge_start_time_cse,
-      {CallResolver::PURGE_AGE_CSE => purgeAgeStr}) - purge_start_time_cse) < 1)
-  end    
-  
-  def test_cse_database_urls
-    # Clear the CSE DB URLs to ensure that they will get recreated
-    @resolver.send(:cse_database_urls=, nil)
-    
-    # Create URLs given the host port list
-    host_port_list = [1, 2, 3]
-    @resolver.send(:host_port_list=, host_port_list)
-    urls = @resolver.send(:cse_database_urls)
-    assert_equal(3, urls.size)
-    urls.each_with_index do |url, i|
-      assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
-      assert_equal(host_port_list[i], url.port)
-      assert_equal(LOCALHOST, url.host)
-    end
-
-    # If the host port list is empty or nil, then we should get the default URL
-    [nil, []].each do |host_port_list|
-      @resolver.send(:cse_database_urls=, nil)
-      @resolver.send(:host_port_list=, host_port_list)
-      urls = @resolver.send(:cse_database_urls)
-      assert_equal(1, urls.size)
-      url = urls[0]
-      assert_equal(DatabaseUrl::DATABASE_DEFAULT, url.database)
-      assert_equal(DatabaseUrl::DATABASE_PORT_DEFAULT, url.port)
-      assert_equal(LOCALHOST, url.host)
-    end
-  end
-  
-  def test_set_cse_hosts_config
-    # Get the default entry - array with length 1 and default port
-    port_array = @resolver.send(:set_cse_hosts_config, {})
-    
-    assert(port_array.length == 1, 'Wrong number of entries in array')
-    assert(port_array[0] == DatabaseUrl::DATABASE_PORT_DEFAULT , 'Wrong port number')
-    assert(!@resolver.send(:get_ha_enabled))
-    
-    # Pass in other list, no localhost
-    hostString = 'test.example.com:5433, test2.example.com:5434'
-    port_array = @resolver.send(:set_cse_hosts_config, 
-      {CallResolver::CSE_HOSTS => hostString})    
-      
-    assert(port_array.length == 2, 'Wrong number of entries in array')
-    assert(@resolver.send(:get_ha_enabled))
-    assert(port_array[0] == 5433, 'Wrong port number in first entry')
-    assert(port_array[1] == 5434, 'Wrong port number in second entry')      
-
-    # Pass in other list, localhost, no port
-    hostString = 'test.example.com:5433,localhost'
-    port_array = @resolver.send(:set_cse_hosts_config, 
-      {CallResolver::CSE_HOSTS => hostString})    
-      
-    assert(port_array.length == 2, 'Wrong number of entries in array')
-    assert(@resolver.send(:get_ha_enabled))
-    assert(port_array[0] == 5433, 'Wrong port number in first entry')
-    assert(port_array[1] == DatabaseUrl::DATABASE_PORT_DEFAULT, 'Wrong port number in second entry') 
-    
-    # Pass in other list, localhost, no port
-    hostString = 'test.example.com:5433,localhost:6666'
-    port_array = @resolver.send(:set_cse_hosts_config, 
-      {CallResolver::CSE_HOSTS => hostString})    
-      
-    assert(port_array.length == 2, 'Wrong number of entries in array')
-    assert(@resolver.send(:get_ha_enabled))
-    assert(port_array[0] == 5433, 'Wrong port number in first entry')
-    assert(port_array[1] == 6666, 'Wrong port number in second entry')               
-        
-  end
-  
   #-----------------------------------------------------------------------------
   # Helper methods
   

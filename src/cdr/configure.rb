@@ -24,6 +24,10 @@ require 'exceptions'
 
 class Configure
 
+  # Config file syntax
+  COMMENT_CHAR = ?#
+  SEPARATOR_CHAR = ':'    # separate param names from values
+  
 public
   
   # String constants
@@ -34,19 +38,18 @@ public
   #   config_file - relative or absolute path to config file (String)
   #   log - Logger instance to log to
   def initialize(config_file = nil, log = nil)
-    @config_file = config_file ? config_file : CONFIG_FILE
+    @config_file = config_file
     
     if !log
       @log = Logger.new(STDOUT)
       @log.level = Logger::ERROR
     end
     
-    # create a Hash to hold the param name to value map
+    # create a Hash to hold the config param name to value map
     @map = {}
     
-    
     # parse the config file and fill in the map
-    parse_config(@config_file)
+    parse_config(@config_file) if @config_file
   end
 
   # Return the value for the named parameter, or nil if no such parameter exists
@@ -58,12 +61,6 @@ public
 
 private
 
-  # Config file syntax
-  COMMENT_CHAR = ?#
-  SEPARATOR_CHAR = ':'    # separate param names from values
-  
-  CONFIG_FILE = '../../etc/sipxpbx/callresolver-config'
-  
   # Parse the config file and construct a hash mapping param names to values.
   def parse_config(config_file)
     begin
