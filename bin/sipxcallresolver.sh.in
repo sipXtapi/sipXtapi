@@ -123,7 +123,7 @@ databaseCommand() {
     
     case ${1} in
        create)
-         createdb -U ${PgUser} ${Database} >/dev/null
+         createdb -U ${PgUser} --encoding=UNICODE ${Database} >/dev/null
          ${Psql} -U ${PgUser} -d ${Database} -f ${PgSchema} >/dev/null 2>&1
        ;;
        
@@ -357,6 +357,35 @@ configCheck() {
          echo
          resolveOk=0
          Status=0
+      fi
+      
+      # In HA setup test for the CA field entry
+      if HAcheck; then
+         resolveConfig=`cat @SIPX_CONFDIR@/callresolver-config.in | grep SIP_CALLRESOLVER_CSE_CA`
+         if [ -z resolvConfig ]; then
+            echo
+            echo " Error: In a HA setup the SIP_CALLRESOLVER_CSE_CA parameter must"
+            echo "        be set. Add the line"
+            echo              
+            echo "              SIP_CALLRESOLVER_CSE_CA  : <name of CA file>"
+            echo
+            echo "           to @SIPX_CONFDIR@/callresolver-config.in"
+            resolveOk=0
+            Status=0
+         else
+            cfile=`expr match "$resolveConfig" '.*:\s*\(.*\)\s*$'`
+            if [ ! -f @SIPX_CONFDIR@/ssl/authorities/${cfile} ]; then 
+               echo
+               echo "Error: The value for SIP_CALLRESOLVER_CSE_CA is:"
+               echo "              ${cfile}"
+               echo
+               echo "        A file of that name does not exist in"
+               echo "        @SIPX_CONFDIR@/ssl/authorities"
+               echo
+               resolveOk=0
+               Status=0      
+            fi
+         fi
       fi
    
       if [ $resolveOk = 1 ]; then
