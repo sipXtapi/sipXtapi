@@ -205,7 +205,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return model;
     }
 
-    private class DuplicateSerialNumberException extends UserException {
+    private static class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A phone with serial number: {0} already exists.";
 
         public DuplicateSerialNumberException(String serialNumber) {

@@ -30,7 +30,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext,
         BeanFactoryAware {
 
-    private class DuplicateNameException extends UserException {
+    private static class DuplicateNameException extends UserException {
         private static final String ERROR = "A gateway with name \"{0}\" already exists.";
 
         public DuplicateNameException(String name) {
@@ -38,7 +38,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         }
     }
 
-    private class DuplicateSerialNumberException extends UserException {
+    private static class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A gateway with serial number \"{0}\" already exists.";
 
         public DuplicateSerialNumberException(String name) {

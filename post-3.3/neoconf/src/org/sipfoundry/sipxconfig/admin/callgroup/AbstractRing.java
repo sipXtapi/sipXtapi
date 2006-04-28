@@ -31,11 +31,11 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
     private Type m_type = Type.DELAYED;
     private int m_position;
 
-    public synchronized int getExpiration() {
+    public int getExpiration() {
         return m_expiration;
     }
 
-    public synchronized void setExpiration(int expiration) {
+    public void setExpiration(int expiration) {
         m_expiration = expiration;
     }
 
@@ -47,11 +47,11 @@ public abstract class AbstractRing extends BeanWithId implements DataCollectionI
         m_position = position;
     }
 
-    public synchronized Type getType() {
+    public Type getType() {
         return m_type;
     }
 
-    public synchronized void setType(Type type) {
+    public void setType(Type type) {
         m_type = type;
     }
 

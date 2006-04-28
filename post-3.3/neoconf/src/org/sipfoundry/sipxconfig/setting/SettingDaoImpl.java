@@ -93,7 +93,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         DaoUtils.checkDuplicates(group, objs, new DuplicateGroupException(group.getName()));
     }
 
-    private class DuplicateGroupException extends UserException {
+    private static class DuplicateGroupException extends UserException {
         private static final String ERROR = "A group with name: {0} already exists.";
 
         public DuplicateGroupException(String name) {
