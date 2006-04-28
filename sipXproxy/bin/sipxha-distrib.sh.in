@@ -134,6 +134,14 @@ generateStunnelStartup() {
    echo "        exit 1" >> ${stunnel_initd_file}
    echo "esac" >> ${stunnel_initd_file}
    echo "exit 0" >> ${stunnel_initd_file}
+   
+   # Generate initial stunnel.log and give it the correct permissions
+   # so logrotate can work with it
+   if [ -f @SIPX_LOGDIR@/stunnel.log ]; then
+      rm -f @SIPX_LOGDIR@/stunnel.log
+   fi
+   echo "sipx init" > @SIPX_LOGDIR@/stunnel.log
+   chmod 0644 @SIPX_LOGDIR@/stunnel.log
    chmod +x ${stunnel_initd_file}
    if [ -f /sbin/chkconfig ]; then
       /sbin/chkconfig --add stunnel
