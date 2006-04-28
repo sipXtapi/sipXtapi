@@ -30,11 +30,6 @@ require 'party'
 
 # :TODO: log the number of calls analyzed and how many succeeded vs. dups or
 #        failures, also termination status
-# :TODO: factor out the call resolver config into a separate class
-# :TODO: Verify that AORs, contacts, and from/to tags are consistent.
-#        The AORs and from tags must always be the same but contacts and to
-#        tags can vary when a call forks. If there are inconsistencies then
-#        discard the CSEs and log an error.
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail 
 # records (CDRs).  It loads CSEs from a database and writes CDRs back into the
@@ -98,7 +93,7 @@ public
   end
 
   # Resolve CSEs to CDRs
-  def resolve(start_time, end_time, redo_flag = false)
+  def resolve(start_time, end_time)
     connect_to_cdr_database
     
     begin
@@ -170,7 +165,7 @@ private
   # Connect the CallStateEvent class to the CSE database at the specified URL.
   # With HA there are multiple CSE databases.
   def connect_to_cse_database(db_url)    
-    log.debug("connect_to_cse_database: #{db_url}")
+    log.debug{"connect_to_cse_database: #{db_url}"}
     CallStateEvent.establish_connection(db_url.to_hash)
   end
 
@@ -178,43 +173,45 @@ private
   # Persist the CDRs.  Do this as a single transaction.
   def resolve_call(events)
     call_id = events[0].call_id
-    log.debug("Resolving a call: call ID = #{call_id} with #{events.length} events")
+    log.debug {
+      # Build a string listing the event types
+      event_types_str =
+        events.inject('') {|msg, event| msg + event.event_type + ' '}
+      event_types_str[-1] = ')'
+      "Resolving a call: call ID = #{call_id} with #{events.length} events (" + event_types_str
+    }
     
-    # Load all events with this call_id, in ascending chronological order.
-    # Don't constrain the query to a time window.  That allows us to handle
-    # calls that span time windows.
     begin
       Cdr.transaction do
-        # Find the first (earliest) call request event.
-        call_req = find_first_call_request(events)
+        call_req = find_call_request(events)
         if call_req
-          # Read info from it and start constructing the CDR.
+          # Read info from the call request and start constructing the CDR.
           cdr_data = start_cdr(call_req)
           
           # The forking proxy might ring multiple phones.  The dialog with each
           # phone is a separate call leg.
           # Pick the call leg with the best outcome and longest duration to be the
           # basis for the CDR.
-          tags = best_call_leg(events)
-          from_tag = tags[0]
-          to_tag = tags[1]
+          to_tag = best_call_leg(events)
   
-          if to_tag                         # if there are any complete call legs
+          if to_tag                 # if there are any call legs worth examining
             # Fill the CDR from the call leg events.  The returned status is true
             # if that succeeded, false otherwise.
-            status = finish_cdr(cdr_data, events, from_tag, to_tag)
+            status = finish_cdr(cdr_data, events, to_tag)
           
             if status
               log.debug do
                 cdr = cdr_data.cdr
-                "Resolved a call from #{cdr_data.caller.aor} to " +
-                "#{cdr_data.callee.aor} at #{cdr.start_time}, status = " +
+                "resolve_call: Resolved a call from #{cdr_data.caller.aor} to " +
+                "#{cdr_data.callee.aor} at #{cdr.start_time}, call status = " +
                 "#{cdr.termination_text}"
               end
               
               # Save the CDR and associated data
               save_cdr_data(cdr_data)
             end
+          else
+            log.debug {"resolve_call: no good call legs found, discarding this call"}
           end
         end
       end
@@ -241,8 +238,8 @@ private
       
       # Load events from this database
       events = load_events_in_time_window(start_time, end_time)
-      log.debug("load_distrib_events_in_time_window: loaded #{events.length} " +
-                "events from #{db_url}")
+      log.debug{"load_distrib_events_in_time_window: loaded #{events.length} " +
+                "events from #{db_url}"}
       
       # Divide the events into subarrays, one for each call.  Save the result.
       calls = split_events_by_call(events)
@@ -319,7 +316,7 @@ private
         :all,
         :conditions => "event_time >= '#{start_time}' and event_time < '#{end_time}'",
         :order => "call_id, event_time")
-    log.debug("load_events: loaded #{events.length} events between #{start_time} and #{end_time}")
+    log.debug{"load_events: loaded #{events.length} events between #{start_time} and #{end_time}"}
     events
   end
    
@@ -330,7 +327,7 @@ private
         :all,
         :conditions => ["call_id = :call_id", {:call_id => call_id}],
         :order => "event_time")
-    log.debug("load_events: loaded #{events.length} events with call_id = #{call_id}")
+    log.debug{"load_events: loaded #{events.length} events with call_id = #{call_id}"}
     return events
   end
   
@@ -347,17 +344,47 @@ private
     end
   end  
   
-  # Find and return the first (earliest) call request event.
-  # Return nil if there is no such event.
-  def find_first_call_request(events)
-    event = events.find {|event| event.call_request?}
-
-    log.debug do
-      message = event ? "found #{event}" : "no call request found"
-      'find_first_call_request: ' + message
+  # Given an events array sorted by time, find the call request event, which
+  # represents a SIP INVITE message. Return nil if there are no call requests.
+  # If there are multiple requests, then pick original INVITEs (no to_tag).
+  # If there's more than one of those, then pick the earliest.
+  # Note that in the HA case events may be logged on multiple machines, with
+  # imperfectly synchronized clocks. 
+  def find_call_request(events)
+    call_request = nil        # return value
+    m = 'find_call_request'   # method name, for debug logging
+    
+    # Find call requests
+    requests = events.find_all {|event| event.call_request?}
+    if requests.length == 1
+      call_request = requests[0]
+      log.debug{"#{m}: found one call request: #{call_request.to_s}"}
+    elsif requests.length == 0
+      log.debug{"#{m}: found no call requests"}
+    else                  # requests.length > 1
+      log.debug {
+        "#{m}: found #{requests.length} call requests: " +
+        Utils.events_to_s(requests)}
+      
+      # Among the call requests, find original INVITEs
+      originals = requests.find_all {|event| !event.to_tag}
+      if originals.length == 1
+        call_request = originals[0]
+        log.debug{"#{m}: found one original call request: #{call_request.to_s}"}
+      elsif originals.length == 0
+        call_request = requests[0]
+        log.debug{"#{m}: found no original call requests, " +
+                  "use the earliest non-original request: #{call_request.to_s}"}
+      else                # originals.length > 1
+        call_request = originals[0]
+        log.debug {
+          "#{m}: found #{originals.length} original call requests: " +
+          Utils.events_to_s(originals) +
+          "\nuse the earliest: #{call_request.to_s}"}
+      end
     end
     
-    return event
+    call_request
   end
 
   # Read info from the call request event and start constructing the CDR.
@@ -379,22 +406,21 @@ private
   # Return nil if there is no such call leg.
   def best_call_leg(events)     # array of events with a given call ID
     to_tag = nil                # result: the to_tag for the best call leg
-    from_tag = nil
     
-    # If there are no call_end events, then the call failed
-    call_failed = !events.any? {|event| event.call_end?}
+    # Is there at least one call_end event?
+    has_call_end = !events.any? {|event| event.call_end?}
     
-    # Find the call leg with the best outcome and longest duration.
-    # If the call succeeded, then look for the call end event with the biggest
-    # timestamp.  Otherwise look for the call failure event with the biggest
-    # timestamp.  Events have already been sorted for us in timestamp order.
-    final_event_type = call_failed ?
+    # Find the call leg with the best outcome and longest duration. If there is
+    # a call_end event, then look for the call end event with the biggest
+    # timestamp. Otherwise look for the call failure event with the biggest
+    # timestamp. Events have already been sorted for us in timestamp order.
+    final_event_type = has_call_end ?
                        CallStateEvent::CALL_FAILURE_TYPE :
                        CallStateEvent::CALL_END_TYPE
     events.reverse_each do |event|
       if event.event_type == final_event_type
         to_tag = event.to_tag
-        from_tag = event.from_tag
+        log.debug {"best_call_leg: to_tag is #{to_tag} for final event #{event.to_s}"}
         break
       end
     end
@@ -404,23 +430,28 @@ private
       events.reverse_each do |event|
         if event.call_setup?
           to_tag = event.to_tag
-          from_tag = event.from_tag
+          log.debug {"best_call_leg: to_tag is #{to_tag} for setup event #{event.to_s}"}
           break
         end
       end
     end
 
-    [ from_tag, to_tag ]
+    if !to_tag
+      log.debug {"best_call_leg: could not find a final event or a setup event"}
+    end
+
+    to_tag
   end
   
   # Fill in the CDR from a call leg consisting of the events with the given
   # to_tag.  Return true if successful, false otherwise.
-  def finish_cdr(cdr_data, events, from_tag, to_tag)
+  def finish_cdr(cdr_data, events, to_tag)
     status = false                # return value: did we fill in the CDR?
     cdr = cdr_data.cdr      
 
     # Get the events for the call leg
-    call_leg = events.find_all {|event| event.to_tag == to_tag or event.from_tag == to_tag}
+    call_leg = events.find_all {|event| event.to_tag == to_tag or
+                                        event.from_tag == to_tag}
 
     # Find the call_setup event
     call_setup = call_leg.find {|event| event.call_setup?}
@@ -480,7 +511,6 @@ private
   # or a complete CDR may have been created for this call in a
   # previous run.
   # Raise a CallResolverException if the save fails for some reason.
-  # :TODO: support the redo flag for recomputing CDRs
   def save_cdr_data(cdr_data)
     # define variables for cdr_data components
     cdr = cdr_data.cdr
@@ -608,7 +638,7 @@ private
         # There is a small chance that a Party got saved just after we did the
         # check above, resulting in a DB integrity violation when we try to save
         # a duplicate. In this case return the Party that is in the database.
-        log.debug("save_party_if_new: unusual race condition detected")
+        log.debug{"save_party_if_new: unusual race condition detected"}
         party_in_db = find_party(party)
         
         # The Party had better be in the database now.  If not then rethrow,
@@ -630,13 +660,13 @@ private
     
     # Purge CSEs
     CallStateEvent.transaction do
-      log.debug("purge: purging CSEs where event_time <= #{start_time_cse}")    
+      log.debug{"purge: purging CSEs where event_time <= #{start_time_cse}"}
       CallStateEvent.delete_all(["event_time <= '#{start_time_cse}'"])
     end
     
     # Purge CDRs
     Cdr.transaction do
-      log.debug("purge: purging CDRs where event_time <= #{start_time_cdr}")      
+      log.debug{"purge: purging CDRs where event_time <= #{start_time_cdr}"}
       Cdr.delete_all(["end_time <= '#{start_time_cdr}'"])
       
       # Clean up the parties table, removing entries that are no longer referenced by CDRs

@@ -93,8 +93,17 @@ public
 
     # Set up a generic Configure object that just knows how to parse a config
     # file with param:value lines.
-    @config = Configure.new(@config_file != DEFAULT_CONFIG ? @config_file : nil)
-
+    if @config_file == DEFAULT_CONFIG
+      @config = Configure.new()
+    else
+      if File.exists?(@config_file)
+        @config = Configure.new(@config_file)
+      else
+        puts("Config file #{@config_file} not found, using default settings")
+        @config = Configure.new()
+      end
+    end
+    
     # Read logging config and initialize logging.  Do this before initializing
     # the rest of the config so we can use logging there.
     init_logging
