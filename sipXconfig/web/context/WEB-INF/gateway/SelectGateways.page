@@ -24,7 +24,7 @@
 
     <property-specification name="gateways" type="java.util.Collection"/>    
 
-    <property-specification name="nextPage" type="java.lang.String"/>    
+    <property-specification name="nextPage" type="java.lang.String" persistent="yes"/>    
             
      <!--
      - B E A N S
