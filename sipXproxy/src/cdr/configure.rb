@@ -61,6 +61,11 @@ public
 
 private
 
+  # Set param values, mainly for testing.
+  def []=(param_name, param_value)
+    @map[param_name] = param_value
+  end
+
   # Parse the config file and construct a hash mapping param names to values.
   def parse_config(config_file)
     begin

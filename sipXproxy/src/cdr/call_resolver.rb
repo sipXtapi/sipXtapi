@@ -178,8 +178,7 @@ private
       event_types_str =
         events.inject('') {|msg, event| msg + event.event_type + ' '}
       event_types_str[-1] = ')'
-      "Resolving a call: call ID = #{call_id} with #{events.length} events (" + event_types_str
-    }
+      "Resolving a call: call ID = #{call_id} with #{events.length} events (" + event_types_str}
     
     begin
       Cdr.transaction do
