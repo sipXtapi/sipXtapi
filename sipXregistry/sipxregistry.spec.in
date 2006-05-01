@@ -11,7 +11,7 @@ Url:      http://www.sipfoundry.org/sipXregistry
 
 Source:   %name-%version.tar.gz
 
-Requires: sipxcommserverlib >= 3.3
+Requires: sipxcommserverlib >= 3.5
 
 Prefix:    %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -30,7 +30,7 @@ Requires: %name
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Internal documentation for %name 
-Requires: sipxcommserverlib-devel >= 3.3
+Requires: sipxcommserverlib-devel >= 3.5
 
 %description devel
 Internal class documentation for the registry classes, and the include files that define

@@ -12,8 +12,8 @@ Url: http://www.sipfoundry.org/sipXcommserverLib
 Source: %name-%version.tar.gz
 
 Requires: xerces-c >= 2.6.0
-Requires: sipxportlib >= 3.3
-Requires: sipxtacklib >= 3.3
+Requires: sipxportlib >= 3.5
+Requires: sipxtacklib >= 3.5
 Requires: unixODBC >= 2.2
 Requires: ruby >= 1.8.4
 
@@ -33,8 +33,8 @@ project.
 %package devel
 Requires: %name
 Requires: xerces-c-devel >= 2.6.0
-Requires: sipxportlib-devel >= 3.3
-Requires: sipxtacklib-devel >= 3.3
+Requires: sipxportlib-devel >= 3.5
+Requires: sipxtacklib-devel >= 3.5
 Requires: unixODBC-devel >= 2.2
 
 Group: Development/Libraries
