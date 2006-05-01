@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 
 public class ConfigFileStorageTest extends TestCase {
     static String CONFIG_FILE = "test-config.in";
-    
+
     private static final String DEFAULT_VALUE = "83.51";
 
     private String m_configDirectory;
@@ -30,6 +30,10 @@ public class ConfigFileStorageTest extends TestCase {
     private ConfigFileStorage m_storage;
 
     private SettingImpl m_andorra;
+
+    private SettingImpl m_space;
+
+    private SettingImpl m_bongo;
 
     protected void setUp() throws Exception {
         InputStream configStream = ConfigFileStorageTest.class.getResourceAsStream(CONFIG_FILE);
@@ -42,15 +46,27 @@ public class ConfigFileStorageTest extends TestCase {
         m_andorra.setProfileName(CONFIG_FILE);
         m_andorra.setName("Andorra");
         m_andorra.setValue(DEFAULT_VALUE);
+
+        m_space = new SettingImpl();
+        m_space.setProfileName(CONFIG_FILE);
+        m_space.setName("extra_space");
+
+        m_bongo = new SettingImpl();
+        m_bongo.setProfileName(CONFIG_FILE);
+        m_bongo.setName("bongo");
     }
 
     public void testGet() {
 
         assertEquals(DEFAULT_VALUE, m_storage.getValue(m_andorra));
+
+        assertEquals(4, Integer.valueOf((String) m_storage.getValue(m_space)).intValue());
+
+        assertNull(m_storage.getValue(m_bongo));
     }
 
     public void testPut() throws Exception {
-        String newValue = "99.999";        
+        String newValue = "99.999";
         m_storage.setValue(m_andorra, newValue);
         assertEquals(newValue, m_storage.getValue(m_andorra));
 
@@ -59,7 +75,7 @@ public class ConfigFileStorageTest extends TestCase {
 
         m_storage.flush();
         boolean found = false;
-        for (String line = reader.readLine(); line != null; line = reader.readLine()) {            
+        for (String line = reader.readLine(); line != null; line = reader.readLine()) {
             if (line.startsWith(m_andorra.getName())) {
                 assertTrue(line.endsWith(newValue));
                 found = true;
@@ -67,10 +83,10 @@ public class ConfigFileStorageTest extends TestCase {
         }
         assertTrue("Setting not found", found);
     }
-    
+
     public void testRemove() throws Exception {
         // remove should reset the setting to default value
-        String newValue = "99.999";        
+        String newValue = "99.999";
         m_storage.setValue(m_andorra, newValue);
         assertEquals(newValue, m_storage.getValue(m_andorra));
         m_storage.flush();
@@ -81,7 +97,7 @@ public class ConfigFileStorageTest extends TestCase {
                 CONFIG_FILE)));
 
         boolean found = false;
-        for (String line = reader.readLine(); line != null; line = reader.readLine()) {            
+        for (String line = reader.readLine(); line != null; line = reader.readLine()) {
             if (line.startsWith(m_andorra.getName())) {
                 assertTrue(line.endsWith(DEFAULT_VALUE));
                 found = true;

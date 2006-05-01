@@ -41,7 +41,11 @@ public class ConfigFileStorage extends ValueStorage {
     public Object getValue(Setting setting) {
         try {
             Properties properties = loadForFile(setting);
-            return properties.getProperty(setting.getName());
+            String value = properties.getProperty(setting.getName());
+            if (value != null) {
+                value = value.trim();
+            }
+            return value;
         } catch (IOException e) {
             return StringUtils.EMPTY;
         }
@@ -55,10 +59,6 @@ public class ConfigFileStorage extends ValueStorage {
             return StringUtils.EMPTY;
         }
     }
-    
-    String nonNull(String value) {
-        return (value == null ? StringUtils.EMPTY : value);
-    }
 
     /**
      * Remove is called when setting is set to default value.
@@ -66,7 +66,8 @@ public class ConfigFileStorage extends ValueStorage {
     public Object revertToDefault(Setting setting) {
         try {
             Properties properties = loadForFile(setting);
-            return properties.put(setting.getName(), nonNull(setting.getValue()));
+            String value = StringUtils.defaultString(setting.getValue());
+            return properties.put(setting.getName(), value);
         } catch (IOException e) {
             return StringUtils.EMPTY;
         }

@@ -3,6 +3,51 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
+Version 3.4 (not complete)
+
+** Bug
+    * [XCF-1008] - Upgrade from 3.1 to 3.3 - configserver shows error for most operations
+    * [XCF-1019] - Double quoted strings in config.defs cause failures in sipxconfig-agent startup
+
+Version 3.3.3
+
+** Bug
+    * [XCF-564] - allow any valid SIP username to be used as an alias
+    * [XCF-842] - Generation of Gateway Profiles never reported in Job status log
+    * [XCF-883] - Clicking on Devices tab takes between 5 and 25 seconds to load w/1000 users
+    * [XCF-914] - Polycom: Add external line field "auth.userid" missing
+    * [XCF-949] - Log rotate on sipxconfig.log creates empty log file, output still going to sipxconfig.log.1
+    * [XCF-961] - regression - sipxconfig.sh doesn't find IBM JRE anymore
+    * [XCF-964] - invalid external aliases files interferes with replication
+    * [XCF-966] - After logging out of the admin web-interface and immediately trying to log in again, the "session expired"-error is displayed.
+    * [XCF-974] - Javascript errors in IE in phone edit page
+    * [XCF-975] - Exception on firmware upload page
+    * [XCF-976] - Calling Setting.getTypedValue on enumeration settings always returns null
+    * [XCF-977] - SNTP group device settings don't affect Polycom phone configuration
+    * [XCF-978] - Device search function doesn't allow to find a phone to send its profile.
+    * [XCF-980] - Unable to delete last user from the group
+    * [XCF-986] - Some phone provisioning-options can't be set back to their default-values.
+    * [XCF-994] - Searching the phones is not working.
+    * [XCF-995] - sipXconfig-agent: sipXconfig cannot be uninstalled
+    * [XCF-997] - Existing auto attendants do not inherit attendant defaults
+    * [XCF-1004] - Initial web UI for Call Detail Records configuration does not reflect settings of *config.in
+    * [XCF-1008] - Upgrade from 3.1 to 3.3 - configserver shows error for most operations
+    * [XCF-1010] - SOAP test-api target is failing when executed as a part of test-all target
+    * [XCF-1012] - Exception occurred, when attempted to edit and add the edited gateway to the dial plan.
+    * [XCF-1013] - Even after selecting the "Donot Restart Services " option in dial plans page, authproxy and registrar services are getting restarted.
+
+** New Feature
+    * [XCF-1011] - Add an option to auto attendant to handle the invalid user responses
+
+
+** Improvement
+    * [XCF-902] - Default setting for polycom phones on MWI should be silent
+    * [XCF-936] - newly defined call permissions should be available in Custom Dialing Rule screen
+    * [XCF-963] - user call forwarding UI should support SIP URL
+    * [XCF-989] - Autocomplete for user and phone groups should remove groups already in the list
+    * [XCF-991] - Add full SIP AOR to user aliases to other domains
+    * [XCF-1009] - Support fr Polycom Firmware Version 1.6.5
+
 Version 3.3.2
 
 ** Bug

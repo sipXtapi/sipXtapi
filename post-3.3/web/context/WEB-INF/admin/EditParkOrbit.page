@@ -26,7 +26,7 @@
   <component id="common" type="ItemCommon">
     <binding name="item" value="parkOrbit"/>
     <binding name="useExtension" value="true"/>
-    <binding name="nameValidator" value="spring-validators:validSipName,required"/>
+    <binding name="nameValidator" value="spring-validators:validSipUserId,required"/>
     <binding name="useFieldset" value="false"/>
   </component>
   <component id="musicLabel" type="FieldPanel">
