@@ -164,7 +164,7 @@ private
     config_file.puts "key = #{@prefix}/#{SIPXPBX_SSLPATH}/ssl.key"
     config_file.puts "verify = 2"
     config_file.puts "debug = #{debug_level}"
-    config_file.puts "output = #{@prefix}/var/log/sipxpbx/stunnel.log"
+    config_file.puts "output = #{@prefix}/var/log/sipxpbx/sipstunnel.log"
     
     log.debug {"CAfile = #{@prefix}/#{SIPXPBX_SSLPATH}/authorities/#{ca_file}"}    
     log.debug {"cert = #{@prefix}/#{SIPXPBX_SSLPATH}/ssl.crt"}

@@ -33,8 +33,10 @@ resolverArgs=""
 : ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
 : ${DbVersion:=1}
 : ${DbPatchDir:=@SIPX_CONFDIR@/cdr}
+: ${DbPatchLog:=@SIPX_LOGDIR@/sipcdrpatch.log}
 
 Database=SIPXCDR
+Today=`date`
 
 # This function determines the correct service name for Postgres.
 postgresService() {
@@ -82,7 +84,7 @@ runConfigpp() {
 # add the file to UpgradePatches1 (upgrading a version 1 database) and UpgradePatches2
 # (upgrading a version 2 database).
 
-UpgradePatches1=""
+UpgradePatches1="refer_uri"
 
 # Apply database patches
 databasePatch() {
@@ -99,10 +101,16 @@ databasePatch() {
     esac
 
     if [ -n "${UpgradePatches}" ]; then
+        if [ -f ${DbPatchLog} ]; then
+           echo "Intializing SIPXCDR patch log" >> ${DbPatchLog}
+        else
+            echo "Intializing SIPXCDR patch log" > ${DbPatchLog}
+        fi          
         for patch in $UpgradePatches; do
             if [ -f ${DbPatchDir}/${patch}.sql ]; then
                 # Apply patch only if not found in the patch list
                 if ! ${Psql} -U ${PgUser} -d ${Database} -c "select name from patch where name = '${patch}'" | grep ${patch} >/dev/null 2>&1; then
+                   echo "Applying patch ${DbPatchDir}/${patch}.sql" >> ${DbPatchLog}
                    ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >/dev/null 2>&1
                    ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}')" >/dev/null 2>&1
                 fi
@@ -110,11 +118,7 @@ databasePatch() {
                 echo "Error: Database patch file ${patch}.sql not found."
             fi
         done
-        # Apply new version only if it's not in the table already
-        if ! ${Psql} -U ${PgUser} -d ${Database} -c "select version from version_history where version = '${DbVersion}'" | grep ${DbVersion} >/dev/null 2>&1; then
-           ${Psql} -U ${PgUser} -d ${Database} -c "insert into version_history values (${DbVersion}, now())" >/dev/null 2>&1
-        fi
-    fi
+   fi
 }
 
 # Setup database

@@ -260,7 +260,7 @@ then
 @SIPX_LOGDIR@/sipxconfig.log
 @SIPX_LOGDIR@/sipxpark.log
 @SIPX_LOGDIR@/sipxpresence.log
-@SIPX_LOGDIR@/stunnel.log
+@SIPX_LOGDIR@/sipstunnel.log
 @SIPX_LOGDIR@/vxmlengine.log
 @SIPX_LOGDIR@/watchdog.log
 EOF

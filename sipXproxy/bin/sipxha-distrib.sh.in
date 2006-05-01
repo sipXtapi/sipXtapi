@@ -102,7 +102,7 @@ generateStunnelConfig() {
    echo "CAfile = @SIPX_CONFDIR@/ssl/authorities/${ca_file}" >> ${stunnel_config_file}
    echo "verify = 2" >> ${stunnel_config_file}
    echo "debug = ${stunnel_debug_level}" >> ${stunnel_config_file}
-   echo "output = @SIPX_LOGDIR@/stunnel.log" >> ${stunnel_config_file}
+   echo "output = @SIPX_LOGDIR@/sipstunnel.log" >> ${stunnel_config_file}
    echo "[postgresql]" >> ${stunnel_config_file} >> ${stunnel_config_file}
    echo "accept = ${stunnel_accept_port}" >> ${stunnel_config_file}
    echo "connect = ${stunnel_forward_port}" >> ${stunnel_config_file}
@@ -137,11 +137,11 @@ generateStunnelStartup() {
    
    # Generate initial stunnel.log and give it the correct permissions
    # so logrotate can work with it
-   if [ -f @SIPX_LOGDIR@/stunnel.log ]; then
-      rm -f @SIPX_LOGDIR@/stunnel.log
+   if [ -f @SIPX_LOGDIR@/sipstunnel.log ]; then
+      rm -f @SIPX_LOGDIR@/sipstunnel.log
    fi
-   echo "sipx init" > @SIPX_LOGDIR@/stunnel.log
-   chmod 0644 @SIPX_LOGDIR@/stunnel.log
+   echo "sipx init" > @SIPX_LOGDIR@/sipstunnel.log
+   chmod 0644 @SIPX_LOGDIR@/sipstunnel.log
    chmod +x ${stunnel_initd_file}
    if [ -f /sbin/chkconfig ]; then
       /sbin/chkconfig --add stunnel

@@ -254,7 +254,8 @@ void CallStateEventBuilder::callTransferEvent(int sequenceNumber,
                                               const OsTime& timeStamp, 
                                               const UtlString& contact,
                                               const UtlString& refer_to,
-                                              const UtlString& referred_by)
+                                              const UtlString& referred_by,
+                                              const UtlString& request_uri)
 {
    bool CalledBaseClassMethod_callTransferEvent = false;
    assert(CalledBaseClassMethod_callTransferEvent);    

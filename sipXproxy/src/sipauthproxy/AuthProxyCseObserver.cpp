@@ -295,9 +295,11 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
             sipMsg->getFromField(&fromField);
 
             UtlString referTo;
-            UtlString referredBy;            
+            UtlString referredBy;
+            UtlString requestUri;
             sipMsg->getReferToField(referTo);
             sipMsg->getReferredByField(referredBy);   
+            sipMsg->getRequestUri(&requestUri);
             
             UtlString responseMethod;
             int cseqNumber;
@@ -322,7 +324,7 @@ UtlBoolean AuthProxyCseObserver::handleMessage(OsMsg& eventMessage)
                   
                case aCallTransfer:
                   mpBuilder->callTransferEvent(mSequenceNumber, timeNow, 
-                                               contact, referTo, referredBy);
+                                               contact, referTo, referredBy, requestUri);
                   break;   
    
                default:

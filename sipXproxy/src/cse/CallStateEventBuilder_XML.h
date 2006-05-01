@@ -111,7 +111,8 @@ class CallStateEventBuilder_XML : public CallStateEventBuilder
                           const OsTime& timeStamp, 
                           const UtlString& contact,
                           const UtlString& refer_to,
-                          const UtlString& referred_by); 
+                          const UtlString& referred_by,
+                          const UtlString& request_uri); 
    /**<
     * Requires:
     *   - callTransferEvent
