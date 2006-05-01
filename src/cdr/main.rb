@@ -28,15 +28,12 @@ end
 # Parse command-line options
 #   start: date/time from which to start analyzing call events
 #   end:   date/time at which to end the analysis (defaults to 1 day later)
-#   redo:  if true then calculate all CDRs, even those already done before
-#          (defaults to false)
 #   daily: perform daily processing based on the configuration -- resolve
 #          calls and/or purge old data
 # :TODO: Print out a helpful message if the caller enters no options or screws up
 opts = GetoptLong.new(
   [ "--start", "-s", GetoptLong::OPTIONAL_ARGUMENT ],
   [ "--end",   "-e", GetoptLong::OPTIONAL_ARGUMENT ],
-  [ "--redo",  "-r", GetoptLong::NO_ARGUMENT ],
   [ "--daily", "-d", GetoptLong::NO_ARGUMENT ],
   [ "--help",  "-h", GetoptLong::NO_ARGUMENT ]
 )
@@ -45,7 +42,6 @@ opts = GetoptLong.new(
 start_time = end_time = nil
 purge_flag = false
 purge_time = 0
-redo_flag = false
 daily_flag = false
 
 # Extract option values
@@ -58,9 +54,6 @@ opts.each do |opt, arg|
 
   when "--end"
     end_time = Time.parse(arg)
-    
-  when "--redo"
-    redo_flag = true
 
   when "--daily"
     daily_flag = true
@@ -113,7 +106,7 @@ begin
     resolver.daily_run
   else
     # Resolve calls that occurred during the specified time window
-    resolver.resolve(start_time, end_time, redo_flag)
+    resolver.resolve(start_time, end_time)
   end  
   
 rescue

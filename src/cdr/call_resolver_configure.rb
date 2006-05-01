@@ -29,6 +29,9 @@ class CallResolverConfigure
   # How many seconds are there in a day
   SECONDS_IN_A_DAY = 86400
 
+  # Max integer in a Fixnum, on a 32-bit machine
+  INT_MAX = 2147483647
+
   # Configuration parameters and defaults
 
   # Whether console logging is enabled or disabled.  Legal values are "ENABLE"
@@ -54,14 +57,14 @@ class CallResolverConfigure
   PURGE_DEFAULT = Configure::ENABLE
   
   PURGE_AGE_CDR = 'SIP_CALLRESOLVER_PURGE_AGE_CDR'
-  PURGE_AGE_CDR_DEFAULT = '35'
+  PURGE_AGE_CDR_DEFAULT = 35
   
   PURGE_AGE_CSE = 'SIP_CALLRESOLVER_PURGE_AGE_CSE'
-  PURGE_AGE_CSE_DEFAULT = '7'
+  PURGE_AGE_CSE_DEFAULT = 7
   
   CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
   CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DATABASE_PORT_DEFAULT}"
-
+  
   
   # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
@@ -93,8 +96,17 @@ public
 
     # Set up a generic Configure object that just knows how to parse a config
     # file with param:value lines.
-    @config = Configure.new(@config_file != DEFAULT_CONFIG ? @config_file : nil)
-
+    if @config_file == DEFAULT_CONFIG
+      @config = Configure.new()
+    else
+      if File.exists?(@config_file)
+        @config = Configure.new(@config_file)
+      else
+        puts("Config file #{@config_file} not found, using default settings")
+        @config = Configure.new()
+      end
+    end
+    
     # Read logging config and initialize logging.  Do this before initializing
     # the rest of the config so we can use logging there.
     init_logging
@@ -405,42 +417,23 @@ private
   
   # Compute start time of CDR records to be purged from configuration
   def set_purge_start_time_cdr_config(config)
-    # Look up the config param
-    purge_age = config[PURGE_AGE_CDR]
-    
-    # Apply the default if the param was not specified
-    purge_age ||= PURGE_AGE_CDR_DEFAULT
-    
-    # Convert to number
-    purge_age = purge_age.to_i
-    
-    if (purge_age <= 0)
-      raise(ConfigException, "Illegal value \"#{@purge_age}\" for " +
-            "#{PURGE_AGE_CDR}.  Must be a number greater than 0.")
-    end
+    purge_age = parse_int_param(config, PURGE_AGE_CDR, PURGE_AGE_CDR_DEFAULT, 1)
+
     # Get today's date
     today = Time.now
+    
+    # Set the start time of the purge to be purge_age days ago
     @purge_start_time_cdr = today - (SECONDS_IN_A_DAY * purge_age)
   end    
     
   # Compute start time of CSE records to be purged from configuration
   def set_purge_start_time_cse_config(config)
-    # Look up the config param
-    purge_age = config[PURGE_AGE_CSE]
-    
-    # Apply the default if the param was not specified
-    purge_age ||= PURGE_AGE_CSE_DEFAULT
-    
-    # Convert to number
-    purge_age = purge_age.to_i
-    
-    if (purge_age <= 0)
-      raise(ConfigException, "Illegal value \"#{@purge_age}\" for " +
-            "#{PURGE_AGE_CSE}.  Must be a number greater than 0.")
-    end    
-                
+    purge_age = parse_int_param(config, PURGE_AGE_CSE, PURGE_AGE_CSE_DEFAULT, 1)
+
     # Get today's date
     today = Time.now
+    
+    # Set the start time of the purge to be purge_age days ago
     @purge_start_time_cse = today - (SECONDS_IN_A_DAY * purge_age)
   end
 
@@ -492,5 +485,35 @@ private
     end
     @host_port_list
   end  
+
+  # Read the named param from the config.  Convert it to an integer and return
+  # the value.  If the param is not defined, then use the default.  Validate
+  # that the param is between the min and max and raise a ConfigException if not.
+  def parse_int_param(config, param_name, default_value = nil, min = 0, max = INT_MAX)
+    param_value = default_value
+    begin
+      value = config[param_name]
+      param_value = Integer(value) if value
+      if param_value < min
+        raise_config_exception(
+          "The value of the configuration parameter #{param_name}, #{param_value}, "+
+          "is less than the minimum value allowed, #{min}")
+      elsif param_value > max
+        raise_config_exception(
+          "The value of the configuration parameter #{param_name}, #{param_value}, "+
+          "is greater than the maximum value allowed, #{max}")
+      end
+    rescue ArgumentError
+      raise_config_exception(
+        "The value of the configuration parameter #{param_name}, #{param_value}, "+
+        "is not an integer")
+    end
+
+    param_value
+  end
+  
+  def raise_config_exception(message)
+    Utils.raise_exception(message, ConfigException)
+  end
   
 end

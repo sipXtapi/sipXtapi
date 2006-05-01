@@ -123,4 +123,10 @@ public
     raise(klass, msg, caller)
   end
 
+  # Given an events array, return a string that displays one event per line,
+  # with preceding newlines.  Used for debugging.
+  def Utils.events_to_s(events)
+    events.inject('') {|str, event| str + "\n" + event.to_s}
+  end
+
 end

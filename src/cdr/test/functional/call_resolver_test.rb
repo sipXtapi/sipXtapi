@@ -205,7 +205,7 @@ public
     call_ids.sort!
     
     # verify results
-    assert_equal(4, call_ids.length, 'Wrong number of call IDs')
+    assert_equal(3, call_ids.length, 'Wrong number of call IDs')
     assert_equal('testSimpleSuccess',
                  call_ids[0],
                  'Wrong first call ID')
@@ -218,10 +218,10 @@ public
     start_time = Time.parse('1990-05-17T19:30:00.000Z')
     end_time = Time.parse('1990-05-17T19:45:00.000Z')
     events = @resolver.send(:load_events_in_time_window, start_time, end_time)
-    assert_equal(7, events.length, 'Wrong number of events')
+    assert_equal(6, events.length, 'Wrong number of events')
     assert_equal('testSimpleSuccess', events[0].call_id, 'Wrong first call ID')
-    assert_equal('testSimpleSuccess_CalleeEndBogusCallInTimeWindow',
-                 events[6].call_id,
+    assert_equal('testSimpleSuccess_CalleeEnd',
+                 events[5].call_id,
                  'Wrong last call ID')
     assert_equal(1, events[0].cseq, 'Wrong first cseq')
     assert_equal(2, events[1].cseq, 'Wrong second cseq')
@@ -237,16 +237,48 @@ public
     end
   end
   
-  def test_find_first_call_request
-    events = load_simple_success_events
-     
-    # find the first call_request event
-    call_req = @resolver.send(:find_first_call_request, events)
-    assert_not_nil(call_req, 'No call request event found')
-    assert_equal(CallStateEvent::CALL_REQUEST_TYPE, call_req.event_type,
-                 'Wrong event type, not a call request: ' + call_req.event_type)
-    assert_equal(1, call_req.event_seq,
-                 "Wrong call request sequence number #{call_req.event_seq}")
+  def test_find_call_request
+    assert_nil(find_call_request([]),
+               "No events => must not find call request event")    
+    
+    # Create call request events.  An original call request has no to_tag.
+    orig_req = new_call_request(Time.parse('2001-1-1'))
+    req1 = new_call_request(Time.parse('2002-1-1'), 'req1')
+    req2 = new_call_request(Time.parse('2003-1-1'), 'req2')
+  
+    # Create setup and end events  
+    setup = CallStateEvent.new(:event_type => CallStateEvent::CALL_SETUP_TYPE)
+    call_end = CallStateEvent.new(:event_type => CallStateEvent::CALL_END_TYPE)
+  
+    assert_nil(find_call_request([setup, call_end]),
+               "No call request events => must not find call request event")   
+    
+    # When there are multiple call requests with no originals, we pick the first
+    # one in the array, under the assumption that the caller has already sorted
+    # the array by time.
+    req = find_call_request([setup, req1, call_end, req2])
+    assert_equal(req1, req,
+                 'Multiple call requests with no originals => first one must win')
+    
+    req = find_call_request([req1, orig_req, req2])
+    assert_equal(orig_req, req,
+                 'Original call requests must be selected before call requests with to_tags')
+    
+    orig_req2 = new_call_request(Time.parse('2000-1-1'))
+    req = find_call_request([call_end, orig_req2, orig_req, setup])
+    assert_equal(orig_req2, req,
+                 'Multiple original call requests => first one must win')
+  end
+  
+  def new_call_request(event_time, to_tag = nil)
+    params = {:event_type => CallStateEvent::CALL_REQUEST_TYPE,
+              :event_time => event_time}
+    params[:to_tag] = to_tag if to_tag
+    CallStateEvent.new(params)
+  end
+  
+  def find_call_request(events)
+    @resolver.send(:find_call_request, events)
   end
   
   def test_start_cdr
@@ -278,36 +310,30 @@ public
      
     # Pick the call leg with the best outcome and longest duration to be the
     # basis for the CDR.
-    tags = @resolver.send(:best_call_leg, events)
-    to_tag = tags[1]
+    to_tag = @resolver.send(:best_call_leg, events)
     assert_equal('t', to_tag, 'Wrong to_tag for best call leg')
     
     # load events for the complicated case
     call_id = 'testComplicatedSuccess'
     events = @resolver.send(:load_events_with_call_id, call_id)
      
-    tags = @resolver.send(:best_call_leg, events)
-    to_tag = tags[1]
+    to_tag = @resolver.send(:best_call_leg, events)
     assert_equal('t2', to_tag, 'Wrong to_tag for best call leg')
     
     # try again, drop the final call_end event
-    tags = @resolver.send(:best_call_leg, events[0..4])
-    to_tag = tags[1]
+    to_tag = @resolver.send(:best_call_leg, events[0..4])
     assert_equal('t1', to_tag, 'Wrong to_tag for best call leg')
     
     # try again with three events
-    tags = @resolver.send(:best_call_leg, events[0..2])
-    to_tag = tags[1]
+    to_tag = @resolver.send(:best_call_leg, events[0..2])
     assert_equal('t0', to_tag, 'Wrong to_tag for best call leg')
     
     # try again with two events
-    tags = @resolver.send(:best_call_leg, events[0..1])
-    to_tag = tags[1]
+    to_tag = @resolver.send(:best_call_leg, events[0..1])
     assert_equal('t0', to_tag, 'Wrong to_tag for best call leg')
     
     # try again with just the call request
-    tags = @resolver.send(:best_call_leg, events[0..0])
-    to_tag = tags[1]
+    to_tag = @resolver.send(:best_call_leg, events[0..0])
     assert_nil(to_tag, 'Wrong to_tag for best call leg')
   end
 
@@ -316,9 +342,8 @@ public
     
     # fill in cdr_data with info from the events
     to_tag = 't'
-    from_tag = 'f'
     cdr_data = CdrData.new
-    status = @resolver.send(:finish_cdr, cdr_data, events, from_tag, to_tag)
+    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
     assert_equal(true, status)
     
     # define variables for cdr_data components
@@ -355,9 +380,8 @@ public
     
     # fill in cdr_data with info from the events
     to_tag = 't'
-    from_tag = 'f'
     cdr_data = CdrData.new
-    status = @resolver.send(:finish_cdr, cdr_data, events, from_tag, to_tag)
+    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
     assert_equal(true, status)
     
     # define variables for cdr_data components
@@ -382,7 +406,7 @@ public
   # in properly.
   def check_failed_call(events, to_tag)
     cdr_data = CdrData.new
-    status = @resolver.send(:finish_cdr, cdr_data, events, 'f', to_tag)
+    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
     assert_equal(true, status, 'Finishing the CDR failed')
     cdr = cdr_data.cdr
     assert_equal(Cdr::CALL_FAILED_TERM, cdr.termination, 'Wrong termination code')

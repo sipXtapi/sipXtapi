@@ -156,7 +156,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
   def test_set_purge_start_time_cdr_config
     # Get the default purge time: today's date minus the default age
     purge_start_time_cdr =
-      Time.now - (SECONDS_IN_A_DAY * CallResolverConfigure::PURGE_AGE_CDR_DEFAULT.to_i)
+      Time.now - (SECONDS_IN_A_DAY * CallResolverConfigure::PURGE_AGE_CDR_DEFAULT)
 
     # Pass in an empty config, should get the default purge time, allow
     # for 1 second difference in times
@@ -176,7 +176,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
   def test_set_purge_start_time_cse_config
     # Get the default purge time: today's date minus the default age
     purge_start_time_cse =
-      Time.now - (SECONDS_IN_A_DAY * CallResolverConfigure::PURGE_AGE_CSE_DEFAULT.to_i)
+      Time.now - (SECONDS_IN_A_DAY * CallResolverConfigure::PURGE_AGE_CSE_DEFAULT)
 
     # Pass in an empty config, should get the default purge time, allow
     # for 1 second difference in times
@@ -258,7 +258,40 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     assert(@config.send(:ha?))
     assert(port_array[0] == 5433, 'Wrong port number in first entry')
     assert(port_array[1] == 6666, 'Wrong port number in second entry')               
-        
+  end
+
+  def test_parse_int_param
+    # Check that we get the default value for an undefined param
+    default = 666
+    assert_equal(default, @config.send(:parse_int_param, {}, 'UNDEFINED_PARAM', default))
+    
+    # Check min and max constraints    
+    config_param = 'PARAM'
+    config = {config_param => '10'}
+    # Param exceeds the max value
+    assert_raise(ConfigException) do
+      @config.send(:parse_int_param, config, 'PARAM', default, 0, 5)
+    end
+    # Param is below the min value
+    assert_raise(ConfigException) do
+      @config.send(:parse_int_param, config, 'PARAM', default, 15, 20)
+    end
+    # Param is OK
+    assert_nothing_thrown do
+      @config.send(:parse_int_param, config, 'PARAM', default, 0, 20)
+    end
+
+    # Param is not an integer, should blow up
+    config = {config_param => 'zax'}
+    assert_raise(ConfigException) do
+      @config.send(:parse_int_param, config, 'PARAM')
+    end
+  end
+
+  def test_raise_config_exception
+    assert_raise(ConfigException) do
+      @config.send(:raise_config_exception, 'config exception')
+    end    
   end
   
 end

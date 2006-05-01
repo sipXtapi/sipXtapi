@@ -142,8 +142,6 @@ create table cdrs (
   start_time timestamp,             /* Start time in GMT: initial INVITE received */
   connect_time timestamp,           /* Connect time in GMT: ACK received for 200 OK */
   end_time timestamp,               /* End time in GMT: BYE received, or other ending */
-  check (connect_time >= start_time),
-  check (end_time >= connect_time),
   termination char(1),              /* Why the call was terminated */
   failure_status int2,              /* SIP error code if the call failed, e.g., 4xx */
   failure_reason text,              /* Text describing the reason for a call failure */
