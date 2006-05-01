@@ -46,8 +46,8 @@ public
       cseq = self.cseq || missing
       
       # Create and return a human-readable description of the event
-      "#{event_type_name} from #{from_url} to #{to_url} " +
-        "at #{event_time} call_id=#{call_id} cseq=#{cseq}"
+      "#<#{event_type_name} from #{from_url} to #{to_url} " +
+        "at #{event_time} call_id=#{call_id} cseq=#{cseq}>"
     
     # ActiveRecord queries can return objects that don't have all attributes
     # defined.  In that case fall back to the superclass method.

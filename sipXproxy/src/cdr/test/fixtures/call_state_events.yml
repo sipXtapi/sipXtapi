@@ -102,24 +102,7 @@ testSimpleSuccess_Junk_Late:
 #-------------------------------------------------------------------------------
 
 # Simple success case: call request, call connect, call end with callee hanging
-# up.
-# Should yield a single CDR.
-# Throw in junk events for testing purposes.
-# Scramble the order of listing events to test sorting.
-
-testSimpleSuccess_CalleeEnd_Junk_Early:
-  id:         85
-  observer:   O
-  event_seq:  5
-  event_time: 1990-05-16T19:43:00.000Z
-  event_type: F
-  cseq:       501   
-  call_id:    testSimpleSuccess_CalleeEndBogusCallEarly
-  from_tag:   f
-  to_tag:     t
-  from_url:   sip:alice@example.com; tag=f
-  to_url:     sip:bob@example.com; tag=t
-  contact:
+# up.  Should yield a single CDR.
   
 testSimpleSuccess_CalleeEnd_1:
   id:         81
@@ -134,34 +117,6 @@ testSimpleSuccess_CalleeEnd_1:
   from_url:   sip:alice@example.com; tag=f
   to_url:     sip:bob@example.com
   contact:    sip:alice@1.1.1.1
-
-testSimpleSuccess_CalleeEnd_Junk:
-  id:         84
-  observer:   O
-  event_seq:  4
-  event_time: 1990-05-17T19:43:00.000Z
-  event_type: F
-  cseq:       502   
-  call_id:    testSimpleSuccess_CalleeEndBogusCallInTimeWindow
-  from_tag:   f
-  to_tag:     t
-  from_url:   sip:alice@example.com; tag=f
-  to_url:     sip:bob@example.com; tag=t
-  contact:
-
-testSimpleSuccess_CalleeEnd_3:
-  id:         83
-  observer:   O
-  event_seq:  3
-  event_time: 1990-05-17T19:50:00.000Z
-  event_type: E
-  cseq:       3   
-  call_id:    testSimpleSuccess_CalleeEnd
-  from_tag:   t
-  to_tag:     f
-  from_url:   sip:bob@example.com; tag=t
-  to_url:     sip:alice@example.com; tag=f
-  contact :
   
 testSimpleSuccess_CalleeEnd_2:
   id:         82
@@ -177,19 +132,19 @@ testSimpleSuccess_CalleeEnd_2:
   to_url:     sip:bob@example.com; tag=t
   contact:    sip:bob@2.2.2.2
 
-testSimpleSuccess_CalleeEnd_Junk_Late:
-  id:         86
+testSimpleSuccess_CalleeEnd_3:
+  id:         83
   observer:   O
-  event_seq:  6
-  event_time: 1990-05-18T19:43:00.000Z
-  event_type: F
-  cseq:       502   
-  call_id:    testSimpleSuccess_CalleeEndBogusCallLate
-  from_tag:   f
-  to_tag:     t
-  from_url:   sip:alice@example.com; tag=f
-  to_url:     sip:bob@example.com; tag=t
-  contact:  
+  event_seq:  3
+  event_time: 1990-05-17T19:50:00.000Z
+  event_type: E
+  cseq:       3   
+  call_id:    testSimpleSuccess_CalleeEnd
+  from_tag:   t
+  to_tag:     f
+  from_url:   sip:bob@example.com; tag=t
+  to_url:     sip:alice@example.com; tag=f
+  contact :
   
 #-------------------------------------------------------------------------------
 
