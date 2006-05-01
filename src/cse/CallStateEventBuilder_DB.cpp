@@ -41,10 +41,13 @@ static const char* CallEvent_Start =
   "timestamp \'";
 
 static const char* CallEvent_NoFailure =
-  "0,\'\'";
+  "0,\'\',";
   
 static const char* CallEvent_DefaultElement =
   "\'\',";
+  
+static const char* CallEvent_DefaultEndElement =
+  "\'\'";
   
 static const char* CallEvent_DefaultReferElement =
   "\'\',\'\',";  
@@ -110,6 +113,7 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
       mContactElement.remove(0);
       mReferElement.remove(0);
       mFailureElement.remove(0);
+      mRequestUri.remove(0);
 
       mEventComplete = true;
    }
@@ -215,7 +219,7 @@ void CallStateEventBuilder_DB::callFailureEvent(int sequenceNumber,
       newEvent(sequenceNumber, timestamp, CallEventTable, CallFailureType);
 
       char buffer[256];
-      snprintf(buffer, 256, "%d,\'%s\'", statusCode, statusMsg.data());
+      snprintf(buffer, 256, "%d,\'%s\',", statusCode, statusMsg.data());
       mFailureElement = buffer;
    }
    else
@@ -264,7 +268,8 @@ void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber,
                                                   const OsTime& timeStamp, 
                                                   const UtlString& contact,
                                                   const UtlString& refer_to,
-                                                  const UtlString& referred_by) 
+                                                  const UtlString& referred_by,
+                                                  const UtlString& request_uri) 
 {
    if (builderStateIsOk(CallTransferEvent))
    {
@@ -301,7 +306,17 @@ void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber,
       else
       {
          mReferElement += "\'" + referred_by + "\',";           
-      }                                          
+      }
+      if (request_uri.index('\'') != UTL_NOT_FOUND)
+      {
+         UtlString nrequest_uri(request_uri);
+         nrequest_uri.replace('\'', '"');
+         mRequestUri = "\'" + nrequest_uri + "\'";         
+      }
+      else
+      {
+         mRequestUri = "\'" + request_uri + "\'";           
+      }                                                                        
     
    }
    else
@@ -435,6 +450,7 @@ void CallStateEventBuilder_DB::reset()
    mContactElement = CallEvent_DefaultElement;
    mReferElement = CallEvent_DefaultReferElement;
    mFailureElement = CallEvent_NoFailure;
+   mRequestUri = CallEvent_DefaultEndElement;
    mEndElement.remove(0);
    mEventComplete = false;
 }
@@ -483,6 +499,7 @@ bool  CallStateEventBuilder_DB::finishElement(UtlString& event)
       event.append(mContactElement);
       event.append(mReferElement);
       event.append(mFailureElement);
+      event.append(mRequestUri);
       event.append(");");
 
       reset();

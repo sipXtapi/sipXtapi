@@ -97,7 +97,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/callresolver-config.in
-%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/schema.sql
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
 
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -113,7 +113,7 @@ sipx-upgrade -p sipxproxy -c
 sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
 sipxcallresolver.sh --setup
 
-gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver*.gem
+gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver-*.gem
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
