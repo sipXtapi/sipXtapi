@@ -64,15 +64,6 @@ class CallResolverConfigure
   
   CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
   CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DATABASE_PORT_DEFAULT}"
-
-  # Maximum clock difference we allow between clocks on different servers
-  # before we mark a CDR as bad.  If the clocks are too far out of sync then
-  # we won't be able to compute an accurate CDR.  Customers will vary on how
-  # much time slop they are willing to accept, so make it configurable.
-  MAX_CLOCK_DIFF = 'SIP_CALLRESOLVER_MAX_CLOCK_DIFF'
-  
-  # By default, allow clocks to differ by as much as 30 seconds.
-  MAX_CLOCK_DIFF_DEFAULT = 30
   
   
   # Map from the name of a log level to a Logger level value.
@@ -316,7 +307,6 @@ private
     
     set_daily_run_config(@config)
     set_daily_start_time_config(@config)
-    set_max_clock_diff_config(@config)
     set_purge_config(@config)
     set_purge_start_time_cdr_config(@config)
     set_purge_start_time_cse_config(@config)
@@ -403,10 +393,6 @@ private
     #log.debug("set_daily_start_time_config: String #{startString}, time #{@daily_start_time}")    
     @daily_end_time = @daily_start_time
     @daily_start_time -= SECONDS_IN_A_DAY   # 24 hours
-  end
-  
-  def set_max_clock_diff_config(config)
-    @max_clock_diff = parse_int_param(config, MAX_CLOCK_DIFF, MAX_CLOCK_DIFF_DEFAULT)
   end
   
   # Enable/disable the daily run from the configuration.

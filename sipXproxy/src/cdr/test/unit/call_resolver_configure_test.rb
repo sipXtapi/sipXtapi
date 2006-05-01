@@ -134,18 +134,6 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     assert(daily_start_time == @config.send(:set_daily_start_time_config, {}))
   end
 
-  def test_set_max_clock_diff
-    # Pass in an empty config, should get the default value
-    assert_equal(CallResolverConfigure::MAX_CLOCK_DIFF_DEFAULT,
-                 @config.send(:set_max_clock_diff_config, {}))
-    
-    # Specify a value, it should be used
-    max_clock_diff = 10
-    assert_equal(max_clock_diff,
-                 @config.send(:set_max_clock_diff_config,
-                 {CallResolverConfigure::MAX_CLOCK_DIFF => max_clock_diff.to_s}))
-  end
-
   def test_set_purge_config
     # Pass in an empty config, should get the default value of true
     assert(@config.send(:set_purge_config, {}))
