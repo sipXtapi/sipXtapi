@@ -106,7 +106,8 @@ public:
                     "\'refer-to\',"
                     "\'referred-by\',"                    
                     "0,"
-                    "\'No Reason\');");
+                    "\'No Reason\',"
+                    "\'\');");
                  
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
             
@@ -125,7 +126,8 @@ public:
                     "\'refer-to-2\',"
                     "\'referred-by-2\',"                    
                     "0,"
-                    "\'No Reason-2\');");
+                    "\'No Reason-2\',"
+                    "\'\');");
                  
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement)); 
          }

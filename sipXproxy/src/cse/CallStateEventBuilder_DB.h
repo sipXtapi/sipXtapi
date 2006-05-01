@@ -111,7 +111,8 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
                           const OsTime& timeStamp, 
                           const UtlString& contact,
                           const UtlString& refer_to,
-                          const UtlString& referred_by); 
+                          const UtlString& referred_by,
+                          const UtlString& request_uri); 
    /**<
     * Requires:
     *   - callTransferEvent
@@ -163,6 +164,7 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
    UtlString mFailureElement;
    UtlString mViaHeader;
    UtlString mEndElement;
+   UtlString mRequestUri;
    bool      mEventComplete;
    
    void newEvent(int sequenceNumber,

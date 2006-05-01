@@ -134,7 +134,8 @@ class CallStateEventBuilder
                                   const OsTime& timestamp,   ///< obtain using getCurTime(OsTime)
                                   const UtlString& contact,
                                   const UtlString& refer_to,
-                                  const UtlString& referred_by
+                                  const UtlString& referred_by,
+                                  const UtlString& request_uri
                                   );
 
    /// Add the dialog and call information for the event being built.
