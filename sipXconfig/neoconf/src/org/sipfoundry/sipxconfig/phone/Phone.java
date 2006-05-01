@@ -21,14 +21,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
@@ -49,8 +47,6 @@ public class Phone extends BeanWithGroups {
     private static final String SYSTEM_SETTINGS = "system/";
     private static final String SERVER_SETTINGS = "server/";
     private static final String CREDENTIAL_SETTINGS = "credential/";
-
-    private static final Log LOG = LogFactory.getLog(Phone.class);
 
     private String m_description;
 
@@ -133,15 +129,6 @@ public class Phone extends BeanWithGroups {
         m_velocityEngine = velocityEngine;
     }
 
-    protected void makeParentDirectory(File f) {
-        if (!f.getParentFile().exists()) {
-            if (!f.getParentFile().mkdirs()) {
-                throw new RuntimeException("Could not create parent directory for file "
-                        + f.getPath());
-            }
-        }
-    }
-
     public Setting getSettingModel() {
         Setting settingModel = super.getSettingModel();
         if (settingModel == null) {
@@ -187,7 +174,7 @@ public class Phone extends BeanWithGroups {
         Writer wtr = null;
         try {
             File file = new File(profileFileName);
-            makeParentDirectory(file);
+            VelocityProfileGenerator.makeParentDirectory(file);
             wtr = new FileWriter(file);
             generateProfile(wtr);
         } catch (IOException e) {
@@ -207,7 +194,7 @@ public class Phone extends BeanWithGroups {
         }
         return null;
     }
-    
+
     public Line findByUri(String uri) {
         for (int i = 0; i < getLines().size(); i++) {
             Line l = (Line) getLines().get(i);
@@ -216,7 +203,7 @@ public class Phone extends BeanWithGroups {
                 return l;
             }
         }
-        return null;        
+        return null;
     }
 
     public void removeLine(Line line) {
@@ -232,20 +219,9 @@ public class Phone extends BeanWithGroups {
         if (profileFileName == null) {
             return;
         }
-        removeProfileFiles(new File[] {
+        VelocityProfileGenerator.removeProfileFiles(new File[] {
             new File(profileFileName)
         });
-    }
-
-    protected final void removeProfileFiles(File[] profileFiles) {
-        for (int i = 0; i < profileFiles.length; i++) {
-            try {
-                FileUtils.forceDelete(profileFiles[i]);
-            } catch (IOException e) {
-                // ignore delete failure
-                LOG.info(e.getMessage());
-            }
-        }
     }
 
     public String getPhoneTemplate() {
@@ -371,7 +347,8 @@ public class Phone extends BeanWithGroups {
             adapter.addMapping(LineSettings.AUTHORIZATION_ID, CREDENTIAL_SETTINGS
                     + LineSettings.AUTHORIZATION_ID);
             adapter.addMapping(LineSettings.USER_ID, CREDENTIAL_SETTINGS + LineSettings.USER_ID);
-            adapter.addMapping(LineSettings.PASSWORD, CREDENTIAL_SETTINGS
+            adapter
+                    .addMapping(LineSettings.PASSWORD, CREDENTIAL_SETTINGS
                             + LineSettings.PASSWORD);
             adapter.addMapping(LineSettings.DISPLAY_NAME, CREDENTIAL_SETTINGS
                     + LineSettings.DISPLAY_NAME);
@@ -397,7 +374,7 @@ public class Phone extends BeanWithGroups {
         if (m_lines == Collections.EMPTY_LIST) {
             m_lines = new ArrayList();
         }
-        int max = getModel().getMaxLineCount(); 
+        int max = getModel().getMaxLineCount();
         if (m_lines.size() >= max) {
             throw new MaxLinesException("Maximum number of allowed lines is " + max);
         }
@@ -405,7 +382,7 @@ public class Phone extends BeanWithGroups {
         line.setPosition(m_lines.size());
         m_lines.add(line);
     }
-    
+
     public static class MaxLinesException extends UserException {
         MaxLinesException(String msg) {
             super(msg);

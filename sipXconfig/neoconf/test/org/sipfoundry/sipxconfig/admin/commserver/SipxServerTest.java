@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class SipxServerTest extends TestCase {
@@ -62,9 +62,9 @@ public class SipxServerTest extends TestCase {
     public void testDomainNameChange() {
         String newDomainName = "new-domain-name";
 
-        MockControl phoneDefaultsCtrl = MockClassControl.createControl(PhoneDefaults.class);
-        PhoneDefaults phoneDefaults = (PhoneDefaults) phoneDefaultsCtrl.getMock();
-        phoneDefaults.setDomainName(newDomainName);
+        MockControl phoneDefaultsCtrl = MockClassControl.createControl(DeviceDefaults.class);
+        DeviceDefaults deviceDefaults = (DeviceDefaults) phoneDefaultsCtrl.getMock();
+        deviceDefaults.setDomainName(newDomainName);
         phoneDefaultsCtrl.replay();
 
         MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
@@ -80,7 +80,7 @@ public class SipxServerTest extends TestCase {
         replicationContext.generateAll();
         replicationContextCtrl.replay();
 
-        m_server.setPhoneDefaults(phoneDefaults);
+        m_server.setPhoneDefaults(deviceDefaults);
         m_server.setCoreContext(coreContext);
         m_server.setSipxReplicationContext(replicationContext);
 

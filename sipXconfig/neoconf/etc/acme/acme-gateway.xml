@@ -4,6 +4,26 @@
 
 
 <model>
-  <group name="basic">    
-  </group>
+	<group name="basic">
+		<setting name="proxyAddress">
+			<label>SIP Proxy</label>
+			<description>SIP Proxy address</description>
+		</setting>
+		<setting name="displayColor">
+			<label>Display color</label>
+			<type>
+				<enum>
+					<option>
+						<label>Red</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>Blue</label>
+						<value>2</value>
+					</option>
+				</enum>
+			</type>
+			<description>Color of gateway LCD display.</description>
+		</setting>
+	</group>
 </model>

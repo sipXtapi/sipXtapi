@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 
 public class PhoneTest extends TestCase {
 
@@ -74,7 +75,7 @@ public class PhoneTest extends TestCase {
     }
     
     public void testFindByUri() {
-        PhoneDefaults defaults = new PhoneDefaults();
+        DeviceDefaults defaults = new DeviceDefaults();
         MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
         PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
         phoneContextCtrl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults, MockControl.ONE_OR_MORE);

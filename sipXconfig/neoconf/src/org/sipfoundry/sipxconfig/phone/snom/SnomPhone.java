@@ -17,10 +17,10 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -113,7 +113,7 @@ public class SnomPhone extends Phone {
         super.defaultSettings();
 
         Setting settings = getSettings();
-        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+        DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
         String configUrl = defaults.getProfileRootUrl() + '/' + getProfileName();
         settings.getSetting("update/setting_server").setValue(configUrl);
     }
@@ -163,7 +163,7 @@ public class SnomPhone extends Phone {
     protected void defaultLineSettings(Line line) {
         super.defaultLineSettings(line);
         
-        PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+        DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
         // registration server shouldn't be used, proxy(e.g domain name) should handle delivery
         String domainName = defaults.getDomainName();
         String registrationUri = domainName + ";transport=udp";

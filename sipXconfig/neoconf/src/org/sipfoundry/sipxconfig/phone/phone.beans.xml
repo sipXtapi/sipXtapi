@@ -2,9 +2,6 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.phone.PhoneDefaults">
-    <property name="dialPlanContext" ref="dialPlanContext"/>
-  </bean>
   <!--
   - P H O N E  C O N T E X T   I M P L
   -->
@@ -13,9 +10,7 @@
     <property name="settingDao" ref="settingDaoImpl"/>
     <property name="coreContext" ref="coreContext"/>
     <property name="systemDirectory" value="${sysdir.etc}"/>
-    <property name="phoneDefaults">
-      <ref local="phoneDefaults"/>
-    </property>
+    <property name="phoneDefaults" ref="phoneDefaults"/>
     <property name="availablePhoneModels">
       <list>
         <!-- TODO: alphabetize.  right now certain unittests are selecting the Nth
@@ -89,7 +84,7 @@
     <property name="jobContext" ref="jobContext"/>
   </bean>
   
-  <bean id="restartManager" class="org.sipfoundry.sipxconfig.phone.LazyRestartManagerImpl"
+  <bean id="restartManager" class="org.sipfoundry.sipxconfig.device.LazyRestartManagerImpl"
     init-method="init">
     <property name="target">
       <ref local="eagerRestartManager"/>
@@ -107,7 +102,7 @@
     <property name="jobContext" ref="jobContext"/>
   </bean>
   
-  <bean id="profileManager" class="org.sipfoundry.sipxconfig.phone.LazyProfileManagerImpl"
+  <bean id="profileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl"
     init-method="init">
     <property name="target">
       <ref local="eagerProfileManager"/>

@@ -21,7 +21,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
-import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
+import org.sipfoundry.sipxconfig.phone.Phone;
 
 /**
  * Velocity model for generating [MAC ADDRESS].cfg, pointer to all other 
@@ -42,12 +43,12 @@ public class ApplicationConfiguration extends VelocityProfileGenerator {
     }
     
     public String getAppFilename() {
-        return getPhone().getSerialNumber() + ".cfg";
+        return ((Phone) getDevice()).getSerialNumber() + ".cfg";
     }
     
     String getDirectory() {
         if (m_directory == null) {
-            PolycomPhone polycomPhone = (PolycomPhone) getPhone();
+            PolycomPhone polycomPhone = (PolycomPhone) getDevice();
             String tftpRoot = polycomPhone.getTftpRoot();
             String endpointDir = polycomPhone.getSerialNumber();           
             m_staleDirectories.clear();
@@ -121,7 +122,7 @@ public class ApplicationConfiguration extends VelocityProfileGenerator {
     
     public void deleteStaleDirectories() {
         try {
-            PolycomPhone polycomPhone = (PolycomPhone) getPhone();
+            PolycomPhone polycomPhone = (PolycomPhone) getDevice();
             File tftpRoot = new File(polycomPhone.getTftpRoot());
             Iterator i = m_staleDirectories.iterator();
             while (i.hasNext()) {

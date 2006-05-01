@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 /**
@@ -20,7 +21,7 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
  */
 public interface Setting extends Cloneable {
 
-    public static final String NULL_VALUE = new String();
+    public static final String NULL_VALUE = StringUtils.EMPTY;
     
     public static final char PATH_DELIM = '/';
 

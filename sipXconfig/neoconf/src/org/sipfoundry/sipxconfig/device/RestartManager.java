@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.device;
 
 import java.util.Collection;
 
@@ -18,9 +18,9 @@ public interface RestartManager {
     /**
      * Restart phones in background
      * 
-     * @param phoneIds collection of phone ids to be restarted
+     * @param deviceIds collection of phone ids to be restarted
      */
-    public void restart(Collection phoneIds);
-    
-    public void restart(Integer phoneId);
+    public void restart(Collection deviceIds);
+
+    public void restart(Integer deviceId);
 }

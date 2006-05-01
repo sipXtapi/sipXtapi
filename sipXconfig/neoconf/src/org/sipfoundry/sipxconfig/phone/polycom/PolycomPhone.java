@@ -17,13 +17,13 @@ import java.io.IOException;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
-import org.sipfoundry.sipxconfig.phone.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
@@ -140,7 +140,7 @@ public class PolycomPhone extends Phone {
         };
 
         // and this will remove new ones
-        removeProfileFiles(files);
+        VelocityProfileGenerator.removeProfileFiles(files);
     }
 
     /**
@@ -150,7 +150,7 @@ public class PolycomPhone extends Phone {
         FileWriter out = null;
         try {
             File f = new File(getTftpRoot(), outputFile);
-            makeParentDirectory(f);
+            VelocityProfileGenerator.makeParentDirectory(f);
             out = new FileWriter(f);
             generateProfile(cfg, template, out);
         } catch (IOException ioe) {
@@ -263,7 +263,7 @@ public class PolycomPhone extends Phone {
 
         User u = line.getUser();
         if (u != null) {
-            PhoneDefaults defaults = getPhoneContext().getPhoneDefaults();
+            DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
             Setting mwi = line.getSettings().getSetting("msg.mwi");
             String uri = u.getUserName() + '@' + defaults.getDomainName();
             mwi.getSetting("subscribe").setValue(uri);

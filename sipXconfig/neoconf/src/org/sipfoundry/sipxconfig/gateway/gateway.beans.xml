@@ -102,7 +102,6 @@
   
   <!-- ACME begin -->
   <!-- This is just an example of how to register new gateway -->
-  <!--
   <bean id="gmAcme" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
     <constructor-arg><value>gwAcme</value></constructor-arg>
     <constructor-arg><value>1000</value></constructor-arg>
@@ -116,11 +115,12 @@
   
   <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" singleton="false"
     parent="gwGeneric">
+    <property name="defaults" ref="phoneDefaults"/>
+    <property name="velocityEngine" ref="velocityEngine"/>
     <property name="settingModel">
       <ref local="smAcme"></ref>
     </property>
   </bean>
-  -->    
   <!-- ACME end -->
       
   <!-- gateway context -->
@@ -140,10 +140,7 @@
         <ref local="gmAudiocodesTP260_2_Span"/>
         <ref local="gmAudiocodesTP260_4_Span"/>
         <ref local="gmAudiocodesTP260_8_Span"/>
-        <!-- 
-          testing and example only
         <ref local="gmAcme"/>
-        -->  
       </list>
     </property>
   </bean>
@@ -165,7 +162,7 @@
     <property name="jobContext" ref="jobContext"/>
   </bean>
   
-  <bean id="gatewayProfileManager" class="org.sipfoundry.sipxconfig.phone.LazyProfileManagerImpl"
+  <bean id="gatewayProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl"
     init-method="init">
     <property name="target">
       <ref local="eagerGatewayProfileManager"/>

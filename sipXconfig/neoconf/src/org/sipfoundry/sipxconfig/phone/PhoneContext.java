@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 /**
@@ -83,7 +84,7 @@ public interface PhoneContext extends DataObjectSource {
 
     public String getSystemDirectory();
 
-    public PhoneDefaults getPhoneDefaults();
+    public DeviceDefaults getPhoneDefaults();
 
     public Collection getPhonesByGroupId(Integer groupId);
 

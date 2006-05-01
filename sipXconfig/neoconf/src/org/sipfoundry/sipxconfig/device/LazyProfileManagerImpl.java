@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.device;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -18,37 +18,37 @@ import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 
-public class LazyRestartManagerImpl implements RestartManager {
-    private Set m_phoneIds = new HashSet();
+public class LazyProfileManagerImpl implements ProfileManager {
+    private Set m_ids = new HashSet();
 
-    private RestartManager m_target;
+    private ProfileManager m_target;
 
     private int m_sleepInterval;
 
     private Worker m_worker;
 
-    public void setTarget(RestartManager target) {
-        m_target = target;
-    }
-    
     public void setSleepInterval(int sleepInterval) {
         m_sleepInterval = sleepInterval;
     }
 
-    public synchronized void restart(Collection phoneIds) {
-        m_phoneIds.addAll(phoneIds);
+    public void setTarget(ProfileManager target) {
+        m_target = target;
+    }
+
+    public synchronized void generateProfilesAndRestart(Collection phoneIds) {
+        m_ids.addAll(phoneIds);
         m_worker.workScheduled();
         notify();
     }
 
-    public synchronized void restart(Integer phoneId) {
-        m_phoneIds.add(phoneId);
+    public synchronized void generateProfileAndRestart(Integer phoneId) {
+        m_ids.add(phoneId);
         m_worker.workScheduled();
         notify();
     }
 
     private synchronized void waitForWork() throws InterruptedException {
-        if (m_phoneIds.isEmpty()) {
+        if (m_ids.isEmpty()) {
             wait();
         }
     }
@@ -59,25 +59,25 @@ public class LazyRestartManagerImpl implements RestartManager {
     }
 
     private synchronized Set getTasks() {
-        if (m_phoneIds.isEmpty()) {
+        if (m_ids.isEmpty()) {
             return Collections.EMPTY_SET;
         }
-        Set oldTasks = m_phoneIds;
-        m_phoneIds = new HashSet();
+        Set oldTasks = m_ids;
+        m_ids = new HashSet();
         return oldTasks;
     }
 
     private class Worker extends LazyDaemon {
         public Worker() {
-            super("Restart Manager thread", m_sleepInterval);
+            super("Profile Manager thread", m_sleepInterval);
         }
 
         protected void waitForWork() throws InterruptedException {
-            LazyRestartManagerImpl.this.waitForWork();
+            LazyProfileManagerImpl.this.waitForWork();
         }
 
         protected boolean work() {
-            m_target.restart(getTasks());
+            m_target.generateProfilesAndRestart(getTasks());
             return true;
         }
     }

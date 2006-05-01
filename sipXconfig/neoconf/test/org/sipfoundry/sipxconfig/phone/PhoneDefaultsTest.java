@@ -11,12 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+
 import junit.framework.TestCase;
 
 public class PhoneDefaultsTest extends TestCase {
     
     public void testGetProfileRotUrl() {
-        PhoneDefaults defaults = new PhoneDefaults();
+        DeviceDefaults defaults = new DeviceDefaults();
         defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
         String actual = defaults.getProfileRootUrl();
         assertEquals("http://pbx.sipfoundry.org:8090/phone/profile/docroot", actual);

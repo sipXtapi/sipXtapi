@@ -21,12 +21,12 @@ import java.io.Writer;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
 
 public class AudioCodesGateway extends Gateway {
 
-    private PhoneDefaults m_defaults;
+    private DeviceDefaults m_defaults;
 
     protected void defaultSettings() {
         super.defaultSettings();
@@ -98,11 +98,11 @@ public class AudioCodesGateway extends Gateway {
         }
     }
 
-    public void setDefaults(PhoneDefaults defaults) {
+    public void setDefaults(DeviceDefaults defaults) {
         m_defaults = defaults;
     }
 
-    public PhoneDefaults getDefaults() {
+    public DeviceDefaults getDefaults() {
         return m_defaults;
     }
 }

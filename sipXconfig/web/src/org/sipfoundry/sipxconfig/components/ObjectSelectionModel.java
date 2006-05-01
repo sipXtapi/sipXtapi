@@ -89,13 +89,13 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
         }
     }
         
-    private synchronized void parseLabelExpression() throws OgnlException {
+    private void parseLabelExpression() throws OgnlException {
         if (m_parsedLabelExpression == null) {
             m_parsedLabelExpression = Ognl.parseExpression(m_labelExpression);
         }
     }
 
-    private synchronized void parseValueExpression() throws OgnlException {
+    private void parseValueExpression() throws OgnlException {
         if (m_parsedValueExpression == null) {
             m_parsedValueExpression = Ognl.parseExpression(m_valueExpression);
         }

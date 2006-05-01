@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -57,7 +58,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private Map m_modelCache = new HashMap();
 
-    private PhoneDefaults m_phoneDefaults;
+    private DeviceDefaults m_deviceDefaults;
 
     public List getAvailablePhoneModels() {
         return m_availableModels;
@@ -204,7 +205,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         return model;
     }
 
-    private class DuplicateSerialNumberException extends UserException {
+    private static class DuplicateSerialNumberException extends UserException {
         private static final String ERROR = "A phone with serial number: {0} already exists.";
 
         public DuplicateSerialNumberException(String serialNumber) {
@@ -216,12 +217,12 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         // no init tasks defined yet
     }
 
-    public PhoneDefaults getPhoneDefaults() {
-        return m_phoneDefaults;
+    public DeviceDefaults getPhoneDefaults() {
+        return m_deviceDefaults;
     }
 
-    public void setPhoneDefaults(PhoneDefaults phoneDefaults) {
-        m_phoneDefaults = phoneDefaults;
+    public void setPhoneDefaults(DeviceDefaults deviceDefaults) {
+        m_deviceDefaults = deviceDefaults;
     }
 
     public Collection getPhonesByGroupId(Integer groupId) {

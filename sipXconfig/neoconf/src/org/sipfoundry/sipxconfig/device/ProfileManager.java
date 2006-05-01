@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.device;
 
 import java.util.Collection;
 
@@ -17,9 +17,9 @@ public interface ProfileManager {
     /**
      * Generate profile on phones in background
      * 
-     * @param phones collection of phone objects
+     * @param deviceIds collection of ids of device (phone or gateway) objects
      */
-    public void generateProfilesAndRestart(Collection phones);
-    
-    public void generateProfileAndRestart(Integer phoneId);
+    public void generateProfilesAndRestart(Collection deviceIds);
+
+    public void generateProfileAndRestart(Integer deviceId);
 }

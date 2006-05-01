@@ -82,7 +82,7 @@ public class UploadManagerImpl extends SipxHibernateDaoSupport implements BeanFa
         }
         if (existing.size() == 1) {
             Upload existingUpload = (Upload) existing.get(0);
-            if (existingUpload.getId() != upload.getId()) {
+            if (!existingUpload.getId().equals(upload.getId())) {
                 throw new AlreadyDeployedException("You must undeploy \"" +  existingUpload.getName()
                         + "\" before you can deploy these files.  You can only have one set of files of type \""
                         + spec.getLabel() + "\" deployed at a time.");

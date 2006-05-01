@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
@@ -22,17 +23,20 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 public class ReplicationTrigger implements ApplicationListener, DaoEventListener {
-    protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);    
-    
+    protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
+
     private SipxReplicationContext m_replicationContext;
-    private boolean m_replicateOnStartup = true; 
+
+    private ParkOrbitContext m_parkOrbitContext;
+
+    private boolean m_replicateOnStartup = true;
 
     public void setReplicationContext(SipxReplicationContext replicationContext) {
         m_replicationContext = replicationContext;
     }
 
-    public SipxReplicationContext getReplicationContext() {
-        return m_replicationContext;
+    public void setParkOrbitContext(ParkOrbitContext parkOrbitContext) {
+        m_parkOrbitContext = parkOrbitContext;
     }
 
     public boolean isReplicateOnStartup() {
@@ -52,13 +56,14 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     }
 
     /**
-     * Override ApplicationListener.onApplicationEvent so we can handle events.
-     * Perform data replication every time the app starts up.
+     * Override ApplicationListener.onApplicationEvent so we can handle events. Perform data
+     * replication every time the app starts up.
      */
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ApplicationInitializedEvent && isReplicateOnStartup()) {
             LOG.info("Replicating all data sets after application has initialized");
             m_replicationContext.generateAll();
+            m_parkOrbitContext.activateParkOrbits();
         }
     }
 
@@ -74,4 +79,12 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
         }
     }
 
+    // testing only
+    SipxReplicationContext getReplicationContext() {
+        return m_replicationContext;
+    }
+
+    ParkOrbitContext getParkOrbitContext() {
+        return m_parkOrbitContext;
+    }
 }

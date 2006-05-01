@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 import org.easymock.MockControl;
 import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.phone.PhoneDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 
@@ -49,8 +49,8 @@ public class Tp260GatewayTest extends TestCase {
     public void testPrepareSettings() throws Exception {
         assertSame(m_model, m_gateway.getModel());
 
-        MockControl defaultsCtrl = MockClassControl.createControl(PhoneDefaults.class);
-        PhoneDefaults defaults = (PhoneDefaults) defaultsCtrl.getMock();
+        MockControl defaultsCtrl = MockClassControl.createControl(DeviceDefaults.class);
+        DeviceDefaults defaults = (DeviceDefaults) defaultsCtrl.getMock();
         defaults.getDomainName();
         defaultsCtrl.setDefaultReturnValue("mysipdomain.com");
         defaults.getProxyServerAddr();
