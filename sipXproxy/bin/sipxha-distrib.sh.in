@@ -15,7 +15,7 @@ stunnel_debug_level=5
 
 check_ca_file=1
 
-Action=NONE
+Action=HELP
 
 checkStunnelRunning() {
    # Get the process info, remove any leading whitespace and retrieve Pid
