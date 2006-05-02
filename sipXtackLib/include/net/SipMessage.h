@@ -80,6 +80,7 @@ class SipUserAgent;
 #define SIP_FROM_FIELD "FROM"
 #define SIP_SHORT_FROM_FIELD "F"
 #define SIP_MAX_FORWARDS_FIELD "MAX-FORWARDS"
+#define SIP_P_ASSERTED_IDENTITY_FIELD "P-ASSERTED-IDENTITY"
 #define SIP_RECORD_ROUTE_FIELD "RECORD-ROUTE"
 #define SIP_REFER_TO_FIELD "REFER-TO"
 #define SIP_SHORT_REFER_TO_FIELD "R"
@@ -775,6 +776,23 @@ public:
     void getFromAddress(UtlString* fromAddress, int* fromPort, UtlString* protocol,
                         UtlString* user = NULL, UtlString* userLabel = NULL,
                         UtlString* tag = NULL) const;
+
+    //! Get the identity value from the P-Asserted-Identity header field
+    /*! Get the identity from the index'th P-Asserted-Identity header
+     *  field if it exists.
+     *  \param identity - network asserted SIP identity (name-addr or
+     *                  addr-spec format).  Use the Url class to parse the identity
+     *  \param index - indicates which occurrance of P-Asserted-Identity header
+     *                 to retrieve.
+     *  \return TRUE/FALSE if the header of the given index exists
+     */
+    UtlBoolean getPAssertedIdentityField(UtlString& identity, int index = 0) const;
+
+    //! Remove all of the P-Asserted-Identity header fields
+    void removePAssertedIdentityFields();
+
+    //! Add the P-Asserted-Identity value 
+    void addPAssertedIdentityField(const UtlString& identity);
 
     UtlBoolean getResponseSendAddress(UtlString& address,
                                      int& port,

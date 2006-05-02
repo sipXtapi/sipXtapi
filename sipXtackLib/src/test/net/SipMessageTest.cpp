@@ -1,9 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -43,6 +50,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testSetInviteDataHeadersUnique);
       CPPUNIT_TEST(testSetInviteDataHeadersForbidden);
       CPPUNIT_TEST(testCompactNames);
+      CPPUNIT_TEST(testHeaderFieldAccessors);
       CPPUNIT_TEST_SUITE_END();
 
       public:
@@ -1239,7 +1247,77 @@ class SipMessageTest : public CppUnit::TestCase
          
       };
 
+      void testHeaderFieldAccessors()
+      {
+          const char* messageBlob =
+              "INVITE sip:fred@example.com SIP/2.0\n\
+From: sip:betty@example.com\n\
+To: Fred<sip:fred@example.com\n\
+CSeq: 3 INVITE\n\
+Call-Id: 1234\n\
+Via: SIP/2.0/UDP 127.0.0.1:4444;branch=z9hG4bK-10\n\
+P-Asserted-Identity: Fredrick<freddy@east.example.com>    ,     \
+    tel:1234567890  \n\
+P-ASSerted-IDENTITY: foo<sip:bar@my.example.com\n\
+Content-Length: 0\n\
+\n";
 
+
+          SipMessage message(messageBlob);
+
+          UtlString identity;
+          UtlString testErrorMessage;
+          CPPUNIT_ASSERT(message.getPAssertedIdentityField(identity, 0));
+          const char* expectedIdentity0 = "Fredrick<freddy@east.example.com>";
+          testErrorMessage = "expected: ";
+          testErrorMessage.append(expectedIdentity0);
+          CPPUNIT_ASSERT_MESSAGE(testErrorMessage.data(),
+              identity.compareTo(expectedIdentity0) == 0);
+
+          const char* expectedIdentity1 = "tel:1234567890";
+          testErrorMessage = "expected: ";
+          testErrorMessage.append(expectedIdentity1);
+          CPPUNIT_ASSERT(message.getPAssertedIdentityField(identity, 1));
+          CPPUNIT_ASSERT_MESSAGE(testErrorMessage.data(),
+              identity.compareTo(expectedIdentity1) == 0);
+
+          const char* expectedIdentity2 = "foo<sip:bar@my.example.com";
+          testErrorMessage = "expected: ";
+          testErrorMessage.append(expectedIdentity2);
+          CPPUNIT_ASSERT(message.getPAssertedIdentityField(identity, 2));
+          CPPUNIT_ASSERT_MESSAGE(testErrorMessage.data(),
+              identity.compareTo(expectedIdentity2) == 0);
+
+          message.removePAssertedIdentityFields();
+          CPPUNIT_ASSERT(!message.getPAssertedIdentityField(identity, 0));
+
+          const char* messageHeaderLine = "FOO sip:fred@example.com SIP/2.0\r\n";
+          SipMessage writeMessage(messageHeaderLine);
+          writeMessage.addPAssertedIdentityField(expectedIdentity2);
+          writeMessage.addPAssertedIdentityField(expectedIdentity1);
+          writeMessage.addPAssertedIdentityField(expectedIdentity0);
+
+          UtlString expectedMessage = messageHeaderLine;
+          expectedMessage.append("P-Asserted-Identity: ");
+          expectedMessage.append(expectedIdentity2 );
+          expectedMessage.append(", ");
+          expectedMessage.append(expectedIdentity1);
+          expectedMessage.append(", ");
+          expectedMessage.append(expectedIdentity0);
+          expectedMessage.append("\r\nContent-Length: 0\r\n\r\n");
+          UtlString messageBytes;
+          int len;
+          writeMessage.getBytes(&messageBytes, &len);
+
+          testErrorMessage = "expected: ";
+          testErrorMessage.append(expectedMessage);
+          if(messageBytes.compareTo(expectedMessage))
+          {
+              printf("Actual: %s\n", messageBytes.data());
+              printf("Expected: %s\n", expectedMessage.data());
+          }
+          CPPUNIT_ASSERT( messageBytes.compareTo(expectedMessage) == 0);
+      }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipMessageTest);

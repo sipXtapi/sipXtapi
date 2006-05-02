@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
@@ -2316,6 +2322,39 @@ void SipMessage::getFromLabel(UtlString* label) const
          label->remove(labelEnd);
       }
    }
+}
+
+UtlBoolean SipMessage::getPAssertedIdentityField(UtlString& identity,
+                                                 int index) const
+{
+    UtlBoolean fieldExists = 
+        getFieldSubfield(SIP_P_ASSERTED_IDENTITY_FIELD, index, &identity);
+    NameValueTokenizer::frontBackTrim(&identity, " \t");
+    return(fieldExists && !identity.isNull());
+}
+
+void SipMessage::removePAssertedIdentityFields()
+{
+    while(removeHeader(SIP_P_ASSERTED_IDENTITY_FIELD, 0))
+    {
+    }
+}
+
+void SipMessage::addPAssertedIdentityField(const UtlString& identity)
+{
+    // Order does not matter so just get the first occurance and 
+    // add a field seperator and the new identity value
+    UtlString firstValue;
+    const char* value = getHeaderValue(0, SIP_P_ASSERTED_IDENTITY_FIELD);
+    if(value)
+    {
+        firstValue = value;
+        firstValue.append(SIP_MULTIFIELD_SEPARATOR);
+        firstValue.append(' ');
+    }
+    firstValue.append(identity);
+
+    setHeaderValue(SIP_P_ASSERTED_IDENTITY_FIELD, firstValue, 0);
 }
 
 void SipMessage::getToLabel(UtlString* label) const
