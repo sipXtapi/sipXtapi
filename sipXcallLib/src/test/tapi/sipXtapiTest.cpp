@@ -1,7 +1,14 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -75,6 +82,7 @@ sipXtapiTestSuite::sipXtapiTestSuite()
 OsBSem suiteLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 void sipXtapiTestSuite::setUp()
 {
+    OsLock lock(suiteLock);
 #ifdef _WIN32
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS
     _CrtSetReportMode( _CRT_WARN, _CRTDBG_MODE_FILE);
@@ -85,7 +93,6 @@ void sipXtapiTestSuite::setUp()
 #endif
 #endif
 
-    suiteLock.acquire();
     sipxConfigSetLogLevel(LOG_LEVEL_DEBUG);
     sipxConfigSetLogFile("sipXtapiTests.txt") ;
 
@@ -118,11 +125,11 @@ void sipXtapiTestSuite::setUp()
 #ifdef PURIFY
     PurifyClearLeaks();
 #endif
-    suiteLock.release();
 } 
 
 void sipXtapiTestSuite::tearDown()
 {
+    OsLock lock(suiteLock);
 #ifdef _WIN32
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS
     static bool bFirstRun = true ;
@@ -130,8 +137,6 @@ void sipXtapiTestSuite::tearDown()
 #endif
     SIPX_RESULT rc ;
 
-    suiteLock.acquire();
-    
 #ifdef PURIFY
     Sleep(250000);
     PurifyNewLeaks();
@@ -172,8 +177,6 @@ void sipXtapiTestSuite::tearDown()
         g_hInst5 = NULL;
     }
 
-
-    suiteLock.release();
 
 #ifdef _WIN32
 #ifdef SIPX_TEST_FOR_MEMORY_LEAKS

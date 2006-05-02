@@ -1,11 +1,16 @@
-//
-// Copyright (C) 2005 Pingtel Corp.
+// 
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
 // Licensed to SIPfoundry under a Contributor Agreement.
-//
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+//////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -174,11 +179,6 @@ int MprToSpkr::spkrStats()
    return smStatsReports++; // trigger another report and reset
 }
 #endif /* DETECT_SPKR_OVERFLOW ] */
-
-#if defined(__pingtel_on_posix__) /* [ */
-int MpCodec_getVolume() { return 0;}
-int MpCodec_isBaseSpeakerOn() { return 0;}
-#endif /* __pingtel_on_posix__ ] */
 
 void MprToSpkr::setAttenuation(int finalDb, int framesPerStep)
 {

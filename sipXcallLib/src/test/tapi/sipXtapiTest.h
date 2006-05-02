@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
 //////////////////////////////////////////////////////////////////////////////
-
 
 #ifndef _SIPXTAPITEST_H
 #define _SIPXTAPITEST_H
@@ -29,25 +35,14 @@
 #define STRESS_FACTOR   3       /**< How many times to repeat each test case */
 #define TEST_DELAY      4000    /**< Time to delay between each test */
 
-#ifdef _WIN32
-  #define TEST_AUDIO              1
-  #define TEST_LINE               1
-  #define TEST_CALL               1
-  #define TEST_CONF               1
-  #define TEST_REG                1
-  #define TEST_TRANSFER           1
-  #define TEST_CONFIG             1
-  #define TEST_PROBLEMATIC_CASES  0
-#else
-  #define TEST_AUDIO              0
-  #define TEST_LINE               0
-  #define TEST_CALL               0
-  #define TEST_CONF               0
-  #define TEST_REG                0
-  #define TEST_TRANSFER           0
-  #define TEST_CONFIG             0
-  #define TEST_PROBLEMATIC_CASES  0
-#endif /* _WIN32 */
+#define TEST_AUDIO              1
+#define TEST_LINE               1
+#define TEST_CALL               1
+#define TEST_CONF               1
+#define TEST_REG                1
+#define TEST_TRANSFER           1
+#define TEST_CONFIG             1
+#define TEST_PROBLEMATIC_CASES  0
 
 
 bool basicCall_CallBack_Receive(SIPX_EVENT_CATEGORY category, 
