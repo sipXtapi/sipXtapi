@@ -466,18 +466,17 @@ onSetup() {
    then
        @bindir@/pgpatch.sh
        databaseCommand create
-   else
-       databasePatch
    fi
+   databasePatch
 }
 
 # Start CDR call resolver
 onStartup() { 
-    databasePatch
     # Check database version - don't run if it's wrong
     if ! databaseVersionCheck; then
        exit 1
     fi
+    databasePatch    
     ruby @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ${resolverArgs}
 }
 
