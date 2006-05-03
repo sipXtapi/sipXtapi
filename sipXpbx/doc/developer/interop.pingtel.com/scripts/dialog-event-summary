@@ -11,6 +11,13 @@ if ($ARGV[0] eq '-d') {
 # The log file to process, which can be overridden by the first argument.
 $log_file = $ARGV[0] || '/var/log/sipxpbx/sipregistrar.log.1';
 
+# Recipients for the report.
+$Recipients='interop-config@pingtel.com';
+
+# Redirect output to mail to $Recipients.
+chomp($MyHostname=`hostname -f`);
+open STDOUT, "| mail -s 'Dialog Event Report for $MyHostname' '$Recipients'";
+
 # Initialize the table of indentations.
 $indent{'dialog'} = '  ';
 $indent{'dialog-info'} = '';
