@@ -1,2 +1,0 @@
-const char* @PACKAGE@Version="@VERSION@";
-const char* @PACKAGE@BuildStamp="@SIPX_BUILDSTAMP@";
