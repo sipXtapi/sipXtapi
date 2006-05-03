@@ -82,6 +82,7 @@ static OsMsgPool* DmaMsgPool = NULL;
 static pthread_mutex_t sNotifierMutex = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t sNotifierCond = PTHREAD_COND_INITIALIZER;
 static struct timespec sNotifierTime;
+static pthread_t sSignallerThread;
 
 static bool dmaOnline = 0;
 static int frameCount = 1;
@@ -90,6 +91,7 @@ static int soundCard = -1;
 #ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
 /* Force the threads to alternate read/write */
 static sem_t read_sem, write_sem;
+static pthread_t mic_thread, spkr_thread;
 static void startAudioSupport(void);
 static void stopAudioSupport(void);
 #endif /* _INCLUDE_AUDIO_SUPPORT ] */
@@ -204,9 +206,8 @@ OsStatus dmaStartup(int samplesPerFrame)
 #endif /* _JITTER_PROFILE ] */
 
    // Start the mediaSignaller thread
-   res = pthread_create(&thread, NULL, mediaSignaller, NULL);
+   res = pthread_create(&sSignallerThread, NULL, mediaSignaller, NULL);
    assert(res == 0);
-   pthread_detach(thread);
 
 #ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
    startAudioSupport();
@@ -222,6 +223,7 @@ void dmaShutdown(void)
       dmaOnline = 0;
       /* make sure the thread isn't wedged */
       pthread_cond_signal(&sNotifierCond);
+      pthread_join(sSignallerThread, NULL);
 
 #ifdef _INCLUDE_AUDIO_SUPPORT /* [ */
       stopAudioSupport();
@@ -292,7 +294,7 @@ static void * soundCardReader(void * arg)
          delete pMsg;
    }
 
-   osPrintf(" ***********STOP!**********\n");
+   osPrintf(" ***********STOP MIC!**********\n");
    return NULL;
 }
 
@@ -395,15 +397,14 @@ static void * soundCardWriter(void * arg)
          assert(played == N_SAMPLES);
       }
    }
-   
-   osPrintf(" ***********STOP!**********\n");
+
+   osPrintf(" ***********STOP SPKR!**********\n"); 
    return NULL;
 }
 
 static void startAudioSupport(void)
 {
    int res;
-   pthread_t thread;
 
    soundCard = setupSoundCard();
 
@@ -421,25 +422,31 @@ static void startAudioSupport(void)
    sem_init(&read_sem, 0, 1);
    
    /* Start the reader and writer threads */
-   res = pthread_create(&thread, NULL, soundCardReader, NULL);
+   res = pthread_create(&mic_thread, NULL, soundCardReader, NULL);
    assert(res == 0);
-   pthread_detach(thread);
-   res = pthread_create(&thread, NULL, soundCardWriter, NULL);
+   res = pthread_create(&spkr_thread, NULL, soundCardWriter, NULL);
    assert(res == 0);
-   pthread_detach(thread);
 }
 
 static void stopAudioSupport(void)
 {
    if (soundCard != -1)
    {
-      /* make sure the threads aren't wedged */
+      // Stop MIC thread
       sem_post(&read_sem);
+      pthread_join(mic_thread, NULL);
+
+      // Stop SPKR thread
       sem_post(&write_sem);
-      close(soundCard);
-      soundCard = -1;
+      pthread_join(spkr_thread, NULL);
+
+      // MIC and SPKR threads are dead. Destroy mutexes.
       sem_destroy(&read_sem);
       sem_destroy(&write_sem);
+
+      // Ok, no one is reding or writing to soundcard. Close it.
+      close(soundCard);
+      soundCard = -1;
    }
 }
 
