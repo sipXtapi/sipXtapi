@@ -15,12 +15,7 @@ dojo.require("dojo.lang.array");
 dojo.require("dojo.lang.func");
 dojo.require("dojo.string.extras");
 dojo.require("dojo.dom");
-
-try {
-	if((!djConfig["preventBackButtonFix"])&&(!dojo.hostenv.post_load_)){
-		document.write("<iframe style='border: 0px; width: 1px; height: 1px; position: absolute; bottom: 0px; right: 0px; visibility: visible;' name='djhistory' id='djhistory' src='"+(dojo.hostenv.getBaseScriptUri()+'iframe_history.html')+"'></iframe>");
-	}
-}catch(e){/* squelch */}
+dojo.require("dojo.undo.browser");
 
 dojo.io.checkChildrenForFile = function(node){
 	var hasFile = false;
@@ -36,6 +31,27 @@ dojo.io.checkChildrenForFile = function(node){
 
 dojo.io.formHasFile = function(formNode){
 	return dojo.io.checkChildrenForFile(formNode);
+}
+
+dojo.io.updateNode = function(node, urlOrArgs){
+	node = dojo.byId(node);
+	var args = urlOrArgs;
+	if(dojo.lang.isString(urlOrArgs)){
+		args = { url: urlOrArgs };
+	}
+	args.mimetype = "text/html";
+	args.load = function(t, d, e){
+		while(node.firstChild){
+			if(dojo["event"]){
+				try{
+					dojo.event.browser.clean(node.firstChild);
+				}catch(e){}
+			}
+			node.removeChild(node.firstChild);
+		}
+		node.innerHTML = d;
+	};
+	dojo.io.bind(args);
 }
 
 dojo.io.formFilter = function(node) {
@@ -87,34 +103,6 @@ dojo.io.encodeForm = function(formNode, encoding, formFilter){
 		}
 	}
 	return values.join("&") + "&";
-}
-
-dojo.io.setIFrameSrc = function(iframe, src, replace){
-	try{
-		var r = dojo.render.html;
-		// dojo.debug(iframe);
-		if(!replace){
-			if(r.safari){
-				iframe.location = src;
-			}else{
-				frames[iframe.name].location = src;
-			}
-		}else{
-			// Fun with DOM 0 incompatibilities!
-			var idoc;
-			if(r.ie){
-				idoc = iframe.contentWindow.document;
-			}else if(r.moz){
-				idoc = iframe.contentWindow;
-			}else if(r.safari){
-				idoc = iframe.document;
-			}
-			idoc.location.replace(src);
-		}
-	}catch(e){ 
-		dojo.debug(e); 
-		dojo.debug("setIFrameSrc: "+e); 
-	}
 }
 
 dojo.io.FormBind = function(args) {
@@ -217,38 +205,9 @@ dojo.lang.extend(dojo.io.FormBind, {
 dojo.io.XMLHTTPTransport = new function(){
 	var _this = this;
 
-	this.initialHref = window.location.href;
-	this.initialHash = window.location.hash;
-
-	this.moveForward = false;
-
 	var _cache = {}; // FIXME: make this public? do we even need to?
 	this.useCache = false; // if this is true, we'll cache unless kwArgs.useCache = false
 	this.preventCache = false; // if this is true, we'll always force GET requests to cache
-	this.historyStack = [];
-	this.forwardStack = [];
-	this.historyIframe = null;
-	this.bookmarkAnchor = null;
-	this.locationTimer = null;
-
-	/* NOTES:
-	 *	Safari 1.2: 
-	 *		back button "works" fine, however it's not possible to actually
-	 *		DETECT that you've moved backwards by inspecting window.location.
-	 *		Unless there is some other means of locating.
-	 *		FIXME: perhaps we can poll on history.length?
-	 *	IE 5.5 SP2:
-	 *		back button behavior is macro. It does not move back to the
-	 *		previous hash value, but to the last full page load. This suggests
-	 *		that the iframe is the correct way to capture the back button in
-	 *		these cases.
-	 *	IE 6.0:
-	 *		same behavior as IE 5.5 SP2
-	 * Firefox 1.0:
-	 *		the back button will return us to the previous hash on the same
-	 *		page, thereby not requiring an iframe hack, although we do then
-	 *		need to run a timer to detect inter-page movement.
-	 */
 
 	// FIXME: Should this even be a function? or do we just hard code it in the next 2 functions?
 	function getCacheKey(url, query, method) {
@@ -269,7 +228,11 @@ dojo.io.XMLHTTPTransport = new function(){
 
 	// moved successful load stuff here
 	function doLoad(kwArgs, http, url, query, useCache) {
-		if((http.status==200)||(location.protocol=="file:" && (http.status==0 || http.status==undefined))) {
+		if(	(http.status==200)||
+			(http.status==304)||
+			(location.protocol=="file:" && (http.status==0 || http.status==undefined))||
+			(location.protocol=="chrome:" && (http.status==0 || http.status==undefined))
+		){
 			var ret;
 			if(kwArgs.method.toLowerCase() == "head"){
 				var headers = http.getAllResponseHeaders();
@@ -311,10 +274,10 @@ dojo.io.XMLHTTPTransport = new function(){
 			if(useCache){ // only cache successful responses
 				addToCache(url, query, kwArgs.method, http);
 			}
-			kwArgs[(typeof kwArgs.load == "function") ? "load" : "handle"]("load", ret, http);
+			kwArgs[(typeof kwArgs.load == "function") ? "load" : "handle"]("load", ret, http, kwArgs);
 		}else{
 			var errObj = new dojo.io.Error("XMLHttpTransport Error: "+http.status+" "+http.statusText);
-			kwArgs[(typeof kwArgs.error == "function") ? "error" : "handle"]("error", errObj, http);
+			kwArgs[(typeof kwArgs.error == "function") ? "error" : "handle"]("error", errObj, http, kwArgs);
 		}
 	}
 
@@ -331,174 +294,6 @@ dojo.io.XMLHTTPTransport = new function(){
 		}
 	}
 
-	this.addToHistory = function(args){
-		var callback = args["back"]||args["backButton"]||args["handle"];
-		var hash = null;
-		if(!this.historyIframe){
-			this.historyIframe = window.frames["djhistory"];
-		}
-		if(!this.bookmarkAnchor){
-			this.bookmarkAnchor = document.createElement("a");
-			(document.body||document.getElementsByTagName("body")[0]).appendChild(this.bookmarkAnchor);
-			this.bookmarkAnchor.style.display = "none";
-		}
-		if((!args["changeUrl"])||(dojo.render.html.ie)){
-			var url = dojo.hostenv.getBaseScriptUri()+"iframe_history.html?"+(new Date()).getTime();
-			this.moveForward = true;
-			dojo.io.setIFrameSrc(this.historyIframe, url, false);
-		}
-		if(args["changeUrl"]){
-			hash = "#"+ ((args["changeUrl"]!==true) ? args["changeUrl"] : (new Date()).getTime());
-			setTimeout("window.location.href = '"+hash+"';", 1);
-			this.bookmarkAnchor.href = hash;
-			if(dojo.render.html.ie){
-				// IE requires manual setting of the hash since we are catching
-				// events from the iframe
-				var oldCB = callback;
-				var lh = null;
-				var hsl = this.historyStack.length-1;
-				if(hsl>=0){
-					while(!this.historyStack[hsl]["urlHash"]){
-						hsl--;
-					}
-					lh = this.historyStack[hsl]["urlHash"];
-				}
-				if(lh){
-					callback = function(){
-						if(window.location.hash != ""){
-							setTimeout("window.location.href = '"+lh+"';", 1);
-						}
-						oldCB();
-					}
-				}
-				// when we issue a new bind(), we clobber the forward 
-				// FIXME: is this always a good idea?
-				this.forwardStack = []; 
-				var oldFW = args["forward"]||args["forwardButton"];;
-				var tfw = function(){
-					if(window.location.hash != ""){
-						window.location.href = hash;
-					}
-					if(oldFW){ // we might not actually have one
-						oldFW();
-					}
-				}
-				if(args["forward"]){
-					args.forward = tfw;
-				}else if(args["forwardButton"]){
-					args.forwardButton = tfw;
-				}
-			}else if(dojo.render.html.moz){
-				// start the timer
-				if(!this.locationTimer){
-					this.locationTimer = setInterval("dojo.io.XMLHTTPTransport.checkLocation();", 200);
-				}
-			}
-		}
-
-		this.historyStack.push({"url": url, "callback": callback, "kwArgs": args, "urlHash": hash});
-	}
-
-	this.checkLocation = function(){
-		var hsl = this.historyStack.length;
-
-		if((window.location.hash == this.initialHash)||(window.location.href == this.initialHref)&&(hsl == 1)){
-			// FIXME: could this ever be a forward button?
-			// we can't clear it because we still need to check for forwards. Ugg.
-			// clearInterval(this.locationTimer);
-			this.handleBackButton();
-			return;
-		}
-		// first check to see if we could have gone forward. We always halt on
-		// a no-hash item.
-		if(this.forwardStack.length > 0){
-			if(this.forwardStack[this.forwardStack.length-1].urlHash == window.location.hash){
-				this.handleForwardButton();
-				return;
-			}
-		}
-		// ok, that didn't work, try someplace back in the history stack
-		if((hsl >= 2)&&(this.historyStack[hsl-2])){
-			if(this.historyStack[hsl-2].urlHash==window.location.hash){
-				this.handleBackButton();
-				return;
-			}
-		}
-	}
-
-	this.iframeLoaded = function(evt, ifrLoc){
-		var isp = ifrLoc.href.split("?");
-		if(isp.length < 2){ 
-			// alert("iframeLoaded");
-			// we hit the end of the history, so we should go back
-			if(this.historyStack.length == 1){
-				this.handleBackButton();
-			}
-			return;
-		}
-		var query = isp[1];
-		if(this.moveForward){
-			// we were expecting it, so it's not either a forward or backward
-			// movement
-			this.moveForward = false;
-			return;
-		}
-
-		var last = this.historyStack.pop();
-		// we don't have anything in history, so it could be a forward button
-		if(!last){ 
-			if(this.forwardStack.length > 0){
-				var next = this.forwardStack[this.forwardStack.length-1];
-				if(query == next.url.split("?")[1]){
-					this.handleForwardButton();
-				}
-			}
-			// regardless, we didnt' have any history, so it can't be a back button
-			return;
-		}
-		// put it back on the stack so we can do something useful with it when
-		// we call handleBackButton()
-		this.historyStack.push(last);
-		if(this.historyStack.length >= 2){
-			if(isp[1] == this.historyStack[this.historyStack.length-2].url.split("?")[1]){
-				// looks like it IS a back button press, so handle it
-				this.handleBackButton();
-			}
-		}else{
-			this.handleBackButton();
-		}
-	}
-
-	this.handleBackButton = function(){
-		var last = this.historyStack.pop();
-		if(!last){ return; }
-		if(last["callback"]){
-			last.callback();
-		}else if(last.kwArgs["backButton"]){
-			last.kwArgs["backButton"]();
-		}else if(last.kwArgs["back"]){
-			last.kwArgs["back"]();
-		}else if(last.kwArgs["handle"]){
-			last.kwArgs.handle("back");
-		}
-		this.forwardStack.push(last);
-	}
-
-	this.handleForwardButton = function(){
-		// FIXME: should we build in support for re-issuing the bind() call here?
-		// alert("alert we found a forward button call");
-		var last = this.forwardStack.pop();
-		if(!last){ return; }
-		if(last.kwArgs["forward"]){
-			last.kwArgs.forward();
-		}else if(last.kwArgs["forwardButton"]){
-			last.kwArgs.forwardButton();
-		}else if(last.kwArgs["handle"]){
-			last.kwArgs.handle("forward");
-		}
-		this.historyStack.push(last);
-	}
-
 	this.inFlight = [];
 	this.inFlightTimer = null;
 
@@ -509,6 +304,7 @@ dojo.io.XMLHTTPTransport = new function(){
 	}
 
 	this.watchInFlight = function(){
+		var now = null;
 		for(var x=this.inFlight.length-1; x>=0; x--){
 			var tif = this.inFlight[x];
 			if(!tif){ this.inFlight.splice(x, 1); continue; }
@@ -516,11 +312,27 @@ dojo.io.XMLHTTPTransport = new function(){
 				// remove it so we can clean refs
 				this.inFlight.splice(x, 1);
 				doLoad(tif.req, tif.http, tif.url, tif.query, tif.useCache);
-				if(this.inFlight.length == 0){
-					clearInterval(this.inFlightTimer);
-					this.inFlightTimer = null;
+			}else if (tif.startTime){
+				//See if this is a timeout case.
+				if(!now){
+					now = (new Date()).getTime();
 				}
-			} // FIXME: need to implement a timeout param here!
+				if(tif.startTime + (tif.req.timeoutSeconds * 1000) < now){
+					//Stop the request.
+					if(typeof tif.http.abort == "function"){
+						tif.http.abort();
+					}
+
+					// remove it so we can clean refs
+					this.inFlight.splice(x, 1);
+					tif.req[(typeof tif.req.timeout == "function") ? "timeout" : "handle"]("timeout", null, tif.http, tif.req);
+				}
+			}
+		}
+
+		if(this.inFlight.length == 0){
+			clearInterval(this.inFlightTimer);
+			this.inFlightTimer = null;
 		}
 	}
 
@@ -533,7 +345,7 @@ dojo.io.XMLHTTPTransport = new function(){
 		// multi-part mime encoded and avoid using this transport for those
 		// requests.
 		return hasXmlHttp
-			&& dojo.lang.inArray((kwArgs["mimetype"]||"".toLowerCase()), ["text/plain", "text/html", "application/xml", "text/xml", "text/javascript", "text/json"])
+			&& dojo.lang.inArray((kwArgs["mimetype"].toLowerCase()||""), ["text/plain", "text/html", "application/xml", "text/xml", "text/javascript", "text/json"])
 			&& dojo.lang.inArray(kwArgs["method"].toLowerCase(), ["post", "get", "head"])
 			&& !( kwArgs["formNode"] && dojo.io.formHasFile(kwArgs["formNode"]) );
 	}
@@ -546,7 +358,8 @@ dojo.io.XMLHTTPTransport = new function(){
 			if( !kwArgs["formNode"]
 				&& (kwArgs["backButton"] || kwArgs["back"] || kwArgs["changeUrl"] || kwArgs["watchForURL"])
 				&& (!djConfig.preventBackButtonFix)) {
-				this.addToHistory(kwArgs);
+        dj_deprecated("Using dojo.io.XMLHTTPTransport.bind() to add to browser history without doing an IO request is deprecated. Use dojo.undo.browser.addToHistory() instead.");
+				dojo.undo.browser.addToHistory(kwArgs);
 				return true;
 			}
 		}
@@ -591,7 +404,7 @@ dojo.io.XMLHTTPTransport = new function(){
 		}
 
 		if(kwArgs["backButton"] || kwArgs["back"] || kwArgs["changeUrl"]){
-			this.addToHistory(kwArgs);
+			dojo.undo.browser.addToHistory(kwArgs);
 		}
 
 		var content = kwArgs["content"] || {};
@@ -677,18 +490,20 @@ dojo.io.XMLHTTPTransport = new function(){
 
 		// much of this is from getText, but reproduced here because we need
 		// more flexibility
-		var http = dojo.hostenv.getXmlhttpObject(kwArgs);
+		var http = dojo.hostenv.getXmlhttpObject(kwArgs);	
 		var received = false;
 
 		// build a handler function that calls back to the handler obj
 		if(async){
+			var startTime = 
 			// FIXME: setting up this callback handler leaks on IE!!!
 			this.inFlight.push({
 				"req":		kwArgs,
 				"http":		http,
-				"url":		url,
+				"url":	 	url,
 				"query":	query,
-				"useCache":	useCache
+				"useCache":	useCache,
+				"startTime": kwArgs.timeoutSeconds ? (new Date()).getTime() : 0
 			});
 			this.startWatchingInFlight();
 		}
@@ -699,7 +514,14 @@ dojo.io.XMLHTTPTransport = new function(){
 			setHeaders(http, kwArgs);
 			http.setRequestHeader("Content-Type", kwArgs.multipart ? ("multipart/form-data; boundary=" + this.multipartBoundary) : 
 				(kwArgs.contentType || "application/x-www-form-urlencoded"));
-			http.send(query);
+			try{
+				http.send(query);
+			}catch(e){
+				if(typeof http.abort == "function"){
+					http.abort();
+				}
+				doLoad(kwArgs, {status: 404}, url, query, useCache);
+			}
 		}else{
 			var tmpUrl = url;
 			if(query != "") {
@@ -711,7 +533,14 @@ dojo.io.XMLHTTPTransport = new function(){
 			}
 			http.open(kwArgs.method.toUpperCase(), tmpUrl, async);
 			setHeaders(http, kwArgs);
-			http.send(null);
+			try {
+				http.send(null);
+			}catch(e)	{
+				if(typeof http.abort == "function"){
+					http.abort();
+				}
+				doLoad(kwArgs, {status: 404}, url, query, useCache);
+			}
 		}
 
 		if( !async ) {

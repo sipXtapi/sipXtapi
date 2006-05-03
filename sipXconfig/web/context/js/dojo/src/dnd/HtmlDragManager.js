@@ -85,6 +85,8 @@ dojo.lang.extend(dojo.dnd.HtmlDragManager, {
 
 	dropAcceptable: false,
 
+	cancelEvent: function(e){ e.stopPropagation(); e.preventDefault();},
+
 	// method over-rides
 	registerDragSource: function(ds){
 		if(ds["domNode"]){
@@ -96,6 +98,11 @@ dojo.lang.extend(dojo.dnd.HtmlDragManager, {
 			ds.dragSourceId = dpIdx;
 			this.dragSources[dpIdx] = ds;
 			ds.domNode.setAttribute(dp, dpIdx);
+
+			// so we can drag links
+			if(dojo.render.html.ie){
+				dojo.event.connect(ds.domNode, "ondragstart", this.cancelEvent);
+			}
 		}
 	},
 
@@ -107,6 +114,9 @@ dojo.lang.extend(dojo.dnd.HtmlDragManager, {
 			delete ds.dragSourceId;
 			delete this.dragSources[dpIdx];
 			ds.domNode.setAttribute(dp, null);
+		}
+		if(dojo.render.html.ie){
+			dojo.event.disconnect(ds.domNode, "ondragstart", this.cancelEvent );
 		}
 	},
 
@@ -146,94 +156,100 @@ dojo.lang.extend(dojo.dnd.HtmlDragManager, {
 			return;
 		}
 
-		this.mouseDownX = e.clientX;
-		this.mouseDownY = e.clientY;
-
 		var target = e.target.nodeType == dojo.dom.TEXT_NODE ?
 			e.target.parentNode : e.target;
 
-		/*
-		 FIXME(algo): I believe that is not a problem any more because of drag tolerance.
-		 	Anyway, why forbid dragging items by clicking on links inside them ?
-		 	There are problems with dragging by links in IE, should be solved another way..
-		*/
 		// do not start drag involvement if the user is interacting with
 		// a form element.
-		if(dojo.html.isTag(target, "a", "button", "textarea", "input")) {
+		if(dojo.html.isTag(target, "button", "textarea", "input")) {
 			return;
 		}
 
 		// find a selection object, if one is a parent of the source node
 		var ds = this.getDragSource(e);
+		
+		// this line is important.  if we aren't selecting anything then
+		// we need to return now, so preventDefault() isn't called, and thus
+		// the event is propogated to other handling code
 		if(!ds){ return; }
+
 		if(!dojo.lang.inArray(this.selectedSources, ds)){
 			this.selectedSources.push(ds);
 		}
 
+ 		var mouse = dojo.html.getCursorPosition(e);
+ 		this.mouseDownX = mouse.x;
+ 		this.mouseDownY = mouse.y;
+
+		// Must stop the mouse down from being propogated, or otherwise can't
+		// drag links in firefox.
 		// WARNING: preventing the default action on all mousedown events
 		// prevents user interaction with the contents.
-		//e.preventDefault();
+		e.preventDefault();
 
 		dojo.event.connect(document, "onmousemove", this, "onMouseMove");
 	},
 
-	onMouseUp: function(e){
+	onMouseUp: function(e, cancel){
+		// if we aren't dragging then ignore the mouse-up
+		// (in particular, don't call preventDefault(), because other
+		// code may need to process this event)
+		if(this.selectedSources.length==0){
+			return;
+		}
+
 		this.mouseDownX = null;
 		this.mouseDownY = null;
 		this._dragTriggered = false;
-		var _this = this;
-		e.preventDefault();
+ 		// e.preventDefault();
 		e.dragSource = this.dragSource;
 		if((!e.shiftKey)&&(!e.ctrlKey)){
-			if(_this.currentDropTarget) {
-				_this.currentDropTarget.onDropStart();
+			if(this.currentDropTarget) {
+				this.currentDropTarget.onDropStart();
 			}
 			dojo.lang.forEach(this.dragObjects, function(tempDragObj){
 				var ret = null;
 				if(!tempDragObj){ return; }
-				if(_this.currentDropTarget) {
+				if(this.currentDropTarget) {
 					e.dragObject = tempDragObj;
 
 					// NOTE: we can't get anything but the current drop target
 					// here since the drag shadow blocks mouse-over events.
 					// This is probelematic for dropping "in" something
-					var ce = _this.currentDropTarget.domNode.childNodes;
+					var ce = this.currentDropTarget.domNode.childNodes;
 					if(ce.length > 0){
 						e.dropTarget = ce[0];
 						while(e.dropTarget == tempDragObj.domNode){
 							e.dropTarget = e.dropTarget.nextSibling;
 						}
 					}else{
-						e.dropTarget = _this.currentDropTarget.domNode;
+						e.dropTarget = this.currentDropTarget.domNode;
 					}
-					if (_this.dropAcceptable){
-						ret = _this.currentDropTarget.onDrop(e);
-					} else {
-						 _this.currentDropTarget.onDragOut(e);
+					if(this.dropAcceptable){
+						ret = this.currentDropTarget.onDrop(e);
+					}else{
+						 this.currentDropTarget.onDragOut(e);
 					}
 				}
 
-				e.dragStatus = _this.dropAcceptable && ret ? "dropSuccess" : "dropFailure";
-				if(tempDragObj.dragSource){
-					tempDragObj.dragSource.onDragEnd(e);
-				}
+				e.dragStatus = this.dropAcceptable && ret ? "dropSuccess" : "dropFailure";
 				tempDragObj.dragSource.onDragEnd(e);
 				tempDragObj.onDragEnd(e);
-			});
+			}, this);
 
 			this.selectedSources = [];
 			this.dragObjects = [];
 			this.dragSource = null;
-			if(_this.currentDropTarget) {
-				_this.currentDropTarget.onDropEnd();
+			if(this.currentDropTarget) {
+				this.currentDropTarget.onDropEnd();
 			}
 		}
+
 		dojo.event.disconnect(document, "onmousemove", this, "onMouseMove");
 		this.currentDropTarget = null;
-		// this.currentDropTargetPoints = null;
 	},
 
-	onScroll: function() {
+	onScroll: function(){
 		for(var i = 0; i < this.dragObjects.length; i++) {
 			if(this.dragObjects[i].updateDragOffset) {
 				this.dragObjects[i].updateDragOffset();
@@ -254,42 +270,48 @@ dojo.lang.extend(dojo.dnd.HtmlDragManager, {
 		return parseInt(Math.sqrt(dx2+dy2), 10);
 	},
 
-	cacheTargetLocations: function() {
-		var _this = this;
-
+	cacheTargetLocations: function(){
 		this.dropTargetDimensions = [];
 		dojo.lang.forEach(this.dropTargets, function(tempTarget){
 			var tn = tempTarget.domNode;
 			if(!tn){ return; }
 			var ttx = dojo.style.getAbsoluteX(tn, true);
 			var tty = dojo.style.getAbsoluteY(tn, true);
-			_this.dropTargetDimensions.push([
+			this.dropTargetDimensions.push([
 				[ttx, tty],	// upper-left
 				// lower-right
 				[ ttx+dojo.style.getInnerWidth(tn), tty+dojo.style.getInnerHeight(tn) ],
 				tempTarget
 			]);
 			//dojo.debug("Cached for "+tempTarget)
-		});
-
+		}, this);
 		//dojo.debug("Cache locations")
-
 	},
 
 	onMouseMove: function(e){
-		var _this = this;
+		if((dojo.render.html.ie)&&(e.button != 1)){
+			// Oooops - mouse up occurred - e.g. when mouse was not over the
+			// window. I don't think we can detect this for FF - but at least
+			// we can be nice in IE.
+			this.currentDropTarget = null;
+			this.onMouseUp(e, true);
+			return;
+		}
+
 		// if we've got some sources, but no drag objects, we need to send
 		// onDragStart to all the right parties and get things lined up for
 		// drop target detection
+
+		var mouse = dojo.html.getCursorPosition(e);
 		if(	(this.selectedSources.length)&&
 			(!this.dragObjects.length) ){
 			var dx;
 			var dy;
 			if(!this._dragTriggered){
-				this._dragTriggered = (this._dragStartDistance(e.clientX, e.clientY) > this.threshold);
+				this._dragTriggered = (this._dragStartDistance(mouse.x, mouse.y) > this.threshold);
 				if(!this._dragTriggered){ return; }
-				dx = e.clientX-this.mouseDownX;
-				dy = e.clientY-this.mouseDownY;
+				dx = mouse.x - this.mouseDownX;
+				dy = mouse.y - this.mouseDownY;
 			}
 
 			if (this.selectedSources.length == 1) {
@@ -307,25 +329,26 @@ dojo.lang.extend(dojo.dnd.HtmlDragManager, {
 					tdo.dragOffset.left += dx;
 					tdo.dragSource = tempSource;
 
-					_this.dragObjects.push(tdo);
+					this.dragObjects.push(tdo);
 				}
-			});
+			}, this);
 
 			/* clean previous drop target in dragStart */
 			this.previousDropTarget = null;
 
 			this.cacheTargetLocations();
 		}
+
 		// FIXME: we need to add dragSources and dragObjects to e
-		for (var i = 0; i < this.dragObjects.length; i++){
-			if(this.dragObjects[i]){ this.dragObjects[i].onDragMove(e); }
-		}
+		dojo.lang.forEach(this.dragObjects, function(dragObj){
+			if(dragObj){ dragObj.onDragMove(e); }
+		});
 
 		// if we have a current drop target, check to see if we're outside of
 		// it. If so, do all the actions that need doing.
-		if (this.currentDropTarget) {
+		if(this.currentDropTarget){
 			//dojo.debug(dojo.dom.hasParent(this.currentDropTarget.domNode))
-			var c = dojo.html.toCoordinateArray(this.currentDropTarget.domNode);
+			var c = dojo.style.toCoordinateArray(this.currentDropTarget.domNode, true);
 			//		var dtp = this.currentDropTargetPoints;
 			var dtp = [
 				[c[0],c[1]], [c[0]+c[2], c[1]+c[3]]
@@ -367,7 +390,6 @@ dojo.lang.extend(dojo.dnd.HtmlDragManager, {
 					this.currentDropTarget.onDragMove(e, this.dragObjects);
 				}
 			}
-
 		}
 	},
 
@@ -376,22 +398,24 @@ dojo.lang.extend(dojo.dnd.HtmlDragManager, {
 		var bestBox = new Object();
 		bestBox.target = null;
 		bestBox.points = null;
-		dojo.lang.forEach(this.dropTargetDimensions, function(tmpDA) {
-			if(_this.isInsideBox(e, tmpDA)){
-				bestBox.target = tmpDA[2];
-				bestBox.points = tmpDA;
-				if(!_this.nestedTargets){ return "break"; }
-			}
+		dojo.lang.every(this.dropTargetDimensions, function(tmpDA) {
+			if(!_this.isInsideBox(e, tmpDA))
+				return true;
+			bestBox.target = tmpDA[2];
+			bestBox.points = tmpDA;
+			// continue iterating only if _this.nestedTargets == true
+			return Boolean(_this.nestedTargets);
 		});
 
 		return bestBox;
 	},
 
 	isInsideBox: function(e, coords){
-		if(	(e.clientX > coords[0][0])&&
-			(e.clientX < coords[1][0])&&
-			(e.clientY > coords[0][1])&&
-			(e.clientY < coords[1][1]) ){
+		var mouse = dojo.html.getCursorPosition(e);
+		if(	(mouse.x > coords[0][0])&&
+			(mouse.x < coords[1][0])&&
+			(mouse.y > coords[0][1])&&
+			(mouse.y < coords[1][1]) ){
 			return true;
 		}
 		return false;

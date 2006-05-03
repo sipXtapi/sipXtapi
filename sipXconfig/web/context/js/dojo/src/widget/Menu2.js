@@ -56,7 +56,7 @@ dojo.lang.extend(dojo.widget.PopupMenu2, {
 	eventNaming: "default",
 
 
-	templateString: '<div><div dojoAttachPoint="containerNode"></div></div>',
+	templateString: '<div class="dojoPopupMenu2" style="left:-9999px; top:-9999px; display: none;"><div dojoAttachPoint="containerNode" class="dojoPopupMenu2Client"></div></div>',
 	templateCssPath: dojo.uri.dojoUri("src/widget/templates/HtmlMenu2.css"),
 
 	itemHeight: 18,
@@ -85,15 +85,15 @@ dojo.lang.extend(dojo.widget.PopupMenu2, {
 	},
 
 	postCreate: function(){
-
-		dojo.html.addClass(this.domNode, 'dojoPopupMenu2');
-		dojo.html.addClass(this.containerNode, 'dojoPopupMenu2Client');
-
+		if (this.domNode.style.display=="none"){
+			this.domNode.style.display = "";
+		}
 		this.domNode.style.left = '-9999px'
 		this.domNode.style.top = '-9999px'
 
 		if (this.contextMenuForWindow){
 			var doc = document.documentElement  || document.body;
+			dojo.widget.Menu2.OperaAndKonqFixer.fixNode(doc);
 			dojo.event.connect(doc, "oncontextmenu", this, "onOpen");
 		} else if ( this.targetNodeIds.length > 0 ){
 			for(var i=0; i<this.targetNodeIds.length; i++){
@@ -125,14 +125,14 @@ dojo.lang.extend(dojo.widget.PopupMenu2, {
 	},
 
 	// attach menu to given node
-	bindDomNode: function(node){
-		dojo.event.connect(dojo.byId(node), "oncontextmenu", this, "onOpen");
-	},
+	bindDomNode: function(nodeName){
+		var node = dojo.byId(nodeName);
 
-	// detach menu from given node
-	unBindDomNode: function(node){
-		dojo.event.kwDisconnect({
-			srcObj:     dojo.byId(node),
+		// fixes node so that it supports oncontextmenu if not natively supported, Konqueror, Opera more?
+		dojo.widget.Menu2.OperaAndKonqFixer.fixNode(node);
+
+		dojo.event.kwConnect({
+			srcObj:     node,
 			srcFunc:    "oncontextmenu",
 			targetObj:  this,
 			targetFunc: "onOpen",
@@ -140,8 +140,22 @@ dojo.lang.extend(dojo.widget.PopupMenu2, {
 		});
 	},
 
-	layoutMenuSoon: function(){
+	// detach menu from given node
+	unBindDomNode: function(nodeName){
+		var node = dojo.byId(nodeName);
+		dojo.event.kwDisconnect({
+			srcObj:     node,
+			srcFunc:    "oncontextmenu",
+			targetObj:  this,
+			targetFunc: "onOpen",
+			once:       true
+		});
 
+		// cleans a fixed node, konqueror and opera
+		dojo.widget.Menu2.OperaAndKonqFixer.cleanNode(node);
+	},
+
+	layoutMenuSoon: function(){
 		dojo.lang.setTimeout(this, "layoutMenu", 0);
 	},
 
@@ -212,12 +226,14 @@ dojo.lang.extend(dojo.widget.PopupMenu2, {
 		this.menuHeight = dojo.style.getOuterHeight(this.domNode);
 	},
 
-	open: function(x, y, parentMenu, explodeSrc){
+	open: function(x, y, parent, explodeSrc){
 
-		// NOTE: alex:
-		//	this couldn't have possibly worked. this.open wound up calling
-		//	this.close, which called open...etc..
-		if (this.isShowing){ /* this.close(); */ return; }
+		// if explodeSrc isn't specified then explode from my parent widget
+		explodeSrc = explodeSrc || parent["domNode"] || [];
+
+		if (this.isShowing){ return; }
+
+		var parentMenu = (parent && parent.widgetType=="PopupMenu2") ? parent : null;
 
 		if ( !parentMenu ) {
 			// record whenever a top level menu is opened
@@ -324,7 +340,6 @@ dojo.lang.extend(dojo.widget.PopupMenu2, {
 
 
 	closeAll: function(){
-
 		if (this.parentMenu){
 			this.parentMenu.closeAll();
 		}else{
@@ -373,13 +388,13 @@ dojo.lang.extend(dojo.widget.PopupMenu2, {
 
 	isPointInMenu: function(x, y){
 
-		if (x < this.menuX){ return 0; }
-		if (x > this.menuX + this.menuWidth){ return 0; }
+		if (x < this.menuX){ return false; }
+		if (x > this.menuX + this.menuWidth){ return false; }
 
-		if (y < this.menuY){ return 0; }
-		if (y > this.menuY + this.menuHeight){ return 0; }
+		if (y < this.menuY){ return false; }
+		if (y > this.menuY + this.menuHeight){ return false; }
 
-		return 1;
+		return true;
 	}
 });
 
@@ -402,7 +417,7 @@ dojo.lang.extend(dojo.widget.MenuItem2, {
 			+'<span dojoAttachPoint="labelNode" class="dojoMenuItem2Label"><span><span></span></span></span>'
 			+'<span dojoAttachPoint="accelNode" class="dojoMenuItem2Accel"><span><span></span></span></span>'
 			+'<div dojoAttachPoint="submenuNode" class="dojoMenuItem2Submenu"></div>'
-			+'<div dojoAttachPoint="targetNode" class="dojoMenuItem2Target" dojoAttachEvent="onMouseOver: onHover; onMouseOut: onUnhover; onClick;">&nbsp;</div>'
+			+'<div dojoAttachPoint="targetNode" class="dojoMenuItem2Target" dojoAttachEvent="onMouseOver: onHover; onMouseOut: onUnhover; onClick: _onClick;">&nbsp;</div>'
 			+'</div>',
 
 	//
@@ -424,7 +439,6 @@ dojo.lang.extend(dojo.widget.MenuItem2, {
 	hover_timer: null,
 	is_open: false,
 	topPosition: 0,
-	is_disabled: false,
 
 	//
 	// options
@@ -434,7 +448,7 @@ dojo.lang.extend(dojo.widget.MenuItem2, {
 	accelKey: '',
 	iconSrc: '',
 	submenuId: '',
-	isDisabled: false,
+	disabled: false,
 	eventNaming: "default",
 
 
@@ -442,7 +456,7 @@ dojo.lang.extend(dojo.widget.MenuItem2, {
 
 		dojo.html.disableSelection(this.domNode);
 
-		if (this.isDisabled){
+		if (this.disabled){
 			this.setDisabled(true);
 		}
 
@@ -519,47 +533,48 @@ dojo.lang.extend(dojo.widget.MenuItem2, {
 		this.highlightItem();
 
 		if (this.is_hovering){ this.stopSubmenuTimer(); }
-		this.is_hovering = 1;
+		this.is_hovering = true;
 		this.startSubmenuTimer();
 	},
 
 	onUnhover: function(){
-
 		if (!this.is_open){ this.unhighlightItem(); }
 
-		this.is_hovering = 0;
+		this.is_hovering = false;
 		this.stopSubmenuTimer();
 	},
 
-	onClick: function(){
-
-		if (this.is_disabled){ return; }
+	// Internal function for clicks
+	_onClick: function(){
+		if (this.disabled){ return; }
 
 		if (this.submenuId){
-
 			if (!this.is_open){
 				this.stopSubmenuTimer();
 				this.openSubmenu();
 			}
-
 		}else{
 			this.parent.closeAll();
+
+			// for some browsers the onMouseOut doesn't get called (?), so call it manually
+			this.onUnhover();
 		}
 
-		//dojo.debug("GO "+this.eventNames.engage)
+		// user defined handler for click
+		this.onClick();
 
 		dojo.event.topic.publish(this.eventNames.engage, this);
-
 	},
 
-	highlightItem: function(){
+	// User defined function to handle clicks
+	onClick: function() { },
 
+	highlightItem: function(){
 		dojo.html.addClass(this.domNode, 'dojoMenuItem2Hover');
 		this.submenuNode.style.backgroundImage = 'url('+this.parent.submenuIconOnSrc+')';
 	},
 
 	unhighlightItem: function(){
-
 		dojo.html.removeClass(this.domNode, 'dojoMenuItem2Hover');
 		this.submenuNode.style.backgroundImage = 'url('+this.parent.submenuIconSrc+')';
 	},
@@ -567,7 +582,7 @@ dojo.lang.extend(dojo.widget.MenuItem2, {
 	startSubmenuTimer: function(){
 		this.stopSubmenuTimer();
 
-		if (this.is_disabled){ return; }
+		if (this.disabled){ return; }
 
 		var self = this;
 		var closure = function(){ return function(){ self.openSubmenu(); } }();
@@ -601,12 +616,9 @@ dojo.lang.extend(dojo.widget.MenuItem2, {
 	},
 
 	setDisabled: function(value){
+		this.disabled = value;
 
-		if (value == this.is_disabled){ return; }
-
-		this.is_disabled = value;
-
-		if (this.is_disabled){
+		if (this.disabled){
 			dojo.html.addClass(this.domNode, 'dojoMenuItem2Disabled');
 		}else{
 			dojo.html.removeClass(this.domNode, 'dojoMenuItem2Disabled');
@@ -646,19 +658,13 @@ dojo.lang.extend(dojo.widget.MenuSeparator2, {
 	topNode: null,
 	bottomNode: null,
 
-	templateString: '<div>'
-			+'<div dojoAttachPoint="topNode"></div>'
-			+'<div dojoAttachPoint="bottomNode"></div>'
+	templateString: '<div class="dojoMenuSeparator2">'
+			+'<div dojoAttachPoint="topNode" class="dojoMenuSeparator2Top"></div>'
+			+'<div dojoAttachPoint="bottomNode" class="dojoMenuSeparator2Bottom"></div>'
 			+'</div>',
 
 	postCreate: function(){
-
-		dojo.html.addClass(this.domNode, 'dojoMenuSeparator2');
-		dojo.html.addClass(this.topNode, 'dojoMenuSeparator2Top');
-		dojo.html.addClass(this.bottomNode, 'dojoMenuSeparator2Bottom');
-
 		dojo.html.disableSelection(this.domNode);
-
 		this.layoutItem();
 	},
 
@@ -752,6 +758,105 @@ dojo.widget.html.Menu2Manager = new function(){
 	};
 }
 
+// ************************** make contextmenu work in konqueror and opera *********************
+dojo.widget.Menu2.OperaAndKonqFixer = new function(){
+ 	var implement = true;
+ 	var delfunc = false;
+
+ 	/** 	dom event check
+ 	*
+ 	*	make a event and dispatch it and se if it calls function below,
+ 	*	if it does its supported and we dont need to implement our own
+ 	*/
+
+ 	// gets called if we have support for oncontextmenu
+ 	if (!dojo.lang.isFunction(document.oncontextmenu)){
+ 		document.oncontextmenu = function(){
+ 			implement = false;
+ 			delfunc = true;
+ 		}
+ 	}
+
+ 	if (document.createEvent){ // moz, safari has contextmenu event, need to do livecheck on this env.
+ 		try {
+ 			var e = document.createEvent("MouseEvents");
+ 			e.initMouseEvent("contextmenu", 1, 1, window, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, null);
+ 			document.dispatchEvent(e);
+ 		} catch (e) {/* assume not supported */}
+ 	} else {
+ 		// IE no need to implement custom contextmenu
+ 		implement = false;
+ 	}
+
+ 	// clear this one if it wasn't there before
+ 	if (delfunc){
+ 		delete document.oncontextmenu;
+ 	}
+ 	/***** end dom event check *****/
+
+
+ 	/**
+ 	*	this fixes a dom node by attaching a custom oncontextmenu function that gets called when apropriate
+ 	*	@param	node	a dom node
+ 	*
+ 	*	no returns
+ 	*/
+ 	this.fixNode = function(node){
+ 		if (implement){
+ 			// attach stub oncontextmenu function
+ 			if (!dojo.lang.isFunction(node.oncontextmenu)){
+ 				node.oncontextmenu = function(e){/*stub*/}
+ 			}
+
+ 			// attach control function for oncontextmenu
+ 			if (window.opera){
+ 				// opera
+ 				// listen to ctrl-click events
+ 				node._menufixer_opera = function(e){
+ 					if (e.ctrlKey){
+ 						this.oncontextmenu(e);
+ 					}
+ 				};
+
+ 				dojo.event.connect(node, "onclick", node, "_menufixer_opera");
+
+ 			} else {
+ 				// konqueror
+ 				// rightclick, listen to mousedown events
+ 				node._menufixer_konq = function(e){
+ 					if (e.button==2 ){
+ 						e.preventDefault(); // need to prevent browsers menu
+ 						this.oncontextmenu(e);
+ 					}
+ 				};
+
+ 				dojo.event.connect(node, "onmousedown", node, "_menufixer_konq");
+ 			}
+ 		}
+ 	}
+
+ 	/**
+ 	*	this cleans up a fixed node, prevent memoryleak?
+ 	*	@param node	node to clean
+ 	*
+ 	*	no returns
+ 	*/
+ 	this.cleanNode = function(node){
+ 		if (implement){
+ 			// checks needed if we gets a non fixed node
+ 			if (node._menufixer_opera){
+ 				dojo.event.disconnect(node, "onclick", node, "_menufixer_opera");
+ 				delete node._menufixer_opera;
+ 			} else if(node._menufixer_konq){
+ 				dojo.event.disconnect(node, "onmousedown", node, "_menufixer_konq");
+ 				delete node._menufixer_konq;
+ 			}
+ 			if (node.oncontextmenu){
+ 				delete node.oncontextmenu;
+ 			}
+ 		}
+ 	}
+};
 
 // make it a tag
 dojo.widget.tags.addParseTreeHandler("dojo:PopupMenu2");

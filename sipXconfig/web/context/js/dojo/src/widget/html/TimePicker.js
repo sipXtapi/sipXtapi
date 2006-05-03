@@ -13,6 +13,7 @@ dojo.require("dojo.widget.*");
 dojo.require("dojo.widget.HtmlWidget");
 dojo.require("dojo.widget.TimePicker");
 dojo.require("dojo.event.*");
+dojo.require("dojo.date");
 dojo.require("dojo.html");
 
 dojo.widget.html.TimePicker = function(){
@@ -62,18 +63,19 @@ dojo.widget.html.TimePicker = function(){
 		//  have a set time
 		// FIXME: should normalize against whitespace on storedTime... for now 
 		// just a lame hack
-		if(this.storedTime.split("T")[1] && this.storedTime!=" " && this.storedTime.split("T")[1]!="any") {
-			this.time = dojo.widget.TimePicker.util.fromRfcDateTime(this.storedTime, this.useDefaultMinutes);
+		if(this.storedTime.indexOf("T")!=-1 && this.storedTime.split("T")[1] && this.storedTime!=" " && this.storedTime.split("T")[1]!="any") {
+			this.time = dojo.widget.TimePicker.util.fromRfcDateTime(this.storedTime, this.useDefaultMinutes, this.selectedTime.anyTime);
 		} else if (this.useDefaultTime) {
-			this.time = dojo.widget.TimePicker.util.fromRfcDateTime("", this.useDefaultMinutes);
+			this.time = dojo.widget.TimePicker.util.fromRfcDateTime("", this.useDefaultMinutes, this.selectedTime.anyTime);
 		} else {
 			this.selectedTime.anyTime = true;
+			this.time = dojo.widget.TimePicker.util.fromRfcDateTime("", 0, 1);
 		}
 	}
 
 	this.initUI = function() {
 		// set UI to match the currently selected time
-		if(this.time) {
+		if(!this.selectedTime.anyTime && this.time) {
 			var amPmHour = dojo.widget.TimePicker.util.toAmPmHour(this.time.getHours());
 			var hour = amPmHour[0];
 			var isAm = amPmHour[1];
@@ -222,7 +224,7 @@ dojo.widget.html.TimePicker = function(){
 		if(this.selectedTime.anyTime) {
 			this.time = new Date();
 			var tempDateTime = dojo.widget.TimePicker.util.toRfcDateTime(this.time);
-			this.setDateTime(tempDateTime.split("T")[0] + "T" + this.any);
+			this.setDateTime(tempDateTime.split("T")[0]);
 		} else {
 			var hour = 12;
 			var minute = 0;

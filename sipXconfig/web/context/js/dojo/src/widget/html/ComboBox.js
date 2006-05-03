@@ -43,6 +43,9 @@ dojo.widget.html.ComboBox = function(){
 	this._prev_key_backspace = false;
 	this._prev_key_esc = false;
 	this._result_list_open = false;
+	this._gotFocus = false;
+	this._mousewheel_connected = false;
+
 }
 
 dojo.inherits(dojo.widget.html.ComboBox, dojo.widget.HtmlWidget);
@@ -57,7 +60,10 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 	templateCssPath: dojo.uri.dojoUri("src/widget/templates/HtmlComboBox.css"),
 
 	setValue: function(value) {
-		this.comboBoxValue.value = this.textInputNode.value = value;
+		this.comboBoxValue.value = value;
+		if (this.textInputNode.value != value) { // prevent mucking up of selection
+			this.textInputNode.value = value;
+		}
 		dojo.widget.html.stabile.setState(this.widgetId, this.getState(), true);
 	},
 
@@ -70,13 +76,13 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 	},
 
 	setState: function(state) {
-        	this.setValue(state.value);
+		this.setValue(state.value);
 	},
 
 
 	getCaretPos: function(element){
-		// FIXME: we need to figure this out for Konq/Safari!
-		if(dojo.render.html.mozilla){
+		// khtml 3.5.2 has selection* methods as does webkit nightlies from 2005-06-22
+		if(dojo.lang.isNumber(element.selectionStart)){
 			// FIXME: this is totally borked on Moz < 1.3. Any recourse?
 			return element.selectionStart;
 		}else if(dojo.render.html.ie){
@@ -84,20 +90,20 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 			// then the document.selection is not the textarea, but the popup
 			// var r = document.selection.createRange();
 			// hack to get IE 6 to play nice. What a POS browser.
-			// var tr = r.duplicate();
 			var tr = document.selection.createRange().duplicate();
-			// var ntr = document.selection.createRange().duplicate();
 			var ntr = element.createTextRange();
-			// FIXME: this seems to work but I'm getting some execptions on reverse-tab
 			tr.move("character",0);
 			ntr.move("character",0);
-			/*
-			try{
-				ntr.moveToElementText(element);
-			}catch(e){ dojo.debug(e); }
-			*/
-			ntr.setEndPoint("EndToEnd", tr);
-			return String(ntr.text).replace(/\r/g,"").length;
+			try {
+				// If control doesnt have focus, you get an exception.
+				// Seems to happen on reverse-tab, but can also happen on tab (seems to be a race condition - only happens sometimes).
+				// There appears to be no workaround for this - googled for quite a while.
+				ntr.setEndPoint("EndToEnd", tr);
+				return String(ntr.text).replace(/\r/g,"").length;
+			} catch (e) {
+				return 0; // If focus has shifted, 0 is fine for caret pos.
+			}
+			
 		}
 	},
 
@@ -107,7 +113,7 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 	},
 
 	setSelectedRange: function(element, start, end){
-		if(!end){ end = element.value.length; }
+		if(!end){ end = element.value.length; }  // NOTE: Strange - should be able to put caret at start of text?
 		// Mozilla
 		// parts borrowed from http://www.faqts.com/knowledge_base/view.phtml/aid/13562/fid/130
 		if(element.setSelectionRange){
@@ -138,12 +144,68 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 		}
 	},
 
-	killEvent: function(evt){
-		evt.preventDefault();
-		evt.stopPropagation();
+	onKeyDown: function(evt){
+		if (evt.ctrlKey || evt.altKey) {
+			return;
+		}
+		// These need to be detected in onKeyDown so that the events can be cancelled.
+		// Perhaps use dojo.event.browser.keys.KEY_ENTER etc? 
+		if(this._result_list_open && ((evt.keyCode == 32)||(evt.keyCode == 13))){ // space is 32, enter is 13.
+			this.selectOption();
+			dojo.event.browser.stopEvent(evt);
+			return;
+		}else if(evt.keyCode == 40){ // down is 40
+			if(!this._result_list_open){
+				this.startSearchFromInput();
+			}
+			this.highlightNextOption();
+			dojo.event.browser.stopEvent(evt);
+			return;
+		}else if(evt.keyCode == 38){ // up is 38
+			this.highlightPrevOption();
+			dojo.event.browser.stopEvent(evt);
+			return;
+		}
 	},
 
-	onKeyDown: function(evt){
+	onKeyUp: function(evt){
+		if (evt.ctrlKey || evt.altKey) {
+			return;
+		}
+		if((evt.keyCode == 32)||(evt.keyCode == 13)||(evt.keyCode == 40)||(evt.keyCode == 38)){
+			return;
+		}
+		// FIXME Everything below here should really be moved into onKeyDown?
+		if(evt.keyCode == 27){ // esc is 27
+			this.hideResultList();
+			if(this._prev_key_esc){
+				// FIXME - probably get rid of?
+				// Shouldnt deselect if something was selected on entry to form. Also it doesnt clear the input text for IE.
+				// And shouldnt lose focus - users are likely to press escape more than once when they want to cancel something.
+				/* 
+				this.textInputNode.blur();
+				this.selectedResult = null;
+				*/
+			}
+			this._prev_key_esc = true;
+			return;
+		}else{
+			this.setValue(this.textInputNode.value);
+		}
+
+		// backspace is 8
+		this._prev_key_backspace = (evt.keyCode == 8) ? true : false;
+		this._prev_key_esc = false;
+
+		if(this.searchTimer){
+			clearTimeout(this.searchTimer);
+		}
+		if((this._prev_key_backspace)&&(!this.textInputNode.value.length)){
+			this.hideResultList();
+		}else{
+			// FIXME This is untidy. Occurs when tabbing in to a control gives a keyup event and maybe other wierd keys too?
+			this.searchTimer = setTimeout(dojo.lang.hitch(this, this.startSearchFromInput), this.searchDelay);
+		}
 	},
 
 	setSelectedValue: function(value){
@@ -176,59 +238,21 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 		dojo.html.addClass(this._highlighted_option, "cbItemHighlight");
 	},
 
-	onKeyUp: function(evt){
-		if(evt.keyCode == 27){ // esc is 27
-			this.hideResultList();
-			if(this._prev_key_esc){
-				this.textInputNode.blur();
-				this.selectedResult = null;
+	onMouseWheel: function(evt) {
+		if (this._hasFocus) {
+			if (evt.wheelDelta < 0) {
+				if(!this._result_list_open){
+					this.startSearchFromInput();
+				}
+				this.highlightNextOption();
+			} else if (evt.wheelDelta > 0) {
+				this.highlightPrevOption();
 			}
-			this._prev_key_esc = true;
-			return;
-		}else if((evt.keyCode == 32)||(evt.keyCode == 13)){ // space is 32, enter is 13.
-			/*
-			// Cancel the enter key event bubble to avoid submitting the form.
-			if (evt.keyCode == 13) {
-				// FIXME: the does not cancel the form submission.
-				this.killEvent(evt);
-			}
-			*/
-			// If the list is open select the option with the event.
-			if(this._result_list_open){
-				evt = { target: this._highlighted_option };
-				this.selectOption(evt);
-			}else{
-				// Otherwise select the option with out the event.
-				this.selectOption();
-			}
-			return;
-		}else if(evt.keyCode == 40){ // down is 40
-			if(!this._result_list_open){
-				this.startSearchFromInput();
-			}
-			this.highlightNextOption();
-			return;
-		}else if(evt.keyCode == 38){ // up is 38
-			this.highlightPrevOption();
-			return;
-		}else{
-			this.setValue(this.textInputNode.value);
-		}
-
-		// backspace is 8
-		this._prev_key_backspace = (evt.keyCode == 8) ? true : false;
-		this._prev_key_esc = false;
-
-		if(this.searchTimer){
-			clearTimeout(this.searchTimer);
-		}
-		if((this._prev_key_backspace)&&(!this.textInputNode.value.length)){
-			this.hideResultList();
-		}else{
-			this.searchTimer = setTimeout(dojo.lang.hitch(this, this.startSearchFromInput), this.searchDelay);
-		}
+			evt.preventDefault(); // so don't scroll window
+			return false;
+		};
 	},
-
+  
 	fillInTemplate: function(args, frag){
 		// FIXME: need to get/assign DOM node names for form participation here.
 		this.comboBoxValue.name = this.name;
@@ -251,10 +275,17 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 					url: this.dataUrl,
 					load: function(type, data, evt){ 
 						if(type=="load"){
+							if(!dojo.lang.isArray(data)){
+								var arrData = [];
+								for(var key in data){
+									arrData.push([data[key], key]);
+								}
+								data = arrData;
+							}
 							_this.dataProvider.setData(data);
 						}
 					},
-					mimetype: "text/javascript"
+					mimetype: "text/json"
 				});
 			}else if("remote" == this.mode){
 				this.dataProvider = new dojo.widget.incrementalComboBoxDataProvider(this.dataUrl);
@@ -275,10 +306,8 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 		}
 
 		// Prevent IE bleed-through problem
-		this.bgIframe = new dojo.html.BackgroundIframe();
-		if(this.bgIframe.iframe){
-			this.optionsListWrapper.appendChild(this.bgIframe.iframe);
-		}
+		this.optionsIframe = new dojo.html.BackgroundIframe(this.optionsListWrapper);
+		this.optionsIframe.size([0,0,0,0]);
 	},
 
 	openResultList: function(results){
@@ -316,28 +345,45 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 			}
 		}
 
-		dojo.event.kwConnect({
-			once: true,
-			srcObj: document.body,
-			srcFunc: "onclick", 
-			adviceObj: this, 
-			adviceFunc: "hideResultList"
-		});
-
 		// prevent IE bleed through
-		dojo.lang.setTimeout(this, "showBackgroundIframe", 100);
+		dojo.lang.setTimeout(this, "sizeBackgroundIframe", 100);
 	},
 
-	showBackgroundIframe: function(){
+	onFocusInput: function(){
+		this._hasFocus = true;
+		if (dojo.render.html.ie && !this._mousewheel_connected) {
+			dojo.event.connect(document, "onmousewheel", this, "onMouseWheel");
+			this._mousewheel_connected = true;
+		}
+	},
+
+	onBlurInput: function(){
+		this._hasFocus = false;
+		if(this.blurTimer){
+			clearTimeout(this.blurTimer);
+		}
+		this.blurTimer = dojo.lang.setTimeout(this, "checkBlurred", 100);
+	},
+
+	checkBlurred: function(){
+		if (!this._hasFocus) {
+			this.hideResultList();
+		}
+		if (this._mousewheel_connected) {
+			dojo.event.disconnect(document, "onmousewheel", this, "onMouseWheel");
+			this._mousewheel_connected = false;
+		}
+	},
+
+	sizeBackgroundIframe: function(){
 		var w = dojo.style.getOuterWidth(this.optionsListNode);
 		var h = dojo.style.getOuterHeight(this.optionsListNode);
-		if ( isNaN(w) || isNaN(h) ){
+		if ( w==0 || h==0 ){
 			// need more time to calculate size
-			dojo.lang.setTimeout(this, "showBackgroundIframe", 100);
+			dojo.lang.setTimeout(this, "sizeBackgroundIframe", 100);
 			return;
 		}
-		this.bgIframe.show([0,0,w,h]);
-		this.bgIframe.setZIndex(1);
+		this.optionsIframe.size([0,0,w,h]);
 	},
 
 	selectOption: function(evt){
@@ -362,6 +408,8 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 		this.setValue(tgt.getAttribute("resultName"));
 		this.comboBoxSelectionValue.value = tgt.getAttribute("resultValue");
 		this.hideResultList();
+		this.setSelectedRange(this.textInputNode, 0, null);
+		this.tryFocus();
 	},
 
 	clearResultList: function(){
@@ -372,30 +420,31 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 	},
 
 	hideResultList: function(){
-		dojo.fx.fadeHide(this.optionsListNode, 200);
-		dojo.event.disconnect(document.body, "onclick", this, "hideResultList");
-		this._result_list_open = false;
-		this.bgIframe.hide();
+		if (this._result_list_open) {
+			this._result_list_open = false;
+			dojo.fx.fadeHide(this.optionsListNode, 200);
+			this.optionsIframe.size([0,0,0,0]);
+		}
 		return;
 	},
 
 	showResultList: function(){
-		if(this._result_list_open){ return; }
+		if(this._result_list_open){
+		  return;
+		}
+		this._result_list_open = true;
 		with(this.optionsListNode.style){
 			display = "";
 			// visibility = "hidden";
 			height = "";
 			width = dojo.html.getInnerWidth(this.downArrowNode)+dojo.html.getInnerWidth(this.textInputNode)+"px";
-			if(dojo.render.html.khtml){
-				marginTop = dojo.html.totalOffsetTop(this.optionsListNode.parentNode)+"px";
-			}
 		}
 		dojo.html.setOpacity(this.optionsListNode, 0);
 		dojo.fx.fadeIn(this.optionsListNode, 200);
-		this._result_list_open = true;
 	},
 
 	handleArrowClick: function(){
+		this.tryFocus();
 		if(this._result_list_open){
 			this.hideResultList();
 		}else{
@@ -403,6 +452,14 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 		}
 	},
 
+	tryFocus: function(){
+		try {    
+			this.textInputNode.focus();
+		} catch (e) {
+			// element isnt focusable if disabled, or not visible etc - not easy to test for.
+ 		};
+	},
+	
 	startSearchFromInput: function(){
 		this.startSearch(this.textInputNode.value);
 	},
@@ -410,6 +467,9 @@ dojo.lang.extend(dojo.widget.html.ComboBox, {
 	postCreate: function(){
 		dojo.event.connect(this, "startSearch", this.dataProvider, "startSearch");
 		dojo.event.connect(this.dataProvider, "provideSearchResults", this, "openResultList");
+		dojo.event.connect(this.textInputNode, "onblur", this, "onBlurInput");
+		dojo.event.connect(this.textInputNode, "onfocus", this, "onFocusInput");
+
 		var s = dojo.widget.html.stabile.getState(this.widgetId);
 		if (s) {
 			this.setState(s);

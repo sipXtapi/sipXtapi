@@ -15,43 +15,44 @@ dojo.require("dojo.widget.Widget");
 dojo.require("dojo.dom");
 dojo.require("dojo.xml.Parse");
 dojo.require("dojo.uri.*");
+dojo.require("dojo.lang.func");
 
 dojo.widget._cssFiles = {};
+dojo.widget._templateCache = {};
 
 dojo.widget.defaultStrings = {
 	dojoRoot: dojo.hostenv.getBaseScriptUri(),
 	baseScriptUri: dojo.hostenv.getBaseScriptUri()
 };
 
+dojo.widget.buildFromTemplate = function() {
+	dojo.lang.forward("fillFromTemplateCache");
+}
 
 // static method to build from a template w/ or w/o a real widget in place
-dojo.widget.buildFromTemplate = function(obj, templatePath, templateCssPath, templateString) {
+dojo.widget.fillFromTemplateCache = function(obj, templatePath, templateCssPath, templateString, avoidCache){
+	// dojo.debug("avoidCache:", avoidCache);
 	var tpath = templatePath || obj.templatePath;
 	var cpath = templateCssPath || obj.templateCssPath;
-
-	if (!cpath && obj.templateCSSPath) {
-		obj.templateCssPath = cpath = obj.templateCSSPath;
-		obj.templateCSSPath = null;
-		dj_deprecated("templateCSSPath is deprecated, use templateCssPath");
-	}
 
 	// DEPRECATED: use Uri objects, not strings
 	if (tpath && !(tpath instanceof dojo.uri.Uri)) {
 		tpath = dojo.uri.dojoUri(tpath);
-		dj_deprecated("templatePath should be of type dojo.uri.Uri");
+		dojo.deprecated("templatePath should be of type dojo.uri.Uri");
 	}
 	if (cpath && !(cpath instanceof dojo.uri.Uri)) {
 		cpath = dojo.uri.dojoUri(cpath);
-		dj_deprecated("templateCssPath should be of type dojo.uri.Uri");
+		dojo.deprecated("templateCssPath should be of type dojo.uri.Uri");
 	}
 	
-	var tmplts = dojo.widget.DomWidget.templates;
+	var tmplts = dojo.widget._templateCache;
 	if(!obj["widgetType"]) { // don't have a real template here
 		do {
-			var dummyName = "__dummyTemplate__" + dojo.widget.buildFromTemplate.dummyCount++;
+			var dummyName = "__dummyTemplate__" + dojo.widget._templateCache.dummyCount++;
 		} while(tmplts[dummyName]);
 		obj.widgetType = dummyName;
 	}
+	var wt = obj.widgetType;
 
 	if((cpath)&&(!dojo.widget._cssFiles[cpath])){
 		dojo.style.insertCssFile(cpath);
@@ -59,10 +60,14 @@ dojo.widget.buildFromTemplate = function(obj, templatePath, templateCssPath, tem
 		dojo.widget._cssFiles[cpath] = true;
 	}
 
-	var ts = tmplts[obj.widgetType];
+	var ts = tmplts[wt];
 	if(!ts){
-		tmplts[obj.widgetType] = {};
-		ts = tmplts[obj.widgetType];
+		tmplts[wt] = { "string": null, "node": null };
+		if(avoidCache){
+			ts = {};
+		}else{
+			ts = tmplts[wt];
+		}
 	}
 	if(!obj.templateString){
 		obj.templateString = templateString || ts["string"];
@@ -83,13 +88,15 @@ dojo.widget.buildFromTemplate = function(obj, templatePath, templateCssPath, tem
 			tstring = "";
 		}
 		obj.templateString = tstring;
-		ts.string = tstring;
+		if(!avoidCache){
+			tmplts[wt]["string"] = tstring;
+		}
 	}
-	if(!ts["string"]) {
+	if((!ts["string"])&&(!avoidCache)){
 		ts.string = obj.templateString;
 	}
 }
-dojo.widget.buildFromTemplate.dummyCount = 0;
+dojo.widget._templateCache.dummyCount = 0;
 
 dojo.widget.attachProperties = ["dojoAttachPoint", "id"];
 dojo.widget.eventAttachProperty = "dojoAttachEvent";
@@ -116,18 +123,18 @@ dojo.widget.attachTemplateNodes = function(rootNode, targetObj, events){
 	}
 	// alert(events.length);
 
-	var nodes = rootNode.getElementsByTagName("*");
+	var nodes = rootNode.all || rootNode.getElementsByTagName("*");
 	var _this = targetObj;
 	for(var x=-1; x<nodes.length; x++){
 		var baseNode = (x == -1) ? rootNode : nodes[x];
-		// FIXME: is this going to have capitalization problems?
+		// FIXME: is this going to have capitalization problems?  Could use getAttribute(name, 0); to get attributes case-insensitve
 		var attachPoint = [];
 		for(var y=0; y<this.attachProperties.length; y++){
 			var tmpAttachPoint = baseNode.getAttribute(this.attachProperties[y]);
 			if(tmpAttachPoint){
 				attachPoint = tmpAttachPoint.split(";");
-				for(var z=0; z<this.attachProperties.length; z++){
-					if((targetObj[attachPoint[z]])&&(dojo.lang.isArray(targetObj[attachPoint[z]]))){
+				for(var z=0; z<attachPoint.length; z++){
+					if(dojo.lang.isArray(targetObj[attachPoint[z]])){
 						targetObj[attachPoint[z]].push(baseNode);
 					}else{
 						targetObj[attachPoint[z]]=baseNode;
@@ -168,7 +175,7 @@ dojo.widget.attachTemplateNodes = function(rootNode, targetObj, events){
 					var ntf = new String(thisFunc);
 					return function(evt){
 						if(_this[ntf]){
-							_this[ntf](dojo.event.browser.fixEvent(evt));
+							_this[ntf](dojo.event.browser.fixEvent(evt, this));
 						}
 					};
 				}();
@@ -183,15 +190,22 @@ dojo.widget.attachTemplateNodes = function(rootNode, targetObj, events){
 				var thisFunc = null;
 				var domEvt = events[y].substr(4); // clober the "dojo" prefix
 				thisFunc = trim(evtVal);
-				var tf = function(){ 
-					var ntf = new String(thisFunc);
-					return function(evt){
-						if(_this[ntf]){
-							_this[ntf](dojo.event.browser.fixEvent(evt));
+				var funcs = [thisFunc];
+				if(thisFunc.indexOf(";")>=0){
+					funcs = dojo.lang.map(thisFunc.split(";"), trim);
+				}
+				for(var z=0; z<funcs.length; z++){
+					if(!funcs[z].length){ continue; }
+					var tf = function(){ 
+						var ntf = new String(funcs[z]);
+						return function(evt){
+							if(_this[ntf]){
+								_this[ntf](dojo.event.browser.fixEvent(evt, this));
+							}
 						}
-					}
-				}();
-				dojo.event.browser.addListener(baseNode, domEvt, tf, false, true);
+					}();
+					dojo.event.browser.addListener(baseNode, domEvt, tf, false, true);
+				}
 			}
 		}
 
@@ -200,8 +214,8 @@ dojo.widget.attachTemplateNodes = function(rootNode, targetObj, events){
 			eval("var node = baseNode; var widget = targetObj; "+onBuild);
 		}
 
-		// strip IDs to prevent dupes
-		baseNode.id = "";
+		// strip IDs to prevent dupes. removeAttribute() doesnt care if attribute doesnt exist
+		baseNode.removeAttribute('id');
 	}
 
 }
@@ -319,19 +333,16 @@ dojo.lang.extend(dojo.widget.DomWidget, {
 		delete dojo.widget.manager.topWidgets[widget.widgetId];
 	},
 
-	// FIXME: we really need to normalize how we do things WRT "destroy" vs. "remove"
 	removeChild: function(widget){
-		for(var x=0; x<this.children.length; x++){
-			if(this.children[x] === widget){
-				this.children.splice(x, 1);
-				break;
-			}
-		}
-		return widget;
+		// detach child domNode from parent domNode
+		dojo.dom.removeNode(widget.domNode);
+
+		// remove child widget from parent widget
+		return dojo.widget.DomWidget.superclass.removeChild.call(this, widget);
 	},
 
 	getFragNodeRef: function(frag){
-		if( !frag["dojo:"+this.widgetType.toLowerCase()] ){
+		if( !frag || !frag["dojo:"+this.widgetType.toLowerCase()] ){
 			dojo.raise("Error: no frag for widget type " + this.widgetType +
 				", id " + this.widgetId + " (maybe a widget has set it's type incorrectly)");
 		}
@@ -378,7 +389,7 @@ dojo.lang.extend(dojo.widget.DomWidget, {
 	// method over-ride
 	buildRendering: function(args, frag){
 		// DOM widgets construct themselves from a template
-		var ts = dojo.widget.DomWidget.templates[this.widgetType];
+		var ts = dojo.widget._templateCache[this.widgetType];
 		if(	
 			(!this.preventClobber)&&(
 				(this.templatePath)||
@@ -407,8 +418,21 @@ dojo.lang.extend(dojo.widget.DomWidget, {
 	buildFromTemplate: function(args, frag){
 		// var start = new Date();
 		// copy template properties if they're already set in the templates object
-		var ts = dojo.widget.DomWidget.templates[this.widgetType];
-		if(ts){
+		var avoidCache = false;
+		if(args["templatecsspath"]){
+			args["templateCssPath"] = args["templatecsspath"];
+		}
+		if(args["templatepath"]){
+			avoidCache = true;
+			args["templatePath"] = args["templatepath"];
+		}
+		dojo.widget.fillFromTemplateCache(	this, 
+											args["templatePath"], 
+											args["templateCssPath"],
+											null,
+											avoidCache);
+		var ts = dojo.widget._templateCache[this.widgetType];
+		if((ts)&&(!avoidCache)){
 			if(!this.templateString.length){
 				this.templateString = ts["string"];
 			}
@@ -418,7 +442,8 @@ dojo.lang.extend(dojo.widget.DomWidget, {
 		}
 		var matches = false;
 		var node = null;
-		var tstr = new String(this.templateString); 
+		// var tstr = new String(this.templateString); 
+		var tstr = this.templateString; 
 		// attempt to clone a template node, if there is one
 		if((!this.templateNode)&&(this.templateString)){
 			matches = this.templateString.match(/\$\{([^\}]+)\}/g);
@@ -499,8 +524,7 @@ dojo.lang.extend(dojo.widget.DomWidget, {
 	// method over-ride
 	destroyRendering: function(){
 		try{
-			var tempNode = this.domNode.parentNode.removeChild(this.domNode);
-			delete tempNode;
+			delete this.domNode;
 		}catch(e){ /* squelch! */ }
 	},
 
@@ -508,17 +532,14 @@ dojo.lang.extend(dojo.widget.DomWidget, {
 	cleanUp: function(){},
 	
 	getContainerHeight: function(){
-		// FIXME: the generic DOM widget shouldn't be using HTML utils!
-		return dojo.html.getInnerHeight(this.domNode.parentNode);
+		dj_unimplemented("dojo.widget.DomWidget.getContainerHeight");
 	},
 
 	getContainerWidth: function(){
-		// FIXME: the generic DOM widget shouldn't be using HTML utils!
-		return dojo.html.getInnerWidth(this.domNode.parentNode);
+		dj_unimplemented("dojo.widget.DomWidget.getContainerWidth");
 	},
 
 	createNodesFromText: function(){
 		dj_unimplemented("dojo.widget.DomWidget.createNodesFromText");
 	}
 });
-dojo.widget.DomWidget.templates = {};

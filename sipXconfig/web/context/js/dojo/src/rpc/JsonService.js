@@ -48,7 +48,7 @@ dojo.rpc.JsonService = function(args){
 			if(args["serviceUrl"]){
 				this.serviceUrl = args.serviceUrl;
 			}
-			if(args["strictArgChecks"]){
+			if(typeof args["strictArgChecks"] != "undefined"){
 				this.strictArgChecks = args.strictArgChecks;
 			}
 		}
@@ -81,7 +81,7 @@ dojo.lang.extend(dojo.rpc.JsonService, {
 	},
 
 	createRequest: function(method, params){
-		var req = { "params": params, "method": method, "id": this.lastSubmissionId++ };
+		var req = { "params": params, "method": method, "id": ++this.lastSubmissionId };
 		var data = dojo.json.serialize(req);
 		dojo.debug("JsonService: JSON-RPC Request: " + data);
 		return data;

@@ -12,6 +12,7 @@ dojo.provide("dojo.event");
 
 dojo.require("dojo.lang.array");
 dojo.require("dojo.lang.extras");
+dojo.require("dojo.lang.func");
 
 dojo.event = new function(){
 	this.canTimeout = dojo.lang.isFunction(dj_global["setTimeout"])||dojo.lang.isAlien(dj_global["setTimeout"]);
@@ -149,7 +150,30 @@ dojo.event = new function(){
 	}
 
 	this.connect = function(){
-		var ao = interpolateArgs(arguments);
+		if(arguments.length == 1){
+			var ao = arguments[0];
+		}else{
+			var ao = interpolateArgs(arguments);
+		}
+
+		if(dojo.lang.isArray(ao.srcObj) && ao.srcObj!=""){
+			var tmpAO = {};
+			for(var x in ao){
+				tmpAO[x] = ao[x];
+			}
+			var mjps = [];
+			dojo.lang.forEach(ao.srcObj, function(src){
+				if((dojo.render.html.capable)&&(dojo.lang.isString(src))){
+					src = dojo.byId(src);
+					// dojo.debug(src);
+				}
+				tmpAO.srcObj = src;
+				// dojo.debug(tmpAO.srcObj, tmpAO.srcFunc);
+				// dojo.debug(tmpAO.adviceObj, tmpAO.adviceFunc);
+				mjps.push(dojo.event.connect.call(dojo.event, tmpAO));
+			});
+			return mjps;
+		}
 
 		// FIXME: just doing a "getForMethod()" seems to be enough to put this into infinite recursion!!
 		var mjp = dojo.event.MethodJoinPoint.getForMethod(ao.srcObj, ao.srcFunc);
@@ -163,13 +187,33 @@ dojo.event = new function(){
 					// manually
 	}
 
-	this.connectBefore = function() {
+	this.log = function(a1, a2){
+		var kwArgs;
+		if((arguments.length == 1)&&(typeof a1 == "object")){
+			kwArgs = a1;
+		}else{
+			kwArgs = {
+				srcObj: a1,
+				srcFunc: a2
+			};
+		}
+		kwArgs.adviceFunc = function(){
+			var argsStr = [];
+			for(var x=0; x<arguments.length; x++){
+				argsStr.push(arguments[x]);
+			}
+			dojo.debug("("+kwArgs.srcObj+")."+kwArgs.srcFunc, ":", argsStr.join(", "));
+		}
+		this.kwConnect(kwArgs);
+	}
+
+	this.connectBefore = function(){
 		var args = ["before"];
 		for(var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
 		return this.connect.apply(this, args);
 	}
 
-	this.connectAround = function() {
+	this.connectAround = function(){
 		var args = ["around"];
 		for(var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
 		return this.connect.apply(this, args);
@@ -284,25 +328,25 @@ dojo.event.MethodJoinPoint.getForMethod = function(obj, methname) {
 
 			if((isNode)&&(!arguments.length)){
 				var evt = null;
-				try {
-					if(obj.ownerDocument) {
+				try{
+					if(obj.ownerDocument){
 						evt = obj.ownerDocument.parentWindow.event;
-					} else if(obj.documentElement) {
+					}else if(obj.documentElement){
 						evt = obj.documentElement.ownerDocument.parentWindow.event;
-					} else {
+					}else{
 						evt = window.event;
 					}
-				} catch(E) {
+				}catch(e){
 					evt = window.event;
 				}
 
-				if(evt) {
-					args.push(dojo.event.browser.fixEvent(evt));
+				if(evt){
+					args.push(dojo.event.browser.fixEvent(evt, this));
 				}
 			}else{
 				for(var x=0; x<arguments.length; x++){
 					if((x==0)&&(isNode)&&(dojo.event.browser.isEvent(arguments[x]))){
-						args.push(dojo.event.browser.fixEvent(arguments[x]));
+						args.push(dojo.event.browser.fixEvent(arguments[x], this));
 					}else{
 						args.push(arguments[x]);
 					}
@@ -413,7 +457,7 @@ dojo.lang.extend(dojo.event.MethodJoinPoint, {
 		}
 
 		if(this.before.length>0){
-			dojo.lang.forEach(this.before, unrollAdvice, true);
+			dojo.lang.forEach(this.before, unrollAdvice);
 		}
 
 		var result;
@@ -425,7 +469,7 @@ dojo.lang.extend(dojo.event.MethodJoinPoint, {
 		}
 
 		if(this.after.length>0){
-			dojo.lang.forEach(this.after, unrollAdvice, true);
+			dojo.lang.forEach(this.after, unrollAdvice);
 		}
 
 		return (this.methodfunc) ? result : null;

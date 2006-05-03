@@ -13,6 +13,8 @@ dojo.provide("dojo.widget.EditorTreeSelector");
 
 dojo.require("dojo.widget.HtmlWidget");
 
+dojo.deprecated("dojo.widget.EditorTreeSelector",  "refactored & moved to dojo.widget.TreeSelector");
+
 
 dojo.widget.tags.addParseTreeHandler("dojo:EditorTreeSelector");
 

@@ -133,7 +133,7 @@ dojo.lang.extend(dojo.widget.html.ColorPalette, {
 		}
 
 		if(dojo.render.html.ie){
-			this.bgIframe = document.createElement("<iframe frameborder='0' src='about:blank'>");
+			this.bgIframe = document.createElement("<iframe frameborder='0' src='javascript:void(0);'>");
 			with(this.bgIframe.style){
 				position = "absolute";
 				left = top = "0px";

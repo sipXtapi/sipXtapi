@@ -36,9 +36,16 @@ dojo.widget.incrementalComboBoxDataProvider = function(url, limit, timeout){
 		var request = dojo.io.bind({
 			url: realUrl,
 			method: "get",
-			mimetype: "text/javascript",
+			mimetype: "text/json",
 			load: function(type, data, evt){
 				_this.inFlight = false;
+				if(!dojo.lang.isArray(data)){
+					var arrData = [];
+					for(var key in data){
+						arrData.push([data[key], key]);
+					}
+					data = arrData;
+				}
 				_this.addToCache(searchStr, data);
 				_this.provideSearchResults(data);
 			}

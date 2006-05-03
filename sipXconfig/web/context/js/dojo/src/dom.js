@@ -69,6 +69,8 @@ dojo.dom.isNode = function(wh){
 }
 
 dojo.dom.getTagName = function(node){
+	dojo.deprecated("dojo.dom.getTagName", "use node.tagName instead", "0.4");
+
 	var tagName = node.tagName;
 	if(tagName.substr(0,5).toLowerCase()!="dojo:"){
 		
@@ -432,15 +434,12 @@ dojo.dom.textContent = function(node, text){
 }
 
 dojo.dom.collectionToArray = function(collection){
-	dojo.deprecated("dojo.dom.collectionToArray", "use dojo.lang.toArray instead");
+	dojo.deprecated("dojo.dom.collectionToArray", "use dojo.lang.toArray instead", "0.4");
 	return dojo.lang.toArray(collection);
 }
 
-dojo.dom.hasParent = function(node) {
-	if(!node || !node.parentNode || (node.parentNode && !node.parentNode.tagName)) {
-		return false;
-	}
-	return true;
+dojo.dom.hasParent = function (node) {
+	return node && node.parentNode && dojo.dom.isNode(node.parentNode);
 }
 
 /**

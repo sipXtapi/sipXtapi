@@ -29,6 +29,7 @@ dojo.lang.extend(dojo.rpc.JotService, {
 			method: "POST",
 			mimetype: "text/json",
 			load: this.resultCallback(deferredRequestHandler),
+			error: this.errorCallback(deferredRequestHandler),
 			preventCache: true
 		});
 	},

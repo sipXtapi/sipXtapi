@@ -66,7 +66,7 @@ dojo.require("dojo.lang.extras");
 // a map of the available transport options. Transports should add themselves
 // by calling add(name)
 dojo.io.transports = [];
-dojo.io.hdlrFuncNames = [ "load", "error" ]; // we're omitting a progress() event for now
+dojo.io.hdlrFuncNames = [ "load", "error", "timeout" ]; // we're omitting a progress() event for now
 
 dojo.io.Request = function(url, mimetype, transport, changeUrl){
 	if((arguments.length == 1)&&(arguments[0].constructor == Object)){
@@ -118,8 +118,14 @@ dojo.lang.extend(dojo.io.Request, {
 	// events stuff
 	load: function(type, data, evt){ },
 	error: function(type, error){ },
+	timeout: function(type){ },
 	handle: function(){ },
 
+	//FIXME: change BrowserIO.js to use timeouts? IframeIO?
+	// The number of seconds to wait until firing a timeout callback.
+	// If it is zero, that means, don't do a timeout check.
+	timeoutSeconds: 0,
+	
 	// the abort method needs to be filled in by the transport that accepts the
 	// bind() request
 	abort: function(){ },
@@ -241,23 +247,63 @@ dojo.io.queueBind = function(request){
 dojo.io._dispatchNextQueueBind = function(){
 	if(!dojo.io._queueBindInFlight){
 		dojo.io._queueBindInFlight = true;
-		dojo.io.bind(dojo.io._bindQueue.shift());
+		if(dojo.io._bindQueue.length > 0){
+			dojo.io.bind(dojo.io._bindQueue.shift());
+		}else{
+			dojo.io._queueBindInFlight = false;
+		}
 	}
 }
 dojo.io._bindQueue = [];
 dojo.io._queueBindInFlight = false;
 
 dojo.io.argsFromMap = function(map, encoding){
-	var control = new Object();
-	var mapStr = "";
 	var enc = /utf/i.test(encoding||"") ? encodeURIComponent : dojo.string.encodeAscii;
-	for(var x in map){
-		if(!control[x]){
-			mapStr+= enc(x)+"="+enc(map[x])+"&";
+	var mapped = [];
+	var domap = function(elt){
+		mapped.push(enc(name)+"="+enc(elt));
+	}
+	var control = new Object();
+	for(var name in map){
+		if(!control[name]){
+			var value = map[name];
+			// FIXME: should be isArrayLike?
+			if (dojo.lang.isArray(value)){
+				dojo.lang.forEach(value, domap);
+			}else{
+				domap(value);
+			}
 		}
 	}
+	return mapped.join("&");
+}
 
-	return mapStr;
+dojo.io.setIFrameSrc = function(iframe, src, replace){
+	try{
+		var r = dojo.render.html;
+		// dojo.debug(iframe);
+		if(!replace){
+			if(r.safari){
+				iframe.location = src;
+			}else{
+				frames[iframe.name].location = src;
+			}
+		}else{
+			// Fun with DOM 0 incompatibilities!
+			var idoc;
+			if(r.ie){
+				idoc = iframe.contentWindow.document;
+			}else if(r.moz){
+				idoc = iframe.contentWindow;
+			}else if(r.safari){
+				idoc = iframe.document;
+			}
+			idoc.location.replace(src);
+		}
+	}catch(e){ 
+		dojo.debug(e); 
+		dojo.debug("setIFrameSrc: "+e); 
+	}
 }
 
 /*

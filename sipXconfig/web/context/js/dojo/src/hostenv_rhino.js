@@ -22,7 +22,7 @@ var loadClass; var print; var load; var quit; var version; var Packages; var jav
 // TODO: not sure what we gain from the next line, anyone?
 //if (typeof loadClass == 'undefined') { dj_throw("attempt to use Rhino host environment when no 'loadClass' global"); }
 
-dojo.hostenv.name_ = 'rhino';
+dojo.render.name = dojo.hostenv.name_ = 'rhino';
 dojo.hostenv.getVersion = function() {return version()};
 
 // see comments in spidermonkey loadUri

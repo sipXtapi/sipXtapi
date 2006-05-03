@@ -35,38 +35,23 @@ dojo.lang.extend(dojo.widget.html.MonthlyCalendar, {
 	addCalendar: function(/* dojo.iCalendar */ cal) {
 		dojo.debug("Adding Calendar");
 		this.iCalendars.push(cal);
-		this.initUI();
+		dojo.debug("Starting init");
+		this.initUI()
+		dojo.debug("done init");
 	},
 
 	createDayContents: function(node,mydate) {
 		dojo.dom.removeChildren(node);
 		node.appendChild(document.createTextNode(mydate.getDate()));	
-		if (this.cache[mydate]) {
-			evts = this.cache[mydate];
-			if ((dojo.lang.isArray(evts)) && (evts.length>0)) {
+			for(var x=0; x<this.iCalendars.length; x++) {
+				evts = this.iCalendars[x].getEvents(mydate);
+				if ((dojo.lang.isArray(evts)) && (evts.length>0)) {
 				for(var y=0;y<evts.length;y++) {
 					var el = document.createElement("div");
 					dojo.html.addClass(el, "dojoMonthlyCalendarEvent");          
 					el.appendChild(document.createTextNode(evts[y].summary.value));
 					el.width = dojo.style.getContentWidth(node);
 					node.appendChild(el);
-				}
-			}
-		} else {
-			for(var x=0; x<this.iCalendars.length; x++) {
-				evts = this.iCalendars[x].getEvents(mydate);
-
-				if ((dojo.lang.isArray(evts)) && (evts.length>0)) {
-					this.cache[mydate]=evts;
-					for(var y=0;y<evts.length;y++) {
-						var el = document.createElement("div");
-						dojo.html.addClass(el, "dojoMonthlyCalendarEvent");          
-						el.appendChild(document.createTextNode(evts[y].summary.value));
-						el.width = dojo.style.getContentWidth(node);
-						node.appendChild(el);
-					}
-				} else {
-					this.cache[mydate]=[];
 				}
 			}
 		}

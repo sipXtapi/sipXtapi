@@ -16,7 +16,7 @@
 * @author Copyright 2004 Mark D. Anderson (mda@discerning.com)
 * @author Licensed under the Academic Free License 2.1 http://www.opensource.org/licenses/afl-2.1.php
 *
-* $Id$
+* $Id: bootstrap1.js 3458 2006-04-06 22:26:33Z sjmiles $
 */
 
 /**
@@ -33,62 +33,76 @@
  */
 var dj_global = this; //typeof window == 'undefined' ? this : window;
 
+/**
+ *  True if name is defined, either on obj or globally if obj is false
+ *  Note that 'defined' and 'exists' are not the same concept. 
+ */
 function dj_undef(name, obj){
 	if(!obj){ obj = dj_global; }
+	// exception if obj is not an Object
 	return (typeof obj[name] == "undefined");
 }
 
-if(dj_undef("djConfig")){
-	var djConfig = {};
+/**
+ * djConfig is the global configuration object 
+ */
+if(dj_undef("djConfig")){ 
+	var djConfig = {}; 
 }
 
 /**
  * dojo is the root variable of (almost all) our public symbols.
  */
-var dojo;
-if(dj_undef("dojo")){ dojo = {}; }
+if(dj_undef("dojo")){ 
+	var dojo = {}; 
+}
 
 dojo.version = {
 	major: 0, minor: 2, patch: 2, flag: "+",
-	revision: Number("$Rev: 2889 $".match(/[0-9]+/)[0]),
-	toString: function() {
-		with (dojo.version) {
+	revision: Number("$Rev: 3458 $".match(/[0-9]+/)[0]),
+	toString: function(){
+		with(dojo.version){
 			return major + "." + minor + "." + patch + flag + " (" + revision + ")";
 		}
 	}
-};
+}
+
+/**
+ * get 'obj[name]' if it is defined, otherwise create as Object if 'create' is true, otherwise return null
+ * caveat: 'defined' and 'exists' are not the same concept
+ */
+dojo.evalProp = function(name, obj, create){
+	return (obj && !dj_undef(name, obj) ? obj[name] : (create ? (obj[name]={}) : undefined));
+}
+
+/**
+ * Parse a reference specified as a string descriptor into an object reference and a property name.
+ */
+dojo.parseObjPath = function(objpath, context, create){
+	var obj = (context ? context : dj_global);
+	var names = objpath.split('.');
+	var prop = names.pop();
+	for (var i=0,l=names.length;i<l && obj;i++){
+		obj = dojo.evalProp(names[i], obj, create);
+	}
+	return {obj: obj, prop: prop};
+}
 
 /*
  * evaluate a string like "A.B" without using eval.
  */
 dojo.evalObjPath = function(objpath, create){
+	if(typeof objpath != "string"){ 
+		return dj_global; 
+	}
 	// fast path for no periods
-	if(typeof objpath != "string"){ return dj_global; }
 	if(objpath.indexOf('.') == -1){
-		if((dj_undef(objpath, dj_global))&&(create)){
-			dj_global[objpath] = {};
-		}
-		return dj_global[objpath];
+		return dojo.evalProp(objpath, dj_global, create);
 	}
-
-	var syms = objpath.split(/\./);
-	var obj = dj_global;
-	for(var i=0;i<syms.length;++i){
-		if(!create){
-			obj = obj[syms[i]];
-			if((typeof obj == 'undefined')||(!obj)){
-				return obj;
-			}
-		}else{
-			if(dj_undef(syms[i], obj)){
-				obj[syms[i]] = {};
-			}
-			obj = obj[syms[i]];
-		}
-	}
-	return obj;
-};
-
+	with (dojo.parseObjPath(objpath, dj_global, create)){
+		return dojo.evalProp(prop, obj, create);
+	}	
+}
 
 // ****************************************************************
 // global public utils
@@ -101,7 +115,7 @@ dojo.evalObjPath = function(objpath, create){
  */
 dojo.errorToString = function(excep){
 	return ((!dj_undef("message", excep)) ? excep.message : (dj_undef("description", excep) ? excep : excep.description ));
-};
+}
 
 /**
 * Throws an Error object given the string err. For now, will also do a println
@@ -116,12 +130,12 @@ dojo.raise = function(message, excep){
 		dojo.hostenv.println("FATAL: " + message);
 	}
 	throw Error(message);
-};
+}
 
 dj_throw = dj_rethrow = function(m, e){
 	dojo.deprecated("dj_throw and dj_rethrow deprecated, use dojo.raise instead");
 	dojo.raise(m, e);
-};
+}
 
 /**
  * Produce a line of debug output. 
@@ -218,6 +232,16 @@ dj_deprecated = dojo.deprecated = function(behaviour, extra, removal){
 	var mess = "DEPRECATED: " + behaviour;
 	if(extra){ mess += " " + extra; }
 	if(removal){ mess += " -- will be removed in version: " + removal; }
+	dojo.debug(mess);
+}
+
+/**
+ * Convenience for informing of experimental code.
+ */
+dojo.experimental = function(packageName, extra){
+	var mess = "EXPERIMENTAL: " + packageName;
+	mess += " -- Not yet ready for use.  APIs subject to change without notice.";
+	if(extra){ mess += " " + extra; }
 	dojo.debug(mess);
 }
 
@@ -495,7 +519,7 @@ dojo.addOnLoad = function(obj, fcnName) {
 			obj[fcnName]();
 		});
 	}
-};
+}
 
 dojo.hostenv.modulesLoaded = function(){
 	if(this.post_load_){ return; }
@@ -644,7 +668,7 @@ dojo.hostenv.startPackage = function(packname){
  * @param must_exist Optional, defualt false. throw instead of returning null
  * if the module does not currently exist.
  */
-dojo.hostenv.findModule = function(modulename, must_exist) {
+dojo.hostenv.findModule = function(modulename, must_exist){
 	// check cache
 	/*
 	if(!dj_undef(modulename, this.modules_)){
@@ -670,17 +694,6 @@ dojo.hostenv.findModule = function(modulename, must_exist) {
 	}
 	return null;
 }
-
-/**
-* @file hostenv_browser.js
-*
-* Implements the hostenv interface for a browser environment.
-*
-* Perhaps it could be called a "dom" or "useragent" environment.
-*
-* @author Copyright 2004 Mark D. Anderson (mda@discerning.com)
-* @author Licensed under the Academic Free License 2.1 http://www.opensource.org/licenses/afl-2.1.php
-*/
 
 // make jsc shut up (so we can use jsc to sanity check the code even if it will never run it).
 /*@cc_on
@@ -736,6 +749,7 @@ if(typeof window == 'undefined'){
 		}
 	}
 
+	// fill in the rendering support information in dojo.render.*
 	var dr = dojo.render;
 	var drh = dojo.render.html;
 	var drs = dojo.render.svg;
@@ -815,7 +829,7 @@ if(typeof window == 'undefined'){
 
 dojo.hostenv.startPackage("dojo.hostenv");
 
-dojo.hostenv.name_ = 'browser';
+dojo.render.name = dojo.hostenv.name_ = 'browser';
 dojo.hostenv.searchIds = [];
 
 // These are in order of decreasing likelihood; this will change in time.
@@ -881,7 +895,15 @@ dojo.hostenv.getText = function(uri, async_cb, fail_ok){
 	}
 
 	http.open('GET', uri, async_cb ? true : false);
-	http.send(null);
+	try {
+		http.send(null);
+	} catch (e) {
+		if (fail_ok && !async_cb) {
+			return null;
+		} else {
+			throw e;
+		}
+	}
 	if(async_cb){
 		return null;
 	}
@@ -970,17 +992,19 @@ dj_load_init = function(){
 	}
 	dojo.hostenv.modulesLoaded();
 };
-/*
+
+/* Uncomment this to allow init after DOMLoad, not after window.onload
 
 // Mozilla exposes the event we could use
 if (dojo.render.html.mozilla) {
    document.addEventListener("DOMContentLoaded", dj_load_init, null);
 }
-
 // for Internet Explorer. readyState will not be achieved on init call, but dojo doesn't need it
-if (dojo.render.html.ie) {
-   document.write("<script defer>dj_load_init()<"+"/script>");
-}
+//Tighten up the comments below to allow init after DOMLoad, not after window.onload
+/ * @cc_on @ * /
+/ * @if (@_win32)
+    document.write("<script defer>dj_load_init()<"+"/script>");
+/ * @end @ * /
 */
 
 // default for other browsers
@@ -1034,11 +1058,11 @@ dojo.hostenv.modulesLoadedListeners.push(function(){
 	}
 });
 
-// we assume that we haven't hit onload yet. Lord help us.
 try {
 	if (dojo.render.html.ie) {
-		document.write('<style>v\:*{ behavior:url(#default#VML); }</style>');
-		document.write('<xml:namespace ns="urn:schemas-microsoft-com:vml" prefix="v"/>');
+		//	easier and safer VML addition.  Thanks Emil!
+		document.namespaces.add("v", "urn:schemas-microsoft-com:vml");
+		document.createStyleSheet().addRule("v\\:*", "behavior:url(#default#VML)");
 	}
 } catch (e) { }
 
@@ -1112,7 +1136,7 @@ dojo.require = function(){
 dojo.requireAfter = dojo.require;
 
 dojo.requireIf = function(){
-	if((arguments[0] === true)||(arguments[0]=="common")||(dojo.render[arguments[0]].capable)){
+	if((arguments[0] === true)||(arguments[0]=="common")||(arguments[0] && dojo.render[arguments[0]].capable)){
 		var args = [];
 		for (var i = 1; i < arguments.length; i++) { args.push(arguments[i]); }
 		dojo.require.apply(dojo, args);
@@ -1238,9 +1262,16 @@ dojo.provide("dojo.lang.common");
 
 dojo.require("dojo.lang");
 
+/*
+ * Adds the given properties/methods to the specified object
+ */
 dojo.lang.mixin = function(obj, props){
 	var tobj = {};
 	for(var x in props){
+		// the "tobj" condition avoid copying properties in "props"
+		// inherited from Object.prototype.  For example, if obj has a custom
+		// toString() method, don't overwrite it with the toString() method
+		// that props inherited from Object.protoype
 		if(typeof tobj[x] == "undefined" || tobj[x] != props[x]) {
 			obj[x] = props[x];
 		}
@@ -1252,6 +1283,9 @@ dojo.lang.mixin = function(obj, props){
 	return obj;
 }
 
+/*
+ * Adds the given properties/methods to the specified object's prototype
+ */
 dojo.lang.extend = function(ctor, props){
 	this.mixin(ctor.prototype, props);
 }
@@ -1261,7 +1295,10 @@ dojo.lang.extend = function(ctor, props){
  *  find(array, value, identity) // recommended
  *  find(value, array, identity)
 **/
-dojo.lang.find = function(arr, val, identity, findLast){
+dojo.lang.find = function(	/*Array*/	arr, 
+							/*Object*/	val,
+							/*boolean*/	identity,
+							/*boolean*/	findLast){
 	// support both (arr, val) and (val, arr)
 	if(!dojo.lang.isArrayLike(arr) && dojo.lang.isArrayLike(val)) {
 		var a = arr;
@@ -1296,14 +1333,14 @@ dojo.lang.find = function(arr, val, identity, findLast){
 
 dojo.lang.indexOf = dojo.lang.find;
 
-dojo.lang.findLast = function(arr, val, identity) {
+dojo.lang.findLast = function(/*Array*/ arr, /*Object*/ val, /*boolean*/ identity){
 	return dojo.lang.find(arr, val, identity, true);
 }
 
 dojo.lang.lastIndexOf = dojo.lang.findLast;
 
-dojo.lang.inArray = function(arr, val){
-	return dojo.lang.find(arr, val) > -1;
+dojo.lang.inArray = function(arr /*Array*/, val /*Object*/){
+	return dojo.lang.find(arr, val) > -1; // return: boolean
 }
 
 /**
@@ -1580,6 +1617,72 @@ dojo.lang.isOfType = function(value, type) {
 	dojo.raise("If we get here, it means a bug was introduced above.");
 }
 
+/*
+ * 	From reflection code, part of merge.
+ *	TRT 2006-02-01
+ */
+dojo.lang.getObject=function(/* String */ str){
+	//	summary
+	//	Will return an object, if it exists, based on the name in the passed string.
+	var parts=str.split("."), i=0, obj=dj_global; 
+	do{ 
+		obj=obj[parts[i++]]; 
+	}while(i<parts.length&&obj); 
+	return (obj!=dj_global)?obj:null;	//	Object
+}
+
+dojo.lang.doesObjectExist=function(/* String */ str){
+	//	summary
+	//	Check to see if object [str] exists, based on the passed string.
+	var parts=str.split("."), i=0, obj=dj_global; 
+	do{ 
+		obj=obj[parts[i++]]; 
+	}while(i<parts.length&&obj); 
+	return (obj&&obj!=dj_global);	//	boolean
+}
+
+dojo.lang.getConstructor=function(/* object */ obj){
+	//	summary
+	//	Returns a reference to the passed object's constructor function.
+	return obj.constructor;	//	Function
+}
+
+dojo.lang.isConstructedBy=function(/* object */ obj, /* function */ type){
+	//	summary
+	//	Returns a boolean if the passed [obj] was created by [type]
+	return dojo.lang.getConstructor(obj)==type;	//	boolean
+}
+
+dojo.lang.isSubOf=function(/* object */ obj, /* object */ type){
+	//	summary
+	//	Test to see if type is in obj's prototype chain
+	return obj instanceof type; 	// boolean
+}
+
+dojo.lang.isBaseOf=function(/* object */ type, /* object */ obj){
+	//	summary
+	//	Test to see if obj is in type's prototype chain
+	return obj instanceof type; 	// boolean
+}
+
+//	TODO: pass the constructor an arguments object.
+dojo.lang.createInstance=function(/* string */ type){
+	//	summary
+	//	create an instance of type.
+	var o=null;
+	var f=type;
+	if(typeof(f)=="string"){
+		f=dojo.lang.getObject(type);
+	}
+	if(typeof(f)=="function"){
+		try{
+			o=new f();
+		}catch(e){
+		}
+	}
+	return o;	//	object
+}
+
 dojo.provide("dojo.lang.extras");
 
 dojo.require("dojo.lang.common");
@@ -1645,6 +1748,40 @@ dojo.lang.firstValued = function(/* ... */) {
 	return undefined;
 }
 
+/**
+ * Get a value from a reference specified as a string descriptor,
+ * (e.g. "A.B") in the given context.
+ * 
+ * getObjPathValue(String objpath [, Object context, Boolean create])
+ *
+ * If context is not specified, dj_global is used
+ * If create is true, undefined objects in the path are created.
+ */
+dojo.lang.getObjPathValue = function(objpath, context, create){
+	with(dojo.parseObjPath(objpath, context, create)){
+		return dojo.evalProp(prop, obj, create);
+	}
+}
+
+/**
+ * Set a value on a reference specified as a string descriptor. 
+ * (e.g. "A.B") in the given context.
+ * 
+ * setObjPathValue(String objpath, value [, Object context, Boolean create])
+ *
+ * If context is not specified, dj_global is used
+ * If create is true, undefined objects in the path are created.
+ */
+dojo.lang.setObjPathValue = function(objpath, value, context, create){
+	if(arguments.length < 4){
+		create = true;
+	}
+	with(dojo.parseObjPath(objpath, context, create)){
+		if(obj && (create || (prop in obj))){
+  		obj[prop] = value;
+		}
+	}
+}
 dojo.provide("dojo.io.IO");
 dojo.require("dojo.string");
 dojo.require("dojo.lang.extras");
@@ -1703,7 +1840,7 @@ dojo.require("dojo.lang.extras");
 // a map of the available transport options. Transports should add themselves
 // by calling add(name)
 dojo.io.transports = [];
-dojo.io.hdlrFuncNames = [ "load", "error" ]; // we're omitting a progress() event for now
+dojo.io.hdlrFuncNames = [ "load", "error", "timeout" ]; // we're omitting a progress() event for now
 
 dojo.io.Request = function(url, mimetype, transport, changeUrl){
 	if((arguments.length == 1)&&(arguments[0].constructor == Object)){
@@ -1755,8 +1892,14 @@ dojo.lang.extend(dojo.io.Request, {
 	// events stuff
 	load: function(type, data, evt){ },
 	error: function(type, error){ },
+	timeout: function(type){ },
 	handle: function(){ },
 
+	//FIXME: change BrowserIO.js to use timeouts? IframeIO?
+	// The number of seconds to wait until firing a timeout callback.
+	// If it is zero, that means, don't do a timeout check.
+	timeoutSeconds: 0,
+	
 	// the abort method needs to be filled in by the transport that accepts the
 	// bind() request
 	abort: function(){ },
@@ -1878,23 +2021,63 @@ dojo.io.queueBind = function(request){
 dojo.io._dispatchNextQueueBind = function(){
 	if(!dojo.io._queueBindInFlight){
 		dojo.io._queueBindInFlight = true;
-		dojo.io.bind(dojo.io._bindQueue.shift());
+		if(dojo.io._bindQueue.length > 0){
+			dojo.io.bind(dojo.io._bindQueue.shift());
+		}else{
+			dojo.io._queueBindInFlight = false;
+		}
 	}
 }
 dojo.io._bindQueue = [];
 dojo.io._queueBindInFlight = false;
 
 dojo.io.argsFromMap = function(map, encoding){
-	var control = new Object();
-	var mapStr = "";
 	var enc = /utf/i.test(encoding||"") ? encodeURIComponent : dojo.string.encodeAscii;
-	for(var x in map){
-		if(!control[x]){
-			mapStr+= enc(x)+"="+enc(map[x])+"&";
+	var mapped = [];
+	var domap = function(elt){
+		mapped.push(enc(name)+"="+enc(elt));
+	}
+	var control = new Object();
+	for(var name in map){
+		if(!control[name]){
+			var value = map[name];
+			// FIXME: should be isArrayLike?
+			if (dojo.lang.isArray(value)){
+				dojo.lang.forEach(value, domap);
+			}else{
+				domap(value);
+			}
 		}
 	}
+	return mapped.join("&");
+}
 
-	return mapStr;
+dojo.io.setIFrameSrc = function(iframe, src, replace){
+	try{
+		var r = dojo.render.html;
+		// dojo.debug(iframe);
+		if(!replace){
+			if(r.safari){
+				iframe.location = src;
+			}else{
+				frames[iframe.name].location = src;
+			}
+		}else{
+			// Fun with DOM 0 incompatibilities!
+			var idoc;
+			if(r.ie){
+				idoc = iframe.contentWindow.document;
+			}else if(r.moz){
+				idoc = iframe.contentWindow;
+			}else if(r.safari){
+				idoc = iframe.document;
+			}
+			idoc.location.replace(src);
+		}
+	}catch(e){ 
+		dojo.debug(e); 
+		dojo.debug("setIFrameSrc: "+e); 
+	}
 }
 
 /*
@@ -1962,7 +2145,9 @@ dojo.require("dojo.lang.common");
 // FIXME: Is this worthless since you can do: if(name in obj)
 // is this the right place for this?
 dojo.lang.has = function(obj, name){
-	return (typeof obj[name] !== 'undefined');
+	try{
+		return (typeof obj[name] != "undefined");
+	}catch(e){ return false; }
 }
 
 dojo.lang.isEmpty = function(obj) {
@@ -1981,17 +2166,6 @@ dojo.lang.isEmpty = function(obj) {
 	}
 }
 
-dojo.lang.forEach = function(arr, unary_func, fix_length){
-	var isString = dojo.lang.isString(arr);
-	if(isString) { arr = arr.split(""); }
-	var il = arr.length;
-	for(var i=0; i< ((fix_length) ? il : arr.length); i++){
-		if(unary_func(arr[i], i, arr) == "break"){
-			break;
-		}
-	}
-}
-
 dojo.lang.map = function(arr, obj, unary_func){
 	var isString = dojo.lang.isString(arr);
 	if(isString){
@@ -2006,7 +2180,6 @@ dojo.lang.map = function(arr, obj, unary_func){
 		obj = unary_func;
 		unary_func = tmpObj;
 	}
-
 	if(Array.map){
 	 	var outArr = Array.map(arr, unary_func, obj);
 	}else{
@@ -2015,7 +2188,6 @@ dojo.lang.map = function(arr, obj, unary_func){
 			outArr.push(unary_func.call(obj, arr[i]));
 		}
 	}
-
 	if(isString) {
 		return outArr.join("");
 	} else {
@@ -2023,44 +2195,52 @@ dojo.lang.map = function(arr, obj, unary_func){
 	}
 }
 
-dojo.lang.every = function(arr, callback, thisObject) {
-	var isString = dojo.lang.isString(arr);
-	if(isString) { arr = arr.split(""); }
-	if(Array.every) {
-		return Array.every(arr, callback, thisObject);
-	} else {
-		if(!thisObject) {
-			if(arguments.length >= 3) { dojo.raise("thisObject doesn't exist!"); }
-			thisObject = dj_global;
+// http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:forEach
+dojo.lang.forEach = function(anArray /* Array */, callback /* Function */, thisObject /* Object */){
+	if(dojo.lang.isString(anArray)){ 
+		anArray = anArray.split(""); 
+	}
+	if(Array.forEach){
+		Array.forEach(anArray, callback, thisObject);
+	}else{
+		// FIXME: there are several ways of handilng thisObject. Is dj_global always the default context?
+		if(!thisObject){
+			thisObject=dj_global;
 		}
-
-		for(var i = 0; i < arr.length; i++) {
-			if(!callback.call(thisObject, arr[i], i, arr)) {
-				return false;
-			}
+		for(var i=0,l=anArray.length; i<l; i++){ 
+			callback.call(thisObject, anArray[i], i, anArray);
 		}
-		return true;
 	}
 }
 
-dojo.lang.some = function(arr, callback, thisObject) {
-	var isString = dojo.lang.isString(arr);
-	if(isString) { arr = arr.split(""); }
-	if(Array.some) {
-		return Array.some(arr, callback, thisObject);
-	} else {
-		if(!thisObject) {
-			if(arguments.length >= 3) { dojo.raise("thisObject doesn't exist!"); }
+dojo.lang._everyOrSome = function(every, arr, callback, thisObject){
+	if(dojo.lang.isString(arr)){ 
+		arr = arr.split(""); 
+	}
+	if(Array.every){
+		return Array[ (every) ? "every" : "some" ](arr, callback, thisObject);
+	}else{
+		if(!thisObject){
 			thisObject = dj_global;
 		}
-
-		for(var i = 0; i < arr.length; i++) {
-			if(callback.call(thisObject, arr[i], i, arr)) {
+		for(var i=0,l=arr.length; i<l; i++){
+			var result = callback.call(thisObject, arr[i], i, arr);
+			if((every)&&(!result)){
+				return false;
+			}else if((!every)&&(result)){
 				return true;
 			}
 		}
-		return false;
+		return (every) ? true : false;
 	}
+}
+
+dojo.lang.every = function(arr, callback, thisObject){
+	return this._everyOrSome(true, arr, callback, thisObject);
+}
+
+dojo.lang.some = function(arr, callback, thisObject){
+	return this._everyOrSome(false, arr, callback, thisObject);
 }
 
 dojo.lang.filter = function(arr, callback, thisObject) {
@@ -2357,7 +2537,7 @@ dojo.string.escapeSql = function(str) {
 }
 
 dojo.string.escapeRegExp = function(str) {
-	return str.replace(/\\/gm, "\\\\").replace(/([\f\b\n\t\r])/gm, "\\$1");
+	return str.replace(/\\/gm, "\\\\").replace(/([\f\b\n\t\r[\^$|?*+(){}])/gm, "\\$1");
 }
 
 dojo.string.escapeJavaScript = function(str) {
@@ -2379,6 +2559,9 @@ dojo.string.endsWith = function(str, end, ignoreCase) {
 	if(ignoreCase) {
 		str = str.toLowerCase();
 		end = end.toLowerCase();
+	}
+	if((str.length - end.length) < 0){
+		return false;
 	}
 	return str.lastIndexOf(end) == str.length - end.length;
 }
@@ -2423,7 +2606,7 @@ dojo.string.startsWithAny = function(str /* , ... */) {
  */
 dojo.string.has = function(str /* , ... */) {
 	for(var i = 1; i < arguments.length; i++) {
-		if(str.indexOf(arguments[i] > -1)) {
+		if(str.indexOf(arguments[i]) > -1){
 			return true;
 		}
 	}
@@ -2518,6 +2701,8 @@ dojo.dom.isNode = function(wh){
 }
 
 dojo.dom.getTagName = function(node){
+	dojo.deprecated("dojo.dom.getTagName", "use node.tagName instead", "0.4");
+
 	var tagName = node.tagName;
 	if(tagName.substr(0,5).toLowerCase()!="dojo:"){
 		
@@ -2881,15 +3066,12 @@ dojo.dom.textContent = function(node, text){
 }
 
 dojo.dom.collectionToArray = function(collection){
-	dojo.deprecated("dojo.dom.collectionToArray", "use dojo.lang.toArray instead");
+	dojo.deprecated("dojo.dom.collectionToArray", "use dojo.lang.toArray instead", "0.4");
 	return dojo.lang.toArray(collection);
 }
 
-dojo.dom.hasParent = function(node) {
-	if(!node || !node.parentNode || (node.parentNode && !node.parentNode.tagName)) {
-		return false;
-	}
-	return true;
+dojo.dom.hasParent = function (node) {
+	return node && node.parentNode && dojo.dom.isNode(node.parentNode);
 }
 
 /**
@@ -2912,6 +3094,270 @@ dojo.dom.isTag = function(node /* ... */) {
 	return "";
 }
 
+dojo.provide("dojo.undo.browser");
+dojo.require("dojo.io");
+
+try{
+	if((!djConfig["preventBackButtonFix"])&&(!dojo.hostenv.post_load_)){
+		document.write("<iframe style='border: 0px; width: 1px; height: 1px; position: absolute; bottom: 0px; right: 0px; visibility: visible;' name='djhistory' id='djhistory' src='"+(dojo.hostenv.getBaseScriptUri()+'iframe_history.html')+"'></iframe>");
+	}
+}catch(e){/* squelch */}
+
+/* NOTES:
+ *  Safari 1.2: 
+ *	back button "works" fine, however it's not possible to actually
+ *	DETECT that you've moved backwards by inspecting window.location.
+ *	Unless there is some other means of locating.
+ *	FIXME: perhaps we can poll on history.length?
+ *  Safari 2.0.3+ (and probably 1.3.2+):
+ *	works fine, except when changeUrl is used. When changeUrl is used,
+ *	Safari jumps all the way back to whatever page was shown before
+ *	the page that uses dojo.undo.browser support.
+ *  IE 5.5 SP2:
+ *	back button behavior is macro. It does not move back to the
+ *	previous hash value, but to the last full page load. This suggests
+ *	that the iframe is the correct way to capture the back button in
+ *	these cases.
+ *	Don't test this page using local disk for MSIE. MSIE will not create 
+ *	a history list for iframe_history.html if served from a file: URL. 
+ *	The XML served back from the XHR tests will also not be properly 
+ *	created if served from local disk. Serve the test pages from a web 
+ *	server to test in that browser.
+ *  IE 6.0:
+ *	same behavior as IE 5.5 SP2
+ * Firefox 1.0:
+ *	the back button will return us to the previous hash on the same
+ *	page, thereby not requiring an iframe hack, although we do then
+ *	need to run a timer to detect inter-page movement.
+ */
+dojo.undo.browser = {
+	initialHref: window.location.href,
+	initialHash: window.location.hash,
+
+	moveForward: false,
+	historyStack: [],
+	forwardStack: [],
+	historyIframe: null,
+	bookmarkAnchor: null,
+	locationTimer: null,
+
+	/**
+	 * setInitialState sets the state object and back callback for the very first page that is loaded.
+	 * It is recommended that you call this method as part of an event listener that is registered via
+	 * dojo.addOnLoad().
+	 */
+	setInitialState: function(args){
+		this.initialState = {"url": this.initialHref, "kwArgs": args, "urlHash": this.initialHash};
+	},
+
+	//FIXME: Would like to support arbitrary back/forward jumps. Have to rework iframeLoaded among other things.
+	//FIXME: is there a slight race condition in moz using change URL with the timer check and when
+	//       the hash gets set? I think I have seen a back/forward call in quick succession, but not consistent.
+	/**
+	 * addToHistory takes one argument, and it is an object that defines the following functions:
+	 * - To support getting back button notifications, the object argument should implement a
+	 *   function called either "back", "backButton", or "handle". The string "back" will be
+	 *   passed as the first and only argument to this callback.
+	 * - To support getting forward button notifications, the object argument should implement a
+	 *   function called either "forward", "forwardButton", or "handle". The string "forward" will be
+	 *   passed as the first and only argument to this callback.
+	 * - If you want the browser location string to change, define "changeUrl" on the object. If the
+	 *   value of "changeUrl" is true, then a unique number will be appended to the URL as a fragment
+	 *   identifier (http://some.domain.com/path#uniquenumber). If it is any other value that does
+	 *   not evaluate to false, that value will be used as the fragment identifier. For example,
+	 *   if changeUrl: 'page1', then the URL will look like: http://some.domain.com/path#page1
+	 *   
+	 * Full example:
+	 * 
+	 * dojo.undo.browser.addToHistory({
+	 *   back: function() { alert('back pressed'); },
+	 *   forward: function() { alert('forward pressed'); },
+	 *   changeUrl: true
+	 * });
+	 */
+	addToHistory: function(args){
+		var hash = null;
+		if(!this.historyIframe){
+			this.historyIframe = window.frames["djhistory"];
+		}
+		if(!this.bookmarkAnchor){
+			this.bookmarkAnchor = document.createElement("a");
+			(document.body||document.getElementsByTagName("body")[0]).appendChild(this.bookmarkAnchor);
+			this.bookmarkAnchor.style.display = "none";
+		}
+		if((!args["changeUrl"])||(dojo.render.html.ie)){
+			var url = dojo.hostenv.getBaseScriptUri()+"iframe_history.html?"+(new Date()).getTime();
+			this.moveForward = true;
+			dojo.io.setIFrameSrc(this.historyIframe, url, false);
+		}
+		if(args["changeUrl"]){
+			this.changingUrl = true;
+			hash = "#"+ ((args["changeUrl"]!==true) ? args["changeUrl"] : (new Date()).getTime());
+			setTimeout("window.location.href = '"+hash+"'; dojo.undo.browser.changingUrl = false;", 1);
+			this.bookmarkAnchor.href = hash;
+			
+			if(dojo.render.html.ie){
+				var oldCB = args["back"]||args["backButton"]||args["handle"];
+
+				//The function takes handleName as a parameter, in case the
+				//callback we are overriding was "handle". In that case,
+				//we will need to pass the handle name to handle.
+				var tcb = function(handleName){
+					if(window.location.hash != ""){
+						setTimeout("window.location.href = '"+hash+"';", 1);
+					}
+					//Use apply to set "this" to args, and to try to avoid memory leaks.
+					oldCB.apply(this, [handleName]);
+				}
+		
+				//Set interceptor function in the right place.
+				if(args["back"]){
+					args.back = tcb;
+				}else if(args["backButton"]){
+					args.backButton = tcb;
+				}else if(args["handle"]){
+					args.handle = tcb;
+				}
+		
+				//If addToHistory is called, then that means we prune the
+				//forward stack -- the user went back, then wanted to
+				//start a new forward path.
+				this.forwardStack = []; 
+				var oldFW = args["forward"]||args["forwardButton"]||args["handle"];
+		
+				//The function takes handleName as a parameter, in case the
+				//callback we are overriding was "handle". In that case,
+				//we will need to pass the handle name to handle.
+				var tfw = function(handleName){
+					if(window.location.hash != ""){
+						window.location.href = hash;
+					}
+					if(oldFW){ // we might not actually have one
+						//Use apply to set "this" to args, and to try to avoid memory leaks.
+						oldFW.apply(this, [handleName]);
+					}
+				}
+
+				//Set interceptor function in the right place.
+				if(args["forward"]){
+					args.forward = tfw;
+				}else if(args["forwardButton"]){
+					args.forwardButton = tfw;
+				}else if(args["handle"]){
+					args.handle = tfw;
+				}
+
+			}else if(dojo.render.html.moz){
+				// start the timer
+				if(!this.locationTimer){
+					this.locationTimer = setInterval("dojo.undo.browser.checkLocation();", 200);
+				}
+			}
+		}
+
+		this.historyStack.push({"url": url, "kwArgs": args, "urlHash": hash});
+	},
+
+	checkLocation: function(){
+		if (!this.changingUrl){
+			var hsl = this.historyStack.length;
+	
+			if((window.location.hash == this.initialHash)||(window.location.href == this.initialHref)&&(hsl == 1)){
+				// FIXME: could this ever be a forward button?
+				// we can't clear it because we still need to check for forwards. Ugg.
+				// clearInterval(this.locationTimer);
+				this.handleBackButton();
+				return;
+			}
+			// first check to see if we could have gone forward. We always halt on
+			// a no-hash item.
+			if(this.forwardStack.length > 0){
+				if(this.forwardStack[this.forwardStack.length-1].urlHash == window.location.hash){
+					this.handleForwardButton();
+					return;
+				}
+			}
+	
+			// ok, that didn't work, try someplace back in the history stack
+			if((hsl >= 2)&&(this.historyStack[hsl-2])){
+				if(this.historyStack[hsl-2].urlHash==window.location.hash){
+					this.handleBackButton();
+					return;
+				}
+			}
+		}
+	},
+
+	iframeLoaded: function(evt, ifrLoc){
+		var query = this._getUrlQuery(ifrLoc.href);
+		if(query == null){ 
+			// alert("iframeLoaded");
+			// we hit the end of the history, so we should go back
+			if(this.historyStack.length == 1){
+				this.handleBackButton();
+			}
+			return;
+		}
+		if(this.moveForward){
+			// we were expecting it, so it's not either a forward or backward movement
+			this.moveForward = false;
+			return;
+		}
+
+		//Check the back stack first, since it is more likely.
+		//Note that only one step back or forward is supported.
+		if(this.historyStack.length >= 2 && query == this._getUrlQuery(this.historyStack[this.historyStack.length-2].url)){
+			this.handleBackButton();
+		}
+		else if(this.forwardStack.length > 0 && query == this._getUrlQuery(this.forwardStack[this.forwardStack.length-1].url)){
+			this.handleForwardButton();
+		}
+	},
+
+	handleBackButton: function(){
+		//The "current" page is always at the top of the history stack.
+		var current = this.historyStack.pop();
+		if(!current){ return; }
+		var last = this.historyStack[this.historyStack.length-1];
+		if(!last && this.historyStack.length == 0){
+			last = this.initialState;
+		}
+		if (last){
+			if(last.kwArgs["back"]){
+				last.kwArgs["back"]();
+			}else if(last.kwArgs["backButton"]){
+				last.kwArgs["backButton"]();
+			}else if(last.kwArgs["handle"]){
+				last.kwArgs.handle("back");
+			}
+		}
+		this.forwardStack.push(current);
+	},
+
+	handleForwardButton: function(){
+		var last = this.forwardStack.pop();
+		if(!last){ return; }
+		if(last.kwArgs["forward"]){
+			last.kwArgs.forward();
+		}else if(last.kwArgs["forwardButton"]){
+			last.kwArgs.forwardButton();
+		}else if(last.kwArgs["handle"]){
+			last.kwArgs.handle("forward");
+		}
+		this.historyStack.push(last);
+	},
+
+	_getUrlQuery: function(url){
+		var segments = url.split("?");
+		if (segments.length < 2){
+			return null;
+		}
+		else{
+			return segments[1];
+		}
+	}
+}
+
 dojo.provide("dojo.io.BrowserIO");
 
 dojo.require("dojo.io");
@@ -2919,12 +3365,7 @@ dojo.require("dojo.lang.array");
 dojo.require("dojo.lang.func");
 dojo.require("dojo.string.extras");
 dojo.require("dojo.dom");
-
-try {
-	if((!djConfig["preventBackButtonFix"])&&(!dojo.hostenv.post_load_)){
-		document.write("<iframe style='border: 0px; width: 1px; height: 1px; position: absolute; bottom: 0px; right: 0px; visibility: visible;' name='djhistory' id='djhistory' src='"+(dojo.hostenv.getBaseScriptUri()+'iframe_history.html')+"'></iframe>");
-	}
-}catch(e){/* squelch */}
+dojo.require("dojo.undo.browser");
 
 dojo.io.checkChildrenForFile = function(node){
 	var hasFile = false;
@@ -2940,6 +3381,27 @@ dojo.io.checkChildrenForFile = function(node){
 
 dojo.io.formHasFile = function(formNode){
 	return dojo.io.checkChildrenForFile(formNode);
+}
+
+dojo.io.updateNode = function(node, urlOrArgs){
+	node = dojo.byId(node);
+	var args = urlOrArgs;
+	if(dojo.lang.isString(urlOrArgs)){
+		args = { url: urlOrArgs };
+	}
+	args.mimetype = "text/html";
+	args.load = function(t, d, e){
+		while(node.firstChild){
+			if(dojo["event"]){
+				try{
+					dojo.event.browser.clean(node.firstChild);
+				}catch(e){}
+			}
+			node.removeChild(node.firstChild);
+		}
+		node.innerHTML = d;
+	};
+	dojo.io.bind(args);
 }
 
 dojo.io.formFilter = function(node) {
@@ -2991,34 +3453,6 @@ dojo.io.encodeForm = function(formNode, encoding, formFilter){
 		}
 	}
 	return values.join("&") + "&";
-}
-
-dojo.io.setIFrameSrc = function(iframe, src, replace){
-	try{
-		var r = dojo.render.html;
-		// dojo.debug(iframe);
-		if(!replace){
-			if(r.safari){
-				iframe.location = src;
-			}else{
-				frames[iframe.name].location = src;
-			}
-		}else{
-			// Fun with DOM 0 incompatibilities!
-			var idoc;
-			if(r.ie){
-				idoc = iframe.contentWindow.document;
-			}else if(r.moz){
-				idoc = iframe.contentWindow;
-			}else if(r.safari){
-				idoc = iframe.document;
-			}
-			idoc.location.replace(src);
-		}
-	}catch(e){ 
-		dojo.debug(e); 
-		dojo.debug("setIFrameSrc: "+e); 
-	}
 }
 
 dojo.io.FormBind = function(args) {
@@ -3121,38 +3555,9 @@ dojo.lang.extend(dojo.io.FormBind, {
 dojo.io.XMLHTTPTransport = new function(){
 	var _this = this;
 
-	this.initialHref = window.location.href;
-	this.initialHash = window.location.hash;
-
-	this.moveForward = false;
-
 	var _cache = {}; // FIXME: make this public? do we even need to?
 	this.useCache = false; // if this is true, we'll cache unless kwArgs.useCache = false
 	this.preventCache = false; // if this is true, we'll always force GET requests to cache
-	this.historyStack = [];
-	this.forwardStack = [];
-	this.historyIframe = null;
-	this.bookmarkAnchor = null;
-	this.locationTimer = null;
-
-	/* NOTES:
-	 *	Safari 1.2: 
-	 *		back button "works" fine, however it's not possible to actually
-	 *		DETECT that you've moved backwards by inspecting window.location.
-	 *		Unless there is some other means of locating.
-	 *		FIXME: perhaps we can poll on history.length?
-	 *	IE 5.5 SP2:
-	 *		back button behavior is macro. It does not move back to the
-	 *		previous hash value, but to the last full page load. This suggests
-	 *		that the iframe is the correct way to capture the back button in
-	 *		these cases.
-	 *	IE 6.0:
-	 *		same behavior as IE 5.5 SP2
-	 * Firefox 1.0:
-	 *		the back button will return us to the previous hash on the same
-	 *		page, thereby not requiring an iframe hack, although we do then
-	 *		need to run a timer to detect inter-page movement.
-	 */
 
 	// FIXME: Should this even be a function? or do we just hard code it in the next 2 functions?
 	function getCacheKey(url, query, method) {
@@ -3173,7 +3578,11 @@ dojo.io.XMLHTTPTransport = new function(){
 
 	// moved successful load stuff here
 	function doLoad(kwArgs, http, url, query, useCache) {
-		if((http.status==200)||(location.protocol=="file:" && (http.status==0 || http.status==undefined))) {
+		if(	(http.status==200)||
+			(http.status==304)||
+			(location.protocol=="file:" && (http.status==0 || http.status==undefined))||
+			(location.protocol=="chrome:" && (http.status==0 || http.status==undefined))
+		){
 			var ret;
 			if(kwArgs.method.toLowerCase() == "head"){
 				var headers = http.getAllResponseHeaders();
@@ -3215,10 +3624,10 @@ dojo.io.XMLHTTPTransport = new function(){
 			if(useCache){ // only cache successful responses
 				addToCache(url, query, kwArgs.method, http);
 			}
-			kwArgs[(typeof kwArgs.load == "function") ? "load" : "handle"]("load", ret, http);
+			kwArgs[(typeof kwArgs.load == "function") ? "load" : "handle"]("load", ret, http, kwArgs);
 		}else{
 			var errObj = new dojo.io.Error("XMLHttpTransport Error: "+http.status+" "+http.statusText);
-			kwArgs[(typeof kwArgs.error == "function") ? "error" : "handle"]("error", errObj, http);
+			kwArgs[(typeof kwArgs.error == "function") ? "error" : "handle"]("error", errObj, http, kwArgs);
 		}
 	}
 
@@ -3235,174 +3644,6 @@ dojo.io.XMLHTTPTransport = new function(){
 		}
 	}
 
-	this.addToHistory = function(args){
-		var callback = args["back"]||args["backButton"]||args["handle"];
-		var hash = null;
-		if(!this.historyIframe){
-			this.historyIframe = window.frames["djhistory"];
-		}
-		if(!this.bookmarkAnchor){
-			this.bookmarkAnchor = document.createElement("a");
-			(document.body||document.getElementsByTagName("body")[0]).appendChild(this.bookmarkAnchor);
-			this.bookmarkAnchor.style.display = "none";
-		}
-		if((!args["changeUrl"])||(dojo.render.html.ie)){
-			var url = dojo.hostenv.getBaseScriptUri()+"iframe_history.html?"+(new Date()).getTime();
-			this.moveForward = true;
-			dojo.io.setIFrameSrc(this.historyIframe, url, false);
-		}
-		if(args["changeUrl"]){
-			hash = "#"+ ((args["changeUrl"]!==true) ? args["changeUrl"] : (new Date()).getTime());
-			setTimeout("window.location.href = '"+hash+"';", 1);
-			this.bookmarkAnchor.href = hash;
-			if(dojo.render.html.ie){
-				// IE requires manual setting of the hash since we are catching
-				// events from the iframe
-				var oldCB = callback;
-				var lh = null;
-				var hsl = this.historyStack.length-1;
-				if(hsl>=0){
-					while(!this.historyStack[hsl]["urlHash"]){
-						hsl--;
-					}
-					lh = this.historyStack[hsl]["urlHash"];
-				}
-				if(lh){
-					callback = function(){
-						if(window.location.hash != ""){
-							setTimeout("window.location.href = '"+lh+"';", 1);
-						}
-						oldCB();
-					}
-				}
-				// when we issue a new bind(), we clobber the forward 
-				// FIXME: is this always a good idea?
-				this.forwardStack = []; 
-				var oldFW = args["forward"]||args["forwardButton"];;
-				var tfw = function(){
-					if(window.location.hash != ""){
-						window.location.href = hash;
-					}
-					if(oldFW){ // we might not actually have one
-						oldFW();
-					}
-				}
-				if(args["forward"]){
-					args.forward = tfw;
-				}else if(args["forwardButton"]){
-					args.forwardButton = tfw;
-				}
-			}else if(dojo.render.html.moz){
-				// start the timer
-				if(!this.locationTimer){
-					this.locationTimer = setInterval("dojo.io.XMLHTTPTransport.checkLocation();", 200);
-				}
-			}
-		}
-
-		this.historyStack.push({"url": url, "callback": callback, "kwArgs": args, "urlHash": hash});
-	}
-
-	this.checkLocation = function(){
-		var hsl = this.historyStack.length;
-
-		if((window.location.hash == this.initialHash)||(window.location.href == this.initialHref)&&(hsl == 1)){
-			// FIXME: could this ever be a forward button?
-			// we can't clear it because we still need to check for forwards. Ugg.
-			// clearInterval(this.locationTimer);
-			this.handleBackButton();
-			return;
-		}
-		// first check to see if we could have gone forward. We always halt on
-		// a no-hash item.
-		if(this.forwardStack.length > 0){
-			if(this.forwardStack[this.forwardStack.length-1].urlHash == window.location.hash){
-				this.handleForwardButton();
-				return;
-			}
-		}
-		// ok, that didn't work, try someplace back in the history stack
-		if((hsl >= 2)&&(this.historyStack[hsl-2])){
-			if(this.historyStack[hsl-2].urlHash==window.location.hash){
-				this.handleBackButton();
-				return;
-			}
-		}
-	}
-
-	this.iframeLoaded = function(evt, ifrLoc){
-		var isp = ifrLoc.href.split("?");
-		if(isp.length < 2){ 
-			// alert("iframeLoaded");
-			// we hit the end of the history, so we should go back
-			if(this.historyStack.length == 1){
-				this.handleBackButton();
-			}
-			return;
-		}
-		var query = isp[1];
-		if(this.moveForward){
-			// we were expecting it, so it's not either a forward or backward
-			// movement
-			this.moveForward = false;
-			return;
-		}
-
-		var last = this.historyStack.pop();
-		// we don't have anything in history, so it could be a forward button
-		if(!last){ 
-			if(this.forwardStack.length > 0){
-				var next = this.forwardStack[this.forwardStack.length-1];
-				if(query == next.url.split("?")[1]){
-					this.handleForwardButton();
-				}
-			}
-			// regardless, we didnt' have any history, so it can't be a back button
-			return;
-		}
-		// put it back on the stack so we can do something useful with it when
-		// we call handleBackButton()
-		this.historyStack.push(last);
-		if(this.historyStack.length >= 2){
-			if(isp[1] == this.historyStack[this.historyStack.length-2].url.split("?")[1]){
-				// looks like it IS a back button press, so handle it
-				this.handleBackButton();
-			}
-		}else{
-			this.handleBackButton();
-		}
-	}
-
-	this.handleBackButton = function(){
-		var last = this.historyStack.pop();
-		if(!last){ return; }
-		if(last["callback"]){
-			last.callback();
-		}else if(last.kwArgs["backButton"]){
-			last.kwArgs["backButton"]();
-		}else if(last.kwArgs["back"]){
-			last.kwArgs["back"]();
-		}else if(last.kwArgs["handle"]){
-			last.kwArgs.handle("back");
-		}
-		this.forwardStack.push(last);
-	}
-
-	this.handleForwardButton = function(){
-		// FIXME: should we build in support for re-issuing the bind() call here?
-		// alert("alert we found a forward button call");
-		var last = this.forwardStack.pop();
-		if(!last){ return; }
-		if(last.kwArgs["forward"]){
-			last.kwArgs.forward();
-		}else if(last.kwArgs["forwardButton"]){
-			last.kwArgs.forwardButton();
-		}else if(last.kwArgs["handle"]){
-			last.kwArgs.handle("forward");
-		}
-		this.historyStack.push(last);
-	}
-
 	this.inFlight = [];
 	this.inFlightTimer = null;
 
@@ -3413,6 +3654,7 @@ dojo.io.XMLHTTPTransport = new function(){
 	}
 
 	this.watchInFlight = function(){
+		var now = null;
 		for(var x=this.inFlight.length-1; x>=0; x--){
 			var tif = this.inFlight[x];
 			if(!tif){ this.inFlight.splice(x, 1); continue; }
@@ -3420,11 +3662,27 @@ dojo.io.XMLHTTPTransport = new function(){
 				// remove it so we can clean refs
 				this.inFlight.splice(x, 1);
 				doLoad(tif.req, tif.http, tif.url, tif.query, tif.useCache);
-				if(this.inFlight.length == 0){
-					clearInterval(this.inFlightTimer);
-					this.inFlightTimer = null;
+			}else if (tif.startTime){
+				//See if this is a timeout case.
+				if(!now){
+					now = (new Date()).getTime();
 				}
-			} // FIXME: need to implement a timeout param here!
+				if(tif.startTime + (tif.req.timeoutSeconds * 1000) < now){
+					//Stop the request.
+					if(typeof tif.http.abort == "function"){
+						tif.http.abort();
+					}
+
+					// remove it so we can clean refs
+					this.inFlight.splice(x, 1);
+					tif.req[(typeof tif.req.timeout == "function") ? "timeout" : "handle"]("timeout", null, tif.http, tif.req);
+				}
+			}
+		}
+
+		if(this.inFlight.length == 0){
+			clearInterval(this.inFlightTimer);
+			this.inFlightTimer = null;
 		}
 	}
 
@@ -3437,7 +3695,7 @@ dojo.io.XMLHTTPTransport = new function(){
 		// multi-part mime encoded and avoid using this transport for those
 		// requests.
 		return hasXmlHttp
-			&& dojo.lang.inArray((kwArgs["mimetype"]||"".toLowerCase()), ["text/plain", "text/html", "application/xml", "text/xml", "text/javascript", "text/json"])
+			&& dojo.lang.inArray((kwArgs["mimetype"].toLowerCase()||""), ["text/plain", "text/html", "application/xml", "text/xml", "text/javascript", "text/json"])
 			&& dojo.lang.inArray(kwArgs["method"].toLowerCase(), ["post", "get", "head"])
 			&& !( kwArgs["formNode"] && dojo.io.formHasFile(kwArgs["formNode"]) );
 	}
@@ -3450,7 +3708,8 @@ dojo.io.XMLHTTPTransport = new function(){
 			if( !kwArgs["formNode"]
 				&& (kwArgs["backButton"] || kwArgs["back"] || kwArgs["changeUrl"] || kwArgs["watchForURL"])
 				&& (!djConfig.preventBackButtonFix)) {
-				this.addToHistory(kwArgs);
+        dj_deprecated("Using dojo.io.XMLHTTPTransport.bind() to add to browser history without doing an IO request is deprecated. Use dojo.undo.browser.addToHistory() instead.");
+				dojo.undo.browser.addToHistory(kwArgs);
 				return true;
 			}
 		}
@@ -3495,7 +3754,7 @@ dojo.io.XMLHTTPTransport = new function(){
 		}
 
 		if(kwArgs["backButton"] || kwArgs["back"] || kwArgs["changeUrl"]){
-			this.addToHistory(kwArgs);
+			dojo.undo.browser.addToHistory(kwArgs);
 		}
 
 		var content = kwArgs["content"] || {};
@@ -3581,18 +3840,20 @@ dojo.io.XMLHTTPTransport = new function(){
 
 		// much of this is from getText, but reproduced here because we need
 		// more flexibility
-		var http = dojo.hostenv.getXmlhttpObject(kwArgs);
+		var http = dojo.hostenv.getXmlhttpObject(kwArgs);	
 		var received = false;
 
 		// build a handler function that calls back to the handler obj
 		if(async){
+			var startTime = 
 			// FIXME: setting up this callback handler leaks on IE!!!
 			this.inFlight.push({
 				"req":		kwArgs,
 				"http":		http,
-				"url":		url,
+				"url":	 	url,
 				"query":	query,
-				"useCache":	useCache
+				"useCache":	useCache,
+				"startTime": kwArgs.timeoutSeconds ? (new Date()).getTime() : 0
 			});
 			this.startWatchingInFlight();
 		}
@@ -3603,7 +3864,14 @@ dojo.io.XMLHTTPTransport = new function(){
 			setHeaders(http, kwArgs);
 			http.setRequestHeader("Content-Type", kwArgs.multipart ? ("multipart/form-data; boundary=" + this.multipartBoundary) : 
 				(kwArgs.contentType || "application/x-www-form-urlencoded"));
-			http.send(query);
+			try{
+				http.send(query);
+			}catch(e){
+				if(typeof http.abort == "function"){
+					http.abort();
+				}
+				doLoad(kwArgs, {status: 404}, url, query, useCache);
+			}
 		}else{
 			var tmpUrl = url;
 			if(query != "") {
@@ -3615,7 +3883,14 @@ dojo.io.XMLHTTPTransport = new function(){
 			}
 			http.open(kwArgs.method.toUpperCase(), tmpUrl, async);
 			setHeaders(http, kwArgs);
-			http.send(null);
+			try {
+				http.send(null);
+			}catch(e)	{
+				if(typeof http.abort == "function"){
+					http.abort();
+				}
+				doLoad(kwArgs, {status: 404}, url, query, useCache);
+			}
 		}
 
 		if( !async ) {
@@ -3631,10 +3906,118 @@ dojo.io.XMLHTTPTransport = new function(){
 	dojo.io.transports.addTransport("XMLHTTPTransport");
 }
 
+dojo.provide("dojo.io.cookie");
+
+dojo.io.cookie.setCookie = function(name, value, days, path, domain, secure) {
+	var expires = -1;
+	if(typeof days == "number" && days >= 0) {
+		var d = new Date();
+		d.setTime(d.getTime()+(days*24*60*60*1000));
+		expires = d.toGMTString();
+	}
+	value = escape(value);
+	document.cookie = name + "=" + value + ";"
+		+ (expires != -1 ? " expires=" + expires + ";" : "")
+		+ (path ? "path=" + path : "")
+		+ (domain ? "; domain=" + domain : "")
+		+ (secure ? "; secure" : "");
+}
+
+dojo.io.cookie.set = dojo.io.cookie.setCookie;
+
+dojo.io.cookie.getCookie = function(name) {
+	// FIXME: Which cookie should we return?
+	//        If there are cookies set for different sub domains in the current
+	//        scope there could be more than one cookie with the same name.
+	//        I think taking the last one in the list takes the one from the
+	//        deepest subdomain, which is what we're doing here.
+	var idx = document.cookie.lastIndexOf(name+'=');
+	if(idx == -1) { return null; }
+	value = document.cookie.substring(idx+name.length+1);
+	var end = value.indexOf(';');
+	if(end == -1) { end = value.length; }
+	value = value.substring(0, end);
+	value = unescape(value);
+	return value;
+}
+
+dojo.io.cookie.get = dojo.io.cookie.getCookie;
+
+dojo.io.cookie.deleteCookie = function(name) {
+	dojo.io.cookie.setCookie(name, "-", 0);
+}
+
+dojo.io.cookie.setObjectCookie = function(name, obj, days, path, domain, secure, clearCurrent) {
+	if(arguments.length == 5) { // for backwards compat
+		clearCurrent = domain;
+		domain = null;
+		secure = null;
+	}
+	var pairs = [], cookie, value = "";
+	if(!clearCurrent) { cookie = dojo.io.cookie.getObjectCookie(name); }
+	if(days >= 0) {
+		if(!cookie) { cookie = {}; }
+		for(var prop in obj) {
+			if(prop == null) {
+				delete cookie[prop];
+			} else if(typeof obj[prop] == "string" || typeof obj[prop] == "number") {
+				cookie[prop] = obj[prop];
+			}
+		}
+		prop = null;
+		for(var prop in cookie) {
+			pairs.push(escape(prop) + "=" + escape(cookie[prop]));
+		}
+		value = pairs.join("&");
+	}
+	dojo.io.cookie.setCookie(name, value, days, path, domain, secure);
+}
+
+dojo.io.cookie.getObjectCookie = function(name) {
+	var values = null, cookie = dojo.io.cookie.getCookie(name);
+	if(cookie) {
+		values = {};
+		var pairs = cookie.split("&");
+		for(var i = 0; i < pairs.length; i++) {
+			var pair = pairs[i].split("=");
+			var value = pair[1];
+			if( isNaN(value) ) { value = unescape(pair[1]); }
+			values[ unescape(pair[0]) ] = value;
+		}
+	}
+	return values;
+}
+
+dojo.io.cookie.isSupported = function() {
+	if(typeof navigator.cookieEnabled != "boolean") {
+		dojo.io.cookie.setCookie("__TestingYourBrowserForCookieSupport__",
+			"CookiesAllowed", 90, null);
+		var cookieVal = dojo.io.cookie.getCookie("__TestingYourBrowserForCookieSupport__");
+		navigator.cookieEnabled = (cookieVal == "CookiesAllowed");
+		if(navigator.cookieEnabled) {
+			// FIXME: should we leave this around?
+			this.deleteCookie("__TestingYourBrowserForCookieSupport__");
+		}
+	}
+	return navigator.cookieEnabled;
+}
+
+// need to leave this in for backwards-compat from 0.1 for when it gets pulled in by dojo.io.*
+if(!dojo.io.cookies) { dojo.io.cookies = dojo.io.cookie; }
+
+dojo.hostenv.conditionalLoadModule({
+	common: ["dojo.io"],
+	rhino: ["dojo.io.RhinoIO"],
+	browser: ["dojo.io.BrowserIO", "dojo.io.cookie"],
+	dashboard: ["dojo.io.BrowserIO", "dojo.io.cookie"]
+});
+dojo.hostenv.moduleLoaded("dojo.io.*");
+
 dojo.provide("dojo.event");
 
 dojo.require("dojo.lang.array");
 dojo.require("dojo.lang.extras");
+dojo.require("dojo.lang.func");
 
 dojo.event = new function(){
 	this.canTimeout = dojo.lang.isFunction(dj_global["setTimeout"])||dojo.lang.isAlien(dj_global["setTimeout"]);
@@ -3772,7 +4155,30 @@ dojo.event = new function(){
 	}
 
 	this.connect = function(){
-		var ao = interpolateArgs(arguments);
+		if(arguments.length == 1){
+			var ao = arguments[0];
+		}else{
+			var ao = interpolateArgs(arguments);
+		}
+
+		if(dojo.lang.isArray(ao.srcObj) && ao.srcObj!=""){
+			var tmpAO = {};
+			for(var x in ao){
+				tmpAO[x] = ao[x];
+			}
+			var mjps = [];
+			dojo.lang.forEach(ao.srcObj, function(src){
+				if((dojo.render.html.capable)&&(dojo.lang.isString(src))){
+					src = dojo.byId(src);
+					// dojo.debug(src);
+				}
+				tmpAO.srcObj = src;
+				// dojo.debug(tmpAO.srcObj, tmpAO.srcFunc);
+				// dojo.debug(tmpAO.adviceObj, tmpAO.adviceFunc);
+				mjps.push(dojo.event.connect.call(dojo.event, tmpAO));
+			});
+			return mjps;
+		}
 
 		// FIXME: just doing a "getForMethod()" seems to be enough to put this into infinite recursion!!
 		var mjp = dojo.event.MethodJoinPoint.getForMethod(ao.srcObj, ao.srcFunc);
@@ -3786,13 +4192,33 @@ dojo.event = new function(){
 					// manually
 	}
 
-	this.connectBefore = function() {
+	this.log = function(a1, a2){
+		var kwArgs;
+		if((arguments.length == 1)&&(typeof a1 == "object")){
+			kwArgs = a1;
+		}else{
+			kwArgs = {
+				srcObj: a1,
+				srcFunc: a2
+			};
+		}
+		kwArgs.adviceFunc = function(){
+			var argsStr = [];
+			for(var x=0; x<arguments.length; x++){
+				argsStr.push(arguments[x]);
+			}
+			dojo.debug("("+kwArgs.srcObj+")."+kwArgs.srcFunc, ":", argsStr.join(", "));
+		}
+		this.kwConnect(kwArgs);
+	}
+
+	this.connectBefore = function(){
 		var args = ["before"];
 		for(var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
 		return this.connect.apply(this, args);
 	}
 
-	this.connectAround = function() {
+	this.connectAround = function(){
 		var args = ["around"];
 		for(var i = 0; i < arguments.length; i++) { args.push(arguments[i]); }
 		return this.connect.apply(this, args);
@@ -3907,25 +4333,25 @@ dojo.event.MethodJoinPoint.getForMethod = function(obj, methname) {
 
 			if((isNode)&&(!arguments.length)){
 				var evt = null;
-				try {
-					if(obj.ownerDocument) {
+				try{
+					if(obj.ownerDocument){
 						evt = obj.ownerDocument.parentWindow.event;
-					} else if(obj.documentElement) {
+					}else if(obj.documentElement){
 						evt = obj.documentElement.ownerDocument.parentWindow.event;
-					} else {
+					}else{
 						evt = window.event;
 					}
-				} catch(E) {
+				}catch(e){
 					evt = window.event;
 				}
 
-				if(evt) {
-					args.push(dojo.event.browser.fixEvent(evt));
+				if(evt){
+					args.push(dojo.event.browser.fixEvent(evt, this));
 				}
 			}else{
 				for(var x=0; x<arguments.length; x++){
 					if((x==0)&&(isNode)&&(dojo.event.browser.isEvent(arguments[x]))){
-						args.push(dojo.event.browser.fixEvent(arguments[x]));
+						args.push(dojo.event.browser.fixEvent(arguments[x], this));
 					}else{
 						args.push(arguments[x]);
 					}
@@ -4036,7 +4462,7 @@ dojo.lang.extend(dojo.event.MethodJoinPoint, {
 		}
 
 		if(this.before.length>0){
-			dojo.lang.forEach(this.before, unrollAdvice, true);
+			dojo.lang.forEach(this.before, unrollAdvice);
 		}
 
 		var result;
@@ -4048,7 +4474,7 @@ dojo.lang.extend(dojo.event.MethodJoinPoint, {
 		}
 
 		if(this.after.length>0){
-			dojo.lang.forEach(this.after, unrollAdvice, true);
+			dojo.lang.forEach(this.after, unrollAdvice);
 		}
 
 		return (this.methodfunc) ? result : null;
@@ -4222,7 +4648,7 @@ dojo_ie_clobber = new function(){
 		var na;
 		var tna;
 		if(nodeRef){
-			tna = nodeRef.getElementsByTagName("*");
+			tna = nodeRef.all || nodeRef.getElementsByTagName("*");
 			na = [nodeRef];
 			for(var x=0; x<tna.length; x++){
 				// if we're gonna be clobbering the thing, at least make sure
@@ -4315,7 +4741,7 @@ dojo.event.browser = new function(){
 			// around the resulting event
 			var newfp = function(evt){
 				if(!evt){ evt = window.event; }
-				var ret = fp(dojo.event.browser.fixEvent(evt));
+				var ret = fp(dojo.event.browser.fixEvent(evt, this));
 				if(capture){
 					dojo.event.browser.stopEvent(evt);
 				}
@@ -4417,7 +4843,7 @@ dojo.event.browser = new function(){
 		this.revKeys[this.keys[key]] = key;
 	}
 
-	this.fixEvent = function(evt){
+	this.fixEvent = function(evt, sender){
 		if((!evt)&&(window["event"])){
 			var evt = window.event;
 		}
@@ -4435,7 +4861,7 @@ dojo.event.browser = new function(){
 	
 		if(dojo.render.html.ie){
 			if(!evt.target){ evt.target = evt.srcElement; }
-			if(!evt.currentTarget){ evt.currentTarget = evt.srcElement; }
+			if(!evt.currentTarget){ evt.currentTarget = (sender ? sender : evt.srcElement); }
 			if(!evt.layerX){ evt.layerX = evt.offsetX; }
 			if(!evt.layerY){ evt.layerY = evt.offsetY; }
 			// mouseover
@@ -4764,6 +5190,10 @@ dojo.widget.manager = new function(){
 	this.add = function(widget){
 		dojo.profile.start("dojo.widget.manager.add");
 		this.widgets.push(widget);
+		// Opera9 uses ID (caps)
+		if(!widget.extraArgs["id"]){
+			widget.extraArgs["id"] = widget.extraArgs["ID"];
+		}
 		// FIXME: the rest of this method is very slow!
 		if(widget.widgetId == ""){
 			if(widget["id"]){
@@ -4971,20 +5401,21 @@ dojo.widget.manager = new function(){
 
 	// Catch window resize events and notify top level widgets
 	this.resizing=false;
-	this.onResized = function() {
+	this.onResized = function(){
 		if(this.resizing){
 			return;	// duplicate event
 		}
-		try {
+		try{
 			this.resizing=true;
-			for(var id in this.topWidgets) {
+			for(var id in this.topWidgets){
 				var child = this.topWidgets[id];
 				//dojo.debug("root resizing child " + child.widgetId);
-				if ( child.onResized ) {
+				if(child.onResized){
 					child.onResized();
 				}
 			}
-		} finally {
+		}catch(e){
+		}finally{
 			this.resizing=false;
 		}
 	}
@@ -4997,161 +5428,35 @@ dojo.widget.manager = new function(){
 }
 
 // copy the methods from the default manager (this) to the widget namespace
-dojo.widget.getUniqueId = function () { return dojo.widget.manager.getUniqueId.apply(dojo.widget.manager, arguments); }
-dojo.widget.addWidget = function () { return dojo.widget.manager.add.apply(dojo.widget.manager, arguments); }
-dojo.widget.destroyAllWidgets = function () { return dojo.widget.manager.destroyAll.apply(dojo.widget.manager, arguments); }
-dojo.widget.removeWidget = function () { return dojo.widget.manager.remove.apply(dojo.widget.manager, arguments); }
-dojo.widget.removeWidgetById = function () { return dojo.widget.manager.removeById.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetById = function () { return dojo.widget.manager.getWidgetById.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetsByType = function () { return dojo.widget.manager.getWidgetsByType.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetsByFilter = function () { return dojo.widget.manager.getWidgetsByFilter.apply(dojo.widget.manager, arguments); }
-dojo.widget.byId = function () { return dojo.widget.manager.getWidgetById.apply(dojo.widget.manager, arguments); }
-dojo.widget.byType = function () { return dojo.widget.manager.getWidgetsByType.apply(dojo.widget.manager, arguments); }
-dojo.widget.byFilter = function () { return dojo.widget.manager.getWidgetsByFilter.apply(dojo.widget.manager, arguments); }
-dojo.widget.byNode = function () { return dojo.widget.manager.getWidgetByNode.apply(dojo.widget.manager, arguments); }
-dojo.widget.all = function (n) {
+dojo.widget.getUniqueId = function(){ return dojo.widget.manager.getUniqueId.apply(dojo.widget.manager, arguments); }
+dojo.widget.addWidget = function(){ return dojo.widget.manager.add.apply(dojo.widget.manager, arguments); }
+dojo.widget.destroyAllWidgets = function(){ return dojo.widget.manager.destroyAll.apply(dojo.widget.manager, arguments); }
+dojo.widget.removeWidget = function(){ return dojo.widget.manager.remove.apply(dojo.widget.manager, arguments); }
+dojo.widget.removeWidgetById = function(){ return dojo.widget.manager.removeById.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetById = function(){ return dojo.widget.manager.getWidgetById.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetsByType = function(){ return dojo.widget.manager.getWidgetsByType.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetsByFilter = function(){ return dojo.widget.manager.getWidgetsByFilter.apply(dojo.widget.manager, arguments); }
+dojo.widget.byId = function(){ return dojo.widget.manager.getWidgetById.apply(dojo.widget.manager, arguments); }
+dojo.widget.byType = function(){ return dojo.widget.manager.getWidgetsByType.apply(dojo.widget.manager, arguments); }
+dojo.widget.byFilter = function(){ return dojo.widget.manager.getWidgetsByFilter.apply(dojo.widget.manager, arguments); }
+dojo.widget.byNode = function(){ return dojo.widget.manager.getWidgetByNode.apply(dojo.widget.manager, arguments); }
+dojo.widget.all = function(n){
 	var widgets = dojo.widget.manager.getAllWidgets.apply(dojo.widget.manager, arguments);
 	if(arguments.length > 0) {
 		return widgets[n];
 	}
 	return widgets;
 }
-dojo.widget.registerWidgetPackage = function () { return dojo.widget.manager.registerWidgetPackage.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetImplementation = function () { return dojo.widget.manager.getImplementation.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetImplementationName = function () { return dojo.widget.manager.getImplementationName.apply(dojo.widget.manager, arguments); }
+dojo.widget.registerWidgetPackage = function(){ return dojo.widget.manager.registerWidgetPackage.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetImplementation = function(){ return dojo.widget.manager.getImplementation.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetImplementationName = function(){ return dojo.widget.manager.getImplementationName.apply(dojo.widget.manager, arguments); }
 
 dojo.widget.widgets = dojo.widget.manager.widgets;
 dojo.widget.widgetIds = dojo.widget.manager.widgetIds;
 dojo.widget.root = dojo.widget.manager.root;
 
-dojo.provide("dojo.math");
-
-dojo.math.degToRad = function (x) { return (x*Math.PI) / 180; }
-dojo.math.radToDeg = function (x) { return (x*180) / Math.PI; }
-
-dojo.math.factorial = function (n) {
-	if(n<1){ return 0; }
-	var retVal = 1;
-	for(var i=1;i<=n;i++){ retVal *= i; }
-	return retVal;
-}
-
-//The number of ways of obtaining an ordered subset of k elements from a set of n elements
-dojo.math.permutations = function (n,k) {
-	if(n==0 || k==0) return 1;
-	return (dojo.math.factorial(n) / dojo.math.factorial(n-k));
-}
-
-//The number of ways of picking n unordered outcomes from r possibilities
-dojo.math.combinations = function (n,r) {
-	if(n==0 || r==0) return 1;
-	return (dojo.math.factorial(n) / (dojo.math.factorial(n-r) * dojo.math.factorial(r)));
-}
-
-dojo.math.bernstein = function (t,n,i) {
-	return (dojo.math.combinations(n,i) * Math.pow(t,i) * Math.pow(1-t,n-i));
-}
-
-/**
- * Returns random numbers with a Gaussian distribution, with the mean set at
- * 0 and the variance set at 1.
- *
- * @return A random number from a Gaussian distribution
- */
-dojo.math.gaussianRandom = function () {
-	var k = 2;
-	do {
-		var i = 2 * Math.random() - 1;
-		var j = 2 * Math.random() - 1;
-		k = i * i + j * j;
-	} while (k >= 1);
-	k = Math.sqrt((-2 * Math.log(k)) / k);
-	return i * k;
-}
-
-/**
- * Calculates the mean of an Array of numbers.
- *
- * @return The mean of the numbers in the Array
- */
-dojo.math.mean = function () {
-	var array = dojo.lang.isArray(arguments[0]) ? arguments[0] : arguments;
-	var mean = 0;
-	for (var i = 0; i < array.length; i++) { mean += array[i]; }
-	return mean / array.length;
-}
-
-/**
- * Extends Math.round by adding a second argument specifying the number of
- * decimal places to round to.
- *
- * @param number The number to round
- * @param places The number of decimal places to round to
- * @return The rounded number
- */
-// TODO: add support for significant figures
-dojo.math.round = function (number, places) {
-	if (!places) { var shift = 1; }
-	else { var shift = Math.pow(10, places); }
-	return Math.round(number * shift) / shift;
-}
-
-/**
- * Calculates the standard deviation of an Array of numbers
- *
- * @return The standard deviation of the numbers
- */
-dojo.math.sd = function () {
-	var array = dojo.lang.isArray(arguments[0]) ? arguments[0] : arguments;
-	return Math.sqrt(dojo.math.variance(array));
-}
-
-/**
- * Calculates the variance of an Array of numbers
- *
- * @return The variance of the numbers
- */
-dojo.math.variance = function () {
-	var array = dojo.lang.isArray(arguments[0]) ? arguments[0] : arguments;
-	var mean = 0, squares = 0;
-	for (var i = 0; i < array.length; i++) {
-		mean += array[i];
-		squares += Math.pow(array[i], 2);
-	}
-	return (squares / array.length)
-		- Math.pow(mean / array.length, 2);
-}
-
-/**
- * Like range() in python
-**/
-dojo.math.range = function(a, b, step) {
-    if(arguments.length < 2) {
-        b = a;
-        a = 0;
-    }
-    if(arguments.length < 3) {
-        step = 1;
-    }
-
-    var range = [];
-    if(step > 0) {
-        for(var i = a; i < b; i += step) {
-            range.push(i);
-        }
-    } else if(step < 0) {
-        for(var i = a; i > b; i += step) {
-            range.push(i);
-        }
-    } else {
-        throw new Error("dojo.math.range: step must be non-zero");
-    }
-    return range;
-}
-
 dojo.provide("dojo.graphics.color");
 dojo.require("dojo.lang.array");
-dojo.require("dojo.math");
 
 // TODO: rewrite the "x2y" methods to take advantage of the parsing
 //       abilities of the Color object. Also, beef up the Color
@@ -5561,8 +5866,108 @@ dojo.graphics.color.hex2hsl = function(hex){
 	return dojo.graphics.color.rgb2hsl(rgb[0], rgb[1], rgb[2]);
 }
 
+dojo.provide("dojo.uri.Uri");
+
+dojo.uri = new function() {
+	this.joinPath = function() {
+		// DEPRECATED: use the dojo.uri.Uri object instead
+		var arr = [];
+		for(var i = 0; i < arguments.length; i++) { arr.push(arguments[i]); }
+		return arr.join("/").replace(/\/{2,}/g, "/").replace(/((https*|ftps*):)/i, "$1/");
+	}
+	
+	this.dojoUri = function (uri) {
+		// returns a Uri object resolved relative to the dojo root
+		return new dojo.uri.Uri(dojo.hostenv.getBaseScriptUri(), uri);
+	}
+		
+	this.Uri = function (/*uri1, uri2, [...]*/) {
+		// An object representing a Uri.
+		// Each argument is evaluated in order relative to the next until
+		// a conanical uri is producued. To get an absolute Uri relative
+		// to the current document use
+		//      new dojo.uri.Uri(document.baseURI, uri)
+
+		// TODO: support for IPv6, see RFC 2732
+
+		// resolve uri components relative to each other
+		var uri = arguments[0];
+		for (var i = 1; i < arguments.length; i++) {
+			if(!arguments[i]) { continue; }
+
+			// Safari doesn't support this.constructor so we have to be explicit
+			var relobj = new dojo.uri.Uri(arguments[i].toString());
+			var uriobj = new dojo.uri.Uri(uri.toString());
+
+			if (relobj.path == "" && relobj.scheme == null &&
+				relobj.authority == null && relobj.query == null) {
+				if (relobj.fragment != null) { uriobj.fragment = relobj.fragment; }
+				relobj = uriobj;
+			} else if (relobj.scheme == null) {
+				relobj.scheme = uriobj.scheme;
+			
+				if (relobj.authority == null) {
+					relobj.authority = uriobj.authority;
+					
+					if (relobj.path.charAt(0) != "/") {
+						var path = uriobj.path.substring(0,
+							uriobj.path.lastIndexOf("/") + 1) + relobj.path;
+
+						var segs = path.split("/");
+						for (var j = 0; j < segs.length; j++) {
+							if (segs[j] == ".") {
+								if (j == segs.length - 1) { segs[j] = ""; }
+								else { segs.splice(j, 1); j--; }
+							} else if (j > 0 && !(j == 1 && segs[0] == "") &&
+								segs[j] == ".." && segs[j-1] != "..") {
+
+								if (j == segs.length - 1) { segs.splice(j, 1); segs[j - 1] = ""; }
+								else { segs.splice(j - 1, 2); j -= 2; }
+							}
+						}
+						relobj.path = segs.join("/");
+					}
+				}
+			}
+
+			uri = "";
+			if (relobj.scheme != null) { uri += relobj.scheme + ":"; }
+			if (relobj.authority != null) { uri += "//" + relobj.authority; }
+			uri += relobj.path;
+			if (relobj.query != null) { uri += "?" + relobj.query; }
+			if (relobj.fragment != null) { uri += "#" + relobj.fragment; }
+		}
+
+		this.uri = uri.toString();
+
+		// break the uri into its main components
+		var regexp = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?$";
+	    var r = this.uri.match(new RegExp(regexp));
+
+		this.scheme = r[2] || (r[1] ? "" : null);
+		this.authority = r[4] || (r[3] ? "" : null);
+		this.path = r[5]; // can never be undefined
+		this.query = r[7] || (r[6] ? "" : null);
+		this.fragment  = r[9] || (r[8] ? "" : null);
+		
+		if (this.authority != null) {
+			// server based naming authority
+			regexp = "^((([^:]+:)?([^@]+))@)?([^:]*)(:([0-9]+))?$";
+			r = this.authority.match(new RegExp(regexp));
+			
+			this.user = r[3] || null;
+			this.password = r[4] || null;
+			this.host = r[5];
+			this.port = r[7] || null;
+		}
+	
+		this.toString = function(){ return this.uri; }
+	}
+};
+
 dojo.provide("dojo.style");
 dojo.require("dojo.graphics.color");
+dojo.require("dojo.uri.Uri");
 
 // values: content-box, border-box
 dojo.style.boxSizing = {
@@ -5652,11 +6057,11 @@ The following several function use the dimensions shown below
 
 // FIXME: these work for most elements (e.g. DIV) but not all (e.g. TEXTAREA)
 
-dojo.style.isBorderBox = function(node) {
+dojo.style.isBorderBox = function(node){
 	return (dojo.style.getBoxSizing(node) == dojo.style.boxSizing.borderBox);
 }
 
-dojo.style.getUnitValue = function (node, cssSelector, autoIsZero){
+dojo.style.getUnitValue = function(node, cssSelector, autoIsZero){
 	node = dojo.byId(node);
 	var result = { value: 0, units: 'px' };
 	var s = dojo.style.getComputedStyle(node, cssSelector);
@@ -5676,7 +6081,7 @@ dojo.style.getUnitValue = function (node, cssSelector, autoIsZero){
 	return result;		
 }
 
-dojo.style.getPixelValue = function (node, cssSelector, autoIsZero){
+dojo.style.getPixelValue = function(node, cssSelector, autoIsZero){
 	node = dojo.byId(node);
 	var result = dojo.style.getUnitValue(node, cssSelector, autoIsZero);
 	// FIXME: there is serious debate as to whether or not this is the right solution
@@ -5716,22 +6121,22 @@ dojo.style.getPaddingWidth = function(node){
 	return left + right;
 }
 
-dojo.style.getContentWidth = function (node){
+dojo.style.getContentWidth = function(node){
 	node = dojo.byId(node);
 	return node.offsetWidth - dojo.style.getPaddingWidth(node) - dojo.style.getBorderWidth(node);
 }
 
-dojo.style.getInnerWidth = function (node){
+dojo.style.getInnerWidth = function(node){
 	node = dojo.byId(node);
 	return node.offsetWidth;
 }
 
-dojo.style.getOuterWidth = function (node){
+dojo.style.getOuterWidth = function(node){
 	node = dojo.byId(node);
 	return dojo.style.getInnerWidth(node) + dojo.style.getMarginWidth(node);
 }
 
-dojo.style.setOuterWidth = function (node, pxWidth){
+dojo.style.setOuterWidth = function(node, pxWidth){
 	node = dojo.byId(node);
 	if (!dojo.style.isBorderBox(node)){
 		pxWidth -= dojo.style.getPaddingWidth(node) + dojo.style.getBorderWidth(node);
@@ -5740,7 +6145,9 @@ dojo.style.setOuterWidth = function (node, pxWidth){
 	if (!isNaN(pxWidth) && pxWidth > 0){
 		node.style.width = pxWidth + 'px';
 		return true;
-	}else return false;
+	}else{
+		return false;
+	}
 }
 
 // FIXME: these aliases are actually the preferred names
@@ -5771,22 +6178,22 @@ dojo.style.getPaddingHeight = function(node){
 	return top + bottom;
 }
 
-dojo.style.getContentHeight = function (node){
+dojo.style.getContentHeight = function(node){
 	node = dojo.byId(node);
 	return node.offsetHeight - dojo.style.getPaddingHeight(node) - dojo.style.getBorderHeight(node);
 }
 
-dojo.style.getInnerHeight = function (node){
+dojo.style.getInnerHeight = function(node){
 	node = dojo.byId(node);
 	return node.offsetHeight; // FIXME: does this work?
 }
 
-dojo.style.getOuterHeight = function (node){
+dojo.style.getOuterHeight = function(node){
 	node = dojo.byId(node);
 	return dojo.style.getInnerHeight(node) + dojo.style.getMarginHeight(node);
 }
 
-dojo.style.setOuterHeight = function (node, pxHeight){
+dojo.style.setOuterHeight = function(node, pxHeight){
 	node = dojo.byId(node);
 	if (!dojo.style.isBorderBox(node)){
 		pxHeight -= dojo.style.getPaddingHeight(node) + dojo.style.getBorderHeight(node);
@@ -5795,7 +6202,9 @@ dojo.style.setOuterHeight = function (node, pxHeight){
 	if (!isNaN(pxHeight) && pxHeight > 0){
 		node.style.height = pxHeight + 'px';
 		return true;
-	}else return false;
+	}else{
+		return false;
+	}
 }
 
 dojo.style.setContentWidth = function(node, pxWidth){
@@ -5803,11 +6212,12 @@ dojo.style.setContentWidth = function(node, pxWidth){
 	if (dojo.style.isBorderBox(node)){
 		pxWidth += dojo.style.getPaddingWidth(node) + dojo.style.getBorderWidth(node);
 	}
-
 	if (!isNaN(pxWidth) && pxWidth > 0){
 		node.style.width = pxWidth + 'px';
 		return true;
-	}else return false;
+	}else{
+		return false;
+	}
 }
 
 dojo.style.setContentHeight = function(node, pxHeight){
@@ -5815,11 +6225,12 @@ dojo.style.setContentHeight = function(node, pxHeight){
 	if (dojo.style.isBorderBox(node)){
 		pxHeight += dojo.style.getPaddingHeight(node) + dojo.style.getBorderHeight(node);
 	}
-
 	if (!isNaN(pxHeight) && pxHeight > 0){
 		node.style.height = pxHeight + 'px';
 		return true;
-	}else return false;
+	}else{
+		return false;
+	}
 }
 
 // FIXME: these aliases are actually the preferred names
@@ -5828,7 +6239,7 @@ dojo.style.getBorderBoxHeight = dojo.style.getInnerHeight;
 dojo.style.getMarginBoxHeight = dojo.style.getOuterHeight;
 dojo.style.setMarginBoxHeight = dojo.style.setOuterHeight;
 
-dojo.style.getTotalOffset = function (node, type, includeScroll){
+dojo.style.getTotalOffset = function(node, type, includeScroll){
 	node = dojo.byId(node);
 	var typeStr = (type=="top") ? "offsetTop" : "offsetLeft";
 	var typeScroll = (type=="top") ? "scrollTop" : "scrollLeft";
@@ -5836,7 +6247,7 @@ dojo.style.getTotalOffset = function (node, type, includeScroll){
 	var coord = (type=="top") ? "y" : "x";
 	var offset = 0;
 	if(node["offsetParent"]){
-		
+		var endNode;		
 		// in Safari, if the node is an absolutly positioned child of the body
 		// and the body has a margin the offset of the child and the body
 		// contain the body's margins, so we need to end at the body
@@ -5844,16 +6255,16 @@ dojo.style.getTotalOffset = function (node, type, includeScroll){
 			&& node.style.getPropertyValue("position") == "absolute"
 			&& node.parentNode == document.body)
 		{
-			var endNode = document.body;
+			endNode = document.body;
 		} else {
-			var endNode = document.body.parentNode;
+			endNode = document.body.parentNode;
 		}
 		
 		if(includeScroll && node.parentNode != document.body) {
 			offset -= dojo.style.sumAncestorProperties(node, typeScroll);
 		}
 		// FIXME: this is known not to work sometimes on IE 5.x since nodes
-		// soemtimes need to be "tickled" before they will display their
+		// sometimes need to be "tickled" before they will display their
 		// offset correctly
 		do {
 			var n = node[typeStr];
@@ -5864,10 +6275,15 @@ dojo.style.getTotalOffset = function (node, type, includeScroll){
 		var n = node[coord];
 		offset += isNaN(n) ? 0 : n;
 	}
+	
+	// Account for any document scrolling
+	//dojo.debug("Before: "+offset);
+	offset += (type=="top") ? dojo.html.getScrollTop() : dojo.html.getScrollLeft();
+	//dojo.debug("After: "+offset);
 	return offset;
 }
 
-dojo.style.sumAncestorProperties = function (node, prop) {
+dojo.style.sumAncestorProperties = function(node, prop) {
 	node = dojo.byId(node);
 	if (!node) { return 0; } // FIXME: throw an error?
 	
@@ -5882,14 +6298,14 @@ dojo.style.sumAncestorProperties = function (node, prop) {
 	return retVal;
 }
 
-dojo.style.totalOffsetLeft = function (node, includeScroll){
+dojo.style.totalOffsetLeft = function(node, includeScroll){
 	node = dojo.byId(node);
 	return dojo.style.getTotalOffset(node, "left", includeScroll);
 }
 
 dojo.style.getAbsoluteX = dojo.style.totalOffsetLeft;
 
-dojo.style.totalOffsetTop = function (node, includeScroll){
+dojo.style.totalOffsetTop = function(node, includeScroll){
 	node = dojo.byId(node);
 	return dojo.style.getTotalOffset(node, "top", includeScroll);
 }
@@ -5913,7 +6329,7 @@ dojo.style.styleSheet = null;
 // it assumes that you know the index of the cssRule that you want to add 
 // or remove, making it less than useful.  So we need something that can 
 // search for the selector that you you want to remove.
-dojo.style.insertCssRule = function (selector, declaration, index) {
+dojo.style.insertCssRule = function(selector, declaration, index) {
 	if (!dojo.style.styleSheet) {
 		if (document.createStyleSheet) { // IE
 			dojo.style.styleSheet = document.createStyleSheet();
@@ -5940,7 +6356,7 @@ dojo.style.insertCssRule = function (selector, declaration, index) {
 	} else { return null; } // fail
 }
 
-dojo.style.removeCssRule = function (index){
+dojo.style.removeCssRule = function(index){
 	if(!dojo.style.styleSheet){
 		dojo.debug("no stylesheet defined for removing rules");
 		return false;
@@ -5959,7 +6375,77 @@ dojo.style.removeCssRule = function (index){
 	return true;
 }
 
-dojo.style.getBackgroundColor = function (node) {
+// calls css by XmlHTTP and inserts it into DOM as <style [widgetType="widgetType"]> *downloaded cssText*</style>
+dojo.style.insertCssFile = function(URI, doc, checkDuplicates){
+	if(!URI){ return; }
+	if(!doc){ doc = document; }
+	var cssStr = dojo.hostenv.getText(URI);
+	cssStr = dojo.style.fixPathsInCssText(cssStr, URI);
+
+	if(checkDuplicates){
+		var styles = doc.getElementsByTagName("style");
+		var cssText = "";
+		for(var i = 0; i<styles.length; i++){
+			cssText = (styles[i].styleSheet && styles[i].styleSheet.cssText) ? styles[i].styleSheet.cssText : styles[i].innerHTML;
+			if(cssStr == cssText){ return; }
+		}
+	}
+
+	var style = dojo.style.insertCssText(cssStr);
+	// insert custom attribute ex dbgHref="../foo.css" usefull when debugging in DOM inspectors, no?
+	if(style && djConfig.isDebug){
+		style.setAttribute("dbgHref", URI);
+	}
+	return style
+}
+
+// DomNode Style  = insertCssText(String ".dojoMenu {color: green;}"[, DomDoc document, dojo.uri.Uri Url ])
+dojo.style.insertCssText = function(cssStr, doc, URI){
+	if(!cssStr){ return; }
+	if(!doc){ doc = document; }
+	if(URI){// fix paths in cssStr
+		cssStr = dojo.style.fixPathsInCssText(cssStr, URI);
+	}
+	var style = doc.createElement("style");
+	style.setAttribute("type", "text/css");
+	if(style.styleSheet){// IE
+		style.styleSheet.cssText = cssStr;
+	} else {// w3c
+		var cssText = doc.createTextNode(cssStr);
+		style.appendChild(cssText);
+	}
+	var head = doc.getElementsByTagName("head")[0];
+	if(head){// must have a head tag
+		head.appendChild(style);
+	}
+	return style;
+}
+
+// String cssText = fixPathsInCssText(String cssStr, dojo.uri.Uri URI)
+// usage: cssText comes from dojoroot/src/widget/templates/HtmlFoobar.css
+// 	it has .dojoFoo { background-image: url(images/bar.png);} 
+//	then uri should point to dojoroot/src/widget/templates/
+dojo.style.fixPathsInCssText = function(cssStr, URI){
+	if(!cssStr || !URI){ return; }
+	var pos = 0; var str = ""; var url = "";
+	while(pos!=-1){
+		pos = 0;url = "";
+		pos = cssStr.indexOf("url(", pos);
+		if(pos<0){ break; }
+		str += cssStr.slice(0,pos+4);
+		cssStr = cssStr.substring(pos+4, cssStr.length);
+		url += cssStr.match(/^[\t\s\w()\/.\\'"-:#=&?]*\)/)[0]; // url string
+		cssStr = cssStr.substring(url.length-1, cssStr.length); // remove url from css string til next loop
+		url = url.replace(/^[\s\t]*(['"]?)([\w()\/.\\'"-:#=&?]*)\1[\s\t]*?\)/,"$2"); // clean string
+		if(url.search(/(file|https?|ftps?):\/\//)==-1){
+			url = (new dojo.uri.Uri(URI,url).toString());
+		}
+		str += url;
+	};
+	return str+cssStr;
+}
+
+dojo.style.getBackgroundColor = function(node) {
 	node = dojo.byId(node);
 	var color;
 	do{
@@ -5969,43 +6455,68 @@ dojo.style.getBackgroundColor = function (node) {
 		if(node == document.getElementsByTagName("body")[0]) { node = null; break; }
 		node = node.parentNode;
 	}while(node && dojo.lang.inArray(color, ["transparent", ""]));
-
-	if( color == "transparent" ) {
+	if(color == "transparent"){
 		color = [255, 255, 255, 0];
-	} else {
+	}else{
 		color = dojo.graphics.color.extractRGB(color);
 	}
 	return color;
 }
 
-dojo.style.getComputedStyle = function (node, cssSelector, inValue) {
+dojo.style.getComputedStyle = function(node, cssSelector, inValue){
 	node = dojo.byId(node);
-	var value = inValue;
-	if (node.style.getPropertyValue) { // W3
-		value = node.style.getPropertyValue(cssSelector);
-	}
-	if(!value) {
-		if (document.defaultView) { // gecko
+	// cssSelector may actually be in camel case, so force selector version
+	var cssSelector = dojo.style.toSelectorCase(cssSelector);
+	var property = dojo.style.toCamelCase(cssSelector);
+	if(!node || !node.style){
+		return inValue;
+	}else if(document.defaultView){ // W3, gecko, KHTML
+		try{			
 			var cs = document.defaultView.getComputedStyle(node, "");
-			if (cs) { 
-				value = cs.getPropertyValue(cssSelector);
+			if (cs){ 
+				return cs.getPropertyValue(cssSelector);
 			} 
-		} else if (node.currentStyle) { // IE
-			value = node.currentStyle[dojo.style.toCamelCase(cssSelector)];
-		} 
-	}
-	
-	return value;
+		}catch(e){ // reports are that Safari can throw an exception above
+			if (node.style.getPropertyValue){ // W3
+				return node.style.getPropertyValue(cssSelector);
+			}else return inValue;
+		}
+	}else if (node.currentStyle){ // IE
+		return node.currentStyle[property];
+	}if (node.style.getPropertyValue) { // W3
+		return node.style.getPropertyValue(cssSelector);
+	}else return inValue;
 }
 
-dojo.style.getStyle = function (node, cssSelector) {
+/** 
+ * Retrieve a property value from a node's style object.
+ */
+dojo.style.getStyleProperty = function(node, cssSelector){
 	node = dojo.byId(node);
-	var camelCased = dojo.style.toCamelCase(cssSelector);
-	var value = node.style[camelCased]; // dom-ish
-	return (value ? value : dojo.style.getComputedStyle(node, cssSelector, value));
+	// FIXME: should we use node.style.getPropertyValue over style[property]?
+	// style[property] works in all (modern) browsers, getPropertyValue is W3 but not supported in IE
+	// FIXME: what about runtimeStyle?
+	return (node && node.style ? node.style[dojo.style.toCamelCase(cssSelector)] : undefined);
 }
 
-dojo.style.toCamelCase = function (selector) {
+/** 
+ * Retrieve a property value from a node's style object.
+ */
+dojo.style.getStyle = function(node, cssSelector){
+	node = dojo.byId(node);
+	var value = dojo.style.getStyleProperty(node, cssSelector);
+	return (value ? value : dojo.style.getComputedStyle(node, cssSelector));
+}
+
+dojo.style.setStyle = function(node, cssSelector, value){
+	node = dojo.byId(node);
+	if(node && node.style){
+		var camelCased = dojo.style.toCamelCase(cssSelector);
+		node.style[camelCased] = value;
+	}
+}
+
+dojo.style.toCamelCase = function(selector) {
 	var arr = selector.split('-'), cc = arr[0];
 	for(var i = 1; i < arr.length; i++) {
 		cc += arr[i].charAt(0).toUpperCase() + arr[i].substring(1);
@@ -6013,12 +6524,12 @@ dojo.style.toCamelCase = function (selector) {
 	return cc;		
 }
 
-dojo.style.toSelectorCase = function (selector) {
+dojo.style.toSelectorCase = function(selector) {
 	return selector.replace(/([A-Z])/g, "-$1" ).toLowerCase() ;
 }
 
 /* float between 0.0 (transparent) and 1.0 (opaque) */
-dojo.style.setOpacity = function setOpacity (node, opacity, dontFixOpacity) {
+dojo.style.setOpacity = function setOpacity(node, opacity, dontFixOpacity) {
 	node = dojo.byId(node);
 	var h = dojo.render.html;
 	if(!dontFixOpacity){
@@ -6082,34 +6593,93 @@ dojo.style.clearOpacity = function clearOpacity (node) {
 	}
 }
 
-dojo.style.isVisible = function(node){
+dojo.style._toggle = function(node, inTester, inSetter){
 	node = dojo.byId(node);
-	// FIXME: this should also look at visibility!
-	return dojo.style.getComputedStyle(node||this.domNode, "display") != "none";
+	inSetter(node, !inTester(node));
+	return inTester(node);
 }
 
+// show/hide are library constructs
+
+// setShowing() sets style.display to either '' or 'none'
+// note: the computed style of node may still cause it to "display" (or not)
+dojo.style.setShowing = function(node, showing){
+	dojo.style.setStyle(node, 'display', (showing ? '' : 'none'));
+}
+
+// isShowing() is true if the node.style.display is not 'none'
+// FIXME: returns true if node is bad, isHidden would be easier to make correct
+dojo.style.isShowing = function(node){
+	return (dojo.style.getStyleProperty(node, 'display') != 'none');
+}
+
+// Call setShowing() on node with the complement of isShowing(), then return the new value of isShowing()
+dojo.style.toggleShowing = function(node){
+	return dojo.style._toggle(node, dojo.style.isShowing, dojo.style.setShowing);
+}
+
+// show() calls setShowing(true)
 dojo.style.show  = function(node){
-	node = dojo.byId(node);
-	if(node.style){
-		node.style.display = dojo.lang.inArray(['tr', 'td', 'th'], node.tagName.toLowerCase()) ? "" : "block";
-	}
+	dojo.style.setShowing(node, true);
 }
 
+// hide() calls setShowing(false)
 dojo.style.hide = function(node){
+	dojo.style.setShowing(node, false);
+}
+
+// display is a CSS concept
+
+// Simple mapping of tag names to display values
+// FIXME: simplistic 
+dojo.style.displayMap = { tr: '', td: '', th: '', img: 'inline', span: 'inline', input: 'inline', button: 'inline' };
+
+// Suggest a value for the display property that will show 'node' based on it's tag
+dojo.style.suggestDisplayByTagName = function(node)
+{
 	node = dojo.byId(node);
-	if(node.style){
-		node.style.display = "none";
+	if(node && node.tagName){
+		var tag = node.tagName.toLowerCase();
+		return (tag in dojo.style.displayMap ? dojo.style.displayMap[tag] : 'block');
 	}
 }
 
-dojo.style.toggleVisible = function(node) {
-	if(dojo.style.isVisible(node)) {
-		dojo.style.hide(node);
-		return false;
-	} else {
-		dojo.style.show(node);
-		return true;
-	}
+// setDisplay() sets the value of style.display to value of 'display' parameter if it is a string.
+// Otherwise, if 'display' is false, set style.display to 'none'.
+// Finally, set 'display' to a suggested display value based on the node's tag
+dojo.style.setDisplay = function(node, display){
+	dojo.style.setStyle(node, 'display', (dojo.lang.isString(display) ? display : (display ? dojo.style.suggestDisplayByTagName(node) : 'none')));
+}
+
+// isDisplayed() is true if the the computed display style for node is not 'none'
+// FIXME: returns true if node is bad, isNotDisplayed would be easier to make correct
+dojo.style.isDisplayed = function(node){
+	return (dojo.style.getComputedStyle(node, 'display') != 'none');
+}
+
+// Call setDisplay() on node with the complement of isDisplayed(), then return the new value of isDisplayed()
+dojo.style.toggleDisplay = function(node){
+	return dojo.style._toggle(node, dojo.style.isDisplayed, dojo.style.setDisplay);
+}
+
+// visibility is a CSS concept
+
+// setVisibility() sets the value of style.visibility to value of 'visibility' parameter if it is a string.
+// Otherwise, if 'visibility' is false, set style.visibility to 'hidden'.
+// Finally, set style.visibility to 'visible'.
+dojo.style.setVisibility = function(node, visibility){
+	dojo.style.setStyle(node, 'visibility', (dojo.lang.isString(visibility) ? visibility : (visibility ? 'visible' : 'hidden')));
+}
+
+// isVisible() is true if the the computed visibility style for node is not 'hidden'
+// FIXME: returns true if node is bad, isInvisible would be easier to make correct
+dojo.style.isVisible = function(node){
+	return (dojo.style.getComputedStyle(node, 'visibility') != 'hidden');
+}
+
+// Call setVisibility() on node with the complement of isVisible(), then return the new value of isVisible()
+dojo.style.toggleVisibility = function(node){
+	return dojo.style._toggle(node, dojo.style.isVisible, dojo.style.setVisibility);
 }
 
 // in: coordinate array [x,y,w,h] or dom node
@@ -6136,37 +6706,6 @@ dojo.style.toCoordinateArray = function(coords, includeScroll) {
 	ret.h = ret[3];
 	return ret;
 };
-
-dojo.provide("dojo.animation.AnimationEvent");
-
-dojo.require("dojo.lang");
-
-dojo.animation.AnimationEvent = function(anim, type, coords, sTime, cTime, eTime, dur, pct, fps) {
-	this.type = type; // "animate", "begin", "end", "play", "pause", "stop"
-	this.animation = anim;
-
-	this.coords = coords;
-	this.x = coords[0];
-	this.y = coords[1];
-	this.z = coords[2];
-
-	this.startTime = sTime;
-	this.currentTime = cTime;
-	this.endTime = eTime;
-
-	this.duration = dur;
-	this.percent = pct;
-	this.fps = fps;
-};
-dojo.lang.extend(dojo.animation.AnimationEvent, {
-	coordsAsInts: function() {
-		var cints = new Array(this.coords.length);
-		for(var i = 0; i < this.coords.length; i++) {
-			cints[i] = Math.round(this.coords[i]);
-		}
-		return cints;
-	}
-});
 
 dojo.provide("dojo.math.curves");
 
@@ -6381,6 +6920,37 @@ dojo.math.curves = {
 	}
 };
 
+dojo.provide("dojo.animation.AnimationEvent");
+
+dojo.require("dojo.lang");
+
+dojo.animation.AnimationEvent = function(anim, type, coords, sTime, cTime, eTime, dur, pct, fps) {
+	this.type = type; // "animate", "begin", "end", "play", "pause", "stop"
+	this.animation = anim;
+
+	this.coords = coords;
+	this.x = coords[0];
+	this.y = coords[1];
+	this.z = coords[2];
+
+	this.startTime = sTime;
+	this.currentTime = cTime;
+	this.endTime = eTime;
+
+	this.duration = dur;
+	this.percent = pct;
+	this.fps = fps;
+};
+dojo.lang.extend(dojo.animation.AnimationEvent, {
+	coordsAsInts: function() {
+		var cints = new Array(this.coords.length);
+		for(var i = 0; i < this.coords.length; i++) {
+			cints[i] = Math.round(this.coords[i]);
+		}
+		return cints;
+	}
+});
+
 dojo.provide("dojo.animation.Animation");
 dojo.require("dojo.animation.AnimationEvent");
 
@@ -6393,9 +6963,11 @@ Animation package based off of Dan Pupius' work on Animations:
 http://pupius.co.uk/js/Toolkit.Drawing.js
 */
 
-dojo.animation.Animation = function(curve, duration, accel, repeatCount, rate) {
+dojo.animation.Animation = function(/*dojo.math.curves.Line*/ curve, /*int*/ duration, /*Decimal?*/ accel, /*int?*/ repeatCount, /*int?*/ rate) {
 	// public properties
 	if(dojo.lang.isArray(curve)) {
+		// curve: Array
+		// id: i
 		curve = new dojo.math.curves.Line(curve[0], curve[1]);
 	}
 	this.curve = curve;
@@ -6403,7 +6975,11 @@ dojo.animation.Animation = function(curve, duration, accel, repeatCount, rate) {
 	this.repeatCount = repeatCount || 0;
 	this.rate = rate || 25;
 	if(accel) {
+		// accel: Decimal
+		// id: j
 		if(dojo.lang.isFunction(accel.getValue)) {
+			// accel: dojo.math.curves.CatmullRom
+			// id: k
 			this.accel = accel;
 		} else {
 			var i = 0.35*accel+0.5;	// 0.15 <= i <= 0.85
@@ -6411,6 +6987,7 @@ dojo.animation.Animation = function(curve, duration, accel, repeatCount, rate) {
 		}
 	}
 }
+
 dojo.lang.extend(dojo.animation.Animation, {
 	// public properties
 	curve: null,
@@ -6588,6 +7165,7 @@ dojo.require("dojo.animation.Animation");
 dojo.provide("dojo.fx.html");
 
 dojo.require("dojo.style");
+dojo.require("dojo.math.curves");
 dojo.require("dojo.lang.func");
 dojo.require("dojo.animation");
 dojo.require("dojo.event.*");
@@ -7094,4 +7672,53 @@ dojo.fx.html.Exploder = function(triggerNode, boxNode) {
 	return this;
 };
 
+/**** 
+	Strategies for displaying/hiding objects
+	This presents a standard interface for each of the effects
+*****/
+dojo.fx.html.toggle={}
+
+dojo.fx.html.toggle.plain = {
+	show: function(node, duration, explodeSrc, callback){
+		dojo.style.show(node);
+		if(dojo.lang.isFunction(callback)){ callback(); }
+	},
+
+	hide: function(node, duration, explodeSrc, callback){
+		dojo.style.hide(node);
+		if(dojo.lang.isFunction(callback)){ callback(); }
+	}
+}
+
+dojo.fx.html.toggle.fade = {
+	show: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.fadeShow(node, duration, callback);
+	},
+
+	hide: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.fadeHide(node, duration, callback);
+	}
+}
+
+dojo.fx.html.toggle.wipe = {
+	show: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.wipeIn(node, duration, callback);
+	},
+
+	hide: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.wipeOut(node, duration, callback);
+	}
+}
+
+dojo.fx.html.toggle.explode = {
+	show: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.explode(explodeSrc||[0,0,0,0], node, duration, callback);
+	},
+
+	hide: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.implode(node, explodeSrc||[0,0,0,0], duration, callback);
+	}
+}
+
 dojo.lang.mixin(dojo.fx, dojo.fx.html);
+

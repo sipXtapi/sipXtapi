@@ -12,9 +12,16 @@ dojo.provide("dojo.lang.common");
 
 dojo.require("dojo.lang");
 
+/*
+ * Adds the given properties/methods to the specified object
+ */
 dojo.lang.mixin = function(obj, props){
 	var tobj = {};
 	for(var x in props){
+		// the "tobj" condition avoid copying properties in "props"
+		// inherited from Object.prototype.  For example, if obj has a custom
+		// toString() method, don't overwrite it with the toString() method
+		// that props inherited from Object.protoype
 		if(typeof tobj[x] == "undefined" || tobj[x] != props[x]) {
 			obj[x] = props[x];
 		}
@@ -26,6 +33,9 @@ dojo.lang.mixin = function(obj, props){
 	return obj;
 }
 
+/*
+ * Adds the given properties/methods to the specified object's prototype
+ */
 dojo.lang.extend = function(ctor, props){
 	this.mixin(ctor.prototype, props);
 }
@@ -35,7 +45,10 @@ dojo.lang.extend = function(ctor, props){
  *  find(array, value, identity) // recommended
  *  find(value, array, identity)
 **/
-dojo.lang.find = function(arr, val, identity, findLast){
+dojo.lang.find = function(	/*Array*/	arr, 
+							/*Object*/	val,
+							/*boolean*/	identity,
+							/*boolean*/	findLast){
 	// support both (arr, val) and (val, arr)
 	if(!dojo.lang.isArrayLike(arr) && dojo.lang.isArrayLike(val)) {
 		var a = arr;
@@ -70,14 +83,14 @@ dojo.lang.find = function(arr, val, identity, findLast){
 
 dojo.lang.indexOf = dojo.lang.find;
 
-dojo.lang.findLast = function(arr, val, identity) {
+dojo.lang.findLast = function(/*Array*/ arr, /*Object*/ val, /*boolean*/ identity){
 	return dojo.lang.find(arr, val, identity, true);
 }
 
 dojo.lang.lastIndexOf = dojo.lang.findLast;
 
-dojo.lang.inArray = function(arr, val){
-	return dojo.lang.find(arr, val) > -1;
+dojo.lang.inArray = function(arr /*Array*/, val /*Object*/){
+	return dojo.lang.find(arr, val) > -1; // return: boolean
 }
 
 /**

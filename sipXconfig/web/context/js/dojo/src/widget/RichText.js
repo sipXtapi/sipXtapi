@@ -9,29 +9,33 @@
 */
 
 dojo.provide("dojo.widget.RichText");
-dojo.provide("dojo.widget.HtmlRichText");
+dojo.provide("dojo.widget.html.RichText");
 
 dojo.require("dojo.widget.*");
 dojo.require("dojo.dom");
 dojo.require("dojo.html");
 dojo.require("dojo.event.*");
 dojo.require("dojo.style");
+dojo.require("dojo.string");
 
 // used to save content
 try {
 	document.write('<textarea id="dojo.widget.RichText.savedContent" ' +
-		'style="display:none;position:absolute;top:-100px;left:-100px;"></textarea>');
+		'style="display:none;position:absolute;top:-100px;left:-100px;height:3px;width:3px;overflow:hidden;"></textarea>');
 }catch(e){ }
 
 dojo.widget.tags.addParseTreeHandler("dojo:richtext");
 
-dojo.widget.HtmlRichText = function () {
+dojo.widget.html.RichText = function () {
 	dojo.widget.HtmlWidget.call(this);
 	this.contentFilters = [];
+	// this.contentFilters.push(this.defaultContentCleaner);
+	
+	this._keyHandlers = {};
 }
-dojo.inherits(dojo.widget.HtmlRichText, dojo.widget.HtmlWidget);
+dojo.inherits(dojo.widget.html.RichText, dojo.widget.HtmlWidget);
 
-dojo.lang.extend(dojo.widget.HtmlRichText, {
+dojo.lang.extend(dojo.widget.html.RichText, {
 
 	widgetType: "richtext",
 
@@ -46,6 +50,9 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 	saveName: "",
 	_content: "",
 	
+	/* set height to fix the editor at a specific height, with scrolling */
+	height: null,
+
 	/** The minimum height that the editor should have */
 	minHeight: "1em",
 	
@@ -58,6 +65,18 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 	_SEPARATOR: "@@**%%__RICHTEXTBOUNDRY__%%**@@",
 
 	// contentFilters: [],
+
+	/*
+	defaultContentCleaner: function(content){
+		if(!dojo.render.html.ie){
+			return content;
+		}
+
+		content = content.replace(/\x20/g, " ");
+		// alert(content);
+		return content;
+	},
+	*/
 
 /* Init
  *******/
@@ -77,6 +96,29 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		dojo.event.connect(this, "onKeyPress", this, "keyPress");
 		dojo.event.connect(this, "onKeyDown", this, "keyDown");
 		dojo.event.connect(this, "onKeyUp", this, "keyUp");
+
+		// add default some key handlers		
+		var ctrl = this.KEY_CTRL;
+		var exec = function (cmd, arg) {
+			return arguments.length == 1 ? function () { this.execCommand(cmd); } :
+				function () { this.execCommand(cmd, arg); }
+		}
+			
+		this.addKeyHandler("b", ctrl, exec("bold"));
+		this.addKeyHandler("i", ctrl, exec("italic"));
+		this.addKeyHandler("u", ctrl, exec("underline"));
+		this.addKeyHandler("a", ctrl, exec("selectall"));
+		//this.addKeyHandler("k", ctrl, exec("createlink", ""));
+		//this.addKeyHandler("K", ctrl, exec("unlink"));
+		this.addKeyHandler("Z", ctrl, exec("redo"));
+		this.addKeyHandler("s", ctrl, function () { this.save(true); });
+		
+		this.addKeyHandler("1", ctrl, exec("formatblock", "h1"));
+		this.addKeyHandler("2", ctrl, exec("formatblock", "h2"));
+		this.addKeyHandler("3", ctrl, exec("formatblock", "h3"));
+		this.addKeyHandler("4", ctrl, exec("formatblock", "h4"));
+				
+		this.addKeyHandler("\\", ctrl, exec("insertunorderedlist"));
 	},
 
 	/**
@@ -94,7 +136,8 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		
 		if(this.domNode.nodeName.toLowerCase() == "textarea"){
 			this.textarea = this.domNode;
-			var html = this.textarea.value;
+			var html = dojo.string.trim(this.textarea.value);
+			if(html == ""){ html = "&nbsp;"; }
 			this.domNode = document.createElement("div");
 			with(this.textarea.style){
 				display = "block";
@@ -123,12 +166,15 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 				dojo.dom.insertAfter(editor.textarea, editor.domNode);
 			});
 		} else {
-			var html = this.domNode.innerHTML;
+			var html = dojo.string.trim(this.domNode.innerHTML);
+			if(html == ""){ html = "&nbsp;"; }
 		}
 				
 		this._oldHeight = dojo.style.getContentHeight(this.domNode);
 		this._oldWidth = dojo.style.getContentWidth(this.domNode);
-		
+		this._oldFirstChildActualMargin = this._getContributingMargin(this.domNode, "top");
+		this._oldLastChildActualMargin = this._getContributingMargin(this.domNode, "bottom");
+
 		this.savedContent = document.createElement("div");
 		while (this.domNode.hasChildNodes()) {
 			this.savedContent.appendChild(this.domNode.firstChild);
@@ -162,12 +208,21 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		} else if (dojo.render.html.ie) { // contentEditable, easy
 			this.editNode = document.createElement("div");
 			with (this.editNode) {
-				contentEditable = true;
 				innerHTML = html;
-				style.height = this.minHeight;
+				contentEditable = true;
+				style.height = this.height ? this.height : this.minHeight;
 			}
+			if (this.height) this.editNode.style.overflowY="scroll";
+			// FIXME: setting contentEditable on switches this element to
+			// IE's hasLayout mode, triggering weird margin collapsing
+			// behavior. It's particularly bad if the element you're editing
+			// contains childnodes that don't have margin: defined in local
+			// css rules. It would be nice if it was possible to hack around
+			// this. Sadly _firstChildOffset and _lastChildOffset don't work
+			// on IE unless all elements have margins set in CSS :-(
+
 			this.domNode.appendChild(this.editNode);
-			
+
 			var events = ["onBlur", "onFocus", "onKeyPress",
 				"onKeyDown", "onKeyUp", "onClick"];
 			for (var i = 0; i < events.length; i++) {
@@ -177,7 +232,7 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 			this.window = window;
 			this.document = document;
 			
-			this.onLoad();
+			//this.onLoad();
 		} else { // designMode in iframe
 			this._drawIframe(html);
 		}
@@ -188,23 +243,140 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		
 		this.isClosed = false;
 	},
+
+	_getContributingMargin:	function(element, topOrBottom) {
+		// calculate how much margin this element and its first or last
+		// child are contributing to the total margin between this element
+		// and the adjacent node. CSS border collapsing makes this
+		// necessary.
+
+		if (topOrBottom == "top") {
+			var siblingAttr = "previousSibling";
+			var childSiblingAttr = "nextSibling";
+			var childAttr = "firstChild";
+			var marginProp = "margin-top";
+			var siblingMarginProp = "margin-bottom";
+		} else {
+			var siblingAttr = "nextSibling";
+			var childSiblingAttr = "previousSibling";
+			var childAttr = "lastChild";
+			var marginProp = "margin-bottom";
+			var siblingMarginProp = "margin-top";
+		}
+
+		var elementMargin = dojo.style.getPixelValue(element, marginProp, false);
+
+		function isSignificantElement(element) {
+			// check if an element counts for purposes of calculating margins
+			return !(element.nodeType==3 && dojo.string.isBlank(element.data)) 
+				&& dojo.style.getStyle(element, "display") != "none" 
+				&& !dojo.style.isPositionAbsolute(element);
+		}
+
+		function isIsolated(element, side) {
+			if (dojo.style.getPixelValue(element, 
+										 'border-'+side+'-width', 
+										 false)) {
+				return true;
+			} else if (dojo.style.getPixelValue(element, 
+												'padding-'+side,
+												false)) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+
+		// walk throuh first/last children to find total collapsed margin size
+		var childMargin = 0;
+		var child = element[childAttr];
+		while (child) {
+			// skip over insignificant elements (whitespace, etc)
+			while ((!isSignificantElement(child)) && child[childSiblingAttr]) {
+				child = child[childSiblingAttr];
+			}
+					  
+			childMargin = Math.max(childMargin, dojo.style.getPixelValue(child, marginProp, false));
+			// stop if we hit a bordered/padded element
+			if (isIsolated(child, topOrBottom)) break;
+			child = child[childAttr];								   
+		}
+
+		// if this element has a border, return full child margin immediately
+		// as there won't be any margin collapsing
+		dojo.debug(childMargin);
+		if (isIsolated(element, topOrBottom)) return parseInt(childMargin);
+
+		// find margin supplied by nearest sibling
+		var contextMargin = 0;
+		var sibling = element[siblingAttr];
+		while (sibling) {
+			if (isSignificantElement(sibling)) {
+				contextMargin = dojo.style.getPixelValue(sibling, 
+														 siblingMarginProp, 
+														 false);
+				break;
+			}
+			sibling = sibling[siblingAttr];
+		}
+		if (!sibling) { // no sibling, look at parent's margin instead
+			contextMargin = dojo.style.getPixelValue(element.parentNode, 
+											marginProp, false);
+		}
+
+		dojo.debug(childMargin, elementMargin, contextMargin);
+
+		if (childMargin > elementMargin) {
+			return parseInt(Math.max((childMargin-elementMargin)-contextMargin, 0));
+		} else {
+			return 0;
+		}
+		
+	},
 	
 	/** Draws an iFrame using the existing one if one exists. Used by Mozilla and Safari */
 	_drawIframe: function (html) {
+
+		// detect firefox < 1.5, which has some iframe loading issues
+		var oldMoz = Boolean(dojo.render.html.moz && (
+								typeof window.XML == 'undefined'))
+
 		if (!this.iframe) {
+			var currentDomain = (new dojo.uri.Uri(document.location)).host;
 			this.iframe = document.createElement("iframe");
 			with (this.iframe) {
-				scrolling = "no";
+				scrolling = this.height ? "auto" : "no";
 				style.border = "none";
 				style.lineHeight = "0"; // squash line height
 				style.verticalAlign = "bottom";
 			}
 		}
-
+		// opera likes this to be outside the with block
+		this.iframe.src = dojo.uri.dojoUri("src/widget/templates/richtextframe.html") + "#" + ((document.domain != currentDomain) ? document.domain : "");
 		with (this.iframe) {
 			width = this.inheritWidth ? this._oldWidth : "100%";
-			height = this._oldHeight;
+			if (this.height) {
+				style.height = this.height;
+			} else {
+				height = this._oldHeight  +
+					this._oldFirstChildActualMargin + 
+					this._oldLastChildActualMargin;
+			}
+
+			//style.paddingTop = this._oldFirstChildActualMargin+"px";
+			//style.paddingBottom = this._oldLastChildActualMargin+"px";
 		}
+
+		// show existing content behind iframe for now
+		var tmpContent = document.createElement('div');
+		tmpContent.style.position = "absolute";
+		tmpContent.innerHTML = html;
+		if (tmpContent.firstChild && tmpContent.firstChild.style) {
+			tmpContent.firstChild.style.marginTop = this._oldFirstChildActualMargin+"px";
+			tmpContent.lastChild.style.marginBottom = this._oldLastChildActualMargin+"px";
+			
+		}
+		this.domNode.appendChild(tmpContent);
 		this.domNode.appendChild(this.iframe);
 
 		var _iframeInitialized = false;
@@ -215,60 +387,58 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 				_iframeInitialized = true;
 			}else{ return; }
 			if(!this.editNode){
-				this.window = this.iframe.contentWindow;
+				if(this.iframe.contentWindow){
+					this.window = this.iframe.contentWindow;
+				}else{
+					// for opera
+					this.window = this.iframe.contentDocument.window;
+				}
 				this.document = this.iframe.contentDocument;
 			
 				// curry the getStyle function
 				var getStyle = (function (domNode) { return function (style) {
 					return dojo.style.getStyle(domNode, style);
 				}; })(this.domNode);
-				var font = getStyle('font-size') + " " + getStyle('font-family');
-		
-				var contentEditable = Boolean(document.body.contentEditable);
-				with(this.document){
-					if(!contentEditable){ designMode = "on"; }
-					open();
-					write(
-						//'<!doctype HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">' +
-						'<html><title></title>\n' +
-						'<script type="text/javascript">\n' +
-						'	function init(){\n' +
-						// '		var pwidget = window.parent.dojo.widget.byId("'+this.widgetId+'");\n' +
-						// '		// pwidget.window = window\n' +
-						// '		pwidget.document = document\n' +
-						// '		alert(document.body.innerHTML);\n' +
-						// '		pwidget.onLoad();\n' +
-						'	}\n' +
-						'</script>\n' +
-						'<style type="text/css">\n' +
-						'    body,html { padding: 0; margin: 0; font: ' + font + '; }\n' +
-						// TODO: left positioning will case contents to disappear out of view
-						//       if it gets too wide for the visible area
-						'    body { position: fixed; top: 0; left: 0; right: 0;' +
-						'        min-height: ' + this.minHeight + '; }\n' +
-						'    p { margin: 1em 0 !important; }\n' +
-						'    body > *:first-child { padding-top: 0 !important; margin-top: 0 !important; }\n' +
-						'    body > *:last-child { padding-bottom: 0 !important; margin-bottom: 0 !important; }\n' +
-						'    li > ul:-moz-first-node, li > ol:-moz-first-node { padding-top: 1.2em; }\n' +
-						'    li { min-height: 1.2em; }\n' +
-						//'    p,ul,li { padding-top: 0; padding-bottom: 0; margin-top:0; margin-bottom: 0; }\n' +
-						'</style>\n' +
-						//'<base href="' + window.location + '">' +
-						'<body' + (contentEditable ? ' contentEditable="true"' : '') + ' onload="init();">' +
-						html + '</body></html>');
-					close();
-				}
-				
+
+				var font =
+					getStyle('font-weight') + " " +
+					getStyle('font-size') + " " +
+					getStyle('font-family');
+
+				dojo.style.insertCssText(
+					'    body,html { background: transparent; padding: 0; margin: 0; }\n' +
+					// TODO: left positioning will case contents to disappear out of view
+					//       if it gets too wide for the visible area
+					'    body { top: 0; left: 0; right: 0;' +
+					(this.height ? '' : ' position: fixed; ') + 
+					'        font: ' + font + ';\n' + 
+					'        min-height: ' + this.minHeight + '; }\n' +
+					'    p { margin: 1em 0 !important; }\n' +
+					'    body > *:first-child { padding-top: 0 !important; margin-top: ' + this._oldFirstChildActualMargin + 'px !important; }\n' + // FIXME: test firstChild nodeType
+					'    body > *:last-child { padding-bottom: 0 !important; margin-bottom: ' + this._oldLastChildActualMargin + 'px !important; }\n' +
+					'    li > ul:-moz-first-node, li > ol:-moz-first-node { padding-top: 1.2em; }\n' +
+					'    li { min-height: 1.2em; }\n' +
+					//'    p,ul,li { padding-top: 0; padding-bottom: 0; margin-top:0; margin-bottom: 0; }\n' + 
+					'', this.document);
+
+				tmpContent.parentNode.removeChild(tmpContent);
+				this.document.body.innerHTML = html;
 				this.onLoad();
 			}else{
+				tmpContent.parentNode.removeChild(tmpContent);
 				this.editNode.innerHTML = html;
-				this.onDisplayChanged(e);
+				this.onDisplayChanged();
 			}
 		});
-		if(dojo.render.html.moz){
+
+		if(this.editNode){
+			ifrFunc(); // iframe already exists, just set content
+		}else if(oldMoz){
+			this.iframe.onload = function(){
+		    	setTimeout(ifrFunc, 250);
+			}
+		}else{ // new mozillas, opera, safari
 			this.iframe.onload = ifrFunc;
-		}else{
-			ifrFunc();
 		}
 	},
 	
@@ -279,8 +449,8 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		with (this.object) {
 			classid = "clsid:2D360201-FFF5-11D1-8D03-00A0C959BC0A";
 			width = this.inheritWidth ? this._oldWidth : "100%";
-			height = this._oldHeight;
-			Scrollbars = false;
+			style.height = this.height ? this.height : (this._oldHeight+"px");
+			Scrollbars = this.height ? true : false;
 			Appearance = this._activeX.appearance.flat;
 		}
 		this.domNode.appendChild(this.object);
@@ -293,7 +463,7 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 			'<title></title>' +
 			'<style type="text/css">' +
 			'    body,html { padding: 0; margin: 0; }' + //font: ' + font + '; }' +
-			'    body { overflow: hidden; }' +
+			(this.height ? '' : '    body { overflow: hidden; }') +
 			//'    #bodywrapper {  }' +
 			'</style>' +
 			//'<base href="' + window.location + '">' +
@@ -332,7 +502,7 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 				this.interval = setInterval(dojo.lang.hitch(this, "onDisplayChanged"), 750);
 				// dojo.raise("onload");
 				// dojo.debug(this.editNode.parentNode.parentNode.parentNode.nodeName);
-			} else if (dojo.render.html.mozilla) {
+			} else if (dojo.render.html.mozilla || dojo.render.html.opera) {
 
 				// We need to unhook the blur event listener on close as we
 				// can encounter a garunteed crash in FF if another event is
@@ -373,15 +543,30 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 	onKeyUp: function (e) {
 	},
 	
+	KEY_CTRL: 1,
+	
 	/** Fired on keypress. */
 	onKeyPress: function (e) {
 		// handle the various key events
 
 		var character = e.charCode > 0 ? String.fromCharCode(e.charCode) : null;
 		var code = e.keyCode;
-				
-		var preventDefault = true; // by default assume we cancel;
 
+		var modifiers = e.ctrlKey ? this.KEY_CTRL : 0;
+
+		if (this._keyHandlers[character]) {
+			var handlers = this._keyHandlers[character], i = 0, handler;
+			while (handler = handlers[i++]) {
+				if (modifiers == handler.modifiers) {
+					handler.handler.call(this);
+					e.preventDefault();
+					break;
+				}
+			}
+		}
+		
+		
+		/*
 		// define some key combos
 		if (e.ctrlKey || e.metaKey) { // modifier pressed
 			switch (character) {
@@ -390,8 +575,17 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 				case "u": this.execCommand("underline"); break;
 				//case "a": this.execCommand("selectall"); break;
 				//case "k": this.execCommand("createlink", ""); break;
+				//case "K": this.execCommand("unlink"); break;
 				case "Z": this.execCommand("redo"); break;
 				case "s": this.close(true); break; // saves
+				
+				case "1": this.execCommand("formatblock", "h1"); break;
+				case "2": this.execCommand("formatblock", "h2"); break;
+				case "3": this.execCommand("formatblock", "h3"); break;
+				case "4": this.execCommand("formatblock", "h4"); break;
+				
+				case "\\": this.execCommand("insertunorderedlist"); break;
+				
 				default: switch (code) {
 					case e.KEY_LEFT_ARROW:
 					case e.KEY_RIGHT_ARROW:
@@ -413,10 +607,21 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		}
 		
 		if (preventDefault) { e.preventDefault(); }
+		*/
 
 		// function call after the character has been inserted
 		dojo.lang.setTimeout(this, this.onKeyPressed, 1, e);
 	},
+	
+	addKeyHandler: function (key, modifiers, handler) {
+		if (!(this._keyHandlers[key] instanceof Array)) { this._keyHandlers[key] = []; }
+		this._keyHandlers[key].push({
+			modifiers: modifiers || 0,
+			handler: handler
+		});
+	},
+	
+	
 	
 	/**
 	 * Fired after a keypress event has occured and it's action taken. This
@@ -448,10 +653,18 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		this.onDisplayChanged(/*e*/); // can't pass in e
 	},
 	
-	onClick: function (e) { this.onDisplayChanged(e); },
-	
-	onBlur: function (e){ },
-	onFocus: function (e){ },
+	onClick: function(e){ this.onDisplayChanged(e); },
+	onBlur: function(e){ },
+	_initialFocus: true,
+	onFocus: function(e){ 
+		if( (dojo.render.html.mozilla)&&(this._initialFocus) ){
+			this._initialFocus = false;
+			if(dojo.string.trim(this.editNode.innerHTML) == "&nbsp;"){
+				this.execCommand("selectall");
+				this.window.getSelection().collapseToStart();
+			}
+		}
+	},
 
 	blur: function () {
 		if (this.iframe) { this.window.blur(); }
@@ -629,9 +842,8 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 			case "subscript": case "superscript":
 			case "fontname": case "fontsize":
 			case "forecolor": case "hilitecolor":
-			case "justifycenter": case "justifyfull": case "justifyleft": case "justifyright":
-			case "cut": case "copy": case "paste": case "delete":
-			case "undo": case "redo":
+			case "justifycenter": case "justifyfull": case "justifyleft": 
+			case "justifyright": case "delete": case "undo": case "redo":
 				supportedBy = isSupportedBy(mozilla | ie | safari | opera);
 				break;
 				
@@ -639,12 +851,14 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 			case "inserthorizontalrule": case "insertimage":
 			case "insertorderedlist": case "insertunorderedlist":
 			case "indent": case "outdent": case "formatblock": case "strikethrough": 
+			case "inserthtml":
 				supportedBy = isSupportedBy(mozilla | ie | opera);
 				break;
 				
 			case "blockdirltr": case "blockdirrtl":
 			case "dirltr": case "dirrtl":
 			case "inlinedirltr": case "inlinedirrtl":
+			case "cut": case "copy": case "paste": 
 				supportedBy = isSupportedBy(ie);
 				break;
 			
@@ -674,6 +888,7 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 	 * @param argument An optional argument to the command
 	 */
 	execCommand: function (command, argument) {
+		var returnValue;
 		if (this.object) {
 			if (command == "forecolor") { command = "setforecolor"; }
 			else if (command == "backcolor") { command = "setbackcolor"; }
@@ -704,6 +919,48 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 					this._activeX.ui.noprompt, argument);
 			}
 	
+		/* */
+		}else if(command == "inserthtml"){
+			// on IE, we can use the pasteHTML method of the textRange object
+			// to get an undo-able innerHTML modification
+			if(dojo.render.html.ie){
+				var insertRange = this.document.selection.createRange();
+				insertRange.collapse(true);
+				/*
+				insertRange.pasteHTML("&nbsp;");
+				insertRange.select();
+				*/
+
+				/*
+				argument = argument.replace(/</g, "&#060;");
+				argument = argument.replace(/>/g, "&#060;");
+				alert(argument);
+				*/
+				// FIXME: this never inserts actual. It does not appear
+				// possible to provide an HTML serialization to the clipboard
+				// via setData from script
+				this.window.clipboardData.setData("Text", argument);
+				this.document.execCommand("paste");
+
+				// var range = this.document.selection.createRange();
+
+				// alert(range.pasteHTML);
+				// this.document.body.fireEvent("ondragstart");
+
+				// range.pasteHTML(argument);
+
+				// this.window.clipboardData.setData("Text", argument);
+				// var tevt = document.createEventObject();
+				// tevt.ctrlKey = true;
+				// tevt.keyCode = 67;
+				// this.document.body.fireEvent("onkeydown", tevt);
+				// this.document.body.fireEvent("onkeyup", tevt);
+
+				return true;
+			}else{
+				return this.document.execCommand(command, false, argument);			
+			}
+		/* */
 		// fix up unlink in Mozilla to unlink the link and not just the selection
 		} else if (command == "unlink" &&
 			this.queryCommandEnabled("unlink") && dojo.render.html.mozilla) {
@@ -725,7 +982,7 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 			selection.removeAllRanges();
 			selection.addRange(range);
 			
-			var returnValue = this.document.execCommand("unlink", false, null);
+			returnValue = this.document.execCommand("unlink", false, null);
 			
 			// restore original selection
 			var selectionRange = document.createRange();
@@ -744,19 +1001,23 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 			var table = "<table><tbody>";
 			for (var i = 0; i < argument.rows; i++) { table += cols; }
 			table += "</tbody></table>";
-			var returnValue = this.document.execCommand("inserthtml", false, table);
+			returnValue = this.document.execCommand("inserthtml", false, table);
 
 		} else if (command == "hilitecolor" && dojo.render.html.mozilla) {
 			// mozilla doesn't support hilitecolor properly when useCSS is
 			// set to false (bugzilla #279330)
 			
 			this.document.execCommand("useCSS", false, false);
-			var returnValue = this.document.execCommand(command, false, argument);			
+			returnValue = this.document.execCommand(command, false, argument);			
 			this.document.execCommand("useCSS", false, true);
 		
 		} else {
 			argument = arguments.length > 1 ? argument : null;
-			var returnValue = this.document.execCommand(command, false, argument);
+			// try{
+				returnValue = this.document.execCommand(command, false, argument);
+			// }catch(e){
+			// 	dojo.debug(e);
+			// }
 		}
 		
 		this.onDisplayChanged();
@@ -781,7 +1042,10 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 			} else if (command == "inserttable" && dojo.render.html.mozilla) {
 				return true;
 			}
-			return this.document.queryCommandEnabled(command);
+
+			// return this.document.queryCommandEnabled(command);
+			var elem = (dojo.render.html.ie) ? this.document.selection.createRange() : this.document;
+			return elem.queryCommandEnabled(command);
 		}
 	},
 
@@ -889,6 +1153,7 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 
 	/** Updates the height of the iframe to fit the contents. */
 	_updateHeight: function () {
+		if (this.height) return;
 		if (this.iframe) {
 			/*
 			if(!this.document.body["offsetHeight"]){
@@ -907,10 +1172,8 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 					chromeheight += Number(height.replace(/[^0-9]/g, ""));
 				}
 			}
-			// dojo.debug(this.document.body.offsetHeight);
-			// dojo.debug(chromeheight);
 			if(this.document.body["offsetHeight"]){
-				this._lastHeight = this.document.body.offsetHeight + chromeheight;
+				this._lastHeight = Math.max(this.document.body.scrollHeight, this.document.body.offsetHeight) + chromeheight;
 				this.iframe.height = this._lastHeight + "px";
 				this.window.scrollTo(0, 0);
 			}
@@ -933,6 +1196,7 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		var ec = "";
 		try{
 			ec = (this._content.length > 0) ? this._content : this.editNode.innerHTML;
+			if(dojo.string.trim(ec) == "&nbsp;"){ ec = ""; }
 		}catch(e){ /* squelch */ }
 
 		dojo.lang.forEach(this.contentFilters, function(ef){
@@ -958,7 +1222,7 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		
 		// line height is squashed for iframes
 		if (this.iframe){ this.domNode.style.lineHeight = null; }
-		
+
 		if(this.interval){ clearInterval(this.interval); }
 		
 		if(dojo.render.html.ie && !this.object){
@@ -977,6 +1241,8 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 		}
 		// dojo.dom.removeChildren(this.domNode);
 		if(save){
+			// kill listeners on the saved content
+			dojo.event.browser.clean(this.savedContent);
 			if(dojo.render.html.moz){
 				var nc = document.createElement("span");
 				this.domNode.appendChild(nc);
@@ -984,8 +1250,6 @@ dojo.lang.extend(dojo.widget.HtmlRichText, {
 			}else{
 				this.domNode.innerHTML = this._content;
 			}
-			// kill listeners on the saved content
-			dojo.event.browser.clean(this.savedContent);
 		} else {
 			while (this.savedContent.hasChildNodes()) {
 				this.domNode.appendChild(this.savedContent.firstChild);

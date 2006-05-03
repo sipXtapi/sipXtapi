@@ -16,7 +16,7 @@
 * @author Copyright 2004 Mark D. Anderson (mda@discerning.com)
 * @author Licensed under the Academic Free License 2.1 http://www.opensource.org/licenses/afl-2.1.php
 *
-* $Id$
+* $Id: bootstrap1.js 3458 2006-04-06 22:26:33Z sjmiles $
 */
 
 /**
@@ -33,62 +33,76 @@
  */
 var dj_global = this; //typeof window == 'undefined' ? this : window;
 
+/**
+ *  True if name is defined, either on obj or globally if obj is false
+ *  Note that 'defined' and 'exists' are not the same concept. 
+ */
 function dj_undef(name, obj){
 	if(!obj){ obj = dj_global; }
+	// exception if obj is not an Object
 	return (typeof obj[name] == "undefined");
 }
 
-if(dj_undef("djConfig")){
-	var djConfig = {};
+/**
+ * djConfig is the global configuration object 
+ */
+if(dj_undef("djConfig")){ 
+	var djConfig = {}; 
 }
 
 /**
  * dojo is the root variable of (almost all) our public symbols.
  */
-var dojo;
-if(dj_undef("dojo")){ dojo = {}; }
+if(dj_undef("dojo")){ 
+	var dojo = {}; 
+}
 
 dojo.version = {
 	major: 0, minor: 2, patch: 2, flag: "+",
-	revision: Number("$Rev: 2889 $".match(/[0-9]+/)[0]),
-	toString: function() {
-		with (dojo.version) {
+	revision: Number("$Rev: 3458 $".match(/[0-9]+/)[0]),
+	toString: function(){
+		with(dojo.version){
 			return major + "." + minor + "." + patch + flag + " (" + revision + ")";
 		}
 	}
-};
+}
+
+/**
+ * get 'obj[name]' if it is defined, otherwise create as Object if 'create' is true, otherwise return null
+ * caveat: 'defined' and 'exists' are not the same concept
+ */
+dojo.evalProp = function(name, obj, create){
+	return (obj && !dj_undef(name, obj) ? obj[name] : (create ? (obj[name]={}) : undefined));
+}
+
+/**
+ * Parse a reference specified as a string descriptor into an object reference and a property name.
+ */
+dojo.parseObjPath = function(objpath, context, create){
+	var obj = (context ? context : dj_global);
+	var names = objpath.split('.');
+	var prop = names.pop();
+	for (var i=0,l=names.length;i<l && obj;i++){
+		obj = dojo.evalProp(names[i], obj, create);
+	}
+	return {obj: obj, prop: prop};
+}
 
 /*
  * evaluate a string like "A.B" without using eval.
  */
 dojo.evalObjPath = function(objpath, create){
+	if(typeof objpath != "string"){ 
+		return dj_global; 
+	}
 	// fast path for no periods
-	if(typeof objpath != "string"){ return dj_global; }
 	if(objpath.indexOf('.') == -1){
-		if((dj_undef(objpath, dj_global))&&(create)){
-			dj_global[objpath] = {};
-		}
-		return dj_global[objpath];
+		return dojo.evalProp(objpath, dj_global, create);
 	}
-
-	var syms = objpath.split(/\./);
-	var obj = dj_global;
-	for(var i=0;i<syms.length;++i){
-		if(!create){
-			obj = obj[syms[i]];
-			if((typeof obj == 'undefined')||(!obj)){
-				return obj;
-			}
-		}else{
-			if(dj_undef(syms[i], obj)){
-				obj[syms[i]] = {};
-			}
-			obj = obj[syms[i]];
-		}
-	}
-	return obj;
-};
-
+	with (dojo.parseObjPath(objpath, dj_global, create)){
+		return dojo.evalProp(prop, obj, create);
+	}	
+}
 
 // ****************************************************************
 // global public utils
@@ -101,7 +115,7 @@ dojo.evalObjPath = function(objpath, create){
  */
 dojo.errorToString = function(excep){
 	return ((!dj_undef("message", excep)) ? excep.message : (dj_undef("description", excep) ? excep : excep.description ));
-};
+}
 
 /**
 * Throws an Error object given the string err. For now, will also do a println
@@ -116,12 +130,12 @@ dojo.raise = function(message, excep){
 		dojo.hostenv.println("FATAL: " + message);
 	}
 	throw Error(message);
-};
+}
 
 dj_throw = dj_rethrow = function(m, e){
 	dojo.deprecated("dj_throw and dj_rethrow deprecated, use dojo.raise instead");
 	dojo.raise(m, e);
-};
+}
 
 /**
  * Produce a line of debug output. 
@@ -218,6 +232,16 @@ dj_deprecated = dojo.deprecated = function(behaviour, extra, removal){
 	var mess = "DEPRECATED: " + behaviour;
 	if(extra){ mess += " " + extra; }
 	if(removal){ mess += " -- will be removed in version: " + removal; }
+	dojo.debug(mess);
+}
+
+/**
+ * Convenience for informing of experimental code.
+ */
+dojo.experimental = function(packageName, extra){
+	var mess = "EXPERIMENTAL: " + packageName;
+	mess += " -- Not yet ready for use.  APIs subject to change without notice.";
+	if(extra){ mess += " " + extra; }
 	dojo.debug(mess);
 }
 
@@ -495,7 +519,7 @@ dojo.addOnLoad = function(obj, fcnName) {
 			obj[fcnName]();
 		});
 	}
-};
+}
 
 dojo.hostenv.modulesLoaded = function(){
 	if(this.post_load_){ return; }
@@ -644,7 +668,7 @@ dojo.hostenv.startPackage = function(packname){
  * @param must_exist Optional, defualt false. throw instead of returning null
  * if the module does not currently exist.
  */
-dojo.hostenv.findModule = function(modulename, must_exist) {
+dojo.hostenv.findModule = function(modulename, must_exist){
 	// check cache
 	/*
 	if(!dj_undef(modulename, this.modules_)){

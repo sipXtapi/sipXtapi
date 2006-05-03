@@ -38,12 +38,17 @@ dojo.inherits(dojo.dnd.HtmlDragMoveObject, dojo.dnd.HtmlDragObject);
 
 dojo.lang.extend(dojo.dnd.HtmlDragMoveObject, {
 	onDragEnd: function(e){
-		delete this.dragClone;
+		// shortly the browser will fire an onClick() event,
+		// but since this was really a drag, just squelch it
+		dojo.event.connect(this.domNode, "onclick", this, "squelchOnClick");
 	},
 	
 	onDragStart: function(e){
+
 		dojo.html.clearSelection();
-		
+
+		var mouse = dojo.html.getCursorPosition(e);
+
 		this.dragClone = this.domNode;
 
 		this.scrollOffset = {
@@ -51,17 +56,17 @@ dojo.lang.extend(dojo.dnd.HtmlDragMoveObject, {
 			left: dojo.html.getScrollLeft() // document.documentElement.scrollLeft
 		};
 
-		this.dragStartPosition = {top: dojo.style.getAbsoluteY(this.domNode) ,
-			left: dojo.style.getAbsoluteX(this.domNode) };
+		this.dragStartPosition = {top: dojo.style.getAbsoluteY(this.domNode, true),
+			left: dojo.style.getAbsoluteX(this.domNode, true) };
 		
-		this.dragOffset = {top: this.dragStartPosition.top - e.clientY,
-			left: this.dragStartPosition.left - e.clientX};
+		this.dragOffset = {top: this.dragStartPosition.top - mouse.y,
+			left: this.dragStartPosition.left - mouse.x};
 
 		if (this.domNode.parentNode.nodeName.toLowerCase() == 'body') {
 			this.parentPosition = {top: 0, left: 0};
 		} else {
 			this.parentPosition = {top: dojo.style.getAbsoluteY(this.domNode.parentNode, true),
-				left: dojo.style.getAbsoluteX(this.domNode.parentNode,true)};
+				left: dojo.style.getAbsoluteX(this.domNode.parentNode, true)};
 		}
 
 		this.dragClone.style.position = "absolute";

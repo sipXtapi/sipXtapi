@@ -8,17 +8,6 @@
 		http://dojotoolkit.org/community/licensing.shtml
 */
 
-/**
-* @file hostenv_browser.js
-*
-* Implements the hostenv interface for a browser environment.
-*
-* Perhaps it could be called a "dom" or "useragent" environment.
-*
-* @author Copyright 2004 Mark D. Anderson (mda@discerning.com)
-* @author Licensed under the Academic Free License 2.1 http://www.opensource.org/licenses/afl-2.1.php
-*/
-
 // make jsc shut up (so we can use jsc to sanity check the code even if it will never run it).
 /*@cc_on
 @if (@_jscript_version >= 7)
@@ -73,6 +62,7 @@ if(typeof window == 'undefined'){
 		}
 	}
 
+	// fill in the rendering support information in dojo.render.*
 	var dr = dojo.render;
 	var drh = dojo.render.html;
 	var drs = dojo.render.svg;
@@ -152,7 +142,7 @@ if(typeof window == 'undefined'){
 
 dojo.hostenv.startPackage("dojo.hostenv");
 
-dojo.hostenv.name_ = 'browser';
+dojo.render.name = dojo.hostenv.name_ = 'browser';
 dojo.hostenv.searchIds = [];
 
 // These are in order of decreasing likelihood; this will change in time.
@@ -218,7 +208,15 @@ dojo.hostenv.getText = function(uri, async_cb, fail_ok){
 	}
 
 	http.open('GET', uri, async_cb ? true : false);
-	http.send(null);
+	try {
+		http.send(null);
+	} catch (e) {
+		if (fail_ok && !async_cb) {
+			return null;
+		} else {
+			throw e;
+		}
+	}
 	if(async_cb){
 		return null;
 	}
@@ -307,17 +305,19 @@ dj_load_init = function(){
 	}
 	dojo.hostenv.modulesLoaded();
 };
-/*
+
+/* Uncomment this to allow init after DOMLoad, not after window.onload
 
 // Mozilla exposes the event we could use
 if (dojo.render.html.mozilla) {
    document.addEventListener("DOMContentLoaded", dj_load_init, null);
 }
-
 // for Internet Explorer. readyState will not be achieved on init call, but dojo doesn't need it
-if (dojo.render.html.ie) {
-   document.write("<script defer>dj_load_init()<"+"/script>");
-}
+//Tighten up the comments below to allow init after DOMLoad, not after window.onload
+/ * @cc_on @ * /
+/ * @if (@_win32)
+    document.write("<script defer>dj_load_init()<"+"/script>");
+/ * @end @ * /
 */
 
 // default for other browsers
@@ -371,11 +371,11 @@ dojo.hostenv.modulesLoadedListeners.push(function(){
 	}
 });
 
-// we assume that we haven't hit onload yet. Lord help us.
 try {
 	if (dojo.render.html.ie) {
-		document.write('<style>v\:*{ behavior:url(#default#VML); }</style>');
-		document.write('<xml:namespace ns="urn:schemas-microsoft-com:vml" prefix="v"/>');
+		//	easier and safer VML addition.  Thanks Emil!
+		document.namespaces.add("v", "urn:schemas-microsoft-com:vml");
+		document.createStyleSheet().addRule("v\\:*", "behavior:url(#default#VML)");
 	}
 } catch (e) { }
 

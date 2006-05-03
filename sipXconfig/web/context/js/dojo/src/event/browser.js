@@ -26,7 +26,7 @@ dojo_ie_clobber = new function(){
 		var na;
 		var tna;
 		if(nodeRef){
-			tna = nodeRef.getElementsByTagName("*");
+			tna = nodeRef.all || nodeRef.getElementsByTagName("*");
 			na = [nodeRef];
 			for(var x=0; x<tna.length; x++){
 				// if we're gonna be clobbering the thing, at least make sure
@@ -119,7 +119,7 @@ dojo.event.browser = new function(){
 			// around the resulting event
 			var newfp = function(evt){
 				if(!evt){ evt = window.event; }
-				var ret = fp(dojo.event.browser.fixEvent(evt));
+				var ret = fp(dojo.event.browser.fixEvent(evt, this));
 				if(capture){
 					dojo.event.browser.stopEvent(evt);
 				}
@@ -221,7 +221,7 @@ dojo.event.browser = new function(){
 		this.revKeys[this.keys[key]] = key;
 	}
 
-	this.fixEvent = function(evt){
+	this.fixEvent = function(evt, sender){
 		if((!evt)&&(window["event"])){
 			var evt = window.event;
 		}
@@ -239,7 +239,7 @@ dojo.event.browser = new function(){
 	
 		if(dojo.render.html.ie){
 			if(!evt.target){ evt.target = evt.srcElement; }
-			if(!evt.currentTarget){ evt.currentTarget = evt.srcElement; }
+			if(!evt.currentTarget){ evt.currentTarget = (sender ? sender : evt.srcElement); }
 			if(!evt.layerX){ evt.layerX = evt.offsetX; }
 			if(!evt.layerY){ evt.layerY = evt.offsetY; }
 			// mouseover

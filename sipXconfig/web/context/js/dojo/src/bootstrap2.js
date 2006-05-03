@@ -52,7 +52,7 @@ dojo.require = function(){
 dojo.requireAfter = dojo.require;
 
 dojo.requireIf = function(){
-	if((arguments[0] === true)||(arguments[0]=="common")||(dojo.render[arguments[0]].capable)){
+	if((arguments[0] === true)||(arguments[0]=="common")||(arguments[0] && dojo.render[arguments[0]].capable)){
 		var args = [];
 		for (var i = 1; i < arguments.length; i++) { args.push(arguments[i]); }
 		dojo.require.apply(dojo, args);

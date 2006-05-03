@@ -66,8 +66,11 @@ dojo.collections.SortedList = function(dictionary){
 			e.moveNext();
 		}
 	};
+	this.entry=function(k){
+		return items[k];
+	};
 	this.getByIndex = function(i){
-		return q[i].value;
+		return q[i].valueOf();
 	};
 	this.getIterator = function(){
 		return new dojo.collections.DictionaryIterator(items);
@@ -110,7 +113,7 @@ dojo.collections.SortedList = function(dictionary){
 		return -1;
 	};
 	this.item = function(k){
-		return items[k];
+		return items[k].valueOf();
 	};
 
 	this.remove = function(k){

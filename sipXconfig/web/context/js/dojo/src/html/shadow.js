@@ -13,65 +13,77 @@ dojo.provide("dojo.html.shadow");
 dojo.require("dojo.lang");
 dojo.require("dojo.uri");
 
+if(dojo.render.html.ie){
+	dojo.style.insertCssFile(dojo.uri.dojoUri("src/html/shadowIE.css"));
+}else{
+	dojo.style.insertCssFile(dojo.uri.dojoUri("src/html/shadow.css"));
+}
+
 dojo.html.shadow = function(node) {
 	this.init(node);
 }
 
 dojo.lang.extend(dojo.html.shadow, {
-
 	shadowPng: dojo.uri.dojoUri("src/html/images/shadow"),
-	shadowThickness: 8,
-	shadowOffset: 15,
 
 	init: function(node){
 		this.node=node;
 
-		// make all the pieces of the shadow, and position/size them as much
-		// as possible (but a lot of the coordinates are set in sizeShadow
-		this.pieces={};
-		var x1 = -1 * this.shadowThickness;
-		var y0 = this.shadowOffset;
-		var y1 = this.shadowOffset + this.shadowThickness;
-		this._makePiece("ul", "top", y0, "left", x1);
-		this._makePiece("l", "top", y1, "left", x1, "scale");
-		this._makePiece("ur", "top", y0, "left", 0);
-		this._makePiece("r", "top", y1, "left", 0, "scale");
-		this._makePiece("bl", "top", 0, "left", x1);
-		this._makePiece("b", "top", 0, "left", 0, "crop");
-		this._makePiece("br", "top", 0, "left", 0);
+		var pieces = [ "T", "TL", "TR", "L", "R", "BL", "BR", "B" ];
+		var urlBase = this.shadowPng;
+		
+		dojo.lang.forEach(pieces,
+			function(piece) {
+				var child = document.createElement("div");
+				child.className="dojoShadow"+piece;
+				node.appendChild(child);
+				
+				// to get the pathnames right we have to generate the CSS :-(
+				if(dojo.render.html.ie){
+					child.innerHTML = "<div></div>";
+					var url = urlBase + piece + ".png";
+					sizing=(dojo.lang.inArray(['T','L','R','B'],piece)?"scale":"");
+					child.style.filter=
+						"progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+url+"'"+
+						(sizing?", sizingMethod='"+sizing+"'":"") + ")";
+				}
+			}
+		);
+/*		
+		var t= "top: -8px;";
+		var l= "left: -8px;";
+		var b= dojo.render.html.ie ? "bottom: -6px;" : "bottom: -8px;";
+		var r= dojo.render.html.ie ? "right: -6px;" : "right: -8px;";
+		this._makePiece("UL", t + l + "width: 8px; height: 8px;");
+		this._makePiece("UR", t + r + "width: 8px; height: 8px;");
+		this._makePiece("BL", b + l + "width: 8px; height: 8px;");
+		this._makePiece("BR", b + r + "width: 8px; height: 8px;");
+
+		this._makePiece("T", t + "left: 0px; width: 100%; height: 8px;", "scale");
+		this._makePiece("B", b + "left: 0px; width: 100%; height: 8px;", "scale");
+		this._makePiece("L", "top: 0px;" + l + "width: 8px; height: 100%;", "scale");
+		this._makePiece("R", "top: 0px;" + r + "width: 8px; height: 100%;", "scale");
+*/
 	},
 
-	_makePiece: function(name, vertAttach, vertCoord, horzAttach, horzCoord, sizing){
+	_makePiece: function(name, cssText, sizing){
 		var img;
 		var url = this.shadowPng + name.toUpperCase() + ".png";
 		if(dojo.render.html.ie){
 			img=document.createElement("div");
-			img.style.filter="progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+url+"'"+
-			(sizing?", sizingMethod='"+sizing+"'":"") + ")";
+			img.style.cssText="position: absolute;" + cssText +
+				"filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='"+url+"'"+
+				(sizing?", sizingMethod='"+sizing+"'":"") + ")";
 		}else{
 			img=document.createElement("img");
 			img.src=url;
+			img.style.cssText="position: absolute;" + cssText;
 		}
-		img.style.position="absolute";
-		img.style[vertAttach]=vertCoord+"px";
-		img.style[horzAttach]=horzCoord+"px";
-		img.style.width=this.shadowThickness+"px";
-		img.style.height=this.shadowThickness+"px";
-		this.pieces[name]=img;
 		this.node.appendChild(img);
 	},
 
 	size: function(width, height){
-		var sideHeight = height - (this.shadowOffset+this.shadowThickness+1);
-		this.pieces.l.style.height = sideHeight+"px";
-		this.pieces.r.style.height = sideHeight+"px";
-		this.pieces.b.style.width = (width-1)+"px";
-		this.pieces.bl.style.top = (height-1)+"px";
-		this.pieces.b.style.top = (height-1)+"px";
-		this.pieces.br.style.top = (height-1)+"px";
-		this.pieces.ur.style.left = (width-1)+"px";
-		this.pieces.r.style.left = (width-1)+"px";
-		this.pieces.br.style.left = (width-1)+"px";
+		dojo.deprecated("size", "stop calling this function, it's no longer necessary");
 	}
 });
 

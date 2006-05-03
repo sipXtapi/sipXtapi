@@ -116,7 +116,7 @@ dj_eval = function(){ return true; }
 dojo.hostenv.oldLoadUri = dojo.hostenv.loadUri;
 dojo.hostenv.loadUri = function(uri){
 	if(dojo.hostenv.loadedUris[uri]){
-		return;
+		return true; // fixes endless recursion opera trac 471
 	}
 	try{
 		var text = this.getText(uri, null, true);
@@ -152,5 +152,9 @@ dojo.hostenv.writeIncludes = function(){
 		document.write("<script type='text/javascript' src='"+depList[x]+"'></script>");
 	}
 	document.write("<script type='text/javascript'>dojo.hostenv._global_omit_module_check = false;</script>");
+
+	// turn off debugAtAllCosts, so that dojo.require() calls inside of ContentPane hrefs
+	// work correctly
 	dj_eval = old_dj_eval;
+	dojo.hostenv.loadUri = dojo.hostenv.oldLoadUri;
 }

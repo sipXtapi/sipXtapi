@@ -38,27 +38,19 @@ dojo.widget.DatePicker.util = new function() {
 		if(!jsDate) {
 			var jsDate = new Date();
 		}
-		var year = jsDate.getFullYear();
-		var month = jsDate.getMonth() + 1;
-		if (month < 10) {
-			month = "0" + month.toString();
-		}
-		var date = jsDate.getDate();
-		if (date < 10) {
-			date = "0" + date.toString();
-		}
-		// because this is a date picker and not a time picker, we treat time 
-		// as zero
-		return year + "-" + month + "-" + date + "T00:00:00+00:00";
+		// because this is a date picker and not a time picker, we don't return a time
+		return dojo.date.format(jsDate, "%Y-%m-%d");
 	}
 	
 	this.fromRfcDate = function(rfcDate) {
-		var tempDate = rfcDate.split("-");
-		if(tempDate.length < 3) {
-			return new Date();
+		// backwards compatible support for use of "any" instead of just not 
+		// including the time
+		if(rfcDate.indexOf("Tany")!=-1) {
+			rfcDate = rfcDate.replace("Tany","");
 		}
-		// fullYear, month, date
-		return new Date(parseInt(tempDate[0]), (parseInt(tempDate[1], 10) - 1), parseInt(tempDate[2].substr(0,2), 10));
+		var jsDate = new Date();
+		dojo.date.setIso8601(jsDate, rfcDate);
+		return jsDate;
 	}
 	
 	this.initFirstSaturday = function(month, year) {

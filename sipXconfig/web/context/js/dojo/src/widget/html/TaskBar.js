@@ -48,11 +48,7 @@ dojo.lang.extend(dojo.widget.html.TaskBarItem, {
 	},
 
 	onClick: function() {
-		if (this.window.windowState != "minimized") {
-			this.window.bringToTop();
-		} else {
-			this.window.restoreWindow();
-		}
+		this.window.show();
 	}
 });
 

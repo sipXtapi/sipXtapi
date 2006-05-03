@@ -15,7 +15,6 @@ dojo.require("dojo.dom");
 dojo.require("dojo.style");
 dojo.require("dojo.string");
 dojo.require("dojo.string.extras"); // only necessary until we move renderedTextContent
-dojo.require("dojo.uri.Uri");
 
 dojo.lang.mixin(dojo.html, dojo.dom);
 dojo.lang.mixin(dojo.html, dojo.style);
@@ -93,6 +92,22 @@ dojo.html.selectElement = function(element){
 		}
 	}
 }
+
+dojo.html.selectInputText = function(element){
+	element = dojo.byId(element);
+	if(document.selection && document.body.createTextRange){ // IE
+		var range = element.createTextRange();
+		range.moveStart("character", 0);
+		range.moveEnd("character", element.value.length);
+		range.select();
+	}else if(window["getSelection"]){
+		var selection = window.getSelection();
+		// FIXME: does this work on Safari?
+		element.setSelectionRange(0, element.value.length);
+	}
+	element.focus();
+}
+
 
 dojo.html.isSelectionCollapsed = function(){
 	if(document["selection"]){ // IE
@@ -195,7 +210,7 @@ dojo.html.getViewportSize = function(){
 dojo.html.getScrollOffset = function(){
 	var ret = [0, 0];
 
-	if(window.pageYOffset){
+	if(window.pageXOffset || window.pageYOffset){
 		ret = [window.pageXOffset, window.pageYOffset];
 	}else if(dojo.exists(document, "documentElement.scrollTop")){
 		ret = [document.documentElement.scrollLeft, document.documentElement.scrollTop];
@@ -420,9 +435,9 @@ dojo.html.getElementsByClass = function(classStr, parent, nodeType, classMatchTy
 	if(!nodeType){ nodeType = "*"; }
 	var candidateNodes = parent.getElementsByTagName(nodeType);
 
+	var node, i = 0;
 	outer:
-	for(var i = 0; i < candidateNodes.length; i++) {
-		var node = candidateNodes[i];
+	while (node = candidateNodes[i++]) {
 		var nodeClasses = dojo.html.getClasses(node);
 		if(nodeClasses.length == 0) { continue outer; }
 		var matches = 0;
@@ -453,7 +468,23 @@ dojo.html.getElementsByClass = function(classStr, parent, nodeType, classMatchTy
 	
 	return nodes;
 }
+
 dojo.html.getElementsByClassName = dojo.html.getElementsByClass;
+
+dojo.html.getCursorPosition = function(e){
+	e = e || window.event;
+	var cursor = {x:0, y:0};
+	if(e.pageX || e.pageY){
+		cursor.x = e.pageX;
+		cursor.y = e.pageY;
+	}else{
+		var de = document.documentElement;
+		var db = document.body;
+		cursor.x = e.clientX + ((de||db)["scrollLeft"]) - ((de||db)["clientLeft"]);
+		cursor.y = e.clientY + ((de||db)["scrollTop"]) - ((de||db)["clientTop"]);
+	}
+	return cursor;
+}
 
 /**
  * Calculates the mouse's direction of gravity relative to the centre
@@ -473,17 +504,16 @@ dojo.html.getElementsByClassName = dojo.html.getElementsByClass;
  */
 dojo.html.gravity = function(node, e){
 	node = dojo.byId(node);
-	var mousex = e.pageX || e.clientX + document.body.scrollLeft;
-	var mousey = e.pageY || e.clientY + document.body.scrollTop;
-	
+	var mouse = dojo.html.getCursorPosition(e);
+
 	with (dojo.html) {
-		var nodecenterx = getAbsoluteX(node) + (getInnerWidth(node) / 2);
-		var nodecentery = getAbsoluteY(node) + (getInnerHeight(node) / 2);
+		var nodecenterx = getAbsoluteX(node, true) + (getInnerWidth(node) / 2);
+		var nodecentery = getAbsoluteY(node, true) + (getInnerHeight(node) / 2);
 	}
 	
 	with (dojo.html.gravity) {
-		return ((mousex < nodecenterx ? WEST : EAST) |
-			(mousey < nodecentery ? NORTH : SOUTH));
+		return ((mouse.x < nodecenterx ? WEST : EAST) |
+			(mouse.y < nodecentery ? NORTH : SOUTH));
 	}
 }
 
@@ -494,18 +524,17 @@ dojo.html.gravity.WEST = 1 << 3;
 	
 dojo.html.overElement = function(element, e){
 	element = dojo.byId(element);
-	var mousex = e.pageX || e.clientX + document.body.scrollLeft;
-	var mousey = e.pageY || e.clientY + document.body.scrollTop;
-	
+	var mouse = dojo.html.getCursorPosition(e);
+
 	with(dojo.html){
-		var top = getAbsoluteY(element);
+		var top = getAbsoluteY(element, true);
 		var bottom = top + getInnerHeight(element);
-		var left = getAbsoluteX(element);
+		var left = getAbsoluteX(element, true);
 		var right = left + getInnerWidth(element);
 	}
 	
-	return (mousex >= left && mousex <= right &&
-		mousey >= top && mousey <= bottom);
+	return (mouse.x >= left && mouse.x <= right &&
+		mouse.y >= top && mouse.y <= bottom);
 }
 
 /**
@@ -582,8 +611,8 @@ dojo.html.renderedTextContent = function(node){
 }
 
 dojo.html.setActiveStyleSheet = function(title){
-	var i, a, main;
-	for(i=0; (a = document.getElementsByTagName("link")[i]); i++){
+	var i = 0, a, els = document.getElementsByTagName("link");
+	while (a = els[i++]) {
 		if(a.getAttribute("rel").indexOf("style") != -1 && a.getAttribute("title")){
 			a.disabled = true;
 			if (a.getAttribute("title") == title) { a.disabled = false; }
@@ -592,10 +621,8 @@ dojo.html.setActiveStyleSheet = function(title){
 }
 
 dojo.html.getActiveStyleSheet = function(){
-	var i, a;
-	// FIXME: getElementsByTagName returns a live collection. This seems like a
-	// bad key for iteration.
-	for(i=0; (a = document.getElementsByTagName("link")[i]); i++){
+	var i = 0, a, els = document.getElementsByTagName("link");
+	while (a = els[i++]) {
 		if (a.getAttribute("rel").indexOf("style") != -1 &&
 			a.getAttribute("title") && !a.disabled) { return a.getAttribute("title"); }
 	}
@@ -603,8 +630,8 @@ dojo.html.getActiveStyleSheet = function(){
 }
 
 dojo.html.getPreferredStyleSheet = function(){
-	var i, a;
-	for(i=0; (a = document.getElementsByTagName("link")[i]); i++){
+	var i = 0, a, els = document.getElementsByTagName("link");
+	while (a = els[i++]) {
 		if(a.getAttribute("rel").indexOf("style") != -1
 			&& a.getAttribute("rel").indexOf("alt") == -1
 			&& a.getAttribute("title")) { return a.getAttribute("title"); }
@@ -673,14 +700,6 @@ dojo.html.createNodesFromText = function(txt, trim){
 	tn.style.display = "none"; // FIXME: why do we do this?
 	document.body.removeChild(tn);
 	return nodes;
-}
-
-// FIXME: this should be removed after 0.2 release
-if(!dojo.evalObjPath("dojo.dom.createNodesFromText")){
-	dojo.dom.createNodesFromText = function() {
-		dojo.deprecated("dojo.dom.createNodesFromText", "use dojo.html.createNodesFromText instead");
-		return dojo.html.createNodesFromText.apply(dojo.html, arguments);
-	}
 }
 
 /**
@@ -778,9 +797,7 @@ dojo.html.placeOnScreen = function(node, desiredX, desiredY, padding, hasScroll)
 
 /**
  * Like placeOnScreenPoint except that it attempts to keep one of the node's
- * corners at desiredX, desiredY. Also note that padding is only taken into
- * account if none of the corners can be kept and thus placeOnScreenPoint falls
- * back to placeOnScreen to place the node.
+ * corners at desiredX, desiredY.  Favors the bottom right position
  *
  * Examples placing node at mouse position (where e = [Mouse event]):
  *  placeOnScreenPoint(node, e.clientX, e.clientY);
@@ -793,12 +810,21 @@ dojo.html.placeOnScreenPoint = function(node, desiredX, desiredY, padding, hasSc
 		desiredX = desiredX[0];
 	}
 
+	if(!isNaN(padding)) {
+		padding = [Number(padding), Number(padding)];
+	} else if(!dojo.lang.isArray(padding)) {
+		padding = [0, 0];
+	}
+
 	var scroll = dojo.html.getScrollOffset();
 	var view = dojo.html.getViewportSize();
 
 	node = dojo.byId(node);
-	var w = node.offsetWidth;
-	var h = node.offsetHeight;
+	var oldDisplay = node.style.display;
+	node.style.display="";
+	var w = dojo.style.getInnerWidth(node);
+	var h = dojo.style.getInnerHeight(node);
+	node.style.display=oldDisplay;
 
 	if(hasScroll) {
 		desiredX -= scroll.x;
@@ -806,31 +832,31 @@ dojo.html.placeOnScreenPoint = function(node, desiredX, desiredY, padding, hasSc
 	}
 
 	var x = -1, y = -1;
-	//dojo.debug(desiredX + w, "<=", view.w, "&&", desiredY + h, "<=", view.h);
-	if(desiredX + w <= view.w && desiredY + h <= view.h) { // TL
-		x = desiredX;
-		y = desiredY;
+	//dojo.debug((desiredX+padding[0]) + w, "<=", view.w, "&&", (desiredY+padding[1]) + h, "<=", view.h);
+	if((desiredX+padding[0]) + w <= view.w && (desiredY+padding[1]) + h <= view.h) { // TL
+		x = (desiredX+padding[0]);
+		y = (desiredY+padding[1]);
 		//dojo.debug("TL", x, y);
 	}
 
-	//dojo.debug(desiredX, "<=", view.w, "&&", desiredY + h, "<=", view.h);
-	if((x < 0 || y < 0) && desiredX <= view.w && desiredY + h <= view.h) { // TR
-		x = desiredX - w;
-		y = desiredY;
+	//dojo.debug((desiredX-padding[0]), "<=", view.w, "&&", (desiredY+padding[1]) + h, "<=", view.h);
+	if((x < 0 || y < 0) && (desiredX-padding[0]) <= view.w && (desiredY+padding[1]) + h <= view.h) { // TR
+		x = (desiredX-padding[0]) - w;
+		y = (desiredY+padding[1]);
 		//dojo.debug("TR", x, y);
 	}
 
-	//dojo.debug(desiredX + w, "<=", view.w, "&&", desiredY, "<=", view.h);
-	if((x < 0 || y < 0) && desiredX + w <= view.w && desiredY <= view.h) { // BL
-		x = desiredX;
-		y = desiredY - h;
+	//dojo.debug((desiredX+padding[0]) + w, "<=", view.w, "&&", (desiredY-padding[1]), "<=", view.h);
+	if((x < 0 || y < 0) && (desiredX+padding[0]) + w <= view.w && (desiredY-padding[1]) <= view.h) { // BL
+		x = (desiredX+padding[0]);
+		y = (desiredY-padding[1]) - h;
 		//dojo.debug("BL", x, y);
 	}
 
-	//dojo.debug(desiredX, "<=", view.w, "&&", desiredY, "<=", view.h);
-	if((x < 0 || y < 0) && desiredX <= view.w && desiredY <= view.h) { // BR
-		x = desiredX - w;
-		y = desiredY - h;
+	//dojo.debug((desiredX-padding[0]), "<=", view.w, "&&", (desiredY-padding[1]), "<=", view.h);
+	if((x < 0 || y < 0) && (desiredX-padding[0]) <= view.w && (desiredY-padding[1]) <= view.h) { // BR
+		x = (desiredX-padding[0]) - w;
+		y = (desiredY-padding[1]) - h;
 		//dojo.debug("BR", x, y);
 	}
 
@@ -850,101 +876,78 @@ dojo.html.placeOnScreenPoint = function(node, desiredX, desiredY, padding, hasSc
 	return ret;
 }
 
-dojo.style.insertCssFile = function (URI, doc, checkDuplicates){
-	if(!URI) { return; }
-	if(!doc){ doc = document; }
-	// Safari doesn't have this property, but it doesn't support
-	// styleSheets.href either so it beomces moot
-	if(doc.baseURI) { URI = new dojo.uri.Uri(doc.baseURI, URI); }
-	if(checkDuplicates && doc.styleSheets){
-		// get the host + port info from location
-		var loc = location.href.split("#")[0].substring(0, location.href.indexOf(location.pathname));
-		for(var i = 0; i < doc.styleSheets.length; i++){
-			if(doc.styleSheets[i].href && URI.toString() ==
-				new dojo.uri.Uri(doc.styleSheets[i].href.toString())) { return; }
-		}
-	}
-	var file = doc.createElement("link");
-	file.setAttribute("type", "text/css");
-	file.setAttribute("rel", "stylesheet");
-	file.setAttribute("href", URI);
-	var head = doc.getElementsByTagName("head")[0];
-	if(head){ // FIXME: why isn't this working on Opera 8?
-		head.appendChild(file);
-	}
-}
+
 
 /**
  * For IE z-index schenanigans
- * See Dialog widget for sample use
+ * Two possible uses:
+ *   1. new dojo.html.BackgroundIframe(node)
+ *        Makes a background iframe as a child of node, that fills area (and position) of node
+ *
+ *   2. new dojo.html.BackgroundIframe()
+ *        Attaches frame to document.body.  User must call size() to set size.
  */
-dojo.html.BackgroundIframe = function() {
-	if(this.ie) {
-		this.iframe = document.createElement("<iframe frameborder='0' src='about:blank'>");
-		var s = this.iframe.style;
-		s.position = "absolute";
-		s.left = s.top = "0px";
-		s.zIndex = 2;
-		s.display = "none";
-		dojo.style.setOpacity(this.iframe, 0.0);
-		document.body.appendChild(this.iframe);
-	} else {
-		this.enabled = false;
+dojo.html.BackgroundIframe = function(node) {
+	if(dojo.render.html.ie) {
+		var html=
+				 "<iframe "
+				+"style='position: absolute; left: 0px; top: 0px; width: 100%; height: 100%;"
+				+        "z-index: -1; filter:Alpha(Opacity=\"0\");' "
+				+">";
+		this.iframe = document.createElement(html);
+		if(node){
+			node.appendChild(this.iframe);
+			this.domNode=node;
+		}else{
+			document.body.appendChild(this.iframe);
+			this.iframe.style.display="none";
+		}
 	}
 }
 dojo.lang.extend(dojo.html.BackgroundIframe, {
-	ie: dojo.render.html.ie,
-	enabled: true,
-	visibile: false,
 	iframe: null,
-	sizeNode: null,
-	sizeCoords: null,
 
-	size: function(node /* or coords */) {
-		if(!this.ie || !this.enabled) { return; }
-
-		if(dojo.dom.isNode(node)) {
-			this.sizeNode = node;
-		} else if(arguments.length > 0) {
-			this.sizeNode = null;
-			this.sizeCoords = node;
+	// TODO: this function shouldn't be necessary but setting width=height=100% doesn't work!
+	onResized: function(){
+		if(this.iframe && this.domNode){
+			var w = dojo.style.getOuterWidth(this.domNode);
+			var h = dojo.style.getOuterHeight(this.domNode);
+			if (w  == 0 || h == 0 ){
+				dojo.lang.setTimeout(this, this.onResized, 50);
+				return;
+			}
+			var s = this.iframe.style;
+			s.width = w + "px";
+			s.height = h + "px";
 		}
-		this.update();
 	},
 
-	update: function() {
-		if(!this.ie || !this.enabled) { return; }
+	// Call this function if the iframe is connected to document.body rather
+	// than the node being shadowed (TODO: erase)
+	size: function(node) {
+		if(!this.iframe) { return; }
 
-		if(this.sizeNode) {
-			this.sizeCoords = dojo.html.toCoordinateArray(this.sizeNode, true);
-		} else if(this.sizeCoords) {
-			this.sizeCoords = dojo.html.toCoordinateArray(this.sizeCoords, true);
-		} else {
-			return;
-		}
+		coords = dojo.style.toCoordinateArray(node, true);
 
 		var s = this.iframe.style;
-		var dims = this.sizeCoords;
-		s.width = dims.w + "px";
-		s.height = dims.h + "px";
-		s.left = dims.x + "px";
-		s.top = dims.y + "px";
+		s.width = coords.w + "px";
+		s.height = coords.h + "px";
+		s.left = coords.x + "px";
+		s.top = coords.y + "px";
 	},
 
 	setZIndex: function(node /* or number */) {
-		if(!this.ie || !this.enabled) { return; }
+		if(!this.iframe) { return; }
 
 		if(dojo.dom.isNode(node)) {
-			this.iframe.zIndex = dojo.html.getStyle(node, "z-index") - 1;
+			this.iframe.style.zIndex = dojo.html.getStyle(node, "z-index") - 1;
 		} else if(!isNaN(node)) {
-			this.iframe.zIndex = node;
+			this.iframe.style.zIndex = node;
 		}
 	},
 
-	show: function(node /* or coords */) {
-		if(!this.ie || !this.enabled) { return; }
-
-		this.size(node);
+	show: function() {
+		if(!this.iframe) { return; }
 		this.iframe.style.display = "block";
 	},
 
@@ -952,7 +955,6 @@ dojo.lang.extend(dojo.html.BackgroundIframe, {
 		if(!this.ie) { return; }
 		var s = this.iframe.style;
 		s.display = "none";
-		s.width = s.height = "1px";
 	},
 
 	remove: function() {

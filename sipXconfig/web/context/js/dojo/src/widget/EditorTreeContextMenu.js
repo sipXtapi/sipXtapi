@@ -16,6 +16,8 @@ dojo.require("dojo.event.*");
 dojo.require("dojo.io.*");
 dojo.require("dojo.widget.Menu2");
 
+dojo.deprecated("dojo.widget.EditorTreeContextMenu",  "use dojo.widget.TreeContextMenu");
+
 
 dojo.widget.tags.addParseTreeHandler("dojo:EditorTreeContextMenu");
 dojo.widget.tags.addParseTreeHandler("dojo:EditorTreeMenuItem");

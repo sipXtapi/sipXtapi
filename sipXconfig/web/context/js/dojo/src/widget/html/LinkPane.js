@@ -49,7 +49,12 @@ dojo.lang.extend(dojo.widget.html.LinkPane, {
 		this.label += source.innerHTML;
 
 		// Copy style info from input node to output node
-		this.domNode.style.cssText = source.style.cssText;
+		// get around opera wich doesnt have cssText, and IE wich bugs on setAttribute
+		if(dojo.lang.isUndefined(source.style.cssText)){
+			this.domNode.setAttribute("style", source.getAttribute("style"));
+		}else{
+			this.domNode.style.cssText = source.style.cssText;
+		}
 		dojo.html.addClass(this.domNode, dojo.html.getClass(source));
 	}
 });

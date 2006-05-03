@@ -9,14 +9,13 @@
 */
 
 dojo.provide("dojo.widget.Chart");
+dojo.provide("dojo.widget.Chart.PlotTypes");
 dojo.provide("dojo.widget.Chart.DataSeries");
 
 dojo.require("dojo.widget.*");
 dojo.require("dojo.widget.Widget");
 dojo.require("dojo.graphics.color");
 dojo.widget.tags.addParseTreeHandler("dojo:chart");
-
-dojo.requireAfterIf(dojo.render.svg.support.builtin, "dojo.widget.svg.Chart");
 
 dojo.widget.Chart=function(){
 	dojo.widget.Widget.call(this);
@@ -35,6 +34,13 @@ dojo.widget.Chart=function(){
 	};
 }
 dojo.inherits(dojo.widget.Chart, dojo.widget.Widget);
+
+dojo.widget.Chart.PlotTypes = {
+	Bar:"bar",
+	Line:"line",
+	Scatter:"scatter",
+	Bubble:"bubble"
+};
 
 /*  Every chart has a set of data series; this is the series.
 	Note that each member of value is an object and in the
@@ -168,3 +174,9 @@ dojo.widget.Chart.DataSeries.prototype={
 		return parseFloat(ret);
 	}
 };
+
+if(dojo.render.svg.support.builtin){
+	dojo.require("dojo.widget.svg.Chart");
+}else if(dojo.render.html.ie){
+	dojo.require("dojo.widget.vml.Chart");
+}

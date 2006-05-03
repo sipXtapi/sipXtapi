@@ -57,7 +57,6 @@ dojo.iCalendar.Component = function (/* string */ body ) {
 				if (body[i].name == 'BEGIN') {
 					context = body[i].value;
 					var childprops = [];
-					//dojo.debug("Context: " + context);
 				} else {
 					this.addProperty(new dojo.iCalendar.Property(body[i]));
 				}
@@ -220,6 +219,7 @@ dojo.iCalendar.VCalendar = function (/* string */ calbody) {
 
 	this.name = "VCALENDAR";
 	this.recurring = [];
+	this.nonRecurringEvents = function(){};
 	dojo.iCalendar.Component.call(this, calbody);
 }
 
@@ -227,9 +227,6 @@ dojo.inherits(dojo.iCalendar.VCalendar, dojo.iCalendar.Component);
 
 dojo.lang.extend(dojo.iCalendar.VCalendar, {
 
-	nonRecurringEvents: function() {},
-	recurringEvents: function() {},
-	
 	addComponent: function (prop) {
 		// summary
 		// add component to the calenadar that makes it easy to pull them out again later.
@@ -240,31 +237,33 @@ dojo.lang.extend(dojo.iCalendar.VCalendar, {
 			} else {
 				startDate = prop.getDate();
 				month = startDate.getMonth() + 1;
-				dateString = startDate.getFullYear() + "-" + month + "-" + startDate.getDate();
-
+				dateString= month + "-" + startDate.getDate() + "-" + startDate.getFullYear();
 				if (!dojo.lang.isArray(this[dateString])) {
-					this[dateString] = [];
+					this.nonRecurringEvents[dateString] = [];
 				}
-				this[dateString].push(prop);
+				this.nonRecurringEvents[dateString].push(prop);
 			}
 		}
 	},
 
 	preComputeRecurringEvents: function(until) {
+		var calculatedEvents = function(){};
+
 		for(var x=0; x<this.recurring.length; x++) {
 			var dates = this.recurring[x].getDates(until);
 			for (var y=0; y<dates.length;y++) {
 				month = dates[y].getMonth() + 1;
 				dateStr = month + "-" + dates[y].getDate() + "-" + dates[y].getFullYear();
-				if (!dojo.lang.isArray(this.recurringEvents[dateStr])) {
-					this.recurringEvents[dateStr] = [];
+				if (!dojo.lang.isArray(calculatedEvents[dateStr])) {
+					calculatedEvents[dateStr] = [];
 				}
 
-				if (!dojo.lang.inArray(this.recurringEvents[dateStr], this.recurring[x])) { 
-					this.recurringEvents[dateStr].push(this.recurring[x]);
+				if (!dojo.lang.inArray(calculatedEvents[dateStr], this.recurring[x])) { 
+					calculatedEvents[dateStr].push(this.recurring[x]);
 				} 
 			}
 		}
+		this.recurringEvents = calculatedEvents;
 	
 	},
 
@@ -278,13 +277,14 @@ dojo.lang.extend(dojo.iCalendar.VCalendar, {
 		var dateStr= month + "-" + date.getDate() + "-" + date.getFullYear();
 		if (dojo.lang.isArray(this.nonRecurringEvents[dateStr])) {
 			nonRecur= this.nonRecurringEvents[dateStr];
+			dojo.debug("Number of nonRecurring Events: " + nonRecur.length);
 		} 
+		
 
 		if (dojo.lang.isArray(this.recurringEvents[dateStr])) {
 			recur= this.recurringEvents[dateStr];
 		} 
 
-		//events = recur.concat(nonRecur);
 		events = recur.concat(nonRecur);
 
 		if (events.length > 0) {

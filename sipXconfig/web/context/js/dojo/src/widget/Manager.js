@@ -31,6 +31,10 @@ dojo.widget.manager = new function(){
 	this.add = function(widget){
 		dojo.profile.start("dojo.widget.manager.add");
 		this.widgets.push(widget);
+		// Opera9 uses ID (caps)
+		if(!widget.extraArgs["id"]){
+			widget.extraArgs["id"] = widget.extraArgs["ID"];
+		}
 		// FIXME: the rest of this method is very slow!
 		if(widget.widgetId == ""){
 			if(widget["id"]){
@@ -238,20 +242,21 @@ dojo.widget.manager = new function(){
 
 	// Catch window resize events and notify top level widgets
 	this.resizing=false;
-	this.onResized = function() {
+	this.onResized = function(){
 		if(this.resizing){
 			return;	// duplicate event
 		}
-		try {
+		try{
 			this.resizing=true;
-			for(var id in this.topWidgets) {
+			for(var id in this.topWidgets){
 				var child = this.topWidgets[id];
 				//dojo.debug("root resizing child " + child.widgetId);
-				if ( child.onResized ) {
+				if(child.onResized){
 					child.onResized();
 				}
 			}
-		} finally {
+		}catch(e){
+		}finally{
 			this.resizing=false;
 		}
 	}
@@ -264,28 +269,28 @@ dojo.widget.manager = new function(){
 }
 
 // copy the methods from the default manager (this) to the widget namespace
-dojo.widget.getUniqueId = function () { return dojo.widget.manager.getUniqueId.apply(dojo.widget.manager, arguments); }
-dojo.widget.addWidget = function () { return dojo.widget.manager.add.apply(dojo.widget.manager, arguments); }
-dojo.widget.destroyAllWidgets = function () { return dojo.widget.manager.destroyAll.apply(dojo.widget.manager, arguments); }
-dojo.widget.removeWidget = function () { return dojo.widget.manager.remove.apply(dojo.widget.manager, arguments); }
-dojo.widget.removeWidgetById = function () { return dojo.widget.manager.removeById.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetById = function () { return dojo.widget.manager.getWidgetById.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetsByType = function () { return dojo.widget.manager.getWidgetsByType.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetsByFilter = function () { return dojo.widget.manager.getWidgetsByFilter.apply(dojo.widget.manager, arguments); }
-dojo.widget.byId = function () { return dojo.widget.manager.getWidgetById.apply(dojo.widget.manager, arguments); }
-dojo.widget.byType = function () { return dojo.widget.manager.getWidgetsByType.apply(dojo.widget.manager, arguments); }
-dojo.widget.byFilter = function () { return dojo.widget.manager.getWidgetsByFilter.apply(dojo.widget.manager, arguments); }
-dojo.widget.byNode = function () { return dojo.widget.manager.getWidgetByNode.apply(dojo.widget.manager, arguments); }
-dojo.widget.all = function (n) {
+dojo.widget.getUniqueId = function(){ return dojo.widget.manager.getUniqueId.apply(dojo.widget.manager, arguments); }
+dojo.widget.addWidget = function(){ return dojo.widget.manager.add.apply(dojo.widget.manager, arguments); }
+dojo.widget.destroyAllWidgets = function(){ return dojo.widget.manager.destroyAll.apply(dojo.widget.manager, arguments); }
+dojo.widget.removeWidget = function(){ return dojo.widget.manager.remove.apply(dojo.widget.manager, arguments); }
+dojo.widget.removeWidgetById = function(){ return dojo.widget.manager.removeById.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetById = function(){ return dojo.widget.manager.getWidgetById.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetsByType = function(){ return dojo.widget.manager.getWidgetsByType.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetsByFilter = function(){ return dojo.widget.manager.getWidgetsByFilter.apply(dojo.widget.manager, arguments); }
+dojo.widget.byId = function(){ return dojo.widget.manager.getWidgetById.apply(dojo.widget.manager, arguments); }
+dojo.widget.byType = function(){ return dojo.widget.manager.getWidgetsByType.apply(dojo.widget.manager, arguments); }
+dojo.widget.byFilter = function(){ return dojo.widget.manager.getWidgetsByFilter.apply(dojo.widget.manager, arguments); }
+dojo.widget.byNode = function(){ return dojo.widget.manager.getWidgetByNode.apply(dojo.widget.manager, arguments); }
+dojo.widget.all = function(n){
 	var widgets = dojo.widget.manager.getAllWidgets.apply(dojo.widget.manager, arguments);
 	if(arguments.length > 0) {
 		return widgets[n];
 	}
 	return widgets;
 }
-dojo.widget.registerWidgetPackage = function () { return dojo.widget.manager.registerWidgetPackage.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetImplementation = function () { return dojo.widget.manager.getImplementation.apply(dojo.widget.manager, arguments); }
-dojo.widget.getWidgetImplementationName = function () { return dojo.widget.manager.getImplementationName.apply(dojo.widget.manager, arguments); }
+dojo.widget.registerWidgetPackage = function(){ return dojo.widget.manager.registerWidgetPackage.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetImplementation = function(){ return dojo.widget.manager.getImplementation.apply(dojo.widget.manager, arguments); }
+dojo.widget.getWidgetImplementationName = function(){ return dojo.widget.manager.getImplementationName.apply(dojo.widget.manager, arguments); }
 
 dojo.widget.widgets = dojo.widget.manager.widgets;
 dojo.widget.widgetIds = dojo.widget.manager.widgetIds;

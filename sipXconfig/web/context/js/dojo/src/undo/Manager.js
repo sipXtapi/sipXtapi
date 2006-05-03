@@ -127,9 +127,10 @@ dojo.lang.extend(dojo.undo.Manager, {
 		this._updateStatus();
 	},
 
-	beginTransaction: function() {
+	beginTransaction: function(description /* optional */) {
 		if(this._currentManager == this) {
 			var mgr = new dojo.undo.Manager(this);
+			mgr.description = description ? description : "";
 			this._undoStack.push(mgr);
 			this._currentManager = mgr;
 		} else {

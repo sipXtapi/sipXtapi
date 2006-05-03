@@ -120,7 +120,7 @@ dojo.widget.Parse = function(fragment) {
 					// so do something else
 					// FIXME: needs to be a better/stricter check
 					// TODO: handle xlink:href for external property sets
-				}else if((fragment[item][0])&&(fragment[item][0].value!="")){
+				}else if((fragment[item][0])&&(fragment[item][0].value!="")&&(fragment[item][0].value!=null)){
 					try{
 						// FIXME: need to allow more than one provider
 						if(item.toLowerCase() == "dataprovider") {

@@ -107,33 +107,22 @@ dojo.lang.extend(dojo.widget.Widget, {
 		return this;
 	},
 
+	// Destroy this widget and it's descendants
 	destroy: function(finalize){
 		// FIXME: this is woefully incomplete
+		this.destroyChildren();
 		this.uninitialize();
 		this.destroyRendering(finalize);
 		dojo.widget.manager.removeById(this.widgetId);
 	},
 
-	destroyChildren: function(testFunc){
-		testFunc = (!testFunc) ? function(){ return true; } : testFunc;
-		for(var x=0; x<this.children.length; x++){
-			var tc = this.children[x];
-			if((tc)&&(testFunc(tc))){
-				tc.destroy();
-			}
+	// Destroy the children of this widget, and their descendents
+	destroyChildren: function(){
+		while(this.children.length > 0){
+			var tc = this.children[0];
+			this.removeChild(tc);
+			tc.destroy();
 		}
-		// this.children = [];
-	},
-
-	destroyChildrenOfType: function(type){
-		type = type.toLowerCase();
-		this.destroyChildren(function(item){
-			if(item.widgetType.toLowerCase() == type){
-				return true;
-			}else{
-				return false;
-			}
-		});
 	},
 
 	getChildrenOfType: function(type, recurse){
@@ -160,8 +149,6 @@ dojo.lang.extend(dojo.widget.Widget, {
 	},
 
 	getDescendants: function(){
-		// FIXME: this does not appear to be recursive. Shouldn't a function 
-		// with this signature get *all* descendants?
 		var result = [];
 		var stack = [this];
 		var elem;
@@ -314,7 +301,7 @@ dojo.lang.extend(dojo.widget.Widget, {
 				}
 			}else{
 				// collect any extra 'non mixed in' args
-				this.extraArgs[x] = args[x];
+				this.extraArgs[x.toLowerCase()] = args[x];
 			}
 		}
 		// dojo.profile.end("mixInProperties");
@@ -369,22 +356,15 @@ dojo.lang.extend(dojo.widget.Widget, {
 		return false;
 	},
 
-	addChildAtIndex: function(child, index){
-		// SUBCLASSES MUST IMPLEMENT
-		dj_unimplemented("dojo.widget.Widget.addChildAtIndex");
-		return false;
-	},
-
-	removeChild: function(childRef){
-		// SUBCLASSES MUST IMPLEMENT
-		dj_unimplemented("dojo.widget.Widget.removeChild");
-		return false;
-	},
-
-	removeChildAtIndex: function(index){
-		// SUBCLASSES MUST IMPLEMENT
-		dj_unimplemented("dojo.widget.Widget.removeChildAtIndex");
-		return false;
+	// Detach the given child widget from me, but don't destroy it
+	removeChild: function(widget){
+		for(var x=0; x<this.children.length; x++){
+			if(this.children[x] === widget){
+				this.children.splice(x, 1);
+				break;
+			}
+		}
+		return widget;
 	},
 
 	resize: function(width, height){
@@ -493,6 +473,13 @@ dojo.widget.tags["dojo:connect"] = function(fragment, widgetParser, parentComp){
 	var properties = widgetParser.parseProperties(fragment["dojo:connect"]);
 }
 
+// FIXME: if we know the insertion point (to a reasonable location), why then do we:
+//	- create a template node
+//	- clone the template node
+//	- render the clone and set properties
+//	- remove the clone from the render tree
+//	- place the clone
+// this is quite dumb
 dojo.widget.buildWidgetFromParseTree = function(type, frag, 
 												parser, parentComp, 
 												insertionIndex, localProps){
@@ -513,4 +500,48 @@ dojo.widget.buildWidgetFromParseTree = function(type, frag,
 	var ret = twidget.create(localProperties, frag, parentComp);
 	// dojo.debug(new Date() - tic);
 	return ret;
+}
+
+/*
+ * it would be best to be able to call defineWidget for any widget namespace
+ */
+dojo.widget.defineWidget = function(	widgetClass 	/*string*/, 
+										superclass 		/*function*/, 
+										props 			/*object*/,
+										renderer 		/*string*/, 
+										ctor 			/*function*/){
+	if((!ctor)&&(props["classConstructor"])){
+		ctor = props.classConstructor;
+	}
+	if(!ctor){ ctor = function(){}; }
+	var nsref;
+	var namespace;
+	var type;
+	if(renderer){
+		// widgetClass takes the form foo.bar.baz.html.WidgetName
+		var parts = widgetClass.split("."+renderer+".");
+		namespace = parts[0];
+		nsref = dojo.evalObjPath(namespace+"."+renderer, true);
+		type = parts[1];
+	}else{
+		// widgetClass takes the form foo.bar.baz.WidgetName
+		var parts = widgetClass.split(".");
+		type = parts.pop();
+		namespace = parts.join(".");
+		nsref = dojo.evalObjPath(namespace, true);
+	}
+	
+	if(!props){ props = {}; }
+	props.widgetType = type;
+
+	dojo.widget.tags.addParseTreeHandler("dojo:"+type.toLowerCase());
+
+	nsref[type] = function(){
+		superclass.call(this);
+		ctor.call(this);
+	}
+
+	dojo.inherits(nsref[type], superclass);
+
+	dojo.lang.extend(nsref[type], props);
 }

@@ -64,13 +64,7 @@ dojo.lang.extend(dojo.rpc.RpcService, {
 			var deferredRequestHandler = new dojo.rpc.Deferred();
 
 			// if params weren't specified, then we can assume it's varargs
-			if(
-				(!_this.strictArgChecks)||
-				(
-					(parameters != null)&&
-					(arguments.length != parameters.length)
-				)
-			){
+			if( (_this.strictArgChecks) && (parameters != null) && (arguments.length != parameters.length) ) {
 				dojo.raise("Invalid number of parameters for remote method.");
 				// put error stuff here, no enough params
 			} else {

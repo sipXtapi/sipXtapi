@@ -11,6 +11,7 @@
 dojo.provide("dojo.fx.html");
 
 dojo.require("dojo.style");
+dojo.require("dojo.math.curves");
 dojo.require("dojo.lang.func");
 dojo.require("dojo.animation");
 dojo.require("dojo.event.*");
@@ -516,5 +517,53 @@ dojo.fx.html.Exploder = function(triggerNode, boxNode) {
 
 	return this;
 };
+
+/**** 
+	Strategies for displaying/hiding objects
+	This presents a standard interface for each of the effects
+*****/
+dojo.fx.html.toggle={}
+
+dojo.fx.html.toggle.plain = {
+	show: function(node, duration, explodeSrc, callback){
+		dojo.style.show(node);
+		if(dojo.lang.isFunction(callback)){ callback(); }
+	},
+
+	hide: function(node, duration, explodeSrc, callback){
+		dojo.style.hide(node);
+		if(dojo.lang.isFunction(callback)){ callback(); }
+	}
+}
+
+dojo.fx.html.toggle.fade = {
+	show: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.fadeShow(node, duration, callback);
+	},
+
+	hide: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.fadeHide(node, duration, callback);
+	}
+}
+
+dojo.fx.html.toggle.wipe = {
+	show: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.wipeIn(node, duration, callback);
+	},
+
+	hide: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.wipeOut(node, duration, callback);
+	}
+}
+
+dojo.fx.html.toggle.explode = {
+	show: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.explode(explodeSrc||[0,0,0,0], node, duration, callback);
+	},
+
+	hide: function(node, duration, explodeSrc, callback){
+		dojo.fx.html.implode(node, explodeSrc||[0,0,0,0], duration, callback);
+	}
+}
 
 dojo.lang.mixin(dojo.fx, dojo.fx.html);

@@ -31,10 +31,10 @@ dojo.lang.extend(dojo.widget.Toggler, {
 	},
 	
 	onClick: function() {
-		var pane = dojo.widget.getWidgetById(this.targetId);
-		if ( !pane || !pane.toggle ) { return; }
+		var pane = dojo.widget.byId(this.targetId);
+		if(!pane){ return; }
 		pane.explodeSrc = this.domNode;
-		pane.doToggle();
+		pane.toggleShowing();
 	}
 });
 dojo.widget.tags.addParseTreeHandler("dojo:toggler");

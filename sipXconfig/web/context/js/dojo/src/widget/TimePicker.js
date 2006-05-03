@@ -11,6 +11,7 @@
 dojo.provide("dojo.widget.TimePicker");
 dojo.provide("dojo.widget.TimePicker.util");
 dojo.require("dojo.widget.DomWidget");
+dojo.require("dojo.date");
 
 dojo.widget.TimePicker = function(){
 	dojo.widget.Widget.call(this);
@@ -34,44 +35,12 @@ dojo.widget.TimePicker.util = new function() {
 		if(!jsDate) {
 			jsDate = new Date();
 		}
-		var year = jsDate.getFullYear();
-		var month = jsDate.getMonth() + 1;
-		if (month < 10) {
-			month = "0" + month.toString();
-		}
-		var date = jsDate.getDate();
-		if (date < 10) {
-			date = "0" + date.toString();
-		}
-		var hour = jsDate.getHours();
-		if (hour < 10) {
-			hour = "0" + hour.toString();
-		}
-		var minute = jsDate.getMinutes();
-		if (minute < 10) {
-			minute = "0" + minute.toString();
-		}
-		// no way to set seconds, so set to zero
-		var second = "00";
-		var timeZone = jsDate.getTimezoneOffset();
-		var timeZoneHour = parseInt(timeZone/60);
-		if(timeZoneHour > -10 && timeZoneHour < 0) {
-			timeZoneHour = "-0" + Math.abs(timeZoneHour);
-		} else if(timeZoneHour < 10) {
-			timeZoneHour = "+0" + timeZoneHour.toString();
-		} else if(timeZoneHour >= 10) {
-			timeZoneHour = "+" + timeZoneHour.toString();
-		}
-		var timeZoneMinute = timeZone%60;
-		if(timeZoneMinute < 10) {
-			timeZoneMinute = "0" + timeZoneMinute.toString();
-		}
-		return year + "-" + month + "-" + date + "T" + hour + ":" + minute + ":" + second + timeZoneHour +":" + timeZoneMinute;
+		return dojo.date.format(jsDate, "%Y-%m-%dT%H:%M:00%z");
 	}
 
-	this.fromRfcDateTime = function(rfcDate, useDefaultMinutes) {
+	this.fromRfcDateTime = function(rfcDate, useDefaultMinutes, isAnyTime) {
 		var tempDate = new Date();
-		if(!rfcDate || !rfcDate.split("T")[1]) {
+		if(!rfcDate || rfcDate.indexOf("T")==-1) {
 			if(useDefaultMinutes) {
 				tempDate.setMinutes(Math.floor(tempDate.getMinutes()/5)*5);
 			} else {

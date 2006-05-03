@@ -17,6 +17,9 @@ dojo.require("dojo.json")
 dojo.require("dojo.io.*");
 
 
+dojo.deprecated("dojo.widget.EditorTreeController",  "moved to dojo.widget.Tree*Controller family");
+
+
 dojo.widget.tags.addParseTreeHandler("dojo:EditorTreeController");
 
 

@@ -18,8 +18,8 @@
     </invoke-factory>
   </service-point>
   <!-- Upload Size=20MB for no particular reason. Polycom firmware was 11MB -->
-  <implementation service-id="tapestry.multipart.MultipartDecoder">
-    <create-instance class="org.apache.tapestry.multipart.MultipartDecoderImpl_Bug368,maxSize=20480000" 
+  <implementation service-id="tapestry.multipart.ServletMultipartDecoder">
+    <create-instance class="org.apache.tapestry.multipart.MultipartDecoderImpl,maxSize=20480000" 
        model="threaded" />
   </implementation>
   <!-- Spring/Tapestry integration -->

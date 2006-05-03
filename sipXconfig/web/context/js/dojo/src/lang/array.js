@@ -15,7 +15,9 @@ dojo.require("dojo.lang.common");
 // FIXME: Is this worthless since you can do: if(name in obj)
 // is this the right place for this?
 dojo.lang.has = function(obj, name){
-	return (typeof obj[name] !== 'undefined');
+	try{
+		return (typeof obj[name] != "undefined");
+	}catch(e){ return false; }
 }
 
 dojo.lang.isEmpty = function(obj) {
@@ -34,17 +36,6 @@ dojo.lang.isEmpty = function(obj) {
 	}
 }
 
-dojo.lang.forEach = function(arr, unary_func, fix_length){
-	var isString = dojo.lang.isString(arr);
-	if(isString) { arr = arr.split(""); }
-	var il = arr.length;
-	for(var i=0; i< ((fix_length) ? il : arr.length); i++){
-		if(unary_func(arr[i], i, arr) == "break"){
-			break;
-		}
-	}
-}
-
 dojo.lang.map = function(arr, obj, unary_func){
 	var isString = dojo.lang.isString(arr);
 	if(isString){
@@ -59,7 +50,6 @@ dojo.lang.map = function(arr, obj, unary_func){
 		obj = unary_func;
 		unary_func = tmpObj;
 	}
-
 	if(Array.map){
 	 	var outArr = Array.map(arr, unary_func, obj);
 	}else{
@@ -68,7 +58,6 @@ dojo.lang.map = function(arr, obj, unary_func){
 			outArr.push(unary_func.call(obj, arr[i]));
 		}
 	}
-
 	if(isString) {
 		return outArr.join("");
 	} else {
@@ -76,44 +65,52 @@ dojo.lang.map = function(arr, obj, unary_func){
 	}
 }
 
-dojo.lang.every = function(arr, callback, thisObject) {
-	var isString = dojo.lang.isString(arr);
-	if(isString) { arr = arr.split(""); }
-	if(Array.every) {
-		return Array.every(arr, callback, thisObject);
-	} else {
-		if(!thisObject) {
-			if(arguments.length >= 3) { dojo.raise("thisObject doesn't exist!"); }
-			thisObject = dj_global;
+// http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:forEach
+dojo.lang.forEach = function(anArray /* Array */, callback /* Function */, thisObject /* Object */){
+	if(dojo.lang.isString(anArray)){ 
+		anArray = anArray.split(""); 
+	}
+	if(Array.forEach){
+		Array.forEach(anArray, callback, thisObject);
+	}else{
+		// FIXME: there are several ways of handilng thisObject. Is dj_global always the default context?
+		if(!thisObject){
+			thisObject=dj_global;
 		}
-
-		for(var i = 0; i < arr.length; i++) {
-			if(!callback.call(thisObject, arr[i], i, arr)) {
-				return false;
-			}
+		for(var i=0,l=anArray.length; i<l; i++){ 
+			callback.call(thisObject, anArray[i], i, anArray);
 		}
-		return true;
 	}
 }
 
-dojo.lang.some = function(arr, callback, thisObject) {
-	var isString = dojo.lang.isString(arr);
-	if(isString) { arr = arr.split(""); }
-	if(Array.some) {
-		return Array.some(arr, callback, thisObject);
-	} else {
-		if(!thisObject) {
-			if(arguments.length >= 3) { dojo.raise("thisObject doesn't exist!"); }
+dojo.lang._everyOrSome = function(every, arr, callback, thisObject){
+	if(dojo.lang.isString(arr)){ 
+		arr = arr.split(""); 
+	}
+	if(Array.every){
+		return Array[ (every) ? "every" : "some" ](arr, callback, thisObject);
+	}else{
+		if(!thisObject){
 			thisObject = dj_global;
 		}
-
-		for(var i = 0; i < arr.length; i++) {
-			if(callback.call(thisObject, arr[i], i, arr)) {
+		for(var i=0,l=arr.length; i<l; i++){
+			var result = callback.call(thisObject, arr[i], i, arr);
+			if((every)&&(!result)){
+				return false;
+			}else if((!every)&&(result)){
 				return true;
 			}
 		}
-		return false;
+		return (every) ? true : false;
 	}
+}
+
+dojo.lang.every = function(arr, callback, thisObject){
+	return this._everyOrSome(true, arr, callback, thisObject);
+}
+
+dojo.lang.some = function(arr, callback, thisObject){
+	return this._everyOrSome(false, arr, callback, thisObject);
 }
 
 dojo.lang.filter = function(arr, callback, thisObject) {

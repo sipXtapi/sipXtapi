@@ -200,3 +200,69 @@ dojo.lang.isOfType = function(value, type) {
 	}
 	dojo.raise("If we get here, it means a bug was introduced above.");
 }
+
+/*
+ * 	From reflection code, part of merge.
+ *	TRT 2006-02-01
+ */
+dojo.lang.getObject=function(/* String */ str){
+	//	summary
+	//	Will return an object, if it exists, based on the name in the passed string.
+	var parts=str.split("."), i=0, obj=dj_global; 
+	do{ 
+		obj=obj[parts[i++]]; 
+	}while(i<parts.length&&obj); 
+	return (obj!=dj_global)?obj:null;	//	Object
+}
+
+dojo.lang.doesObjectExist=function(/* String */ str){
+	//	summary
+	//	Check to see if object [str] exists, based on the passed string.
+	var parts=str.split("."), i=0, obj=dj_global; 
+	do{ 
+		obj=obj[parts[i++]]; 
+	}while(i<parts.length&&obj); 
+	return (obj&&obj!=dj_global);	//	boolean
+}
+
+dojo.lang.getConstructor=function(/* object */ obj){
+	//	summary
+	//	Returns a reference to the passed object's constructor function.
+	return obj.constructor;	//	Function
+}
+
+dojo.lang.isConstructedBy=function(/* object */ obj, /* function */ type){
+	//	summary
+	//	Returns a boolean if the passed [obj] was created by [type]
+	return dojo.lang.getConstructor(obj)==type;	//	boolean
+}
+
+dojo.lang.isSubOf=function(/* object */ obj, /* object */ type){
+	//	summary
+	//	Test to see if type is in obj's prototype chain
+	return obj instanceof type; 	// boolean
+}
+
+dojo.lang.isBaseOf=function(/* object */ type, /* object */ obj){
+	//	summary
+	//	Test to see if obj is in type's prototype chain
+	return obj instanceof type; 	// boolean
+}
+
+//	TODO: pass the constructor an arguments object.
+dojo.lang.createInstance=function(/* string */ type){
+	//	summary
+	//	create an instance of type.
+	var o=null;
+	var f=type;
+	if(typeof(f)=="string"){
+		f=dojo.lang.getObject(type);
+	}
+	if(typeof(f)=="function"){
+		try{
+			o=new f();
+		}catch(e){
+		}
+	}
+	return o;	//	object
+}

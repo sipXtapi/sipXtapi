@@ -72,3 +72,38 @@ dojo.lang.firstValued = function(/* ... */) {
 	}
 	return undefined;
 }
+
+/**
+ * Get a value from a reference specified as a string descriptor,
+ * (e.g. "A.B") in the given context.
+ * 
+ * getObjPathValue(String objpath [, Object context, Boolean create])
+ *
+ * If context is not specified, dj_global is used
+ * If create is true, undefined objects in the path are created.
+ */
+dojo.lang.getObjPathValue = function(objpath, context, create){
+	with(dojo.parseObjPath(objpath, context, create)){
+		return dojo.evalProp(prop, obj, create);
+	}
+}
+
+/**
+ * Set a value on a reference specified as a string descriptor. 
+ * (e.g. "A.B") in the given context.
+ * 
+ * setObjPathValue(String objpath, value [, Object context, Boolean create])
+ *
+ * If context is not specified, dj_global is used
+ * If create is true, undefined objects in the path are created.
+ */
+dojo.lang.setObjPathValue = function(objpath, value, context, create){
+	if(arguments.length < 4){
+		create = true;
+	}
+	with(dojo.parseObjPath(objpath, context, create)){
+		if(obj && (create || (prop in obj))){
+  		obj[prop] = value;
+		}
+	}
+}

@@ -24,7 +24,6 @@ dojo.widget.html.InlineEditBox = function(){
 	dojo.widget.HtmlWidget.call(this);
 	// mutable objects need to be in constructor to give each instance its own copy
 	this.history = [];
-	this.storage = document.createElement("span");
 }
 
 dojo.inherits(dojo.widget.html.InlineEditBox, dojo.widget.HtmlWidget);
@@ -50,47 +49,23 @@ dojo.lang.extend(dojo.widget.html.InlineEditBox, {
 	textValue: "",
 	defaultText: "",
 	doFade: false,
-
+	
 	onSave: function(newValue, oldValue){},
 	onUndo: function(value){},
 
-	// overwrite buildRendering so we don't clobber our list
-	buildRendering: function(args, frag){
-		this.nodeRef = frag["dojo:"+this.widgetType.toLowerCase()]["nodeRef"];
-		var node = this.nodeRef;
-		if(node.normalize){ node.normalize(); }
-
-		dojo.widget.buildAndAttachTemplate(this);
-
-		this.editable = document.createElement("span");
-		// this.editable.appendChild(node.firstChild);
-		while(node.firstChild){
-			this.editable.appendChild(node.firstChild);
-		}
-		// this.textValue = this.editable.firstChild.nodeValue;
-		this.textValue = dojo.string.trim(this.editable.innerHTML);
-		if(dojo.string.trim(this.textValue).length == 0){
-			this.editable.innerHTML = this.defaultText;
-		}
-		/*
-		if(node.hasChildNodes()) {
-			node.insertBefore(this.editable, node.firstChild);
-		} else {
-		}
-		*/
-		node.appendChild(this.editable);
-
-		// delay to try and show up before stylesheet
-		var _this = this;
-		setTimeout(function(){
-			_this.editable.appendChild(_this.edit);
-		}, 30);
-
+	postCreate: function(args, frag){
+		// put original node back in the document, and attach handlers
+		// which hide it and display the editor
+		this.editable = this.getFragNodeRef(frag);
+		dojo.dom.insertAfter(this.editable, this.form);
 		dojo.event.connect(this.editable, "onmouseover", this, "mouseover");
 		dojo.event.connect(this.editable, "onmouseout", this, "mouseout");
 		dojo.event.connect(this.editable, "onclick", this, "beginEdit");
 
-		this.fillInTemplate(args, frag);
+		this.textValue = dojo.string.trim(this.editable.innerHTML);
+		if(dojo.string.trim(this.textValue).length == 0){
+			this.editable.innerHTML = this.defaultText;
+		}		
 	},
 
 	mouseover: function(e){
@@ -103,36 +78,37 @@ dojo.lang.extend(dojo.widget.html.InlineEditBox, {
 	},
 
 	mouseout: function(e){
-		// if((e)&&(e.target != this.domNode)){ return; }
 		if(!this.editing){
 			dojo.html.removeClass(this.editable, "editableRegion");
 			dojo.html.removeClass(this.editable, "editableTextareaRegion");
 		}
 	},
 
+	// When user clicks the text, then start editing.
+	// Hide the text and display the form instead.
 	beginEdit: function(e){
 		if(this.editing){ return; }
 		this.mouseout();
 		this.editing = true;
 
+		// setup the form's <input> or <textarea> field, as specified by mode
 		var ee = this[this.mode.toLowerCase()];
-
-		ee.style.display = "";
 		ee.value = dojo.string.trim(this.textValue);
 		ee.style.fontSize = dojo.style.getStyle(this.editable, "font-size");
 		ee.style.fontWeight = dojo.style.getStyle(this.editable, "font-weight");
 		ee.style.fontStyle = dojo.style.getStyle(this.editable, "font-style");
-		//this.text.style.fontFamily = dojo.dom.getStyle(this.editable, "font-family");
-
 		ee.style.width = Math.max(dojo.html.getInnerWidth(this.editable), this.minWidth) + "px";
-		// ee.style.width = "100%";
-
 		if(this.mode.toLowerCase()=="textarea"){
 			ee.style.display = "block";
 			ee.style.height = Math.max(dojo.html.getInnerHeight(this.editable), this.minHeight) + "px";
+		} else {
+			ee.style.display = "";
 		}
+
+		// show the edit form and hide the read only version of the text
+		this.form.style.display = "";
 		this.editable.style.display = "none";
-		this.nodeRef.appendChild(this.form);
+
 		ee.select();
 		this.submitButton.disabled = true;
 	},
@@ -157,7 +133,7 @@ dojo.lang.extend(dojo.widget.html.InlineEditBox, {
 	cancelEdit: function(e){
 		if(!this.editing){ return false; }
 		this.editing = false;
-		this.nodeRef.removeChild(this.form);
+		this.form.style.display="none";
 		this.editable.style.display = "";
 		return true;
 	},

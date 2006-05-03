@@ -29,24 +29,12 @@ dojo.lang.extend(dojo.widget.html.ResizeHandle, {
 	isSizing: false,
 	startPoint: null,
 	startSize: null,
-
-	grabImg: null,
+	minSize: null,
 
 	targetElmId: '',
-	imgSrc: dojo.uri.dojoUri("src/widget/templates/grabCorner.gif"),
 
 	templateCssPath: dojo.uri.dojoUri("src/widget/templates/HtmlResizeHandle.css"),
-	templateString: '<div dojoAttachPoint="domNode"><img dojoAttachPoint="grabImg" /></div>',
-
-	fillInTemplate: function(){
-
-		dojo.style.insertCssFile(this.templateCssPath);
-
-		dojo.html.addClass(this.domNode, 'dojoHtmlResizeHandle');
-		dojo.html.addClass(this.grabImg, 'dojoHtmlResizeHandleImage');
-
-		this.grabImg.src = this.imgSrc;
-	},
+	templateString: '<div class="dojoHtmlResizeHandle"><div></div></div>',
 
 	postCreate: function(){
 		dojo.event.connect(this.domNode, "onmousedown", this, "beginSizing");
@@ -80,11 +68,30 @@ dojo.lang.extend(dojo.widget.html.ResizeHandle, {
 	changeSizing: function(e){
 		// On IE, if you move the mouse above/to the left of the object being resized,
 		// sometimes clientX/Y aren't set, apparently.  Just ignore the event.
-		if(!e.clientX  || !e.clientY){ return; }
+		try{
+			if(!e.clientX  || !e.clientY){ return; }
+		}catch(e){
+			// sometimes you get an exception accessing above fields...
+			return;
+		}
 		var dx = this.startPoint.x - e.clientX;
 		var dy = this.startPoint.y - e.clientY;
-		this.targetElm.resizeTo(this.startSize.w - dx, this.startSize.h - dy);
+		
+		var newW = this.startSize.w - dx;
+		var newH = this.startSize.h - dy;
 
+		// minimum size check
+		if (this.minSize) {
+			if (newW < this.minSize.w) {
+				newW = dojo.style.getOuterWidth(this.targetElm.domNode);
+			}
+			if (newH < this.minSize.h) {
+				newH = dojo.style.getOuterHeight(this.targetElm.domNode);
+			}
+		}
+		
+		this.targetElm.resizeTo(newW, newH);
+		
 		e.preventDefault();
 	},
 
