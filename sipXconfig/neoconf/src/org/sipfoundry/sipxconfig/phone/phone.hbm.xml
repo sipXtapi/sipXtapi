@@ -10,7 +10,7 @@
       </generator>
     </id>
     <discriminator column="bean_id"/>
-    <property name="beanId" insert="false" update="false"/>
+    <property name="beanId" column="bean_id" insert="false" update="false"/>
     <property name="modelId"/>
     <property name="description"/>
     <property name="serialNumber"/>
@@ -59,7 +59,7 @@
   </query>
   
   <query name="phonesByUserId">
-    <![CDATA[from Phone p where p.lines.user.id = :userId]]>
+    <![CDATA[select distinct line.phone from Line line where line.user.id = :userId]]>
   </query>
   
 </hibernate-mapping>

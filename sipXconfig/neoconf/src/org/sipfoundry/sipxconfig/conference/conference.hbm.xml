@@ -40,7 +40,7 @@
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"
       foreign-key="fk_meetme_conference_value_storage"/>
 
-    <many-to-one name="bridge" column="meetme_bridge_id" class="Bridge" not-null="true" lazy="true"
+    <many-to-one name="bridge" column="meetme_bridge_id" class="Bridge" not-null="true" lazy="proxy"
       foreign-key="fk_meetme_conference_bridge"/>    
   </class>
     
