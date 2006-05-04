@@ -21,7 +21,6 @@ require File.join($SOURCE_DIR, '..', '..', 'call_resolver')
 # application requires
 require File.join($SOURCE_DIR, '..', '..','app','models','call_state_event')
 require File.join($SOURCE_DIR, '..', '..','app','models','cdr')
-require File.join($SOURCE_DIR, '..', '..','app','models','party')
 
 # :TODO: Make it easy to run all the unit tests, possibly via Rakefile, for build loop.
 class CallResolverPurgeTest < Test::Unit::TestCase
@@ -30,57 +29,10 @@ class CallResolverPurgeTest < Test::Unit::TestCase
   
 public
 
-  def setup
-  
+  def setup  
     init_db
     # Create the CallResolver, giving it the location of the test config file.
     @resolver = CallResolver.new(File.join($SOURCE_DIR, 'data/callresolver-config'))
-  end
-
-  def test_purge_remove_old_parties
-    # Make sure we have a clean database at the start of each test
-    assert(clean_db)
-  
-    make_call("sip:200@example.com", "sip:201@example.com", "id-1", 1)    # 1 day old       
-    make_call("sip:201@example.com", "sip:200@example.com", "id-2", 2)    # 2 days old
-    make_call("sip:200@example.com", "sip:201@example.com", "id-3", 10)   # 10 days old          
-    # 40 days old with two parties that are not used in newer calls
-    make_call("sip:203@example.com", "sip:205@example.com", "id-4", 40) 
-    # 36 days old with one party that are not used in newer calls
-    make_call("sip:204@example.com", "sip:206@example.com", "id-5", 36)     
-    
-    # Resolve - expect to find 5 resolved calls
-    resolve(5)
-    
-    # Purge records older than 35 days
-    purge(35,35)
-    
-    assert_equal(CallStateEvent.count,9, 'Wrong number of call state events')
-    assert_equal(Cdr.count, 3, 'Wrong number of CDRs')
-    assert_equal(Party.count, 2, 'Wrong number of parties')  
-  end
-  
-  def test_purge_keep_old_party
-    # Make sure we have a clean database at the start of each test
-    assert(clean_db)
-      
-    make_call("sip:200@example.com", "sip:201@example.com", "id-1", 1)    # 1 day old       
-    make_call("sip:202@example.com", "sip:200@example.com", "id-2", 2)    # 2 days old
-    make_call("sip:200@example.com", "sip:201@example.com", "id-3", 10)   # 10 days old          
-    # 40 days old with two parties that are not used in newer calls
-    make_call("sip:203@example.com", "sip:205@example.com", "id-4", 40) 
-    # 36 days old with one party that is used in newer calls
-    make_call("sip:200@example.com", "sip:205@example.com", "id-5", 36)     
-    
-    # Resolve - expect to find 5 resolved calls
-    resolve(5)
-    
-    # Purge records older than 35 days
-    purge(35,35)
-    
-    assert_equal(CallStateEvent.count,9, 'Wrong number of call state events')
-    assert_equal(Cdr.count, 3, 'Wrong number of CDRs')
-    assert_equal(Party.count, 3, 'Wrong number of parties')
   end
   
   def test_purge_all_old_calls
@@ -101,7 +53,6 @@ public
     
     assert_equal(CallStateEvent.count,0, 'Wrong number of call state events')
     assert_equal(Cdr.count, 0, 'Wrong number of CDRs')
-    assert_equal(Party.count, 0, 'Wrong number of parties')  
   end
   
   def test_purge_edge_case
@@ -119,7 +70,6 @@ public
     
     assert_equal(CallStateEvent.count, 3, 'Wrong number of call state events')
     assert_equal(Cdr.count, 1, 'Wrong number of CDRs')
-    assert_equal(Party.count, 2, 'Wrong number of parties')  
   end  
   
   def test_purge_remove_cse_separately
@@ -142,7 +92,6 @@ public
     
     assert_equal(CallStateEvent.count,6, 'Wrong number of call state events')
     assert_equal(Cdr.count, 3, 'Wrong number of CDRs')
-    assert_equal(Party.count, 2, 'Wrong number of parties')  
   end  
   
   #-----------------------------------------------------------------------------
@@ -225,7 +174,7 @@ public
     cse.from_tag = "f"
     cse.to_tag = "t"      
     
-    cse.save    
+    cse.save
   end
   
   def clean_db
@@ -233,7 +182,6 @@ public
     
     clean = false if (CallStateEvent.count != 0)
     clean = false if (Cdr.count != 0)
-    clean = false if (Party.count != 0)
     clean
   end
   
@@ -249,7 +197,6 @@ public
     # Clear database
     CallStateEvent.delete_all
     Cdr.delete_all
-    Party.delete_all
     
     @cseq = 0
   end  

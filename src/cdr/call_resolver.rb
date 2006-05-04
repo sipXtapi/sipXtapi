@@ -25,7 +25,6 @@ require 'configure'
 require 'database_url'
 require 'database_utils'
 require 'exceptions'
-require 'party'
 
 
 # :TODO: log the number of calls analyzed and how many succeeded vs. dups or
@@ -97,33 +96,34 @@ public
     connect_to_cdr_database
     
     begin
-      # Default the start time to 1 day before now
-      start_time ||= Time.now() - SECONDS_IN_A_DAY
-      
-      # Default the end_time to 1 day after the start time
-      end_time ||= start_time + SECONDS_IN_A_DAY
+      Cdr.transaction do
+        # Default the start time to 1 day before now
+        start_time ||= Time.now() - SECONDS_IN_A_DAY
+        
+        # Default the end_time to 1 day after the start time
+        end_time ||= start_time + SECONDS_IN_A_DAY
+    
+        start_run = Time.now
+        log.info("resolve: Resolving calls from #{start_time.to_s} to " +
+                 "#{end_time.to_s}.  Running at #{start_run}.")
   
-      start_run = Time.now
-      log.info("resolve: Resolving calls from #{start_time.to_s} to " +
-               "#{end_time.to_s}.  Running at #{start_run}.")
-
-      # Load all CSEs in the time window.  The call_map is a hash where each key
-      # is a call ID and the value is an array of events for that call ID,
-      # sorted by time.
-      # :TODO: For performance/scalability (XPR-144) we can't just load all the
-      # data at once.  Split the time window into subwindows and do one
-      # subwindow at a time, noting incomplete CDRs and carrying those calls
-      # forward into the next subwindow.
-      call_map = load_distrib_events_in_time_window(start_time, end_time)
-      
-      # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
-      call_map.each_value do |call|
-        resolve_call(call)
+        # Load all CSEs in the time window.  The call_map is a hash where each key
+        # is a call ID and the value is an array of events for that call ID,
+        # sorted by time.
+        # :TODO: For performance/scalability (XPR-144) we can't just load all the
+        # data at once.  Split the time window into subwindows and do one
+        # subwindow at a time, noting incomplete CDRs and carrying those calls
+        # forward into the next subwindow.
+        call_map = load_distrib_events_in_time_window(start_time, end_time)
+        
+        # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
+        call_map.each_value do |call|
+          resolve_call(call)
+        end
+  
+        end_run = Time.now
+        log.info("resolve: Done at #{end_run}.  Analysis took #{end_run - start_run} seconds.")
       end
-
-      end_run = Time.now
-      log.info("resolve: Done at #{end_run}.  Analysis took #{end_run - start_run} seconds.")
-  
     rescue
       # Backstop exception handler: don't let any exceptions propagate back
       # to the caller.  Log the error and the stack trace.  The log message has to
@@ -181,37 +181,33 @@ private
       "Resolving a call: call ID = #{call_id} with #{events.length} events (" + event_types_str}
     
     begin
-      Cdr.transaction do
-        call_req = find_call_request(events)
-        if call_req
-          # Read info from the call request and start constructing the CDR.
-          cdr_data = start_cdr(call_req)
-          
-          # The forking proxy might ring multiple phones.  The dialog with each
-          # phone is a separate call leg.
-          # Pick the call leg with the best outcome and longest duration to be the
-          # basis for the CDR.
-          to_tag = best_call_leg(events)
-  
-          if to_tag                 # if there are any call legs worth examining
-            # Fill the CDR from the call leg events.  The returned status is true
-            # if that succeeded, false otherwise.
-            status = finish_cdr(cdr_data, events, to_tag)
-          
-            if status
-              log.debug do
-                cdr = cdr_data.cdr
-                "resolve_call: Resolved a call from #{cdr_data.caller.aor} to " +
-                "#{cdr_data.callee.aor} at #{cdr.start_time}, call status = " +
-                "#{cdr.termination_text}"
-              end
-              
-              # Save the CDR and associated data
-              save_cdr_data(cdr_data)
+      call_req = find_call_request(events)
+      if call_req
+        # Read info from the call request and start constructing the CDR.
+        cdr = start_cdr(call_req)
+        
+        # The forking proxy might ring multiple phones.  The dialog with each
+        # phone is a separate call leg.
+        # Pick the call leg with the best outcome and longest duration to be the
+        # basis for the CDR.
+        to_tag = best_call_leg(events)
+
+        if to_tag                 # if there are any call legs worth examining
+          # Fill the CDR from the call leg events.  The returned status is true
+          # if that succeeded, false otherwise.
+          status = finish_cdr(cdr, events, to_tag)
+        
+          if status
+            log.debug do
+              "resolve_call: Resolved a call from #{cdr.caller_aor} to " +
+              "#{cdr.callee_aor} at #{cdr.start_time}, call status = " +
+              "#{cdr.termination_text}"
             end
-          else
-            log.debug {"resolve_call: no good call legs found, discarding this call"}
+            
+            save_cdr(cdr)
           end
+        else
+          log.debug {"resolve_call: no good call legs found, discarding this call"}
         end
       end
     # Don't let a single bad call blow up the whole run, if the exception was
@@ -324,9 +320,9 @@ private
     events =
       CallStateEvent.find(
         :all,
-        :conditions => ["call_id = :call_id", {:call_id => call_id}],
+        :conditions => "call_id = '#{call_id}'",
         :order => "event_time")
-    log.debug{"load_events: loaded #{events.length} events with call_id = #{call_id}"}
+    log.debug {"load_events: loaded #{events.length} events with call_id = #{call_id}"}
     return events
   end
   
@@ -357,9 +353,9 @@ private
     requests = events.find_all {|event| event.call_request?}
     if requests.length == 1
       call_request = requests[0]
-      log.debug{"#{m}: found one call request: #{call_request.to_s}"}
+      log.debug {"#{m}: found one call request: #{call_request.to_s}"}
     elsif requests.length == 0
-      log.debug{"#{m}: found no call requests"}
+      log.debug {"#{m}: found no call requests"}
     else                  # requests.length > 1
       log.debug {
         "#{m}: found #{requests.length} call requests: " +
@@ -389,14 +385,15 @@ private
   # Read info from the call request event and start constructing the CDR.
   # Return the new CDR.
   def start_cdr(call_req)
-    caller = Party.new(:aor => call_req.caller_aor,
-                       :contact => Utils.contact_without_params(call_req.contact))
-    callee = Party.new(:aor => call_req.callee_aor)
     cdr = Cdr.new(:call_id => call_req.call_id,
                   :from_tag => call_req.from_tag,
+                  :caller_aor => call_req.caller_aor,
+                  :callee_aor => call_req.callee_aor,
                   :start_time => call_req.event_time,
                   :termination => Cdr::CALL_REQUESTED_TERM)
-    CdrData.new(cdr, caller, callee)
+    cdr.caller_contact = Utils.contact_without_params(call_req.contact)
+
+    cdr
   end
 
   # Pick the call leg with the best outcome and longest duration to be the
@@ -444,9 +441,8 @@ private
   
   # Fill in the CDR from a call leg consisting of the events with the given
   # to_tag.  Return true if successful, false otherwise.
-  def finish_cdr(cdr_data, events, to_tag)
+  def finish_cdr(cdr, events, to_tag)
     status = false                # return value: did we fill in the CDR?
-    cdr = cdr_data.cdr      
 
     # Get the events for the call leg
     call_leg = events.find_all {|event| event.to_tag == to_tag or
@@ -463,7 +459,7 @@ private
       status = true
       
       # Get data from the call_setup event
-      cdr_data.callee.contact = Utils.contact_without_params(call_setup.contact)
+      cdr.callee_contact = Utils.contact_without_params(call_setup.contact)
       cdr.to_tag = call_setup.to_tag
       cdr.connect_time = call_setup.event_time
       
@@ -504,37 +500,29 @@ private
     status
   end
 
-  # Save the CDR and associated data.
-  # Be sure not to duplicate existing data.  For example, the caller
-  # may already be present in the parties table from a previous call,
-  # or a complete CDR may have been created for this call in a
-  # previous run.
+  # Save the CDR.  Be sure not to create a duplicate CDR for the same dialog.
+  # (:TODO: is there a way to avoid querying for the existence of a prior CDR
+  # here?  Or maybe we could query just by call_id first and index that column?)
   # Raise a CallResolverException if the save fails for some reason.
-  def save_cdr_data(cdr_data)
-    # define variables for cdr_data components
-    cdr = cdr_data.cdr
-    caller = cdr_data.caller
-    callee = cdr_data.callee
-    
+  #
+  # Assume that this is the only process/thread creating CDRs for these calls.
+  # Therefore we don't have to worry about the race condition where after we
+  # check for the existence of the CDR and before we save it, another thread
+  # saves a CDR with the same call ID.
+  def save_cdr(cdr)
     # Continue only if a complete CDR doesn't already exist
-    db_cdr = find_cdr_by_dialog(cdr.call_id, cdr.from_tag, cdr.to_tag)
+    db_cdr = find_cdr(cdr)
     
     # If we found an existing CDR, then log that for debugging
     if db_cdr
       log.debug do
-        "save_cdr_data: found an existing CDR.  Call ID = #{db_cdr.call_id}, " +
+        "save_cdr: found an existing CDR.  Call ID = #{db_cdr.call_id}, " +
         "termination = #{db_cdr.termination}, ID = #{db_cdr.id}."
       end
     end
     
     # Save the CDR as long as there is no existing, complete CDR for that call ID.
     if (!db_cdr or !db_cdr.complete?)
-      # Save the caller and callee if they don't already exist
-      caller = save_party_if_new(caller)
-      callee = save_party_if_new(callee)
-      cdr.caller_id = caller.id
-      cdr.callee_id = callee.id
-
       # Call the Observable method indicating a state change.
       changed
   
@@ -542,116 +530,38 @@ private
       # "notify_observers" is a method of the Observable module, which is mixed
       # in to the CallResolver.
       notify_observers(EVENT_NEW_CDR,       # event type
-                       cdr_data)            # the new CDR
+                       cdr)                 # the new CDR
       
-      # Save the CDR.  If there is an incomplete CDR already, then replace it.
-      save_cdr(cdr)
+      # Save the CDR. If there is an incomplete CDR already, then replace it.
+      # Call "save!" rather than "save" so that we'll get an exception if the
+      # save fails.
+      # :TODO: Perhaps just copy values into the CDR in the DB and update it,
+      # rather than doing a delete/insert.
+      if db_cdr
+        db_cdr.destroy
+      end
+      if cdr.save!
+        db_cdr = cdr
+      else
+        Utils.raise_exception('save_helper_cdr: save failed')
+      end
     end
-  end
-  
-  # Given the parameters identifying a SIP dialog -- call_id, from_tag, and
-  # to_tag -- return the CDR, or nil if a CDR could not be found.
-  def find_cdr_by_dialog(call_id, from_tag, to_tag)
-    Cdr.find(
-      :first,
-      :conditions =>
-        ["call_id = :call_id and from_tag = :from_tag and to_tag = :to_tag",
-         {:call_id => call_id, :from_tag => from_tag, :to_tag => to_tag}])
+    
+    db_cdr
   end
   
   # Given an in-memory CDR, find that CDR in the database and return it.
   # If the CDR is not in the database, then return nil.
   def find_cdr(cdr)
-    if !cdr.call_id or !cdr.from_tag or !cdr.to_tag
-      raise(ArgumentError, "find_cdr: call_id, from_tag, or to_tag is nil")
-    end
-    find_cdr_by_dialog(cdr.call_id, cdr.from_tag, cdr.to_tag)
-  end
-   
-  # Given an in-memory Party, find that Party in the database and return it.
-  # If the Party is not in the database, then return nil.
-  def find_party(party)
-    Party.find_by_aor_and_contact(party.aor, party.contact)
-  end
-  
-  # Save the input CDR.
-  # If there is an incomplete CDR already in the DB, then replace it.
-  # If there is a complete CDR already in the DB, then replace it only if the
-  # replace input is true.
-  # Return the saved CDR.
-  #
-  # :LATER: Handle the race condition where after we check for the existence
-  # of the CDR and before we save it, another thread saves a CDR with the same
-  # dialog ID.  See save_party_if_new for inspiration.  CDRs are different
-  # because we have to replace the CDR that's in the database.  But we don't
-  # need to deal with this issue now because there is only one thread creating
-  # CDRs.
-  def save_cdr(cdr, replace = false)
-    do_save = true
-    
-    # Find any existing CDR with the same SIP dialog ID
-    cdr_in_db = find_cdr(cdr)
-    
-    # If there is an existing CDR, then decide whether to replace it 
-    if cdr_in_db
-      if !cdr_in_db.complete? or
-         (cdr_in_db.complete? and replace)
-        # Either the CDR is incomplete, or it is complete but we have been told
-        # to replace it
-        cdr_in_db.destroy
-        do_save = true
-      else
-        # Don't replace the existing CDR
-        do_save = false
-      end
-    end  
-    
-    if do_save
-      # Save the CDR.  Call "save!" rather than "save" so that we'll get an
-      # exception if the save fails.
-      if cdr.save!
-        cdr_in_db = cdr
-      else
-        raise(CallResolverException, 'save_cdr: save failed', caller)
-      end
-    end
-      
-    cdr_in_db
-  end
-  
-  # Save the input Party if it is not already in the database.
-  # Return the Party, either the saved input Party or the Party with equal
-  # values that was already in the database.
-  def save_party_if_new(party)
-    party_in_db = find_party(party)
-    if !party_in_db
-      begin
-        # Save the party.  Call "save!" rather than "save" so that we'll get an
-        # exception if the save fails.          
-        if party.save!
-          party_in_db = party
-        else
-          raise(CallResolverException, 'save_party_if_new: save failed', caller)
-        end
-      rescue ActiveRecord::StatementInvalid
-        # There is a small chance that a Party got saved just after we did the
-        # check above, resulting in a DB integrity violation when we try to save
-        # a duplicate. In this case return the Party that is in the database.
-        log.debug{"save_party_if_new: unusual race condition detected"}
-        party_in_db = find_party(party)
-        
-        # The Party had better be in the database now.  If not then rethrow,
-        # we are lost in the woods without a flashlight.
-        if !party_in_db
-          log.error("save_party_if_new: party should be in database but isn't")
-          raise
-        end
-      end
+    if !cdr.call_id
+      Utils.raise_exception('find_cdr: call_id is nil', ArgumentError)
     end
     
-    party_in_db
+    Cdr.find(
+      :first,
+      :conditions => "call_id = '#{cdr.call_id}'")
   end
-  
+
   # Purge records from call state event and cdr tables, making sure
   # to delete unreferenced entries in the parties table.
   def purge(start_time_cse, start_time_cdr)
@@ -667,9 +577,6 @@ private
     Cdr.transaction do
       log.debug{"purge: purging CDRs where event_time <= #{start_time_cdr}"}
       Cdr.delete_all(["end_time <= '#{start_time_cdr}'"])
-      
-      # Clean up the parties table, removing entries that are no longer referenced by CDRs
-      Party.delete_all(["not exists (select * from cdrs where caller_id = parties.id or callee_id = parties.id)"])
     end    
   
     # Garbage-collect deleted records and tune performance.
@@ -680,18 +587,3 @@ private
   end
 
 end    # class CallResolver
-
-
-# CdrData holds data for a CDR that is under construction: the CDR and the
-# associated caller and callee parties.  Because this data has not yet been
-# written to the DB, we can't use the foreign key relationships that usually
-# link the CDR to the caller and callee.
-class CdrData
-  attr_accessor :cdr, :caller, :callee
-
-  def initialize(cdr = Cdr.new, caller = Party.new, callee = Party.new)
-    @cdr = cdr
-    @caller = caller
-    @callee = callee
-  end
-end

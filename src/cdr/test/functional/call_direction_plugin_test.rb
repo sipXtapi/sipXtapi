@@ -18,7 +18,7 @@ require File.join($SOURCE_DIR, '..', '..', 'call_resolver')
 
 
 class CallDirectionPluginTest < Test::Unit::TestCase
-  fixtures :call_state_events, :parties, :cdrs
+  fixtures :call_state_events, :cdrs
  
 public
 
