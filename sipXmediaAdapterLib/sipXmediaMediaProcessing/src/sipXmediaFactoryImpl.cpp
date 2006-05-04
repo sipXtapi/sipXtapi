@@ -275,7 +275,8 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
             pFactory->getCodecs(numCodecs, codecsArray);
             
             UtlString preferences;
-            for (int i = 0; i < numCodecs; i++)
+            int i;
+            for (i = 0; i < numCodecs; i++)
             {
                 if (getCodecNameByType(codecsArray[i]->getCodecType(), codecName) == OS_SUCCESS)
                 {
@@ -290,7 +291,7 @@ OsStatus sipXmediaFactoryImpl::buildCodecFactory(SdpCodecFactory *pFactory,
                           preferences.data(), *iRejected);
                           
             // Free up the codecs and the array
-            for (int i = 0; i < numCodecs; i++)
+            for (i = 0; i < numCodecs; i++)
             {
                 delete codecsArray[i];
                 codecsArray[i] = NULL;
