@@ -67,8 +67,8 @@ public
     # Note: using existing databases to save time may fail if the schema changes
     # in, which case you should manually delete the databases and run the test
     # again.
-    DatabaseUtils.create_database(TEST_DB1)
-    DatabaseUtils.create_database(TEST_DB2)
+    DatabaseUtils.create_cdr_database(TEST_DB1)
+    DatabaseUtils.create_cdr_database(TEST_DB2)
     
     cse_url1 = DatabaseUrl.new(TEST_DB1)
     cse_url2 = DatabaseUrl.new(TEST_DB2)

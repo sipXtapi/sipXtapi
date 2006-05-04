@@ -19,6 +19,7 @@ $:.unshift(thisdir)
 $:.unshift(File.join(thisdir, "app", "models"))
 
 # application requires
+require 'call_resolver_configure'
 require 'call_state_event'
 require 'cdr'
 require 'configure'

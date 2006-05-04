@@ -7,10 +7,12 @@
 #
 ##############################################################################
 
+# system requires
 require 'ipaddr'
 
-require File.join(File.dirname(__FILE__), 'database_url')
-require File.join(File.dirname(__FILE__), 'exceptions')
+# application requires
+require 'database_url'
+require 'exceptions'
 
 
 # DatabaseUtils contains utility methods that are primarily for test support.
@@ -40,9 +42,12 @@ public
     `#{POSTGRESQL_CLI} -U #{DatabaseUrl::USERNAME_DEFAULT} -d #{db_name} -c "#{sql}"`
   end
 
-  # Execute SQL commands on the database, loading commands from a file
-  def DatabaseUtils.exec_sql_file(file, db_name = POSTGRESQL_INITIAL_DATABASE)
-    `#{POSTGRESQL_CLI} -U #{DatabaseUrl::USERNAME_DEFAULT} -d #{db_name} -f "#{file}"`
+  # Execute SQL commands on the database, loading commands from a file.
+  # If the quiet arg is true then suppress output.
+  def DatabaseUtils.exec_sql_file(file, db_name = POSTGRESQL_INITIAL_DATABASE, quiet = true)
+    db_cmd = "#{POSTGRESQL_CLI} -U #{DatabaseUrl::USERNAME_DEFAULT} -d #{db_name} -f \"#{file}\""
+    db_cmd += " 2>/dev/null" if quiet
+    `#{db_cmd}`
   end
 
   # Return a boolean indicating whether the named DB exists.
@@ -56,12 +61,19 @@ public
   end
   
   # Create a database instance with the specified name if one does not already
-  # exist, and load the schema.
-  def DatabaseUtils.create_database(db_name)
+  # exist, and load the CDR schema.
+  def DatabaseUtils.create_cdr_database(db_name)
     if !database_exists?(db_name)
       `createdb -U #{DatabaseUrl::USERNAME_DEFAULT} #{db_name}`
       exec_sql_file(POSTGRESQL_SCHEMA_FILE, db_name)
     end
   end
+
+  # Delete the database instance with the specified name if it exists
+  def DatabaseUtils.drop_database(db_name)
+    if database_exists?(db_name)
+      `dropdb -U #{DatabaseUrl::USERNAME_DEFAULT} #{db_name}`
+    end
+  end  
 
 end
