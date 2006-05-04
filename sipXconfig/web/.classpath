@@ -9,7 +9,6 @@
 	<classpathentry sourcepath="LIB_SRC/commons-codec/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-codec-1.3.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-collections-3.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-discovery-0.2.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-fileupload-1.0.jar"/>
 	<classpathentry sourcepath="LIB_SRC/commons-lang/src.zip" kind="var" path="SIPX_CONFIG/lib/commons-lang-2.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-logging-1.0.4.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/commons-pool-1.2.jar"/>
