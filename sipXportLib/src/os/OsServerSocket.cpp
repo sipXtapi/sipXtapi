@@ -95,7 +95,10 @@ OsServerSocket::OsServerSocket(int connectionQueueSize,
    if(setsockopt(socketDescriptor, SOL_SOCKET, SO_REUSEADDR, (char *)&one, sizeof(one)))
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: setsockopt(SO_REUSEADDR) failed!");
 #endif
+/*
+    Don't know why we don't want to route...we do support subnets, do we not?
     setsockopt(socketDescriptor, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
+*/
 
 #  if defined(__MACH__)
    // Under OS X, we use SO_NOSIGPIPE here because MSG_NOSIGNAL
@@ -207,9 +210,13 @@ OsConnectionSocket* OsServerSocket::accept()
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
       return NULL;
    }
+
+/*
+    Don't know why we don't want to route...we do support subnets, do we not?
    
    const int one = 1 ;
    setsockopt(clientSocket, SOL_SOCKET, SO_DONTROUTE, (char *)&one, sizeof(one)) ;
+*/
 
    connectSock = new OsConnectionSocket(mLocalIp,clientSocket);
 
