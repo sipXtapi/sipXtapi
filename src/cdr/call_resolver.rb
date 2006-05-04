@@ -19,6 +19,7 @@ $:.unshift(thisdir)
 $:.unshift(File.join(thisdir, "app", "models"))
 
 # application requires
+require 'call_resolver_configure'
 require 'call_state_event'
 require 'cdr'
 require 'configure'
@@ -232,13 +233,21 @@ private
       connect_to_cse_database(db_url)
       
       # Load events from this database
-      events = load_events_in_time_window(start_time, end_time)
-      log.debug{"load_distrib_events_in_time_window: loaded #{events.length} " +
-                "events from #{db_url}"}
+      events = []
+      begin
+        events = load_events_in_time_window(start_time, end_time)
+        log.debug{"load_distrib_events_in_time_window: loaded #{events.length} " +
+                  "events from #{db_url}"}
+      rescue
+        log.error("load_distrib_events_in_time_window: Unable to load events " +
+                  "from the database #{db_url}. The error was: \"#{$!}\".")
+      end
       
       # Divide the events into subarrays, one for each call.  Save the result.
-      calls = split_events_by_call(events)
-      all_calls << calls
+      if events.length > 0
+        calls = split_events_by_call(events)
+        all_calls << calls
+      end
     end
     
     # Put the event arrays in the hash table, merging on collisions

@@ -18,9 +18,10 @@ require File.join($SOURCE_DIR, '..', 'test_helper')
 # application requirements
 require File.join($SOURCE_DIR, '..', '..', 'call_resolver')
 
-# application requires
-require File.join($SOURCE_DIR, '..', '..','app','models','call_state_event')
-require File.join($SOURCE_DIR, '..', '..','app','models','cdr')
+# loading Call Resolver sets up the load path for these remaining files
+require 'call_state_event'
+require 'cdr'
+
 
 # :TODO: Make it easy to run all the unit tests, possibly via Rakefile, for build loop.
 class CallResolverPurgeTest < Test::Unit::TestCase

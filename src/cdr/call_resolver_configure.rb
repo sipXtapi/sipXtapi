@@ -66,20 +66,17 @@ class CallResolverConfigure
   CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DATABASE_PORT_DEFAULT}"
   
   
-  # Map from the name of a log level to a Logger level value.
   # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
-  # ALERT, EMERG) and Logger log levels (DEBUG, INFO, WARN, ERROR, FATAL) into
-  # Logger log levels.
-  LOG_LEVEL_MAP = {
-    "DEBUG"   => Logger::DEBUG, 
-    "INFO"    => Logger::INFO, 
-    "NOTICE"  => Logger::INFO, 
-    "WARN"    => Logger::WARN,
-    "WARNING" => Logger::WARN,
-    "ERR"     => Logger::ERROR, 
-    "CRIT"    => Logger::FATAL,
-    "ALERT"   => Logger::FATAL,
-    "EMERG"   => Logger::FATAL
+  # ALERT, EMERG) to equivalent Logger log levels.
+  LOG_LEVEL_SIPX_TO_LOGGER = {
+    'DEBUG'   => Logger::DEBUG, 
+    'INFO'    => Logger::INFO, 
+    'NOTICE'  => Logger::INFO, 
+    'WARNING' => Logger::WARN,
+    'ERR'     => Logger::ERROR, 
+    'CRIT'    => Logger::FATAL,
+    'ALERT'   => Logger::FATAL,
+    'EMERG'   => Logger::FATAL
   }
 
   # Specify this string as the config_file to get a completely default config 
@@ -289,7 +286,7 @@ private
   # We accept sipX log levels and Logger log levels and map them into Logger log
   # levels.
   def log_level_from_name(name)
-    LOG_LEVEL_MAP[name]
+    LOG_LEVEL_SIPX_TO_LOGGER[name]
   end
 
   #-----------------------------------------------------------------------------

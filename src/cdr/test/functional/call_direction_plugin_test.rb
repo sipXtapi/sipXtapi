@@ -14,7 +14,8 @@ require 'parsedate'
 require File.join($SOURCE_DIR, '..', 'test_helper')
 
 # application requirements
-require File.join($SOURCE_DIR, '..', '..', 'call_resolver')
+$:.unshift(File.join($SOURCE_DIR, '..', '..'))
+require 'call_resolver'
 
 
 class CallDirectionPluginTest < Test::Unit::TestCase
