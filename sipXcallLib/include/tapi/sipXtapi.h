@@ -98,8 +98,10 @@
                                                   during release process*/
 
 #if defined(_WIN32)
-#  ifdef SIPXTAPI_EXPORTS
+#  if defined(SIPXTAPI_EXPORTS)
 #    define SIPXTAPI_API extern "C" __declspec(dllexport)  /**< Used for Win32 imp lib creation */
+#  elif defined(SIPXTAPI_STATIC)
+#    define SIPXTAPI_API extern "C"  /**< Used for Win32 imp lib creation */
 #  else
 #    define SIPXTAPI_API extern "C" __declspec(dllimport)  /**< Used for Win32 imp lib creation */
 #  endif
