@@ -12,8 +12,12 @@
 require 'getoptlong'
 require 'parsedate'
 
+# set up the load path
+thisdir = File.dirname(__FILE__)    # directory in which this file is located
+$:.unshift(thisdir)
+
 # application requires
-require File.join(File.dirname(__FILE__), 'call_resolver')
+require 'call_resolver'
 require 'call_direction_plugin'
 require 'stunnel_connection'
 

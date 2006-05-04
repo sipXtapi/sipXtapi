@@ -35,7 +35,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
   end
   
   def test_log_level_from_name
-    CallResolverConfigure::LOG_LEVEL_MAP.each do |key, value|
+    CallResolverConfigure::LOG_LEVEL_SIPX_TO_LOGGER.each do |key, value|
       assert_equal(value, @config.send(:log_level_from_name, key))
     end
     assert_nil(@config.send(:log_level_from_name, 'Unknown log level name'))
@@ -86,7 +86,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
                  @config.send(:set_log_level_config, {}))
     
     # Pass in level names, get the right values
-    CallResolverConfigure::LOG_LEVEL_MAP.each do |key, value|
+    CallResolverConfigure::LOG_LEVEL_SIPX_TO_LOGGER.each do |key, value|
       assert_equal(value,
                    @config.send(:set_log_level_config,
                                   {CallResolverConfigure::LOG_LEVEL_CONFIG => key}))
