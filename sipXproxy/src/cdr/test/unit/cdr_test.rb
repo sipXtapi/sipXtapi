@@ -11,17 +11,12 @@ require File.join(File.dirname(__FILE__), '..', 'test_helper')
 
 
 class CdrTest < Test::Unit::TestCase
-  fixtures :parties, :cdrs
+  fixtures :cdrs
   
   def test_load_cdrs
-    assert_kind_of(Cdr, cdrs(:first))
-  end
-  
-  # Test that the belongs_to declarations of foreign key relationships work.
-  def test_belongs_to
     cdr = cdrs(:first)
-    assert_equal('sip:alice@example.com', cdr.caller.aor)
-    assert_equal('sip:bob@example.com', cdr.callee.aor)
+    assert_kind_of(Cdr, cdr)
+    assert_equal(cdr.caller_aor, 'sip:alice@example.com')
   end
   
   def test_complete?

@@ -62,17 +62,13 @@ public
         # Get the Pid of the process we just started (stored as instance variable),
         # also check if it really started
         if ! check_stunnel_running
-          msg = "stunnel could not be started."
-          puts "Error: #{msg}"
-          Utils.raise_exception("stunnel could not be started.")
+          raise_exception("stunnel could not be started.")
         else
           @connection_established = true
         end
       else
-        msg = "An instance of stunnel is already running with Pid #{@pid}. It must be shut " +
-              " down before restarting the call resolver."
-        puts "Error: #{msg}"
-        Utils.raise_exception(msg)
+        raise_exception("An instance of stunnel is already running with Pid #{@pid}. It must be shut " +
+                        " down before restarting the call resolver.")
       end
     end
   end
@@ -109,8 +105,9 @@ private
           host_elements[1] = DatabaseUrl::DATABASE_PORT_DEFAULT.to_s
         else
           Utils.raise_exception(
-            "No port specified for host \"#{host_elements[0]}\". " +
-            "A port number for hosts other than  \"localhost\" must be specified.")
+            "No port specified for host \"#{host_elements[0]}\" in #{CSE_HOSTS}. " +
+            "A port number for hosts other than  \"localhost\" must be specified.",
+          ConfigException)
         end
       else
         # Strip whitespace from port
@@ -130,22 +127,20 @@ private
       # get the name of the CA file - no defaults here, must be specified
       ca_file = config[CSE_CA]
       err_msg = "No CA file name specified. If hosts other than \"localhost\" " +
-                "are specified in #{CallResolverConfigure::CSE_HOSTS} then this parameter must be set."
+                "are specified in #{CallResolverConfigure::CSE_HOSTS}, then the " +
+                "parameter #{CSE_CA} must be set to the CA file name."
       if ca_file == nil
-        puts "Error: #{err_msg}"
-        Utils.raise_exception(err_msg)
+        raise_exception(err_msg, ConfigException)
       else
         ca_file = ca_file.strip       
         if ca_file.length == 0
-          puts "Error: #{err_msg}"        
-          Utils.raise_exception(err_msg)        
+          raise_exception(err_msg, ConfigException)
         end
       end
       # Test if file exists
       if ! test(?e, "#{@prefix}/#{SIPXPBX_SSLPATH}/authorities/#{ca_file}")
         err_msg = "CA file \"#{@prefix}/#{SIPXPBX_SSLPATH}/authorities/#{ca_file}\" does not exist."
-        puts "Error: #{err_msg}"
-        Utils.raise_exception(err_msg)
+        raise_exception(err_msg, ConfigException)
       end
       debug_level = config[CSE_STUNNEL_DEBUG_LEVEL]
       debug_level ||= CSE_STUNNEL_DEBUG_LEVEL_DEFAULT      
@@ -201,6 +196,11 @@ private
   # Use the Call Resolver's Logger
   def log
     @resolver.log
+  end
+  
+  def raise_exception(err_msg, klass = CallResolverException)
+    puts "Error: #{err_msg}"
+    Utils.raise_exception(err_msg, klass)
   end
   
 end
