@@ -96,33 +96,34 @@ public
     connect_to_cdr_database
     
     begin
-      # Default the start time to 1 day before now
-      start_time ||= Time.now() - SECONDS_IN_A_DAY
-      
-      # Default the end_time to 1 day after the start time
-      end_time ||= start_time + SECONDS_IN_A_DAY
+      Cdr.transaction do
+        # Default the start time to 1 day before now
+        start_time ||= Time.now() - SECONDS_IN_A_DAY
+        
+        # Default the end_time to 1 day after the start time
+        end_time ||= start_time + SECONDS_IN_A_DAY
+    
+        start_run = Time.now
+        log.info("resolve: Resolving calls from #{start_time.to_s} to " +
+                 "#{end_time.to_s}.  Running at #{start_run}.")
   
-      start_run = Time.now
-      log.info("resolve: Resolving calls from #{start_time.to_s} to " +
-               "#{end_time.to_s}.  Running at #{start_run}.")
-
-      # Load all CSEs in the time window.  The call_map is a hash where each key
-      # is a call ID and the value is an array of events for that call ID,
-      # sorted by time.
-      # :TODO: For performance/scalability (XPR-144) we can't just load all the
-      # data at once.  Split the time window into subwindows and do one
-      # subwindow at a time, noting incomplete CDRs and carrying those calls
-      # forward into the next subwindow.
-      call_map = load_distrib_events_in_time_window(start_time, end_time)
-      
-      # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
-      call_map.each_value do |call|
-        resolve_call(call)
+        # Load all CSEs in the time window.  The call_map is a hash where each key
+        # is a call ID and the value is an array of events for that call ID,
+        # sorted by time.
+        # :TODO: For performance/scalability (XPR-144) we can't just load all the
+        # data at once.  Split the time window into subwindows and do one
+        # subwindow at a time, noting incomplete CDRs and carrying those calls
+        # forward into the next subwindow.
+        call_map = load_distrib_events_in_time_window(start_time, end_time)
+        
+        # Resolve each call to yield 0-1 CDRs.  Save the CDRs.
+        call_map.each_value do |call|
+          resolve_call(call)
+        end
+  
+        end_run = Time.now
+        log.info("resolve: Done at #{end_run}.  Analysis took #{end_run - start_run} seconds.")
       end
-
-      end_run = Time.now
-      log.info("resolve: Done at #{end_run}.  Analysis took #{end_run - start_run} seconds.")
-  
     rescue
       # Backstop exception handler: don't let any exceptions propagate back
       # to the caller.  Log the error and the stack trace.  The log message has to
@@ -180,35 +181,33 @@ private
       "Resolving a call: call ID = #{call_id} with #{events.length} events (" + event_types_str}
     
     begin
-      Cdr.transaction do
-        call_req = find_call_request(events)
-        if call_req
-          # Read info from the call request and start constructing the CDR.
-          cdr = start_cdr(call_req)
-          
-          # The forking proxy might ring multiple phones.  The dialog with each
-          # phone is a separate call leg.
-          # Pick the call leg with the best outcome and longest duration to be the
-          # basis for the CDR.
-          to_tag = best_call_leg(events)
-  
-          if to_tag                 # if there are any call legs worth examining
-            # Fill the CDR from the call leg events.  The returned status is true
-            # if that succeeded, false otherwise.
-            status = finish_cdr(cdr, events, to_tag)
-          
-            if status
-              log.debug do
-                "resolve_call: Resolved a call from #{cdr.caller_aor} to " +
-                "#{cdr.callee_aor} at #{cdr.start_time}, call status = " +
-                "#{cdr.termination_text}"
-              end
-              
-              save_cdr(cdr)
+      call_req = find_call_request(events)
+      if call_req
+        # Read info from the call request and start constructing the CDR.
+        cdr = start_cdr(call_req)
+        
+        # The forking proxy might ring multiple phones.  The dialog with each
+        # phone is a separate call leg.
+        # Pick the call leg with the best outcome and longest duration to be the
+        # basis for the CDR.
+        to_tag = best_call_leg(events)
+
+        if to_tag                 # if there are any call legs worth examining
+          # Fill the CDR from the call leg events.  The returned status is true
+          # if that succeeded, false otherwise.
+          status = finish_cdr(cdr, events, to_tag)
+        
+          if status
+            log.debug do
+              "resolve_call: Resolved a call from #{cdr.caller_aor} to " +
+              "#{cdr.callee_aor} at #{cdr.start_time}, call status = " +
+              "#{cdr.termination_text}"
             end
-          else
-            log.debug {"resolve_call: no good call legs found, discarding this call"}
+            
+            save_cdr(cdr)
           end
+        else
+          log.debug {"resolve_call: no good call legs found, discarding this call"}
         end
       end
     # Don't let a single bad call blow up the whole run, if the exception was
