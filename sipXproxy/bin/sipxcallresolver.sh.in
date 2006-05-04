@@ -31,7 +31,7 @@ resolverArgs=""
 : ${RunningUser:=@SIPXPBXUSER@}
 : ${PgUser:=postgres}
 : ${PgSchema:=@SIPX_CONFDIR@/cdr/schema.sql}
-: ${DbVersion:=1}
+: ${DbVersion:=2}
 : ${DbPatchDir:=@SIPX_CONFDIR@/cdr}
 : ${DbPatchLog:=@SIPX_LOGDIR@/sipcdrpatch.log}
 

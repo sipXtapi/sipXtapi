@@ -9,23 +9,17 @@
 
 class Cdr < ActiveRecord::Base
   
-public  
-  # Describe the mapping from the cdrs table to the parties table.
-  # Because the cdrs table references the parties table twice, once for the caller
-  # and once for the callee, we have to specify details that ActiveRecord would
-  # typically figure out automatically.
-  belongs_to :caller,
-             :class_name => "Party",
-             :foreign_key => "caller_id"
-  belongs_to :callee,
-             :class_name => "Party",
-             :foreign_key => "callee_id"
-  
   # Constants representing termination codes
   CALL_REQUESTED_TERM   = 'R'
   CALL_IN_PROGRESS_TERM = 'I'
   CALL_COMPLETED_TERM   = 'C'
   CALL_FAILED_TERM      = 'F'
+  
+public  
+
+  # Make caller_contact and callee_contact available during call resolution,
+  # but don't persist them.
+  attr_accessor :caller_contact, :callee_contact
   
   # Return true if the CDR is complete, false otherwise.
   def complete?

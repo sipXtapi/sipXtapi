@@ -19,7 +19,7 @@ require File.join($SOURCE_DIR, '..', '..', 'call_resolver')
 
 # :TODO: Make it easy to run all the unit tests, possibly via Rakefile, for build loop.
 class CallResolverTest < Test::Unit::TestCase
-  fixtures :call_state_events, :parties, :cdrs
+  fixtures :call_state_events, :cdrs
   
   TEST_AOR = 'aor'
   TEST_CONTACT = 'contact'
@@ -282,20 +282,15 @@ public
   end
   
   def test_start_cdr
-    cdr_data = @resolver.send(
-                 :start_cdr,
-                 call_state_events('testSimpleSuccess_1'))
-    cdr = cdr_data.cdr
-    caller = cdr_data.caller
-    callee = cdr_data.callee
-    
+    cdr = @resolver.send(:start_cdr,
+                         call_state_events('testSimpleSuccess_1'))
     # verify the caller
-    assert_equal('sip:alice@example.com', caller.aor)
-    assert_equal('sip:alice@1.1.1.1', caller.contact)
+    assert_equal('sip:alice@example.com', cdr.caller_aor)
+    assert_equal('sip:alice@1.1.1.1', cdr.caller_contact)
     
     # verify the callee: we have the AOR but not the contact
-    assert_equal('sip:bob@example.com', callee.aor)
-    assert_nil(callee.contact)
+    assert_equal('sip:bob@example.com', cdr.callee_aor)
+    assert_nil(cdr.callee_contact)
 
     # verify the CDR
     assert_equal('testSimpleSuccess', cdr.call_id)
@@ -342,14 +337,9 @@ public
     
     # fill in cdr_data with info from the events
     to_tag = 't'
-    cdr_data = CdrData.new
-    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
+    cdr = Cdr.new
+    status = @resolver.send(:finish_cdr, cdr, events, to_tag)
     assert_equal(true, status)
-    
-    # define variables for cdr_data components
-    cdr = cdr_data.cdr
-    caller = cdr_data.caller
-    callee = cdr_data.callee
     
     # Check that the CDR is filled in as expected.  It will only be partially
     # filled in because we are testing just one part of the process.
@@ -358,7 +348,7 @@ public
                             'Wrong connect_time')
     assert_equal(Time.parse('1990-05-17T19:40:00.000Z'), cdr.end_time,
                             'Wrong end_time')
-    assert_equal('sip:bob@2.2.2.2', callee.contact, 'Wrong callee contact')
+    assert_equal('sip:bob@2.2.2.2', cdr.callee_contact, 'Wrong callee contact')
     assert_equal(Cdr::CALL_COMPLETED_TERM, cdr.termination, 'Wrong termination code')
     assert_nil(cdr.failure_status)
     assert_nil(cdr.failure_reason)
@@ -380,14 +370,9 @@ public
     
     # fill in cdr_data with info from the events
     to_tag = 't'
-    cdr_data = CdrData.new
-    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
+    cdr = Cdr.new
+    status = @resolver.send(:finish_cdr, cdr, events, to_tag)
     assert_equal(true, status)
-    
-    # define variables for cdr_data components
-    cdr = cdr_data.cdr
-    caller = cdr_data.caller
-    callee = cdr_data.callee
     
     # Check that the CDR is filled in as expected.  It will only be partially
     # filled in because we are testing just one part of the process.
@@ -396,7 +381,7 @@ public
                             'Wrong connect_time')
     assert_equal(Time.parse('1990-05-17T19:50:00.000Z'), cdr.end_time,
                             'Wrong end_time')
-    assert_equal('sip:bob@2.2.2.2', callee.contact, 'Wrong callee contact')
+    assert_equal('sip:bob@2.2.2.2', cdr.callee_contact, 'Wrong callee contact')
     assert_equal(Cdr::CALL_COMPLETED_TERM, cdr.termination, 'Wrong termination code')
     assert_nil(cdr.failure_status)
     assert_nil(cdr.failure_reason)
@@ -405,30 +390,12 @@ public
   # Helper method for test_finish_cdr.  Check that failure info has been filled
   # in properly.
   def check_failed_call(events, to_tag)
-    cdr_data = CdrData.new
-    status = @resolver.send(:finish_cdr, cdr_data, events, to_tag)
+    cdr = Cdr.new
+    status = @resolver.send(:finish_cdr, cdr, events, to_tag)
     assert_equal(true, status, 'Finishing the CDR failed')
-    cdr = cdr_data.cdr
     assert_equal(Cdr::CALL_FAILED_TERM, cdr.termination, 'Wrong termination code')
     assert_equal(499, cdr.failure_status)
     assert_equal("You Can't Always Get What You Want", cdr.failure_reason) 
-  end
- 
-  def test_find_party
-    # For a clean test, make sure there is no preexisting Party with the aor
-    # and contact that we are using.
-    Party.delete_all("aor = '#{TEST_AOR}' and contact = '#{TEST_CONTACT}'")
-    
-    # Create a Party
-    party = Party.new(:aor => 'aor', :contact => 'contact')
-    
-    # The Party shouldn't be in the DB
-    assert_nil(@resolver.send(:find_party, party))
-               
-    # Save the Party, now it should be in the DB
-    party.save
-    assert_equal(party, @resolver.send(:find_party, party),
-                 'Could not find the saved Party in the database')
   end
   
   def test_save_cdr
@@ -441,70 +408,35 @@ public
     cdr = Cdr.new(:call_id =>     TEST_CALL_ID,
                   :from_tag =>    TEST_FROM_TAG,
                   :to_tag =>      TEST_TO_TAG,
-                  :caller_id =>   1,
-                  :callee_id =>   2,
-                  :termination => 'C')
+                  :caller_aor =>  'colbert@example.com',
+                  :callee_aor =>  'report@example.com',
+                  :termination => Cdr::CALL_REQUESTED_TERM)
     
     # Try to save it and confirm that it was saved.  Use a clone so we don't
     # modify the original and can reuse it.
     saved_cdr = @resolver.send(:save_cdr, cdr.clone)
     assert(saved_cdr.id, 'ID of object saved to database must be non-nil')
     
-    # Try to save another clone.  We should get back the CDR that is already in
-    # the database.  The clone should not be saved because we have not passed in
-    # replace=true (second optional input to save_cdr) and the existing CDR is
-    # complete.
+    # Try to save another clone, marked as complete.  Because the saved CDR
+    # was incomplete based on its termination, the save should succeed.
     cdr2 = cdr.clone
+    cdr2.termination = Cdr::CALL_COMPLETED_TERM
     save_again_cdr = @resolver.send(:save_cdr, cdr2)
-    assert_equal(saved_cdr.id, save_again_cdr.id)
-    assert(cdr2.new_record?, 'Cdr record should not have been saved')
+    assert_not_equal(saved_cdr.id, save_again_cdr.id)
+    assert_equal(Cdr::CALL_COMPLETED_TERM, save_again_cdr.termination)
     
-    # Pass in replace=true, now the save should happen.  Tweak cdr2 so we can
-    # check that it worked.
-    cdr2.termination = 'I'
-    saved_cdr = @resolver.send(:save_cdr, cdr2, true)
-    assert_equal(cdr2.termination, saved_cdr.termination,
-                 'Cdr record was not saved even though replace=true')
-    
-    # Try to save another clone without setting replace=true.  Should work
-    # because the saved CDR is incomplete.
+    # Try to save another clone. Should fail because the saved CDR is
+    # incomplete.  Tweak the termination to help verify this.
     cdr3 = cdr.clone
-    cdr3.termination = 'R'    # tweak the CDR so we can verify the save
-    saved_cdr = @resolver.send(:save_cdr, cdr3, true)
-    assert_equal(cdr3.termination, saved_cdr.termination,
-      'Cdr record was not saved, should have replaced incomplete CDR')    
-  end
-  
-  def test_save_party_if_new
-    # For a clean test, make sure there is no preexisting Party with the aor
-    # and contact that we are using.
-    Party.delete_all("aor = '#{TEST_AOR}' and contact = '#{TEST_CONTACT}'")
-    
-    # Create a Party
-    party = Party.new(:aor => 'aor', :contact => 'contact')
-    
-    # Save it
-    saved_party = @resolver.send(:save_party_if_new, party)
-    assert_equal(saved_party, party)
-    
-    # Make a new Party just like the last one.  When we try to save it, we
-    # should get back the one that is already in the DB.
-    party2 = Party.new(:aor => 'aor', :contact => 'contact')
-    save_again_party = @resolver.send(:save_party_if_new, party2)
-    assert_equal(saved_party.id, save_again_party.id)
-    assert(party2.new_record?, 'Party record should not have been saved')
-  end
-  
-  def test_find_cdr_by_dialog
-    cdr = @resolver.send(:find_cdr_by_dialog, 'call1', 'f1', 't1')
-    assert(cdr, "Couldn't find CDR")
-    cdr = @resolver.send(:find_cdr_by_dialog, 'extra_bogus_call_id', 'f1', 't1')
-    assert_nil(cdr, "Found a CDR that shouldn't exist")
+    cdr3.termination = Cdr::CALL_IN_PROGRESS_TERM
+    saved_cdr = @resolver.send(:save_cdr, cdr3)
+    assert_equal(save_again_cdr.id, saved_cdr.id)
+    assert_equal(cdr2.termination, saved_cdr.termination)    
   end
   
   def test_find_cdr
     # Find a CDR we know is in the DB
-    cdr_to_find = Cdr.new(:call_id => 'call1', :from_tag => 'f1', :to_tag => 't1')
+    cdr_to_find = Cdr.new(:call_id => 'call1')
     cdr = @resolver.send(:find_cdr, cdr_to_find)
     assert(cdr, "Couldn't find CDR")
     
@@ -516,53 +448,6 @@ public
     # Trigger an ArgumentError
     cdr_to_find.call_id = nil
     assert_raise(ArgumentError) {cdr = @resolver.send(:find_cdr, cdr_to_find)}
-  end
-  
-  def test_save_cdr_data
-    # Try to save a CDR with a dialog ID that already exists in the DB =>
-    # should just get back the existing CDR.
-    cdr = Cdr.new(:call_id => 'call1', :from_tag => 'f1', :to_tag => 't1')
-    caller = Party.new(:aor => 'sip:alice@example.com',
-                       :contact => 'sip:alice@1.1.1.1')
-    callee = Party.new(:aor => 'sip:bob@example.com',
-                       :contact => 'sip:bob@2.2.2.2')
-    cdr_data = CdrData.new(cdr, caller, callee)
-    cdr_count_before_save = Cdr.count
-    @resolver.send(:save_cdr_data, cdr_data)
-    assert_equal(cdr_count_before_save, Cdr.count,
-                 'The CDR count must not increase')
-    
-    # Save a new CDR => it should end up in the DB
-    call_id2 = 'call2'
-    from_tag2 = 'f2'
-    to_tag2 = 't2'
-    cdr = Cdr.new(:call_id => call_id2, :from_tag => from_tag2, :to_tag => to_tag2)
-    cdr_data.cdr = cdr
-    @resolver.send(:save_cdr_data, cdr_data)
-    assert_equal(cdr_count_before_save + 1, Cdr.count,
-                 'The CDR was not saved to the database')
-    cdr = @resolver.send(:find_cdr_by_dialog, call_id2, from_tag2, to_tag2)
-    assert_not_nil(cdr, "Didn't find saved CDR")
-    
-    # Save a new CDR with a new caller and callee => everything gets persisted
-    call_id3 = 'call3'
-    from_tag3 = 'f3'
-    to_tag3 = 't3'
-    cdr = Cdr.new(:call_id => call_id3, :from_tag => from_tag3, :to_tag => to_tag3)
-    caller = Party.new(:aor => 'sip:varda@example.com',
-                       :contact => 'sip:varda@3.3.3.3')
-    callee = Party.new(:aor => 'sip:thor@example.com',
-                       :contact => 'sip:thor@4.4.4.4')
-    cdr_data = CdrData.new(cdr, caller, callee)
-    cdr_count_before_save = Cdr.count
-    party_count_before_save = Party.count
-    @resolver.send(:save_cdr_data, cdr_data)
-    assert_equal(cdr_count_before_save + 1, Cdr.count,
-                 'The CDR was not saved to the database')
-    assert_equal(party_count_before_save + 2, Party.count,
-                 'The caller and/or callee was not saved to the database')
-    cdr = @resolver.send(:find_cdr_by_dialog, call_id3, from_tag3, to_tag3)
-    assert_not_nil(cdr, "Didn't find saved CDR")
   end
   
   def test_resolve_call
@@ -581,18 +466,6 @@ public
     @resolver.resolve(start_time, end_time)
     assert_equal(4, Cdr.count, 'Wrong number of CDRs')
   end
-
-  # Test that contact params are stripped off of the contact URLs recorded in CDRs
-  def test_contact_param_stripping
-    start_time = Time.parse('2001-1-3T00:00:00.000Z')
-    end_time = Time.parse('2001-1-3T03:00:00.000Z')
-    @resolver.resolve(start_time, end_time)
-    
-    assert(Party.find(:first,
-                      :conditions => "contact = 'sip:alice_with_params@1.1.1.1'"))
-    assert(Party.find(:first,
-                      :conditions => "contact = '<sip:bob_with_params@2.2.2.2>'"))
-   end
 
   #-----------------------------------------------------------------------------
   # Helper methods

@@ -25,9 +25,9 @@ create table version_history(
 /**
  * CHANGE VERSION HERE ----------------------------> X <------------------
  *
- * For the initial sipX release with Call Resolver, the database version is 1.
+ * For the initial sipX release with Call Resolver, the database version is 2.
  */
-insert into version_history (version, applied) values (1, now());
+insert into version_history (version, applied) values (2, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -94,31 +94,15 @@ create table observer_state_events (
 
 ---------------------------------- CDR Tables ----------------------------------
 
-/* 
- * The parties table holds the SIP address of record (AOR) and contact URL for
- * a party in a SIP call, the caller or callee.
- * AOR example: "Bob <sip:bob@biloxi.com>".
- * Contact example: "<sip:bob@192.0.2.4>".
- * Sometimes we have just the AOR and the contact is null, so we can't put a 
- * not null constraint on the contact column.
- */
-create table parties (
-  id serial8 not null primary key,
-  aor text not null,                    /* SIP AOR */
-  contact text,                         /* SIP contact URL */
-  unique (aor, contact)
-);
-
-
 /*
  * The cdrs table records info about SIP calls.
  *
  * Start, connect, and end times are nullable to allow for partial CDRs where the
  * call cannot be completely analyzed.  For example, if we can't find a BYE or 
  * any other end event, then the end_time is indeterminate and will be set to NULL.
- * Note that NULL time values work fine with the check constraints declared below,
- * because comparisons return NULL for NULL operands, and a check constraint is
- * satisfied by a NULL value.
+ *
+ * Declaring call_id to be unique implicitly creates an index on that column, so
+ * queries on call_id are fast.
  *
  * The termination code column holds an single char value indicating why the call
  * was terminated.  Codes are:
@@ -131,14 +115,11 @@ create table parties (
  */
 create table cdrs (
   id serial8 not null primary key,
-  call_id text not null,            /* SIP call ID from the INVITE */
+  call_id text not null unique,     /* SIP call ID from the INVITE */
   from_tag text not null,           /* SIP from tag provided by caller in the INVITE */
   to_tag text not null,             /* SIP to tag provided by callee in the 200 OK */
-  unique (call_id, from_tag, to_tag),
-  caller_id int8 not null           /* Caller info: foreign key to parties table */
-    references parties (id),
-  callee_id int8 not null           /* Callee info: foreign key to parties table */
-    references parties (id),
+  caller_aor text not null,         /* caller's SIP address of record (AOR) */
+  callee_aor text not null,         /* callee's AOR */
   start_time timestamp,             /* Start time in GMT: initial INVITE received */
   connect_time timestamp,           /* Connect time in GMT: ACK received for 200 OK */
   end_time timestamp,               /* End time in GMT: BYE received, or other ending */
@@ -152,21 +133,18 @@ create table cdrs (
 ---------------------------------- Views ----------------------------------
 
 /*
- * Simplify the presentation of CDRs by showing commonly used CDR data in a single
- * view so that the user doesn't have to be confronted with normalization into
- * different tables.
- * Do not include SIP dialog info in the view since it is not of interest for billing,
- * it is only used to link the CDR back to raw CSE data, or for CDR post-processing.
+ * Simplify the presentation of CDRs by showing commonly used CDR data in a
+ * single view.
+ * Do not include SIP dialog info in the view since it is not of interest for
+ * billing.  Dialog info is only used to link the CDR back to raw CSE data,
+ * or for CDR post-processing.
  */
 
 create view view_cdrs as
-  select cdr.id, 
-         caller.aor as caller_aor, callee.aor as callee_aor,
+  select id, caller_aor, callee_aor,
          start_time, connect_time, end_time,
          termination, failure_status, failure_reason
-  from cdrs cdr, parties caller, parties callee
-  where cdr.caller_id = caller.id
-  and   cdr.callee_id = callee.id;
+  from cdrs;
 
 
 ---------------------------------- Plugins ----------------------------------
@@ -194,10 +172,9 @@ create view view_cdrs as
  */
 
 create view view_cdrs_with_call_direction as
-  select view_cdr.id, 
-         view_cdr.caller_aor, view_cdr.callee_aor,
-         view_cdr.start_time, view_cdr.connect_time, view_cdr.end_time,
-         view_cdr.termination, view_cdr.failure_status, view_cdr.failure_reason,
-         cdr.call_direction
-  from view_cdrs view_cdr, cdrs cdr
-  where view_cdr.id = cdr.id;
+  select id, caller_aor, callee_aor,
+         start_time, connect_time, end_time,
+         termination, failure_status, failure_reason,
+         call_direction
+  from cdrs;
+
