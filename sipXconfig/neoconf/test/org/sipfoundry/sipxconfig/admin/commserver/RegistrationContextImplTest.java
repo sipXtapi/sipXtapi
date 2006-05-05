@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.TestCase;

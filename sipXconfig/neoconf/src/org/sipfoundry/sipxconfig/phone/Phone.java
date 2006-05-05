@@ -279,6 +279,7 @@ public class Phone extends BeanWithGroups {
      * Internal, do not call this method. Hibnerate property declared update=false, but still
      * required method be defined.
      */
+    @SuppressWarnings("unused")
     public void setBeanId(String illegal_) {
     }
 

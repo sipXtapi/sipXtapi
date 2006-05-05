@@ -27,9 +27,10 @@ public final class BinaryFormatConverter {
         0x0d, 0x0a
     };
 
-    private BinaryFormatConverter() {        
+    private BinaryFormatConverter() {
     }
 
+    @SuppressWarnings("unused")
     public static void convert(String macAddress, InputStream in_, OutputStream out)
         throws IOException {
         BufferedOutputStream bout = new BufferedOutputStream(out);

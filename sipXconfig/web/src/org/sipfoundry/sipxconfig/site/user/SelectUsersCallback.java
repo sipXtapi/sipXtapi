@@ -55,6 +55,7 @@ public class SelectUsersCallback implements ICallback {
      * 
      * @param page_ to be activated
      */
+    @SuppressWarnings("unused")
     protected void beforeActivation(AbstractPage page_) {
         // do nothing by default
     }

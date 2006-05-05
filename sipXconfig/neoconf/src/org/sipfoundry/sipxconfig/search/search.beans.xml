@@ -10,7 +10,6 @@
     <property name="analyzer" ref="analyzer"/>
     <property name="maxFieldLength" value="255"/>
     <property name="minMergeDocs" value="250"/>
-    <property name="writeLockTimeout" value="10000"/>
   </bean>
   
   <bean id="fastIndexer" class="org.sipfoundry.sipxconfig.search.FastIndexer">

@@ -92,6 +92,7 @@ public class Upload extends BeanWithSettings {
      * Internal, do not call this method. Hibnerate property declared update=false, but still
      * required method be defined.
      */
+    @SuppressWarnings("unused")    
     public void setBeanId(String illegal_) {
     }
 

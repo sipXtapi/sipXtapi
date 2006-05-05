@@ -41,6 +41,7 @@ public abstract class ActivateDialPlan extends BasePage {
         return generator.getFileContent(type);
     }
 
+    @SuppressWarnings("unused")
     public void setXml(String xml_) {
         // ignore xml - read only field
     }

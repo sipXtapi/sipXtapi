@@ -36,7 +36,7 @@ public class ObjectSelectionModel implements IPropertySelectionModel {
     }
     
     public void setArray(Object[] objects) {
-        m_objects = (Object[]) objects.clone();        
+        m_objects = objects.clone();        
     }
 
     /**
