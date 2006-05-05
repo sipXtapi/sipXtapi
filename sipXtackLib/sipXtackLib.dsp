@@ -93,6 +93,10 @@ SOURCE=.\src\net\HttpBody.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\net\HttpConnectionMap.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\net\HttpMessage.cpp
 # End Source File
 # Begin Source File
@@ -402,6 +406,10 @@ SOURCE=.\include\resparse\wnt\crypt.h
 # Begin Source File
 
 SOURCE=.\include\net\HttpBody.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\HttpConnectionMap.h
 # End Source File
 # Begin Source File
 
