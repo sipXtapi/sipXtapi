@@ -67,22 +67,7 @@
     - T A S K   D E F I N I T I O N S
     - Common task definitions.
     -->
-  <taskdef resource="checkstyletask.properties"> 
-     <classpath>
-        <pathelement location="${checkstyle.jar}"/>
-
-        <!-- 
-          - antlr that comes w/ant 1.6 is too old, use local 
-          - that came w/checkstyle 
-          -->
-        <pathelement location="${checkstyle-antlr.jar}"/>
-        <pathelement location="${checkstyle-optional.jar}"/>
-	<!-- add these for Windows -->
-        <pathelement location="${commons-beanutils.jar}"/>
-        <pathelement location="${commons-logging.jar}"/>
-        <pathelement location="${regexp.jar}"/>
-     </classpath> 
-   </taskdef> 
+  <taskdef resource="checkstyletask.properties"/> 
 
   <!-- SOAP bindings task -->
   <taskdef name="wsdl2java" 
@@ -165,8 +150,8 @@
         debug="${debug}"
         deprecation="${deprecation}"
         optimize="${optimize}"
-        source="1.4"
-        target="1.4"
+        source="1.5"
+        target="1.5"
   	    excludes="test/**"/>
   </target>
 
@@ -221,6 +206,9 @@
     <available file="${src.dir}" type="dir" property="src.present"/>
   </target>
 
+  <taskdef resource="checkstyletask.properties"
+         classpath="${checkstyle.jar}"/>
+
   <target name="style.check" depends="check.src.present" if="src.present">
     <checkstyle config="${top.dir}/meta/checkstyle.xml" failOnViolation="false"
       failureproperty="checkstyle.failed" classpathref="base.path">
@@ -233,8 +221,7 @@
       <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml"/>
     </checkstyle>
     <fail if="checkstyle.failed"/>
-  </target>
-	
+  </target>  
 	
   <target name="style" depends="init,style.check" unless="checkstyle.failed" 
 		description="check code violations">
