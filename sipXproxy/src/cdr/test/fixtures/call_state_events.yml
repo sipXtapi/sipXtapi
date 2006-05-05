@@ -451,7 +451,7 @@ testFailed_61:
   failure_status: 499
   failure_reason: I Feel Stupid and Contagious
 
-
+  
 #-------------------------------------------------------------------------------
 
 # Success case.  Test that contact params are stripped off of contact URLs.
@@ -497,3 +497,52 @@ testContactParamStripping_3:
   from_url:   sip:alice@example.com; tag=f
   to_url:     sip:bob@example.com; tag=t
   contact :
+
+  
+#-------------------------------------------------------------------------------
+
+# Success case.  Test weird display names
+
+testWeirdNameStripping_1:
+  id:         91
+  observer:   O
+  event_seq:  91
+  event_time: 2001-1-4T00:00:00.000Z
+  event_type: R
+  cseq:       1   
+  call_id:    testWeirdNameStripping
+  from_tag:   f
+  to_tag:
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com
+  contact:    '"Alice:; \"in\" :Wonderland" <sip:alice_with_params@1.1.1.1;param_to_be_stripped>'
+  
+testWeirdNameStripping_2:
+  id:         92
+  observer:   O
+  event_seq:  92
+  event_time: 2001-1-4T01:00:00.000Z
+  event_type: S
+  cseq:       2
+  call_id:    testWeirdNameStripping
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:    <sip:bob_with_params@2.2.2.2;param1;param2>
+  
+testWeirdNameStripping_3:
+  id:         93
+  observer:   O
+  event_seq:  93
+  event_time: 2001-1-4T02:00:00.000Z
+  event_type: E
+  cseq:       3
+  call_id:    testWeirdNameStripping
+  from_tag:   f
+  to_tag:     t
+  from_url:   sip:alice@example.com; tag=f
+  to_url:     sip:bob@example.com; tag=t
+  contact:
+
+  

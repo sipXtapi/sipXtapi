@@ -48,55 +48,13 @@ public
         :username => "postgres",
         :database => SIPXCONFIG_DATABASE)
     end
-
-    # Find the gateways.  For gateways configured with domain names, resolve the
-    # names to IP addresses so we have a canonical format for address matching.
-    # Catch any exceptions in name resolution and discard such gateways.
-    @gateways = Gateway.find(:all)
-    gateway = nil
-    begin
-      # Compute the IP address purely for side effect here
-      @gateways.each do |g|
-        gateway = g
-        g.ip_address
-      end
-    rescue NameResolutionException
-      log.error("Unable to resolve the domain name \"#{gateway.address}\" for the " +
-                "gateway named \"#{gateway.name}\".  This gateway will not be used " +
-                "when computing call direction.")
-      @gateways.delete(gateway)
-    end
-    
-    if log.debug?
-      # For debugging, list the gateways with their addresses.  If the gateway
-      # has a domain name as its address, then list both the domain name and
-      # the associated IP address, otherwise just list the IP address.
-      if @gateways and (@gateways.length > 0)
-        log.debug("Found #{@gateways.length} gateways for computing call direction:")
-        @gateways.each do |g|
-          str = "  name = #{g.name}, "
-          address = g.address
-          ip_address = g.ip_address
-          if address and (address != ip_address)
-            str += "domain name = \"#{address}\", "
-          else
-            str += "domain name is unknown, "
-          end
-          str += "IP address = #{ip_address}"
-          log.debug(str)
-        end
-      else
-        log.debug("No gateways found")
-      end
-    end
-    
+    load_and_resolve_gateways    
   end
   
   # When CallResolver tells us that a new CDR has been created, then compute
   # call direction for that CDR.
   def update(event_type,    # Call Resolver event type
              cdr)           # New CDR, not yet saved to DB
-    
     # The "new CDR" event is the only event type handled by this plugin
     if event_type == CallResolver::EVENT_NEW_CDR
       set_call_direction(cdr)
@@ -130,7 +88,7 @@ public
 private
 
   # For use by test code
-  attr_writer :gateways
+  attr_writer :gateway_addresses
 
   # Compute and set call direction for the CDR.
   def set_call_direction(cdr)
@@ -153,7 +111,47 @@ private
 
   def is_gateway_address(contact)
     contact_ip_addr = Utils.contact_ip_addr(contact)
-    @gateways.any? {|g| g.ip_address == contact_ip_addr}
+    @gateway_addresses.any? {|g| g == contact_ip_addr}
+  end
+  
+  def load_and_resolve_gateways
+    # Find the gateways.  For gateways configured with domain names, resolve the
+    # names to IP addresses so we have a canonical format for address matching.
+    # Return array of resolved IP addresses.
+    @gateways = Gateway.find(:all)
+    @gateway_addresses = []
+    gateway = nil
+
+    # Build a gateway IP list
+    @gateways.each do |g|
+      gateway = g
+      ip_addresses = g.ip_addresses
+      if ip_addresses.length == 0
+        log.error("Unable to resolve the domain name \"#{gateway.address}\" for the " +
+        "gateway named \"#{gateway.name}\".  This gateway will not be used " +
+        "when computing call direction.")
+      else
+        @gateway_addresses.concat(ip_addresses)
+        log.debug do   
+          # For debugging, list the gateways with their addresses.  If the gateway
+          # has a domain name as its address, then list both the domain name and
+          # the associated IP address, otherwise just list the IP address.            
+          str = "  name = #{g.name}, "
+          address = g.address
+          ip_address = ip_addresses
+          if address and (address != ip_addresses.to_s)
+            str += "domain name = \"#{address}\", "
+          else
+            str += "domain name is unknown, "
+          end
+          addr_str = ''
+          ip_addresses.each {|a| addr_str += "#{a} "}
+          str += "IP address(es) = #{addr_str}"
+          str     
+        end
+      end
+    end
+    log.debug("Found #{@gateway_addresses.length} gateways for computing call direction.")    
   end
 
   # Use the Call Resolver's Logger

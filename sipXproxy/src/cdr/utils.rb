@@ -20,38 +20,36 @@ class Utils
 
 public
 
+  # LATER: Add IPv6 matching
+  IPADDRV4 = '(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'
+  DOMAINLABEL = '[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?'
+  TOPLABEL = '[a-zA-Z]([a-zA-Z0-9]|-)*[a-zA-Z0-9]'  
+  HOSTNAME = "(#{DOMAINLABEL}\\.)*#{TOPLABEL}"    
+  HOST = "(#{IPADDRV4}|#{HOSTNAME})"
+  HOSTPORT = "#{HOST}(:\\d+)?"
+  SIPURI = ".*:(.+@)?(#{HOST})"
+  CONTACT = "(\\<?.*:(.+@)?#{HOSTPORT}).*\\>?"
+  EMBEDDEDQUOTES = '(\\\".*\\\")'
+  QUOTEDSTRING = "(\".*\")\s*(\\<.*:.*)"
+
   # Take a contact string like "Jorma Kaukonen"<sip:187@10.1.1.170:1234>;tag=1c32681
   # and extract just the host part, in this case "10.1.1.170".  The "@" is optional,
   # could be just "sip:10.1.1.170" for example.
-  # :LATER: Use regex here, much simpler
   def Utils.contact_host(contact)
-    # Find the colon at the end of "sip:" or "sips:".  Strip the colon and
-    # everything before it.
-    colon_index = contact.index(':')
-    if !colon_index
+    # Use regular expression to extract the hostport part
+    if contact =~ Regexp.new(QUOTEDSTRING)
+      sip_uri = $2
+    else
+      sip_uri = contact
+    end
+    if sip_uri =~ Regexp.new(SIPURI)
+      $2
+    else   
       raise(BadContactException.new(contact),
-            "Bad contact, can't find colon: \"#{contact}\"",
-            caller)
+            "Bad contact, can't extract address: \"#{contact}\"")
     end
-    contact = contact[(colon_index + 1)..-1]
-    
-    # If there is an @, then remove the part of the contact up to and including
-    # the @.
-    at_sign_index = contact.index("@")
-    if at_sign_index
-      contact = contact[at_sign_index + 1..-1]
-    end
-    
-    # If there is a semicolon indicating contact params, then strip the params
-    contact = Utils.remove_part_of_str_beginning_with_char(contact, ';')
-    
-    # If there is an ">" at the end, then remove it
-    contact = Utils.remove_part_of_str_beginning_with_char(contact, '>')
-    
-    # If there is another colon indicating a port #, then remove the port #
-    contact = Utils.remove_part_of_str_beginning_with_char(contact, ':')
   end
-
+ 
   def Utils.contact_ip_addr(contact)
     # Extract the host part of the contact
     host = contact_host(contact)
@@ -80,12 +78,23 @@ public
   # :LATER: Use regex here, much simpler
   def Utils.get_aor_from_header(header, is_tag_required = true)
     aor = nil
+   # Strip quoted display name 
+   if header =~ Regexp.new(QUOTEDSTRING)
+      sip_uri = $2
+    else
+      sip_uri = header
+    end
+    # Remember how long the display name was we chopped off and add that
+    # back on when getting the semicolon position
+    add_pos = header.length - sip_uri.length      
     
     # find the semicolon preceding the tag
-    semi = header.index(';')
-    
+    semi = sip_uri.index(';')
+
     # extract the AOR
     if semi
+      # Add the length we originally stripped off
+      semi += add_pos
       aor = header[0, semi]
     else
       if is_tag_required
@@ -109,8 +118,16 @@ public
   # matching a '<' at the beginning.  If so then leave it in place.
   # :LATER: Use regex here, much simpler
   def Utils.contact_without_params(contact)
-    semi_index = contact.index(';')
+    if contact =~ Regexp.new(QUOTEDSTRING)
+      sip_uri = $2
+    else
+      sip_uri = contact
+    end
+    add_pos = contact.length - sip_uri.length
+    
+    semi_index = sip_uri.index(';')
     if semi_index
+      semi_index += add_pos
       gt_index = contact.index('>')
       contact = contact[0...semi_index]
       contact << '>' if gt_index
