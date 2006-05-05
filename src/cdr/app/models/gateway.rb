@@ -36,17 +36,18 @@ class Gateway < ActiveRecord::Base
 
 public
   
-  def ip_address
-    if !@ip_address
+  def ip_addresses
+    if !@ip_addresses
       # If the gateway address is a domain name, then resolve it to an IP addr.
+      @ip_addresses = []
       addr = self.address
       if addr
         # Strip a possible port number off the IPv4 address
-        # TODO - handle IPv6
+        # LATER - handle IPv6
         addr = SocketUtils.strip_v4_port(addr)
         if SipxIPSocket.valid_ipaddr?(addr)
           # The gateway address is an IP address.
-          @ip_address = addr
+          @ip_addresses << addr
         else
           # Strip a possible port number from domain name
           if /\A(.+):\d+\Z/ =~ addr
@@ -54,12 +55,12 @@ public
           end          
           # The gateway address is not an IP address, so it must be a domain name.
           # Try to resolve it.
-          @ip_address = SocketUtils.ip_address_from_domain_name(addr)
+          @ip_addresses.concat(SocketUtils.getaddresses(addr))
         end
       end
     end
     
-    @ip_address
+    @ip_addresses
   end
   
 end
