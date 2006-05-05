@@ -69,7 +69,7 @@ public class SipxProcessContextImpl extends SipxReplicationContextImpl implement
             // or actually use real namespaces prefixes
             SAXReader reader = new SAXReader(false) {
                 protected void configureReader(XMLReader xmlReader, DefaultHandler handler)
-                        throws DocumentException {
+                    throws DocumentException {
                     super.configureReader(xmlReader, handler);
                     try {
                         setFeature("http://xml.org/sax/features/namespaces", false);

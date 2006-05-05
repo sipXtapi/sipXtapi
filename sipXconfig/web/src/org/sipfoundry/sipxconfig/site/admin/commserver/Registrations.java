@@ -31,9 +31,13 @@ public abstract class Registrations extends BasePage implements PageBeginRenderL
     private static final String EXPIRES_COLUMN = "expires";
 
     private long m_startRenderingTime;
-
+    
     public void pageBeginRender(PageEvent event_) {
         m_startRenderingTime = System.currentTimeMillis() / DateUtils.MILLIS_PER_SECOND;
+    }
+    
+    public long getStartTime() {
+        return m_startRenderingTime;
     }
 
     public ITableColumn getExpiresColumn() {

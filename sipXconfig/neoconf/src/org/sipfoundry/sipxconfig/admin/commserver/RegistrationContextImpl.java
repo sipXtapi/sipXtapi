@@ -16,12 +16,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections.map.LinkedMap;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,7 +43,7 @@ public class RegistrationContextImpl implements RegistrationContext {
             URL url = new URL(getUrl());
             InputStream is = url.openStream();
             List registrations = getRegistrations(is);
-            return cleanRegistrations(registrations);
+            return registrations;
         } catch (FileNotFoundException e) {
             // we are handling this separately - server returns FileNotFound even if everything is
             // OK but we have no registrations present
@@ -59,30 +56,10 @@ public class RegistrationContextImpl implements RegistrationContext {
             throw new RuntimeException(e);
         }
     }
-
+        
     List getRegistrations(InputStream is) throws IOException, SAXException {
         Digester digester = ImdbXmlHelper.configureDigester(RegistrationItem.class);
         return (List) digester.parse(is);
-    }
-
-    /**
-     * Remove multiple registrations for a single contact
-     * 
-     * @param registrations
-     * @return registration list without duplicated
-     */
-    List cleanRegistrations(List registrations) {
-        LinkedMap contact2registration = new LinkedMap(registrations.size());
-        for (Iterator iter = registrations.iterator(); iter.hasNext();) {
-            RegistrationItem ri = (RegistrationItem) iter.next();
-            String contact = ri.getContact();
-            RegistrationItem riOld = (RegistrationItem) contact2registration.get(contact);
-            // replace older registrations
-            if (riOld == null || ri.compareTo(riOld) > 0) {
-                contact2registration.put(contact, ri);
-            }
-        }
-        return new ArrayList(contact2registration.values());
     }
 
     String getUrl() {

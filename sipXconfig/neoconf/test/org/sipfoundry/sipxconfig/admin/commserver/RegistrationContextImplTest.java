@@ -54,37 +54,4 @@ public class RegistrationContextImplTest extends TestCase {
         assertEquals("https://localhost:8888/sipdb/registration.xml", m_builder.getUrl());
     }
 
-    public void testCleanRegistrations() {
-        String[][] regData = {
-            {
-                "contact1", "10"
-            }, {
-                "contact2", "11"
-            }, {
-                "contact1", "12"
-            }, {
-                "contact3", "13"
-            }, {
-                "contact2", "9"
-            }, {
-                "contact2", "11"
-            }
-        };
-        List regs = new ArrayList();
-        for (int i = 0; i < regData.length; i++) {
-            RegistrationItem item = new RegistrationItem();
-            item.setContact(regData[i][0]);
-            item.setExpires(Long.parseLong(regData[i][1]));
-            regs.add(item);
-        }
-
-        List cleanRegs = m_builder.cleanRegistrations(regs);
-        assertEquals(3, cleanRegs.size());
-        assertEquals("contact1", ((RegistrationItem) cleanRegs.get(0)).getContact());
-        assertEquals("contact2", ((RegistrationItem) cleanRegs.get(1)).getContact());
-        assertEquals("contact3", ((RegistrationItem) cleanRegs.get(2)).getContact());
-        assertEquals(12, ((RegistrationItem) cleanRegs.get(0)).getExpires());
-        assertEquals(11, ((RegistrationItem) cleanRegs.get(1)).getExpires());
-        assertEquals(13, ((RegistrationItem) cleanRegs.get(2)).getExpires());
-    }
 }

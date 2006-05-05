@@ -8,11 +8,19 @@
 
   <property name="currentRow"/>
   <property name="displayPrimary" persist="session"/>
+  <property name="registrations" initial-value="registrationContext.registrations"/>
 
   <!--
   - B E A N S
   -->
   <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd"/>
+  <bean name="metrics" class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationMetrics">
+    <set name="registrations" value="registrations"/>
+    <set name="startTime" value="startTime"/>
+  </bean>
+  <bean name="twoDigitDecimal" class="java.text.DecimalFormat">
+    <set name="maximumFractionDigits" value="2"/>
+  </bean>
 
   <!--
   - C O M P O N E N T S
@@ -23,7 +31,7 @@
     <binding name="labelOff" value="message:show.primary"/>
   </component>
   <component id="tableView" type="contrib:TableView">
-    <binding name="source" value="registrationContext.registrations"/>
+    <binding name="source" value="beans.metrics.uniqueRegistrations"/>
     <binding name="pageSize" value="literal:-1"/>
     <binding name="columns" value="'uri,contact,=expiresColumn' + (displayPrimary ? ',primary' : '')"/>
     <binding name="volatile" value="true"/>
