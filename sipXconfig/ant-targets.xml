@@ -67,8 +67,6 @@
     - T A S K   D E F I N I T I O N S
     - Common task definitions.
     -->
-  <taskdef resource="checkstyletask.properties"/> 
-
   <!-- SOAP bindings task -->
   <taskdef name="wsdl2java" 
 	    classname="org.apache.axis.tools.ant.wsdl.Wsdl2javaAntTask">
