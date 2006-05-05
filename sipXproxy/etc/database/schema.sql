@@ -70,7 +70,8 @@ create table call_state_events (
    refer_to        text,                /* Refer-To header field value */
    referred_by     text,                /* Referred-By header field value */
    failure_status  int2,    /* For Call Failure events, holds 4xx, 5xx, or 6xx status code */
-   failure_reason  text     /* For Call Failure events, holds error text */
+   failure_reason  text,    /* For Call Failure events, holds error text */
+   request_uri     text     /* URI from the request header */
 );
 
 
