@@ -29,7 +29,7 @@ class DatabaseUtils
   # which DBs exist.
   POSTGRESQL_INITIAL_DATABASE = 'template1'
   
-  POSTGRESQL_SCHEMA_FILE = File.join(File.dirname(__FILE__), '..', '..', 'etc', 'database', 'schema.sql')
+  POSTGRESQL_SCHEMA_FILE = File.join('data', 'schema.sql')
     
   # Query to list PostgreSQL DBs.
   # See http://www.postgresql.org/docs/8.0/static/managing-databases.html#MANAGE-AG-OVERVIEW .
@@ -65,6 +65,7 @@ public
   def DatabaseUtils.create_cdr_database(db_name)
     if !database_exists?(db_name)
       `createdb -U #{DatabaseUrl::USERNAME_DEFAULT} #{db_name}`
+      puts "Schem file #{POSTGRESQL_SCHEMA_FILE}"
       exec_sql_file(POSTGRESQL_SCHEMA_FILE, db_name)
     end
   end

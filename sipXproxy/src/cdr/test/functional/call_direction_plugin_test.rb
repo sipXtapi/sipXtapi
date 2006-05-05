@@ -50,7 +50,7 @@ public
   
   def test_call_direction
     # Set up a single test gateway
-    @plugin.send(:gateways=, [Gateway.new(:address => "1.1.1.1")])
+    @plugin.send(:gateway_addresses=, ["1.1.1.1"])
     
     # Resolve calls, computing call direction via the plugin. Calls will be
     # loaded in call ID order: testAnotherSuccess1, testAnotherSuccess2, then
@@ -69,7 +69,7 @@ public
   
   def test_call_direction_with_null_contact
     # Set up a single test gateway
-    @plugin.send(:gateways=, [Gateway.new(:address => "1.1.1.1")])
+    @plugin.send(:gateway_addresses=, ["1.1.1.1"])
     
     # Resolve the test call
     start_time = Time.parse('2001-1-2T00:00:00.000Z')
@@ -84,23 +84,23 @@ public
     assert_equal(CallDirectionPlugin::INTRANETWORK, cdr.call_direction)
   end
   
-  def test_call_direction_strip_port
-    # Set up a single test gateway
-    @plugin.send(:gateways=, [Gateway.new(:address => "1.1.1.1:7001")])
+  def test_weird_name_stripping
+      # Set up a single test gateway
+    @plugin.send(:gateway_addresses=, ["1.1.1.1"])
     
-    # Resolve calls, computing call direction via the plugin
-    Cdr.delete_all
-    start_time = Time.parse('2001-1-1T00:00:00.000Z')
-    end_time = Time.parse('2001-1-1T20:01:00.000Z')
+    # Resolve the test call
+    start_time = Time.parse('2001-1-4T00:00:00.000Z')
+    end_time = Time.parse('2001-1-4T03:01:00.000Z')
     @resolver.add_observer(@plugin)
-    @resolver.resolve(start_time, end_time)
-    assert_equal(3, Cdr.count, 'Wrong number of CDRs')
-    
-    # Check that call direction came out as expected
-    cdrs = Cdr.find(:all)
-    check_call_direction(cdrs)
-  end  
+    @resolver.resolve(start_time, end_time)    
 
+    # Check that call direction came out as expected
+    cdr = Cdr.find(:first,
+                   :conditions => ["start_time = :start_time", {:start_time => start_time}])
+    assert(cdr, "Resolved the test call but didn't get a CDR")
+    assert_equal(CallDirectionPlugin::INCOMING, cdr.call_direction)
+  end    
+  
   def check_call_direction(cdrs)
     cdrs.each do |cdr|
       call_direction = cdr.call_direction

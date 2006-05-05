@@ -22,10 +22,15 @@ require 'exceptions'
 class UtilsTest < Test::Unit::TestCase
 
   def test_get_get_aor_from_header
+
     # test get_aor_from_header with a good input
     header = 'From: Alice <sip:alice@atlanta.com>;tag=1928301774'
     assert_equal('From: Alice <sip:alice@atlanta.com>',
                  Utils.get_aor_from_header(header))
+                 
+    header = 'From: \"Alice:in;Wonder;land\" <sip:alice@atlanta.com>;tag=1928301774'
+    assert_equal('From: \"Alice:in;Wonder;land\" <sip:alice@atlanta.com>',
+                 Utils.get_aor_from_header(header))                 
     
     # another good input
     header = '<sip:100@pingtel.com;user=phone>'
@@ -45,13 +50,26 @@ class UtilsTest < Test::Unit::TestCase
   end
   
   def test_contact_host
-    contacts = ["\"Jorma Kaukonen\"<sip:187@10.1.1.170:1234>;tag=1c32681",
-                "<sip:187@10.1.1.170:1234>",
-                "sip:187@10.1.1.170:1234",
-                "sip:187@10.1.1.170"]
-    contacts.each do |contact|
+    ip_contacts = ["\"Jorma; \\\"The sip: Man\\\" Kaukonen\"<sip:187@10.1.1.170:1234>;tag=\"1c32681\"",
+                   "\"Jorma:Kaukonen\"sip:187@10.1.1.170;tag=1c32681",
+                   "Joe <sip:187@10.1.1.170:1234>",                   
+                   "<sip:187@10.1.1.170:1234>",
+                   "sip:187@10.1.1.170:1234",
+                   "sip:187@10.1.1.170",
+                   "sip:10.1.1.170"
+                   ]
+    ip_contacts.each do |contact|
       assert_equal("10.1.1.170", Utils.contact_host(contact))
     end
+      
+    name_contacts = ["\"Jorma%20Kaukonen\"<sip:187@test-example.com:1234>;tag=1c32681",
+                     "\"Jorma \\\"The Man\\\" Kaukonen\"<sip:187@test-example.com>;tag=1c32681",
+                     "\"Jorma;:/,Kaukonen\"sip:187@test-example.com;tag=1c32681"
+                    ]
+    name_contacts.each do |contact|
+      assert_equal("test-example.com", Utils.contact_host(contact))                       
+    end
+    assert_equal("test.exampl-1.exa2mple.com", Utils.contact_host("\"Joe\'s Place\" <sips:345@test.exampl-1.exa2mple.com:34>"))
   end
 
   def test_remove_part_of_str_beginning_with_char
