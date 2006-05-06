@@ -148,7 +148,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile=".\Debug_NoVideo\sipXcallLib.lib"
+				OutputFile="lib\sipXcallLib.lib"
 				SuppressStartupBanner="TRUE"
 				IgnoreAllDefaultLibraries="TRUE"
 				IgnoreDefaultLibraryNames="msvcprtd.lib"/>
@@ -203,8 +203,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="..\gips\sipXmediaVoiceEngine\Release_NoVideo\sipXmediaVoiceEngine.lib $(NOINHERIT)"
-				OutputFile=".\Release_NoVideo\sipXcallLib.lib"
+				OutputFile="lib\sipXcallLib.lib"
 				SuppressStartupBanner="TRUE"
 				IgnoreAllDefaultLibraries="TRUE"/>
 			<Tool
