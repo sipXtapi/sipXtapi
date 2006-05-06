@@ -2419,9 +2419,6 @@
 				RelativePath="include\mp\MpDecoderBase.h">
 			</File>
 			<File
-				RelativePath="include\mp\MpDefs.h">
-			</File>
-			<File
 				RelativePath="include\mp\MpdGIPSG729ab.h">
 			</File>
 			<File
