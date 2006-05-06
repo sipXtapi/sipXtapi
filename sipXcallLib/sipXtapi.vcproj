@@ -37,20 +37,7 @@
 				DebugInformationFormat="4"
 				CompileAs="0"/>
 			<Tool
-				Name="VCCustomBuildTool"
-				CommandLine="copy sipXtapi\Debug\sipXtapid.dll examples\bin\sipXtapid.dll
-copy sipXtapi\Debug\sipXtapid.lib examples\lib\sipXtapid.lib
-copy ..\sipXportLib\Debug\sipXportLib.lib examples\lib\sipXportLibD.lib
-copy ..\sipXtackLib\Debug\sipXtackLib.lib examples\lib\sipXtackLibD.lib
-mkdir examples\include\os
-copy ..\sipXportLib\include\os examples\include\os
-copy ..\sipXportLib\include\os\shared examples\include\os\shared
-copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
-copy ..\sipXportLib\include\utl examples\include\utl
-copy ..\sipXtackLib\include\net examples\include\net
-copy include\tapi\sipXtapi.h examples\include\tapi
-copy include\tapi\sipXtapiEvents.h examples\include\tapi"
-				Outputs="examples\bin\sipXtapid.dll;examples\lib\sipXtapid.lib"/>
+				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="msvcrtd.lib msvcprtd.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib libpcre.a sipXmediaLib.lib winmm.lib sipXmediaMediaProcessing.lib"
@@ -76,7 +63,20 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi"
 				TypeLibraryName=".\sipXtapi\Debug/sipXtapi.tlb"
 				HeaderFileName=""/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy sipXtapi\Debug\sipXtapid.dll examples\bin\sipXtapid.dll
+copy sipXtapi\Debug\sipXtapid.lib examples\lib\sipXtapid.lib
+copy ..\sipXportLib\Debug\sipXportLib.lib examples\lib\sipXportLibD.lib
+copy ..\sipXtackLib\Debug\sipXtackLib.lib examples\lib\sipXtackLibD.lib
+mkdir examples\include\os
+copy ..\sipXportLib\include\os examples\include\os
+copy ..\sipXportLib\include\os\shared examples\include\os\shared
+copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
+copy ..\sipXportLib\include\utl examples\include\utl
+copy ..\sipXtackLib\include\net examples\include\net
+copy include\tapi\sipXtapi.h examples\include\tapi
+copy include\tapi\sipXtapiEvents.h examples\include\tapi
+"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -125,20 +125,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi"
 				DebugInformationFormat="3"
 				CompileAs="0"/>
 			<Tool
-				Name="VCCustomBuildTool"
-				CommandLine="copy sipXtapi\Release\sipXtapi.dll examples\bin\sipXtapi.dll
-copy sipXtapi\Release\sipXtapi.lib examples\lib\sipXtapi.lib
-copy ..\sipXportLib\Release\sipXportLib.lib examples\lib\sipXportLib.lib
-copy ..\sipXtackLib\Release\sipXtackLib.lib examples\lib\sipXtackLib.lib
-mkdir examples\include\os
-copy ..\sipXportLib\include\os examples\include\os
-copy ..\sipXportLib\include\os\shared examples\include\os\shared
-copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
-copy ..\sipXportLib\include\utl examples\include\utl
-copy ..\sipXtackLib\include\net examples\include\net
-copy include\tapi\sipXtapi.h examples\include\tapi
-copy include\tapi\sipXtapiEvents.h examples\include\tapi"
-				Outputs="examples\bin\sipXtapi.dll;examples\lib\sipXtapi.lib"/>
+				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="msvcrt.lib MSVCPRT.lib winmm.lib wsock32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib libpcre.a  sipXmediaMediaProcessing.lib"
@@ -161,7 +148,20 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi"
 				TypeLibraryName=".\sipXtapi\Release/sipXtapi.tlb"
 				HeaderFileName=""/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				CommandLine="copy sipXtapi\Release\sipXtapi.dll examples\bin\sipXtapi.dll
+copy sipXtapi\Release\sipXtapi.lib examples\lib\sipXtapi.lib
+copy ..\sipXportLib\Release\sipXportLib.lib examples\lib\sipXportLib.lib
+copy ..\sipXtackLib\Release\sipXtackLib.lib examples\lib\sipXtackLib.lib
+mkdir examples\include\os
+copy ..\sipXportLib\include\os examples\include\os
+copy ..\sipXportLib\include\os\shared examples\include\os\shared
+copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
+copy ..\sipXportLib\include\utl examples\include\utl
+copy ..\sipXtackLib\include\net examples\include\net
+copy include\tapi\sipXtapi.h examples\include\tapi
+copy include\tapi\sipXtapiEvents.h examples\include\tapi
+"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

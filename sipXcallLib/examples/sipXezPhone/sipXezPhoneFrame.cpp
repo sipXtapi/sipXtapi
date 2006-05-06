@@ -26,8 +26,6 @@
 #include "sipXmgr.h"
 #include "sipXezPhoneApp.h"
 
-
-
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 extern sipXezPhoneApp* thePhoneApp;
@@ -125,7 +123,7 @@ END_EVENT_TABLE()
 // Constructor
 sipXezPhoneFrame::sipXezPhoneFrame(const wxString& title, const wxPoint& pos, const wxSize& size, bool bLogo) :
 #ifdef _WIN32
-   wxFrame((wxFrame *)NULL, -1, title, pos, size,  wxMINIMIZE_BOX | wxCAPTION | wxSIMPLE_BORDER | wxSYSTEM_MENU  | wxFRAME_FLOAT_ON_PARENT),
+   wxFrame((wxFrame *)NULL, -1, title, pos, size,  wxMINIMIZE_BOX | wxCAPTION | wxCLOSE_BOX | wxSIMPLE_BORDER | wxSYSTEM_MENU  | wxFRAME_FLOAT_ON_PARENT),
 //   mhPreviewWnd(NULL),
 //   mhVideoWnd(NULL),
 #else
