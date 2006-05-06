@@ -16,7 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "mp/MpCodec.h"
 
 // DEFINES
@@ -33,7 +33,7 @@ typedef void (*MICDATAHOOK)(const int nLength, Sample* samples) ;
 class DspResampling;
 
 //:The "From Microphone" media processing resource
-class MprFromMic : public MpResource
+class MprFromMic : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

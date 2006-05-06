@@ -16,7 +16,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 
 // DEFINES
 // MACROS
@@ -28,7 +28,7 @@
 // FORWARD DECLARATIONS
 
 //:The "Mixer" media processing resource
-class MprMixer : public MpResource
+class MprMixer : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

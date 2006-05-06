@@ -22,7 +22,7 @@
 #include "os/OsStatus.h"
 #include "os/OsNotification.h"
 #include "mp/MpMisc.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpCodec.h"
 
@@ -39,7 +39,7 @@ typedef void (*TOSPEAKERHOOK)(const int nLength, Sample* samples) ;
 class DspResampling;
 
 //:The "To Speaker" media processing resource
-class MprToSpkr : public MpResource
+class MprToSpkr : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "os/OsStatus.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 
 // DEFINES
 // MACROS
@@ -32,7 +32,7 @@ class FilterBank;
 class HandsetFilterBank;
 
 //:The "From Microphone" media processing resource
-class MprEchoSuppress : public MpResource
+class MprEchoSuppress : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

@@ -45,7 +45,7 @@ static char      sCallProgressTonesLocale[3] = { 0, 0, 0 };
 MprToneGen::MprToneGen(const UtlString& rName,
                               int samplesPerFrame, int samplesPerSec,
                               const char* locale)
-:  MpResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec),
    mpToneGenState(NULL)
 {
    // If we haven't yet initialized our static variables, do so now
@@ -75,12 +75,13 @@ MprToneGen::~MprToneGen()
 /* ============================ MANIPULATORS ============================== */
 
 #ifdef LATER
-Later (soon) this will be incorporated, but this is not quite the right
+/* Later (soon) this will be incorporated, but this is not quite the right
 implementation.  At least these changes are needed:
 (1) this should be an overriding virtual function, named
     handleSetSamplesPerSec.
 (2) MpResource (the base class) needs to be enhanced so that the base
     virtual function exists to be overridden.
+*/
 // Sets the number of samples expected per second.
 // Returns FALSE if the specified rate is not supported, TRUE otherwise.
 UtlBoolean MprToneGen::setSamplesPerSec(int samplesPerSec)
@@ -196,7 +197,7 @@ UtlBoolean MprToneGen::handleMessage(MpFlowGraphMsg& rMsg)
       disable();
       break;
    default:
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
       break;
    }
    return TRUE;

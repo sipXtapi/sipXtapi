@@ -17,7 +17,7 @@
 // APPLICATION INCLUDES
 #include "mp/dtmflib.h"
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 
 
 // DEFINES
@@ -30,7 +30,7 @@
 // FORWARD DECLARATIONS
 
 //:The "audio from file" media processing resource
-class MprFromFile : public MpResource
+class MprFromFile : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

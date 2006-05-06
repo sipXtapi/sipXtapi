@@ -89,7 +89,7 @@ int NPR() {return DoPadRtp(0);}
 // Constructor
 MprToNet::MprToNet(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 0, 0, samplesPerFrame, samplesPerSec),
 #ifdef DEBUG /* [ */
    mRtpSampleCounter(0),
 #endif /* DEBUG ] */
@@ -396,7 +396,7 @@ UtlBoolean MprToNet::handleMessage(MpFlowGraphMsg& rMsg)
       return TRUE;
    }
    else
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
 }
 
 /* ============================ FUNCTIONS ================================= */

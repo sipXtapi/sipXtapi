@@ -15,7 +15,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 
 // DEFINES
 // MACROS
@@ -27,7 +27,7 @@
 // FORWARD DECLARATIONS
 
 //:The "Splitter" media processing resource
-class MprSplitter : public MpResource
+class MprSplitter : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

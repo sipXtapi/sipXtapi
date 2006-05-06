@@ -77,7 +77,7 @@ unsigned int MprDejitter::getPayloadType(MpBufPtr pRtp)
 // Constructor
 MprDejitter::MprDejitter(const UtlString& rName, MpConnection* pConn,
                            int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
    mRtpLock(OsBSem::Q_FIFO, OsBSem::FULL),
    mNumPackets(0),
    mNumDiscarded(0)

@@ -58,9 +58,9 @@ MICDATAHOOK MprFromMic::s_fnMicDataHook = 0 ;
 MprFromMic::MprFromMic(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
 #ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */
-:  MpResource(rName, 0, 0, 2, 2, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 0, 0, 2, 2, samplesPerFrame, samplesPerSec),
 #else /* FLOWGRAPH_DOES_RESAMPLING ] [ */
-:  MpResource(rName, 0, 0, 1, 2, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 0, 0, 1, 2, samplesPerFrame, samplesPerSec),
 #endif /* FLOWGRAPH_DOES_RESAMPLING ] */
    mpDspResamp(0),
    mNumEmpties(0),

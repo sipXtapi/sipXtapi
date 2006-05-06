@@ -102,7 +102,7 @@ int MprToSpkr::smClarisisHandsetSpeakerEq[EqFilterLen_ix] =  {
 // Constructor
 MprToSpkr::MprToSpkr(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 0, 2, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 0, 2, samplesPerFrame, samplesPerSec),
    mCurAttenDb(ATTEN_LOUDEST),
    mMaxAttenDb(ATTEN_LOUDEST),
    mulNoiseLevel(1000L),

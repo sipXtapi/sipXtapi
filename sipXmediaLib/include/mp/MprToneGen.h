@@ -16,7 +16,7 @@
 // APPLICATION INCLUDES
 #include "mp/dtmflib.h"
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 
 // DEFINES
 // MACROS
@@ -28,7 +28,7 @@
 // FORWARD DECLARATIONS
 
 //:The "Tone Generator" media processing resource
-class MprToneGen : public MpResource
+class MprToneGen : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
@@ -46,13 +46,14 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
 #ifdef LATER
-Later (soon) this will be incorporated, but this is not quite the right
+/* Later (soon) this will be incorporated, but this is not quite the right
 implementation.  At least these changes are needed:
 (1) this should be an overriding virtual function, named
     handleSetSamplesPerSec.
 (2) MpResource (the base class) needs to be enhanced so that the base
     virtual function exists to be overridden.
    virtual UtlBoolean setSamplesPerSec(int samplesPerSec);
+*/
      //:Sets the number of samples expected per second.
      // Returns FALSE if the specified rate is not supported, TRUE otherwise.
 #endif

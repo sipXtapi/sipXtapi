@@ -17,7 +17,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "net/SdpCodec.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MprToNet.h"
@@ -33,7 +33,7 @@
 class MpEncoderBase;
 
 //:The "Encode" media processing resource
-class MprEncode : public MpResource
+class MprEncode : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

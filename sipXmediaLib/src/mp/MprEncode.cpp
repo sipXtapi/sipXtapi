@@ -52,7 +52,7 @@ static const int NO_WAIT = 0;
 // Constructor
 MprEncode::MprEncode(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
    mpPrimaryCodec(NULL),
    mpPacket1Buffer(NULL),
    mpPacket1Payload(NULL),
@@ -398,7 +398,7 @@ UtlBoolean MprEncode::handleMessage(MpFlowGraphMsg& rMsg)
       return TRUE;
    }
    else
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
 }
 
 // Translate our tone ID into RFC2833 values.

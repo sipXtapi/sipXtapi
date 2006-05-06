@@ -27,7 +27,7 @@ class MpConnection;
 // #include "os/OsMsgQ.h"
 #include "os/OsDefs.h"
 #include "os/OsSocket.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "mp/NetInTask.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/IRTPDispatch.h"
@@ -48,56 +48,71 @@ class MpConnection;
 
 // FORWARD DECLARATIONS
 
-//:The "From Network" media processing resource
-class MprFromNet : public MpResource
+/// The "From Network" media processing resource
+class MprFromNet : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
+     /// Constructor
    MprFromNet(const UtlString& rName, MpConnection* pConn,
                                  int samplesPerFrame, int samplesPerSec);
-     //:Constructor
 
-   virtual
-   ~MprFromNet();
-     //:Destructor
+     /// Destructor
+   virtual ~MprFromNet();
+
+//@}
 
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
+     /// @brief Sends a SET_SOCKETS message to this resource to set the inbound 
+     /// RTP and RTCP sockets.
    OsStatus setSockets(OsSocket& rRtpSocket, OsSocket& rRtcpSocket);
-     //:Sends a SET_SOCKETS message to this resource to set the inbound 
-     //:RTP and RTCP sockets.
-     // returns OS_SUCCESS, unless unable to queue message.
+     /** @returns OS_SUCCESS, unless unable to queue message. */
 
+     /// @brief Sends a RESET_SOCKETS message to this resource to deregister the
+     /// inbound RTP and RTCP sockets.
    OsStatus resetSockets();
-     //:Sends a RESET_SOCKETS message to this resource to deregister the
-     //:inbound RTP and RTCP sockets.
-     // returns OS_SUCCESS, unless unable to queue message.
+     /** @returns OS_SUCCESS, unless unable to queue message. */
 
+     /// Take in a buffer from the NetIn task
    OsStatus pushPacket(MpBufPtr buf, int rtpOrRtcp, struct in_addr* I, int P);
-     //:Take in a buffer from the NetIn task
 
+     /// Inform this object of its sibling dejitter object.
    void setMyDejitter(MprDejitter* newDJ);
-     //:Inform this object of its sibling dejitter object.
 
+     /// Inform this object of its sibling ToNet's destination
    void setDestIp(OsSocket& newDest);
-     //:Inform this object of its sibling ToNet's destination
+
+//@}
 
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
 #ifdef INCLUDE_RTCP /* [ */
-// These accessors were added by DMG to allow a Connection to access and modify
-// rtp and rtcp stream informations
+     /// @brief These accessors were added by DMG to allow a Connection to access and modify
+     /// rtp and rtcp stream informations
    void setDispatchers(IRTPDispatch *piRTPDispatch, INetDispatch *piRTCPDispatch);
 
 #else /* INCLUDE_RTCP ] [ */
+     /// retrieve the RR info needed to complete an RTCP packet
    OsStatus getRtcpStats(MprRtcpStats& stats);
-     //:retrieve the RR info needed to complete an RTCP packet
 #endif /* INCLUDE_RTCP ] */
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -125,9 +140,9 @@ private:
    int mNumPushed;
    int mNumWarnings;
 
-   int mPrefSsrc;  // current "preferred SSRC"
+   int mPrefSsrc;  ///< current "preferred SSRC"
    UtlBoolean mPrefSsrcValid;
-   unsigned long mRtpDestIp;    // where this connection is sending to
+   unsigned long mRtpDestIp;    ///< where this connection is sending to
    int mRtpDestPort;
 
    int mNumNonPrefPackets;
@@ -148,22 +163,22 @@ private:
                                     int samplesPerFrame=80,
                                     int samplesPerSecond=8000);
 
+     /// Copy constructor (not implemented for this class)
    MprFromNet(const MprFromNet& rMprFromNet);
-     //:Copy constructor (not implemented for this class)
 
+     /// Assignment operator (not implemented for this class)
    MprFromNet& operator=(const MprFromNet& rhs);
-     //:Assignment operator (not implemented for this class)
 
+     /// Update the RR info for the current incoming packet
    OsStatus rtcpStats(struct rtpHeader *h);
-     //:Update the RR info for the current incoming packet
 
    MprDejitter* getMyDejitter(void);
 
+     /// Adjust buffer header based on RTP packet header.
    int adjustBufferForRtp(MpBufPtr buf);
-     //:Adjust buffer header based on RTP packet header.
 
+     /// Extract and return SSRC from RTP packet header.
    int extractSsrc(MpBufPtr buf);
-     //:Extract and return SSRC from RTP packet header.
 
    int setPrefSsrc(int newSsrc);
    int getPrefSsrc(void);

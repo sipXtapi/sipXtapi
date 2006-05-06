@@ -47,7 +47,7 @@ static const int NO_WAIT = 0;
 // Constructor
 MprRecorder::MprRecorder(const UtlString& rName,
                              int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 0, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 0, 1, samplesPerFrame, samplesPerSec),
    mTermKey(-1),
    mFileDescriptor(-1),
    mTotalBytesWritten(0),
@@ -486,7 +486,7 @@ UtlBoolean MprRecorder::handleMessage(MpFlowGraphMsg& rMsg)
       return handleStop();
       break;
    }
-   return MpResource::handleMessage(rMsg);
+   return MpAudioResource::handleMessage(rMsg);
 }
 
 /* ============================ FUNCTIONS ================================= */

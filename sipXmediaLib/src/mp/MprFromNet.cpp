@@ -60,7 +60,7 @@ int MprFromNet::sPacketPad = 0;
 // Constructor
 MprFromNet::MprFromNet(const UtlString& rName,
                MpConnection* pConn, int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 0, 0, 1, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 0, 0, 1, 1, samplesPerFrame, samplesPerSec),
    mMutex(OsMutex::Q_PRIORITY|OsMutex::INVERSION_SAFE),
    mRegistered(FALSE),
    mpDejitter(NULL),

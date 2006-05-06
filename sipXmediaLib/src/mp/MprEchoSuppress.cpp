@@ -126,9 +126,9 @@ int bypassSub(int iFlag) {
 MprEchoSuppress::MprEchoSuppress(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
 #ifdef  FLOWGRAPH_DOES_RESAMPLING /* [ */
-:  MpResource(rName, 2, 2, 1, 3, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 2, 2, 1, 3, samplesPerFrame, samplesPerSec),
 #else /* FLOWGRAPH_DOES_RESAMPLING ] [ */
-:  MpResource(rName, 1, 1, 1, 2, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 1, 2, samplesPerFrame, samplesPerSec),
 #endif /* FLOWGRAPH_DOES_RESAMPLING ] */
 
    mpDspResampSpk(0),

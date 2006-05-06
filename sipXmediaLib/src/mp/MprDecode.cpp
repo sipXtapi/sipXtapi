@@ -55,7 +55,7 @@
 // Constructor
 MprDecode::MprDecode(const UtlString& rName, MpConnection* pConn,
                            int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, 1, 1, 1, samplesPerFrame, samplesPerSec),
    mPreloading(1),
    mpMyDJ(NULL),
    mpCurrentCodecs(NULL),
@@ -326,7 +326,7 @@ UtlBoolean MprDecode::handleMessage(MpFlowGraphMsg& rMsg)
       ret = TRUE;
       break;
    default:
-      ret = MpResource::handleMessage(rMsg);
+      ret = MpAudioResource::handleMessage(rMsg);
       break;
    }
    return ret;

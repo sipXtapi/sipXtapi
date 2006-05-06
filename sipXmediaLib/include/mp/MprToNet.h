@@ -24,7 +24,7 @@
 // APPLICATION INCLUDES
 #include "os/OsSocket.h"
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "mp/NetInTask.h"
 #include "mp/MprFromNet.h"
 #ifdef INCLUDE_RTCP /* [ */
@@ -42,7 +42,7 @@
 // FORWARD DECLARATIONS
 
 //:The "To Network" media processing resource
-class MprToNet : public MpResource
+class MprToNet : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

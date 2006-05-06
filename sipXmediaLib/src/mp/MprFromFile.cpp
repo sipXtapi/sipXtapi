@@ -52,7 +52,7 @@ extern int      samplesPerFrame;
 // Constructor
 MprFromFile::MprFromFile(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec),
    mpFileBuffer(NULL),
    mFileRepeat(FALSE),
    mpNotify(NULL)
@@ -625,7 +625,7 @@ UtlBoolean MprFromFile::handleMessage(MpFlowGraphMsg& rMsg)
       break;
 
    default:
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
       break;
    }
    return TRUE;

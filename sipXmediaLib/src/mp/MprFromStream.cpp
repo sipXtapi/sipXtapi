@@ -47,7 +47,7 @@
 MprFromStream::MprFromStream(const UtlString& rName,
                              int samplesPerFrame, 
                              int samplesPerSec)
-   : MpResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)   
+   : MpAudioResource(rName, 0, 1, 1, 1, samplesPerFrame, samplesPerSec)   
    , mpStreamRenderer(NULL)
    , mEventState(FeederStreamStoppedEvent)
    , miStreamCount(1)
@@ -592,7 +592,7 @@ UtlBoolean MprFromStream::handleMessage(MpFlowGraphMsg& rMsg)
          bHandled = handleDestroy((MpStreamFeeder*) rMsg.getPtr1()) ;
          break ;
       default:
-         bHandled = MpResource::handleMessage(rMsg);
+         bHandled = MpAudioResource::handleMessage(rMsg);
          break;
    }
    return bHandled ;

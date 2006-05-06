@@ -16,7 +16,7 @@
 
 // APPLICATION INCLUDES
 //?#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "mp/MpConnection.h"
 
 // DEFINES
@@ -30,7 +30,7 @@
 
 //:The conference bridge resource.
 
-class MprBridge : public MpResource
+class MprBridge : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

@@ -16,7 +16,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "mp/MprFromNet.h"
 
 // DEFINES
@@ -33,7 +33,7 @@
 class MpConnection;
 
 //:The "Dejitter" media processing resource
-class MprDejitter : public MpResource
+class MprDejitter : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

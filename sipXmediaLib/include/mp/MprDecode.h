@@ -17,7 +17,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "net/SdpCodec.h"
@@ -36,7 +36,7 @@ class MpDecoderBase;
 class MprRecorder;
 
 //:The "Decode" media processing resource
-class MprDecode : public MpResource
+class MprDecode : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

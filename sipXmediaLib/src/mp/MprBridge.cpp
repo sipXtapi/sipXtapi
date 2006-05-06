@@ -30,7 +30,7 @@
 // Constructor
 MprBridge::MprBridge(const UtlString& rName,
                            int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, MAX_BRIDGE_PORTS, 1,
+:  MpAudioResource(rName, 1, MAX_BRIDGE_PORTS, 1,
           MAX_BRIDGE_PORTS, samplesPerFrame, samplesPerSec),
    mPortLock(OsBSem::Q_FIFO, OsBSem::FULL)
 {

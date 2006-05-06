@@ -37,7 +37,7 @@ static const int NO_WAIT = 0;
 // Constructor
 MprMixer::MprMixer(const UtlString& rName, int numWeights,
                            int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, numWeights, 1, 1, samplesPerFrame, samplesPerSec),
+:  MpAudioResource(rName, 1, numWeights, 1, 1, samplesPerFrame, samplesPerSec),
    mScale(0)
 {
    int i;
@@ -200,7 +200,7 @@ UtlBoolean MprMixer::handleMessage(MpFlowGraphMsg& rMsg)
       return boolRes;
       break;
    default:
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
       break;
    }
 }

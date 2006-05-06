@@ -32,7 +32,7 @@
 // Constructor
 MprSplitter::MprSplitter(const UtlString& rName, int numOutputs,
                            int samplesPerFrame, int samplesPerSec)
-:  MpResource(rName, 1, 1, 1, numOutputs, samplesPerFrame, samplesPerSec)
+:  MpAudioResource(rName, 1, 1, 1, numOutputs, samplesPerFrame, samplesPerSec)
 {
 }
 

@@ -17,7 +17,7 @@
 // APPLICATION INCLUDES
 #include "mp/dtmflib.h"
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 #include "mp/StreamDefs.h"
 
 #include "mp/MpStreamFeeder.h"
@@ -39,34 +39,34 @@ typedef struct tagSTREAMDESC
 // FORWARD DECLARATIONS
 
 
-//:This resource as an insertion point for the streaming 
-//:infrastructure byconnecting the flowgraph to MpStreamFeeders.
-//
-// Whenever requested to "realize" a stream, this code will create a 
-// MpStreamFeeder which inturn creates a StreamDataSource and a 
-// StreamFormatDecoder.  Many MpStreamFeeders may be managed/created by
-// a single MprFromStream, however, only one can be active at only one
-// point.
-// 
-// For thread safety, all operations (play, destroy, rewind, etc.) 
-// result in a message being posted to itself.  This forces all of the
-// tasks to be performed on the same task context.  The "realize" 
-// operation is an exception, where it is processed on the called 
-// context.
-//
-// Additionally, the code creates a level of indirection between between
-// the implementation and calling parties (application layer).  All 
-// MpStreamFeeders created by this resource are collected within a list 
-// (mStreamList) and only a handle to the resource is exposed to 
-// application layer.  Handles are unique for an instance of a
-// MprFromStream.  If the destruct is called for MprFromStream and the
-// mStreamList is not null, the list is purged.
-//
-//
-// This class bubbles events to the MpStreamFeeder by calling the 
-// fromStreamUpdate callback on the feeder itself.
-//
-class MprFromStream : public MpResource
+/// @brief This resource is an insertion point for the streaming 
+/// infrastructure by connecting the flowgraph to MpStreamFeeders.
+/**
+*  Whenever requested to "realize" a stream, this code will create a 
+*  MpStreamFeeder which inturn creates a StreamDataSource and a 
+*  StreamFormatDecoder.  Many MpStreamFeeders may be managed/created by
+*  a single MprFromStream, however, only one can be active at only one
+*  point.
+*  
+*  For thread safety, all operations (play, destroy, rewind, etc.) 
+*  result in a message being posted to itself.  This forces all of the
+*  tasks to be performed on the same task context.  The "realize" 
+*  operation is an exception, where it is processed on the called 
+*  context.
+* 
+*  Additionally, the code creates a level of indirection between between
+*  the implementation and calling parties (application layer).  All 
+*  MpStreamFeeders created by this resource are collected within a list 
+*  (mStreamList) and only a handle to the resource is exposed to 
+*  application layer.  Handles are unique for an instance of a
+*  MprFromStream.  If the destruct is called for MprFromStream and the
+*  mStreamList is not null, the list is purged.
+* 
+* 
+*  This class bubbles events to the MpStreamFeeder by calling the 
+*  fromStreamUpdate callback on the feeder itself.
+*/
+class MprFromStream : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
