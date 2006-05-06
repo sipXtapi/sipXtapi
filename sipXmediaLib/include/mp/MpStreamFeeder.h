@@ -56,7 +56,7 @@ class StreamFormatDecoder ;
 class StreamDataSource ;
 class OsNotification ;
 
-/// \brief The MpStreamFeed coordinates with the data source and decoder to ready the
+/// @brief The MpStreamFeed coordinates with the data source and decoder to ready the
 /// input stream and then plugs into the MprFromStream resource to supply 
 /// audio info the flowgraph.
 /**
@@ -105,7 +105,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
    
-     /// \brief Initiates the connection with the outbound party to validate the
+     /// @brief Initiates the connection with the outbound party to validate the
      /// connection.  Buffers are allocated at this point.
    OsStatus realize() ;
 

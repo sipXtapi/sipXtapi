@@ -47,55 +47,55 @@
 #define MpBuf_setSpeech(b, v) ((b)->speech = (v))
 
 enum MpBufFormat {
-        MP_FMT_UNKNOWN,        /* as yet unspecified */
-        MP_FMT_T12,            /* Raw UCB1200 data, high 12 bits of 16 */
-        MP_FMT_RTPPKT,         /* Raw RTP packet */
-        MP_FMT_RTCPPKT,        /* Raw RTCP packet */
-        MP_FMT_G711M,          /* G711 mu, mu-law */
-        MP_FMT_G711A,          /* G711 A, A-law */
-        MP_FMT_L16,            /* Linear 16, in "network byte order" */
-        MP_FMT_G729,           /* ITU-G729A standard */
+        MP_FMT_UNKNOWN,        ///< as yet unspecified
+        MP_FMT_T12,            ///< Raw UCB1200 data, high 12 bits of 16
+        MP_FMT_RTPPKT,         ///< Raw RTP packet
+        MP_FMT_RTCPPKT,        ///< Raw RTCP packet
+        MP_FMT_G711M,          ///< G711 mu, mu-law
+        MP_FMT_G711A,          ///< G711 A, A-law
+        MP_FMT_L16,            ///< Linear 16, in "network byte order"
+        MP_FMT_G729,           ///< ITU-G729A standard
 };
 typedef enum MpBufFormat MpBufFormat;
 
 enum MpBufSpeech {
-        MP_SPEECH_UNKNOWN,        /* as yet undetermined */
-        MP_SPEECH_SILENT,         /* found to contain no speech */
-        MP_SPEECH_COMFORT_NOISE,  /* to be replaced by comfort noise */
-        MP_SPEECH_ACTIVE,         /* found to contain speech */
-        MP_SPEECH_MUTED,          /* may contain speech, but must be muted */
-        MP_SPEECH_TONE,           /* our tonegen filled with active (not silent) tone data */
+        MP_SPEECH_UNKNOWN,        ///< as yet undetermined
+        MP_SPEECH_SILENT,         ///< found to contain no speech
+        MP_SPEECH_COMFORT_NOISE,  ///< to be replaced by comfort noise
+        MP_SPEECH_ACTIVE,         ///< found to contain speech
+        MP_SPEECH_MUTED,          ///< may contain speech, but must be muted
+        MP_SPEECH_TONE,           ///< our tonegen filled with active (not silent) tone data
 };
 typedef enum MpBufSpeech MpBufSpeech;
 
 /* Buffer management: */
 
 struct __MpBuf_tag {
-        int     byteLen;    /* length in bytes; fixed when created */
-        int     numSamples; /* actual current use, unit depends on format */
-        int     contentLen; /* only for RTP packet, total length of packet */
-        char   *pStorage;   /* pointer to beginning of storage; fixed */
-        Sample *pSamples;   /* pointer to beginning of data */
-        int     offset;     /* offset to first sample, eg. sizeof(RTPheader) */
-        short   status;     /* currently, 0 => free */
-        short   attenDb;    /* attenuation applied at speakerphone speaker */
-        MpBufSpeech speech; /* if we know, whether buffer contains speech */
-        MpBufPoolPtr pPool; /* the pool that this buffer belongs to */
-        int     refCnt;     /* use count */
-        MpBufFormat format; /* the type of the current content */
-        int     ostc;       /* OS Timer/Counter (3.6864 MHz) value */
+        int     byteLen;    ///< length in bytes; fixed when created
+        int     numSamples; ///< actual current use, unit depends on format
+        int     contentLen; ///< only for RTP packet, total length of packet
+        char   *pStorage;   ///< pointer to beginning of storage; fixed
+        Sample *pSamples;   ///< pointer to beginning of data
+        int     offset;     ///< offset to first sample, eg. sizeof(RTPheader)
+        short   status;     ///< currently, 0 => free
+        short   attenDb;    ///< attenuation applied at speakerphone speaker
+        MpBufSpeech speech; ///< if we know, whether buffer contains speech
+        MpBufPoolPtr pPool; ///< the pool that this buffer belongs to
+        int     refCnt;     ///< use count
+        MpBufFormat format; ///< the type of the current content
+        int     ostc;       ///< OS Timer/Counter (3.6864 MHz) value
 #ifdef BUFFER_INSTRUMENTATION /* [ */
 /*
  * These are used to track the usage of each buffer.  Each of the
  * following pairs has a source line number and a time stamp (which
  * is a sequence number incremented in each buffer operation).
  */
-        int line_taken; /* who took it last, and when */
+        int line_taken; ///< who took it last, and when
         int time_taken;
-        int line_freed; /* who freed it last, and when */
+        int line_freed; ///< who freed it last, and when
         int time_freed;
-        int touched_by; /* who touched it last, and when */
-        int touched_at; /* set by "voluntary" calls to bufTouch() */
+        int touched_by; ///< who touched it last, and when
+        int touched_at; ///< set by "voluntary" calls to bufTouch()
 #endif /* BUFFER_INSTRUMENTATION ] */
 };
 
@@ -111,10 +111,10 @@ extern int MpBufPool_getNumBufs(MpBufPoolPtr p);
 extern int MpBuf_bufNum(MpBufPtr pBuf);
 
 extern MpBufPoolPtr MpBufPool_MpBufPool(
-   int poolSize,       // number of bytes to malloc (including headers?)
-   int max_buffer_len, // bytes per buffer
-   int numBuffers,     // used if poolSize is 0
-   int cacheAlignment  // 0=>not aligned, otherwise power of 2 boundary
+   int poolSize,       ///< number of bytes to malloc (including headers?)
+   int max_buffer_len, ///< bytes per buffer
+   int numBuffers,     ///< used if poolSize is 0
+   int cacheAlignment  ///< 0=>not aligned, otherwise power of 2 boundary
 );
 
 extern STATUS MpBufPool_delete(MpBufPoolPtr pool, int force);
