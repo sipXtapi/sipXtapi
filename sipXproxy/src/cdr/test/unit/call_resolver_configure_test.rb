@@ -20,6 +20,7 @@ require 'test_helper'
 # application requires
 require 'call_resolver_configure'
 require 'exceptions'
+require 'sipx_logger'
 require 'utils'
 
 
@@ -34,11 +35,11 @@ class CallResolverConfigureTest < Test::Unit::TestCase
     @config = CallResolverConfigure.new(CallResolverConfigure::DEFAULT_CONFIG)
   end
   
-  def test_log_level_from_name
-    CallResolverConfigure::LOG_LEVEL_SIPX_TO_LOGGER.each do |key, value|
-      assert_equal(value, @config.send(:log_level_from_name, key))
+  def test_log_level_sipx_to_logger
+    SipxLogger::LOG_LEVEL_SIPX_TO_LOGGER.each do |key, value|
+      assert_equal(value, @config.send(:log_level_sipx_to_logger, key))
     end
-    assert_nil(@config.send(:log_level_from_name, 'Unknown log level name'))
+    assert_nil(@config.send(:log_level_sipx_to_logger, 'Unknown log level name'))
   end
   
   def test_set_log_console_config
@@ -86,7 +87,7 @@ class CallResolverConfigureTest < Test::Unit::TestCase
                  @config.send(:set_log_level_config, {}))
     
     # Pass in level names, get the right values
-    CallResolverConfigure::LOG_LEVEL_SIPX_TO_LOGGER.each do |key, value|
+    SipxLogger::LOG_LEVEL_SIPX_TO_LOGGER.each do |key, value|
       assert_equal(value,
                    @config.send(:set_log_level_config,
                                   {CallResolverConfigure::LOG_LEVEL_CONFIG => key}))
