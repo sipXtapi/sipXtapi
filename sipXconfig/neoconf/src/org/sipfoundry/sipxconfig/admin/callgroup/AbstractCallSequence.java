@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -93,9 +94,8 @@ public class AbstractCallSequence extends BeanWithId {
     }
 
     /**
-     * Return the list of rings.
-     * Don't alter the list directly, always call a method on this interface (or a derived class)
-     * to change the rings list.
+     * Return the list of rings. Don't alter the list directly, always call a method on this
+     * interface (or a derived class) to change the rings list.
      */
     public List getRings() {
         return m_rings;
@@ -124,8 +124,16 @@ public class AbstractCallSequence extends BeanWithId {
             if (StringUtils.isEmpty(r.getUserPart().toString())) {
                 continue;
             }
-            // ignore voicemail for all but last call
-            final boolean ignoreVoiceMail = neverRouteToVoicemail || i.hasNext();
+            // ignore voice mail if neverRouteToVoicemail is set
+            boolean ignoreVoiceMail = neverRouteToVoicemail;
+            // if not already ignored - ignore it for all but last stage
+            if (!ignoreVoiceMail) {
+                ignoreVoiceMail = i.hasNext();
+            }
+            // XCF-1026 if not already ignored - ignore it for IMMEDIATE (parallel) forks
+            if (!ignoreVoiceMail) {
+                ignoreVoiceMail = Type.IMMEDIATE.equals(r.getType());
+            }
             String contact = r.calculateContact(domain, q, ignoreVoiceMail);
             AliasMapping alias = new AliasMapping(identity, contact);
             aliases.add(alias);

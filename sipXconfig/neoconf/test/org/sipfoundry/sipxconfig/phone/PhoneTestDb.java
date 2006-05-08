@@ -216,4 +216,15 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
         assertEquals(0, actual.getRowCount());        
     }
+    
+    public void testDeleteUserOnPhoneWithExternalLines() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("common/TestUserSeed.xml");
+        TestHelper.cleanInsertFlat("phone/ExternalLineSeed.xml");
+        User testUser = core.loadUser(new Integer(1000));
+        core.deleteUser(testUser);
+        
+        ITable actual = TestHelper.getConnection().createDataSet().getTable("line");
+        assertEquals(1, actual.getRowCount());            	
+    }
 }
