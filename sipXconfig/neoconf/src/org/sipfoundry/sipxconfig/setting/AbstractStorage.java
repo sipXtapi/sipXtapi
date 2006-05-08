@@ -16,7 +16,7 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public abstract class AbstractStorage extends BeanWithId implements Storage {
+public abstract class AbstractStorage extends BeanWithId implements Storage, SettingValueHandler {
 
     private Map m_delegate = new HashMap();
 
@@ -55,4 +55,17 @@ public abstract class AbstractStorage extends BeanWithId implements Storage {
     public int size() {
         return m_delegate.size();
     }    
+
+    public SettingValue2 getSettingValue(String path) {
+        if (m_delegate == null) {
+            return null;
+        }
+        
+        SettingValue2 settingValue = null;        
+        String value = (String) m_delegate.get(path);
+        if (value != null) {
+            settingValue = new SettingValueImpl(value);
+        }
+        return settingValue;
+    }
 }

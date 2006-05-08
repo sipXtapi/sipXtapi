@@ -25,14 +25,20 @@ import org.apache.commons.collections.Transformer;
 public class BeanWithGroups extends BeanWithSettings {
     public static final String GROUPS_PROP = "groups";
 
-    private Set m_groups = new TreeSet();
-
-    public Set getGroups() {
+    private Set<SettingValueHandler> m_groups;
+    
+    public synchronized Set getGroups() {
+        // lazy to avoid NPE in unit tests that create mock objects for subclasses
+        if (m_groups == null) {
+            setGroups(new TreeSet());
+        }
         return m_groups;
     }
 
     public void setGroups(Set settingSets) {
         m_groups = settingSets;
+        
+        getSettingModel2().addSettingValueHandler(new MulticastSettingValueHandler((m_groups)));
     }
 
     public List getGroupsAsList() {
@@ -45,11 +51,11 @@ public class BeanWithGroups extends BeanWithSettings {
     }
 
     public void addGroup(Group tag) {
-        m_groups.add(tag);
+        getGroups().add(tag);
     }
 
     public void removeGroup(Group tag) {
-        m_groups.remove(tag);
+        getGroups().remove(tag);
     }
 
     protected void decorateSettings() {

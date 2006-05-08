@@ -21,6 +21,10 @@ import org.sipfoundry.sipxconfig.device.RestartManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class ProfileManagerImplTest extends TestCase {
+    
+    public void testNewPhone() {
+        new Phone();
+    }
 
     public void testGenerateProfilesAndRestart() {
         Integer jobId = new Integer(4);

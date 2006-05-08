@@ -14,7 +14,7 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.Iterator;
 import java.util.Set;
 
-public class ConditionalSet extends SettingSet implements ConditionalSetting {
+public class ConditionalSet extends SettingSet implements ConditionalSetting, SettingValueHandler {
     private String m_if;
     private String m_unless;
 
@@ -126,5 +126,15 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting {
 
             return isTrue;
         }
+    }
+
+    public SettingValue2 getSettingValue(String path) {
+        SettingValue2 value = null;
+        Setting s = getSetting(path);
+        if (s != null) {
+            value = new SettingValueImpl(s.getValue());
+        }
+        
+        return value;
     }
 }

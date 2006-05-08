@@ -18,15 +18,17 @@ public class BeanWithSettings extends BeanWithId {
     /**
      * While settings are getting decorated, this represents the settings that should be decorated
      */
-    private Setting m_settings;
-
     private ValueStorage m_valueStorage;
        
+    private Setting m_settings;
+    
     private Setting m_model;
+    
+    private SettingModel2 m_model2;
     
     /** settings are lazy loaded */
     private boolean m_initializedSettings;
-
+    
     /**
      * @return undecorated model - direct representation of XML model description
      */
@@ -36,6 +38,21 @@ public class BeanWithSettings extends BeanWithId {
     
     public void setSettingModel(Setting model) {
         m_model = model;
+
+        // until settingmodel2 replaces settingmodel
+        getSettingModel2().addSettingValueHandler((SettingValueHandler) model);
+    }
+    
+    /**
+     * TEMPORARY - SettingModel2 will replace SettingModel
+     * @return
+     */
+    public synchronized SettingModel2 getSettingModel2() {
+        // lazy to avoid NPE in unit tests that create mock objs. 
+        if (m_model2 == null) {
+            m_model2 = new SettingModelImpl();
+        }
+        return m_model2;
     }
 
     /**
@@ -80,6 +97,7 @@ public class BeanWithSettings extends BeanWithId {
     
     public void setValueStorage(ValueStorage valueStorage) {
         m_valueStorage = valueStorage;
+        getSettingModel2().addSettingValueHandler(m_valueStorage);
     }
 
     public ValueStorage getValueStorage() {
