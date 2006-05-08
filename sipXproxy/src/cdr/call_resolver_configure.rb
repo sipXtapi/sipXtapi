@@ -11,6 +11,7 @@
 require 'configure'
 require 'database_url'
 require 'exceptions'
+require 'sipx_logger'
 
 
 class CallResolverConfigure
@@ -64,20 +65,6 @@ class CallResolverConfigure
   
   CSE_HOSTS = 'SIP_CALLRESOLVER_CSE_HOSTS'
   CSE_HOSTS_DEFAULT = "#{LOCALHOST}:#{DatabaseUrl::DATABASE_PORT_DEFAULT}"
-  
-  
-  # Map the names of sipX log levels (DEBUG, INFO, NOTICE, WARNING, ERR, CRIT,
-  # ALERT, EMERG) to equivalent Logger log levels.
-  LOG_LEVEL_SIPX_TO_LOGGER = {
-    'DEBUG'   => Logger::DEBUG, 
-    'INFO'    => Logger::INFO, 
-    'NOTICE'  => Logger::INFO, 
-    'WARNING' => Logger::WARN,
-    'ERR'     => Logger::ERROR, 
-    'CRIT'    => Logger::FATAL,
-    'ALERT'   => Logger::FATAL,
-    'EMERG'   => Logger::FATAL
-  }
 
   # Specify this string as the config_file to get a completely default config 
   DEFAULT_CONFIG = 'default_config'
@@ -208,7 +195,7 @@ private
         @log_device = STDOUT
       end
     end
-    @log = Logger.new(@log_device)
+    @log = SipxLogger.new(@log_device)
 
     # Set the log level from the configuration
     @log.level = @log_level
@@ -270,7 +257,7 @@ private
     log_level_name ||= LOG_LEVEL_CONFIG_DEFAULT
     
     # Convert the log level name to a Logger log level
-    @log_level = log_level_from_name(log_level_name)
+    @log_level = log_level_sipx_to_logger(log_level_name)
     
     # If we don't recognize the name, then refuse to run.  Would be nice to
     # log a warning and continue, but there is no log yet!
@@ -281,12 +268,10 @@ private
     @log_level
   end
 
-  # Given the name of a log level, return the log level value, or nil if the
-  # name is not recognized.
-  # We accept sipX log levels and Logger log levels and map them into Logger log
-  # levels.
-  def log_level_from_name(name)
-    LOG_LEVEL_SIPX_TO_LOGGER[name]
+  # Given the name of a sipX log level, return the Logger log level value, or
+  # nil if the name is not recognized.
+  def log_level_sipx_to_logger(name)
+    SipxLogger::LOG_LEVEL_SIPX_TO_LOGGER[name]
   end
 
   #-----------------------------------------------------------------------------

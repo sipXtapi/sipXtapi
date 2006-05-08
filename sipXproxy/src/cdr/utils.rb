@@ -7,11 +7,13 @@
 #
 ##############################################################################
 
+# system requires
 require 'ipaddr'
 
-require File.join(File.dirname(__FILE__), 'exceptions')
-require File.join(File.dirname(__FILE__), 'sipx_ipsocket')
-require File.join(File.dirname(__FILE__), 'socket_utils')
+# application requires
+require 'exceptions'
+require 'sipx_ipsocket'
+require 'socket_utils'
 
 
 class Utils

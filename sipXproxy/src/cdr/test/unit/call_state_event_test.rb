@@ -7,7 +7,16 @@
 #
 ##############################################################################
 
-require File.join(File.dirname(__FILE__), '..', 'test_helper')
+# set up the load path
+$thisdir = File.dirname(__FILE__)
+$:.unshift($thisdir)
+$:.unshift(File.join($thisdir, ".."))
+$:.unshift(File.join($thisdir, "..", ".."))
+
+# system requires
+require File.join('test_helper')
+
+# application requires
 require 'call_state_event'
 
 
