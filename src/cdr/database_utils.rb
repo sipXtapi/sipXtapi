@@ -65,7 +65,7 @@ public
   def DatabaseUtils.create_cdr_database(db_name)
     if !database_exists?(db_name)
       `createdb -U #{DatabaseUrl::USERNAME_DEFAULT} #{db_name}`
-      puts "Schem file #{POSTGRESQL_SCHEMA_FILE}"
+      puts "Schema file #{POSTGRESQL_SCHEMA_FILE}"
       exec_sql_file(POSTGRESQL_SCHEMA_FILE, db_name)
     end
   end

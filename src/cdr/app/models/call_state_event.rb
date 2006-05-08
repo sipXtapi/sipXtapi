@@ -7,7 +7,8 @@
 #
 ##############################################################################
 
-require File.join(File.dirname(__FILE__), '..', '..', 'utils')
+# application requires
+require 'utils'
 
 
 class CallStateEvent < ActiveRecord::Base
