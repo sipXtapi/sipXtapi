@@ -153,6 +153,7 @@ alter table cdrs add constraint cdrs_call_id_unique unique (call_id);
 create view view_cdrs as
   select id, caller_aor, callee_aor,
          start_time, connect_time, end_time,
+         end_time - connect_time as duration,
          termination, failure_status, failure_reason
   from cdrs;
 
@@ -184,6 +185,7 @@ create view view_cdrs as
 create view view_cdrs_with_call_direction as
   select id, caller_aor, callee_aor,
          start_time, connect_time, end_time,
+         end_time - connect_time as duration,
          termination, failure_status, failure_reason,
          call_direction
   from cdrs;
