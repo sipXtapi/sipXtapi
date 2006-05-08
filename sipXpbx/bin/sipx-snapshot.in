@@ -221,6 +221,7 @@ cat > $Work.copy-files <<EOF
 @SIPX_CONFDIR@/sipxpresence-config.in
 @SIPX_CONFDIR@/ssl/authorities/*.crt
 @SIPX_CONFDIR@/ssl/ssl.crt
+@SIPX_CONFDIR@/ssl/stunnel/stunnel-config
 @SIPX_CONFDIR@/status-config
 @SIPX_CONFDIR@/status-config.in
 @SIPX_CONFDIR@/status-plugin.xml
