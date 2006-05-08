@@ -97,6 +97,7 @@ public:
                     "1,"
                     "timestamp \'2006-03-10 13:00:00.123\',"
                     "\'R\',"
+                    "12,"
                     "\'call-111111\',"
                     "\'12345\',"
                     "\'67890\',"
@@ -117,6 +118,7 @@ public:
                     "2,"
                     "timestamp \'2006-03-10 13:00:10.573\',"
                     "\'S\',"
+                    "13,"
                     "\'call-111112\',"
                     "\'54321\',"
                     "\'09876\',"
@@ -227,7 +229,7 @@ public:
             sprintf(sqlStatement, "SELECT * FROM call_state_events;");
             CPPUNIT_ASSERT(odbcExecute(handle, sqlStatement));
             
-            CPPUNIT_ASSERT((cols=odbcResultColumns(handle)) == 15);   
+            CPPUNIT_ASSERT((cols=odbcResultColumns(handle)) == 17);   
 
             CPPUNIT_ASSERT(odbcGetNextRow(handle));
             
@@ -244,25 +246,25 @@ public:
             CPPUNIT_ASSERT(strcmp(buffer, "2006-03-10 13:00:00") == 0);            
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 5, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "R") == 0);            
-            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 6, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "call-111111") == 0);
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 7, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "12345") == 0);    
+            CPPUNIT_ASSERT(strcmp(buffer, "call-111111") == 0);
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 8, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "67890") == 0);               
+            CPPUNIT_ASSERT(strcmp(buffer, "12345") == 0);    
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 9, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "sip:153@example.com") == 0);               
+            CPPUNIT_ASSERT(strcmp(buffer, "67890") == 0);               
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 10, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "sip:202@example.com") == 0);                                       
+            CPPUNIT_ASSERT(strcmp(buffer, "sip:153@example.com") == 0);               
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 11, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "10.1.1.71") == 0);               
+            CPPUNIT_ASSERT(strcmp(buffer, "sip:202@example.com") == 0);                                       
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 12, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "refer-to") == 0);   
+            CPPUNIT_ASSERT(strcmp(buffer, "10.1.1.71") == 0);               
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 13, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "referred-by") == 0);                                                   
+            CPPUNIT_ASSERT(strcmp(buffer, "refer-to") == 0);   
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 14, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(strcmp(buffer, "referred-by") == 0);                                                   
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 15, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 16, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "No Reason") == 0);                           
             
             CPPUNIT_ASSERT(odbcGetNextRow(handle));            
@@ -278,25 +280,25 @@ public:
             CPPUNIT_ASSERT(strcmp(buffer, "2006-03-10 13:00:10") == 0);            
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 5, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "S") == 0);            
-            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 6, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "call-111112") == 0);
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 7, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "54321") == 0);    
+            CPPUNIT_ASSERT(strcmp(buffer, "call-111112") == 0);
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 8, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "09876") == 0);               
+            CPPUNIT_ASSERT(strcmp(buffer, "54321") == 0);    
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 9, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "sip:156@example.com") == 0);               
+            CPPUNIT_ASSERT(strcmp(buffer, "09876") == 0);               
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 10, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "sip:215@example.com") == 0);                                       
+            CPPUNIT_ASSERT(strcmp(buffer, "sip:156@example.com") == 0);               
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 11, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "10.1.20.71") == 0);               
+            CPPUNIT_ASSERT(strcmp(buffer, "sip:215@example.com") == 0);                                       
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 12, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "refer-to-2") == 0);
+            CPPUNIT_ASSERT(strcmp(buffer, "10.1.20.71") == 0);               
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 13, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "referred-by-2") == 0);                  
+            CPPUNIT_ASSERT(strcmp(buffer, "refer-to-2") == 0);
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 14, buffer, 256));
-            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(strcmp(buffer, "referred-by-2") == 0);                  
             CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 15, buffer, 256));
+            CPPUNIT_ASSERT(strcmp(buffer, "0") == 0);                           
+            CPPUNIT_ASSERT(odbcGetColumnStringData(handle, 16, buffer, 256));
             CPPUNIT_ASSERT(strcmp(buffer, "No Reason-2") == 0);                                       
             
             // End of rows 

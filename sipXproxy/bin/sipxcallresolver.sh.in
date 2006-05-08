@@ -10,6 +10,7 @@
 Action=RUN
 Status=1
 Args=""
+Today=`date`
 
 resolverArgs=""
 
@@ -99,19 +100,19 @@ databasePatch() {
             UpgradePatches=""
             ;;
     esac
-
+    if [ -f ${DbPatchLog} ]; then
+        echo "${Today}" >> ${DbPatchLog}
+    else
+        echo "${Today}" > ${DbPatchLog}
+    fi       
+    echo "Patch list: ${UpgradePatches}" >> ${DbPatchLog}
     if [ -n "${UpgradePatches}" ]; then
-        if [ -f ${DbPatchLog} ]; then
-           echo "Intializing SIPXCDR patch log" >> ${DbPatchLog}
-        else
-            echo "Intializing SIPXCDR patch log" > ${DbPatchLog}
-        fi          
         for patch in $UpgradePatches; do
             if [ -f ${DbPatchDir}/${patch}.sql ]; then
                 # Apply patch only if not found in the patch list
-                if ! ${Psql} -U ${PgUser} -d ${Database} -c "select name from patch where name = '${patch}'" | grep ${patch} >/dev/null 2>&1; then
+                if ! ${Psql} -U ${PgUser} -d ${Database} -c "select name from patch where name = '${patch}'" | grep ${patch} >>${DbPatchLog} 2>&1; then
                    echo "Applying patch ${DbPatchDir}/${patch}.sql" >> ${DbPatchLog}
-                   ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >/dev/null 2>&1
+                   ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >>${DbPatchLog} 2>&1
                    ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}')" >/dev/null 2>&1
                 fi
             else
