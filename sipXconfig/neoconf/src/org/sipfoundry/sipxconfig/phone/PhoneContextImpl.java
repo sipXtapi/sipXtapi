@@ -259,7 +259,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
                 while (ilines.hasNext()) {
                     Line line = (Line) ilines.next();
                     User lineUser = line.getUser();
-                    if (lineUser.getId().equals(user.getId())) {
+                    if (lineUser != null && lineUser.getId().equals(user.getId())) {
                         ids.add(line.getId());
                     }
                 }
