@@ -80,10 +80,18 @@ public class PolycomPhone extends Phone {
 
     public PolycomPhone() {
         super(BEAN_ID);
+        init();
     }
 
     public PolycomPhone(PolycomModel model) {
         super(model);
+        init();
+    }
+    
+    private void init() {        
+        PolycomTimeZone ptz = new PolycomTimeZone(new PhoneTimeZone());
+        BeanValueStorage bvs = new BeanValueStorage(ptz);
+        getSettingModel2().addSettingValueHandler(bvs);
     }
 
     public String getPhoneTemplate() {
@@ -282,6 +290,107 @@ public class PolycomPhone extends Phone {
         PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
         BeanValueStorage lineDefaultsValues = new BeanValueStorage(lineDefaults);
         line.getSettingModel2().addSettingValueHandler(lineDefaultsValues);
+    }
+    
+    static class PolycomTimeZone {
+        private PhoneTimeZone m_zone;
+        
+        PolycomTimeZone(PhoneTimeZone zone) {
+            m_zone = zone;
+        }
+        
+        @SettingEntry(path = "tcpIpApp.sntp/gmtOffset")
+        public long getGmtOffset() {
+            return m_zone.getOffset();
+        }
+        
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.enable")
+        public boolean isDstEnabled() {
+            return m_zone.getDstOffset() != 0;
+        }
+        
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.fixedDayEnable")
+        public boolean isFixedDayEnabled() {
+            return isDstEnabled() && m_zone.getStartDay() > 0;
+        }
+        
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.date")
+        public int getStartDay() {
+            if (isFixedDayEnabled()) {
+                return m_zone.getStartDay();
+            }
+            if (m_zone.getStartWeek() == PhoneTimeZone.DST_LASTWEEK) {
+                return 1;
+            }
+            
+            return m_zone.getStartWeek();            
+        }
+        
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek.lastInMonth")
+        public boolean isStartLastInMonth() {
+            if (isFixedDayEnabled()) {
+                return true;
+            }
+            if (m_zone.getStartWeek() == PhoneTimeZone.DST_LASTWEEK) {
+                return true;
+            }
+            
+            return false;            
+        }
+        
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.date")
+        public int getStopDate() {
+            if (isFixedDayEnabled()) {
+                return m_zone.getStopDay();
+            }
+            if (m_zone.getStopWeek() == PhoneTimeZone.DST_LASTWEEK) {
+                return 1;
+            }
+         
+            return m_zone.getStopWeek();
+        }
+        
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek.lastInMonth")
+        public boolean isStopDayOfWeekLastInMonth() {
+            if (isFixedDayEnabled()) {
+                return false;
+            }            
+            if (m_zone.getStopWeek() == PhoneTimeZone.DST_LASTWEEK) {
+                return true;
+            }
+            
+            return false;            
+        }
+        
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek")
+        public int getStartDayOfWeek() {
+            return isDstEnabled() ? m_zone.getStartDayOfWeek() : 0;
+        }
+
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.month")
+        public int getStartMonth() {
+            return isDstEnabled() ? m_zone.getStartMonth() : 0;
+        }
+
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.time")
+        public int getStartTime() {
+            return isDstEnabled() ? m_zone.getStartMonth() / 3600 : 0;
+        }
+
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek")
+        public int getStopDayOfWeek() {
+            return isDstEnabled() ? m_zone.getStopDayOfWeek() : 0;
+        }
+
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.month")
+        public int getStopMonth() {
+            return isDstEnabled() ? m_zone.getStopMonth() : 0;
+        }
+
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.time")
+        public int getStopTime() {
+            return isDstEnabled() ? m_zone.getStopTime() / 3600 : 0;
+        }
     }
     
     static class PolycomLineDefaults {

@@ -43,9 +43,11 @@ public class BeanValueStorage implements SettingValueHandler {
             try {                
                 // should be getter (although not strictly nec), with no args
                 o = m.invoke(m_bean, new Object[0]);
-                
+                                
+                // FIXME Use setting to coerse value to proper string value 
+                // for example is boolean 0/1, yes/no
                 String s = (o != null ? o.toString() : null);
-                value = new SettingValueImpl(s);
+                value = new SettingValueImpl(s);                
             } catch (IllegalArgumentException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {
