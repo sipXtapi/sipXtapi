@@ -53,7 +53,8 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
         // When we support the separation of commserver from general sipxconfig configuration,
         // I suspect domain name will be stored in a separate object and that drives the
         // modification of config.defs and is referenced directly by phoneContext and coreContext
-        setSettingValue(ServerSettings.DOMAIN_NAME, m_domainName);
+        m_storage.put(ServerSettings.DOMAIN_NAME, m_domainName);
+        
         setSettings(settings);
     }
 
@@ -171,4 +172,9 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     public String getPresenceServerUri() {
         return SipUri.format(getPresenceServerLocation(), getPresenceServerPort());
     }
+
+    public void setSettingValue(String path, String value) {
+        m_storage.setValue(getSettings().getSetting(path), value);
+    }
+
 }

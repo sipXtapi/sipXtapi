@@ -41,9 +41,9 @@ public class UploadTest extends TestCase {
     public void testRemove() throws Exception {
         File dir = new File(mkdirs(m_upload.getUploadDirectory()));
         File file1 = File.createTempFile("upload-test", ".dat", dir);
-        m_upload.getSettings().getSetting("files/file1").setValue(file1.getName());
+        m_upload.setSettingValue("files/file1", file1.getName());
         File file10 = File.createTempFile("upload-test", ".dat", dir);
-        m_upload.getSettings().getSetting("files/file10").setValue(file10.getName());
+        m_upload.setSettingValue("files/file10", file10.getName());
         assertTrue(file1.exists());
         assertTrue(file10.exists());
         m_upload.remove();
@@ -57,7 +57,7 @@ public class UploadTest extends TestCase {
     public void testRemoveWithFileMissingNoError() throws Exception {
         File dir = new File(mkdirs(m_upload.getUploadDirectory()));
         File file1 = File.createTempFile("upload-test", ".dat", dir);
-        m_upload.getSettings().getSetting("files/file1").setValue(file1.getName());
+        m_upload.setSettingValue("files/file1", file1.getName());
         file1.delete();
         assertFalse(file1.exists());        
         m_upload.remove();        
@@ -66,7 +66,7 @@ public class UploadTest extends TestCase {
     public void testDeploy() throws Exception {
         File dir = new File(mkdirs(m_upload.getUploadDirectory()));
         File file1 = File.createTempFile("upload-test", ".dat", dir);
-        m_upload.getSettings().getSetting("files/file1").setValue(file1.getName());
+        m_upload.setSettingValue("files/file1", file1.getName());
         m_upload.deploy();
         assertTrue(m_upload.isDeployed());
         assertTrue(new File(m_upload.getDestinationDirectory() + "/" + file1.getName()).exists());        
@@ -75,7 +75,7 @@ public class UploadTest extends TestCase {
     public void testUndeploy() throws Exception {
         File dir = new File(mkdirs(m_upload.getDestinationDirectory()));
         File file1 = File.createTempFile("upload-test", ".dat", dir);
-        m_upload.getSettings().getSetting("files/file1").setValue(file1.getName());
+        m_upload.setSettingValue("files/file1", file1.getName());
         m_upload.undeploy();
         assertFalse(m_upload.isDeployed());
         assertFalse(file1.exists());                

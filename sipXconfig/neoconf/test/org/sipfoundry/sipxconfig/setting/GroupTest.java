@@ -23,14 +23,14 @@ public class GroupTest extends TestCase {
     
     private Setting m_apple;
     
-    private Setting m_pea;
+    private SettingImpl m_pea;
     
     protected void setUp() {
         m_root = new SettingSet();
         SettingSet fruit = (SettingSet)m_root.addSetting(new SettingSet("fruit"));
         m_apple = fruit.addSetting(new SettingImpl("apple"));
         SettingSet vegetable = (SettingSet)m_root.addSetting(new SettingSet("vegetable"));
-        m_pea = vegetable.addSetting(new SettingImpl("pea"));
+        m_pea = (SettingImpl) vegetable.addSetting(new SettingImpl("pea"));
         m_pea.setValue("snowpea");
     }
           

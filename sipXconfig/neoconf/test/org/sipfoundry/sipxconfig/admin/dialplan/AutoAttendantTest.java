@@ -23,7 +23,6 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.DialPad;
-import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class AutoAttendantTest extends XMLTestCase {
 

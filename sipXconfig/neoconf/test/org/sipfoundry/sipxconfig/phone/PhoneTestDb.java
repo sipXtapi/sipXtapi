@@ -97,7 +97,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
 
         Phone p = context.loadPhone(new Integer(1000));        
         p.setSettingModel(model);
-        p.getSettings().getSetting("foo").setValue("bar");
+        p.setSettingValue("foo", "bar");
         context.storePhone(p);        
         context.flush();
         

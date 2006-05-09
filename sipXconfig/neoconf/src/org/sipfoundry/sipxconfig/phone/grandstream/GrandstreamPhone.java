@@ -24,12 +24,15 @@ import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.phone.RestartException;
+import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
@@ -103,6 +106,18 @@ public class GrandstreamPhone extends Phone {
 
     private void init() {
         setPhoneTemplate("grandstream/grandstream.vm");
+
+        GrandStreamTimeZone zone = new GrandStreamTimeZone(new PhoneTimeZone());
+        BeanValueStorage vs = new BeanValueStorage(zone);
+        getSettingModel2().addSettingValueHandler(vs);        
+    }
+    
+    public void setPhoneContext(PhoneContext phoneContext) {
+        super.setPhoneContext(phoneContext);
+        
+        GrandstreamDefaults defaults = new GrandstreamDefaults(phoneContext.getPhoneDefaults());
+        BeanValueStorage vs = new BeanValueStorage(defaults);
+        getSettingModel2().addSettingValueHandler(vs);        
     }
 
     /**
@@ -152,6 +167,46 @@ public class GrandstreamPhone extends Phone {
         setDefaultIfExists(upgroot, "P192", defaults.getTftpServer());
         setDefaultIfExists(upgroot, "P237", defaults.getTftpServer());
     } 
+    
+    static class GrandstreamDefaults {
+        private DeviceDefaults m_defaults;
+        GrandstreamDefaults(DeviceDefaults defaults) {
+            m_defaults = defaults;
+        }
+        
+        @SettingEntry(path = "upgrade/__TFTPServer-213")
+        public String getTftpServer() {
+            return m_defaults.getTftpServer();
+        }
+        
+        @SettingEntry(path = "upgrade/__TFTPServerOld-41")
+        public String getTftpServerOld() {
+            return getTftpServer();
+        }
+
+        @SettingEntry(path = "upgrade/P192")
+        public String getTftpServerP192() {
+            return getTftpServer();
+        }
+
+        @SettingEntry(path = "upgrade/P237")
+        public String getTftpServerP237() {
+            return getTftpServer();
+        }
+    }
+    
+    static class GrandStreamTimeZone {
+        private PhoneTimeZone m_zone;
+        GrandStreamTimeZone(PhoneTimeZone zone) {
+            m_zone = zone;
+        }
+        
+        @SettingEntry(path = TIMEZONE_SETTING)
+        public int getTimeOffset() {
+            int offset = ((m_zone.getOffsetWithDst() / 60) + (12 * 60));
+            return offset;            
+        }        
+    }
 
     protected void setDefaultTimeZone() {
         PhoneTimeZone mytz = new PhoneTimeZone();

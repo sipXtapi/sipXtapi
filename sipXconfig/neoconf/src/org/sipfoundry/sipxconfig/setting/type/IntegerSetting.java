@@ -23,7 +23,7 @@ public class IntegerSetting implements SettingType {
     private int m_min;
 
     private int m_max = Integer.MAX_VALUE;
-
+    
     private boolean m_required;
 
     public int getMax() {

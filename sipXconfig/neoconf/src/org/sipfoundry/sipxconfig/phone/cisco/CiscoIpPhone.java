@@ -21,8 +21,10 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
+import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
  * Support for Cisco 7940/7960
@@ -34,6 +36,8 @@ public class CiscoIpPhone extends CiscoPhone {
     private static final String DST_AUTO_ADJUST = "dst_auto_adjust";
 
     private static final String ZEROMIN = ":00";
+    
+    private static final String SHORTNAME = "line/shortname";
 
     public CiscoIpPhone() {
         super(BEAN_ID);
@@ -91,6 +95,84 @@ public class CiscoIpPhone extends CiscoPhone {
 
         return impl;
     }
+    
+    static class CiscoIpTimeZone {
+        private PhoneTimeZone m_zone;
+        
+        CiscoIpTimeZone(PhoneTimeZone zone) {
+            m_zone = zone;
+        }
+
+        @SettingEntry(path = "datetime/time_zone")
+        public String getTimeZoneId() {
+            return m_zone.getShortName();
+        }
+        
+        @SettingEntry(path = "datetime/dst_auto_adjust")
+        public boolean isDstAutoAdjust() {
+            return m_zone.getDstOffset() != 0;
+        }
+        
+        @SettingEntry(path = "datetime/dst_offset")
+        public long getDstOffset() {
+            return isDstAutoAdjust() ?  m_zone.getDstOffset() / 3600 : 0;
+        }
+
+        @SettingEntry(path = "datetime/dst_start_day")
+        public int getDstStartDay() {
+            return isDstAutoAdjust() ? m_zone.getStartDay() : 0;
+        }
+        
+        @SettingEntry(path = "datetime/dst_start_day_of_week")
+        public int getDstStartDayOfWeek() {
+            return isDstAutoAdjust() ? m_zone.getStartDayOfWeek() : 0;
+        }
+        
+        @SettingEntry(path = "datetime/dst_start_month")
+        public int getDstStartMonth() {
+            return isDstAutoAdjust() ? m_zone.getStartMonth() : 0;
+        }
+        
+        @SettingEntry(path = "datetime/dst_start_time")
+        public String getDstStartTime() {
+            return  isDstAutoAdjust() ? time(m_zone.getStartTime()) : null;
+        }
+        
+        @SettingEntry(path = "datetime/dst_start_week_of_month")
+        public int getDstStartWeekOfMonth() {
+            return  isDstAutoAdjust() ? m_zone.getStartWeek() : 0;
+        }
+
+        @SettingEntry(path = "datetime/dst_stop_day")
+        public int getDstStopDay() {
+            return isDstAutoAdjust() ? m_zone.getStopDay() : 0;
+        }
+        
+        @SettingEntry(path = "datetime/dst_stop_day_of_week")
+        public int getDstStopDayOfWeek() {
+            return isDstAutoAdjust() ? m_zone.getStopDayOfWeek() : 0;
+        }
+        
+        @SettingEntry(path = "datetime/dst_stop_month")
+        public int getDstStopMonth() {
+            return isDstAutoAdjust() ? m_zone.getStopMonth() : 0;
+        }
+        
+        @SettingEntry(path = "datetime/dst_stop_time")
+        public String getStopTime() {
+            return isDstAutoAdjust() ? time(m_zone.getStopTime()) : null;            
+        }
+        
+        @SettingEntry(path = "datetime/dst_stop_week_of_month")
+        public String getStopWeekOfMonth() {
+            return isDstAutoAdjust() ? time(m_zone.getStopWeek()) : null;            
+        }
+
+        private String time(int time) {
+            return String.valueOf(time / 3600) + ZEROMIN;
+        }
+        
+    }
 
     protected void setDefaultTimeZone() {
         PhoneTimeZone mytz = new PhoneTimeZone();
@@ -134,7 +216,32 @@ public class CiscoIpPhone extends CiscoPhone {
 
         User u = line.getUser();
         if (u != null) {
-            line.getSettings().getSetting("line/shortname").setValue(u.getUserName());
+            line.getSettings().getSetting(SHORTNAME).setValue(u.getUserName());
+        }
+    }
+    
+    public void addLine(Line line) {
+        super.addLine(line);
+
+        CiscoIpLineSettings ls = new CiscoIpLineSettings(line);
+        BeanValueStorage bv = new BeanValueStorage(ls);
+        line.getSettingModel2().addSettingValueHandler(bv);
+    }
+    
+    class CiscoIpLineSettings {
+        private Line m_line;
+        CiscoIpLineSettings(Line line) {
+            m_line = line;
+        }
+        
+        @SettingEntry(path = SHORTNAME)
+        public String getShortName() {
+            String name = null;
+            User u = m_line.getUser();
+            if (u != null) {
+                name = u.getUserName(); 
+            }
+            return name;
         }
     }
 

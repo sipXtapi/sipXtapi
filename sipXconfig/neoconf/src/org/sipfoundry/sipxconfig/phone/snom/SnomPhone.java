@@ -21,25 +21,31 @@ import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
+import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SnomPhone extends Phone {
 
     public static final String BEAN_ID = "snom";
-    
+
     public static final String USER_HOST = "line/user_host";
-    
+
     public static final String MAILBOX = "line/user_mailbox";
-    
+
     public static final String OUTBOUND_PROXY = "sip/user_outbound";
 
     private static final String TIMEZONE_SETTING = "network/utc_offset";
 
-    // Uncomment when JDK 1.5 required
-    // private static final String DST_SETTING = "network/dst";
+    private static final String CONFIG_URL = "update/setting_server";
+
+    private static final String DST_SETTING = "network/dst";
+
+    private static final String UDP_TRANSPORT_TAG = ";transport=udp";
 
     public SnomPhone() {
         super(BEAN_ID);
@@ -53,6 +59,19 @@ public class SnomPhone extends Phone {
 
     private void init() {
         setPhoneTemplate("snom/snom.vm");
+
+        SnomTimeZone zone = new SnomTimeZone(new PhoneTimeZone());
+        BeanValueStorage vs = new BeanValueStorage(zone);
+        getSettingModel2().addSettingValueHandler(vs);
+
+    }
+
+    public void setPhoneContext(PhoneContext context) {
+        super.setPhoneContext(context);
+
+        SnomDefaults defaults = new SnomDefaults(context.getPhoneDefaults(), this);
+        BeanValueStorage vs = new BeanValueStorage(defaults);
+        getSettingModel2().addSettingValueHandler(vs);
     }
 
     public String getPhoneFilename() {
@@ -115,7 +134,23 @@ public class SnomPhone extends Phone {
         Setting settings = getSettings();
         DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
         String configUrl = defaults.getProfileRootUrl() + '/' + getProfileName();
-        settings.getSetting("update/setting_server").setValue(configUrl);
+        settings.getSetting(CONFIG_URL).setValue(configUrl);
+    }
+
+    static class SnomDefaults {
+        private DeviceDefaults m_defaults;
+        private SnomPhone m_phone;
+
+        SnomDefaults(DeviceDefaults defaults, SnomPhone phone) {
+            m_defaults = defaults;
+            m_phone = phone;
+        }
+
+        @SettingEntry(path = CONFIG_URL)
+        public String getConfigUrl() {
+            String configUrl = m_defaults.getProfileRootUrl() + '/' + m_phone.getProfileName();
+            return configUrl;
+        }
     }
 
     protected void setDefaultTimeZone() {
@@ -125,7 +160,7 @@ public class SnomPhone extends Phone {
         if (tzsec <= 0) {
             getSettings().getSetting(TIMEZONE_SETTING).setValue(String.valueOf(tzsec));
         } else {
-            getSettings().getSetting(TIMEZONE_SETTING).setValue("+" + String.valueOf(tzsec));
+            getSettings().getSetting(TIMEZONE_SETTING).setValue('+' + String.valueOf(tzsec));
         }
 
         // Snom DST setting waiting for JDK 1.5x
@@ -141,6 +176,40 @@ public class SnomPhone extends Phone {
         //                         mytz.getStopTime() / 3600);
         // }
         // getSettings().getSetting(DST_SETTING).setValue(dst);
+    }
+
+    static class SnomTimeZone {
+        private PhoneTimeZone m_zone;
+
+        SnomTimeZone(PhoneTimeZone zone) {
+            m_zone = zone;
+        }
+
+        @SettingEntry(path = TIMEZONE_SETTING)
+        public String getTimeZoneOffset() {
+            int tzsec = m_zone.getOffset();
+
+            if (tzsec <= 0) {
+                return String.valueOf(tzsec);
+            }
+
+            return '+' + String.valueOf(tzsec);
+        }
+
+        @SettingEntry(path = DST_SETTING)
+        public String getDstSetting() {
+            if (m_zone.getDstOffset() == 0) {
+                return null;
+            }
+
+            String dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00",
+                    m_zone.getDstOffset(), m_zone.getStartMonth(), Math.min(
+                            m_zone.getStartWeek(), 5), (m_zone.getStartDayOfWeek() + 5) % 7 + 1,
+                    m_zone.getStartTime() / 3600, m_zone.getStopMonth(), Math.min(m_zone
+                            .getStopWeek(), 5), (m_zone.getStopDayOfWeek() + 5) % 7 + 1, m_zone
+                            .getStopTime() / 3600);
+            return dst;
+        }
     }
 
     public Object getLineAdapter(Line line, Class interfac) {
@@ -159,17 +228,17 @@ public class SnomPhone extends Phone {
         }
         return impl;
     }
-    
+
     protected void defaultLineSettings(Line line) {
         super.defaultLineSettings(line);
-        
+
         DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
         // registration server shouldn't be used, proxy(e.g domain name) should handle delivery
         String domainName = defaults.getDomainName();
-        String registrationUri = domainName + ";transport=udp";
+        String registrationUri = domainName + UDP_TRANSPORT_TAG;
         line.getSettings().getSetting(USER_HOST).setValue(registrationUri);
-        User user = line.getUser(); 
-        if (user != null) {  
+        User user = line.getUser();
+        if (user != null) {
             // XCF-722 Setting this to the mailbox (e.g. 101) would fix issue
             // where mailbox button on phone calls voicemail server, but would
             // break MWI subscription because SUBSCRIBE message fails 
@@ -178,10 +247,65 @@ public class SnomPhone extends Phone {
 
             // XPB-398 This forces TCP, this is defined in conjunction with "transport=udp"
             // This is benign w/o SRV, but required w/SRV
-            line.getSettings().getSetting(OUTBOUND_PROXY).setValue(defaults.getFullyQualifiedDomainName());
+            line.getSettings().getSetting(OUTBOUND_PROXY).setValue(
+                    defaults.getFullyQualifiedDomainName());
         }
-    }    
-        
+    }
+
+    public void addLine(Line line) {
+        super.addLine(line);
+
+        SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(),
+                line);
+        BeanValueStorage vs = new BeanValueStorage(defaults);
+        line.getSettingModel2().addSettingValueHandler(vs);
+    }
+
+    static class SnomLineDefaults {
+        private Line m_line;
+        private DeviceDefaults m_defaults;
+
+        SnomLineDefaults(DeviceDefaults defaults, Line line) {
+            m_line = line;
+            m_defaults = defaults;
+        }
+
+        @SettingEntry(path = USER_HOST)
+        public String getUserHost() {
+            String domainName = m_defaults.getDomainName();
+            String registrationUri = domainName + UDP_TRANSPORT_TAG;
+            return registrationUri;
+        }
+
+        @SettingEntry(path = OUTBOUND_PROXY)
+        public String getOutboundProxy() {
+            String outboundProxy = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                // XPB-398 This forces TCP, this is defined in conjunction with "transport=udp"
+                // This is benign w/o SRV, but required w/SRV
+                outboundProxy = m_defaults.getFullyQualifiedDomainName();
+            }
+
+            return outboundProxy;
+        }
+
+        @SettingEntry(path = MAILBOX)
+        public String getMailbox() {
+            String mailbox = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                // XCF-722 Setting this to the mailbox (e.g. 101) would fix issue
+                // where mailbox button on phone calls voicemail server, but would
+                // break MWI subscription because SUBSCRIBE message fails 
+                // authentication unless this value is user's username
+                mailbox = user.getUserName();
+            }
+
+            return mailbox;
+        }
+    }
+
     public void restart() {
         sendCheckSyncToFirstLine();
     }

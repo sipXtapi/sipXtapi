@@ -23,7 +23,6 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
-import org.sipfoundry.sipxconfig.setting.Setting;
 
 
 public class SipConfigurationTest  extends XMLTestCase {
@@ -42,14 +41,12 @@ public class SipConfigurationTest  extends XMLTestCase {
         
         // settings selected at random, there are too many
         // to test all.  select a few.
-        Setting endpointSettings = phone.getSettings();
-        endpointSettings.getSetting("log/sip/level.change.sip").setValue("3");
-        endpointSettings.getSetting("call/rejectBusyOnDnd").setValue("0");
-        endpointSettings.getSetting("voIpProt.SIP/local/port").setValue("5061");
-        endpointSettings.getSetting("call/rejectBusyOnDnd").setValue("0");
+        phone.setSettingValue("log/sip/level.change.sip", "3");
+        phone.setSettingValue("call/rejectBusyOnDnd", "0");
+        phone.setSettingValue("voIpProt.SIP/local/port", "5061");
+        phone.setSettingValue("call/rejectBusyOnDnd", "0");
 
-        Setting lineSettings = tester.line.getSettings();
-        lineSettings.getSetting("call/serverMissedCall/enabled").setValue("1");
+        tester.line.setSettingValue("call/serverMissedCall/enabled", "1");
         
         VelocityProfileGenerator cfg = new SipConfiguration(phone);
         cfg.setVelocityEngine(TestHelper.getVelocityEngine());

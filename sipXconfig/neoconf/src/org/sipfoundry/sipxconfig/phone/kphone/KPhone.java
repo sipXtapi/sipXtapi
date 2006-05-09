@@ -15,11 +15,14 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class KPhone extends Phone {
-    
+public class KPhone extends Phone {    
     public static final PhoneModel MODEL_KPHONE = new PhoneModel("kphone", "KPhone");
+    
+    private static final String REG_URI = "Registration/SipUri";    
     
     public KPhone() {
         super(MODEL_KPHONE);
@@ -48,6 +51,26 @@ public class KPhone extends Phone {
     public void defaultLineSettings(Line line) {
         super.defaultLineSettings(line);
         
-        line.getSettings().getSetting("Registration/SipUri").setValue(line.getUri());
+        line.getSettings().getSetting(REG_URI).setValue(line.getUri());
+    }
+    
+    public void addLine(Line line) {
+        super.addLine(line);
+        
+        KPhoneLineDefaults defaults = new KPhoneLineDefaults(line);
+        BeanValueStorage vs = new BeanValueStorage(defaults);
+        line.getSettingModel2().addSettingValueHandler(vs);
+    }
+    
+    static class KPhoneLineDefaults {
+        private Line m_line;
+        public KPhoneLineDefaults(Line line) {
+            m_line = line;
+        }
+        
+        @SettingEntry(path = REG_URI)
+        public String getUri() {
+            return m_line.getUri();
+        }
     }
 }

@@ -78,7 +78,7 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         AutoAttendant aa = m_context.newAutoAttendantWithDefaultGroup();
         aa.setName("test-settings");
         aa.setPrompt("thankyou_goodbye.wav");
-        aa.getSettings().getSetting("dtmf/interDigitTimeout").setValue("4");
+        aa.setSettingValue("dtmf/interDigitTimeout", "4");
         m_context.storeAutoAttendant(aa);        
         
         // attendant data

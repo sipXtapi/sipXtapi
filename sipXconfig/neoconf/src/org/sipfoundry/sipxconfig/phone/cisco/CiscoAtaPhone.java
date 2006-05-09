@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -28,12 +30,17 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
+import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
+import org.sipfoundry.sipxconfig.setting.SettingValue2;
+import org.sipfoundry.sipxconfig.setting.SettingValueHandler;
+import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 
 /**
  * Support for Cisco ATA186/188 and Cisco 7905/7912
@@ -53,6 +60,10 @@ public class CiscoAtaPhone extends CiscoPhone {
     private static final int KOLME = 3;
 
     private static final String NOLLAX = "0x";
+
+    private static final String NOLLAX_UPPER = "0X";
+    
+    private static final String INTEGER_SETTING = "integer";
 
     private static final String ALLE = "_";
 
@@ -107,6 +118,10 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     private void init() {
         setPhoneTemplate("ciscoAta/cisco-ata.vm");
+
+        CiscoAtaTimeZone tz = new CiscoAtaTimeZone(new PhoneTimeZone());
+        BeanValueStorage vs = new BeanValueStorage(tz);
+        getSettingModel2().addSettingValueHandler(vs);
     }
 
     /**
@@ -117,6 +132,15 @@ public class CiscoAtaPhone extends CiscoPhone {
      */
     public void setTextFormatEnabled(boolean isTextFormatEnabled) {
         m_isTextFormatEnabled = isTextFormatEnabled;
+    }
+    
+    public void setSettings(Setting settings) {
+        super.setSettings(settings);
+        
+        Collection bitmaps = getBitmapSettings();
+        PackBitmaps bitmapHandler = new PackBitmaps();
+        bitmapHandler.preprocess(settings, bitmaps);        
+        getSettingModel2().addSettingValueHandler(bitmapHandler);
     }
 
     public String getCfgPrefix() {
@@ -281,6 +305,30 @@ public class CiscoAtaPhone extends CiscoPhone {
         }
         getSettings().getSetting(TIMEZONE_SETTING).setValue(String.valueOf(atatz));
     }
+    
+    public class CiscoAtaTimeZone {
+        private PhoneTimeZone m_zone;
+        
+        CiscoAtaTimeZone(PhoneTimeZone zone) {
+            m_zone = zone;
+        }
+        @SettingEntry(path = TIMEZONE_SETTING)
+        public int getTimeZoneOffset() {
+            int tzmin = m_zone.getOffsetWithDst() / 60;
+            int atatz;
+
+            if (tzmin % 60 == 0) {
+                atatz = tzmin / 60;
+                if (atatz < 0) {
+                    atatz += 25;
+                }
+            } else {
+                atatz = tzmin;
+            }
+            
+            return atatz;
+        }
+    }
 
     public String getSoftwareUpgradeConfig() {
         Setting swupgrade = getSettings().getSetting(UPGRADE_SETTING_GROUP);
@@ -378,6 +426,51 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     // FIXME : Write a settinghandler that checks by name '__' and returns accordingly
+    static class PackBitmaps implements SettingValueHandler {
+        private Map<String, SettingValue2> m_bitmapTargets = new HashMap();
+        
+        void preprocess(Setting settings, Collection bitmaps) {
+            Iterator bmi = bitmaps.iterator();
+            while (bmi.hasNext()) {
+                Setting bset = (Setting) bmi.next();
+                String bname = bset.getName();
+                int bpoint = bname.indexOf('.');
+
+                if (bpoint < KOLME || bpoint == bname.length() - 1) {
+                    continue;
+                }
+
+                String tgtname = bname.substring(2, bpoint);
+                String btpath = bset.getParentPath() + Setting.PATH_DELIM + tgtname;
+                Setting btgt = settings.getSetting(btpath.substring(1));
+
+                int bofs = Integer.parseInt(bname.substring(bpoint + 1));
+
+                String bttype = btgt.getType().getName();
+                if (bttype.equals(INTEGER_SETTING)) {
+                    int btmp = Integer.decode(btgt.getValue()).intValue();
+                    btmp = btmp + (Integer.parseInt(bset.getValue()) << bofs);
+                    SettingValue2 value = new SettingValueImpl(Integer.toString(btmp));
+                    m_bitmapTargets.put(btgt.getPath(), value);
+                } else {
+                    String btmp = btgt.getValue();
+                    if (btmp.startsWith(NOLLAX) || btmp.startsWith(NOLLAX_UPPER)) {
+                        long btx = Long.decode(btmp).longValue();
+                        btx = btx + (Long.parseLong(bset.getValue()) << bofs);
+                        SettingValue2 value = new SettingValueImpl(NOLLAX + Long.toHexString(btx));
+                        m_bitmapTargets.put(btgt.getPath(), value);
+                    } else {
+                        SettingValue2 value = new SettingValueImpl(btmp + bset.getValue());
+                        m_bitmapTargets.put(btgt.getPath(), value);
+                    }
+                }
+            }            
+        }
+        
+        public SettingValue2 getSettingValue(Setting setting) {
+            return m_bitmapTargets.get(setting.getPath());
+        }        
+    }
     public void packBitmaps() {
         Collection bitmaps = getBitmapSettings();
         Iterator bmi = bitmaps.iterator();
@@ -397,13 +490,13 @@ public class CiscoAtaPhone extends CiscoPhone {
             int bofs = Integer.parseInt(bname.substring(bpoint + 1));
 
             String bttype = btgt.getType().getName();
-            if (bttype.equals("integer")) {
+            if (bttype.equals(INTEGER_SETTING)) {
                 int btmp = Integer.decode(btgt.getValue()).intValue();
                 btmp = btmp + (Integer.parseInt(bset.getValue()) << bofs);
                 btgt.setValue(Integer.toString(btmp));
             } else {
                 String btmp = btgt.getValue();
-                if (btmp.startsWith(NOLLAX) || btmp.startsWith("0X")) {
+                if (btmp.startsWith(NOLLAX) || btmp.startsWith(NOLLAX_UPPER)) {
                     long btx = Long.decode(btmp).longValue();
                     btx = btx + (Long.parseLong(bset.getValue()) << bofs);
                     btgt.setValue(NOLLAX + Long.toHexString(btx));

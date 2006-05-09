@@ -53,7 +53,7 @@ public class SipxServerTest extends TestCase {
 
     public void testGetServerSettings() {
         String expected = "myserver";
-        m_server.getSettings().getSetting("domain/SIPXCHANGE_DOMAIN_NAME").setValue(expected);
+        m_server.setSettingValue("domain/SIPXCHANGE_DOMAIN_NAME", expected);
         String actual = m_server.getServerSettings().getDomainName();
         // although not intuative, a new copy of server settings is generated each time.
         assertEquals(expected, actual);
@@ -85,8 +85,7 @@ public class SipxServerTest extends TestCase {
         m_server.setSipxReplicationContext(replicationContext);
 
         m_server.setDomainName("old-domain-name");
-        m_server.getSettings().getSetting("domain/SIPXCHANGE_DOMAIN_NAME")
-                .setValue(newDomainName);
+        m_server.setSettingValue("domain/SIPXCHANGE_DOMAIN_NAME", newDomainName);
         m_server.applySettings();
 
         replicationContextCtrl.verify();
