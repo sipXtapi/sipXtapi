@@ -128,9 +128,9 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting, Se
         }
     }
 
-    public SettingValue2 getSettingValue(String path) {
+    public SettingValue2 getSettingValue(Setting setting) {
         SettingValue2 value = null;
-        Setting s = getSetting(path);
+        Setting s = getSetting(setting.getPath());
         if (s != null) {
             value = new SettingValueImpl(s.getValue());
         }

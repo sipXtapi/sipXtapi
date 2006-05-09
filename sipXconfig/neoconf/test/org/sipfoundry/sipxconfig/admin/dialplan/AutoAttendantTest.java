@@ -53,9 +53,8 @@ public class AutoAttendantTest extends XMLTestCase {
         aa.setPrompt("prompt.wav");        
         aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
         aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.DISCONNECT));
-        Setting settings = aa.getSettings();
-        settings.getSetting("onfail/transfer").setValue("1");
-        settings.getSetting("onfail/transfer-extension").setValue("999");
+        aa.setSettingValue("onfail/transfer", "1");
+        aa.setSettingValue("onfail/transfer-extension", "999");
         
         StringWriter actualXml = new StringWriter();
         m_vxml.generate(aa, actualXml);

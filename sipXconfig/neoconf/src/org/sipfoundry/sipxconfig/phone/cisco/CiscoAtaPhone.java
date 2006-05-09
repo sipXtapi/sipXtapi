@@ -377,6 +377,7 @@ public class CiscoAtaPhone extends CiscoPhone {
         return SettingUtil.filter(S_BITMAPSETTINGS, getSettings());
     }
 
+    // FIXME : Write a settinghandler that checks by name '__' and returns accordingly
     public void packBitmaps() {
         Collection bitmaps = getBitmapSettings();
         Iterator bmi = bitmaps.iterator();

@@ -11,16 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.io.InputStream;
+
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class BeanWithSettingTest extends TestCase {
     
-    public void testGetSettingValue() {
+    public void testGetSettingValue() throws Exception {
         BeanWithSettings bean = new BeanWithSettings();
-        ValueStorage vs = new ValueStorage();
-        vs.put("/bird/towhee", "rufous-sided");
-        bean.setValueStorage(vs);
-        assertEquals("rufous-sided", bean.getSettingModel2().getSettingValue("/bird/towhee"));
+        InputStream in = getClass().getResourceAsStream("birds.xml");
+        bean.setSettingModel(TestHelper.loadSettings(in));
+        String path = "towhee/rufous-sided";
+        bean.setSettingValue(path, "4");
+        assertEquals("4", bean.getSettingModel2().getSettingValue(path));
     }
-
 }

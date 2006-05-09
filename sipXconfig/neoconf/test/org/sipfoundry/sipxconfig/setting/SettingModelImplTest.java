@@ -11,24 +11,34 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.io.InputStream;
+
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class SettingModelImplTest extends TestCase {
     
-    public void testAddHandler() {
-        SettingValue2 pin = new SettingValueImpl("pin");
+    public void testAddHandler() throws Exception {
+        SettingValue2 ten = new SettingValueImpl("10");
+        InputStream in = getClass().getResourceAsStream("birds.xml");
+        Setting birds = TestHelper.loadSettings(in);                
+        Setting peewee = birds.getSetting("flycatcher/peewee");
+        Setting canyonTowhee = birds.getSetting("towhee/canyon");
+        
         MockControl handlerCtrl = MockControl.createControl(SettingValueHandler.class);
         SettingValueHandler handler = (SettingValueHandler) handlerCtrl.getMock();
-        handlerCtrl.expectAndReturn(handler.getSettingValue("/tree/oak"), pin);
-        handlerCtrl.expectAndReturn(handler.getSettingValue("/tree/pine"), null);
+        handlerCtrl.expectAndReturn(handler.getSettingValue(peewee), ten);
+        handlerCtrl.expectAndReturn(handler.getSettingValue(canyonTowhee), null);
         handlerCtrl.replay();
 
-        SettingModel2 model = new SettingModelImpl();
+        SettingModelImpl model = new SettingModelImpl();
+        model.setSettings(birds);
+        
         model.addSettingValueHandler(handler);
-        assertEquals("pin", model.getSettingValue("/tree/oak"));
-        assertNull(model.getSettingValue("/tree/pine"));
+        assertEquals("10", model.getSettingValue("flycatcher/peewee"));
+        assertNull(model.getSettingValue("towhee/canyon"));
 
         handlerCtrl.verify();
     }

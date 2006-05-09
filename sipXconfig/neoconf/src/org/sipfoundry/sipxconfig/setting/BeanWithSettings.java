@@ -24,7 +24,7 @@ public class BeanWithSettings extends BeanWithId {
     
     private Setting m_model;
     
-    private SettingModel2 m_model2;
+    private SettingModelImpl m_model2 = new SettingModelImpl();
     
     /** settings are lazy loaded */
     private boolean m_initializedSettings;
@@ -48,10 +48,6 @@ public class BeanWithSettings extends BeanWithId {
      * @return
      */
     public synchronized SettingModel2 getSettingModel2() {
-        // lazy to avoid NPE in unit tests that create mock objs. 
-        if (m_model2 == null) {
-            m_model2 = new SettingModelImpl();
-        }
         return m_model2;
     }
 
@@ -71,6 +67,7 @@ public class BeanWithSettings extends BeanWithId {
     
     protected void setSettings(Setting settings) {
         m_settings = settings;
+        m_model2.setSettings(m_settings);
     }
         
     protected void decorateSettings() {
@@ -79,11 +76,9 @@ public class BeanWithSettings extends BeanWithId {
             return;
         }
         
-        if (m_valueStorage == null) {
-            m_valueStorage = new ValueStorage();
-        }
+        ValueStorage storage = getInitializeValueStorage();        
+        storage.decorate(settings);
         
-        m_valueStorage.decorate(settings);
         setSettings(settings);
     }
     
@@ -103,6 +98,14 @@ public class BeanWithSettings extends BeanWithId {
     public ValueStorage getValueStorage() {
         return m_valueStorage;
     }
+    
+    protected synchronized ValueStorage getInitializeValueStorage() {
+        if (m_valueStorage == null) {
+            setValueStorage(new ValueStorage());
+        }
+        
+        return getValueStorage();        
+    }
 
     public String getSettingValue(String path) {
         return getSettings().getSetting(path).getValue();
@@ -113,6 +116,6 @@ public class BeanWithSettings extends BeanWithId {
     }
 
     public void setSettingValue(String path, String value) {
-        getSettings().getSetting(path).setValue(value);
+        getInitializeValueStorage().setValue(getSettings().getSetting(path), value);
     }
 }

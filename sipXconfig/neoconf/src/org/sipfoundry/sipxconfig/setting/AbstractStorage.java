@@ -56,13 +56,13 @@ public abstract class AbstractStorage extends BeanWithId implements Storage, Set
         return m_delegate.size();
     }    
 
-    public SettingValue2 getSettingValue(String path) {
+    public SettingValue2 getSettingValue(Setting setting) {
         if (m_delegate == null) {
             return null;
         }
         
         SettingValue2 settingValue = null;        
-        String value = (String) m_delegate.get(path);
+        String value = (String) m_delegate.get(setting.getPath());
         if (value != null) {
             settingValue = new SettingValueImpl(value);
         }

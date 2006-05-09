@@ -13,6 +13,6 @@ package org.sipfoundry.sipxconfig.setting;
 
 public interface SettingValueHandler {
     
-    public SettingValue2 getSettingValue(String path); 
+    public SettingValue2 getSettingValue(Setting s); 
 
 }

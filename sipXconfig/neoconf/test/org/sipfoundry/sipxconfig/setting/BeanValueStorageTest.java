@@ -18,12 +18,13 @@ public class BeanValueStorageTest extends TestCase {
     public void testGetSettingValue() {
         BeanValueStorageTestBean bean = new BeanValueStorageTestBean();
         BeanValueStorage vs = new BeanValueStorage(bean);
-        assertEquals("14 inches", vs.getSettingValue("bird/wingspan").getValue());
+        Setting setting = new SettingImpl("wingspan");
+        assertEquals("14 inches", vs.getSettingValue(setting).getValue());
     }
 
     static class BeanValueStorageTestBean {
         
-        @SettingEntry(path = "bird/wingspan")
+        @SettingEntry(path = "wingspan")
         public String getWingSpan() {
             return "14 inches";
         }       

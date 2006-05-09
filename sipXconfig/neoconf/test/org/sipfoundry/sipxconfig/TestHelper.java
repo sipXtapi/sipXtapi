@@ -35,9 +35,11 @@ import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
 import org.sipfoundry.sipxconfig.common.TestUtil;
+import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 import org.springframework.beans.factory.access.BeanFactoryLocator;
 import org.springframework.beans.factory.access.BeanFactoryReference;
@@ -102,6 +104,12 @@ public final class TestHelper {
     public static Setting loadSettings(String path) {
         Setting settings = getModelFilesContext().loadModelFile(path);
         return settings;
+    }
+    
+    public static Setting loadSettings(InputStream in) throws IOException {
+        ModelBuilder builder = new XmlModelBuilder("etc");
+        SettingSet root = builder.buildModel(in, null);
+        return root;
     }
 
     public static String getClasspathDirectory() {

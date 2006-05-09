@@ -34,20 +34,18 @@ public class BeanValueStorage implements SettingValueHandler {
         }        
     }
 
-    public SettingValue2 getSettingValue(String path) {
+    public SettingValue2 getSettingValue(Setting setting) {
         SettingValue2 value = null;
         
-        Method m = m_properties.get(path);
+        Method m = m_properties.get(setting.getPath());
         if (m != null) {
             Object o;
             try {                
                 // should be getter (although not strictly nec), with no args
                 o = m.invoke(m_bean, new Object[0]);
                                 
-                // FIXME Use setting to coerse value to proper string value 
-                // for example is boolean 0/1, yes/no
-                String s = (o != null ? o.toString() : null);
-                value = new SettingValueImpl(s);                
+                String svalue = setting.getType().convertToStringValue(o);
+                value = new SettingValueImpl(svalue);                
             } catch (IllegalArgumentException e) {
                 throw new RuntimeException(e);
             } catch (IllegalAccessException e) {

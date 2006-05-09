@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+	<group name="towhee">
+		<setting name="canyon"/>
+		<setting name="rufous-sided"/>
+	</group>
+	<group name="flycatcher">
+	    <setting name="peewee"/>
+	    <setting name="least"/>
+	    <setting name="willow"/>
+	</group>
+</model>
