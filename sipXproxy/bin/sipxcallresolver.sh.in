@@ -10,6 +10,7 @@
 Action=RUN
 Status=1
 Args=""
+Today=`date`
 
 resolverArgs=""
 
@@ -99,19 +100,19 @@ databasePatch() {
             UpgradePatches=""
             ;;
     esac
-
+    if [ -f ${DbPatchLog} ]; then
+        echo "${Today}" >> ${DbPatchLog}
+    else
+        echo "${Today}" > ${DbPatchLog}
+    fi       
+    echo "Patch list: ${UpgradePatches}" >> ${DbPatchLog}
     if [ -n "${UpgradePatches}" ]; then
-        if [ -f ${DbPatchLog} ]; then
-           echo "Intializing SIPXCDR patch log" >> ${DbPatchLog}
-        else
-            echo "Intializing SIPXCDR patch log" > ${DbPatchLog}
-        fi          
         for patch in $UpgradePatches; do
             if [ -f ${DbPatchDir}/${patch}.sql ]; then
                 # Apply patch only if not found in the patch list
-                if ! ${Psql} -U ${PgUser} -d ${Database} -c "select name from patch where name = '${patch}'" | grep ${patch} >/dev/null 2>&1; then
+                if ! ${Psql} -U ${PgUser} -d ${Database} -c "select name from patch where name = '${patch}'" | grep ${patch} >>${DbPatchLog} 2>&1; then
                    echo "Applying patch ${DbPatchDir}/${patch}.sql" >> ${DbPatchLog}
-                   ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >/dev/null 2>&1
+                   ${Psql} -U ${PgUser} -d ${Database} -f ${DbPatchDir}/${patch}.sql >>${DbPatchLog} 2>&1
                    ${Psql} -U ${PgUser} -d ${Database} -c "insert into patch values ('${patch}')" >/dev/null 2>&1
                 fi
             else
@@ -399,23 +400,6 @@ configCheck() {
          echo "  call resolver configuration ok"
       fi   
    
-      echo -n "Checking for @SIPX_SYSCONFDIR@/cron.daily/callresolver_run..."
-      if [ -f @SIPX_SYSCONFDIR@/cron.daily/callresolver_run ]; then
-         if [ -x @SIPX_SYSCONFDIR@/cron.daily/callresolver_run ]; then
-            echo " ok"
-         else  
-            echo
-            echo "  Error: File found but not executable"
-            echo
-            Status=0
-         fi
-      else
-         echo
-         echo "  Error: @SIPX_SYSCONFDIR@/etc/cron.daily/callresolver_run not found."
-         echo
-         Status=0
-      fi
-   
       echo -n "Checking for @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb..."
       if [ -f @GEM_LIB_DIR@/sipxcallresolver-1.0.0/main.rb ]; then
          echo " ok"
@@ -468,6 +452,18 @@ onSetup() {
        databaseCommand create
    fi
    databasePatch
+   
+   # Make a call resolver entry in the crontab file
+   if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
+      if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null &2>1; then 
+         sed -e 's/^.*sipxcallresolver.*$/05 01 * * * root \/opt\/sf-3.4\/bin\/sipxcallresolver.sh --daily/' @SIPX_SYSCONFDIR@/crontab > @SIPX_SYSCONFDIR@/crontab.tmp
+         mv @SIPX_SYSCONFDIR@/crontab.tmp @SIPX_SYSCONFDIR@/crontab
+      else
+         echo "05 01 * * * root @bindir@/sipxcallresolver.sh --daily" >> @SIPX_SYSCONFDIR@/crontab
+      fi
+   else
+      echo "05 01 * * * root @bindir@/sipxcallresolver.sh --daily" > @SIPX_SYSCONFDIR@/crontab   
+   fi   
 }
 
 # Start CDR call resolver
