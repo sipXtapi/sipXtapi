@@ -2078,7 +2078,7 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_ANSWER_CONNECTION:
     {
         CpMultiStringMessage* pMessage = (CpMultiStringMessage*)&eventMessage;
-        const void* pDisplay = (void*) pMessage->getInt1Data();
+        void* pDisplay = (void*) pMessage->getInt1Data();
         offHook(pDisplay);
         delete pDisplay;
         break;
