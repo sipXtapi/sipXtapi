@@ -68,7 +68,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /ZI /Od /I "..\sipXportLib\include" /I "..\sipXcallLib\include" /I "include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\gips" /D "_DEBUG" /D "_CONSOLE" /D "DISABLE_MEM_POOLS" /D "DONT_USE_LONG_LONG" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\sipXportLib\include" /I "..\sipXcallLib\include" /I "include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\gips" /D "_DEBUG" /D "_CONSOLE" /D "DONT_USE_LONG_LONG" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -76,7 +76,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 sipXtackLibd.lib sipXportLibd.lib sipXmediaAdapterLibd.lib sipXmediaLibd.lib sipXcallLibd.lib cppunitd.lib libeay32.lib ssleay32.lib Advapi32.lib wsock32.lib libpcre.a winmm.lib /nologo /subsystem:console /debug /machine:I386 /out:".\sipXtapi\Debug/sipXtapiTest.exe" /pdbtype:sept /libpath:"..\sipXmediaLib\Debug\\" /libpath:"..\sipXmediaAdapterLib\Debug" /libpath:"..\sipXtackLib\debug" /libpath:"..\sipXportLib\debug" /libpath:"debug"
+# ADD LINK32 winmm.lib sipXportLibd.lib sipXtackLibd.lib sipXmediaAdapterLibd.lib sipXmediaLibd.lib sipXcallLibd.lib wsock32.lib cppunitd_dll.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib libpcre.a libeay32.lib ssleay32.lib /nologo /subsystem:console /debug /machine:I386 /out:".\sipXtapi\Debug/sipXtapiTest.exe" /pdbtype:sept /libpath:"..\sipXmediaLib\Debug\\" /libpath:"..\sipXmediaAdapterLib\Debug" /libpath:"..\sipXtackLib\debug" /libpath:"..\sipXportLib\debug" /libpath:"debug"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "sipXtapiTest - Win32 Debug_NoVE"
