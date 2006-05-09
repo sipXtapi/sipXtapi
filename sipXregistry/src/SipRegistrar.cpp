@@ -293,10 +293,11 @@ OsConfigDb* SipRegistrar::getConfigDB()
 SipRegistrar::~SipRegistrar()
 {
     // Wait for the owned servers to shutdown first
+    // Deleting a server task is the only way of
+    // waiting for shutdown to complete cleanly
+
     if ( mRedirectServer )
     {
-        // Deleting a server task is the only way of
-        // waiting for shutdown to complete cleanly
         mRedirectServer->requestShutdown();
         delete mRedirectServer;
         mRedirectServer = NULL;
@@ -305,15 +306,39 @@ SipRegistrar::~SipRegistrar()
 
     if ( mRegistrarServer )
     {
-        // Deleting a server task is the only way of
-        // waiting for shutdown to complete cleanly
-        mRegistrarServer->requestShutdown();
-        delete mRegistrarServer;
-        mRegistrarServer = NULL;
-        mRegistrarMsgQ = NULL;
+       mRegistrarServer->requestShutdown();
+       delete mRegistrarServer;
+       mRegistrarServer = NULL;
+       mRegistrarMsgQ = NULL;
     }
 
-    // :HA: Shut down and delete xomXmlRpcDispatch, and mHttpServer
+    if ( mHttpServer )
+    {
+       mHttpServer->requestShutdown();
+       delete mHttpServer;
+       mHttpServer = NULL;
+    }
+
+    if ( mRegistrarTest )
+    {
+       mRegistrarTest->requestShutdown();
+       delete mRegistrarTest;
+       mRegistrarTest = NULL;
+    }
+
+    if ( mRegistrarSync )
+    {
+       mRegistrarSync->requestShutdown();
+       delete mRegistrarSync;
+       mRegistrarSync = NULL;
+    }
+
+    if ( mRegistrarPersist )
+    {
+       mRegistrarPersist->requestShutdown();
+       delete mRegistrarPersist;
+       mRegistrarPersist = NULL;
+    }
 }
 
 

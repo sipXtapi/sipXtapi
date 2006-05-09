@@ -749,7 +749,7 @@ bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
    // Iterate over the updates and convert RPC params to RegistrationBindings
    intll updateNumber = 0;
    UtlHashMap* update;
-   UtlSList* updateList = new UtlSList();    // collect all the updates
+   UtlSList updateList;    // collect all the updates
    status = XmlRpcMethod::OK;
    while ((update = dynamic_cast<UtlHashMap*>(updateIter())) &&
           (status == XmlRpcMethod::OK))
@@ -772,7 +772,7 @@ bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
       if (status == XmlRpcMethod::OK)
       {
          // Add the row to the update list
-         updateList->append(reg);
+         updateList.append(reg);
       }
    }
 
@@ -782,7 +782,7 @@ bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
       int timeNow = OsDateTime::getSecsSinceEpoch();
       SipRegistrarServer& registrarServer = registrar.getRegistrarServer();
       UtlString errorMsg;
-      updateNumber = registrarServer.applyUpdatesToDirectory(timeNow, *updateList, &errorMsg);
+      updateNumber = registrarServer.applyUpdatesToDirectory(timeNow, updateList, &errorMsg);
       if (updateNumber > 0)
       {
          UtlLongLongInt updateNumberWrapped(updateNumber);
@@ -799,6 +799,7 @@ bool SyncRpcPushUpdates::applyPushedUpdates(UtlSList&        updateMaps,
          response.setFault(SyncRpcMethod::UpdateFailed, errorMsg);
       }
    }
+   updateList.destroyAll();
 
    return result;
 }
@@ -895,16 +896,26 @@ SyncRpcPushUpdates::invoke(RegistrarPeer* peer,       ///< peer to push to
    request.addParam(&lastSentUpdateNumber);
 
    // third parameter is a list of registration bindings
-   UtlSListIterator bindingIterator(*bindings);
    UtlSList bindingParamList;
-   RegistrationBinding* binding;
-   while ((binding = dynamic_cast<RegistrationBinding*>(bindingIterator())))
-   {
-      UtlHashMap* toMap = new UtlHashMap;
-      binding->copy(*toMap);
-      bindingParamList.append(toMap);
+   UtlHashMap* toMap;
+   { // scope to limit the lifetime of the bindingIterator
+      UtlSListIterator bindingIterator(*bindings);
+      RegistrationBinding* binding;
+      while ((binding = dynamic_cast<RegistrationBinding*>(bindingIterator())))
+      {
+         toMap = new UtlHashMap;
+         binding->copy(*toMap);
+         bindingParamList.append(toMap);
+      }
    }
-   request.addParam(&bindingParamList);
+   request.addParam(&bindingParamList); // copy the list into the request
+
+   // free up the list...
+   while((toMap = dynamic_cast<UtlHashMap*>(bindingParamList.get()/* pop */)))
+   {
+      toMap->destroyAll();
+      delete toMap;
+   }
    
    // make the request
    XmlRpcResponse response;

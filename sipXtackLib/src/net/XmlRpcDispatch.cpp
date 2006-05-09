@@ -109,9 +109,11 @@ XmlRpcDispatch::XmlRpcDispatch(int httpServerPort,
    }
       
    mpHttpServer = new HttpServer(pServerSocket,
-                                 NULL,
-                                 NULL,
-                                 NULL);
+                                 NULL, // no password database
+                                 NULL, // no http authentication realm
+                                 NULL, // no valid ip address list
+                                 true  // use persistent http connections 
+                                 );
    
    // Set the http server root to the current directory
    mpHttpServer->allowFileAccess(false);
