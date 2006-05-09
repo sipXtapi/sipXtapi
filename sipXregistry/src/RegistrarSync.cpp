@@ -96,6 +96,7 @@ int RegistrarSync::run(void* pArg)
                   // SyncRpcPushUpdates::invoke and into RegistrarSync?
                   SyncRpcPushUpdates::invoke(peer, mRegistrar.primaryName(), &bindings);
                   pushedUpdate = true;
+                  bindings.destroyAll();
                }
             }
          }

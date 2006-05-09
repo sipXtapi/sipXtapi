@@ -141,6 +141,8 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
                           "'%s' is %s",
                           peer->name(), peer->getStateName());
          }
+
+         bindings.destroyAll();
       }
    }
 }

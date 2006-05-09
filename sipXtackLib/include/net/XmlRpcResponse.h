@@ -131,12 +131,6 @@ private:
    // Clean up the memory in a UtlContainable
    void cleanUp(UtlContainable* value);
    
-   /// Clean up the memory in a struct
-   void cleanUp(UtlHashMap* members);
-   
-   /// Clean up the memory in an array
-   void cleanUp(UtlSList* array);
-   
    /// XML-RPC body
    XmlRpcBody* mpResponseBody;
 

@@ -208,7 +208,6 @@ SipRegistrarServer::initialize(
                                            ,RegisterPlugin::Prefix
                                            );
     mpSipRegisterPlugins->readConfig(*pOsConfigDb);
-   
 }
 
 int SipRegistrarServer::pullUpdates(

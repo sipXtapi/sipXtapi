@@ -79,7 +79,7 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
    // to the XML-RPC server
    HttpMessage *pResponse = new HttpMessage();
 
-   int statusCode = pResponse->get(mUrl, *mpHttpRequest, XML_RPC_TIMEOUT);
+   int statusCode = pResponse->get(mUrl, *mpHttpRequest, XML_RPC_TIMEOUT, true /* persist conn */ );
    if (statusCode/100 == 2)
    {
       const HttpBody* pResponseBody = pResponse->getBody();

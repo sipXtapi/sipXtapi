@@ -243,7 +243,7 @@ then
 
     if [ "${Feedback}" = "VERBOSE" ]
     then
-        caName=`@OPENSSL@ x509 -in "${Basename}.crt" -issuer -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH'`
+        caName=`@OPENSSL@ x509 -in "${Certificate}" -issuer -nameopt RFC2253,multiline -noout | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH'`
 
         echo "SSL certificate name:    ${cert_name}" 
         echo "SSL certificate issuer:  ${caName}" 

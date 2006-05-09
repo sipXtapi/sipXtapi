@@ -236,8 +236,9 @@ public:
          UtlString requestBody;
          int length;
          request.mpRequestBody->getBytes(&requestBody, &length);
+#        ifdef PRINT_OUT
          printf("body = \n%s\n", requestBody.data()); 
-
+#        endif
          ASSERT_STR_EQUAL(ref, requestBody.data());
       }
 

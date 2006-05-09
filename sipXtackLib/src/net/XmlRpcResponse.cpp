@@ -801,85 +801,33 @@ bool XmlRpcResponse::parseArray(TiXmlNode* subNode, UtlSList* array)
 
 void XmlRpcResponse::cleanUp(UtlContainable* value)
 {
-   UtlString paramType(value->getContainableType());
-   if (paramType.compareTo("UtlHashMap") == 0)
+   if (value)
    {
-      cleanUp((UtlHashMap *)value);
-   }
-   else
-   {
-      if (paramType.compareTo("UtlSList") == 0)
+      if (value->isInstanceOf(UtlHashMap::TYPE))
       {
-         cleanUp((UtlSList *)value);
+         UtlHashMap* map = dynamic_cast<UtlHashMap*>(value);
+         UtlHashMapIterator iterator(*map);
+         UtlString* key;
+         while ((key = dynamic_cast<UtlString*>(iterator())))
+         {
+            UtlContainable *pName;
+            UtlContainable *member;
+            pName = map->removeKeyAndValue(key, member);
+            delete pName;
+            cleanUp(member);
+         }
       }
-      else
+      else if (value->isInstanceOf(UtlSList::TYPE))
       {
-         delete value;
+         UtlSList* array = dynamic_cast<UtlSList*>(value);
+         UtlContainable *element;
+         while ((element = array->get()/* pop */))
+         {
+            cleanUp(element);
+         }
       }
-   }   
-}
 
-void XmlRpcResponse::cleanUp(UtlHashMap* map)
-{
-   UtlHashMapIterator iterator(*map);
-   UtlString* pName;
-   UtlContainable *key;
-   UtlContainable *value;
-   while ((pName = (UtlString *) iterator()))
-   {
-      key = map->removeKeyAndValue(pName, value);
-      UtlString paramType(value->getContainableType());
-      if (paramType.compareTo("UtlHashMap") == 0)
-      {
-         UtlHashMap* pMap = (UtlHashMap *) value;
-         cleanUp(pMap);
-         delete pMap;
-      }
-      else
-      {
-         if (paramType.compareTo("UtlSList") == 0)
-         {
-            UtlSList* pList = (UtlSList *) value;
-            cleanUp(pList);
-            delete pList;
-         }
-         else
-         {
-            delete value;
-         }
-      }
-      
-      delete pName;
-   }
-}
-
-void XmlRpcResponse::cleanUp(UtlSList* array)
-{
-   UtlSListIterator iterator(*array);
-   UtlContainable *value;
-   while ((value = iterator()))
-   {
-      value = array->remove(value);
-      UtlString paramType(value->getContainableType());
-      if (paramType.compareTo("UtlHashMap") == 0)
-      {
-         UtlHashMap* pMap = (UtlHashMap *) value;
-         cleanUp(pMap);
-         delete pMap;
-      }
-      else
-      {
-         if (paramType.compareTo("UtlSList") == 0)
-         {
-            UtlSList* pList = (UtlSList *) value;
-            cleanUp(pList);
-            delete pList;
-         }
-         else
-         {
-            delete value;
-         }
-      }
+      delete value;
    }
 }
 
