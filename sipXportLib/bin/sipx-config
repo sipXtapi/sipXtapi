@@ -131,8 +131,8 @@ then
     if [ -z $JavaCommand ]
     then
         cat >&2 <<NOJAVA
-Cannot locate Java VM on you machine. Please either install the Java
- or set JAVA_HOME environment variable to where you've installed java
+Cannot locate the Java VM on your machine. Please either install Java
+ or set the JAVA_HOME environment variable to where you've installed Java.
 
 NOJAVA
 
