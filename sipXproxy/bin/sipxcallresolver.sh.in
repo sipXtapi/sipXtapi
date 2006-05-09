@@ -455,7 +455,7 @@ onSetup() {
    
    # Make a call resolver entry in the crontab file
    if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
-      if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null &2>1; then 
+      if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then 
          sed -e 's/^.*sipxcallresolver.*$/05 01 * * * root \/opt\/sf-3.4\/bin\/sipxcallresolver.sh --daily/' @SIPX_SYSCONFDIR@/crontab > @SIPX_SYSCONFDIR@/crontab.tmp
          mv @SIPX_SYSCONFDIR@/crontab.tmp @SIPX_SYSCONFDIR@/crontab
       else
