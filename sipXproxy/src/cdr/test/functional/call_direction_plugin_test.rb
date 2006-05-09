@@ -85,7 +85,7 @@ public
   end
   
   def test_weird_name_stripping
-    # Set up a single test gateway
+      # Set up a single test gateway
     @plugin.send(:gateway_addresses=, ["1.1.1.1"])
     
     # Resolve the test call
@@ -99,24 +99,7 @@ public
                    :conditions => ["start_time = :start_time", {:start_time => start_time}])
     assert(cdr, "Resolved the test call but didn't get a CDR")
     assert_equal(CallDirectionPlugin::INCOMING, cdr.call_direction)
-  end
-  
-  def test_domain_name_contact
-    # Set up a single test gateway
-    @plugin.send(:gateway_addresses=, ["1.1.1.1", "gateway.example.com"])
-    
-    # Resolve the test call
-    start_time = Time.parse('2001-1-5T00:00:00.000Z')
-    end_time = Time.parse('2001-1-5T03:01:00.000Z')
-    @resolver.add_observer(@plugin)
-    @resolver.resolve(start_time, end_time)    
-
-    # Check that call direction came out as expected
-    cdr = Cdr.find(:first,
-                   :conditions => ["start_time = :start_time", {:start_time => start_time}])
-    assert(cdr, "Resolved the test call but didn't get a CDR")
-    assert_equal(CallDirectionPlugin::INCOMING, cdr.call_direction)
-  end          
+  end    
   
   def check_call_direction(cdrs)
     cdrs.each do |cdr|

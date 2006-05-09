@@ -110,8 +110,8 @@ private
   end
 
   def is_gateway_address(contact)
-    contact_addr = Utils.contact_host(contact)
-    @gateway_addresses.any? {|g| g == contact_addr}
+    contact_ip_addr = Utils.contact_ip_addr(contact)
+    @gateway_addresses.any? {|g| g == contact_ip_addr}
   end
   
   def load_and_resolve_gateways
