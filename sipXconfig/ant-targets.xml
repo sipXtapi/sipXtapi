@@ -145,12 +145,7 @@
     <sipx-javac srcdir="${src.dir}"
         destdir="${classes.dir}"
         classpathref="base.path"
-        debug="${debug}"
-        deprecation="${deprecation}"
-        optimize="${optimize}"
-        source="1.5"
-        target="1.5"
-  	    excludes="test/**"/>
+        excludes="test/**"/>
   </target>
 
 
@@ -352,8 +347,8 @@
        debug="${debug}"
        deprecation="${deprecation}"
        optimize="${optimize}"
-       source="1.4"
-       target="1.4"/>	
+       source="1.5"
+       target="1.5"/>	
   </presetdef>
 	
 </project>

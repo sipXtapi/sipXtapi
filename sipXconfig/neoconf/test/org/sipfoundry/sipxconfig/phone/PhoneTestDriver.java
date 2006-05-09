@@ -59,6 +59,8 @@ public class PhoneTestDriver {
         phoneContextControl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults,
                 MockControl.ZERO_OR_MORE);
                 
+        phoneContextControl.replay();
+
         user = new User();
         user.setUserName("juser");
         user.setFirstName("Joe");
@@ -88,6 +90,5 @@ public class PhoneTestDriver {
         sipControl.replay();
         _phone.setSipService(sip);
 
-        phoneContextControl.replay();
     }
 }

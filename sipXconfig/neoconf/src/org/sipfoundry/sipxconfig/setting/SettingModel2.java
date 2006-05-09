@@ -12,10 +12,6 @@
 package org.sipfoundry.sipxconfig.setting;
 
 public interface SettingModel2  {
-    /** temporary until settingmodel2 becomes only model */
-    static interface Connector {
-        public void connect(SettingModel2 model2);
-    }
     public void addSettingValueHandler(SettingValueHandler handler);
     public String getSettingValue(String path);
 }

@@ -24,8 +24,10 @@ import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
+import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
@@ -63,6 +65,8 @@ public class PolycomPhone extends Phone {
     private static final String D_ZERO = "0";
 
     private static final String D_ONE = "1";
+    
+    private static final String CONTACT_MODE = "contact";
 
     private String m_phoneConfigDir = "polycom/mac-address.d";
 
@@ -183,7 +187,7 @@ public class PolycomPhone extends Phone {
 
         return o;
     }
-
+    
     public Object getLineAdapter(Line line, Class interfac) {
         Object impl;
         if (interfac == LineSettings.class) {
@@ -202,7 +206,7 @@ public class PolycomPhone extends Phone {
 
         return impl;
     }
-
+    
     protected void setDefaultTimeZone() {
         PhoneTimeZone mytz = new PhoneTimeZone();
         Setting datetime = getSettings().getSetting("tcpIpApp.sntp");
@@ -269,10 +273,60 @@ public class PolycomPhone extends Phone {
             mwi.getSetting("subscribe").setValue(uri);
             String voiceMail = defaults.getVoiceMail();
             mwi.getSetting("callBack").setValue(voiceMail + '@' + defaults.getDomainName());
-            mwi.getSetting("callBackMode").setValue("contact");
+            mwi.getSetting("callBackMode").setValue(CONTACT_MODE);
         }
     }
-
+    public void addLine(Line line) {
+        super.addLine(line);
+        
+        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
+        BeanValueStorage lineDefaultsValues = new BeanValueStorage(lineDefaults);
+        line.getSettingModel2().addSettingValueHandler(lineDefaultsValues);
+    }
+    
+    static class PolycomLineDefaults {
+            
+        private DeviceDefaults m_defaults;
+        private Line m_line;
+        PolycomLineDefaults(DeviceDefaults defaults, Line line) {
+            m_defaults = defaults;
+            m_line = line;
+        }
+        
+        @SettingEntry(path = "msg.mwi/subscribe")
+        public String getMwiSubscribe() {
+            String uri = null;
+            User u = m_line.getUser();
+            if (u != null) {
+                uri = u.getUserName() + '@' + m_defaults.getDomainName();
+            }
+            
+            return uri;
+        }
+        
+        @SettingEntry(path = "msg.mwi/callBack")
+        public String getCallBack() {
+            String uri = null;
+            User u = m_line.getUser();
+            if (u != null) {
+                uri = m_defaults.getVoiceMail() + '@' + m_defaults.getDomainName();
+            }
+            
+            return uri;                    
+        }
+        
+        @SettingEntry(path = "msg.mwi/callBackMode")
+        public String getCallBackMode() {
+            String mode = null;
+            User u = m_line.getUser();
+            if (u != null) {
+                mode = CONTACT_MODE;
+            }
+            
+            return mode;                                
+        }
+    }
+    
     public void restart() {
         sendCheckSyncToFirstLine();
     }
