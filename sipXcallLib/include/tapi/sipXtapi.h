@@ -29,15 +29,12 @@
 #include <stddef.h>       // size_t
 
 // SYSTEM INCLUDES
-#ifdef _WIN32
+#ifdef DIRECT_SHOW_RENDER
 #include <windows.h>
 #include <Unknwn.h>
 #    if !defined __strmif_h__
 #        include <strmif.h>
 #    endif 
-#endif
-#if !defined (_WIN32) || !defined (VIDEO)
-    struct IBaseFilter;
 #endif
 
 // APPLICATION INCLUDES
@@ -550,7 +547,9 @@ struct SIPX_VIDEO_DISPLAY
     union
     {
 		SIPX_WINDOW_HANDLE handle;	/**< Window handle if type SIPX_WINDOW_HANDLE_TYPE */
+#ifdef DIRECT_SHOW_RENDER
 		IBaseFilter* filter;		/**< Direct Show filter if type is DIRECT_SHOW_FILTER */
+#endif
     };
 private:
     void copy(const SIPX_VIDEO_DISPLAY& ref)
@@ -560,7 +559,7 @@ private:
         handle = ref.handle;
         if (type == DIRECT_SHOW_FILTER)
         {
-#ifdef      _WIN32
+#ifdef DIRECT_SHOW_RENDER
             // we should addRef here.
             if (handle) ((IBaseFilter*)handle)->AddRef();
 #endif            
