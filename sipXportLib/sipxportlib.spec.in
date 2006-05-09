@@ -17,6 +17,7 @@ Url: http://www.sipfoundry.org/sipXportLib
 # security package to a RH uncertified version.
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
+Requires: w3c-libwww >= 5.4.0
 
 Source: %name-%version.tar.gz
 

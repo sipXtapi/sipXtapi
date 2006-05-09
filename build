@@ -86,6 +86,15 @@ RpmLibraryProjects="\
     sipXcommserverLib \
 "
 
+## Auxilliary RPMs to be removed
+AuxRpms="\
+    cgicc \
+    cgicc-devel \
+    mod_cplusplus \
+    xerces-c \
+    xerces-c-devel \
+"
+
 ## Allow projects to specify custom configure switches.  This is
 ## not to be abused, projects should not require complex configure switches
 ## for standard operation for optimal usablity.
@@ -496,6 +505,14 @@ do
         Action=CLEAN
         ;;
 
+        -ac|--auxclean)
+        Action=AUXCLEAN
+        ;;
+
+        -ai|--auxinstall)
+        Action=AUXINSTALL
+        ;;
+
         -rc|--rpmclean)
         Action=RPMCLEAN
         ;;
@@ -808,6 +825,31 @@ gpgcheck=0
 EOF
     cat build.err
     exit $BuildReturn
+elif test "$Action" = "AUXCLEAN"
+then
+    for pkg in $AuxRpms
+    do
+       if rpm -q $pkg > /dev/null
+       then
+           echo "Removing $pkg"
+           $Sudo rpm -e --nodeps $pkg
+       else
+           builderr "$pkg missing (skipped)"
+       fi
+    done
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "AUXINSTALL"
+then
+    echo "Installing $pkg"
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/cgicc/cgicc*.rpm
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/cgicc/cgicc-devel*.rpm
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/mod_cplusplus/mod*.rpm
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/xerces-c/xerces-c-2*.rpm
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/xerces-c/xerces-c-devel*.rpm
+
+    cat build.err
+    exit $BuildReturn
 elif test "$Action" = "RPMCLEAN"
 then
     # need to reverse because of interproject 
@@ -827,8 +869,6 @@ then
         builderr "$Project missing (skipped)"
       fi
     done
-
-
     cat build.err
     exit $BuildReturn
 elif test "$Action" = "CLEAN"
@@ -876,6 +916,7 @@ Usage:
                 [-p|--projects {projects}]
                 [-nd|--no-deps]
                 [-nc|--no-check]
+                [-ac|--auxclean]
                 [-rc|--rpmclean]
                 [-x|--exec]
                 [-r|--rpm]
@@ -954,6 +995,10 @@ Options are:
                            build -x svn status
 
      --rpm|-r          Build and install RPMs.
+
+     --auxclean|-ac    Remove auxilliary RPMs
+
+     --auxinstall|-ai  Install auxilliary RPMs
 
      --rpmclean|-rc    Remove RPMs
 
