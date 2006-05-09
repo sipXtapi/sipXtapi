@@ -544,51 +544,5 @@ testWeirdNameStripping_3:
   from_url:   sip:alice@example.com; tag=f
   to_url:     sip:bob@example.com; tag=t
   contact:
-  
-#-------------------------------------------------------------------------------
-
-# Success case.  Test contact addresses with domain names instead of IPs
-
-testDomainNameContact_1:
-  id:         101
-  observer:   O
-  event_seq:  101
-  event_time: 2001-1-5T00:00:00.000Z
-  event_type: R
-  cseq:       1   
-  call_id:    testDomainNameContact
-  from_tag:   f
-  to_tag:
-  from_url:   sip:alice@example.com; tag=f
-  to_url:     sip:bob@example.com
-  contact:    '"Alice:; \"in\" :Wonderland" <sip:alice_with_params@gateway.example.com;param_to_be_stripped>'
-  
-testDomainNameContact_2:
-  id:         102
-  observer:   O
-  event_seq:  102
-  event_time: 2001-1-5T01:00:00.000Z
-  event_type: S
-  cseq:       2
-  call_id:    testDomainNameContact
-  from_tag:   f
-  to_tag:     t
-  from_url:   sip:alice@example.com; tag=f
-  to_url:     sip:bob@example.com; tag=t
-  contact:    <sip:bob_with_params@2.2.2.2;param1;param2>
-  
-testDomainNameContact_3:
-  id:         103
-  observer:   O
-  event_seq:  103
-  event_time: 2001-1-5T02:00:00.000Z
-  event_type: E
-  cseq:       3
-  call_id:    testDomainNameContact
-  from_tag:   f
-  to_tag:     t
-  from_url:   sip:alice@example.com; tag=f
-  to_url:     sip:bob@example.com; tag=t
-  contact:  
 
   
