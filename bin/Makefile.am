@@ -14,8 +14,7 @@ editscripts_IN = \
 
 EXTRA_DIST = \
    $(foreach file,$(editscripts_IN),$(file).in) \
-   $(bin_SCRIPTS) \
-   callresolver_run.in
+   $(bin_SCRIPTS)
 
 $(top_builddir)/BUILDSTAMP:
 	${MAKE} -C $(top_builddir) BUILDSTAMP
@@ -27,8 +26,7 @@ ${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAM
 	  > ${PACKAGE}-config
 	chmod +x ${PACKAGE}-config
 
-install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) \
-                   $(DESTDIR)$(sysconfdir)/cron.daily/callresolver_run
+install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
 
 $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bindir)/% : %
 	$(INSTALL) -D -m 755 $< $@
@@ -36,10 +34,6 @@ $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file)) : $(DESTDIR)$(bind
 $(foreach file,$(editscripts_IN),$(file)) : % : %.in
 	$(LocalizeSipXconfig) -e 's,@GEM_LIB_DIR\@,$(GEM_LIB_DIR),g' \
                         -e 's,@SIPX_SYSCONFDIR\@,$(SIPX_SYSCONFDIR),g' $< > $@
-
-$(DESTDIR)$(sysconfdir)/cron.daily/callresolver_run: callresolver_run.in
-	$(LocalizeSipXconfig) $(srcdir)/callresolver_run.in > callresolver_run
-	$(INSTALL) -D -m 755 callresolver_run $(DESTDIR)$(sysconfdir)/cron.daily/callresolver_run
 
 .PHONY: editscripts
 
