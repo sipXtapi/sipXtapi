@@ -62,10 +62,14 @@ public
   def daily_run(purge_flag = false, purge_time = 0)
     run_resolver = true
     do_purge = config.purge?
+    
+    connect_to_cdr_database
+        
     if config.daily_run?
       # Get start time and end time
-      start_time = config.daily_start_time
-      end_time = config.daily_end_time
+      start_time = get_daily_start_time      
+      end_time = Time.now()
+      log.debug{"Daily run - resolve start: #{start_time}, end: #{end_time}"}
     else
       log.error("resolve: the --daily_flag is set, but the daily run is disabled in the configuration");
       run_resolver = false
@@ -323,6 +327,20 @@ private
     log.debug{"load_events: loaded #{events.length} events between #{start_time} and #{end_time}"}
     events
   end
+
+  # Finds the last generated CDR (if there is one) and returns the 
+  # start time. If there is no CDR the return now - 24 hrs.
+  def get_daily_start_time
+    event = Cdr.find(
+                     :first, 
+                     :order => "start_time DESC")
+    if event == nil
+      start_time = Time.now() - SECONDS_IN_A_DAY
+    else
+      start_time = event.start_time 
+    end
+    start_time
+  end
    
   # Load all events with the given call_id, in ascending chronological order.
   def load_events_with_call_id(call_id)
@@ -332,7 +350,7 @@ private
         :conditions => "call_id = '#{call_id}'",
         :order => "event_time")
     log.debug {"load_events: loaded #{events.length} events with call_id = #{call_id}"}
-    return events
+    events
   end
   
   # Load the call IDs for the specified time window.
