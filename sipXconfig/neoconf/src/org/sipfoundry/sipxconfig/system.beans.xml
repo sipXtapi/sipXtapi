@@ -263,5 +263,8 @@
       <ref local="methodCache"/>
     </property>
   </bean>
-    
+
+  <!-- Interceptor to be used for all background tasks -->  
+  <bean id="backgroundTaskInterceptor"
+    class="org.sipfoundry.sipxconfig.common.BackgroundTaskInterceptor" />    
 </beans>

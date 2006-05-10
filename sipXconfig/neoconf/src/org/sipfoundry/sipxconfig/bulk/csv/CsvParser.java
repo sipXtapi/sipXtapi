@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.bulk;
+package org.sipfoundry.sipxconfig.bulk.csv;
 
 import java.io.Reader;
 import java.util.List;

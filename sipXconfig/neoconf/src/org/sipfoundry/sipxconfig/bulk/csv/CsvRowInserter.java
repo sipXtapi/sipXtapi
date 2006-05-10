@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.bulk;
+package org.sipfoundry.sipxconfig.bulk.csv;
 
 import java.lang.reflect.InvocationTargetException;
 
@@ -20,6 +20,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.ValuedEnum;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -28,7 +29,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 
-final class CsvRowInserter extends RowInserter implements Closure {
+public class CsvRowInserter extends RowInserter implements Closure {
     public static final Log LOG = LogFactory.getLog(CsvRowInserter.class);
 
     /**

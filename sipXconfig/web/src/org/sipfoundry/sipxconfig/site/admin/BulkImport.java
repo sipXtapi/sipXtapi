@@ -23,7 +23,7 @@ import org.apache.hivemind.Messages;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidationConstraint;
-import org.sipfoundry.sipxconfig.bulk.BulkManager;
+import org.sipfoundry.sipxconfig.bulk.csv.BulkManager;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
