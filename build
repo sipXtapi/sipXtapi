@@ -624,6 +624,8 @@ fi
 
 MakeOptions="$MakeOptions DISTRO=$Distro DISTROVER=$Distrover"
 
+echo Makeoptions are: $MakeOptions
+
 # Normalize the project list.
 if [ -z "$Projects" ]
 then
@@ -917,6 +919,7 @@ Usage:
                 [-nd|--no-deps]
                 [-nc|--no-check]
                 [-ac|--auxclean]
+                [-ai|--auxinstall]
                 [-rc|--rpmclean]
                 [-x|--exec]
                 [-r|--rpm]
