@@ -162,7 +162,7 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
             "kuku", "1234", "abcdef", "John", "Lennon", "jlennon, 121212"
         };
 
-        BulkManagerImpl impl = new BulkManagerImpl();
+        CsvRowInserter impl = new CsvRowInserter();
         impl.setCoreContext(coreContext);
 
         User user1 = impl.userFromRow(userRow1);
@@ -203,7 +203,7 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
 
         phoneContextCtrl.replay();
 
-        BulkManagerImpl impl = new BulkManagerImpl();
+        CsvRowInserter impl = new CsvRowInserter();
         impl.setPhoneContext(phoneContext);
 
         // update existing phone
@@ -233,7 +233,7 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
 
         phoneContextCtrl.replay();
 
-        BulkManagerImpl impl = new BulkManagerImpl();
+        CsvRowInserter impl = new CsvRowInserter();
         impl.setPhoneContext(phoneContext);
 
         // new phone
