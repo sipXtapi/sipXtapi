@@ -455,15 +455,23 @@ onSetup() {
    
    # Make a call resolver entry in the crontab file
    if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
-      if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then 
-         sed -e 's/^.*sipxcallresolver.*$/05 01 * * * root \/opt\/sf-3.4\/bin\/sipxcallresolver.sh --daily/' @SIPX_SYSCONFDIR@/crontab > @SIPX_SYSCONFDIR@/crontab.tmp
-         mv @SIPX_SYSCONFDIR@/crontab.tmp @SIPX_SYSCONFDIR@/crontab
-      else
+      if ! grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then 
          echo "05 01 * * * root @bindir@/sipxcallresolver.sh --daily" >> @SIPX_SYSCONFDIR@/crontab
       fi
    else
       echo "05 01 * * * root @bindir@/sipxcallresolver.sh --daily" > @SIPX_SYSCONFDIR@/crontab   
    fi   
+}
+
+onUninstall()
+{
+   # Remove crontab entry for sipxcallresolver if there is one
+   if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
+      if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then 
+         sed -e 's/^.*sipxcallresolver.*$//' @SIPX_SYSCONFDIR@/crontab > @SIPX_SYSCONFDIR@/crontab.tmp
+         mv @SIPX_SYSCONFDIR@/crontab.tmp @SIPX_SYSCONFDIR@/crontab
+      fi
+   fi
 }
 
 # Start CDR call resolver
@@ -497,7 +505,6 @@ CONFIG_DEFS="@SIPX_CONFDIR@/config.defs"
 CONFIG_FILES="\
   @SIPX_CONFDIR@/callresolver-config
   "
-user=`whoami`
 # If the "config.defs" file exists and the <name>.in file exists for a
 # configuration file, then run the config preprocessor to generate the
 # fully resolved configuration file.
@@ -511,19 +518,25 @@ then
   done
 fi
 
+user=`whoami`
+if [ "${user}" != "root" ]; then
+   echo "Error: Must be root to run sipxcallresolver.sh script."
+   exit 1
+fi
+
 while [ $# -ne 0 ]
 do
     case ${1} in
         -c|--configtest)
-            if [ "${user}" != "root" ]; then
-               echo "Error: Must be root to run config test"
-               exit 1
-            fi
             Action=CONFIGTEST
             ;;
             
         -s|--setup)
             Action=SETUP
+            ;;
+            
+        -u|--uninstall)
+            Action=UNINSTALL
             ;;
 
         -d|--database)
@@ -588,6 +601,9 @@ then
 elif [ ${Action} = SETUP ]
 then
     onSetup
+elif [ ${Action} = UNINSTALL ]
+then
+    onUninstall
 elif [ ${Action} = PATCH ]
 then
     databasePatch
@@ -614,6 +630,8 @@ Options include:
   --setup              Initialize postgresql for communicating with sipxconfig
                        and create initial database. Will most likely need 
                        root permissions.
+                       
+  --uninstall          Uninstall sipxcallresolver changes and settings.
 
 Common Database commands include:
 

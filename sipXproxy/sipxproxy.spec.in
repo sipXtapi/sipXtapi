@@ -112,7 +112,7 @@ sipx-upgrade -p sipxproxy -c
 sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
 sipxcallresolver.sh --setup
 
-gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver-*.gem
+gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver-*.gem >/dev/null 2>&1
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -122,3 +122,15 @@ fi
 mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
+
+if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
+  rm -f %{_sysconfdir}/cron.daily/callresolver_run
+fi
+
+%preun
+# prevent uninstalling during an upgrade
+#   see http://www-128.ibm.com/developerworks/library/l-rpm3/
+if [ "$1" = "0" ] ; then
+  gem uninstall sipxcallresolver >/dev/null 2>&1
+  sipxcallresolver.sh --uninstall  
+fi
