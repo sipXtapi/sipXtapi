@@ -466,6 +466,21 @@ public
     @resolver.resolve(start_time, end_time)
     assert_equal(4, Cdr.count, 'Wrong number of CDRs')
   end
+  
+  def test_get_start_time_from_cdr
+    Cdr.delete_all
+    start_time = @resolver.send(:get_daily_start_time)
+    # Give it one second difference in case the timing is off a bit
+    assert((Time.now() - (start_time+SECONDS_IN_A_DAY)) <= 1)
+
+    start_time = Time.parse('1990-01-1T000:00:00.000Z')
+    end_time = Time.parse('2000-12-31T00:00.000Z')
+    @resolver.resolve(start_time, end_time)
+    assert_equal(4, Cdr.count, 'Wrong number of CDRs')
+    
+    start_time = @resolver.send(:get_daily_start_time)
+    assert_equal(start_time, Time.gm(2000,1,1,0,0,0))      
+  end
 
   #-----------------------------------------------------------------------------
   # Helper methods

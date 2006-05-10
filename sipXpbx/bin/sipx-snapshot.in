@@ -241,6 +241,7 @@ cat > $Work.copy-files <<EOF
 /etc/host.conf
 /etc/resolv.conf
 /etc/hosts
+/etc/crontab
 EOF
 
 # These files are recorded if --logs is specified, and deleted if
