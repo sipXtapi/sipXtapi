@@ -615,11 +615,11 @@ fi
 
 if [ -z "$Distro" ]
 then
-    Distro=${SIPX_DISTRO:=`uname`}
+    Distro=`uname`
 fi
 if [ -z "$Distrover" ]
 then
-    Distrover=${SIPX_DISTROVER:=0}
+    Distrover=0
 fi
 
 MakeOptions="$MakeOptions DISTRO=$Distro DISTROVER=$Distrover"
