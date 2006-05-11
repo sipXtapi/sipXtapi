@@ -41,6 +41,8 @@ public class SettingImpl implements Setting, Cloneable, NamedObject {
 
     private boolean m_hidden;
     
+    private SettingModel2 m_model;
+    
     /**
      * bean access only, must set name before valid object
      */
@@ -144,7 +146,8 @@ public class SettingImpl implements Setting, Cloneable, NamedObject {
     }
 
     public String getValue() {        
-        return m_value;
+        String value = (m_model != null ? m_model.getSettingValue(this, m_value) : m_value);
+        return value;
     }
     
     public Object getTypedValue() {
@@ -200,5 +203,13 @@ public class SettingImpl implements Setting, Cloneable, NamedObject {
     
     public void setHidden(boolean hidden) {
         m_hidden = hidden;
+    }
+    
+    public void setModel(SettingModel2 model) {
+        m_model = model;
+    }
+    
+    public SettingModel2 getModel() {
+        return m_model;
     }
 }

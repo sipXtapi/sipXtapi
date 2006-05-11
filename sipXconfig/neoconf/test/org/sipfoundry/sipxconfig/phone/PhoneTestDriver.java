@@ -15,6 +15,7 @@ import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl;
 import org.sipfoundry.sipxconfig.setting.XmlModelBuilder;
 
@@ -41,12 +42,8 @@ public class PhoneTestDriver {
     public DeviceDefaults defaults;
     
     public PhoneTestDriver(Phone _phone) {
-        this(_phone, "Etc/GMT+5"); // no DST for consistent results
-    }
-    
-    public PhoneTestDriver(Phone _phone, String timezone) {
-        PhoneTimeZone.setTimeZone(timezone);        
         defaults = new DeviceDefaults();
+        defaults.setDeviceTimeZone(new DeviceTimeZone("Etc/GMT+5")); // no DST for consistent results
         defaults.setDomainName("sipfoundry.org");
         defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
         defaults.setTftpServer("tftp.sipfoundry.org");

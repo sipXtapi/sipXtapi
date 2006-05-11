@@ -37,8 +37,8 @@ public class SettingModelImplTest extends TestCase {
         model.setSettings(birds);
         
         model.addSettingValueHandler(handler);
-        assertEquals("10", model.getSettingValue("flycatcher/peewee"));
-        assertNull(model.getSettingValue("towhee/canyon"));
+        assertEquals("10", model.getSettingValue(peewee, null));
+        assertNull(model.getSettingValue(canyonTowhee, null));
 
         handlerCtrl.verify();
     }

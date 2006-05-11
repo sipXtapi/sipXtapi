@@ -67,7 +67,6 @@ public class BeanWithSettings extends BeanWithId {
     
     protected void setSettings(Setting settings) {
         m_settings = settings;
-        m_model2.setSettings(m_settings);
     }
         
     protected void decorateSettings() {
@@ -92,7 +91,9 @@ public class BeanWithSettings extends BeanWithId {
     
     public void setValueStorage(ValueStorage valueStorage) {
         m_valueStorage = valueStorage;
-        getSettingModel2().addSettingValueHandler(m_valueStorage);
+        if (m_valueStorage != null) {
+            getSettingModel2().addSettingValueHandler(m_valueStorage);
+        }
     }
 
     public ValueStorage getValueStorage() {

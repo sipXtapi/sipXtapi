@@ -9,7 +9,7 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.device;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -17,7 +17,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 
-public class PhoneTimeZone {
+public class DeviceTimeZone {
 
     public static final String DST_US = "US";
 
@@ -59,21 +59,21 @@ public class PhoneTimeZone {
 
     private static final int DST_NOVEMBER = 11;
 
-    private static final String EMPTY = "";
-
-    private static String s_tzname = EMPTY;
-
-    private String m_dstrule = EMPTY;
+    private String m_dstrule;
 
     private TimeZone m_tz;
 
     private int[] m_dstparam = new int[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-
-    public PhoneTimeZone() {
-        if (s_tzname.equals(EMPTY)) {
+    
+    public DeviceTimeZone() {
+        this(null);
+    }
+    
+    public DeviceTimeZone(String timezone) {
+        if (timezone == null) {
             m_tz = TimeZone.getDefault();
         } else {
-            m_tz = TimeZone.getTimeZone(s_tzname);
+            m_tz = TimeZone.getTimeZone(timezone);
         }
         String tzn = m_tz.getID();
 
@@ -88,11 +88,7 @@ public class PhoneTimeZone {
             setDstRule(DST_EU);
         } else {
             setDstRule(DST_US);
-        }
-    }
-
-    public static void setTimeZone(String tzname) {
-        s_tzname = tzname;
+        }        
     }
 
     public void setDstRule(String dstname) {

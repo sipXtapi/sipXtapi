@@ -18,12 +18,12 @@ import java.util.Iterator;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
-import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
@@ -59,11 +59,6 @@ public class SnomPhone extends Phone {
 
     private void init() {
         setPhoneTemplate("snom/snom.vm");
-
-        SnomTimeZone zone = new SnomTimeZone(new PhoneTimeZone());
-        BeanValueStorage vs = new BeanValueStorage(zone);
-        getSettingModel2().addSettingValueHandler(vs);
-
     }
 
     public void setPhoneContext(PhoneContext context) {
@@ -151,10 +146,37 @@ public class SnomPhone extends Phone {
             String configUrl = m_defaults.getProfileRootUrl() + '/' + m_phone.getProfileName();
             return configUrl;
         }
+        
+        @SettingEntry(path = TIMEZONE_SETTING)
+        public String getTimeZoneOffset() {
+            int tzsec = m_defaults.getTimeZone().getOffset();
+
+            if (tzsec <= 0) {
+                return String.valueOf(tzsec);
+            }
+
+            return '+' + String.valueOf(tzsec);
+        }
+
+        @SettingEntry(path = DST_SETTING)
+        public String getDstSetting() {
+            DeviceTimeZone zone = m_defaults.getTimeZone();
+            if (zone.getDstOffset() == 0) {
+                return null;
+            }
+
+            String dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00",
+                    zone.getDstOffset(), zone.getStartMonth(), Math.min(
+                            zone.getStartWeek(), 5), (zone.getStartDayOfWeek() + 5) % 7 + 1,
+                            zone.getStartTime() / 3600, zone.getStopMonth(), Math.min(zone
+                            .getStopWeek(), 5), (zone.getStopDayOfWeek() + 5) % 7 + 1, zone
+                            .getStopTime() / 3600);
+            return dst;
+        }        
     }
 
     protected void setDefaultTimeZone() {
-        PhoneTimeZone mytz = new PhoneTimeZone();
+        DeviceTimeZone mytz = new DeviceTimeZone();
         int tzsec = mytz.getOffset();
 
         if (tzsec <= 0) {
@@ -176,40 +198,6 @@ public class SnomPhone extends Phone {
         //                         mytz.getStopTime() / 3600);
         // }
         // getSettings().getSetting(DST_SETTING).setValue(dst);
-    }
-
-    static class SnomTimeZone {
-        private PhoneTimeZone m_zone;
-
-        SnomTimeZone(PhoneTimeZone zone) {
-            m_zone = zone;
-        }
-
-        @SettingEntry(path = TIMEZONE_SETTING)
-        public String getTimeZoneOffset() {
-            int tzsec = m_zone.getOffset();
-
-            if (tzsec <= 0) {
-                return String.valueOf(tzsec);
-            }
-
-            return '+' + String.valueOf(tzsec);
-        }
-
-        @SettingEntry(path = DST_SETTING)
-        public String getDstSetting() {
-            if (m_zone.getDstOffset() == 0) {
-                return null;
-            }
-
-            String dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00",
-                    m_zone.getDstOffset(), m_zone.getStartMonth(), Math.min(
-                            m_zone.getStartWeek(), 5), (m_zone.getStartDayOfWeek() + 5) % 7 + 1,
-                    m_zone.getStartTime() / 3600, m_zone.getStopMonth(), Math.min(m_zone
-                            .getStopWeek(), 5), (m_zone.getStopDayOfWeek() + 5) % 7 + 1, m_zone
-                            .getStopTime() / 3600);
-            return dst;
-        }
     }
 
     public Object getLineAdapter(Line line, Class interfac) {

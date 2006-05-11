@@ -32,7 +32,7 @@ public class BeanWithGroupsTest extends TestCase {
         g1.setValue(s, "10");
         m_bean.addGroup(g1);
         
-        assertEquals("10", m_bean.getSettingModel2().getSettingValue("towhee/rufous-sided"));
+        assertEquals("10", m_bean.getSettingModel2().getSettingValue(s, null));
     }
 
     public void testGetSettingValueMultipleGroup() {
@@ -46,6 +46,6 @@ public class BeanWithGroupsTest extends TestCase {
         g1.setValue(s, "20");
         m_bean.addGroup(g2);
 
-        assertEquals("20", m_bean.getSettingModel2().getSettingValue("towhee/rufous-sided"));
+        assertEquals("20", m_bean.getSettingModel2().getSettingValue(s, null));
     }
 }

@@ -18,7 +18,9 @@ public class BeanValueStorageTest extends TestCase {
     public void testGetSettingValue() {
         BeanValueStorageTestBean bean = new BeanValueStorageTestBean();
         BeanValueStorage vs = new BeanValueStorage(bean);
+        SettingSet set = new SettingSet();
         Setting setting = new SettingImpl("wingspan");
+        set.addSetting(setting);
         assertEquals("14 inches", vs.getSettingValue(setting).getValue());
     }
 

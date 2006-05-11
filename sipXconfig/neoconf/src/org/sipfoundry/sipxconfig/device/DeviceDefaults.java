@@ -44,6 +44,8 @@ public class DeviceDefaults {
 
     /** see config.defs PROXY_SERVER_SIP_PORT */
     private String m_proxyServerSipPort;
+    
+    private DeviceTimeZone m_timeZone = new DeviceTimeZone();
 
     public void setDialPlanContext(DialPlanContext dialPlanContext) {
         m_dialPlanContext = dialPlanContext;
@@ -186,5 +188,13 @@ public class DeviceDefaults {
 
     public void setFullyQualifiedDomainName(String fullyQualifiedDomainName) {
         m_fullyQualifiedDomainName = fullyQualifiedDomainName;
+    }
+    
+    public DeviceTimeZone getTimeZone() {
+        return m_timeZone;
+    }
+    
+    public void setDeviceTimeZone(DeviceTimeZone zone) {
+        m_timeZone = zone;
     }
 }

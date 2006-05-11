@@ -2354,18 +2354,18 @@
       tcpIpApp.sntp.address.overrideDHCP="0"
       tcpIpApp.sntp.gmtOffset="-18000" 
       tcpIpApp.sntp.gmtOffset.overrideDHCP="0"
-      tcpIpApp.sntp.daylightSavings.enable="1" 
+      tcpIpApp.sntp.daylightSavings.enable="0" 
       tcpIpApp.sntp.daylightSavings.fixedDayEnable="0" 
-      tcpIpApp.sntp.daylightSavings.start.month="4" 
-      tcpIpApp.sntp.daylightSavings.start.date="1" 
-      tcpIpApp.sntp.daylightSavings.start.time="2" 
-      tcpIpApp.sntp.daylightSavings.start.dayOfWeek="1" 
+      tcpIpApp.sntp.daylightSavings.start.month="0" 
+      tcpIpApp.sntp.daylightSavings.start.date="0" 
+      tcpIpApp.sntp.daylightSavings.start.time="0" 
+      tcpIpApp.sntp.daylightSavings.start.dayOfWeek="0" 
       tcpIpApp.sntp.daylightSavings.start.dayOfWeek.lastInMonth="0" 
-      tcpIpApp.sntp.daylightSavings.stop.month="10" 
-      tcpIpApp.sntp.daylightSavings.stop.date="1" 
-      tcpIpApp.sntp.daylightSavings.stop.time="2" 
-      tcpIpApp.sntp.daylightSavings.stop.dayOfWeek="1" 
-      tcpIpApp.sntp.daylightSavings.stop.dayOfWeek.lastInMonth="1"/>
+      tcpIpApp.sntp.daylightSavings.stop.month="0" 
+      tcpIpApp.sntp.daylightSavings.stop.date="0" 
+      tcpIpApp.sntp.daylightSavings.stop.time="0" 
+      tcpIpApp.sntp.daylightSavings.stop.dayOfWeek="0" 
+      tcpIpApp.sntp.daylightSavings.stop.dayOfWeek.lastInMonth="0"/>
     <port>
       
         <RTP 

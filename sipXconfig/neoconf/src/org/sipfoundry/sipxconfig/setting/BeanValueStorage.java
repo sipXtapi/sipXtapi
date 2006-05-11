@@ -37,7 +37,8 @@ public class BeanValueStorage implements SettingValueHandler {
     public SettingValue2 getSettingValue(Setting setting) {
         SettingValue2 value = null;
         
-        Method m = m_properties.get(setting.getPath());
+        String path = setting.getPath().substring(1);
+        Method m = m_properties.get(path);
         if (m != null) {
             Object o;
             try {                

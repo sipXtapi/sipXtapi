@@ -23,8 +23,8 @@ public class BeanWithSettingTest extends TestCase {
         BeanWithSettings bean = new BeanWithSettings();
         InputStream in = getClass().getResourceAsStream("birds.xml");
         bean.setSettingModel(TestHelper.loadSettings(in));
-        String path = "towhee/rufous-sided";
-        bean.setSettingValue(path, "4");
-        assertEquals("4", bean.getSettingModel2().getSettingValue(path));
+        Setting setting = bean.getSettings().getSetting("towhee/rufous-sided");
+        bean.setSettingValue(setting.getPath().substring(1), "4");
+        assertEquals("4", bean.getSettingModel2().getSettingValue(setting, null));
     }
 }

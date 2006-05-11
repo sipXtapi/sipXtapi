@@ -18,16 +18,18 @@ import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
-import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.setting.SettingModelImpl;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
@@ -37,35 +39,7 @@ public class PolycomPhone extends Phone {
     public static final String BEAN_ID = "polycom";
 
     public static final String CALL = "call";
-
-    private static final String D_ENABLE = "daylightSavings.enable";
-
-    private static final String D_FIXEDDAY = "daylightSavings.fixedDayEnable";
-
-    private static final String D_STARTMONTH = "daylightSavings.start.month";
-
-    private static final String D_STARTDATE = "daylightSavings.start.date";
-
-    private static final String D_STARTTIME = "daylightSavings.start.time";
-
-    private static final String D_STARTDOW = "daylightSavings.start.dayOfWeek";
-
-    private static final String D_STARTLAST = "daylightSavings.start.dayOfWeek.lastInMonth";
-
-    private static final String D_STOPMONTH = "daylightSavings.stop.month";
-
-    private static final String D_STOPDATE = "daylightSavings.stop.date";
-
-    private static final String D_STOPTIME = "daylightSavings.stop.time";
-
-    private static final String D_STOPDOW = "daylightSavings.stop.dayOfWeek";
-
-    private static final String D_STOPLAST = "daylightSavings.stop.dayOfWeek.lastInMonth";
-
-    private static final String D_ZERO = "0";
-
-    private static final String D_ONE = "1";
-
+    
     private static final String CONTACT_MODE = "contact";
 
     private String m_phoneConfigDir = "polycom/mac-address.d";
@@ -80,20 +54,29 @@ public class PolycomPhone extends Phone {
 
     public PolycomPhone() {
         super(BEAN_ID);
-        init();
     }
 
     public PolycomPhone(PolycomModel model) {
         super(model);
-        init();
+    }
+    
+    public void setPhoneContext(PhoneContext context) {
+        super.setPhoneContext(context);
+        
+        PolycomPhoneDefaults defaults = new PolycomPhoneDefaults(context.getPhoneDefaults());
+        BeanValueStorage bvs = new BeanValueStorage(defaults);
+        getSettingModel2().addSettingValueHandler(bvs);        
     }
 
-    private void init() {
-        PolycomTimeZone ptz = new PolycomTimeZone(new PhoneTimeZone());
-        BeanValueStorage bvs = new BeanValueStorage(ptz);
-        getSettingModel2().addSettingValueHandler(bvs);
+    /**
+     * temporary until code moves to BeanWithSettings
+     */
+    protected void setSettings(Setting settings) {
+        super.setSettings(settings);
+        
+        ((SettingModelImpl) getSettingModel2()).setSettings(settings);
     }
-
+ 
     public String getPhoneTemplate() {
         return m_phoneTemplate;
     }
@@ -195,7 +178,7 @@ public class PolycomPhone extends Phone {
 
         return o;
     }
-
+    
     public Object getLineAdapter(Line line, Class interfac) {
         Object impl;
         if (interfac == LineSettings.class) {
@@ -214,187 +197,144 @@ public class PolycomPhone extends Phone {
 
         return impl;
     }
-
-    protected void setDefaultTimeZone() {
-        PhoneTimeZone mytz = new PhoneTimeZone();
-        Setting datetime = getSettings().getSetting("tcpIpApp.sntp");
-
-        datetime.getSetting("gmtOffset").setValue(String.valueOf(mytz.getOffset()));
-
-        if (mytz.getDstOffset() == 0) {
-            datetime.getSetting(D_ENABLE).setValue(D_ZERO);
-        } else {
-            datetime.getSetting(D_ENABLE).setValue(D_ONE);
-
-            if (mytz.getStartDay() > 0) {
-                datetime.getSetting(D_FIXEDDAY).setValue(D_ONE);
-                datetime.getSetting(D_STARTDATE).setValue(String.valueOf(mytz.getStartDay()));
-                datetime.getSetting(D_STARTLAST).setValue(D_ZERO);
-                datetime.getSetting(D_STOPDATE).setValue(String.valueOf(mytz.getStopDay()));
-                datetime.getSetting(D_STOPLAST).setValue(D_ZERO);
-            } else {
-                datetime.getSetting(D_FIXEDDAY).setValue(D_ZERO);
-                if (mytz.getStartWeek() == PhoneTimeZone.DST_LASTWEEK) {
-                    datetime.getSetting(D_STARTDATE).setValue(D_ONE);
-                    datetime.getSetting(D_STARTLAST).setValue(D_ONE);
-                } else {
-                    datetime.getSetting(D_STARTDATE)
-                            .setValue(String.valueOf(mytz.getStartWeek()));
-                    datetime.getSetting(D_STARTLAST).setValue(D_ZERO);
-                }
-                if (mytz.getStopWeek() == PhoneTimeZone.DST_LASTWEEK) {
-                    datetime.getSetting(D_STOPDATE).setValue(D_ONE);
-                    datetime.getSetting(D_STOPLAST).setValue(D_ONE);
-                } else {
-                    datetime.getSetting(D_STOPDATE).setValue(String.valueOf(mytz.getStopWeek()));
-                    datetime.getSetting(D_STOPLAST).setValue(D_ZERO);
-                }
-            }
-            datetime.getSetting(D_STARTDOW).setValue(String.valueOf(mytz.getStartDayOfWeek()));
-            datetime.getSetting(D_STARTMONTH).setValue(String.valueOf(mytz.getStartMonth()));
-            datetime.getSetting(D_STARTTIME).setValue(String.valueOf(mytz.getStartTime() / 3600));
-
-            datetime.getSetting(D_STOPDOW).setValue(String.valueOf(mytz.getStopDayOfWeek()));
-            datetime.getSetting(D_STOPMONTH).setValue(String.valueOf(mytz.getStopMonth()));
-            datetime.getSetting(D_STOPTIME).setValue(String.valueOf(mytz.getStopTime() / 3600));
-        }
-    }
-
-    protected void defaultLineSettings(Line line) {
-        super.defaultLineSettings(line);
-
-        User u = line.getUser();
-        if (u != null) {
-            DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
-            Setting mwi = line.getSettings().getSetting("msg.mwi");
-            String uri = u.getUserName() + '@' + defaults.getDomainName();
-            mwi.getSetting("subscribe").setValue(uri);
-            String voiceMail = defaults.getVoiceMail();
-            mwi.getSetting("callBack").setValue(voiceMail + '@' + defaults.getDomainName());
-            mwi.getSetting("callBackMode").setValue(CONTACT_MODE);
-        }
-    }
-
+    
     public void addLine(Line line) {
         super.addLine(line);
-
-        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext()
-                .getPhoneDefaults(), line);
-        BeanValueStorage lineDefaultsValues = new BeanValueStorage(lineDefaults);
+        
+        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
+        BeanValueStorage lineDefaultsValues = new BeanValueStorage(lineDefaults);        
         line.getSettingModel2().addSettingValueHandler(lineDefaultsValues);
+        
+        // TEMP until goes into beanwithsettings
+        ((SettingModelImpl) line.getSettingModel2()).setSettings(line.getSettings());
     }
-
-    static class PolycomTimeZone {
-        private PhoneTimeZone m_zone;
-
-        PolycomTimeZone(PhoneTimeZone zone) {
-            m_zone = zone;
+    
+    public static class PolycomPhoneDefaults {
+        private DeviceDefaults m_defaults;
+        
+        PolycomPhoneDefaults(DeviceDefaults defaults) {
+            m_defaults = defaults;
         }
-
+        
+        private DeviceTimeZone getZone() {
+            return m_defaults.getTimeZone();
+        }
+        
         @SettingEntry(path = "tcpIpApp.sntp/gmtOffset")
         public long getGmtOffset() {
-            return m_zone.getOffset();
+            return getZone().getOffset();
         }
-
+        
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.enable")
         public boolean isDstEnabled() {
-            return m_zone.getDstOffset() != 0;
+            return getZone().getDstOffset() != 0;
         }
-
+        
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.fixedDayEnable")
         public boolean isFixedDayEnabled() {
-            return isDstEnabled() && m_zone.getStartDay() > 0;
+            return isDstEnabled() && getZone().getStartDay() > 0;
         }
-
+        
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.date")
         public int getStartDay() {
-            if (isFixedDayEnabled()) {
-                return m_zone.getStartDay();
+            if (!isDstEnabled()) {
+                return 0;
             }
-            if (m_zone.getStartWeek() == PhoneTimeZone.DST_LASTWEEK) {
+            if (isFixedDayEnabled()) {
+                return getZone().getStartDay();
+            }
+            if (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK) {
                 return 1;
             }
-
-            return m_zone.getStartWeek();
+            
+            return getZone().getStartWeek();            
         }
-
+        
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek.lastInMonth")
         public boolean isStartLastInMonth() {
-            if (isFixedDayEnabled()) {
-                return true;
-            }
-            if (m_zone.getStartWeek() == PhoneTimeZone.DST_LASTWEEK) {
-                return true;
-            }
-
-            return false;
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.date")
-        public int getStopDate() {
-            if (isFixedDayEnabled()) {
-                return m_zone.getStopDay();
-            }
-            if (m_zone.getStopWeek() == PhoneTimeZone.DST_LASTWEEK) {
-                return 1;
-            }
-
-            return m_zone.getStopWeek();
-        }
-
-        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek.lastInMonth")
-        public boolean isStopDayOfWeekLastInMonth() {
-            if (isFixedDayEnabled()) {
+            if (!isDstEnabled()) {
                 return false;
             }
-            if (m_zone.getStopWeek() == PhoneTimeZone.DST_LASTWEEK) {
+            if (isFixedDayEnabled()) {
                 return true;
             }
-
-            return false;
+            if (getZone().getStartWeek() == DeviceTimeZone.DST_LASTWEEK) {
+                return true;
+            }
+            
+            return false;            
         }
-
+        
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.date")
+        public int getStopDate() {
+            if (!isDstEnabled()) {
+                return 0;
+            }
+            if (isFixedDayEnabled()) {
+                return getZone().getStopDay();
+            }
+            if (getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK) {
+                return 1;
+            }
+         
+            return getZone().getStopWeek();
+        }
+        
+        @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek.lastInMonth")
+        public boolean isStopDayOfWeekLastInMonth() {
+            if (!isDstEnabled()) {
+                return false;
+            }
+            if (isFixedDayEnabled()) {
+                return false;
+            }            
+            if (getZone().getStopWeek() == DeviceTimeZone.DST_LASTWEEK) {
+                return true;
+            }
+            
+            return false;            
+        }
+        
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.dayOfWeek")
         public int getStartDayOfWeek() {
-            return isDstEnabled() ? m_zone.getStartDayOfWeek() : 0;
+            return isDstEnabled() ? getZone().getStartDayOfWeek() : 0;
         }
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.month")
         public int getStartMonth() {
-            return isDstEnabled() ? m_zone.getStartMonth() : 0;
+            return isDstEnabled() ? getZone().getStartMonth() : 0;
         }
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.start.time")
         public int getStartTime() {
-            return isDstEnabled() ? m_zone.getStartMonth() / 3600 : 0;
+            return isDstEnabled() ? getZone().getStartMonth() / 3600 : 0;
         }
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.dayOfWeek")
         public int getStopDayOfWeek() {
-            return isDstEnabled() ? m_zone.getStopDayOfWeek() : 0;
+            return isDstEnabled() ? getZone().getStopDayOfWeek() : 0;
         }
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.month")
         public int getStopMonth() {
-            return isDstEnabled() ? m_zone.getStopMonth() : 0;
+            return isDstEnabled() ? getZone().getStopMonth() : 0;
         }
 
         @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.stop.time")
         public int getStopTime() {
-            return isDstEnabled() ? m_zone.getStopTime() / 3600 : 0;
+            return isDstEnabled() ? getZone().getStopTime() / 3600 : 0;
         }
     }
-
-    static class PolycomLineDefaults {
-
+    
+    public static class PolycomLineDefaults {
+            
         private DeviceDefaults m_defaults;
         private Line m_line;
-
         PolycomLineDefaults(DeviceDefaults defaults, Line line) {
             m_defaults = defaults;
             m_line = line;
         }
-
+        
         @SettingEntry(path = "msg.mwi/subscribe")
         public String getMwiSubscribe() {
             String uri = null;
@@ -402,10 +342,10 @@ public class PolycomPhone extends Phone {
             if (u != null) {
                 uri = u.getUserName() + '@' + m_defaults.getDomainName();
             }
-
+            
             return uri;
         }
-
+        
         @SettingEntry(path = "msg.mwi/callBack")
         public String getCallBack() {
             String uri = null;
@@ -413,10 +353,10 @@ public class PolycomPhone extends Phone {
             if (u != null) {
                 uri = m_defaults.getVoiceMail() + '@' + m_defaults.getDomainName();
             }
-
-            return uri;
+            
+            return uri;                    
         }
-
+        
         @SettingEntry(path = "msg.mwi/callBackMode")
         public String getCallBackMode() {
             String mode = null;
@@ -424,11 +364,11 @@ public class PolycomPhone extends Phone {
             if (u != null) {
                 mode = CONTACT_MODE;
             }
-
-            return mode;
+            
+            return mode;                                
         }
     }
-
+    
     public void restart() {
         sendCheckSyncToFirstLine();
     }

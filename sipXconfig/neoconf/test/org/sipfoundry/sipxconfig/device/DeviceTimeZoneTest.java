@@ -9,15 +9,14 @@
  * 
  * $
  */
-package org.sipfoundry.sipxconfig.phone;
+package org.sipfoundry.sipxconfig.device;
 
 import junit.framework.TestCase;
 
-public class PhoneTimeZoneTest extends TestCase {
+public class DeviceTimeZoneTest extends TestCase {
     
     public void testGetOffset() {
-        PhoneTimeZone.setTimeZone("Europe/Helsinki");
-        PhoneTimeZone mytz = new PhoneTimeZone();
+        DeviceTimeZone mytz = new DeviceTimeZone("Europe/Helsinki");
         
         int ofs = mytz.getOffset();
         assertEquals(7200, ofs);
@@ -30,8 +29,7 @@ public class PhoneTimeZoneTest extends TestCase {
     }
 
     public void testDST() {
-        PhoneTimeZone.setTimeZone("Europe/Helsinki");
-        PhoneTimeZone mytz = new PhoneTimeZone();
+        DeviceTimeZone mytz = new DeviceTimeZone("Europe/Helsinki");
         
         int value = mytz.getStartDayOfWeek();
         assertEquals(1, value);
@@ -43,9 +41,9 @@ public class PhoneTimeZoneTest extends TestCase {
         assertEquals(4 * 3600, value);
 
         value = mytz.getStopWeek();
-        assertEquals(PhoneTimeZone.DST_LASTWEEK, value);
+        assertEquals(DeviceTimeZone.DST_LASTWEEK, value);
 
-        mytz.setDstRule(PhoneTimeZone.DST_US);
+        mytz.setDstRule(DeviceTimeZone.DST_US);
 
         value = mytz.getStartTime();
         assertEquals(2 * 3600, value);

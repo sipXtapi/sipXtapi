@@ -21,12 +21,12 @@ import java.util.Iterator;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
-import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.phone.RestartException;
 import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
@@ -100,16 +100,12 @@ public class GrandstreamPhone extends Phone {
     }
 
     public GrandstreamPhone(GrandstreamModel model) {
-        super(model); // sexy
+        super(model);
         init();
     }
 
     private void init() {
         setPhoneTemplate("grandstream/grandstream.vm");
-
-        GrandStreamTimeZone zone = new GrandStreamTimeZone(new PhoneTimeZone());
-        BeanValueStorage vs = new BeanValueStorage(zone);
-        getSettingModel2().addSettingValueHandler(vs);        
     }
     
     public void setPhoneContext(PhoneContext phoneContext) {
@@ -193,23 +189,16 @@ public class GrandstreamPhone extends Phone {
         public String getTftpServerP237() {
             return getTftpServer();
         }
-    }
-    
-    static class GrandStreamTimeZone {
-        private PhoneTimeZone m_zone;
-        GrandStreamTimeZone(PhoneTimeZone zone) {
-            m_zone = zone;
-        }
-        
+                
         @SettingEntry(path = TIMEZONE_SETTING)
         public int getTimeOffset() {
-            int offset = ((m_zone.getOffsetWithDst() / 60) + (12 * 60));
+            int offset = ((m_defaults.getTimeZone().getOffsetWithDst() / 60) + (12 * 60));
             return offset;            
         }        
     }
 
     protected void setDefaultTimeZone() {
-        PhoneTimeZone mytz = new PhoneTimeZone();
+        DeviceTimeZone mytz = getPhoneContext().getPhoneDefaults().getTimeZone();
 
         int tzmin = mytz.getOffsetWithDst() / 60 + 12 * 60;
 

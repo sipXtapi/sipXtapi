@@ -26,10 +26,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
-import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.ConditionalSet;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -118,9 +120,13 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     private void init() {
         setPhoneTemplate("ciscoAta/cisco-ata.vm");
-
-        CiscoAtaTimeZone tz = new CiscoAtaTimeZone(new PhoneTimeZone());
-        BeanValueStorage vs = new BeanValueStorage(tz);
+    }
+    
+    public void setPhoneContext(PhoneContext context) {
+        super.setPhoneContext(context);
+        
+        CiscoAtaDefaults defaults = new CiscoAtaDefaults(context.getPhoneDefaults());
+        BeanValueStorage vs = new BeanValueStorage(defaults);
         getSettingModel2().addSettingValueHandler(vs);
     }
 
@@ -290,7 +296,7 @@ public class CiscoAtaPhone extends CiscoPhone {
     }
 
     protected void setDefaultTimeZone() {
-        PhoneTimeZone mytz = new PhoneTimeZone();
+        DeviceTimeZone mytz = getPhoneContext().getPhoneDefaults().getTimeZone();
 
         int tzmin = mytz.getOffsetWithDst() / 60;
         int atatz;
@@ -306,15 +312,15 @@ public class CiscoAtaPhone extends CiscoPhone {
         getSettings().getSetting(TIMEZONE_SETTING).setValue(String.valueOf(atatz));
     }
     
-    public class CiscoAtaTimeZone {
-        private PhoneTimeZone m_zone;
+    public class CiscoAtaDefaults {
+        private DeviceDefaults m_defaults;
         
-        CiscoAtaTimeZone(PhoneTimeZone zone) {
-            m_zone = zone;
+        CiscoAtaDefaults(DeviceDefaults defaults) {
+            m_defaults = defaults;
         }
         @SettingEntry(path = TIMEZONE_SETTING)
         public int getTimeZoneOffset() {
-            int tzmin = m_zone.getOffsetWithDst() / 60;
+            int tzmin = m_defaults.getTimeZone().getOffsetWithDst() / 60;
             int atatz;
 
             if (tzmin % 60 == 0) {

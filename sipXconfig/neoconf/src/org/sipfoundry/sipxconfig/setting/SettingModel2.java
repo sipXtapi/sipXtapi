@@ -13,5 +13,5 @@ package org.sipfoundry.sipxconfig.setting;
 
 public interface SettingModel2  {
     public void addSettingValueHandler(SettingValueHandler handler);
-    public String getSettingValue(String path);
+    public String getSettingValue(Setting setting, String defaultValue);
 }

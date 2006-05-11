@@ -17,10 +17,12 @@ import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneSettings;
-import org.sipfoundry.sipxconfig.phone.PhoneTimeZone;
 import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
@@ -51,6 +53,14 @@ public class CiscoIpPhone extends CiscoPhone {
 
     private void init() {
         setPhoneTemplate("ciscoIp/cisco-ip.vm");
+    }
+
+    public void setPhoneContext(PhoneContext context) {
+        super.setPhoneContext(context);
+        
+        CiscoIpDefaults defaults = new CiscoIpDefaults(context.getPhoneDefaults());
+        BeanValueStorage vs = new BeanValueStorage(defaults);
+        getSettingModel2().addSettingValueHandler(vs);
     }
 
     public String getPhoneFilename() {
@@ -96,76 +106,80 @@ public class CiscoIpPhone extends CiscoPhone {
         return impl;
     }
     
-    static class CiscoIpTimeZone {
-        private PhoneTimeZone m_zone;
+    public static class CiscoIpDefaults {
+        private DeviceDefaults m_defaults;
         
-        CiscoIpTimeZone(PhoneTimeZone zone) {
-            m_zone = zone;
+        CiscoIpDefaults(DeviceDefaults defaults) {
+            m_defaults = defaults;
+        }
+        
+        private DeviceTimeZone getZone() {
+            return m_defaults.getTimeZone();
         }
 
         @SettingEntry(path = "datetime/time_zone")
         public String getTimeZoneId() {
-            return m_zone.getShortName();
+            return getZone().getShortName();
         }
         
         @SettingEntry(path = "datetime/dst_auto_adjust")
         public boolean isDstAutoAdjust() {
-            return m_zone.getDstOffset() != 0;
+            return getZone().getDstOffset() != 0;
         }
         
         @SettingEntry(path = "datetime/dst_offset")
         public long getDstOffset() {
-            return isDstAutoAdjust() ?  m_zone.getDstOffset() / 3600 : 0;
+            return isDstAutoAdjust() ?  getZone().getDstOffset() / 3600 : 0;
         }
 
         @SettingEntry(path = "datetime/dst_start_day")
         public int getDstStartDay() {
-            return isDstAutoAdjust() ? m_zone.getStartDay() : 0;
+            return isDstAutoAdjust() ? getZone().getStartDay() : 0;
         }
         
         @SettingEntry(path = "datetime/dst_start_day_of_week")
         public int getDstStartDayOfWeek() {
-            return isDstAutoAdjust() ? m_zone.getStartDayOfWeek() : 0;
+            return isDstAutoAdjust() ? getZone().getStartDayOfWeek() : 0;
         }
         
         @SettingEntry(path = "datetime/dst_start_month")
         public int getDstStartMonth() {
-            return isDstAutoAdjust() ? m_zone.getStartMonth() : 0;
+            return isDstAutoAdjust() ? getZone().getStartMonth() : 0;
         }
         
         @SettingEntry(path = "datetime/dst_start_time")
         public String getDstStartTime() {
-            return  isDstAutoAdjust() ? time(m_zone.getStartTime()) : null;
+            return  isDstAutoAdjust() ? time(getZone().getStartTime()) : null;
         }
         
         @SettingEntry(path = "datetime/dst_start_week_of_month")
         public int getDstStartWeekOfMonth() {
-            return  isDstAutoAdjust() ? m_zone.getStartWeek() : 0;
+            return  isDstAutoAdjust() ? getZone().getStartWeek() : 0;
         }
 
         @SettingEntry(path = "datetime/dst_stop_day")
         public int getDstStopDay() {
-            return isDstAutoAdjust() ? m_zone.getStopDay() : 0;
+            return isDstAutoAdjust() ? getZone().getStopDay() : 0;
         }
         
         @SettingEntry(path = "datetime/dst_stop_day_of_week")
         public int getDstStopDayOfWeek() {
-            return isDstAutoAdjust() ? m_zone.getStopDayOfWeek() : 0;
+            return isDstAutoAdjust() ? getZone().getStopDayOfWeek() : 0;
         }
         
         @SettingEntry(path = "datetime/dst_stop_month")
         public int getDstStopMonth() {
-            return isDstAutoAdjust() ? m_zone.getStopMonth() : 0;
+            return isDstAutoAdjust() ? getZone().getStopMonth() : 0;
         }
         
         @SettingEntry(path = "datetime/dst_stop_time")
         public String getStopTime() {
-            return isDstAutoAdjust() ? time(m_zone.getStopTime()) : null;            
+            return isDstAutoAdjust() ? time(getZone().getStopTime()) : null;            
         }
         
         @SettingEntry(path = "datetime/dst_stop_week_of_month")
         public String getStopWeekOfMonth() {
-            return isDstAutoAdjust() ? time(m_zone.getStopWeek()) : null;            
+            return isDstAutoAdjust() ? time(getZone().getStopWeek()) : null;            
         }
 
         private String time(int time) {
@@ -175,7 +189,7 @@ public class CiscoIpPhone extends CiscoPhone {
     }
 
     protected void setDefaultTimeZone() {
-        PhoneTimeZone mytz = new PhoneTimeZone();
+        DeviceTimeZone mytz = new DeviceTimeZone();
         Setting datetime = getSettings().getSetting("datetime");
 
         datetime.getSetting("time_zone").setValue(mytz.getShortName());
@@ -223,14 +237,14 @@ public class CiscoIpPhone extends CiscoPhone {
     public void addLine(Line line) {
         super.addLine(line);
 
-        CiscoIpLineSettings ls = new CiscoIpLineSettings(line);
+        CiscoIpLineDefaults ls = new CiscoIpLineDefaults(line);
         BeanValueStorage bv = new BeanValueStorage(ls);
         line.getSettingModel2().addSettingValueHandler(bv);
     }
     
-    class CiscoIpLineSettings {
+    class CiscoIpLineDefaults {
         private Line m_line;
-        CiscoIpLineSettings(Line line) {
+        CiscoIpLineDefaults(Line line) {
             m_line = line;
         }
         

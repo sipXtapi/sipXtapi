@@ -20,15 +20,45 @@ public class SettingModelImpl implements SettingModel2 {
     
     public void setSettings(Setting settings) {
         m_settings = settings;
+        m_settings.acceptVisitor(new SetModelReference(this));
     }
     
     public void addSettingValueHandler(SettingValueHandler handler) {
         m_handlers.push(handler);
     }
     
-    public String getSettingValue(String path) {
-        Setting setting = m_settings.getSetting(path);
+    public String getSettingValue(Setting setting, String defaultValue) {
         SettingValue2 value = m_multicast.getSettingValue(setting);        
-        return value != null ? value.getValue() : null;
+        return value == null ? defaultValue : value.getValue();
+    }
+    
+    /**
+     * not pretty, but need to populate setting model into every setting instance
+     */
+    static class SetModelReference implements SettingVisitor {
+        private SettingModel2 m_model;
+        public SetModelReference(SettingModel2 model) {
+            m_model = model;
+        }
+
+        public void visitSetting(Setting setting) {
+            setReference(setting);
+        }
+
+        public void visitSettingGroup(Setting group) {
+            setReference(group);
+        }
+        
+        private void setReference(Setting s) {
+            // HACK UNTIL DECORATORS ARE REMOVED
+            if (s instanceof SettingImpl) {
+                SettingImpl impl = (SettingImpl) s;
+                impl.setModel(m_model);
+            } else if (s instanceof SettingDecorator) {
+                SettingDecorator sd = (SettingDecorator) s;
+                Setting delegate = sd.getDelegate();                
+                setReference(delegate);
+            }
+        }
     }
 }
