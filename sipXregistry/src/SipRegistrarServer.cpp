@@ -1,5 +1,8 @@
 // 
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -212,7 +215,7 @@ SipRegistrarServer::initialize(
 
 int SipRegistrarServer::pullUpdates(
    const UtlString& registrarName,
-   intll            updateNumber,
+   INT64            updateNumber,
    UtlSList&        updates)
 {
    // Critical Section here
@@ -224,7 +227,7 @@ int SipRegistrarServer::pullUpdates(
 }
 
 /// Set the largest update number in the local database for this registrar as primary
-void SipRegistrarServer::setDbUpdateNumber(intll dbUpdateNumber)
+void SipRegistrarServer::setDbUpdateNumber(INT64 dbUpdateNumber)
 {
    mDbUpdateNumber = dbUpdateNumber;
 
@@ -672,7 +675,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
 }
     
 
-intll
+INT64
 SipRegistrarServer::applyUpdatesToDirectory(
    int timeNow,                   ///< current epoch time
    const UtlSList& updates,       ///< list of updates to apply
@@ -692,21 +695,23 @@ SipRegistrarServer::applyUpdatesToDirectory(
    RegistrationDB* imdb = RegistrationDB::getInstance();
    UtlString primary;
    UtlString emptyPrimary;
-   const UtlString& myPrimary(mRegistrar.primaryName());
+   UtlString myPrimary(mRegistrar.primaryName());
    RegistrarPeer* peer = NULL;    // peer registrar, or NULL if it's our local registrar
-   intll maxUpdateNumber = 0;     // max update number for these updates
+   INT64 maxUpdateNumber = 0;     // max update number for these updates
 
    while ((reg = dynamic_cast<RegistrationBinding*>(updateIter())) &&
           (maxUpdateNumber >= 0)) // max update number is negative if there's an error
    {
-      intll updateNumber = reg->getUpdateNumber();
+      INT64 updateNumber = reg->getUpdateNumber();
       if (maxUpdateNumber == 0)   // if this is the first time through the loop
       {
          if (reg->getPrimary() != NULL)
          {
             primary = *(reg->getPrimary());
          }
-         if (primary != myPrimary)
+
+         // Strings are different
+         if (primary.compareTo(myPrimary))
          {
             peer = mRegistrar.getPeer(primary);
             if (peer == NULL)
@@ -754,7 +759,7 @@ SipRegistrarServer::applyUpdatesToDirectory(
 }
 
 
-intll SipRegistrarServer::updateOneBinding(
+INT64 SipRegistrarServer::updateOneBinding(
    RegistrationBinding* reg,
    RegistrarPeer* peer,    // NULL if it's the local registrar
    RegistrationDB* imdb)
@@ -778,17 +783,17 @@ intll SipRegistrarServer::updateOneBinding(
 
    // Update the registrar state and the binding
 
-   intll updateNumber = reg->getUpdateNumber();
+   INT64 updateNumber = reg->getUpdateNumber();
    assert(updateNumber > 0);
 
    // The return value is the max update number that we have seen for this registrar.
-   intll maxUpdateNumber = updateNumber;
+   INT64 maxUpdateNumber = updateNumber;
 
    if (peer != NULL)
    {
       // This update is for a peer.  If the updateNumber is bigger than previous
       // updateNumbers, then increase peerReceivedDbUpdateNumber accordingly.
-      intll receivedFrom = peer->receivedFrom();
+      INT64 receivedFrom = peer->receivedFrom();
       if (updateNumber > receivedFrom)
       {
          peer->setReceivedFrom(updateNumber);
@@ -1288,7 +1293,7 @@ const UtlString& SipRegistrarServer::primaryName() const
    return mRegistrar.primaryName();
 }
 
-intll SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName) const
+INT64 SipRegistrarServer::getMaxUpdateNumberForRegistrar(const char* primaryName) const
 {
    // If replication is not configured, then the primaryName will be empty, but it
    // should never be null.
@@ -1312,7 +1317,7 @@ bool SipRegistrarServer::getNextUpdateToSend(RegistrarPeer *peer,
    // Critical Section here
    OsLock lock(sLockMutex);
 
-   intll peerSentDbUpdateNumber = peer->sentTo();
+   INT64 peerSentDbUpdateNumber = peer->sentTo();
 
    // This method must not be called until the peer's sentTo value has been initialized
    assert(peerSentDbUpdateNumber >= 0);
@@ -1356,7 +1361,7 @@ void SipRegistrarServer::cleanAndPersist()
 }
 
 /// Get the largest update number in the local database for this registrar as primary
-intll SipRegistrarServer::getDbUpdateNumber() const
+INT64 SipRegistrarServer::getDbUpdateNumber() const
 {
    // Critical Section here
    OsLock lock(sLockMutex);
@@ -1368,7 +1373,7 @@ intll SipRegistrarServer::getDbUpdateNumber() const
 void SipRegistrarServer::resetDbUpdateNumberEpoch()
 {
    int timeNow = OsDateTime::getSecsSinceEpoch();
-   intll newEpoch;
+   INT64 newEpoch;
    newEpoch = timeNow;
    newEpoch <<= 32;
 

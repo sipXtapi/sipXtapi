@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -219,7 +222,7 @@ void DisplayTask::showRegistrations(ResultSet& resultSet) const
       int cseq           = *((UtlInt*)record.findValue(&cseqKey));
       int expires        = *((UtlInt*)record.findValue(&expiresKey));
       UtlString primary  = *((UtlString*)record.findValue(&primaryKey));
-      intll updateNumber = *((UtlLongLongInt*)record.findValue(&updateNumberKey));
+      INT64 updateNumber = *((UtlLongLongInt*)record.findValue(&updateNumberKey));
 
       cout << "Registration Row" << endl \
            << "================" << endl \

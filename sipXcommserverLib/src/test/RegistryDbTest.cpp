@@ -1,4 +1,8 @@
 // 
+// 
+// Copyright (C) 2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2006 SIPfoundry Inc.
 // License by SIPfoundry under the LGPL license.
 // 
@@ -68,15 +72,15 @@ public:
 
          RegistrationDB* regDb = RegistrationDB::getInstance();
          
-         intll seqOneMax = regDb->getMaxUpdateNumberForRegistrar("seqOne");
+         INT64 seqOneMax = regDb->getMaxUpdateNumberForRegistrar("seqOne");
          CPPUNIT_ASSERT_EQUAL(5LL, seqOneMax);
          
          // Get maximum number for the other registrar
-         intll seqTwoMax = regDb->getMaxUpdateNumberForRegistrar("seqTwo");
+         INT64 seqTwoMax = regDb->getMaxUpdateNumberForRegistrar("seqTwo");
          CPPUNIT_ASSERT_EQUAL(7LL, seqTwoMax);         
         
          // Pass in unknown registrar
-         intll seqThreeMax = regDb->getMaxUpdateNumberForRegistrar("seqThree");
+         INT64 seqThreeMax = regDb->getMaxUpdateNumberForRegistrar("seqThree");
          CPPUNIT_ASSERT_EQUAL(0LL, seqThreeMax);         
       }
 
@@ -90,7 +94,7 @@ public:
 
          RegistrationDB* regDb = RegistrationDB::getInstance();
          
-         intll seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 0LL);
+         INT64 seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 0LL);
          CPPUNIT_ASSERT_EQUAL(1LL, seqOneNext);
 
          seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 1LL);
@@ -108,11 +112,11 @@ public:
          seqOneNext = regDb->getNextUpdateNumberForRegistrar("seqOne", 5LL);
          CPPUNIT_ASSERT_EQUAL(0LL, seqOneNext);
          
-         intll seqTwoNext = regDb->getNextUpdateNumberForRegistrar("seqTwo", 4);
+         INT64 seqTwoNext = regDb->getNextUpdateNumberForRegistrar("seqTwo", 4);
          CPPUNIT_ASSERT_EQUAL(7LL, seqTwoNext);
         
          // Pass in unknown registrar
-         intll seqThreeNext = regDb->getNextUpdateNumberForRegistrar("seqThree", 1);
+         INT64 seqThreeNext = regDb->getNextUpdateNumberForRegistrar("seqThree", 1);
          CPPUNIT_ASSERT_EQUAL(0LL, seqThreeNext);                  
       }
       
@@ -127,7 +131,7 @@ public:
 
          RegistrationDB* regDb = RegistrationDB::getInstance();
          
-         intll seqOneUpdates = regDb->getNextUpdateForRegistrar("seqOne", 2, bindings);
+         INT64 seqOneUpdates = regDb->getNextUpdateForRegistrar("seqOne", 2, bindings);
          CPPUNIT_ASSERT_EQUAL(1LL, seqOneUpdates);
          
          UtlSListIterator iterator(bindings);
@@ -150,7 +154,7 @@ public:
 
          bindings.destroyAll();         
          // Test the other registrar, expect one binding
-         intll seqTwoUpdates = regDb->getNewUpdatesForRegistrar("seqTwo", 2, bindings);
+         INT64 seqTwoUpdates = regDb->getNewUpdatesForRegistrar("seqTwo", 2, bindings);
          CPPUNIT_ASSERT_EQUAL(1LL, seqTwoUpdates);         
          
          binding = (RegistrationBinding*)bindings.first();
@@ -170,7 +174,7 @@ public:
 
          RegistrationDB* regDb = RegistrationDB::getInstance();
          
-         intll seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 2, bindings);
+         INT64 seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 2, bindings);
          CPPUNIT_ASSERT_EQUAL(2LL, seqOneUpdates);
          
          UtlSListIterator iterator(bindings);
@@ -215,7 +219,7 @@ public:
 
          bindings.destroyAll();         
          // Test the other registrar, expect one binding
-         intll seqTwoUpdates = regDb->getNewUpdatesForRegistrar("seqTwo", 2, bindings);
+         INT64 seqTwoUpdates = regDb->getNewUpdatesForRegistrar("seqTwo", 2, bindings);
          CPPUNIT_ASSERT_EQUAL(1LL, seqTwoUpdates);         
          
          binding = (RegistrationBinding*)bindings.first();
@@ -310,7 +314,7 @@ public:
          RegistrationDB* regDb = RegistrationDB::getInstance();
          
          // Get an existing binding  
-         intll seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 2, bindings);
+         INT64 seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 2, bindings);
          CPPUNIT_ASSERT_EQUAL(1LL, seqOneUpdates);
          
          binding = (RegistrationBinding*)bindings.first();
@@ -348,7 +352,7 @@ public:
          RegistrationDB* regDb = RegistrationDB::getInstance();
          
          // Make sure an existing binding doesn't exist
-         intll seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 3, bindings);
+         INT64 seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 3, bindings);
          CPPUNIT_ASSERT_EQUAL(0LL, seqOneUpdates);
          
          // Create new binding with update number 3
@@ -416,7 +420,7 @@ public:
          RegistrationDB* regDb = RegistrationDB::getInstance();
          
          // Get an existing binding  
-         intll seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 2, bindings);
+         INT64 seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 2, bindings);
          CPPUNIT_ASSERT_EQUAL(1LL, seqOneUpdates);
          
          binding = (RegistrationBinding*)bindings.first();
@@ -444,7 +448,7 @@ public:
          RegistrationDB* regDb = RegistrationDB::getInstance();
          
          // Get an existing binding  
-         intll seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 2, bindings);
+         INT64 seqOneUpdates = regDb->getNewUpdatesForRegistrar("seqOne", 2, bindings);
          CPPUNIT_ASSERT_EQUAL(1LL, seqOneUpdates);
          
          binding = (RegistrationBinding*)bindings.first();

@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 #ifndef QSTYPES__H__
 #define QSTYPES__H__
@@ -49,8 +55,10 @@ typedef unsigned int UINT;
 /* 64 bit integers; unsigned is not defined since it is not likely needed */
 #ifdef WIN32
 typedef unsigned __int64 UINT64;
+typedef __int64 INT64;
 #else
 typedef unsigned long long UINT64;
+typedef long long int INT64;
 #endif /* WIN32 */
 
 /* 128 bit integers; unsigned is not defined since it is not likely needed */

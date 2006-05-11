@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _UtlLongLongInt_h_
@@ -26,10 +32,6 @@
 #endif
 #ifndef LLONG_MAX
 # define LLONG_MAX	LONG_LONG_MAX
-#endif
-
-#if defined(_WIN32)
-#define strtoll _strtoi64 
 #endif
 
 // EXTERNAL FUNCTIONS
@@ -54,7 +56,7 @@ public:
     /**
      * Constructor accepting an optional default value.
      */
-    UtlLongLongInt(intll initialValue = 0) ;
+    UtlLongLongInt(INT64 initialValue = 0) ;
       
     /**
      * Destructor
@@ -72,7 +74,7 @@ public:
     UtlLongLongInt operator--(int);     // Postfix decrement operator
 
     // Conversion to long long int
-    operator intll() { return mValue; }
+    operator INT64() { return mValue; }
 
 /* ============================ MANIPULATORS ============================== */
 
@@ -81,14 +83,17 @@ public:
      *
      * @returns the old value
      */
-    intll setValue(intll iValue) ;
+    INT64 setValue(INT64 iValue);
+
+    //! Convert a ascii string rep. to long long int
+    static INT64 stringToLongLong(const char* longLongString);
 
 /* ============================ ACCESSORS ================================= */
 
     /**
      * Get the long long int wrapped by this object.
      */
-    intll getValue() const ;    
+    INT64 getValue() const ;    
 
     /**
      * Calculate a unique hash code for this object.  If the equals
@@ -125,7 +130,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    intll mValue ;    /** < The long long int wrapped by this object */ 
+    INT64 mValue ;    /** < The long long int wrapped by this object */ 
 
 } ;
 

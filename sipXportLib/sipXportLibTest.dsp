@@ -228,16 +228,16 @@ SOURCE=.\src\test\os\OsTimerTaskTest.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\test\os\OsTimerTest.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\src\test\os\OsTimeTest.cpp
 # End Source File
 # End Group
 # Begin Group "utl"
 
 # PROP Default_Filter ""
+# Begin Source File
+
+SOURCE=.\src\test\utl\UtlChainTest.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\src\test\utl\UtlContainableTestStub.cpp
@@ -273,6 +273,14 @@ SOURCE=.\src\test\utl\UtlHashMapIterator.cpp
 # Begin Source File
 
 SOURCE=.\src\test\utl\UtlInt.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\utl\UtlLinkTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\utl\UtlLongLongInt.cpp
 # End Source File
 # Begin Source File
 
@@ -321,6 +329,10 @@ SOURCE=.\src\test\utl\UtlTokenizerTest.cpp
 # Begin Source File
 
 SOURCE=.\src\test\utl\UtlVoidPtr.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\utl\XmlContentTest.cpp
 # End Source File
 # End Group
 # End Target

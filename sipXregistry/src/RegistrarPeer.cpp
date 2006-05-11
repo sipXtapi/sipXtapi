@@ -1,5 +1,7 @@
-// $Id$
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // License by SIPfoundry under the LGPL license.
 //
@@ -190,7 +192,7 @@ const char* RegistrarPeer::getStateName()
 }
 
 /// The oldest update successfully sent to this peer.
-intll RegistrarPeer::sentTo()
+INT64 RegistrarPeer::sentTo()
 {
    OsLock mutex(mLock);
    
@@ -198,21 +200,21 @@ intll RegistrarPeer::sentTo()
 }
 
 /// The last update received from this peer.
-intll RegistrarPeer::receivedFrom()
+INT64 RegistrarPeer::receivedFrom()
 {
    OsLock mutex(mLock);
    
    return mReceivedFrom;
 }
 
-void RegistrarPeer::setSentTo(intll updateNumber)
+void RegistrarPeer::setSentTo(INT64 updateNumber)
 {
    OsLock mutex(mLock);
    
    mSentTo = updateNumber;
 }
 
-void RegistrarPeer::setReceivedFrom(intll updateNumber)
+void RegistrarPeer::setReceivedFrom(INT64 updateNumber)
 {
    OsLock mutex(mLock);
    

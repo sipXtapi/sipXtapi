@@ -1,4 +1,7 @@
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -79,7 +82,7 @@ void RegistrarInitialSync::restorePeerUpdateNumbers()
       
       // Set the last received update number for the peer to the max update number
       // for the peer that we see in the registration DB
-      intll maxUpdateNumber = getRegistrarServer().getMaxUpdateNumberForRegistrar(name);
+      INT64 maxUpdateNumber = getRegistrarServer().getMaxUpdateNumberForRegistrar(name);
       peer->setReceivedFrom(maxUpdateNumber);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "RegistrarInitialSync::restorePeerUpdateNumbers "
@@ -112,7 +115,7 @@ void RegistrarInitialSync::pullLocalUpdatesFromPeers()
 
          // Pulling updates changes maxUpdateNumber, so fetch it on each iteration
          const char* primaryName = getPrimaryName();
-         intll maxUpdateNumber = getRegistrarServer().getDbUpdateNumber();
+         INT64 maxUpdateNumber = getRegistrarServer().getDbUpdateNumber();
          UtlSList bindings;
          state = SyncRpcPullUpdates::invoke(
             peer,            // the peer we're contacting

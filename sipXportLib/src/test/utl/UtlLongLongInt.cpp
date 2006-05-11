@@ -1,9 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -45,13 +53,13 @@ private:
     struct BasicIntllVerifier 
     {
         const char* message ; 
-        intll input ; 
-        intll expectedValue ; 
+        INT64 input ; 
+        INT64 expectedValue ; 
     } ;
     
-    static const intll llint_Zero ;
-    static const intll llint_Positive ;
-    static const intll llint_Negative ;
+    static const INT64 llint_Zero ;
+    static const INT64 llint_Positive ;
+    static const INT64 llint_Negative ;
     //LLONG_MAX
     //LLONG_MIN
     static const int INDEX_NOT_FOUND  ; 
@@ -116,7 +124,7 @@ public:
             string msg ;
             TestUtilities::createMessage(2, &msg, prefix, commonTestSet[i].message) ; 
             UtlLongLongInt testIntll(commonTestSet[i].input) ; 
-            intll actualValue = testIntll.getValue() ; 
+            INT64 actualValue = testIntll.getValue() ; 
             CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), commonTestSet[i].expectedValue, actualValue) ; 
         }
     }
@@ -163,10 +171,10 @@ public:
         struct compareToData
         { 
             const char* message ; // Description about the type of test data
-            intll baseValue ; // The value of the test UtlLongLongInt
-            intll equalToBase ;  // A Long Long Integer that is equal to the base value
-            intll greaterThanBase ; // Long Long Integer that is greater than the base value  
-            intll lessThanBase ;  // Long Long Integer that is less than the base value
+            INT64 baseValue ; // The value of the test UtlLongLongInt
+            INT64 equalToBase ;  // A Long Long Integer that is equal to the base value
+            INT64 greaterThanBase ; // Long Long Integer that is greater than the base value  
+            INT64 lessThanBase ;  // Long Long Integer that is less than the base value
         } ; 
         const compareToData testData[] = { \
             { "zero", 0, 0, 10, -10 }, \
@@ -176,9 +184,9 @@ public:
             { "integer at its minimum allowed value", LLONG_MIN, LLONG_MIN, LLONG_MIN+10, IGNORE_TEST } 
         } ; 
         const int testCount = sizeof(testData)/sizeof(testData[0]) ; 
-        intll expectedForEquals = 0 ;
-        intll expectedForGreaterThan = 1 ; 
-        intll expectedForLessThan = -1 ; 
+        INT64 expectedForEquals = 0 ;
+        INT64 expectedForGreaterThan = 1 ; 
+        INT64 expectedForLessThan = -1 ; 
         
         // Loop to iterate through the array of test data. 
         for (int i = 0 ; i < testCount ; i++)
@@ -193,7 +201,7 @@ public:
                                              testData[i].message, suffix1) ; 
             if (testType == TEST_COMPARE) 
             {
-                intll actual = testIntll.compareTo(&llintForCompare) ;  
+                INT64 actual = testIntll.compareTo(&llintForCompare) ;  
                 CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedForEquals, actual) ; 
             }
             else if (testType == TEST_EQUAL) 
@@ -215,7 +223,7 @@ public:
                                              testData[i].message, suffix2) ; 
                 if (testType == TEST_COMPARE) 
                 {
-                    intll actual = testIntll.compareTo(&llintForCompare) ; 
+                    INT64 actual = testIntll.compareTo(&llintForCompare) ; 
                     CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedForGreaterThan, actual)  ; 
                 }
                 else if (testType == TEST_EQUAL) 
@@ -238,7 +246,7 @@ public:
                                              testData[i].message, suffix3) ; 
                 if (testType == TEST_COMPARE) 
                 {
-                    intll actual = testIntll.compareTo(&llintForCompare) ; 
+                    INT64 actual = testIntll.compareTo(&llintForCompare) ; 
                     CPPUNIT_ASSERT_EQUAL_MESSAGE(msg.data(), expectedForLessThan, actual) ;
                 }
                 else if (testType == TEST_EQUAL) 
@@ -258,7 +266,7 @@ public:
     {
         UtlString testUtlString("Test String") ; 
         UtlLongLongInt testUtlLongLongInt(LLONG_MAX) ; 
-        intll actual = testUtlLongLongInt.compareTo(&testUtlString) ; 
+        INT64 actual = testUtlLongLongInt.compareTo(&testUtlString) ; 
         // If a collectable is *NOT* an Integer, then the only thing that is predictible is
         // that this is not equal to the argument
         CPPUNIT_ASSERT_MESSAGE( "Compare a Long Long Integer with a String ", (actual != 0 )) ; 
@@ -309,8 +317,8 @@ public:
             {
                 UtlLongLongInt baseIntll(commonTestSet[i].input) ; 
 
-                intll oldActualValue = baseIntll.setValue(commonTestSet[j].input) ; 
-                intll newActualValue = baseIntll.getValue() ; 
+                INT64 oldActualValue = baseIntll.setValue(commonTestSet[j].input) ; 
+                INT64 newActualValue = baseIntll.getValue() ; 
                 
                 // Verify that the return value = previous value
                 TestUtilities::createMessage(5, &msg, prefix, commonTestSet[i].message, \
@@ -365,9 +373,9 @@ public:
 
 
 // ------------------- Static constant initializers -------------------------
-const intll UtlLongLongIntTests::llint_Zero = 0LL ;
-const intll UtlLongLongIntTests::llint_Positive = 101LL ;
-const intll UtlLongLongIntTests::llint_Negative = -51LL ;
+const INT64 UtlLongLongIntTests::llint_Zero = 0LL ;
+const INT64 UtlLongLongIntTests::llint_Positive = 101LL ;
+const INT64 UtlLongLongIntTests::llint_Negative = -51LL ;
 const UtlLongLongIntTests::BasicIntllVerifier \
       UtlLongLongIntTests::commonTestSet[]  = { \
          {"Zero", llint_Zero, llint_Zero},  \

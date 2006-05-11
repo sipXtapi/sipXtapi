@@ -13,6 +13,8 @@
 #include "stdtp.h"
 #include "sync.h"
 
+char const*  keyFileDir = SIPX_TMPDIR "/";
+
 #ifndef _WIN32
 
 unsigned dbSystem::getCurrentTimeMsec()
@@ -29,8 +31,6 @@ unsigned dbSystem::getCurrentTimeMsec()
 #include <signal.h>
 
 #define PRINT_ERROR(func)  perror(func)
-
-char const*  keyFileDir = SIPX_TMPDIR "/";
 
 static void alarm_handler(int){}
 

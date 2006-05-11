@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -84,8 +87,8 @@ public:
    const UtlString* getPrimary() const;
    void       setPrimary(const UtlString& primary);
    
-   intll      getUpdateNumber() const;
-   void       setUpdateNumber(intll updateNumber);
+   INT64      getUpdateNumber() const;
+   void       setUpdateNumber(INT64 updateNumber);
    void       setUpdateNumber(const UtlString& updateNumber);
 
 /* ========================= UtlContainable interface======================== */
@@ -117,7 +120,7 @@ private:
    int        mCseq;
    int        mExpires;
    UtlString* mPrimary;
-   intll      mUpdateNumber;
+   INT64      mUpdateNumber;
 
    /// no copy constructor
    RegistrationBinding(const RegistrationBinding& nocopy);

@@ -1,13 +1,20 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
+#include <stdlib.h>
 #include <string.h>
 #include <limits.h>
 
@@ -25,7 +32,7 @@ UtlContainableType UtlLongLongInt::TYPE = "UtlLongLongInt" ;
 /* ============================ CREATORS ================================== */
 
 // Constructor accepting an optional default value.
-UtlLongLongInt::UtlLongLongInt(intll value)
+UtlLongLongInt::UtlLongLongInt(INT64 value)
 {
     mValue = value ;
 } 
@@ -70,17 +77,28 @@ UtlLongLongInt UtlLongLongInt::operator--(int) {
 
 /* ============================ MANIPULATORS ============================== */
 
-intll UtlLongLongInt::setValue(intll iValue)
+INT64 UtlLongLongInt::setValue(INT64 iValue)
 {
-    intll iOldValue = mValue ;
+    INT64 iOldValue = mValue ;
     mValue = iValue ;
 
     return iOldValue ;
 }
 
+INT64 UtlLongLongInt::stringToLongLong(const char* longLongString)
+{
+#ifdef WIN32
+    return(_atoi64(longLongString));
+#else
+    // We could use "atoll" here but it is obsolete, "strtoll" is the recommended function
+    // See http://www.delorie.com/gnu/docs/glibc/libc_423.html .
+    return(strtoll(longLongString, 0, 0));
+#endif
+}
+
 /* ============================ ACCESSORS ================================= */
 
-intll UtlLongLongInt::getValue() const 
+INT64 UtlLongLongInt::getValue() const 
 {
     return mValue ; 
 }
@@ -106,7 +124,7 @@ int UtlLongLongInt::compareTo(UtlContainable const * inVal) const
    if (inVal->isInstanceOf(UtlLongLongInt::TYPE))
     {
         UtlLongLongInt* temp = (UtlLongLongInt*)inVal ; 
-        intll inIntll = temp -> getValue() ;
+        INT64 inIntll = temp -> getValue() ;
         if (mValue > inIntll) {
         	result = 1 ;
         }

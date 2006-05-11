@@ -72,7 +72,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
-# ADD LIB32 /nologo
+# ADD LIB32 /nologo /out:"Debug\sipXcommserverLibd.lib"
 
 !ENDIF 
 
@@ -145,11 +145,19 @@ SOURCE=.\src\fastdb\localcli.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\odbc\OdbcWrapper.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\sipdb\PermissionDB.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\fastdb\query.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\sipdb\RegistrationBinding.cpp
 # End Source File
 # Begin Source File
 
@@ -342,6 +350,10 @@ SOURCE=.\include\fastdb\query.h
 # Begin Source File
 
 SOURCE=.\include\fastdb\reference.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\sipdb\RegistrationBinding.h
 # End Source File
 # Begin Source File
 

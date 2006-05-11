@@ -1,5 +1,8 @@
-// $Id$
-//
+// 
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // License by SIPfoundry under the LGPL license.
 //
@@ -358,17 +361,17 @@ void RegistrationBinding::setPrimary(const UtlString& primary)
    }
 }
 
-intll RegistrationBinding::getUpdateNumber() const
+INT64 RegistrationBinding::getUpdateNumber() const
 {
    return mUpdateNumber;
 }
-void RegistrationBinding::setUpdateNumber(intll updateNumber)
+void RegistrationBinding::setUpdateNumber(INT64 updateNumber)
 {
    mUpdateNumber = updateNumber;
 }
 void RegistrationBinding::setUpdateNumber(const UtlString& updateNumber)
 {
-   mUpdateNumber = strtoll(updateNumber, 0, 0);
+   mUpdateNumber = UtlLongLongInt::stringToLongLong(updateNumber);
 }
 
 

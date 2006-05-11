@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -8,6 +11,9 @@
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
+
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
+
 // SYSTEM INCLUDES
 #include <stdio.h>
 #include <signal.h>
@@ -783,7 +789,7 @@ main( int argc, char* argv[] )
 
     // Remove the current process's row from the IMDB
     // Persisting the database if necessary
-    cout << "Cleaning Up..Start." << endl;
+    osPrintf("Cleaning Up..Start.\n");
 
     // This is a server task so gracefully shutdown the
     // server task using the waitForShutdown method, this
@@ -817,7 +823,7 @@ main( int argc, char* argv[] )
     // Flush the log file
     OsSysLog::flush();
 
-    cout << "Cleanup...Finished" << endl;
+    osPrintf("Cleanup...Finished/n");
 
     return 0;
 }

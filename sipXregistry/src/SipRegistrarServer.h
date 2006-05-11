@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -76,7 +79,7 @@ public:
     /// Retrieve all updates for registrarName whose update number is greater than updateNumber
     int pullUpdates(
        const UtlString& registrarName,
-       intll            updateNumber,
+       INT64            updateNumber,
        UtlSList&        updates);
     /**<
      * Retrieve all updates for registrarName whose update number is greater than updateNumber.
@@ -87,7 +90,7 @@ public:
      */
 
     /// Apply registry updates for a single registrar (local or peer) to the database
-    intll applyUpdatesToDirectory(
+    INT64 applyUpdatesToDirectory(
        int timeNow,                         ///< current epoch time
        const UtlSList& updates,             ///< list of updates to apply
        UtlString*      errorMsg = NULL);    ///< fill in the error message on failure
@@ -97,7 +100,7 @@ public:
      */
 
     /// Get the largest update number in the local database for this registrar as primary
-    intll getDbUpdateNumber() const;
+    INT64 getDbUpdateNumber() const;
 
     /// Schedule garbage collection and persistence of the registration database
     void scheduleCleanAndPersist();
@@ -116,7 +119,7 @@ public:
     void restoreDbUpdateNumber();
 
     /// Return the max update number for primaryRegistrar, or zero if there are no such updates
-    intll getMaxUpdateNumberForRegistrar(const char* primaryName) const;
+    INT64 getMaxUpdateNumberForRegistrar(const char* primaryName) const;
 
     /// Return true if there is a new update to send to the peer registrar and fill in bindings
     bool getNextUpdateToSend(RegistrarPeer *peer,       ///< peer to send the update to
@@ -152,7 +155,7 @@ protected:
     static OsMutex sLockMutex;
 
     /// Set the largest update number in the local database for this registrar as primary
-    void setDbUpdateNumber(intll dbUpdateNumber);
+    void setDbUpdateNumber(INT64 dbUpdateNumber);
 
     /// Validate bindings, and if all are OK then apply them to the registry db
     RegisterStatus applyRegisterToDirectory(
@@ -161,7 +164,7 @@ protected:
         const SipMessage& registerMessage); ///< message containing bindings
     
     /// Update one binding for a peer registrar, or the local registrar (if peer is NULL)
-    intll updateOneBinding(RegistrationBinding* update,
+    INT64 updateOneBinding(RegistrationBinding* update,
                            RegistrarPeer* peer,
                            RegistrationDB* imdb);
     /**<

@@ -293,6 +293,18 @@ SOURCE=.\src\os\OsSocket.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\os\OsSSL.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\OsSSLConnectionSocket.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\os\OsSSLServerSocket.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\os\OsStunAgentTask.cpp
 # End Source File
 # Begin Source File
@@ -401,11 +413,19 @@ SOURCE=.\src\xmlparser\TiXmlIterator.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\utl\UtlBool.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\utl\UtlContainable.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\src\utl\UtlContainer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\utl\UtlDateTime.cpp
 # End Source File
 # Begin Source File
 
@@ -858,6 +878,10 @@ SOURCE=.\include\xmlparser\TiXmlIterator.h
 # Begin Source File
 
 SOURCE=.\include\aes\uitypes.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\utl\UtlBool.h
 # End Source File
 # Begin Source File
 

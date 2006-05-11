@@ -127,11 +127,31 @@ SOURCE=.\src\test\net\SipMessageTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\net\SipPresenceEventTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\net\SipPublishContentMgrTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\test\net\SipRefreshManagerTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\net\SipServerShutdownTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\net\SipSrvLookupTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\test\net\SipSubcribeServerTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\net\SipSubcriptionClientTest.cpp
 # End Source File
 # Begin Source File
 
@@ -168,6 +188,10 @@ SOURCE=..\sipXportLib\src\test\sipxunit\unitmain.cpp
 # Begin Source File
 
 SOURCE=.\src\test\net\UrlTest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\test\net\XmlRpcTest.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

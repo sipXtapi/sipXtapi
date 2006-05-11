@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2004 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -64,20 +67,19 @@ public:
     void getAllRows ( ResultSet& rResultSet ) const;
 
     /// Return the max update number for primaryRegistrar, or zero if there are no such updates
-    intll getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const;
+    INT64 getMaxUpdateNumberForRegistrar(const UtlString& primaryRegistrar) const;
 
     /// Return the next updateNumber for the primaryRegistrar after the specified updateNumber
-    intll getNextUpdateNumberForRegistrar(const UtlString& primaryRegistrar,
-                                          intll            updateNumber) const;
+    INT64 getNextUpdateNumberForRegistrar(const UtlString& primaryRegistrar,
+                                          INT64            updateNumber) const;
     /**<
      * If there are no such updates, then return 0
      */
     
     /// Get the next update for primaryRegistrar with an update number > updateNumber.
-    int getNextUpdateForRegistrar( const UtlString& primaryRegistrar
-                                   ,intll           updateNumber
-                                   ,UtlSList&       bindings
-                                   ) const;
+    int getNextUpdateForRegistrar( const UtlString& primaryRegistrar,
+                                   INT64           updateNumber,
+                                   UtlSList&       bindings ) const;
     /**<
      * Fill in the bindings arg with the bindings, objects of type RegistrationBinding.
      * (A single update may include multiple bindings.)
@@ -85,10 +87,9 @@ public:
      */
 
     /// Get all updates for primaryRegistrar with an update number > updateNumber.
-    int getNewUpdatesForRegistrar( const UtlString& primaryRegistrar
-                                   ,intll           updateNumber
-                                   ,UtlSList&       bindings
-                                   ) const;
+    int getNewUpdatesForRegistrar( const UtlString& primaryRegistrar,
+                                   INT64           updateNumber,
+                                   UtlSList&       bindings ) const;
     /**<
      * Fill in the bindings arg with the bindings, objects of type RegistrationBinding.
      * Return the number of bindings (the length of the list).
@@ -113,7 +114,7 @@ public:
                        ,const UtlString& instance_id
                        ,const UtlString& gruu
                        ,const UtlString& primary
-                       ,const intll& update_number
+                       ,const INT64& update_number
                        );
 
     /// expireAllBindings for this URI as of 1 second before timeNow
@@ -122,7 +123,7 @@ public:
                            ,const int& cseq
                            ,const int& timeNow
                            ,const UtlString& primary
-                           ,const intll& update_number
+                           ,const INT64& update_number
                            );
 
     /// expireOldBindings for this callid and older cseq values.
@@ -131,7 +132,7 @@ public:
                            ,const int& cseq
                            ,const int& timeNow
                            ,const UtlString& primary
-                           ,const intll& update_number
+                           ,const INT64& update_number
                            );
 
     void removeAllRows ();

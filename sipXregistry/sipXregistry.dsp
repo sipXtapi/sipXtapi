@@ -1,8 +1,6 @@
 # Microsoft Developer Studio Project File - Name="sipXregistry" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
-# Copyright (C) 2005 SIPez LLC.
-# Licensed to SIPfoundry under a Contributor Agreement.
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
@@ -52,7 +50,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib sipXportLib.lib sipXtackLib.lib sipXcommserverLib.lib libpcre.a /nologo /subsystem:console /machine:I386 /libpath:"../sipXportLib/release" /libpath:"../sipXtackLib/release" /libpath:"../sipXcommserverLib/release"
+# ADD LINK32 sipXportLib.lib sipXtackLib.lib sipXcommserverLib.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib libpcre.a libeay32.lib ssleay32.lib /nologo /subsystem:console /machine:I386 /libpath:"../sipXportLib/release" /libpath:"../sipXtackLib/release" /libpath:"../sipXcommserverLib/release"
 
 !ELSEIF  "$(CFG)" == "sipXregistry - Win32 Debug"
 
@@ -76,7 +74,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib sipXtackLib.lib sipXcommserverLib.lib sipXportLib.lib libpcre.a /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../sipXportLib/debug" /libpath:"../sipXtackLib/debug" /libpath:"../sipXcommserverLib/debug"
+# ADD LINK32 sipXtackLibd.lib sipXcommserverLibd.lib sipXportLibd.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib wsock32.lib libpcre.a libeay32.lib ssleay32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../sipXportLib/debug" /libpath:"../sipXtackLib/debug" /libpath:"../sipXcommserverLib/debug"
 
 !ENDIF 
 
@@ -101,7 +99,23 @@ SOURCE=.\src\RedirectSuspend.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\src\SipImpliedSubscriptions.cpp
+SOURCE=.\src\RegistrarInitialSync.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RegistrarPeer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RegistrarPersist.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RegistrarSync.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RegistrarTest.cpp
 # End Source File
 # Begin Source File
 
@@ -118,6 +132,10 @@ SOURCE=.\src\SipRedirectorHunt.cpp
 # Begin Source File
 
 SOURCE=.\src\SipRedirectorMapping.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SipRedirectorMPT.cpp
 # End Source File
 # Begin Source File
 
@@ -143,6 +161,10 @@ SOURCE=.\src\SipRegistrar.cpp
 
 SOURCE=.\src\SipRegistrarServer.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\src\SyncRpc.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -154,6 +176,26 @@ SOURCE=.\src\RedirectResumeMsg.h
 # Begin Source File
 
 SOURCE=.\src\RedirectSuspend.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RegistrarInitialSync.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RegistrarPeer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RegistrarPersist.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RegistrarSync.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\RegistrarTest.h
 # End Source File
 # Begin Source File
 
@@ -181,6 +223,10 @@ SOURCE=.\src\SipRedirectorMapping.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\SipRedirectorMPT.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\SipRedirectorPickUp.h
 # End Source File
 # Begin Source File
@@ -202,6 +248,10 @@ SOURCE=.\src\SipRegistrar.h
 # Begin Source File
 
 SOURCE=.\src\SipRegistrarServer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\SyncRpc.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

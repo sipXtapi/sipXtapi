@@ -93,6 +93,10 @@ SOURCE=.\src\net\HttpBody.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\src\net\HttpConnection.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\src\net\HttpConnectionMap.cpp
 # End Source File
 # Begin Source File
@@ -106,6 +110,10 @@ SOURCE=.\src\net\HttpRequestContext.cpp
 # Begin Source File
 
 SOURCE=.\src\net\HttpServer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\net\HttpService.cpp
 # End Source File
 # Begin Source File
 
@@ -391,6 +399,26 @@ SOURCE=.\src\net\Url.cpp
 
 SOURCE=.\src\resparse\wnt\writev.c
 # End Source File
+# Begin Source File
+
+SOURCE=.\src\net\XmlRpcBody.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\net\XmlRpcDispatch.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\net\XmlRpcMethod.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\net\XmlRpcRequest.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\src\net\XmlRpcResponse.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -409,6 +437,10 @@ SOURCE=.\include\net\HttpBody.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\net\HttpConnection.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\net\HttpConnectionMap.h
 # End Source File
 # Begin Source File
@@ -422,6 +454,10 @@ SOURCE=.\include\net\HttpRequestContext.h
 # Begin Source File
 
 SOURCE=.\include\net\HttpServer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\HttpService.h
 # End Source File
 # Begin Source File
 
@@ -501,6 +537,22 @@ SOURCE=.\include\resparse\poll.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\net\ProvisioningAgent.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\ProvisioningAgentXmlRpcAdapter.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\ProvisioningAttrList.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\ProvisioningClass.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\net\QoS.h
 # End Source File
 # Begin Source File
@@ -553,7 +605,15 @@ SOURCE=.\include\net\SipDialog.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\net\SipDialogEvent.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\net\SipDialogMgr.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\SipDialogMonitor.h
 # End Source File
 # Begin Source File
 
@@ -617,11 +677,31 @@ SOURCE=.\include\net\SipPublishContentMgr.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\net\SipPublishServer.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\SipPublishServerEventStateCompositor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\SipPublishServerEventStateMgr.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\net\SipRefreshManager.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\include\net\SipRefreshMgr.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\SipRequestContext.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\SipResourceList.h
 # End Source File
 # Begin Source File
 
@@ -697,7 +777,15 @@ SOURCE=.\include\resparse\wnt\sol_search.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\net\StateChangeNotifier.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\resparse\wnt\sysdep.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\TapiMgr.h
 # End Source File
 # Begin Source File
 
@@ -718,6 +806,26 @@ SOURCE=.\include\resparse\wnt\utilNT.h
 # Begin Source File
 
 SOURCE=.\include\net\version.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\XmlRpcBody.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\XmlRpcDispatch.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\XmlRpcMethod.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\XmlRpcRequest.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\net\XmlRpcResponse.h
 # End Source File
 # End Group
 # End Target

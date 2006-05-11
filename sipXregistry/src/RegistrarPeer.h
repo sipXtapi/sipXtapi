@@ -1,3 +1,8 @@
+// 
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2005 SIPfoundry Inc.
 // License by SIPfoundry under the LGPL license.
 // 
@@ -122,14 +127,14 @@ public:
 ///@{
 
    /// The update number of the oldest update successfully sent to this peer.
-   intll sentTo();
+   INT64 sentTo();
 
    /// The update number of the last update received from this peer.
-   intll receivedFrom();
+   INT64 receivedFrom();
 
-   void setSentTo(intll updateNumber);
+   void setSentTo(INT64 updateNumber);
 
-   void setReceivedFrom(intll updateNumber);
+   void setReceivedFrom(INT64 updateNumber);
    
 
 ///@}
@@ -143,8 +148,8 @@ protected:
 
    OsBSem               mLock;       ///< must be held to access to other member variables.
    SynchronizationState mSyncState; 
-   intll                mSentTo;
-   intll                mReceivedFrom;
+   INT64                mSentTo;
+   INT64                mReceivedFrom;
    Url                  mUrl;        ///< XML RPC URL
    SipRegistrar*        mRegistrar;
 

@@ -1,5 +1,8 @@
 // 
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -425,9 +428,7 @@ bool XmlRpcDispatch::parseValue(TiXmlNode* subNode,
             {
                paramValue = valueNode->FirstChild()->Value();
                
-               // We could use "atoll" here but it is obsolete, "strtoll" is the recommended function
-               // See http://www.delorie.com/gnu/docs/glibc/libc_423.html .
-               params.insertAt(index, new UtlLongLongInt(strtoll(paramValue, 0, 0)));
+               params.insertAt(index, new UtlLongLongInt(UtlLongLongInt::stringToLongLong(paramValue)));
                result = true;
             }
             else
@@ -609,7 +610,7 @@ bool XmlRpcDispatch::parseStruct(TiXmlNode* subNode, UtlHashMap*& members)
                      if (valueElement->FirstChild())
                      {
                         paramValue = valueElement->FirstChild()->Value();
-                        pMembers->insertKeyAndValue(new UtlString(name), new UtlLongLongInt(strtoll(paramValue, 0, 0)));
+                        pMembers->insertKeyAndValue(new UtlString(name), new UtlLongLongInt(UtlLongLongInt::stringToLongLong(paramValue)));
                         result = true;
                      }
                      else
@@ -777,7 +778,7 @@ bool XmlRpcDispatch::parseArray(TiXmlNode* subNode, UtlSList*& array)
                   if (arrayElement->FirstChild())
                   {
                      paramValue = arrayElement->FirstChild()->Value();
-                     pList->insert(new UtlLongLongInt(strtoll(paramValue, 0, 0)));
+                     pList->insert(new UtlLongLongInt(UtlLongLongInt::stringToLongLong(paramValue)));
                      result = true;
                   }
                   else

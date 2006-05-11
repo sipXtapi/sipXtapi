@@ -1,9 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+
 
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
@@ -16,6 +24,27 @@
 
 #include <time.h>
 #include <string.h>
+
+#if defined(WIN32)
+#include <sys/timeb.h>
+
+typedef struct _GTimeVal
+{
+    long tv_usec;
+    long tv_sec;
+} GTimeVal;
+
+void g_get_current_time(GTimeVal* curTime)
+{
+
+    struct _timeb timeVal;
+    _ftime( &timeVal );
+    printf("sec: %ld %msec: %ld\n", timeVal.time, timeVal.millitm);
+    curTime->tv_sec = timeVal.time;
+    curTime->tv_usec = (timeVal.millitm) * 1000;
+}
+
+#endif
 
 /*
  * OSTIMETOLERANCE is the allowed 'slop'; timers may be off by this

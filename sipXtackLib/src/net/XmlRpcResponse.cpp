@@ -1,4 +1,8 @@
 // 
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // Copyright (C) 2005 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
@@ -379,7 +383,7 @@ bool XmlRpcResponse::parseValue(TiXmlNode* subNode)
             if (valueNode->FirstChild())
             {
                paramValue = valueNode->FirstChild()->Value();
-               mResponseValue = new UtlLongLongInt(strtoll(paramValue, 0, 0));
+               mResponseValue = new UtlLongLongInt(UtlLongLongInt::stringToLongLong(paramValue));
                result = true;
             }
             else
@@ -560,7 +564,7 @@ bool XmlRpcResponse::parseStruct(TiXmlNode* subNode, UtlHashMap* members)
                      if (valueElement->FirstChild())
                      {
                         paramValue = valueElement->FirstChild()->Value();
-                        members->insertKeyAndValue(new UtlString(name), new UtlLongLongInt(strtoll(paramValue, 0, 0)));
+                        members->insertKeyAndValue(new UtlString(name), new UtlLongLongInt(UtlLongLongInt::stringToLongLong(paramValue)));
                         result = true;
                      }
                      else
@@ -721,7 +725,7 @@ bool XmlRpcResponse::parseArray(TiXmlNode* subNode, UtlSList* array)
             if (arrayElement->FirstChild())
             {
                paramValue = arrayElement->FirstChild()->Value();
-               array->insert(new UtlLongLongInt(strtoll(paramValue, 0, 0)));
+               array->insert(new UtlLongLongInt(UtlLongLongInt::stringToLongLong(paramValue)));
             }
             else
             {
