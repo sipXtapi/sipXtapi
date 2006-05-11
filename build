@@ -615,14 +615,16 @@ fi
 
 if [ -z "$Distro" ]
 then
-    Distro=${SIPX_DISTRO:=`uname`}
+    Distro=`uname`
 fi
 if [ -z "$Distrover" ]
 then
-    Distrover=${SIPX_DISTROVER:=0}
+    Distrover=0
 fi
 
 MakeOptions="$MakeOptions DISTRO=$Distro DISTROVER=$Distrover"
+
+echo Makeoptions are: $MakeOptions
 
 # Normalize the project list.
 if [ -z "$Projects" ]
@@ -917,6 +919,7 @@ Usage:
                 [-nd|--no-deps]
                 [-nc|--no-check]
                 [-ac|--auxclean]
+                [-ai|--auxinstall]
                 [-rc|--rpmclean]
                 [-x|--exec]
                 [-r|--rpm]
