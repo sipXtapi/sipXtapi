@@ -18,8 +18,6 @@ import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.ValuedEnum;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -29,13 +27,12 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 
-public class CsvRowInserter extends RowInserter implements Closure {
-    public static final Log LOG = LogFactory.getLog(CsvRowInserter.class);
-
+public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     /**
-     * Values of the enums below determine the exact format of CSV file "Username","Pintoken","Sip
-     * Password","FirstName","LastName","Alias","UserGroup","SerialNumber","Manufacturer","Model","Phone
-     * Group","Phone Description"
+     * Values of the enums below determine the exact format of CSV file
+     * 
+     * "Username", "Pintoken", "Sip Password", "FirstName", "LastName", "Alias", "UserGroup",
+     * "SerialNumber", "Manufacturer", "Model", "Phone Group", "Phone Description"
      */
     public static final class Index extends ValuedEnum {
         // user fields
@@ -71,13 +68,8 @@ public class CsvRowInserter extends RowInserter implements Closure {
         m_phoneContext = phoneContext;
     }
 
-    protected boolean checkRowData(Object input) {
-        String[] row = (String[]) input;
-        if (row.length <= Index.PHONE_DESCRIPTION.getValue()) {
-            LOG.warn("Invalid data format when importing:" + ArrayUtils.toString(input));
-            return false;
-        }
-        return true;
+    protected boolean checkRowData(String[] row) {
+        return row.length > Index.PHONE_DESCRIPTION.getValue();
     }
 
     /**
@@ -85,8 +77,7 @@ public class CsvRowInserter extends RowInserter implements Closure {
      * 
      * @param row each array element represents a single field - see Index
      */
-    protected void insertRow(Object input) {
-        String[] row = (String[]) input;
+    protected void insertRow(String[] row) {
         User user = userFromRow(row);
         Phone phone = phoneFromRow(row);
 
@@ -202,12 +193,10 @@ public class CsvRowInserter extends RowInserter implements Closure {
         return row[index.getValue()];
     }
 
-    protected String dataToString(Object input) {
-        String[] row = (String[]) input;
-        String result = row[0];
-        if (StringUtils.isNotBlank(result)) {
-            return result;
+    protected String dataToString(String[] row) {
+        if (row.length > 0 && StringUtils.isNotBlank(row[0])) {
+            return row[0];
         }
-        return ArrayUtils.toString(input);
+        return ArrayUtils.toString(row);
     }
 }

@@ -14,6 +14,9 @@ package org.sipfoundry.sipxconfig.bulk;
 import java.io.Serializable;
 
 import org.apache.commons.collections.Closure;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -22,7 +25,8 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
-public abstract class RowInserter implements Closure {
+public abstract class RowInserter<T> implements Closure {
+    public static final Log LOG = LogFactory.getLog(CsvRowInserter.class);    
 
     private JobContext m_jobContext;
 
@@ -37,14 +41,16 @@ public abstract class RowInserter implements Closure {
     }
 
     public final void execute(Object input) {
-        if (!checkRowData(input)) {
+        T row = (T) input;
+        if (!checkRowData(row)) {
             // if something is wrong with the data do not event start
+            LOG.warn("Invalid data format when importing:" + dataToString(row));            
             return;
         }
         TransactionTemplate tt = new TransactionTemplate(m_transactionManager);
-        final Serializable jobId = m_jobContext.schedule("Import data: " + dataToString(input));
+        final Serializable jobId = m_jobContext.schedule("Import data: " + dataToString(row));
         try {
-            TransactionCallback callback = new JobTransaction(jobId, input);
+            TransactionCallback callback = new JobTransaction(jobId, row);
             tt.execute(callback);
         } catch (UserException e) {
             // ignore user exceptions - just log them
@@ -56,7 +62,7 @@ public abstract class RowInserter implements Closure {
         }
     }
 
-    protected abstract void insertRow(Object input);
+    protected abstract void insertRow(T input);
 
     /**
      * Should be used to verify data format. If it returns falls insertData is not called. This is
@@ -65,7 +71,7 @@ public abstract class RowInserter implements Closure {
      * @param input - one row of imported data
      * @return if true data can be imported, if false the row will be skipped
      */
-    protected boolean checkRowData(Object input) {
+    protected boolean checkRowData(T input) {
         return input != null;
     }
 
@@ -75,13 +81,13 @@ public abstract class RowInserter implements Closure {
      * @param input - row input
      * @return user-readable representation to be used in logs and UI
      */
-    protected abstract String dataToString(Object input);
+    protected abstract String dataToString(T input);
 
     private final class JobTransaction extends TransactionCallbackWithoutResult {
         private final Serializable m_id;
-        private final Object m_input;
+        private final T m_input;
 
-        private JobTransaction(Serializable id, Object input) {
+        private JobTransaction(Serializable id, T input) {
             m_id = id;
             m_input = input;
         }

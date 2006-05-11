@@ -11,19 +11,30 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import javax.naming.directory.Attributes;
+
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 
+public class LdapRowinserter extends RowInserter<Attributes> {
 
-public class LdapRowinserter extends RowInserter {
+    private AttrMap m_attrMap;
 
-    protected String dataToString(Object input) {
-        // TODO Auto-generated method stub
-        return null;
+    /**
+     * Initial implementation will just print all attributes...
+     */
+    protected String dataToString(Attributes attrs) {
+        return attrs.toString();
     }
 
-    protected void insertRow(Object input) {
-        // TODO Auto-generated method stub
-        
+    protected void insertRow(Attributes attrs) {
+        LOG.info(attrs.toString());
     }
 
+    protected boolean checkRowData(Attributes attrs) {
+        return (attrs.get("uid") != null);
+    }
+
+    public void setAttrMap(AttrMap attrMap) {
+        m_attrMap = attrMap;
+    }
 }

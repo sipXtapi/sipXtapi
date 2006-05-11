@@ -1,7 +1,34 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
-  
+
 <beans>
-  <bean id="ldapImportManager" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManagerImpl">
+
+  <bean id="attrMap" class="org.sipfoundry.sipxconfig.bulk.ldap.AttrMap"></bean>
+
+  <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowinserter"
+    parent="rowInserter">
+    <property name="attrMap">
+      <ref local="attrMap" />
+    </property>
   </bean>
+
+  <bean id="jndiTemplate" class="org.sipfoundry.sipxconfig.bulk.ldap.JndiLdapTemplate">
+    <property name="intialContextFactory" value="com.sun.jndi.ldap.LdapCtxFactory" />
+    <property name="providerUrl" value="ldap://localhost:389" />
+    <property name="securityAuthentication" value="none" />
+  </bean>
+
+  <bean id="ldapImportManager"
+    class="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManagerImpl">
+    <property name="attrMap">
+      <ref local="attrMap" />
+    </property>
+    <property name="rowInserter">
+      <ref local="ldapRowInserter" />
+    </property>
+    <property name="jndiTemplate">
+      <ref local="jndiTemplate" />
+    </property>
+  </bean>
+
 </beans>
