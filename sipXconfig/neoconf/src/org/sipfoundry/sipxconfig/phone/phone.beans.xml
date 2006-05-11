@@ -57,7 +57,12 @@
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
         <bean id="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel.MODEL_HT496"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
-        
+
+        <bean id="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel.MODEL_3000"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        <bean id="org.sipfoundry.sipxconfig.phone.hitachi.HitachiModel.MODEL_5000"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+          
         <bean id="org.sipfoundry.sipxconfig.phone.kphone.KPhone.MODEL_KPHONE"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
       </list>
@@ -168,6 +173,10 @@
   <bean id="grandstream" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone"
     singleton="false" parent="unmanagedPhone">
   </bean>
+  <!-- Hitachi phones -->
+  <bean id="hitachi" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiPhone"
+    singleton="false" parent="unmanagedPhone">
+  </bean>  
   <!-- S I P -->
   <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl"/>
 </beans>
