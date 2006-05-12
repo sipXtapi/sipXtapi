@@ -11,24 +11,12 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
-import java.util.Collection;
-
-
 import junit.framework.TestCase;
 
 public class LdapRowinserterTest extends TestCase {
 
-    public void testMapInvariant() throws Exception {
-        AttrMap map = new AttrMap();
-        assertTrue(map.invariant());        
-    }
-    
-    public void testMapGetLdapAttibutes() throws Exception {
-        AttrMap map = new AttrMap();
-        Collection<String> ldapAttributes = map.getLdapAttributes();
-        for (String name : ldapAttributes) {
-            assertNotNull(name);
-        }
+    public void testInsert() throws Exception {
+        // FIXME: placeholder
     }
     
 }

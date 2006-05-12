@@ -17,9 +17,9 @@ import java.io.IOException;
 import java.io.Reader;
 
 import org.apache.commons.io.IOUtils;
-import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkManager {
+public class BulkManagerImpl extends HibernateDaoSupport implements BulkManager {
     private CsvParser m_csvParser;
 
     private CsvRowInserter m_rowInserter;

@@ -13,27 +13,26 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
-import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class LdapImportManagerImpl implements LdapImportManager {
+public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager {
     public static final Log LOG = LogFactory.getLog(LdapImportManager.class);
 
     private JndiLdapTemplate m_jndiTemplate;
 
-    private RowInserter m_rowInserter;
+    private RowInserter< ? extends SearchResult> m_rowInserter;
 
     private AttrMap m_attrMap;
 
     public void insert() {
         String base = "dc=sipfoundry,dc=com";
         String filter = "objectclass=person";
-
 
         SearchControls sc = new SearchControls();
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
@@ -43,10 +42,9 @@ public class LdapImportManagerImpl implements LdapImportManager {
             NamingEnumeration<SearchResult> result = m_jndiTemplate.search(base, filter, sc);
             while (result.hasMore()) {
                 SearchResult searchResult = result.next();
-                Attributes attributes = searchResult.getAttributes();
-                m_rowInserter.execute(attributes);
+                m_rowInserter.execute(searchResult);
             }
-            
+
         } catch (NamingException e) {
             LOG.error("Retrieving users list from LDAP server", e);
         }
@@ -55,7 +53,7 @@ public class LdapImportManagerImpl implements LdapImportManager {
     public void setJndiTemplate(JndiLdapTemplate jndiTemplate) {
         m_jndiTemplate = jndiTemplate;
     }
-    
+
     public void setRowInserter(RowInserter rowInserter) {
         m_rowInserter = rowInserter;
     }

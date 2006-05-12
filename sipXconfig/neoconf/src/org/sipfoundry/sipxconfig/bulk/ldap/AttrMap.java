@@ -12,25 +12,39 @@
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.functors.NotNullPredicate;
-import org.apache.commons.lang.ArrayUtils;
 
+/**
+ * Information related to mapping LDAP attributes to User properties
+ */
 public class AttrMap {
-    private final String[] m_userProperties = {
-        "userName", "pin", "sipPassword", "firstName", "lastName", "aliasesString",
-        "userGroupName"
-    };
+    private Map<String, String> m_user2ldap = new TreeMap<String, String>();
 
-    private final String[] m_ldapAttributes = {
-        "uid", null, null, "givenName", "sn", "telephoneNumber", null
-    };
+    /**
+     * name of the group that will keep all users imported from LDAP
+     */
+    private String m_defaultGroupName;
 
+    /**
+     * LDAP attribute name for an attribute matched to username
+     */
+    private String m_identityAttributeName;
+
+    /**
+     * PIN to be used for Users that do not have PIN mapped
+     */
+    private String m_defaultPin;
+
+    /**
+     * Returns non null LDAP attributes. Used to limit search results.
+     */
     public Collection<String> getLdapAttributes() {
-        Collection<String> attrs = new ArrayList<String>(Arrays.asList(m_ldapAttributes));
+        Collection<String> attrs = new ArrayList<String>(m_user2ldap.values());
         CollectionUtils.filter(attrs, NotNullPredicate.INSTANCE);
         return attrs;
     }
@@ -40,18 +54,35 @@ public class AttrMap {
         return attrs.toArray(new String[attrs.size()]);
     }
 
-    public String ldapAttr2userProperty(String attr) {
-        int i = ArrayUtils.indexOf(m_ldapAttributes, attr);
-        if (i < 0) {
-            return null;
-        }
-        return m_userProperties[i];
+    public String userProperty2ldapAttribute(String propertyName) {
+        return m_user2ldap.get(propertyName);
     }
 
-    /**
-     * test only
-     */
-    public boolean invariant() {
-        return m_userProperties.length == m_ldapAttributes.length;
+    public void setDefaultPin(String defaultPin) {
+        m_defaultPin = defaultPin;
+    }
+
+    public void setIdentityAttributeName(String identityAttributeName) {
+        m_identityAttributeName = identityAttributeName;
+    }
+
+    public String getIdentityAttributeName() {
+        return m_identityAttributeName;
+    }
+
+    public String getDefaultPin() {
+        return m_defaultPin;
+    }
+
+    public void setDefaultGroupName(String defaultGroupName) {
+        m_defaultGroupName = defaultGroupName;
+    }
+
+    public String getDefaultGroupName() {
+        return m_defaultGroupName;
+    }
+
+    public void setUserToLdap(Map<String, String> user2ldap) {
+        m_user2ldap = user2ldap;
     }
 }

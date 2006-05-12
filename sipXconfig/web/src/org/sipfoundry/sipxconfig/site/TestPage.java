@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -87,6 +88,8 @@ public abstract class TestPage extends BasePage {
     public abstract JobContext getJobContext();
 
     public abstract IndexManager getIndexManager();
+    
+    public abstract LdapImportManager getLdapImportManager();
 
     public abstract ApplicationLifecycle getApplicationLifecycle();
 
@@ -97,7 +100,7 @@ public abstract class TestPage extends BasePage {
     public void resetCallForwarding() {
         getForwardingContext().clear();
     }
-    
+
     public void resetDialPlans() {
         getDialPlanContext().clear();
         getGatewayContext().clear();
@@ -220,6 +223,10 @@ public abstract class TestPage extends BasePage {
             User user = (User) iter.next();
             getCoreContext().deleteUser(user);
         }
+    }
+    
+    public void importLdap() {
+        getLdapImportManager().insert();
     }
 
     public void indexAll() {

@@ -13,5 +13,4 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 public interface LdapImportManager {
     void insert();
-
 }
