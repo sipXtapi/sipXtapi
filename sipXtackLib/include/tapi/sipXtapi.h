@@ -522,7 +522,7 @@ struct SIPX_VIDEO_DISPLAY
     {
         if (type == DIRECT_SHOW_FILTER)
         {
-#ifdef      _WIN32
+#ifdef DIRECT_SHOW_RENDER
             if (handle) ((IUnknown*)handle)->Release();
 #endif              
         }
