@@ -1607,10 +1607,22 @@ OsStatus CpPhoneMediaInterface::getPrimaryCodec(int connectionId,
                                                 int* videoPayloadType,
                                                 bool& isEncrypted)
 {
-    isEncrypted = FALSE ;
-    *audioPayloadType = 0;
-    *videoPayloadType = 0;
-    return OS_SUCCESS;   
+    UtlString codecType;
+    SdpCodec* mpPrimaryCodec = getMediaConnection(connectionId)->mpPrimaryCodec;
+
+    mpPrimaryCodec->getMediaType(codecType);
+    if (codecType == "audio") {
+        mpPrimaryCodec->getEncodingName(audioCodec);
+        //mpPrimaryCodec->toString(audioCodec);
+        *audioPayloadType = mpPrimaryCodec->getCodecPayloadFormat();
+        *videoPayloadType = 0;
+    } else if (codecType == "video") {
+        mpPrimaryCodec->getEncodingName(videoCodec);
+        //mpPrimaryCodec->toString(videoCodec);
+        *audioPayloadType = 0;
+        *videoPayloadType = mpPrimaryCodec->getCodecPayloadFormat();
+    }
+    return OS_SUCCESS;
 }
 
 OsStatus CpPhoneMediaInterface::getVideoQuality(int& quality)
