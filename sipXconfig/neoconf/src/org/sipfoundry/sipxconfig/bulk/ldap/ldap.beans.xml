@@ -16,14 +16,12 @@
         <entry key="firstName" value="givenName" />
         <entry key="lastName" value="sn" />
         <entry key="aliasesString" value="telephoneNumber" />
-        <entry key="userGroupName">
-          <null />
-        </entry>
+        <entry key="userGroupName" value="ou" />
       </map>
     </property>
-    <property name="defaultGroupName" value="ldap imports"/>
-    <property name="defaultPin" value="1111"/>
-    <property name="identityAttributeName" value="uid"/>
+    <property name="defaultGroupName" value="ldap imports" />
+    <property name="defaultPin" value="1111" />
+    <property name="identityAttributeName" value="uid" />
   </bean>
 
   <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowinserter"

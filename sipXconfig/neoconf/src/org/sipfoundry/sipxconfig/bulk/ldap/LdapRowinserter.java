@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -20,16 +22,18 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter.Index;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.setting.Group;
 
 /**
- * Specialized version of row inserter for inserting users from LDAP searches
- * LdapRowinserter
+ * Specialized version of row inserter for inserting users from LDAP searches LdapRowinserter
  */
 public class LdapRowinserter extends RowInserter<SearchResult> {
 
@@ -75,9 +79,47 @@ public class LdapRowinserter extends RowInserter<SearchResult> {
                 user.setPin(pin, m_coreContext.getAuthorizationRealm());
             }
 
+            addGroups(sr, user);
+
             m_coreContext.saveUser(user);
         } catch (NamingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void addGroups(SearchResult sr, User user) throws NamingException {
+        Set<String> groupNames = new HashSet<String>();
+        String defaultGroupName = m_attrMap.getDefaultGroupName();
+        if (defaultGroupName != null) {
+            groupNames.add(defaultGroupName);
+        }
+
+        // group names in the current entry
+        Attributes attrs = sr.getAttributes();
+        Set<String> entryGroups = getValues(attrs, Index.USER_GROUP);
+        if (entryGroups != null) {
+            groupNames.addAll(entryGroups);
+        }
+
+        // group names found in distinguished name
+        if (sr.isRelative()) {
+            String name = sr.getName();
+            LdapName ldapName = new LdapName(name);
+            List<Rdn> rdns = ldapName.getRdns();
+            for (Rdn rdn : rdns) {
+                Attributes rdnsAttributes = rdn.toAttributes();
+                Set<String> rdnsGroups = getValues(rdnsAttributes, Index.USER_GROUP);
+                if (rdnsGroups != null) {
+                    groupNames.addAll(rdnsGroups);
+                }
+
+            }
+        }
+
+        // add all found groups
+        for (String groupName : groupNames) {
+            Group userGroup = m_coreContext.getGroupByName(groupName, true);
+            user.addGroup(userGroup);
         }
     }
 
