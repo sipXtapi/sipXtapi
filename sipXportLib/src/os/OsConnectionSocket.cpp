@@ -233,6 +233,13 @@ OsConnectionSocket::OsConnectionSocket(int serverPort,
       error = 0;
       connectReturn = 0;
    }
+#elif defined(__pingtel_on_posix__)
+   if(error == EINPROGRESS &&
+      !blockingConnect)
+   {
+      error = 0;
+      connectReturn = 0;
+   }
 #endif
 
    if(connectReturn && error)

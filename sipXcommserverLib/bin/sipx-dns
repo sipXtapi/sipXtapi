@@ -135,15 +135,16 @@ done
 
 cat <<EOF
 
-;$SipDomain.		IN	NAPTR	2 0 "s" "SIP+D2T" "" _sip._tcp.$SipDomain.
+$SipDomain.		IN	NAPTR	2 0 "s" "SIP+D2T" "" _sip._tcp.$SipDomain.
 $SipDomain.		IN	NAPTR	2 0 "s" "SIP+D2U" "" _sip._udp.$SipDomain.
+
 EOF
 
 for host in `seq 0 $HostMax`
 do
   server=${Host[$host]}
 cat <<EOF
-;_sip._tcp.$SipDomain.	IN	SRV	1 0 5060 $server.
+_sip._tcp.$SipDomain.	IN	SRV	1 0 5060 $server.
 EOF
 done
 
@@ -171,8 +172,8 @@ then
         cat <<EOF
 
 ; $server routing for ${Name[${!service}]} service
-;_sip._tcp.$service.$server.	IN	SRV	1   0 ${!service} $server.
-_sip._udp.$service.$server.	IN	SRV	1   0 ${!service} $server.
+_sip._tcp.$service.$server.	IN	SRV	1   0 ${!service} $server.
+_sip._udp.$service.$server.	IN	SRV	3   0 ${!service} $server.
 EOF
         for backuphost in `seq 0 $HostMax`
           do
@@ -180,8 +181,8 @@ EOF
           if [ "$server" != "$backup" ] 
               then
               cat <<EOF
-;_sip._tcp.$service.$server.	IN	SRV	2 100 ${!service} $backup.
-_sip._udp.$service.$server.	IN	SRV	2 100 ${!service} $backup.
+_sip._tcp.$service.$server.	IN	SRV	2 100 ${!service} $backup.
+_sip._udp.$service.$server.	IN	SRV	4 100 ${!service} $backup.
 EOF
           fi
         done
