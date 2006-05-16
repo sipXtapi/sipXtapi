@@ -35,7 +35,7 @@
 #  define OS_INVALID_INET_ADDRESS 0xffffffff
 #elif defined(__pingtel_on_posix__)
 #  include "os/linux/AdapterInfo.h"
-#  define OsSocketGetERRNO() (h_errno)
+#  define OsSocketGetERRNO() (errno)
 #  define OS_INVALID_INET_ADDRESS 0xffffffff
 #else
 #  error Unsupported target platform.
