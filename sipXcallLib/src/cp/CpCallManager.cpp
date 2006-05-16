@@ -494,14 +494,12 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    if (!initialized)
    {
       // Get the start time.
-      OsTime current_time;
-      OsDateTime::getCurTime(current_time);
-      INT64 start_time =
-         ((INT64) current_time.seconds()) * 1000000 + current_time.usecs();
+      OsTime currentTime;
+      OsDateTime::getCurTime(currentTime);
 
       // Get the process ID.
-      PID process_id;
-      process_id = OsProcess::getCurrentPID();
+      PID processId;
+      processId = OsProcess::getCurrentPID();
 
       // Get the host identity.
       UtlString thisHost;
@@ -510,7 +508,9 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       thisHost.replace('@','*');
 
       // Compose the static fields.
-      sprintf(buffer, "%d/%lld/%s", process_id, start_time, thisHost.data());
+      // Force usecs. to be 6 digits withleading zeros so that we do not have to do 64 bit integer math
+      // just to build a big unique string.
+      sprintf(buffer, "%d/%ld%.6ld/%s", processId, currentTime.seconds(), currentTime.usecs(), thisHost.data());
       // Hash them.
       NetMd5Codec encoder;
       encoder.encode(buffer, suffix);
