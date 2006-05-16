@@ -13,7 +13,7 @@
       <fieldMatch fieldName="Event">
         <fieldPattern>message-summary.*</fieldPattern>
         <!--this goes to the status server-->
-        <routeTo>&lt;${STATUS_SERVER_SIP_SRV_OR_HOSTPORT}&gt;</routeTo>
+        <routeTo>&lt;${STATUS_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
       </fieldMatch>
 
       <!-- All other SUBSCRIBE requests go to the SIP registry service -->
