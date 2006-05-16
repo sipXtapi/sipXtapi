@@ -1,10 +1,16 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+//
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -137,11 +143,7 @@ int OsSocket::write(const char* buffer, int bufferLength)
    {
       count = 0;
       numForFailure = 10;
-#ifdef _WIN32
-      closesocket(socketDescriptor);
-#else
-      ::close(socketDescriptor);
-#endif
+      close();
       return 0;
    }
 #endif // FORCE_SOCKET_ERRORS
@@ -201,11 +203,8 @@ int OsSocket::read(char* buffer, int bufferLength)
    {
       count = 0;
       numForFailure = 10;
-#ifdef _WIN32
-      closesocket(socketDescriptor);
-#else
-      ::close(socketDescriptor);
-#endif
+
+      close();
       return 0;
    }
 #endif //FORCE_SOCKET_ERRORS
@@ -247,11 +246,8 @@ int OsSocket::read(char* buffer, int bufferLength,
    {
       count = 0;
       numForFailure = 10;
-#ifdef _WIN32
-      closesocket(socketDescriptor);
-#else
-      ::close(socketDescriptor);
-#endif
+
+      close();
       return 0;
    }
 
@@ -320,11 +316,8 @@ int OsSocket::read(char* buffer, int bufferLength,
    {
       count = 0;
       numForFailure = 10;
-#ifdef _WIN32
-                closesocket(socketDescriptor);
-#else
-                ::close(socketDescriptor);
-#endif
+
+      close();
       return 0;
    }
 #endif //FORCE_SOCKET_ERRORS
@@ -370,11 +363,8 @@ UtlBoolean OsSocket::isReadyToReadEx(long waitMilliseconds,UtlBoolean &rSocketEr
       count = 0;
       numForFailure = 10;
 
-#ifdef _WIN32
-                closesocket(socketDescriptor);
-#else
-                ::close(socketDescriptor);
-#endif
+
+      close();
       rSocketError = TRUE;
       return FALSE;
    }
@@ -548,11 +538,7 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
       count = 0;
       numForFailure = 10;
 
-#ifdef _WIN32
-                closesocket(socketDescriptor);
-#else
-                ::close(socketDescriptor);
-#endif
+      close();
       return FALSE;
    }
 #endif //FORCE_SOCKET_ERRORS
@@ -650,26 +636,33 @@ UtlBoolean OsSocket::isReadyToWrite(long waitMilliseconds) const
 
 void OsSocket::close()
 {
-        if(socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
+    // There seems to be a race condition in the unit tests where
+    // close is called twice.  Trying to avoid adding a lock on the
+    // socket itself as locking of the socket is supposed to be an
+    // application problem.  For now close the window where a socket
+    // descriptor can be closed twice in two threads at nearly the
+    // same time as this seems to be a bad thing.
+    int tempSocketDescriptor = socketDescriptor;
+    socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+        if(tempSocketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
         {
 #ifdef TEST_PRINT
-                osPrintf("Closing type: %d socket: %d\n", getIpProtocol(), socketDescriptor);
+                osPrintf("Closing type: %d socket: %d\n", getIpProtocol(), tempSocketDescriptor);
 #endif
 #       if defined(_WIN32)
-                closesocket(socketDescriptor);
+                closesocket(tempSocketDescriptor);
 #       elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
 
 #          if defined(__pingtel_on_posix__)
               // This forces any selects which are blocked on
               // this socket to return
-              shutdown(socketDescriptor, SHUT_RDWR);
+              shutdown(tempSocketDescriptor, SHUT_RDWR);
 #           endif
 
-                ::close(socketDescriptor);
+                ::close(tempSocketDescriptor);
 #       else
 #       error Unsupported target platform.
 #       endif
-                socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
         }
 }
 
