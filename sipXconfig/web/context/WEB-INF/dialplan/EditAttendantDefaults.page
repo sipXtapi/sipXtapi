@@ -8,6 +8,7 @@
   <property name="group" />
   <property name="parentSettingName"  persist="session"/>
   <property name="parentSetting" />
+  <property name="decoratedSettings"/>
   <inject property="settingDao" object="spring:settingDao"/>
   <property name="returnPage"  persist="session"/>
   <!-- B E A N S -->
@@ -16,7 +17,7 @@
     - C O M P O N E N T S
     -->
   <component id="settingsForm" type="SettingsForm">
-    <binding name="settings" value="settings"/>
+    <binding name="settings" value="decoratedSettings"/>
     <binding name="cancelListener" value="listener:cancel"/>
     <binding name="okListener" value="listener:ok"/>
     <binding name="applyListener" value="listener:apply"/>

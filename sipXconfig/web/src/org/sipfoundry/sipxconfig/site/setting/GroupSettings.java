@@ -45,6 +45,8 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
     public abstract void setSettings(Setting setting);
 
     public abstract Setting getSettings();
+    
+    public abstract void setDecoratedSettings(Setting settings);
 
     public abstract void setReturnPage(String returnPage);
 
@@ -79,6 +81,7 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
         group.decorate(settings);
         Setting parent = settings.getSetting(currentSettingName);
         setParentSetting(parent);
+        setDecoratedSettings(settings);
     }
 
     public String ok() {
