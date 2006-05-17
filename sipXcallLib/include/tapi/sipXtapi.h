@@ -870,16 +870,16 @@ typedef enum SIPX_NOISE_REDUCTION_MODE
  *
  * @param phInst A pointer to a hInst that must be various other
  *        sipx routines. 
- * @param udpPort The default UDP port for the SIP protocol stack.  The
- *        port cannot be changed after initialization.  Right now, 
- *        the UDP port and TCP port numbers MUST be equal.  Pass a value of 
- *        SIPX_PORT_DISABLE (-1) to disable disable UDP or a value of 
- *        SIPX_PORT_AUTO (-2) to automatically select an open UDP port.
  * @param tcpPort The default TCP port for the SIP protocol stack.  The
  *        port cannot be changed after initialization.    Right now, 
  *        the UDP port and TCP port numbers MUST be equal.  Pass a value of 
  *        SIPX_PORT_DISABLE (-1) to disable disable TCP or a value of 
  *        SIPX_PORT_AUTO (-2) to automatically select an open TCP port.
+ * @param udpPort The default UDP port for the SIP protocol stack.  The
+ *        port cannot be changed after initialization.  Right now, 
+ *        the UDP port and TCP port numbers MUST be equal.  Pass a value of 
+ *        SIPX_PORT_DISABLE (-1) to disable disable UDP or a value of 
+ *        SIPX_PORT_AUTO (-2) to automatically select an open UDP port.
  * @param tlsPort **NOT YET SUPPORTED**
  * @param rtpPortStart The starting port for inbound RTP traffic.  The
  *        sipX layer will use ports starting at rtpPortStart and ending
@@ -908,8 +908,8 @@ typedef enum SIPX_NOISE_REDUCTION_MODE
  * @param szDbLocation Path to the certificate database.
  */
 SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
-                                        const int udpPort = DEFAULT_UDP_PORT,
                                         const int tcpPort = DEFAULT_TCP_PORT,
+                                        const int udpPort = DEFAULT_UDP_PORT,
                                         const int tlsPort = DEFAULT_TLS_PORT,
                                         const int rtpPortStart = DEFAULT_RTP_START_PORT,
                                         const int maxConnections = DEFAULT_CONNECTIONS,
