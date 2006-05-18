@@ -57,24 +57,32 @@ public class JndiLdapTemplate extends JndiTemplate {
         return environment;
     }
 
+    private void setProperty(String property, String value) {
+        Properties properties = getEnvironment();
+        if (value == null) {
+            properties.remove(property);
+        } else {
+            properties.setProperty(property, value);
+        }
+    }
+
     public void setSecurityAuthentication(String value) {
-        getEnvironment().setProperty(Context.SECURITY_AUTHENTICATION, value);
+        setProperty(Context.SECURITY_AUTHENTICATION, value);
     }
 
     public void setSecurityPrincipal(String value) {
-        getEnvironment().setProperty(Context.SECURITY_PRINCIPAL, value);
+        setProperty(Context.SECURITY_PRINCIPAL, value);
     }
 
     public void setSecurityCredentials(String value) {
-        getEnvironment().setProperty(Context.SECURITY_CREDENTIALS, value);
+        setProperty(Context.SECURITY_CREDENTIALS, value);
     }
 
     public void setIntialContextFactory(String value) {
-        getEnvironment().put(Context.INITIAL_CONTEXT_FACTORY, value);
+        setProperty(Context.INITIAL_CONTEXT_FACTORY, value);
     }
 
     public void setProviderUrl(String value) {
         getEnvironment().put(Context.PROVIDER_URL, value);
     }
-
 }

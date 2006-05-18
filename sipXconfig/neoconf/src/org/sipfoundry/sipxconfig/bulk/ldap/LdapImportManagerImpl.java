@@ -26,17 +26,21 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
 
     private JndiLdapTemplate m_jndiTemplate;
 
-    private RowInserter< ? extends SearchResult> m_rowInserter;
+    private LdapManager m_ldapManager;
 
-    private AttrMap m_attrMap;
+    private RowInserter< ? extends SearchResult> m_rowInserter;
 
     public void insert() {
         String base = "dc=sipfoundry,dc=com";
         String filter = "objectclass=person";
 
+        // FIXME: this is a potential threading problem - we cannot have one template shared if we
+        // are changing the connection params for each insert operation
+        m_ldapManager.getConnectionParams().applyToTemplate(m_jndiTemplate);
+
         SearchControls sc = new SearchControls();
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
-        sc.setReturningAttributes(m_attrMap.getLdapAttributesArray());
+        sc.setReturningAttributes(m_ldapManager.getAttrMap().getLdapAttributesArray());
 
         try {
             NamingEnumeration<SearchResult> result = m_jndiTemplate.search(base, filter, sc);
@@ -56,9 +60,5 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
 
     public void setRowInserter(RowInserter rowInserter) {
         m_rowInserter = rowInserter;
-    }
-
-    public void setAttrMap(AttrMap attrMap) {
-        m_attrMap = attrMap;
     }
 }

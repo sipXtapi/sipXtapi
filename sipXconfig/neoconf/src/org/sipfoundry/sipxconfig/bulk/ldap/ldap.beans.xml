@@ -34,16 +34,26 @@
 
   <bean id="jndiTemplate" class="org.sipfoundry.sipxconfig.bulk.ldap.JndiLdapTemplate">
     <property name="intialContextFactory" value="com.sun.jndi.ldap.LdapCtxFactory" />
-    <property name="providerUrl" value="ldap://localhost:389" />
-    <property name="securityAuthentication" value="none" />
+  </bean>
+
+  <bean id="ldapConnectionParams"
+    class="org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams">
+    <property name="host" value="localhost" />
+    <property name="port" value="389" />
+  </bean>
+
+  <bean id="ldapManager" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl">
+    <property name="connectionParams">
+      <ref local="ldapConnectionParams" />
+    </property>
+    <property name="attrMap">
+      <ref local="attrMap" />
+    </property>
   </bean>
 
   <bean id="ldapImportManagerImpl"
     class="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="attrMap">
-      <ref local="attrMap" />
-    </property>
     <property name="rowInserter">
       <ref local="ldapRowInserter" />
     </property>
