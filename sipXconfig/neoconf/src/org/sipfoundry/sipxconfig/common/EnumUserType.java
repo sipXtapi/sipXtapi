@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,6 +20,7 @@ import java.sql.Types;
 
 import org.apache.commons.lang.enums.Enum;
 import org.apache.commons.lang.enums.EnumUtils;
+import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
 import org.hibernate.usertype.UserType;
 
@@ -31,6 +33,26 @@ public class EnumUserType implements UserType {
 
     public EnumUserType(Class enumClass) {
         m_enumClass = enumClass;
+        initStaticFields();
+    }
+
+    /**
+     * Initializes static fields for this enumeration
+     * 
+     * Workaround for: http://issues.apache.org/jira/browse/LANG-76
+     * 
+     */
+    public void initStaticFields() {
+        Field[] fields = m_enumClass.getFields();
+        if (fields.length > 0) {
+            try {
+                fields[0].get(null);
+            } catch (Exception e) {
+                // we are going to get NullPointerException here
+                // ignore it - we are just loading class to trigger static field init
+                LogFactory.getLog(getClass()).debug("Initializing static fields for: " + m_enumClass);
+            }
+        }
     }
 
     /**
@@ -52,7 +74,7 @@ public class EnumUserType implements UserType {
     /**
      * @see org.hibernate.usertype.UserType#equals(java.lang.Object, java.lang.Object)
      */
-    public boolean equals(Object x, Object y)  {
+    public boolean equals(Object x, Object y) {
         if (x == y) {
             return true;
         }
@@ -75,8 +97,8 @@ public class EnumUserType implements UserType {
     }
 
     /**
-     * @see org.hibernate.usertype.UserType#nullSafeSet(java.sql.PreparedStatement, java.lang.Object,
-     *      int)
+     * @see org.hibernate.usertype.UserType#nullSafeSet(java.sql.PreparedStatement,
+     *      java.lang.Object, int)
      */
     public void nullSafeSet(PreparedStatement st, Object value, int index) throws SQLException {
         // make sure the received value is of the right type
