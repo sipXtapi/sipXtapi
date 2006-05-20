@@ -27,15 +27,17 @@ Contents:
   Please help!
 
 ====================
-Windows instructions
+Windows instructions for MSVS6
 ====================
 
 The sipXezPhone depends on other SIPFoundry projects:
-sipXportLib, sipXtackLib, sipXmediaLib, and sipXcallLib.
+sipXportLib, sipXtackLib, sipXmediaLib, sipXmeidaAdapterLib and sipXcallLib.
 For more information, please see the build and install documentation
 for those projects.
-The top-level sipXezPhone.sln will configure and build all of the dependant
-projects.
+Open the sipXportLib.dsp, sipXtackLib.dsp, sipXmediaLib.dsp, sipXmediaAdapterLib.dsp
+and sipXcallLib.dsp one at a time, select the Win32 Debug build option and build
+each library.  See the sipXportLib/INSTALL file for details on the dependencies for
+these sipX libraries.
 
 -------------------------------
 Getting the Source Code
@@ -62,46 +64,11 @@ Installing 3rd party components
 
 Required Software
 -----------------
-MSVC    - Microsoft Visual Studio.NET 2003.
+MSVC    - Microsoft Visual Studio 6.0, be sure to install the latest service pack.
           (or greater).
-GLib2   - Low-level core library that forms the basis of GTK+ and GNOME
 PCRE    - Perl Compatible Regular Expression Library
 wxWidgets - Open-source, platform independent GUI library
 
-
-Installing Glib2
-----------------
-Latest tested version: 2.4.7
-
-You will need the following glib packages/files:
-  glib-2.4.7.zip : glib runtime environment
-  glib-dev-2.4.7.zip : glib developer package
-  libiconv-1.9.1.bin.woe32.zip : GNU libiconv
-  gettext-runtime-0.13.1.zip : GNU gettext runtime for Win32
-
-You can obtain these from Tor Lillqvist (maintains the Windows port of
-GLIB/GTK+) by pointing your browser at:
-   http://www.gimp.org/~tml/gimp/win32/downloads.html
-
-Alternatively, you can download these files from SIPfoundry:
-  http://www.sipfoundry.org/pub/sipXphone/depends/win32/
-
-Using your favorite archive utility, extract the contents of each file into
-a new glib directory (e.g. "C:\glib").
-
-Next add the glib paths to your MSVC environment (assuming installation into
-C:\glib):
-
-Additional "Include files":
-   C:\glib\include\glib-2.0
-   C:\glib\lib\glib-2.0\include
-
-Additional "Library files":
-   C:\glib\lib
-
-In MSVC, select "Options" from the "Tools" menu, select the "Projects"
-folder, select "VC++ Directories", and then select either "Include files" or
-"Library files" from the right-aligned dropdown list.
 
 Installing PCRE
 ---------------
@@ -121,36 +88,36 @@ environment first is known to work.
 Next add the PCRE  paths to your MSVC environment (assuming installation into
 C:\Program Files\GnuWin32):
 
-Additional "Include files":
-   C:\Program Files\GnuWin32\include
-
-Additional "Library files":
-   C:\Program Files\GnuWin32\lib
-
-See "Installing Glib2" for hints on adding include and library paths.
 
 Installing wxWidgets
 --------------------
 The wxWidgets library can be downloaded from http://www.wxwidgets.org/.
-sipXezPhone uses version 2.4.2 of wxWidgets.
+sipXezPhone uses version 2.6.2 of wxWidgets.
 
-By default, the wxWidgets' setup.exe installs the libraries in the
-\wxWindows-2.4.2 folder.
+By default, unzip the wxWidgets source to the
+wxWindows-2.6.2 folder.
 
 NOTE - there is one important post-installation step for installing wxWidgets:
-       copy setup.h from \wxWindows-2.4.2\include\wx\msw
-                      to \wxWindows-2.4.2\include\wx
+       copy setup.h from \wxWindows-2.6.2\include\wx\msw
+                      to \wxWindows-2.6.2\include\wx
                       
 Building wxWigets
 -----------------
-Using Visual Studio open up the C:\wxWindows-2.4.2\src\wxWindows.dsw workspace.
-Using the Batch Build feature build all projects in the workspace.
+Open the build\msw\wx_dll.dsp
+Select the "Wind32 DLL Debug" build option. One at a time select the core, base and adv
+projects and build them.
+
+Set up your MSVC6 environment to find the wxWidgets libraries:
+Under Tools->options... 
+1) add the include directores: wxWidgets-2.6.2\include and wxWidgets-2.6.2\lib\vc_lib\mswd
+2) add the library directory: wxWidgets-2.6.2\lib\vc_dll
+
 
 -----------------
 Building C++ Code
 -----------------
 
-Open "sipXezPhone.sln" in MSVC, verify that "sipXezPhone" is the default project
+Open "sipXezPhone.dsp" in MSVC, verify that "Win32 Debug" is the default project
 and build.  You should end up building "sipXezPhone.exe", "sipXtapi.dll" and the dependent .libs.
 
 NOTE - there is currently and issue where the projects in the sipXezPhone solution may attempt to build in the
@@ -182,27 +149,6 @@ the directory containing sipXezPhone.exe, or point your working directory to sip
 Troubleshooting: Build Problems
 -------------------------------
 
-error C2955: 'allocator' : use of class template requires template ...
-----------------------------------------------------------------------
-There seems to be a naming conflict between GLIB and and MSVC 6 (may also
-exist for 7.x).  If you run into this problem, please change the 4 GLIB
-references of "allocator" to something different.
-
-For example, change
-
-  "void g_node_push_allocator(GAllocator *allocator);"
-
-to
-
-  "void g_node_push_allocator(GAllocator *allocatorX);"
-
-If using GLIB 2.4.7, you will need to modify these references:
-...\glib\include\glib-2.0\glib\gmem.h - line 164
-...\glib\include\glib-2.0\glib\glist.h - line 45
-...\glib\include\glib-2.0\glib\gslist.h - line 44
-...\glib\include\glib-2.0\glib\gnode.h - line 77
-
-
 RTTI must be enabled
 --------------------
 Many of the projects are starting to use the dynamic_cast<>()  mechanism to
@@ -230,14 +176,7 @@ Rebuild wxWidgets with the following command lines
 Troubleshooting: Runtime Problems
 -------------------------------
 
-A STATUS_DLL_NOT_FOUND failure at start-up can be caused
-if the application cannot find sipXtapi.dll or sipXtapid.dll (for debug).
 
-You can:
-1.  Set the working directory of sipXezPhone to the folder containing the 
-    sipXtapi.dll or sipXtapid.dll.
-2.  Copy the sipXtapi.dll or sipXtapid.dll to the same folder as the sipXezPhone.exe
-3.  Add the folder containing sipXtapid.dll and/or sipXtapi.dll to your path.
 
 ==================
 Linux instructions

@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MD /W3 /GR /GX /Zi /Od /I "../../include" /I "..\..\lib\mswd" /I "\wxWindows-2.4.2\include" /I "..\..\..\sipXportLib\include" /I "..\..\..\sipXtackLib\include" /I "..\..\..\gips" /D "NDEBUG" /D "WIN32" /D "_WINDOWS" /D WINVER=0x400 /D "_MT" /D wxUSE_GUI=1 /D "DONT_USE_LONG_LONG" /FR /YX"stdwx.h" /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /Zi /Od /I "../../include" /I "..\..\lib\mswd" /I "\wxWindows-2.4.2\include" /I "..\..\..\sipXportLib\include" /I "..\..\..\sipXtackLib\include" /I "..\..\..\gips" /D "_DEBUG" /D "_WIN32" /D "__WXMSW__" /D "__WXDEBUG__" /D "WXUSINGDLL" /D "NOPCH" /D "WIN32" /D "_WINDOWS" /D "DONT_USE_LONG_LONG" /D "SIPXTAPI_STATIC" /FR /YX"stdwx.h" /FD /c
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
@@ -80,7 +80,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 advapi32.lib wsock32.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib uuid.lib zlib.lib regex.lib png.lib jpeg.lib tiff.lib wxmsw.lib sipXcallLib.lib sipXtapid.lib sipXportLib.lib libpcre.a comctl32.lib comdlg32.lib shell32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMTD.lib" /nodefaultlib:"LIBCMT.lib" /nodefaultlib:"MSVCRT" /out:"..\..\sipXtapi\debug\sipXezPhone.exe" /pdbtype:sept /libpath:"..\..\Debug" /libpath:"\\" /libpath:"..\..\sipXtapi\Debug" /libpath:"\wxWindows-2.4.2\lib" /libpath:"..\..\..\sipXportLib\Debug"
+# ADD LINK32 advapi32.lib wsock32.lib kernel32.lib user32.lib gdi32.lib ole32.lib oleaut32.lib uuid.lib wxmsw26d_adv.lib wxbase26d.lib wxmsw26d_core.lib sipXcallLibd.lib sipXportLibd.lib sipXtackLibd.lib sipXmediaAdapterLibd.lib sipXmediaLibd.lib libpcre.a comctl32.lib comdlg32.lib shell32.lib winmm.lib libeay32.lib ssleay32.lib /nologo /subsystem:windows /debug /machine:I386 /nodefaultlib:"LIBCMTD.lib" /nodefaultlib:"LIBCMT.lib" /nodefaultlib:"MSVCRT" /out:"..\..\sipXtapi\debug\sipXezPhone.exe" /pdbtype:sept /libpath:"..\..\Debug" /libpath:"..\..\sipXtapi\Debug" /libpath:"..\..\..\sipXportLib\Debug" /libpath:"..\..\..\sipXtackLib\Debug" /libpath:"..\..\..\sipXmediaAdapterLib\Debug" /libpath:"..\..\..\sipXmediaLib\Debug"
 # SUBTRACT LINK32 /pdb:none
 
 !ENDIF 
@@ -166,6 +166,10 @@ SOURCE=.\states\PhoneStateTransferRequested.cpp
 # End Group
 # Begin Source File
 
+SOURCE=.\AddContactDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ButtonPanel.cpp
 # End Source File
 # Begin Source File
@@ -183,6 +187,10 @@ SOURCE=.\ConferencePanel.cpp
 # Begin Source File
 
 SOURCE=.\ContactListCtrl.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ContactListPanel.cpp
 # End Source File
 # Begin Source File
 
@@ -211,6 +219,10 @@ SOURCE=.\MainPanel.cpp
 # Begin Source File
 
 SOURCE=.\PlacedCallList.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\PreviewWindow.cpp
 # End Source File
 # Begin Source File
 
@@ -250,7 +262,23 @@ SOURCE=.\sipXmgr.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\sipXSrtpSettingsDlg.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\sipXVideoSettingsDlg.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\stdwx.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\VideoPanel.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\VideoWindow.cpp
 # End Source File
 # Begin Source File
 
