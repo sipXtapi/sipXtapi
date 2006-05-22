@@ -50,8 +50,6 @@ public class ConfigFileStorage implements Storage {
     }
 
     public SettingValue2 getSettingValue(Setting setting) {
-        // by always returning something this is not fail-fast, unclear if strictly nec.
-        // but I'm preserving functionality that was here before major settings refactoring
         SettingValue2 value = null;
         try {
             Properties properties = loadForFile(setting);
@@ -68,7 +66,7 @@ public class ConfigFileStorage implements Storage {
     public void setSettingValue(Setting setting, SettingValue2 value, SettingValue2 defaultValue) {
         try {
             Properties properties = loadForFile(setting);
-            properties.put(setting.getName(), value.getValue());
+            properties.put(setting.getName(), StringUtils.defaultString(value.getValue()));
         } catch (IOException e) {
             LOG.warn("cannot set config file value", e);
         }

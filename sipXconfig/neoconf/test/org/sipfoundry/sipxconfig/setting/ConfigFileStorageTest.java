@@ -105,5 +105,9 @@ public class ConfigFileStorageTest extends TestCase {
         }
         assertTrue("Setting not found", found);
     }
+    
+    public void testSetNull() throws Exception {
+        m_storage.setValue(m_andorra, null);
+    }
 
 }
