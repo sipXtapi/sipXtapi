@@ -66,7 +66,6 @@ public class PhoneTest extends TestCase {
         defaults.setDomainName("sipfoundry.org");
         MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
         PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
-        phoneContextCtrl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults, MockControl.ONE_OR_MORE);
         phoneContextCtrl.replay();
 
         Phone phone = new AcmePhone();

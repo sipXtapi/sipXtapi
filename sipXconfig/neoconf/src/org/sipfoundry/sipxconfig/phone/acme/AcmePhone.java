@@ -12,10 +12,10 @@
 package org.sipfoundry.sipxconfig.phone.acme;
 
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
+import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -78,23 +78,23 @@ public class AcmePhone extends Phone {
     
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new AcmeDefaults(getPhoneContext().getPhoneDefaults()));
+        addDefaultBeanSettingHandler(new AcmeDefaults(getPhoneContext()));
     }
     
     @Override
     public void initializeLine(Line line) {
-        line.addDefaultBeanSettingHandler(new AcmeDefaults(getPhoneContext().getPhoneDefaults()));
+        line.addDefaultBeanSettingHandler(new AcmeLineDefaults(line));
     }
     
     public static class AcmeDefaults {
-        private DeviceDefaults m_defaults;
-        AcmeDefaults(DeviceDefaults defaults) {
-            m_defaults = defaults;
+        private PhoneContext m_context;
+        AcmeDefaults(PhoneContext context) {
+            m_context = context;
         }
         
         @SettingEntry(path = TFTP_SERVER_SETTING)
         public String getProfileDirectory() {
-            return m_defaults.getTftpServer();            
+            return m_context.getPhoneDefaults().getTftpServer();            
         }        
     }
     
