@@ -13,94 +13,73 @@ package org.sipfoundry.sipxconfig.setting;
 
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public class BeanWithSettings extends BeanWithId {
+public abstract class BeanWithSettings extends BeanWithId {
+    private ModelFilesContext m_modelFilesContext;
+    private Setting m_settings;
+    private BeanWithSettingsModel m_model2;
 
     /**
      * While settings are getting decorated, this represents the settings that should be decorated
      */
-    private ValueStorage m_valueStorage;
-       
-    private Setting m_settings;
+    private Storage m_valueStorage;
     
-    private Setting m_model;
     
-    private SettingModelImpl m_model2 = new SettingModelImpl();
-    
-    /** settings are lazy loaded */
-    private boolean m_initializedSettings;
-    
-    /**
-     * @return undecorated model - direct representation of XML model description
-     */
-    public Setting getSettingModel() {
-        return (m_model != null ? m_model.copy() : null);
+    public BeanWithSettings() {
+        initializeSettingModel();
     }
     
-    public void setSettingModel(Setting model) {
-        m_model = model;
-
-        // until settingmodel2 replaces settingmodel
-        getSettingModel2().addSettingValueHandler((SettingValueHandler) model);
+    protected void initializeSettingModel() {
+        setSettingModel2(new BeanWithSettingsModel(this));        
     }
     
     /**
-     * TEMPORARY - SettingModel2 will replace SettingModel
-     * @return
+     * Called after bean has been injected w/initializing objects (e.g. spring) 
      */
-    public synchronized SettingModel2 getSettingModel2() {
+    public abstract void initialize();
+    
+    protected void setSettingModel2(BeanWithSettingsModel model) {
+        m_model2 = model;
+    }
+    
+    protected BeanWithSettingsModel getSettingModel2() {
         return m_model2;
     }
-
+    
+    public void addDefaultSettingHandler(SettingValueHandler handler) {
+        m_model2.addDefaultsHandler(handler);
+    }
+    
+    public void addDefaultBeanSettingHandler(Object bean) {
+        addDefaultSettingHandler(new BeanValueStorage(bean));        
+    }
+    
     /**
      * @return decorated model - use this to modify phone settings
      */
     public Setting getSettings() {
-        if (!m_initializedSettings) {
-            m_initializedSettings = true;
-            setSettings(getSettingModel());
-            defaultSettings();
-            decorateSettings();
+        if (m_settings != null) {
+            return m_settings;
         }
-
+        setSettings(loadSettings());
         return m_settings;
     }
     
-    protected void setSettings(Setting settings) {
+    protected abstract Setting loadSettings();
+    
+    public void setSettings(Setting settings) {
         m_settings = settings;
+        m_model2.setSettings(m_settings);
     }
         
-    protected void decorateSettings() {
-        Setting settings = getSettings();
-        if (settings == null) {
-            return;
-        }
-        
-        ValueStorage storage = getInitializeValueStorage();        
-        storage.decorate(settings);
-        
-        setSettings(settings);
-    }
-    
-    /**
-     * Make adjustments to current settings based on object state sparing the user 
-     * from having to specifiy them. Default implementation applys no defaults, override
-     * to supply your own.
-     */
-    protected void defaultSettings() {
-    }
-    
-    public void setValueStorage(ValueStorage valueStorage) {
+    public void setValueStorage(Storage valueStorage) {
         m_valueStorage = valueStorage;
-        if (m_valueStorage != null) {
-            getSettingModel2().addSettingValueHandler(m_valueStorage);
-        }
     }
 
-    public ValueStorage getValueStorage() {
+    public Storage getValueStorage() {
         return m_valueStorage;
     }
     
-    protected synchronized ValueStorage getInitializeValueStorage() {
+    protected synchronized Storage getInitializeValueStorage() {
         if (m_valueStorage == null) {
             setValueStorage(new ValueStorage());
         }
@@ -117,6 +96,15 @@ public class BeanWithSettings extends BeanWithId {
     }
 
     public void setSettingValue(String path, String value) {
-        getInitializeValueStorage().setValue(getSettings().getSetting(path), value);
+        Setting setting = getSettings().getSetting(path);
+        setting.setValue(value);        
+    }    
+
+    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
+        m_modelFilesContext = modelFilesContext;
+    }
+    
+    public ModelFilesContext getModelFilesContext() {
+        return m_modelFilesContext;
     }
 }

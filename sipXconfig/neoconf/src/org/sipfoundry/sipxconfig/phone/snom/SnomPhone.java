@@ -20,31 +20,25 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneSettings;
-import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SnomPhone extends Phone {
-
     public static final String BEAN_ID = "snom";
-
-    public static final String USER_HOST = "line/user_host";
-
-    public static final String MAILBOX = "line/user_mailbox";
-
-    public static final String OUTBOUND_PROXY = "sip/user_outbound";
-
+    
+    private static final String USER_HOST = "line/user_host";
+    // suspiciously, no registration server port?
+    
+    private static final String MAILBOX = "line/user_mailbox";
+    private static final String OUTBOUND_PROXY = "sip/user_outbound";
+    private static final String USER_NAME = "line/user_name";
+    private static final String PASSWORD = "line/user_pass";
+    private static final String AUTH_NAME = "line/user_pname";
+    private static final String DISPLAY_NAME = "line/user_realname";
     private static final String TIMEZONE_SETTING = "network/utc_offset";
-
     private static final String CONFIG_URL = "update/setting_server";
-
     private static final String DST_SETTING = "network/dst";
-
     private static final String UDP_TRANSPORT_TAG = ";transport=udp";
 
     public SnomPhone() {
@@ -61,12 +55,37 @@ public class SnomPhone extends Phone {
         setPhoneTemplate("snom/snom.vm");
     }
 
-    public void setPhoneContext(PhoneContext context) {
-        super.setPhoneContext(context);
+    @Override    
+    public void initialize() {
+        SnomDefaults defaults = new SnomDefaults(getPhoneContext().getPhoneDefaults(), this);
+        addDefaultBeanSettingHandler(defaults);
+    }
 
-        SnomDefaults defaults = new SnomDefaults(context.getPhoneDefaults(), this);
-        BeanValueStorage vs = new BeanValueStorage(defaults);
-        getSettingModel2().addSettingValueHandler(vs);
+    @Override    
+    public void initializeLine(Line line) {
+        SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(),
+                line);
+        line.addDefaultBeanSettingHandler(defaults);
+    }
+    
+    @Override
+    protected void setLineInfo(Line line, LineInfo externalLine) {
+        line.setSettingValue(DISPLAY_NAME, externalLine.getDisplayName());
+        line.setSettingValue(USER_NAME, externalLine.getUserId());        
+        line.setSettingValue(PASSWORD, externalLine.getPassword());        
+        line.setSettingValue(USER_HOST, externalLine.getRegistrationServer());
+        line.setSettingValue(MAILBOX, externalLine.getVoiceMail());
+    }
+    
+    @Override
+    protected LineInfo getLineInfo(Line line) {
+        LineInfo lineInfo = new LineInfo();
+        lineInfo.setUserId(line.getSettingValue(USER_NAME));
+        lineInfo.setDisplayName(line.getSettingValue(DISPLAY_NAME));
+        lineInfo.setPassword(line.getSettingValue(PASSWORD));
+        lineInfo.setRegistrationServer(line.getSettingValue(USER_HOST));
+        lineInfo.setVoiceMail(line.getSettingValue(MAILBOX));
+        return lineInfo;
     }
 
     public String getPhoneFilename() {
@@ -88,18 +107,6 @@ public class SnomPhone extends Phone {
         return getModel().getMaxLineCount();
     }
 
-    public Object getAdapter(Class c) {
-        Object o = null;
-        if (c == PhoneSettings.class) {
-            SettingBeanAdapter adapter = new SettingBeanAdapter(c);
-            adapter.setSetting(getSettings());
-            o = adapter.getImplementation();
-        } else {
-            o = super.getAdapter(c);
-        }
-        return o;
-    }
-
     public Collection getProfileLines() {
         int lineCount = getModel().getMaxLineCount();
         ArrayList linesSettings = new ArrayList(getMaxLineCount());
@@ -113,26 +120,15 @@ public class SnomPhone extends Phone {
 
         for (; i < lineCount; i++) {
             Line line = createLine();
+            line.setPhone(this);
             line.setPosition(i);
             linesSettings.add(line.getSettings());
-            LineSettings s = (LineSettings) line.getAdapter(LineSettings.class);
-            s.setRegistrationServer(StringUtils.EMPTY);
-            s.setRegistrationServerPort(StringUtils.EMPTY);
         }
 
         return linesSettings;
     }
-
-    protected void defaultSettings() {
-        super.defaultSettings();
-
-        Setting settings = getSettings();
-        DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
-        String configUrl = defaults.getProfileRootUrl() + '/' + getProfileName();
-        settings.getSetting(CONFIG_URL).setValue(configUrl);
-    }
-
-    static class SnomDefaults {
+    
+    public static class SnomDefaults {
         private DeviceDefaults m_defaults;
         private SnomPhone m_phone;
 
@@ -175,81 +171,7 @@ public class SnomPhone extends Phone {
         }        
     }
 
-    protected void setDefaultTimeZone() {
-        DeviceTimeZone mytz = new DeviceTimeZone();
-        int tzsec = mytz.getOffset();
-
-        if (tzsec <= 0) {
-            getSettings().getSetting(TIMEZONE_SETTING).setValue(String.valueOf(tzsec));
-        } else {
-            getSettings().getSetting(TIMEZONE_SETTING).setValue('+' + String.valueOf(tzsec));
-        }
-
-        // Snom DST setting waiting for JDK 1.5x
-        // String dst;
-        // if (mytz.getDstOffset() == 0) {
-        //     dst = StringUtils.EMPTY;
-        // } else {
-        //     dst = String.format("%d %02d.%02d.%02d %02d:00:00 %02d.%02d.%02d %02d:00:00",
-        //                         mytz.getDstOffset(), mytz.getStartMonth(),
-        //                         Math.min(mytz.getStartWeek(), 5), (mytz.getStartDayOfWeek() + 5) % 7 + 1,
-        //                         mytz.getStartTime() / 3600, mytz.getStopMonth(),
-        //                         Math.min(mytz.getStopWeek(), 5), (mytz.getStopDayOfWeek() + 5) % 7 + 1,
-        //                         mytz.getStopTime() / 3600);
-        // }
-        // getSettings().getSetting(DST_SETTING).setValue(dst);
-    }
-
-    public Object getLineAdapter(Line line, Class interfac) {
-        Object impl;
-        if (interfac == LineSettings.class) {
-            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
-            adapter.setSetting(line.getSettings());
-            adapter.addMapping(LineSettings.USER_ID, "line/user_name");
-            adapter.addMapping(LineSettings.PASSWORD, "line/user_pass");
-            adapter.addMapping(LineSettings.AUTHORIZATION_ID, "line/user_pname");
-            adapter.addMapping(LineSettings.DISPLAY_NAME, "line/user_realname");
-            adapter.addMapping(LineSettings.REGISTRATION_SERVER, USER_HOST);
-            impl = adapter.getImplementation();
-        } else {
-            impl = super.getAdapter(interfac);
-        }
-        return impl;
-    }
-
-    protected void defaultLineSettings(Line line) {
-        super.defaultLineSettings(line);
-
-        DeviceDefaults defaults = getPhoneContext().getPhoneDefaults();
-        // registration server shouldn't be used, proxy(e.g domain name) should handle delivery
-        String domainName = defaults.getDomainName();
-        String registrationUri = domainName + UDP_TRANSPORT_TAG;
-        line.getSettings().getSetting(USER_HOST).setValue(registrationUri);
-        User user = line.getUser();
-        if (user != null) {
-            // XCF-722 Setting this to the mailbox (e.g. 101) would fix issue
-            // where mailbox button on phone calls voicemail server, but would
-            // break MWI subscription because SUBSCRIBE message fails 
-            // authentication unless this value is user's username
-            line.getSettings().getSetting(MAILBOX).setValue(user.getUserName());
-
-            // XPB-398 This forces TCP, this is defined in conjunction with "transport=udp"
-            // This is benign w/o SRV, but required w/SRV
-            line.getSettings().getSetting(OUTBOUND_PROXY).setValue(
-                    defaults.getFullyQualifiedDomainName());
-        }
-    }
-
-    public void addLine(Line line) {
-        super.addLine(line);
-
-        SnomLineDefaults defaults = new SnomLineDefaults(getPhoneContext().getPhoneDefaults(),
-                line);
-        BeanValueStorage vs = new BeanValueStorage(defaults);
-        line.getSettingModel2().addSettingValueHandler(vs);
-    }
-
-    static class SnomLineDefaults {
+    public static class SnomLineDefaults {
         private Line m_line;
         private DeviceDefaults m_defaults;
 
@@ -260,8 +182,12 @@ public class SnomPhone extends Phone {
 
         @SettingEntry(path = USER_HOST)
         public String getUserHost() {
-            String domainName = m_defaults.getDomainName();
-            String registrationUri = domainName + UDP_TRANSPORT_TAG;
+            String registrationUri = StringUtils.EMPTY; 
+            User u = m_line.getUser();
+            if (u != null) {
+                String domainName = m_defaults.getDomainName();
+                registrationUri = domainName + UDP_TRANSPORT_TAG;
+            }
             return registrationUri;
         }
 
@@ -280,17 +206,44 @@ public class SnomPhone extends Phone {
 
         @SettingEntry(path = MAILBOX)
         public String getMailbox() {
-            String mailbox = null;
+            // XCF-722 Setting this to the mailbox (e.g. 101) would fix issue
+            // where mailbox button on phone calls voicemail server, but would
+            // break MWI subscription because SUBSCRIBE message fails 
+            // authentication unless this value is user's username
+            return getUserName();
+        }
+        
+        @SettingEntry(paths = { USER_NAME, AUTH_NAME })
+        public String getUserName() {
+            String username = null;
             User user = m_line.getUser();
             if (user != null) {
-                // XCF-722 Setting this to the mailbox (e.g. 101) would fix issue
-                // where mailbox button on phone calls voicemail server, but would
-                // break MWI subscription because SUBSCRIBE message fails 
-                // authentication unless this value is user's username
-                mailbox = user.getUserName();
+                username = user.getUserName();
             }
 
-            return mailbox;
+            return username;            
+        }
+        
+        @SettingEntry(path = PASSWORD)
+        public String getPassword() {
+            String password = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                password = user.getSipPassword();
+            }
+
+            return password;            
+        }
+        
+        @SettingEntry(path = DISPLAY_NAME)
+        public String getDisplayName() {
+            String displayName = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                displayName = user.getDisplayName();
+            }
+
+            return displayName;            
         }
     }
 

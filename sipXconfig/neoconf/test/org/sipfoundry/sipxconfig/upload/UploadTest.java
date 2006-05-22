@@ -27,6 +27,7 @@ public class UploadTest extends TestCase {
         m_upload.setModelFilesContext(TestHelper.getModelFilesContext());
         m_upload.setUploadRootDirectory(TestHelper.getTestDirectory() + "/upload");
         m_upload.setDestinationDirectory(mkdirs(TestHelper.getTestDirectory() + "/tftproot"));
+        m_upload.initialize();
     }
     
     private String mkdirs(String dir) {

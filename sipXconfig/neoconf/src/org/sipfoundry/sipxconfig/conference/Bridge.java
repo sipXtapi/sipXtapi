@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
@@ -51,6 +52,22 @@ public class Bridge extends BeanWithSettings implements NamedObject {
 
     /** location - host:port of the admission server */
     private String m_admissionServer;
+        
+    public void initialize() {
+        addDefaultBeanSettingHandler(new BridgeDefaults(this));
+    }
+    
+    public static class BridgeDefaults {
+        private Bridge m_bridge;
+        public BridgeDefaults(Bridge bridge) {
+            m_bridge = bridge;
+        }
+        
+        @SettingEntry(path = SIP_DOMAIN)
+        public String getDomainName() {
+            return m_bridge.m_systemDefaults.getDomainName();
+        }
+    }
 
     public String getHost() {
         return m_host;
@@ -66,6 +83,11 @@ public class Bridge extends BeanWithSettings implements NamedObject {
 
     public void setPort(int port) {
         m_port = port;
+    }
+    
+    @Override
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("sipxconference/bridge.xml");
     }
 
     public void addConference(Conference conference) {
@@ -134,9 +156,10 @@ public class Bridge extends BeanWithSettings implements NamedObject {
         m_audioDirectory = audioDirectory;
     }
 
-    protected void defaultSettings() {
-        setSettingValue(SIP_DOMAIN, m_systemDefaults.getDomainName());
-        getSettings().acceptVisitor(new AudioDirectorySetter());
+    @Override
+    public void setSettings(Setting settings) {
+        settings.acceptVisitor(new AudioDirectorySetter());
+        super.setSettings(settings);
     }
 
     private class AudioDirectorySetter extends AbstractSettingVisitor {

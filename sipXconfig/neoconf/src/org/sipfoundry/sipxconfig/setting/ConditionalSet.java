@@ -12,9 +12,8 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Iterator;
-import java.util.Set;
 
-public class ConditionalSet extends SettingSet implements ConditionalSetting, SettingValueHandler {
+public class ConditionalSet extends SettingSet implements ConditionalSetting {
     private String m_if;
     private String m_unless;
 
@@ -35,15 +34,6 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting, Se
     }
 
     /**
-     * return a deep copy of this setting set that evaluate if/unless expressions that are
-     * contained in this set. Example: if Set = { "Hi" } then settings/groups with if="Hi" will be
-     * included settings/groups with unless="Hi" will not be included
-     */
-    public Setting evaluate(Set definitions) {
-        return evaluate(new SimpleDefinitionsEvaluator(definitions));
-    }
-
-    /**
      * Handle if/unless expression with custom evaluator
      */
     public Setting evaluate(SettingExpressionEvaluator evaluator) {
@@ -54,21 +44,6 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting, Se
     protected Setting shallowCopy() {
         SettingSet copy = (SettingSet) super.shallowCopy();
         return copy;
-    }
-
-    /**
-     * look for expression in the set
-     */
-    static class SimpleDefinitionsEvaluator implements SettingExpressionEvaluator {
-        private Set m_defines;
-
-        public SimpleDefinitionsEvaluator(Set defines) {
-            m_defines = defines;
-        }
-
-        public boolean isExpressionTrue(String expression, Setting setting_) {
-            return m_defines.contains(expression);
-        }
     }
 
     /**
@@ -106,7 +81,8 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting, Se
         }
 
         private void addCopy(Setting copy) {
-            Setting parentCopy = SettingUtil.getSettingFromRoot(m_copy, copy.getParentPath());
+            String parentPath = copy.getParent().getPath();
+            Setting parentCopy = m_copy.getSetting(parentPath);
             if (parentCopy != null) {
                 parentCopy.addSetting(copy);
             }
@@ -126,15 +102,5 @@ public class ConditionalSet extends SettingSet implements ConditionalSetting, Se
 
             return isTrue;
         }
-    }
-
-    public SettingValue2 getSettingValue(Setting setting) {
-        SettingValue2 value = null;
-        Setting s = getSetting(setting.getPath());
-        if (s != null) {
-            value = new SettingValueImpl(s.getValue());
-        }
-        
-        return value;
     }
 }

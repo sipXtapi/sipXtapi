@@ -9,4 +9,18 @@
 	    <setting name="least"/>
 	    <setting name="willow"/>
 	</group>
+  <group name="pigeon">
+      <setting name="passenger">
+        <value>0</value>
+        <description>extinct</description>
+      </setting>
+  </group>
+  <group name="woodpecker">
+      <setting name="ivory-billed">
+        <value>0</value>
+        <description>extinct (thought to be anyway until 2005...)</description>
+      </setting>
+      <setting name="red-bellied"/>
+  </group>
+    
 </model>

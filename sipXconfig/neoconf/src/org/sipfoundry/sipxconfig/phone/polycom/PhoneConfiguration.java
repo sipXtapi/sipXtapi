@@ -15,11 +15,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineSettings;
 
 /**
  * Responsible for generating MAC_ADDRESS.d/phone.cfg
@@ -39,8 +37,7 @@ public class PhoneConfiguration extends VelocityProfileGenerator {
 
     public Collection getLines() {
         PolycomPhone phone = (PolycomPhone) getDevice();
-        int lineCount = Math.min(phone.getModel().getMaxLineCount(), 
-                TEMPLATE_DEFAULT_LINE_COUNT);
+        int lineCount = Math.min(phone.getModel().getMaxLineCount(), TEMPLATE_DEFAULT_LINE_COUNT);
         ArrayList linesSettings = new ArrayList(lineCount);
 
         Collection lines = phone.getLines();
@@ -56,11 +53,8 @@ public class PhoneConfiguration extends VelocityProfileGenerator {
             line.setPhone(phone);
             line.setPosition(i);
             linesSettings.add(line.getSettings());
-            LineSettings s = (LineSettings) line.getAdapter(LineSettings.class);
-            s.setRegistrationServer(StringUtils.EMPTY);
-            s.setRegistrationServerPort(StringUtils.EMPTY);
         }
-        
+
         return linesSettings;
     }
 }

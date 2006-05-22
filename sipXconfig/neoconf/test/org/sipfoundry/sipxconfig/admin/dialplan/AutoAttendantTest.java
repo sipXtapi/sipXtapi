@@ -48,7 +48,8 @@ public class AutoAttendantTest extends XMLTestCase {
 
     public void testActivateDefaultAttendant() throws Exception {
         AutoAttendant aa = new AutoAttendant();
-        aa.setSettingModel(TestHelper.loadSettings("sipxvxml/autoattendant.xml"));
+        aa.initialize();
+        aa.setSettings(TestHelper.loadSettings("sipxvxml/autoattendant.xml"));
         aa.setPrompt("prompt.wav");        
         aa.addMenuItem(DialPad.NUM_0, new AttendantMenuItem(AttendantMenuAction.OPERATOR));
         aa.addMenuItem(DialPad.NUM_1, new AttendantMenuItem(AttendantMenuAction.DISCONNECT));

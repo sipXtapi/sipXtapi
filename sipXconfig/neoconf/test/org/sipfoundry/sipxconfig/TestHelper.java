@@ -106,9 +106,14 @@ public final class TestHelper {
         return settings;
     }
     
-    public static Setting loadSettings(InputStream in) throws IOException {
+    public static Setting loadSettings(InputStream in) {        
         ModelBuilder builder = new XmlModelBuilder("etc");
-        SettingSet root = builder.buildModel(in, null);
+        SettingSet root;
+        try {
+            root = builder.buildModel(in, null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return root;
     }
 

@@ -14,10 +14,10 @@ package org.sipfoundry.sipxconfig.site.gateway;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.site.gateway.GatewaySelectionModel;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway;
 
 /**
  * GatewaySelectionModelTest
@@ -32,7 +32,7 @@ public class GatewaySelectionModelTest extends TestCase {
         List gateways = new ArrayList();
         for (int i = 0; i < NAMES.length; i++) {
             String name = NAMES[i];
-            Gateway gateway = new Gateway();
+            Gateway gateway = new AcmeGateway();
             gateway.setUniqueId();
             gateway.setName(name);
             gateways.add(gateway);

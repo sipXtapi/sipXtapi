@@ -43,20 +43,12 @@ public class SipxServerTest extends TestCase {
         sipxpresence = getClass().getResourceAsStream("sipxpresence-config.test.in");
         TestHelper.copyStreamToDirectory(sipxpresence, TestHelper.getTestDirectory(),
                 "sipxpresence-config");
-        m_server.setSettingModel(TestHelper.loadSettings("commserver/server.xml"));
+        m_server.setModelFilesContext(TestHelper.getModelFilesContext());
     }
 
     public void testGetSetting() {
         Setting settings = m_server.getSettings();
         assertNotNull(settings);
-    }
-
-    public void testGetServerSettings() {
-        String expected = "myserver";
-        m_server.setSettingValue("domain/SIPXCHANGE_DOMAIN_NAME", expected);
-        String actual = m_server.getServerSettings().getDomainName();
-        // although not intuative, a new copy of server settings is generated each time.
-        assertEquals(expected, actual);
     }
 
     public void testDomainNameChange() {
@@ -69,6 +61,8 @@ public class SipxServerTest extends TestCase {
 
         MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
         CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        coreContextCtrl.expectAndReturn(coreContext.getDomainName(), "old-domain-name", 
+                MockControl.ONE_OR_MORE);
         coreContext.setDomainName(newDomainName);
         coreContextCtrl.replay();
 
@@ -84,7 +78,6 @@ public class SipxServerTest extends TestCase {
         m_server.setCoreContext(coreContext);
         m_server.setSipxReplicationContext(replicationContext);
 
-        m_server.setDomainName("old-domain-name");
         m_server.setSettingValue("domain/SIPXCHANGE_DOMAIN_NAME", newDomainName);
         m_server.applySettings();
 
@@ -92,15 +85,17 @@ public class SipxServerTest extends TestCase {
         phoneDefaultsCtrl.verify();
         coreContextCtrl.verify();
     }
-
+    
     public void testGetAliasMappings() {
         MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
         CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
-        coreContext.getDomainName();
-        coreContextCtrl.setDefaultReturnValue("domain.com");
+        coreContextCtrl.expectAndReturn(coreContext.getDomainName(), "domain.com", 
+                MockControl.ONE_OR_MORE);
         coreContextCtrl.replay();
 
         m_server.setCoreContext(coreContext);
+        assertNotNull(m_server.getPresenceServerUri());
+        
         Collection aliasMappings = m_server.getAliasMappings();
 
         assertEquals(2, aliasMappings.size());

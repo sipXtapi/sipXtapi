@@ -31,6 +31,10 @@ public abstract class CiscoPhone extends Phone {
     protected CiscoPhone(CiscoModel model) {
         super(model);
     }
+    
+    public CiscoModel getCiscoModel() {
+        return (CiscoModel) getModel();
+    }
 
     public abstract String getPhoneFilename();
 

@@ -23,11 +23,10 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.context.ApplicationContext;
 import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
@@ -51,7 +50,7 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         
-        Phone phone = context.newPhone(Phone.MODEL);
+        Phone phone = context.newPhone(AcmePhone.MODEL_ACME);
         phone.setSerialNumber("999123456");
         phone.setDescription("unittest-sample phone1");
         context.storePhone(phone);
@@ -92,22 +91,16 @@ public class PhoneTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/EndpointSeed.xml");
 
-        Setting model = TestHelper.loadSettings("unmanagedPhone/phone.xml");        
-        model.addSetting(new SettingImpl("foo"));
-
         Phone p = context.loadPhone(new Integer(1000));        
-        p.setSettingModel(model);
-        p.setSettingValue("foo", "bar");
+        p.setSettingValue("/server/outboundProxy", "bigbird");
         context.storePhone(p);        
         context.flush();
         
         Phone reloadPhone = context.loadPhone(new Integer(1000));               
-        p.setSettingModel(model);
-        reloadPhone.setSettingModel(model);
         IDataSet expectedDs = TestHelper.loadDataSetFlat("phone/UpdateSettingsExpected.xml");
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);        
 
-        ValueStorage s = reloadPhone.getValueStorage();
+        ValueStorage s = (ValueStorage) reloadPhone.getValueStorage();
         assertNotNull(s);
         expectedRds.addReplacementObject("[value_storage_id]", s.getId());
 

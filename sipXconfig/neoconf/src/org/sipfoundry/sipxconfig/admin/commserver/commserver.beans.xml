@@ -2,17 +2,9 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer">
+  <bean id="sipxServer" class="org.sipfoundry.sipxconfig.admin.commserver.SipxServer" parent="beanWithSettings">
     <property name="configDirectory">
       <value>${sysdir.etc}</value>
-    </property>
-    <property name="settingModel">
-      <bean class="org.sipfoundry.sipxconfig.setting.SettingModel">
-        <property name="resource" value="commserver/server.xml"/>
-        <property name="modelFilesContext">
-          <ref bean="modelFilesContext"/>
-        </property>
-      </bean>
     </property>
     <property name="coreContext" ref="coreContext"/>
     <property name="phoneDefaults" ref="phoneDefaults"/>

@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
 public class PinTokenChangeServletTest extends TestCase {
@@ -29,7 +30,9 @@ public class PinTokenChangeServletTest extends TestCase {
     protected void setUp() {
         m_servlet = new PinTokenChangeServlet();
         m_user = new User();
-        m_user.setSettingModel(SiteTestHelper.loadSettings("user-settings.xml"));
+        Setting settings = SiteTestHelper.loadSettings("user-settings.xml");
+        m_user.setSettings(settings);
+        m_user.initialize();
         m_user.setUserName("joe");
         m_user.setPintoken("oldpintoken");
     }

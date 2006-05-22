@@ -55,6 +55,10 @@ public class User extends BeanWithGroups {
     private String m_userName;
 
     private Set m_aliases = new LinkedHashSet(0);
+    
+    @Override
+    public void initialize() {        
+    }
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -181,6 +185,11 @@ public class User extends BeanWithGroups {
         return SipUri.format(this, domainName);
     }
 
+    @Override
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("user-settings.xml");        
+    }
+    
     public List getAliasMappings(String domainName) {
         final String contact = getUri(domainName);
         List mappings = new ArrayList(getAliases().size());

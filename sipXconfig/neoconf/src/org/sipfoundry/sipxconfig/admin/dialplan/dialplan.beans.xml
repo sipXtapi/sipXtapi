@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   
   <!--
@@ -8,8 +7,7 @@
   -->
   <bean id="dialRuleFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory"/>
   
-  <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule"
-    singleton="false">
+  <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule" singleton="false">
     <property name="name" value="Internal"/>
     <property name="description" value="Default internal dialing plan"/>
     <property name="enabled" value="true"/>
@@ -45,8 +43,8 @@
     </property>
   </bean>
   
-  <bean id="defaultLongDistanceRule"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule" singleton="false">
+  <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule"
+    singleton="false">
     <property name="name">
       <value>Long Distance</value>
     </property>
@@ -99,8 +97,8 @@
     </property>
   </bean>
   
-  <bean id="defaultInternationalRule"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule" singleton="false">
+  <bean id="defaultInternationalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternationalRule"
+    singleton="false">
     <property name="name">
       <value>International</value>
     </property>
@@ -112,8 +110,7 @@
     </property>
   </bean>
   
-  <bean id="defaultLocalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LocalRule"
-    singleton="false">
+  <bean id="defaultLocalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LocalRule" singleton="false">
     <property name="name">
       <value>Local</value>
     </property>
@@ -131,8 +128,7 @@
     </property>
   </bean>
   
-  <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan"
-    singleton="false">
+  <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" singleton="false">
     <property name="rules">
       <list>
         <ref bean="defaultEmergencyRule"/>
@@ -150,8 +146,7 @@
   <!--
   - D I A L P L A N  C O N T E X T
   -->
-  <bean id="dialPlanContextImpl"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl">
+  <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl">
     <property name="coreContext">
       <ref bean="coreContext"></ref>
     </property>
@@ -168,13 +163,9 @@
       <ref bean="settingDao"/>
     </property>
     <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
-    <property name="attendantSettingModel">
-      <ref local="attendantSettingModel"/>
-    </property>
   </bean>
   
-  <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
+  <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext</value>
     </property>
@@ -191,8 +182,7 @@
   <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules"/>
   <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules"/>
   
-  <bean id="dialPlanConfigGenerator"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator">
+  <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator">
     <property name="mappingRules">
       <ref local="mappingRules"/>
     </property>
@@ -205,15 +195,8 @@
   </bean>
   
   <!-- A T T E N D A N T -->
-  <bean id="attendantSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel">
-    <property name="resource" value="sipxvxml/autoattendant.xml"/>
-    <property name="modelFilesContext" ref="modelFilesContext"/>
-  </bean>
-  <bean id="autoAttendant"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" singleton="false">
-    <property name="settingModel">
-      <ref local="attendantSettingModel"/>
-    </property>
+  <bean id="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" singleton="false"
+    parent="beanWithSettings">
   </bean>
   
   <bean id="attendantMigrationContextImpl"

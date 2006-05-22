@@ -14,11 +14,6 @@ package org.sipfoundry.sipxconfig.device;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.InternalRule;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineSettings;
-import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneSettings;
 
 /**
  * Sets up phone and line objects with system defaults.
@@ -120,18 +115,6 @@ public class DeviceDefaults {
         m_authorizationRealm = authorizationRealm;
     }
 
-    public void setPhoneDefaults(Phone phone) {
-        PhoneSettings settings = (PhoneSettings) phone.getAdapter(PhoneSettings.class);
-        if (settings != null) {
-            settings.setOutboundProxy(m_domainName);
-            settings.setTftpServer(m_tftpServer);
-            String voiceMail = getVoiceMail();
-            if (StringUtils.isNotBlank(voiceMail)) {
-                settings.setVoiceMailNumber(voiceMail);
-            }
-        }
-    }
-
     public String getVoiceMail() {
         if (m_dialPlanContext == null) {
             return InternalRule.DEFAULT_VOICEMAIL;
@@ -142,44 +125,6 @@ public class DeviceDefaults {
 
     static boolean defaultSipPort(String port) {
         return StringUtils.isBlank(port) || DEFAULT_SIP_PORT.equals(port);
-    }
-
-    public void setLineDefaults(Line line, User user) {
-        if (user != null) {
-            LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
-            if (settings != null) {
-                settings.setDomainName(m_domainName);
-                settings.setRegistrationServer(m_domainName);
-                settings.setAuthorizationId(user.getUserName());
-                settings.setUserId(user.getUserName());
-                settings.setDisplayName(user.getDisplayName());
-                settings.setPassword(user.getSipPassword());
-                settings.setAuthorizationRealm(m_authorizationRealm);
-                settings.setVoiceMail(getVoiceMail());
-            }
-        }
-    }
-
-    public String getUri(LineSettings settings) {
-        StringBuffer sb = new StringBuffer();
-        sb.append("sip:").append(settings.getUserId());
-
-        // HACK: Although getDomainName may make more sense, in practice
-        // phones do not store domain name and therefore would return
-        // null. This is because LineSettings is typically backed by
-        // SettingBeanAdapter and setX(foo) does not always mean foo == getX()
-        // if there's no mapping. All phones need a registration server.
-        // Real fix might be to remove SettingBeanAdapter with something more
-        // flexible
-        sb.append('@').append(settings.getRegistrationServer());
-
-        String displayName = settings.getDisplayName();
-        if (StringUtils.isNotBlank(displayName)) {
-            sb.insert(0, "\"" + displayName + "\"<").append(">");
-        }
-        String uri = sb.toString();
-
-        return uri;
     }
 
     public String getFullyQualifiedDomainName() {

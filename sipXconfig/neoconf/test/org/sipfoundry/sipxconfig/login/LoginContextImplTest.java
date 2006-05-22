@@ -32,7 +32,7 @@ public class LoginContextImplTest extends TestCase {
         Group admin = new Group();
         m_user.addGroup(admin);
         
-        m_user.setSettingModel(TestHelper.loadSettings("user-settings.xml"));
+        m_user.setModelFilesContext(TestHelper.getModelFilesContext());
         Permission.SUPERADMIN.setEnabled(admin, true);
 
         MockControl control = MockControl.createNiceControl(CoreContext.class);
@@ -87,9 +87,8 @@ public class LoginContextImplTest extends TestCase {
         User nonAdmin = new User();
         nonAdmin.setUserName("superadmin"); //not really superadmin
         Group nonAdminGroup = new Group();
-        nonAdmin.addGroup(nonAdminGroup);
-        
-        nonAdmin.setSettingModel(TestHelper.loadSettings("user-settings.xml"));
+        nonAdmin.addGroup(nonAdminGroup);        
+        nonAdmin.setModelFilesContext(TestHelper.getModelFilesContext());
         
         assertFalse(m_impl.isAdmin(nonAdmin));
     }

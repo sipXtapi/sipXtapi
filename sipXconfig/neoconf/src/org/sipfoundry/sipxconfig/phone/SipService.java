@@ -25,11 +25,11 @@ public interface SipService {
     
     public void send(byte[] sipMsg) throws IOException;
     
-    public void sendCheckSync(String uri, String registrationServer, 
-                              String registrationServerPort, String userId);
-        
-    public void sendNotify(String uri, String registrationServer, 
-                           String registrationServerPort, String userId, String event, byte[] payload);
+    public void sendCheckSync(String uri, String outboundProxy, 
+            String outboundProxyPort);
+
+    public void sendNotify(String uri, String outboundProxy, 
+         String outboundProxyPort, String event, byte[] payload);
 
     public String getCurrentDate();
     

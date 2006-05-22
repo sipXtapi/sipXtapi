@@ -14,12 +14,12 @@ package org.sipfoundry.sipxconfig.conference;
 import junit.framework.TestCase;
 
 import org.easymock.MockControl;
-import org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioningImpl.ConferenceNameDecorator;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class ConferenceNameDecoratorTest extends TestCase {
 
     public void testGetProfileName() {
+
         MockControl settingCtrl = MockControl.createControl(Setting.class);
         Setting setting = (Setting) settingCtrl.getMock();
         setting.getProfileName();
@@ -28,12 +28,17 @@ public class ConferenceNameDecoratorTest extends TestCase {
         settingCtrl.setReturnValue("BOSTON_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET");
         settingCtrl.replay();
 
-        Setting decoratedSetting = new ConferenceNameDecorator(setting, "bongo");
+        Conference conference = new Conference();
+        conference.setName("bongo");
+        Conference.ConferenceProfileName handler = new Conference.ConferenceProfileName(
+                conference);
 
-        assertEquals("BOSTON_BRIDGE_CONFERENCE_STATUS.bongo", decoratedSetting.getProfileName());
-        assertEquals("BOSTON_BRIDGE_CONFERENCE.bongo.AOR", decoratedSetting.getProfileName());
-        assertEquals("BOSTON_BRIDGE_CONFERENCE.bongo.REMOTE_ADMIT.SECRET", decoratedSetting
-                .getProfileName());
+        assertEquals("BOSTON_BRIDGE_CONFERENCE_STATUS.bongo", handler.getProfileName(setting)
+                .getValue());
+        assertEquals("BOSTON_BRIDGE_CONFERENCE.bongo.AOR", handler.getProfileName(setting)
+                .getValue());
+        assertEquals("BOSTON_BRIDGE_CONFERENCE.bongo.REMOTE_ADMIT.SECRET", handler
+                .getProfileName(setting).getValue());
 
         settingCtrl.verify();
     }

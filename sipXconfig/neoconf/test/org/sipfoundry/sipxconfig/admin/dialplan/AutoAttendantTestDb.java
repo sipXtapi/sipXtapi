@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.context.ApplicationContext;
 
 public class AutoAttendantTestDb extends SipxDatabaseTestCase {
@@ -85,7 +86,8 @@ public class AutoAttendantTestDb extends SipxDatabaseTestCase {
         ITable actual = TestHelper.getConnection().createDataSet().getTable("setting_value");
         ReplacementDataSet expectedRds = TestHelper
                 .loadReplaceableDataSetFlat("admin/dialplan/saveAttendantSettingsExpected.xml");
-        expectedRds.addReplacementObject("[value_storage_id]", aa.getValueStorage().getId());
+        ValueStorage vs = (ValueStorage) aa.getValueStorage();
+        expectedRds.addReplacementObject("[value_storage_id]", vs.getId());
         ITable expected = expectedRds.getTable("setting_value");
         Assertion.assertEquals(expected, actual);        
     }

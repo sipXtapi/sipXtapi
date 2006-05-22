@@ -21,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class SipUri {
     public static final String SIP_PREFIX = "sip:";
+    public static final int DEFAULT_SIP_PORT = 5060;
 
     private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)@.+");
     private static final Pattern EXTRACT_FULL_USER_RE = Pattern
@@ -53,7 +54,9 @@ public class SipUri {
         String displayName = user.getDisplayName();
         if (org.apache.commons.lang.StringUtils.isNotBlank(displayName)) {
             needsWrapping = true;
+            uri.append('"');
             uri.append(displayName);
+            uri.append('"');
         }
 
         String uriProper = format(user.getUserName(), domainName, needsWrapping);
@@ -74,6 +77,30 @@ public class SipUri {
             domainName, Integer.toString(port)
         };
         String uri = MessageFormat.format("sip:{0}:{1}", params);
+        return uri;
+    }
+    
+    public static int parsePort(String sPort, int defaultPort) {
+        if (StringUtils.isBlank(sPort)) {
+            return defaultPort;
+        }
+        int port = Integer.parseInt(sPort);
+        return port;
+    }
+    
+    public static String formatIgnoreDefaultPort(String userName, String domain, int port) {
+        if (port == DEFAULT_SIP_PORT) {
+            return format(userName, domain, false);
+        }
+        return format(userName, domain, port);
+    }
+
+    public static String formatIgnoreDefaultPort(String displayName, String userName, String domain, int port) {
+        String baseUri = formatIgnoreDefaultPort(userName, domain, port);
+        if (displayName == null) {
+            return baseUri;
+        }
+        String uri = String.format("\"%s\"<%s>", displayName, baseUri);
         return uri;
     }
 
@@ -125,7 +152,7 @@ public class SipUri {
         }
         return fullName + " - " + userId;
     }
-
+    
     public static String format(String name, String domain, Map urlParams) {
         StringBuffer paramsBuffer = new StringBuffer();
         for (Iterator i = urlParams.entrySet().iterator(); i.hasNext();) {

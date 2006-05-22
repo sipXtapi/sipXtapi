@@ -21,7 +21,6 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
@@ -46,14 +45,13 @@ public abstract class UserGroups extends BasePage implements PageBeginRenderList
 
     public Map getMemberCounts() {
         Map memberCount = getSettingContext().getGroupMemberCountIndexedByGroupId(User.class);
-
         return memberCount;
     }
 
     public IPage editUserGroup(IRequestCycle cycle, Integer groupId) {
         GroupSettings page = (GroupSettings) cycle.getPage(GroupSettings.PAGE);
-        Setting model = getCoreContext().getUserSettingsModel();
-        page.editGroup(groupId, model, PAGE);
+        User user = getCoreContext().newUser();
+        page.editGroup(groupId, user, PAGE);
         return page;
     }
 

@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.setting;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.NamedObject;
@@ -22,25 +21,16 @@ import org.sipfoundry.sipxconfig.setting.type.StringSetting;
 
 
 public class SettingImpl implements Setting, Cloneable, NamedObject {
-
+    private static final SettingValue2 NULL = new SettingValueImpl(null);
     private String m_label;
-
     private SettingType m_type = StringSetting.DEFAULT;
-
-    private String m_name = StringUtils.EMPTY;
-    
+    private String m_name = StringUtils.EMPTY;    
     private String m_description;
-
-    private String m_profileName;
-    
-    private String m_parentPath;
-    
-    private String m_value;
-        
+    private SettingValue2 m_originalProfileName;    
+    private Setting m_parent;        
+    private SettingValue2 m_originalValue = NULL;        
     private boolean m_advanced;
-
-    private boolean m_hidden;
-    
+    private boolean m_hidden;    
     private SettingModel2 m_model;
     
     /**
@@ -65,33 +55,25 @@ public class SettingImpl implements Setting, Cloneable, NamedObject {
         return (Setting) clone();
     }
     
-    public String getParentPath() {
-        return m_parentPath;
+    public Setting getParent() {
+        return m_parent;
     }
     
-    /**
-     * Resolve decorators
-     */
-    
-    public void setParentPath(String path) {
-        m_parentPath = path;
-        Collection c = getValues();
-        if (!c.isEmpty()) {
-            Iterator i = c.iterator();
-            while (i.hasNext()) {
-                Setting child = (Setting) i.next();
-                // recursive
-                child.setParentPath(getPath());
-            }
-        }
+    public void setParent(Setting parent) {
+        m_parent = parent;
     }
     
     public String getPath() {
-        if (getParentPath() == null) {
+        Setting parent = getParent();
+        if (parent == null) {
+            return StringUtils.EMPTY;
+        }
+        
+        if (parent.getParent() == null) {
             return getName();
         }
         
-        return getParentPath() + PATH_DELIM + getName();
+        return parent.getPath() + PATH_DELIM + getName();
     }
     
     public void acceptVisitor(SettingVisitor visitor) {
@@ -138,16 +120,28 @@ public class SettingImpl implements Setting, Cloneable, NamedObject {
     }
     
     public String getProfileName() {
-        return m_profileName == null ? m_name : m_profileName;
+        SettingValue2 value = m_originalProfileName;
+        if (value == null) {
+            value = new SettingValueImpl(getName());
+        }
+        if (m_model != null) {
+            value = m_model.getProfileName(this, value);
+        }
+        
+        return value.getValue();
     }
     
     public void setProfileName(String profileName) {
-        m_profileName = profileName;
+        m_originalProfileName = new SettingValueImpl(profileName);
     }
 
-    public String getValue() {        
-        String value = (m_model != null ? m_model.getSettingValue(this, m_value) : m_value);
-        return value;
+    public String getValue() {
+        SettingValue2 value = m_originalValue;
+        if (m_model != null) {
+            value = m_model.getSettingValue(this, m_originalValue);
+        }
+        
+        return value.getValue();
     }
     
     public Object getTypedValue() {
@@ -155,18 +149,24 @@ public class SettingImpl implements Setting, Cloneable, NamedObject {
     }
 
     public void setValue(String value) {
-        m_value = value;
+        if (m_model == null) {
+            m_originalValue = new SettingValueImpl(value);
+        } else {
+            m_model.setSettingValue(this, value);
+        }
     }
     
     public void setTypedValue(Object value) {
         setValue(getType().convertToStringValue(value));
     }
     
-    /**
-     * No wrapper, default value is what the real value is
-     */
     public String getDefaultValue() {
-        return getValue();
+        SettingValue2 value = m_originalValue;
+        if (m_model != null) {
+            value = m_model.getDefaultSettingValue(this, m_originalValue);
+        }
+        
+        return value.getValue();
     }
 
     public SettingType getType() {

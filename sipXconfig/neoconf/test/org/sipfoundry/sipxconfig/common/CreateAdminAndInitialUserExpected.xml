@@ -19,9 +19,9 @@
     <setting_value 
 		  value_storage_id="[group_id]"
 		  value="ENABLE" 		
-		  path="/permission/application/superadmin"/> 
+		  path="permission/application/superadmin"/> 
     <setting_value 
 		  value_storage_id="[group_id]"
 		  value="DISABLE" 		
-		  path="/permission/application/tui-change-pin"/> 
+		  path="permission/application/tui-change-pin"/> 
 </dataset>

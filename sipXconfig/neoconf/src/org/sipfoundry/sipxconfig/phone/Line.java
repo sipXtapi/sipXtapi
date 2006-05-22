@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.phone;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.common.DataCollectionItem;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -26,6 +27,8 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
     
     private int m_position;
     
+    private boolean m_initialized;
+    
     public User getUser() {
         return m_user;
     }
@@ -35,8 +38,11 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
     }
 
     public String getDisplayLabel() {
-        LineSettings settings = (LineSettings) getAdapter(LineSettings.class);
-        return (settings != null ? settings.getUserId() : null);
+        User u = getUser();
+        if (u != null) {
+            return u.getUserName();
+        } 
+        return getLineInfo().getUserId();
     }
 
     public int getPosition() {
@@ -47,14 +53,14 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
         m_position = position;
     }
     
-    public Setting getSettingModel() {
-        Setting settingModel = super.getSettingModel();
-        if (settingModel == null) {
-            settingModel = getPhone().loadModelFile("line.xml");
-            setSettingModel(settingModel);
-        }
+    protected Setting loadSettings() {
+        Phone phone = getPhone();
+        Setting settings = phone.loadLineSettings();
         
-        return settingModel;
+        // kludge - not obvious place to initialize, but latest place
+        initialize();
+        
+        return settings;
     }
     
     public Set getGroups() {
@@ -76,24 +82,42 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
     public void setPhone(Phone phone) {
         m_phone = phone;
     }
-
-    protected void defaultSettings() {
-        getPhone().defaultLineSettings(this);
-    }
     
-    protected void decorateSettings() {
-        super.decorateSettings();
+    public String getUri() {
+        String uri = null;
+        User u = getUser();
+        if (u != null) {
+            uri = u.getUri(getPhoneContext().getPhoneDefaults().getDomainName());
+        } else {
+            LineInfo info = getPhone().getLineInfo(this);
+            int port = SipUri.parsePort(info.getRegistrationServerPort(), SipUri.DEFAULT_SIP_PORT);
+            uri = SipUri.formatIgnoreDefaultPort(info.getDisplayName(), info.getUserId(), 
+                    info.getRegistrationServer(), port);
+        }
         
-    }
-
-    public Object getAdapter(Class interfac) {
-        Object adapter = getPhone().getLineAdapter(this, interfac);
-        return adapter;
+        return uri;
     }
     
-    public String getUri() {        
-        LineSettings settings = (LineSettings) getAdapter(LineSettings.class);
-        String uri = getPhoneContext().getPhoneDefaults().getUri(settings);
-        return uri;
+    /**
+     * Extract basic values from a phone line that most phones should understand.
+     * @return as much information as phone has or understands
+     */
+    public LineInfo getLineInfo() {
+        return getPhone().getLineInfo(this);
+    }
+    
+    /**
+     * Set basic values on a phone line that most phones should understand
+     */
+    public void setLineInfo(LineInfo lineInfo) {
+        getPhone().setLineInfo(this, lineInfo);
+    }
+
+    @Override
+    public synchronized void initialize() {
+        if (!m_initialized && m_phone != null) {
+            m_phone.initializeLine(this);
+            m_initialized = true;
+        }
     }
 }

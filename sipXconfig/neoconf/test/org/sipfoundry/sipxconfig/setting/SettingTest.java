@@ -13,6 +13,8 @@ package org.sipfoundry.sipxconfig.setting;
 
 import junit.framework.TestCase;
 
+import org.easymock.MockControl;
+
 public class SettingTest extends TestCase {
 
     private SettingSet m_root;
@@ -30,79 +32,10 @@ public class SettingTest extends TestCase {
 
     public void testDefaultValue() {
         seedSimpleSettingGroup();
-        assertEquals("/fruit/apple", m_apple.getPath());
+        assertEquals("fruit/apple", m_apple.getPath());
         m_apple.setValue("granny smith");
         assertEquals("granny smith", m_apple.getValue());
         assertEquals("granny smith", m_apple.getDefaultValue());
-    }
-
-    public void testSetValue() {
-        seedSimpleSettingGroup();
-        assertNull(m_apple.getValue());
-
-        Group meta = new Group();
-        assertNull(meta.get(m_apple.getPath()));
-        assertEquals(0, meta.size());
-
-        meta.decorate(m_root);
-        Setting m_appleCopy = m_root.getSetting("fruit").getSetting("apple");
-        m_appleCopy.setValue("macintosh");
-        assertNull(m_apple.getValue());
-        assertEquals("macintosh", m_appleCopy.getValue());
-        assertEquals(null, m_apple.getDefaultValue());
-
-        assertNotNull(meta.get(m_apple.getPath()));
-        assertEquals(1, meta.size());
-
-        // if matches default, should clear value
-        m_appleCopy.setValue(null);
-        assertNull(meta.get(m_apple.getPath()));
-        assertEquals(0, meta.size());
-    }
-
-    public void testSetAdvanced() {
-        seedSimpleSettingGroup();
-        assertFalse(m_apple.isAdvanced());
-
-        Group tag = new Group();
-        assertNull(tag.get(m_apple.getPath()));
-        assertEquals(0, tag.size());
-
-        tag.decorate(m_root);
-        Setting appleCopy = m_root.getSetting("fruit").getSetting("apple");
-        m_apple.setAdvanced(true);
-        assertTrue(appleCopy.isAdvanced());
-
-        // Tag's used to save isAdvanced, but not anymore so this
-        // test is not that exciting, but still worthy of existance.
-    }
-
-    /**
-     * If both are set, will it know to keep meta, if both are cleared, will it know to loose meta
-     */
-    public void testSetValueAndSetHidden() {
-        seedSimpleSettingGroup();
-        assertFalse(m_apple.isAdvanced());
-
-        Group meta = new Group();
-        assertNull(meta.get(m_apple.getPath()));
-        assertEquals(0, meta.size());
-
-        meta.decorate(m_root);
-        Setting appleCopy = m_root.getSetting("fruit").getSetting("apple");
-        m_apple.setAdvanced(true);
-        appleCopy.setValue("macintosh");
-        assertTrue(appleCopy.isAdvanced());
-        assertEquals("macintosh", appleCopy.getValue());
-
-        assertNotNull(meta.get(m_apple.getPath()));
-        assertEquals(1, meta.size());
-
-        // if matches default, should clear value
-        appleCopy.setValue(null);
-        m_apple.setAdvanced(false);
-        assertNull(meta.get(m_apple.getPath()));
-        assertEquals(0, meta.size());
     }
 
     public void test100GroupsWith100Settings() {
@@ -128,4 +61,26 @@ public class SettingTest extends TestCase {
         assertSame(m_apple, anotherFruit.getSetting("apple"));
     }    
     
+    public void testGetProfileName() {
+        SettingImpl s = new SettingImpl("bluejay");
+        assertEquals("bluejay", s.getProfileName());        
+        s.setProfileName("indigojay");
+        assertEquals("indigojay", s.getProfileName());
+    }    
+    
+    public void testGetProfileHandler() {
+        SettingImpl s = new SettingImpl("bluejay");
+        SettingValue2 originalValue = new SettingValueImpl("bluejay");
+        SettingValue2 handlerValue = new SettingValueImpl("indigojay");
+        
+        MockControl modelCtrl = MockControl.createStrictControl(SettingModel2.class);
+        SettingModel2 model = (SettingModel2) modelCtrl.getMock();
+        modelCtrl.expectAndReturn(model.getProfileName(s, originalValue), handlerValue);
+        modelCtrl.replay();
+
+        s.setModel(model);
+        assertSame("indigojay", s.getProfileName());
+
+        modelCtrl.verify();
+    }
 }

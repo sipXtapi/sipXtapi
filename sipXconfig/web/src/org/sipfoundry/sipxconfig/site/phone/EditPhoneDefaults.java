@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -132,13 +133,9 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
         group = getSettingDao().loadGroup(getGroupId());
         setGroup(group);
         
-        Phone phone = getPhoneContext().newPhone(getPhoneModel());
-        phone.addGroup(group);
-        
+        Phone phone = getPhoneContext().newPhone(getPhoneModel());        
         Line line = phone.createLine();
         phone.addLine(line);
-        line.addGroup(group);
-
         setPhone(phone);
         
         String editSettingsName = getEditFormSettingName(); 
@@ -156,16 +153,15 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
      * for the setting edit form
      */
     private void editSettings() {
-        Setting rootSettings;
+        BeanWithSettings bean;
         if (getResourceId() == PHONE_SETTINGS) {
-            rootSettings = getPhone().getSettingModel().copy();
+            bean = getPhone();
         } else {
-            rootSettings = getPhone().getLine(0).getSettingModel().copy();
+            bean = getPhone().getLine(0);
         }
-
-        getGroup().decorate(rootSettings);
         
-        Setting subset = rootSettings.getSetting(getEditFormSettingName());
+        Setting settings = getGroup().inherhitSettingsForEditing(bean);        
+        Setting subset = settings.getSetting(getEditFormSettingName());
         setEditFormSetting(subset);
         
         setEditFormSettings(SettingUtil.filter(SettingFilter.ALL, subset));

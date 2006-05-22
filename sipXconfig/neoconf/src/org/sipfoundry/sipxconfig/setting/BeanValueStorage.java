@@ -16,6 +16,8 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * Treat any bean as a value storage, mapping properties to setting
  * paths
@@ -29,7 +31,13 @@ public class BeanValueStorage implements SettingValueHandler {
         for (Method m : m_bean.getClass().getMethods()) {
             if (m.isAnnotationPresent(SettingEntry.class)) {
                 SettingEntry entry = m.getAnnotation(SettingEntry.class);
-                m_properties.put(entry.path(), m);
+                if (!StringUtils.isBlank(entry.path())) {
+                    m_properties.put(entry.path(), m);
+                } else {
+                    for (String s : entry.paths()) {                        
+                        m_properties.put(s, m);
+                    }
+                }
             }
         }        
     }
@@ -37,7 +45,7 @@ public class BeanValueStorage implements SettingValueHandler {
     public SettingValue2 getSettingValue(Setting setting) {
         SettingValue2 value = null;
         
-        String path = setting.getPath().substring(1);
+        String path = setting.getPath();
         Method m = m_properties.get(path);
         if (m != null) {
             Object o;
@@ -46,6 +54,7 @@ public class BeanValueStorage implements SettingValueHandler {
                 o = m.invoke(m_bean, new Object[0]);
                                 
                 String svalue = setting.getType().convertToStringValue(o);
+                
                 value = new SettingValueImpl(svalue);                
             } catch (IllegalArgumentException e) {
                 throw new RuntimeException(e);

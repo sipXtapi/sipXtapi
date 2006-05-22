@@ -16,8 +16,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import org.apache.commons.lang.StringUtils;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
 public @interface SettingEntry {
-    public String path();
+    public String path() default StringUtils.EMPTY;
+    public String[] paths() default { };
 }

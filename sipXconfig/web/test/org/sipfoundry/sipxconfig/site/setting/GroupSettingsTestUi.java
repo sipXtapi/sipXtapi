@@ -51,5 +51,5 @@ public class GroupSettingsTestUi extends WebTestCase {
         clickButton("form:ok");
         SiteTestHelper.assertNoException(getTester());
         assertLinkPresent("group:edit");
-    }
+    }    
 }

@@ -72,7 +72,8 @@ public abstract class ManageAttendants extends BasePage {
     public IPage defaultGroup(IRequestCycle cycle) {
         GroupSettings page = (GroupSettings) cycle.getPage(DEFAULTS_PAGE);
         Group defaultGroup = getDialPlanContext().getDefaultAutoAttendantGroup();
-        page.editGroup(defaultGroup.getId(), getDialPlanContext().getAttendantSettingModel(), PAGE);
+        AutoAttendant aa = getDialPlanContext().newAutoAttendantWithDefaultGroup();
+        page.editGroup(defaultGroup.getId(), aa, PAGE);
         return page;        
     }
 }

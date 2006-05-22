@@ -11,18 +11,20 @@
  */
 package org.sipfoundry.sipxconfig.phone.kphone;
 
+import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
-import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
-import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class KPhone extends Phone {    
     public static final PhoneModel MODEL_KPHONE = new PhoneModel("kphone", "KPhone");
     
-    private static final String REG_URI = "Registration/SipUri";    
+    private static final String REG_URI = "Registration/SipUri";
+    private static final String REG_USER = "Registration/UserName";
+    private static final String REG_SERVER = "Registration/SipServer";
     
     public KPhone() {
         super(MODEL_KPHONE);
@@ -33,36 +35,36 @@ public class KPhone extends Phone {
         return getWebDirectory() + "/" + getSerialNumber() + ".kphonerc";
     }    
     
-    public Object getLineAdapter(Line line, Class interfac) {
-        Object impl;
-        if (interfac == LineSettings.class) {
-            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
-            adapter.setSetting(line.getSettings());
-            adapter.addMapping(LineSettings.USER_ID, "Registration/UserName");            
-            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "Registration/SipServer");
-            impl = adapter.getImplementation();
-        } else {
-            impl = super.getAdapter(interfac);
-        }
-        
-        return impl;        
+    @Override
+    public void initialize() {        
+    }
+
+    @Override
+    public void initializeLine(Line line) {
+        line.addDefaultBeanSettingHandler(new KPhoneLineDefaults(line));
     }
     
-    public void defaultLineSettings(Line line) {
-        super.defaultLineSettings(line);
+    @Override
+    protected void setLineInfo(Line line, LineInfo lineInfo) {
+        int port = SipUri.parsePort(lineInfo.getRegistrationServerPort(), SipUri.DEFAULT_SIP_PORT);
+        String uri = SipUri.formatIgnoreDefaultPort(lineInfo.getDisplayName(), lineInfo.getUserId(), 
+                lineInfo.getRegistrationServer(), port);
         
-        line.getSettings().getSetting(REG_URI).setValue(line.getUri());
+        line.setSettingValue(REG_URI, uri);
     }
     
-    public void addLine(Line line) {
-        super.addLine(line);
-        
-        KPhoneLineDefaults defaults = new KPhoneLineDefaults(line);
-        BeanValueStorage vs = new BeanValueStorage(defaults);
-        line.getSettingModel2().addSettingValueHandler(vs);
+    @Override
+    protected LineInfo getLineInfo(Line line) {
+        LineInfo lineInfo = new LineInfo();
+        lineInfo.setUserId(line.getSettingValue(REG_USER));
+        String uri = line.getSettingValue(REG_URI);
+        lineInfo.setDisplayName(SipUri.extractFullUser(uri));
+        // TODO Extract server and port
+        // lineInfo.setRegistrationServer(SipUri.extractServer(uri));
+        return lineInfo;
     }
-    
-    static class KPhoneLineDefaults {
+
+    public static class KPhoneLineDefaults {
         private Line m_line;
         public KPhoneLineDefaults(Line line) {
             m_line = line;
@@ -71,6 +73,22 @@ public class KPhone extends Phone {
         @SettingEntry(path = REG_URI)
         public String getUri() {
             return m_line.getUri();
+        }
+        
+        @SettingEntry(path = REG_USER)
+        public String getUserName() {
+            String userName = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                userName = user.getUserName();
+            }
+            
+            return userName;            
+        }
+        
+        @SettingEntry(path = REG_SERVER)
+        public String getRegistrationServer() {
+            return m_line.getPhoneContext().getPhoneDefaults().getDomainName();            
         }
     }
 }

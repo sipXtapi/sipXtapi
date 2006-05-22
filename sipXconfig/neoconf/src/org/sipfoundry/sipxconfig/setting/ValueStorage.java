@@ -11,36 +11,53 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
  * Basic layer of settings decoration that captures just setting values.
  */
-public class ValueStorage extends AbstractStorage implements Storage {
+public class ValueStorage extends BeanWithId implements Storage {
+
+    private Map m_delegate = new HashMap();
 
     public Map getValues() {
-        return getDelegate();
+        return m_delegate;
     }
 
     public void setValues(Map delegate) {
-        setDelegate(delegate);
+        m_delegate = delegate;
+    }
+    
+    public int size() {
+        return m_delegate.size();
+    }    
+
+    public SettingValue2 getSettingValue(Setting setting) {
+        if (getValues() == null) {
+            return null;
+        }
+        
+        SettingValue2 settingValue = null;
+        // null is legal value so test for key existance
+        if (getValues().containsKey(setting.getPath())) {            
+            String value = (String) getValues().get(setting.getPath());
+            settingValue = new SettingValueImpl(value);
+        }
+        return settingValue;
     }
 
-    public void decorate(Setting setting) {
-        setting.acceptVisitor(new Decorator(setting, this));
+    public void setSettingValue(Setting setting, SettingValue2 value, SettingValue2 defaultValue) {
+        if (value.equals(defaultValue)) {
+            revertSettingToDefault(setting);
+        } else {
+            getValues().put(setting.getPath(), value.getValue());
+        }
     }
 
-    public static class Decorator extends DecoratingVisitor {
-
-        private Storage m_storage;
-
-        public Decorator(Setting root, Storage storage) {
-            super(root);
-            m_storage = storage;
-        }
-
-        public Setting decorate(Setting setting) {
-            return new SettingValue(m_storage, setting);
-        }
+    public void revertSettingToDefault(Setting setting) {
+        getValues().remove(setting.getPath());
     }
 }

@@ -116,7 +116,8 @@
   </bean>
   
   <!-- Define new phone models here, order is not important -->
-  <bean id="unmanagedPhone" class="org.sipfoundry.sipxconfig.phone.Phone" singleton="false">
+  <bean id="unmanagedPhone" class="org.sipfoundry.sipxconfig.phone.Phone" singleton="false"
+       parent="beanWithSettings">
     <property name="phoneContext">
       <ref bean="phoneContext"/>
     </property>
@@ -137,8 +138,13 @@
     <property name="sipService">
       <ref bean="sip"/>
     </property>
-    <property name="modelFilesContext" ref="modelFilesContext"/>
   </bean>
+  
+  <!-- K P H O N E -->
+  <bean id="acmePhone" class="org.sipfoundry.sipxconfig.phone.acme.AcmePhone" singleton="false"
+    parent="unmanagedPhone">
+  </bean>
+
   <!-- K P H O N E -->
   <bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false"
     parent="unmanagedPhone">
@@ -179,5 +185,8 @@
   </bean>  
   <!-- S I P -->
   <bean id="sip" class="org.sipfoundry.sipxconfig.phone.SipServiceImpl"/>
+  <!-- Line -->
+  <bean id="line" class="org.sipfoundry.sipxconfig.phone.Line" singleton="false" 
+    parent="beanWithSettings"/>
 </beans>
       

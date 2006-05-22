@@ -15,90 +15,41 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineSettings;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneSettings;
-import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
-import org.sipfoundry.sipxconfig.setting.ConditionalSet;
+import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
-import org.sipfoundry.sipxconfig.setting.SettingFilter;
-import org.sipfoundry.sipxconfig.setting.SettingUtil;
-import org.sipfoundry.sipxconfig.setting.SettingValue2;
-import org.sipfoundry.sipxconfig.setting.SettingValueHandler;
-import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 
 /**
  * Support for Cisco ATA186/188 and Cisco 7905/7912
  */
 public class CiscoAtaPhone extends CiscoPhone {
-
     public static final String BEAN_ID = "ciscoAta";
-
     private static final String ZERO = "0";
-
-    private static final String IMAGE_ID = "imageid";
-
-    private static final String ATA_ID = "ata";
-
-    private static final String NONE = "none";
-
-    private static final int KOLME = 3;
-
-    private static final String NOLLAX = "0x";
-
-    private static final String NOLLAX_UPPER = "0X";
-    
-    private static final String INTEGER_SETTING = "integer";
-
-    private static final String ALLE = "_";
-
-    private static final String UPGRADE_SETTING_GROUP = "upgrade";
-
     private static final String TIMEZONE_SETTING = "service/TimeZone";
-
+    private static final String REGISTRATION_ATA_PATH = "port/_Proxy.18x";
+    private static final String REGISTRATION_PORT_ATA_PATH = "port/_ProxyPort.18x";
+    private static final String REGISTRATION_PATH = "port/_Proxy.79";
+    private static final String REGISTRATION_PORT_PATH = "port/_ProxyPort.79";
+    private static final String DISPLAY_NAME_PATH = "port/DisplayName";
+    private static final String TFTP_PATH = "network/TftpURL";
+    private static final String USER_ID_PATH = "port/UID";
+    private static final String LOGIN_ID_PATH = "port/LoginID";
+    private static final String PASSWORD_PATH = "port/PWD";
+    private static final String VOICEMAIL_PATH = "caller/VoiceMailNumber";
     private static final Log LOG = LogFactory.getLog(CiscoAtaPhone.class);
-
-    private static final SettingFilter S_REALGROUPS = new SettingFilter() {
-        public boolean acceptSetting(Setting root_, Setting setting) {
-            boolean isLeaf = setting.getValues().isEmpty();
-            boolean isVirtual = (setting.getName().startsWith(ALLE));
-            return !isLeaf && !isVirtual;
-        }
-    };
-
-    private static final SettingFilter S_REALSETTINGS = new SettingFilter() {
-        public boolean acceptSetting(Setting root, Setting setting) {
-            boolean firstGeneration = setting.getParentPath().equals(root.getPath());
-            boolean isLeaf = setting.getValues().isEmpty();
-            boolean isVirtual = (setting.getName().startsWith(ALLE));
-            return firstGeneration && isLeaf && !isVirtual;
-        }
-    };
-
-    private static final SettingFilter S_BITMAPSETTINGS = new SettingFilter() {
-        public boolean acceptSetting(Setting root_, Setting setting) {
-            boolean isLeaf = setting.getValues().isEmpty();
-            boolean isBitmapped = (setting.getName().startsWith("__"));
-            return isLeaf && isBitmapped;
-        }
-    };
 
     private String m_ptagDat;
 
@@ -110,24 +61,67 @@ public class CiscoAtaPhone extends CiscoPhone {
 
     public CiscoAtaPhone() {
         super(BEAN_ID);
-        init();
     }
 
     public CiscoAtaPhone(CiscoModel model) {
         super(model);
-        init();
     }
 
-    private void init() {
-        setPhoneTemplate("ciscoAta/cisco-ata.vm");
+    @Override
+    public Setting loadSettings() {
+        return loadDynamicSettings("phone.xml");
     }
-    
-    public void setPhoneContext(PhoneContext context) {
-        super.setPhoneContext(context);
-        
-        CiscoAtaDefaults defaults = new CiscoAtaDefaults(context.getPhoneDefaults());
-        BeanValueStorage vs = new BeanValueStorage(defaults);
-        getSettingModel2().addSettingValueHandler(vs);
+
+    @Override
+    public Setting loadLineSettings() {
+        return loadDynamicSettings("line.xml");
+    }
+
+    private Setting loadDynamicSettings(String basename) {
+        SettingExpressionEvaluator evaluator = new CiscoAtaSettingExpressionEvaluator(getModel()
+                .getModelId());
+        return getModelFilesContext().loadDynamicModelFile(basename, getModel().getBeanId(),
+                evaluator);
+    }
+
+    @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(new CiscoAtaDefaults(getPhoneContext().getPhoneDefaults()));
+    }
+
+    @Override
+    public void initializeLine(Line line) {
+        line.addDefaultBeanSettingHandler(new CiscoAtaLineDefaults(line));
+    }
+
+    @Override
+    protected LineInfo getLineInfo(Line line) {
+        LineInfo lineInfo = new LineInfo();
+        lineInfo.setDisplayName(line.getSettingValue(DISPLAY_NAME_PATH));
+        lineInfo.setUserId(line.getSettingValue(USER_ID_PATH));
+        if (getModel() == CiscoModel.MODEL_ATA18X) {
+            lineInfo.setRegistrationServer(line.getSettingValue(REGISTRATION_ATA_PATH));
+            lineInfo.setRegistrationServerPort(line.getSettingValue(REGISTRATION_PORT_ATA_PATH));
+        } else {
+            lineInfo.setRegistrationServer(line.getSettingValue(REGISTRATION_PATH));
+            lineInfo.setRegistrationServerPort(line.getSettingValue(REGISTRATION_PORT_PATH));
+        }
+        return lineInfo;
+    }
+
+    @Override
+    protected void setLineInfo(Line line, LineInfo lineInfo) {
+        line.setSettingValue(DISPLAY_NAME_PATH, lineInfo.getDisplayName());
+        line.setSettingValue(USER_ID_PATH, lineInfo.getUserId());
+        if (getModel() == CiscoModel.MODEL_ATA18X) {
+            line.setSettingValue(REGISTRATION_PATH, lineInfo.getRegistrationServer());
+            line.setSettingValue(REGISTRATION_PORT_PATH, lineInfo.getRegistrationServerPort());
+        } else {
+            line.setSettingValue(REGISTRATION_ATA_PATH, lineInfo.getRegistrationServer());
+            line
+                    .setSettingValue(REGISTRATION_PORT_ATA_PATH, lineInfo
+                            .getRegistrationServerPort());
+        }
     }
 
     /**
@@ -139,24 +133,10 @@ public class CiscoAtaPhone extends CiscoPhone {
     public void setTextFormatEnabled(boolean isTextFormatEnabled) {
         m_isTextFormatEnabled = isTextFormatEnabled;
     }
-    
-    public void setSettings(Setting settings) {
-        super.setSettings(settings);
-        
-        Collection bitmaps = getBitmapSettings();
-        PackBitmaps bitmapHandler = new PackBitmaps();
-        bitmapHandler.preprocess(settings, bitmaps);        
-        getSettingModel2().addSettingValueHandler(bitmapHandler);
-    }
-
-    public String getCfgPrefix() {
-        CiscoModel model = (CiscoModel) getModel();
-        return model.getCfgPrefix();
-    }
 
     public String getPhoneFilename() {
         String phoneFilename = getSerialNumber();
-        return getTftpRoot() + '/' + getCfgPrefix() + phoneFilename.toLowerCase();
+        return getTftpRoot() + '/' + getCiscoModel().getCfgPrefix() + phoneFilename.toLowerCase();
     }
 
     public void setPtagDat(String ptagDat) {
@@ -167,8 +147,8 @@ public class CiscoAtaPhone extends CiscoPhone {
         if (m_ptagDat != null) {
             return m_ptagDat;
         }
-        return getPhoneContext().getSystemDirectory() + "/ciscoAta/" + getCfgPrefix()
-                + "-ptag.dat";
+        return getPhoneContext().getSystemDirectory() + "/ciscoAta/"
+                + getCiscoModel().getCfgPrefix() + "-ptag.dat";
     }
 
     public void setCfgfmtUtility(String cfgfmtUtility) {
@@ -193,12 +173,15 @@ public class CiscoAtaPhone extends CiscoPhone {
         m_binDir = binDir;
     }
 
+    public void generateProfile(Writer wtr) {
+        CiscoAtaProfileWriter pwtr = new CiscoAtaProfileWriter(wtr);
+        pwtr.write(this);
+    }
+
     public void generateProfiles() {
         String outputfile = getPhoneFilename();
         String outputTxtfile = outputfile + ".txt";
         FileWriter wtr = null;
-
-        packBitmaps();
 
         try {
             wtr = new FileWriter(outputTxtfile);
@@ -254,70 +237,62 @@ public class CiscoAtaPhone extends CiscoPhone {
         }
     }
 
-    public Object getAdapter(Class c) {
-        Object o = null;
-        if (c == PhoneSettings.class) {
-            SettingBeanAdapter adapter = new SettingBeanAdapter(c);
-            adapter.setSetting(getSettings());
-            adapter.addMapping(PhoneSettings.TFTP_SERVER, "network/TftpURL");
-            if (!getCfgPrefix().equals(ATA_ID)) {
-                adapter.addMapping(PhoneSettings.VOICE_MAIL_NUMBER, "caller/VoiceMailNumber");
-            }
-            o = adapter.getImplementation();
-        } else {
-            o = super.getAdapter(c);
+    public class CiscoAtaLineDefaults {
+        private Line m_line;
+
+        CiscoAtaLineDefaults(Line line) {
+            m_line = line;
         }
 
-        return o;
-    }
-
-    public Object getLineAdapter(Line line, Class interfac) {
-        Object impl;
-        if (interfac == LineSettings.class) {
-            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
-            adapter.setSetting(line.getSettings());
-            adapter.addMapping(LineSettings.AUTHORIZATION_ID, "port/LoginID");
-            adapter.addMapping(LineSettings.USER_ID, "port/UID");
-            adapter.addMapping(LineSettings.PASSWORD, "port/PWD");
-            adapter.addMapping(LineSettings.DISPLAY_NAME, "port/DisplayName");
-            if (getCfgPrefix().equals(ATA_ID)) {
-                adapter.addMapping(LineSettings.REGISTRATION_SERVER, "port/_Proxy.18x");
-                adapter.addMapping(LineSettings.REGISTRATION_SERVER_PORT, "port/_ProxyPort.18x");
-            } else {
-                adapter.addMapping(LineSettings.REGISTRATION_SERVER, "port/_Proxy.79");
-                adapter.addMapping(LineSettings.REGISTRATION_SERVER_PORT, "port/_ProxyPort.79");
+        @SettingEntry(
+            paths = {
+                USER_ID_PATH, LOGIN_ID_PATH
+                })
+        public String getUserName() {
+            String userId = null;
+            User u = m_line.getUser();
+            if (u != null) {
+                userId = u.getUserName();
             }
-            impl = adapter.getImplementation();
-        } else {
-            impl = super.getAdapter(interfac);
+            return userId;
         }
 
-        return impl;
-    }
-
-    protected void setDefaultTimeZone() {
-        DeviceTimeZone mytz = getPhoneContext().getPhoneDefaults().getTimeZone();
-
-        int tzmin = mytz.getOffsetWithDst() / 60;
-        int atatz;
-
-        if (tzmin % 60 == 0) {
-            atatz = tzmin / 60;
-            if (atatz < 0) {
-                atatz += 25;
+        @SettingEntry(path = PASSWORD_PATH)
+        public String getPassword() {
+            String password = null;
+            User u = m_line.getUser();
+            if (u != null) {
+                password = u.getSipPassword();
             }
-        } else {
-            atatz = tzmin;
+            return password;
         }
-        getSettings().getSetting(TIMEZONE_SETTING).setValue(String.valueOf(atatz));
+
+        @SettingEntry(path = DISPLAY_NAME_PATH)
+        public String getDisplayName() {
+            String displayName = null;
+            User u = m_line.getUser();
+            if (u != null) {
+                displayName = u.getDisplayName();
+            }
+            return displayName;
+        }
+
+        @SettingEntry(
+            paths = {
+                REGISTRATION_PATH, REGISTRATION_ATA_PATH
+                })
+        public String getRegistrationServer() {
+            return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
+        }
     }
-    
+
     public class CiscoAtaDefaults {
         private DeviceDefaults m_defaults;
-        
+
         CiscoAtaDefaults(DeviceDefaults defaults) {
             m_defaults = defaults;
         }
+
         @SettingEntry(path = TIMEZONE_SETTING)
         public int getTimeZoneOffset() {
             int tzmin = m_defaults.getTimeZone().getOffsetWithDst() / 60;
@@ -331,193 +306,48 @@ public class CiscoAtaPhone extends CiscoPhone {
             } else {
                 atatz = tzmin;
             }
-            
+
             return atatz;
         }
+
+        @SettingEntry(path = TFTP_PATH)
+        public String getTftpServer() {
+            return m_defaults.getTftpServer();
+        }
+
+        @SettingEntry(path = VOICEMAIL_PATH)
+        public String getVoiceMailNumber() {
+            return m_defaults.getVoiceMail();
+        }
     }
 
-    public String getSoftwareUpgradeConfig() {
-        Setting swupgrade = getSettings().getSetting(UPGRADE_SETTING_GROUP);
+    public Collection<Line> getProfileLines() {
+        ArrayList<Line> lines = new ArrayList(getMaxLineCount());
 
-        if (swupgrade == null) {
-            return StringUtils.EMPTY;
-        }
-
-        String swimage = swupgrade.getSetting("upgradecode." + getCfgPrefix()).getValue();
-        String imageid = swupgrade.getSetting(IMAGE_ID + "." + getCfgPrefix()).getValue();
-        CiscoModel model = (CiscoModel) getModel();
-        String upghex = model.getUpgCode();
-
-        if (StringUtils.isBlank(swimage) || swimage.equals(NONE) || imageid.equals(ZERO)) {
-            return StringUtils.EMPTY;
-        }
-
-        return "upgradecode:3," + upghex + ",0.0.0.0,69," + imageid + "," + swimage;
-    }
-
-    public String getLogoUpgradeConfig() {
-        if (getCfgPrefix().equals(ATA_ID)) {
-            return StringUtils.EMPTY;
-        }
-
-        Setting logoupgrade = getSettings().getSetting(UPGRADE_SETTING_GROUP);
-
-        if (logoupgrade == null) {
-            return StringUtils.EMPTY;
-        }
-
-        String logofile = logoupgrade.getSetting("logofile").getValue();
-        String imageid = logoupgrade.getSetting("logoid").getValue();
-
-        if (StringUtils.isBlank(logofile) || logofile.equals(NONE) || imageid.equals(ZERO)) {
-            return StringUtils.EMPTY;
-        }
-
-        return "upgradelogo:" + imageid + ",0," + logofile;
-    }
-
-    public String getProxyConfig() {
-        if (getLines().size() == 0) {
-            return StringUtils.EMPTY;
-        }
-
-        Line line = getLine(0);
-        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
-        if (settings == null) {
-            return StringUtils.EMPTY;
-        }
-
-        return "Proxy:" + settings.getRegistrationServer() + ":"
-                + settings.getRegistrationServerPort();
-    }
-
-    public Collection getProfileLines() {
-        ArrayList linesSettings = new ArrayList(getMaxLineCount());
-
-        Collection lines = getLines();
-        int i = 0;
-        Iterator ilines = lines.iterator();
-        for (; ilines.hasNext() && (i < getMaxLineCount()); i++) {
-            Line line = (Line) ilines.next();
-            linesSettings.add(line.getSettings());
-        }
+        lines.addAll(getLines());
 
         // copy in blank lines of all unused lines
-        for (; i < getMaxLineCount(); i++) {
+        for (int i = lines.size(); i < getMaxLineCount(); i++) {
             Line line = createLine();
             line.setPhone(this);
             line.setPosition(i);
-            LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
-            settings.setDisplayName(ZERO);
-            settings.setUserId(ZERO);
-            settings.setAuthorizationId(ZERO);
-            settings.setDisplayName(ZERO);
-            settings.setPassword(ZERO);
-            linesSettings.add(line.getSettings());
+            lines.add(line);
+            line.initialize();
+            line.addDefaultBeanSettingHandler(new StubAtaLine());
         }
 
-        return linesSettings;
+        return lines;
     }
 
-    public Collection getRealSettingGroups() {
-        return SettingUtil.filter(S_REALGROUPS, getSettings());
-    }
+    public static class StubAtaLine {
 
-    public Collection getRealSettings(Setting setting) {
-        return SettingUtil.filter(S_REALSETTINGS, setting);
-    }
-
-    public Collection getBitmapSettings() {
-        return SettingUtil.filter(S_BITMAPSETTINGS, getSettings());
-    }
-
-    // FIXME : Write a settinghandler that checks by name '__' and returns accordingly
-    static class PackBitmaps implements SettingValueHandler {
-        private Map<String, SettingValue2> m_bitmapTargets = new HashMap();
-        
-        void preprocess(Setting settings, Collection bitmaps) {
-            Iterator bmi = bitmaps.iterator();
-            while (bmi.hasNext()) {
-                Setting bset = (Setting) bmi.next();
-                String bname = bset.getName();
-                int bpoint = bname.indexOf('.');
-
-                if (bpoint < KOLME || bpoint == bname.length() - 1) {
-                    continue;
-                }
-
-                String tgtname = bname.substring(2, bpoint);
-                String btpath = bset.getParentPath() + Setting.PATH_DELIM + tgtname;
-                Setting btgt = settings.getSetting(btpath.substring(1));
-
-                int bofs = Integer.parseInt(bname.substring(bpoint + 1));
-
-                String bttype = btgt.getType().getName();
-                if (bttype.equals(INTEGER_SETTING)) {
-                    int btmp = Integer.decode(btgt.getValue()).intValue();
-                    btmp = btmp + (Integer.parseInt(bset.getValue()) << bofs);
-                    SettingValue2 value = new SettingValueImpl(Integer.toString(btmp));
-                    m_bitmapTargets.put(btgt.getPath(), value);
-                } else {
-                    String btmp = btgt.getValue();
-                    if (btmp.startsWith(NOLLAX) || btmp.startsWith(NOLLAX_UPPER)) {
-                        long btx = Long.decode(btmp).longValue();
-                        btx = btx + (Long.parseLong(bset.getValue()) << bofs);
-                        SettingValue2 value = new SettingValueImpl(NOLLAX + Long.toHexString(btx));
-                        m_bitmapTargets.put(btgt.getPath(), value);
-                    } else {
-                        SettingValue2 value = new SettingValueImpl(btmp + bset.getValue());
-                        m_bitmapTargets.put(btgt.getPath(), value);
-                    }
-                }
-            }            
+        @SettingEntry(
+            paths = {
+                DISPLAY_NAME_PATH, USER_ID_PATH, LOGIN_ID_PATH, USER_ID_PATH, PASSWORD_PATH
+                })
+        public String getZero() {
+            return ZERO;
         }
-        
-        public SettingValue2 getSettingValue(Setting setting) {
-            return m_bitmapTargets.get(setting.getPath());
-        }        
-    }
-    public void packBitmaps() {
-        Collection bitmaps = getBitmapSettings();
-        Iterator bmi = bitmaps.iterator();
-        while (bmi.hasNext()) {
-            Setting bset = (Setting) bmi.next();
-            String bname = bset.getName();
-            int bpoint = bname.indexOf('.');
-
-            if (bpoint < KOLME || bpoint == bname.length() - 1) {
-                continue;
-            }
-
-            String tgtname = bname.substring(2, bpoint);
-            String btpath = bset.getParentPath() + Setting.PATH_DELIM + tgtname;
-            Setting btgt = getSettings().getSetting(btpath.substring(1));
-
-            int bofs = Integer.parseInt(bname.substring(bpoint + 1));
-
-            String bttype = btgt.getType().getName();
-            if (bttype.equals(INTEGER_SETTING)) {
-                int btmp = Integer.decode(btgt.getValue()).intValue();
-                btmp = btmp + (Integer.parseInt(bset.getValue()) << bofs);
-                btgt.setValue(Integer.toString(btmp));
-            } else {
-                String btmp = btgt.getValue();
-                if (btmp.startsWith(NOLLAX) || btmp.startsWith(NOLLAX_UPPER)) {
-                    long btx = Long.decode(btmp).longValue();
-                    btx = btx + (Long.parseLong(bset.getValue()) << bofs);
-                    btgt.setValue(NOLLAX + Long.toHexString(btx));
-                } else {
-                    btgt.setValue(btmp + bset.getValue());
-                }
-            }
-        }
-    }
-
-    public Setting evaluateModel(ConditionalSet conditional) {
-        CiscoAtaSettingExpressionEvaluator gssee = new CiscoAtaSettingExpressionEvaluator(
-                getModel().getModelId());
-        Setting model = conditional.evaluate(gssee);
-        return model;
     }
 
     static class CiscoAtaSettingExpressionEvaluator implements SettingExpressionEvaluator {

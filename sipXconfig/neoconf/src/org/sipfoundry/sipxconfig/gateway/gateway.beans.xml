@@ -68,35 +68,20 @@
   </bean>
   
   <!-- gateway beans -->
-  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false">
+  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false"
+     parent="beanWithSettings">
     <property name="tftpRoot">
       <value>${sysdir.phone}/profile/tftproot</value>
     </property>
   </bean>
     
-  <bean id="smAudiocodesMediant" class="org.sipfoundry.sipxconfig.setting.SettingModel">
-    <property name="resource" value="audiocodes/mediant-gateway.xml"/>
-    <property name="modelFilesContext" ref="modelFilesContext"/>
-  </bean>
-  
   <bean id="gwAudiocodesMediant" class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway"
     singleton="false" parent="gwGeneric">
-    <property name="settingModel">
-      <ref local="smAudiocodesMediant"/>
-    </property>
     <property name="defaults" ref="phoneDefaults"/>
   </bean>
 
-  <bean id="smAudiocodesTp260" class="org.sipfoundry.sipxconfig.setting.SettingModel">
-    <property name="resource" value="audiocodes/tp260-gateway.xml"/>
-    <property name="modelFilesContext" ref="modelFilesContext"/>
-  </bean>
-      
   <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.Tp260Gateway"
     singleton="false" parent="gwGeneric">
-    <property name="settingModel">
-      <ref local="smAudiocodesTp260"/>
-    </property>
     <property name="defaults" ref="phoneDefaults"/>
   </bean>
   
@@ -108,18 +93,10 @@
     <constructor-arg><value>Acme 1000</value></constructor-arg>
   </bean>  
   
-  <bean id="smAcme" class="org.sipfoundry.sipxconfig.setting.SettingModel">
-    <property name="resource" value="acme/acme-gateway.xml"/>
-    <property name="modelFilesContext" ref="modelFilesContext"/>
-  </bean>
-  
   <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" singleton="false"
     parent="gwGeneric">
     <property name="defaults" ref="phoneDefaults"/>
     <property name="velocityEngine" ref="velocityEngine"/>
-    <property name="settingModel">
-      <ref local="smAcme"></ref>
-    </property>
   </bean>
   <!-- ACME end -->
       

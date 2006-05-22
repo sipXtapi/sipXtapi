@@ -21,26 +21,23 @@ import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.phone.Line;
-import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
-import org.sipfoundry.sipxconfig.phone.PhoneSettings;
-import org.sipfoundry.sipxconfig.setting.BeanValueStorage;
-import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
-import org.sipfoundry.sipxconfig.setting.SettingModelImpl;
 
 /**
  * Support for Polycom 300, 400, and 500 series phones and model 3000 conference phone
  */
 public class PolycomPhone extends Phone {
-
     public static final String BEAN_ID = "polycom";
-
-    public static final String CALL = "call";
-    
-    private static final String CONTACT_MODE = "contact";
+    public static final String CALL = "call";    
+    static final String REGISTRATION_PATH = "reg/server/1/address";
+    static final String REGISTRATION_PORT_PATH = "reg/server/1/port";
+    private static final String CONTACT_MODE = "contact";    
+    private static final String DISPLAY_NAME_PATH = "reg/displayName";
+    private static final String PASSWORD_PATH = "reg/auth.password";
+    private static final String USER_ID_PATH = "reg/address";
+    private static final String AUTHORIZATION_ID_PATH = "reg/auth.userId";
 
     private String m_phoneConfigDir = "polycom/mac-address.d";
 
@@ -60,23 +57,18 @@ public class PolycomPhone extends Phone {
         super(model);
     }
     
-    public void setPhoneContext(PhoneContext context) {
-        super.setPhoneContext(context);
-        
-        PolycomPhoneDefaults defaults = new PolycomPhoneDefaults(context.getPhoneDefaults());
-        BeanValueStorage bvs = new BeanValueStorage(defaults);
-        getSettingModel2().addSettingValueHandler(bvs);        
+    @Override
+    public void initialize() {        
+        PolycomPhoneDefaults defaults = new PolycomPhoneDefaults(getPhoneContext().getPhoneDefaults());
+        addDefaultBeanSettingHandler(defaults);
     }
 
-    /**
-     * temporary until code moves to BeanWithSettings
-     */
-    protected void setSettings(Setting settings) {
-        super.setSettings(settings);
-        
-        ((SettingModelImpl) getSettingModel2()).setSettings(settings);
+    @Override
+    public void initializeLine(Line line) {
+        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
+        line.addDefaultBeanSettingHandler(lineDefaults);
     }
- 
+
     public String getPhoneTemplate() {
         return m_phoneTemplate;
     }
@@ -158,57 +150,34 @@ public class PolycomPhone extends Phone {
         }
     }
 
-    public Object getAdapter(Class c) {
-        Object o = null;
-        if (c == PhoneSettings.class) {
-            SettingBeanAdapter adapter = new SettingBeanAdapter(c);
-            adapter.setSetting(getSettings());
-            adapter.addMapping(PhoneSettings.DOMAIN_NAME, "voIpProt/server/1/address");
+    @Override
+    protected void setLineInfo(Line line, LineInfo externalLine) {
+        line.setSettingValue(DISPLAY_NAME_PATH, externalLine.getDisplayName());
+        line.setSettingValue(USER_ID_PATH, externalLine.getUserId());        
+        line.setSettingValue(PASSWORD_PATH, externalLine.getPassword());        
 
-            // XCF-668 Polycom phones send sip traffic to server it's registered with
-            // would only be non-traditional situations and hence not a good default
-            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY,
-            // "voIpProt/SIP.outboundProxy/address");
-            // adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT,
-            // "voIpProt/SIP.outboundProxy/port");
-            o = adapter.getImplementation();
-        } else {
-            o = super.getAdapter(c);
-        }
+        // Both userId and authId are required, see XCF-914
+        line.setSettingValue(AUTHORIZATION_ID_PATH, externalLine.getUserId());
 
-        return o;
+        line.setSettingValue(REGISTRATION_PATH, externalLine.getRegistrationServer());
+        line.setSettingValue(REGISTRATION_PORT_PATH, externalLine.getRegistrationServerPort());
     }
     
-    public Object getLineAdapter(Line line, Class interfac) {
-        Object impl;
-        if (interfac == LineSettings.class) {
-            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
-            adapter.setSetting(line.getSettings());
-            adapter.addMapping(LineSettings.AUTHORIZATION_ID, "reg/auth.userId");
-            adapter.addMapping(LineSettings.USER_ID, "reg/address");
-            adapter.addMapping(LineSettings.PASSWORD, "reg/auth.password");
-            adapter.addMapping(LineSettings.DISPLAY_NAME, "reg/displayName");
-            adapter.addMapping(LineSettings.REGISTRATION_SERVER, "reg/server/1/address");
-            adapter.addMapping(LineSettings.REGISTRATION_SERVER_PORT, "reg/server/1/port");
-            impl = adapter.getImplementation();
-        } else {
-            impl = super.getAdapter(interfac);
-        }
-
-        return impl;
+    @Override
+    protected LineInfo getLineInfo(Line line) {
+        LineInfo lineInfo = new LineInfo();
+        lineInfo.setUserId(line.getSettingValue(USER_ID_PATH));
+        lineInfo.setDisplayName(line.getSettingValue(DISPLAY_NAME_PATH));
+        lineInfo.setPassword(line.getSettingValue(PASSWORD_PATH));
+        lineInfo.setRegistrationServer(line.getSettingValue(REGISTRATION_PATH));
+        lineInfo.setRegistrationServerPort(line.getSettingValue(REGISTRATION_PORT_PATH));
+        return lineInfo;
     }
-    
-    public void addLine(Line line) {
-        super.addLine(line);
         
-        PolycomLineDefaults lineDefaults = new PolycomLineDefaults(getPhoneContext().getPhoneDefaults(), line);
-        BeanValueStorage lineDefaultsValues = new BeanValueStorage(lineDefaults);        
-        line.getSettingModel2().addSettingValueHandler(lineDefaultsValues);
-        
-        // TEMP until goes into beanwithsettings
-        ((SettingModelImpl) line.getSettingModel2()).setSettings(line.getSettings());
-    }
-    
+    // XCF-668 Removed setting outbound proxy defaults
+    // So by default, polycom phones will attempt to send sip traffic to server 
+    // it's registered with.  Setting an outbound proxy to domain would be redundant
+    // therefore unnec. and could potentially cause issues.
     public static class PolycomPhoneDefaults {
         private DeviceDefaults m_defaults;
         
@@ -324,6 +293,11 @@ public class PolycomPhone extends Phone {
         public int getStopTime() {
             return isDstEnabled() ? getZone().getStopTime() / 3600 : 0;
         }
+        
+        @SettingEntry(path = "voIpProt/server/1/address")
+        public String getRegistrationServer() {
+            return m_defaults.getDomainName();
+        }    
     }
     
     public static class PolycomLineDefaults {
@@ -359,13 +333,54 @@ public class PolycomPhone extends Phone {
         
         @SettingEntry(path = "msg.mwi/callBackMode")
         public String getCallBackMode() {
-            String mode = null;
+            String mode = "disabled";
             User u = m_line.getUser();
             if (u != null) {
                 mode = CONTACT_MODE;
             }
             
             return mode;                                
+        }
+        
+        @SettingEntry(path = AUTHORIZATION_ID_PATH)
+        public String getAuthorizationId() {
+            return getAddress();
+        }
+        
+        @SettingEntry(path = USER_ID_PATH)
+        public String getAddress() {
+            User u = m_line.getUser();
+            if (u != null) {
+                return u.getUserName();
+            }        
+            return null;
+        }
+        
+        @SettingEntry(path = PASSWORD_PATH)
+        public String getAuthorizationPassword() {
+            User u = m_line.getUser();
+            if (u != null) {
+                return u.getSipPassword();
+            }        
+            return null;            
+        }
+        
+        @SettingEntry(path = DISPLAY_NAME_PATH)
+        public String getDisplayName() {
+            User u = m_line.getUser();
+            if (u != null) {
+                return u.getDisplayName();
+            }        
+            return null;            
+        }
+        
+        @SettingEntry(path = REGISTRATION_PATH)
+        public String getRegistrationServer() {
+            User u = m_line.getUser();
+            if (u != null) {            
+                return m_line.getPhoneContext().getPhoneDefaults().getDomainName();
+            }
+            return null;
         }
     }
     

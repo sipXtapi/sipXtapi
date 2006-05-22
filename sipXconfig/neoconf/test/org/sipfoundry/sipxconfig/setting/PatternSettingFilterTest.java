@@ -26,8 +26,8 @@ public class PatternSettingFilterTest extends TestCase {
         SettingSet games = builder.buildModel(in, null);
 
         PatternSettingFilter filter = new PatternSettingFilter();
-        filter.addExcludes("/cards.*$");
-        filter.addExcludes("/chess/piece.*$");
+        filter.addExcludes("cards.*$");
+        filter.addExcludes("chess/piece.*$");
         Collection settings = SettingUtil.filter(filter, games);
         assertEquals(4, settings.size());        
     }

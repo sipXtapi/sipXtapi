@@ -20,11 +20,17 @@
       <ref local="settingDaoImpl"/>
     </property>
   </bean>  
+  
+  <bean id="copyModelInterceptor" class="org.sipfoundry.sipxconfig.setting.CopyFromCacheInterceptor">
+    <property name="cacheInterceptor">
+      <ref bean="methodCacheInterceptor"/>
+    </property>
+  </bean>
 
   <bean id="loadModelCacheAdvisor"
     class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
     <property name="advice">
-      <ref bean="methodCacheInterceptor"/>
+      <ref bean="copyModelInterceptor"/>
     </property>
     <property name="patterns">
       <list>

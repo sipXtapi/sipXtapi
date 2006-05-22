@@ -25,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
-import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
@@ -38,7 +37,6 @@ public class Upload extends BeanWithSettings {
     private String m_name;
     private String m_description;
     private UploadSpecification m_specification;
-    private ModelFilesContext m_modelFilesContext;
     private String m_beanId;
     private String m_uploadRootDirectory;
     private String m_destinationDirectory;
@@ -57,6 +55,10 @@ public class Upload extends BeanWithSettings {
         m_beanId = specification.getBeanId();
         m_specification = specification;
     }
+    
+    @Override
+    public void initialize() {
+    }    
     
     void setDirectoryId(String directory) {
         m_directoryId = directory;
@@ -105,21 +107,15 @@ public class Upload extends BeanWithSettings {
                 + StringUtils.defaultString(specificationId));
     }
 
-    public Setting getSettingModel() {
-        Setting model = super.getSettingModel();
-        if (model == null) {
-            Setting master = m_modelFilesContext.loadModelFile("upload.xml", m_specification
-                    .getSpecificationId());
-            if (master != null) {    
-                model = master.copy();
-                setSettingModel(model);
-            }
-        }
-        return model;
-    }
+    @Override
+    protected Setting loadSettings() {
+        String id = m_specification.getSpecificationId();
+        Setting settings = getModelFilesContext().loadModelFile("upload.xml", id);
 
-    protected void defaultSettings() {
-        getSettings().acceptVisitor(new UploadDirectorySetter());
+        // Hack, bean id should be valid 
+        settings.acceptVisitor(new UploadDirectorySetter());        
+        
+        return settings;
     }
 
     private class UploadDirectorySetter extends AbstractSettingVisitor {
@@ -185,14 +181,6 @@ public class Upload extends BeanWithSettings {
     
     public void setDescription(String description) {
         m_description = description;
-    }
-
-    public ModelFilesContext getModelFilesContext() {
-        return m_modelFilesContext;
-    }
-
-    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
-        m_modelFilesContext = modelFilesContext;
     }
     
     public void setDestinationDirectory(String destinationDirectory) {

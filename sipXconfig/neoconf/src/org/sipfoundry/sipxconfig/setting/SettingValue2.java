@@ -11,8 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+/**
+ * Instance passed to SettingValueHandlers to resolve a setting
+ */
 public interface SettingValue2 {
     
     public String getValue();
-
 }

@@ -24,43 +24,23 @@ import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.ConfigFileStorage;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SipxServer extends BeanWithSettings implements Server, AliasProvider {
+    private static final String DOMAIN_NAME = "domain/SIPXCHANGE_DOMAIN_NAME";
+    private static final String PRESENCE_SIGN_IN_CODE = "presence/SIP_PRESENCE_SIGN_IN_CODE";
+    private static final String PRESENCE_SIGN_OUT_CODE = "presence/SIP_PRESENCE_SIGN_OUT_CODE";
+    private static final String PRESENCE_SERVER_SIP_PORT = "presence/PRESENCE_SERVER_SIP_PORT";
+    // note: the name of the setting is misleading - this is actually full host name not just a
+    // domain name
+    private static final String PRESENCE_SERVER_LOCATION = "presence/SIP_PRESENCE_DOMAIN_NAME";   
+    private static final String PRESENCE_API_PORT = "presence/SIP_PRESENCE_HTTP_PORT";
+
     private String m_configDirectory;
-
     private ConfigFileStorage m_storage;
-
-    private String m_domainName;
-
     private SipxReplicationContext m_sipxReplicationContext;
-
     private DeviceDefaults m_deviceDefaults;
-
     private CoreContext m_coreContext;
-
-    protected void decorateSettings() {
-        Setting settings = getSettings();
-        if (settings == null) {
-            return;
-        }
-
-        m_storage.decorate(settings);
-
-        // XCF-552 - Domain name on a vanilla installation is `hostname -d`
-        // evaluating shell expression is beyond the scope of the UI. Therefore we
-        // inject the domain name set on this bean because it's been resolved already.
-        // When we support the separation of commserver from general sipxconfig configuration,
-        // I suspect domain name will be stored in a separate object and that drives the
-        // modification of config.defs and is referenced directly by phoneContext and coreContext
-        m_storage.put(ServerSettings.DOMAIN_NAME, m_domainName);
-        
-        setSettings(settings);
-    }
-
-    public void setDomainName(String domainName) {
-        m_domainName = domainName;
-    }
 
     public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
         m_sipxReplicationContext = sipxReplicationContext;
@@ -72,6 +52,35 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+    
+    @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(new SipxDefaults(m_coreContext));
+    }
+    
+    public static class SipxDefaults {
+        private CoreContext m_core;
+        SipxDefaults(CoreContext core) {
+            m_core = core;
+        }
+
+        /*
+         * XCF-552 - Domain name on a vanilla installation is `hostname -d` evaluating shell
+         * expression is beyond the scope of the UI. Therefore we inject the domain name set on
+         * this bean because it's been resolved already. When we support the separation of
+         * commserver from general sipxconfig configuration, I suspect domain name will be stored
+         * in a separate object and that drives the modification of config.defs and is referenced
+         * directly by phoneContext and coreContext
+         */
+        @SettingEntry(path = DOMAIN_NAME)
+        public String getDomainName() {
+            return m_core.getDomainName();
+        }        
+    }
+    
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("server.xml", "commserver");
     }
 
     public void applySettings() {
@@ -91,18 +100,16 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     }
 
     void handlePossibleDomainNameChange() {
-        String newDomainName = getServerSettings().getDomainName();
+        String newDomainName = getSettingValue(DOMAIN_NAME);
         // bail if domain name wasn't changed.
-        if (m_domainName.equals(newDomainName)) {
+        if (m_coreContext.getDomainName().equals(newDomainName)) {
             return;
         }
 
-        m_domainName = newDomainName;
-
         // unwelcome dependencies, resolve when domain name editing
         // refactored.
-        m_deviceDefaults.setDomainName(m_domainName);
-        m_coreContext.setDomainName(m_domainName);
+        m_deviceDefaults.setDomainName(newDomainName);
+        m_coreContext.setDomainName(newDomainName);
 
         m_sipxReplicationContext.generateAll();
     }
@@ -110,25 +117,15 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     public void setConfigDirectory(String configDirectory) {
         m_configDirectory = configDirectory;
         m_storage = new ConfigFileStorage(m_configDirectory);
-    }
-
-    public ServerSettings getServerSettings() {
-        SettingBeanAdapter adapter = new SettingBeanAdapter(ServerSettings.class);
-        adapter.setSetting(getSettings());
-        adapter.addMapping("domainName", ServerSettings.DOMAIN_NAME);
-        adapter.addMapping("presenceSignInCode", ServerSettings.PRESENCE_SIGN_IN_CODE);
-        adapter.addMapping("presenceSignOutCode", ServerSettings.PRESENCE_SIGN_OUT_CODE);
-        adapter.addMapping("presenceServerSipPort", ServerSettings.PRESENCE_SERVER_SIP_PORT);
-
-        return (ServerSettings) adapter.getImplementation();
+        setValueStorage(m_storage);
     }
 
     public Collection getAliasMappings() {
         Collection aliases = new ArrayList();
         String domainName = m_coreContext.getDomainName();
         int presencePort = getPresenceServerPort();
-        String signInCode = getSettingValue(ServerSettings.PRESENCE_SIGN_IN_CODE);
-        String signOutCode = getSettingValue(ServerSettings.PRESENCE_SIGN_OUT_CODE);
+        String signInCode = getSettingValue(PRESENCE_SIGN_IN_CODE);
+        String signOutCode = getSettingValue(PRESENCE_SIGN_OUT_CODE);
         String presenceServer = getPresenceServerLocation();
 
         aliases.add(createPresenceAliasMapping(signInCode.trim(), domainName, presenceServer,
@@ -148,16 +145,16 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     }
 
     private String getPresenceServerLocation() {
-        return getSettingValue(ServerSettings.PRESENCE_SERVER_LOCATION);
+        return getSettingValue(PRESENCE_SERVER_LOCATION);
     }
 
     private int getPresenceServerApiPort() {
-        return ((Integer) getSettingTypedValue(ServerSettings.PRESENCE_API_PORT))
+        return ((Integer) getSettingTypedValue(PRESENCE_API_PORT))
                 .intValue();
     }
 
     private int getPresenceServerPort() {
-        return ((Integer) getSettingTypedValue(ServerSettings.PRESENCE_SERVER_SIP_PORT))
+        return ((Integer) getSettingTypedValue(PRESENCE_SERVER_SIP_PORT))
                 .intValue();
     }
 
@@ -172,9 +169,4 @@ public class SipxServer extends BeanWithSettings implements Server, AliasProvide
     public String getPresenceServerUri() {
         return SipUri.format(getPresenceServerLocation(), getPresenceServerPort());
     }
-
-    public void setSettingValue(String path, String value) {
-        m_storage.setValue(getSettings().getSetting(path), value);
-    }
-
 }

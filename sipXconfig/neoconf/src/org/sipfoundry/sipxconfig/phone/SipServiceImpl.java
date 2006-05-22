@@ -25,6 +25,7 @@ import java.util.TimeZone;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.common.SipUri;
 
 
 /**
@@ -36,8 +37,6 @@ public class SipServiceImpl implements SipService {
     
     private static final long RANDOM_MAX = Long.MAX_VALUE;
     
-    private static final int DEFAULT_SIP_PORT = 5060;
-
     private static Log s_log = LogFactory.getLog(SipServiceImpl.class);
 
     /** Example:  Tue, 15 Nov 1994 08:12:31 GMT */
@@ -45,11 +44,11 @@ public class SipServiceImpl implements SipService {
 
     private String m_serverName = "localhost";
 
-    private int m_serverPort = DEFAULT_SIP_PORT;
+    private int m_serverPort = SipUri.DEFAULT_SIP_PORT;
     
     private String m_proxyHost = m_serverName;
     
-    private int m_proxyPort = DEFAULT_SIP_PORT;
+    private int m_proxyPort = SipUri.DEFAULT_SIP_PORT;
     
     public SipServiceImpl() {
         m_dateFormat = new SimpleDateFormat("EEE, d MMM yyyy kk:mm:ss z");
@@ -100,7 +99,7 @@ public class SipServiceImpl implements SipService {
     
     private String getFromServer() {
         String from;
-        if (getFromServerPort() == DEFAULT_SIP_PORT) {
+        if (getFromServerPort() == SipUri.DEFAULT_SIP_PORT) {
             from  = getFromServerName();
         } else {
             from  = getFromServerName() + ":" + getFromServerPort();
@@ -142,14 +141,12 @@ public class SipServiceImpl implements SipService {
         return Long.toHexString(l);
     }
     
-    public void sendCheckSync(String uri, String registrationServer, 
-                              String registrationServerPort, String userId) {
-        sendNotify(uri, registrationServer, 
-                      registrationServerPort, userId, "Event: check-sync\r\n", new byte[0]);
+    public void sendCheckSync(String uri, String server, String port) {
+        sendNotify(uri, server, port, "Event: check-sync\r\n", new byte[0]);
     }
 
-    public void sendNotify(String uri, String registrationServer, 
-                              String registrationServerPort, String userId, String event, byte[] payload) {
+    public void sendNotify(String uri, String server, String port, String event, byte[] payload) {
+        String userId = SipUri.extractUser(uri);
         // The check-sync message is a flavor of unsolicited NOTIFY
         // this message does not require that the phone be enrolled
         // the message allows us to reboot a specific phone 
@@ -160,7 +157,7 @@ public class SipServiceImpl implements SipService {
                 + event
                 + "Content-Length: {6}\r\n" + "\r\n";
         Object[] sipParams = new Object[] { 
-            getNotifyRequestUri(registrationServer, registrationServerPort, userId), 
+            getNotifyRequestUri(server, port, userId), 
             getServerVia(),
             getServerUri(), 
             uri,
@@ -195,7 +192,7 @@ public class SipServiceImpl implements SipService {
         String port = registrationServerPort;
         if (StringUtils.isNotBlank(port)) {
             int nport = Integer.parseInt(port);
-            if (nport != DEFAULT_SIP_PORT) {
+            if (nport != SipUri.DEFAULT_SIP_PORT) {
                 sb.append(':').append(port);
             }
         }

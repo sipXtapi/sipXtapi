@@ -255,171 +255,57 @@
         </setting>
         <setting name="__IPAddress-9">
             <label>IP Address</label>
+            <profileName>P9,P10,P11,P12</profileName>
             <type>
                 <ipaddr/>
             </type>
             <value></value>
             <description>Ignore if DHCP or PPPoE is used</description>
         </setting>
-        <setting name="P9" hidden="yes">
-            <label>IP Address byte 1</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P10" hidden="yes">
-            <label>IP Address byte 2</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P11" hidden="yes">
-            <label>IP Address byte 3</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P12" hidden="yes">
-            <label>IP Address byte 4</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
         <setting name="__SubnetMask-13">
             <label>Subnet mask</label>
+            <profileName>P13,P14,P15,P16</profileName>
             <type>
                 <ipaddr/>
             </type>
             <value>255.255.255.0</value>
             <description>Ignore if DHCP or PPPoE is used</description>
         </setting>
-        <setting name="P13" hidden="yes">
-            <label>Subnet mask byte 1</label>
-            <type refid="byte"/>
-            <value>255</value>
-        </setting>
-        <setting name="P14" hidden="yes">
-            <label>Subnet mask byte 2</label>
-            <type refid="byte"/>
-            <value>255</value>
-        </setting>
-        <setting name="P15" hidden="yes">
-            <label>Subnet mask byte 3</label>
-            <type refid="byte"/>
-            <value>255</value>
-        </setting>
-        <setting name="P16" hidden="yes">
-            <label>Subnet mask byte 4</label>
-            <type refid="byte"/>
-            <value>0</value>
-        </setting>
         <setting name="__Router-17">
             <label>Gateway</label>
+            <profileName>P17,P18,P19,P20</profileName>
             <type>
                 <ipaddr/>
             </type>
             <value></value>
             <description>Ignore if DHCP or PPPoE is used</description>
-        </setting>
-        <setting name="P17" hidden="yes">
-            <label>Router byte 1</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P18" hidden="yes">
-            <label>Router byte 2</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P19" hidden="yes">
-            <label>Router byte 3</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P20" hidden="yes">
-            <label>Router byte 4</label>
-            <type refid="byte"/>
-            <value></value>
         </setting>
         <setting name="__DNS1-21">
             <label>DNS 1</label>
+            <profileName>P21,P22,P23,P24</profileName>
             <type>
                 <ipaddr/>
             </type>
             <value></value>
             <description>Ignore if DHCP or PPPoE is used</description>
-        </setting>
-        <setting name="P21" hidden="yes">
-            <label>DNS 1 byte 1</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P22" hidden="yes">
-            <label>DNS 1 byte 2</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P23" hidden="yes">
-            <label>DNS 1 byte 3</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P24" hidden="yes">
-            <label>DNS 1 byte 4</label>
-            <type refid="byte"/>
-            <value></value>
         </setting>
         <setting name="__DNS2-25">
             <label>DNS 2</label>
+            <profileName>P25,P26,P27,P28</profileName>
             <type>
                 <ipaddr/>
             </type>
             <value></value>
             <description>Ignore if DHCP or PPPoE is used</description>
         </setting>
-        <setting name="P25" hidden="yes">
-            <label>DNS 2 byte 1</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P26" hidden="yes">
-            <label>DNS 2 byte 2</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P27" hidden="yes">
-            <label>DNS 2 byte 3</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P28" hidden="yes">
-            <label>DNS 2 byte 4</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
         <setting name="__DNSServer-92">
             <label>DNS server</label>
+            <profileName>P92,P93,P94,P95</profileName>
             <type>
                 <ipaddr/>
             </type>
             <value></value>
             <description>Use this DNS server if specified.</description>
-        </setting>
-        <setting name="P92" hidden="yes">
-            <label>DNS server byte 1</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P93" hidden="yes">
-            <label>DNS server byte 2</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P94" hidden="yes">
-            <label>DNS server byte 3</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P95" hidden="yes">
-            <label>DNS server byte 4</label>
-            <type refid="byte"/>
-            <value></value>
         </setting>
         <setting name="P30">
             <label>NTP Server</label>
@@ -1646,61 +1532,19 @@
         </setting>
         <setting name="__TFTPServer-213" if="PhoneGxp|Ht286">
             <label>TFTP server</label>
+            <profileName>P213,P214,P215,P216</profileName>
             <type>
                 <ipaddr/>
             </type>
             <value></value>
             <description>TFTP Server address.</description>
-        </setting>
-        <setting name="P213" hidden="yes" if="PhoneGxp|Ht286">
-            <label>TFTP Server byte 1</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P214" hidden="yes" if="PhoneGxp|Ht286">
-            <label>TFTP byte 2</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P215" hidden="yes" if="PhoneGxp|Ht286">
-            <label>TFTP byte 3</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P216" hidden="yes" if="PhoneGxp|Ht286">
-            <label>TFTP byte 4</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
+        </setting>        
         <setting name="__TFTPServerOld-41" if="Ht386|Ht488|Ht496">
             <label>TFTP server</label>
+            <profileName>P41,P42,P43,P44</profileName>
             <type>
                 <ipaddr/>
             </type>
-            <value></value>
-        </setting>
-        <setting name="P41" hidden="yes" if="Ht386|Ht488|Ht496">
-            <label>TFTP Server byte 1</label>
-            <type>
-                <string/>
-            </type>
-            <value></value>
-        </setting>
-        <setting name="P42" hidden="yes" if="Ht386|Ht488|Ht496">
-            <label>TFTP byte 2</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P43" hidden="yes" if="Ht386|Ht488|Ht496">
-            <label>TFTP byte 3</label>
-            <type refid="byte"/>
-            <value></value>
-        </setting>
-        <setting name="P44" hidden="yes" if="Ht386|Ht488|Ht496">
-            <label>TFTP byte 4</label>
-            <type refid="byte"/>
             <value></value>
         </setting>
         <setting name="P193" if="Phone.*|Ht286|Ht486">

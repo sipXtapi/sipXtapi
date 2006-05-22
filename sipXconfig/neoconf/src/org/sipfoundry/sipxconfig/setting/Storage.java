@@ -11,11 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-public interface Storage {
+public interface Storage extends SettingValueHandler {
 
-    Object getValue(Setting setting);
+    public void setSettingValue(Setting setting, SettingValue2 value, SettingValue2 defaultValue);
 
-    Object setValue(Setting setting, Object value);
-
-    Object revertToDefault(Setting setting);
+    public void revertSettingToDefault(Setting setting);
 }

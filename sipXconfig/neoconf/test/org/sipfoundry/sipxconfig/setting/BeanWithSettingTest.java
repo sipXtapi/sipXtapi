@@ -20,11 +20,19 @@ import org.sipfoundry.sipxconfig.TestHelper;
 public class BeanWithSettingTest extends TestCase {
     
     public void testGetSettingValue() throws Exception {
-        BeanWithSettings bean = new BeanWithSettings();
-        InputStream in = getClass().getResourceAsStream("birds.xml");
-        bean.setSettingModel(TestHelper.loadSettings(in));
-        Setting setting = bean.getSettings().getSetting("towhee/rufous-sided");
-        bean.setSettingValue(setting.getPath().substring(1), "4");
-        assertEquals("4", bean.getSettingModel2().getSettingValue(setting, null));
+        BeanWithSettings bean = new BirdWithSettings();
+        bean.setSettingValue("towhee/rufous-sided", "4");
+        assertEquals("4", bean.getSettingValue("towhee/rufous-sided"));
+    }
+
+    static class BirdWithSettings extends BeanWithSettings {
+        protected Setting loadSettings() {
+            InputStream in = getClass().getResourceAsStream("birds.xml");            
+            return TestHelper.loadSettings(in);
+        }            
+
+        @Override
+        public void initialize() {            
+        }
     }
 }

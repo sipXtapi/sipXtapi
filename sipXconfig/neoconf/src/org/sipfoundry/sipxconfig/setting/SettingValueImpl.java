@@ -17,8 +17,36 @@ public class SettingValueImpl implements SettingValue2 {
     public SettingValueImpl(String value) {
         m_value = value;
     }
-
+    
     public String getValue() {
         return m_value;
+    }
+    
+    @Override
+    public String toString() {
+        return m_value; 
+    }
+    
+    @Override
+    public int hashCode() {
+        return m_value == null ? 0 : m_value.hashCode();
+    }
+    
+    @Override
+    public boolean equals(Object ovalue) {
+        if (!(ovalue instanceof SettingValue2)) {
+            return false;
+        }
+        
+        SettingValue2 value = (SettingValue2) ovalue;
+        if (value == null) {
+            return false;
+        }
+        String svalue = value.getValue();
+        if (m_value == null) {
+            return svalue == null;
+        }
+        
+        return m_value.equals(svalue);        
     }
 }

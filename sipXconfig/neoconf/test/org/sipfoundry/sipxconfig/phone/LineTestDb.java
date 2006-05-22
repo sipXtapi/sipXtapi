@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 
 public class LineTestDb extends SipxDatabaseTestCase {
 
@@ -189,7 +190,7 @@ public class LineTestDb extends SipxDatabaseTestCase {
     public void testNoLinesButOtherPhonesHaveLines() throws Exception {
         TestHelper.cleanInsertFlat("phone/LineSeed.xml");
 
-        Phone newPhone = m_context.newPhone(Phone.MODEL);
+        Phone newPhone = m_context.newPhone(AcmePhone.MODEL);
         newPhone.setSerialNumber("XXXX");
         m_context.storePhone(newPhone);
         Phone loadedPhone = m_context.loadPhone(newPhone.getId());

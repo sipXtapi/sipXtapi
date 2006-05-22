@@ -46,7 +46,7 @@ public class VelocityProfileGenerator {
 
     private static final SettingFilter SETTINGS = new SettingFilter() {
         public boolean acceptSetting(Setting root, Setting setting) {
-            boolean firstGeneration = setting.getParentPath().equals(root.getPath());
+            boolean firstGeneration = (setting.getParent() == root);
             boolean isLeaf = setting.getValues().isEmpty();
             return firstGeneration && isLeaf;
         }

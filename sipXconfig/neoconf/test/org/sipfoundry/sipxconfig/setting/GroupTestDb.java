@@ -18,6 +18,7 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroupsTest.BirdWithGroups;
 import org.springframework.context.ApplicationContext;
 
 public class GroupTestDb extends SipxDatabaseTestCase {
@@ -39,9 +40,15 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         Group ms = new Group();
         ms.setResource("unittest");
         ms.setName("food");
-        ms.decorate(root);
-        root.getSetting("fruit").getSetting("apple").setValue("granny smith");
-        root.getSetting("vegetable").getSetting("pea").setValue(null);
+        
+        BeanWithGroups bean = new BirdWithGroups();
+        bean.setSettings(root);
+        
+        Setting settings = ms.inherhitSettingsForEditing(bean);
+        // bean.addGroup(ms);
+        
+        settings.getSetting("fruit/apple").setValue("granny smith");
+        settings.getSetting("vegetable/pea").setValue(null);
 
         m_dao.saveGroup(ms);
 
@@ -68,12 +75,15 @@ public class GroupTestDb extends SipxDatabaseTestCase {
         root.addSetting(new SettingSet("dairy")).addSetting(new SettingImpl("milk"));
 
         Group ms = m_dao.loadGroup(new Integer(1));
-        ms.decorate(root);
+        BeanWithGroups bean = new BirdWithGroups();
+        bean.setSettings(root);
+        
+        Setting settings = ms.inherhitSettingsForEditing(bean);
         // should make it disappear
-        root.getSetting("fruit").getSetting("apple").setValue("granny smith");
+        settings.getSetting("fruit/apple").setValue("granny smith");
 
         // should make it update
-        root.getSetting("vegetable").getSetting("pea").setValue("snap pea");
+        settings.getSetting("vegetable/pea").setValue("snap pea");
 
         assertEquals(1, ms.getValues().size());
         m_dao.saveGroup(ms);

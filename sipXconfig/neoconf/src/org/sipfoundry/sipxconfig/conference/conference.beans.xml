@@ -3,21 +3,8 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   
-  <bean id="bridgeSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel">
-    <property name="resource" value="sipxconference/bridge.xml"/>
-    <property name="modelFilesContext" ref="modelFilesContext"/>
-  </bean>
-
-  <bean id="conferenceSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel">
-  	<property name="resource" value="sipxconference/conference.xml"/>
-    <property name="modelFilesContext" ref="modelFilesContext"/>
-  </bean>
-
   <bean name="conferenceBridge" class="org.sipfoundry.sipxconfig.conference.Bridge"
-    singleton="false">
-    <property name="settingModel">
-      <ref local="bridgeSettingModel"/>
-    </property>
+    singleton="false" parent="beanWithSettings">
     <property name="systemDefaults" ref="phoneDefaults"/>
     <property name="audioDirectory" value="${sysdir.phone}/conference"/>
     <!-- default value - overridden in sipxconfig.properties -->
@@ -28,10 +15,7 @@
   </bean>
 
   <bean name="conferenceConference" class="org.sipfoundry.sipxconfig.conference.Conference"
-    singleton="false">
-    <property name="settingModel">
-      <ref local="conferenceSettingModel"/>      
-    </property>
+    singleton="false" parent="beanWithSettings">
     <!-- default value - overridden in sipxconfig.properties -->
     <property name="admissionScriptServer" value="localhost:8091"/>
   </bean>
@@ -55,7 +39,6 @@
       <ref local="conferenceBridgeContextImpl"/>
     </property>
   </bean>
-  
   
   <bean id="eagerConferenceBridgeProvisioning" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
     <property name="proxyInterfaces"

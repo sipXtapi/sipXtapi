@@ -17,6 +17,7 @@ import java.util.TreeMap;
 import org.sipfoundry.sipxconfig.common.DialPad;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class AutoAttendant extends BeanWithGroups implements NamedObject {
     public static final String BEAN_NAME = "autoAttendant";
@@ -45,6 +46,15 @@ public class AutoAttendant extends BeanWithGroups implements NamedObject {
         operator.resetToFactoryDefault();
 
         return operator;
+    }
+    
+    @Override
+    public void initialize() {        
+    }
+    
+    @Override
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("sipxvxml/autoattendant.xml");
     }
 
     /**

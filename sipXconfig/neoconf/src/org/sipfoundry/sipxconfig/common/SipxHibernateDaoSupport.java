@@ -25,6 +25,7 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.persister.entity.EntityPersister;
+import org.sipfoundry.sipxconfig.setting.Storage;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -114,7 +115,10 @@ public class SipxHibernateDaoSupport extends HibernateDaoSupport {
         template.deleteAll(entities);
     }
 
-    protected ValueStorage clearUnsavedValueStorage(ValueStorage vs) {
+    protected Storage clearUnsavedValueStorage(Storage storage) {
+        // requirement, otherwise you wouldn't be calling this function
+        ValueStorage vs = (ValueStorage) storage;
+        
         // If no settings don't bother saving anything.
         return vs != null && vs.isNew() && vs.size() == 0 ? null : vs;
     }

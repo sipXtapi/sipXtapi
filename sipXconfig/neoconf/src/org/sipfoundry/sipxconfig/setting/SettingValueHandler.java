@@ -11,8 +11,14 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+/**
+ * Resolving a setting value.  
+ */
 public interface SettingValueHandler {
     
-    public SettingValue2 getSettingValue(Setting s); 
+    /**
+     * call value.setValue() if implementation has a value for given setting 
+     */
+    public SettingValue2 getSettingValue(Setting setting); 
 
 }

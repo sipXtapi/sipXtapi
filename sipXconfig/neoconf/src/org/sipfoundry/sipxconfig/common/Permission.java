@@ -96,7 +96,7 @@ public final class Permission extends Enum {
     }
 
     public void setEnabled(Group g, boolean enable) {
-        String path = Setting.PATH_DELIM + getSettingPath();
+        String path = getSettingPath();
         g.getValues().put(path, enable ? ENABLE : DISABLE);
     }
 

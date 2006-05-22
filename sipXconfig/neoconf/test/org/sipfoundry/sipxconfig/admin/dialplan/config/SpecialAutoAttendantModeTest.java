@@ -17,8 +17,6 @@ import java.io.StringReader;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 
@@ -37,10 +35,8 @@ public class SpecialAutoAttendantModeTest extends XMLTestCase {
     }
 
     public void testGetDocument() throws Exception {
-        MockControl aaCtrl = MockClassControl.createControl(AutoAttendant.class);
-        AutoAttendant aa = (AutoAttendant) aaCtrl.getMock();
-        aaCtrl.expectAndReturn(aa.getSystemName(), "afterhours");
-        aaCtrl.replay();
+        AutoAttendant aa = new AutoAttendant();
+        aa.setSystemId("afterhours");
 
         InputStream referenceXmlStream = getClass().getResourceAsStream(
                 "organizationprefs.test.xml");
@@ -48,6 +44,5 @@ public class SpecialAutoAttendantModeTest extends XMLTestCase {
         SpecialAutoAttendantMode file = new SpecialAutoAttendantMode(true, aa);
         String generatedXml = file.getFileContent();
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
-        aaCtrl.verify();
     }
 }

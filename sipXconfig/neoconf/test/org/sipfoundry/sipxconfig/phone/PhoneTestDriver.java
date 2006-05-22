@@ -40,13 +40,19 @@ public class PhoneTestDriver {
     public MockControl sipControl;
     
     public DeviceDefaults defaults;
+
+    public static PhoneTestDriver supplyTestData(Phone _phone) {
+        return new PhoneTestDriver(_phone);
+    }
     
-    public PhoneTestDriver(Phone _phone) {
+    private PhoneTestDriver(Phone _phone) {
         defaults = new DeviceDefaults();
         defaults.setDeviceTimeZone(new DeviceTimeZone("Etc/GMT+5")); // no DST for consistent results
         defaults.setDomainName("sipfoundry.org");
         defaults.setFullyQualifiedDomainName("pbx.sipfoundry.org");
         defaults.setTftpServer("tftp.sipfoundry.org");
+        defaults.setProxyServerAddr("outbound.sipfoundry.org");
+        defaults.setProxyServerSipPort("5555");
 
         phoneContextControl = MockControl.createNiceControl(PhoneContext.class);
         phoneContext = (PhoneContext) phoneContextControl.getMock();
@@ -74,7 +80,9 @@ public class PhoneTestDriver {
         _phone.setTftpRoot(TestHelper.getTestDirectory());
         _phone.setSerialNumber(serialNumber);
         _phone.setPhoneContext(phoneContext);        
-        _phone.setVelocityEngine(TestHelper.getVelocityEngine());            
+        _phone.setVelocityEngine(TestHelper.getVelocityEngine());
+        
+        _phone.initialize();
 
         line = _phone.createLine();
         line.setPhone(_phone);
@@ -83,7 +91,7 @@ public class PhoneTestDriver {
 
         sipControl = MockControl.createStrictControl(SipService.class);
         sip = (SipService) sipControl.getMock();
-        sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "sipfoundry.org", null, "juser");
+        sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "outbound.sipfoundry.org", "5555");
         sipControl.replay();
         _phone.setSipService(sip);
 

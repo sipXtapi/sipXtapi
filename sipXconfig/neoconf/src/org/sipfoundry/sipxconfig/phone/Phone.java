@@ -17,7 +17,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -28,10 +27,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
-import org.sipfoundry.sipxconfig.setting.ConditionalSet;
-import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingBeanAdapter;
 
 /**
  * Base class for managed phone subclasses
@@ -44,10 +40,6 @@ public class Phone extends BeanWithGroups {
 
     public static final String GROUP_RESOURCE_ID = PHONE_CONSTANT;
 
-    private static final String SYSTEM_SETTINGS = "system/";
-    private static final String SERVER_SETTINGS = "server/";
-    private static final String CREDENTIAL_SETTINGS = "credential/";
-
     private String m_description;
 
     private String m_serialNumber;
@@ -57,8 +49,6 @@ public class Phone extends BeanWithGroups {
     private List m_lines = Collections.EMPTY_LIST;
 
     private PhoneContext m_phoneContext;
-
-    private ModelFilesContext m_modelFilesContext;
 
     private String m_tftpRoot;
 
@@ -75,7 +65,7 @@ public class Phone extends BeanWithGroups {
     public Phone() {
         this(MODEL);
     }
-
+    
     protected Phone(String beanId) {
         m_beanId = beanId;
     }
@@ -83,6 +73,10 @@ public class Phone extends BeanWithGroups {
     protected Phone(PhoneModel model) {
         m_beanId = model.getBeanId();
         m_model = model;
+    }
+
+    @Override
+    public void initialize() {        
     }
 
     public String getModelLabel() {
@@ -128,32 +122,30 @@ public class Phone extends BeanWithGroups {
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
     }
-
-    public Setting getSettingModel() {
-        Setting settingModel = super.getSettingModel();
-        if (settingModel == null) {
-            settingModel = loadModelFile("phone.xml");
-            setSettingModel(settingModel);
-        }
-
-        return settingModel;
+    
+    protected Setting loadSettings() {
+        Set defines = Collections.singleton(getModel().getModelId());
+        return getModelFilesContext().loadDynamicModelFile("phone.xml", getModel().getBeanId(), defines);
+    }
+    
+    protected Setting loadLineSettings() {
+        Set defines = Collections.singleton(getModel().getModelId());
+        return getModelFilesContext().loadDynamicModelFile("line.xml", getModel().getBeanId(), defines);        
     }
 
-    Setting loadModelFile(String basename) {
-        Setting model = null;
-        Setting master = m_modelFilesContext.loadModelFile(basename, getBeanId());
-        if (master != null) {
-            ConditionalSet conditional = (ConditionalSet) master;
-            model = evaluateModel(conditional);
-        }
-        return model;
+    /**
+     * Each subclass must decide how as much of this generic line information translates
+     * into its own setting model.
+     */
+    protected void setLineInfo(Line line, LineInfo lineInfo) {        
     }
-
-    protected Setting evaluateModel(ConditionalSet conditional) {
-        Set defines = new HashSet();
-        defines.add(getModel().getModelId());
-        Setting model = conditional.evaluate(defines);
-        return model;
+    
+    /**
+     * Each subclass must decide how as much of this generic line information can be contructed
+     * from its own setting model.
+     */
+    protected LineInfo getLineInfo(Line line) {
+        return null;
     }
 
     /**
@@ -230,7 +222,7 @@ public class Phone extends BeanWithGroups {
 
     public void setPhoneTemplate(String phoneTemplate) {
         m_phoneTemplate = phoneTemplate;
-    }
+    }         
 
     public void generateProfile(Writer out) {
         if (getPhoneTemplate() == null) {
@@ -258,14 +250,9 @@ public class Phone extends BeanWithGroups {
         }
 
         Line line = getLine(0);
-        LineSettings settings = (LineSettings) line.getAdapter(LineSettings.class);
-        if (settings == null) {
-            throw new RestartException(
-                    "Line implementation does not support LineSettings adapter");
-        }
-
-        m_sip.sendCheckSync(line.getUri(), settings.getRegistrationServer(), settings
-                .getRegistrationServerPort(), settings.getUserId());
+        String outboundProxy = m_phoneContext.getPhoneDefaults().getProxyServerAddr();
+        String outboundProxyPort = m_phoneContext.getPhoneDefaults().getProxyServerSipPort();
+        m_sip.sendCheckSync(line.getUri(), outboundProxy, outboundProxyPort);
     }
 
     /**
@@ -313,56 +300,6 @@ public class Phone extends BeanWithGroups {
         return clean;
     }
 
-    /**
-     * No adapters supported in generic implementation
-     */
-    public Object getAdapter(Class interfac) {
-        Object o = null;
-        if (interfac == PhoneSettings.class) {
-            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
-            adapter.setSetting(getSettings());
-            adapter.addMapping(PhoneSettings.DOMAIN_NAME, SYSTEM_SETTINGS
-                    + PhoneSettings.DOMAIN_NAME);
-            adapter.addMapping(PhoneSettings.VOICE_MAIL_NUMBER, SYSTEM_SETTINGS
-                    + PhoneSettings.VOICE_MAIL_NUMBER);
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY, SERVER_SETTINGS
-                    + PhoneSettings.OUTBOUND_PROXY);
-            adapter.addMapping(PhoneSettings.OUTBOUND_PROXY_PORT, SERVER_SETTINGS
-                    + PhoneSettings.OUTBOUND_PROXY_PORT);
-            adapter.addMapping(PhoneSettings.TFTP_SERVER, SERVER_SETTINGS
-                    + PhoneSettings.TFTP_SERVER);
-            o = adapter.getImplementation();
-        }
-
-        return o;
-    }
-
-    /**
-     * No line adapters supported in generic implementation
-     */
-    public Object getLineAdapter(Line line, Class interfac) {
-        Object impl = null;
-        if (interfac == LineSettings.class) {
-            SettingBeanAdapter adapter = new SettingBeanAdapter(interfac);
-            adapter.setSetting(line.getSettings());
-            adapter.addMapping(LineSettings.AUTHORIZATION_ID, CREDENTIAL_SETTINGS
-                    + LineSettings.AUTHORIZATION_ID);
-            adapter.addMapping(LineSettings.USER_ID, CREDENTIAL_SETTINGS + LineSettings.USER_ID);
-            adapter
-                    .addMapping(LineSettings.PASSWORD, CREDENTIAL_SETTINGS
-                            + LineSettings.PASSWORD);
-            adapter.addMapping(LineSettings.DISPLAY_NAME, CREDENTIAL_SETTINGS
-                    + LineSettings.DISPLAY_NAME);
-            adapter.addMapping(LineSettings.REGISTRATION_SERVER, SERVER_SETTINGS
-                    + LineSettings.REGISTRATION_SERVER);
-            adapter.addMapping(LineSettings.REGISTRATION_SERVER_PORT, SERVER_SETTINGS
-                    + LineSettings.REGISTRATION_SERVER_PORT);
-            impl = adapter.getImplementation();
-        }
-
-        return impl;
-    }
-
     public List getLines() {
         return m_lines;
     }
@@ -382,6 +319,7 @@ public class Phone extends BeanWithGroups {
         line.setPhone(this);
         line.setPosition(m_lines.size());
         m_lines.add(line);
+        line.initialize();
     }
 
     public static class MaxLinesException extends UserException {
@@ -393,17 +331,8 @@ public class Phone extends BeanWithGroups {
     public Line getLine(int position) {
         return (Line) m_lines.get(position);
     }
-
-    protected void setDefaultTimeZone() {
-    }
-
-    protected void defaultSettings() {
-        getPhoneContext().getPhoneDefaults().setPhoneDefaults(this);
-        setDefaultTimeZone();
-    }
-
-    protected void defaultLineSettings(Line line) {
-        getPhoneContext().getPhoneDefaults().setLineDefaults(line, line.getUser());
+    
+    public void initializeLine(Line line) {        
     }
 
     public PhoneContext getPhoneContext() {
@@ -412,15 +341,13 @@ public class Phone extends BeanWithGroups {
 
     public void setPhoneContext(PhoneContext phoneContext) {
         m_phoneContext = phoneContext;
+        initialize();
     }
 
     public Line createLine() {
         Line line = new Line();
         line.setPhone(this);
+        line.setModelFilesContext(getModelFilesContext());
         return line;
-    }
-
-    public void setModelFilesContext(ModelFilesContext modelFilesContext) {
-        m_modelFilesContext = modelFilesContext;
     }
 }

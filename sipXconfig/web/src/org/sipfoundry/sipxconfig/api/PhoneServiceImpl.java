@@ -23,7 +23,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.device.RestartManager;
-import org.sipfoundry.sipxconfig.phone.LineSettings;
+import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -176,9 +176,10 @@ public class PhoneServiceImpl implements PhoneService {
                 if (managePhone.getAddExternalLine() != null) {
                     AddExternalLine eline = managePhone.getAddExternalLine();
                     org.sipfoundry.sipxconfig.phone.Line l = myPhones[i].createLine();
-                    LineSettings settings = (LineSettings) l.getAdapter(LineSettings.class);
-                    ApiBeanUtil.toMyObject(new SimpleBeanBuilder(), settings, eline);
                     myPhones[i].addLine(l);
+                    LineInfo einfo = new LineInfo();
+                    ApiBeanUtil.toMyObject(new SimpleBeanBuilder(), einfo, eline);                    
+                    l.setLineInfo(einfo);
                     m_context.storePhone(myPhones[i]);
                 }
 

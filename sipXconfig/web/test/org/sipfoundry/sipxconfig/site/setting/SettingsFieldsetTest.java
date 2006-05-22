@@ -32,7 +32,7 @@ public class SettingsFieldsetTest extends TestCase {
     public void testRender() throws Exception {
         MockControl control = MockControl.createNiceControl(Setting.class);
         Setting setting = (Setting) control.getMock();
-        control.expectAndReturn(setting.getParentPath(), "x", MockControl.ONE_OR_MORE);
+        control.expectAndReturn(setting.getParent(), null, MockControl.ONE_OR_MORE);
         control.expectAndReturn(setting.isHidden(), false);
         control.expectAndReturn(setting.isAdvanced(), true);
         control.expectAndReturn(setting.isAdvanced(), false);
@@ -71,7 +71,7 @@ public class SettingsFieldsetTest extends TestCase {
     public void testRenderSettingPlaceholder() throws Exception {
         MockControl control = MockControl.createNiceControl(Setting.class);
         Setting setting = (Setting) control.getMock();
-        control.expectAndReturn(setting.getParentPath(), "x", MockControl.ONE_OR_MORE);
+        control.expectAndReturn(setting.getParent(), null, MockControl.ONE_OR_MORE);
         control.expectAndReturn(setting.isAdvanced(), true, 2);
         control.expectAndReturn(setting.isAdvanced(), false, 2);
         control.replay();

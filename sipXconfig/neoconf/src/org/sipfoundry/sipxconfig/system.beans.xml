@@ -267,4 +267,9 @@
   <!-- Interceptor to be used for all background tasks -->  
   <bean id="backgroundTaskInterceptor"
     class="org.sipfoundry.sipxconfig.common.BackgroundTaskInterceptor" />    
+  
+  <bean id="beanWithSettings" abstract="true" init-method="initialize">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>    
+  
 </beans>

@@ -32,12 +32,14 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreContext,
-        ApplicationListener, DaoEventListener {
+        ApplicationListener, DaoEventListener, BeanFactoryAware {
 
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final String USER_GROUP_RESOURCE_ID = "user";
@@ -52,14 +54,18 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private String m_authorizationRealm;
     private String m_domainName;
     private SettingDao m_settingDao;
-    private Setting m_userSettingModel;
     private DaoEventPublisher m_daoEventPublisher;
     private AliasManager m_aliasManager;
+    private BeanFactory m_beanFactory;
 
     public CoreContextImpl() {
         super();
     }
 
+    public User newUser() {
+        return (User) m_beanFactory.getBean(User.class.getName());
+    }
+    
     public String getAuthorizationRealm() {
         return m_authorizationRealm;
     }
@@ -370,12 +376,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     }
 
     public Setting getUserSettingsModel() {
-        // return copy so original model stays intact
-        return m_userSettingModel.copy();
-    }
-
-    public void setUserSettingModel(Setting userSettingModel) {
-        m_userSettingModel = userSettingModel;
+        User u = newUser();
+        return u.getSettings();
     }
 
     public Collection getAliasMappings() {
@@ -438,5 +440,9 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public void removeFromGroup(Integer groupId, Collection ids) {
         DaoUtils.removeFromGroup(getHibernateTemplate(), groupId, User.class, ids);
+    }
+
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
     }
 }

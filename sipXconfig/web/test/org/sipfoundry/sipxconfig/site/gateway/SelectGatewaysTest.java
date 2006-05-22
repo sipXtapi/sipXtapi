@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
+import org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway;
 
 /**
  * SelectGatewaysTest
@@ -41,7 +42,7 @@ public class SelectGatewaysTest extends TestCase {
         List gatewaysToAdd = new ArrayList();
         List gateways = new ArrayList(); 
         for(int i = 0; i< 3; i++) {
-            Gateway gateway = new Gateway();
+            Gateway gateway = new AcmeGateway();
             gateway.setUniqueId();
             gatewaysToAdd.add(gateway.getId());
             gateways.add(gateway);

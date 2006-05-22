@@ -23,20 +23,64 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.setting.SettingValue2;
+import org.sipfoundry.sipxconfig.setting.SettingValueHandler;
+import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 
-public class AudioCodesGateway extends Gateway {
+public abstract class AudioCodesGateway extends Gateway {
 
     private DeviceDefaults m_defaults;
 
-    protected void defaultSettings() {
-        super.defaultSettings();
-        AudioCodesModel model = (AudioCodesModel) getModel();
-        setSettingValue(model.getProxyNameSetting(), m_defaults.getDomainName());
-        setSettingValue(model.getProxyIpSetting(), m_defaults.getProxyServerAddr());
-
-        setSettingValue("SIP_Params/SIPGATEWAYNAME", getDefaults().getDomainName());
-        setSettingValue("SIP_Params/SIPDESTINATIONPORT", getDefaults().getProxyServerSipPort());
+    public void setDefaults(DeviceDefaults defaults) {
+        m_defaults = defaults;
+        initialize();
     }
+
+    public DeviceDefaults getDefaults() {
+        return m_defaults;
+    }
+    
+    @Override
+    public void initialize() {        
+        AudioCodesGatewayDefaults defaults = new AudioCodesGatewayDefaults(this);
+        // Added twice, Provides setting value directly by implementing SettingValueHandler 
+        // and also being wrapped by BeanValueStorage
+        addDefaultSettingHandler(defaults);        
+        addDefaultBeanSettingHandler(defaults);        
+    }
+    
+    public class AudioCodesGatewayDefaults implements SettingValueHandler {
+        private AudioCodesGateway m_gateway;
+        AudioCodesGatewayDefaults(AudioCodesGateway gateway) {
+            m_gateway = gateway;
+        }
+        
+        @SettingEntry(path = "SIP_Params/SIPGATEWAYNAME")
+        public String getGatewayName() {
+            return m_gateway.getDefaults().getDomainName();
+        }
+        
+        @SettingEntry(path = "SIP_Params/SIPDESTINATIONPORT")
+        public String getDestinationPort() {
+            return m_gateway.getDefaults().getProxyServerSipPort();
+        }
+
+        public SettingValue2 getSettingValue(Setting setting) {
+            SettingValue2 value = null;
+            String path = setting.getPath();
+            AudioCodesModel model = (AudioCodesModel) m_gateway.getModel();
+            if (path.equals(model.getProxyNameSetting())) {
+                value = new SettingValueImpl(m_defaults.getDomainName());
+            } else if (path.equals(model.getProxyIpSetting())) {
+                value = new SettingValueImpl(m_defaults.getProxyServerAddr());
+            } 
+            
+            return value;
+        }        
+    }
+    
 
     /**
      * Create file and call generateProfiles function for that writer
@@ -96,13 +140,5 @@ public class AudioCodesGateway extends Gateway {
         } finally {
             IOUtils.closeQuietly(iniReader);
         }
-    }
-
-    public void setDefaults(DeviceDefaults defaults) {
-        m_defaults = defaults;
-    }
-
-    public DeviceDefaults getDefaults() {
-        return m_defaults;
     }
 }

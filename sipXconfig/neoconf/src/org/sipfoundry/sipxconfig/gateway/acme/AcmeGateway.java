@@ -20,14 +20,39 @@ import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class AcmeGateway extends Gateway {
 
     private DeviceDefaults m_defaults;
 
-    protected void defaultSettings() {
-        super.defaultSettings();
-        setSettingValue("basic/proxyAddress", m_defaults.getProxyServerAddr());
+    public void setDefaults(DeviceDefaults defaults) {
+        m_defaults = defaults;
+        initialize();
+    }
+    
+    @Override
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("acme-gateway.xml", "acme");
+    }
+
+    @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(new AcmeDefaults(m_defaults));
+    }
+    
+    public static class AcmeDefaults {
+        private DeviceDefaults m_defaults;
+        AcmeDefaults(DeviceDefaults defaults) {
+            m_defaults = defaults;
+        }
+        
+        @SettingEntry(path = "basic/proxyAddress")
+        public String getProxyAddress() {
+            return m_defaults.getProxyServerAddr();
+        }
+        
     }
 
     public void generateProfile(String template, Writer out) {
@@ -72,9 +97,5 @@ public class AcmeGateway extends Gateway {
         VelocityProfileGenerator.removeProfileFiles(new File[] {
             new File(profileFileName)
         });
-    }
-
-    public void setDefaults(DeviceDefaults defaults) {
-        m_defaults = defaults;
     }
 }

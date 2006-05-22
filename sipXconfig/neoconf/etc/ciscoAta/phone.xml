@@ -288,12 +288,14 @@
     <group name="vlansettinggroup" advanced="yes">
       <label>VLANSetting</label>
       <setting name="VLANSetting" hidden="yes">
+        <profileName>.BM.VLANSetting</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>VLAN-related settings.</description>
       </setting>
       <setting name="__VLANSetting.0">
         <label>CoS value for signaling</label>
+        <profileName>.BF.0.VLANSetting</profileName>
         <type>
           <integer min="0" max="7"/>
         </type>
@@ -302,6 +304,7 @@
       </setting>
       <setting name="__VLANSetting.3">
         <label>CoS value for voice</label>
+        <profileName>.BF.3.VLANSetting</profileName>
         <type>
           <integer min="0" max="7"/>
         </type>
@@ -310,6 +313,7 @@
       </setting>
       <setting name="__VLANSetting.18">
         <label>802.1Q VLAN ID</label>
+        <profileName>.BF.18.VLANSetting</profileName>
         <type>
           <integer min="0" max="4095"/>
         </type>
@@ -319,12 +323,14 @@
     <group name="tosgroup" advanced="yes">
       <label>Type of Service (TOS)</label>
       <setting name="TOS" hidden="yes">
+        <profileName>.BM.TOS</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Type of Service configuration.</description>
       </setting>
       <setting name="__TOS.0">
         <label>ToS for audio</label>
+        <profileName>.BF.0.TOS</profileName>
         <type>
           <integer min="0" max="255"/>
         </type>
@@ -333,6 +339,7 @@
       </setting>
       <setting name="__TOS.8">
         <label>ToS for signaling</label>
+        <profileName>.BF.8.TOS</profileName>
         <type>
           <integer min="0" max="255"/>
         </type>
@@ -343,12 +350,14 @@
     <group name="opflagsgroup.18x" if="18x" advanced="yes">
       <label>OpFlags</label>
       <setting name="OpFlags" hidden="yes">
+        <profileName>.BM.OpFlags</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Various operational features.</description>
       </setting>
       <setting name="__OpFlags.0">
         <label>TFTP configuration filename</label>
+        <profileName>.BF.0.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -357,6 +366,7 @@
       </setting>
       <setting name="__OpFlags.1">
         <label>Network probing on power up</label>
+        <profileName>.BF.1.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -365,6 +375,7 @@
       </setting>
       <setting name="__OpFlags.3">
         <label>DHCP option 150</label>
+        <profileName>.BF.3.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -373,6 +384,7 @@
       </setting>
       <setting name="__OpFlags.4">
         <label>VLAN network operation</label>
+        <profileName>.BF.4.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -381,6 +393,7 @@
       </setting>
       <setting name="__OpFlags.5">
         <label>VLAN encapsulation</label>
+        <profileName>.BF.5.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -389,6 +402,7 @@
       </setting>
       <setting name="__OpFlags.6">
         <label>Cisco Discovery Protocol</label>
+        <profileName>.BF.6.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -397,6 +411,7 @@
       </setting>
       <setting name="__OpFlags.7">
         <label>Web configuration access</label>
+        <profileName>.BF.7.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -405,6 +420,7 @@
       </setting>
       <setting name="__OpFlags.8">
         <label>HTTP refresh access</label>
+        <profileName>.BF.8.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -413,6 +429,7 @@
       </setting>
       <setting name="__OpFlags.9">
         <label>HTTP reset access</label>
+        <profileName>.BF.9.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -421,6 +438,7 @@
       </setting>
       <setting name="__OpFlags.10">
         <label>Hostname of device</label>
+        <profileName>.BF.10.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -430,6 +448,7 @@
       </setting>
       <setting name="__OpFlags.13">
         <label>DNS servers 1</label>
+        <profileName>.BF.13.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -439,6 +458,7 @@
       </setting>
       <setting name="__OpFlags.14">
         <label>DNS servers 2</label>
+        <profileName>.BF.14.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -448,6 +468,7 @@
       </setting>
       <setting name="__OpFlags.15">
         <label>Disable UDP checksum</label>
+        <profileName>.BF.15.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -456,6 +477,7 @@
       </setting>
       <setting name="__OpFlags.28">
         <label>Password protection</label>
+        <profileName>.BF.28.OpFlags</profileName>
         <type>
           <boolean>
             <true>
@@ -473,12 +495,14 @@
     <group name="nattimergroup.18x" if="18x" advanced="yes">
       <label>NatTimer</label>
       <setting name="NatTimer" hidden="yes">
+        <profileName>.BM.NatTime</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Operational parameters for NAT.</description>
       </setting>
       <setting name="__NatTimer.0">
         <label>SIP/RTP keep-alive period</label>
+        <profileName>.BF.0.NatTimer</profileName>
         <type>
           <integer min="0" max="2047"/>
         </type>
@@ -487,6 +511,7 @@
       </setting>
       <setting name="__NatTimer.16">
         <label>NAT traversal mode</label>
+        <profileName>.BF.16.NatTimer</profileName>
         <type>
           <enum>
             <option>
@@ -507,6 +532,7 @@
       </setting>
       <setting name="__NatTimer.18">
         <label>SIP keep-alive destination</label>
+        <profileName>.BF.18.NatTimer</profileName>
         <type>
           <enum>
             <option>
@@ -523,6 +549,7 @@
       </setting>
       <setting name="__NatTimer.20">
         <label>Keep-alive for SIPPort</label>
+        <profileName>.BF.20.NatTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -531,6 +558,7 @@
       </setting>
       <setting name="__NatTimer.21">
         <label>Keep alive for MediaPort</label>
+        <profileName>.BF.21.NatTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -539,6 +567,7 @@
       </setting>
       <setting name="__NatTimer.22">
         <label>Keep-alive for MediaPort+4</label>
+        <profileName>.BF.22.NatTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -549,12 +578,14 @@
     <group name="opflagsgroup.79" if="79.*" advanced="yes">
       <label>OpFlags</label>
       <setting name="OpFlags" hidden="yes">
+        <profileName>.BM.OpFlags</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Various operational features.</description>
       </setting>
       <setting name="__OpFlags.0">
         <label>TFTP configuration filename</label>
+        <profileName>.BF.0.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -563,6 +594,7 @@
       </setting>
       <setting name="__OpFlags.1">
         <label>Network probing on power up</label>
+        <profileName>.BF.1.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -571,6 +603,7 @@
       </setting>
       <setting name="__OpFlags.3">
         <label>DHCP option 150</label>
+        <profileName>.BF.3.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -579,6 +612,7 @@
       </setting>
       <setting name="__OpFlags.4">
         <label>VLAN network operation</label>
+        <profileName>.BF.4.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -587,6 +621,7 @@
       </setting>
       <setting name="__OpFlags.5">
         <label>VLAN encapsulation</label>
+        <profileName>.BF.5.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -595,6 +630,7 @@
       </setting>
       <setting name="__OpFlags.6">
         <label>Cisco Discovery Protocol</label>
+        <profileName>.BF.6.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -603,6 +639,7 @@
       </setting>
       <setting name="__OpFlags.7">
         <label>Web configuration access</label>
+        <profileName>.BF.7.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -611,6 +648,7 @@
       </setting>
       <setting name="__OpFlags.8">
         <label>HTTP refresh access</label>
+        <profileName>.BF.8.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -619,6 +657,7 @@
       </setting>
       <setting name="__OpFlags.9">
         <label>HTTP reset access</label>
+        <profileName>.BF.9.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -627,6 +666,7 @@
       </setting>
       <setting name="__OpFlags.15">
         <label>Disable UDP checksum</label>
+        <profileName>.BF.15.OpFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -637,12 +677,14 @@
     <group name="nattimergroup.79" if="79.*" advanced="yes">
       <label>NatTimer</label>
       <setting name="NatTimer" hidden="yes">
+        <profileName>.BM.NatTimer</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Operational parameters for NAT.</description>
       </setting>
       <setting name="__NatTimer.0">
         <label>SIP/RTP keep alive period</label>
+        <profileName>.BF.0.NatTimer</profileName>
         <type>
           <integer min="0" max="2047"/>
         </type>
@@ -651,6 +693,7 @@
       </setting>
       <setting name="__NatTimer.18">
         <label>SIP keep alive destination</label>
+        <profileName>.BF.18.NatTimer</profileName>
         <type>
           <enum>
             <option>
@@ -667,6 +710,7 @@
       </setting>
       <setting name="__NatTimer.20">
         <label>Keep alive for SIPPort</label>
+        <profileName>.BF.20.NatTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -675,6 +719,7 @@
       </setting>
       <setting name="__NatTimer.21">
         <label>Keep alive for MediaPort</label>
+        <profileName>.BF.21.NatTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -683,6 +728,7 @@
       </setting>
       <setting name="__NatTimer.22">
         <label>Keep alive for MediaPort+4</label>
+        <profileName>.BF.22.NatTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -776,12 +822,14 @@
     <group name="msgretrylimitsgroup" advanced="yes">
       <label>MsgRetryLimits</label>
       <setting name="MsgRetryLimits" hidden="yes">
+        <profileName>.BM.MsgRetryLimits</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Configure retry limits.</description>
       </setting>
       <setting name="__MsgRetryLimits.0">
         <label>Retransmit SIP requests</label>
+        <profileName>.BF.0.MsgRetryLimits</profileName>
         <type>
           <integer min="0" max="15"/>
         </type>
@@ -791,6 +839,7 @@
       </setting>
       <setting name="__MsgRetryLimits.4">
         <label>Retransmit REGISTER requests</label>
+        <profileName>.BF.4.MsgRetryLimits</profileName>
         <type>
           <integer min="0" max="15"/>
         </type>
@@ -799,6 +848,7 @@
       </setting>
       <setting name="__MsgRetryLimits.8">
         <label>Retransmit INVITE request</label>
+        <profileName>.BF.8.MsgRetryLimits</profileName>
         <type>
           <integer min="0" max="15"/>
         </type>
@@ -807,6 +857,7 @@
       </setting>
       <setting name="__MsgRetryLimits.12">
         <label>Retransmit BYE request</label>
+        <profileName>.BF.12.MsgRetryLimits</profileName>
         <type>
           <integer min="0" max="15"/>
         </type>
@@ -815,6 +866,7 @@
       </setting>
       <setting name="__MsgRetryLimits.16">
         <label>Retransmit CANCEL request</label>
+        <profileName>.BF.16.MsgRetryLimits</profileName>
         <type>
           <integer min="0" max="15"/>
         </type>
@@ -823,6 +875,7 @@
       </setting>
       <setting name="__MsgRetryLimits.20">
         <label>Retransmit REFER request</label>
+        <profileName>.BF.20.MsgRetryLimits</profileName>
         <type>
           <integer min="0" max="15"/>
         </type>
@@ -833,12 +886,14 @@
     <group name="sessiontimergroup.18x" if="18x" advanced="yes">
       <label>SessionTimer</label>
       <setting name="SessionTimer" hidden="yes">
+        <profileName>.BM.SessionTimer</profileName>
         <type refid="bitmap"/>
         <value>0x00000000</value>
         <description>Configure SIP session timer)</description>
       </setting>
       <setting name="__SessionTimer.0">
         <label>Advertise session timer support</label>
+        <profileName>.BF.0.SessionTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -846,6 +901,7 @@
       </setting>
       <setting name="__SessionTimer.1">
         <label>Request a session timer on every call</label>
+        <profileName>.BF.1.SessionTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -853,6 +909,7 @@
       </setting>
       <setting name="__SessionTimer.2">
         <label>Callee should initiate session refresh</label>
+        <profileName>.BF.2.SessionTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -860,6 +917,7 @@
       </setting>
       <setting name="__SessionTimer.4">
         <label>Enable session debug messages</label>
+        <profileName>.BF.4.SessionTimer</profileName>
         <type>
           <boolean/>
         </type>
@@ -1017,12 +1075,14 @@
     <group name="audiomodegroup.18x" if="18x">
       <label>AudioMode</label>
       <setting name="AudioMode" hidden="yes">
+        <profileName>.BM.AudioMode</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Audio operating mode.</description>
       </setting>
       <setting name="__AudioMode.0">
         <label>Silence suppression line 1</label>
+        <profileName>.BF.0.AudioMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1030,6 +1090,7 @@
       </setting>
       <setting name="__AudioMode.1">
         <label>Disable LBR codec line 1</label>
+        <profileName>.BF.1.AudioMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1037,6 +1098,7 @@
       </setting>
       <setting name="__AudioMode.2">
         <label>Fax CED tone detection line 1</label>
+        <profileName>.BF.2.AudioMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1044,6 +1106,7 @@
       </setting>
       <setting name="__AudioMode.4">
         <label>DTMF transmission method line 1</label>
+        <profileName>.BF.4.AudioMode</profileName>
         <type>
           <enum>
             <option>
@@ -1064,6 +1127,7 @@
       </setting>
       <setting name="__AudioMode.16">
         <label>Silence suppression line 2</label>
+        <profileName>.BF.16.AudioMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1071,6 +1135,7 @@
       </setting>
       <setting name="__AudioMode.17">
         <label>Disable LBR codec line 2</label>
+        <profileName>.BF.17.AudioMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1078,6 +1143,7 @@
       </setting>
       <setting name="__AudioMode.18">
         <label>Fax CED tone detection line 2</label>
+        <profileName>.BF.18.AudioMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1085,6 +1151,7 @@
       </setting>
       <setting name="__AudioMode.20">
         <label>DTMF transmission method line 2</label>
+        <profileName>.BF.20.AudioMode</profileName>
         <type>
           <enum>
             <option>
@@ -1107,12 +1174,14 @@
     <group name="audiomodegroup.79" if="79.*">
       <label>AudioMode</label>
       <setting name="AudioMode" hidden="yes">
+        <profileName>.BM.AudioMode</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Audio operating mode.</description>
       </setting>
       <setting name="__AudioMode.0">
         <label>Enable Silence Suppression</label>
+        <profileName>.BF.0.AudioMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1120,6 +1189,7 @@
       </setting>
       <setting name="__AudioMode.4">
         <label>DTMF Transmission Method</label>
+        <profileName>.BF.4.AudioMode</profileName>
         <type>
           <enum>
             <option>
@@ -1381,12 +1451,14 @@
     <group name="connectmodegroup.18x" if="18x" advanced="yes">
       <label>ConnectMode</label>
       <setting name="ConnectMode" hidden="yes">
+        <profileName>.BM.ConnectMode</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Call signaling protocol control</description>
       </setting>
       <setting name="__ConnectMode.0">
         <label>Where to send INVITE requests</label>
+        <profileName>.BF.0.ConnectMode</profileName>
         <type>
           <enum>
             <option>
@@ -1403,6 +1475,7 @@
       </setting>
       <setting name="__ConnectMode.1">
         <label>Remove previous registration mode</label>
+        <profileName>.BF.1.ConnectMode</profileName>
         <type>
           <enum>
             <option>
@@ -1419,6 +1492,7 @@
       </setting>
       <setting name="__ConnectMode.2">
         <label>G.711 payload type in fax passthru mode</label>
+        <profileName>.BF.2.ConnectMode</profileName>
         <type>
           <enum>
             <option>
@@ -1435,6 +1509,7 @@
       </setting>
       <setting name="__ConnectMode.3">
         <label>Include RTP statistics in BYE</label>
+        <profileName>.BF.3.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1442,6 +1517,7 @@
       </setting>
       <setting name="__ConnectMode.4">
         <label>Include instance=MAC-... in Contact:</label>
+        <profileName>.BF.4.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1449,6 +1525,7 @@
       </setting>
       <setting name="__ConnectMode.5">
         <label>Allow INVITE from</label>
+        <profileName>.BF.5.ConnectMode</profileName>
         <type>
           <enum>
             <option>
@@ -1465,6 +1542,7 @@
       </setting>
       <setting name="__ConnectMode.7">
         <label>Fax passthrough redundancy</label>
+        <profileName>.BF.7.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1472,6 +1550,7 @@
       </setting>
       <setting name="__ConnectMode.8">
         <label>NSE payload type number</label>
+        <profileName>.BF.8.ConnectMode</profileName>
         <type>
           <integer min="0" max="23"/>
         </type>
@@ -1480,6 +1559,7 @@
       </setting>
       <setting name="__ConnectMode.13">
         <label>Fax passthrough codec</label>
+        <profileName>.BF.13.ConnectMode</profileName>
         <type>
           <enum>
             <option>
@@ -1496,6 +1576,7 @@
       </setting>
       <setting name="__ConnectMode.14">
         <label>Disable fax passthrough mode</label>
+        <profileName>.BF.14.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1503,6 +1584,7 @@
       </setting>
       <setting name="__ConnectMode.16">
         <label>SIP registration mode</label>
+        <profileName>.BF.16.ConnectMode</profileName>
         <type>
           <enum>
             <option>
@@ -1519,6 +1601,7 @@
       </setting>
       <setting name="__ConnectMode.17">
         <label>SIP call forwarding performed by the ATA</label>
+        <profileName>.BF.17.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1526,6 +1609,7 @@
       </setting>
       <setting name="__ConnectMode.18">
         <label>SIP call return performed by the ATA</label>
+        <profileName>.BF.18.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1533,6 +1617,7 @@
       </setting>
       <setting name="__ConnectMode.19">
         <label>Generate ringback tone to the caller</label>
+        <profileName>.BF.19.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1540,6 +1625,7 @@
       </setting>
       <setting name="__ConnectMode.20">
         <label>SIP REGISTER includes action=proxy</label>
+        <profileName>.BF.20.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1547,6 +1633,7 @@
       </setting>
       <setting name="__ConnectMode.21">
         <label>SIP REGISTER includes action=redirect</label>
+        <profileName>.BF.21.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1554,6 +1641,7 @@
       </setting>
       <setting name="__ConnectMode.22">
         <label>Enable processing of via header received tag</label>
+        <profileName>.BF.22.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1561,6 +1649,7 @@
       </setting>
       <setting name="__ConnectMode.23">
         <label>User config permanent default call waiting</label>
+        <profileName>.BF.23.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1568,6 +1657,7 @@
       </setting>
       <setting name="__ConnectMode.24">
         <label>Mixing of audio and call waiting tone</label>
+        <profileName>.BF.24.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1575,6 +1665,7 @@
       </setting>
       <setting name="__ConnectMode.25">
         <label>Call waiting hang-Up alert</label>
+        <profileName>.BF.25.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1582,6 +1673,7 @@
       </setting>
       <setting name="__ConnectMode.26">
         <label>Auto-retrieval of held call</label>
+        <profileName>.BF.26.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1589,6 +1681,7 @@
       </setting>
       <setting name="__ConnectMode.27">
         <label>CLIR privacy</label>
+        <profileName>.BF.27.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1598,6 +1691,7 @@
       </setting>
       <setting name="__ConnectMode.28">
         <label>Conference warning tone</label>
+        <profileName>.BF.28.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1605,6 +1699,7 @@
       </setting>
       <setting name="__ConnectMode.29">
         <label>DNS SRV in SIP</label>
+        <profileName>.BF.29.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1613,6 +1708,7 @@
       </setting>
       <setting name="__ConnectMode.30">
         <label>Called party anonymity</label>
+        <profileName>.BF.30.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1623,12 +1719,14 @@
     <group name="connectmodegroup.79" if="79.*" advanced="yes">
       <label>ConnectMode</label>
       <setting name="ConnectMode" hidden="yes">
+        <profileName>.BM.ConnectMode</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Call signaling protocol control</description>
       </setting>
       <setting name="__ConnectMode.0">
         <label>Send INVITE requests</label>
+        <profileName>.BF.0.ConnectMode</profileName>
         <type>
           <enum>
             <option>
@@ -1645,6 +1743,7 @@
       </setting>
       <setting name="__ConnectMode.4">
         <label>Include instance=MAC-... in Contact:</label>
+        <profileName>.BF.4.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1652,6 +1751,7 @@
       </setting>
       <setting name="__ConnectMode.16">
         <label>SIP registration mode</label>
+        <profileName>.BF.16.ConnectMode</profileName>
         <type>
           <enum>
             <option>
@@ -1668,6 +1768,7 @@
       </setting>
       <setting name="__ConnectMode.19">
         <label>Generate ringback tone to the caller</label>
+        <profileName>.BF.19.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1675,6 +1776,7 @@
       </setting>
       <setting name="__ConnectMode.20">
         <label>SIP REGISTER includes action=proxy</label>
+        <profileName>.BF.20.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1682,6 +1784,7 @@
       </setting>
       <setting name="__ConnectMode.21">
         <label>SIP REGISTER includes action=redirect</label>
+        <profileName>.BF.21.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1689,6 +1792,7 @@
       </setting>
       <setting name="__ConnectMode.22">
         <label>Process via header received= tag</label>
+        <profileName>.BF.22.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1696,6 +1800,7 @@
       </setting>
       <setting name="__ConnectMode.24">
         <label>Include RTP statistics in BYE</label>
+        <profileName>.BF.24.ConnectMode</profileName>
         <type>
           <boolean/>
         </type>
@@ -1705,12 +1810,14 @@
     <group name="featuretimergroup" if="18x" advanced="yes">
       <label>FeatureTimer</label>
       <setting name="FeatureTimer" hidden="yes">
+        <profileName>.BM.FeatureTimer</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Timing values for telephone features</description>
       </setting>
       <setting name="__FeatureTimer.0">
         <label>Maximum time redialing busy line</label>
+        <profileName>.BF.0.FeatureTimer</profileName>
         <type>
           <integer min="0" max="15"/>
         </type>
@@ -1720,6 +1827,7 @@
       </setting>
       <setting name="__FeatureTimer.4">
         <label>Retry interval if line is busy</label>
+        <profileName>.BF.4.FeatureTimer</profileName>
         <type>
           <integer min="0" max="15"/>
         </type>
@@ -1729,6 +1837,7 @@
       </setting>
       <setting name="__FeatureTimer.8">
         <label>On-hook delay before disconnect</label>
+        <profileName>.BF.8.FeatureTimer</profileName>
         <type>
           <integer min="0" max="31"/>
         </type>
@@ -1737,6 +1846,7 @@
       </setting>
       <setting name="__FeatureTimer.13">
         <label>Delay before ringing...</label>
+        <profileName>.BF.13.FeatureTimer</profileName>
         <type>
           <integer min="0" max="7"/>
         </type>
@@ -1747,6 +1857,7 @@
       </setting>
       <setting name="__FeatureTimer.16">
         <label>Ring timeout for call waiting</label>
+        <profileName>.BF.16.FeatureTimer</profileName>
         <type>
           <integer min="0" max="7"/>
         </type>
@@ -1758,12 +1869,14 @@
     <group name="featuretimer2group" if="18x" advanced="yes">
       <label>FeatureTimer2</label>
       <setting name="FeatureTimer2" hidden="yes">
+        <profileName>.BM.FeatureTimer2</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Control timing of certain telephone features</description>
       </setting>
       <setting name="__FeatureTimer2.0">
         <label>Max time ethernet can be disc. before reboot</label>
+        <profileName>.BF.0.FeatureTimer2</profileName>
         <type>
           <integer min="0" max="255"/>
         </type>
@@ -1774,12 +1887,14 @@
     <group name="sigtimergroup.18x" if="18x" advanced="yes">
       <label>SigTimer</label>
       <setting name="SigTimer" hidden="yes">
+        <profileName>.BM.SigTimer</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Various timeout values</description>
       </setting>
       <setting name="__SigTimer.0">
         <label>Period between call waiting tones</label>
+        <profileName>.BF.0.SigTimer</profileName>
         <type>
           <integer min="0" max="255"/>
         </type>
@@ -1788,6 +1903,7 @@
       </setting>
       <setting name="__SigTimer.8">
         <label>Delay in playing reorder tone</label>
+        <profileName>.BF.8.SigTimer</profileName>
         <type>
           <integer min="0" max="62"/>
         </type>
@@ -1796,6 +1912,7 @@
       </setting>
       <setting name="__SigTimer.14">
         <label>Ring timeout for incoming calls</label>
+        <profileName>.BF.14.SigTimer</profileName>
         <type>
           <integer min="0" max="63"/>
         </type>
@@ -1805,6 +1922,7 @@
       </setting>
       <setting name="__SigTimer.20">
         <label>No answer timeout before call forwarding</label>
+        <profileName>.BF.20.SigTimer</profileName>
         <type>
           <integer min="0" max="63"/>
         </type>
@@ -1813,6 +1931,7 @@
       </setting>
       <setting name="__SigTimer.26">
         <label>Mininum flash-hook time</label>
+        <profileName>.BF.26.SigTimer</profileName>
         <type>
           <enum>
             <option>
@@ -1838,6 +1957,7 @@
       </setting>
       <setting name="__SigTimer.28">
         <label>Maximum flash-hook time</label>
+        <profileName>.BF.28.SigTimer</profileName>
         <type>
           <integer min="0" max="15"/>
         </type>
@@ -1848,12 +1968,14 @@
     <group name="sigtimergroup.79" if="79.*" advanced="yes">
       <label>SigTimer</label>
       <setting name="SigTimer" hidden="yes">
+        <profileName>.BM.SigTimer</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Various timeout values</description>
       </setting>
       <setting name="__SigTimer.0">
         <label>Period between call waiting tones</label>
+        <profileName>.BF.0.SigTimer</profileName>
         <type>
           <integer min="0" max="255"/>
         </type>
@@ -1862,6 +1984,7 @@
       </setting>
       <setting name="__SigTimer.14">
         <label>Ring timeout for incoming calls</label>
+        <profileName>.BF.14.SigTimer</profileName>
         <type>
           <integer min="0" max="63"/>
         </type>
@@ -1871,6 +1994,7 @@
       </setting>
       <setting name="__SigTimer.20">
         <label>No answer timeout before forwarding</label>
+        <profileName>.BF.20.SigTimer</profileName>
         <type>
           <integer min="0" max="63"/>
         </type>
@@ -1879,6 +2003,7 @@
       </setting>
       <setting name="__SigTimer.28">
         <label>First key repeat interval</label>
+        <profileName>.BF.28.SigTimer</profileName>
         <type>
           <integer min="0" max="3"/>
         </type>
@@ -1887,6 +2012,7 @@
       </setting>
       <setting name="__SigTimer.30">
         <label>Subsequent key repeat interval</label>
+        <profileName>.BF.30.SigTimer</profileName>
         <type>
           <integer min="0" max="3"/>
         </type>
@@ -1919,12 +2045,14 @@
     <group name="traceflagsgroup" advanced="yes">
       <label>TraceFlags</label>
       <setting name="TraceFlags" hidden="yes">
+        <profileName>.BM.TraceFlags</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Set trace features for diagnostic use.</description>
       </setting>
       <setting name="__TraceFlags.0">
         <label>SIP Debug Level</label>
+        <profileName>.BF.0.TraceFlags</profileName>
         <type>
           <integer min="0" max="3"/>
         </type>
@@ -1932,6 +2060,7 @@
       </setting>
       <setting name="__TraceFlags.8">
         <label>RTP Statistics Log</label>
+        <profileName>.BF.8.TraceFlags</profileName>
         <type>
           <boolean/>
         </type>
@@ -1939,7 +2068,7 @@
       </setting>
     </group>
   </group>
-  <group name="upgrade">
+  <group name="_upgrade">
     <label>Software Upgrade</label>
     <setting name="upgradecode.ata" if="18x">
       <label>Software image</label>

@@ -17,29 +17,31 @@ import org.dbunit.dataset.ITable;
 import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingTest.BirdWithSettings;
 import org.springframework.context.ApplicationContext;
 
 public class ValueStorageTestDb extends SipxDatabaseTestCase {
 
     private SettingDao m_dao;
+    private BeanWithSettings m_bean;
 
     protected void setUp() throws Exception {
         ApplicationContext context = TestHelper.getApplicationContext();
         m_dao = (SettingDao) context.getBean("settingDao");
+        m_bean = new BirdWithSettings();
+        SettingSet root = new SettingSet();
+        root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
+        root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea"));
+        m_bean.setSettings(root);        
     }
 
     public void testSave() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        SettingSet root = new SettingSet();
-        root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
-        root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea")); 
+        m_bean.setSettingValue("fruit/apple", "granny smith");
+        m_bean.setSettingValue("vegetable/pea", null);
         
-        ValueStorage vs = new ValueStorage();
-        vs.decorate(root);
-        root.getSetting("fruit/apple").setValue("granny smith");
-        root.getSetting("vegetable/pea").setValue(null);
-        
+        ValueStorage vs = (ValueStorage) m_bean.getValueStorage();
         m_dao.storeValueStorage(vs);
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("setting/SaveValueStorageExpected.xml"); 
@@ -56,15 +58,12 @@ public class ValueStorageTestDb extends SipxDatabaseTestCase {
     public void testUpdate() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("setting/UpdateValueStorageSeed.xml");        
-
-        SettingSet root = new SettingSet();
-        root.addSetting(new SettingSet("fruit")).addSetting(new SettingImpl("apple"));
-        root.addSetting(new SettingSet("vegetable")).addSetting(new SettingImpl("pea")); 
         
         ValueStorage vs = m_dao.loadValueStorage(new Integer(1));
-        vs.decorate(root);
-        root.getSetting("fruit/apple").setValue(null);
-        root.getSetting("vegetable/pea").setValue("snow pea");
+        m_bean.setValueStorage(vs);
+        
+        m_bean.setSettingValue("fruit/apple", null);
+        m_bean.setSettingValue("vegetable/pea", "snow pea");
         
         m_dao.storeValueStorage(vs);
 

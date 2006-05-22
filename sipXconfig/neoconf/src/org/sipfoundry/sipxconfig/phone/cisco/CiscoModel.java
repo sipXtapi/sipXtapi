@@ -17,6 +17,8 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
  * Static differences in cisco models
  */
 public final class CiscoModel extends PhoneModel {
+    /** only public to avoid checkstyle error */
+    public static final String ATA_ID = "ata";
 
     public static final CiscoModel MODEL_7960 = new CiscoModel(CiscoIpPhone.BEAN_ID, "7960",
             "Cisco IP 7960", 6);
@@ -26,7 +28,7 @@ public final class CiscoModel extends PhoneModel {
 
     /** analog phone adapter */
     public static final CiscoModel MODEL_ATA18X = new CiscoModel(CiscoAtaPhone.BEAN_ID, "18x",
-            "Cisco ATA 186/188", 2, "ata", "0x301,0x400,0x200");
+            "Cisco ATA 186/188", 2, ATA_ID, "0x301,0x400,0x200");
 
     /** only public to comply with checkstyle private/public order req. */
     public static final String CP79XX = "cp79xx";
@@ -38,7 +40,7 @@ public final class CiscoModel extends PhoneModel {
     /** standard phone with switch */
     public static final CiscoModel MODEL_7912 = new CiscoModel(CiscoAtaPhone.BEAN_ID, "7912",
             "Cisco IP 7912", 1, "gk", "0x601,0x400,0x200");
-
+   
     private String m_cfgPrefix;
 
     private String m_upgCode;
@@ -62,5 +64,9 @@ public final class CiscoModel extends PhoneModel {
 
     public String getUpgCode() {
         return m_upgCode;
+    }
+    
+    public boolean isAta() {
+        return ATA_ID.equals(getCfgPrefix());
     }
 }

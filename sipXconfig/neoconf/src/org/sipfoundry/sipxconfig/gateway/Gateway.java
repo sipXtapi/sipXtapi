@@ -16,7 +16,6 @@ import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingModel;
 
 /**
  * Gateway
@@ -39,6 +38,10 @@ public class Gateway extends BeanWithSettings implements NamedObject {
     private PhoneModel m_model;
 
     private VelocityEngine m_velocityEngine;
+    
+    @Override
+    public void initialize() {        
+    }
 
     public void generateProfiles() {
         // do nothing for generic gateways - we do not generate profile for it
@@ -46,15 +49,6 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public void removeProfiles() {
         // do nothing for generic gateways - we do not generate profile for it
-    }
-
-    public Setting getSettingModel() {
-        Setting model = super.getSettingModel();
-        if (model instanceof SettingModel) {
-            SettingModel settingModel = (SettingModel) model;
-            return settingModel.getRealSetting();
-        }
-        return null;
     }
 
     /**
@@ -134,5 +128,10 @@ public class Gateway extends BeanWithSettings implements NamedObject {
 
     public String getModelId() {
         return m_modelId;
+    }
+
+    @Override
+    protected Setting loadSettings() {
+        return null;
     }
 }

@@ -73,8 +73,6 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
     private SettingDao m_settingDao;
 
     private String m_scriptsDirectory;
-    
-    private Setting m_attendantSettingModel;
 
     /**
      * Loads dial plan, creates a new one if none exist
@@ -546,12 +544,9 @@ public class DialPlanContextImpl extends SipxHibernateDaoSupport implements Bean
         return aa;
     }
 
-    public void setAttendantSettingModel(Setting attendantSettingModel) {
-        m_attendantSettingModel = attendantSettingModel;
-    }
-    
     public Setting getAttendantSettingModel() {
-        // return copy so original model stays intact
-        return m_attendantSettingModel.copy();
+        AutoAttendant aa = (AutoAttendant) m_beanFactory.getBean(AutoAttendant.BEAN_NAME,
+                AutoAttendant.class);
+        return aa.getSettings();
     }
 }

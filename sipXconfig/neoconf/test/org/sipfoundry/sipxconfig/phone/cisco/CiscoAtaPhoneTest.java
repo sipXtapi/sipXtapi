@@ -21,26 +21,30 @@ import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
 public class CiscoAtaPhoneTest extends TestCase {
 
-    CiscoAtaPhone phone;
+    public void testAtaProfile() throws Exception {        
+        runPhoneTest(CiscoModel.MODEL_ATA18X, "expected-ata18x.cfg");
+    }
 
-    PhoneTestDriver tester;
+    public void test7912Profile() throws Exception {
+        runPhoneTest(CiscoModel.MODEL_7912, "expected-7912.cfg");
+    }
+    
+    public void test7905Profile() throws Exception {
+        runPhoneTest(CiscoModel.MODEL_7905, "expected-7912.cfg");
+    }
 
-    protected void setUp() {
-        phone = new CiscoAtaPhone(CiscoModel.MODEL_ATA18X);
-        tester = new PhoneTestDriver(phone);
-
+    void runPhoneTest(CiscoModel model, String expectedFile) throws Exception {
+        CiscoAtaPhone phone = new CiscoAtaPhone(model);
+        PhoneTestDriver.supplyTestData(phone);
         String testDir = TestUtil.getTestSourceDirectory(getClass());
         phone.setCfgfmtUtility(testDir + "/cfgfmt");
         phone.setPtagDat(testDir + "/ptag.dat");
-    }
-
-    public void testGenerateProfiles() throws Exception {
         StringWriter profile = new StringWriter();
-        phone.packBitmaps();
         phone.generateProfile(profile);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream(
-                "expected-ata18x.cfg"));
+                expectedFile));
         assertNotNull(expected);
         assertEquals(expected, profile.toString());
+        
     }
 }

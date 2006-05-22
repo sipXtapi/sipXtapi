@@ -1,5 +1,4 @@
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
   <!--
   - C O R E  C O N T E X T   I M P L
@@ -15,7 +14,6 @@
     <property name="aliasManager">
       <ref bean="aliasManager"/>
     </property>
-    <property name="userSettingModel" ref="userSettingModel"/>
   </bean>
   <!--
   - C O R E  C O N T E X T
@@ -38,12 +36,13 @@
     </property>
     <property name="coreContext">
       <ref bean="coreContext"/>
-    </property>    
+    </property>
   </bean>
   <!--
   - E X T E N S I O N  P O O L  C O N T E X T
   -->
-  <bean id="extensionPoolContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+  <bean id="extensionPoolContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
     <property name="proxyInterfaces">
       <value>org.sipfoundry.sipxconfig.common.ExtensionPoolContext</value>
     </property>
@@ -51,14 +50,10 @@
       <ref local="extensionPoolContextImpl"/>
     </property>
   </bean>
-	
-  <bean id="userSettingModel" class="org.sipfoundry.sipxconfig.setting.SettingModel">
-    <property name="resource" value="user-settings.xml"/>
+  
+  <bean id="org.sipfoundry.sipxconfig.common.User" class="org.sipfoundry.sipxconfig.common.User"
+    singleton="false" parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
-  </bean>
-
-  <bean id="org.sipfoundry.sipxconfig.common.User" class="org.sipfoundry.sipxconfig.common.User" singleton="false">
-    <property name="settingModel" ref="userSettingModel"/>
   </bean>
   
 </beans>

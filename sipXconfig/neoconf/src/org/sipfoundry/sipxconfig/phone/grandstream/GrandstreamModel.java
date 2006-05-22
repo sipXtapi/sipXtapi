@@ -52,5 +52,9 @@ public final class GrandstreamModel extends PhoneModel {
 
     public int getLineCfgType() {
         return m_lineCfgType;
+    }    
+    
+    public boolean isHandyTone() {
+        return getLineCfgType() == LINECFG_HT;
     }
 }

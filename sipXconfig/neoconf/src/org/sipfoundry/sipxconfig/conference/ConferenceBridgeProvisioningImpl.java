@@ -19,16 +19,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbParameter;
 import org.sipfoundry.sipxconfig.admin.commserver.configdb.ConfigDbSettingAdaptor;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.setting.ProfileNameHandler;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingDecorator;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
+import org.sipfoundry.sipxconfig.setting.SettingValue2;
+import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
@@ -74,10 +74,6 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         for (Iterator i = conferences.iterator(); i.hasNext();) {
             Conference conference = (Conference) i.next();
             conference.generateRemoteAdmitSecret();
-            String conferenceName = conference.getName();
-            ConferenceNameTransformer transformer = new ConferenceNameTransformer(conferenceName);
-            Collection bbSettings = SettingUtil.filter(bbFilter, conference.getSettings());
-            CollectionUtils.collect(bbSettings, transformer, allSettings);
         }
         adaptor.set("bbridge.conf", allSettings);
         getHibernateTemplate().saveOrUpdateAll(conferences);
@@ -96,18 +92,16 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         }
     }
 
-    public static class ConferenceNameDecorator extends SettingDecorator {
+    public static class ConferenceProfileName implements ProfileNameHandler {
         private static final char SEPARATOR = '.';
-
         private final String m_conferenceName;
 
-        ConferenceNameDecorator(Setting delegate, String conferenceName) {
-            super(delegate);
-            m_conferenceName = SEPARATOR + conferenceName;
+        ConferenceProfileName(String conferenceName) {
+            m_conferenceName = SEPARATOR + conferenceName;            
         }
-
-        public String getProfileName() {
-            String profileName = getDelegate().getProfileName();
+        
+        public SettingValue2 getProfileName(Setting setting) {
+            String profileName = setting.getProfileName();
             StringBuffer buffer = new StringBuffer(profileName);
             int dotIndex = profileName.indexOf(SEPARATOR);
             if (dotIndex > 0) {
@@ -115,19 +109,8 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
             } else {
                 buffer.append(m_conferenceName);
             }
-            return buffer.toString();
-        }
-    }
-
-    public static class ConferenceNameTransformer implements Transformer {
-        private String m_conferenceName;
-
-        public ConferenceNameTransformer(String name) {
-            m_conferenceName = name;
-        }
-
-        public Object transform(Object input) {
-            return new ConferenceNameDecorator((Setting) input, m_conferenceName);
+            
+            return new SettingValueImpl(buffer.toString());                        
         }
     }
 }

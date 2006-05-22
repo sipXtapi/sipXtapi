@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.setting;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -22,10 +21,15 @@ import org.apache.commons.collections.Transformer;
 /**
  * Common code for line, phone, and user information.
  */
-public class BeanWithGroups extends BeanWithSettings {
+public abstract class BeanWithGroups extends BeanWithSettings {
     public static final String GROUPS_PROP = "groups";
-
+    
     private Set<SettingValueHandler> m_groups;
+    
+    @Override
+    protected void initializeSettingModel() {
+        setSettingModel2(new BeanWithGroupsModel(this));        
+    }
     
     public synchronized Set getGroups() {
         // lazy to avoid NPE in unit tests that create mock objects for subclasses
@@ -38,7 +42,9 @@ public class BeanWithGroups extends BeanWithSettings {
     public void setGroups(Set settingSets) {
         m_groups = settingSets;
         
-        getSettingModel2().addSettingValueHandler(new MulticastSettingValueHandler((m_groups)));
+        BeanWithGroupsModel model = (BeanWithGroupsModel) getSettingModel2();
+        // passed collection is not copied
+        model.setGroups(m_groups);
     }
 
     public List getGroupsAsList() {
@@ -56,20 +62,6 @@ public class BeanWithGroups extends BeanWithSettings {
 
     public void removeGroup(Group tag) {
         getGroups().remove(tag);
-    }
-
-    protected void decorateSettings() {
-        Setting settings = getSettings();
-        Set groups = getGroups();
-        if (groups != null) {
-            Iterator i = groups.iterator();
-            while (i.hasNext()) {
-                Group group = (Group) i.next();
-                group.decorate(settings);
-            }
-        }
-
-        super.decorateSettings();
     }
 
     public static class AddTag implements Transformer {

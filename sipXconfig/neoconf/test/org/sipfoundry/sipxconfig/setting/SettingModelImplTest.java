@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettingTest.BirdWithSettings;
 
 public class SettingModelImplTest extends TestCase {
     
@@ -33,11 +34,12 @@ public class SettingModelImplTest extends TestCase {
         handlerCtrl.expectAndReturn(handler.getSettingValue(canyonTowhee), null);
         handlerCtrl.replay();
 
-        SettingModelImpl model = new SettingModelImpl();
-        model.setSettings(birds);
+        BeanWithSettings bean = new BirdWithSettings();
+        BeanWithSettingsModel model = bean.getSettingModel2();
+        bean.setSettings(birds);
         
-        model.addSettingValueHandler(handler);
-        assertEquals("10", model.getSettingValue(peewee, null));
+        bean.addDefaultSettingHandler(handler);
+        assertEquals(ten, model.getSettingValue(peewee, null));
         assertNull(model.getSettingValue(canyonTowhee, null));
 
         handlerCtrl.verify();

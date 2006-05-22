@@ -16,6 +16,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 public final class SettingUtil {
     
     private SettingUtil() {        
@@ -51,32 +53,7 @@ public final class SettingUtil {
         }
         return runner.m_collection;
     }
-
-    
-    // Convienience.  If you call
-    //
-    //     String path = setting.getPath()
-    //
-    // you should be able to call
-    //
-    //      root.getSetting(path)
-    //
-    // and get your setting back, however the root name is incorp. into 
-    // path and needs to be stripped        
-    public static Setting getSettingFromRoot(Setting root, String fullpath) {
-        if (root.getName().equals(fullpath)) {
-            return root;
-        }
-        String rootPrefix = root.getName() + Setting.PATH_DELIM;
-        if (!fullpath.startsWith(rootPrefix)) {
-            return null; 
-        }
-        String subpath = fullpath.substring(rootPrefix.length()); 
-        Setting setting = root.getSetting(subpath);
-        
-        return setting;
-    }
-    
+       
     public static Setting getSettingByPath(Map children, Setting setting, String path) {
         Setting target = null;
         int slash = path.indexOf(Setting.PATH_DELIM);
@@ -87,7 +64,14 @@ public final class SettingUtil {
                 target = child.getSetting(path.substring(slash + 1));
             }            
         } else if (children == null) {
-            throw new IllegalArgumentException("Cannot get settings from another setting, only groups");            
+            throw new IllegalArgumentException("Cannot get settings from another setting, only groups");
+        } else if (StringUtils.isEmpty(path)) {
+            // empty string returns the setting itself
+            // why? 
+            //   to support path round-tripping
+            //     String s = root.getSetting("x").getParent().getPath();
+            //     Setting root = root.getSetting(s);
+            target = setting;
         } else {
             target = (Setting) children.get(path);                        
         }
@@ -110,17 +94,17 @@ public final class SettingUtil {
      * @param fullPath
      * @return child for full path
      */
-    public static Setting getSettingFromNode(Setting setting, String fullPath) {
-        String prefix = setting.getPath() + Setting.PATH_DELIM;
-        if (!fullPath.startsWith(prefix)) {
-            return null; 
-        }
-        
-        String path = fullPath.substring(prefix.length());
-        Setting child = setting.getSetting(path);
-        
-        return child;
-    }
+//    public static Setting getSettingFromNode(Setting setting, String fullPath) {
+//        String prefix = setting.getPath() + Setting.PATH_DELIM;
+//        if (!fullPath.startsWith(prefix)) {
+//            return null; 
+//        }
+//        
+//        String path = fullPath.substring(prefix.length());
+//        Setting child = setting.getSetting(path);
+//        
+//        return child;
+//    }
     
     /**
      * If a setting set is advanced, then all it's children can be considered advanced.
@@ -135,7 +119,7 @@ public final class SettingUtil {
             if (s.isAdvanced()) {
                 return true;
             }
-            s = SettingUtil.getSettingFromNode(node, s.getParentPath());
+            s = s.getParent();
         }
         return node.isAdvanced();        
     }
@@ -179,4 +163,16 @@ public final class SettingUtil {
             visitSetting(settingGroup);
         }
     }
+
+    /**
+     * HACK UNTIL DECORATORS ARE REMOVED
+     */ 
+    public static SettingImpl getSettingImpl(Setting s) {
+        if (s instanceof SettingImpl) {
+            return (SettingImpl) s;
+        }
+        
+        throw new RuntimeException("Unknown Setting Type " + s.getClass().getName());
+    }
+
 }

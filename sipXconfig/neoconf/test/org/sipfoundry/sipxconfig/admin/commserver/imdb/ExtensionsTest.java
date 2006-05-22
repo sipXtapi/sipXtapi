@@ -89,7 +89,7 @@ public class ExtensionsTest extends XMLTestCase {
 
         assertXpathEvaluatesTo("extension", "/items/@type", domDoc);
         assertXpathEvaluatesTo("1234", "/items/item/extension", domDoc);
-        assertXpathEvaluatesTo("first last<sip:userName@company.com>", "/items/item/uri", domDoc);
+        assertXpathEvaluatesTo("\"first last\"<sip:userName@company.com>", "/items/item/uri", domDoc);
         assertXpathEvaluatesTo("4321", "/items/item[2]/extension", domDoc);
         assertXpathEvaluatesTo("sip:kuku@company.com", "/items/item[2]/uri", domDoc);
         assertXpathNotExists("/items/item[3]", domDoc);

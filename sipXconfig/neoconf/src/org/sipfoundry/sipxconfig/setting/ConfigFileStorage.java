@@ -21,6 +21,8 @@ import java.util.Properties;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Config file based storage implementation. Setting.profileName property is used to identify
@@ -29,47 +31,59 @@ import org.apache.commons.lang.StringUtils;
  * 
  * @see ConfigFileStorage
  */
-public class ConfigFileStorage extends ValueStorage {
+public class ConfigFileStorage implements Storage {
+    private static final Log LOG = LogFactory.getLog(ConfigFileStorage.class);
     private Map m_file2properties = new HashMap();
-
     private String m_configDirectory;
-
+        
     public ConfigFileStorage(String configDirectory) {
         m_configDirectory = configDirectory;
     }
 
-    public Object getValue(Setting setting) {
-        try {
-            Properties properties = loadForFile(setting);
-            String value = properties.getProperty(setting.getName());
-            if (value != null) {
-                value = value.trim();
-            }
-            return value;
-        } catch (IOException e) {
-            return StringUtils.EMPTY;
-        }
+    public String getValue(Setting setting) {
+        SettingValue2 v = getSettingValue(setting);
+        return v == null ? null : v.getValue();
     }
 
-    public Object setValue(Setting setting, Object value) {
+    public void setValue(Setting setting, String value) {
+        setSettingValue(setting, new SettingValueImpl(value), null);
+    }
+
+    public SettingValue2 getSettingValue(Setting setting) {
+        // by always returning something this is not fail-fast, unclear if strictly nec.
+        // but I'm preserving functionality that was here before major settings refactoring
+        SettingValue2 value = null;
         try {
             Properties properties = loadForFile(setting);
-            return properties.put(setting.getName(), value);
+            String svalue = properties.getProperty(setting.getName());
+            if (svalue != null) {
+                value = new SettingValueImpl(svalue.trim());
+            }
         } catch (IOException e) {
-            return StringUtils.EMPTY;
+            LOG.warn("cannot get config file value", e);
+        }
+        return value;
+    }
+
+    public void setSettingValue(Setting setting, SettingValue2 value, SettingValue2 defaultValue) {
+        try {
+            Properties properties = loadForFile(setting);
+            properties.put(setting.getName(), value.getValue());
+        } catch (IOException e) {
+            LOG.warn("cannot set config file value", e);
         }
     }
 
     /**
      * Remove is called when setting is set to default value.
      */
-    public Object revertToDefault(Setting setting) {
+    public void revertSettingToDefault(Setting setting) {
         try {
             Properties properties = loadForFile(setting);
             String value = StringUtils.defaultString(setting.getValue());
-            return properties.put(setting.getName(), value);
+            properties.put(setting.getName(), value);
         } catch (IOException e) {
-            return StringUtils.EMPTY;
+            LOG.warn("cannot revert config file value", e);
         }
     }
 

@@ -26,8 +26,8 @@ public class SipConfiguration extends VelocityProfileGenerator {
     
     private static PatternSettingFilter s_callSettings = new PatternSettingFilter();
     static {
-        s_callSettings.addExcludes("/call/donotdisturb.*$");
-        s_callSettings.addExcludes("/call/shared.*$");
+        s_callSettings.addExcludes("call/donotdisturb.*$");
+        s_callSettings.addExcludes("call/shared.*$");
     }
     
     public SipConfiguration(PolycomPhone phone) {

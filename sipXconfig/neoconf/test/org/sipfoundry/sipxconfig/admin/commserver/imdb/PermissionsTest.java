@@ -58,7 +58,7 @@ public class PermissionsTest extends XMLTestCase {
         Permission.LOCAL_DIALING.setEnabled(g, true);
 
         user.addGroup(g);
-        user.setSettingModel(TestHelper.loadSettings("user-settings.xml"));
+        user.setModelFilesContext(TestHelper.getModelFilesContext());
         user.setUserName("goober");
 
         Permissions permissions = new Permissions();

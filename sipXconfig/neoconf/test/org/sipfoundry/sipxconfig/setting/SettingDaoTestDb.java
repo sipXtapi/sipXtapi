@@ -29,12 +29,8 @@ public class SettingDaoTestDb extends SipxDatabaseTestCase {
     public void testSettingGroup() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
 
-        SettingSet root = new SettingSet();
-        root.addSetting(new SettingImpl("setting"));
-        
         ValueStorage vs = new ValueStorage();
-        vs.decorate(root);
-        root.getSetting("setting").setValue("some value");
+        vs.setSettingValue(new SettingImpl("setting"), new SettingValueImpl("some value"), null);
 
         dao.storeValueStorage(vs);
     }

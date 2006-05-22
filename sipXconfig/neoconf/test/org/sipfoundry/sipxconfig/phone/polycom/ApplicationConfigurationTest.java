@@ -31,12 +31,10 @@ public class ApplicationConfigurationTest extends XMLTestCase {
     
     PolycomPhone phone;
     
-    PhoneTestDriver tester;
-    
     protected void setUp() {
         XMLUnit.setIgnoreWhitespace(true);
         phone = new PolycomPhone(PolycomModel.MODEL_600);
-        tester = new PhoneTestDriver(phone);        
+        PhoneTestDriver.supplyTestData(phone);        
     }
 
     public void testGenerateProfile() throws Exception {

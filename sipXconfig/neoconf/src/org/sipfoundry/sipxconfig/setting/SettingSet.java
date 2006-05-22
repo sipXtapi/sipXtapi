@@ -66,7 +66,7 @@ public class SettingSet extends SettingImpl implements Cloneable, Serializable {
      * adds the setting to this group collection along with setting the group on the setting
      */
     public Setting addSetting(Setting setting) {
-        setting.setParentPath(getPath());
+        setting.setParent(this);
 
         Setting existingChild = (Setting) m_children.get(setting.getName());
         m_children.put(setting.getName(), setting);

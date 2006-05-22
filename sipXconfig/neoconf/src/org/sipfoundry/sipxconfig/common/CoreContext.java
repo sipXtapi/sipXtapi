@@ -25,6 +25,11 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner {
 
     public static final String CONTEXT_BEAN_NAME = "coreContext";
+    
+    /**
+     * Instantiates a user complete w/setting model
+     */
+    public User newUser();
 
     public void saveUser(User user);
 

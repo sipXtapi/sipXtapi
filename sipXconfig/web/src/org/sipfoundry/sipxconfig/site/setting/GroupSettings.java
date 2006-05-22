@@ -16,6 +16,7 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -45,6 +46,10 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
     public abstract void setSettings(Setting setting);
 
     public abstract Setting getSettings();
+    
+    public abstract BeanWithGroups getBean();
+    
+    public abstract void setBean(BeanWithGroups bean);
 
     public abstract void setReturnPage(String returnPage);
 
@@ -56,8 +61,8 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
         return page;
     }
 
-    public void editGroup(Integer groupId, Setting settings, String returnPage) {
-        setSettings(settings);
+    public void editGroup(Integer groupId, BeanWithGroups bean, String returnPage) {
+        setBean(bean);
         setGroupId(groupId);
         setReturnPage(returnPage);
     }
@@ -68,16 +73,16 @@ public abstract class GroupSettings extends BasePage implements PageBeginRenderL
             return;
         }
 
-        group = getSettingDao().loadGroup(getGroupId());
+        group = getSettingDao().getGroup(getGroupId());
         setGroup(group);
+        Setting settings = group.inherhitSettingsForEditing(getBean());                
+        setSettings(settings);
         String currentSettingName = getParentSettingName();
         if (currentSettingName == null) {
-            Setting first = (Setting) getSettings().getValues().iterator().next();
+            Setting first = (Setting) settings.getValues().iterator().next();
             currentSettingName = first.getName();
         }
-        Setting settings = getSettings().copy();
-        group.decorate(settings);
-        Setting parent = settings.getSetting(currentSettingName);
+        Setting parent = settings.getSetting(currentSettingName);   
         setParentSetting(parent);
     }
 

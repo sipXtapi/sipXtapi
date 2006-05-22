@@ -16,8 +16,25 @@ import java.util.TreeMap;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.StringUtils;
+
 public class SipUriTest extends TestCase {
     private static final String USERNAME = "username";
+    
+    public void testFormatFullUri() {
+        String uri = SipUri.formatIgnoreDefaultPort("First Last", USERNAME, "example.com", 5060);
+        assertEquals("\"First Last\"<sip:" + USERNAME + "@example.com>", uri);
+
+        String uri2 = SipUri.formatIgnoreDefaultPort("First Last", USERNAME, "example.com", 5070);
+        assertEquals("\"First Last\"<sip:" + USERNAME + "@example.com:5070>", uri2);
+    }
+    
+    public void testParsePort() {
+        assertEquals(5060, SipUri.parsePort("5060", 5070));
+        assertEquals(5070, SipUri.parsePort("5070", 5060));
+        assertEquals(5080, SipUri.parsePort(StringUtils.EMPTY, 5080));
+        assertEquals(5080, SipUri.parsePort(null, 5080));
+    }
 
     public void testFormatUser() {
         User user = new User();
@@ -29,12 +46,12 @@ public class SipUriTest extends TestCase {
         user.setLastName("Last");
         uri = new SipUri(user, "mycomp.com");
 
-        assertEquals("Last<sip:" + USERNAME + "@mycomp.com>", uri.toString());
+        assertEquals("\"Last\"<sip:" + USERNAME + "@mycomp.com>", uri.toString());
 
         user.setFirstName("First");
         uri = new SipUri(user, "mycomp.com");
 
-        assertEquals("First Last<sip:" + USERNAME + "@mycomp.com>", uri.toString());
+        assertEquals("\"First Last\"<sip:" + USERNAME + "@mycomp.com>", uri.toString());
     }
 
     public void testFormatNameDomainPort() {

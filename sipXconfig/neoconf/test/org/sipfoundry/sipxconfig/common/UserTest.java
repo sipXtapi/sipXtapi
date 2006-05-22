@@ -55,11 +55,11 @@ public class UserTest extends TestCase {
 
         user.setLastName("Last");
         uri = user.getUri("mycomp.com");
-        assertEquals("Last<sip:" + USERNAME + "@mycomp.com>", uri);
+        assertEquals("\"Last\"<sip:" + USERNAME + "@mycomp.com>", uri);
 
         user.setFirstName("First");
         uri = user.getUri("mycomp.com");
-        assertEquals("First Last<sip:" + USERNAME + "@mycomp.com>", uri);
+        assertEquals("\"First Last\"<sip:" + USERNAME + "@mycomp.com>", uri);
     }
 
     /** Test that setting a typical PIN yields expected results */
@@ -153,7 +153,7 @@ public class UserTest extends TestCase {
     
     public void testHasPermission() {
         User user = new User();
-        user.setSettingModel(TestHelper.loadSettings("user-settings.xml"));
+        user.setModelFilesContext(TestHelper.getModelFilesContext());
         
         Group group = new Group();
         user.addGroup(group);

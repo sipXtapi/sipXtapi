@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 import junit.framework.TestCase;
@@ -20,21 +21,14 @@ import org.sipfoundry.sipxconfig.TestHelper;
 public class SettingUtilTest extends TestCase {
 
     public void testFilter() {
-        Setting root = TestHelper.loadSettings("../test/org/sipfoundry/sipxconfig/setting/simplemodel.xml");
+        Setting root = loadSettings("simplemodel.xml");
         Collection settings = SettingUtil.filter(SettingFilter.ALL, root);
         // 3 would mean root was included and it's supposed to be non-inclusive
         assertEquals(2, settings.size());
     }
 
-    public void testGetSettingFromRoot() {
-        Setting root = TestHelper.loadSettings("../test/org/sipfoundry/sipxconfig/setting/simplemodel.xml");
-        Setting setting = SettingUtil.getSettingFromRoot(root, "/group/setting");
-        assertNotNull(setting);
-        assertEquals("setting", setting.getName());
-    }
-
     public void testGetSettingByPath() {
-        Setting root = TestHelper.loadSettings("../test/org/sipfoundry/sipxconfig/setting/simplemodel.xml");
+        Setting root = loadSettings("simplemodel.xml");
         Setting setting = root.getSetting("group/setting");
         assertNotNull(setting);
         assertEquals("setting", setting.getName());
@@ -65,16 +59,16 @@ public class SettingUtilTest extends TestCase {
         assertEquals("c", SettingUtil.subpath("a/b/c", 2));
     }
     
-    public void testGetSettingFromNode() {
-        Setting root = TestHelper.loadSettings("../test/org/sipfoundry/sipxconfig/setting/games.xml");
-        Setting cards = root.getSetting("cards");
-        Setting ace = root.getSetting("cards/card/A");
-        String acePath = ace.getPath();
-        assertSame(ace, SettingUtil.getSettingFromNode(cards, acePath));        
-    }
+//    public void testGetSettingFromNode() {
+//        Setting root = TestHelper.loadSettings("../test/org/sipfoundry/sipxconfig/setting/games.xml");
+//        Setting cards = root.getSetting("cards");
+//        Setting ace = root.getSetting("cards/card/A");
+//        String acePath = ace.getPath();
+//        assertSame(ace, SettingUtil.getSettingFromNode(cards, acePath));        
+//    }
 
     public void testIsAdvancedIncludingParents() {
-        Setting root = TestHelper.loadSettings("../test/org/sipfoundry/sipxconfig/setting/advanced.xml");
+        Setting root = loadSettings("advanced.xml");
         assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advanced")));
         assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advanced/setting")));
         assertFalse(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("not-advanced/setting")));
@@ -83,4 +77,9 @@ public class SettingUtilTest extends TestCase {
         assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advance-and-advanded-setting/setting")));
         assertTrue(SettingUtil.isAdvancedIncludingParents(root, root.getSetting("advance-and-advanded-setting")));
     }    
+    
+    Setting loadSettings(String resource) {
+        InputStream in = getClass().getResourceAsStream(resource);
+        return TestHelper.loadSettings(in);
+    }
 }

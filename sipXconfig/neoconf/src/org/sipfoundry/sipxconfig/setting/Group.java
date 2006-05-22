@@ -23,14 +23,11 @@ import org.sipfoundry.sipxconfig.common.NamedObject;
  *
  */
 public class Group extends ValueStorage implements Comparable, DataCollectionItem, NamedObject {
-
-    private String m_name;
-    
+    private String m_name;   
     private String m_description;
-
-    private String m_resource;
-    
+    private String m_resource;    
     private Integer m_weight;
+    private GroupSettingModel m_model; 
 
     public String getName() {
         return m_name;
@@ -99,5 +96,84 @@ public class Group extends ValueStorage implements Comparable, DataCollectionIte
      */
     public void setPosition(int position) {
         m_weight = new Integer(position + 1);
+    }
+    
+    /**
+     * When editing group settings, a group needs to inherhit the settings for 
+     * a bean so it can save setting values for that bean.
+     * 
+     * @param bean to inherit settings for
+     * @return copy of settings to be edited
+     */
+    public Setting inherhitSettingsForEditing(BeanWithSettings bean) {
+        Setting settings = bean.getSettings().copy(); 
+        m_model = new GroupSettingModel(this, bean);
+        settings.acceptVisitor(new InheritSettings(m_model));
+        return settings;
+    }
+    
+    static class GroupSettingModel implements SettingModel2 {
+        private BeanWithSettings m_bean;
+        private Group m_group;
+        
+        public GroupSettingModel(Group group, BeanWithSettings bean) {
+            m_bean = bean;
+            m_group = group;
+        }
+
+        public String getSettingValue(Setting setting) {
+            SettingValue2 value = m_group.getSettingValue(setting);
+            if (value == null) {
+                value = new SettingValueImpl(m_bean.getSettingValue(setting.getPath()));
+            }
+
+            return value.getValue();
+        }
+
+        public String getDefaultSettingValue(Setting setting) {
+            SettingValue2 value = new SettingValueImpl(m_bean.getSettingValue(setting.getPath()));
+            return value.getValue();
+        }
+
+        public void setSettingValue(Setting setting, String value) {
+            String defaultValue = getDefaultSettingValue(setting);            
+            m_group.setSettingValue(setting, new SettingValueImpl(value), 
+                    new SettingValueImpl(defaultValue));
+        }
+
+        public SettingValue2 getSettingValue(Setting setting, SettingValue2 originalValue) {
+            SettingValue2 value = m_group.getSettingValue(setting);
+            if (value == null) {
+                value = m_bean.getSettingModel2().getSettingValue(setting, originalValue);
+            }
+
+            return value;
+        }
+
+        public SettingValue2 getDefaultSettingValue(Setting setting, SettingValue2 originalValue) {
+            // can delegate to bean, because settings still contains different setting model
+            SettingValue2 value = m_bean.getSettingModel2().getDefaultSettingValue(setting, originalValue);
+            return value;
+        }
+
+        public SettingValue2 getProfileName(Setting setting, SettingValue2 originalValue) {
+            // can delegate to bean, because settings still contains different setting model
+            SettingValue2 value = m_bean.getSettingModel2().getProfileName(setting, originalValue);
+            return value;
+        }        
+    }
+    
+    static class InheritSettings implements SettingVisitor {
+        private SettingModel2 m_model;
+        InheritSettings(SettingModel2 model) {
+            m_model = model;
+        }
+        public void visitSetting(Setting setting) {
+            SettingImpl impl = SettingUtil.getSettingImpl(setting);
+            impl.setModel(m_model);            
+        }
+        
+        public void visitSettingGroup(Setting group) {
+        }        
     }
 }

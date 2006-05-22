@@ -29,7 +29,7 @@ public class PolycomPhoneTest extends TestCase {
 
     protected void setUp() {
         m_phone = new PolycomPhone(PolycomModel.MODEL_600);
-        m_tester = new PhoneTestDriver(m_phone);
+        m_tester = PhoneTestDriver.supplyTestData(m_phone);
     }
 
     public void testGenerateProfiles() throws Exception {
@@ -56,7 +56,11 @@ public class PolycomPhoneTest extends TestCase {
     }
 
     public void testRestart() throws Exception {
-        m_phone.restart();
+        
+        String uri = m_phone.getLine(0).getUri();
+        assertEquals("\"Joe User\"<sip:juser@sipfoundry.org>", uri);
+        
+        m_phone.restart();        
         m_tester.sipControl.verify();
     }
 

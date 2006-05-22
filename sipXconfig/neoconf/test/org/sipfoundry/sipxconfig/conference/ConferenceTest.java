@@ -54,6 +54,7 @@ public class ConferenceTest extends TestCase {
 
     public void testGenerateAliases() {
         Bridge bridge = new Bridge();
+        bridge.initialize();
         bridge.setAdmissionServer("media.sipfoundry.org:5100");
 
         bridge.addConference(m_conf);

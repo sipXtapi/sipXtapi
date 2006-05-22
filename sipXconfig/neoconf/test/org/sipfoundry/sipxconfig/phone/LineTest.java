@@ -15,7 +15,9 @@ import junit.framework.TestCase;
 
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class LineTest extends TestCase {
@@ -24,7 +26,7 @@ public class LineTest extends TestCase {
      * This tests that line groups are ignored in favor of using the phone groups instead
      */
     public void testLineGroupsIgnored() {
-        Phone phone = new Phone();
+        Phone phone = new AcmePhone();
         Group phoneGroup = new Group();
         phone.addGroup(phoneGroup);
 
@@ -43,22 +45,32 @@ public class LineTest extends TestCase {
         phoneContextCtrl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults, 2);
         phoneContextCtrl.replay();
 
-        Phone phone = new Phone();
+        Phone phone = new AcmePhone();
         phone.setPhoneContext(phoneContext);
         
-        phone.setSettingModel(TestHelper.loadSettings("unmanagedPhone/phone.xml"));
+        phone.setModelFilesContext(TestHelper.getModelFilesContext());
         Line line = phone.createLine();        
-        line.setSettingModel(TestHelper.loadSettings("unmanagedPhone/line.xml"));
+        line.setModelFilesContext(TestHelper.getModelFilesContext());
         phone.addLine(line);
-        LineSettings settings = (LineSettings) phone.getLineAdapter(line, LineSettings.class);
+        
+        LineInfo settings = new LineInfo();
         settings.setDisplayName("Display Name");
         settings.setUserId("user_id");
         settings.setRegistrationServer("sipfoundry.org");
+        phone.setLineInfo(line, settings);
         
         String actual = line.getUri();
         assertEquals("\"Display Name\"<sip:user_id@sipfoundry.org>", actual);
         assertEquals("user_id", line.getDisplayLabel());
-        
+                
         phoneContextCtrl.verify();
+    }
+    
+    public void testGetDisplayLabelViaUser() {
+        Line line = new Line();
+        User u = new User();
+        u.setUserName("joe");
+        line.setUser(u);
+        assertEquals("joe", line.getDisplayLabel());        
     }
 }

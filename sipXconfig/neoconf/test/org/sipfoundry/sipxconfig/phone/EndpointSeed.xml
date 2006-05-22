@@ -5,6 +5,6 @@
         serial_number="999123456" 		
 		    phone_id="1000"
         description="unittest-sample phone1"
-        bean_id="unmanagedPhone"
+        bean_id="acmePhone"
         model_id=""/>
 </dataset>

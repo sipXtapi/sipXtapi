@@ -63,9 +63,7 @@ public class MediantGatewayTest extends TestCase {
         defaults.getDomainName();
         defaultsCtrl.setDefaultReturnValue("mysipdomain.com");
         defaults.getProxyServerAddr();
-        defaultsCtrl.setReturnValue("10.1.2.3");
-        defaults.getProxyServerSipPort();
-        defaultsCtrl.setReturnValue("1234");
+        defaultsCtrl.setReturnValue("10.1.2.3", MockControl.ONE_OR_MORE);
 
         defaultsCtrl.replay();
 

@@ -24,9 +24,8 @@ public class KPhoneTest extends TestCase {
     public void testGenerateTypicalProfile() throws Exception {
         KPhone phone = new KPhone();
 
-        // call this method purely for the side effect of modifying the phone, and
-        // discard the resulting PhoneTestDriver object
-        new PhoneTestDriver(phone);
+        // call this to inject dummy data
+        PhoneTestDriver.supplyTestData(phone);
         
         StringWriter actualWriter = new StringWriter();
         phone.generateProfile(actualWriter);
@@ -35,7 +34,7 @@ public class KPhoneTest extends TestCase {
         expectedProfile.close();
         
         // Display name because value comes from LineSettings now, not User object
-        // kphone does not store Dsiplay name directory, but uses it as part of URI
+        // kphone does not store Display name directory, but uses it as part of URI
         // would need a URI parser to get it back.
         assertEquals(expected, actualWriter.toString());
     }

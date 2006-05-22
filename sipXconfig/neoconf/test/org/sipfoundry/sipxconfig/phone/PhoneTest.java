@@ -20,6 +20,7 @@ import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.phone.acme.AcmePhone;
 
 public class PhoneTest extends TestCase {
 
@@ -61,7 +62,15 @@ public class PhoneTest extends TestCase {
     }
     
     public void testFindByUsername() {
-        Phone phone = new Phone();
+        DeviceDefaults defaults = new DeviceDefaults();
+        defaults.setDomainName("sipfoundry.org");
+        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
+        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        phoneContextCtrl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults, MockControl.ONE_OR_MORE);
+        phoneContextCtrl.replay();
+
+        Phone phone = new AcmePhone();
+        phone.setPhoneContext(phoneContext);
         phone.setSerialNumber("123456789012");
         Line l = phone.createLine();
         User u = new User();
@@ -72,25 +81,29 @@ public class PhoneTest extends TestCase {
         assertSame(l, phone.findByUsername("foo"));
         assertNull(phone.findByUsername("foox"));        
         assertNull(phone.findByUsername("Foo"));        
+
+        phoneContextCtrl.verify();
     }
     
     public void testFindByUri() {
         DeviceDefaults defaults = new DeviceDefaults();
+        defaults.setDomainName("sipfoundry.org");
         MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
         PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
         phoneContextCtrl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults, MockControl.ONE_OR_MORE);
         phoneContextCtrl.replay();
         
-        Phone phone = new Phone();
+        Phone phone = new AcmePhone();
         phone.setPhoneContext(phoneContext);
-        phone.setSettingModel(TestHelper.loadSettings("unmanagedPhone/phone.xml"));
+        phone.setModelFilesContext(TestHelper.getModelFilesContext());
         phone.setSerialNumber("123456789012");
         Line l = phone.createLine();        
         phone.addLine(l);
-        l.setSettingModel(TestHelper.loadSettings("unmanagedPhone/line.xml"));
-        LineSettings settings = (LineSettings) l.getAdapter(LineSettings.class);
-        settings.setRegistrationServer("sipfoundry.org");
-        settings.setUserId("foo");
+        LineInfo info = new LineInfo();
+        info.setUserId("foo");
+        info.setRegistrationServer("sipfoundry.org");
+        phone.setLineInfo(l, info);
+        l.setModelFilesContext(TestHelper.getModelFilesContext());        
         
         assertSame(l, phone.findByUri("sip:foo@sipfoundry.org"));
         assertNull(phone.findByUri("sip:foox@sipfoundry.org"));        
@@ -100,13 +113,35 @@ public class PhoneTest extends TestCase {
     }
 
     public void testMaxLines() {
-        Phone phone = new Phone(new LimitedLinePhoneModel());
+        Phone phone = new LimitedPhone();
         phone.addLine(phone.createLine());
         try {
             phone.addLine(phone.createLine());
             fail();
         } catch (Phone.MaxLinesException expected) {
             assertTrue(true);
+        }
+    }
+    
+    static class LimitedPhone extends Phone {
+        LimitedPhone() {
+            super(new LimitedLinePhoneModel());
+        }
+        @Override
+        public void setLineInfo(Line line, LineInfo externalLine) {
+        }
+
+        @Override
+        public LineInfo getLineInfo(Line line) {
+            return null;
+        }        
+        
+        @Override
+        public void initialize() {            
+        }
+
+        @Override
+        public void initializeLine(Line l) {            
         }
     }
     

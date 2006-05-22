@@ -11,24 +11,47 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.sipfoundry.sipxconfig.TestHelper;
+
 import junit.framework.TestCase;
 
 public class BeanValueStorageTest extends TestCase {
     
-    public void testGetSettingValue() {
+    BeanValueStorage m_vs;
+    Setting m_birds;
+    
+    protected void setUp() throws IOException {
         BeanValueStorageTestBean bean = new BeanValueStorageTestBean();
-        BeanValueStorage vs = new BeanValueStorage(bean);
-        SettingSet set = new SettingSet();
-        Setting setting = new SettingImpl("wingspan");
-        set.addSetting(setting);
-        assertEquals("14 inches", vs.getSettingValue(setting).getValue());
+        m_vs = new BeanValueStorage(bean);
+        InputStream in = getClass().getResourceAsStream("birds.xml");
+        m_birds = TestHelper.loadSettings(in);                
+    }
+    
+    public void testGetSettingValue() {
+        Setting s = m_birds.getSetting("towhee/canyon");
+        assertEquals("14 inches", m_vs.getSettingValue(s).getValue());
+    }
+    
+    public void testGetSettingValuePathArray() {
+        Setting s1 = m_birds.getSetting("flycatcher/peewee");
+        assertEquals(".25 inches", m_vs.getSettingValue(s1).getValue());
+        Setting s2 = m_birds.getSetting("flycatcher/willow");
+        assertEquals(".25 inches", m_vs.getSettingValue(s2).getValue());
     }
 
     static class BeanValueStorageTestBean {
         
-        @SettingEntry(path = "wingspan")
-        public String getWingSpan() {
+        @SettingEntry(path = "towhee/canyon")
+        public String getFunkyLittleBird() {
             return "14 inches";
         }       
+        
+        @SettingEntry(paths = { "flycatcher/peewee", "flycatcher/willow" })
+        public String getFlycathers() {
+            return ".25 inches";
+        }
     }
 }

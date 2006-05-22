@@ -20,8 +20,7 @@
   </bean>
   
   <bean id="upload" class="org.sipfoundry.sipxconfig.upload.Upload"
-    singleton="false">
-    <property name="modelFilesContext" ref="modelFilesContext"/>
+    singleton="false" parent="beanWithSettings">
   </bean>
   
 </beans>

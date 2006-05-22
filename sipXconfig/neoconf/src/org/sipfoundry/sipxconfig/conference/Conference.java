@@ -26,10 +26,11 @@ import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.ProfileNameHandler;
 import org.sipfoundry.sipxconfig.setting.Setting;
-import org.sipfoundry.sipxconfig.setting.SettingUtil;
-import org.sipfoundry.sipxconfig.setting.SettingValue;
-import org.sipfoundry.sipxconfig.setting.Storage;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
+import org.sipfoundry.sipxconfig.setting.SettingValue2;
+import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 
 public class Conference extends BeanWithSettings implements NamedObject {
     public static final String BEAN_NAME = "conferenceConference";
@@ -61,8 +62,22 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     /** location - host:port of the conference scripts that admission server needs to retrieve */
     private String m_admissionScriptServer;
+    
+    private ConferenceAorDefaults m_defaults;
+    
+    public Conference() {
+    }
+    
+    public void initialize() {
+        m_defaults = new ConferenceAorDefaults(this);
+        addDefaultBeanSettingHandler(m_defaults);
+        getSettingModel2().setDefaultProfileNameHandler(new ConferenceProfileName(this));
+    }
 
-    // trivial get/set
+    protected Setting loadSettings() {
+        return getModelFilesContext().loadModelFile("sipxconference/conference.xml");
+    }
+
     public String getDescription() {
         return m_description;
     }
@@ -104,8 +119,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
     }
 
     public void generateAccessCodes() {
-        setSettingValue(ORGANIZER_CODE, RandomStringUtils.randomNumeric(CODE_LEN));
-        setSettingValue(PARTICIPANT_CODE, RandomStringUtils.randomNumeric(CODE_LEN));
+        m_defaults.generateAccessCodes();
     }
 
     public String getRemoteAdmitSecret() {
@@ -117,7 +131,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
      * 
      */
     public void generateRemoteAdmitSecret() {
-        setSettingValue(REMOTE_ADMIT_SECRET, RandomStringUtils.randomAlphanumeric(SECRET_LEN));
+        m_defaults.generateRemoteAdmitSecret();
     }
 
     public String getOrganizerAccessCode() {
@@ -135,34 +149,77 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public void setAdmissionScriptServer(String admissionScriptServer) {
         m_admissionScriptServer = admissionScriptServer;
     }
-
-    protected void defaultSettings() {
-        super.defaultSettings();
-        Setting settings = getSettings();
-        Setting aorSetting = settings.getSetting(AOR_RECORD);
-        Setting aorParent = SettingUtil.getSettingFromRoot(settings, aorSetting.getParentPath());
-        SettingValue decorated = new SettingValue(new AorStorage(), aorSetting);
-        // replace old setting with a decorated version
-        aorParent.addSetting(decorated);
-    }
-
-    /**
-     * Used to retrieve AOR for this conference
-     */
-    private class AorStorage implements Storage {
-        public Object getValue(Setting setting_) {
-            String user = getName();
-            String host = getBridge().getHost();
-            return SipUri.format(user, host, false);
-        }
-
-        public Object setValue(Setting setting_, Object value_) {
+    
+    @Override
+    public void setSettingValue(String path, String value) {
+        if (AOR_RECORD.equals(path)) {
             throw new UnsupportedOperationException("cannot change AOR");
         }
+        super.setSettingValue(path, value);
+    }
+    
+    public static class ConferenceAorDefaults {       
+        private Conference m_conference;
+        private String m_participantCode;
+        private String m_organizerCode;
+        private String m_remoteSecretAgent;
+        
+        ConferenceAorDefaults(Conference conference) {
+            m_conference = conference;
+        }
+        
+        void generateRemoteAdmitSecret() {
+            m_remoteSecretAgent = RandomStringUtils.randomAlphanumeric(SECRET_LEN);
+        }
+        
+        void generateAccessCodes() {
+            m_organizerCode = RandomStringUtils.randomNumeric(CODE_LEN);
+            m_participantCode = RandomStringUtils.randomNumeric(CODE_LEN);            
+        }
 
-        public Object revertToDefault(Setting setting) {
-            // same as getValue
-            return getValue(setting);
+        @SettingEntry(path = AOR_RECORD)
+        public String getAorRecord() {
+            String user = m_conference.getName();
+            String host = m_conference.getBridge().getHost();
+            return SipUri.format(user, host, false);            
+        }
+        
+        @SettingEntry(path = PARTICIPANT_CODE)
+        public String getParticipantCode() {
+            return m_participantCode;
+        }
+
+        @SettingEntry(path = ORGANIZER_CODE)
+        public String getOrganizerCode() {
+            return m_organizerCode;
+        }
+        
+        @SettingEntry(path = REMOTE_ADMIT_SECRET)
+        public String getRemoteAdmitSecret() {
+            return m_remoteSecretAgent;
+        }
+    }
+
+    public static class ConferenceProfileName implements ProfileNameHandler {
+        private static final char SEPARATOR = '.';
+        private final Conference m_conference;
+
+        ConferenceProfileName(Conference conference) {
+            m_conference = conference;            
+        }
+        
+        public SettingValue2 getProfileName(Setting setting) {
+            String nameToken = SEPARATOR + m_conference.getName();
+            String profileName = setting.getProfileName();
+            StringBuffer buffer = new StringBuffer(profileName);
+            int dotIndex = profileName.indexOf(SEPARATOR);
+            if (dotIndex > 0) {
+                buffer.insert(dotIndex, nameToken);
+            } else {
+                buffer.append(nameToken);
+            }
+            
+            return new SettingValueImpl(buffer.toString());                        
         }
     }
 

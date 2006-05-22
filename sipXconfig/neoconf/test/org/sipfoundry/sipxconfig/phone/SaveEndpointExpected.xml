@@ -6,6 +6,6 @@
 		phone_id="[phone_id_1]"
         description="unittest-sample phone1"
 		value_storage_id="[null]"
-      bean_id="unmanagedPhone"
+      bean_id="acmePhone"
       model_id=""/> 
 </dataset>

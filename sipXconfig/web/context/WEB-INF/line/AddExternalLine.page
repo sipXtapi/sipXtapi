@@ -7,6 +7,7 @@
   <description>add a description</description>
   <property name="callback"  persist="session"/>
   <property name="phoneId"  persist="session"/>
+  <property name="lineInfo" initial-value="new org.sipfoundry.sipxconfig.phone.LineInfo()"/>
   <property name="phone" />
   <property name="settings" />
   <inject property="phoneContext" object="spring:phoneContext"/>
@@ -16,7 +17,7 @@
     <binding name="label" value="message:label.displayName"/>
   </component>
   <component id="displayName" type="TextField">
-    <binding name="value" value="settings.displayName"/>
+    <binding name="value" value="lineInfo.displayName"/>
     <binding name="displayName" value="message:label.displayName"/>
   </component>
   <component id="userIdPanel" type="FieldPanel">
@@ -25,12 +26,12 @@
     <binding name="description" value="message:description.userId"/>
   </component>
   <component id="userId" type="TextField">
-    <binding name="value" value="settings.userId"/>
+    <binding name="value" value="lineInfo.userId"/>
     <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.userId"/>
   </component>
   <component id="passwordConfirmPanel" type="ConfirmPassword">
-    <binding name="password" value="settings.password"/>
+    <binding name="password" value="lineInfo.password"/>
   </component>
   <component id="registrationServerPanel" type="FieldPanel">
     <binding name="field" value="components.registrationServer"/>
@@ -38,7 +39,7 @@
     <binding name="description" value="message:description.registrationServer"/>
   </component>
   <component id="registrationServer" type="TextField">
-    <binding name="value" value="settings.registrationServer"/>
+    <binding name="value" value="lineInfo.registrationServer"/>
     <binding name="validators" value="validators:required"/>
     <binding name="displayName" value="message:label.registrationServer"/>
   </component>
@@ -48,7 +49,7 @@
     <binding name="description" value="message:description.voiceMail"/>
   </component>
   <component id="voiceMail" type="TextField">
-    <binding name="value" value="settings.voiceMail"/>
+    <binding name="value" value="lineInfo.voiceMail"/>
   </component>
   <component id="formActions" type="FormActions">
     <binding name="listener" value="listener:ok"/>
