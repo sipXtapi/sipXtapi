@@ -91,6 +91,27 @@ public class MappingRulesTest extends XMLTestCase {
 
         assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
     }
+    
+    public void testGetDocumentValidExternalsExtraSpaceInFilename() throws Exception {
+        URL resource = getClass().getResource("external_mappingrules.test.xml");
+
+        MappingRules mappingRules = new MappingRules();
+        mappingRules.setExternalRulesFileName(resource.getFile() + " ");
+        mappingRules.begin();
+        Document document = mappingRules.getDocument();
+
+        String xml = XmlUnitHelper.asString(document);
+
+        XmlUnitHelper.assertElementInNamespace(document.getRootElement(),
+                "http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00");
+
+        assertXpathEvaluatesTo("some_other.domain.com", "/mappings/hostMatch/hostPattern", xml);
+        assertXpathEvaluatesTo("${SIPXCHANGE_DOMAIN_NAME}",
+                "/mappings/hostMatch/userMatch/permissionMatch/transform/host", xml);
+
+        assertXpathExists("/mappings/hostMatch[2]/hostPattern", xml);
+    }
+    
 
     /**
      * This is mostly to demonstrate how complicated the XPatch expression becomes for a document

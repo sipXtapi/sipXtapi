@@ -28,8 +28,11 @@ public abstract class RulesXmlFile extends XmlFile {
 
     private String m_externalRulesFileName;
 
+    /**
+     * Trims the filename - leading and trailing spaces not supported in the file name.
+     */
     public void setExternalRulesFileName(String externalRulesFileName) {
-        m_externalRulesFileName = externalRulesFileName;
+        m_externalRulesFileName = externalRulesFileName.trim();
     }
 
     /** called before generating rules */
