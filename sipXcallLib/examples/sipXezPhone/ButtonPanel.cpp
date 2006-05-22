@@ -1,6 +1,12 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
 // Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -42,35 +48,27 @@ ButtonPanel::ButtonPanel(wxWindow* parent, const wxPoint& pos, const wxSize& siz
    bitmapHandset.SetMask(new wxMask(bitmapHandset, * (wxTheColourDatabase->FindColour("RED"))));
    mpButtonHandset = new wxBitmapButton(this, IDR_DIAL_BUTTON_HANDSET, bitmapHandset, wxDefaultPosition, wxSize(36,30));
    mpButtonHandset->SetBackgroundColour(*wxLightBlue);
-#ifdef _WIN32
-   mpButtonHandset->SetToolTip("Pick Up / Hang Up.");
-#endif
+   mpButtonHandset->SetToolTip("Pick Up / Hang Up");
    
    wxBitmap bitmapHold("res/hold.bmp",wxBITMAP_TYPE_BMP);
    bitmapHold.SetMask(new wxMask(bitmapHold, * (wxTheColourDatabase->FindColour("RED"))));
    mpButtonHold = new wxBitmapButton(this, IDR_DIAL_BUTTON_HOLD, bitmapHold, wxDefaultPosition, wxSize(36,30));
    mpButtonHold->SetBackgroundColour(*wxLightBlue);
-#ifdef _WIN32
-   mpButtonHold->SetToolTip("Hold.");
-#endif
+   mpButtonHold->SetToolTip("Hold");
 
 
    wxBitmap bitmapTransfer("res/xfer.bmp",wxBITMAP_TYPE_BMP);
    bitmapTransfer.SetMask(new wxMask(bitmapTransfer, * (wxTheColourDatabase->FindColour("RED"))));
    mpButtonTransfer = new wxBitmapButton(this, IDR_BUTTON_TRANSFER, bitmapTransfer, wxDefaultPosition, wxSize(36,30));
    mpButtonTransfer->SetBackgroundColour(*wxLightBlue);
-#ifdef _WIN32
-   mpButtonTransfer->SetToolTip("Transfer.");
-#endif
+   mpButtonTransfer->SetToolTip("Transfer");
 
 
    wxBitmap bitmapMute("res/mute.bmp",wxBITMAP_TYPE_BMP);
    bitmapMute.SetMask(new wxMask(bitmapMute, * (wxTheColourDatabase->FindColour("BLUE"))));
    mpButtonMute = new wxBitmapButton(this, IDR_MUTE_BUTTON, bitmapMute, wxDefaultPosition, wxSize(36,30));
    mpButtonMute->SetBackgroundColour(*wxLightBlue);
-#ifdef _WIN32
-   mpButtonMute->SetToolTip("Mute On/Off.");
-#endif
+   mpButtonMute->SetToolTip("Mute On/Off");
 
    mpGridSizer->Add(mpButtonHandset, 1);
    mpGridSizer->Add(mpButtonHold, 1);
@@ -88,22 +86,22 @@ ButtonPanel::~ButtonPanel()
 {
 }
 
-void ButtonPanel::OnHandsetClick(wxEvent& event)
+void ButtonPanel::OnHandsetClick(wxCommandEvent& event)
 {
    PhoneStateMachine::getInstance().OnFlashButton();
 }
 
-void ButtonPanel::OnHoldButton(wxEvent& event)
+void ButtonPanel::OnHoldButton(wxCommandEvent& event)
 {
     PhoneStateMachine::getInstance().OnHoldButton();
 }
 
-void ButtonPanel::OnMuteButton(wxEvent &event)
+void ButtonPanel::OnMuteButton(wxCommandEvent &event)
 {
     sipXmgr::getInstance().toggleMute();
 }
 
-void ButtonPanel::OnTransferButton(wxEvent& event)
+void ButtonPanel::OnTransferButton(wxCommandEvent& event)
 {
     PhoneStateMachine::getInstance().OnTransferRequested(thePhoneApp->getEnteredText());
 }

@@ -1,6 +1,12 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
 // Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -62,6 +68,7 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
       else
       {
          rc = TRUE;
+#ifndef __MACH__
          // Get the number of returned addresses from ifc_len.
          numAddresses = ifconf_structure.ifc_len / sizeof (struct ifreq);
          int j = 0;
@@ -85,6 +92,34 @@ bool getAllLocalHostIps(const HostAdapterAddress* localHostAddresses[],
             }
          }
          numAddresses = j;
+#else
+         void* ptr;
+         for (ptr = ifreq_array; (int) ptr < ((int) ifreq_array) + ifconf_structure.ifc_len; )
+         {
+            struct ifreq* ifr = (struct ifreq*) ptr;
+            
+            int len = sizeof(struct sockaddr);
+            if (ifr->ifr_addr.sa_len > sizeof(struct sockaddr))
+               len = ifr->ifr_addr.sa_len;
+
+            ptr = (void *) ((int) ptr + sizeof(ifr->ifr_name) + len);
+
+            // The body of this if statement should mirror the for loop above...
+            if (ifr->ifr_addr.sa_family == AF_INET)
+            {
+               char* s = inet_ntoa(((struct sockaddr_in*) &ifr->ifr_addr)->sin_addr);
+               UtlString address(s);
+               if (address.compareTo("127.0.0.1") != 0 && address.compareTo("0.0.0.0") != 0)
+               {
+                  localHostAddresses[numAddresses] = new HostAdapterAddress(ifr->ifr_name, s);
+                  OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                                "getAllLocalHostIps entry %d, interface '%s', address '%s'",
+                                numAddresses, ifr->ifr_name, s);
+                  numAddresses++;
+               }
+            }
+         }
+#endif
       }
       close(sock);
    }

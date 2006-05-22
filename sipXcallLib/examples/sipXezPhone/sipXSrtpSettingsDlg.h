@@ -1,15 +1,22 @@
-/////////////////////////////////////////////////////////////////////////////
-// Name:        sipXSrtpSettingsDlg.h
-// Author:      XX
-// Created:     XX/XX/XX
-// Copyright:   XX
-/////////////////////////////////////////////////////////////////////////////
+//
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// $$
+////////////////////////////////////////////////////////////////////////
+
 
 #ifndef __sipXSrtpSettingsDlg_H__
 #define __sipXSrtpSettingsDlg_H__
 
 #ifdef __GNUG__
-    #pragma interface "sipXVideoSettingsDlg.cpp"
+    #pragma interface "sipXSrtpSettingsDlg.cpp"
 #endif
 
 #ifndef WX_PRECOMP

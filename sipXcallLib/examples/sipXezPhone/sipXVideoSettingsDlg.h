@@ -1,5 +1,5 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        sipXezPhoneSettingsDlg.h
+// Name:        sipXezVideoSettingsDlg.h
 // Author:      XX
 // Created:     XX/XX/XX
 // Copyright:   XX

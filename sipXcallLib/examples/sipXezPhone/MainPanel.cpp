@@ -1,6 +1,12 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
 // Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -137,6 +143,7 @@ void MainPanel::CreateCallHistoryButton()
     bitmap.SetMask(new wxMask(bitmap, * (wxTheColourDatabase->FindColour("RED"))));
 
     mpCallHistoryBtn = new wxBitmapButton(this, IDR_CALL_HISTORY_BUTTON, bitmap, wxPoint(0, 190), wxSize(bitmap.GetWidth(),bitmap.GetHeight()), 0);
+    mpCallHistoryBtn->SetToolTip("Call History");
 
     wxColor btnColor = sipXezPhoneSettings::getInstance().getBackgroundColor();
     mpCallHistoryBtn->SetBackgroundColour(btnColor);
@@ -148,6 +155,7 @@ void MainPanel::CreateVideoButton()
     bitmap.SetMask(new wxMask(bitmap, * (wxTheColourDatabase->FindColour("RED"))));
 
     mpVideoBtn = new wxBitmapButton(this, IDR_VIDEO_BUTTON, bitmap, wxPoint(0, 130), wxSize(bitmap.GetWidth(),bitmap.GetHeight()), 0);
+    mpVideoBtn->SetToolTip("Video");
 
     wxColor btnColor = sipXezPhoneSettings::getInstance().getBackgroundColor();
     mpVideoBtn->SetBackgroundColour(btnColor);
@@ -159,22 +167,23 @@ void MainPanel::CreateConferencingButton()
     bitmap.SetMask(new wxMask(bitmap, * (wxTheColourDatabase->FindColour("RED"))));
 
     mpConferencingBtn = new wxBitmapButton(this, IDR_CONFERENCING_BUTTON, bitmap, wxPoint(219, 150), wxSize(bitmap.GetWidth(),bitmap.GetHeight()), 0);
+    mpConferencingBtn->SetToolTip("Conferencing");
 
     wxColor btnColor = sipXezPhoneSettings::getInstance().getBackgroundColor();
     mpConferencingBtn->SetBackgroundColour(btnColor);
 }
 
-void MainPanel::OnConferencingButton(wxEvent& event)
+void MainPanel::OnConferencingButton(wxCommandEvent& event)
 {
     thePhoneApp->getFrame().setConferencingVisible(! thePhoneApp->getFrame().getConferencingVisible());
 }
 
-void MainPanel::OnCallHistoryButton(wxEvent& event)
+void MainPanel::OnCallHistoryButton(wxCommandEvent& event)
 {
     thePhoneApp->getFrame().setCallHistoryVisible(! thePhoneApp->getFrame().getCallHistoryVisible());
 }
 
-void MainPanel::OnVideoButton(wxEvent& event)
+void MainPanel::OnVideoButton(wxCommandEvent& event)
 {
     if (!thePhoneApp->getFrame().getVideoVisible())
     {

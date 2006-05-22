@@ -1,6 +1,12 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
 // Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -216,9 +222,10 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg, const OsTime& rTimeout,
    ret = mEmpty.acquire(rTimeout);   // wait for there to be room in the queue
    if (ret != OS_SUCCESS)
    {
-      OsSysLog::add(FAC_KERNEL, PRI_CRIT,
+      // The caller should be responsible for logging this information
+      /*OsSysLog::add(FAC_KERNEL, PRI_CRIT,
                     "OsMsgQShared::doSend message send failed - no room, ret = %d",
-                    ret);
+                    ret);*/
       if (ret == OS_BUSY || ret == OS_WAIT_TIMEOUT)
          ret =  OS_WAIT_TIMEOUT;     // send timed out
    }

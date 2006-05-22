@@ -1,6 +1,12 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
 // Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -62,7 +68,7 @@ VolumeControlPanel::VolumeControlPanel(wxWindow* parent, const wxPoint& pos, con
 
 }
 
-void VolumeControlPanel::OnSpeakerSlider(wxEvent& event)
+void VolumeControlPanel::OnSpeakerSlider(wxScrollEvent& event)
 {
    if (VOLUME_MAX + 1 - mpVolumeControl->GetValue() != sipXmgr::getInstance().getSpeakerVolume())
    {
@@ -71,7 +77,7 @@ void VolumeControlPanel::OnSpeakerSlider(wxEvent& event)
    }
 }
 
-void VolumeControlPanel::OnMicrophoneSlider(wxEvent& event)
+void VolumeControlPanel::OnMicrophoneSlider(wxScrollEvent& event)
 {
    if (GAIN_MAX + 1 - mpMicGainControl->GetValue() != sipXmgr::getInstance().getMicGain())
    {

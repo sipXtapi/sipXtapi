@@ -291,7 +291,7 @@ AC_DEFUN([CHECK_SSL],
     found_ssl_lib="no";
     for libsubdir in lib lib64 lib32; do
       for dir in $openssl_path ; do
-        if test -f "$dir/$libsubdir/libssl.so" -o -f "$dir/$libsubdir/libssl.a"; then
+        if test -f "$dir/$libsubdir/libssl.so" -o -f "$dir/$libsubdir/libssl.dylib" -o -f "$dir/$libsubdir/libssl.a"; then
             found_ssl_lib="yes";
             ssllibdir="$dir/lib"
             break;
@@ -361,6 +361,43 @@ AC_DEFUN([CHECK_LIBRT],
    else
         AC_SUBST(RT_LIBS,"")
         AC_MSG_RESULT([not needed])
+   fi
+])
+
+
+# ============ L I B O B J C  =====================
+AC_DEFUN([CHECK_LIBOBJC],
+[
+   AC_MSG_CHECKING([for libobjc])
+
+   objc_found="no"
+   for dir in /lib /usr/lib /usr/local/lib; do
+      if test -f "$dir/libobjc.dylib"; then
+        objc_found="yes"
+        break;
+      fi
+   done
+   if test x_$objc_found = x_yes; then
+        AC_SUBST(OBJC_LIBS,"-lobjc /usr/lib/libstdc++.6.dylib")
+        AC_MSG_RESULT([-lobjc])
+   else
+        AC_SUBST(OBJC_LIBS,"")
+        AC_MSG_RESULT([not needed])
+   fi
+])
+
+
+# ============ C O R E A U D I O =======================
+AC_DEFUN([CHECK_COREAUDIO],
+[
+   AC_MSG_CHECKING([for CoreAudio])
+
+   if test "`uname`" == "Darwin"; then
+        AC_SUBST(CA_LIBS,"-framework CoreAudio -framework AudioToolbox")
+	AC_MSG_RESULT([yes])
+   else
+        AC_SUBST(CA_LIBS,"")
+	AC_MSG_RESULT([not needed])
    fi
 ])
 

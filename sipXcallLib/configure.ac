@@ -24,6 +24,7 @@ AC_PROG_CC
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
 
+CHECK_LIBOBJC
 CHECK_CPPUNIT
 
 SFAC_LIB_MEDIA
@@ -45,6 +46,7 @@ AC_ARG_ENABLE(call-examples,
 AM_CONDITIONAL(CALL_EXAMPLES, test x$enable_call_examples = xyes)
 
 SFAC_FEATURE_SIPX_EZPHONE
+AM_CONDITIONAL(BUILDEZPHONE, test x$enable_sipx_ezphone = xyes)
 
 AC_CONFIG_FILES([
   Makefile 

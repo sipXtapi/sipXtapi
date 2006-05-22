@@ -1,6 +1,12 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
 // Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -78,7 +84,7 @@ ContactListPanel::~ContactListPanel()
 }
 
 
-void ContactListPanel::OnAddContact(wxEvent& event)
+void ContactListPanel::OnAddContact(wxCommandEvent& event)
 {
     AddContactDlg dlg(this, -1, "Add Contact") ;
 
@@ -92,7 +98,7 @@ void ContactListPanel::OnAddContact(wxEvent& event)
 }
 
 
-void ContactListPanel::OnRemoveContact(wxEvent& event)
+void ContactListPanel::OnRemoveContact(wxCommandEvent& event)
 {
     long itemIndex = mpContactList->GetNextItem(-1, wxLIST_NEXT_ALL,
                                         wxLIST_STATE_SELECTED);

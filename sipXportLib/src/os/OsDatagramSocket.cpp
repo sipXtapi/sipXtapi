@@ -1,7 +1,13 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
 ////////////////////////////////////////////////////////////////////////
 //////
@@ -111,6 +117,7 @@ OsDatagramSocket::OsDatagramSocket(int remoteHostPortNum,
     }
 
     // Bind to the socket
+    memset(&localAddr, 0, sizeof(localAddr));
     localAddr.sin_family = AF_INET;
     localAddr.sin_port =
        htons(localHostPort == PORT_DEFAULT ? 0 : localHostPort);

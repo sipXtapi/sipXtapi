@@ -1,6 +1,12 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
 // Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -43,12 +49,12 @@ public:
    /**
     * Dial Button event handler
     */
-   void OnButtonClick(wxEvent& event);
+   void OnButtonClick(wxCommandEvent& event);
 
    /**
     * Combo box text entry handler
     */
-   void OnEnter(wxEvent& event);
+   void OnEnter(wxCommandEvent& event);
 
    /**
     * retrieve the text from the combo box

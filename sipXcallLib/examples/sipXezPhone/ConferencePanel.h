@@ -1,6 +1,12 @@
 //
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
 // Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
 // $$
 ////////////////////////////////////////////////////////////////////////
@@ -37,12 +43,12 @@ public:
    /**
     * Add Party Button event handler
     */
-   void OnAddParty(wxEvent& event);
+   void OnAddParty(wxCommandEvent& event);
 
    /**
     * Add Remove Button event handler
     */
-   void OnRemoveParty(wxEvent& event);
+   void OnRemoveParty(wxCommandEvent& event);
    
    void AddPartyToList(wxString sParty);
    

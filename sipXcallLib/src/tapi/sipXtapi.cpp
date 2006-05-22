@@ -1,7 +1,13 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
-// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
 ////////////////////////////////////////////////////////////////////////
 //////
@@ -2941,16 +2947,17 @@ SIPXTAPI_API SIPX_RESULT sipxAudioMute(const SIPX_INST hInst,
                 // convert from sipXtapi scale to 100 scale
                 int iAdjustedGain = (int) (double)((((double)pInst->micSetting.iGain / (double)GAIN_MAX)) * 100.0); 
                 rc = pInterface->setMicrophoneGain(iAdjustedGain);
-                assert(rc == OS_SUCCESS) ;
-
-                int iGain ;
-                
-                rc = pInterface->getMicrophoneGain(iGain);
-
-                assert(iGain == pInst->micSetting.iGain);                                             
                 if (rc == OS_SUCCESS)
                 {
-                    sr = SIPX_RESULT_SUCCESS ;
+                   int iGain ;
+
+                   rc = pInterface->getMicrophoneGain(iGain);
+
+                   assert(iGain == pInst->micSetting.iGain);                                             
+                   if (rc == OS_SUCCESS)
+                   {
+                      sr = SIPX_RESULT_SUCCESS ;
+                   }
                 }
             }
         }

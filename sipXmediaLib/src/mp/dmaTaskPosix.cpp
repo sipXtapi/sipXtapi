@@ -1,6 +1,8 @@
 // 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
-// Copyright (C) 2004 SIPfoundry Inc.
+// Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 // 
 // Copyright (C) 2004 Pingtel Corp.
@@ -117,7 +119,7 @@ static void * mediaSignaller(void * arg)
    struct sched_param realtime;
    int res;
 
-   if(geteuid() != 0)
+   if(geteuid() != 0 && getuid() != 0)
    {
       OsSysLog::add(FAC_MP, PRI_WARNING, "_REALTIME_LINUX_AUDIO_THREADS was defined but application does not have ROOT priv.");
    }
@@ -275,7 +277,7 @@ static void * soundCardReader(void * arg)
       pMsg->setBuf(MpBuf_getSamples(ob));
       pMsg->setLen(MpBuf_getNumSamples(ob));
 
-      if(MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
+      if(MpMisc.pMicQ && MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT) != OS_SUCCESS)
       {
          OsStatus  res;
          res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
@@ -345,7 +347,7 @@ static void * soundCardWriter(void * arg)
          }
       }
 
-      if(MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
+      if(MpMisc.pSpkQ && MpMisc.pSpkQ->receive((OsMsg*&) pMsg, OsTime::NO_WAIT) == OS_SUCCESS)
       {
          ob = (MpBufPtr) pMsg->getTag();
          assert(ob != NULL);
@@ -530,7 +532,7 @@ static int setupSoundCard(void)
 
 #include <sys/audio.h>
 
-int setupSoundCard(void)
+static int setupSoundCard(void)
 {
    int res, fd;
    audio_info_t info;
@@ -571,6 +573,160 @@ int setupSoundCard(void)
    return fd;
 }
 
+#elif defined(__MACH__) /* ] [ */
+
+/* On OS X, the media library will need to be linked with the CoreAudio and AudioToolbox frameworks. */
+
+#include <signal.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+
+#include <CoreAudio/CoreAudio.h>
+#include <AudioToolbox/AudioConverter.h>
+
+#define UPDATE_FREQUENCY 20
+
+static AudioDeviceID CoreAudio_output_id;
+static AudioStreamBasicDescription CoreAudio_device_desc, CoreAudio_local_desc;
+static AudioConverterRef CoreAudio_output_converter, CoreAudio_input_converter;
+static UInt32 CoreAudio_device_io_size;
+
+static int CoreAudio_socket[2];
+
+struct CoreAudio_data_desc {
+   void * data;
+   UInt32 size;
+};
+
+static OSStatus CoreAudio_data_proc(AudioConverterRef converter, UInt32 * size, void ** data, void * argument)
+{
+   struct CoreAudio_data_desc * desc = (struct CoreAudio_data_desc *) argument;
+   *size = desc->size;
+   *data = desc->data;
+   desc->size = 0;
+   return kAudioHardwareNoError;
+}
+
+static int CoreAudio_shutdown(void);
+
+static OSStatus CoreAudio_io(AudioDeviceID CoreAudio_output_id, const AudioTimeStamp * now, const AudioBufferList * input_data, const AudioTimeStamp * input_time, AudioBufferList * output_data, const AudioTimeStamp * output_time, void * client_data)
+{
+   /* 16000 bytes is 1 second of 8000 Hz 16-bit mono audio */
+   unsigned char buffer[16000 / UPDATE_FREQUENCY];
+   struct CoreAudio_data_desc desc;
+   UInt32 size;
+   
+   /* convert from native to local */
+   desc.size = CoreAudio_device_io_size;
+   desc.data = input_data->mBuffers[0].mData;
+   size = sizeof(buffer);
+   AudioConverterFillBuffer(CoreAudio_input_converter, CoreAudio_data_proc, &desc, &size, buffer);
+   /* we have to reset the converter or it remembers EOF */
+   AudioConverterReset(CoreAudio_input_converter);
+   
+   /* do I/O over the audio socket to the rest of the process, emulating a Linux-style /dev/dsp file descriptor */
+   if(write(CoreAudio_socket[0], buffer, size) < 0)
+      CoreAudio_shutdown();
+   memset(buffer, 0, size);
+   /* we need "size" bytes of data below, so don't reset it with the return value of read */
+   read(CoreAudio_socket[0], buffer, size);
+   
+   /* convert from local to native */
+   desc.size = size;
+   desc.data = buffer;
+   size = CoreAudio_device_io_size;
+   AudioConverterFillBuffer(CoreAudio_output_converter, CoreAudio_data_proc, &desc, &size, output_data->mBuffers[0].mData);
+   /* we have to reset the converter or it remembers EOF */
+   AudioConverterReset(CoreAudio_output_converter);
+   
+   return kAudioHardwareNoError;
+}
+
+static int setupSoundCard(void)
+{
+   UInt32 parm_size;
+   int error;
+   
+   if(socketpair(AF_UNIX, SOCK_STREAM, PF_UNSPEC, CoreAudio_socket) < 0)
+      goto fail;
+   /* avoid getting killed by the audio callback writing to the socket if the client closes it */
+   signal(SIGPIPE, SIG_IGN);
+   
+   parm_size = sizeof(CoreAudio_output_id);
+   error = AudioHardwareGetProperty(kAudioHardwarePropertyDefaultOutputDevice, &parm_size, &CoreAudio_output_id);
+   if(error != kAudioHardwareNoError)
+      goto fail_socket;
+   if(CoreAudio_output_id == kAudioDeviceUnknown)
+      goto fail_socket;
+   
+   parm_size = sizeof(CoreAudio_device_desc);
+   error = AudioDeviceGetProperty(CoreAudio_output_id, 0, 0, kAudioDevicePropertyStreamFormat, &parm_size, &CoreAudio_device_desc);
+   if(error != kAudioHardwareNoError)
+      goto fail_socket;
+   
+   CoreAudio_local_desc = CoreAudio_device_desc;
+   CoreAudio_local_desc.mSampleRate = 8000;
+   CoreAudio_local_desc.mFormatID = kAudioFormatLinearPCM;
+   CoreAudio_local_desc.mFormatFlags = kLinearPCMFormatFlagIsSignedInteger | kLinearPCMFormatFlagIsBigEndian | kLinearPCMFormatFlagIsPacked;
+   CoreAudio_local_desc.mBytesPerPacket = 2;
+   CoreAudio_local_desc.mFramesPerPacket = 1;
+   CoreAudio_local_desc.mBytesPerFrame = 2;
+   CoreAudio_local_desc.mChannelsPerFrame = 1;
+   CoreAudio_local_desc.mBitsPerChannel = 16;
+   
+   error = AudioConverterNew(&CoreAudio_device_desc, &CoreAudio_local_desc, &CoreAudio_input_converter);
+   if(error != kAudioHardwareNoError)
+      goto fail_socket;
+   error = AudioConverterNew(&CoreAudio_local_desc, &CoreAudio_device_desc, &CoreAudio_output_converter);
+   if(error != kAudioHardwareNoError)
+      goto fail_convert_input;
+   
+   parm_size = sizeof(CoreAudio_device_io_size);
+   error = AudioDeviceGetProperty(CoreAudio_output_id, 0, 0, kAudioDevicePropertyBufferSize, &parm_size, &CoreAudio_device_io_size);
+   if(error != kAudioHardwareNoError)
+      goto fail_convert_output;
+   
+   CoreAudio_device_io_size = ((int) CoreAudio_device_desc.mSampleRate / UPDATE_FREQUENCY) * CoreAudio_device_desc.mBytesPerFrame;
+   error = AudioDeviceSetProperty(CoreAudio_output_id, NULL, 0, 0, kAudioDevicePropertyBufferSize, parm_size, &CoreAudio_device_io_size);
+   if(error != kAudioHardwareNoError)
+      goto fail_convert_output;
+
+   error = AudioDeviceAddIOProc(CoreAudio_output_id, CoreAudio_io, NULL);
+   if(error != kAudioHardwareNoError)
+      goto fail_convert_output;
+   
+   error = AudioDeviceStart(CoreAudio_output_id, CoreAudio_io);
+   if(error != kAudioHardwareNoError)
+      goto fail_io_proc;
+   
+   return CoreAudio_socket[1];
+   
+fail_io_proc:
+   AudioDeviceRemoveIOProc(CoreAudio_output_id, CoreAudio_io);
+fail_convert_output:
+   AudioConverterDispose(CoreAudio_output_converter);
+fail_convert_input:
+   AudioConverterDispose(CoreAudio_input_converter);
+fail_socket:   
+   close(CoreAudio_socket[0]);
+   close(CoreAudio_socket[1]);
+fail:
+   return -1;
+}
+
+static int CoreAudio_shutdown(void)
+{
+   AudioDeviceStop(CoreAudio_output_id, CoreAudio_io);
+   AudioDeviceRemoveIOProc(CoreAudio_output_id, CoreAudio_io);
+   AudioConverterDispose(CoreAudio_output_converter);
+   AudioConverterDispose(CoreAudio_input_converter);
+   
+   /* the other side was closed by the client */
+   close(CoreAudio_socket[0]);
+   
+   return 0;
+}
+
 #else /* ] [ */
 
 #warning No POSIX sound driver available; building only the dummy sound driver.
@@ -583,7 +739,7 @@ void dmaShutdown(void)
 {
 }
 
-#endif /* __linux__, sun ] */
+#endif /* __linux__, sun, __MACH__ ] */
 
 #endif /* _INCLUDE_AUDIO_SUPPORT ] */
 

@@ -18,6 +18,7 @@ AC_PROG_CXX
 AC_PROG_CC
 
 # Checks for libraries.
+CHECK_COREAUDIO
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
