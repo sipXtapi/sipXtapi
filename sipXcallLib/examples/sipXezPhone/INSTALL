@@ -24,6 +24,7 @@ Contents:
     Launching the softphone
         Troubleshooting: Build problems
   Linux instructions
+  OS X instructions
   Please help!
 
 ====================
@@ -182,13 +183,50 @@ Troubleshooting: Runtime Problems
 Linux instructions
 ==================
 
-[Coming soon.]
+Prerequisites:
+--------------
+Make sure you have the following packages (or similarly named packages,
+depending on your distribution) installed:
+[Coming soon. Probably similar to the ones for OS X below.]
 
-As usual, run "autoreconf --install --force" and "./configure" in the
-sipXcallLib directory.
+Compile and install cppunit and wxWidgets, if they are not available as
+packages. Otherwise install packaged versions, including development packages.
 
-Then, in this directory, run "make".
+Compile and install sipXportLib, sipXtackLib, sipXmediaLib, sipXmediaAdapterLib,
+and sipXcallLib. As usual, run "autoreconf --install --force" for each, and then
+run ./configure. Make sure to use the --enable-tapi option to configure for
+sipXtackLib, the --enable-local-audio option to configure for sipXmediaLib, and
+the --enable-sipx-ezphone option to configure for sipXcallLib.
 
+
+=================
+OS X instructions
+=================
+
+Prerequisites:
+--------------
+Install Fink, and the following Fink packages:
+glib2-dev, pkgconfig, fileutils, libtool, pcre, openssl097-dev, ant
+
+Compile and install cppunit and wxWidgets (wxMac version). A standard tar xzvf,
+then "./configure --prefix=/usr/local && make && sudo make install" will do the
+trick for both of these.
+
+Follow the Linux instructions to build and install the main sipX packages. You
+may need to create a symbolic link named configure.in pointing at configure.ac,
+depending on your version of autoconf. ("ln -s configure.ac configure.in")
+
+You cannot directly run the sipXezPhone binary that has been installed! It must
+be packaged into an application bundle (a .app) to work correctly. Run the
+makeBundle.sh script in this directory, and give it the top-level sipX source
+path (i.e. the directory containing sipXportLib, sipXcallLib, etc.) as the first
+argument, and the sipX install prefix as the second argument. For instance:
+
+$ ./makeBundle.sh /Users/joeuser/sipfoundry/main /usr/local
+
+It will build a bundle named sipXezPhone.app, and a disk image sipXezPhone.dmg
+containing that bundle. You can now run the application by double clicking the
+bundle like any other OS X application, or distribute the disk image.
 
 ============
 Please help!
