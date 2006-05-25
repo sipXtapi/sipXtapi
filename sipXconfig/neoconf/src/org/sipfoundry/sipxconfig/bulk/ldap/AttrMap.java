@@ -18,6 +18,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.functors.NotNullPredicate;
+import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter.Index;
 
 /**
  * Information related to mapping LDAP attributes to User properties
@@ -29,11 +30,6 @@ public class AttrMap {
      * name of the group that will keep all users imported from LDAP
      */
     private String m_defaultGroupName;
-
-    /**
-     * LDAP attribute name for an attribute matched to username
-     */
-    private String m_identityAttributeName;
 
     /**
      * PIN to be used for Users that do not have PIN mapped
@@ -62,12 +58,8 @@ public class AttrMap {
         m_defaultPin = defaultPin;
     }
 
-    public void setIdentityAttributeName(String identityAttributeName) {
-        m_identityAttributeName = identityAttributeName;
-    }
-
     public String getIdentityAttributeName() {
-        return m_identityAttributeName;
+        return m_user2ldap.get(Index.USERNAME.getName());
     }
 
     public String getDefaultPin() {
@@ -84,5 +76,13 @@ public class AttrMap {
 
     public void setUserToLdap(Map<String, String> user2ldap) {
         m_user2ldap = user2ldap;
+    }
+
+    public void setAttribute(String field, String attribute) {
+        m_user2ldap.put(field, attribute);
+    }
+
+    public String getAttribute(String field) {
+        return m_user2ldap.get(field);
     }
 }

@@ -21,7 +21,6 @@
     </property>
     <property name="defaultGroupName" value="ldap imports" />
     <property name="defaultPin" value="1111" />
-    <property name="identityAttributeName" value="uid" />
   </bean>
 
   <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowinserter"

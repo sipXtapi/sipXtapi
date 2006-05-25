@@ -3,13 +3,14 @@
   <div class="help"><b>Quick Links</b>
   <ul>
     <li><a jwcid="@PageLink" page="JobStatusPage" href="#">Job Status</a></li>
+    <li><a jwcid="@PageLink" page="LdapServer" href="#">LDAP Server</a></li>
   </ul>
   </div>
   <div jwcid="@QuickHelp" value="message:quick.help"></div>
   <span jwcid="@ErrorMsg" />
   <form jwcid="importForm">
-    <fieldset jwcid="ldapConnectionPanel" />  
     <ul class="form-actions">
+      <li><input jwcid="verify" id="import:verify" type="submit" value="Verify" /></li>
       <li><input jwcid="import" id="import:ok" type="submit" value="Import" /></li>
     </ul>
 </form>
