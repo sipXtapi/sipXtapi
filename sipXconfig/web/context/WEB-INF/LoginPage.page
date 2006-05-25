@@ -5,6 +5,7 @@
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="loginContext" object="spring:loginContext"/>
   <inject property="userSession" type="state" object="userSession"/>
+  <inject property="skin" object="spring:skin"/>
   <property name="callback"  persist="session"/>
   <property name="userName" />
   <property name="password" />
@@ -12,7 +13,7 @@
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <!-- C O M P O N E N T S -->
   <component id="shell" type="Shell">
-    <binding name="stylesheet" value="assets.stylesheet"/>
+    <binding name="stylesheets" value="skin.stylesheetAssets"/>
     <binding name="title" value="message:title"/>
   </component>
   <component id="form" type="Form">
@@ -36,6 +37,4 @@
     <binding name="value" value="password"/>
     <binding name="hidden" value="true"/>
   </component>
-  <!-- A S S E T S -->
-  <asset name="stylesheet" path="context:css/sipxconfig.css"/>
 </page-specification>

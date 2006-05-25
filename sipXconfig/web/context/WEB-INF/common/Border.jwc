@@ -12,6 +12,7 @@
   <inject property="userSession" type="state" object="userSession"/>
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="restartService" object="engine-service:restart"/>
+  <inject property="skin" object="spring:skin"/>
   <inject property="webRequest" object="infrastructure:request"/>  
   
   <property name="baseURL" initial-value="webRequest.contextPath" />  
@@ -22,7 +23,7 @@
    -->
 
   <component id="shell" type="Shell">
-    <binding name="stylesheet" value="asset:stylesheet"/>
+    <binding name="stylesheets" value="skin.stylesheetAssets"/>
     <binding name="title" value="message:title"/>
     <!-- binding name="delegate" value="bean:ajaxDelegate" / -->    
   </component>
@@ -45,6 +46,5 @@
   <!--
   - A S S E T S
   -->
-  <asset name="stylesheet" path="context:css/sipxconfig.css"/>
   <asset name="dojoAsset" path="context:js/dojo" />  
 </component-specification>

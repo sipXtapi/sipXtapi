@@ -18,7 +18,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Predicate;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -49,7 +52,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private SettingDao m_settingDao;
 
-    private List m_availableModels;
+    private Collection m_availableModels;
 
     private BeanFactory m_beanFactory;
 
@@ -58,13 +61,37 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private Map m_modelCache = new HashMap();
 
     private PhoneDefaults m_phoneDefaults;
+    
+    private Pattern m_certifiedPhoneRegex;
 
-    public List getAvailablePhoneModels() {
-        return m_availableModels;
+    public Collection getAvailablePhoneModels() {
+        Collection models = m_availableModels;
+        if (m_certifiedPhoneRegex != null) {
+            models = CollectionUtils.select(m_availableModels, 
+                    new CertifiedPhones(m_certifiedPhoneRegex));
+        }
+        return models;
     }
 
-    public void setAvailablePhoneModels(List models) {
+    public void setAvailablePhoneModels(Collection models) {
         m_availableModels = models;
+    }
+    
+    public void setCertifiedPhones(String certifiedRegex) {
+        m_certifiedPhoneRegex = Pattern.compile(certifiedRegex);
+    }
+    
+    static class CertifiedPhones implements Predicate {
+        private Pattern m_pattern;
+        public CertifiedPhones(Pattern pattern) {
+            m_pattern = pattern;
+        }
+
+        public boolean evaluate(Object object) {
+            PhoneModel model = (PhoneModel) object;
+            boolean certified = m_pattern.matcher(model.getName()).matches();
+            return certified;
+        }
     }
 
     public void setSettingDao(SettingDao settingDao) {

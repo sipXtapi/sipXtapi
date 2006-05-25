@@ -63,7 +63,7 @@ li.tab.active a:visited
 {
 	color: #fff;
 	border-bottom-color: #669999;
-	background: url(/sipxconfig/images/sipxconfig-logo.png) no-repeat left #669999;
+	background: url(/sipxconfig/images/logo.png) no-repeat left #669999;
 }
 
 #banner-links a

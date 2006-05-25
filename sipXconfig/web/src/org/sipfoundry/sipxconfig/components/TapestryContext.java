@@ -29,6 +29,17 @@ import org.sipfoundry.sipxconfig.common.UserException;
  * Tapestry utilities available to web pages
  */
 public class TapestryContext {
+    public static final String CONTEXT_BEAN_NAME = "tapestry";
+
+    private HivemindContext m_hivemindContext;
+    
+    public void setHivemindContext(HivemindContext hivemindContext) {
+        m_hivemindContext = hivemindContext;
+    }
+    
+    public HivemindContext getHivemindContext() {
+        return m_hivemindContext;
+    }
 
     /**
      * Add a option to the dropdown model with a label to instruct the user to make a selection.

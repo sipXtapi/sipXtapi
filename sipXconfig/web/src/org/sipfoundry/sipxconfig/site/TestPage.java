@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.site;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -241,7 +242,7 @@ public abstract class TestPage extends BasePage {
     }
 
     public void populatePhones() {
-        List availablePhoneModels = getPhoneContext().getAvailablePhoneModels();
+        Collection availablePhoneModels = getPhoneContext().getAvailablePhoneModels();
         for (Iterator i = availablePhoneModels.iterator(); i.hasNext();) {
             PhoneModel model = (PhoneModel) i.next();
             Phone phone = getPhoneContext().newPhone(model);

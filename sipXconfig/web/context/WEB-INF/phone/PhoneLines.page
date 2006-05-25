@@ -63,9 +63,4 @@
   <component id="moveDown" type="Submit">
     <binding name="listener" value="listener:moveLineDown"/>
   </component>
-  <!--
-    - A S S E T S
-    -->
-  <!-- TODO Find some way to define this globally -->
-  <asset name="stylesheet" path="context:css/sipxconfig.css"/>
 </page-specification>
