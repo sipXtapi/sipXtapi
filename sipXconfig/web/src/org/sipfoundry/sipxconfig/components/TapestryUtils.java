@@ -18,8 +18,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Messages;
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
+import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.contrib.table.model.IAdvancedTableColumn;
@@ -149,13 +149,13 @@ public final class TapestryUtils {
      * 
      * @param page
      * @return validation delegate component
-     */
-    public static IValidationDelegate getValidator(AbstractComponent page) {
+     */    
+    public static IValidationDelegate getValidator(IComponent page) {
         IValidationDelegate validator = (IValidationDelegate) page.getBeans().getBean(VALIDATOR);
         return validator;
     }
 
-    public static void recordSuccess(AbstractComponent page, String msg) {
+    public static void recordSuccess(IComponent page, String msg) {
         IValidationDelegate delegate = getValidator(page);
         if (delegate instanceof SipxValidationDelegate) {
             SipxValidationDelegate validator = (SipxValidationDelegate) delegate;

@@ -20,4 +20,11 @@ public interface LdapManager {
     AttrMap getAttrMap();
 
     void setAttrMap(AttrMap attrMap);
+    
+    /**
+     * Check LDAP connection for the provided connection params
+     *
+     * @throws UserException if connection is not possible for some reason
+     */
+    void verify(LdapConnectionParams params, AttrMap attrMap);
 }

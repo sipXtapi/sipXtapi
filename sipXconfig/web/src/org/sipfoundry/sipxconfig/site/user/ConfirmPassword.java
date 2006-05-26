@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.site.user;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
@@ -51,7 +50,7 @@ public abstract class ConfirmPassword extends BaseComponent {
         if (cycle.isRewinding()) {
             // The user typed in the password twice.  Make sure that it was the same both times.
             IValidationDelegate delegate =
-                TapestryUtils.getValidator((AbstractComponent) cycle.getPage());
+                TapestryUtils.getValidator(cycle.getPage());
             String password = StringUtils.defaultIfEmpty(getPassword(), StringUtils.EMPTY);
             String confirmPassword = StringUtils.defaultIfEmpty(getConfirmPassword(), StringUtils.EMPTY);
             if (!password.equals(confirmPassword)) {

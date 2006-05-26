@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import java.util.Collection;
 
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IMarkupWriter;
@@ -63,7 +62,7 @@ public abstract class GroupActions extends BaseComponent {
 
         // record success
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
-                .getValidator((AbstractComponent) getPage());
+                .getValidator(getPage());
         validator.recordSuccess(action.getSuccessMsg(getContainer().getMessages()));
     }
 }

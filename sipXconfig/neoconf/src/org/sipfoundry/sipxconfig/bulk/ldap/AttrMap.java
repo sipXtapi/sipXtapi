@@ -18,6 +18,7 @@ import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.functors.NotNullPredicate;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter.Index;
 
 /**
@@ -35,6 +36,21 @@ public class AttrMap {
      * PIN to be used for Users that do not have PIN mapped
      */
     private String m_defaultPin;
+
+    /**
+     * Starting point of the search
+     */
+    private String m_searchBase;
+
+    /**
+     * Object class containing user attributes.
+     * 
+     * This is used in a filter that selects user related entries. It's perfectly OK to use
+     * attributes from other object class in the mapping.
+     * 
+     * At some point we may require listing of all supported object classes.
+     */
+    private String m_objectClass;
 
     /**
      * Returns non null LDAP attributes. Used to limit search results.
@@ -72,6 +88,28 @@ public class AttrMap {
 
     public String getDefaultGroupName() {
         return m_defaultGroupName;
+    }
+
+    public void setSearchBase(String searchBase) {
+        m_searchBase = searchBase;
+    }
+
+    public String getSearchBase() {
+        return m_searchBase;
+    }
+
+    public void setObjectClass(String objectClass) {
+        m_objectClass = objectClass;
+    }
+
+    /**
+     * @return filter string based on object class selected by the user
+     */
+    public String getFilter() {
+        if (m_objectClass == null) {
+            return StringUtils.EMPTY;
+        }
+        return String.format("objectclass=%s", m_objectClass);        
     }
 
     public void setUserToLdap(Map<String, String> user2ldap) {

@@ -12,7 +12,6 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IActionListener;
@@ -55,7 +54,7 @@ public abstract class FormActions extends BaseComponent {
     }
 
     private void apply(IRequestCycle cycle) {
-        IValidationDelegate validator = TapestryUtils.getValidator((AbstractComponent) getPage());
+        IValidationDelegate validator = TapestryUtils.getValidator(getPage());
         IActionListener listener = getListener();
         IActionListener adapter = new TapestryContext.UserExceptionAdapter(validator, listener);
         adapter.actionTriggered(this, cycle);

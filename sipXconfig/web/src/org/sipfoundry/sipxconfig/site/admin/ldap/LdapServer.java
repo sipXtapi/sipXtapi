@@ -55,8 +55,15 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
         if (!TapestryUtils.isValid((AbstractPage) getPage())) {
             return;
         }
+        LdapConnectionParams connectionParams = getConnectionParams();
+        AttrMap attrMap = getAttrMap();
+        LdapManager ldapManager = getLdapManager();
+        // check if we can connect to LDAP - throws user exception if there are any problems
+        ldapManager.verify(connectionParams, attrMap);
         // save new connection params
-        getLdapManager().setConnectionParams(getConnectionParams());        
+        ldapManager.setConnectionParams(connectionParams);
+        ldapManager.setAttrMap(attrMap);
+
         setStage("attrs");
     }
 
@@ -64,7 +71,7 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
         if (!TapestryUtils.isValid((AbstractPage) getPage())) {
             return null;
         }
-        getLdapManager().setAttrMap(getAttrMap());        
+        getLdapManager().setAttrMap(getAttrMap());
         return LdapImport.PAGE;
     }
 }

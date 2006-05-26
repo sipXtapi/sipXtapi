@@ -56,5 +56,4 @@ public class LdapConnectionParamsTest extends TestCase {
 
         templateCtrl.verify();
     }
-
 }

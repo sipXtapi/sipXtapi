@@ -18,7 +18,6 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.util.PropertyUtils;
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.AbstractPage;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
@@ -189,7 +188,7 @@ public abstract class UserForm extends BaseComponent implements PageEndRenderLis
     }
 
     private void recordError(String messageId, String arg) {
-        IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
+        IValidationDelegate delegate = TapestryUtils.getValidator(getPage());
         
         String message = MessageFormat.format(
                 getMessages().getMessage(messageId), new Object[] {arg});

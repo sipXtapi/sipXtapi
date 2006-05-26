@@ -44,4 +44,11 @@ public class AttrMapTest extends TestCase {
         Collection<String> ldapAttributes = m_map.getLdapAttributes();
         assertTrue(ldapAttributes.contains(m_map.getIdentityAttributeName()));
     }
+    
+    public void testGetFilter() {
+        AttrMap map = new AttrMap();
+        assertEquals("", map.getFilter());
+        map.setObjectClass("person");
+        assertEquals("objectclass=person", map.getFilter());        
+    }
 }
