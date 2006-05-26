@@ -21,7 +21,7 @@ install : $(INSTALL_GEM)
 .PHONY: package-gem
 package-gem :
 	pushd .; rm -rf $(srcdir)/pkg; \
-	cd $(srcdir) && rake callresolver_version=1.0.0 builddir=. package; \
+	cd $(srcdir) && rake callresolver_version=1.0.0 builddir=$(top_builddir)/src/cdr package; \
 	popd
 
 .PHONY: install-gem 
@@ -30,8 +30,6 @@ install-gem : package-gem
 	gem install \
 	  --install-dir $(GEM_LIB_DIR) \
 	  --local $(srcdir)/pkg/sipxcallresolver
-	mv $(srcdir)/pkg/sipxcallresolver*.gem $(top_builddir)/src/cdr
-	rm -rf $(srcdir)/pkg
 
 # gems are copied into installation and will be installed on host machine
 # later
