@@ -31,7 +31,7 @@ public
   # The Run class holds the info needed to run a process
   class Run
     attr_accessor :command, :parameters, :defaultdir
-    def initialize(command, parameters, defaultdir)
+    def initialize(command, parameters = nil, defaultdir = nil)
       @command = command
       @parameters = parameters
       @defaultdir = defaultdir
@@ -67,9 +67,13 @@ private
       parameters = element.attributes['parameters']
       defaultdir = element.attributes['defaultdir']
       if @run
-        raise("Process config #{config_file} contains multiple 'run' elements")
+        raise("The config file #{config_file} contains multiple 'run' elements")
       end
       @run = Run.new(command, parameters, defaultdir)
+    end
+    
+    unless @run and @run.command
+      raise("Configuration info is missing.  The config file \"#{config_file.path}\" does not describe how to run the process.")
     end
   end
 
