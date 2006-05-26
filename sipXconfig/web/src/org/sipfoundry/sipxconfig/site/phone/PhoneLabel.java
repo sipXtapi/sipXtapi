@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import java.text.MessageFormat;
 
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -49,7 +48,7 @@ public abstract class PhoneLabel extends BaseComponent {
     }
 
     private void recordError(String messageId, String param) {
-        IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
+        IValidationDelegate delegate = TapestryUtils.getValidator(getPage());
         MessageFormat format = new MessageFormat(getMessages().getMessage(messageId));
         String message = format.format(new Object[] {
             param

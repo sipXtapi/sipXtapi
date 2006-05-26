@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin;
 
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
@@ -66,8 +65,7 @@ public abstract class ExtensionPoolsPage extends PageWithCallback {
      * Utilities
      */
     private void recordError(String messageId) {
-        IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
+        IValidationDelegate delegate = TapestryUtils.getValidator(getPage());
         delegate.record(getMessages().getMessage(messageId), ValidationConstraint.TOO_SMALL);
     }
-
 }

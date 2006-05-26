@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.AbstractComponent;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
@@ -72,7 +71,7 @@ public abstract class UserSearch extends BaseComponent {
         // components.
         setUsers(new ArrayList(results));
         // record success message
-        IValidationDelegate delegate = TapestryUtils.getValidator((AbstractComponent) getPage());
+        IValidationDelegate delegate = TapestryUtils.getValidator(getPage());
         if (delegate instanceof SipxValidationDelegate) {
             SipxValidationDelegate validator = (SipxValidationDelegate) delegate;
             if (results.size() < MAX_RESULT) {

@@ -56,6 +56,7 @@
     <page name="Home" specification-path="Home.page"/>
     <page name="JobStatusPage" specification-path="admin/JobStatusPage.page"/>    
     <page name="LdapImport" specification-path="admin/ldap/LdapImport.page"/>        
+    <page name="LdapServer" specification-path="admin/ldap/LdapServer.page"/>        
     <page name="ListCallGroups" specification-path="admin/ListCallGroups.page"/>    
     <page name="LineSettings" specification-path="line/LineSettings.page"/>
     <page name="ListGateways" specification-path="gateway/ListGateways.page"/>
@@ -118,6 +119,7 @@
     <component-type type="GroupTable" specification-path="setting/GroupTable.jwc"/>
     <component-type type="HolidaysEditor" specification-path="dialplan/HolidaysEditor.jwc"/>
     <component-type type="ItemCommon" specification-path="common/ItemCommon.jwc"/>
+    <component-type type="LdapAttrMapPanel" specification-path="admin/ldap/LdapAttrMapPanel.jwc"/>
     <component-type type="LdapConnectionPanel" specification-path="admin/ldap/LdapConnectionPanel.jwc"/>
     <component-type type="LineLabel" specification-path="line/LineLabel.jwc"/>
     <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>

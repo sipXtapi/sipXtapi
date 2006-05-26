@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
-import java.text.MessageFormat;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -57,7 +55,7 @@ public class LdapConnectionParams {
     }
 
     private String getUrl() {
-        return MessageFormat.format("ldap://{0}:{1}", m_host, m_port);
+        return String.format("ldap://%s:%d", m_host, m_port);
     }
 
     public void applyToTemplate(JndiLdapTemplate template) {

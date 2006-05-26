@@ -19,9 +19,9 @@
         <entry key="userGroupName" value="ou" />
       </map>
     </property>
-    <property name="defaultGroupName" value="ldap imports" />
+    <property name="defaultGroupName" value="ldap_imports" />
     <property name="defaultPin" value="1111" />
-    <property name="identityAttributeName" value="uid" />
+    <property name="objectClass" value="person" />
   </bean>
 
   <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowinserter"
@@ -48,6 +48,9 @@
     </property>
     <property name="attrMap">
       <ref local="attrMap" />
+    </property>
+    <property name="jndiTemplate">
+      <ref local="jndiTemplate"/>
     </property>
   </bean>
 

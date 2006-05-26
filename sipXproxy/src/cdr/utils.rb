@@ -52,18 +52,6 @@ public
     end
   end
  
-  def Utils.contact_ip_addr(contact)
-    # Extract the host part of the contact
-    host = contact_host(contact)
-
-    # Resolve the host to an IP address, if it's a domain name
-    if SipxIPSocket.valid_ipaddr?(host)
-      host
-    else
-      SocketUtils.ip_address_from_domain_name(host)
-    end
-  end
-
   # Look for the char in the str.  If found, then remove that char and everything
   # after it.  Return the str.
   def Utils.remove_part_of_str_beginning_with_char(str, char)

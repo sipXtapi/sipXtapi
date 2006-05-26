@@ -27,7 +27,9 @@
     <binding name="listener"
       value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.importLdap)" />
   </component>
-  <component id="ldapConnectionPanel" type="LdapConnectionPanel">
-    <binding name="lcp" value="ldapManager.connectionParams"/>
+  <component id="verify" type="Submit">
+    <binding name="value" value="message:label.verify" />
+    <binding name="listener"
+      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.verifyLdap)" />
   </component>
 </page-specification>
