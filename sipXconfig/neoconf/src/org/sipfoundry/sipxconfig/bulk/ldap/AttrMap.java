@@ -101,6 +101,10 @@ public class AttrMap {
     public void setObjectClass(String objectClass) {
         m_objectClass = objectClass;
     }
+    
+    public String getObjectClass() {
+        return m_objectClass;
+    }
 
     /**
      * @return filter string based on object class selected by the user

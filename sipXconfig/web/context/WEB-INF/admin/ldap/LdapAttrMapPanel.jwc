@@ -10,6 +10,28 @@
   <!--
     - C O M P O N E N T S
   -->
+  <component id="searchBasePanel" type="FieldPanel">
+    <binding name="field" value="components.searchBase" />
+    <binding name="label" value="message:label.searchBase" />
+    <binding name="description" value="message:description.searchBase" />
+  </component>
+  <component id="searchBase" type="TextField">
+    <binding name="value" value="attrMap.searchBase" />
+    <binding name="validators" value="validators:required,maxLength=255" />
+    <binding name="displayName" value="message:label.searchBase" />
+  </component>
+
+  <component id="objectClassPanel" type="FieldPanel">
+    <binding name="field" value="components.objectClass" />
+    <binding name="label" value="message:label.objectClass" />
+    <binding name="description" value="message:description.objectClass" />
+  </component>
+  <component id="objectClass" type="TextField">
+    <binding name="value" value="attrMap.objectClass" />
+    <binding name="validators" value="validators:required,maxLength=255" />
+    <binding name="displayName" value="message:label.objectClass" />
+  </component>
+
   <component id="userNamePanel" type="FieldPanel">
     <binding name="field" value="components.userName" />
     <binding name="label" value="message:label.userName" />
