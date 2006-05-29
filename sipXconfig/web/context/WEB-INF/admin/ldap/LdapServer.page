@@ -10,6 +10,9 @@
 
   <property name="connectionParams" />
   <property name="attrMap" />
+  <property name="schema" persist="session" />
+  <property name="selectedObjectClasses" persist="session" />
+  <property name="selectedAttributes" persist="session" />
 
   <property name="stage" persist="client" />
 
@@ -36,9 +39,24 @@
       value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.applyConnectionParams)" />
   </component>
 
+  <!-- object class selection stage -->
+  <component id="ldapObjectClassPanel" type="LdapObjectClassPanel">
+    <binding name="objectClasses" value="schema.objectClassesNames" />
+    <binding name="selectedObjectClasses" value="selectedObjectClasses" />
+  </component>
+  <component id="applyObjectClassesSelection" type="Submit">
+    <binding name="value" value="message:label.continue" />
+    <binding name="action"
+      value="tapestry.treatUserExceptionAsValidationError(beans.validator, listeners.applyObjectClassesSelection)" />
+  </component>
+
   <!-- attribute mapping stage -->
   <component id="ldapAttrMapPanel" type="LdapAttrMapPanel">
     <binding name="attrMap" value="attrMap" />
+    <binding name="objectClassesSelectionModel" value="objectClassesSelectionModel" />
+    <binding name="attributesSelectionModel" value="attributesSelectionModel" />
+    <binding name="attributesOptionalSelectionModel"
+      value="tapestry.addExtraOption(attributesSelectionModel, '')" />
   </component>
   <component id="applyAttrMap" type="Submit">
     <binding name="value" value="message:label.continue" />

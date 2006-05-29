@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
@@ -25,6 +26,8 @@ import org.sipfoundry.sipxconfig.common.UserException;
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
  */
 public class LdapManagerImpl implements LdapManager {
+    public static final String FILTER_ALL_CLASSES = "objectclass=*";
+
     public static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
 
     private AttrMap m_attrMap;
@@ -53,7 +56,7 @@ public class LdapManagerImpl implements LdapManager {
         m_jndiTemplate = jndiTemplate;
     }
 
-    public void verify(LdapConnectionParams params, AttrMap attrMap) {
+    public Schema verify(LdapConnectionParams params, AttrMap attrMap) {
         params.applyToTemplate(m_jndiTemplate);
 
         try {
@@ -62,6 +65,8 @@ public class LdapManagerImpl implements LdapManager {
             if (StringUtils.isBlank(attrMap.getSearchBase())) {
                 attrMap.setSearchBase(searchBase);
             }
+            
+            return retrieveSchema();
         } catch (NamingException e) {
             LOG.debug("Verifying LDAP connection failed.", e);
             throw new UserException("Cannot connect to LDAP server: " + e.getMessage());
@@ -87,7 +92,7 @@ public class LdapManagerImpl implements LdapManager {
         cons.setReturningAttributes(attrs);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
         NamingEnumeration<SearchResult> results = m_jndiTemplate
-                .search("", "objectclass=*", cons);
+                .search("", FILTER_ALL_CLASSES, cons);
         // only interested in the first result
         if (results.hasMore()) {
             SearchResult result = results.next();
@@ -95,4 +100,31 @@ public class LdapManagerImpl implements LdapManager {
         }
         return StringUtils.EMPTY;
     }
+    
+    
+    private Schema retrieveSchema() throws NamingException {
+        SearchControls cons = new SearchControls();
+        String[] attrs = new String[] {
+            "objectClasses"
+        };
+
+        cons.setReturningAttributes(attrs);
+        cons.setSearchScope(SearchControls.OBJECT_SCOPE);
+        NamingEnumeration<SearchResult> results = m_jndiTemplate
+                .search("cn=subSchema", FILTER_ALL_CLASSES, cons);
+        // only interested in the first result
+        
+        Schema schema = new Schema();
+        if (!results.hasMore()) {
+            return schema;
+        }
+        SearchResult result = results.next();
+        NamingEnumeration definitions = result.getAttributes().get(attrs[0]).getAll();
+        while (definitions.hasMoreElements()) {
+            String classDefinition = (String) definitions.nextElement();
+            schema.addClassDefinition(classDefinition);            
+        }
+        return schema;
+    }
+    
 }

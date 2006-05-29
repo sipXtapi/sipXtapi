@@ -121,6 +121,7 @@
     <component-type type="ItemCommon" specification-path="common/ItemCommon.jwc"/>
     <component-type type="LdapAttrMapPanel" specification-path="admin/ldap/LdapAttrMapPanel.jwc"/>
     <component-type type="LdapConnectionPanel" specification-path="admin/ldap/LdapConnectionPanel.jwc"/>
+    <component-type type="LdapObjectClassPanel" specification-path="admin/ldap/LdapObjectClassPanel.jwc"/>
     <component-type type="LineLabel" specification-path="line/LineLabel.jwc"/>
     <component-type type="LineNavigation" specification-path="line/LineNavigation.jwc"/>
     <component-type type="MusicOnHoldForm" specification-path="admin/MusicOnHoldForm.jwc"/>
