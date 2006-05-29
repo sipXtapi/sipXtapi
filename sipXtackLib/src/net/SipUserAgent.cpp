@@ -3933,8 +3933,8 @@ void SipUserAgent::prepareVia(SipMessage& message,
                 {
                     // contact is a stunned address, corresponding to 
                     // the local address in the via, so, use it
-                    viaAddress = stunnedContacts[j]->cIpAddress;
-                    viaPort = stunnedContacts[j]->iPort;
+                    viaAddress = relayContacts[j]->cIpAddress;
+                    viaPort = relayContacts[j]->iPort;
                     bFound = true;
                     break;
                 }
