@@ -16,6 +16,7 @@
 #include "utl/UtlRandom.h"
 #include "os/OsTime.h"
 #include "os/OsDateTime.h"
+#include "os/OsTask.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -29,18 +30,22 @@
 // Constructor
 UtlRandom::UtlRandom()
 {
-    static int count = 0 ;
-
+    int iTaskId = 0 ;
     OsTime now ;
+    unsigned int seed ;
+
+    OsTask::getCurrentTaskId(iTaskId) ;      
     OsDateTime::getCurTime(now) ;
-    srand((int) (now.cvtToMsecs() % INT_MAX) ^ ++count) ;
+
+    seed = (now.cvtToMsecs() ^ (now.usecs() + now.usecs() << 16) ^ iTaskId) ;
+
+    srand(seed) ;
 }
 
 // Constructor
 UtlRandom::UtlRandom(int seed)
 {
     srand(seed) ;
-
 }
 
 // Destructor
