@@ -1158,12 +1158,18 @@ OsStatus CpPhoneMediaInterface::playChannelAudio(int connectionId,
                                                  UtlBoolean mixWithMic,
                                                  int downScaling) 
 {
+    // TODO:: This API is designed to record the audio from a single channel.  
+    // If the connectionId is -1, record all.
+
     return playAudio(url, repeat, local, remote, mixWithMic, downScaling) ;
 }
 
 
 OsStatus CpPhoneMediaInterface::stopChannelAudio(int connectionId) 
 {
+    // TODO:: This API is designed to record the audio from a single channel.  
+    // If the connectionId is -1, record all.
+
     return stopAudio() ;
 }
 
@@ -1171,12 +1177,26 @@ OsStatus CpPhoneMediaInterface::stopChannelAudio(int connectionId)
 OsStatus CpPhoneMediaInterface::recordChannelAudio(int connectionId,
                                                    const char* szFile) 
 {
-    return OS_NOT_SUPPORTED ;
+    // TODO:: This API is designed to record the audio from a single channel.  
+    // If the connectionId is -1, record all.
+
+    // 
+    // Also -- not sure of the if the spkr is the correct place to record -- 
+    // this probably doesn't include mic data...
+    ///
+
+    double duration = 0 ;
+    int dtmf = 0 ;
+    return mpFlowGraph->record(1, -1, NULL, NULL, szFile) ;
 }
 
 OsStatus CpPhoneMediaInterface::stopRecordChannelAudio(int connectionId) 
 {
-    return OS_NOT_SUPPORTED ;
+    // TODO:: This API is designed to record the audio from a single channel.  
+    // If the connectionId is -1, record all.
+
+
+    return stopRecording() ;
 }
 
 
@@ -2137,7 +2157,7 @@ void CpPhoneMediaInterface::applyAlternateDestinations(int connectionId)
 {
     UtlString destAddress ;
     int       destPort ;
-    int       rc ;
+
     CpPhoneMediaConnection* pMediaConnection = getMediaConnection(connectionId);
 
     if (pMediaConnection)
