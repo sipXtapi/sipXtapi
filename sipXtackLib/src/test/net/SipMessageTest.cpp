@@ -36,6 +36,7 @@ class SipMessageTest : public CppUnit::TestCase
       CPPUNIT_TEST(testGetAddrVia);
       CPPUNIT_TEST(testGetNoBranchVia);
       CPPUNIT_TEST(testGetViaPort);
+      CPPUNIT_TEST(testGetViaFieldSubField);
       CPPUNIT_TEST(testGetEventField);
       CPPUNIT_TEST(testGetToAddress);
       CPPUNIT_TEST(testGetFromAddress);
@@ -393,6 +394,87 @@ class SipMessageTest : public CppUnit::TestCase
          
          ASSERT_STR_EQUAL(correctBody,theBody.data());
       };
+
+
+   void testGetViaFieldSubField()
+      {
+         // Test that the getViaFieldSubField method returns the right results,
+         // especially when Via values are combined in one header.
+
+         const char* message1 = 
+            "SIP/2.0 481 Call Leg/Transaction Does Not Exist\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37,"
+            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37,"
+            "SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37,"
+            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37,"
+            "SIP/2.0/UDP 10.0.8.90:5060;branch=z9hG4bK5fa09267\r\n"
+            "From: \"joanne brunet\" <sip:245@jaguar.local>;tag=0002fd3bb5770ab64fcc4d65-34791f85\r\n"
+            "To: <sip:*4706@jaguar.local>\r\n"
+            "Call-ID: 0002fd3b-b5770020-6a00fe74-11feac1a@10.0.8.90\r\n"
+            "Date: Wed, 19 Apr 2006 13:19:40 GMT\r\n"
+            "CSeq: 101 INVITE\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         // Same as message1, but with each Via value in a separate header.
+         const char* message2 = 
+            "SIP/2.0 481 Call Leg/Transaction Does Not Exist\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37\r\n"
+            "Via: SIP/2.0/UDP 10.0.8.90:5060;branch=z9hG4bK5fa09267\r\n"
+            "From: \"joanne brunet\" <sip:245@jaguar.local>;tag=0002fd3bb5770ab64fcc4d65-34791f85\r\n"
+            "To: <sip:*4706@jaguar.local>\r\n"
+            "Call-ID: 0002fd3b-b5770020-6a00fe74-11feac1a@10.0.8.90\r\n"
+            "Date: Wed, 19 Apr 2006 13:19:40 GMT\r\n"
+            "CSeq: 101 INVITE\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         // The Via values.
+         const char* (vias[]) = {
+            "SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-80e0607bee4944e9ecb678caae8638d5;received=10.0.11.37",
+            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-379fceb40dc3c5716a3f167d93ceadf4;received=10.0.11.37",
+            "SIP/2.0/UDP 10.0.11.35:5080;branch=z9hG4bK-d05de917f970cd88ea048891ea57f140;received=10.0.11.37",
+            "SIP/2.0/UDP 10.0.11.35;branch=z9hG4bK-09d4d158ad31b82192efa4795b49df90;received=10.0.11.37",
+            "SIP/2.0/UDP 10.0.8.90:5060;branch=z9hG4bK5fa09267",
+         };
+
+         UtlString value;
+         unsigned int i;
+
+         SipMessage testMessage1(message1, strlen(message1));
+
+         for (i = 0;
+              i < sizeof (vias) / sizeof (vias[0]) &&
+                 testMessage1.getViaFieldSubField(&value, i);
+              i++)
+         {
+            char buffer[100];
+            sprintf(buffer,
+                    "testMessage1.getViaFieldSubField(..., %d) == vias[%d]",
+                    i, i);
+            ASSERT_STR_EQUAL_MESSAGE(buffer, vias[i], value.data());
+         }
+         CPPUNIT_ASSERT_EQUAL(i, sizeof (vias) / sizeof (vias[0]));
+
+         SipMessage testMessage2(message2, strlen(message2));
+
+         for (i = 0;
+              i < sizeof (vias) / sizeof (vias[0]) &&
+                 testMessage2.getViaFieldSubField(&value, i);
+              i++)
+         {
+            char buffer[100];
+            sprintf(buffer,
+                    "testMessage2.getViaFieldSubField(..., %d) == vias[%d]",
+                    i, i);
+            ASSERT_STR_EQUAL_MESSAGE(buffer, vias[i], value.data());
+         }
+         CPPUNIT_ASSERT_EQUAL(i, sizeof (vias) / sizeof (vias[0]));
+      };
+
 
    void testGetEventField()
       {

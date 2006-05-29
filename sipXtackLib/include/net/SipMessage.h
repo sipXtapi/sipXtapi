@@ -806,8 +806,13 @@ public:
 
     UtlBoolean getWarningCode(int* warningCode, int index = 0) const;
 
+    // Retrieves the index-th Via: header as it appears in the message,
+    // but does not parse Via: headers for ",".
+    // You probably want to use getViaFieldSubField().
     UtlBoolean getViaField(UtlString* viaField, int index) const;
 
+    // Retrieves the index-th logical Via: header value, folding together
+    // all the Via: headers and parsing ",".
     UtlBoolean getViaFieldSubField(UtlString* viaSubField, int subFieldIndex) const;
 
     void getLastVia(UtlString* viaAddress,
