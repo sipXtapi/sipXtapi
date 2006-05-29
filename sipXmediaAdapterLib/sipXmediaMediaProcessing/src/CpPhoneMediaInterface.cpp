@@ -1187,7 +1187,7 @@ OsStatus CpPhoneMediaInterface::recordChannelAudio(int connectionId,
 
     double duration = 0 ;
     int dtmf = 0 ;
-    return mpFlowGraph->record(01, -1, NULL, NULL, szFile) ;
+    return mpFlowGraph->record(1, -1, NULL, NULL, szFile) ;
 }
 
 OsStatus CpPhoneMediaInterface::stopRecordChannelAudio(int connectionId) 
