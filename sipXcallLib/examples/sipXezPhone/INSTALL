@@ -2,15 +2,15 @@
                I N S T A L L A T I O N   I N S T R U C T I O N S
 ==============================================================================
 
-This document describes how to build and install sipXezPhone from source.  This
-process is somewhat complicated and requires a number of 3rd party software
-packages and manual steps.
+This document describes how to build and install sipXezPhone from source. 
+This process is somewhat complicated and requires a number of 3rd party
+software packages and manual steps.
 
 If you have questions or problems, please consult the latest version of this
-document and the sipX dev mailing list.  The sipX-dev mailing list is searchable -
-please search before posting your question.
+document and the sipX dev mailing list.  The sipX-dev mailing list is
+searchable - please search before posting your question.
 
-  http://scm.sipfoundry.org/rep/sipX/main/sipXcallLib/examples/sipXezPhone/INSTALL
+  http://scm.sipfoundry.org/rep/sipX/branches/sipXtapi-media-update/sipXcallLib/examples/sipXezPhone/INSTALL
   http://www.sipfoundry.org/sipXcallLib/
   http://list.sipfoundry.org/mailman/listinfo/sipx-dev
 
@@ -31,30 +31,29 @@ Windows instructions
 ====================
 
 The sipXezPhone depends on other SIPFoundry projects:
-sipXportLib, sipXtackLib, sipXmediaLib, and sipXcallLib.
+  sipXportLib, sipXtackLib, sipXmediaLib, and sipXcallLib.
+
 For more information, please see the build and install documentation
-for those projects.
-The top-level sipXezPhone.sln will configure and build all of the dependant
-projects.
+for those projects. The top-level sipXezPhone.sln will configure and build
+all of the dependant projects.
 
 -------------------------------
 Getting the Source Code
 -------------------------------
+
 Make a new directory which will be home to your SIPFoundry projects.
 
 For example, create a "c:\sipfoundry" directory.
 
-Using subversion from the command line, get the needed SIPFoundry projects
-by running the following from the command line.
+Using subversion from the command line, get the needed SIPFoundry projects by
+running the following from the command line.
+
 For example:
   cd \sipfoundry
-  svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXportLib sipXportLib
-  svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXtackLib sipXtackLib
-  svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXmediaLib sipXmediaLib
-  svn checkout http://scm.sipfoundry.org/rep/sipX/main/sipXcallLib sipXcallLib
+  svn checkout https://scm.sipfoundry.org/rep/sipX/branches/sipXtapi-media-update sipXtapi
   
-  The sipXezPhone code and the Visual Studio project files are located in the "sipXcallLib\examples\sipXezPhone" directory.
-
+The sipXezPhone code and the Visual Studio project files are located in the
+"sipXcallLib\examples\sipXezPhone" directory.
 
 -------------------------------
 Installing 3rd party components
@@ -62,42 +61,14 @@ Installing 3rd party components
 
 Required Software
 -----------------
-MSVC    - Microsoft Visual Studio.NET 2003.
-          (or greater).
-GLib2   - Low-level core library that forms the basis of GTK+ and GNOME
-PCRE    - Perl Compatible Regular Expression Library
+MSVC      - Microsoft Visual Studio.NET 2003 (or greater).
+PCRE      - Perl Compatible Regular Expression Library
 wxWidgets - Open-source, platform independent GUI library
 
-
-Installing Glib2
-----------------
-Latest tested version: 2.4.7
-
-You will need the following glib packages/files:
-  glib-2.4.7.zip : glib runtime environment
-  glib-dev-2.4.7.zip : glib developer package
-  libiconv-1.9.1.bin.woe32.zip : GNU libiconv
-  gettext-runtime-0.13.1.zip : GNU gettext runtime for Win32
-
-You can obtain these from Tor Lillqvist (maintains the Windows port of
-GLIB/GTK+) by pointing your browser at:
-   http://www.gimp.org/~tml/gimp/win32/downloads.html
-
-Alternatively, you can download these files from SIPfoundry:
-  http://www.sipfoundry.org/pub/sipXphone/depends/win32/
-
-Using your favorite archive utility, extract the contents of each file into
-a new glib directory (e.g. "C:\glib").
-
-Next add the glib paths to your MSVC environment (assuming installation into
-C:\glib):
-
-Additional "Include files":
-   C:\glib\include\glib-2.0
-   C:\glib\lib\glib-2.0\include
-
-Additional "Library files":
-   C:\glib\lib
+Optional Software
+-----------------
+cppunit   - Unit test framework.  This required to build to sipXtapi unit 
+            tests framework.
 
 In MSVC, select "Options" from the "Tools" menu, select the "Projects"
 folder, select "VC++ Directories", and then select either "Include files" or
@@ -118,7 +89,7 @@ You can download the directly from gnuwin32 or from SIPfoundry:
 Install both packages.  Order may not matter, however, installating the runtime
 environment first is known to work.
 
-Next add the PCRE  paths to your MSVC environment (assuming installation into
+Next add the PCRE paths to your MSVC environment (assuming installation into
 C:\Program Files\GnuWin32):
 
 Additional "Include files":
@@ -127,56 +98,67 @@ Additional "Include files":
 Additional "Library files":
    C:\Program Files\GnuWin32\lib
 
-See "Installing Glib2" for hints on adding include and library paths.
+In MSVC, select "Options" from the "Tools" menu, select the "Projects"
+folder, select "VC++ Directories", and then select either "Include files" or
+"Library files" from the right-aligned dropdown list.
 
 Installing wxWidgets
 --------------------
 The wxWidgets library can be downloaded from http://www.wxwidgets.org/.
-sipXezPhone uses version 2.4.2 of wxWidgets.
+sipXezPhone uses version 2.6.3 of wxWidgets.  Please follow the instructions
+and build wxWidgets.  You will need to add the following paths to your 
+MSVC environment (assuming installation info c:\wxWidgets-2.6.3):
 
-By default, the wxWidgets' setup.exe installs the libraries in the
-\wxWindows-2.4.2 folder.
+Additional "Include files":
+  C:\wxWidgets-2.6.3\include
+  C:\wxWidgets-2.6.3\include\msvc
 
-NOTE - there is one important post-installation step for installing wxWidgets:
-       copy setup.h from \wxWindows-2.4.2\include\wx\msw
-                      to \wxWindows-2.4.2\include\wx
-                      
-Building wxWigets
------------------
-Using Visual Studio open up the C:\wxWindows-2.4.2\src\wxWindows.dsw workspace.
-Using the Batch Build feature build all projects in the workspace.
+Additional "Library Files":
+  C:\wxWidgets-2.6.3\lib\vc_lib
+
+Installing cppunit
+------------------
+
+Download cppunit from the following URL (1.10.2 is known to work):
+  http://sourceforge.net/projects/cppunit
+
+Follow the cppunit build instructions to build cppunit.  You will need to add
+the following paths to your MSVC environment (assuming installation into 
+C:\cppunit-1.10.2):
+
+Additional "Include files":
+  C:\cppunit-1.10.2\include
+
+Additional "Library Files":
+  C:\cppunit-1.10.2\src\cppunit\Debug
+  C:\cppunit-1.10.2\src\cppunit\Release
+
 
 -----------------
 Building C++ Code
 -----------------
 
-Open "sipXezPhone.sln" in MSVC, verify that "sipXezPhone" is the default project
-and build.  You should end up building "sipXezPhone.exe", "sipXtapi.dll" and the dependent .libs.
+Open "sipXezPhone.sln" in MSVC, verify that "sipXezPhone" is the default 
+project and build.  You should end up building "sipXezPhone.exe", 
+"sipXtapi.dll" and the dependent .libs.
 
-NOTE - there is currently and issue where the projects in the sipXezPhone solution may attempt to build in the
-WRONG order!!  If this happens, just build (dont re-build) a second time.  The second pass should build attempt should
-succeed.
-
-
-----------------------------
-Adding Environment Variables
-----------------------------
-
-At runtime, the softphone needs to be able to find the libglib-2.0-o.dll, and
-related dependencies.  Add "c:\glib\bin", or the equivalent to your Windows
-PATH environment variable.  From a command prompt, this can be added by
-entering the following:
-  PATH=%PATH%;c:\glib\bin
+NOTE - there is currently and issue where the projects in the sipXezPhone 
+solution may attempt to build in the WRONG order!!  If this happens, just 
+build (dont re-build) a second time.  The second pass should build attempt 
+should succeed.
 
 -----------------------
 Launching the sipXezPhone
 -----------------------
 
-After a build, sipXezPhone.exe will be created in the sipXcallLib\examples\sipXezPhone directory.
-The working directory for sipXezPhone must have in it the sipXtapi.dll.  Either copy the sipXtapi.dll to
-the directory containing sipXezPhone.exe, or point your working directory to sipXtapi's build directory.
+After a build, sipXezPhone.exe will be created in the 
+sipXcallLib\examples\sipXezPhone directory.  The working directory for 
+sipXezPhone must have in it the sipXtapi.dll.  Either copy the sipXtapi.dll 
+to the directory containing sipXezPhone.exe, or point your working directory 
+to sipXtapi's build directory.
 
-
+NOTE: Post-build commands have been added to automatically copy the 
+sipXtapi[d].dll into the sipXezPhone build target directory.
 
 -------------------------------
 Troubleshooting: Build Problems
@@ -224,8 +206,6 @@ Rebuild wxWidgets with the following command lines
  nmake -f makefile.vc clean FINAL=1
  nmake -f makefile.vc FINAL=1 CRTFLAG=/MD    (for the multithreaded DLL)
 
-
- 
 -------------------------------
 Troubleshooting: Runtime Problems
 -------------------------------
