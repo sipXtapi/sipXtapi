@@ -4,12 +4,8 @@
 <page-specification class="org.sipfoundry.sipxconfig.site.admin.ldap.LdapImport">
   <description>Page for importing users from LDAP server</description>
   <inject property="ldapImportManager" object="spring:ldapImportManager" />
-  <inject property="ldapManager" object="spring:ldapManager" />
 
   <inject property="tapestry" object="spring:tapestry" />
-
-  <property name="connectionParams"/>
-
 
   <!--
     - B E A N S

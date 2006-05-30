@@ -2,7 +2,6 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-
   <bean id="attrMap" class="org.sipfoundry.sipxconfig.bulk.ldap.AttrMap">
     <property name="userToLdap">
       <map>
@@ -26,9 +25,6 @@
 
   <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowInserter"
     parent="rowInserter">
-    <property name="attrMap">
-      <ref local="attrMap" />
-    </property>
     <property name="coreContext" ref="coreContext" />
   </bean>
 
@@ -50,7 +46,7 @@
       <ref local="attrMap" />
     </property>
     <property name="jndiTemplate">
-      <ref local="jndiTemplate"/>
+      <ref local="jndiTemplate" />
     </property>
   </bean>
 
@@ -62,6 +58,22 @@
     </property>
     <property name="jndiTemplate">
       <ref local="jndiTemplate" />
+    </property>
+    <property name="ldapManager">
+      <ref local="ldapManager" />
+    </property>
+  </bean>
+
+  <bean id="eagerLdapImportManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces"
+      value="org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager" />
+    <property name="target">
+      <ref local="ldapImportManagerImpl" />
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>hibernateInterceptor</value>
+      </list>
     </property>
   </bean>
 

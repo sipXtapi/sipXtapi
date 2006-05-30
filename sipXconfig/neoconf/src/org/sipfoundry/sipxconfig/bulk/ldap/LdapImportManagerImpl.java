@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.Collection;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
@@ -18,7 +20,8 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.bulk.RowInserter;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapImportManager {
@@ -28,25 +31,11 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
 
     private LdapManager m_ldapManager;
 
-    private RowInserter< ? extends SearchResult> m_rowInserter;
+    private LdapRowInserter m_rowInserter;
 
     public void insert() {
-
-        // FIXME: this is a potential threading problem - we cannot have one template shared if we
-        // are changing the connection params for each insert operation
-        m_ldapManager.getConnectionParams().applyToTemplate(m_jndiTemplate);
-
         try {
-            SearchControls sc = new SearchControls();
-            sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
-
-            AttrMap attrMap = m_ldapManager.getAttrMap();
-            sc.setReturningAttributes(attrMap.getLdapAttributesArray());
-            
-            String base = attrMap.getSearchBase();
-            String filter = attrMap.getFilter();
-            
-            NamingEnumeration<SearchResult> result = m_jndiTemplate.search(base, filter, sc);
+            NamingEnumeration<SearchResult> result = search(0);
             while (result.hasMore()) {
                 SearchResult searchResult = result.next();
                 m_rowInserter.execute(searchResult);
@@ -57,11 +46,47 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         }
     }
 
+    public void getExample(User user, Collection<String> groupNames) {
+        try {
+            NamingEnumeration<SearchResult> result = search(1);
+            if (result.hasMore()) {
+                SearchResult searchResult = result.next();
+                m_rowInserter.setUserProperties(user, searchResult.getAttributes());
+                groupNames.addAll(m_rowInserter.getGroupNames(searchResult));
+            }
+        } catch (NamingException e) {
+            throw new UserException(e.getMessage());
+        }
+    }
+
     public void setJndiTemplate(JndiLdapTemplate jndiTemplate) {
         m_jndiTemplate = jndiTemplate;
     }
 
-    public void setRowInserter(RowInserter rowInserter) {
+    public void setRowInserter(LdapRowInserter rowInserter) {
         m_rowInserter = rowInserter;
+    }
+    
+    public void setLdapManager(LdapManager ldapManager) {
+        m_ldapManager = ldapManager;
+    }
+
+    private NamingEnumeration<SearchResult> search(long limit) throws NamingException {
+        SearchControls sc = new SearchControls();
+        sc.setCountLimit(limit);
+        sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
+
+        AttrMap attrMap = m_ldapManager.getAttrMap();
+        sc.setReturningAttributes(attrMap.getLdapAttributesArray());
+
+        String base = attrMap.getSearchBase();
+        String filter = attrMap.getFilter();
+
+        // FIXME: this is a potential threading problem - we cannot have one template shared
+        // if we are changing the connection params for each insert operation
+        m_ldapManager.getConnectionParams().applyToTemplate(m_jndiTemplate);
+        m_rowInserter.setAttrMap(attrMap);
+        NamingEnumeration<SearchResult> result = m_jndiTemplate.search(base, filter, sc);
+        return result;
     }
 }
