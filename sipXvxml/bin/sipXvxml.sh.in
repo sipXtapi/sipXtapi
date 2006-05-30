@@ -55,6 +55,15 @@ case ${Action} in
      mkdir -p @SIPX_VXMLDATADIR@/voicemail/ui/adminui
      mkdir -p @SIPX_VXMLDATADIR@/voicemail/vxml
 
+     if [ "${SIPX_CORELIMIT}" = "unlimited" -a -w /proc/sys/kernel/suid_dumpable ]
+     then
+         ## we are configured to create core files,
+         ## and this system is capable of creating core files for setuid executables,
+         ## so set it to create those core files (read-only to root) 
+         ##    this allows debugging of sipXvxml crashes
+         echo 2 > /proc/sys/kernel/suid_dumpable
+     fi
+
      echo $$ > @SIPX_RUNDIR@/sipXvxml.pid
      exec @bindir@/sipXvxml $Args
      ;;
