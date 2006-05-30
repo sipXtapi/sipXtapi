@@ -24,7 +24,7 @@
     <property name="objectClass" value="person" />
   </bean>
 
-  <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowinserter"
+  <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowInserter"
     parent="rowInserter">
     <property name="attrMap">
       <ref local="attrMap" />

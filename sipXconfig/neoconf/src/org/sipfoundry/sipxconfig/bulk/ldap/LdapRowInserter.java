@@ -35,7 +35,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 /**
  * Specialized version of row inserter for inserting users from LDAP searches LdapRowinserter
  */
-public class LdapRowinserter extends RowInserter<SearchResult> {
+public class LdapRowInserter extends RowInserter<SearchResult> {
 
     private AttrMap m_attrMap;
 
