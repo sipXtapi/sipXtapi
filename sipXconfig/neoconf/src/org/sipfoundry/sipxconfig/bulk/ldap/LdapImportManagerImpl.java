@@ -66,7 +66,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     public void setRowInserter(LdapRowInserter rowInserter) {
         m_rowInserter = rowInserter;
     }
-    
+
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
     }
@@ -77,6 +77,10 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         sc.setSearchScope(SearchControls.SUBTREE_SCOPE);
 
         AttrMap attrMap = m_ldapManager.getAttrMap();
+        if (!attrMap.verified()) {
+            m_ldapManager.verify(m_ldapManager.getConnectionParams(), attrMap);
+        }
+
         sc.setReturningAttributes(attrMap.getLdapAttributesArray());
 
         String base = attrMap.getSearchBase();

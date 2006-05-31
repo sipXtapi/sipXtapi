@@ -126,7 +126,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
                 }
 
             }
-        }        
+        }
         return groupNames;
     }
 
@@ -172,7 +172,11 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         if (attribute == null) {
             return null;
         }
-        return (String) attribute.get();
+        Object value = attribute.get();
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
     }
 
     /**

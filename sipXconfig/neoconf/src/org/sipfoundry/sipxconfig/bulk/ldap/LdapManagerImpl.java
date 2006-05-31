@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
-
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
@@ -56,7 +55,7 @@ public class LdapManagerImpl implements LdapManager {
         m_jndiTemplate = jndiTemplate;
     }
 
-    public Schema verify(LdapConnectionParams params, AttrMap attrMap) {
+    public void verify(LdapConnectionParams params, AttrMap attrMap) {
         params.applyToTemplate(m_jndiTemplate);
 
         try {
@@ -65,11 +64,19 @@ public class LdapManagerImpl implements LdapManager {
             if (StringUtils.isBlank(attrMap.getSearchBase())) {
                 attrMap.setSearchBase(searchBase);
             }
-            
-            return retrieveSchema();
         } catch (NamingException e) {
             LOG.debug("Verifying LDAP connection failed.", e);
             throw new UserException("Cannot connect to LDAP server: " + e.getMessage());
+        }
+    }
+
+    public Schema getSchema() {
+        getConnectionParams().applyToTemplate(m_jndiTemplate);
+        try {
+            return retrieveSchema();
+        } catch (NamingException e) {
+            LOG.debug("Retireving schema failed.", e);
+            throw new UserException("Cannot retrieve schema from LDAP server: " + e.getMessage());
         }
     }
 
@@ -91,8 +98,8 @@ public class LdapManagerImpl implements LdapManager {
 
         cons.setReturningAttributes(attrs);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
-        NamingEnumeration<SearchResult> results = m_jndiTemplate
-                .search("", FILTER_ALL_CLASSES, cons);
+        NamingEnumeration<SearchResult> results = m_jndiTemplate.search("", FILTER_ALL_CLASSES,
+                cons);
         // only interested in the first result
         if (results.hasMore()) {
             SearchResult result = results.next();
@@ -100,8 +107,7 @@ public class LdapManagerImpl implements LdapManager {
         }
         return StringUtils.EMPTY;
     }
-    
-    
+
     private Schema retrieveSchema() throws NamingException {
         SearchControls cons = new SearchControls();
         String[] attrs = new String[] {
@@ -110,10 +116,10 @@ public class LdapManagerImpl implements LdapManager {
 
         cons.setReturningAttributes(attrs);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
-        NamingEnumeration<SearchResult> results = m_jndiTemplate
-                .search("cn=subSchema", FILTER_ALL_CLASSES, cons);
+        NamingEnumeration<SearchResult> results = m_jndiTemplate.search("cn=subSchema",
+                FILTER_ALL_CLASSES, cons);
         // only interested in the first result
-        
+
         Schema schema = new Schema();
         if (!results.hasMore()) {
             return schema;
@@ -122,9 +128,9 @@ public class LdapManagerImpl implements LdapManager {
         NamingEnumeration definitions = result.getAttributes().get(attrs[0]).getAll();
         while (definitions.hasMoreElements()) {
             String classDefinition = (String) definitions.nextElement();
-            schema.addClassDefinition(classDefinition);            
+            schema.addClassDefinition(classDefinition);
         }
         return schema;
     }
-    
+
 }

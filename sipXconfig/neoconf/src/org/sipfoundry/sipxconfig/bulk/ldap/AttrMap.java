@@ -127,4 +127,8 @@ public class AttrMap {
     public String getAttribute(String field) {
         return m_user2ldap.get(field);
     }
+
+    public boolean verified() {
+        return StringUtils.isNotEmpty(m_searchBase);
+    }
 }

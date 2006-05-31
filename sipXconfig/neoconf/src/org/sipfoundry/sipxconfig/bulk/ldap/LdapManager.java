@@ -25,5 +25,14 @@ public interface LdapManager {
      * 
      * @throws UserException if connection is not possible for some reason
      */
-    Schema verify(LdapConnectionParams params, AttrMap attrMap);
+    void verify(LdapConnectionParams params, AttrMap attrMap);
+    
+    /**
+     * Retrieves LDAP schema.
+     * 
+     * Schema contains list of object classes and their attributes.
+     * 
+     * @throws UserException if connection is not possible for some reason
+     */
+    Schema getSchema();
 }
