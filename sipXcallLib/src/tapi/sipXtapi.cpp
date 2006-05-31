@@ -2558,6 +2558,10 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceAdd(const SIPX_CONF hConf,
                     pInst->nCalls++ ;
                     pInst->pLock->release() ;
 
+                    // Set the outbound line
+                    pData->pInst->pCallManager->setOutboundLineForCall(pData->strCallId->data(),
+                                                                       lineId);
+
                     // Notify Listeners
                     SipSession session ;
                     sipxFireCallEvent(pData->pInst->pCallManager, sessionId.data(), &session, NULL, DIALTONE, DIALTONE_CONFERENCE) ;   
