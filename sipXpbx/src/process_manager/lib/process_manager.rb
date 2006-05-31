@@ -52,9 +52,9 @@ class ProcessManager
   
 public
 
-  def initialize(config_dir)
-    @config_dir = config_dir
-    @config_map = init_process_config
+  def initialize(process_config_dir)
+    @process_config_dir = process_config_dir
+    @process_config_map = init_process_config
     init_logging
     init_pid_dir
   end
@@ -67,26 +67,26 @@ public
 
   # These accessors are used primarily for testing
   attr_accessor :pid_dir
-  attr_reader :config_dir, :config_map, :log
+  attr_reader :process_config_dir, :process_config_map, :log
   
 private
   
   # Each config file in the config dir sets up a sipX process.
   # Read config info from those files and build a process map.
   def init_process_config
-    config_map = {}
+    process_config_map = {}
     get_process_config_files.each do |file|
       config = ProcessConfig.new(File.new(file))
-      config_map[config.name] = config
+      process_config_map[config.name] = config
     end
-    config_map
+    process_config_map
   end
   
   # Return an array containing the paths of process config files.
   def get_process_config_files
     config_files = []
-    Dir.foreach(@config_dir) do |file|
-      config_files << File.join(@config_dir, file) if file =~ CONFIG_FILE_PATTERN
+    Dir.foreach(@process_config_dir) do |file|
+      config_files << File.join(@process_config_dir, file) if file =~ CONFIG_FILE_PATTERN
     end
     config_files
   end
@@ -110,7 +110,7 @@ private
 
   # Start the named process. Raise an exception if no such process is configured.
   def start_process_by_name(process_name)
-    config = @config_map[process_name]
+    config = @process_config_map[process_name]
     if !config
       raise("Cannot start \"#{process_name}\", no such process is configured")
     end
