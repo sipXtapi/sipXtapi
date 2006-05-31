@@ -97,8 +97,13 @@ class ProcessManagerTest < Test::Unit::TestCase
     assert(!File.exists?(tempfilepath), "File \"#{tempfilepath}\" must not exist but does")
     @pm.send(:start_process, config)
     
-    # Give the child process some time to do its job
-    sleep(0.1)
+    # Give the child process some time to create the file
+    1.upto(100) do |i|
+      if File.exists?(tempfilepath)
+        break
+      end
+      sleep 0.01                                    # sleep for 1/100 of a second
+    end
     
     # Verify that it created the file
     assert(File.exists?(tempfilepath), "File \"#{tempfilepath}\" must exist but doesn't")

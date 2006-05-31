@@ -47,7 +47,7 @@ class ProcessManager
   PID_DIR_DEFAULT = '/var/run/sipxpbx'
   
   PID_FILE_EXT = '.pid'
-
+  
   CONFIG_FILE_PATTERN = Regexp.new('.*\.xml')
   
 public
@@ -59,16 +59,9 @@ public
     init_pid_dir
   end
 
-  # Start the specified process.
-  # If process_name is not given, then start all configured processes.
-  def start(process_name = nil)
-    # :NOW:
-  end
-
-  # These accessors are used primarily for testing
   attr_accessor :pid_dir
   attr_reader :process_config_dir, :process_config_map, :log
-  
+
 private
   
   # Each config file in the config dir sets up a sipX process.
@@ -149,8 +142,6 @@ private
   end
 
 end
-
-
 
 
 

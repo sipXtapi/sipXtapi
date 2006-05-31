@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<definitions xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tns="urn:ProcessManagerService" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:si="http://soapinterop.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/"
+  targetNamespace="urn:ProcessManagerService">
+
+  <types>
+    <xsd:schema targetNamespace="urn:ProcessManagerService">
+      <xsd:complexType name="ArrayOfString">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="xsd:string[]" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="ManageProcessesInput">
+        <xsd:sequence>
+          <xsd:element name="processes" type="tns:ArrayOfString" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="verb" type="xsd:string" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </types>
+
+  <message name="manageProcessesRequest">
+    <part name="manageProcessesRequest" type="tns:ManageProcessesInput" />
+  </message>
+  <message name="manageProcessesResponse" />
+
+  <portType name="ProcessManagerService">
+
+    <operation name="manageProcesses">
+      <input message="tns:manageProcessesRequest" />
+      <output message="tns:manageProcessesResponse" />
+    </operation>
+
+  </portType>
+
+  <binding name="ProcessManagerBinding" type="tns:ProcessManagerService">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+
+    <operation name="manageProcesses">
+      <soap:operation soapAction="urn:ProcessManagerService#manageProcesses" />
+      <input>
+        <soap:body use="encoded" namespace="urn:ProcessManagerService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="urn:ProcessManagerService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+
+  </binding>
+
+  <service name="ProcessManagerService">
+    <documentation>Process Manager Service</documentation>
+    <port name="ProcessManagerService" binding="tns:ProcessManagerBinding">
+      <soap:address location="http://localhost:2000/" />
+    </port>
+  </service>
+</definitions>
