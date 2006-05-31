@@ -39,6 +39,14 @@ require 'process_config'
 #   * Replicate sipdb databases and arbitrary files (replace replicationcgi)
 # * Configured via files that are installed into /etc/sipxpbx/process
 class ProcessManager
+  
+  # If set, then this becomes a prefix to the default sipX directories
+  SIPX_PREFIX = 'SIPX_PREFIX'
+
+  # Default directory in which to store PID files for the processes we are managing
+  PID_DIR_DEFAULT = '/var/run/sipxpbx'
+  
+  PID_FILE_EXT = '.pid'
 
   CONFIG_FILE_PATTERN = Regexp.new('.*\.xml')
   
@@ -47,9 +55,8 @@ public
   def initialize(config_dir)
     @config_dir = config_dir
     @config_map = init_process_config
-    
-    @log = Logger.new(STDOUT)
-    @log.level = Logger::DEBUG
+    init_logging
+    init_pid_dir
   end
 
   # Start the specified process.
@@ -58,9 +65,11 @@ public
     # :NOW:
   end
 
-private
-
+  # These accessors are used primarily for testing
+  attr_accessor :pid_dir
   attr_reader :config_dir, :config_map, :log
+  
+private
   
   # Each config file in the config dir sets up a sipX process.
   # Read config info from those files and build a process map.
@@ -81,6 +90,23 @@ private
     end
     config_files
   end
+  
+  def init_logging
+    @log = Logger.new(STDOUT)
+    @log.level = Logger::DEBUG
+  end
+  
+  # Set @pid_dir to be the directory in which to store PID files for the
+  # processes we are managing.
+  def init_pid_dir
+    @pid_dir = PID_DIR_DEFAULT
+      
+    # Prepend the prefix dir if $SIPX_PREFIX is defined
+    prefix = ENV[SIPX_PREFIX]
+    if prefix
+      @pid_dir = File.join(prefix, @pid_dir)
+    end
+  end
 
   # Start the named process. Raise an exception if no such process is configured.
   def start_process_by_name(process_name)
@@ -98,12 +124,28 @@ private
     command = run.command
     parameters = run.parameters
     defaultdir = run.defaultdir
-    fork do
+    
+    # Start the process
+    pid = fork do
       log.debug("start_process: command = \"#{command}\", parameters = " +
                 "\"#{parameters}\", defaultdir = \"#{defaultdir}\"")
       Dir.chdir(defaultdir) if defaultdir
       exec("#{command} #{parameters}")
     end
+
+    # Remember the process
+    pid_file_path = create_process_pid_file(process_config.name, pid)
+    log.debug("start_process: PID file = \"#{pid_file_path}\"")
+  end
+
+  # Create a PID file for the named process.  Return the path to the file.
+  def create_process_pid_file(process_name, pid)
+    pid_file_path = File.join(@pid_dir, process_name + PID_FILE_EXT)
+    File.open(pid_file_path, 'w') do |file|
+      file.puts("#{pid}")
+    end
+    
+    pid_file_path
   end
 
 end
