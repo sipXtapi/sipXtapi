@@ -80,12 +80,14 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
         AttrMap attrMap = getAttrMap();
         LdapManager ldapManager = getLdapManager();
         // check if we can connect to LDAP - throws user exception if there are any problems
-        Schema schema = ldapManager.verify(connectionParams, attrMap);
-        setSchema(schema);
+        ldapManager.verify(connectionParams, attrMap);
 
         // save new connection params
         ldapManager.setConnectionParams(connectionParams);
         ldapManager.setAttrMap(attrMap);
+        
+        Schema schema = ldapManager.getSchema();
+        setSchema(schema);
 
         String objectClass = attrMap.getObjectClass();
 
@@ -109,7 +111,8 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
             return null;
         }
         getLdapManager().setAttrMap(getAttrMap());
-        return LdapImport.PAGE;
+        // send us to import preview
+        return LdapImportPreview.PAGE;
     }
 
     public IPropertySelectionModel getObjectClassesSelectionModel() {
