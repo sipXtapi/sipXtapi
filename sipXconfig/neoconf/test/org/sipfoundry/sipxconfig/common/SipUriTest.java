@@ -98,6 +98,7 @@ public class SipUriTest extends TestCase {
         assertEquals("first last - name", SipUri.extractFullUser("\"first last\"<sip:name@sipfoundry.org>"));        
     }
     
+
     public void testUrlParams() {
         Map urlParams = new TreeMap();
         urlParams.put("a-key", "aa");
