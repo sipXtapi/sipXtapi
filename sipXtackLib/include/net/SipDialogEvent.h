@@ -317,6 +317,12 @@ class SipDialogEvent : public HttpBody
 
    //! Get the Dialog object from the hash table based on the callId
    Dialog* getDialog(UtlString& callId);
+
+   //! In the case where a empty SipDialog object is retrieved from the
+   //DialogEventPublisher in handling a DISCONNECTED or FAILED message
+   //the publisher still needs to find the dialog, even if it is just 
+   //by the callId. Work-around for XCL-98.
+   Dialog* getDialogByCallId(UtlString& callId);
    
    //! Remove the Dialog object from the hash table
    Dialog* removeDialog(Dialog* dialog);

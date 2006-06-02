@@ -19,6 +19,7 @@
 #include <net/SipDialogEvent.h>
 #include <net/SipPublishContentMgr.h>
 #include <utl/UtlHashMap.h>
+#include <utl/UtlHashMapIterator.h>
 
 // DEFINES
 // MACROS
@@ -70,6 +71,12 @@ protected:
     void insertEntry(UtlString& callId, SipDialogEvent* call);
     SipDialogEvent* getEntry(UtlString& callId);
     SipDialogEvent* removeEntry(UtlString& callId);
+
+    // Construct entity from requestUri and local address information    
+    void getEntity(UtlString& requestUri, UtlString& entity);
+    
+    // Delete entry if we get a failed or disconnected event without request Url
+    bool findEntryByCallId(UtlString& callId, UtlString& entity);
  
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:

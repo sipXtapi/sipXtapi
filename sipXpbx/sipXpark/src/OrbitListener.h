@@ -68,6 +68,7 @@ protected:
     void insertEntry(UtlString& callId, ParkedCallObject* call);
     ParkedCallObject* removeEntry(UtlString& callId);
     unsigned int validateOrbitRequest(UtlString& callId, UtlString& address, UtlString& audio);
+    bool isCallRetrievalInvite(const char* callId, const char* address);
 
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
@@ -79,6 +80,9 @@ private:
 
     OrbitListener& operator=(const OrbitListener& rOrbitListener);
      //:Assignment operator
+     
+    void getOrbit(UtlString& callId, UtlString& address, UtlString &orbit);
+    ParkedCallObject* getOldestCallInOrbit(UtlString& orbit, UtlString& callId, UtlString& address);
 
     CallManager* mpCallManager;
 

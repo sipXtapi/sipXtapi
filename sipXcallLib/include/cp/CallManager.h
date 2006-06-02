@@ -393,6 +393,8 @@ public:
 /* ============================ INQUIRY =================================== */
    int getTotalNumberOutgoingCalls() { return mnTotalOutgoingCalls;}
    int getTotalNumberIncomingCalls() { return mnTotalIncomingCalls;}
+   
+   SipUserAgent* getUserAgent() { return sipUserAgent;}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
