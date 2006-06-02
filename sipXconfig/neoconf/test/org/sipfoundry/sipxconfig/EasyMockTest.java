@@ -31,10 +31,7 @@ public class EasyMockTest extends TestCase {
         simpleCtrl.getMock();        
     }
     
-    // !!! FAILS !!!
-    
-    public void DISABLED_testBeanWithGenericsInMethod() {
-        
+    public void testBeanWithGenericsInMethod() {        
         MockControl simpleCtrl = MockClassControl.createControl(BeanWithGenericsInMethod.class);
         simpleCtrl.getMock();        
     }
