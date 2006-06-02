@@ -439,6 +439,8 @@ EOF
     then
        (echo ""; echo "sipXpbx configuration problems found:"; echo""; cat ${errfile} ) \
            | logger -s -t sipXpbx -p daemon.err 
+       date -u +%Y-%m-%dT%H:%M:%S >> @SIPX_LOGDIR@/configtest.log
+       cat ${errfile}             >> @SIPX_LOGDIR@/configtest.log
     fi
     rm -f ${errfile} # clean up temporary results file
 

@@ -249,6 +249,7 @@ EOF
 if [ ${SaveLogs} = YES ]
 then
   cat > $Work.delete-files <<EOF
+@SIPX_LOGDIR@/configtest.log
 @SIPX_LOGDIR@/dbmonitor.log
 @SIPX_LOGDIR@/httpd_access_log
 @SIPX_LOGDIR@/httpd_error_log
