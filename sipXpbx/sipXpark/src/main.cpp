@@ -470,8 +470,8 @@ int main(int argc, char* argv[])
 
     // Create the dialog event publisher
     DialogEventPublisher dialogEvents(&callManager, &publisher);    
-    callManager.addTaoListener(&dialogEvents);
-    dialogEvents.start();
+    //callManager.addTaoListener(&dialogEvents);
+    //dialogEvents.start();
 
     // Startup the call processing system
     callManager.start();

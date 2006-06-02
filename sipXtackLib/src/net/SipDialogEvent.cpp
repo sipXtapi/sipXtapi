@@ -19,6 +19,7 @@
 #include <net/SipDialogEvent.h>
 #include <net/NameValueTokenizer.h>
 #include <xmlparser/tinyxml.h>
+#include <utl/UtlHashMapIterator.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -516,7 +517,40 @@ Dialog* SipDialogEvent::getDialog(UtlString& callId)
           
    OsSysLog::add(FAC_SIP, PRI_WARNING, "SipDialogEvent::getDialog could not found the Dialog for callId = %s", 
                  callId.data());                 
-            
+   mLock.release();
+   return NULL;
+}
+
+
+Dialog* SipDialogEvent::getDialogByCallId(UtlString& callId)
+{
+   mLock.acquire();
+   UtlHashMapIterator dialogIterator(mDialogs);
+   Dialog* pDialog;
+   UtlString foundDialogId, foundCallId, foundLocalTag, foundRemoteTag,
+      foundDirection;
+   while ((pDialog = (Dialog *) dialogIterator()))
+   {
+      pDialog->getDialog(foundDialogId,
+                         foundCallId,
+                         foundLocalTag,
+                         foundRemoteTag,
+                         foundDirection);
+      
+      if (foundCallId.compareTo(callId) == 0)
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipDialogEvent::getDialog found Dialog = %p for callId = '%s'", 
+                       pDialog, callId.data());
+
+         mLock.release();
+         return pDialog;
+      }
+   }     
+          
+   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                 "SipDialogEvent::getDialog could not find the Dialog for callId = '%s'", 
+                 callId.data());
    mLock.release();
    return NULL;
 }

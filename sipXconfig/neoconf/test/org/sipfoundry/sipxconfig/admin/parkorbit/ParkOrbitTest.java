@@ -11,10 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.parkorbit;
 
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 
 public class ParkOrbitTest extends TestCase {
     public void testCreateAlias() {

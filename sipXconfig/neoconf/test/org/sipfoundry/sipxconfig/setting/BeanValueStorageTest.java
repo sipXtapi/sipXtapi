@@ -14,9 +14,9 @@ package org.sipfoundry.sipxconfig.setting;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.sipfoundry.sipxconfig.TestHelper;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class BeanValueStorageTest extends TestCase {
     

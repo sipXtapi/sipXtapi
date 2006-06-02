@@ -13,5 +13,18 @@
       <li><input jwcid="verify" id="import:verify" type="submit" value="Verify" /></li>
       <li><input jwcid="import" id="import:ok" type="submit" value="Import" /></li>
     </ul>
+    <fieldset>
+      <legend>Schedule</legend>
+      <span jwcid="schedules">
+          <input jwcid="dailyScheduleEnabled" type="checkbox"/>
+          <select jwcid="dailyScheduledDay">
+          </select>
+          <input jwcid="dailyScheduledTime"/>
+          <br/>
+      </span>
+    </fieldset>
+    <ul class="form-actions">
+      <li><input jwcid="applySchedule" id="ldap:schedule:apply" type="submit" value="Apply"/></li>
+    </ul>      
 </form>
 </div>

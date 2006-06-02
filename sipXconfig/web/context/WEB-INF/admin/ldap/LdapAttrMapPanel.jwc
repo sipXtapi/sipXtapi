@@ -5,8 +5,11 @@
   <!--
     - P A R A M E T E R S
   -->
-  <parameter name="attrMap" />
-
+  <parameter name="attrMap" />  
+  <parameter name="objectClassesSelectionModel" />
+  <parameter name="attributesSelectionModel" />
+  <parameter name="attributesOptionalSelectionModel" />
+    
   <!--
     - C O M P O N E N T S
   -->
@@ -26,9 +29,9 @@
     <binding name="label" value="message:label.objectClass" />
     <binding name="description" value="message:description.objectClass" />
   </component>
-  <component id="objectClass" type="TextField">
+  <component id="objectClass" type="PropertySelection">
     <binding name="value" value="attrMap.objectClass" />
-    <binding name="validators" value="validators:required,maxLength=255" />
+    <binding name="model" value="objectClassesSelectionModel" />
     <binding name="displayName" value="message:label.objectClass" />
   </component>
 
@@ -37,9 +40,9 @@
     <binding name="label" value="message:label.userName" />
     <binding name="description" value="message:description.userName" />
   </component>
-  <component id="userName" type="TextField">
+  <component id="userName" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['userName']" />
-    <binding name="validators" value="validators:required,maxLength=255" />
+    <binding name="model" value="attributesSelectionModel" />
     <binding name="displayName" value="message:label.userName" />
   </component>
 
@@ -47,9 +50,9 @@
     <binding name="field" value="components.firstName" />
     <binding name="label" value="message:label.firstName" />
   </component>
-  <component id="firstName" type="TextField">
+  <component id="firstName" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['firstName']" />
-    <binding name="validators" value="validators:maxLength=255" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
     <binding name="displayName" value="message:label.firstName" />
   </component>
 
@@ -57,9 +60,9 @@
     <binding name="field" value="components.lastName" />
     <binding name="label" value="message:label.lastName" />
   </component>
-  <component id="lastName" type="TextField">
+  <component id="lastName" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['lastName']" />
-    <binding name="validators" value="validators:maxLength=255" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
     <binding name="displayName" value="message:label.lastName" />
   </component>
 
@@ -68,9 +71,9 @@
     <binding name="label" value="message:label.alias" />
     <binding name="description" value="message:description.alias" />
   </component>
-  <component id="alias" type="TextField">
+  <component id="alias" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['aliasesString']" />
-    <binding name="validators" value="validators:maxLength=255" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
     <binding name="displayName" value="message:label.alias" />
   </component>
 
@@ -79,9 +82,9 @@
     <binding name="label" value="message:label.userGroup" />
     <binding name="description" value="message:description.userGroup" />
   </component>
-  <component id="userGroup" type="TextField">
+  <component id="userGroup" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['userGroupName']" />
-    <binding name="validators" value="validators:maxLength=255" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
     <binding name="displayName" value="message:label.userGroup" />
   </component>
 
@@ -100,9 +103,9 @@
     <binding name="field" value="components.pin" />
     <binding name="label" value="message:label.pin" />
   </component>
-  <component id="pin" type="TextField">
+  <component id="pin" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['pin']" />
-    <binding name="validators" value="validators:maxLength=255" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
     <binding name="displayName" value="message:label.pin" />
   </component>
 
@@ -119,9 +122,9 @@
     <binding name="label" value="message:label.sipPassword" />
     <binding name="description" value="message:description.sipPassword" />
   </component>
-  <component id="sipPassword" type="TextField">
+  <component id="sipPassword" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['sipPassword']" />
-    <binding name="validators" value="validators:maxLength=255" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
     <binding name="displayName" value="message:label.sipPassword" />
   </component>
 </component-specification>

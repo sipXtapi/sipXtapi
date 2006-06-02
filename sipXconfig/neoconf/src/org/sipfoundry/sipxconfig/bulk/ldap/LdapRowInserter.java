@@ -12,6 +12,7 @@
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -35,7 +36,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 /**
  * Specialized version of row inserter for inserting users from LDAP searches LdapRowinserter
  */
-public class LdapRowinserter extends RowInserter<SearchResult> {
+public class LdapRowInserter extends RowInserter<SearchResult> {
 
     private AttrMap m_attrMap;
 
@@ -57,37 +58,48 @@ public class LdapRowinserter extends RowInserter<SearchResult> {
             userName = getValue(attrs, attrName);
 
             User user = m_coreContext.loadUserByUserName(userName);
-            String defaultPin = null;
-            if (user == null) {
-                user = new User();
+            boolean newUser = user == null;
+            if (newUser) {
+                user = m_coreContext.newUser();
                 user.setUserName(userName);
-                defaultPin = m_attrMap.getDefaultPin();
             }
 
-            setProperty(user, attrs, Index.FIRST_NAME);
-            setProperty(user, attrs, Index.LAST_NAME);
-            setProperty(user, attrs, Index.SIP_PASSWORD);
-
-            Set<String> aliases = getValues(attrs, Index.ALIAS);
-            user.setAliases(aliases);
-
+            setUserProperties(user, attrs);
             String pin = getValue(attrs, Index.PIN);
-            if (pin == null) {
-                pin = defaultPin;
+            if (pin == null && newUser) {
+                // for new users consider default pin
+                pin = m_attrMap.getDefaultPin();
             }
             if (pin != null) {
                 user.setPin(pin, m_coreContext.getAuthorizationRealm());
             }
 
-            addGroups(sr, user);
+            Collection<String> groupNames = getGroupNames(sr);
 
+            // add all found groups
+            for (String groupName : groupNames) {
+                Group userGroup = m_coreContext.getGroupByName(groupName, true);
+                user.addGroup(userGroup);
+            }
             m_coreContext.saveUser(user);
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void addGroups(SearchResult sr, User user) throws NamingException {
+    /**
+     * Sets user properties based on the attributes of the found LDAP entry
+     */
+    void setUserProperties(User user, Attributes attrs) throws NamingException {
+        setProperty(user, attrs, Index.FIRST_NAME);
+        setProperty(user, attrs, Index.LAST_NAME);
+        setProperty(user, attrs, Index.SIP_PASSWORD);
+
+        Set<String> aliases = getValues(attrs, Index.ALIAS);
+        user.setAliases(aliases);
+    }
+
+    Collection<String> getGroupNames(SearchResult sr) throws NamingException {
         Set<String> groupNames = new HashSet<String>();
         String defaultGroupName = m_attrMap.getDefaultGroupName();
         if (defaultGroupName != null) {
@@ -115,12 +127,7 @@ public class LdapRowinserter extends RowInserter<SearchResult> {
 
             }
         }
-
-        // add all found groups
-        for (String groupName : groupNames) {
-            Group userGroup = m_coreContext.getGroupByName(groupName, true);
-            user.addGroup(userGroup);
-        }
+        return groupNames;
     }
 
     private void setProperty(User user, Attributes attrs, Index index) throws NamingException {
@@ -165,7 +172,11 @@ public class LdapRowinserter extends RowInserter<SearchResult> {
         if (attribute == null) {
             return null;
         }
-        return (String) attribute.get();
+        Object value = attribute.get();
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
     }
 
     /**

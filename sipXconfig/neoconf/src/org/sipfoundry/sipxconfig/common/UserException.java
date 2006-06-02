@@ -28,22 +28,9 @@ public class UserException extends RuntimeException {
     public UserException() {
     }
 
-    public UserException(String message) {
+    public UserException(String message, Object ... params) {
         m_message = message;
-    }
-
-    public UserException(String message, Object param) {
-        m_message = message;
-        m_params = new Object[] {
-            param
-        };
-    }
-
-    public UserException(String message, Object param1, Object param2) {
-        m_message = message;
-        m_params = new Object[] {
-            param1, param2
-        };
+        m_params = params;
     }
 
     public String getMessage() {

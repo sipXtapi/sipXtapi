@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
-import org.apache.commons.lang.StringUtils;
 
 public class StringSetting implements SettingType {
     public static final StringSetting DEFAULT = new StringSetting();
@@ -67,11 +66,7 @@ public class StringSetting implements SettingType {
     }
 
     public String convertToStringValue(Object value) {
-        String string = (String) value;
-        if (StringUtils.isBlank(string)) {
-            return null;
-        }
-        return string;
+        return (String) value;
     }
 
     public String getLabel(Object value) {

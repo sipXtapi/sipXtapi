@@ -11,10 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
+import junit.framework.TestCase;
+
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
-
-import junit.framework.TestCase;
 
 public class StringSettingTest extends TestCase {
 
@@ -28,8 +28,9 @@ public class StringSettingTest extends TestCase {
     public void testConvertToStringValue() {
         SettingType type = new StringSetting();
         assertEquals("bongo", type.convertToStringValue("bongo"));
-        assertNull("Empty string needs to be converted into null", type.convertToStringValue(""));
-        assertNull("Blank string needs to be converted into null", type.convertToStringValue("\t "));
+        assertNull("Only null is null", type.convertToStringValue(null));
+        assertEquals("", type.convertToStringValue(""));
+        assertEquals("\t ", type.convertToStringValue("\t "));
         assertNull(type.convertToStringValue(null));
     }
 

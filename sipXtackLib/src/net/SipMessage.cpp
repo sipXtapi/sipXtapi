@@ -3846,10 +3846,11 @@ UtlBoolean SipMessage::isInSupportedField(const char* token) const
       NameValueTokenizer::getSubField(value, subFieldIndex,
                                       SIP_MULTIFIELD_SEPARATOR, &url);
 #ifdef TEST
-      osPrintf("Got field: \"%s\" subfield[%d]: %s\n", fieldName,
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", value,
                fieldIndex, url.data());
 #endif
-      if (url.compareTo(token) == 0)
+      url.strip(UtlString::both);
+      if (url.compareTo(token, UtlString::ignoreCase) == 0)
       {
          tokenFound = TRUE;
       }
@@ -3859,12 +3860,13 @@ UtlBoolean SipMessage::isInSupportedField(const char* token) const
          subFieldIndex++;
          NameValueTokenizer::getSubField(value, subFieldIndex,
                                          SIP_MULTIFIELD_SEPARATOR, &url);
+         url.strip(UtlString::both);
 #ifdef TEST
-         osPrintf("Got field: \"%s\" subfield[%d]: %s\n", SIP_SUPPORTED_FIELD,
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "Got field: \"%s\" subfield[%d]: %s\n", SIP_SUPPORTED_FIELD,
                   fieldIndex, url.data());
 #endif
 
-         if (url.compareTo(token) == 0)
+         if (url.compareTo(token, UtlString::ignoreCase) == 0)
          {
             tokenFound = TRUE;
          }

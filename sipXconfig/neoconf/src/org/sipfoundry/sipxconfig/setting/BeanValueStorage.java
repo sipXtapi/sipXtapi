@@ -20,7 +20,24 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * Treat any bean as a value storage, mapping properties to setting
- * paths
+ * paths.
+ * 
+ * Methods should return external representations, e.g. booleans instead
+ * of "0" or "1" for example. 
+ * 
+ * Example:
+ * 
+ *   public static class MyDefaults {
+ *    
+ *     @SettingEntry(path = "hat/color")
+ *     public String getHatColor() {
+ *       return "red";
+ *     }
+ *   }
+ *   
+ *   public void initialize() {
+ *     addDefaultBeanValueStorage(new MyDefaults());
+ *   }
  */
 public class BeanValueStorage implements SettingValueHandler {
     private Object m_bean;
@@ -52,7 +69,8 @@ public class BeanValueStorage implements SettingValueHandler {
             try {                
                 // should be getter (although not strictly nec), with no args
                 o = m.invoke(m_bean, new Object[0]);
-                                
+//                String svalue = o == null ? null : o.toString();                
+                
                 String svalue = setting.getType().convertToStringValue(o);
                 
                 value = new SettingValueImpl(svalue);                

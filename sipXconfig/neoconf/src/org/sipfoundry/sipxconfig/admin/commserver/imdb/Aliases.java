@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import java.util.Collection;
-
 import java.util.Iterator;
 
 import org.dom4j.Element;

@@ -14,7 +14,11 @@
     </form>
     <ul>
       <li><span jwcid="@Insert" value="message:registrationCount"/> : 
+          <span jwcid="@Insert" value="ognl:registrations.size()"/> 
+      </li>
+      <li><span jwcid="@Insert" value="message:activeRegistrationCount"/> : 
           <span jwcid="@Insert" value="ognl:beans.metrics.activeRegistrationCount"/>
+      </li>
       <li><span jwcid="@Insert" value="message:registrationBalance"/> : 
           <span jwcid="@Insert" value="ognl:beans.metrics.loadBalance"
              format="ognl:beans.twoDigitDecimal"/> 

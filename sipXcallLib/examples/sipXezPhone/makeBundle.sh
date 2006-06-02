@@ -160,7 +160,7 @@ chmod +w $APP_LIB_PATH/*
 strip -S $APP_MAIN_PATH/sipXezPhone $APP_LIB_PATH/*
 
 # Calculate the size of the bundle and add 10%
-SIZE="`du -sh sipXezPhone.app | awk '{print $1}' | tr -d M`"
+SIZE="`du -sh $APP_PATH | awk '{print $1}' | tr -d M`"
 SIZE="`echo "$SIZE*11/10" | bc -q`m"
 
 # Make a disk image and mount it
@@ -169,6 +169,12 @@ hdiutil attach /tmp/$APP_NAME.dmg > /dev/null
 
 # Copy the bundle into it
 cp -r $APP_PATH /Volumes/$APP_NAME
+
+# Make a custom icon for the disk image
+mv /Volumes/$APP_NAME/$APP_NAME.app/Contents/Resources/res/sipXdmg.icns /Volumes/$APP_NAME/.VolumeIcon.icns
+echo "read 'icns' (-16455) \"/Volumes/$APP_NAME/.VolumeIcon.icns\";" | /Developer/Tools/Rez -o "/Volumes/$APP_NAME/Icon"
+/Developer/Tools/SetFile -a C /Volumes/$APP_NAME
+/Developer/Tools/SetFile -a V "/Volumes/$APP_NAME/Icon"
 
 # Unmount it and compress the image
 hdiutil detach "`mount | grep /Volumes/$APP_NAME | awk '{print $1}' | cut -d/ -f 3`" > /dev/null

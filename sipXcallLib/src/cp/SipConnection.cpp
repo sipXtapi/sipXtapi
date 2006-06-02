@@ -783,7 +783,6 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
     SdpCodecFactory supportedCodecs;
     SdpSrtpParameters srtpParams;
 
-
     int currentState = getState();
     if( mpMediaInterface != NULL &&
         inviteMsg && !inviteFromThisSide &&
@@ -854,6 +853,7 @@ UtlBoolean SipConnection::answer(const void* pDisplay)
                 rtpAddress = "0.0.0.0";  // hold address
             }
 
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::answer"); 
             // Tweak Contact given request URI / settings
             setContactType(selectCompatibleContactType(*inviteMsg)) ;
 
@@ -1451,6 +1451,10 @@ UtlBoolean SipConnection::targetCallBlindTransfer(const char* dialString,
 
 UtlBoolean SipConnection::transferControllerStatus(int connectionState, int response)
 {
+    if (connectionState == Connection::CONNECTION_FAILED)
+    {
+        setState(connectionState, CONNECTION_REMOTE);
+    }   
     // It should never get here
     unimplemented("SipConnection::transferControllerStatus");
     return(FALSE);
@@ -2304,6 +2308,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
         // Save a copy of the INVITE
         inviteMsg = new SipMessage(*request);
+
+        UtlString requestString;         
+        inviteMsg->getRequestUri(&requestString);
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::processInviteRequest - inviteMsg request URI '%s'", requestString.data());
+        
         inviteFromThisSide = FALSE;
         setCallerId();
         //save line Id
@@ -2315,6 +2324,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
            Url parsedUri(uri, TRUE);
            // Store into mLocalContact, which is in name-addr format.
            parsedUri.toString(mLocalContact);
+           OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::processInviteRequest - parsedURI to string '%s'", mLocalContact.data());           
         }
 
         int cause = CONNECTION_CAUSE_NORMAL;
@@ -4727,6 +4737,8 @@ void SipConnection::processReferResponse(const SipMessage* response)
         UtlString toField;
         mToUrl.toString(toField);
         mpCall->getTargetCallId(targetCallId);
+        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::processReferResponse callId %s, state %d, cause %d", 
+                      targetCallId.data(), state, cause);        
         CpMultiStringMessage transferControllerStatus(CallManager::CP_TRANSFER_CONNECTION_STATUS,
             targetCallId.data(), toField.data(),
             NULL, NULL, NULL,
@@ -5048,9 +5060,24 @@ void SipConnection::setContactType(CONTACT_TYPE eType)
         mpMediaInterface->setContactType(mConnectionId, eType) ;
     }
 
+    // We only do the contact manipulation for NAT_MAPPED or RELAY
+    // contacts, otherwise let the user agent tell us what the local
+    // local contact address is.
     UtlString localContact ;
-    buildLocalContact(mFromUrl, localContact);
+    if (eType == NAT_MAPPED || eType == RELAY)
+    {
+       buildLocalContact(mFromUrl, localContact);
+    }
+    else
+    {
+       int port;
+       sipUserAgent->getLocalAddress(&localContact, &port);
+       Url contactUrl(localContact);
+       contactUrl.setHostPort(port);
+       contactUrl.toString(localContact);
+    }
     mLocalContact = localContact ;
+    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::setContactType contact type %d contactUrl '%s'", eType, localContact.data());     
 }
 
 /* ============================ ACCESSORS ================================= */

@@ -12,10 +12,9 @@
 package org.sipfoundry.sipxconfig.site.dialplan;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.WebTestCase;
 
 public class EditAttendantDefaultsTestUi extends WebTestCase {
     public static Test suite() throws Exception {

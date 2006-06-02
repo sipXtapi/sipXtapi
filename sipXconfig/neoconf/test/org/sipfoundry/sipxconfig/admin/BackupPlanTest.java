@@ -18,8 +18,8 @@ import java.util.TimerTask;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.IMocksControl;
+import org.easymock.classextension.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 
@@ -98,8 +98,11 @@ public class BackupPlanTest extends TestCase {
         plan.addSchedule(schedule);
         TimerTask task = plan.getTask("root", "bin");
         
-        MockControl timerControl = MockClassControl.createStrictControl(Timer.class);
-        Timer timer = (Timer) timerControl.getMock();
+//        MockControl timerControl = MockClassControl.createStrictControl(Timer.class);
+//        Timer timer = (Timer) timerControl.getMock();
+        IMocksControl timerControl = EasyMock.createStrictControl();
+        Timer timer = timerControl.createMock(Timer.class);
+        
         Date d = schedule.getTimerDate();
         assertTrue(d.getTime() > System.currentTimeMillis());   // must be scheduled in the future
         timer.schedule(task, d, timerPeriod);

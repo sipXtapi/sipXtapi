@@ -26,20 +26,29 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-ParkedCallObject::ParkedCallObject(CallManager* callManager, UtlString callId, UtlString playFile)
+ParkedCallObject::ParkedCallObject(UtlString& orbit, CallManager* callManager, 
+                                   UtlString callId, UtlString playFile, bool bPickup)
 {
+   mOrbit = orbit;
    mpCallManager = callManager;
    mCallId = callId;
+   mbPickup = bPickup;
    mAddress = NULL;
    
    mpPlayer = NULL;
    mFile = playFile;
+   mPickupCallId = NULL;
+   
+   OsDateTime::getCurTime(mParked);
 }
 
 
 ParkedCallObject::~ParkedCallObject()
 {
-   mpCallManager = NULL;
+   if (mpPlayer)
+      mpCallManager->destroyPlayer(MpPlayer::STREAM_PLAYER, mCallId, mpPlayer);
+
+   mNewCallIds.destroyAll();   
 }
    
 
@@ -75,32 +84,73 @@ OsStatus ParkedCallObject::playAudio()
    if (mpPlayer->realize(TRUE) != OS_SUCCESS)
    {
       OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to realize player", mCallId.data());
-      cleanUp();
       return OS_FAILED;
    }
 
    if (mpPlayer->prefetch(TRUE) != OS_SUCCESS)
    {
       OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to prefetch player", mCallId.data());
-      cleanUp();
       return OS_FAILED;
    }
 
    if (mpPlayer->play(FALSE) != OS_SUCCESS)
    {
       OsSysLog::add(FAC_ACD, PRI_ERR, "ParkedCallObject::playAudio - CallId %s: Failed to play", mCallId.data());
-      cleanUp();
       return OS_FAILED;
    }
+   OsSysLog::add(FAC_ACD, PRI_DEBUG, "ParkedCallObject::playAudio - Successful");
 
    return result;
 }
 
-
-void ParkedCallObject::cleanUp()
+UtlString ParkedCallObject::getPickupCallId()
 {
-   if (mpPlayer)
-      mpCallManager->destroyPlayer(MpPlayer::STREAM_PLAYER, mCallId, mpPlayer);
+   return mPickupCallId;
+}
 
-   mpPlayer = NULL;
+void ParkedCallObject::setPickupCallId(const char* callId)
+{
+   mPickupCallId = callId;
+}
+
+UtlSList* ParkedCallObject::getNewCallIds()
+{
+   return &mNewCallIds;
+}
+
+void ParkedCallObject::setNewCallId(const char* callId)
+{
+   UtlString *pEntry = new UtlString(callId);
+   
+   mNewCallIds.insert(pEntry);
+}
+
+UtlString ParkedCallObject::getOrbit()
+{
+   return mOrbit;
+}
+   
+void ParkedCallObject::getTimeParked(OsTime& parked)
+{
+   parked = mParked;
+}
+
+bool ParkedCallObject::isPickupCall()
+{
+   return mbPickup;
+}
+
+void ParkedCallObject::setOriginalAddress(UtlString& address)
+{
+   mOriginalAddress = address;
+}
+
+UtlString ParkedCallObject::getOriginalAddress()
+{
+   return mOriginalAddress;
+}
+
+bool ParkedCallObject::hasNewCallIds()
+{
+   return !mNewCallIds.isEmpty();
 }

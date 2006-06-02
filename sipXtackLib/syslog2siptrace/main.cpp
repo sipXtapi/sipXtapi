@@ -321,7 +321,7 @@ void getMessageData(UtlString& content,
         // Write out the branchIds
         int viaIndex = 0;
         UtlString topVia;
-        while(sipMsg.getViaField(&topVia, viaIndex))
+        while(sipMsg.getViaFieldSubField(&topVia, viaIndex))
         {
             SipMessage::getViaTag(topVia.data(),
                                   "branch",

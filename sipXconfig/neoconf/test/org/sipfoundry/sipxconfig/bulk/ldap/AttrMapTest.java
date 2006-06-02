@@ -13,10 +13,10 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import java.util.Collection;
 
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.springframework.context.ApplicationContext;
-
-import junit.framework.TestCase;
 
 public class AttrMapTest extends TestCase {
 
