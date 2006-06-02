@@ -286,6 +286,10 @@ class SipRedirectorPrivateStoragePickUp : public SipRedirectorPrivateStorage
    UtlString mTargetDialogRemoteTag;
    // URI at which to contact the remote end.
    UtlString mTargetDialogRemoteURI;
+   // URI at which to contact the local end
+   UtlString mTargetDialogLocalURI;
+   // Local Identity
+   UtlString mTargetDialogLocalIdentity;
 };
 
 #endif // SIPREDIRECTORPICKUP_H

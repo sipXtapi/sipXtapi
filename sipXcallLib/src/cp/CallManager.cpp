@@ -1368,7 +1368,6 @@ PtStatus CallManager::transfer(const char* sourceCallId,
 {
     PtStatus returnCode =  PT_SUCCESS;
 
-
     // Place connections on hold
     CpMultiStringMessage sourceHold(CP_HOLD_TERM_CONNECTION, sourceCallId, sourceAddress);
     postMessage(sourceHold);

@@ -341,6 +341,8 @@ SipRedirectorPickUp::lookUp(
    SipRedirectorPrivateStorage*& privateStorage)
 {
    UtlString userId;
+   bool bSupportsReplaces;
+       
    requestUri.getUserId(userId);
 
    if (!mCallPickUpCode.isNull() &&
@@ -438,30 +440,47 @@ SipRedirectorPickUp::lookUp(
    {
       // Check if call retrieve is active, and this is a request for
       // call retrieve.
-
+      // We will want to use this later when we test for "Supported: replaces"
+      // before doing a retrieval for the UAC, but currently sipXtapi does not
+      // insert that header (even though it supports Replaces:), so we do not
+      // to that test.
+      // Test for supports: replaces 
+      //bSupportsReplaces = message.isInSupportedField("replaces");
+      bSupportsReplaces = true;      
       // Extract the putative orbit number.
       UtlString orbit(userId.data() + mCallRetrieveCode.length());
-      // Look it up in the orbit list.
-      if (findInOrbitList(orbit))
-      {
-         return lookUpDialog(requestString,
-                             response,
-                             requestSeqNo,
-                             redirectorNo,
-                             privateStorage,
-                             // The orbit number.
-                             orbit.data(),
-                             // Only examine confirmed dialogs.
-                             stateConfirmed);
+      
+      if (bSupportsReplaces)
+      {      
+         // Look it up in the orbit list.
+         if (findInOrbitList(orbit))
+         {
+            return lookUpDialog(requestString,
+                                response,
+                                requestSeqNo,
+                                redirectorNo,
+                                privateStorage,
+                                // The orbit number.
+                                orbit.data(),
+                                // Only examine confirmed dialogs.
+                                stateConfirmed);
+         }
+         else
+         {
+            // It appears to be a call retrieve, but the orbit number is invalid.
+            // Return LOOKUP_ERROR_REQUEST.
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipRedirectorPickUp::lookUp Invalid orbit number '%s'",
+                          orbit.data());
+            return SipRedirector::LOOKUP_ERROR_REQUEST;
+         }
       }
       else
       {
-         // It appears to be a call retrieve, but the orbit number is invalid.
-         // Return LOOKUP_ERROR_REQUEST.
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "SipRedirectorPickUp::lookUp Invalid orbit number '%s'",
-                       orbit.data());
-         return SipRedirector::LOOKUP_ERROR_REQUEST;
+         // The park retrieve failed because the UA does not support INVITE/Replaces
+         OsSysLog::add(FAC_SIP, PRI_ERR,
+                       "SipRedirectorPickUp::lookUp Executor does not support INVITE/Replaces");
+         return SipRedirector::LOOKUP_ERROR_REQUEST;                       
       }
    }
    else
@@ -501,79 +520,88 @@ SipRedirectorPickUp::lookUpDialog(
       if (dialog_info->mTargetDialogDuration !=
           SipRedirectorPrivateStoragePickUp::TargetDialogDurationAbsent)
       {
-         // A dialog has been recorded.  Construct a contact for it.
-         // Beware that as recorded in the dialog event notice, the
-         // target URI is in addr-spec format; any parameters are URI
-         // parameters.  (Field parameters have been broken out in
-         // param elements.)
-         Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);
-
-         // Construct the Replaces: header value the caller should use.
-         UtlString header_value(dialog_info->mTargetDialogCallId);
-         // Note that according to RFC 3891, the to-tag parameter is
-         // the local tag at the destination of the INVITE/Replaces.
-         // But the INVITE/Replaces goes to the other end of the call from
-         // the one we queried with SUBSCRIBE, so the to-tag in the
-         // Replaces: header is the *remote* tag from the NOTIFY.
-         header_value.append(";to-tag=");
-         header_value.append(dialog_info->mTargetDialogRemoteTag);
-         header_value.append(";from-tag=");
-         header_value.append(dialog_info->mTargetDialogLocalTag);
-         // If the state filtering is "early", add "early-only", so we
-         // don't pick up a call that has just been answered.
+         // For call pickup execute the original 302 with a Replaces parameter
          if (dialog_info->mStateFilter == stateEarly)
-         {
-#ifndef ALWAYS_PINGTEL_NEO
-            // If env. var. PINGTEL_NEO is set, do not add "early-only".
-            char* v = getenv("PINGTEL_NEO");
-            if (!(v != NULL && v[0] != '\0'))
-            {
-               header_value.append(";early-only");
-            }
-#endif
-         }
-
-         // Add a header parameter to specify the Replaces: header.
-         contact_URI.setHeaderParameter("Replaces", header_value.data());
-
-         // We do not add a header parameter to cause the redirection
-         // to include a "Require: replaces" header.  If we did, then
-         // if the caller phone did not support INVITE/Replaces:, the
-         // pick-up would fail entirely.  This way, if the caller
-         // phone does not support INVITE/Replaces:, the caller will
-         // get a simultaneous incoming call from the executing phone.
-
-         // Record the URI as a contact.
-         addContact(response, requestString, contact_URI, "pick-up");
-
-         // If env. var. PINGTEL_RR is set, also add a Replaces: with
-         // the to-tag and from-tag reversed.
-         char* v = getenv("PINGTEL_RR");
-         if (v != NULL && v[0] != '\0')
-         {
-            Url c(dialog_info->mTargetDialogRemoteURI);
-
-            UtlString h(dialog_info->mTargetDialogCallId);
-            h.append(";to-tag=");
-            h.append(dialog_info->mTargetDialogLocalTag);
-            h.append(";from-tag=");
-            h.append(dialog_info->mTargetDialogRemoteTag);
-            if (dialog_info->mStateFilter == stateEarly)
-            {
-#ifndef ALWAYS_PINGTEL_NEO
+         {         
+            // A dialog has been recorded.  Construct a contact for it.
+            // Beware that as recorded in the dialog event notice, the
+            // target URI is in addr-spec format; any parameters are URI
+            // parameters.  (Field parameters have been broken out in
+            // param elements.)
+            Url contact_URI(dialog_info->mTargetDialogRemoteURI, TRUE);            
+            // Construct the Replaces: header value the caller should use.
+            UtlString header_value(dialog_info->mTargetDialogCallId);
+            // Note that according to RFC 3891, the to-tag parameter is
+            // the local tag at the destination of the INVITE/Replaces.
+            // But the INVITE/Replaces goes to the other end of the call from
+            // the one we queried with SUBSCRIBE, so the to-tag in the
+            // Replaces: header is the *remote* tag in the NOTIFY.
+            header_value.append(";to-tag=");
+            header_value.append(dialog_info->mTargetDialogRemoteTag);
+            header_value.append(";from-tag=");
+            header_value.append(dialog_info->mTargetDialogLocalTag);
+            // If the state filtering is "early", add "early-only", so we
+            // don't pick up a call that has just been answered.
+   #ifndef ALWAYS_PINGTEL_NEO
                // If env. var. PINGTEL_NEO is set, do not add "early-only".
                char* v = getenv("PINGTEL_NEO");
                if (!(v != NULL && v[0] != '\0'))
                {
-                  h.append(";early-only");
+                  header_value.append(";early-only");
                }
-#endif
+   #endif
+            // Add a header parameter to specify the Replaces: header.
+            contact_URI.setHeaderParameter("Replaces", header_value.data());
+            // We add a header parameter to cause the redirection to
+            // include a "Require: replaces" header.  Then if the caller
+            // phone does not support INVITE/Replaces:, the pick-up will
+            // fail entirely.  Without it, if the caller phone does not
+            // support INVITE/Replaces:, the caller will get a
+            // simultaneous incoming call from the executing phone.
+            // Previously, we thought the latter behavior was better, but
+            // it is not -- Consider if the device is a gateway from the
+            // PSTN.  Then the INVITE/Replaces will generate an outgoing
+            // call to the calling phone.
+            contact_URI.setHeaderParameter(SIP_REQUIRE_FIELD,
+                                           SIP_REPLACES_EXTENSION);
+            // Record the URI as a contact.
+            addContact(response, requestString, contact_URI, "pick-up");            
+            // We do not add a header parameter to cause the redirection
+            // to include a "Require: replaces" header.  If we did, then
+            // if the caller phone did not support INVITE/Replaces:, the
+            // pick-up would fail entirely.  This way, if the caller
+            // phone does not support INVITE/Replaces:, the caller will
+            // get a simultaneous incoming call from the executing phone.
+
+            // If env. var. PINGTEL_RR is set, also add a Replaces: with
+            // the to-tag and from-tag reversed.
+            char* v = getenv("PINGTEL_RR");
+            if (v != NULL && v[0] != '\0')
+            {
+               Url c(dialog_info->mTargetDialogRemoteURI);
+   
+               UtlString h(dialog_info->mTargetDialogCallId);
+               h.append(";to-tag=");
+               h.append(dialog_info->mTargetDialogLocalTag);
+               h.append(";from-tag=");
+               h.append(dialog_info->mTargetDialogRemoteTag);
+               if (dialog_info->mStateFilter == stateEarly)
+               {
+   #ifndef ALWAYS_PINGTEL_NEO
+                  // If env. var. PINGTEL_NEO is set, do not add "early-only".
+                  char* v = getenv("PINGTEL_NEO");
+                  if (!(v != NULL && v[0] != '\0'))
+                  {
+                     h.append(";early-only");
+                  }
+   #endif
+               }
+   
+               c.setHeaderParameter("Replaces", h.data());
+               c.setFieldParameter("q", "0.9");
+   
+               addContact(response, requestString, c, "pick-up");
             }
-
-            c.setHeaderParameter("Replaces", h.data());
-            c.setFieldParameter("q", "0.9");
-
-            addContact(response, requestString, c, "pick-up");
          }
       }
 
@@ -582,99 +610,128 @@ SipRedirectorPickUp::lookUpDialog(
    }
    else
    {
-      // Construct the SUBSCRIBE.
-      SipMessage subscribe;
-      UtlString subscribeRequestUri("sip:");
-      // The user of the request URI is our subscribeUser parameter.
-      subscribeRequestUri.append(subscribeUser);
-      subscribeRequestUri.append("@");
-      subscribeRequestUri.append(mDomain);
-      // Construct a Call-Id on the plan:
-      //   Pickup-process-time-counter@domain
-      // The process number has at most 8 characters, the time has at most 8
-      // characters, and the counter has at most 8 characters, so 28 characters
-      // suffice for the buffer to assemble the "process-time-counter" part
-      // of the Call-Id..  (Using the time ensures that the Ids remain unique
-      // when the registrar is restarted.)
-      char buffer[32];
-      sprintf(buffer, "%x-%x-%x@", (unsigned int) OsProcess::getCurrentPID(),
-              (unsigned int) OsDateTime::getSecsSinceEpoch(), mCSeq);
-      UtlString callId("Pickup-");
-      callId.append(buffer);
-      callId.append(mDomain);
-      // Construct the From: value.
-      UtlString fromUri;
+      UtlString userId;
+      Url requestUri(requestString);
+      requestUri.getUserId(userId);      
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog userId '%s'", userId.data());
+      // Test to see if this is a call retrieval
+      if (!mCallRetrieveCode.isNull() &&
+          userId.length() > mCallRetrieveCode.length() &&
+          userId.index(mCallRetrieveCode.data()) == 0)
       {
-         // Get the local address and port.
-         UtlString address;
-         int port;
-         mpSipUserAgent->getLocalAddress(&address, &port);
-         // Use the first 8 chars of the MD5 of the Call-Id as the from-tag.
-         NetMd5Codec encoder;
-         UtlString tag;
-         encoder.encode(callId.data(), tag);
-         tag.remove(8);
-         // Assemble the URI.
-         subscribe.buildSipUrl(&fromUri,
-                               address.data(),
-                               port,
-                               NULL, // protocol
-                               NULL, // user
-                               NULL, // userLabel,
-                               tag.data());
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRedirectorPickUp::lookUpDialog doing call retrieval");         
+
+         // Construct the contact address for the call retrieval.
+         UtlString contactString("sip:");
+         // The user of the request URI is our subscribeUser parameter.
+         contactString.append(subscribeUser);
+         contactString.append("@");
+         contactString.append(mParkServerDomain);
+         
+         Url contact_URI(contactString);
+         
+         contact_URI.setUrlParameter("operation", "retrieve");               
+ 
+         addContact(response, requestString, contact_URI, "pick-up");            
+         // We do not need to suspend this time.*/
+         return SipRedirector::LOOKUP_SUCCESS;         
       }
-       
-      // Set the standard request headers.
-      // Allow the SipUserAgent to fill in Contact:.
-      subscribe.setRequestData(
-         SIP_SUBSCRIBE_METHOD,
-         subscribeRequestUri.data(), // request URI
-         fromUri, // From:
-         subscribeRequestUri.data(), // To:
-         callId,
-         mCSeq);
-      // Increment CSeq and roll it over if necessary.
-      mCSeq++;
-      mCSeq &= 0x0FFFFFFF;
-      // Set the "Expires: 0" header.
-      // :WORKAROUND: Use "Expires: 1" in hope of getting current Snom
-      // phones to work.
-      subscribe.setExpiresField(1);
-      // Set the "Event: dialog" header.
-      subscribe.setEventField("dialog");
-      // Set the "Accept: application/dialog-info+xml" header.
-      // Not strictly necessary (per the I-D), but it makes the SUBSCRIBE
-      // more strictly compliant.
-      subscribe.setHeaderValue(SIP_ACCEPT_FIELD,
-                               "application/dialog-info+xml");
-
-      // Send the SUBSCRIBE.
-      mpSipUserAgent->send(subscribe);
-
-      // Allocate private storage.
-      SipRedirectorPrivateStoragePickUp *storage =
-         new SipRedirectorPrivateStoragePickUp(requestSeqNo,
-                                               redirectorNo);
-      privateStorage = storage;
-
-      // Record the Call-Id of the SUBSCRIBE, so we can correlated the
-      // NOTIFYs with it.
-      storage->mSubscribeCallId = callId;
-      // Record the state filtering criterion.
-      storage->mStateFilter = stateFilter;
-
-      // If we are printing debug messages, record when the SUBSCRIBE
-      // was sent, so we can report how long it took to get the NOTIFYs.
-      if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+      else
       {
-          OsDateTime::getCurTime(storage->mSubscribeSendTime);
+         // Construct the SUBSCRIBE for the call pickup.
+         SipMessage subscribe;
+         UtlString subscribeRequestUri("sip:");
+         // The user of the request URI is our subscribeUser parameter.
+         subscribeRequestUri.append(subscribeUser);
+         subscribeRequestUri.append("@");
+         subscribeRequestUri.append(mDomain);
+         // Construct a Call-Id on the plan:
+         //   Pickup-process-time-counter@domain
+         // The process number has at most 8 characters, the time has at most 8
+         // characters, and the counter has at most 8 characters, so 28 characters
+         // suffice for the buffer to assemble the "process-time-counter" part
+         // of the Call-Id..  (Using the time ensures that the Ids remain unique
+         // when the registrar is restarted.)
+         char buffer[32];
+         sprintf(buffer, "%x-%x-%x@", (unsigned int) OsProcess::getCurrentPID(),
+                 (unsigned int) OsDateTime::getSecsSinceEpoch(), mCSeq);
+         UtlString callId("Pickup-");
+         callId.append(buffer);
+         callId.append(mDomain);
+         // Construct the From: value.
+         UtlString fromUri;
+         {
+            // Get the local address and port.
+            UtlString address;
+            int port;
+            mpSipUserAgent->getLocalAddress(&address, &port);
+            // Use the first 8 chars of the MD5 of the Call-Id as the from-tag.
+            NetMd5Codec encoder;
+            UtlString tag;
+            encoder.encode(callId.data(), tag);
+            tag.remove(8);
+            // Assemble the URI.
+            subscribe.buildSipUrl(&fromUri,
+                                  address.data(),
+                                  port,
+                                  NULL, // protocol
+                                  NULL, // user
+                                  NULL, // userLabel,
+                                  tag.data());
+         }
+          
+         // Set the standard request headers.
+         // Allow the SipUserAgent to fill in Contact:.
+         subscribe.setRequestData(
+            SIP_SUBSCRIBE_METHOD,
+            subscribeRequestUri.data(), // request URI
+            fromUri, // From:
+            subscribeRequestUri.data(), // To:
+            callId,
+            mCSeq);
+         // Increment CSeq and roll it over if necessary.
+         mCSeq++;
+         mCSeq &= 0x0FFFFFFF;
+         // Set the "Expires: 0" header.
+         // :WORKAROUND: Use "Expires: 1" in hope of getting current Snom
+         // phones to work.
+         subscribe.setExpiresField(1);
+         // Set the "Event: dialog" header.
+         subscribe.setEventField("dialog");
+         // Set the "Accept: application/dialog-info+xml" header.
+         // Not strictly necessary (per the I-D), but it makes the SUBSCRIBE
+         // more strictly compliant.
+         subscribe.setHeaderValue(SIP_ACCEPT_FIELD,
+                                  "application/dialog-info+xml");
+   
+         // Send the SUBSCRIBE.
+         mpSipUserAgent->send(subscribe);
+   
+         // Allocate private storage.
+         SipRedirectorPrivateStoragePickUp *storage =
+            new SipRedirectorPrivateStoragePickUp(requestSeqNo,
+                                                  redirectorNo);
+         privateStorage = storage;
+   
+         // Record the Call-Id of the SUBSCRIBE, so we can correlated the
+         // NOTIFYs with it.
+         storage->mSubscribeCallId = callId;
+         // Record the state filtering criterion.
+         storage->mStateFilter = stateFilter;
+   
+         // If we are printing debug messages, record when the SUBSCRIBE
+         // was sent, so we can report how long it took to get the NOTIFYs.
+         if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+         {
+            OsDateTime::getCurTime(storage->mSubscribeSendTime);
+         }
+   
+         // Set the timer to resume.
+         storage->mTimer.oneshotAfter(OsTime(mWaitSecs, mWaitUSecs));
+   
+         // Suspend processing the request.
+         return SipRedirector::LOOKUP_SUSPEND;
       }
-
-      // Set the timer to resume.
-      storage->mTimer.oneshotAfter(OsTime(mWaitSecs, mWaitUSecs));
-
-      // Suspend processing the request.
-      return SipRedirector::LOOKUP_SUSPEND;
    }
 }
 
@@ -985,6 +1042,9 @@ void SipRedirectorPrivateStoragePickUp::processNotifyDialogElement(
    // Use the remote target if it exists, otherwise the remote identity.
    mTargetDialogRemoteURI =
       !remote_target.isNull() ? remote_target : remote_identity;
+   mTargetDialogLocalURI =
+      !local_target.isNull() ? local_target : local_identity;
+   mTargetDialogLocalIdentity = local_identity;   
 }
 
 void SipRedirectorPrivateStoragePickUp::processNotifyLocalRemoteElement(

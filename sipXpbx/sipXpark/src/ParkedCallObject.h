@@ -17,6 +17,8 @@
 // APPLICATION INCLUDES
 #include <cp/CallManager.h>
 #include <mp/MpStreamPlayer.h>
+#include <os/OsDateTime.h>
+#include <utl/UtlSList.h>
 
 // DEFINES
 // MACROS
@@ -36,16 +38,31 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   ParkedCallObject(CallManager* callManager, UtlString callId, UtlString playFile);
+   ParkedCallObject(UtlString& orbit, CallManager* callManager, UtlString callId, 
+                    UtlString playFile, bool bPickup=false);
    ~ParkedCallObject();
 
    void setAddress(UtlString address);
    UtlString getAddress();
+   
+   // Get or set a callId that is the retrieving call
+   UtlString getPickupCallId();
+   void setPickupCallId(const char *callId);
+   
+   // Get or set the new callId for the second leg of a transfer
+   UtlSList* getNewCallIds();
+   void setNewCallId(const char* callId);
+   
+   UtlString getOrbit();
+   void getTimeParked(OsTime& parked);
+   void setOriginalAddress(UtlString& address);
+   UtlString getOriginalAddress();
+   
+   bool isPickupCall();
+   bool hasNewCallIds();
 
    OsStatus playAudio();
-
-   void cleanUp();
-
+   
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -59,6 +76,17 @@ private:
     
     MpStreamPlayer* mpPlayer;
     UtlString mFile;
+    UtlString mPickupCallId;
+    UtlString mNewCallId;
+    UtlString mOrbit;
+    UtlString mOriginalAddress;
+    
+    // Remember all tranferred in calls in this list for clean-up
+    UtlSList mNewCallIds;    
+    
+    bool mbPickup;             // Call is a retrieval call
+    
+    OsTime mParked;
 };
 
 /* ============================ INLINE METHODS ============================ */

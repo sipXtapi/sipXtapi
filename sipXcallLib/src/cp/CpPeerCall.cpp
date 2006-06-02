@@ -1032,9 +1032,12 @@ UtlBoolean CpPeerCall::handleHoldTermConnection(OsMsg* pEventMessage)
 {
     UtlString address;
     UtlString terminalId;
+    UtlString callId;
+    ((CpMultiStringMessage*)pEventMessage)->getString1Data(callId);
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(address);
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(terminalId);
 
+    setTargetCallId(callId.data());
     if(isLocalTerminal(terminalId.data()))
     {
         localHold();
@@ -1144,7 +1147,7 @@ UtlBoolean CpPeerCall::handleUnholdTermConnection(OsMsg* pEventMessage)
                 }
 
 #ifdef TEST_PRINT
-                osPrintf("%s->>>> CpPeerCall::handleCallMessage: CallManager::CP_UNHOLD_TERM_CONNECTION:  TERMINAL_CONNECTION_CREATED >>>>\n", mName.data());
+                osPrintf("%s->>>> CpPeerCall::handleUnholdTermConnection: CallManager::CP_UNHOLD_TERM_CONNECTION:  TERMINAL_CONNECTION_CREATED >>>>\n", mName.data());
 #endif
             }
         }
@@ -1205,7 +1208,7 @@ UtlBoolean CpPeerCall::handleRenegotiateCodecsConnection(OsMsg* pEventMessage)
                 //    connection->isRemoteCallee(), 
                 //    remoteAddress);
 #ifdef TEST_PRINT
-                osPrintf("%s-ERROR: CpPeerCall::handleCallMessage: CallManager::CP_RENEGOTIATE_CODECS_CONNECTION\n", mName.data());
+                osPrintf("%s-ERROR: CpPeerCall::handleRenegotiateCodecsConnection: CallManager::CP_RENEGOTIATE_CODECS_CONNECTION\n", mName.data());
 #endif
             }
         }
@@ -1367,6 +1370,7 @@ UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(connectionAddress);
     int connectionState = ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     int cause = ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
+
 #ifdef TEST_PRINT
     UtlString connState;
     Connection::getStateString(connectionState, &connState);
@@ -1379,6 +1383,7 @@ UtlBoolean CpPeerCall::handleTransferConnectionStatus(OsMsg* pEventMessage)
         Connection* connection = findHandlingConnection(connectionAddress);
         if(connection)
         {
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "transferControllerStatus");
             connection->transferControllerStatus(connectionState, cause);
         }
 #ifdef TEST_PRINT
