@@ -11,9 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import org.sipfoundry.sipxconfig.device.DeviceDefaults;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 
 public class PhoneDefaultsTest extends TestCase {
     

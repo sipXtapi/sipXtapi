@@ -12,10 +12,9 @@
 package org.sipfoundry.sipxconfig.site.user_portal;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.WebTestCase;
 
 public class ManagePresenceTestUi extends WebTestCase {
 

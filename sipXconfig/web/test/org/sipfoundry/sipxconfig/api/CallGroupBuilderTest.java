@@ -14,10 +14,10 @@ package org.sipfoundry.sipxconfig.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-
-import junit.framework.TestCase;
 
 public class CallGroupBuilderTest extends TestCase {
     private static final String USER_NAME = "joe";

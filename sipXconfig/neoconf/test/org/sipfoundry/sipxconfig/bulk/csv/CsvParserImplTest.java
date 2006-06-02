@@ -15,9 +15,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.bulk.csv.CsvParser;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
-
 import junit.framework.TestCase;
 
 public class CsvParserImplTest extends TestCase {

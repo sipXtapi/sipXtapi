@@ -11,9 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import org.apache.tapestry.valid.ValidationConstraint;
-
 import junit.framework.TestCase;
+
+import org.apache.tapestry.valid.ValidationConstraint;
 
 public class SipxValidationDelegateTest extends TestCase {
     public void testGetHasSuccess() {

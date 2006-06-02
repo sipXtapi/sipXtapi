@@ -14,10 +14,9 @@ package org.sipfoundry.sipxconfig.upload;
 import java.io.File;
 
 import junit.framework.Test;
+import net.sourceforge.jwebunit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
-
-import net.sourceforge.jwebunit.WebTestCase;
 
 public class ManageUploadTestUi extends WebTestCase {
 

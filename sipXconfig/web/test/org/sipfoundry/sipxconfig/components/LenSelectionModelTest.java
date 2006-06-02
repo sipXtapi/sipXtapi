@@ -11,8 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
-import org.sipfoundry.sipxconfig.components.LenSelectionModel;
-
 import junit.framework.TestCase;
 
 /**

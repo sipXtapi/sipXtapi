@@ -11,10 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.setting.type;
 
+import junit.framework.TestCase;
+
 import org.easymock.MockControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
-
-import junit.framework.TestCase;
 
 public class StringSettingTest extends TestCase {
 

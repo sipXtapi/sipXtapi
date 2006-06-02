@@ -11,9 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
-import org.sipfoundry.sipxconfig.TestHelper;
-
 import junit.framework.TestCase;
+
+import org.sipfoundry.sipxconfig.TestHelper;
 
 public class CopyFromCacheInterceptorTest extends TestCase {
     

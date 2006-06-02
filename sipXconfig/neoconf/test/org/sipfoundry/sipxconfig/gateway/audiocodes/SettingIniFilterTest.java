@@ -13,10 +13,10 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.io.StringWriter;
 
+import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
-
-import junit.framework.TestCase;
 
 public class SettingIniFilterTest extends TestCase {
 

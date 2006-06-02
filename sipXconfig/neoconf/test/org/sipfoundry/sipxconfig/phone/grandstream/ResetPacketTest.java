@@ -11,9 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.phone.grandstream;
 
-import org.apache.commons.codec.binary.Hex;
-
 import junit.framework.TestCase;
+
+import org.apache.commons.codec.binary.Hex;
 
 public class ResetPacketTest extends TestCase {
 
