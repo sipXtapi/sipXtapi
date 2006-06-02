@@ -25,7 +25,7 @@ class ProcessManagerTest < Test::Unit::TestCase
   
   def setup
     @process_config_dir = File.join($PROCESS_MANAGER_TEST_DIR, "data", "process")
-    @pm = ProcessManager.new(@process_config_dir)
+    @pm = ProcessManager.new(:ProcessConfigDir => @process_config_dir)
     @config_file = File.join(@process_config_dir, 'sleeper.xml')
     @tmpdir = Dir.tmpdir
     assert(@tmpdir, "There is no tmpdir, can't run tests")

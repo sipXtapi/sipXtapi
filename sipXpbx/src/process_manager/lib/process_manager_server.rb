@@ -9,6 +9,7 @@
 
 # system requires
 require 'logger'
+require 'pp'
 require 'soap/rpc/standaloneServer'
 require 'soap/mapping'
 
@@ -23,7 +24,9 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   DEFAULT_BIND_ADDRESS = '0.0.0.0'
   SOAP_NAMESPACE = 'urn:ProcessManagerService'
   
-  def initialize(config = {})
+  def initialize(process_manager, config = {})
+    @process_manager = process_manager
+    
     config[:BindAddress] = DEFAULT_BIND_ADDRESS if !config[:BindAddress]
     config[:Port] = DEFAULT_PORT if !config[:Port]
 
@@ -38,7 +41,6 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   end
   
   def on_init
-    @log.level = Logger::Severity::DEBUG
     add_method(self, 'manageProcesses')
   end
 
@@ -52,7 +54,11 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   
   def manageProcesses(input)
     puts 'manageProcesses'
-    puts input
+    
+    # debug printing
+    # pretty-print the processes array
+    processes = PP.pp(input.processes, "")
+    puts("manageProcesses: verb = #{input.verb}, processes = #{processes}")
   end
 
   

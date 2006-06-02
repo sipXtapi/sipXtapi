@@ -46,15 +46,18 @@ class ProcessManager
   # Default directory in which to store PID files for the processes we are managing
   PID_DIR_DEFAULT = '/var/run/sipxpbx'
   
+  # Default directory in which process config files are located
+  PROCESS_CONFIG_DIR_DEFAULT = '/etc/sipxpbx/process'
+  
   PID_FILE_EXT = '.pid'
   
   CONFIG_FILE_PATTERN = Regexp.new('.*\.xml')
   
 public
 
-  def initialize(process_config_dir)
-    @process_config_dir = process_config_dir
-    @process_config_map = init_process_config
+  def initialize(config = {})
+    init_process_config_dir(config[:ProcessConfigDir])
+    init_process_config
     init_logging
     init_pid_dir
   end
@@ -63,16 +66,30 @@ public
   attr_reader :process_config_dir, :process_config_map, :log
 
 private
+
+  def init_process_config_dir(process_config_dir)
+    if process_config_dir
+      @process_config_dir = process_config_dir
+    else
+      @process_config_dir = PROCESS_CONFIG_DIR_DEFAULT
+      
+      # Prepend the prefix dir if $SIPX_PREFIX is defined
+      prefix = ENV[SIPX_PREFIX]
+      if prefix
+        @process_config_dir = File.join(prefix, @process_config_dir)
+      end
+    end
+  end
   
   # Each config file in the config dir sets up a sipX process.
   # Read config info from those files and build a process map.
   def init_process_config
-    process_config_map = {}
+    @process_config_map = {}
     get_process_config_files.each do |file|
       config = ProcessConfig.new(File.new(file))
-      process_config_map[config.name] = config
+      @process_config_map[config.name] = config
     end
-    process_config_map
+    @process_config_map
   end
   
   # Return an array containing the paths of process config files.

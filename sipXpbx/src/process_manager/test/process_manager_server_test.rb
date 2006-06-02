@@ -17,6 +17,7 @@ require 'net/http'
 require 'soap/rpc/driver'
 
 # application requires
+require 'process_manager'
 require 'process_manager_server'
 
 
@@ -29,7 +30,7 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     return if defined? @@server
 
     puts "Starting"
-    httpd = ProcessManagerServer.new(:Port => TEST_PORT)
+    httpd = ProcessManagerServer.new(ProcessManager.new(:ProcessConfigDir => '/tmp'), :Port => TEST_PORT)
 
     trap(:INT) do
       httpd.shutdown
