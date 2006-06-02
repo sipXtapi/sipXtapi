@@ -2209,6 +2209,26 @@ void SipMessage::addRequestDisposition(const char* dispositionToken)
     setRequestDispositionField(field.data());
 }
 
+void SipMessage::setWarningField(int code, const char* hostname, const char* text)
+{
+   UtlString warningContent;
+   size_t sizeNeeded = 3 /* warning code size */ + strlen(hostname) + strlen(text) + 3 /* blanks & null */;
+   size_t allocated = warningContent.capacity(sizeNeeded);
+
+   if (allocated >= sizeNeeded)
+   {
+      sprintf((char*)warningContent.data(), "%3d %s %s", code, hostname, text);
+      
+      setHeaderValue(SIP_WARNING_FIELD, warningContent.data());
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipMessage::setWarningField value too large (max %d) host '%s' text '%s'",
+                    allocated, hostname, text
+                    );
+   }
+}
 
 void SipMessage::changeUri(const char* newUri)
 {

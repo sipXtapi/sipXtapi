@@ -1837,12 +1837,14 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             {
                if(maxForwards <= 0)
                {
-
-
                   response = new SipMessage();
                   response->setResponseData(message,
                                             SIP_TOO_MANY_HOPS_CODE,
                                             SIP_TOO_MANY_HOPS_TEXT);
+
+                  response->setWarningField(SIP_WARN_MISC_CODE, sipIpAddress.data(),
+                                            SIP_TOO_MANY_HOPS_TEXT
+                                            );
 
                   setUserAgentHeader(*response);
                   
