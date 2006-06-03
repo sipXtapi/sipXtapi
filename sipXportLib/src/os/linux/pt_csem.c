@@ -33,14 +33,10 @@ int pt_sem_init(pt_sem_t *sem, unsigned int max, unsigned int count)
 int pt_sem_wait(pt_sem_t *sem)
 {
         pthread_mutex_lock(&sem->mutex);
-        if(sem->count)
-        {
-                sem->count--;
-                pthread_mutex_unlock(&sem->mutex);
-                return 0;
-        }
         while(!sem->count)
-                pthread_cond_wait(&sem->cond,&sem->mutex);
+        {
+           pthread_cond_wait(&sem->cond,&sem->mutex);
+        }
         sem->count--;
         pthread_mutex_unlock(&sem->mutex);
         return 0;
@@ -49,22 +45,22 @@ int pt_sem_wait(pt_sem_t *sem)
 int pt_sem_timedwait(pt_sem_t *sem,const struct timespec *timeout)
 {
         pthread_mutex_lock(&sem->mutex);
-        if(sem->count)
+        int retval = 0;
+        while (ETIMEDOUT != retval && !sem->count)
         {
-                sem->count--;
-                pthread_mutex_unlock(&sem->mutex);
-                return 0;
+           retval = pthread_cond_timedwait(&sem->cond,&sem->mutex,timeout);
         }
-        pthread_cond_timedwait(&sem->cond,&sem->mutex,timeout);
-        if(sem->count)
+        if (ETIMEDOUT != retval)
         {
-                sem->count--;
-                pthread_mutex_unlock(&sem->mutex);
-                return 0;
+           sem->count--;
         }
-        errno=EAGAIN;
+        else
+        {
+           errno=EAGAIN;
+           retval=-1;
+        }
         pthread_mutex_unlock(&sem->mutex);
-        return -1;
+        return retval;
 }
 
 int pt_sem_trywait(pt_sem_t *sem)
@@ -87,7 +83,7 @@ int pt_sem_post(pt_sem_t *sem)
         if(sem->count<sem->max)
         {
                 sem->count++;
-                pthread_cond_signal(&sem->cond);
+                pthread_cond_broadcast(&sem->cond);
                 pthread_mutex_unlock(&sem->mutex);
                 return 0;
         }

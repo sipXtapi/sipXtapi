@@ -31,6 +31,11 @@ OsCSemLinux::OsCSemLinux(const int queueOptions, const int maxCount) :
 
    res = pt_sem_init(&mSemImp, maxCount, maxCount);
    assert(res == POSIX_OK);
+
+#  ifdef OS_SYNC_DEBUG
+   int me = pthread_self();
+   mSyncCrumbs.dropCrumb(me, crumbCreated);
+#  endif
 }
 
 // Constructor allowing different initial and maximum semaphore values
@@ -43,6 +48,11 @@ OsCSemLinux::OsCSemLinux(const int queueOptions, const int maxCount,
 
    res = pt_sem_init(&mSemImp, maxCount, initCount);
    assert(res == POSIX_OK);
+
+#  ifdef OS_SYNC_DEBUG
+   int me = pthread_self();
+   mSyncCrumbs.dropCrumb(me, crumbCreated);
+#  endif
 }
 
 // Destructor
@@ -51,7 +61,9 @@ OsCSemLinux::~OsCSemLinux()
    int res;
    res = pt_sem_destroy(&mSemImp);
 
-   assert(res == POSIX_OK);        // pt_sem_destroy should always return TRUE
+#  ifdef OS_SYNC_DEBUG
+   mSyncCrumbs.dropCrumb(pthread_self(), crumbDeleted);
+#  endif
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -76,9 +88,18 @@ OsStatus OsCSemLinux::acquire(const OsTime& rTimeout)
    
 #ifdef OS_CSEM_DEBUG
    if (res == OS_SUCCESS)
+   {
       updateAcquireStats();
+   }
 #endif
-    
+
+#ifdef OS_SYNC_DEBUG
+   if (res == OS_SUCCESS)
+   {
+      mSyncCrumbs.dropCrumb(pthread_self(), crumbAcquired);
+   }
+#endif
+
    return res;
 }
      
@@ -92,7 +113,16 @@ OsStatus OsCSemLinux::tryAcquire(void)
 
 #ifdef OS_CSEM_DEBUG
    if (res == OS_SUCCESS)
+   {
       updateAcquireStats();
+   }
+#endif
+
+#ifdef OS_SYNC_DEBUG
+   if (res == OS_SUCCESS)
+   {
+      mSyncCrumbs.dropCrumb(pthread_self(), crumbAcquired);
+   }
 #endif
 
    return res;
@@ -110,11 +140,17 @@ OsStatus OsCSemLinux::release(void)
 {
    OsStatus res;
 
+#ifdef OS_SYNC_DEBUG
+   mSyncCrumbs.dropCrumb(pthread_self(), crumbReleased);
+#endif
+
    res = (pt_sem_post(&mSemImp) == POSIX_OK) ? OS_SUCCESS : OS_BUSY;
 
 #ifdef OS_CSEM_DEBUG
    if (res == OS_SUCCESS)
+   {
       updateReleaseStats();
+   }
 #endif
 
     return res;
