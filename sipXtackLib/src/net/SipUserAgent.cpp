@@ -885,6 +885,12 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          message.getAcceptLanguageField(&language);
          if(language.isNull())
          {
+            // Beware that this value does not describe the desired media
+            // sessions, but rather the preferred languages for reason
+            // phrases, etc. (RFC 3261 sec. 20.3)  Thus, it is useful to
+            // have a value for this header even in requests like
+            // SUBSCRIBE/NOTIFY which are expected to not be seen by a human.
+            // This value should be configurable, though.
             message.setAcceptLanguageField("en");
          }
 
@@ -3527,7 +3533,8 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
 
 #       ifdef TEST_PRINT
         osPrintf("**************************************\n");
-        osPrintf("CREATING message in resendWithAuthorization @ address: %X\n",authorizedRequest);
+        osPrintf("CREATING message in resendWithAuthorization @ address: %p\n",
+                 authorizedRequest);
         osPrintf("**************************************\n");
 #       endif
 
