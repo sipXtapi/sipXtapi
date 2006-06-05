@@ -4,7 +4,8 @@ GEM_LIB_DIR=$(libdir)/ruby/gems/1.8/gems
 SIPX_SYSCONFDIR=$(sysconfdir)
 
 bin_SCRIPTS = \
-	${PACKAGE}-config
+	${PACKAGE}-config \
+	sipx-cdrs-export
 
 editscripts_IN = \
     sipauthproxy.sh \
