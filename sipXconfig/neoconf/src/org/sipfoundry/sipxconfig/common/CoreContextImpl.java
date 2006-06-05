@@ -130,7 +130,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     static class MaxUsersException extends UserException {
         MaxUsersException(int maxCount) {
-            super("You cannot exceeded the maximum number of allowed users: "
+            super("You cannot exceed the maximum number of allowed users: "
                     + maxCount);
         }
     }
