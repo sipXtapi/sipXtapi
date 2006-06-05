@@ -250,7 +250,7 @@ public class Phone extends BeanWithGroups {
         }
 
         Line line = getLine(0);
-        String outboundProxy = m_phoneContext.getPhoneDefaults().getProxyServerAddr();
+        String outboundProxy = m_phoneContext.getPhoneDefaults().getFullyQualifiedDomainName();
         String outboundProxyPort = m_phoneContext.getPhoneDefaults().getProxyServerSipPort();
         m_sip.sendCheckSync(line.getUri(), outboundProxy, outboundProxyPort);
     }

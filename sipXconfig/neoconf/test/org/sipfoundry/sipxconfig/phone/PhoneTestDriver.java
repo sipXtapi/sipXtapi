@@ -92,7 +92,7 @@ public class PhoneTestDriver {
 
         sipControl = EasyMock.createStrictControl();
         sip = sipControl.createMock(SipService.class);
-        sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "outbound.sipfoundry.org", "5555");
+        sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "pbx.sipfoundry.org", "5555");
         sipControl.replay();
         _phone.setSipService(sip);
 

@@ -87,6 +87,12 @@ public class SipUriTest extends TestCase {
         assertEquals("name", SipUri.extractUser("name@sipfoundry@.org"));
     }
     
+    public void testExtractUserFromFullUser() {
+        assertNull(SipUri.extractUser("name"));
+        assertEquals("name", SipUri.extractUser("\"Joe \"<sip:name@sipfoundry.org>"));
+        assertEquals("name", SipUri.extractUser("\"Joe Macy\"<sip:name@sipfoundry.org>"));
+    }
+
     public void testExtractFullUser() {
         assertNull(SipUri.extractFullUser("name"));
         assertEquals("name", SipUri.extractFullUser("sip:name@sipfoundry.org"));
