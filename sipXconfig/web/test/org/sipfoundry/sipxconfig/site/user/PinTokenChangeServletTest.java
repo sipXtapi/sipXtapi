@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.site.user;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
@@ -55,9 +56,10 @@ public class PinTokenChangeServletTest extends TestCase {
     
     
     public void testNoUser() {
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
-        coreContextCtrl.expectAndReturn(coreContext.loadUserByUserName("joe"), null);
+        IMocksControl coreContextCtrl = EasyMock.createControl();
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
+        coreContext.loadUserByUserName("joe");
+        coreContextCtrl.andReturn(null);
         coreContextCtrl.replay();
 
         try {
@@ -71,9 +73,10 @@ public class PinTokenChangeServletTest extends TestCase {
     }
     
     public void testChangePin() {        
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
-        coreContextCtrl.expectAndReturn(coreContext.loadUserByUserName("joe"), m_user);
+        IMocksControl coreContextCtrl = EasyMock.createControl();
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
+        coreContext.loadUserByUserName("joe");
+        coreContextCtrl.andReturn(m_user);
         coreContext.saveUser(m_user);
         coreContextCtrl.replay();
         
@@ -88,9 +91,10 @@ public class PinTokenChangeServletTest extends TestCase {
         m_user.addGroup(g);
         Permission.TUI_CHANGE_PIN.setEnabled(g, false);
         
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
-        coreContextCtrl.expectAndReturn(coreContext.loadUserByUserName("joe"), m_user);
+        IMocksControl coreContextCtrl = EasyMock.createControl();
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
+        coreContext.loadUserByUserName("joe");
+        coreContextCtrl.andReturn(m_user);
         coreContextCtrl.replay();
 
         try {

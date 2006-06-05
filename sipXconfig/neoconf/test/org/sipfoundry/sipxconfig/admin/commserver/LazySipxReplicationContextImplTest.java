@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
@@ -29,8 +30,8 @@ public class LazySipxReplicationContextImplTest extends TestCase {
         
         ApplicationEvent event = new DialPlanActivatedEvent(this);
         
-        MockControl replicationCtrl = MockControl.createControl(SipxReplicationContext.class);
-        SipxReplicationContext replication = (SipxReplicationContext) replicationCtrl.getMock();
+        IMocksControl replicationCtrl = EasyMock.createControl();
+        SipxReplicationContext replication = replicationCtrl.createMock(SipxReplicationContext.class);
         replication.replicate(mr);
         replication.generate(DataSet.ALIAS);
         replication.generate(DataSet.AUTH_EXCEPTION);

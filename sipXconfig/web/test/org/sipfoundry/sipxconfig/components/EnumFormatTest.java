@@ -15,7 +15,8 @@ import junit.framework.TestCase;
 
 import org.apache.commons.lang.enums.Enum;
 import org.apache.hivemind.Messages;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 
 public class EnumFormatTest extends TestCase {
 
@@ -26,12 +27,12 @@ public class EnumFormatTest extends TestCase {
     }
 
     public void testLolizedFormat() throws Exception {
-        MockControl messagesCtrl = MockControl.createControl(Messages.class);
-        Messages messages = (Messages) messagesCtrl.getMock();
+        IMocksControl messagesCtrl = EasyMock.createControl();
+        Messages messages = messagesCtrl.createMock(Messages.class);
         messages.getMessage("fake.bongo");
-        messagesCtrl.setReturnValue("localized bongo");
+        messagesCtrl.andReturn("localized bongo");
         messages.getMessage("fake.kuku");
-        messagesCtrl.setReturnValue("localized kuku");
+        messagesCtrl.andReturn("localized kuku");
         messagesCtrl.replay();
 
         EnumFormat format = new EnumFormat();

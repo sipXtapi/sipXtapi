@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.admin;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.InitializationTask;
 import org.springframework.context.ApplicationContext;
 
@@ -28,15 +29,14 @@ public class DataInitializerTest extends TestCase {
     public void testApplyPatch() {        
         InitializationTask event0 = new InitializationTask("unittest");
         
-        MockControl adminControl = MockControl.createStrictControl(AdminContext.class);        
-        AdminContext admin = (AdminContext) adminControl.getMock();
+        IMocksControl adminControl = EasyMock.createStrictControl();        
+        AdminContext admin = adminControl.createMock(AdminContext.class);
         admin.deleteInitializationTask(event0.getTask());
         adminControl.replay();
                 
-        MockControl appControl = MockControl.createStrictControl(ApplicationContext.class);        
-        ApplicationContext context = (ApplicationContext) appControl.getMock();        
+        IMocksControl appControl = EasyMock.createStrictControl();        
+        ApplicationContext context = appControl.createMock(ApplicationContext.class);        
         context.publishEvent(event0);
-        appControl.setDefaultVoidCallable();
         appControl.replay();
         
         initializer.initializeData("unittest", context, admin);

@@ -11,7 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.phone;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
@@ -25,7 +26,7 @@ public class PhoneTestDriver {
 
     public String serialNumber = "0004f200e06b";
 
-    public MockControl phoneContextControl;
+    public IMocksControl phoneContextControl;
 
     public PhoneContext phoneContext;
     
@@ -37,7 +38,7 @@ public class PhoneTestDriver {
 
     public SipService sip;
 
-    public MockControl sipControl;
+    public IMocksControl sipControl;
     
     public DeviceDefaults defaults;
 
@@ -54,13 +55,13 @@ public class PhoneTestDriver {
         defaults.setProxyServerAddr("outbound.sipfoundry.org");
         defaults.setProxyServerSipPort("5555");
 
-        phoneContextControl = MockControl.createNiceControl(PhoneContext.class);
-        phoneContext = (PhoneContext) phoneContextControl.getMock();
+        phoneContextControl = EasyMock.createNiceControl();
+        phoneContext = phoneContextControl.createMock(PhoneContext.class);
         String sysdir = TestHelper.getSysDirProperties().getProperty("sysdir.etc");
-        phoneContextControl.expectAndReturn(phoneContext.getSystemDirectory(), sysdir,
-                MockControl.ZERO_OR_MORE);
-        phoneContextControl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults,
-                MockControl.ZERO_OR_MORE);
+        phoneContext.getSystemDirectory();
+        phoneContextControl.andReturn(sysdir).anyTimes();
+        phoneContext.getPhoneDefaults();
+        phoneContextControl.andReturn(defaults).anyTimes();
                 
         phoneContextControl.replay();
 
@@ -89,8 +90,8 @@ public class PhoneTestDriver {
         line.setUser(user);
         _phone.addLine(line);
 
-        sipControl = MockControl.createStrictControl(SipService.class);
-        sip = (SipService) sipControl.getMock();
+        sipControl = EasyMock.createStrictControl();
+        sip = sipControl.createMock(SipService.class);
         sip.sendCheckSync("\"Joe User\"<sip:juser@sipfoundry.org>", "outbound.sipfoundry.org", "5555");
         sipControl.replay();
         _phone.setSipService(sip);

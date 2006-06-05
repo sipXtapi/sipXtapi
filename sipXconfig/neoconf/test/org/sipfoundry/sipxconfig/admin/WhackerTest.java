@@ -18,22 +18,22 @@ import java.util.Date;
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 
 public class WhackerTest extends TestCase {
     private Whacker m_whacker;
-    private MockControl m_processControl;
+    private IMocksControl m_processControl;
     
     protected void setUp() throws Exception {
         m_whacker = new Whacker();
 
         // The Whacker is supposed to do a restart through the processContext.
         // Make a mock control that checks that.
-        m_processControl = MockClassControl.createStrictControl(SipxProcessContext.class);
-        SipxProcessContext processContext = (SipxProcessContext) m_processControl.getMock();
+        m_processControl = EasyMock.createStrictControl();
+        SipxProcessContext processContext = m_processControl.createMock(SipxProcessContext.class);
         processContext.manageServices(Arrays.asList(Whacker.SERVICES), SipxProcessContext.Command.RESTART);
         m_processControl.replay();
         m_whacker.setProcessContext(processContext);

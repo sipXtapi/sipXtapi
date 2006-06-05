@@ -19,7 +19,8 @@ import junit.framework.TestCase;
 
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.ognl.ExpressionTableColumn;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -38,14 +39,14 @@ public class UserTableModelTest extends TestCase {
 
         Integer groupId = new Integer(5);
 
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        IMocksControl coreContextCtrl = EasyMock.createControl();
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
 
         coreContext.loadUsersByPage(null, null, 0, 1, "userName", true);
-        coreContextCtrl.setReturnValue(page1);
+        coreContextCtrl.andReturn(page1);
 
         coreContext.loadUsersByPage(null, groupId, 1, 1, "userName", true);
-        coreContextCtrl.setReturnValue(page2);
+        coreContextCtrl.andReturn(page2);
 
         coreContextCtrl.replay();
 

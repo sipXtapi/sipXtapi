@@ -14,7 +14,8 @@ package org.sipfoundry.sipxconfig.site.setting;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.test.Creator;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -30,14 +31,20 @@ public class SettingsFieldsetTest extends TestCase {
     }
 
     public void testRender() throws Exception {
-        MockControl control = MockControl.createNiceControl(Setting.class);
-        Setting setting = (Setting) control.getMock();
-        control.expectAndReturn(setting.getParent(), null, MockControl.ONE_OR_MORE);
-        control.expectAndReturn(setting.isHidden(), false);
-        control.expectAndReturn(setting.isAdvanced(), true);
-        control.expectAndReturn(setting.isAdvanced(), false);
-        control.expectAndReturn(setting.isAdvanced(), true);
-        control.expectAndReturn(setting.isAdvanced(), false);
+        IMocksControl control = EasyMock.createNiceControl();
+        Setting setting = control.createMock(Setting.class);
+        setting.getParent();
+        control.andReturn(null).atLeastOnce();
+        setting.isHidden();
+        control.andReturn(false);
+        setting.isAdvanced();
+        control.andReturn(true);
+        setting.isAdvanced();
+        control.andReturn(false);
+        setting.isAdvanced();
+        control.andReturn(true);
+        setting.isAdvanced();
+        control.andReturn(false);
         control.replay();
         
         m_fieldset.getSettings().addSetting(setting);
@@ -54,9 +61,10 @@ public class SettingsFieldsetTest extends TestCase {
     }
 
     public void testRenderHidden() throws Exception {
-        MockControl control = MockControl.createControl(Setting.class);
-        Setting setting = (Setting) control.getMock();
-        control.expectAndReturn(setting.isHidden(), true, 2);
+        IMocksControl control = EasyMock.createControl();
+        Setting setting = control.createMock(Setting.class);
+        setting.isHidden();
+        control.andReturn(true).times(2);
         control.replay();
 
         m_fieldset.setShowAdvanced(true);
@@ -69,11 +77,14 @@ public class SettingsFieldsetTest extends TestCase {
     }
 
     public void testRenderSettingPlaceholder() throws Exception {
-        MockControl control = MockControl.createNiceControl(Setting.class);
-        Setting setting = (Setting) control.getMock();
-        control.expectAndReturn(setting.getParent(), null, MockControl.ONE_OR_MORE);
-        control.expectAndReturn(setting.isAdvanced(), true, 2);
-        control.expectAndReturn(setting.isAdvanced(), false, 2);
+        IMocksControl control = EasyMock.createNiceControl();
+        Setting setting = control.createMock(Setting.class);
+        setting.getParent();
+        control.andReturn(null).atLeastOnce();
+        setting.isAdvanced();
+        control.andReturn(true).times(2);
+        setting.isAdvanced();
+        control.andReturn(false).times(2);
         control.replay();
 
         m_fieldset.getSettings().addSetting(setting);

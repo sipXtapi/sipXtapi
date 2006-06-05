@@ -16,7 +16,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
 public class CallGroupBuilderTest extends TestCase {
@@ -29,12 +30,12 @@ public class CallGroupBuilderTest extends TestCase {
     private CallGroupBuilder m_builder;
     private org.sipfoundry.sipxconfig.admin.callgroup.CallGroup m_myCallGroup;
     private CallGroup m_apiCallGroup;
-    private MockControl m_control;
+    private IMocksControl m_control;
     private CoreContext m_coreContext;
     
     protected void setUp() {
-        m_control = MockControl.createControl(CoreContext.class);
-        m_coreContext = (CoreContext) m_control.getMock();
+        m_control = EasyMock.createControl();
+        m_coreContext = m_control.createMock(CoreContext.class);
         m_builder = new CallGroupBuilder();
         m_builder.setCoreContext(m_coreContext);
         m_myCallGroup = new org.sipfoundry.sipxconfig.admin.callgroup.CallGroup();
@@ -59,7 +60,7 @@ public class CallGroupBuilderTest extends TestCase {
 
         // set up the mock core context
         m_coreContext.loadUserByUserName(USER_NAME);
-        m_control.setReturnValue(USER);
+        m_control.andReturn(USER);
         m_control.replay();
 
         ApiBeanUtil.toMyObject(m_builder, m_myCallGroup, m_apiCallGroup);

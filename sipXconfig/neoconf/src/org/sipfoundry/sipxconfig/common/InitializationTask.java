@@ -52,4 +52,16 @@ public class InitializationTask extends ApplicationEvent {
     public void setTask(String task) {
         m_task = task;
     }
+    
+    public int hashCode() {
+        return m_task.hashCode();
+    }
+    
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof InitializationTask)) {
+            return false;
+        }
+        boolean equal = m_task.equals(((InitializationTask) o).m_task);
+        return equal;
+    }
 }

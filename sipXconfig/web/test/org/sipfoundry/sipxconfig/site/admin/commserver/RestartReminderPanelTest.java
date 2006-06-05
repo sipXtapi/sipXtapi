@@ -17,7 +17,8 @@ import junit.framework.TestCase;
 
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.test.Creator;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Command;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext.Process;
@@ -61,8 +62,8 @@ public class RestartReminderPanelTest extends TestCase {
     }
 
     public void testRestartLater() throws Exception {
-        MockControl contextCtrl = MockControl.createControl(SipxProcessContext.class);
-        SipxProcessContext context = (SipxProcessContext) contextCtrl.getMock();
+        IMocksControl contextCtrl = EasyMock.createControl();
+        SipxProcessContext context = contextCtrl.createMock(SipxProcessContext.class);
         contextCtrl.replay();
 
         m_restartReminder.setRestartLater(true);
@@ -74,8 +75,8 @@ public class RestartReminderPanelTest extends TestCase {
     }
 
     public void testRestartNow() throws Exception {
-        MockControl contextCtrl = MockControl.createControl(SipxProcessContext.class);
-        SipxProcessContext context = (SipxProcessContext) contextCtrl.getMock();
+        IMocksControl contextCtrl = EasyMock.createControl();
+        SipxProcessContext context = contextCtrl.createMock(SipxProcessContext.class);
         context.manageServices(Process.getRestartable(), Command.RESTART);
         contextCtrl.replay();
 

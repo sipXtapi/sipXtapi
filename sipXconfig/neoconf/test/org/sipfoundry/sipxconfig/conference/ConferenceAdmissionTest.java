@@ -19,8 +19,8 @@ import java.util.List;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 public class ConferenceAdmissionTest extends XMLTestCase {
     private List m_conferences;
@@ -38,35 +38,35 @@ public class ConferenceAdmissionTest extends XMLTestCase {
         }
     };
 
-    protected void DISABLED_setUp() throws Exception {
+    protected void setUp() throws Exception {
         XMLUnit.setIgnoreWhitespace(true);
 
         m_conferences = new ArrayList(DATA.length);
         for (int i = 0; i < DATA.length; i++) {
-            MockControl conferenceCtrl = MockClassControl.createControl(Conference.class);
-            Conference conference = (Conference) conferenceCtrl.getMock();
+            IMocksControl conferenceCtrl = EasyMock.createControl();
+            Conference conference = conferenceCtrl.createMock(Conference.class);
 
             conference.getName();
-            conferenceCtrl.setReturnValue(DATA[i][0]);
+            conferenceCtrl.andReturn(DATA[i][0]);
 
             conference.getExtension();
-            conferenceCtrl.setReturnValue(DATA[i][1]);
+            conferenceCtrl.andReturn(DATA[i][1]);
 
             conference.getOrganizerAccessCode();
-            conferenceCtrl.setReturnValue(DATA[i][2]);
+            conferenceCtrl.andReturn(DATA[i][2]);
 
             conference.getParticipantAccessCode();
-            conferenceCtrl.setReturnValue(DATA[i][3]);
+            conferenceCtrl.andReturn(DATA[i][3]);
 
             conference.getRemoteAdmitSecret();
-            conferenceCtrl.setReturnValue(DATA[i][4]);
+            conferenceCtrl.andReturn(DATA[i][4]);
 
             conference.getUri();
-            conferenceCtrl.setReturnValue(DATA[i][5]);
+            conferenceCtrl.andReturn(DATA[i][5]);
 
             // the first one is disabled
             conference.isEnabled();
-            conferenceCtrl.setReturnValue(i > 0);
+            conferenceCtrl.andReturn(i > 0);
 
             m_conferences.add(conference);
             conferenceCtrl.replay();
@@ -77,7 +77,7 @@ public class ConferenceAdmissionTest extends XMLTestCase {
     public void testNop() {        
     }
 
-    public void DISABLED_testGenerate() throws Exception {
+    public void testGenerate() throws Exception {
         ConferenceAdmission admission = new ConferenceAdmission();
         admission.generate(m_conferences);
         String generatedXml = admission.getFileContent();

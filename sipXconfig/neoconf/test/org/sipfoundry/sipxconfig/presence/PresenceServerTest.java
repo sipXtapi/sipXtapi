@@ -15,7 +15,8 @@ import java.util.Hashtable;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -28,18 +29,20 @@ public class PresenceServerTest extends TestCase {
     }
     
     public void testSignInAction() {
-        MockControl coreContextCtrl = MockControl.createStrictControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
-        coreContextCtrl.expectAndReturn(coreContext.getDomainName(), "example.com");
+        IMocksControl coreContextCtrl = EasyMock.createStrictControl();
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
+        coreContext.getDomainName();
+        coreContextCtrl.andReturn("example.com");
         coreContextCtrl.replay();
         
         Hashtable signin = new Hashtable();
         signin.put("object-class", "login");
         signin.put("user-action", "sip:joe@example.com");
         
-        MockControl apiCtrl = MockControl.createControl(PresenceServerImpl.SignIn.class);
-        PresenceServerImpl.SignIn api = (PresenceServerImpl.SignIn) apiCtrl.getMock();
-        apiCtrl.expectAndReturn(api.action(signin), SUCCESS_RESPONSE);        
+        IMocksControl apiCtrl = EasyMock.createControl();
+        PresenceServerImpl.SignIn api = apiCtrl.createMock(PresenceServerImpl.SignIn.class);
+        api.action(signin);
+        apiCtrl.andReturn(SUCCESS_RESPONSE);        
         apiCtrl.replay();
 
         User joe = new User();

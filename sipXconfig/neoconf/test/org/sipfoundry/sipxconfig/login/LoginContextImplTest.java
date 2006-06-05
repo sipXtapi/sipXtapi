@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.login;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
@@ -35,16 +36,16 @@ public class LoginContextImplTest extends TestCase {
         m_user.setModelFilesContext(TestHelper.getModelFilesContext());
         Permission.SUPERADMIN.setEnabled(admin, true);
 
-        MockControl control = MockControl.createNiceControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) control.getMock();
+        IMocksControl control = EasyMock.createNiceControl();
+        CoreContext coreContext = control.createMock(CoreContext.class);
         coreContext.loadUserByUserNameOrAlias("superadmin");
-        control.setReturnValue(m_user, 3);
+        control.andReturn(m_user).times(3);
 
         coreContext.getAuthorizationRealm();
-        control.setReturnValue("pingtel.com", 3);
+        control.andReturn("pingtel.com").times(3);
         
         coreContext.loadUser(USER_ID);
-        control.setReturnValue(m_user, 1);
+        control.andReturn(m_user).times(1);
         control.replay();
 
         m_impl.setCoreContext(coreContext);

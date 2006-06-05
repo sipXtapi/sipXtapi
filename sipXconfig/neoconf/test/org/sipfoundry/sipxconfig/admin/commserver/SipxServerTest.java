@@ -17,8 +17,8 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
@@ -54,22 +54,21 @@ public class SipxServerTest extends TestCase {
     public void testDomainNameChange() {
         String newDomainName = "new-domain-name";
 
-        MockControl phoneDefaultsCtrl = MockClassControl.createControl(DeviceDefaults.class);
-        DeviceDefaults deviceDefaults = (DeviceDefaults) phoneDefaultsCtrl.getMock();
+        IMocksControl phoneDefaultsCtrl = org.easymock.classextension.EasyMock.createControl();
+        DeviceDefaults deviceDefaults = phoneDefaultsCtrl.createMock(DeviceDefaults.class);
         deviceDefaults.setDomainName(newDomainName);
         phoneDefaultsCtrl.replay();
 
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
-        coreContextCtrl.expectAndReturn(coreContext.getDomainName(), "old-domain-name", 
-                MockControl.ONE_OR_MORE);
+        IMocksControl coreContextCtrl = EasyMock.createControl();
+        CoreContext coreContext = (CoreContext) coreContextCtrl.createMock(CoreContext.class);
+        coreContext.getDomainName();
+        coreContextCtrl.andReturn("old-domain-name").anyTimes();
         coreContext.setDomainName(newDomainName);
         coreContextCtrl.replay();
 
-        MockControl replicationContextCtrl = MockControl
-                .createControl(SipxReplicationContext.class);
-        SipxReplicationContext replicationContext = (SipxReplicationContext) replicationContextCtrl
-                .getMock();
+        IMocksControl replicationContextCtrl = EasyMock.createControl();
+        SipxReplicationContext replicationContext = replicationContextCtrl.createMock(
+                SipxReplicationContext.class);
         replicationContext.generate(DataSet.ALIAS);
         replicationContext.generateAll();
         replicationContextCtrl.replay();
@@ -87,10 +86,10 @@ public class SipxServerTest extends TestCase {
     }
     
     public void testGetAliasMappings() {
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
-        coreContextCtrl.expectAndReturn(coreContext.getDomainName(), "domain.com", 
-                MockControl.ONE_OR_MORE);
+        IMocksControl coreContextCtrl = EasyMock.createControl();
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
+        coreContext.getDomainName();
+        coreContextCtrl.andReturn("domain.com").atLeastOnce(); 
         coreContextCtrl.replay();
 
         m_server.setCoreContext(coreContext);

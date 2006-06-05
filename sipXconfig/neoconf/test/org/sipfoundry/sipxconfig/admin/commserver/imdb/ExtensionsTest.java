@@ -18,7 +18,8 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -54,12 +55,12 @@ public class ExtensionsTest extends XMLTestCase {
     }
 
     public void testGenerateEmpty() throws Exception {
-        MockControl control = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) control.getMock();
+        IMocksControl control = EasyMock.createControl();
+        CoreContext coreContext = control.createMock(CoreContext.class);
         coreContext.getDomainName();
-        control.setReturnValue("company.com");
+        control.andReturn("company.com");
         coreContext.loadUsers();
-        control.setReturnValue(Collections.EMPTY_LIST);
+        control.andReturn(Collections.EMPTY_LIST);
         control.replay();
 
         Extensions extensions = new Extensions();
@@ -73,12 +74,12 @@ public class ExtensionsTest extends XMLTestCase {
     }
     
     public void testGenerate() throws Exception {
-        MockControl control = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) control.getMock();
+        IMocksControl control = EasyMock.createControl();
+        CoreContext coreContext = control.createMock(CoreContext.class);
         coreContext.getDomainName();
-        control.setReturnValue("company.com");
+        control.andReturn("company.com");
         coreContext.loadUsers();
-        control.setReturnValue(m_users);
+        control.andReturn(m_users);
         control.replay();
 
         Extensions extensions = new Extensions();

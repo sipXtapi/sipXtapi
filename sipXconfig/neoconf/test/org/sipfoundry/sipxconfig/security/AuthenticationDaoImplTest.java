@@ -14,8 +14,8 @@ package org.sipfoundry.sipxconfig.security;
 import junit.framework.TestCase;
 
 import org.acegisecurity.userdetails.UserDetails;
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Permission;
 import org.sipfoundry.sipxconfig.common.User;
@@ -24,13 +24,13 @@ public class AuthenticationDaoImplTest extends TestCase {
     private static final String USER_NAME = "Hjelje";
     private static User s_user = null;
     
-    private MockControl m_coreControl;
+    private IMocksControl m_coreControl;
     private CoreContext m_coreContext;
     private AuthenticationDaoImpl m_authenticationDaoImpl;
 
     protected void setUp() throws Exception {
-        m_coreControl = MockClassControl.createStrictControl(CoreContext.class);
-        m_coreContext = (CoreContext) m_coreControl.getMock();
+        m_coreControl = EasyMock.createStrictControl();
+        m_coreContext = m_coreControl.createMock(CoreContext.class);
         m_authenticationDaoImpl = new AuthenticationDaoImpl();
         m_authenticationDaoImpl.setCoreContext(m_coreContext);
         s_user = new User() {
@@ -44,7 +44,7 @@ public class AuthenticationDaoImplTest extends TestCase {
     public void testLoadUserByUsername() {
         // prep the mock core context
         m_coreContext.loadUserByUserNameOrAlias(USER_NAME);
-        m_coreControl.setReturnValue(s_user);
+        m_coreControl.andReturn(s_user);
         m_coreControl.replay();
         
         // load the user details

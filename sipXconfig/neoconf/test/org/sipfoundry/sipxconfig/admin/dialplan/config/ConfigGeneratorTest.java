@@ -17,7 +17,8 @@ import java.util.Collections;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRouting;
 
@@ -30,12 +31,12 @@ public class ConfigGeneratorTest extends XMLTestCase {
     }
 
     public void testGetFileContent() throws Exception {
-        MockControl planCtrl = MockControl.createStrictControl(DialPlanContext.class);
-        DialPlanContext empty = (DialPlanContext) planCtrl.getMock();
+        IMocksControl planCtrl = EasyMock.createStrictControl();
+        DialPlanContext empty = planCtrl.createMock(DialPlanContext.class);
         empty.getGenerationRules();
-        planCtrl.setReturnValue(Collections.EMPTY_LIST);
+        planCtrl.andReturn(Collections.EMPTY_LIST);
         empty.getAttendantRules();
-        planCtrl.setReturnValue(Collections.EMPTY_LIST);
+        planCtrl.andReturn(Collections.EMPTY_LIST);
         planCtrl.replay();
 
         EmergencyRouting er = new EmergencyRouting();

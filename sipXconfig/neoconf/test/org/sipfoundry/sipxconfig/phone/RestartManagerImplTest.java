@@ -15,37 +15,35 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
 public class RestartManagerImplTest extends TestCase {
     
-    public void testNop() {        
-    }
-    
-    public void DISABLED_testGenerateProfiles() throws Exception {
+    public void testGenerateProfiles() throws Exception {
         Integer jobId = new Integer(4);
         Integer phoneId = new Integer(1000);
 
-        MockControl jobContextCtrl = MockControl.createStrictControl(JobContext.class);
-        JobContext jobContext = (JobContext) jobContextCtrl.getMock();
+        IMocksControl jobContextCtrl = EasyMock.createStrictControl();
+        JobContext jobContext = jobContextCtrl.createMock(JobContext.class);
         jobContext.schedule("Restarting phone 000000000000");
-        jobContextCtrl.setReturnValue(jobId);
+        jobContextCtrl.andReturn(jobId);
         jobContext.start(jobId);
         jobContext.success(jobId);
         jobContextCtrl.replay();
 
-        MockControl phoneControl = MockClassControl.createStrictControl(Phone.class);
-        Phone phone = (Phone) phoneControl.getMock();
-        phoneControl.expectAndReturn(phone.getSerialNumber(), "000000000000");
+        IMocksControl phoneControl = org.easymock.classextension.EasyMock.createStrictControl();
+        Phone phone = phoneControl.createMock(Phone.class);
+        phone.getSerialNumber();
+        phoneControl.andReturn("000000000000");
         phone.restart();
         phoneControl.replay();
 
-        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
-        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        IMocksControl phoneContextCtrl = EasyMock.createControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
         phoneContext.loadPhone(phoneId);
-        phoneContextCtrl.setReturnValue(phone);
+        phoneContextCtrl.andReturn(phone);
         phoneContextCtrl.replay();
 
         RestartManagerImpl rm = new RestartManagerImpl();
@@ -59,31 +57,32 @@ public class RestartManagerImplTest extends TestCase {
         phoneContextCtrl.verify();
     }
 
-    public void DISABLED_testRestartException() throws Exception {
+    public void testRestartException() throws Exception {
         Integer jobId = new Integer(4);
         Integer phoneId = new Integer(1000);
 
         RestartException re = new RestartException("xxx");
 
-        MockControl jobContextCtrl = MockControl.createStrictControl(JobContext.class);
-        JobContext jobContext = (JobContext) jobContextCtrl.getMock();
+        IMocksControl jobContextCtrl = EasyMock.createStrictControl();
+        JobContext jobContext = jobContextCtrl.createMock(JobContext.class);
         jobContext.schedule("Restarting phone 000000000000");
-        jobContextCtrl.setReturnValue(jobId);
+        jobContextCtrl.andReturn(jobId);
         jobContext.start(jobId);
         jobContext.failure(jobId, null, re);
         jobContextCtrl.replay();
 
-        MockControl phoneControl = MockClassControl.createStrictControl(Phone.class);
-        Phone phone = (Phone) phoneControl.getMock();
-        phoneControl.expectAndReturn(phone.getSerialNumber(), "000000000000");
+        IMocksControl phoneControl = org.easymock.classextension.EasyMock.createStrictControl();
+        Phone phone = phoneControl.createMock(Phone.class);
+        phone.getSerialNumber();
+        phoneControl.andReturn("000000000000");
         phone.restart();
-        phoneControl.setThrowable(re);
+        phoneControl.andThrow(re);
         phoneControl.replay();
 
-        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
-        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        IMocksControl phoneContextCtrl = EasyMock.createControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
         phoneContext.loadPhone(phoneId);
-        phoneContextCtrl.setReturnValue(phone);
+        phoneContextCtrl.andReturn(phone);
         phoneContextCtrl.replay();
 
         RestartManagerImpl rm = new RestartManagerImpl();
@@ -96,44 +95,46 @@ public class RestartManagerImplTest extends TestCase {
         jobContextCtrl.verify();
     }
 
-    public void DISABLED_testThrottle() {
+    public void testThrottle() {
         Integer jobId = new Integer(4);
 
         Integer[] ids = {
             new Integer(1000), new Integer(2000)
         };
 
-        MockControl jobContextCtrl = MockControl.createStrictControl(JobContext.class);
-        JobContext jobContext = (JobContext) jobContextCtrl.getMock();
+        IMocksControl jobContextCtrl = EasyMock.createStrictControl();
+        JobContext jobContext = jobContextCtrl.createMock(JobContext.class);
         for (int i = 0; i < 2; i++) {
             jobContext.schedule("Restarting phone 110000000000");
-            jobContextCtrl.setReturnValue(jobId);
+            jobContextCtrl.andReturn(jobId);
             jobContext.start(jobId);
             jobContext.success(jobId);
             jobContext.schedule("Restarting phone 120000000000");
-            jobContextCtrl.setReturnValue(jobId);
+            jobContextCtrl.andReturn(jobId);
             jobContext.start(jobId);
             jobContext.success(jobId);
         }
         jobContextCtrl.replay();
 
-        MockControl phoneControl = MockClassControl.createStrictControl(Phone.class);
-        Phone phone = (Phone) phoneControl.getMock();
+        IMocksControl phoneControl = org.easymock.classextension.EasyMock.createStrictControl();
+        Phone phone = phoneControl.createMock(Phone.class);
         for (int i = 0; i < 2; i++) {
-            phoneControl.expectAndReturn(phone.getSerialNumber(), "110000000000");
+            phone.getSerialNumber();
+            phoneControl.andReturn("110000000000");
             phone.restart();
-            phoneControl.expectAndReturn(phone.getSerialNumber(), "120000000000");
+            phone.getSerialNumber();
+            phoneControl.andReturn("120000000000");
             phone.restart();
         }
         phoneControl.replay();
 
-        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
-        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        IMocksControl phoneContextCtrl = EasyMock.createControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
         for (int i = 0; i < 2; i++) {
             phoneContext.loadPhone(ids[0]);
-            phoneContextCtrl.setReturnValue(phone);
+            phoneContextCtrl.andReturn(phone);
             phoneContext.loadPhone(ids[1]);
-            phoneContextCtrl.setReturnValue(phone);
+            phoneContextCtrl.andReturn(phone);
         }
         phoneContextCtrl.replay();
 

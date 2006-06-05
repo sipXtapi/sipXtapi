@@ -24,8 +24,8 @@ import org.custommonkey.xmlunit.SimpleXpathEngine;
 import org.custommonkey.xmlunit.XMLAssert;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 
 public class ReplicationManagerImplTest extends TestCase {
@@ -40,17 +40,21 @@ public class ReplicationManagerImplTest extends TestCase {
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         InputStream is = new ByteArrayInputStream("replication was successful".getBytes("US-ASCII"));        
 
-        MockControl control = MockClassControl.createControl(MockHttpURLConnection.class);
-        final HttpURLConnection urlConnection = (HttpURLConnection) control.getMock();
+        IMocksControl control = EasyMock.createControl();
+        final HttpURLConnection urlConnection = control.createMock(MockHttpURLConnection.class);
         urlConnection.setDoOutput(true);
         urlConnection.setRequestMethod("POST");
         urlConnection.setRequestProperty("Content-length", Integer.toString(data.length()));
         urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        control.expectAndReturn(urlConnection.getOutputStream(), os);
-        control.expectAndReturn(urlConnection.getInputStream(), is);
+        urlConnection.getOutputStream();
+        control.andReturn(os);
+        urlConnection.getInputStream();
+        control.andReturn(is);
         urlConnection.connect();
-        control.expectAndReturn(urlConnection.getResponseMessage(), "");
-        control.expectAndReturn(urlConnection.getHeaderField("ErrorInReplication"), "");        
+        urlConnection.getResponseMessage();
+        control.andReturn("");
+        urlConnection.getHeaderField("ErrorInReplication");
+        control.andReturn("");        
         control.replay();
 
         ReplicationManagerImpl impl = new ReplicationManagerImpl() {

@@ -17,7 +17,8 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
 import org.dom4j.DocumentFactory;
 import org.dom4j.Element;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
@@ -29,14 +30,14 @@ public class CredentialsTest extends XMLTestCase {
     private static final String DOMAIN = "sipx." + SIPFOUNDRY;
 
     public void testGenerateEmpty() throws Exception {
-        MockControl control = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) control.getMock();
+        IMocksControl control = EasyMock.createControl();
+        CoreContext coreContext = control.createMock(CoreContext.class);
         coreContext.getDomainName();
-        control.setReturnValue("host.company.com");
+        control.andReturn("host.company.com");
         coreContext.getAuthorizationRealm();
-        control.setReturnValue("company.com");
+        control.andReturn("company.com");
         coreContext.loadUsers();
-        control.setReturnValue(Collections.EMPTY_LIST);
+        control.andReturn(Collections.EMPTY_LIST);
         control.replay();
 
         Credentials credentials = new Credentials();

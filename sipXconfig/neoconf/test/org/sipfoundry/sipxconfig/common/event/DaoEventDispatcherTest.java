@@ -13,17 +13,18 @@ package org.sipfoundry.sipxconfig.common.event;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class DaoEventDispatcherTest extends TestCase {
 	
 	public void testOnDelete() throws Throwable {
-    	User u = new User();
-    	u.setUserName("testme");
-
-    	MockControl publisherCtrl = MockControl.createControl(DaoEventPublisher.class);
-		DaoEventPublisher publisher = (DaoEventPublisher) publisherCtrl.getMock();
+        	User u = new User();
+        	u.setUserName("testme");
+    
+        	IMocksControl publisherCtrl = EasyMock.createControl();
+		DaoEventPublisher publisher = publisherCtrl.createMock(DaoEventPublisher.class);
 		publisher.publishDelete(u);
 		publisherCtrl.replay();
 		
@@ -38,8 +39,8 @@ public class DaoEventDispatcherTest extends TestCase {
         User u = new User();
         u.setUserName("testme");
 
-        MockControl publisherCtrl = MockControl.createControl(DaoEventPublisher.class);
-        DaoEventPublisher publisher = (DaoEventPublisher) publisherCtrl.getMock();
+        IMocksControl publisherCtrl = EasyMock.createControl();
+        DaoEventPublisher publisher = publisherCtrl.createMock(DaoEventPublisher.class);
         publisher.publishSave(u);
         publisherCtrl.replay();
         

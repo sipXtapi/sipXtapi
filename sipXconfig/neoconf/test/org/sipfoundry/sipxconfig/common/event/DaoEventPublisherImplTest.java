@@ -16,7 +16,8 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
@@ -25,8 +26,8 @@ public class DaoEventPublisherImplTest extends TestCase {
     public void testPublishDelete() {
         Object entity = new Object();
 
-        MockControl listenerCtrl = MockControl.createControl(DaoEventListener.class);
-        DaoEventListener listener = (DaoEventListener) listenerCtrl.getMock();
+        IMocksControl listenerCtrl = EasyMock.createControl();
+        DaoEventListener listener = listenerCtrl.createMock(DaoEventListener.class);
         listener.onDelete(entity);
         listener.onDelete(entity);
         listenerCtrl.replay();
@@ -35,10 +36,10 @@ public class DaoEventPublisherImplTest extends TestCase {
         beans.put("1", listener);
         beans.put("2", listener);
 
-        MockControl appContextCtrl = MockControl.createControl(ApplicationContext.class);
-        ApplicationContext appContext = (ApplicationContext) appContextCtrl.getMock();
+        IMocksControl appContextCtrl = EasyMock.createControl();
+        ApplicationContext appContext = appContextCtrl.createMock(ApplicationContext.class);
         appContext.getBeansOfType(DaoEventListener.class, true, true);
-        appContextCtrl.setReturnValue(beans);
+        appContextCtrl.andReturn(beans);
         appContextCtrl.replay();
 
         DaoEventPublisherImpl impl = new DaoEventPublisherImpl();
@@ -52,8 +53,8 @@ public class DaoEventPublisherImplTest extends TestCase {
     public void testPublishSave() {
         Object entity = new Object();
 
-        MockControl listenerCtrl = MockControl.createControl(DaoEventListener.class);
-        DaoEventListener listener = (DaoEventListener) listenerCtrl.getMock();
+        IMocksControl listenerCtrl = EasyMock.createControl();
+        DaoEventListener listener = listenerCtrl.createMock(DaoEventListener.class);
         listener.onSave(entity);
         listener.onSave(entity);
         listenerCtrl.replay();
@@ -62,10 +63,10 @@ public class DaoEventPublisherImplTest extends TestCase {
         beans.put("1", listener);
         beans.put("2", listener);
 
-        MockControl appContextCtrl = MockControl.createControl(ApplicationContext.class);
-        ApplicationContext appContext = (ApplicationContext) appContextCtrl.getMock();
+        IMocksControl appContextCtrl = EasyMock.createControl();
+        ApplicationContext appContext = appContextCtrl.createMock(ApplicationContext.class);
         appContext.getBeansOfType(DaoEventListener.class, true, true);
-        appContextCtrl.setReturnValue(beans);
+        appContextCtrl.andReturn(beans);
         appContextCtrl.replay();
 
         DaoEventPublisherImpl impl = new DaoEventPublisherImpl();

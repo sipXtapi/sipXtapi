@@ -13,14 +13,14 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 public class LdapConnectionParamsTest extends TestCase {
 
     public void testNoneAuthentication() {
-        MockControl templateCtrl = MockClassControl.createControl(JndiLdapTemplate.class);
-        JndiLdapTemplate template = (JndiLdapTemplate) templateCtrl.getMock();
+        IMocksControl templateCtrl = EasyMock.createControl();
+        JndiLdapTemplate template = templateCtrl.createMock(JndiLdapTemplate.class);
         template.setProviderUrl("ldap://example.sipfoundry.org:10");
         template.setSecurityAuthentication("none");
         template.setSecurityPrincipal("uid=bongo,dc=sipfoundry,dc=com");
@@ -38,8 +38,8 @@ public class LdapConnectionParamsTest extends TestCase {
     }
 
     public void testBasicAuthentication() {
-        MockControl templateCtrl = MockClassControl.createControl(JndiLdapTemplate.class);
-        JndiLdapTemplate template = (JndiLdapTemplate) templateCtrl.getMock();
+        IMocksControl templateCtrl = EasyMock.createControl();
+        JndiLdapTemplate template = (JndiLdapTemplate) templateCtrl.createMock(JndiLdapTemplate.class);
         template.setProviderUrl("ldap://example.sipfoundry.org:10");
         template.setSecurityAuthentication("basic");
         template.setSecurityPrincipal("uid=bongo,dc=sipfoundry,dc=com");

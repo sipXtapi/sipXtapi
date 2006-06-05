@@ -13,8 +13,8 @@ package org.sipfoundry.sipxconfig.conference;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.setting.type.FileSetting;
@@ -57,10 +57,10 @@ public class BridgeTest extends TestCase {
     public void testGetDefaults() {
         final String audioDir = "/really/strange/directory";
 
-        MockControl defaultsCtrl = MockClassControl.createControl(DeviceDefaults.class);
-        DeviceDefaults defaults = (DeviceDefaults) defaultsCtrl.getMock();
+        IMocksControl defaultsCtrl = EasyMock.createControl();
+        DeviceDefaults defaults = defaultsCtrl.createMock(DeviceDefaults.class);
         defaults.getDomainName();
-        defaultsCtrl.setReturnValue("xyz.org");
+        defaultsCtrl.andReturn("xyz.org");
         defaultsCtrl.replay();
 
         Bridge bridge = (Bridge) TestHelper.getApplicationContext().getBean(Bridge.BEAN_NAME);
