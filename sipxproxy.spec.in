@@ -83,6 +83,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 %attr(755,root,root) %{_bindir}/sipxha-distrib.sh
+%attr(755,root,root) %{_bindir}/sipx-cdrs-export
 
 %attr(755,root,root) %{sipxcallresolverdir}/sipxcallresolver-1.0.0.gem
 
