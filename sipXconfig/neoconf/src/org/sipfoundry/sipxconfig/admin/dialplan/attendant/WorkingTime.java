@@ -21,18 +21,22 @@ import java.util.TimeZone;
 import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 
 public class WorkingTime extends ScheduledAttendant {
-    public static final int LAST_WORKING_DAY = 5;
-
     private WorkingHours[] m_workingHours;
 
+    /**
+     * Initialization is a bit tricky - days here are numbered from 0 to 6, with - 0 being Monday and 6 being Sunday.
+     * Days in getScheduleDay and in Calenar object are number from 1 to 7 with 1 being Sunday and 7 being Saturday.
+     *
+     */
     public WorkingTime() {
-        m_workingHours = new WorkingHours[ScheduledDay.DAYS_OF_WEEK.length];
-        for (int i = 0; i < m_workingHours.length; i++) {
+        final int days = ScheduledDay.DAYS_OF_WEEK.length;
+        final int lastWorkingDay = Calendar.FRIDAY - Calendar.MONDAY;
+        m_workingHours = new WorkingHours[days];
+        for (int i = 0; i < days; i++) {
             WorkingHours whs = new WorkingHours();
-            whs.setDay(ScheduledDay.DAYS_OF_WEEK[i]);
-            if (i < LAST_WORKING_DAY) {
-                whs.setEnabled(true);
-            }
+            int dayOfWeek = (i + Calendar.SUNDAY) % days + 1;
+            whs.setDay(ScheduledDay.getScheduledDay(dayOfWeek));
+            whs.setEnabled(i <= lastWorkingDay);
             m_workingHours[i] = whs;
         }
     }

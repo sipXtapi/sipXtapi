@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
@@ -19,6 +22,7 @@ import javax.naming.directory.SearchResult;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.common.UserException;
 
 /**
@@ -35,25 +39,11 @@ public class LdapManagerImpl implements LdapManager {
 
     private JndiLdapTemplate m_jndiTemplate;
 
-    public AttrMap getAttrMap() {
-        return m_attrMap;
-    }
+    private CronSchedule m_schedule = new CronSchedule();
 
-    public LdapConnectionParams getConnectionParams() {
-        return m_connectionParams;
-    }
+    private LdapImportManager m_ldapImportManager;
 
-    public void setAttrMap(AttrMap attrMap) {
-        m_attrMap = attrMap;
-    }
-
-    public void setConnectionParams(LdapConnectionParams params) {
-        m_connectionParams = params;
-    }
-
-    public void setJndiTemplate(JndiLdapTemplate jndiTemplate) {
-        m_jndiTemplate = jndiTemplate;
-    }
+    private Timer m_timer;
 
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
         params.applyToTemplate(m_jndiTemplate);
@@ -133,4 +123,49 @@ public class LdapManagerImpl implements LdapManager {
         return schema;
     }
 
+    public CronSchedule getSchedule() {
+        return m_schedule;
+    }
+
+    public void setSchedule(CronSchedule schedule) {
+        if (m_timer != null) {
+            m_timer.cancel();
+        }
+        m_schedule = schedule;
+        m_timer = m_schedule.schedule(new LdapImportTask());
+    }
+
+    public AttrMap getAttrMap() {
+        return m_attrMap;
+    }
+
+    public LdapConnectionParams getConnectionParams() {
+        return m_connectionParams;
+    }
+
+    public void setAttrMap(AttrMap attrMap) {
+        m_attrMap = attrMap;
+    }
+
+    public void setConnectionParams(LdapConnectionParams params) {
+        m_connectionParams = params;
+    }
+
+    public void setJndiTemplate(JndiLdapTemplate jndiTemplate) {
+        m_jndiTemplate = jndiTemplate;
+    }
+
+    public void setLdapImportManager(LdapImportManager ldapImportManager) {
+        m_ldapImportManager = ldapImportManager;
+    }
+
+    public void init() {
+        m_timer = m_schedule.schedule(new LdapImportTask());
+    }
+
+    private final class LdapImportTask extends TimerTask {
+        public void run() {
+            m_ldapImportManager.insert();
+        }
+    }
 }

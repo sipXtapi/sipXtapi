@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import org.sipfoundry.sipxconfig.admin.CronSchedule;
+
 public interface LdapManager {
     LdapConnectionParams getConnectionParams();
 
@@ -19,6 +21,10 @@ public interface LdapManager {
     AttrMap getAttrMap();
 
     void setAttrMap(AttrMap attrMap);
+    
+    CronSchedule getSchedule();
+    
+    void setSchedule(CronSchedule schedule);
 
     /**
      * Check LDAP connection for the provided connection params

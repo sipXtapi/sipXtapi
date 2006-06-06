@@ -27,7 +27,7 @@ public final class ScheduledDay extends Enum {
     public static final ScheduledDay SATURDAY = new ScheduledDay("Saturday", Calendar.SATURDAY);
 
     public static final ScheduledDay[] DAYS_OF_WEEK = {
-        MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY
+        SUNDAY, MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY,
     };
 
     private int m_dayOfWeek;
@@ -53,6 +53,13 @@ public final class ScheduledDay extends Enum {
     /** Map the day ID string to a ScheduledDay object */
     public static ScheduledDay getScheduledDay(String id) {
         return (ScheduledDay) getEnum(ScheduledDay.class, id);
+    }
+
+    public static ScheduledDay getScheduledDay(int calendarDayOfWeek) {
+        if (calendarDayOfWeek < 1 || calendarDayOfWeek > DAYS_OF_WEEK.length) {
+            throw new IllegalArgumentException("Pass Calendar.MONDAY, Calendar.TUESDAY etc.");
+        }
+        return DAYS_OF_WEEK[calendarDayOfWeek - 1];
     }
 
     /**

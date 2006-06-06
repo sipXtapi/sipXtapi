@@ -49,7 +49,7 @@
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/lucene-core-1.9.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-1.1.jar"/>
 	<classpathentry sourcepath="LIB_SRC/hivemind/1.1.1/src.zip" kind="var" path="SIPX_CONFIG/lib/hivemind-lib-1.1.jar"/>
-	<classpathentry kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.0.1.jar"/>
+	<classpathentry sourcepath="/LIB_SRC/tapestry/4.0.1/src.zip" kind="var" path="SIPX_CONFIG/lib/tapestry-contrib-4.0.1.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/js-1.6R2.jar"/>
 	<classpathentry kind="var" path="SIPX_CONFIG/lib/tacos4-beta-2-lib.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>

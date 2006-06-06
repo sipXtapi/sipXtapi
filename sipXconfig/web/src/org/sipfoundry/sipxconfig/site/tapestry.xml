@@ -115,6 +115,9 @@
 	  <property name="pattern" value="h:mm a"/>
   </bean>
   
+  <bean name="timeOfDayTranslator" class="org.sipfoundry.sipxconfig.components.TimeOfDayTranslator">
+  </bean>
+  
 	<!-- used in item common - most names in sipXconfig have the same limitation as user URL -->
   <bean id="limitedBackupCountModelPart1"
     class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel">

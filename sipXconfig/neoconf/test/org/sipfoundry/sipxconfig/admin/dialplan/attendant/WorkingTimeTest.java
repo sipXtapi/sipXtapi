@@ -16,6 +16,7 @@ import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
+import org.sipfoundry.sipxconfig.admin.ScheduledDay;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime.WorkingHours;
 
 public class WorkingTimeTest extends TestCase {
@@ -56,8 +57,10 @@ public class WorkingTimeTest extends TestCase {
         WorkingHours[] workingHours = wt.getWorkingHours();
         assertEquals(7, workingHours.length);
         assertTrue(workingHours[0].isEnabled());
+        assertEquals(ScheduledDay.MONDAY, workingHours[0].getDay());
         assertTrue(workingHours[4].isEnabled());
         assertFalse(workingHours[5].isEnabled());
         assertFalse(workingHours[6].isEnabled());
+        assertEquals(ScheduledDay.SUNDAY, workingHours[6].getDay());
     }
 }
