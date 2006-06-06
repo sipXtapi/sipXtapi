@@ -35,6 +35,7 @@
 #define STRESS_FACTOR   3       /**< How many times to repeat each test case */
 #define TEST_DELAY      4000    /**< Time to delay between each test */
 
+#ifdef ENABLE_TAPITEST
 #define TEST_AUDIO              1
 #define TEST_LINE               1
 #define TEST_CALL               1
@@ -43,7 +44,16 @@
 #define TEST_TRANSFER           1
 #define TEST_CONFIG             1
 #define TEST_PROBLEMATIC_CASES  0
-
+#else
+#define TEST_AUDIO              0
+#define TEST_LINE               0
+#define TEST_CALL               0
+#define TEST_CONF               0
+#define TEST_REG                0
+#define TEST_TRANSFER           0
+#define TEST_CONFIG             0
+#define TEST_PROBLEMATIC_CASES  0
+#endif
 
 bool basicCall_CallBack_Receive(SIPX_EVENT_CATEGORY category, 
                                          void* pInfo, 
