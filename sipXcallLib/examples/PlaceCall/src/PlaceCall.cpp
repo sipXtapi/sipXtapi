@@ -62,6 +62,7 @@ void usage(const char* szExecutable)
     printf("   -p SIP port (default = 5060)\n") ;
     printf("   -r RTP port start (default = 9000)\n") ;
     printf("   -R use rport as part of via (disabled by default)\n") ;
+    printf("   -B ip address to bind to");
     printf("   -u username (for authentication)\n") ;
     printf("   -a password  (for authentication)\n") ;
     printf("   -m realm  (for authentication)\n") ;
@@ -98,6 +99,7 @@ bool parseArgs(int argc,
                char** pszFromIdentity,
                char** pszStunServer,
                char** pszProxy,
+               char** pszBindAddress,
                int*   pRepeatCount,
                char** pszInputDevice,
                char** pszOutputDevice,
@@ -123,6 +125,7 @@ bool parseArgs(int argc,
     *pszFromIdentity = NULL ;
     *pszStunServer = NULL ;
     *pszProxy = NULL;
+    *pszBindAddress = NULL;
     *pszInputDevice = NULL;
     *pszOutputDevice = NULL;
     *pszCodecName = NULL;
@@ -257,6 +260,17 @@ bool parseArgs(int argc,
             if ((i+1) < argc)
             {
                 *pszStunServer = strdup(argv[++i]) ;
+            }
+            else
+            {
+                break ; // Error
+            }
+        }
+        else if (strcmp(argv[i], "-B") == 0)
+        {
+            if ((i+1) < argc)
+            {
+                *pszBindAddress = strdup(argv[++i]) ;
             }
             else
             {
@@ -646,6 +660,7 @@ int local_main(int argc, char* argv[])
     char* szFromIdentity;
     char* szStunServer;
     char* szProxy;
+    char* szBindAddr;
     char* szOutDevice;
     char* szInDevice;
     char* szCodec;
@@ -656,13 +671,14 @@ int local_main(int argc, char* argv[])
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szPlayTones,
             &szFile, &szFileBuffer, &szSipUrl, &bUseRport, &szUsername, 
             &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
-            &iRepeatCount, &szInDevice, &szOutDevice, &szCodec, &bCList) 
+            &szBindAddr, &iRepeatCount, &szInDevice, &szOutDevice, &szCodec, &bCList) 
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         // initialize sipx TAPI-like API
         sipxConfigSetLogLevel(LOG_LEVEL_DEBUG) ;
         sipxConfigSetLogFile("PlaceCall.log");
-        sipxInitialize(&g_hInst, iSipPort, iSipPort, -1, iRtpPort);
+        sipxInitialize(&g_hInst, iSipPort, iSipPort, -1, iRtpPort,
+                       DEFAULT_CONNECTIONS, DEFAULT_IDENTITY, szBindAddr);
         sipxConfigEnableRport(g_hInst, bUseRport) ;
         dumpInputOutputDevices() ;
         sipxEventListenerAdd(g_hInst, EventCallBack, NULL) ;
