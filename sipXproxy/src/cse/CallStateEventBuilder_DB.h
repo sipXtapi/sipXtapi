@@ -174,6 +174,8 @@ class CallStateEventBuilder_DB : public CallStateEventBuilder
                  );
 
    void reset();
+   
+   void replaceSingleQuotes(const UtlString& value, UtlString& newValue);
 
    /// no copy constructor or assignment operator   
    CallStateEventBuilder_DB(const CallStateEventBuilder_DB& rCallStateEventBuilderDB); 
