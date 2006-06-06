@@ -9,6 +9,7 @@
 
   <types>
     <xsd:schema targetNamespace="urn:ProcessManagerService">
+
       <xsd:complexType name="ArrayOfString">
         <xsd:complexContent>
           <xsd:restriction base="SOAP-ENC:Array">
@@ -23,6 +24,28 @@
           <xsd:element name="verb" type="xsd:string" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
       </xsd:complexType>
+
+      <xsd:simpleType name="ProcessStatus">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="Starting" />
+          <xsd:enumeration value="Started" />
+          <xsd:enumeration value="Stopping" />
+          <xsd:enumeration value="Stopped" />
+          <xsd:enumeration value="Failed" />
+        </xsd:restriction>
+      </xsd:simpleType>      
+
+      <xsd:complexType name="NamedProcessStatus">
+          <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="status" type="tns:ProcessStatus" minOccurs="1" maxOccurs="1" />
+      </xsd:complexType>
+
+      <xsd:complexType name="ArrayOfNamedProcessStatus">
+        <xsd:sequence>
+          <xsd:element name="namedProcessStatus" type="tns:NamedProcessStatus" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+
     </xsd:schema>
   </types>
 
@@ -31,11 +54,21 @@
   </message>
   <message name="manageProcessesResponse" />
 
+  <message name="getProcessStatusRequest" />
+  <message name="getProcessStatusResponse">
+    <part name="getProcessStatusResponse" type="tns:ArrayOfNamedProcessStatus" />
+  </message>
+
   <portType name="ProcessManagerService">
 
     <operation name="manageProcesses">
       <input message="tns:manageProcessesRequest" />
       <output message="tns:manageProcessesResponse" />
+    </operation>
+
+    <operation name="getProcessStatus">
+      <input message="tns:getProcessStatusRequest" />
+      <output message="tns:getProcessStatusResponse" />
     </operation>
 
   </portType>
@@ -46,12 +79,20 @@
     <operation name="manageProcesses">
       <soap:operation soapAction="urn:ProcessManagerService#manageProcesses" />
       <input>
-        <soap:body use="encoded" namespace="urn:ProcessManagerService"
-          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
       </input>
       <output>
-        <soap:body use="encoded" namespace="urn:ProcessManagerService"
-          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </output>
+    </operation>
+
+    <operation name="getProcessStatus">
+      <soap:operation soapAction="urn:ProcessManagerService#getProcessStatus" />
+      <input>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
       </output>
     </operation>
 

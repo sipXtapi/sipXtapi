@@ -49,6 +49,7 @@ class ProcessManagerServerTest < Test::Unit::TestCase
                                  ProcessManagerServer::SOAP_NAMESPACE)
     @pm.wiredump_dev = STDERR if $DEBUG
     @pm.add_method('manageProcesses', 'input')
+    @pm.add_method('getProcessStatus')
   end
   
   def teardown
@@ -59,6 +60,14 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     input.processes = ProcessManagerServer::Array['p1', 'p2']
     input.verb = 'start'
     @pm.manageProcesses(input)
+  end
+
+  def test_getProcessStatus
+    result_array = @pm.getProcessStatus()
+    s1 = result_array[0]
+    puts "s1: name=#{s1.name} status=#{s1.status}"
+    s2 = result_array[1]
+    puts "s2: name=#{s2.name} status=#{s2.status}"
   end
 
 end

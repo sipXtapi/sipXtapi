@@ -42,6 +42,7 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   
   def on_init
     add_method(self, 'manageProcesses')
+    add_method(self, 'getProcessStatus')
   end
 
   def port
@@ -52,6 +53,7 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   #=============================================================================
   # SOAP methods
   
+  #:TODO: pass this call through to the process manager
   def manageProcesses(input)
     puts 'manageProcesses'
     
@@ -61,19 +63,38 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
     puts("manageProcesses: verb = #{input.verb}, processes = #{processes}")
   end
 
+  #:TODO: pass this call through to the process manager
+  def getProcessStatus()
+    puts 'getProcessStatus'
+    
+    # Create and return dummy status info as a start
+    s1 = NamedProcessStatus.new
+    s1.name = 'proc1'
+    s1.status = 'started'
+    s2 = NamedProcessStatus.new
+    s2.name = 'proc2'
+    s2.status = 'stopped'
+    return ProcessManagerServer::Array[s1, s2]
+  end
   
   #=============================================================================
   # SOAP data
+  
+  # marshallable version of the standard Array
+  class Array < ::Array; include SOAP::Marshallable
+    @@schema_ns = SOAP_NAMESPACE  
+  end
 
   class ManageProcessesInput; include SOAP::Marshallable
     @@schema_ns = SOAP_NAMESPACE
     @@schema_type = 'ManageProcessesInput'
     attr_accessor :processes, :verb
   end
-  
-  # marshall-able version of the standard Array
-  class Array < ::Array; include SOAP::Marshallable
-    @@schema_ns = SOAP_NAMESPACE  
+
+  class NamedProcessStatus; include SOAP::Marshallable
+    @@schema_ns = SOAP_NAMESPACE
+    @@schema_type = 'NamedProcessStatus'
+    attr_accessor :name, :status
   end
   
 end
