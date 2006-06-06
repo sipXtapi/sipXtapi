@@ -368,6 +368,7 @@ rpmBuild()
     then
         mkbuilddir build
         cd build > /dev/null
+        rm -f *.rpm
         [[ $Verbose = YES ]] &&
             echo ../configure $ConfigureSwitches --prefix $Destination
         if ../configure $ConfigureSwitches
@@ -574,6 +575,10 @@ do
         --configure)
         shift
         SpecialConfigureSwitches="$SpecialConfigureSwitches ${1}"
+        ;;
+
+        --createrepo)
+        Action=REPO
         ;;
 
         -*)
@@ -905,6 +910,26 @@ then
       fi
     done
     exit 0
+elif test "$Action" = "REPO"
+then
+    Projects=$RpmProjects
+    if [ -d repo ]; then
+       rm -rf repo;
+    fi
+    mkdir repo
+    for Project in $Projects; 
+    do
+      if [ -d $Project/build ]
+      then
+        cp $Project/build/*.rpm repo
+      else
+        builderr "RPMs for $Project missing (skipped)"
+      fi
+    done
+    pushd .
+    cd repo
+    createrepo .
+    exit 0
 fi
 
 cat <<USAGE
@@ -1028,6 +1053,8 @@ Options are:
 
      --configure xxx   Add "xxx" to the list of options to be passed to
                        ./configure, as if it appeared in a --label file.
+
+     --createrepo      Create yum-compatible repository of built RPMs.
 USAGE
 
 exit

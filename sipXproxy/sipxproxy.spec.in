@@ -44,6 +44,16 @@ Requires: sipxcommserverlib-devel >= 3.5
 %description devel
 Internal class documentation for the proxy classes
 
+%package callresolver
+Requires: %name
+Group: Applications/Communications
+Vendor: SIPfoundry
+Summary: CDR generator
+
+%description callresolver
+The callresolver is a Ruby application that generates CDRs from call state events
+that are observed and logged to a database by the proxies.
+
 %prep
 %setup -q
 
@@ -74,29 +84,22 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-
-%doc CONTRIBUTORS ChangeLog %name.configlog
-%attr(755,root,root) %{_bindir}/sipproxy.sh
-%attr(755,root,root) %{_bindir}/sipproxy
-%attr(755,root,root) %{_bindir}/sipauthproxy.sh
-%attr(755,root,root) %{_bindir}/sipauthproxy
-%attr(755,root,root) %{_bindir}/%name-config
-%attr(755,root,root) %{_bindir}/sipxcallresolver.sh
-%attr(755,root,root) %{_bindir}/sipxha-distrib.sh
-
-%attr(755,root,root) %{sipxcallresolverdir}/sipxcallresolver-1.0.0.gem
-
 # The configuration directory needs to be writeable because
 # config files are generated from templates via config.defs
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
 
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/proxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/forwardingrules.xml.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authproxy-config.in
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/authrules.xml.in
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/callresolver-config.in
-%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
+
+%doc CONTRIBUTORS LICENSE ChangeLog %name.configlog
+%attr(755,root,root) %{_bindir}/sipproxy.sh
+%attr(755,root,root) %{_bindir}/sipproxy
+%attr(755,root,root) %{_bindir}/sipauthproxy.sh
+%attr(755,root,root) %{_bindir}/sipauthproxy
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_bindir}/sipxha-distrib.sh
 
 %{upgrade_archive_dir}/%{this_archive}
 %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -105,14 +108,27 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc %{_datadir}/doc/sipx/%name/*
 
+%files callresolver
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr
+
+%attr(755,root,root) %{_bindir}/sipxcallresolver.sh
+%attr(755,root,root) %{sipxcallresolverdir}/sipxcallresolver-1.0.0.gem
+%config %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/cdr/*
+%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_sysconfdir}/sipxpbx/callresolver-config.in
+
+%attr(644,root,root) %{sipxcallresolverdir}/actionmailer-1.1.5.gem
+%attr(644,root,root) %{sipxcallresolverdir}/activesupport-1.2.5.gem
+%attr(644,root,root) %{sipxcallresolverdir}/actionpack-1.11.2.gem
+%attr(644,root,root) %{sipxcallresolverdir}/rails-1.0.0.gem
+%attr(644,root,root) %{sipxcallresolverdir}/actionwebservice-1.0.0.gem
+%attr(644,root,root) %{sipxcallresolverdir}/rake-0.7.0.gem
+%attr(644,root,root) %{sipxcallresolverdir}/activerecord-1.13.2.gem
+
 %pre
 sipx-upgrade -p sipxproxy -c
 
 %post
 sipx-upgrade -p sipxproxy -u --bdir %{_bindir} --ddir %{_datadir} --cdir %{_sysconfdir} --sdir %{_localstatedir}
-sipxcallresolver.sh --setup
-
-gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver-*.gem >/dev/null 2>&1
 
 %define current_archive %{upgrade_archive_dir}/%{name}-current.tgz
 %define previous_archive %{upgrade_archive_dir}/%{name}-previous.tgz
@@ -123,11 +139,23 @@ mv %{upgrade_archive_dir}/%{this_archive} %{current_archive}
 
 pkg-upgrade --previous %{previous_archive} --current %{current_archive}
 
+%post callresolver
+sipxcallresolver.sh --setup
+gem install --no-rdoc --local %{sipxcallresolverdir}/actionmailer-1.1.5.gem
+gem install --no-rdoc --local %{sipxcallresolverdir}/actionpack-1.11.2.gem
+gem install --no-rdoc --local %{sipxcallresolverdir}/actionwebservice-1.0.0.gem
+gem install --no-rdoc --local %{sipxcallresolverdir}/activerecord-1.13.2.gem
+gem install --no-rdoc --local %{sipxcallresolverdir}/activesupport-1.2.5.gem
+gem install --no-rdoc --local %{sipxcallresolverdir}/rails-1.0.0.gem
+gem install --no-rdoc --local %{sipxcallresolverdir}/rake-0.7.0.gem
+
+gem install --no-rdoc --local %{sipxcallresolverdir}/sipxcallresolver-*.gem >/dev/null 2>&1
+
 if [ -f %{_sysconfdir}/cron.daily/callresolver_run ]; then
   rm -f %{_sysconfdir}/cron.daily/callresolver_run
 fi
 
-%preun
+%preun callresolver
 # prevent uninstalling during an upgrade
 #   see http://www-128.ibm.com/developerworks/library/l-rpm3/
 if [ "$1" = "0" ] ; then
