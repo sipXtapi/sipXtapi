@@ -811,3 +811,19 @@ AC_DEFUN([SFAC_FEATURE_DBTEST],
      AC_MSG_RESULT(${enable_dbtests})
    fi
 ])
+
+
+AC_DEFUN([SFAC_FEATURE_TAPITEST],
+[
+   AC_ARG_ENABLE(tapitest, 
+                 [  --enable-tapitest        enable sipXtapiTest (yes)],
+                 [], [enable_tapitest=yes])
+   AC_MSG_CHECKING([if tapi tests are enabled])
+   AC_MSG_RESULT(${enable_tapitest})
+
+   if test "${enable_tapitest}" = "yes"
+   then
+      CFLAGS="-DENABLE_TAPITEST $CFLAGS"
+      CXXFLAGS="-DENABLE_TAPITEST $CXXFLAGS"
+   fi
+])
