@@ -142,16 +142,9 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
       newEvent(sequenceNumber, timestamp, CallEventTable, CallRequestType);
 
       // Translate singe quotes
-      if (contact.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString ncontact(contact);
-         ncontact.replace('\'', '"');
-         mContactElement = "\'" + ncontact + "\',";         
-      }
-      else
-      {
-         mContactElement = "\'" + contact + "\',";
-      }
+      UtlString ncontact;
+      replaceSingleQuotes(contact, ncontact);
+      mContactElement = "\'" + ncontact + "\',";         
    }
    else
    {
@@ -180,16 +173,9 @@ void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
    {
       newEvent(sequenceNumber, timestamp, CallEventTable, CallSetupType);
 
-      if (contact.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString ncontact(contact);
-         ncontact.replace('\'', '"');
-         mContactElement = "\'" + ncontact + "\',";         
-      }
-      else
-      {
-         mContactElement = "\'" + contact + "\',";
-      }
+      UtlString ncontact;
+      replaceSingleQuotes(contact, ncontact); 
+      mContactElement = "\'" + contact + "\',";
    }
    else
    {
@@ -275,49 +261,18 @@ void CallStateEventBuilder_DB::callTransferEvent(int sequenceNumber,
    {
       newEvent(sequenceNumber, timeStamp, CallEventTable, CallTransferType);
       
-      if (contact.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString ncontact(contact);
-         ncontact.replace('\'', '"');
-         mContactElement = "\'" + ncontact + "\',";         
-      }
-      else
-      {
-         mContactElement = "\'" + contact + "\',";           
-      }
-      
-      if (refer_to.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString nrefer_to(refer_to);
-         nrefer_to.replace('\'', '"');
-         mReferElement = "\'" + nrefer_to + "\',";         
-      }
-      else
-      {
-         mReferElement = "\'" + refer_to + "\',";           
-      }
-      
-      if (referred_by.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString nreferred_by(referred_by);
-         nreferred_by.replace('\'', '"');
-         mReferElement += "\'" + nreferred_by + "\',";         
-      }
-      else
-      {
-         mReferElement += "\'" + referred_by + "\',";           
-      }
-      if (request_uri.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString nrequest_uri(request_uri);
-         nrequest_uri.replace('\'', '"');
-         mRequestUri = "\'" + nrequest_uri + "\'";         
-      }
-      else
-      {
-         mRequestUri = "\'" + request_uri + "\'";           
-      }                                                                        
-    
+      UtlString nvalue;
+      replaceSingleQuotes(contact, nvalue);
+      mContactElement = "\'" + nvalue + "\',";         
+
+      replaceSingleQuotes(refer_to, nvalue);
+      mReferElement = "\'" + nvalue + "\',";         
+
+      replaceSingleQuotes(referred_by, nvalue);
+      mReferElement += "\'" + nvalue + "\',";    
+
+      replaceSingleQuotes(request_uri, nvalue);
+      mRequestUri = "\'" + nvalue + "\'";         
    }
    else
    {
@@ -343,60 +298,22 @@ void CallStateEventBuilder_DB::addCallData(const int cseqNumber,
       char buffer[32];
       snprintf(buffer, 31, "%d,", cseqNumber);
       mCallInfo = buffer;
-      if (callId.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString ncallId(callId);
-         ncallId.replace('\'', '"');
-         mCallInfo += "\'" + ncallId + "\',";         
-      }
-      else
-      {
-         mCallInfo += "\'" + callId + "\',";           
-      }
       
-      if (fromTag.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString nfromTag(fromTag);
-         nfromTag.replace('\'', '"');
-         mCallInfo += "\'" + nfromTag + "\',";         
-      }
-      else
-      {
-         mCallInfo += "\'" + fromTag + "\',";           
-      }      
+      UtlString nvalue;
+      replaceSingleQuotes(callId, nvalue);
+      mCallInfo += "\'" + nvalue + "\',";        
 
-      if (toTag.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString ntoTag(toTag);
-         ntoTag.replace('\'', '"');
-         mCallInfo += "\'" + ntoTag + "\',";         
-      }
-      else
-      {
-         mCallInfo += "\'" + toTag + "\',";           
-      }
-      
-      if (fromField.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString nfromField(fromField);
-         nfromField.replace('\'', '"');
-         mCallInfo += "\'" + nfromField + "\',";         
-      }
-      else
-      {
-         mCallInfo += "\'" + fromField + "\',";           
-      }  
-      
-      if (toField.index('\'') != UTL_NOT_FOUND)
-      {
-         UtlString ntoField(toField);
-         ntoField.replace('\'', '"');
-         mCallInfo += "\'" + ntoField + "\',";         
-      }
-      else
-      {
-         mCallInfo += "\'" + toField + "\',";           
-      }          
+      replaceSingleQuotes(fromTag, nvalue); 
+      mCallInfo += "\'" + nvalue + "\',";         
+
+      replaceSingleQuotes(toTag, nvalue);
+      mCallInfo += "\'" + nvalue + "\',";         
+
+      replaceSingleQuotes(fromField, nvalue);
+      mCallInfo += "\'" + nvalue + "\',";       
+
+      replaceSingleQuotes(toField, nvalue);
+      mCallInfo += "\'" + nvalue + "\',";        
    }
    else
    {
@@ -506,5 +423,20 @@ bool  CallStateEventBuilder_DB::finishElement(UtlString& event)
    }
 
    return isComplete;
+}
+
+void CallStateEventBuilder_DB::replaceSingleQuotes(const UtlString& value, UtlString& newValue)
+{
+   int startIndex = 0;
+   int newIndex = 0;
+   
+   newValue = value;
+   
+   newIndex = newValue.index('\'', startIndex);
+   while ((newIndex = newValue.index('\'', startIndex)) != UTL_NOT_FOUND)
+   {
+      startIndex = newIndex + 2;
+      newValue = newValue.replace(newIndex, 1, "\\'");
+   }
 }
 
