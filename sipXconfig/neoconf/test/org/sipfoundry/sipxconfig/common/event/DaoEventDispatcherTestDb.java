@@ -11,7 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.common.event;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -41,11 +42,11 @@ public class DaoEventDispatcherTestDb extends SipxDatabaseTestCase {
     }
         	
     public void testOnSaveAspect() throws Exception {
-    	User u = new User();
-    	u.setUserName("testme");
-    	
-    	MockControl publisherCtrl = MockControl.createControl(DaoEventPublisher.class);
-		DaoEventPublisher publisher = (DaoEventPublisher) publisherCtrl.getMock();
+        	User u = new User();
+        	u.setUserName("testme");
+        	
+        	IMocksControl publisherCtrl = EasyMock.createControl();
+		DaoEventPublisher publisher = publisherCtrl.createMock(DaoEventPublisher.class);
 		publisher.publishSave(u);
         publisherCtrl.replay();
 

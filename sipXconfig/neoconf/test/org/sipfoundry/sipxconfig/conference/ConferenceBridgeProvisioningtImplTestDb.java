@@ -16,9 +16,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.easymock.AbstractMatcher;
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.EasyMock;
+import org.easymock.IArgumentMatcher;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -37,14 +37,19 @@ public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCas
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("conference/users.db.xml");
     }
+    
+    static Hashtable settingsMapMatcher() {
+        EasyMock.reportMatcher(new SettingMatcher());
+        return null;
+    }
 
     public void testDeploy() throws Exception {
-        MockControl dbCtrl = MockControl.createControl(ConfigDbParameter.class);
-        ConfigDbParameter db = (ConfigDbParameter) dbCtrl.getMock();
-        dbCtrl.setDefaultMatcher(new SettingMatcher());
-        db.set("bbridge.conf", new Hashtable());
+        IMocksControl dbCtrl = EasyMock.createControl();
+        ConfigDbParameter db = dbCtrl.createMock(ConfigDbParameter.class);
+        db.set(EasyMock.eq("bbridge.conf"), settingsMapMatcher());
+        
         // do not check params for now - we just verify that the function has been called once
-        dbCtrl.setReturnValue(10);
+        dbCtrl.andReturn(10);
 
         dbCtrl.replay();
 
@@ -54,8 +59,8 @@ public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCas
         TestHelper.insertFlat("conference/participants.db.xml");
         Bridge bridge = m_context.loadBridge(new Integer(2005));
 
-        MockControl hibernateCtrl = MockClassControl.createControl(HibernateTemplate.class);
-        HibernateTemplate hibernate = (HibernateTemplate) hibernateCtrl.getMock();
+        IMocksControl hibernateCtrl = org.easymock.classextension.EasyMock.createControl();
+        HibernateTemplate hibernate = hibernateCtrl.createMock(HibernateTemplate.class);
         hibernate.saveOrUpdateAll(bridge.getConferences());
         hibernateCtrl.replay();
 
@@ -72,15 +77,15 @@ public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCas
         TestHelper.insertFlat("conference/participants.db.xml");
         Bridge bridge = m_context.loadBridge(new Integer(2005));
 
-        MockControl hibernateCtrl = MockClassControl.createControl(HibernateTemplate.class);
-        HibernateTemplate hibernate = (HibernateTemplate) hibernateCtrl.getMock();
+        IMocksControl hibernateCtrl = org.easymock.classextension.EasyMock.createControl();
+        HibernateTemplate hibernate = hibernateCtrl.createMock(HibernateTemplate.class);
         hibernate.loadAll(Conference.class);
-        hibernateCtrl.setReturnValue(new ArrayList(bridge.getConferences()));
+        hibernateCtrl.andReturn(new ArrayList(bridge.getConferences()));
         hibernateCtrl.replay();
 
-        MockControl replicationCtrl = MockControl.createControl(SipxReplicationContext.class);
-        replicationCtrl.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
-        SipxReplicationContext replication = (SipxReplicationContext) replicationCtrl.getMock();
+        IMocksControl replicationCtrl = EasyMock.createControl();
+        SipxReplicationContext replication = replicationCtrl.createMock(SipxReplicationContext.class);
+        EasyMock.anyObject();
         replication.replicate(null);
         replicationCtrl.replay();
 
@@ -93,23 +98,53 @@ public class ConferenceBridgeProvisioningtImplTestDb extends SipxDatabaseTestCas
         replicationCtrl.verify();
         hibernateCtrl.verify();
     }
+    
+    static class AlwaysMatcher implements IArgumentMatcher {
 
-    static class SettingMatcher extends AbstractMatcher {
-        protected boolean argumentMatches(Object expected, Object actual) {
-            if (!(expected instanceof Map)) {
-                return super.argumentMatches(expected, actual);
-            }
-            Map args = (Map) expected;
+        public boolean matches(Object argument) {
+            return true;
+        }
+
+        public void appendTo(StringBuffer buffer) {
+        }        
+    }
+
+    static class SettingMatcher implements IArgumentMatcher {
+        
+//        protected boolean argumentMatches(Object expected, Object actual) {
+//            if (!(expected instanceof Map)) {
+//                return super.argumentMatches(expected, actual);
+//            }
+//            Map args = (Map) expected;
+//            // uncomment to see parameters sent to XML/RPC
+//            // MapUtils.debugPrint(System.err, "expected:", args);
+//            for (Iterator i = args.keySet().iterator(); i.hasNext();) {
+//                String name = (String) i.next();
+//                // all settings should start with the same prefix
+//                if (!name.startsWith("BOSTON_BRIDGE")) {
+//                    return false;
+//                }
+//            }
+//            return true;
+//        }
+
+        public boolean matches(Object argument) {
+            Map actual = (Map) argument;
             // uncomment to see parameters sent to XML/RPC
             // MapUtils.debugPrint(System.err, "expected:", args);
-            for (Iterator i = args.keySet().iterator(); i.hasNext();) {
+            for (Iterator i = actual.keySet().iterator(); i.hasNext();) {
                 String name = (String) i.next();
                 // all settings should start with the same prefix
-                if (!name.startsWith("BOSTON_BRIDGE")) {
+                if (!name.startsWith("BOSTON_BRIDGE")) {                   
                     return false;
                 }
             }
+            
             return true;
+        }
+
+        public void appendTo(StringBuffer buffer) {
+            buffer.append("all settings should start with the same prefix");
         }
     }
 }

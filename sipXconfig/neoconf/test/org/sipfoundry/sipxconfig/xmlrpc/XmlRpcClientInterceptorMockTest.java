@@ -15,22 +15,18 @@ import junit.framework.TestCase;
 
 import org.apache.xmlrpc.XmlRpcClient;
 import org.apache.xmlrpc.XmlRpcException;
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.IMocksControl;
+import org.easymock.classextension.EasyMock;
 import org.springframework.aop.framework.ProxyFactory;
 
 public class XmlRpcClientInterceptorMockTest extends TestCase {
 
     public void testIntercept() throws Exception {
-        MockControl mcClient = MockClassControl.createControl(XmlRpcClient.class, new Class[] {
-            String.class
-        }, new Object[] {
-            "http://localhost:9997"
-        });
-        XmlRpcClient client = (XmlRpcClient) mcClient.getMock();        
+        IMocksControl mcClient = org.easymock.classextension.EasyMock.createControl();
+        XmlRpcClient client = mcClient.createMock(XmlRpcClient.class);        
+        EasyMock.anyObject();
         client.execute(null);
-        mcClient.setMatcher(MockControl.ALWAYS_MATCHER);
-        mcClient.setReturnValue("xxxxx");
+        mcClient.andReturn("xxxxx");
         mcClient.replay();
 
         XmlRpcClientInterceptor interceptor = new XmlRpcClientInterceptor();
@@ -47,15 +43,11 @@ public class XmlRpcClientInterceptorMockTest extends TestCase {
     }
     
     public void testInterceptException() throws Exception {
-        MockControl mcClient = MockClassControl.createControl(XmlRpcClient.class, new Class[] {
-            String.class
-        }, new Object[] {
-            "http://localhost:9997"
-        });
-        XmlRpcClient client = (XmlRpcClient) mcClient.getMock();        
+        IMocksControl mcClient = org.easymock.classextension.EasyMock.createControl();
+        XmlRpcClient client = mcClient.createMock(XmlRpcClient.class);
+        EasyMock.anyObject();
         client.execute(null);
-        mcClient.setMatcher(MockControl.ALWAYS_MATCHER);
-        mcClient.setThrowable(new XmlRpcException(2, "message"));
+        mcClient.andThrow(new XmlRpcException(2, "message"));
         mcClient.replay();
 
         XmlRpcClientInterceptor interceptor = new XmlRpcClientInterceptor();
@@ -78,16 +70,12 @@ public class XmlRpcClientInterceptorMockTest extends TestCase {
     }
 
     public void testInterceptFault() throws Exception {
-        MockControl mcClient = MockClassControl.createControl(XmlRpcClient.class, new Class[] {
-            String.class
-        }, new Object[] {
-            "http://localhost:9997"
-        });
-        XmlRpcClient client = (XmlRpcClient) mcClient.getMock();        
+        IMocksControl mcClient = org.easymock.classextension.EasyMock.createControl();
+        XmlRpcClient client = mcClient.createMock(XmlRpcClient.class);
+        EasyMock.anyObject();
         client.execute(null);
-        mcClient.setMatcher(MockControl.ALWAYS_MATCHER);
         // sometimes client will return exception instead of throwing it
-        mcClient.setReturnValue(new XmlRpcException(2, "message"));
+        mcClient.andReturn(new XmlRpcException(2, "message"));
         mcClient.replay();
 
         XmlRpcClientInterceptor interceptor = new XmlRpcClientInterceptor();

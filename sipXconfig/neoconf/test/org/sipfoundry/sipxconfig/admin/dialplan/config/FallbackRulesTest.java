@@ -14,7 +14,8 @@ package org.sipfoundry.sipxconfig.admin.dialplan.config;
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -38,16 +39,22 @@ public class FallbackRulesTest extends XMLTestCase {
             "Q=0.97"
         });
 
-        MockControl control = MockControl.createStrictControl(IDialingRule.class);
-        IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.isInternal(), false);
-        control.expectAndReturn(rule.getName(), "my test name");
-        control.expectAndReturn(rule.getDescription(), "my test description");
-        control.expectAndReturn(rule.getPatterns(), new String[] {
+        IMocksControl control = EasyMock.createStrictControl();
+        IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.isInternal();
+        control.andReturn(false);
+        rule.getName();
+        control.andReturn("my test name");
+        rule.getDescription();
+        control.andReturn("my test description");
+        rule.getPatterns();
+        control.andReturn(new String[] {
             "x."
         });
-        control.expectAndReturn(rule.isInternal(), false);
-        control.expectAndReturn(rule.getTransforms(), new Transform[] {
+        rule.isInternal();
+        control.andReturn(false);
+        rule.getTransforms();
+        control.andReturn(new Transform[] {
             t1
         });
         control.replay();
@@ -79,9 +86,10 @@ public class FallbackRulesTest extends XMLTestCase {
     }
 
     public void testGenerateRuleWithoutGateways() throws Exception {
-        MockControl control = MockControl.createControl(IDialingRule.class);
-        IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.isInternal(), true);
+        IMocksControl control = EasyMock.createControl();
+        IDialingRule rule = (IDialingRule) control.createMock(IDialingRule.class);
+        rule.isInternal();
+        control.andReturn(true);
         control.replay();
 
         MappingRules mappingRules = new FallbackRules();

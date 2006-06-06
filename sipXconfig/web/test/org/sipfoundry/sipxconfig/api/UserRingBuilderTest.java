@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.api;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
 public class UserRingBuilderTest extends TestCase {
@@ -27,12 +28,12 @@ public class UserRingBuilderTest extends TestCase {
     private UserRingBuilder m_builder;
     private org.sipfoundry.sipxconfig.admin.callgroup.UserRing m_myUserRing;
     private UserRing m_apiUserRing;
-    private MockControl m_control;
+    private IMocksControl m_control;
     private CoreContext m_coreContext;
     
     protected void setUp() {
-        m_control = MockControl.createControl(CoreContext.class);
-        m_coreContext = (CoreContext) m_control.getMock();
+        m_control = EasyMock.createControl();
+        m_coreContext = m_control.createMock(CoreContext.class);
         m_builder = new UserRingBuilder(m_coreContext);
         m_myUserRing = new org.sipfoundry.sipxconfig.admin.callgroup.UserRing();
         m_apiUserRing = new UserRing();
@@ -42,7 +43,7 @@ public class UserRingBuilderTest extends TestCase {
     public void testFromApi() {                
         // set up the mock core context
         m_coreContext.loadUserByUserName(USER_NAME);
-        m_control.setReturnValue(USER);
+        m_control.andReturn(USER);
         m_control.replay();
         
         m_apiUserRing.setUserName(USER_NAME);

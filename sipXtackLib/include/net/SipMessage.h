@@ -230,6 +230,7 @@ class SipUserAgent;
 #define SIP_WARN_MEDIA_NAVAIL_TEXT "Media type not available"
 #define SIP_WARN_MEDIA_INCOMPAT_CODE 305
 #define SIP_WARN_MEDIA_INCOMPAT_TEXT "Insufficient compatible media types"
+#define SIP_WARN_MISC_CODE 399
 
 // Transport stuff
 #define SIP_PORT 5060
@@ -763,6 +764,8 @@ public:
 
     void addRequestDisposition(const char* dispositionToken);
 
+    void setWarningField(int code, const char* hostname, const char* text);
+    
     void getFromLabel(UtlString* fromLabel) const;
 
     void getToLabel(UtlString* toLabel) const;

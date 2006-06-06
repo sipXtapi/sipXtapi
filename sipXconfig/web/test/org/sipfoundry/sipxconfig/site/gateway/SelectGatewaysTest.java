@@ -19,7 +19,8 @@ import junit.framework.TestCase;
 
 import org.apache.hivemind.util.PropertyUtils;
 import org.apache.tapestry.test.Creator;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -51,18 +52,16 @@ public class SelectGatewaysTest extends TestCase {
         DialingRule rule = new CustomDialingRule();
         rule.setUniqueId();
         
-        MockControl dialPlanContextControl = MockControl.createStrictControl(DialPlanContext.class);
-        dialPlanContextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        DialPlanContext dialPlanContext = (DialPlanContext) dialPlanContextControl.getMock();
+        IMocksControl dialPlanContextControl = EasyMock.createStrictControl();
+        DialPlanContext dialPlanContext = dialPlanContextControl.createMock(DialPlanContext.class);
         
-        MockControl contextControl = MockControl.createStrictControl(GatewayContext.class);
-        contextControl.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        GatewayContext context = (GatewayContext) contextControl.getMock();
+        IMocksControl contextControl = EasyMock.createStrictControl();
+        GatewayContext context = contextControl.createMock(GatewayContext.class);
         
         dialPlanContext.getRule(rule.getId());
-        dialPlanContextControl.setReturnValue(rule);
+        dialPlanContextControl.andReturn(rule);
         context.getGatewayByIds(gatewaysToAdd);        
-        contextControl.setReturnValue(gateways);
+        contextControl.andReturn(gateways);
         dialPlanContext.storeRule(rule);
         dialPlanContextControl.replay();
         contextControl.replay();

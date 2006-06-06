@@ -16,7 +16,8 @@ import junit.framework.TestCase;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 
 public class LocalizedOptionModelDecoratorTest extends TestCase {
     
@@ -34,11 +35,14 @@ public class LocalizedOptionModelDecoratorTest extends TestCase {
     }
     
     public void testLocalization() {
-        MockControl messagesControl = MockControl.createStrictControl(Messages.class);
-        Messages messages = (Messages) messagesControl.getMock();
-        messagesControl.expectAndReturn(messages.getMessage("xyz.a"), "localized a");
-        messagesControl.expectAndReturn(messages.getMessage("xyz.b"), "b");
-        messagesControl.expectAndReturn(messages.getMessage("c"), "localized c");
+        IMocksControl messagesControl = EasyMock.createStrictControl();
+        Messages messages = messagesControl.createMock(Messages.class);
+        messages.getMessage("xyz.a");
+        messagesControl.andReturn("localized a");
+        messages.getMessage("xyz.b");
+        messagesControl.andReturn("b");
+        messages.getMessage("c");
+        messagesControl.andReturn("localized c");
         messagesControl.replay();
         
         m_localized.setMessages(messages);

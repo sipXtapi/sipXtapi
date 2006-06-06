@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.bulk.csv;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -26,15 +27,14 @@ public class CsvRowInserterTest extends TestCase {
         bongo.setUserName("bongo");
         bongo.setFirstName("Ringo");
 
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        IMocksControl coreContextCtrl = EasyMock.createControl();
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
         coreContext.loadUserByUserName("bongo");
-        coreContextCtrl.setReturnValue(bongo);
+        coreContextCtrl.andReturn(bongo);
         coreContext.loadUserByUserName("kuku");
-        coreContextCtrl.setReturnValue(null);
+        coreContextCtrl.andReturn(null);
         coreContext.getAuthorizationRealm();
-        coreContextCtrl.setReturnValue("sipfoundry.org", 2);
+        coreContextCtrl.andReturn("sipfoundry.org").times(2);
 
         coreContextCtrl.replay();
 
@@ -77,13 +77,13 @@ public class CsvRowInserterTest extends TestCase {
         phone.setSerialNumber("001122334466");
         phone.setDescription("old description");
 
-        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
-        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        IMocksControl phoneContextCtrl = EasyMock.createControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
 
         phoneContext.getPhoneIdBySerialNumber("001122334466");
-        phoneContextCtrl.setReturnValue(phoneId);
+        phoneContextCtrl.andReturn(phoneId);
         phoneContext.loadPhone(phoneId);
-        phoneContextCtrl.setReturnValue(phone);
+        phoneContextCtrl.andReturn(phone);
 
         phoneContextCtrl.replay();
 
@@ -107,13 +107,13 @@ public class CsvRowInserterTest extends TestCase {
         Phone phone = new Phone();
         phone.setDescription("old description");
 
-        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
-        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        IMocksControl phoneContextCtrl = EasyMock.createControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
 
         phoneContext.getPhoneIdBySerialNumber("001122334455");
-        phoneContextCtrl.setReturnValue(null);
+        phoneContextCtrl.andReturn(null);
         phoneContext.newPhone(PolycomModel.MODEL_500);
-        phoneContextCtrl.setReturnValue(phone);
+        phoneContextCtrl.andReturn(phone);
 
         phoneContextCtrl.replay();
 

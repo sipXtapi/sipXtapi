@@ -17,7 +17,8 @@ import org.apache.hivemind.Messages;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.valid.RenderString;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 
 public class LocalizedTableRendererSourceTest extends TestCase {
 
@@ -40,14 +41,14 @@ public class LocalizedTableRendererSourceTest extends TestCase {
     }
 
     public void testGetRenderer() {
-        MockControl messagesCtrl = MockControl.createControl(Messages.class);
-        Messages messages = (Messages) messagesCtrl.getMock();
+        IMocksControl messagesCtrl = EasyMock.createControl();
+        Messages messages = messagesCtrl.createMock(Messages.class);
         
         // PORT
         //messages.getMessage("prefix.bongo", "bongo");
         messages.getMessage("prefix.bongo");
         
-        messagesCtrl.setReturnValue("kuku");
+        messagesCtrl.andReturn("kuku");
         messagesCtrl.replay();
 
         // class mock does not work here...
@@ -65,10 +66,10 @@ public class LocalizedTableRendererSourceTest extends TestCase {
     }
     
     public void testGetRendererNoPrefix() {
-        MockControl messagesCtrl = MockControl.createControl(Messages.class);
-        Messages messages = (Messages) messagesCtrl.getMock();
+        IMocksControl messagesCtrl = EasyMock.createControl();
+        Messages messages = messagesCtrl.createMock(Messages.class);
         messages.getMessage("bongo");
-        messagesCtrl.setReturnValue("kuku");
+        messagesCtrl.andReturn("kuku");
         messagesCtrl.replay();
 
         // class mock does not work here...

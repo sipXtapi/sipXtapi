@@ -19,7 +19,8 @@ import org.custommonkey.xmlunit.XMLTestCase;
 import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.dom4j.Element;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.common.Permission;
@@ -52,17 +53,22 @@ public class AuthRulesTest extends XMLTestCase {
         List gateways = new ArrayList();
         gateways.add(gateway);
 
-        MockControl control = MockControl.createControl(IDialingRule.class);
-        IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.getDescription(), "test rule description");
-        control.expectAndReturn(rule.getTransformedPatterns(), new String[] {
+        IMocksControl control = EasyMock.createControl();
+        IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.getDescription();
+        control.andReturn("test rule description");
+        rule.getTransformedPatterns();
+        control.andReturn(new String[] {
             "555", "666", "777"
         });
-        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
+        rule.getPermissions();
+        control.andReturn(Arrays.asList(new Permission[] {
             Permission.VOICEMAIL
         }));
-        control.expectAndReturn(rule.getGateways(), gateways);
-        control.expectAndReturn(rule.getName(), "testrule");
+        rule.getGateways();
+        control.andReturn(gateways);
+        rule.getName();
+        control.andReturn("testrule");
         control.replay();
 
         MockAuthRules authRules = new MockAuthRules();
@@ -95,17 +101,22 @@ public class AuthRulesTest extends XMLTestCase {
             gateways[i].setAddress("10.1.2." + i);
         }
 
-        MockControl control = MockControl.createControl(IDialingRule.class);
-        IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.getDescription(), null);
-        control.expectAndReturn(rule.getTransformedPatterns(), new String[] {
+        IMocksControl control = EasyMock.createControl();
+        IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.getDescription();
+        control.andReturn(null);
+        rule.getTransformedPatterns();
+        control.andReturn(new String[] {
             "555", "666", "777"
         });
-        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
+        rule.getPermissions();
+        control.andReturn(Arrays.asList(new Permission[] {
             Permission.VOICEMAIL
         }));
-        control.expectAndReturn(rule.getGateways(), Arrays.asList(gateways));
-        control.expectAndReturn(rule.getName(), "testrule");
+        rule.getGateways();
+        control.andReturn(Arrays.asList(gateways));
+        rule.getName();
+        control.andReturn("testrule");
         control.replay();
 
         AuthRules authRules = new AuthRules();
@@ -149,15 +160,20 @@ public class AuthRulesTest extends XMLTestCase {
             gateways[i].setAddress("10.1.2." + i);
         }
 
-        MockControl control = MockControl.createControl(IDialingRule.class);
-        IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.getDescription(), null);
-        control.expectAndReturn(rule.getTransformedPatterns(), new String[] {
+        IMocksControl control = EasyMock.createControl();
+        IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.getDescription();
+        control.andReturn(null);
+        rule.getTransformedPatterns();
+        control.andReturn(new String[] {
             "555", "666", "777"
         });
-        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {}));
-        control.expectAndReturn(rule.getGateways(), Arrays.asList(gateways));
-        control.expectAndReturn(rule.getName(), "testrule");
+        rule.getPermissions();
+        control.andReturn(Arrays.asList(new Permission[] {}));
+        rule.getGateways();
+        control.andReturn(Arrays.asList(gateways));
+        rule.getName();
+        control.andReturn("testrule");
         control.replay();
 
         MockAuthRules authRules = new MockAuthRules();

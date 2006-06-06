@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.components;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
 import org.sipfoundry.sipxconfig.common.PrimaryKeySource;
 
@@ -30,8 +31,8 @@ public class ObjectSourceDataSqueezerTest extends TestCase {
     }
 
     public void testGetPrimaryKey() {
-        MockControl control = MockControl.createStrictControl(DataObjectSource.class);
-        DataObjectSource source = (DataObjectSource) control.getMock();
+        IMocksControl control = EasyMock.createStrictControl();
+        DataObjectSource source = control.createMock(DataObjectSource.class);
         control.replay();
 
         ObjectSourceDataSqueezer squeezer = new ObjectSourceDataSqueezer();
@@ -44,12 +45,11 @@ public class ObjectSourceDataSqueezerTest extends TestCase {
     }
 
     public void testGetValue() {
-        MockControl control = MockControl.createStrictControl(DataObjectSource.class);
-        control.setDefaultMatcher(MockControl.EQUALS_MATCHER);
-        DataObjectSource source = (DataObjectSource) control.getMock();
+        IMocksControl control = EasyMock.createStrictControl();
+        DataObjectSource source = control.createMock(DataObjectSource.class);
         
         source.load(PrimaryKeySource.class, KEY);
-        control.setReturnValue(m_object);
+        control.andReturn(m_object);
         control.replay();
 
         ObjectSourceDataSqueezer squeezer = new ObjectSourceDataSqueezer(source,
@@ -69,5 +69,4 @@ public class ObjectSourceDataSqueezerTest extends TestCase {
             // ok
         }
     }
-
 }

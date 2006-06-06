@@ -16,8 +16,8 @@ import java.io.ByteArrayOutputStream;
 import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
-import org.easymock.MockControl;
-import org.easymock.internal.EqualsMatcher;
+import org.easymock.EasyMock;
+import org.easymock.IArgumentMatcher;
 import org.sipfoundry.sipxconfig.common.TestUtil;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.SipService;
@@ -71,27 +71,35 @@ public class GrandstreamPhoneTest extends TestCase {
 //            assertEquals("Different byte: " + i, expected[i], actual[i]);
 //        }
     }
+    
+    static byte[] resetMatcher() {
+        EasyMock.reportMatcher(new ResetArgumentMatcher());
+        return null;
+    }
 
     public void testReset() throws Exception {
-        tester.sipControl = MockControl.createStrictControl(SipService.class);
-        tester.sip = (SipService) tester.sipControl.getMock();
-        tester.sip.sendNotify("\"Joe User\"<sip:juser@sipfoundry.org>", "sipfoundry.org", null,
-                "Content-Type: application/octet-stream\r\nEvent: sys-control\r\n",
-                new byte[0]);
-        tester.sipControl.setMatcher(new ResetArgumentMatcher());
+        tester.sipControl = EasyMock.createStrictControl();
+        tester.sip = (SipService) tester.sipControl.createMock(SipService.class);
+        tester.sip.sendNotify(
+                EasyMock.eq("\"Joe User\"<sip:juser@sipfoundry.org>"), 
+                EasyMock.eq("sipfoundry.org"), 
+                (String) EasyMock.eq(null),
+                EasyMock.eq("Content-Type: application/octet-stream\r\nEvent: sys-control\r\n"),
+                resetMatcher());
         tester.sipControl.replay();
 
         phone.setSipService(tester.sip);
         phone.restart();
     }
 
-    class ResetArgumentMatcher extends EqualsMatcher {
-        protected boolean argumentMatches(Object expected, Object actual) {
-            if (actual instanceof byte[]) {
-                return ((byte[]) actual).length > 0;
-            }
-            return super.argumentMatches(expected, actual);
+    static class ResetArgumentMatcher implements IArgumentMatcher {
+        public boolean matches(Object argument) {
+            byte[] payload = (byte[]) argument;
+            return payload.length > 0;
+        }
+
+        public void appendTo(StringBuffer buffer) {
+            buffer.append("byte array payload must not be empty");
         }
     }
-
 }

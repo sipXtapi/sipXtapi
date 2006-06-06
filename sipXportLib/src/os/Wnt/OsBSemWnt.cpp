@@ -33,7 +33,6 @@
 // Constructor
 OsBSemWnt::OsBSemWnt(const int queueOptions, const int initState)
 {
-   mTaskId = 0;
    mOptions = queueOptions;
    // Under Windows NT, we ignore the queueOptions argument
    //  no security attributes
@@ -42,10 +41,10 @@ OsBSemWnt::OsBSemWnt(const int queueOptions, const int initState)
    //  no name for this semaphore object
    mSemImp = CreateSemaphore(NULL, initState, 1, NULL);
 
-#ifdef OS_SYNC_DEBUG
-   if (initState == EMPTY)
-      mTaskId = GetCurrentThreadId();
-#endif
+#  ifdef OS_SYNC_DEBUG
+   mTaskId = (initState == EMPTY) ? GetCurrentThreadId() : 0;
+   mLastId = 0;
+#  endif
 }
 
 // Destructor
@@ -55,10 +54,9 @@ OsBSemWnt::~OsBSemWnt()
     res = CloseHandle(mSemImp);
     mSemImp = NULL;
 
-        mOptions = 0;
-        mTaskId = 0;
+    mOptions = 0;
 
-        assert(res == TRUE);   // CloseHandle should always return TRUE
+    assert(res == TRUE);   // CloseHandle should always return TRUE
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -73,7 +71,9 @@ OsStatus OsBSemWnt::acquire(const OsTime& rTimeout)
    retVal = OsUtilWnt::synchObjAcquire(mSemImp, rTimeout);
 #ifdef OS_SYNC_DEBUG
    if (retVal == OS_SUCCESS)
+   {
       mTaskId = GetCurrentThreadId();
+   }
 #endif
    return retVal;
 }
@@ -87,7 +87,9 @@ OsStatus OsBSemWnt::tryAcquire(void)
    retVal = OsUtilWnt::synchObjTryAcquire(mSemImp);
 #ifdef OS_SYNC_DEBUG
    if (retVal == OS_SUCCESS)
+   {
       mTaskId = GetCurrentThreadId();
+   }
 #endif
    return retVal;
 }
@@ -101,38 +103,36 @@ OsStatus OsBSemWnt::release(void)
    {
       ret = OS_TASK_NOT_STARTED;
    }
-   else if (!ReleaseSemaphore(mSemImp,
-                        1,         // add one to the previous value
-                        NULL))     // don't return the old value
+   else
    {
-      int lastErr;
+#     ifdef OS_SYNC_DEBUG
+      // make this change while holding the lock
+      int previousLast = mLastId;
+      mLastId = GetCurrentThreadId();
+      mTaskId = 0;
+#     endif
 
-      lastErr = GetLastError();
+      if (!ReleaseSemaphore(mSemImp,
+                            1,         // add one to the previous value
+                            NULL))     // don't return the old value
+      {
+         int lastErr;
 
-      if (ERROR_TOO_MANY_POSTS == lastErr) {
-         ret = OS_ALREADY_SIGNALED;
-      } else {
-         ret = OS_UNSPECIFIED;
-/*
-         char * lpMsgBuf;
+         lastErr = GetLastError();
 
-         FormatMessage(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
-            NULL, lastErr,
-            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // Default language
-            (LPTSTR) &lpMsgBuf, 0, NULL);
-         *(lpMsgBuf + strlen((char *) lpMsgBuf) - 2) = 0;
-         osPrintf("OsBSemWnt::rlse(): GetLastError = %d!\n  (%s)\n",
-            GetLastError(), lpMsgBuf);
-         LocalFree(lpMsgBuf); // Free the buffer.
-*/
+         if (ERROR_TOO_MANY_POSTS == lastErr) {
+            ret = OS_ALREADY_SIGNALED;
+         } else {
+            ret = OS_UNSPECIFIED;
+         }
+#        ifdef OS_SYNC_DEBUG
+         // still holding it, so reset the status
+         mTaskId = mLastId;
+         mLastId = previousLast;
+#        endif
       }
    }
-#ifdef OS_SYNC_DEBUG
-   if (ret == OS_SUCCESS)
-      mTaskId = 0;
-#endif
-   return ret;
+      return ret;
 }
 
 /* ============================ INQUIRY =================================== */

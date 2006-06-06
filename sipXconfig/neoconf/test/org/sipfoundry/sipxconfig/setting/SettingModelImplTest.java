@@ -15,7 +15,8 @@ import java.io.InputStream;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettingTest.BirdWithSettings;
 
@@ -28,10 +29,12 @@ public class SettingModelImplTest extends TestCase {
         Setting peewee = birds.getSetting("flycatcher/peewee");
         Setting canyonTowhee = birds.getSetting("towhee/canyon");
         
-        MockControl handlerCtrl = MockControl.createControl(SettingValueHandler.class);
-        SettingValueHandler handler = (SettingValueHandler) handlerCtrl.getMock();
-        handlerCtrl.expectAndReturn(handler.getSettingValue(peewee), ten);
-        handlerCtrl.expectAndReturn(handler.getSettingValue(canyonTowhee), null);
+        IMocksControl handlerCtrl = EasyMock.createControl();
+        SettingValueHandler handler = handlerCtrl.createMock(SettingValueHandler.class);
+        handler.getSettingValue(peewee);
+        handlerCtrl.andReturn(ten);
+        handler.getSettingValue(canyonTowhee);
+        handlerCtrl.andReturn(null);
         handlerCtrl.replay();
 
         BeanWithSettings bean = new BirdWithSettings();

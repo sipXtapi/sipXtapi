@@ -16,8 +16,8 @@ import junit.framework.TestCase;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.PropertySelection;
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 
 public class OptGroupPropertySelectionRendererTest extends TestCase {
     private OptGroupPropertySelectionRenderer m_renderer;
@@ -27,16 +27,16 @@ public class OptGroupPropertySelectionRendererTest extends TestCase {
     }
 
     public void testBeginRender() {
-        MockControl propertySelectionCtrl = MockClassControl
-                .createControl(PropertySelection.class);
-        PropertySelection propertySelection = (PropertySelection) propertySelectionCtrl.getMock();
+        IMocksControl propertySelectionCtrl = org.easymock.classextension.EasyMock
+                .createControl();
+        PropertySelection propertySelection = propertySelectionCtrl.createMock(PropertySelection.class);
         propertySelection.getName();
-        propertySelectionCtrl.setReturnValue("bongo");
+        propertySelectionCtrl.andReturn("bongo");
 
         propertySelectionCtrl.replay();
 
-        MockControl writerCtrl = MockControl.createStrictControl(IMarkupWriter.class);
-        IMarkupWriter writer = (IMarkupWriter) writerCtrl.getMock();
+        IMocksControl writerCtrl = EasyMock.createStrictControl();
+        IMarkupWriter writer = writerCtrl.createMock(IMarkupWriter.class);
         writer.begin("select");
         writer.attribute("name", "bongo");
         writerCtrl.replay();
@@ -48,8 +48,8 @@ public class OptGroupPropertySelectionRendererTest extends TestCase {
     }
 
     public void testRenderOption() {
-        MockControl writerCtrl = MockControl.createStrictControl(IMarkupWriter.class);
-        IMarkupWriter writer = (IMarkupWriter) writerCtrl.getMock();
+        IMocksControl writerCtrl = EasyMock.createStrictControl();
+        IMarkupWriter writer = writerCtrl.createMock(IMarkupWriter.class);
         writer.begin("option");
         writer.attribute("value", "1");
         writer.attribute("label", "kuku");
@@ -60,12 +60,12 @@ public class OptGroupPropertySelectionRendererTest extends TestCase {
 
         String option = "kuku";
 
-        MockControl modelCtrl = MockControl.createControl(IPropertySelectionModel.class);
-        IPropertySelectionModel model = (IPropertySelectionModel) modelCtrl.getMock();
+        IMocksControl modelCtrl = EasyMock.createControl();
+        IPropertySelectionModel model = modelCtrl.createMock(IPropertySelectionModel.class);
         model.getValue(1);
-        modelCtrl.setReturnValue("1");
+        modelCtrl.andReturn("1");
         model.getLabel(1);
-        modelCtrl.setReturnValue("kuku");
+        modelCtrl.andReturn("kuku");
 
         modelCtrl.replay();
 
@@ -76,8 +76,8 @@ public class OptGroupPropertySelectionRendererTest extends TestCase {
     }
 
     public void testRenderDisabledAndSelectedOption() {
-        MockControl writerCtrl = MockControl.createStrictControl(IMarkupWriter.class);
-        IMarkupWriter writer = (IMarkupWriter) writerCtrl.getMock();
+        IMocksControl writerCtrl = EasyMock.createStrictControl();
+        IMarkupWriter writer = writerCtrl.createMock(IMarkupWriter.class);
         writer.begin("option");
         writer.attribute("value", "1");
         writer.attribute("selected", true);
@@ -89,12 +89,12 @@ public class OptGroupPropertySelectionRendererTest extends TestCase {
         writer.println();
         writerCtrl.replay();
 
-        MockControl modelCtrl = MockControl.createControl(IPropertySelectionModel.class);
-        IPropertySelectionModel model = (IPropertySelectionModel) modelCtrl.getMock();
+        IMocksControl modelCtrl = EasyMock.createControl();
+        IPropertySelectionModel model = modelCtrl.createMock(IPropertySelectionModel.class);
         model.getValue(1);
-        modelCtrl.setReturnValue("1");
+        modelCtrl.andReturn("1");
         model.getLabel(1);
-        modelCtrl.setReturnValue("kuku");
+        modelCtrl.andReturn("kuku");
 
         modelCtrl.replay();
 
@@ -106,8 +106,8 @@ public class OptGroupPropertySelectionRendererTest extends TestCase {
 
     public void testRenderOptGroup() {
         OptGroup group = new OptGroup("bongoGroup");
-        MockControl writerCtrl = MockControl.createStrictControl(IMarkupWriter.class);
-        IMarkupWriter writer = (IMarkupWriter) writerCtrl.getMock();
+        IMocksControl writerCtrl = EasyMock.createStrictControl();
+        IMarkupWriter writer = writerCtrl.createMock(IMarkupWriter.class);
         // first call to render
         writer.begin("optgroup");
         writer.attribute("label", "bongoGroup");
@@ -127,14 +127,13 @@ public class OptGroupPropertySelectionRendererTest extends TestCase {
     }
 
     public void testEndRender() {
-        MockControl propertySelectionCtrl = MockClassControl
-                .createControl(PropertySelection.class);
-        PropertySelection propertySelection = (PropertySelection) propertySelectionCtrl.getMock();
+        IMocksControl propertySelectionCtrl = org.easymock.classextension.EasyMock.createControl();
+        PropertySelection propertySelection = propertySelectionCtrl.createMock(PropertySelection.class);
 
         propertySelectionCtrl.replay();
 
-        MockControl writerCtrl = MockControl.createStrictControl(IMarkupWriter.class);
-        IMarkupWriter writer = (IMarkupWriter) writerCtrl.getMock();
+        IMocksControl writerCtrl = EasyMock.createStrictControl();
+        IMarkupWriter writer = writerCtrl.createMock(IMarkupWriter.class);
         writer.end();
         writerCtrl.replay();
 

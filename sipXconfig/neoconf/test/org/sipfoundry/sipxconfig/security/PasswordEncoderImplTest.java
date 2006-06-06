@@ -13,8 +13,7 @@ package org.sipfoundry.sipxconfig.security;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.login.LoginContext;
 
@@ -24,14 +23,14 @@ public class PasswordEncoderImplTest extends TestCase {
     private static final String RAW_PASSWORD = "croft";
     // dummy result based on userName and password
     private static final String ENCODED_PASSWORD = USER_NAME + RAW_PASSWORD;
-    private MockControl m_loginControl;
+    private IMocksControl m_loginControl;
     private LoginContext m_loginContext;
     private PasswordEncoderImpl m_passwordEncoder;
     private UserDetailsImpl m_userDetails;
 
     protected void setUp() throws Exception {
-        m_loginControl = MockClassControl.createStrictControl(LoginContext.class);
-        m_loginContext = (LoginContext) m_loginControl.getMock();
+        m_loginControl = org.easymock.classextension.EasyMock.createStrictControl();
+        m_loginContext = m_loginControl.createMock(LoginContext.class);
         m_passwordEncoder = new PasswordEncoderImpl();
         m_passwordEncoder.setLoginContext(m_loginContext);
         
@@ -56,7 +55,7 @@ public class PasswordEncoderImplTest extends TestCase {
     private void setupSimulatedCallsToGetEncodedPassword(int count) {
         for (int i = 0; i < count; i++) {
             m_loginContext.getEncodedPassword(USER_NAME, RAW_PASSWORD);
-            m_loginControl.setReturnValue(ENCODED_PASSWORD);
+            m_loginControl.andReturn(ENCODED_PASSWORD);
         }
         m_loginControl.replay();
     }

@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.setting;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 
 public class SettingTest extends TestCase {
 
@@ -73,9 +74,10 @@ public class SettingTest extends TestCase {
         SettingValue2 originalValue = new SettingValueImpl("bluejay");
         SettingValue2 handlerValue = new SettingValueImpl("indigojay");
         
-        MockControl modelCtrl = MockControl.createStrictControl(SettingModel2.class);
-        SettingModel2 model = (SettingModel2) modelCtrl.getMock();
-        modelCtrl.expectAndReturn(model.getProfileName(s, originalValue), handlerValue);
+        IMocksControl modelCtrl = EasyMock.createStrictControl();
+        SettingModel2 model = modelCtrl.createMock(SettingModel2.class);
+        model.getProfileName(s, originalValue);
+        modelCtrl.andReturn(handlerValue);
         modelCtrl.replay();
 
         s.setModel(model);

@@ -13,7 +13,8 @@ package org.sipfoundry.sipxconfig.phone;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
@@ -40,9 +41,10 @@ public class LineTest extends TestCase {
     public void testNoUserGetUriAndDisplayLabel() {
         DeviceDefaults defaults = new DeviceDefaults();
 
-        MockControl phoneContextCtrl = MockControl.createNiceControl(PhoneContext.class);
-        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
-        phoneContextCtrl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults, 1);
+        IMocksControl phoneContextCtrl = EasyMock.createNiceControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
+        phoneContext.getPhoneDefaults();
+        phoneContextCtrl.andReturn(defaults).times(1);
         phoneContextCtrl.replay();
 
         Phone phone = new AcmePhone();

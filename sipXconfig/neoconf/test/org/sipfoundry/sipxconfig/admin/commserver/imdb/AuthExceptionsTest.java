@@ -15,7 +15,8 @@ import java.util.Arrays;
 
 import org.custommonkey.xmlunit.XMLTestCase;
 import org.dom4j.Document;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 
@@ -23,10 +24,10 @@ public class AuthExceptionsTest extends XMLTestCase {
     private String[] DATA = { "aaa", "bbb", "ccc" };
 
     public void testGenerate() throws Exception {
-        MockControl control = MockControl.createControl(ForwardingContext.class);
-        ForwardingContext forwardingContext = (ForwardingContext) control.getMock();
+        IMocksControl control = EasyMock.createControl();
+        ForwardingContext forwardingContext = control.createMock(ForwardingContext.class);
         forwardingContext.getForwardingAuthExceptions();
-        control.setReturnValue(Arrays.asList(DATA));
+        control.andReturn(Arrays.asList(DATA));
         control.replay();
 
         AuthExceptions exceptions = new AuthExceptions();

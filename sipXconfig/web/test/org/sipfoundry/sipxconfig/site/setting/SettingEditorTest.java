@@ -22,7 +22,8 @@ import org.apache.tapestry.form.validator.Min;
 import org.apache.tapestry.form.validator.Pattern;
 import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.test.Creator;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
@@ -105,10 +106,12 @@ public class SettingEditorTest extends TestCase {
     public void testGetDefaultValue() {
         SettingType type = new IntegerSetting();
         
-        MockControl settingCtrl = MockControl.createControl(Setting.class);
-        Setting setting = (Setting) settingCtrl.getMock();        
-        settingCtrl.expectAndReturn(setting.getDefaultValue(), "bongo");
-        settingCtrl.expectAndReturn(setting.getType(), type);        
+        IMocksControl settingCtrl = EasyMock.createControl();
+        Setting setting = settingCtrl.createMock(Setting.class);
+        setting.getDefaultValue();
+        settingCtrl.andReturn("bongo");
+        setting.getType();
+        settingCtrl.andReturn(type);        
         settingCtrl.replay();
         
         m_editor.setSetting(setting);
@@ -122,10 +125,12 @@ public class SettingEditorTest extends TestCase {
         StringSetting type = new StringSetting();
         type.setPassword(false);
         
-        MockControl settingCtrl = MockControl.createControl(Setting.class);
-        Setting setting = (Setting) settingCtrl.getMock();        
-        settingCtrl.expectAndReturn(setting.getDefaultValue(), "bongo");
-        settingCtrl.expectAndReturn(setting.getType(), type);        
+        IMocksControl settingCtrl = EasyMock.createControl();
+        Setting setting = settingCtrl.createMock(Setting.class);
+        setting.getDefaultValue();
+        settingCtrl.andReturn("bongo");
+        setting.getType();
+        settingCtrl.andReturn(type);        
         settingCtrl.replay();
         
         m_editor.setSetting(setting);

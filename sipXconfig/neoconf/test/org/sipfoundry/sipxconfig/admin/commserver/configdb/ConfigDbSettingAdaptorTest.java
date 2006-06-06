@@ -16,7 +16,8 @@ import java.util.Hashtable;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingImpl;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
@@ -44,14 +45,14 @@ public class ConfigDbSettingAdaptorTest extends TestCase {
     }
 
     public void testSet() {
-        MockControl dbCtrl = MockControl.createControl(ConfigDbParameter.class);
-        ConfigDbParameter db = (ConfigDbParameter) dbCtrl.getMock();
+        IMocksControl dbCtrl = EasyMock.createControl();
+        ConfigDbParameter db = dbCtrl.createMock(ConfigDbParameter.class);
 
         Hashtable params = new Hashtable();
         params.put("s1", "s1_value");
         params.put("s2", "s2_value");
         db.set("dbname-config", params);
-        dbCtrl.setReturnValue(2);
+        dbCtrl.andReturn(2);
 
         dbCtrl.replay();
 
@@ -64,14 +65,14 @@ public class ConfigDbSettingAdaptorTest extends TestCase {
     }
 
     public void testSetCollection() {
-        MockControl dbCtrl = MockControl.createControl(ConfigDbParameter.class);
-        ConfigDbParameter db = (ConfigDbParameter) dbCtrl.getMock();
+        IMocksControl dbCtrl = EasyMock.createControl();
+        ConfigDbParameter db = dbCtrl.createMock(ConfigDbParameter.class);
 
         Hashtable params = new Hashtable();
         params.put("s1", "s1_value");
         params.put("s2", "s2_value");
         db.set("dbname-config", params);
-        dbCtrl.setReturnValue(2);
+        dbCtrl.andReturn(2);
 
         dbCtrl.replay();
 
@@ -87,19 +88,19 @@ public class ConfigDbSettingAdaptorTest extends TestCase {
     }
 
     public void testGet() {
-        MockControl dbCtrl = MockControl.createControl(ConfigDbParameter.class);
-        dbCtrl.setDefaultMatcher(MockControl.ARRAY_MATCHER);
+        IMocksControl dbCtrl = EasyMock.createControl();
 
-        ConfigDbParameter db = (ConfigDbParameter) dbCtrl.getMock();
+        ConfigDbParameter db = dbCtrl.createMock(ConfigDbParameter.class);
 
-        db.get("dbname-config", new String[] {
+        String[] dbnameParams = new String[] {
             "s1", "s2"
-        });
+        };
+        db.get(EasyMock.eq("dbname-config"), EasyMock.aryEq(dbnameParams));
 
         Hashtable params = new Hashtable();
         params.put("s1", "s1_value");
         params.put("s2", "s2_value");
-        dbCtrl.setReturnValue(params);
+        dbCtrl.andReturn(params);
 
         dbCtrl.replay();
 

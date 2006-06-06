@@ -20,7 +20,9 @@ import junit.framework.TestCase;
 import org.apache.hivemind.ApplicationRuntimeException;
 import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.valid.IValidationDelegate;
-import org.easymock.MockControl;
+import org.apache.tapestry.valid.ValidatorException;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -41,13 +43,13 @@ public class TapestryContextTest extends TestCase {
     }
 
     public void testTreatUserExceptionAsValidationError() {
-        MockControl actionControl = MockControl.createControl(IActionListener.class);
-        IActionListener action = (IActionListener) actionControl.getMock();
+        IMocksControl actionControl = EasyMock.createControl();
+        IActionListener action = actionControl.createMock(IActionListener.class);
         action.actionTriggered(null, null);
         actionControl.replay();
 
-        MockControl validatorControl = MockControl.createControl(IValidationDelegate.class);
-        IValidationDelegate validator = (IValidationDelegate) validatorControl.getMock();
+        IMocksControl validatorControl = EasyMock.createControl();
+        IValidationDelegate validator = validatorControl.createMock(IValidationDelegate.class);
         validatorControl.replay();
 
         IActionListener listener = m_context.treatUserExceptionAsValidationError(validator,
@@ -61,16 +63,15 @@ public class TapestryContextTest extends TestCase {
     public void testTreatUserExceptionAsValidationErrorUserException() {
         Throwable exception = new UserException("kuku") {};
 
-        MockControl actionControl = MockControl.createControl(IActionListener.class);
-        IActionListener action = (IActionListener) actionControl.getMock();
+        IMocksControl actionControl = EasyMock.createControl();
+        IActionListener action = actionControl.createMock(IActionListener.class);
         action.actionTriggered(null, null);
-        actionControl.setThrowable(new ApplicationRuntimeException(exception));
+        actionControl.andThrow(new ApplicationRuntimeException(exception));
         actionControl.replay();
 
-        MockControl validatorControl = MockControl.createControl(IValidationDelegate.class);
-        validatorControl.setDefaultMatcher(MockControl.ALWAYS_MATCHER);
-        IValidationDelegate validator = (IValidationDelegate) validatorControl.getMock();
-        validator.record(null);
+        IMocksControl validatorControl = EasyMock.createControl();
+        IValidationDelegate validator = validatorControl.createMock(IValidationDelegate.class);
+        validator.record((ValidatorException) EasyMock.anyObject());        
         validatorControl.replay();
 
         IActionListener listener = m_context.treatUserExceptionAsValidationError(validator,
@@ -84,14 +85,14 @@ public class TapestryContextTest extends TestCase {
     public void testTreatUserExceptionAsValidationErrorOtherException() {
         Throwable exception = new NullPointerException();
 
-        MockControl actionControl = MockControl.createControl(IActionListener.class);
-        IActionListener action = (IActionListener) actionControl.getMock();
+        IMocksControl actionControl = EasyMock.createControl();
+        IActionListener action = actionControl.createMock(IActionListener.class);
         action.actionTriggered(null, null);
-        actionControl.setThrowable(new ApplicationRuntimeException(exception));
+        actionControl.andThrow(new ApplicationRuntimeException(exception));
         actionControl.replay();
 
-        MockControl validatorControl = MockControl.createControl(IValidationDelegate.class);
-        IValidationDelegate validator = (IValidationDelegate) validatorControl.getMock();
+        IMocksControl validatorControl = EasyMock.createControl();
+        IValidationDelegate validator = validatorControl.createMock(IValidationDelegate.class);
         validatorControl.replay();
 
         IActionListener listener = m_context.treatUserExceptionAsValidationError(validator,
@@ -108,14 +109,14 @@ public class TapestryContextTest extends TestCase {
     }
 
     public void testTreatUserExceptionAsValidationErrorNull() {
-        MockControl actionControl = MockControl.createControl(IActionListener.class);
-        IActionListener action = (IActionListener) actionControl.getMock();
+        IMocksControl actionControl = EasyMock.createControl();
+        IActionListener action = actionControl.createMock(IActionListener.class);
         action.actionTriggered(null, null);
-        actionControl.setThrowable(new ApplicationRuntimeException("kuku"));
+        actionControl.andThrow(new ApplicationRuntimeException("kuku"));
         actionControl.replay();
 
-        MockControl validatorControl = MockControl.createControl(IValidationDelegate.class);
-        IValidationDelegate validator = (IValidationDelegate) validatorControl.getMock();
+        IMocksControl validatorControl = EasyMock.createControl();
+        IValidationDelegate validator = validatorControl.createMock(IValidationDelegate.class);
         validatorControl.replay();
 
         IActionListener listener = m_context.treatUserExceptionAsValidationError(validator,

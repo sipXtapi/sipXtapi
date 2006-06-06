@@ -19,7 +19,8 @@ import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.spec.IComponentSpecification;
 import org.apache.tapestry.test.Creator;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 
 public class OptionalElementTest extends TestCase {
     private Creator m_maker = new Creator();
@@ -30,14 +31,14 @@ public class OptionalElementTest extends TestCase {
     }
 
     public void testRender() throws Exception {
-        MockControl mcCycle = MockControl.createControl(IRequestCycle.class);
-        IRequestCycle cycle = (IRequestCycle) mcCycle.getMock();
+        IMocksControl mcCycle = EasyMock.createControl();
+        IRequestCycle cycle = mcCycle.createMock(IRequestCycle.class);
         cycle.isRewinding();
-        mcCycle.setReturnValue(false, MockControl.ONE_OR_MORE);
+        mcCycle.andReturn(false).atLeastOnce();
         mcCycle.replay();
         
-        MockControl mcWriter = MockControl.createControl(IMarkupWriter.class);
-        IMarkupWriter writer = (IMarkupWriter) mcWriter.getMock();
+        IMocksControl mcWriter = EasyMock.createControl();
+        IMarkupWriter writer = mcWriter.createMock(IMarkupWriter.class);
 
         mcWriter.replay();
 
@@ -49,27 +50,27 @@ public class OptionalElementTest extends TestCase {
     }
 
     public void testRenderWithElement() throws Exception {
-        MockControl mcBinding = MockControl.createControl(IBinding.class);
-        IBinding binding = (IBinding) mcBinding.getMock();
+        IMocksControl mcBinding = EasyMock.createControl();
+        IBinding binding = mcBinding.createMock(IBinding.class);
         binding.getObject();
-        mcBinding.setDefaultReturnValue("kuku");
+        mcBinding.andReturn("kuku").anyTimes();
         mcBinding.replay();
 
-        MockControl mcCycle = MockControl.createControl(IRequestCycle.class);
-        IRequestCycle cycle = (IRequestCycle) mcCycle.getMock();
+        IMocksControl mcCycle = EasyMock.createControl();
+        IRequestCycle cycle = mcCycle.createMock(IRequestCycle.class);
         cycle.isRewinding();
-        mcCycle.setReturnValue(false, MockControl.ONE_OR_MORE);
+        mcCycle.andReturn(false).atLeastOnce();
         mcCycle.replay();
 
-        MockControl mcWriter = MockControl.createStrictControl(IMarkupWriter.class);
-        IMarkupWriter writer = (IMarkupWriter) mcWriter.getMock();
+        IMocksControl mcWriter = EasyMock.createStrictControl();
+        IMarkupWriter writer = mcWriter.createMock(IMarkupWriter.class);
         writer.begin("bongo");
         writer.attribute("attr1", "kuku");
         writer.end("bongo");
         mcWriter.replay();
         
-        MockControl mcComponentSpec = MockControl.createNiceControl(IComponentSpecification.class);
-        IComponentSpecification componentSpec = (IComponentSpecification) mcComponentSpec.getMock();
+        IMocksControl mcComponentSpec = EasyMock.createNiceControl();
+        IComponentSpecification componentSpec = mcComponentSpec.createMock(IComponentSpecification.class);
         mcComponentSpec.replay();
         // method available on proxy object, See Creator.java
         BeanUtils.setProperty(m_oe, "specification", componentSpec);

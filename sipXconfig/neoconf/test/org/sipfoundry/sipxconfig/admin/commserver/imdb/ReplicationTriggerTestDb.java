@@ -11,7 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
@@ -26,10 +27,10 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
 
     private ReplicationTrigger m_trigger;
     private SipxReplicationContext m_oldReplicationContext;
-    private MockControl m_replicationContextCtrl;
+    private IMocksControl m_replicationContextCtrl;
     private SipxReplicationContext m_replicationContext;
     private SettingDao m_dao;
-    private MockControl m_parkOrbitsContextCtrl;
+    private IMocksControl m_parkOrbitsContextCtrl;
     private ParkOrbitContext m_parkOrbitsContext;
     private ParkOrbitContext m_oldParkOrbitContext;
 
@@ -41,11 +42,11 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
 
         TestHelper.cleanInsert("ClearDb.xml");
 
-        m_replicationContextCtrl = MockControl.createStrictControl(SipxReplicationContext.class);
-        m_replicationContext = (SipxReplicationContext) m_replicationContextCtrl.getMock();
+        m_replicationContextCtrl = EasyMock.createStrictControl();
+        m_replicationContext = m_replicationContextCtrl.createMock(SipxReplicationContext.class);
 
-        m_parkOrbitsContextCtrl = MockControl.createControl(ParkOrbitContext.class);
-        m_parkOrbitsContext = (ParkOrbitContext) m_parkOrbitsContextCtrl.getMock();
+        m_parkOrbitsContextCtrl = EasyMock.createControl();
+        m_parkOrbitsContext = (ParkOrbitContext) m_parkOrbitsContextCtrl.createMock(ParkOrbitContext.class);
 
         m_dao = (SettingDao) app.getBean("settingDao");
     }

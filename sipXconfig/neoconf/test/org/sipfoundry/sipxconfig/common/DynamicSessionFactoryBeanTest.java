@@ -17,7 +17,8 @@ import junit.framework.TestCase;
 
 import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.util.DTDEntityResolver;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
@@ -33,14 +34,14 @@ public class DynamicSessionFactoryBeanTest extends TestCase {
     }
     
     public void testBindSubclasses() throws Exception {
-        MockControl controlFactory = MockControl.createControl(ListableBeanFactory.class);
-        ListableBeanFactory factory = (ListableBeanFactory) controlFactory.getMock();
+        IMocksControl controlFactory = EasyMock.createControl();
+        ListableBeanFactory factory = controlFactory.createMock(ListableBeanFactory.class);
         factory.getBeanNamesForType(Gateway.class);
-        controlFactory.setReturnValue(new String[] {"gwGeneric", "gwMediant1000"});
+        controlFactory.andReturn(new String[] {"gwGeneric", "gwMediant1000"});
         factory.getType("gwGeneric");
-        controlFactory.setReturnValue(Gateway.class);
+        controlFactory.andReturn(Gateway.class);
         factory.getType("gwMediant1000");
-        controlFactory.setReturnValue(MediantGateway.class);
+        controlFactory.andReturn(MediantGateway.class);
         controlFactory.replay();
         
         ConfigurationMock config = new ConfigurationMock();
@@ -55,14 +56,14 @@ public class DynamicSessionFactoryBeanTest extends TestCase {
     
 
     public void testBindSubclassesOfBean() throws Exception {
-        MockControl controlFactory = MockControl.createControl(ListableBeanFactory.class);
-        ListableBeanFactory factory = (ListableBeanFactory) controlFactory.getMock();
+        IMocksControl controlFactory = EasyMock.createControl();
+        ListableBeanFactory factory = controlFactory.createMock(ListableBeanFactory.class);
         factory.getBeanNamesForType(Gateway.class);
-        controlFactory.setReturnValue(new String[] {"gwGeneric", "gwMediant1000"});
+        controlFactory.andReturn(new String[] {"gwGeneric", "gwMediant1000"});
         factory.getType("gwGeneric");
-        controlFactory.setReturnValue(Gateway.class);
+        controlFactory.andReturn(Gateway.class);
         factory.getType("gwMediant1000");
-        controlFactory.setReturnValue(MediantGateway.class);
+        controlFactory.andReturn(MediantGateway.class);
         controlFactory.replay();
         
         ConfigurationMock config = new ConfigurationMock();

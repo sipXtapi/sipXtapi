@@ -14,7 +14,8 @@ package org.sipfoundry.sipxconfig.site.phone;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 
 public class PhoneTableModelTest extends TestCase {
 
@@ -24,10 +25,12 @@ public class PhoneTableModelTest extends TestCase {
     }
 
     public void testOrderByFromSortColum() {
-        MockControl columnCtrl = MockControl.createControl(ITableColumn.class);
-        ITableColumn column = (ITableColumn) columnCtrl.getMock();
-        columnCtrl.expectAndReturn(column.getColumnName(), "bongo");
-        columnCtrl.expectAndReturn(column.getColumnName(), "modelId");
+        IMocksControl columnCtrl = EasyMock.createControl();
+        ITableColumn column = columnCtrl.createMock(ITableColumn.class);
+        column.getColumnName();
+        columnCtrl.andReturn("bongo");
+        column.getColumnName();
+        columnCtrl.andReturn("modelId");
         columnCtrl.replay();
 
         String[] orderBy = PhoneTableModel.orderByFromSortColum(column);

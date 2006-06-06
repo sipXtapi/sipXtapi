@@ -20,6 +20,7 @@
   </bean>
   <bean name="twoDigitDecimal" class="java.text.DecimalFormat">
     <set name="maximumFractionDigits" value="2"/>
+    <set name="minimumFractionDigits" value="2"/>
   </bean>
 
   <!--

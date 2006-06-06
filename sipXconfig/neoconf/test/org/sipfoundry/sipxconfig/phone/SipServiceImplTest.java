@@ -54,7 +54,7 @@ public class SipServiceImplTest extends TestCase {
         assertEquals("sip:a@b.com", actual);
     }
     
-    public void _testSend() throws Exception {
+    public void REQUIRES_RUNNING_PROXY_testSend() throws Exception {
         ReadSipMessage rdr = new ReadSipMessage();
         
         String msg = "NOTIFY sipuaconfig@localhost.com SIP/2.0\r\n" 

@@ -120,10 +120,16 @@ public class SipUri {
     }
 
     public static String extractUser(String uri) {
+        Matcher full = EXTRACT_FULL_USER_RE.matcher(uri);
+        if (full.matches()) {
+            return full.group(2);
+        }
+
         Matcher matcher = EXTRACT_USER_RE.matcher(uri);
         if (matcher.matches()) {
             return matcher.group(1);
         }
+        
         return null;
     }
 

@@ -14,15 +14,18 @@ package org.sipfoundry.sipxconfig.site;
 import junit.framework.TestCase;
 
 import org.apache.tapestry.engine.state.ApplicationStateManager;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 
 public class ApplicationLifecycleTest extends TestCase {
     
     public void testLogout() {
-        MockControl stateManagerCtrl = MockControl.createControl(ApplicationStateManager.class);
-        ApplicationStateManager stateManager = (ApplicationStateManager) stateManagerCtrl.getMock();
-        stateManagerCtrl.expectAndReturn(stateManager.exists(UserSession.SESSION_NAME), true);
-        stateManagerCtrl.expectAndReturn(stateManager.get(UserSession.SESSION_NAME), new UserSession());
+        IMocksControl stateManagerCtrl = EasyMock.createControl();
+        ApplicationStateManager stateManager = stateManagerCtrl.createMock(ApplicationStateManager.class);
+        stateManager.exists(UserSession.SESSION_NAME);
+        stateManagerCtrl.andReturn(true);
+        stateManager.get(UserSession.SESSION_NAME);
+        stateManagerCtrl.andReturn(new UserSession());
         stateManagerCtrl.replay();
         
         ApplicationLifecycleImpl life = new ApplicationLifecycleImpl();

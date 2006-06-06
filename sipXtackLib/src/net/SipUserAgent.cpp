@@ -885,6 +885,12 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          message.getAcceptLanguageField(&language);
          if(language.isNull())
          {
+            // Beware that this value does not describe the desired media
+            // sessions, but rather the preferred languages for reason
+            // phrases, etc. (RFC 3261 sec. 20.3)  Thus, it is useful to
+            // have a value for this header even in requests like
+            // SUBSCRIBE/NOTIFY which are expected to not be seen by a human.
+            // This value should be configurable, though.
             message.setAcceptLanguageField("en");
          }
 
@@ -1837,12 +1843,14 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             {
                if(maxForwards <= 0)
                {
-
-
                   response = new SipMessage();
                   response->setResponseData(message,
                                             SIP_TOO_MANY_HOPS_CODE,
                                             SIP_TOO_MANY_HOPS_TEXT);
+
+                  response->setWarningField(SIP_WARN_MISC_CODE, sipIpAddress.data(),
+                                            SIP_TOO_MANY_HOPS_TEXT
+                                            );
 
                   setUserAgentHeader(*response);
                   
@@ -3525,7 +3533,8 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
 
 #       ifdef TEST_PRINT
         osPrintf("**************************************\n");
-        osPrintf("CREATING message in resendWithAuthorization @ address: %X\n",authorizedRequest);
+        osPrintf("CREATING message in resendWithAuthorization @ address: %p\n",
+                 authorizedRequest);
         osPrintf("**************************************\n");
 #       endif
 

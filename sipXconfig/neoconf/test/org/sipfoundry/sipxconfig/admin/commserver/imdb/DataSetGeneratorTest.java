@@ -16,7 +16,8 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 
 import org.dom4j.Element;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.springframework.context.ApplicationContext;
@@ -44,10 +45,10 @@ public class DataSetGeneratorTest extends TestCase {
             }
         };
 
-        MockControl coreContextCtrl = MockControl.createControl(CoreContext.class);
-        CoreContext coreContext = (CoreContext) coreContextCtrl.getMock();
+        IMocksControl coreContextCtrl = EasyMock.createControl();
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
         coreContext.getDomainName();
-        coreContextCtrl.setReturnValue("core.domain.com");
+        coreContextCtrl.andReturn("core.domain.com");
         coreContextCtrl.replay();
 
         dsg.setCoreContext(coreContext);

@@ -15,7 +15,8 @@ import java.io.File;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 
 public class ModelFilesContextImplTest extends TestCase {
     private static String DIR = "tmp";
@@ -37,10 +38,10 @@ public class ModelFilesContextImplTest extends TestCase {
         setting.setValue("555");
         setting.setName("bongo");
 
-        MockControl control = MockControl.createControl(ModelBuilder.class);
-        ModelBuilder builder = (ModelBuilder) control.getMock();
+        IMocksControl control = EasyMock.createControl();
+        ModelBuilder builder = control.createMock(ModelBuilder.class);
         builder.buildModel(getFile("aa", "bb"), null);
-        control.setReturnValue(setting);
+        control.andReturn(setting);
         control.replay();
 
         m_impl.setModelBuilder(builder);

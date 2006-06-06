@@ -18,23 +18,24 @@ import java.util.Iterator;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 
 public class AliasCollectorTest extends TestCase {
 
     public void testGetAliasMappings() {
         final int len = 10;
-        final MockControl[] apCtrl = new MockControl[len];
+        final IMocksControl[] apCtrl = new IMocksControl[len];
         final AliasProvider[] ap = new AliasProvider[len];
 
         AliasMapping alias = new AliasMapping();
 
         for (int i = 0; i < len; i++) {
-            apCtrl[i] = MockControl.createControl(AliasProvider.class);
-            ap[i] = (AliasProvider) apCtrl[i].getMock();
+            apCtrl[i] = EasyMock.createControl();
+            ap[i] = apCtrl[i].createMock(AliasProvider.class);
             ap[i].getAliasMappings();
-            apCtrl[i].setDefaultReturnValue(Collections.singleton(alias));
+            apCtrl[i].andReturn(Collections.singleton(alias)).anyTimes();
             apCtrl[i].replay();
         }
         

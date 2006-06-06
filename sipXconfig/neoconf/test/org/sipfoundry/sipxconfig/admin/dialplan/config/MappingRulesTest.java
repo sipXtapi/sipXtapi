@@ -25,7 +25,8 @@ import org.custommonkey.xmlunit.XMLUnit;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.VisitorSupport;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
@@ -129,19 +130,26 @@ public class MappingRulesTest extends XMLTestCase {
                 .setUrl("<sip:{digits}@testserver;"
                         + "play={voicemail}/sipx-cgi/voicemail/mediaserver.cgi?action=deposit&mailbox={digits}>;q=0.001");
 
-        MockControl control = MockControl.createStrictControl(IDialingRule.class);
-        IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.isInternal(), true);
-        control.expectAndReturn(rule.getName(), null);
-        control.expectAndReturn(rule.getDescription(), "my rule description");
-        control.expectAndReturn(rule.getPatterns(), new String[] {
+        IMocksControl control = EasyMock.createStrictControl();
+        IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.isInternal();
+        control.andReturn(true);
+        rule.getName();
+        control.andReturn(null);
+        rule.getDescription();
+        control.andReturn("my rule description");
+        rule.getPatterns();
+        control.andReturn(new String[] {
             "x."
         });
-        control.expectAndReturn(rule.isInternal(), true);
-        control.expectAndReturn(rule.getPermissions(), Arrays.asList(new Permission[] {
+        rule.isInternal();
+        control.andReturn(true);
+        rule.getPermissions();
+        control.andReturn(Arrays.asList(new Permission[] {
             Permission.VOICEMAIL
         }));
-        control.expectAndReturn(rule.getTransforms(), new Transform[] {
+        rule.getTransforms();
+        control.andReturn(new Transform[] {
             voicemail, voicemail2
         });
         control.replay();
@@ -169,9 +177,10 @@ public class MappingRulesTest extends XMLTestCase {
     }
 
     public void testGenerateRuleWithGateways() throws Exception {
-        MockControl control = MockControl.createControl(IDialingRule.class);
-        IDialingRule rule = (IDialingRule) control.getMock();
-        control.expectAndReturn(rule.isInternal(), false);
+        IMocksControl control = EasyMock.createControl();
+        IDialingRule rule = control.createMock(IDialingRule.class);
+        rule.isInternal();
+        control.andReturn(false);
         control.replay();
 
         MappingRules mappingRules = new MappingRules();
@@ -200,12 +209,12 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new MappingRule.VoicemailTransfer("2", extension));
         rules.add(new MappingRule.VoicemailFallback(3));
 
-        MockControl controlPlan = MockControl.createStrictControl(DialPlanContext.class);
-        DialPlanContext plan = (DialPlanContext) controlPlan.getMock();
+        IMocksControl controlPlan = EasyMock.createStrictControl();
+        DialPlanContext plan = controlPlan.createMock(DialPlanContext.class);
         plan.getGenerationRules();
-        controlPlan.setReturnValue(rules);
+        controlPlan.andReturn(rules);
         plan.getAttendantRules();
-        controlPlan.setReturnValue(Collections.EMPTY_LIST);
+        controlPlan.andReturn(Collections.EMPTY_LIST);
         controlPlan.replay();
 
         ConfigGenerator generator = new ConfigGenerator();

@@ -16,7 +16,8 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
@@ -64,8 +65,8 @@ public class PhoneTest extends TestCase {
     public void testFindByUsername() {
         DeviceDefaults defaults = new DeviceDefaults();
         defaults.setDomainName("sipfoundry.org");
-        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
-        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+        IMocksControl phoneContextCtrl = EasyMock.createControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
         phoneContextCtrl.replay();
 
         Phone phone = new AcmePhone();
@@ -87,9 +88,10 @@ public class PhoneTest extends TestCase {
     public void testFindByUri() {
         DeviceDefaults defaults = new DeviceDefaults();
         defaults.setDomainName("sipfoundry.org");
-        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
-        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
-        phoneContextCtrl.expectAndReturn(phoneContext.getPhoneDefaults(), defaults, MockControl.ONE_OR_MORE);
+        IMocksControl phoneContextCtrl = EasyMock.createControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
+        phoneContext.getPhoneDefaults();
+        phoneContextCtrl.andReturn(defaults).atLeastOnce();
         phoneContextCtrl.replay();
         
         Phone phone = new AcmePhone();

@@ -13,9 +13,6 @@ package org.sipfoundry.sipxconfig.setting.type;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
-import org.sipfoundry.sipxconfig.setting.Setting;
-
 public class StringSettingTest extends TestCase {
 
     public void testConvertToTypedValue() {
@@ -37,12 +34,6 @@ public class StringSettingTest extends TestCase {
     public void testGetDefaultValueForPassword() {
         StringSetting type = new StringSetting();
         type.setPassword(true);
-        
-        MockControl settingCtrl = MockControl.createStrictControl(Setting.class);
-        settingCtrl.replay();
-        
         assertNull(type.getLabel("foo"));
-
-        settingCtrl.verify();
     }    
 }

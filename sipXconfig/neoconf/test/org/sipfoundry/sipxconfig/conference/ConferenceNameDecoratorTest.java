@@ -13,19 +13,20 @@ package org.sipfoundry.sipxconfig.conference;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class ConferenceNameDecoratorTest extends TestCase {
 
     public void testGetProfileName() {
 
-        MockControl settingCtrl = MockControl.createControl(Setting.class);
-        Setting setting = (Setting) settingCtrl.getMock();
+        IMocksControl settingCtrl = EasyMock.createControl();
+        Setting setting = settingCtrl.createMock(Setting.class);
         setting.getProfileName();
-        settingCtrl.setReturnValue("BOSTON_BRIDGE_CONFERENCE_STATUS");
-        settingCtrl.setReturnValue("BOSTON_BRIDGE_CONFERENCE.AOR");
-        settingCtrl.setReturnValue("BOSTON_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET");
+        settingCtrl.andReturn("BOSTON_BRIDGE_CONFERENCE_STATUS");
+        settingCtrl.andReturn("BOSTON_BRIDGE_CONFERENCE.AOR");
+        settingCtrl.andReturn("BOSTON_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET");
         settingCtrl.replay();
 
         Conference conference = new Conference();

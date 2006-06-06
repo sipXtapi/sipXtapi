@@ -16,7 +16,8 @@ import junit.framework.TestCase;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.test.Creator;
-import org.easymock.MockControl;
+import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 
 /**
@@ -44,10 +45,10 @@ public class SelectRuleTypeTest extends TestCase {
         page.setRuleId(new Integer(0));
 
         m_selectRuleType.setRuleType(type);
-        MockControl cycleControl = MockControl.createStrictControl(IRequestCycle.class);
-        IRequestCycle cycle = (IRequestCycle) cycleControl.getMock();
-        cycleControl.expectAndReturn(cycle.getPage(pageName), page);
-        cycleControl.setMatcher(MockControl.EQUALS_MATCHER);
+        IMocksControl cycleControl = EasyMock.createStrictControl();
+        IRequestCycle cycle = cycleControl.createMock(IRequestCycle.class);
+        cycle.getPage(pageName);
+        cycleControl.andReturn(page);
         cycleControl.replay();
 
         IPage nextPage = m_selectRuleType.next(cycle);

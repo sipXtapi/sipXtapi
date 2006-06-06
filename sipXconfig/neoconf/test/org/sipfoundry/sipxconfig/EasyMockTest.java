@@ -16,24 +16,24 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
-import org.easymock.MockControl;
-import org.easymock.classextension.MockClassControl;
+import org.easymock.classextension.EasyMock;
+import org.easymock.classextension.IMocksControl;
 
 public class EasyMockTest extends TestCase {
     
     public void testBeanWithoutGenerics() {
-        MockControl simpleCtrl = MockClassControl.createControl(BeanWithoutGenerics.class);
-        simpleCtrl.getMock();        
+        IMocksControl simpleCtrl = EasyMock.createControl();
+        simpleCtrl.createMock(BeanWithoutGenerics.class);        
     }
 
     public void testBeanWithGenericsDefined() {
-        MockControl simpleCtrl = MockClassControl.createControl(BeanWithGenericsDefined.class);
-        simpleCtrl.getMock();        
+        IMocksControl simpleCtrl = EasyMock.createControl();
+        simpleCtrl.createMock(BeanWithGenericsDefined.class);        
     }
     
     public void testBeanWithGenericsInMethod() {        
-        MockControl simpleCtrl = MockClassControl.createControl(BeanWithGenericsInMethod.class);
-        simpleCtrl.getMock();        
+        IMocksControl simpleCtrl = EasyMock.createControl();
+        simpleCtrl.createMock(BeanWithGenericsInMethod.class);        
     }
 
     public static class BeanWithoutGenerics {
