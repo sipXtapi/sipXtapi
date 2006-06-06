@@ -2272,6 +2272,9 @@
 				RelativePath="include\os\wnt\getWindowsDNSServers.h">
 			</File>
 			<File
+				RelativePath=".\include\os\HostAdapterAddress.h">
+			</File>
+			<File
 				RelativePath="include\os\OsAssert.h">
 			</File>
 			<File
