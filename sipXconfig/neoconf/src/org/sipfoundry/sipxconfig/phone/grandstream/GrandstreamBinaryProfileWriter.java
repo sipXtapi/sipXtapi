@@ -35,10 +35,15 @@ public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
         setOutputStream(inmemory);
         getPhone().getSettings().acceptVisitor(this);
         for (Line line : getLines()) {
+            m_prefixLineIndex = true;
             line.getSettings().acceptVisitor(this);
             m_lineIndex++;
         }
-
+        
+        writeBody(inmemory, wtr);
+    }
+    
+    void writeBody(ByteArrayOutputStream inmemory, OutputStream wtr) {
         try {
             finalizeBody(inmemory);
             byte[] body = inmemory.toByteArray();
@@ -46,7 +51,7 @@ public class GrandstreamBinaryProfileWriter extends GrandstreamProfileWriter {
             wtr.write(body);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
+        }        
     }
 
     void writeLine(String name, String value) {
