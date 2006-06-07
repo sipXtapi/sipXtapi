@@ -88,17 +88,6 @@
     <binding name="displayName" value="message:label.userGroup" />
   </component>
 
-  <component id="defaultGroupNamePanel" type="FieldPanel">
-    <binding name="field" value="components.defaultGroupName" />
-    <binding name="label" value="message:label.defaultGroupName" />
-    <binding name="description" value="message:description.defaultGroupName" />
-  </component>
-  <component id="defaultGroupName" type="TextField">
-    <binding name="value" value="attrMap.defaultGroupName" />
-    <binding name="validators" value="validators:required,maxLength=255" />
-    <binding name="displayName" value="message:label.defaultGroupName" />
-  </component>
-
   <component id="pinPanel" type="FieldPanel">
     <binding name="field" value="components.pin" />
     <binding name="label" value="message:label.pin" />

@@ -43,6 +43,11 @@
     <binding name="translator" value="translator:number,omitZero=false"/>
     <binding name="displayName" value="message:label.minutes" />
   </component>
+  <component id="labelMinutes" type="FieldLabel">
+    <binding name="prerender" value="false" />
+    <binding name="field" value="components.minutes" />
+    <binding name="displayName" value="message:label.minutes" />
+  </component>
   <component id="renderDayOfWeek" type="If">
     <binding name="condition" value="schedule.weekly"/>
   </component>
