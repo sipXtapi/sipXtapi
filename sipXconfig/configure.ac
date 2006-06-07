@@ -40,10 +40,10 @@ AC_ARG_ENABLE(ruby-bindings,
   [  --enable-ruby-bindings       Build optional ruby bindings to web services],
   enable_ruby_binding=yes, )
 
-CHECK_RUBY([1.8.4])
+CHECK_RUBY([1.8.2])
 CHECK_RUBY_MODULE([soap/wsdlDriver])
 CHECK_GEM([0.8.11])
-CHECK_RAKE([0.7.0])
+CHECK_RAKE([0.5.3])
 # CHECK_RUBY_GEM([file-tail])
 
 AC_SUBST(RUBY_BINDINGS_ENABLED, [])
