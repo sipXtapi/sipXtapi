@@ -116,7 +116,7 @@ class SystemService
   end
 
   def test_patch(file, patch)
-    cmd = console("#{@@patch} --unified --forward --dry-run #{file} 2>/dev/null")
+    cmd = console("#{@@patch} --unified --forward --dry-run #{file} 1>& 2>/dev/null")
     IO.popen(cmd, "w") {|pipe|
       pipe.puts patch
     }
