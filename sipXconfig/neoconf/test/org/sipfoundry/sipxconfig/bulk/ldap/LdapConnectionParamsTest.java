@@ -39,7 +39,7 @@ public class LdapConnectionParamsTest extends TestCase {
 
     public void testBasicAuthentication() {
         IMocksControl templateCtrl = EasyMock.createControl();
-        JndiLdapTemplate template = (JndiLdapTemplate) templateCtrl.createMock(JndiLdapTemplate.class);
+        JndiLdapTemplate template = templateCtrl.createMock(JndiLdapTemplate.class);
         template.setProviderUrl("ldap://example.sipfoundry.org:10");
         template.setSecurityAuthentication("basic");
         template.setSecurityPrincipal("uid=bongo,dc=sipfoundry,dc=com");

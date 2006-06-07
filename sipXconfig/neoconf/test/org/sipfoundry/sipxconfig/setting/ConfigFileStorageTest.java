@@ -60,7 +60,7 @@ public class ConfigFileStorageTest extends TestCase {
 
         assertEquals(DEFAULT_VALUE, m_storage.getValue(m_andorra));
 
-        assertEquals(4, Integer.valueOf((String) m_storage.getValue(m_space)).intValue());
+        assertEquals(4, Integer.valueOf(m_storage.getValue(m_space)).intValue());
 
         assertNull(m_storage.getValue(m_bongo));
     }

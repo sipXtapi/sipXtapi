@@ -50,7 +50,7 @@ public class DialPlanContextImplTest extends TestCase {
 
     public void testMoveRules() throws Exception {
         IMocksControl mock = org.easymock.classextension.EasyMock.createNiceControl();
-        DialPlan plan = (DialPlan) mock.createMock(DialPlan.class);
+        DialPlan plan = mock.createMock(DialPlan.class);
         plan.moveRules(Collections.singletonList(new Integer(5)), 3);
         mock.replay();
 

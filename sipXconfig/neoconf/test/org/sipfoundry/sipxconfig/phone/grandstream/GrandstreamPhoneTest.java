@@ -89,7 +89,7 @@ public class GrandstreamPhoneTest extends TestCase {
 
     public void testReset() throws Exception {
         tester.sipControl = EasyMock.createStrictControl();
-        tester.sip = (SipService) tester.sipControl.createMock(SipService.class);
+        tester.sip = tester.sipControl.createMock(SipService.class);
         tester.sip.sendNotify(
                 EasyMock.eq("\"Joe User\"<sip:juser@sipfoundry.org>"), 
                 EasyMock.eq("sipfoundry.org"), 

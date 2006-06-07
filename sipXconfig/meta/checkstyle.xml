@@ -163,7 +163,9 @@
     <module name="ParameterAssignment"/>
     <module name="ExplicitInitialization"/>
     <module name="DefaultComesLast"/>
-    <module name="MultipleStringLiterals"/>
+    <module name="MultipleStringLiterals">
+      <property name="ignoreStringsRegexp" value="unused"/>
+    </module>
     <module name="MultipleVariableDeclarations"/>
     
     <!-- Checks for class design                         -->

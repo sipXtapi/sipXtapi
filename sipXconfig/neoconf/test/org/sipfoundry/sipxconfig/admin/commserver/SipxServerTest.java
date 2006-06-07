@@ -60,7 +60,7 @@ public class SipxServerTest extends TestCase {
         phoneDefaultsCtrl.replay();
 
         IMocksControl coreContextCtrl = EasyMock.createControl();
-        CoreContext coreContext = (CoreContext) coreContextCtrl.createMock(CoreContext.class);
+        CoreContext coreContext = coreContextCtrl.createMock(CoreContext.class);
         coreContext.getDomainName();
         coreContextCtrl.andReturn("old-domain-name").anyTimes();
         coreContext.setDomainName(newDomainName);

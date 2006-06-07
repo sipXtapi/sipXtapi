@@ -87,7 +87,7 @@ public class FallbackRulesTest extends XMLTestCase {
 
     public void testGenerateRuleWithoutGateways() throws Exception {
         IMocksControl control = EasyMock.createControl();
-        IDialingRule rule = (IDialingRule) control.createMock(IDialingRule.class);
+        IDialingRule rule = control.createMock(IDialingRule.class);
         rule.isInternal();
         control.andReturn(true);
         control.replay();

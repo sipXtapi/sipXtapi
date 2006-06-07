@@ -77,7 +77,7 @@ public class GrandstreamProfileWriter implements SettingVisitor {
             String[] names = name.split("-");
             lname = names[m_lineIndex];
         }
-        String line = lname + " = " + nonNull(value) + (char) LF;
+        String line = lname + " = " + nonNull(value) + LF;
         try {
             getOutputStream().write(line.getBytes());
         } catch (IOException e) {

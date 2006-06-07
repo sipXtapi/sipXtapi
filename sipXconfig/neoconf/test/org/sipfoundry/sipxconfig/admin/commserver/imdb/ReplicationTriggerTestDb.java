@@ -46,7 +46,7 @@ public class ReplicationTriggerTestDb extends SipxDatabaseTestCase {
         m_replicationContext = m_replicationContextCtrl.createMock(SipxReplicationContext.class);
 
         m_parkOrbitsContextCtrl = EasyMock.createControl();
-        m_parkOrbitsContext = (ParkOrbitContext) m_parkOrbitsContextCtrl.createMock(ParkOrbitContext.class);
+        m_parkOrbitsContext = m_parkOrbitsContextCtrl.createMock(ParkOrbitContext.class);
 
         m_dao = (SettingDao) app.getBean("settingDao");
     }

@@ -65,7 +65,7 @@ public class Phone extends BeanWithGroups {
     public Phone() {
         this(MODEL);
     }
-    
+
     protected Phone(String beanId) {
         m_beanId = beanId;
     }
@@ -76,7 +76,7 @@ public class Phone extends BeanWithGroups {
     }
 
     @Override
-    public void initialize() {        
+    public void initialize() {
     }
 
     public String getModelLabel() {
@@ -122,28 +122,32 @@ public class Phone extends BeanWithGroups {
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
     }
-    
+
     protected Setting loadSettings() {
         Set defines = Collections.singleton(getModel().getModelId());
-        return getModelFilesContext().loadDynamicModelFile("phone.xml", getModel().getBeanId(), defines);
+        return getModelFilesContext().loadDynamicModelFile("phone.xml", getModel().getBeanId(),
+                defines);
     }
-    
+
     protected Setting loadLineSettings() {
         Set defines = Collections.singleton(getModel().getModelId());
-        return getModelFilesContext().loadDynamicModelFile("line.xml", getModel().getBeanId(), defines);        
+        return getModelFilesContext().loadDynamicModelFile("line.xml", getModel().getBeanId(),
+                defines);
     }
 
     /**
-     * Each subclass must decide how as much of this generic line information translates
-     * into its own setting model.
+     * Each subclass must decide how as much of this generic line information translates into its
+     * own setting model.
      */
-    protected void setLineInfo(Line line, LineInfo lineInfo) {        
+    @SuppressWarnings("unused")
+    protected void setLineInfo(Line line, LineInfo lineInfo) {
     }
-    
+
     /**
      * Each subclass must decide how as much of this generic line information can be contructed
      * from its own setting model.
      */
+    @SuppressWarnings("unused")
     protected LineInfo getLineInfo(Line line) {
         return null;
     }
@@ -222,7 +226,7 @@ public class Phone extends BeanWithGroups {
 
     public void setPhoneTemplate(String phoneTemplate) {
         m_phoneTemplate = phoneTemplate;
-    }         
+    }
 
     public void generateProfile(Writer out) {
         if (getPhoneTemplate() == null) {
@@ -331,8 +335,9 @@ public class Phone extends BeanWithGroups {
     public Line getLine(int position) {
         return (Line) m_lines.get(position);
     }
-    
-    public void initializeLine(Line line) {        
+
+    @SuppressWarnings("unused")
+    public void initializeLine(Line line) {
     }
 
     public PhoneContext getPhoneContext() {

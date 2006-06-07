@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.xmlrpc;
 import junit.framework.TestCase;
 
 import org.apache.xmlrpc.XmlRpcClient;
+import org.apache.xmlrpc.XmlRpcClientRequest;
 import org.apache.xmlrpc.XmlRpcException;
 import org.easymock.IMocksControl;
 import org.easymock.classextension.EasyMock;
@@ -22,10 +23,9 @@ import org.springframework.aop.framework.ProxyFactory;
 public class XmlRpcClientInterceptorMockTest extends TestCase {
 
     public void testIntercept() throws Exception {
-        IMocksControl mcClient = org.easymock.classextension.EasyMock.createControl();
-        XmlRpcClient client = mcClient.createMock(XmlRpcClient.class);        
-        EasyMock.anyObject();
-        client.execute(null);
+        IMocksControl mcClient = EasyMock.createControl();
+        XmlRpcClient client = mcClient.createMock(XmlRpcClient.class);
+        client.execute(anyRequest());
         mcClient.andReturn("xxxxx");
         mcClient.replay();
 
@@ -41,12 +41,11 @@ public class XmlRpcClientInterceptorMockTest extends TestCase {
 
         mcClient.verify();
     }
-    
+
     public void testInterceptException() throws Exception {
         IMocksControl mcClient = org.easymock.classextension.EasyMock.createControl();
         XmlRpcClient client = mcClient.createMock(XmlRpcClient.class);
-        EasyMock.anyObject();
-        client.execute(null);
+        client.execute(anyRequest());
         mcClient.andThrow(new XmlRpcException(2, "message"));
         mcClient.replay();
 
@@ -60,8 +59,7 @@ public class XmlRpcClientInterceptorMockTest extends TestCase {
         try {
             proxy.multiplyTest("x", 5);
             fail("Should throw exception");
-        }
-        catch (XmlRpcRemoteException e) {
+        } catch (XmlRpcRemoteException e) {
             assertEquals(2, e.getFaultCode());
             assertEquals("message", e.getMessage());
         }
@@ -72,8 +70,7 @@ public class XmlRpcClientInterceptorMockTest extends TestCase {
     public void testInterceptFault() throws Exception {
         IMocksControl mcClient = org.easymock.classextension.EasyMock.createControl();
         XmlRpcClient client = mcClient.createMock(XmlRpcClient.class);
-        EasyMock.anyObject();
-        client.execute(null);
+        client.execute(anyRequest());
         // sometimes client will return exception instead of throwing it
         mcClient.andReturn(new XmlRpcException(2, "message"));
         mcClient.replay();
@@ -88,12 +85,16 @@ public class XmlRpcClientInterceptorMockTest extends TestCase {
         try {
             proxy.multiplyTest("x", 5);
             fail("Should throw exception");
-        }
-        catch (XmlRpcRemoteException e) {
+        } catch (XmlRpcRemoteException e) {
             assertEquals(2, e.getFaultCode());
             assertEquals("message", e.getMessage());
         }
 
         mcClient.verify();
-    }    
+    }
+
+    public static XmlRpcClientRequest anyRequest() {
+        org.easymock.EasyMock.anyObject();
+        return null;
+    }
 }
