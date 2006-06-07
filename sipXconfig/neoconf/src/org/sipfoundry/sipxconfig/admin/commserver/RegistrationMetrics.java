@@ -28,11 +28,18 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
  * Metrics about registration distributions
  */
 public class RegistrationMetrics {
-    private List m_registrations;
+    private Collection m_uniqueRegistrations;
     private long m_startTime;
 
+    /**
+     * All registrations from registration.xml which may include redunant
+     * registrations from clients that reregister w/slighlty different uri
+     * w/o unregistering last uri. 
+     */
     public void setRegistrations(List registrations) {
-        m_registrations = registrations;
+        UniqueRegistrations unique = new UniqueRegistrations();
+        CollectionUtils.forAllDo(registrations, unique);
+        setUniqueRegistrations(unique.getRegistrations());
     }
 
     public void setStartTime(long startTime) {
@@ -43,23 +50,23 @@ public class RegistrationMetrics {
         LoadDistribution metric = new LoadDistribution();
         // decided to count expired registrations, shouldn't matter and more history
         // gives a more accurate value.
-        CollectionUtils.forAllDo(m_registrations, metric);
+        CollectionUtils.forAllDo(m_uniqueRegistrations, metric);
         double loadBalance = metric.getLoadBalance();
         return loadBalance;
     }
 
     public int getActiveRegistrationCount() {
-        int count = CollectionUtils.countMatches(m_registrations, new ActiveRegistrations(
+        int count = CollectionUtils.countMatches(m_uniqueRegistrations, new ActiveRegistrations(
                 m_startTime));
         return count;
     }
 
     public Collection getUniqueRegistrations() {
-        UniqueRegistrations unique = new UniqueRegistrations();
-        // decided to count expired registrations, shouldn't matter and more history
-        // gives a more accurate value.
-        CollectionUtils.forAllDo(m_registrations, unique);
-        return unique.getRegistrations();
+        return m_uniqueRegistrations;
+    }
+    
+    void setUniqueRegistrations(Collection registrations) {
+        m_uniqueRegistrations = registrations;
     }
 
     /**

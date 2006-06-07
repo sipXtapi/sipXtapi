@@ -90,7 +90,7 @@ public class RegistrationMetricsTest extends TestCase {
                 newRegistrationItem("bigbird")
         };
         RegistrationMetrics metrics = new RegistrationMetrics();
-        metrics.setRegistrations(Arrays.asList(items));
+        metrics.setUniqueRegistrations(Arrays.asList(items));
         assertTrue(2.0 == metrics.getLoadBalance());
     }
     
@@ -103,7 +103,7 @@ public class RegistrationMetricsTest extends TestCase {
                 newRegistrationItem("bigbird")
         };
         RegistrationMetrics metrics = new RegistrationMetrics();
-        metrics.setRegistrations(Arrays.asList(items));
+        metrics.setUniqueRegistrations(Arrays.asList(items));
         assertTrue(1.4705882352941173 == metrics.getLoadBalance());
     }
 

@@ -14,7 +14,7 @@
     </form>
     <ul>
       <li><span jwcid="@Insert" value="message:registrationCount"/> : 
-          <span jwcid="@Insert" value="ognl:registrations.size()"/> 
+          <span jwcid="@Insert" value="ognl:beans.metrics.uniqueRegistrations.size()"/> 
       </li>
       <li><span jwcid="@Insert" value="message:activeRegistrationCount"/> : 
           <span jwcid="@Insert" value="ognl:beans.metrics.activeRegistrationCount"/>
