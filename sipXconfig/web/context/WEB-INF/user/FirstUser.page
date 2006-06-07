@@ -7,6 +7,7 @@
       - P R O P E R T I E S
       -->
   <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="skin" object="spring:skin"/>
   <property name="callback"  persist="session"/>
   <property name="pin" />
   <!--
@@ -17,7 +18,7 @@
       - C O M P O N E N T S
       -->
   <component id="shell" type="Shell">
-    <binding name="stylesheet" value="assets.stylesheet"/>
+    <binding name="stylesheets" value="skin.stylesheetAssets"/>
     <binding name="title" value="message:title"/>
   </component>
   <component id="form" type="Form">
@@ -34,6 +35,4 @@
     <binding name="callback" value="callback"/>
     <binding name="listener" value="listener:commit"/>
   </component>
-  <!-- A S S E T S -->
-  <asset name="stylesheet" path="context:css/sipxconfig.css"/>
 </page-specification>

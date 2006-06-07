@@ -23,11 +23,19 @@
        model="threaded" />
   </implementation>
   <!-- Spring/Tapestry integration -->
+  <service-point id="HivemindContext" interface="org.sipfoundry.sipxconfig.components.HivemindContext">
+    <invoke-factory>
+      <construct class="components.HivemindContextImpl">
+        <set-object property="classpathAssetFactory" value="service:tapestry.asset.ClasspathAssetFactory"/>
+      </construct>
+    </invoke-factory>	  
+  </service-point>	
   <implementation service-id="hivemind.lib.DefaultSpringBeanFactoryHolder">
     <invoke-factory>
       <construct autowire-services="false" class="org.sipfoundry.sipxconfig.site.SpringBeanFactoryHolderImpl">
         <event-listener service-id="hivemind.ShutdownCoordinator"/>
         <set-object property="context" value="service:tapestry.globals.WebContext"/>
+		<set-object property="hivemindContext" value="service:HivemindContext"/>
       </construct>
     </invoke-factory>
   </implementation>
@@ -40,7 +48,7 @@
           service-id="tapestry.form.validator.ValidatorFactory"/>
       </construct>
     </invoke-factory>
-  </service-point>
+  </service-point> 
   <service-point id="SpringValidatorsBindingFactory" interface="org.apache.tapestry.binding.BindingFactory">
     <invoke-factory>
       <construct class="org.apache.tapestry.form.validator.ValidatorsBindingFactory">

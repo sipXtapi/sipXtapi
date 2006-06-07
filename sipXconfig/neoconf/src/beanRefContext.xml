@@ -28,6 +28,7 @@
         <value>classpath*:/org/sipfoundry/sipxconfig/search/search.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/upload/upload.beans.xml</value>
         <value>classpath*:/org/sipfoundry/sipxconfig/presence/presence.beans.xml</value>
+        <value>classpath*:/sipxplugin.beans.xml</value>
       </list>
     </constructor-arg>
   </bean>

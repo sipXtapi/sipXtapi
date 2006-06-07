@@ -57,6 +57,8 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private DaoEventPublisher m_daoEventPublisher;
     private AliasManager m_aliasManager;
     private BeanFactory m_beanFactory;
+    /** limit number of users */
+    private int m_maxUserCount = -1;
 
     public CoreContextImpl() {
         super();
@@ -74,6 +76,10 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         m_authorizationRealm = authorizationRealm;
     }
 
+    public void setMaxUserCount(int maxUserCount) {
+        m_maxUserCount = maxUserCount;
+    }
+    
     public String getDomainName() {
         return m_domainName;
     }
@@ -95,6 +101,9 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         if (dup != null) {
             throw new NameInUseException(dup);
         }
+
+        checkMaxUsers(m_maxUserCount);
+
         if (!user.isNew()) {
             String origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
             if (!origUserName.equals(user.getUserName())) {
@@ -106,6 +115,30 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
             }
         }
         getHibernateTemplate().saveOrUpdate(user);
+    }
+
+    /**
+     * Check that the system has been restricted to a certain number of users
+     * 
+     * @param maxUserCount
+     *            -1 or represent infinite number
+     */
+    void checkMaxUsers(int maxUserCount) {
+        if (maxUserCount < 0) {
+            return;
+        }
+
+        int count = getUsersCount();
+        if (count >= maxUserCount) {
+            throw new MaxUsersException(m_maxUserCount);
+        }
+    }
+
+    static class MaxUsersException extends UserException {
+        MaxUsersException(int maxCount) {
+            super("You cannot exceeded the maximum number of allowed users: "
+                    + maxCount);
+        }
     }
 
     public static class ChangePintokenRequiredException extends UserException {

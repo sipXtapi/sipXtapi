@@ -12,7 +12,7 @@
 
   <property name="group" />
   <property name="parentSetting" />
-  
+
   <inject property="settingDao" object="spring:settingDao"/>
   <!-- B E A N S -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>

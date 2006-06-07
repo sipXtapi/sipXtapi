@@ -37,9 +37,10 @@
       classpath*:/org/sipfoundry/sipxconfig/search/search.beans.xml
       classpath*:/org/sipfoundry/sipxconfig/upload/upload.beans.xml
       classpath*:/org/sipfoundry/sipxconfig/presence/presence.beans.xml
+      classpath*:/sipxplugin.beans.xml
     </param-value>
   </context-param>
-  
+	
   <!--
     - When users go to the root URL, redirect them to the web app.
     - See http://jakarta.apache.org/tapestry/UsersGuide/configuration.html .
@@ -66,6 +67,7 @@
       <param-value>org.acegisecurity.util.FilterChainProxy</param-value>
     </init-param>
   </filter>
+	
   <!-- 
     - For now, secure only the web services URLs via Acegi.
     - Web app URLs are secured via the Tapestry Border component.
@@ -74,7 +76,7 @@
     <filter-name>Acegi Filter Chain Proxy</filter-name>
     <url-pattern>/services/*</url-pattern>
   </filter-mapping>
-  
+  	
   <!--
     - Loads the root application context of this web app at startup.
     - The application context is then available via 
@@ -90,6 +92,10 @@
     <listener-class>
       org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
   </listener>
+  <servlet>
+    <servlet-name>logo</servlet-name>
+    <servlet-class>org.sipfoundry.sipxconfig.components.LogoAssetServlet</servlet-class>
+  </servlet>	
   <servlet>
     <servlet-name>services</servlet-name>
     <servlet-class>
@@ -112,15 +118,22 @@
     <servlet-class>
       org.sipfoundry.sipxconfig.site.user.PinTokenChangeServlet</servlet-class>
   </servlet>
+
   <servlet-mapping>
     <servlet-name>sipXconfig-web</servlet-name>
     <url-pattern>/app</url-pattern>
   </servlet-mapping>
+
   <servlet-mapping>
     <servlet-name>change-pintoken</servlet-name>
     <url-pattern>/api/change-pintoken</url-pattern>
   </servlet-mapping>
   
+  <servlet-mapping>
+    <servlet-name>logo</servlet-name>
+	<url-pattern>/images/logo.png</url-pattern>
+  </servlet-mapping>
+	
   <!-- START AXIS -->
   <servlet-mapping>
     <servlet-name>AdminServlet</servlet-name>

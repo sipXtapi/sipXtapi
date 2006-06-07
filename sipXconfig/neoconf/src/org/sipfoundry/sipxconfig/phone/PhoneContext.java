@@ -26,7 +26,7 @@ public interface PhoneContext extends DataObjectSource {
 
     public static final String CONTEXT_BEAN_NAME = "phoneContext";
 
-    public List getAvailablePhoneModels();
+    public Collection getAvailablePhoneModels();
 
     /**
      * Commits the transaction and performs a batch of SQL commands to database. Call this as high

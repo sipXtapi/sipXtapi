@@ -15,6 +15,8 @@ package org.sipfoundry.sipxconfig.site;
 
 import org.apache.hivemind.events.RegistryShutdownListener;
 import org.apache.tapestry.web.WebContext;
+import org.sipfoundry.sipxconfig.components.HivemindContext;
+import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.web.context.WebApplicationContext;
@@ -27,6 +29,15 @@ public class SpringBeanFactoryHolderImpl extends
         RegistryShutdownListener {
 
     private WebContext m_context;
+    private HivemindContext m_hivemindContext;
+
+    public HivemindContext getHivemindContext() {
+        return m_hivemindContext;
+    }
+
+    public void setHivemindContext(HivemindContext hivemindContext) {
+        m_hivemindContext = hivemindContext;
+    }
 
     public void setContext(WebContext context) {
         m_context = context;
@@ -38,7 +49,10 @@ public class SpringBeanFactoryHolderImpl extends
 
     public BeanFactory getBeanFactory() {
         if (super.getBeanFactory() == null) {
-            super.setBeanFactory(getWebApplicationContext(getContext()));
+            BeanFactory factory = getWebApplicationContext(getContext()); 
+            TapestryContext tapestry = (TapestryContext) factory.getBean(TapestryContext.CONTEXT_BEAN_NAME);
+            tapestry.setHivemindContext(getHivemindContext());
+            super.setBeanFactory(factory);
         }
         return super.getBeanFactory();
     }
