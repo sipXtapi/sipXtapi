@@ -495,7 +495,7 @@
     <group name="nattimergroup.18x" if="18x" advanced="yes">
       <label>NatTimer</label>
       <setting name="NatTimer" hidden="yes">
-        <profileName>.BM.NatTime</profileName>
+        <profileName>.BM.NatTimer</profileName>
         <type refid="bitmap"/>
         <value>0x0</value>
         <description>Operational parameters for NAT.</description>

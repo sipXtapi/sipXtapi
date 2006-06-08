@@ -46,6 +46,7 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
     }
 
     void writePhone(CiscoAtaPhone phone) {
+        writeHeader();
         m_profileNameSuffix = StringUtils.EMPTY;
         Setting settings = phone.getSettings();
         settings.acceptVisitor(this);
@@ -53,6 +54,15 @@ public class CiscoAtaProfileWriter implements SettingVisitor {
         writeSoftwareUpgradeConfig(phone);
         writeLogoUpgradeConfig(phone);
         writeCountyDialTones(phone);
+    }
+    
+    void writeHeader() {
+        try {
+            m_wtr.append("#txt");
+            m_wtr.append(LF);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     void writeLine(Line line) {
