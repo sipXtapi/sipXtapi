@@ -1732,7 +1732,7 @@ void OsNatAgentTask::markStunSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlStrin
         }
         else
         {
-            assert(false) ;
+            // assert(false) ;
         }
     }
 }
