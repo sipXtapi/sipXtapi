@@ -59,6 +59,25 @@
     <part name="getProcessStatusResponse" type="tns:ArrayOfNamedProcessStatus" />
   </message>
 
+  <message name="readFileRequest">
+    <part name="readFileRequest" type="xsd:string" />     <!-- file path -->
+  </message>    
+  <message name="readFileResponse">
+    <part name="readFileResponse" type="xsd:string" />    <!-- file content -->
+  </message>
+
+TODO: continue here
+
+  <message name="writeFileRequest">
+    <part name="writeFileRequest" type="xsd:string" />     <!-- file path -->
+  </message>    
+  <message name="writeFileResponse">
+    <part name="writeFileResponse" type="xsd:string" />    <!-- file content -->
+  </message>
+
+  <message name="deleteFileRequest" />
+  <message name="deleteFileResponse" />
+
   <portType name="ProcessManagerService">
 
     <operation name="manageProcesses">
@@ -69,6 +88,21 @@
     <operation name="getProcessStatus">
       <input message="tns:getProcessStatusRequest" />
       <output message="tns:getProcessStatusResponse" />
+    </operation>
+
+    <operation name="readFile">
+      <input message="tns:readFileRequest" />
+      <output message="tns:readFileResponse" />
+    </operation>
+
+    <operation name="writeFile">
+      <input message="tns:writeFileRequest" />
+      <output message="tns:writeFileResponse" />
+    </operation>
+
+    <operation name="deleteFile">
+      <input message="tns:deleteFileRequest" />
+      <output message="tns:deleteFileResponse" />
     </operation>
 
   </portType>
@@ -88,6 +122,36 @@
 
     <operation name="getProcessStatus">
       <soap:operation soapAction="urn:ProcessManagerService#getProcessStatus" />
+      <input>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </output>
+    </operation>
+
+    <operation name="readFile">
+      <soap:operation soapAction="urn:ProcessManagerService#readFile" />
+      <input>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </output>
+    </operation>
+
+    <operation name="writeFile">
+      <soap:operation soapAction="urn:ProcessManagerService#writeFile" />
+      <input>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </output>
+    </operation>
+
+    <operation name="deleteFile">
+      <soap:operation soapAction="urn:ProcessManagerService#deleteFile" />
       <input>
         <soap:body use="literal" namespace="urn:ProcessManagerService" />
       </input>
