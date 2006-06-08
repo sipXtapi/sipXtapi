@@ -26,61 +26,61 @@
     <binding name="value" value="message:button.ok" />
     <binding name="listener" value="listeners.ok" />
   </component>
-  
+
   <component id="firstNamePanel" type="FieldPanel">
-    <binding name="field" value="components.firstName"/>
-    <binding name="label" value="message:label.firstName"/>
+    <binding name="field" value="components.firstName" />
+    <binding name="label" value="message:label.firstName" />
   </component>
   <component id="firstName" type="TextField">
-    <binding name="value" value="user.firstName"/>
-    <binding name="enabled" value="false" />
+    <binding name="value" value="user.firstName" />
+    <binding name="disabled" value="true" />
   </component>
-  
+
   <component id="lastNamePanel" type="FieldPanel">
-    <binding name="field" value="components.lastName"/>
-    <binding name="label" value="message:label.lastName"/>
+    <binding name="field" value="components.lastName" />
+    <binding name="label" value="message:label.lastName" />
   </component>
   <component id="lastName" type="TextField">
-    <binding name="enabled" value="false" />
-    <binding name="value" value="user.lastName"/>
+    <binding name="disabled" value="true" />
+    <binding name="value" value="user.lastName" />
   </component>
-  
+
   <component id="userIdPanel" type="FieldPanel">
-    <binding name="field" value="components.userId"/>
-    <binding name="label" value="message:label.userId"/>
+    <binding name="field" value="components.userId" />
+    <binding name="label" value="message:label.userId" />
   </component>
   <component id="userId" type="TextField">
-    <binding name="value" value="user.userName"/>
-    <binding name="enabled" value="false" />
+    <binding name="value" value="user.userName" />
+    <binding name="disabled" value="true" />
   </component>
-  
+
   <component id="sipPasswordPanel" type="FieldPanel">
-    <binding name="field" value="components.sipPassword"/>
-    <binding name="label" value="message:label.sipPassword"/>
+    <binding name="field" value="components.sipPassword" />
+    <binding name="label" value="message:label.sipPassword" />
   </component>
   <component id="sipPassword" type="TextField">
-    <binding name="value" value="user.sipPassword"/>
-    <binding name="enabled" value="false" />
+    <binding name="value" value="user.sipPassword" />
+    <binding name="disabled" value="true" />
   </component>
-  
+
   <component id="groupsPanel" type="FieldPanel">
-    <binding name="field" value="components.groups"/>
-    <binding name="label" value="message:label.groups"/>
+    <binding name="field" value="components.groups" />
+    <binding name="label" value="message:label.groups" />
   </component>
   <component id="groups" type="TextField">
-    <binding name="value" value="groupsString"/>
-    <binding name="size" value="50"/>
-    <binding name="enabled" value="false" />
+    <binding name="value" value="groupsString" />
+    <binding name="size" value="50" />
+    <binding name="disabled" value="true" />
   </component>
-  
+
   <component id="aliasesPanel" type="FieldPanel">
-    <binding name="field" value="components.aliases"/>
-    <binding name="label" value="message:label.aliases"/>
+    <binding name="field" value="components.aliases" />
+    <binding name="label" value="message:label.aliases" />
   </component>
   <component id="aliases" type="TextField">
-    <binding name="value" value="user.aliasesString"/>
-    <binding name="size" value="50"/>
-    <binding name="enabled" value="false" />
+    <binding name="value" value="user.aliasesString" />
+    <binding name="size" value="50" />
+    <binding name="disabled" value="true" />
   </component>
-  
+
 </page-specification>
