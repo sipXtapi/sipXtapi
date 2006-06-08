@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.common.DataCollectionItem;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.setting.BeanWithGroupsModel;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 public class Line extends BeanWithGroups implements DataCollectionItem {
@@ -118,6 +119,10 @@ public class Line extends BeanWithGroups implements DataCollectionItem {
         if (!m_initialized && m_phone != null) {
             m_phone.initializeLine(this);
             m_initialized = true;
+            
+            BeanWithGroupsModel model = (BeanWithGroupsModel) getSettingModel2();
+            // passed collection is not copied
+            model.setGroups(m_phone.getGroups());            
         }
     }
 }
