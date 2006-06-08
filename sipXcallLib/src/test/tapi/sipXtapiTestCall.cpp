@@ -1819,6 +1819,7 @@ void sipXtapiTestSuite::testSendInfo()
 
 void sipXtapiTestSuite::testSendInfoExternalTransport()
 {
+#if 0
     bool bRC ;
     EventValidator validatorCalling("testSendInfoExternalTransport.calling") ;
     EventValidator validatorCalled("testSendInfoExternalTransport.called") ;
@@ -1955,6 +1956,7 @@ void sipXtapiTestSuite::testSendInfoExternalTransport()
     OsTask::delay(TEST_DELAY) ;
 
     checkForLeaks();
+#endif
 }
 
 
