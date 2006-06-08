@@ -100,6 +100,7 @@
 
   <target name="version3" description="upgrade from version 2" unless="version4">
     <antcall target="settings-refactoring"/>
+    <antcall target="ldap"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="4" -->
   </target>
@@ -114,6 +115,10 @@
   <target name="settings-refactoring" unless="settings-refactoring">
     <db-patch patch="settings-refactoring"/>
   </target>  
+	
+  <target name="ldap" unless="ldap">
+    <db-patch patch="ldap"/>
+  </target>  	
 
   <target name="attendant_defaults" unless="attendant_defaults">
     <!-- remove spaces to enable things like auto-completion -->

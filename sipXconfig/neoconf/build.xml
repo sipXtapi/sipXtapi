@@ -261,7 +261,7 @@
 	<taskdef name="hibernatetool"
 		classname="org.hibernate.tool.ant.HibernateToolTask">
 		<classpath>
-       			<pathelement location="${top.dir}/lib/hibernate-3.0.5.jar"/>
+       		<pathelement location="${top.dir}/lib/hibernate-3.1.3.jar"/>
 			<pathelement location="${top.dir}/lib/hibernate-tools.jar"/>
 			<path refid="base.path"/>
 			<pathelement location="${jdbc-driver.jar}"/>
@@ -275,12 +275,12 @@
 			</classpath>
 			<configuration propertyFile="${top.dir}/meta/hibernate.properties">
 				<fileset dir="${src.dir}" id="id">
-					<include name="**/common.hbm.xml"/>
-					<include name="**/setting.hbm.xml"/>
+					<include name="**/admin.hbm.xml"/>
+					<include name="**/ldap.hbm.xml"/>
 				</fileset>
 			</configuration>
 			
-			<hbm2ddl outputfilename="schema.sql"/>
+			<hbm2ddl export="false" outputfilename="schema.sql" format="true"/>
 		</hibernatetool>
 	</target>    
 	

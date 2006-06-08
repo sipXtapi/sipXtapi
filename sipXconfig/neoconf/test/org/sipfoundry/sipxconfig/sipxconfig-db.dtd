@@ -67,6 +67,12 @@
     description CDATA #IMPLIED
 >
 
+<!ELEMENT cron_schedule EMPTY>
+<!ATTLIST cron_schedule
+    cron_schedule_id CDATA #REQUIRED
+    cron_string CDATA #IMPLIED
+>
+
 <!ELEMENT custom_dialing_rule EMPTY>
 <!ATTLIST custom_dialing_rule
     custom_dialing_rule_id CDATA #REQUIRED
@@ -207,6 +213,32 @@
     details CDATA #IMPLIED
     progress CDATA #IMPLIED
     exception_message CDATA #IMPLIED
+>
+
+<!ELEMENT ldap_attr_map EMPTY>
+<!ATTLIST ldap_attr_map
+    ldap_attr_map_id CDATA #REQUIRED
+    default_group_name CDATA #IMPLIED
+    default_pin CDATA #IMPLIED
+    search_base CDATA #IMPLIED
+    object_class CDATA #IMPLIED
+>
+
+<!ELEMENT ldap_connection EMPTY>
+<!ATTLIST ldap_connection
+    ldap_connection_id CDATA #REQUIRED
+    host CDATA #IMPLIED
+    port CDATA #IMPLIED
+    principal CDATA #IMPLIED
+    secret CDATA #IMPLIED
+    cron_schedule_id CDATA #IMPLIED
+>
+
+<!ELEMENT ldap_user_property_to_ldap_attr EMPTY>
+<!ATTLIST ldap_user_property_to_ldap_attr
+    ldap_attr_map_id CDATA #REQUIRED
+    user_property CDATA #REQUIRED
+    ldap_attr CDATA #IMPLIED
 >
 
 <!ELEMENT line EMPTY>

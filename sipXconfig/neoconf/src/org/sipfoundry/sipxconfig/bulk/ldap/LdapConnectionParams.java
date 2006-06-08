@@ -12,15 +12,18 @@
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.CronSchedule;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
  * Used to store LDAP connections in the DB LdapConnectionParams
  */
-public class LdapConnectionParams {
+public class LdapConnectionParams extends BeanWithId {
     private String m_host;
     private int m_port = 389;
     private String m_principal;
     private String m_secret;
+    private CronSchedule m_schedule = new CronSchedule();
 
     public String getHost() {
         return m_host;
@@ -56,6 +59,14 @@ public class LdapConnectionParams {
 
     private String getUrl() {
         return String.format("ldap://%s:%d", m_host, m_port);
+    }
+    
+    public void setSchedule(CronSchedule schedule) {
+        m_schedule = schedule;
+    }
+    
+    public CronSchedule getSchedule() {
+        return m_schedule;
     }
 
     public void applyToTemplate(JndiLdapTemplate template) {

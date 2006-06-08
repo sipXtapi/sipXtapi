@@ -114,6 +114,7 @@
         <value>org/sipfoundry/sipxconfig/admin/forwarding/ring.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/admin.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/backup.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/bulk/ldap/ldap.hbm.xml</value>
         <value>
           org/sipfoundry/sipxconfig/admin/dialplan/dialingRule.hbm.xml</value>
         <value>

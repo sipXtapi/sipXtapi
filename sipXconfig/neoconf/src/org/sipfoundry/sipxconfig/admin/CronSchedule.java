@@ -18,6 +18,7 @@ import java.util.TimerTask;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
  * This is a schedule that keeps its format as a cron compatible string.
@@ -27,7 +28,7 @@ import org.apache.commons.lang.time.DateUtils;
  * 
  * It can be used with Java timer class,
  */
-public class CronSchedule {
+public class CronSchedule extends BeanWithId {
 
     public static enum Type {
         WEEKLY {

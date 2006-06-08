@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.bulk.ldap;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 
 public interface LdapManager {
+    public static final String CONTEXT_BEAN_NAME = "ldapManager";
+
     LdapConnectionParams getConnectionParams();
 
     void setConnectionParams(LdapConnectionParams params);

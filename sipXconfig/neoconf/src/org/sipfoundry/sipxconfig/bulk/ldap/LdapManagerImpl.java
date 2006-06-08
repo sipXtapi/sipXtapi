@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -23,27 +24,27 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
+import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.beans.factory.BeanFactoryAware;
 
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
  */
-public class LdapManagerImpl implements LdapManager {
+public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager,
+        BeanFactoryAware {
     public static final String FILTER_ALL_CLASSES = "objectclass=*";
 
     public static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
 
-    private AttrMap m_attrMap;
-
-    private LdapConnectionParams m_connectionParams;
-
     private JndiLdapTemplate m_jndiTemplate;
-
-    private CronSchedule m_schedule = new CronSchedule();
 
     private LdapImportManager m_ldapImportManager;
 
     private Timer m_timer;
+
+    private BeanFactory m_beanFactory;
 
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
         params.applyToTemplate(m_jndiTemplate);
@@ -124,31 +125,48 @@ public class LdapManagerImpl implements LdapManager {
     }
 
     public CronSchedule getSchedule() {
-        return m_schedule;
+        return getConnectionParams().getSchedule();
     }
 
     public void setSchedule(CronSchedule schedule) {
         if (m_timer != null) {
             m_timer.cancel();
         }
-        m_schedule = schedule;
-        m_timer = m_schedule.schedule(new LdapImportTask());
+        LdapConnectionParams connectionParams = getConnectionParams();
+        connectionParams.setSchedule(schedule);
+        TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager);
+        m_timer = schedule.schedule(ldapImportTask);
+
+        getHibernateTemplate().update(connectionParams);
     }
 
     public AttrMap getAttrMap() {
-        return m_attrMap;
+        List<AttrMap> connections = getHibernateTemplate().loadAll(AttrMap.class);
+        if (!connections.isEmpty()) {
+            return connections.get(0);
+        }
+        AttrMap attrMap = (AttrMap) m_beanFactory.getBean("attrMap", AttrMap.class);
+        getHibernateTemplate().save(attrMap);
+        return attrMap;
     }
 
     public LdapConnectionParams getConnectionParams() {
-        return m_connectionParams;
+        List<LdapConnectionParams> connections = getHibernateTemplate().loadAll(
+                LdapConnectionParams.class);
+        if (!connections.isEmpty()) {
+            return connections.get(0);
+        }
+        LdapConnectionParams params = new LdapConnectionParams();
+        getHibernateTemplate().save(params);
+        return params;
     }
 
     public void setAttrMap(AttrMap attrMap) {
-        m_attrMap = attrMap;
+        getHibernateTemplate().saveOrUpdate(attrMap);
     }
 
     public void setConnectionParams(LdapConnectionParams params) {
-        m_connectionParams = params;
+        getHibernateTemplate().saveOrUpdate(params);
     }
 
     public void setJndiTemplate(JndiLdapTemplate jndiTemplate) {
@@ -160,12 +178,25 @@ public class LdapManagerImpl implements LdapManager {
     }
 
     public void init() {
-        m_timer = m_schedule.schedule(new LdapImportTask());
+        CronSchedule schedule = getConnectionParams().getSchedule();
+        TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager);
+        m_timer = schedule.schedule(ldapImportTask);
     }
 
-    private final class LdapImportTask extends TimerTask {
+    public void setBeanFactory(BeanFactory beanFactory) {
+        m_beanFactory = beanFactory;
+    }
+
+    private static final class LdapImportTask extends TimerTask {
+        private LdapImportManager m_ldapImportManager;
+        
+        public LdapImportTask(LdapImportManager ldapImportManager) {
+            m_ldapImportManager = ldapImportManager;
+            
+        }
+        
         public void run() {
             m_ldapImportManager.insert();
         }
-    }
+    }    
 }

@@ -16,8 +16,8 @@ import java.io.Serializable;
 /**
  * Support common data object marshalling
  */
-public interface DataObjectSource {
+public interface DataObjectSource<T> {
 
     /** Read object from data source by class and object id */
-    public Object load(Class c, Serializable serializable);
+    public T load(Class<T> c, Serializable serializable);
 }

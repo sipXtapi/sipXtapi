@@ -20,11 +20,12 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.functors.NotNullPredicate;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter.Index;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**
  * Information related to mapping LDAP attributes to User properties
  */
-public class AttrMap {
+public class AttrMap extends BeanWithId {
     private Map<String, String> m_user2ldap = new TreeMap<String, String>();
 
     /**
@@ -118,6 +119,10 @@ public class AttrMap {
 
     public void setUserToLdap(Map<String, String> user2ldap) {
         m_user2ldap = user2ldap;
+    }
+    
+    public Map<String, String> getUserToLdap() {
+        return m_user2ldap;
     }
 
     public void setAttribute(String field, String attribute) {

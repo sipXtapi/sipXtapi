@@ -2,7 +2,7 @@
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-  <bean id="attrMap" class="org.sipfoundry.sipxconfig.bulk.ldap.AttrMap">
+  <bean id="attrMap" class="org.sipfoundry.sipxconfig.bulk.ldap.AttrMap" singleton="false">
     <property name="userToLdap">
       <map>
         <entry key="userName" value="uid" />
@@ -23,6 +23,12 @@
     <property name="objectClass" value="person" />
   </bean>
 
+  <bean id="ldapConnectionParams"
+    class="org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams" singleton="false">
+    <property name="host" value="localhost" />
+    <property name="port" value="389" />    
+  </bean>
+
   <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowInserter"
     parent="rowInserter">
     <property name="coreContext" ref="coreContext" />
@@ -32,21 +38,21 @@
     <property name="intialContextFactory" value="com.sun.jndi.ldap.LdapCtxFactory" />
   </bean>
 
-  <bean id="ldapConnectionParams"
-    class="org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams">
-    <property name="host" value="localhost" />
-    <property name="port" value="389" />
-  </bean>
-
-  <bean id="ldapManager" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl">
-    <property name="connectionParams">
-      <ref local="ldapConnectionParams" />
-    </property>
-    <property name="attrMap">
-      <ref local="attrMap" />
-    </property>
+  <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl"
+    init-method="init">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>    
     <property name="jndiTemplate">
       <ref local="jndiTemplate" />
+    </property>
+  </bean>
+
+  <bean id="ldapManager" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.bulk.ldap.LdapManager" />
+    <property name="target">
+      <ref local="ldapManagerImpl" />
     </property>
   </bean>
 
