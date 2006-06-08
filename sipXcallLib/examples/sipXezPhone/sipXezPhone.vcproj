@@ -41,7 +41,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib comctl32.lib sipXtapid.lib sipXportLib.lib libpcre.a winmm.lib wxmsw26_core.lib wxmsw26_adv.lib wxbase26.lib"
+				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib comctl32.lib sipXtapid.lib sipXportLibd.lib libpcre.a winmm.lib wxmsw26_core.lib wxmsw26_adv.lib wxbase26.lib"
 				OutputFile="debug\sipXezPhone.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
