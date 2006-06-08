@@ -4,25 +4,25 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     23.09.98
-// RCS-ID:      $Id: mimetype.h,v 1.8 2002/08/31 11:29:13 GD Exp $
+// RCS-ID:      $Id: mimetype.h,v 1.16.2.1 2006/03/17 15:05:06 RR Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license (part of wxExtra library)
+// Licence:     wxWindows licence (part of wxExtra library)
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _MIMETYPE_IMPL_H
 #define _MIMETYPE_IMPL_H
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "mimetype.h"
 #endif
 
 #include "wx/mimetype.h"
 
-#if (wxUSE_FILE && wxUSE_TEXTFILE)
+#if wxUSE_MIMETYPE
 
 class wxMimeTypeCommands;
 
-WX_DEFINE_ARRAY(wxMimeTypeCommands *, wxMimeCommandsArray);
+WX_DEFINE_ARRAY_PTR(wxMimeTypeCommands *, wxMimeCommandsArray);
 
 // this is the real wxMimeTypesManager for Unix
 class WXDLLEXPORT wxMimeTypesManagerImpl
@@ -33,7 +33,7 @@ public:
     ~wxMimeTypesManagerImpl();
 
     // load all data into memory - done when it is needed for the first time
-    void Initialize(int mailcapStyles = wxMAILCAP_STANDARD,
+    void Initialize(int mailcapStyles = wxMAILCAP_ALL,
                     const wxString& extraDir = wxEmptyString);
 
     // and delete the data here
@@ -71,14 +71,7 @@ public:
     wxString GetExtension(size_t index) { return m_aExtensions[index]; }
 
 private:
-    void InitIfNeeded()
-    {
-        if ( !m_initialized ) {
-            // set the flag first to prevent recursion
-            m_initialized = TRUE;
-            Initialize();
-        }
-    }
+    void InitIfNeeded();
 
     wxArrayString m_aTypes,         // MIME types
                   m_aDescriptions,  // descriptions (just some text)
@@ -98,15 +91,12 @@ private:
     wxString GetCommand(const wxString &verb, size_t nIndex) const;
 
     // read Gnome files
-    void LoadGnomeDataFromKeyFile(const wxString& filename);
+    void LoadGnomeDataFromKeyFile(const wxString& filename,
+                                  const wxArrayString& dirs);
     void LoadGnomeMimeTypesFromMimeFile(const wxString& filename);
-    void LoadGnomeMimeFilesFromDir(const wxString& dirbase);
+    void LoadGnomeMimeFilesFromDir(const wxString& dirbase,
+                                   const wxArrayString& dirs);
     void GetGnomeMimeInfo(const wxString& sExtraDir);
-
-    // write gnome files
-    bool CheckGnomeDirsExist();
-    bool WriteGnomeKeyFile(int index, bool delete_index);
-    bool WriteGnomeMimeFile(int index, bool delete_index);
 
     // read KDE
     void LoadKDELinksForMimeSubtype(const wxString& dirbase,
@@ -175,8 +165,7 @@ public:
     bool GetMimeType(wxString *mimeType) const
         { *mimeType = m_manager->m_aTypes[m_index[0]]; return TRUE; }
     bool GetMimeTypes(wxArrayString& mimeTypes) const;
-    bool GetIcon(wxIcon *icon, wxString *iconFile = NULL,
-                 int *iconIndex = NULL) const;
+    bool GetIcon(wxIconLocation *iconLoc) const;
 
     bool GetDescription(wxString *desc) const
         { *desc = m_manager->m_aDescriptions[m_index[0]]; return TRUE; }
@@ -221,9 +210,8 @@ private:
     wxArrayInt              m_index; // in the wxMimeTypesManagerImpl arrays
 };
 
-#endif
-  // wxUSE_FILE
+#endif // wxUSE_MIMETYPE
 
-#endif
-  //_MIMETYPE_IMPL_H
+#endif // _MIMETYPE_IMPL_H
+
 

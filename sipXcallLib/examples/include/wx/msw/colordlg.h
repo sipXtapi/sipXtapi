@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: colordlg.h,v 1.5 2002/05/09 22:31:44 VZ Exp $
+// RCS-ID:      $Id: colordlg.h,v 1.9 2004/05/23 20:51:27 JS Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_COLORDLG_H_
 #define _WX_COLORDLG_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "colordlg.h"
 #endif
 
@@ -54,7 +54,7 @@ protected:
 
     wxPoint             m_pos;
 
-    DECLARE_DYNAMIC_CLASS(wxColourDialog)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxColourDialog)
 };
 
 #endif

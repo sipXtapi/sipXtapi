@@ -128,6 +128,8 @@ public:
 
    virtual UtlBoolean isEmpty(void);
      //:Return TRUE if the message queue is empty, FALSE otherwise
+     
+   const UtlString& getName() const { return mName; }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

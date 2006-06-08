@@ -456,6 +456,12 @@ class SdpBody : public HttpBody
                                      int         candidatePorts[],
                                      int&        nActualAddresses) const ;
 
+   /**
+     * Locates a specific value for an attribute field
+     * Used to locate sendonly and recvonly in case if hold and unhold INVITE messages
+     */
+   UtlBoolean findValueInField(const char* pField, const char* pvalue) const;
+
 
 ///@}
 

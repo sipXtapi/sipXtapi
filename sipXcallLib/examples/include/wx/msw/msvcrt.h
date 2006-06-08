@@ -5,9 +5,9 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     31.01.1999
-// RCS-ID:      $Id: msvcrt.h,v 1.2 1999/02/03 16:46:26 VZ Exp $
+// RCS-ID:      $Id: msvcrt.h,v 1.10 2004/07/25 16:47:33 VZ Exp $
 // Copyright:   (c) Vadim Zeitlin
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 // the goal of this file is to define wxCrtSetDbgFlag() macro which may be
@@ -22,9 +22,10 @@
 // use debug CRT functions for memory leak detections in VC++ 5.0+ in debug
 // builds
 #undef wxUSE_VC_CRTDBG
-#if defined(__WXDEBUG__) && defined(__VISUALC__) && (__VISUALC__ >= 1000)
+#if defined(__WXDEBUG__) && defined(__VISUALC__) && (__VISUALC__ >= 1000) \
+    && !defined(UNDER_CE)
     // it doesn't combine well with wxWin own memory debugging methods
-    #if !wxUSE_GLOBAL_MEMORY_OPERATORS && !defined(__NO_VC_CRTDBG__)
+    #if !wxUSE_GLOBAL_MEMORY_OPERATORS && !wxUSE_MEMORY_TRACING && !defined(__NO_VC_CRTDBG__)
         #define wxUSE_VC_CRTDBG
     #endif
 #endif
@@ -35,12 +36,25 @@
         #define _DEBUG
     #endif
 
-    // Need to undef new if including crtdbg.h which redefines new itself
+    // Need to undef new if including crtdbg.h which may redefine new itself
     #ifdef new
         #undef new
     #endif
 
+    #include <stdlib.h>
+    #ifndef _CRTBLD
+        // Need when builded with pure MS SDK
+        #define _CRTBLD
+    #endif
+
     #include <crtdbg.h>
+
+    // this define works around a bug with inline declarations of new, see
+    //
+    //      http://support.microsoft.com/support/kb/articles/Q140/8/58.asp
+    //
+    // for the details
+    #define new  new( _NORMAL_BLOCK, __FILE__, __LINE__)
 
     #define wxCrtSetDbgFlag(flag) \
         _CrtSetDbgFlag(_CrtSetDbgFlag(_CRTDBG_REPORT_FLAG) | (flag))

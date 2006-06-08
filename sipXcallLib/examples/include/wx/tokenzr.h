@@ -4,7 +4,7 @@
 // Author:      Guilhem Lavaux
 // Modified by: (or rather rewritten by) Vadim Zeitlin
 // Created:     04/22/98
-// RCS-ID:      $Id: tokenzr.h,v 1.13 2002/08/31 11:29:11 GD Exp $
+// RCS-ID:      $Id: tokenzr.h,v 1.19 2004/05/23 20:50:25 JS Exp $
 // Copyright:   (c) Guilhem Lavaux
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,12 +12,13 @@
 #ifndef _WX_TOKENZRH
 #define _WX_TOKENZRH
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "tokenzr.h"
 #endif
 
 #include "wx/object.h"
 #include "wx/string.h"
+#include "wx/arrstr.h"
 
 // ----------------------------------------------------------------------------
 // constants
@@ -41,7 +42,7 @@ enum wxStringTokenizerMode
 // wxStringTokenizer: replaces infamous strtok() and has some other features
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxStringTokenizer : public wxObject
+class WXDLLIMPEXP_BASE wxStringTokenizer : public wxObject
 {
 public:
     // ctors and initializers
@@ -123,7 +124,7 @@ protected:
 
 // the function takes the same parameters as wxStringTokenizer ctor and returns
 // the array containing all tokens
-wxArrayString WXDLLEXPORT
+wxArrayString WXDLLIMPEXP_BASE
 wxStringTokenize(const wxString& str,
                  const wxString& delims = wxDEFAULT_DELIMITERS,
                  wxStringTokenizerMode mode = wxTOKEN_DEFAULT);

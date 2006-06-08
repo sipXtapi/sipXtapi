@@ -4,15 +4,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     07.09.00
-// RCS-ID:      $Id: checkbox.h,v 1.8 2002/04/14 14:42:42 RR Exp $
+// RCS-ID:      $Id: checkbox.h,v 1.17 2005/01/07 16:54:07 VZ Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_UNIV_CHECKBOX_H_
 #define _WX_UNIV_CHECKBOX_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univcheckbox.h"
 #endif
 
@@ -22,8 +22,8 @@
 // the actions supported by wxCheckBox
 // ----------------------------------------------------------------------------
 
-#define wxACTION_CHECKBOX_CHECK   _T("check")   // SetValue(TRUE)
-#define wxACTION_CHECKBOX_CLEAR   _T("clear")   // SetValue(FALSE)
+#define wxACTION_CHECKBOX_CHECK   _T("check")   // SetValue(true)
+#define wxACTION_CHECKBOX_CLEAR   _T("clear")   // SetValue(false)
 #define wxACTION_CHECKBOX_TOGGLE  _T("toggle")  // toggle the check state
 
 // additionally it accepts wxACTION_BUTTON_PRESS and RELEASE
@@ -54,7 +54,7 @@ public:
     {
         Status_Checked,
         Status_Unchecked,
-        Status_Unknown,
+        Status_3rdState,
         Status_Max
     };
 
@@ -101,16 +101,17 @@ public:
     // overridden base class virtuals
     virtual bool IsPressed() const { return m_isPressed; }
 
-    virtual bool HasTransparentBackground() { return TRUE; }
-    
 protected:
+    virtual void DoSet3StateValue(wxCheckBoxState WXUNUSED(state));
+    virtual wxCheckBoxState DoGet3StateValue() const;
+
     virtual bool PerformAction(const wxControlAction& action,
                                long numArg = -1,
                                const wxString& strArg = wxEmptyString);
     virtual void DoDraw(wxControlRenderer *renderer);
     virtual wxSize DoGetBestClientSize() const;
 
-    virtual bool CanBeHighlighted() const { return TRUE; }
+    virtual bool CanBeHighlighted() const { return true; }
 
     // get the size of the bitmap using either the current one or the default
     // one (query renderer then)

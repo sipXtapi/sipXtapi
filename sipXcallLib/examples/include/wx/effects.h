@@ -5,17 +5,17 @@
 // Author:      Julian Smart et al
 // Modified by:
 // Created:     25/4/2000
-// RCS-ID:      $Id: effects.h,v 1.3 2002/09/05 19:37:25 RD Exp $
+// RCS-ID:      $Id: effects.h,v 1.7.4.1 2005/09/25 20:46:17 MW Exp $
 // Copyright:   (c) Julian Smart
-// Licence:   	wxWindows licence
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
-
-#if defined(__GNUG__) && !defined(__APPLE__)
-#pragma interface "effects.h"
-#endif
 
 #ifndef _WX_EFFECTS_H_
 #define _WX_EFFECTS_H_
+
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+#pragma interface "effects.h"
+#endif
 
 /*
  * wxEffects: various 3D effects

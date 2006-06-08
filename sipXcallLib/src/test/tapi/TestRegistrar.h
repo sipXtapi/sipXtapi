@@ -66,6 +66,7 @@ class TestRegistrar : public OsServerTask
      */
     UtlBoolean handleMessage(OsMsg& rMsg);   
 
+    void pause(bool bPause);
 /* ============================ MANIPULATORS ============================== */
 
    /**
@@ -91,6 +92,7 @@ class TestRegistrar : public OsServerTask
      * Message handler for register requests.
      */
     UtlBoolean handleRegisterRequest(SipMessage message);
+    bool mbPaused;
 
 };
 

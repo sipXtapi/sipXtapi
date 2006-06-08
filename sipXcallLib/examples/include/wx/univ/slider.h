@@ -4,17 +4,17 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     09.02.01
-// RCS-ID:      $Id: slider.h,v 1.6 2001/09/22 11:56:04 VS Exp $
+// RCS-ID:      $Id: slider.h,v 1.12.2.1 2005/09/25 20:46:44 MW Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef __GNUG__
-    #pragma interface "univslider.h"
-#endif
-
 #ifndef _WX_UNIV_SLIDER_H_
 #define _WX_UNIV_SLIDER_H_
+
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+    #pragma interface "univslider.h"
+#endif
 
 #include "wx/univ/scrthumb.h"
 
@@ -95,10 +95,14 @@ public:
         { return IsVert() ? wxVERTICAL : wxHORIZONTAL; }
 
     // do we have labels?
-    bool HasLabels() const { return (GetWindowStyle() & wxSL_LABELS) != 0; }
+    bool HasLabels() const
+        { return ((GetWindowStyle() & wxSL_LABELS) != 0) &&
+                 ((GetWindowStyle() & (wxSL_TOP|wxSL_BOTTOM|wxSL_LEFT|wxSL_RIGHT)) != 0); }
 
     // do we have ticks?
-    bool HasTicks() const { return (GetWindowStyle() & wxSL_TICKS) != 0; }
+    bool HasTicks() const
+        { return ((GetWindowStyle() & wxSL_TICKS) != 0) &&
+                 ((GetWindowStyle() & (wxSL_TOP|wxSL_BOTTOM|wxSL_LEFT|wxSL_RIGHT|wxSL_BOTH)) != 0); }
 
     // implement wxControlWithThumb interface
     virtual wxWindow *GetWindow() { return this; }
@@ -110,7 +114,7 @@ public:
 
     virtual void SetShaftPartState(wxScrollThumb::Shaft shaftPart,
                                    int flag,
-                                   bool set = TRUE);
+                                   bool set = true);
 
     virtual void OnThumbDragStart(int pos);
     virtual void OnThumbDrag(int pos);
@@ -145,7 +149,7 @@ protected:
     // normalize the value to fit in the range
     int NormalizeValue(int value) const;
 
-    // change the value by the given increment, return TRUE if really changed
+    // change the value by the given increment, return true if really changed
     bool ChangeValueBy(int inc);
 
     // change the value to the given one

@@ -34,6 +34,7 @@
 #include <cp/CpPeerCall.h>
 #include <cp/CpMultiStringMessage.h>
 #include <cp/CpIntMessage.h>
+#include <os/OsNatAgentTask.h>
 #include "ptapi/PtCall.h"
 #include <net/TapiMgr.h>
 #ifdef HAVE_NSS
@@ -77,7 +78,7 @@ SipConnection::SipConnection(const char* outboundLineAddress,
                              , mIsEarlyMediaFor180(TRUE)
                              , mContactId(0)
                              , mpSecurity(0)
-                            , mbByeAttempted(false)
+                             , mbByeAttempted(false)
 {
     sipUserAgent = sipUA;
     inviteMsg = NULL;
@@ -91,6 +92,7 @@ SipConnection::SipConnection(const char* outboundLineAddress,
     mBandwidthId = AUDIO_MICODEC_BW_DEFAULT;
     mbLocallyInitiatedRemoteHold = false ;
     mRemoteUserAgent = NULL;
+    mContactType = CONTACT_AUTO ;
 
     // Build a from tag
     int fromTagInt = rand();
@@ -181,6 +183,17 @@ SipConnection::~SipConnection()
     else
         OsSysLog::add(FAC_CP, PRI_DEBUG, "Leaving SipConnection destructor: call is Null\n");
 #endif
+    // tell all media event emitters that we are going away
+    UtlSListIterator iterator(mMediaEventEmitters);
+    UtlInt* pEmitterContainer;
+    IMediaEventEmitter* pEmitter;
+    while (pEmitterContainer = (UtlInt*)iterator())
+    {
+        pEmitter = (IMediaEventEmitter*)pEmitterContainer->getValue();
+        pEmitter->onListenerRemoved();
+    }
+
+
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -431,100 +444,155 @@ UtlBoolean SipConnection::shouldCreateConnection(SipUserAgent& sipUa,
 }
 
 // Select a compatible contact type given the request URL
-CONTACT_TYPE SipConnection::selectCompatibleContactType(const SipMessage& request)
+SIPX_CONTACT_TYPE SipConnection::selectCompatibleContactType(const SipMessage& request)
 {
-    CONTACT_TYPE contactType = mContactType ;
-    char szAdapter[256];
-    UtlString localAddress;
-    getLocalAddress(&localAddress);
-
-    getContactAdapterName(szAdapter, localAddress.data(), false);
-
-    UtlString requestUriHost ;
-    int requestUriPort ;
-    UtlString strUri ;
-    request.getRequestUri(&strUri) ;
-    Url requestUri(strUri) ;
-
-    requestUri.getHostAddress(requestUriHost) ;
-    requestUriPort = requestUri.getHostPort() ;
-    if (!portIsValid(requestUriPort))
-    {
-        requestUriPort = 5060 ;
-    }
-
-    CONTACT_ADDRESS config_contact;
-    CONTACT_ADDRESS stun_contact;
-    CONTACT_ADDRESS local_contact;
+    SIPX_CONTACT_TYPE contactType = mContactType ;
+    SIPX_TRANSPORT_TYPE eTransportType = TRANSPORT_UDP ;
     
-    if (sipUserAgent->getContactDb().getRecordForAdapter(config_contact, szAdapter, CONFIG) &&
-        (strcmp(config_contact.cIpAddress, requestUriHost) == 0) &&
-        (requestUriPort == (!portIsValid(config_contact.iPort) ? 5060 : config_contact.iPort)))
+    if (mContactId > 0)
     {
-        mContactId = config_contact.id;
-        contactType = CONFIG ;
+        // Someone has given us a contact type (likely from sipXcallAccept/
+        // acceptConnection).  Use it.
+        SIPX_CONTACT_ADDRESS* pContact = sipUserAgent->getContactDb().find(mContactId) ;
+        assert(pContact) ;
+        if (pContact)
+        {
+            contactType = pContact->eContactType ;
+        }
     }
-    else if (sipUserAgent->getContactDb().getRecordForAdapter(stun_contact, szAdapter, NAT_MAPPED) &&
-        (strcmp(stun_contact.cIpAddress, requestUriHost) == 0) &&
-        (requestUriPort == (!portIsValid(stun_contact.iPort) ? 5060 : stun_contact.iPort)))
+    else
+    {   
+        // Try to figure out the best-case contact type from the request URI.  If 
+        // nothing matches -- use auto.
 
-    {
-        mContactId = stun_contact.id;
-        contactType = NAT_MAPPED ;
+        // Parse useful data from the request URI
+        UtlString requestUriHost ;
+        int requestUriPort ;
+        UtlString strUri ;
+        request.getRequestUri(&strUri) ;
+        Url requestUri(strUri, true) ;
+        requestUri.getHostAddress(requestUriHost) ;
+        requestUriPort = requestUri.getHostPort() ;
+        if (!portIsValid(requestUriPort))
+        {
+            requestUriPort = 5060 ;
+        }
+
+        // Figure out 'best' transport given request URI
+        UtlString transportParam ;
+        if (requestUri.getUrlParameter("transport", transportParam))
+        {
+            eTransportType = sipUserAgent->getContactDb().findTransportType(
+                    transportParam) ;
+        }
+        else if (requestUri.getScheme() == Url::SipsUrlScheme)
+        {
+            eTransportType = TRANSPORT_TLS ;
+        }
+
+        SIPX_CONTACT_ADDRESS stun_contact;
+        SIPX_CONTACT_ADDRESS local_contact;
+        char szAdapter[256];
+        UtlString localAddress;
+        getLocalAddress(&localAddress);
+
+        getContactAdapterName(szAdapter, localAddress.data(), false);
+
+        // Look for matches against the request URI and our DB of IP addresses -- 
+        // the user other side sent to our NAT address, then STICK to it.
+        if (sipUserAgent->getContactDb().getRecordForAdapter(stun_contact, 
+                szAdapter, CONTACT_NAT_MAPPED, eTransportType) &&
+                (strcmp(stun_contact.cIpAddress, requestUriHost) == 0) &&
+                (requestUriPort == (!portIsValid(stun_contact.iPort) ? 
+                5060 : stun_contact.iPort)))
+        {
+            mContactId = stun_contact.id;
+            contactType = CONTACT_NAT_MAPPED ;
+        }
+        else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact, 
+                szAdapter, CONTACT_LOCAL, eTransportType) &&
+                (strcmp(local_contact.cIpAddress, requestUriHost) == 0) &&
+                (requestUriPort == (!portIsValid(local_contact.iPort) ? 
+                5060 : local_contact.iPort)))
+        {
+            mContactId = local_contact.id;
+            contactType = CONTACT_LOCAL ;
+        }
+        else if (eTransportType >= TRANSPORT_CUSTOM)
+        {
+            // If using an external transport, this is unlikely to match -- 
+            // assume NAT the local
+            if (sipUserAgent->getContactDb().getRecordForAdapter(stun_contact, 
+                szAdapter, CONTACT_NAT_MAPPED, eTransportType))
+            {
+                mContactId = stun_contact.id;
+                contactType = CONTACT_NAT_MAPPED ;
+            }
+            else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact, 
+                szAdapter, CONTACT_LOCAL, eTransportType))
+            {
+                mContactId = local_contact.id;
+                contactType = CONTACT_LOCAL ;
+            }    
+        }
     }
-    else if (sipUserAgent->getContactDb().getRecordForAdapter(local_contact, szAdapter, LOCAL) &&
-        (strcmp(local_contact.cIpAddress, requestUriHost) == 0) &&
-        (requestUriPort == (!portIsValid(local_contact.iPort) ? 5060 : local_contact.iPort)))
-
-    {
-        mContactId = local_contact.id;
-        contactType = LOCAL ;
-    }
-
+        
     return contactType ;
 }
 
 
-void SipConnection::updateContact(Url* pContactUrl, CONTACT_TYPE eType)
+void SipConnection::updateContact(Url* pContactUrl, SIPX_CONTACT_TYPE eType, Url* pToUrl)
 {
     UtlString useIp ;
     
-    if ((mContactId == 0) && inviteMsg)
+    // If we don't have a contact selected and we have an invite, try
+    // to select a compatible contact.  This sets the mContactId as a side 
+    // effect.
+    if ((mContactId == 0) && inviteMsg && !inviteFromThisSide)
     {
-        CONTACT_TYPE cType;
-
-        cType = selectCompatibleContactType(*inviteMsg);
-        mContactType = cType; 
+        mContactType = selectCompatibleContactType(*inviteMsg);    
     }
-    
-    // get the Contact DB id that was set during 
-    // selectCompatibleContacts
-    CONTACT_ADDRESS* pContact = sipUserAgent->getContactDb().find(mContactId);   
+        
+    // Try looking up the contact record
+    SIPX_CONTACT_ADDRESS* pContact = sipUserAgent->getContactDb().find(mContactId);   
     if (pContact == NULL)
     {
-        if ((eType == AUTO) || (eType == NAT_MAPPED) || (eType == RELAY))
+        // If we didn't find one (or this is the initial request), select one based
+        // on the requested
+
+        // Try NAT first
+        if ((eType == CONTACT_AUTO) || (eType == CONTACT_NAT_MAPPED) || (eType == CONTACT_RELAY))
         {
-            pContact = sipUserAgent->getContactDb().findByType(NAT_MAPPED, OsSocket::UDP);
+            pContact = sipUserAgent->getContactDb().findByType(CONTACT_NAT_MAPPED, TRANSPORT_UDP);
         }
 
         if (pContact == NULL)
         {
             UtlString to;
-
             if (inviteMsg)
             {
                 inviteMsg->getToUri(&to);
+				to.toLower();
                 if (to.contains("sips:") || to.contains("transport=tls"))
                 {
-                    pContact = sipUserAgent->getContactDb().findByType(LOCAL, OsSocket::SSL_SOCKET);
+                    pContact = sipUserAgent->getContactDb().findByType(CONTACT_LOCAL, TRANSPORT_TLS);
                 }
                 else if (to.contains("transport=tcp"))
                 {
-                    pContact = sipUserAgent->getContactDb().findByType(LOCAL, OsSocket::TCP);
+                    pContact = sipUserAgent->getContactDb().findByType(CONTACT_LOCAL, TRANSPORT_TCP);
                 }
+				else if (to.contains("transport=") && !to.contains("transport=udp"))
+				{
+					Url toUrl(to);
+					UtlString sTransport;
+					UtlString localIp = inviteMsg->getLocalIp();
+
+					toUrl.getUrlParameter("transport", sTransport);
+					pContact = sipUserAgent->getContactDb().findByType(CONTACT_LOCAL, TRANSPORT_CUSTOM, sTransport);
+				}
                 else
                 {
-                    pContact = sipUserAgent->getContactDb().findByType(LOCAL, OsSocket::UDP);
+                    pContact = sipUserAgent->getContactDb().findByType(CONTACT_LOCAL, TRANSPORT_UDP);
                 }
             }
             else
@@ -534,28 +602,96 @@ void SipConnection::updateContact(Url* pContactUrl, CONTACT_TYPE eType)
         }
     }
 
+    // If we do have a valid contact record, tweak the URL
     if (pContact)
-    {
-        pContactUrl->setHostAddress(pContact->cIpAddress) ;
-        pContactUrl->setHostPort(pContact->iPort) ;
+    {   
+        switch (pContact->eTransportType)
+        {
+            case TRANSPORT_UDP:
+                {
+                    UtlString contactIP = pContact->cIpAddress ;
+                    int contactPort = pContact->iPort ;
+
+                    if ( pToUrl &&
+                            (pContact->eContactType == CONTACT_NAT_MAPPED || 
+                            pContact->eContactType == CONTACT_RELAY)    )
+                    {
+                        UtlString checkHost ;
+                        int checkPort ;
+
+                        pToUrl->getHostAddress(checkHost) ;
+                        checkPort = pToUrl->getHostPort() ;
+                        OsNatAgentTask::getInstance()->findContactAddress(
+                                checkHost, checkPort, 
+                                &contactIP, &contactPort) ;
+                    }
+
+                    pContactUrl->setScheme(Url::SipUrlScheme) ;
+                    pContactUrl->setHostAddress(contactIP) ;
+                    pContactUrl->setHostPort(contactPort) ;
+                    pContactUrl->removeUrlParameter("transport") ;
+                }
+                break ;
+            case TRANSPORT_TCP:
+                pContactUrl->setScheme(Url::SipUrlScheme) ;
+                pContactUrl->setHostAddress(pContact->cIpAddress) ;
+                pContactUrl->setHostPort(pContact->iPort) ;
+                pContactUrl->removeUrlParameter("transport") ;
+                pContactUrl->setUrlParameter("transport", "tcp"); 
+                break ;
+            case TRANSPORT_TLS:
+                pContactUrl->setScheme(Url::SipsUrlScheme) ;
+                pContactUrl->setHostAddress(pContact->cIpAddress) ;
+                pContactUrl->setHostPort(pContact->iPort) ;
+                pContactUrl->removeUrlParameter("transport") ;
+                break ;
+            case TRANSPORT_CUSTOM:
+                {
+                    Url fromUrl ;
+                    UtlString customRouteId = pContact->cCustomRouteID ;
+                        
+                    if (customRouteId.isNull())
+                    {
+                        pContactUrl->setHostAddress(pContact->cIpAddress) ;
+                        pContactUrl->setHostPort(pContact->iPort) ;
+                    }
+                    else
+                    {
+                        pContactUrl->setUserId(NULL) ;
+                        pContactUrl->setHostAddress(customRouteId) ;
+                        pContactUrl->setHostPort(0) ;
+                    }
+
+                    pContactUrl->setScheme(Url::SipUrlScheme) ;
+                    pContactUrl->removeUrlParameter("transport") ;
+                    pContactUrl->setUrlParameter("transport", pContact->cCustomTransportName) ;
+                }
+                break ;
+        }
     }
 }
 
 void SipConnection::buildLocalContact(Url fromUrl,
-                                      UtlString& localContact) 
+                                      UtlString& localContact,
+                                      Url* pToUrl) 
 {
-    UtlString contactHostPort;
+    
+    // Get host and port from local contact
     UtlString address;
+    UtlString contactHostPort;
     sipUserAgent->getContactUri(&contactHostPort);
     Url hostPort(contactHostPort);
     hostPort.getHostAddress(address);
     int port = hostPort.getHostPort();
 
+    // Get display name and user id from from Url
     UtlString displayName;
     UtlString userId;
     fromUrl.getDisplayName(displayName);
     fromUrl.getUserId(userId);
 
+    // Construct a new contact URL with host/port from local contact
+    // and display name/userid from From URL
     Url contactUrl(mLocalContact, FALSE);
     contactUrl.setUserId(userId.data());
     contactUrl.setDisplayName(displayName);
@@ -563,7 +699,7 @@ void SipConnection::buildLocalContact(Url fromUrl,
     contactUrl.setHostPort(port);
     contactUrl.includeAngleBrackets();
 
-    updateContact(&contactUrl, mContactType) ;
+    updateContact(&contactUrl, mContactType, pToUrl) ;
     contactUrl.toString(localContact);
 }
 
@@ -578,7 +714,8 @@ UtlBoolean SipConnection::dial(const char* dialString,
                                const void* pSecurity,
                                const char* locationHeader,
                                const int   bandWidth,
-                               UtlBoolean  bOnHold)
+                               UtlBoolean  bOnHold,
+							   const char* originalCallId)
 {
     UtlBoolean dialOk = FALSE;
     SipMessage sipInvite;
@@ -604,7 +741,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
     if(getState() == CONNECTION_IDLE && mpMediaInterface != NULL)
     {
         UtlString localAddress ;
-        CONTACT_ADDRESS* pAddress = sipUserAgent->getContactDb().getLocalContact(mContactId) ;
+        SIPX_CONTACT_ADDRESS* pAddress = sipUserAgent->getContactDb().getLocalContact(mContactId) ;
         if (pAddress != NULL)
         {
             localAddress = pAddress->cIpAddress ;
@@ -616,6 +753,16 @@ UtlBoolean SipConnection::dial(const char* dialString,
             bAudioAvailable = mpMediaInterface->isAudioAvailable();
         }
 
+        mRemoteIsCallee = TRUE;
+        setCallId(callId);            
+
+        buildFromToAddresses(dialString, "xxxx", callerDisplayName,
+            dummyFrom, goodToAddress);
+        mLastToAddress = goodToAddress;
+
+        // The local address is always set
+        mFromUrl.toString(fromAddress);                
+        
         // Create a new connection in the media flowgraph
         if (!bAudioAvailable || 
             mpMediaInterface->createConnection(mConnectionId,
@@ -625,6 +772,7 @@ UtlBoolean SipConnection::dial(const char* dialString,
                                                (ISocketIdle*)this, 
                                                (IMediaEventListener*)this) != OS_SUCCESS)
         {
+            setCallId(callId);    
             if (!bAudioAvailable)
             {
                 fireSipXMediaEvent(MEDIA_DEVICE_FAILURE, MEDIA_CAUSE_DEVICE_UNAVAILABLE, MEDIA_TYPE_AUDIO);
@@ -659,14 +807,8 @@ UtlBoolean SipConnection::dial(const char* dialString,
                 nRtpContacts = 1 ;
             }
 
-            mRemoteIsCallee = TRUE;
-            setCallId(callId);            
 
-            buildFromToAddresses(dialString, "xxxx", callerDisplayName,
-                dummyFrom, goodToAddress);
 
-            // The local address is always set
-            mFromUrl.toString(fromAddress);
 #ifdef TEST_PRINT
             osPrintf("Using To address: \"%s\"\n", goodToAddress.data());
 #endif
@@ -685,8 +827,10 @@ UtlBoolean SipConnection::dial(const char* dialString,
 #endif
                 // Prepare to receive the codecs, without any srtp
                 // for early media
-                SdpSrtpParameters nullParams;
-                memset(&nullParams, 0, sizeof(nullParams));
+
+				/*  for security reasons, do not play incoming RTP unless a
+				    200 OK or 183 is received.
+			    */
 
                 if (!mbLocallyInitiatedRemoteHold)
                 {
@@ -730,11 +874,20 @@ UtlBoolean SipConnection::dial(const char* dialString,
             
             if (callController && callController[0] != '\0')
             {
-                UtlString originalCallId ;
-                mpCall->getOriginalCallId(originalCallId) ;
-
-                fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_CAUSE_TRANSFER, (void*) originalCallId.data()) ;
-            }
+				UtlString origCallId;
+				
+				if (originalCallId !=NULL)
+				{
+				    // if there was one passed-in, use it
+				    origCallId = originalCallId;
+				}
+				else
+				{
+				    // get the original callid from the call object
+				    mpCall->getOriginalCallId(origCallId);
+				}
+                fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_CAUSE_TRANSFER, (void*) origCallId.data()) ;
+			}
 
             // Set caller preference if caller wants queueing or campon
             if(requestQueuedCall)
@@ -1439,11 +1592,15 @@ UtlBoolean SipConnection::hold()
     SdpSrtpParameters srtpParams;
     int iCSeq ;
     memset(&srtpParams, 0, sizeof(srtpParams));
+
     // If the call is connected and we are not in the middle of a SIP transaction
+    // note:  we used to check for an existing hold state, but, we might
+    //        be doing a re-hold if we are replacing a call leg that had sent
+    //        a hold message to the remote side.
     if(mpMediaInterface != NULL && 
             inviteMsg && getState() == CONNECTION_ESTABLISHED &&
-            reinviteState == ACCEPT_INVITE &&
-            mTerminalConnState!=PtTerminalConnection::HELD)
+            reinviteState == ACCEPT_INVITE) /* &&
+            mTerminalConnState!=PtTerminalConnection::HELD)*/
     {
         UtlString hostAddresses[MAX_ADDRESS_CANDIDATES] ;
         int receiveRtpPorts[MAX_ADDRESS_CANDIDATES] ;
@@ -1506,8 +1663,7 @@ UtlBoolean SipConnection::hold()
 
             // Disallow INVITEs while this transaction is taking place
             reinviteState = REINVITING;
-            mHoldState = TERMCONNECTION_HOLDING;
-            mbLocallyInitiatedRemoteHold = true ;
+            mHoldState = TERMCONNECTION_HOLDING;            
         }
 
         // Free up the codec copies and array
@@ -1519,6 +1675,8 @@ UtlBoolean SipConnection::hold()
         delete[] codecsArray;
         codecsArray = NULL;
     }
+
+	mbLocallyInitiatedRemoteHold = true ;
 
     return(messageSent);
 }
@@ -1669,9 +1827,7 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
         {
             messageSent = TRUE;
             // Disallow INVITEs while this transaction is taking place
-            reinviteState = REINVITING;
-
-            mbLocallyInitiatedRemoteHold = false ;
+            reinviteState = REINVITING;            
 
             // If we are doing a forced reINVITE
             // there are no state changes
@@ -1688,6 +1844,8 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
             }
         }
     }
+
+	mbLocallyInitiatedRemoteHold = false ;
 
     return(messageSent);
 }
@@ -2132,7 +2290,7 @@ void SipConnection::buildFromToAddresses(const char* dialString,
                                          const char* callerId,
                                          const char* callerDisplayName,
                                          UtlString& fromAddress,
-                                         UtlString& goodToAddress) const
+                                         UtlString& goodToAddress)
 {
     UtlString sipAddress;
     int sipPort;
@@ -2185,7 +2343,7 @@ void SipConnection::buildFromToAddresses(const char* dialString,
     //              toPort, toProtocol.data(), toUser.data(),
     //              toUserLabel.data());
     toUrl.toString(goodToAddress);
-
+//    mToUrl = toUrl;
 }
 
 UtlBoolean SipConnection::processMessage(OsMsg& eventMessage,
@@ -2803,19 +2961,23 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
     memset(&srtpParams, 0, sizeof(srtpParams));
     memset(&matchingSrtpParams, 0, sizeof(matchingSrtpParams));
 
-    mpMediaInterface->getCapabilitiesEx(mConnectionId,
-        MAX_ADDRESS_CANDIDATES,
-        hostAddresses,
-        receiveRtpPorts,
-        receiveRtcpPorts,
-        receiveVideoRtpPorts,
-        receiveVideoRtcpPorts,
-        numAddresses,
-        supportedCodecs,
-        srtpParams,
-        mBandwidthId,
-        totalBandwidth,
-        videoFramerate);
+
+    if (mpMediaInterface)
+    {
+        mpMediaInterface->getCapabilitiesEx(mConnectionId,
+            MAX_ADDRESS_CANDIDATES,
+            hostAddresses,
+            receiveRtpPorts,
+            receiveRtcpPorts,
+            receiveVideoRtpPorts,
+            receiveVideoRtcpPorts,
+            numAddresses,
+            supportedCodecs,
+            srtpParams,
+            mBandwidthId,
+            totalBandwidth,
+            videoFramerate);
+    }
 
     // If we were originally initiated the hold, then don't allow the far 
     // end to take us off hold
@@ -2830,7 +2992,7 @@ void SipConnection::processInviteRequestReinvite(const SipMessage* request, int 
 
     // Get the RTP info from the message if present
     // Should check the content type first
-    if(getInitialSdpCodecs(request,
+    if(mpMediaInterface && getInitialSdpCodecs(request,
         supportedCodecs, numMatchingCodecs, matchingCodecs,
         remoteRtpAddress, remoteRtpPort, remoteRtcpPort,
 		remoteVideoRtpPort, remoteVideoRtcpPort,
@@ -3118,6 +3280,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     UtlString contactInResponse;
     if (request->getContactUri(0 , &contactInResponse))
     {
+        mContactUriStr = contactInResponse.data();
         mRemoteContact = contactInResponse;
     }
 
@@ -3353,12 +3516,14 @@ void SipConnection::processReferRequest(const SipMessage* request)
             PtEvent::META_CALL_TRANSFERRING, 2, metaEventCallIds, bTakeFocus);
         mpCall->setTargetCallId(targetCallId.data());
         mpCall->setCallType(CpCall::CP_TRANSFEREE_ORIGINAL_CALL);
+		mpCallManager->setOutboundLineForCall(targetCallId, mLocalContact, mContactType) ;
 
         // Send a message to the target call to create the
         // connection and send the INVITE
         CpMultiStringMessage transfereeConnect(CallManager::CP_TRANSFEREE_CONNECTION,
             targetCallId.data(), referTo.data(), referredBy.data(), thisCallId.data(),
             remoteAddress.data(), mbLocallyInitiatedRemoteHold);
+
 #ifdef TEST_PRINT
         osPrintf("SipConnection::processRequest posting CP_TRANSFEREE_CONNECTION\n");
 #endif
@@ -3453,7 +3618,7 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
             int responseCode = response.getResponseStatusCode();
             mResponseCode = responseCode;
             response.getResponseStatusText(&mResponseText);
-
+            
             if(responseCode == SIP_OK_CODE)
             {
                 state = CONNECTION_ESTABLISHED;
@@ -3502,11 +3667,16 @@ void SipConnection::processNotifyRequest(const SipMessage* request)
                 cause = CONNECTION_CAUSE_SERVICE_UNAVAILABLE;
                 fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
             }
-            else
+            else if (responseCode >= SIP_4XX_CLASS_CODE)
             {
                 state = CONNECTION_FAILED;
                 cause = CONNECTION_CAUSE_BUSY;
                 fireSipXEvent(CALLSTATE_TRANSFER_EVENT, CALLSTATE_CAUSE_TRANSFER_FAILURE) ;
+            }
+            else
+            {
+                // Ignore other provision response -- 3XX class response are 
+                // handled in the stack automatically.
             }
 
             if(responseCode >= SIP_OK_CODE)
@@ -3885,6 +4055,10 @@ UtlBoolean SipConnection::getInitialSdpCodecs(const SipMessage* sdpMessage,
             matchingVideoFramerate
             );
         mpMediaInterface->setSrtpParams(matchingSrtpParams);
+
+        // To be complient with RFC 3264 
+        if(sdpBody->findValueInField("a", "sendonly"))        
+           remoteAddress = "0.0.0.0";
     }
     else if (!sdpBody && mpSecurity)
     {
@@ -4162,6 +4336,7 @@ UtlBoolean SipConnection::processResponse(const SipMessage* response,
 void SipConnection::processInviteResponseRinging(const SipMessage* response)
 {
     int responseCode = response->getResponseStatusCode();
+    const SdpBody* pBody = response->getSdpBody(mpSecurity) ;
     UtlBoolean isEarlyMedia = TRUE;
 
     if (responseCode == SIP_RINGING_CODE && !mIsEarlyMediaFor180)
@@ -4169,9 +4344,16 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
         isEarlyMedia = FALSE;
     }
 
+    // Record remote contact (may can change over time)
+    UtlString contactInResponse;
+    if (response->getContactUri(0 , &contactInResponse))
+    {
+        mContactUriStr = contactInResponse.data();
+    }
+
     // If there is SDP we have early media or remote ringback
     int cause = CONNECTION_CAUSE_NORMAL;
-    if(response->getSdpBody(mpSecurity) && isEarlyMedia && mpMediaInterface != NULL)
+    if(pBody && isEarlyMedia && mpMediaInterface != NULL)
     {
         cause = CONNECTION_CAUSE_UNKNOWN;
 
@@ -4244,6 +4426,9 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
                         remoteVideoRtcpPort,
                         response->getSdpBody(mpSecurity));
 
+                    mpMediaInterface->startRtpReceive(mConnectionId,
+                        numMatchingCodecs,
+                        matchingCodecs);
                     mpMediaInterface->startRtpSend(mConnectionId,
                         numMatchingCodecs,
                         matchingCodecs);
@@ -4260,7 +4445,6 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
             }
             if(matchingCodecs) delete[] matchingCodecs;
             matchingCodecs = NULL;
-
         }
     }
 
@@ -4269,7 +4453,7 @@ void SipConnection::processInviteResponseRinging(const SipMessage* response)
      * Set state and Fire off events
      */
     setState(CONNECTION_ALERTING, CONNECTION_REMOTE, cause);
-    if (responseCode == SIP_EARLY_MEDIA_CODE)
+    if ((pBody != NULL) || (responseCode == SIP_EARLY_MEDIA_CODE))
     {
         fireSipXEvent(CALLSTATE_REMOTE_ALERTING, CALLSTATE_CAUSE_EARLY_MEDIA) ;
     }
@@ -4473,6 +4657,7 @@ void SipConnection::processInviteResponseHangingUp(const SipMessage* response)
     UtlString contactInResponse;
     if (response->getContactUri(0 , &contactInResponse))
     {
+        mContactUriStr = contactInResponse.data();
         mRemoteContact.remove(0);
         mRemoteContact.append(contactInResponse);
     }
@@ -4506,6 +4691,7 @@ void SipConnection::processInviteResponseNormal(const SipMessage* response)
     UtlString contactInResponse;
     if (response->getContactUri(0 , &contactInResponse))
     {
+        mContactUriStr = contactInResponse.data();
         mRemoteContact = contactInResponse ;
     }
 
@@ -4839,6 +5025,7 @@ void SipConnection::processInviteResponseRedirect(const SipMessage* response)
 
         if(!contactUri.isNull() && inviteMsg)
         {
+                mContactUriStr = contactUri.data();
             // Create a new INVITE                
             SipMessage sipRequest(*inviteMsg);
             sipRequest.changeUri(contactUri.data());
@@ -5491,7 +5678,7 @@ UtlBoolean SipConnection::processNewFinalMessage(SipUserAgent* sipUa,
                 toField,
                 callId,
                 sequenceNum);
-            sendSucceeded = sipUa->send(*ackMessage);
+            sendSucceeded = sipUa->send(*ackMessage, 0, 0);
             delete ackMessage;
 
             if (sendSucceeded)
@@ -5504,7 +5691,7 @@ UtlBoolean SipConnection::processNewFinalMessage(SipUserAgent* sipUa,
                     NULL,
                     sequenceNum + 1);
 
-                sendSucceeded = sipUa->send(*byeMessage);
+                sendSucceeded = sipUa->send(*byeMessage, 0, 0);
                 delete byeMessage;
             }
         }
@@ -5514,7 +5701,7 @@ UtlBoolean SipConnection::processNewFinalMessage(SipUserAgent* sipUa,
 }
 
 
-void SipConnection::setContactType(CONTACT_TYPE eType)
+void SipConnection::setContactType(SIPX_CONTACT_TYPE eType, Url* pToUrl)
 {
     mContactType = eType ;
     if (mpMediaInterface != NULL)
@@ -5523,7 +5710,7 @@ void SipConnection::setContactType(CONTACT_TYPE eType)
     }
 
     UtlString localContact ;
-    buildLocalContact(mFromUrl, localContact);
+    buildLocalContact(mFromUrl, localContact, pToUrl);
     mLocalContact = localContact ;
 }
 
@@ -5560,6 +5747,11 @@ UtlBoolean SipConnection::getRemoteAddress(UtlString* remoteAddress,
         toNoFieldParameters.removeFieldParameters();
         toNoFieldParameters.toString(*remoteAddress);
     }
+    
+    if (*remoteAddress == "" || *remoteAddress == "sip:" || *remoteAddress == "sips:")
+    {
+        *remoteAddress = mLastToAddress;
+    }    
 
 #ifdef TEST_PRINT
     osPrintf("SipConnection::getRemoteAddress address: %s\n",
@@ -5618,6 +5810,8 @@ UtlBoolean SipConnection::getSession(SipSession& session)
         ssn.setRemoteRequestUri(mRemoteUriStr);
     if (!mLocalUriStr.isNull())
         ssn.setLocalRequestUri(mLocalUriStr);
+    if (!mContactUriStr.isNull())
+        ssn.setContactRequestUri(mContactUriStr);
 
     session = ssn;
     return(TRUE);
@@ -6074,12 +6268,12 @@ void SipConnection::fireAudioStartEvents(SIPX_MEDIA_CAUSE cause)
         {
             strncpy(tapiCodec.audioCodec.cName, audioCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
             strncpy(tapiCodec.videoCodec.cName, videoCodecName.data(), SIPXTAPI_CODEC_NAMELEN-1);
-            
+
+
             if (mpMediaInterface->isSendingRtpAudio(mConnectionId))
             {
                 fireSipXMediaEvent(MEDIA_LOCAL_START, cause, MEDIA_TYPE_AUDIO, &tapiCodec) ;
             }
-
             if (mpMediaInterface->isSendingRtpVideo(mConnectionId))
             {
                 fireSipXMediaEvent(MEDIA_LOCAL_START, cause, MEDIA_TYPE_VIDEO, &tapiCodec) ;
@@ -6105,22 +6299,17 @@ void SipConnection::fireAudioStopEvents(SIPX_MEDIA_CAUSE cause)
     {
         if (mpMediaInterface->isAudioInitialized(mConnectionId))
         {
+/*        
+            if (!mpMediaInterface->isSendingRtpAudio(mConnectionId) && 
+                !mpMediaInterface->isSendingRtpAudio(mConnectionId))
+            {
+                mpMediaInterface->enableAudioTransport(mConnectionId, false);
+            }
+*/            
             if (!mpMediaInterface->isSendingRtpAudio(mConnectionId))
             {
                 fireSipXMediaEvent(MEDIA_LOCAL_STOP, cause, MEDIA_TYPE_AUDIO) ;
             }
-        }
-
-        if (mpMediaInterface->isVideoInitialized(mConnectionId))
-        {
-            if (!mpMediaInterface->isSendingRtpVideo(mConnectionId))
-            {
-                fireSipXMediaEvent(MEDIA_LOCAL_STOP, cause, MEDIA_TYPE_VIDEO) ;
-            }                                
-        }
-
-        if (mpMediaInterface->isAudioInitialized(mConnectionId))
-        {
             if (!mpMediaInterface->isReceivingRtpAudio(mConnectionId))
             {
                 fireSipXMediaEvent(MEDIA_REMOTE_STOP, cause, MEDIA_TYPE_AUDIO) ;
@@ -6129,6 +6318,17 @@ void SipConnection::fireAudioStopEvents(SIPX_MEDIA_CAUSE cause)
 
         if (mpMediaInterface->isVideoInitialized(mConnectionId))
         {
+/*        
+            if (!mpMediaInterface->isSendingRtpVideo(mConnectionId) && 
+                !mpMediaInterface->isSendingRtpVideo(mConnectionId))
+            {
+                mpMediaInterface->enableVideoTransport(mConnectionId, false);
+            }
+*/            
+            if (!mpMediaInterface->isSendingRtpVideo(mConnectionId))
+            {
+                fireSipXMediaEvent(MEDIA_LOCAL_STOP, cause, MEDIA_TYPE_VIDEO) ;
+            }                                
             if (!mpMediaInterface->isReceivingRtpVideo(mConnectionId))
             {
                 fireSipXMediaEvent(MEDIA_REMOTE_STOP, cause, MEDIA_TYPE_VIDEO) ;
@@ -6175,27 +6375,50 @@ UtlBoolean SipConnection::send(SipMessage& message,
                     OsMsgQ* responseListener,
                     void* responseListenerData)
 {
+    UtlString localIp = message.getLocalIp();
     if (message.getLocalIp().length() < 1)
     {
         int port = -1;
-        UtlString localIp;
-        OsSocket::SocketProtocolTypes protocol = OsSocket::UDP;
+        SIPX_TRANSPORT_TYPE protocol = TRANSPORT_UDP;
         
+        sipUserAgent->getLocalAddress(&localIp, &port, protocol);        
         UtlString toField;
         message.getToField(&toField);
         if (toField.contains("sips:") || toField.contains("transport=tls"))
         {
-            protocol = OsSocket::SSL_SOCKET;
+            protocol = TRANSPORT_TLS;
         }
-        if (toField.contains("transport=tcp"))
+        else if (toField.contains("transport=tcp"))
         {
-            protocol = OsSocket::TCP;
+            protocol = TRANSPORT_TCP;
         }
+		else if (toField.contains("transport="))
+		{
+			protocol = TRANSPORT_CUSTOM;
+		}
 
         sipUserAgent->getLocalAddress(&localIp, &port, protocol);        
         message.setLocalIp(localIp);
     }
-    return sipUserAgent->send(message, responseListener, responseListenerData);
+    SIPX_TRANSPORT_DATA* pTransport = NULL;
+    if (false == SIPX_TRANSPORT_DATA::isCustomTransport(&mTransport))
+    {
+        bool bDummy;
+        UtlString transport = message.getTransportName(bDummy);
+
+        // get the transport string
+        // our mTransport object has not been set yet.
+        pTransport = (SIPX_TRANSPORT_DATA*)sipUserAgent->lookupExternalTransport(transport, localIp);
+        if (pTransport)
+        {
+            mTransport = *pTransport;
+        }
+    }
+    else
+    {
+        pTransport = &mTransport;
+    }
+    return sipUserAgent->send(message, responseListener, responseListenerData, pTransport);
 }
 
 void SipConnection::onIdleNotify(OsDatagramSocket* const pSocket,
@@ -6207,7 +6430,11 @@ void SipConnection::onIdleNotify(OsDatagramSocket* const pSocket,
                                     purpose == RTCP_AUDIO) ?
                                     MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO;
 
-    fireSipXMediaEvent(MEDIA_REMOTE_SILENT, MEDIA_CAUSE_NORMAL, mediaType, (void*)millisecondsIdle) ;
+    // only fire it if we are connected
+    if (mHoldState == TERMCONNECTION_TALKING)
+    {
+        fireSipXMediaEvent(MEDIA_REMOTE_SILENT, MEDIA_CAUSE_NORMAL, mediaType, (void*)millisecondsIdle) ;
+    }
 }                              
 
 void SipConnection::onFileStart(IMediaEvent_DeviceTypes type)
@@ -6277,7 +6504,7 @@ void SipConnection::onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_Devi
     SIPX_MEDIA_TYPE mediaType = (type == IDevice_Audio) ? MEDIA_TYPE_AUDIO : MEDIA_TYPE_VIDEO;
     getCallId(&callId);
     getRemoteAddress(&remoteAddress);
-
+    
     CpMultiStringMessage message(CpCallManager::CP_REFIRE_MEDIA_EVENT, callId, 
             remoteAddress, NULL, NULL, NULL, 
             MEDIA_DEVICE_FAILURE, MEDIA_CAUSE_DEVICE_UNAVAILABLE, mediaType) ;
@@ -6285,5 +6512,11 @@ void SipConnection::onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_Devi
     mpCallManager->postMessage(message);
 }
 
+void SipConnection::onListenerAddedToEmitter(IMediaEventEmitter *pEmitter)
+{
+    mMediaEventEmitters.insert(&UtlInt((int)pEmitter));
+}
+
 
 /* ============================ FUNCTIONS ================================= */
+

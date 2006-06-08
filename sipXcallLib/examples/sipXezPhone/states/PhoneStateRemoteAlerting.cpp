@@ -31,11 +31,23 @@ PhoneStateRemoteAlerting::PhoneStateRemoteAlerting()
 
 PhoneStateRemoteAlerting::~PhoneStateRemoteAlerting(void)
 {
+#ifdef VOICE_ENGINE
+        sipxCallAudioPlayFileStop(sipXmgr::getInstance().getCurrentCall());
+#else
+        sipxCallStopTone(mhCall);
+#endif
 }
 
 PhoneState* PhoneStateRemoteAlerting::OnConnected()
 {
    return (new PhoneStateConnected());
+}
+
+PhoneState* PhoneStateRemoteAlerting::OnFlashButton()
+{
+   sipxCallAudioPlayFileStop(sipXmgr::getInstance().getCurrentCall());
+   sipXmgr::getInstance().disconnect(0, true);
+   return (new PhoneStateIdle());
 }
 
 PhoneState* PhoneStateRemoteAlerting::OnDisconnected(const SIPX_CALL hCall)
@@ -50,5 +62,6 @@ PhoneState* PhoneStateRemoteAlerting::OnDisconnected(const SIPX_CALL hCall)
 PhoneState* PhoneStateRemoteAlerting::Execute()
 {
    thePhoneApp->setStatusMessage("Remote Alerting.");
+   sipxCallAudioPlayFileStart(sipXmgr::getInstance().getCurrentCall(), "res/ringTone.raw", true, true, false, true, 0.05);
    return this;
 }

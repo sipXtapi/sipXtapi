@@ -67,6 +67,11 @@ public:
    OsStatus flush(const OsTime& rTimeout = OsTime::OS_INFINITY);
      //:Stores all of the in-memory log entries to storage
 
+   OsTimer* getTimer()
+   {
+      return mpTimer;   
+   }
+   
 /* ============================ ACCESSORS ================================= */
 
    OsStatus getMaxEntries(int& maxEntries);

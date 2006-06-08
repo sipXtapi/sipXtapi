@@ -134,10 +134,18 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testCallBasic) ;
     CPPUNIT_TEST(testCallBasic2) ;  
     CPPUNIT_TEST(testCallBasicTCP);
+    CPPUNIT_TEST(testCallBasicNoRtcp) ;
+
+#if 0
+    // Per Mike Cohen on May/2006 -- doesn't pass because 
+    // audio file isn't availabe -- remove ifdef when 
+    // available
+    CPPUNIT_TEST(testCallPlayAudioFile);
+#endif
 #ifdef _WIN32
     CPPUNIT_TEST(testCallMute);
 #endif
-    CPPUNIT_TEST(testCallBusy) ;
+    //CPPUNIT_TEST(testCallBusy) ;
     CPPUNIT_TEST(testCallRedirect);
     CPPUNIT_TEST(testCallShutdown) ;
     CPPUNIT_TEST(testCallShutdown) ;
@@ -145,6 +153,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testCallShutdown) ;
     CPPUNIT_TEST(testCallShutdown) ;    
     CPPUNIT_TEST(testSendInfo);
+    CPPUNIT_TEST(testSendInfoExternalTransport);
     CPPUNIT_TEST(testSendInfoTimeout);
     CPPUNIT_TEST(testSendInfoFailure);
     CPPUNIT_TEST(testCallDestroyRinging);
@@ -188,6 +197,9 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testConfHoldNoBridge) ;
     CPPUNIT_TEST(testConfHoldBridge) ;
     CPPUNIT_TEST(testConfReAdd) ;
+    CPPUNIT_TEST(testConferenceLegBusy);
+    
+//    CPPUNIT_TEST(testConferenceDisplayName);
 
     // 
     // The following test cases allow you to manually test join/split and
@@ -201,6 +213,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 #endif /* TEST_CONF ] */
 
 #if TEST_REG /* [ */
+    CPPUNIT_TEST(testReRegistrationFailure);
     CPPUNIT_TEST(testRegistration);
     CPPUNIT_TEST(testReRegistration);
     CPPUNIT_TEST(testBadRegistrarRegistration);
@@ -242,6 +255,8 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testReinitializeConference);
     CPPUNIT_TEST(testReinitializePub);
     CPPUNIT_TEST(testReinitializeSub);
+
+    CPPUNIT_TEST(testConfigExternalTransport);
 #ifdef VOICE_ENGINE /* [ */
 //    CPPUNIT_TEST(testConfigCodecPreferences);
 #endif /* VOICE_ENGINE ] */
@@ -249,7 +264,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
 #endif /* TEST_CONFIG ] */
 
 #if TEST_SUBSCRIBE /* [ */ 
-    CPPUNIT_TEST(testPublishAndSubscribeCall); 
+    // CPPUNIT_TEST(testPublishAndSubscribeCall); 
     CPPUNIT_TEST(testPublishAndSubscribeConfig); 
 #endif /* TEST_SUBSCRIBE ] */ 
 
@@ -308,7 +323,8 @@ public:
                      SIPX_INST   hCalledInst,
                      const char* szCalledParty,
                      const char* szCalledLine,
-                     ADDITIONALCALLTESTPROC pAdditionalProc);
+                     ADDITIONALCALLTESTPROC pAdditionalProc,
+					 bool bDisableRtcp = false);
 
     void doCallBasicSetup(SIPX_INST   hCallingInst,
                           const char* szCallingParty,
@@ -390,8 +406,11 @@ public:
 
     void testCallBasic() ;
     void testCallBasicTCP();
+    void testCallBasicNoRtcp() ;
     void testCallBasic2() ;
     void testCallDestroyRinging();
+    void testCallPlayAudioFile();
+    
     void testCallBusy() ;
     void testCallHold() ;
     void testCallHoldX(bool bTcp) ;
@@ -426,9 +445,11 @@ public:
     void testConfHoldNoBridge() ;
     void testConfHoldBridge() ;
     void testConfReAdd() ;
+    void testConferenceDisplayName();
     void testManualConfSplit() ;
     void testManualConfJoin() ;
     void testManualConfBridge() ;
+    void testConferenceLegBusy();
 
     void testLines() ;
     void testLineEvents();
@@ -436,6 +457,7 @@ public:
     void testRegistration();
     void testBadRegistrarRegistration();
     void testReRegistration();
+    void testReRegistrationFailure();
 
     void testBlindTransferSuccess() ;
     void testBlindTransferFailureBusy() ;
@@ -448,12 +470,14 @@ public:
 
     void testGetVersion() ;
     void testSendInfo();
+    void testSendInfoExternalTransport();
     void testSendInfoFailure();
     void testSendInfoTimeout();
     void testSetCallback();
 
     void testAutoPortSelection() ;
     void testSeqPortSelection() ;
+    void testConfigExternalTransport();
     void testConfigLog() ;
     void testConfigOutOfBand() ;
     void testTeardown() ;

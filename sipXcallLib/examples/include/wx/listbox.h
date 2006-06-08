@@ -4,8 +4,8 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     22.10.99
-// RCS-ID:      $Id: listbox.h,v 1.13 2002/08/31 11:29:10 GD Exp $
-// Copyright:   (c) wxWindows team
+// RCS-ID:      $Id: listbox.h,v 1.27 2005/04/08 14:33:56 MW Exp $
+// Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 // headers
 // ----------------------------------------------------------------------------
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "listboxbase.h"
 #endif
 
@@ -27,14 +27,14 @@
 #include "wx/ctrlsub.h"         // base class
 
 // forward declarations are enough here
-class WXDLLEXPORT wxArrayInt;
-class WXDLLEXPORT wxArrayString;
+class WXDLLIMPEXP_BASE wxArrayInt;
+class WXDLLIMPEXP_BASE wxArrayString;
 
 // ----------------------------------------------------------------------------
 // global data
 // ----------------------------------------------------------------------------
 
-WXDLLEXPORT_DATA(extern const wxChar*) wxListBoxNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxListBoxNameStr;
 
 // ----------------------------------------------------------------------------
 // wxListBox interface is defined by the class wxListBoxBase
@@ -43,10 +43,11 @@ WXDLLEXPORT_DATA(extern const wxChar*) wxListBoxNameStr;
 class WXDLLEXPORT wxListBoxBase : public wxControlWithItems
 {
 public:
-    // all generic methods are in wxControlWithItems, except for the following
-    // ones which are not yet implemented by wxChoice/wxCombobox
+    wxListBoxBase() { }
     virtual ~wxListBoxBase();
 
+    // all generic methods are in wxControlWithItems, except for the following
+    // ones which are not yet implemented by wxChoice/wxComboBox
     void Insert(const wxString& item, int pos)
         { DoInsert(item, pos); }
     void Insert(const wxString& item, int pos, void *clientData)
@@ -64,12 +65,16 @@ public:
 
     // multiple selection logic
     virtual bool IsSelected(int n) const = 0;
-    virtual void SetSelection(int n, bool select = TRUE) = 0;
-    virtual void Select(int n) { SetSelection(n, TRUE); }
-    void Deselect(int n) { SetSelection(n, FALSE); }
+    virtual void SetSelection(int n) { DoSetSelection(n, true); }
+    void SetSelection(int n, bool select) { DoSetSelection(n, select); }
+    void Deselect(int n) { DoSetSelection(n, false); }
     void DeselectAll(int itemToLeaveSelected = -1);
 
-    virtual bool SetStringSelection(const wxString& s, bool select = TRUE);
+    virtual bool SetStringSelection(const wxString& s, bool select);
+    virtual bool SetStringSelection(const wxString& s)
+    {
+        return SetStringSelection(s, true);
+    }
 
     // works for single as well as multiple selection listboxes (unlike
     // GetSelection which only works for listboxes with single selection)
@@ -88,14 +93,14 @@ public:
     // listbox and ensures that it is visible i.e. not scrolled out of view
     void AppendAndEnsureVisible(const wxString& s);
 
-    // return TRUE if the listbox allows multiple selection
+    // return true if the listbox allows multiple selection
     bool HasMultipleSelection() const
     {
         return (m_windowStyle & wxLB_MULTIPLE) ||
                (m_windowStyle & wxLB_EXTENDED);
     }
 
-    // return TRUE if this listbox is sorted
+    // return true if this listbox is sorted
     bool IsSorted() const { return (m_windowStyle & wxLB_SORT) != 0; }
 
     // emulate selecting or deselecting the item event.GetInt() (depending on
@@ -109,14 +114,19 @@ public:
 protected:
     // NB: due to wxGTK implementation details, DoInsert() is implemented
     //     using DoInsertItems() and not the other way round
-    void DoInsert(const wxString& item, int pos)
-        { InsertItems(1, &item, pos); }
+    virtual int DoInsert(const wxString& item, int pos)
+        { InsertItems(1, &item, pos); return pos; }
 
     // to be implemented in derived classes
     virtual void DoInsertItems(const wxArrayString& items, int pos) = 0;
     virtual void DoSetItems(const wxArrayString& items, void **clientData) = 0;
 
     virtual void DoSetFirstItem(int n) = 0;
+
+    virtual void DoSetSelection(int n, bool select) = 0;
+
+
+    DECLARE_NO_COPY_CLASS(wxListBoxBase)
 };
 
 // ----------------------------------------------------------------------------
@@ -135,8 +145,8 @@ protected:
     #include "wx/mac/listbox.h"
 #elif defined(__WXPM__)
     #include "wx/os2/listbox.h"
-#elif defined(__WXSTUBS__)
-    #include "wx/stubs/listbox.h"
+#elif defined(__WXCOCOA__)
+    #include "wx/cocoa/listbox.h"
 #endif
 
 #endif // wxUSE_LISTBOX

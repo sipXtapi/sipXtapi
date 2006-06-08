@@ -71,6 +71,11 @@ public:
                           bool bStrictOrderMatch = true,
                           int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
+    bool waitUntilCallEvent(SIPX_LINE hLine,
+                            SIPX_CALL hCall,
+                            SIPX_CALLSTATE_EVENT event,
+                            SIPX_CALLSTATE_CAUSE cause,
+                            int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
 
     bool waitForMessage(SIPX_LINE hLine, 
                         const char* szMsg,
@@ -177,6 +182,9 @@ protected:
 
 
     bool waitForEvent(const char* szEvent, bool bStrictOrderMatch, int iTimeoutInSecs) ;
+    
+    bool waitUntilEvent(const char* szEvent, int iTimeoutInSecs);
+    
 
 
 

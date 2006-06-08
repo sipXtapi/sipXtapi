@@ -113,6 +113,8 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
                          , mIsEarlyMediaFor180(TRUE)
                          , mpMediaFactory(NULL)
 {
+    OsStackTraceLogger(FAC_CP, PRI_DEBUG, "CallManager");
+
     dialing = FALSE;
     mOffHook = FALSE;
     speakerOn = FALSE;
@@ -222,6 +224,10 @@ CallManager::CallManager(UtlBoolean isRequredUserIdMatch,
             TRUE, // Incoming messages
             FALSE); // Don't want to see out going messages
 
+        // Allow the "replaces" extension, because CallManager
+        // implements the INVITE-with-Replaces logic.
+        sipUserAgent->allowExtension(SIP_REPLACES_EXTENSION);
+
         int sipExpireSeconds = sipUserAgent->getDefaultExpiresSeconds();
         if (mInviteExpireSeconds > sipExpireSeconds) mInviteExpireSeconds = sipExpireSeconds;
 
@@ -290,6 +296,7 @@ CpCallManager("CallManager-%d", "call")
 // Destructor
 CallManager::~CallManager()
 {
+    OsStackTraceLogger stackLogger(FAC_CP, PRI_DEBUG, "~CallManager");
     while(getCallStackSize())
     {
         delete popCall();
@@ -513,11 +520,25 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         if( isUserValid && CpPeerCall::shouldCreateCall(
                             *sipUserAgent, eventMessage, *mpCodecFactory))
                         {
+#ifdef _WIN32
+                            if(IsTroubleShootingModeEnabled())
+                            {
+                              OsSysLog::add(FAC_CP, PRI_DEBUG, "BEGIN - DEBUGGING : Call Stack Size");
+
+                                // Marc Chenier 31/10/2005
+                                // BEGIN : log the entire call stack
+                                printCalls();
+
+                              OsSysLog::add(FAC_CP, PRI_DEBUG, "END - DEBUGGING : Call Stack Size");
+
+                            }                           
+#endif
                             // If this call would exceed the limit that we have been
                             // given for calls to handle simultaneously,
                             // send a BUSY_HERE SIP (486) message back to the sender.
                             if(getCallStackSize() >= mMaxCalls)
                             {
+                                OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::handleMessage - The call stack size as reached it's limit of %d", mMaxCalls);
                                 if( (sipMsg->isResponse() == FALSE) &&
                                     (method.compareTo(SIP_ACK_METHOD,UtlString::ignoreCase) != 0) )
 
@@ -549,8 +570,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
 
                                 getContactAdapterName(szAdapter, localAddress.data(), false);
 
-                                CONTACT_ADDRESS contact;
-                                sipUserAgent->getContactDb().getRecordForAdapter(contact, szAdapter, LOCAL);
+                                SIPX_CONTACT_ADDRESS contact;
+                                sipUserAgent->getContactDb().getRecordForAdapter(contact, szAdapter, CONTACT_LOCAL);
                                 port = contact.iPort;
                                                                 
                                 pMediaInterface = mpMediaFactory->createMediaInterface(
@@ -802,19 +823,21 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                 UtlString addressUrl;
                 UtlString desiredConnectionCallId ;
                 UtlString locationHeader;
-                CONTACT_ID contactId;
+                SIPX_CONTACT_ID contactId;
                 ((CpMultiStringMessage&)eventMessage).getString1Data(callId);
                 ((CpMultiStringMessage&)eventMessage).getString2Data(addressUrl);
                 ((CpMultiStringMessage&)eventMessage).getString4Data(desiredConnectionCallId);
                 ((CpMultiStringMessage&)eventMessage).getString5Data(locationHeader);
-                contactId = (CONTACT_ID) ((CpMultiStringMessage&)eventMessage).getInt1Data();
+                contactId = (SIPX_CONTACT_ID) ((CpMultiStringMessage&)eventMessage).getInt1Data();
                 void* pDisplay = (void*) ((CpMultiStringMessage&)eventMessage).getInt2Data();
                 void* pSecurity = (void*) ((CpMultiStringMessage&)eventMessage).getInt3Data();
                 int bandWidth = ((CpMultiStringMessage&)eventMessage).getInt4Data();
+                SIPX_TRANSPORT_DATA* pTransport = (SIPX_TRANSPORT_DATA*)((CpMultiStringMessage&)eventMessage).getInt5Data();
+
                 const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
 
                 doConnect(callId.data(), addressUrl.data(), desiredConnectionCallId.data(), contactId, pDisplay, pSecurity, 
-                          locationHeaderData, bandWidth) ;
+                          locationHeaderData, bandWidth, pTransport) ;
                 messageProcessed = TRUE;
                 break;
             }
@@ -1303,22 +1326,31 @@ PtStatus CallManager::connect(const char* callId,
                               const char* toAddressString,
                               const char* fromAddressString,
                               const char* desiredCallIdString,
-                              CONTACT_ID contactId,
+                              SIPX_CONTACT_ID contactId,
                               const void* pDisplay,
                               const void* pSecurity,
                               const char* locationHeader,
-                              const int bandWidth)
+                              const int bandWidth,
+                              SIPX_TRANSPORT_DATA* pTransportData)
 {
     UtlString toAddressUrl(toAddressString ? toAddressString : "");
     UtlString fromAddressUrl(fromAddressString ? fromAddressString : "");
     UtlString desiredCallId(desiredCallIdString ? desiredCallIdString : "") ;
+    
+    // create a copy of the transport data
+    SIPX_TRANSPORT_DATA* pTransportDataCopy = NULL;
+    if (pTransportData)
+    {
+        pTransportDataCopy = new SIPX_TRANSPORT_DATA;
+        memcpy(pTransportDataCopy, pTransportData, sizeof(SIPX_TRANSPORT_DATA));
+    }
 
     PtStatus returnCode = validateAddress(toAddressUrl);
     if(returnCode == PT_SUCCESS)
     {
         CpMultiStringMessage callMessage(CP_CONNECT, callId,
             toAddressUrl, fromAddressUrl, desiredCallId, locationHeader, contactId, (int)pDisplay, (int)pSecurity, 
-            (int)bandWidth);
+            (int)bandWidth, (int)pTransportDataCopy);
         postMessage(callMessage);
     }
     return(returnCode);
@@ -1383,7 +1415,7 @@ bool CallManager::sendInfo(const char*  callId,
     {
         int success ;
         pSuccessEvent->getEventData(success);
-        bRC = (bool) success ;
+        bRC = success ;
         eventMgr->release(pSuccessEvent);
     }
     else
@@ -1968,7 +2000,7 @@ void CallManager::destroyPlayer(int type, const char* callId, MpStreamPlayer* pP
 }
 #endif
 
-void CallManager::setOutboundLineForCall(const char* callId, const char* address, CONTACT_TYPE eType)
+void CallManager::setOutboundLineForCall(const char* callId, const char* address, SIPX_CONTACT_TYPE eType)
 {
     CpMultiStringMessage outboundLineMessage(CP_SET_OUTBOUND_LINE, callId, 
             address, NULL, NULL, NULL, (int) eType);
@@ -1978,13 +2010,13 @@ void CallManager::setOutboundLineForCall(const char* callId, const char* address
 
 void CallManager::acceptConnection(const char* callId,
                                    const char* address, 
-                                   CONTACT_TYPE contactType,
+                                   SIPX_CONTACT_ID contactId,
                                    const void* hWnd,
                                    const void* security,
                                    const char* locationHeader,
                                    const int bandWidth)
 {
-    CpMultiStringMessage acceptMessage(CP_ACCEPT_CONNECTION, callId, address, NULL, NULL, locationHeader, (int) contactType, 
+    CpMultiStringMessage acceptMessage(CP_ACCEPT_CONNECTION, callId, address, NULL, NULL, locationHeader, (int) contactId, 
                                        (int) hWnd, (int) security, (int)bandWidth);
     postMessage(acceptMessage);
 }
@@ -2122,7 +2154,7 @@ OsStatus CallManager::getCalledAddresses(const char* callId, int maxConnections,
     UtlSList* addressList = new UtlSList;
     OsProtectedEvent* numConnectionsSet = eventMgr->alloc();
     numConnectionsSet->setIntData((int) addressList);
-    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+    OsTime maxEventTime(20, 0);
     OsStatus returnCode = OS_WAIT_TIMEOUT;
     CpMultiStringMessage getNumMessage(CP_GET_CALLED_ADDRESSES, callId, NULL,
         NULL, NULL, NULL,
@@ -2739,7 +2771,7 @@ void CallManager::holdLocalTerminalConnection(const char* callId)
 }
 
 void CallManager::unholdLocalTerminalConnection(const char* callId)
-{
+{    
     CpMultiStringMessage holdMessage(CP_UNHOLD_LOCAL_TERM_CONNECTION, callId);
     postMessage(holdMessage);
 }
@@ -3640,7 +3672,7 @@ void CallManager::getCalls(int& currentCalls, int& maxCalls)
 
 // The available local contact addresses
 OsStatus CallManager::getLocalContactAddresses(const char* callId,
-                                               CONTACT_ADDRESS addresses[],
+                                               SIPX_CONTACT_ADDRESS addresses[],
                                                size_t  nMaxAddresses,
                                                size_t& nActaulAddresses)
 {
@@ -4065,7 +4097,7 @@ void CallManager::doCreateCall(const char* callId,
             UtlString localAddress;
             int dummyPort;
             
-            sipUserAgent->getLocalAddress(&localAddress, &dummyPort, OsSocket::UDP);
+            sipUserAgent->getLocalAddress(&localAddress, &dummyPort, TRANSPORT_UDP);
             CpMediaInterface* mediaInterface = mpMediaFactory->createMediaInterface(
                 publicAddress.data(), localAddress.data(),
                 numCodecs, codecArray, mLocale.data(), mExpeditedIpTos,
@@ -4133,11 +4165,12 @@ void CallManager::doCreateCall(const char* callId,
 void CallManager::doConnect(const char* callId,
                             const char* addressUrl, 
                             const char* desiredConnectionCallId, 
-                            CONTACT_ID contactId,
+                            SIPX_CONTACT_ID contactId,
                             const void* pDisplay,
                             const void* pSecurity,
                             const char* locationHeader,
-                            const int bandWidth)
+                            const int bandWidth,
+                            SIPX_TRANSPORT_DATA* pTransport)
 {
     OsWriteLock lock(mCallListMutex);
     CpCall* call = findHandlingCall(callId);
@@ -4150,7 +4183,7 @@ void CallManager::doConnect(const char* callId,
     {
         // For now just send the call a dialString
         CpMultiStringMessage dialStringMessage(CP_DIAL_STRING, addressUrl, desiredConnectionCallId, NULL, NULL, locationHeader, contactId, 
-                                               (int)pDisplay, (int)pSecurity, bandWidth) ;
+                                               (int)pDisplay, (int)pSecurity, bandWidth, (int) pTransport) ;
         call->postMessage(dialStringMessage);
         call->setLocalConnectionState(PtEvent::CONNECTION_ESTABLISHED);
         call->stopMetaEvent();
@@ -4243,6 +4276,52 @@ void CallManager::doGetFocus(CpCall* call)
     //}
 }
 
+#ifdef _WIN32
+bool CallManager::IsTroubleShootingModeEnabled()
+{
+   bool bEnabled = false;
+   
+   const char *strPathKey        = "SOFTWARE\\Pingtel\\sipxUA";
+   const char *strKeyValueName   = "TroubleShootingMode";
+   HKEY hKey;
+   DWORD    cbData;
+   DWORD    dataType;
+   DWORD    dwValue;
+   
+   DWORD err = RegOpenKeyEx(
+              HKEY_LOCAL_MACHINE,   // handle to open key
+              strPathKey,           // subkey name
+              0,                    // reserved
+              KEY_READ,             // security access mask
+              &hKey                 // handle to open key
+              );
+
+   if (err == ERROR_SUCCESS)
+   {
+      cbData = sizeof(DWORD);
+      dataType = REG_DWORD;
+      
+      err = RegQueryValueEx(
+                  hKey,                      // handle to key
+                  strKeyValueName,           // value name
+                  0,                         // reserved
+                  &dataType,                 // type buffer
+                  (LPBYTE)&dwValue,          // data buffer
+                  &cbData);                  // size of data buffer
+
+      if (err == ERROR_SUCCESS)
+      {
+         if(dwValue == 1)
+            bEnabled = true;
+      }
+
+      RegCloseKey(hKey);
+   }
+   
+   return bEnabled;
+}
+#endif
+
 void CallManager::onCallDestroy(CpCall* call)
 {
     if (call)
@@ -4265,4 +4344,5 @@ void CallManager::onCallDestroy(CpCall* call)
         mCallListMutex.releaseWrite() ;
     }
 }
+
 /* ============================ FUNCTIONS ================================= */

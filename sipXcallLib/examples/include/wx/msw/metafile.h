@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by: VZ 07.01.00: implemented wxMetaFileDataObject
 // Created:     01/02/97
-// RCS-ID:      $Id: metafile.h,v 1.9 2000/01/13 23:39:44 VZ Exp $
+// RCS-ID:      $Id: metafile.h,v 1.14 2005/08/19 13:48:21 MW Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,13 +12,9 @@
 #ifndef _WX_METAFIILE_H_
 #define _WX_METAFIILE_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "metafile.h"
 #endif
-
-#include "wx/setup.h"
-
-#if wxUSE_METAFILE
 
 #include "wx/dc.h"
 #include "wx/gdiobj.h"
@@ -106,7 +102,7 @@ public:
     virtual void SetMapMode(int mode);
     virtual void GetTextExtent(const wxString& string, long *x, long *y,
             long *descent = NULL, long *externalLeading = NULL,
-            wxFont *theFont = NULL, bool use16bit = FALSE) const;
+            wxFont *theFont = NULL, bool use16bit = false) const;
 
     // Implementation
     wxMetafile *GetMetaFile() const { return m_metaFile; }
@@ -133,7 +129,7 @@ private:
 bool WXDLLEXPORT wxMakeMetafilePlaceable(const wxString& filename, float scale = 1.0);
 
 // Optional origin and extent
-bool WXDLLEXPORT wxMakeMetaFilePlaceable(const wxString& filename, int x1, int y1, int x2, int y2, float scale = 1.0, bool useOriginAndExtent = TRUE);
+bool WXDLLEXPORT wxMakeMetaFilePlaceable(const wxString& filename, int x1, int y1, int x2, int y2, float scale = 1.0, bool useOriginAndExtent = true);
 
 // ----------------------------------------------------------------------------
 // wxMetafileDataObject is a specialization of wxDataObject for metafile data
@@ -168,7 +164,6 @@ protected:
 
 #endif // wxUSE_DRAG_AND_DROP
 
-#endif // wxUSE_METAFILE
 #endif
     // _WX_METAFIILE_H_
 

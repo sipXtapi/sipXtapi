@@ -2477,5 +2477,20 @@ NameValuePair* SdpBody::findFieldNameBefore(UtlSListIterator* iter,
    return(nv);
 }
 
+UtlBoolean SdpBody::findValueInField(const char* pField, const char* pvalue) const
+{
+   UtlSListIterator iterator(*sdpFields);
+   NameValuePair* nv = positionFieldInstance(0, &iterator, "m");
+   UtlString aFieldMatch("a");
+
+   while((nv = (NameValuePair*) iterator.findNext(&aFieldMatch)) != NULL)
+   {
+       if ( strcmp(nv->getValue(), pvalue) == 0 )
+          return TRUE;
+   }
+
+   return FALSE;
+}
+
 
 /* ============================ FUNCTIONS ================================= */

@@ -62,7 +62,8 @@ public:
                            const void* pSecurity = NULL,
                            const char* locationHeader = NULL,
                            const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
-                           UtlBoolean bOnHold = FALSE);
+                           UtlBoolean bOnHold = FALSE,
+                           const char* originalCallId = NULL);
 
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
@@ -126,7 +127,7 @@ public:
     /**
      * Enumerate possible contact addresses
      */
-    virtual void getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+    virtual void getLocalContactAddresses( SIPX_CONTACT_ADDRESS contacts[],
                                            size_t nMaxContacts,
                                            size_t& nActualContacts) ;
 

@@ -3,22 +3,18 @@
 // Purpose:     Information window (when app is busy)
 // Author:      Vaclav Slavik
 // Copyright:   (c) 1999 Vaclav Slavik
-// RCS-ID:      $Id: busyinfo.h,v 1.6.2.1 2002/11/04 22:46:11 VZ Exp $
-// Licence:     wxWindows Licence
+// RCS-ID:      $Id: busyinfo.h,v 1.13 2004/07/25 16:44:47 VZ Exp $
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __INFOWIN_H__
 #define __INFOWIN_H__
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "busyinfo.h"
 #endif
 
-#include "wx/wxprec.h"
-
-#ifdef __BORLANDC__
-#pragma hdrstop
-#endif
+#include "wx/defs.h"
 
 #include "wx/frame.h"
 
@@ -28,6 +24,9 @@ class WXDLLEXPORT wxInfoFrame : public wxFrame
 {
 public:
     wxInfoFrame(wxWindow *parent, const wxString& message);
+
+private:
+    DECLARE_NO_COPY_CLASS(wxInfoFrame)
 };
 
 
@@ -46,6 +45,8 @@ public:
 
 private:
     wxInfoFrame *m_InfoFrame;
+
+    DECLARE_NO_COPY_CLASS(wxBusyInfo)
 };
 
 

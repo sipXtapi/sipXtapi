@@ -156,7 +156,7 @@ bool CpMediaInterfaceFactoryImpl::isPortBusy(int iPort, int checkTimeMS)
         OsDatagramSocket* pSocket = new OsDatagramSocket(0, NULL, iPort, NULL) ;
         if (pSocket != NULL)
         {
-            if (pSocket->isReadyToRead(checkTimeMS))
+            if (!pSocket->isOk() || pSocket->isReadyToRead(checkTimeMS))
             {
                 bBusy = true ;
             }

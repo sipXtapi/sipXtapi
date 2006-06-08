@@ -68,7 +68,7 @@ public:
         mRtpAudioReceiving = FALSE;
         mpCodecFactory = NULL;
         mpPrimaryCodec = NULL;
-        mContactType = AUTO ;
+        mContactType = CONTACT_AUTO ;
         mbAlternateDestinations = FALSE ;
     };
 
@@ -120,7 +120,7 @@ public:
     UtlBoolean mRtpAudioReceiving;
     SdpCodecFactory* mpCodecFactory;
     SdpCodec* mpPrimaryCodec;
-    CONTACT_TYPE mContactType ;
+    SIPX_CONTACT_TYPE mContactType ;
     UtlString mLocalAddress ;
     UtlBoolean mbAlternateDestinations ;
 };
@@ -330,14 +330,14 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
 
         // Enable Stun if we have a stun server and either non-local contact type or 
         // ICE is enabled.
-        if ((mStunServer.length() != 0) && ((mediaConnection->mContactType != LOCAL) || mbEnableICE))
+        if ((mStunServer.length() != 0) && ((mediaConnection->mContactType != CONTACT_LOCAL) || mbEnableICE))
         {
             rtpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
         }
 
         // Enable Turn if we have a stun server and either non-local contact type or 
         // ICE is enabled.
-        if ((mTurnServer.length() != 0) && ((mediaConnection->mContactType != LOCAL) || mbEnableICE))
+        if ((mTurnServer.length() != 0) && ((mediaConnection->mContactType != CONTACT_LOCAL) || mbEnableICE))
         {
             rtpSocket->enableTurn(mTurnServer, mTurnPort, 
                     mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
@@ -345,14 +345,14 @@ OsStatus CpPhoneMediaInterface::createConnection(int& connectionId,
 
         // Enable Stun if we have a stun server and either non-local contact type or 
         // ICE is enabled.
-        if ((mStunServer.length() != 0) && ((mediaConnection->mContactType != LOCAL) || mbEnableICE))
+        if ((mStunServer.length() != 0) && ((mediaConnection->mContactType != CONTACT_LOCAL) || mbEnableICE))
         {
             rtcpSocket->enableStun(mStunServer, mStunPort, mStunRefreshPeriodSecs, 0, false) ;
         }
 
         // Enable Turn if we have a stun server and either non-local contact type or 
         // ICE is enabled.
-        if ((mTurnServer.length() != 0) && ((mediaConnection->mContactType != LOCAL) || mbEnableICE))
+        if ((mTurnServer.length() != 0) && ((mediaConnection->mContactType != CONTACT_LOCAL) || mbEnableICE))
         {
             rtcpSocket->enableTurn(mTurnServer, mTurnPort, 
                     mTurnRefreshPeriodSecs, mTurnUsername, mTurnPassword, false) ;
@@ -396,8 +396,8 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
 
     if (pMediaConn)
     {
-        if (    (pMediaConn->mContactType == AUTO) || 
-                (pMediaConn->mContactType == NAT_MAPPED))
+        if (    (pMediaConn->mContactType == CONTACT_AUTO) || 
+                (pMediaConn->mContactType == CONTACT_NAT_MAPPED))
         {
             // Audio RTP
             if (pMediaConn->mpRtpAudioSocket)
@@ -406,7 +406,7 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                 // are ignored.  They *SHOULD* be the same as the first.  
                 // Possible exceptions: STUN worked for the first, but not the
                 // others.  Not sure how to handle/recover from that case.
-                if (pMediaConn->mContactType == RELAY)
+                if (pMediaConn->mContactType == CONTACT_RELAY)
                 {
                     if (!pMediaConn->mpRtpAudioSocket->getRelayIp(&rtpHostAddress, &rtpAudioPort))
                     {
@@ -415,7 +415,7 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                     }
 
                 }
-                else if (pMediaConn->mContactType == AUTO || pMediaConn->mContactType == NAT_MAPPED)
+                else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
                 {
                     if (!pMediaConn->mpRtpAudioSocket->getMappedIp(&rtpHostAddress, &rtpAudioPort))
                     {
@@ -423,7 +423,7 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                         rtpHostAddress = mRtpReceiveHostAddress ;
                     }
                 }
-                else if (pMediaConn->mContactType == LOCAL)
+                else if (pMediaConn->mContactType == CONTACT_LOCAL)
                 {
                      rtpHostAddress = pMediaConn->mpRtpAudioSocket->getLocalIp();
                      rtpAudioPort = pMediaConn->mpRtpAudioSocket->getLocalHostPort();
@@ -442,7 +442,7 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
             // Audio RTCP
             if (pMediaConn->mpRtcpAudioSocket)
             {
-                if (pMediaConn->mContactType == RELAY)
+                if (pMediaConn->mContactType == CONTACT_RELAY)
                 {
                     if (!pMediaConn->mpRtcpAudioSocket->getRelayIp(&ignored, &rtcpAudioPort))
                     {
@@ -454,7 +454,7 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                         assert(ignored.compareTo(rtpHostAddress) == 0) ;
                     }
                 }
-                else if (pMediaConn->mContactType == AUTO || pMediaConn->mContactType == NAT_MAPPED)
+                else if (pMediaConn->mContactType == CONTACT_AUTO || pMediaConn->mContactType == CONTACT_NAT_MAPPED)
                 {
                     if (!pMediaConn->mpRtcpAudioSocket->getMappedIp(&ignored, &rtcpAudioPort))
                     {
@@ -466,7 +466,7 @@ OsStatus CpPhoneMediaInterface::getCapabilities(int connectionId,
                         assert(ignored.compareTo(rtpHostAddress) == 0) ;
                     }
                 }
-                else if (pMediaConn->mContactType == LOCAL)
+                else if (pMediaConn->mContactType == CONTACT_LOCAL)
                 {
                     ignored = pMediaConn->mpRtcpAudioSocket->getLocalIp();
                     rtcpAudioPort = pMediaConn->mpRtcpAudioSocket->getLocalHostPort();
@@ -528,7 +528,7 @@ OsStatus CpPhoneMediaInterface::getCapabilitiesEx(int connectionId,
     {        
         switch (pMediaConn->mContactType)
         {
-            case LOCAL:
+            case CONTACT_LOCAL:
                 addLocalContacts(connectionId, nMaxAddresses, rtpHostAddresses,
                         rtpAudioPorts, rtcpAudioPorts, rtpVideoPorts, 
                         rtcpVideoPorts, nActualAddresses) ;
@@ -539,7 +539,7 @@ OsStatus CpPhoneMediaInterface::getCapabilitiesEx(int connectionId,
                         rtpAudioPorts, rtcpAudioPorts, rtpVideoPorts, 
                         rtcpVideoPorts, nActualAddresses) ;
                 break ;
-            case RELAY:
+            case CONTACT_RELAY:
                 addRelayContacts(connectionId, nMaxAddresses, rtpHostAddresses,
                         rtpAudioPorts, rtcpAudioPorts, rtpVideoPorts, 
                         rtcpVideoPorts, nActualAddresses) ;
@@ -1455,7 +1455,7 @@ void CpPhoneMediaInterface::removeToneListener(int connectionId)
     }
 }
 
-void CpPhoneMediaInterface::setContactType(int connectionId, CONTACT_TYPE eType, CONTACT_ID contactId) 
+void CpPhoneMediaInterface::setContactType(int connectionId, SIPX_CONTACT_TYPE eType, SIPX_CONTACT_ID contactId) 
 {
     CpPhoneMediaConnection* pMediaConn = getMediaConnection(connectionId);
 

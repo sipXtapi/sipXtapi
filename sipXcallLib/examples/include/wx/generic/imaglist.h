@@ -4,21 +4,24 @@
 // Author:      Robert Roebling
 // Created:     01/02/97
 // Id:
-// Copyright:   (c) 1998 Robert Roebling, Julian Smart and Markus Holzem
+// Copyright:   (c) 1998 Robert Roebling and Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __IMAGELISTH_G__
 #define __IMAGELISTH_G__
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "imaglist.h"
 #endif
 
 #include "wx/defs.h"
-#include "wx/gdicmn.h"
-#include "wx/bitmap.h"
-#include "wx/dc.h"
+#include "wx/list.h"
+#include "wx/icon.h"
+
+class WXDLLEXPORT wxDC;
+class WXDLLEXPORT wxBitmap;
+class WXDLLEXPORT wxColour;
 
 /*
  * wxImageList is used for wxListCtrl, wxTreeCtrl. These controls refer to
@@ -54,10 +57,10 @@ enum {
 class WXDLLEXPORT wxGenericImageList: public wxObject
 {
 public:
-    wxGenericImageList() { }
-    wxGenericImageList( int width, int height, bool mask = TRUE, int initialCount = 1 );
+    wxGenericImageList() { m_width = m_height = 0; }
+    wxGenericImageList( int width, int height, bool mask = true, int initialCount = 1 );
     ~wxGenericImageList();
-    bool Create( int width, int height, bool mask = TRUE, int initialCount = 1 );
+    bool Create( int width, int height, bool mask = true, int initialCount = 1 );
     bool Create();
 
     virtual int GetImageCount() const;
@@ -66,15 +69,18 @@ public:
     int Add( const wxBitmap& bitmap );
     int Add( const wxBitmap& bitmap, const wxBitmap& mask );
     int Add( const wxBitmap& bitmap, const wxColour& maskColour );
-    const wxBitmap *GetBitmap(int index) const;
+    wxBitmap GetBitmap(int index) const;
+    wxIcon GetIcon(int index) const;
     bool Replace( int index, const wxBitmap &bitmap );
     bool Remove( int index );
     bool RemoveAll();
 
     virtual bool Draw(int index, wxDC& dc, int x, int y,
               int flags = wxIMAGELIST_DRAW_NORMAL,
-              bool solidBackground = FALSE);
+              bool solidBackground = false);
 
+    // Internal use only
+    const wxBitmap *GetBitmapPtr(int index) const;
 private:
     wxList  m_images;
 
@@ -84,7 +90,7 @@ private:
     DECLARE_DYNAMIC_CLASS(wxGenericImageList)
 };
 
-#if !defined(__WXMSW__) || defined(__WIN16__) || defined(__WXUNIVERSAL__)
+#if !defined(__WXMSW__) || defined(__WXUNIVERSAL__)
 /*
  * wxImageList has to be a real class or we have problems with
  * the run-time information.
@@ -97,12 +103,12 @@ class WXDLLEXPORT wxImageList: public wxGenericImageList
 public:
     wxImageList() {}
 
-    wxImageList( int width, int height, bool mask = TRUE, int initialCount = 1 )
+    wxImageList( int width, int height, bool mask = true, int initialCount = 1 )
         : wxGenericImageList(width, height, mask, initialCount)
     {
     }
 };
-#endif // !__WXMSW__ || __WIN16__ || __WXUNIVERSAL__
+#endif // !__WXMSW__ || __WXUNIVERSAL__
 
 #endif  // __IMAGELISTH_G__
 

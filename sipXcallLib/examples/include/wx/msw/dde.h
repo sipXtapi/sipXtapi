@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: dde.h,v 1.10 2002/09/03 11:22:55 JS Exp $
+// RCS-ID:      $Id: dde.h,v 1.19 2004/08/24 10:31:34 ABX Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_DDE_H_
 #define _WX_DDE_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "dde.h"
 #endif
 
@@ -42,10 +42,10 @@
  *
  */
 
-class WXDLLEXPORT wxDDEServer;
-class WXDLLEXPORT wxDDEClient;
+class WXDLLIMPEXP_BASE wxDDEServer;
+class WXDLLIMPEXP_BASE wxDDEClient;
 
-class WXDLLEXPORT wxDDEConnection: public wxConnectionBase
+class WXDLLIMPEXP_BASE wxDDEConnection: public wxConnectionBase
 {
   DECLARE_DYNAMIC_CLASS(wxDDEConnection)
 public:
@@ -55,6 +55,7 @@ public:
 
   // Calls that CLIENT can make
   virtual bool Execute(const wxChar *data, int size = -1, wxIPCFormat format = wxIPC_TEXT);
+  virtual bool Execute(const wxString& str) { return Execute(str, -1, wxIPC_TEXT); }
   virtual wxChar *Request(const wxString& item, int *size = NULL, wxIPCFormat format = wxIPC_TEXT);
   virtual bool Poke(const wxString& item, wxChar *data, int size = -1, wxIPCFormat format = wxIPC_TEXT);
   virtual bool StartAdvise(const wxString& item);
@@ -66,7 +67,7 @@ public:
   // Calls that both can make
   virtual bool Disconnect(void);
 
-  // Default behaviour is to delete connection and return TRUE
+  // Default behaviour is to delete connection and return true
   virtual bool OnDisconnect(void);
 
  public:
@@ -78,16 +79,18 @@ public:
   wxChar*       m_sendingData;
   int           m_dataSize;
   wxIPCFormat  m_dataType;
+
+    DECLARE_NO_COPY_CLASS(wxDDEConnection)
 };
 
-class WXDLLEXPORT wxDDEServer: public wxServerBase
+class WXDLLIMPEXP_BASE wxDDEServer: public wxServerBase
 {
   DECLARE_DYNAMIC_CLASS(wxDDEServer)
  public:
 
   wxDDEServer(void);
   ~wxDDEServer(void);
-  bool Create(const wxString& server_name); // Returns FALSE if can't create server (e.g. port
+  bool Create(const wxString& server_name); // Returns false if can't create server (e.g. port
                                   // number is already in use)
   virtual wxConnectionBase *OnAcceptConnection(const wxString& topic);
 
@@ -98,15 +101,18 @@ class WXDLLEXPORT wxDDEServer: public wxServerBase
   wxDDEConnection *FindConnection(WXHCONV conv);
   bool DeleteConnection(WXHCONV conv);
   inline wxString& GetServiceName(void) const { return (wxString&) m_serviceName; }
-  inline wxList& GetConnections(void) const { return (wxList&) m_connections; }
+    inline wxDDEConnectionList& GetConnections(void) const
+    {
+        return (wxDDEConnectionList&) m_connections;
+    }
 
- protected:
-  int       m_lastError;
-  wxString  m_serviceName;
-  wxList    m_connections;
+protected:
+    int       m_lastError;
+    wxString  m_serviceName;
+    wxDDEConnectionList m_connections;
 };
 
-class WXDLLEXPORT wxDDEClient: public wxClientBase
+class WXDLLIMPEXP_BASE wxDDEClient: public wxClientBase
 {
   DECLARE_DYNAMIC_CLASS(wxDDEClient)
  public:
@@ -124,15 +130,19 @@ class WXDLLEXPORT wxDDEClient: public wxClientBase
   // Find/delete wxDDEConnection corresponding to the HCONV
   wxDDEConnection *FindConnection(WXHCONV conv);
   bool DeleteConnection(WXHCONV conv);
-  inline wxList& GetConnections(void) const { return (wxList&) m_connections; }
 
- protected:
-  int       m_lastError;
-  wxList    m_connections;
+    inline wxDDEConnectionList& GetConnections(void) const
+    {
+        return (wxDDEConnectionList&) m_connections;
+    }
+
+protected:
+    int       m_lastError;
+    wxDDEConnectionList m_connections;
 };
 
-void WXDLLEXPORT wxDDEInitialize();
-void WXDLLEXPORT wxDDECleanUp();
+void WXDLLIMPEXP_BASE wxDDEInitialize();
+void WXDLLIMPEXP_BASE wxDDECleanUp();
 
 #endif
     // _WX_DDE_H_

@@ -4,19 +4,21 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     07.09.00
-// RCS-ID:      $Id: radiobut.h,v 1.7 2001/08/25 14:52:26 VZ Exp $
-// Copyright:   (c) wxWindows team
-// Licence:     wxWindows license
+// RCS-ID:      $Id: radiobut.h,v 1.17 2005/05/04 18:52:02 JS Exp $
+// Copyright:   (c) Vadim Zeitlin
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_RADIOBUT_H_BASE_
 #define _WX_RADIOBUT_H_BASE_
 
+#include "wx/defs.h"
+
 #if wxUSE_RADIOBTN
 
 /*
    There is no wxRadioButtonBase class as wxRadioButton interface is the same
-   as of wxCheckBox(Base), but under some platforms wxRadioButton really
+   as wxCheckBox(Base), but under some platforms wxRadioButton really
    derives from wxCheckBox and on the others it doesn't.
 
    The pseudo-declaration of wxRadioButtonBase would look like this:
@@ -31,7 +33,7 @@
 
 #include "wx/control.h"
 
-WXDLLEXPORT_DATA(extern const wxChar*) wxRadioButtonNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxRadioButtonNameStr;
 
 #if defined(__WXUNIVERSAL__)
     #include "wx/univ/radiobut.h"
@@ -43,10 +45,12 @@ WXDLLEXPORT_DATA(extern const wxChar*) wxRadioButtonNameStr;
     #include "wx/gtk/radiobut.h"
 #elif defined(__WXMAC__)
     #include "wx/mac/radiobut.h"
+#elif defined(__WXCOCOA__)
+    #include "wx/cocoa/radiobut.h"
 #elif defined(__WXPM__)
     #include "wx/os2/radiobut.h"
-#elif defined(__WXSTUBS__)
-    #include "wx/stubs/radiobut.h"
+#elif defined(__WXPALMOS__)
+    #include "wx/palmos/radiobut.h"
 #endif
 
 #endif // wxUSE_RADIOBTN

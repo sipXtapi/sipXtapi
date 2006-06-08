@@ -3,8 +3,8 @@
 // Purpose:     Generic key support for wxDbTable
 // Author:      Roger Gammans
 // Modified by:
-// Created:     
-// RCS-ID:      $Id: dbkeyg.h,v 1.1 2001/06/10 17:08:21 GT Exp $
+// Created:
+// RCS-ID:      $Id: dbkeyg.h,v 1.4 2004/09/10 12:55:47 ABX Exp $
 // Copyright:   (c) 1999 The Computer Surgery (roger@computer-surgery.co.uk)
 // Licence:     wxWindows licence
 //

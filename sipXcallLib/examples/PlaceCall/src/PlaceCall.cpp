@@ -25,6 +25,7 @@ DWORD WINAPI ConsoleStart(LPVOID lpParameter);
 
 #include "tapi/sipXtapi.h"
 #include "tapi/sipXtapiEvents.h"
+#include "ExternalTransport.h"
 
 #define MAX_RECORD_EVENTS       16
 #define portIsValid(p) ((p) >= 1 && (p) <= 65535)
@@ -34,6 +35,9 @@ SIPX_LINE g_hLine = 0 ;         // Line Instance (id, auth, etc)
 SIPX_CALL g_hCall = 0 ;         // Handle to a call
 SIPX_VIDEO_DISPLAY gDisplay;
 SIPX_VIDEO_DISPLAY gPreviewDisplay;
+bool bUseCustomTransportReliable = false;
+bool bUseCustomTransportUnreliable = false;
+SIPX_TRANSPORT ghTransport = SIPX_TRANSPORT_NULL;
 
 SIPX_CALLSTATE_EVENT    g_eRecordEvents[MAX_RECORD_EVENTS] ;    // List of last N events
 int                     g_iNextEvent ;      // Index for g_eRecordEvents ringer buffer
@@ -43,6 +47,30 @@ extern HWND ghVideo;
 extern HWND hMain;
 #endif
 static bool bVideo = false;
+
+
+void startTribbleListener(const char* szIp);
+bool tribbleProc(SIPX_TRANSPORT hTransport,
+                                      const char* szDestinationIp,
+                                      const int   iDestPort,
+                                      const char* szLocalIp,
+                                      const int   iLocalPort,
+                                      const void* pData,
+                                      const size_t nData,
+                                      const void* pUserData) ;
+                            
+void startFlibbleListener(const char* szIp);
+bool flibbleProc(SIPX_TRANSPORT hTransport,
+                                      const char* szDestinationIp,
+                                      const int   iDestPort,
+                                      const char* szLocalIp,
+                                      const int   iLocalPort,
+                                      const void* pData,
+                                      const size_t nData,
+                                      const void* pUserData) ;
+FlibbleTask* gpFlibbleTask = NULL;
+SIPX_CONTACT_ID gContactId = CONTACT_AUTO;
+SIPX_CONTACT_ADDRESS*   gpExternalTransportContactRecord;
 
 // Print usage message
 void usage(const char* szExecutable)
@@ -74,6 +102,8 @@ void usage(const char* szExecutable)
     printf("   -O call output device name\n");
     printf("   -C codec name\n");
     printf("   -L list all supported codecs\n");
+    printf("   -E use bogus custom external transport, reliable (transport=tribble)\n");
+    printf("   -e use bogus custom external transport, unreliable (transport=flibble)\n");
 #if defined(_WIN32) && defined(VIDEO)
     printf("   -V place a video call\n");
 #endif
@@ -102,7 +132,9 @@ bool parseArgs(int argc,
                char** pszInputDevice,
                char** pszOutputDevice,
                char** pszCodecName,
-               bool*  bCodecList)
+               bool*  bCodecList,
+               bool*  bUseCustomTransportReliable,
+               bool*  bUseCustomTransportUnreliable)
 {
     bool bRC = false ;
     char szBuffer[64];
@@ -326,6 +358,14 @@ bool parseArgs(int argc,
         {
             bVideo = true;
         }
+        else if (strcmp(argv[i], "-E") == 0)
+        {
+            *bUseCustomTransportReliable = true;            
+        }
+        else if (strcmp(argv[i], "-e") == 0)
+        {
+            *bUseCustomTransportUnreliable = true;            
+        }
         else
         {
             if ((i+1) == argc)
@@ -481,17 +521,59 @@ bool placeCall(char* szSipUrl, char* szFromIdentity, char* szUsername, char* szP
     sipxCallCreate(g_hInst, g_hLine, &g_hCall) ;
     dumpLocalContacts(g_hCall) ;
 
+    // get first contact
+    size_t numAddresses = 0;
+    SIPX_CONTACT_ADDRESS address;
+    sipxConfigGetLocalContacts(g_hInst, 
+                               &address,
+                               1,
+                               numAddresses);
+    
+
+
+    if (bUseCustomTransportReliable)
+    {
+        sipxConfigExternalTransportAdd(g_hInst,
+                                       ghTransport,
+                                       true,
+                                       "tribble",
+                                       address.cIpAddress,
+                                       -1,
+                                       tribbleProc,
+                                       "tribble");
+        startTribbleListener(address.cIpAddress);
+    }
+    
+    if (bUseCustomTransportUnreliable)
+    {
+        startFlibbleListener(address.cIpAddress);
+        sipxConfigExternalTransportAdd(g_hInst,
+                                       ghTransport,
+                                       true,
+                                       "flibble",
+                                       address.cIpAddress,
+                                       -1,
+                                       flibbleProc,
+                                       address.cIpAddress);
+                                               
+        gContactId = lookupContactId(address.cIpAddress, "flibble", ghTransport);
+    }
+
+
+    sipxCallCreate(g_hInst, g_hLine, &g_hCall) ;
+    dumpLocalContacts(g_hCall) ;
+    
     if (bVideo)
     {
 #if defined(_WIN32) && defined(VIDEO)
         gDisplay.type = SIPX_WINDOW_HANDLE_TYPE;
         gDisplay.handle = ghVideo;
-        sipxCallConnect(g_hCall, szSipUrl, CONTACT_AUTO, &gDisplay) ;
+        sipxCallConnect(g_hCall, szSipUrl, gContactId, &gDisplay, NULL);
 #endif
     }
     else
     {
-        sipxCallConnect(g_hCall, szSipUrl);
+        sipxCallConnect(g_hCall, szSipUrl, gContactId);
     }
     bRC = WaitForSipXEvent(CALLSTATE_CONNECTED, 30) ;
 
@@ -656,7 +738,8 @@ int local_main(int argc, char* argv[])
     if (parseArgs(argc, argv, &iDuration, &iSipPort, &iRtpPort, &szPlayTones,
             &szFile, &szFileBuffer, &szSipUrl, &bUseRport, &szUsername, 
             &szPassword, &szRealm, &szFromIdentity, &szStunServer, &szProxy, 
-            &iRepeatCount, &szInDevice, &szOutDevice, &szCodec, &bCList) 
+            &iRepeatCount, &szInDevice, &szOutDevice, &szCodec, &bCList,
+            &bUseCustomTransportReliable, &bUseCustomTransportUnreliable) 
             && (iDuration > 0) && (portIsValid(iSipPort)) && (portIsValid(iRtpPort)))
     {
         // initialize sipx TAPI-like API
@@ -865,6 +948,8 @@ int main(int argc, char* argv[])
 #endif
 }
 
+
+
 #if defined(_WIN32) && defined(VIDEO)
 DWORD WINAPI ConsoleStart(LPVOID lpParameter)
 {
@@ -885,3 +970,15 @@ void JNI_LightButton(long)
 }
 
 #endif /* !defined(_WIN32) */
+
+
+void startTribbleListener(const char* szIp)
+{
+    
+}
+
+void startFlibbleListener(const char* szIp)
+{
+    gpFlibbleTask = new  FlibbleTask(szIp);
+    gpFlibbleTask->start();
+}

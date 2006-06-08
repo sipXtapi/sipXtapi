@@ -2,7 +2,7 @@
 // Name:        imaggif.h
 // Purpose:     wxImage GIF handler
 // Author:      Vaclav Slavik & Guillermo Rodriguez Garcia
-// RCS-ID:      $Id: imaggif.h,v 1.6.2.1 2002/10/23 17:32:01 RR Exp $
+// RCS-ID:      $Id: imaggif.h,v 1.11 2004/09/16 18:13:25 ABX Exp $
 // Copyright:   (c) Guillermo Rodriguez Garcia
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 #ifndef _WX_IMAGGIF_H_
 #define _WX_IMAGGIF_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "imaggif.h"
 #endif
 
@@ -35,8 +35,8 @@ public:
     }
 
 #if wxUSE_STREAMS
-    virtual bool LoadFile( wxImage *image, wxInputStream& stream, bool verbose=TRUE, int index=-1 );
-    virtual bool SaveFile( wxImage *image, wxOutputStream& stream, bool verbose=TRUE );
+    virtual bool LoadFile( wxImage *image, wxInputStream& stream, bool verbose=true, int index=-1 );
+    virtual bool SaveFile( wxImage *image, wxOutputStream& stream, bool verbose=true );
     virtual bool DoCanRead( wxInputStream& stream );
 #endif
 

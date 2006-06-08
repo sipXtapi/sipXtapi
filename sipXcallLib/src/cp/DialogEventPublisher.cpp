@@ -71,6 +71,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
    OsTime receivedTime;
    int numOldContents;
    HttpBody* oldContent[1];
+   UtlString temp;
 
    int length;
    UtlString dialogEvent;
@@ -151,10 +152,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             pDialog->setRemoteIdentity(identity, displayName);
    
             sipDialog.getLocalContact(localTarget);
-            pDialog->setLocalTarget(localTarget.toString());
+            localTarget.getUri(temp);
+            pDialog->setLocalTarget(temp);
    
             sipDialog.getRemoteContact(remoteTarget);
-            pDialog->setRemoteTarget(remoteTarget.toString());
+            remoteTarget.getUri(temp);
+            pDialog->setRemoteTarget(temp);
                
             pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
    
@@ -225,10 +228,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   pDialog->setTags(localTag, remoteTag);
    
                   sipDialog.getLocalContact(localTarget);
-                  pDialog->setLocalTarget(localTarget.toString());
+                  localTarget.getUri(temp);
+                  pDialog->setLocalTarget(temp);
    
                   sipDialog.getRemoteContact(remoteTarget);
-                  pDialog->setRemoteTarget(remoteTarget.toString());
+                  remoteTarget.getUri(temp);
+                  pDialog->setRemoteTarget(temp);
    
                   pDialog->setState(STATE_CONFIRMED, NULL, NULL);
                }
@@ -256,10 +261,12 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   pDialog->setRemoteIdentity(identity, displayName);
    
                   sipDialog.getLocalContact(localTarget);
-                  pDialog->setLocalTarget(localTarget.toString());
+                  localTarget.getUri(temp);
+                  pDialog->setLocalTarget(temp);
    
                   sipDialog.getRemoteContact(remoteTarget);
-                  pDialog->setRemoteTarget(remoteTarget.toString());
+                  remoteTarget.getUri(temp);
+                  pDialog->setRemoteTarget(temp);
    
                   pDialog->setDuration(OsDateTime::getSecsSinceEpoch());
    

@@ -6,15 +6,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.08.00
-// RCS-ID:      $Id: theme.h,v 1.9 2002/03/24 00:22:51 VS Exp $
+// RCS-ID:      $Id: theme.h,v 1.15 2005/01/21 18:15:42 ABX Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_UNIV_THEME_H_
 #define _WX_UNIV_THEME_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "theme.h"
 #endif
 
@@ -52,7 +52,7 @@ public:
     // get the renderer implementing all the control-drawing operations in
     // this theme
     virtual wxRenderer *GetRenderer() = 0;
-    
+
     // get the art provider to be used together with this theme
     virtual wxArtProvider *GetArtProvider() = 0;
 
@@ -105,10 +105,10 @@ struct WXDLLEXPORT wxThemeInfo
 // without it, an over optimizing linker may discard the object module
 // containing the theme implementation entirely
 #define WX_USE_THEME(themename)                                             \
-    WXDLLEXPORT_DATA(extern bool) wxThemeUse##themename;                    \
+    extern WXDLLEXPORT_DATA(bool) wxThemeUse##themename;                    \
     static struct wxThemeUserFor##themename                                 \
     {                                                                       \
-        wxThemeUserFor##themename() { wxThemeUse##themename = TRUE; }       \
+        wxThemeUserFor##themename() { wxThemeUse##themename = true; }       \
     } wxThemeDoUse##themename
 
 // to declare a new theme, this macro must be used in the class declaration
@@ -121,7 +121,7 @@ struct WXDLLEXPORT wxThemeInfo
 
 // and this one must be inserted in the source file
 #define WX_IMPLEMENT_THEME(classname, themename, themedesc)                 \
-    WXDLLEXPORT_DATA(bool) wxThemeUse##themename = TRUE;                    \
+    WXDLLEXPORT_DATA(bool) wxThemeUse##themename = true;                    \
     wxTheme *wxCtorFor##themename() { return new classname; }               \
     wxThemeInfo classname::ms_info##themename(wxCtorFor##themename,         \
                                               wxT( #themename ), themedesc)

@@ -461,6 +461,43 @@ void sipXtapiTestSuite::testConfigLog()
     checkForLeaks() ;
 }
 
+void sipXtapiTestSuite::testConfigExternalTransport() 
+{
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\nConfigExternalTransport (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+
+        SIPX_TRANSPORT hTransport = SIPX_TRANSPORT_NULL;
+
+        SIPX_CONTACT_ADDRESS addresses[32] ;
+        memset(addresses, 0, sizeof(SIPX_CONTACT_ADDRESS)*32);
+        size_t nContacts ;
+        size_t origContacts;
+        sipxConfigGetLocalContacts(g_hInst, addresses, 32, origContacts) ;
+
+        sipxConfigExternalTransportAdd(g_hInst,
+                                       hTransport, 
+                                       true, 
+                                       "flibble", 
+                                       "127.0.0.1", 
+                                       -1,                                        
+                                       FlibbleTransportCallback,
+                                       "fibble");
+        CPPUNIT_ASSERT((int)hTransport > 3);
+        
+        memset(addresses, 0, sizeof(SIPX_CONTACT_ADDRESS)*32);
+        sipxConfigGetLocalContacts(g_hInst, addresses, 32, nContacts) ;
+        CPPUNIT_ASSERT(nContacts == origContacts + 1 );
+
+        sipxConfigExternalTransportRemove(hTransport);
+
+        memset(addresses, 0, sizeof(SIPX_CONTACT_ADDRESS)*32);
+        sipxConfigGetLocalContacts(g_hInst, addresses, 32, nContacts) ;
+        CPPUNIT_ASSERT(nContacts == origContacts);
+    }
+    checkForLeaks() ;
+}
+
 void sipXtapiTestSuite::testConfigOutOfBand()
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)

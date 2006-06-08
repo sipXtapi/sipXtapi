@@ -5,9 +5,9 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     21.10.99
-// RCS-ID:      $Id: dataobj2.h,v 1.4 2001/10/26 02:11:22 RD Exp $
+// RCS-ID:      $Id: dataobj2.h,v 1.10 2004/05/23 20:51:35 JS Exp $
 // Copyright:   (c) 1999 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_MSW_OLE_DATAOBJ2_H
@@ -38,9 +38,20 @@ public:
     virtual bool GetDataHere(void *buf) const;
     virtual bool SetData(size_t len, const void *buf);
 
+    virtual size_t GetDataSize(const wxDataFormat& WXUNUSED(format)) const
+        { return GetDataSize(); }
+    virtual bool GetDataHere(const wxDataFormat& WXUNUSED(format),
+                             void *buf) const
+        { return GetDataHere(buf); }
+    virtual bool SetData(const wxDataFormat& WXUNUSED(format),
+                         size_t len, const void *buf)
+        { return SetData(len, buf); }
+
 private:
     // the DIB data
     void /* BITMAPINFO */ *m_data;
+
+    DECLARE_NO_COPY_CLASS(wxBitmapDataObject)
 };
 
 // ----------------------------------------------------------------------------
@@ -62,6 +73,18 @@ public:
     virtual size_t GetDataSize() const;
     virtual bool GetDataHere(void *buf) const;
     virtual bool SetData(size_t len, const void *buf);
+
+    virtual size_t GetDataSize(const wxDataFormat& WXUNUSED(format)) const
+        { return GetDataSize(); }
+    virtual bool GetDataHere(const wxDataFormat& WXUNUSED(format),
+                             void *buf) const
+        { return GetDataHere(buf); }
+    virtual bool SetData(const wxDataFormat& WXUNUSED(format),
+                         size_t len, const void *buf)
+        { return SetData(len, buf); }
+
+private:
+    DECLARE_NO_COPY_CLASS(wxBitmapDataObject2)
 };
 
 // ----------------------------------------------------------------------------
@@ -71,11 +94,25 @@ public:
 class WXDLLEXPORT wxFileDataObject : public wxFileDataObjectBase
 {
 public:
+    wxFileDataObject() { }
+
     // implement base class pure virtuals
     virtual bool SetData(size_t len, const void *buf);
     virtual size_t GetDataSize() const;
     virtual bool GetDataHere(void *pData) const;
     virtual void AddFile(const wxString& file);
+
+    virtual size_t GetDataSize(const wxDataFormat& WXUNUSED(format)) const
+        { return GetDataSize(); }
+    virtual bool GetDataHere(const wxDataFormat& WXUNUSED(format),
+                             void *buf) const
+        { return GetDataHere(buf); }
+    virtual bool SetData(const wxDataFormat& WXUNUSED(format),
+                         size_t len, const void *buf)
+        { return SetData(len, buf); }
+
+private:
+    DECLARE_NO_COPY_CLASS(wxFileDataObject)
 };
 
 // ----------------------------------------------------------------------------
@@ -101,6 +138,8 @@ public:
 private:
     // last data object we got data in
     wxDataObjectSimple *m_dataObjectLast;
+
+    DECLARE_NO_COPY_CLASS(wxURLDataObject)
 };
 
 #endif // _WX_MSW_OLE_DATAOBJ2_H

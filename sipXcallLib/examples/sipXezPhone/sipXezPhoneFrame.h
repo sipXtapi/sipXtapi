@@ -186,6 +186,15 @@ public:
     void OnRenegotiate(wxCommandEvent& event);
 
     /**
+     * EventHandler for the Prepare for Hibernate test
+     */
+    void OnPrepareForHibernate(wxCommandEvent& event);
+    
+    /**
+     * EventHandler for the UnHibernate test
+     */
+    void OnUnHibernate(wxCommandEvent& event);
+    /**
      * EventHandler for the Show Sys Log menu item.
      */
     void OnShowSysLog(wxCommandEvent& event) ;

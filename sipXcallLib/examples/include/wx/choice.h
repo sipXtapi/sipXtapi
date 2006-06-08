@@ -4,8 +4,8 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     26.07.99
-// RCS-ID:      $Id: choice.h,v 1.19 2002/08/31 11:29:09 GD Exp $
-// Copyright:   (c) wxWindows team
+// RCS-ID:      $Id: choice.h,v 1.36 2005/03/16 16:18:18 ABX Exp $
+// Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -16,9 +16,11 @@
 // headers
 // ----------------------------------------------------------------------------
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "choicebase.h"
 #endif
+
+#include "wx/defs.h"
 
 #if wxUSE_CHOICE
 
@@ -28,7 +30,7 @@
 // global data
 // ----------------------------------------------------------------------------
 
-WXDLLEXPORT_DATA(extern const wxChar*) wxChoiceNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxChoiceNameStr;
 
 // ----------------------------------------------------------------------------
 // wxChoice allows to select one of a non-modifiable list of strings
@@ -37,23 +39,21 @@ WXDLLEXPORT_DATA(extern const wxChar*) wxChoiceNameStr;
 class WXDLLEXPORT wxChoiceBase : public wxControlWithItems
 {
 public:
-    // all generic methods are in wxControlWithItems
+    wxChoiceBase() { }
     virtual ~wxChoiceBase();
 
-    // single selection logic
-    virtual void SetSelection(int n) = 0;
-    virtual bool SetStringSelection(const wxString& s);
+    // all generic methods are in wxControlWithItems
 
-    // don't override this
-    virtual void Select(int n) { SetSelection(n); }
-
-    // set/get the number of columns in the control (as they're not supporte on
+    // set/get the number of columns in the control (as they're not supported on
     // most platforms, they do nothing by default)
     virtual void SetColumns(int WXUNUSED(n) = 1 ) { }
     virtual int GetColumns() const { return 1 ; }
 
     // emulate selecting the item event.GetInt()
     void Command(wxCommandEvent& event);
+
+private:
+    DECLARE_NO_COPY_CLASS(wxChoiceBase)
 };
 
 // ----------------------------------------------------------------------------
@@ -62,6 +62,8 @@ public:
 
 #if defined(__WXUNIVERSAL__)
     #include "wx/univ/choice.h"
+#elif defined(__SMARTPHONE__) && defined(__WXWINCE__)
+    #include "wx/msw/wince/choicece.h"
 #elif defined(__WXMSW__)
     #include "wx/msw/choice.h"
 #elif defined(__WXMOTIF__)
@@ -70,10 +72,10 @@ public:
     #include "wx/gtk/choice.h"
 #elif defined(__WXMAC__)
     #include "wx/mac/choice.h"
+#elif defined(__WXCOCOA__)
+    #include "wx/cocoa/choice.h"
 #elif defined(__WXPM__)
     #include "wx/os2/choice.h"
-#elif defined(__WXSTUBS__)
-    #include "wx/stubs/choice.h"
 #endif
 
 #endif // wxUSE_CHOICE

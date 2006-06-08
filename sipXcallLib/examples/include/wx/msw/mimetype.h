@@ -4,15 +4,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     23.09.98
-// RCS-ID:      $Id: mimetype.h,v 1.7 2001/06/26 20:59:07 VZ Exp $
+// RCS-ID:      $Id: mimetype.h,v 1.16 2004/08/30 10:18:43 ABX Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license (part of wxExtra library)
+// Licence:     wxWindows licence (part of wxExtra library)
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _MIMETYPE_IMPL_H
 #define _MIMETYPE_IMPL_H
 
-#ifdef    __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "mimetype.h"
 #endif
 
@@ -27,7 +27,7 @@
 // and is never used directly by the application
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxFileTypeImpl
+class WXDLLIMPEXP_BASE wxFileTypeImpl
 {
 public:
     // ctor
@@ -44,7 +44,7 @@ public:
     bool GetExtensions(wxArrayString& extensions);
     bool GetMimeType(wxString *mimeType) const;
     bool GetMimeTypes(wxArrayString& mimeTypes) const;
-    bool GetIcon(wxIcon *icon, wxString *sCommand = NULL, int *iIndex = NULL) const;
+    bool GetIcon(wxIconLocation *iconLoc) const;
     bool GetDescription(wxString *desc) const;
     bool GetOpenCommand(wxString *openCmd,
                         const wxFileType::MessageParameters& params) const;
@@ -57,10 +57,10 @@ public:
     bool Unassociate();
 
     // set an arbitrary command, ask confirmation if it already exists and
-    // overwriteprompt is TRUE
+    // overwriteprompt is true
     bool SetCommand(const wxString& cmd,
                     const wxString& verb,
-                    bool overwriteprompt = TRUE);
+                    bool overwriteprompt = true);
 
     bool SetDefaultIcon(const wxString& cmd = wxEmptyString, int index = 0);
 
@@ -76,7 +76,7 @@ private:
     wxString GetVerbPath(const wxString& verb) const;
 
     // check that the registry key for our extension exists, create it if it
-    // doesn't, return FALSE if this failed
+    // doesn't, return false if this failed
     bool EnsureExtKeyExists();
 
     wxString m_strFileType,         // may be empty
@@ -92,7 +92,7 @@ private:
     bool RemoveDescription();
 };
 
-class WXDLLEXPORT wxMimeTypesManagerImpl
+class WXDLLIMPEXP_BASE wxMimeTypesManagerImpl
 {
 public:
     // nothing to do here, we don't load any data but just go and fetch it from
@@ -107,10 +107,10 @@ public:
     size_t EnumAllFileTypes(wxArrayString& mimetypes);
 
     // this are NOPs under Windows
-    bool ReadMailcap(const wxString& WXUNUSED(filename), bool WXUNUSED(fallback) = TRUE)
-        { return TRUE; }
+    bool ReadMailcap(const wxString& WXUNUSED(filename), bool WXUNUSED(fallback) = true)
+        { return true; }
     bool ReadMimeTypes(const wxString& WXUNUSED(filename))
-        { return TRUE; }
+        { return true; }
 
     // create a new filetype association
     wxFileType *Associate(const wxFileTypeInfo& ftInfo);

@@ -4,9 +4,9 @@
 // Author:      Julian Smart, Robert Roebling, Vadim Zeitlin
 // Modified by:
 // Created:     31.05.01 (extracted from other files)
-// RCS-ID:      $Id: accel.h,v 1.9 2002/05/07 20:40:04 GD Exp $
-// Copyright:   (c) wxWindows team
-// Licence:     wxWindows license
+// RCS-ID:      $Id: accel.h,v 1.16 2005/01/21 18:48:17 ABX Exp $
+// Copyright:   (c) wxWidgets team
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_ACCEL_H_BASE_
@@ -62,7 +62,7 @@ public:
         Set(entry.m_flags, entry.m_keyCode, entry.m_command, entry.m_item);
         return *this;
     }
-    
+
     void Set(int flags, int keyCode, int cmd, wxMenuItem *item = NULL)
     {
         m_flags = flags;
@@ -94,7 +94,7 @@ public:
     // Implementation use only
     bool MatchesEvent(const wxKeyEvent& event) const;
 #endif
-    
+
 private:
     int m_flags;    // combination of wxACCEL_XXX constants
     int m_keyCode;  // ASCII or virtual keycode
@@ -122,13 +122,13 @@ private:
     #include "wx/gtk/accel.h"
 #elif defined(__WXMAC__)
     #include "wx/mac/accel.h"
+#elif defined(__WXCOCOA__)
+    #include "wx/generic/accel.h"
 #elif defined(__WXPM__)
     #include "wx/os2/accel.h"
-#elif defined(__WXSTUBS__)
-    #include "wx/stubs/accel.h"
 #endif
 
-WXDLLEXPORT_DATA(extern wxAcceleratorTable) wxNullAcceleratorTable;
+extern WXDLLEXPORT_DATA(wxAcceleratorTable) wxNullAcceleratorTable;
 
 #endif // wxUSE_ACCEL
 

@@ -145,7 +145,6 @@ public:
 
     UtlBoolean disableStun(OsNatDatagramSocket* pSocket) ;
 
-
     UtlBoolean enableTurn(OsNatDatagramSocket* pSocket,
                           const UtlString& turnServer,
                           int iTurnPort,
@@ -196,8 +195,21 @@ public:
      * Determines if probes of a higher priority are still outstanding
      */
     UtlBoolean areProbesOutstanding(OsNatDatagramSocket* pSocket, int priority) ;
-   
+
+    /**
+     * Accessor for the timer object. 
+     */
+    OsTimer* getTimer() ;   
 /* ============================ ACCESSORS ================================= */
+
+    /**
+     * Look at all of the stun data structures and see if you can find a 
+     * known back-route to the specified destination.
+     */
+    UtlBoolean findContactAddress(  const UtlString& destHost, 
+                                    int              destPort, 
+                                    UtlString*       pContactHost, 
+                                    int*             pContactPort) ;
 
 /* ============================ INQUIRY =================================== */
 
@@ -249,8 +261,6 @@ protected:
     NAT_AGENT_CONTEXT* getBinding(STUN_TRANSACTION_ID* pId) ;
 
     void destroyBinding(NAT_AGENT_CONTEXT* pBinding) ;
-
-    OsTimer* getTimer() ;
 
     void releaseTimer(OsTimer* pTimer) ;
 

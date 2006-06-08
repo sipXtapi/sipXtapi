@@ -219,7 +219,7 @@ UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const boo
     }
 
     // Select Contact Id
-    CONTACT_ID contactId = 0 ;
+    SIPX_CONTACT_ID contactId = 0 ;
     size_t numAddresses = 0;
     SIPX_CONTACT_ADDRESS addresses[32];
     sipxConfigGetLocalContacts(m_hInst, addresses, 32, numAddresses);    
@@ -272,6 +272,7 @@ UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const boo
         sipXmgr::getInstance().setCodecPreferences(sipXezPhoneSettings::getInstance().getCodecPref()); 
     }
 
+
 #ifdef VIDEO
     int iQuality, iBitRate, iFrameRate ;
     sipXezPhoneSettings::getInstance().getVideoParameters(iQuality, iBitRate, iFrameRate) ;
@@ -287,6 +288,7 @@ UtlBoolean sipXmgr::Initialize(const int iSipPort, const int iRtpPort, const boo
         sipxConfigSetLocationHeader(m_hInst, locationHeader.data());
         enableLocationHeader(true);
     }
+    sipxConfigSetDnsSrvTimeouts(2, 2);
     return true;
 }
 
@@ -408,6 +410,7 @@ bool sipXmgr::handleCallstateEvent(void* pInfo, void* pUserData)
             if (CALLSTATE_CAUSE_BUSY == pCallInfo->cause)
             {
                 PhoneStateMachine::getInstance().OnRemoteBusy();
+                sipXmgr::getInstance().disconnect(pCallInfo->hCall, false);
             }
             else if (mTransferInProgress && m_hTransferInProgress && pCallInfo->hCall == m_hCallController)
             {
@@ -743,7 +746,7 @@ bool sipXmgr::placeCall(const char* szSipUrl,
 #endif
 
     // Select Contact Id
-    CONTACT_ID contactId = 0 ;
+    SIPX_CONTACT_ID contactId = 0 ;
     size_t numAddresses = 0;
     SIPX_CONTACT_ADDRESS addresses[32];
     sipxConfigGetLocalContacts(m_hInst, addresses, 32, numAddresses);    
@@ -1076,7 +1079,7 @@ bool sipXmgr::addConfParty(const char* const szParty)
 #endif         
 
         // Select Contact Id
-        CONTACT_ID contactId = 0 ;
+        SIPX_CONTACT_ID contactId = 0 ;
         size_t numAddresses = 0;
         SIPX_CONTACT_ADDRESS addresses[32];
         sipxConfigGetLocalContacts(m_hInst, addresses, 32, numAddresses);    
@@ -1509,4 +1512,22 @@ void sipXmgr::clearEventLog()
 SIPX_INST sipXmgr::getSipxInstance()
 {
     return m_hInst;
+}
+
+void sipXmgr::prepareToHibernate()
+{
+    SIPX_INST hInst = getSipxInstance();
+    if (hInst)
+    {
+        sipxConfigPrepareToHibernate(hInst);
+    }
+}
+
+void sipXmgr::unHibernate()
+{
+    SIPX_INST hInst = getSipxInstance();
+    if (hInst)
+    {
+        sipxConfigUnHibernate(hInst);
+    }
 }

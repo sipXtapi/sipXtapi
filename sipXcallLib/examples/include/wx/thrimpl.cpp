@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     04.06.02 (extracted from src/*/thread.cpp files)
-// RCS-ID:      $Id: thrimpl.cpp,v 1.1.2.1 2003/08/17 22:57:26 SN Exp $
+// RCS-ID:      $Id: thrimpl.cpp,v 1.5.4.1 2006/01/18 16:55:57 JS Exp $
 // Copyright:   (c) Vadim Zeitlin (2002)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -64,12 +64,12 @@ wxMutexError wxMutex::Unlock()
 // wxConditionInternal
 // --------------------------------------------------------------------------
 
-#if defined(__WXMSW__) || defined(__WXPM__)
+#if defined(__WXMSW__) || defined(__WXPM__) || defined(__EMX__)
 // Win32 and OS/2 don't have explicit support for the POSIX condition
 // variables and their events/event semaphores have quite different semantics,
 // so we reimplement the conditions from scratch using the mutexes and
 // semaphores
-#ifdef __WXPM__
+#if defined(__WXPM__) || defined(__EMX__)
 void InterlockedIncrement(LONG *num)
 {
   ::DosEnterCritSec();
@@ -100,6 +100,8 @@ private:
 
     wxMutex& m_mutex;
     wxSemaphore m_semaphore;
+
+    DECLARE_NO_COPY_CLASS(wxConditionInternal)
 };
 
 wxConditionInternal::wxConditionInternal(wxMutex& mutex)
@@ -172,7 +174,12 @@ wxCondError wxConditionInternal::WaitTimeout(unsigned long milliseconds)
 
     m_mutex.Lock();
 
-    return err == wxSEMA_NO_ERROR ? wxCOND_NO_ERROR : wxCOND_MISC_ERROR;
+    if ( err == wxSEMA_NO_ERROR )
+        return wxCOND_NO_ERROR;
+    else if ( err == wxSEMA_TIMEOUT )
+        return wxCOND_TIMEOUT;
+    else
+        return wxCOND_MISC_ERROR;
 }
 
 wxCondError wxConditionInternal::Signal()

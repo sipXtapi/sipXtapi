@@ -21,6 +21,7 @@
 #include <net/SipUserAgentBase.h>
 #include <net/SipMessage.h>
 #include <net/SipMessageEvent.h>
+#include <net/SipTransaction.h>
 #include <net/SipTransactionList.h>
 #include <net/SipUdpServer.h>
 #include <os/OsQueuedEvent.h>
@@ -55,6 +56,7 @@ class OsTimer;
 class SipSession;
 class SipTcpServer;
 class SipLineMgr;
+class SipUserAgentBase;
 
 //! Transaction and Transport manager for SIP stack
 /*! Note SipUserAgent is perhaps not the best name for this class.
@@ -348,7 +350,8 @@ public:
      */
     virtual UtlBoolean send(SipMessage& message,
                             OsMsgQ* responseListener = NULL,
-                            void* responseListenerData = NULL);
+                            void* responseListenerData = NULL,
+                            SIPX_TRANSPORT_DATA* pTransport = NULL);
 
     //! Dispatch the SIP message to the message consumer(s)
     /*! This is typically only used by the SipUserAgent and its sub-system.
@@ -362,7 +365,8 @@ public:
      *        send messages
      */
     virtual void dispatch(SipMessage* message,
-                          int messageType = SipMessageEvent::APPLICATION);
+                          int messageType = SipMessageEvent::APPLICATION,
+                          SIPX_TRANSPORT_DATA* pData = NULL);
 
     void allowMethod(const char* methodName, const bool bAllow = true);
 
@@ -397,6 +401,7 @@ public:
                                    const char* szRemoteIp,
                                    const int   remotePort) ;
 
+    OsTimer* getTimer() { return mpTimer; }
 
 /* ============================ ACCESSORS ================================= */
 
@@ -413,7 +418,7 @@ public:
     //! Get the local address and port
     UtlBoolean getLocalAddress(UtlString* pIpAddress,
                                int* pPort,
-                               OsSocket::SocketProtocolTypes protocol = OsSocket::UDP) ;
+                               SIPX_TRANSPORT_TYPE protocol = TRANSPORT_UDP) ;
 
     //! Get the NAT mapped address and port
     UtlBoolean getNatMappedAddress(UtlString* pIpAddress, int* pPort) ;
@@ -551,6 +556,9 @@ public:
      // Set if location header is enabled or not
 
 
+    void stopTransactionTimers() { mSipTransactions.stopTransactionTimers(); }
+    void startTransactionTimers() { mSipTransactions.startTransactionTimers(); }                                       
+
 /* ============================ INQUIRY =================================== */
 
     virtual UtlBoolean isMessageLoggingEnabled();
@@ -585,14 +593,15 @@ public:
     SipContactDb& getContactDb() { return mContactDb; }
 
     //! Adds a contact record to the contact db
-    const bool addContactAddress(CONTACT_ADDRESS& contactAddress);
+    const bool addContactAddress(SIPX_CONTACT_ADDRESS& contactAddress);
     
     //! Gets all contact addresses for this user agent
-    void getContactAddresses(CONTACT_ADDRESS* pContacts[], int &numContacts);
+    void getContactAddresses(SIPX_CONTACT_ADDRESS* pContacts[], int &numContacts);
 
     void prepareVia(SipMessage& message,
                     UtlString&  branchId, 
-                    OsSocket::SocketProtocolTypes& toProtocol);
+                    OsSocket::SocketProtocolTypes& toProtocol,
+                    SIPX_TRANSPORT_DATA* pTransport = NULL);
 #ifdef SIP_TLS    
     SipTlsServer* getTlsServer() { return mSipTlsServer; }
     // ITlsSink implementation
@@ -600,6 +609,10 @@ public:
     bool onTlsEvent(int cause);
 #endif
 
+    void addExternalTransport(const UtlString tranportName, const SIPX_TRANSPORT_DATA* const pTransport);
+    void removeExternalTransport(const UtlString transportName, const SIPX_TRANSPORT_DATA* const pTransport);
+    const SIPX_TRANSPORT_DATA* const lookupExternalTransport(const UtlString transportName, const UtlString ipAddress) const;
+    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -631,6 +644,11 @@ protected:
     UtlBoolean sendUdp(SipMessage* message,
                        const char* serverAddress,
                        int port);
+
+    UtlBoolean sendCustom(SIPX_TRANSPORT_DATA* pTransport, 
+                          SipMessage* message, 
+                          const char* sendAddress, 
+                          const int sendPort);                       
 
     UtlBoolean sendSymmetricUdp(const SipMessage& message,
                                 const char* serverAddress,
@@ -685,6 +703,7 @@ private:
     UtlString mUserAgentHeaderProperties;
     UtlHashBag mMyHostAliases;
     UtlHashBag mMessageObservers;
+    UtlHashMap mExternalTransports;
     OsRWMutex mMessageLogRMutex;
     OsRWMutex mMessageLogWMutex;
     

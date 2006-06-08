@@ -6,17 +6,17 @@
 //              Guillermo Rodriguez (updated for wxSocket v2) Jan 2000
 //                                  (callbacks deprecated)    Mar 2000
 // Created:     1993
-// RCS-ID:      $Id: sckipc.h,v 1.19 2002/09/03 11:22:55 JS Exp $
+// RCS-ID:      $Id: sckipc.h,v 1.29 2005/08/02 18:16:32 MW Exp $
 // Copyright:   (c) Julian Smart 1993
 //              (c) Guilhem Lavaux 1997, 1998
 //              (c) 2000 Guillermo Rodriguez <guille@iies.es>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_SCKIPC_H
 #define _WX_SCKIPC_H
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "sckipc.h"
 #endif
 
@@ -53,10 +53,10 @@
  *
  */
 
-class WXDLLEXPORT wxTCPServer;
-class WXDLLEXPORT wxTCPClient;
+class WXDLLIMPEXP_NET wxTCPServer;
+class WXDLLIMPEXP_NET wxTCPClient;
 
-class WXDLLEXPORT wxTCPConnection: public wxConnectionBase
+class WXDLLIMPEXP_NET wxTCPConnection: public wxConnectionBase
 {
   DECLARE_DYNAMIC_CLASS(wxTCPConnection)
 
@@ -79,8 +79,8 @@ public:
   virtual bool Disconnect(void);
 
   // Callbacks to BOTH - override at will
-  // Default behaviour is to delete connection and return TRUE
-  virtual bool OnDisconnect(void) { delete this; return TRUE; }
+  // Default behaviour is to delete connection and return true
+  virtual bool OnDisconnect(void) { delete this; return true; }
 
   // To enable the compressor (NOTE: not implemented!)
   void Compress(bool on);
@@ -102,9 +102,11 @@ private:
   //
   virtual bool Execute(const wxString& str)
     { return Execute(str, -1, wxIPC_TEXT); }
+
+    DECLARE_NO_COPY_CLASS(wxTCPConnection)
 };
 
-class wxTCPServer: public wxServerBase
+class WXDLLIMPEXP_NET wxTCPServer: public wxServerBase
 {
   DECLARE_DYNAMIC_CLASS(wxTCPServer)
 
@@ -114,7 +116,7 @@ public:
   wxTCPServer();
   virtual ~wxTCPServer();
 
-  // Returns FALSE on error (e.g. port number is already in use)
+  // Returns false on error (e.g. port number is already in use)
   virtual bool Create(const wxString& serverName);
 
   // Callbacks to SERVER - override at will
@@ -127,9 +129,11 @@ protected:
   // the name of the file associated to the Unix domain socket, may be empty
   wxString m_filename;
 #endif // __UNIX_LIKE__
+
+    DECLARE_NO_COPY_CLASS(wxTCPServer)
 };
 
-class wxTCPClient: public wxClientBase
+class WXDLLIMPEXP_NET wxTCPClient: public wxClientBase
 {
   DECLARE_DYNAMIC_CLASS(wxTCPClient)
 

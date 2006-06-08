@@ -318,7 +318,8 @@ protected:
     /**
      * Report that a stun attempt succeeded.
      */
-    void markStunSuccess() ;
+    void markStunSuccess(bool bAddressChanged) ;
+
 
     /**
      * Report that a stun attempt failed.
@@ -362,9 +363,10 @@ private:
 
 
     /* Global Attributes */
-    OsNatAgentTask* mpNatAgent;     /**< Pointer to Nat agent task (handles refreshes) */
-    bool mbTransparentReads ;       /**< Block until a non-stun/turn packet is read */
+    OsNatAgentTask* mpNatAgent;      /**< Pointer to Nat agent task (handles refreshes) */
+    bool mbTransparentReads ;        /**< Block until a non-stun/turn packet is read */
     OsNotification* mpNotification ; /** Notify on initial stun success or failure */
+    bool            mbNotified ;     /** Have we notified the requestor? */
 
     /* ICE Settings */
     int miDestPriority ;        /**< Priority of destination address / port. */

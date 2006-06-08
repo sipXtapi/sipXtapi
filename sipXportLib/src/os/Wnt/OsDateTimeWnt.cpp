@@ -15,6 +15,7 @@
 #include <time.h>
 
 // APPLICATION INCLUDES
+#include "os/OsDefs.h"
 #include "os/Wnt/OsDateTimeWnt.h"
 #include "os/OsTime.h"
 

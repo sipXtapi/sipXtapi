@@ -25,7 +25,8 @@
 // CONSTANTS
 
 // STRUCTS
-#if defined(_WIN32)
+#if defined(_WIN32) && !defined(_TIMESPEC_T)
+#define _TIMESPEC_T
 struct timespec
 {
    time_t tv_sec;   // seconds

@@ -5,15 +5,15 @@
 // Author:      John Norris, minor changes by Axel Schlueter
 // Modified by:
 // Created:     08.02.01
-// RCS-ID:      $Id: tglbtn.h,v 1.1 2001/02/08 18:57:22 vadz Exp $
+// RCS-ID:      $Id: tglbtn.h,v 1.6 2005/01/21 18:11:13 ABX Exp $
 // Copyright:   (c) 2000 Johnny C. Norris II
-// License:     Rocketeer license
+// License:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_TOGGLEBUTTON_H_
 #define _WX_TOGGLEBUTTON_H_
 
-WXDLLEXPORT_DATA(extern const wxChar*) wxCheckBoxNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxCheckBoxNameStr;
 
 // Checkbox item (single checkbox)
 class WXDLLEXPORT wxToggleButton : public wxControl
@@ -45,14 +45,15 @@ public:
     virtual bool GetValue() const ;
 
     virtual bool MSWCommand(WXUINT param, WXWORD id);
-    virtual void SetLabel(const wxString& label);
     virtual void Command(wxCommandEvent& event);
 
 protected:
     virtual wxSize DoGetBestSize() const;
+    virtual wxBorder GetDefaultBorder() const;
+    virtual WXDWORD MSWGetStyle(long flags, WXDWORD *exstyle = NULL) const;
 
 private:
-    DECLARE_DYNAMIC_CLASS(wxToggleButton)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxToggleButton)
 };
 
 #endif // _WX_TOGGLEBUTTON_H_

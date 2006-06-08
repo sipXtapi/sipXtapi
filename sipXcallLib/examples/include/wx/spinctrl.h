@@ -4,13 +4,17 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     22.07.99
-// RCS-ID:      $Id: spinctrl.h,v 1.13 2002/09/01 20:24:25 VZ Exp $
+// RCS-ID:      $Id: spinctrl.h,v 1.23 2005/03/16 16:18:20 ABX Exp $
 // Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_SPINCTRL_H_
 #define _WX_SPINCTRL_H_
+
+#include "wx/defs.h"
+
+#if wxUSE_SPINCTRL
 
 #include "wx/spinbutt.h"        // should make wxSpinEvent visible to the app
 
@@ -55,7 +59,7 @@ protected:
 
 #if defined(__WXUNIVERSAL__)
     #include "wx/generic/spinctlg.h"
-#elif defined(__WXMSW__) && defined(__WIN32__)
+#elif defined(__WXMSW__)
     #include "wx/msw/spinctrl.h"
 #elif defined(__WXPM__)
     #include "wx/os2/spinctrl.h"
@@ -65,12 +69,13 @@ protected:
     #include "wx/generic/spinctlg.h"
 #elif defined(__WXMAC__)
     #include "wx/mac/spinctrl.h"
-#else // Win16 || !Win
+#elif defined(__WXCOCOA__)
     #include "wx/generic/spinctlg.h"
 #endif // platform
 
 #define EVT_SPINCTRL(id, fn) \
-    DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_SPINCTRL_UPDATED, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxSpinEventFunction) & fn, (wxObject *) NULL ),
+    wx__DECLARE_EVT1(wxEVT_COMMAND_SPINCTRL_UPDATED, id, wxSpinEventHandler(fn))
+
+#endif // wxUSE_SPINCTRL
 
 #endif // _WX_SPINCTRL_H_
-

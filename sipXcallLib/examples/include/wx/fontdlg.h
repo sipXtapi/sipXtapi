@@ -4,9 +4,9 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     12.05.02
-// RCS-ID:      $Id: fontdlg.h,v 1.15 2002/05/12 22:26:01 VZ Exp $
-// Copyright:   (c) 1997-2002 wxWindows team
-// Licence:     wxWindows license
+// RCS-ID:      $Id: fontdlg.h,v 1.28 2004/11/16 14:32:17 RN Exp $
+// Copyright:   (c) 1997-2002 wxWidgets team
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_FONTDLG_H_BASE_
@@ -51,28 +51,47 @@ public:
         { InitFontData(data); return Create(parent); }
 
 protected:
-    virtual bool DoCreate(wxWindow *parent) { m_parent = parent; return TRUE; }
+    virtual bool DoCreate(wxWindow *parent) { m_parent = parent; return true; }
 
     void InitFontData(const wxFontData *data = NULL)
         { if ( data ) m_fontData = *data; }
 
     wxFontData m_fontData;
+
+    DECLARE_NO_COPY_CLASS(wxFontDialogBase)
 };
 
 // ----------------------------------------------------------------------------
 // platform-specific wxFontDialog implementation
 // ----------------------------------------------------------------------------
 
-#if defined(__WXUNIVERSAL__) || defined(__WXMOTIF__) || defined(__WXMAC__)
+#if defined( __WXMAC_OSX__ ) && ( MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2 )
+//set to 1 to use native mac font and color dialogs
+#define USE_NATIVE_FONT_DIALOG_FOR_MACOSX 0
+#else
+//not supported on these platforms, leave 0
+#define USE_NATIVE_FONT_DIALOG_FOR_MACOSX 0
+#endif
+
+#if defined(__WXUNIVERSAL__) || \
+    defined(__WXMOTIF__)     || \
+    (defined(__WXMAC__) && !defined(__WXMAC_OSX__))  || \
+    (defined(__WXMAC__) && !USE_NATIVE_FONT_DIALOG_FOR_MACOSX)  || \
+    (defined(__WXMAC_OSX__) && ( MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_2 ) ) || \
+    defined(__WXCOCOA__)     || \
+    defined(__WXWINCE__)     || \
+    defined(__WXGPE__)
+
     #include "wx/generic/fontdlgg.h"
     #define wxFontDialog wxGenericFontDialog
-    #define sm_classwxFontDialog sm_classwxGenericFontDialog
 #elif defined(__WXMSW__)
     #include "wx/msw/fontdlg.h"
 #elif defined(__WXGTK__)
     #include "wx/gtk/fontdlg.h"
 #elif defined(__WXPM__)
     #include "wx/os2/fontdlg.h"
+#elif defined(__WXMAC__)
+    #include "wx/mac/fontdlg.h"
 #endif
 
 // ----------------------------------------------------------------------------

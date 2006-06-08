@@ -141,7 +141,7 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             /*
             * Create Call
             */
-            OsTask::delay(1000);  // wait for autoanswercallback events to fire
+            OsTask::delay(2000);  // wait for autoanswercallback events to fire
             resetAutoAnswerCallback() ;
 
             rc = sipxCallCreate(g_hInst3, hLine3, &hCall2) ;
@@ -222,7 +222,26 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             // hCall2 receives the initial "order up content
             matchingNotify.hSub = hSub2_lunch;
             validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
-            
+
+            // start percolating
+            char szPercolatingContent[256];
+            for (int i = 0; i < 20; i++)
+            {
+                sprintf(szPercolatingContent, "Percolating %2.2d", i);
+                sipxPublisherUpdate(hPub_coffee, "application/coffeeStuff", szPercolatingContent, 14);
+
+                // hCall1 receives percolation content from the coffee publisher
+                matchingNotify.hSub = hSub1_coffee;
+                matchingNotify.nContentLength = 14;
+                matchingNotify.szContentType = "application/coffeeStuff";
+                matchingNotify.pContent = szPercolatingContent;
+                validatorSubscribe1.waitForNotifyEvent(&matchingNotify, true);
+
+                // hCall2 receives percolation content from the coffee publisher
+                matchingNotify.hSub = hSub2_coffee;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+            }
+
             // Destroy the coffee Publisher, with "out of order" content
             rc = sipxPublisherDestroy(hPub_coffee, "application/coffeeStuff", "out of order", 12);
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);
@@ -286,6 +305,8 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_DISCONNECTED, CALLSTATE_CAUSE_NORMAL, false);
             validatorSubscribe1.waitForCallEvent(hLine2, hTemp, CALLSTATE_DESTROYED, CALLSTATE_CAUSE_NORMAL, false);
 
+            OsTask::delay(2000);  // wait for any pending events
+
             rc = sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorSubscribe1) ;
             CPPUNIT_ASSERT(rc == SIPX_RESULT_SUCCESS) ;
             rc = sipxEventListenerRemove(g_hInst3, UniversalEventValidatorCallback, &validatorSubscribe2) ;
@@ -338,6 +359,26 @@ void sipXtapiTestSuite::testPublishAndSubscribe(bool bCallContext,
             matchingNotify.hSub = hSub2_lunch;
             validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
             
+
+            // start percolating
+            char szPercolatingContent[256];
+            for (int i = 0; i < 20; i++)
+            {
+                sprintf(szPercolatingContent, "Percolating %2.2d", i);
+                sipxPublisherUpdate(hPub_coffee, "application/coffeeStuff", szPercolatingContent, 14);
+
+                // hCall1 receives percolation content from the coffee publisher
+                matchingNotify.hSub = hSub1_coffee;
+                matchingNotify.nContentLength = 14;
+                matchingNotify.szContentType = "application/coffeeStuff";
+                matchingNotify.pContent = szPercolatingContent;
+                validatorSubscribe1.waitForNotifyEvent(&matchingNotify, true);
+
+                // hCall2 receives percolation content from the coffee publisher
+                matchingNotify.hSub = hSub2_coffee;
+                validatorSubscribe2.waitForNotifyEvent(&matchingNotify, true);
+            }
+
             // Destroy the coffee Publisher, with "out of order" content
             rc = sipxPublisherDestroy(hPub_coffee, "application/coffeeStuff", "out of order", 12);
             CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == rc);

@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     25.08.00
-// RCS-ID:      $Id: bmpbuttn.h,v 1.9 2002/05/07 21:58:25 GD Exp $
+// RCS-ID:      $Id: bmpbuttn.h,v 1.23 2005/04/10 15:22:53 VZ Exp $
 // Copyright:   (c) 2000 Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,12 +12,14 @@
 #ifndef _WX_BMPBUTTON_H_BASE_
 #define _WX_BMPBUTTON_H_BASE_
 
+#include "wx/defs.h"
+
 #if wxUSE_BMPBUTTON
 
 #include "wx/bitmap.h"
 #include "wx/button.h"
 
-WXDLLEXPORT_DATA(extern const wxChar*) wxButtonNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxButtonNameStr;
 
 // ----------------------------------------------------------------------------
 // wxBitmapButton: a button which shows bitmaps instead of the usual string.
@@ -61,7 +63,7 @@ public:
 
 protected:
     // function called when any of the bitmaps changes
-    virtual void OnSetBitmap() { }
+    virtual void OnSetBitmap() { InvalidateBestSize(); Refresh(); }
 
     // the bitmaps for various states
     wxBitmap m_bmpNormal,
@@ -72,10 +74,13 @@ protected:
     // the margins around the bitmap
     int m_marginX,
         m_marginY;
+
 private:
     // Prevent Virtual function hiding warnings
     void SetLabel(const wxString& rsLabel)
-    { wxWindowBase::SetLabel(rsLabel); }
+        { wxWindowBase::SetLabel(rsLabel); }
+
+    DECLARE_NO_COPY_CLASS(wxBitmapButtonBase)
 };
 
 #if defined(__WXUNIVERSAL__)
@@ -88,10 +93,10 @@ private:
     #include "wx/gtk/bmpbuttn.h"
 #elif defined(__WXMAC__)
     #include "wx/mac/bmpbuttn.h"
+#elif defined(__WXCOCOA__)
+    #include "wx/cocoa/bmpbuttn.h"
 #elif defined(__WXPM__)
     #include "wx/os2/bmpbuttn.h"
-#elif defined(__WXSTUBS__)
-    #include "wx/stubs/bmpbuttn.h"
 #endif
 
 #endif // wxUSE_BMPBUTTON

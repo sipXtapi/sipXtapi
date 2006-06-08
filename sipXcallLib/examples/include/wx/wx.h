@@ -1,16 +1,16 @@
-#ifndef _WX_WXH__
-#define _WX_WXH__
-
 /////////////////////////////////////////////////////////////////////////////
-// Name:        wx.h
-// Purpose:     wxWindows main include file
+// Name:        wx/wx.h
+// Purpose:     wxWidgets central header including the most often used ones
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: wx.h,v 1.18 2001/12/11 06:40:48 RL Exp $
-// Copyright:   (c)
+// RCS-ID:      $Id: wx.h,v 1.24 2005/05/04 18:52:06 JS Exp $
+// Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
+
+#ifndef _WX_WX_H_
+#define _WX_WX_H_
 
 #include "wx/defs.h"
 #include "wx/object.h"
@@ -78,7 +78,8 @@
 #include "wx/textdlg.h"
 #include "wx/filedlg.h"
 
-#include "wx/validate.h"        // always include, even if !wxUSE_VALIDATORS
+// always include, even if !wxUSE_VALIDATORS because we need wxDefaultValidator
+#include "wx/validate.h"
 
 #if wxUSE_VALIDATORS
     #include "wx/valtext.h"
@@ -86,5 +87,5 @@
 
 #endif // wxUSE_GUI
 
-#endif
-    // _WX_WXH__
+#endif // _WX_WX_H_
+

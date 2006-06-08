@@ -4,13 +4,16 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.08.00
-// RCS-ID:      $Id: renderer.h,v 1.16 2002/04/25 20:19:15 MBN Exp $
+// RCS-ID:      $Id: renderer.h,v 1.29.2.1 2005/09/25 20:46:44 MW Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef _WX_UNIV_RENDERER_H_
+#define _WX_UNIV_RENDERER_H_
+
 /*
-   wxRenderer class is used to draw all wxWindows controls. This is an ABC and
+   wxRenderer class is used to draw all wxWidgets controls. This is an ABC and
    the look of the application is determined by the concrete derivation of
    wxRenderer used in the program.
 
@@ -18,15 +21,18 @@
    renderers and provide the functionality which is often similar or identical
    in all renderers (using inheritance here would be more restrictive as the
    given concrete renderer may need an arbitrary subset of the base class
-   methods)
+   methods).
+
+   Finally note that wxRenderer supersedes wxRendererNative in wxUniv build and
+   includes the latters functionality (which it may delegate to the generic
+   implementation of the latter or reimplement itself).
  */
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "renderer.h"
 #endif
 
-#ifndef _WX_UNIV_RENDERER_H_
-#define _WX_UNIV_RENDERER_H_
+#include "wx/renderer.h"
 
 class WXDLLEXPORT wxDC;
 class WXDLLEXPORT wxCheckListBox;
@@ -59,7 +65,7 @@ public:
 // wxRenderer: abstract renderers interface
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxRenderer
+class WXDLLEXPORT wxRenderer : public wxDelegateRendererNative
 {
 public:
     // drawing functions
@@ -78,7 +84,7 @@ public:
                                 const wxRect& rect,
                                 int flags )
         { DrawBackground( dc, col, rect, flags ); }
-                                
+
 
     // draw the label inside the given rectangle with the specified alignment
     // and optionally emphasize the character with the given index
@@ -109,7 +115,7 @@ public:
                             wxRect *rectIn = (wxRect *)NULL) = 0;
 
     // draw text control border (I hate to have a separate method for this but
-    // it is needed to accomodate GTK+)
+    // it is needed to accommodate GTK+)
     virtual void DrawTextBorder(wxDC& dc,
                                 wxBorder border,
                                 const wxRect& rect,
@@ -203,7 +209,8 @@ public:
                                    const wxString& label,
                                    const wxBitmap& bitmap,
                                    const wxRect& rect,
-                                   int flags = 0) = 0;
+                                   int flags = 0,
+                                   long style = 0) = 0;
 
     // draw a (part of) line in the text control
     virtual void DrawTextLine(wxDC& dc,
@@ -228,25 +235,29 @@ public:
     // draw the slider shaft
     virtual void DrawSliderShaft(wxDC& dc,
                                  const wxRect& rect,
+                                 int lenThumb,
                                  wxOrientation orient,
                                  int flags = 0,
+                                 long style = 0,
                                  wxRect *rectShaft = NULL) = 0;
 
     // draw the slider thumb
     virtual void DrawSliderThumb(wxDC& dc,
                                  const wxRect& rect,
                                  wxOrientation orient,
-                                 int flags = 0) = 0;
+                                 int flags = 0,
+                                 long style = 0) = 0;
 
     // draw the slider ticks
     virtual void DrawSliderTicks(wxDC& dc,
                                  const wxRect& rect,
-                                 const wxSize& sizeThumb,
+                                 int lenThumb,
                                  wxOrientation orient,
                                  int start,
                                  int end,
                                  int step = 1,
-                                 int flags = 0) = 0;
+                                 int flags = 0,
+                                 long style = 0) = 0;
 
     // draw a menu bar item
     virtual void DrawMenuBarItem(wxDC& dc,
@@ -277,7 +288,7 @@ public:
     virtual void DrawStatusField(wxDC& dc,
                                  const wxRect& rect,
                                  const wxString& label,
-                                 int flags = 0) = 0;
+                                 int flags = 0, int style = 0) = 0;
 
     // draw complete frame/dialog titlebar
     virtual void DrawFrameTitleBar(wxDC& dc,
@@ -405,10 +416,13 @@ public:
 
     // get the slider shaft rect from the total slider rect
     virtual wxRect GetSliderShaftRect(const wxRect& rect,
-                                      wxOrientation orient) const = 0;
+                                      int lenThumb,
+                                      wxOrientation orient,
+                                      long style = 0) const = 0;
 
     // get the size of the slider thumb for the given total slider rect
     virtual wxSize GetSliderThumbSize(const wxRect& rect,
+                                      int lenThumb,
                                       wxOrientation orient) const = 0;
 
     // get the size of one progress bar step (in horz and vertical directions)
@@ -449,6 +463,7 @@ public:
 
     // virtual dtor for any base class
     virtual ~wxRenderer();
+
 
 protected:
     // draw a frame around rectFrame rectangle but not touching the rectLabel
@@ -614,8 +629,9 @@ public:
                                    const wxString& label,
                                    const wxBitmap& bitmap,
                                    const wxRect& rect,
-                                   int flags = 0)
-        { m_renderer->DrawToolBarButton(dc, label, bitmap, rect, flags); }
+                                   int flags = 0,
+                                   long style = 0)
+        { m_renderer->DrawToolBarButton(dc, label, bitmap, rect, flags, style); }
     virtual void DrawTextLine(wxDC& dc,
                               const wxString& text,
                               const wxRect& rect,
@@ -637,25 +653,29 @@ public:
 
     virtual void DrawSliderShaft(wxDC& dc,
                                  const wxRect& rect,
+                                 int lenThumb,
                                  wxOrientation orient,
                                  int flags = 0,
+                                 long style = 0,
                                  wxRect *rectShaft = NULL)
-        { m_renderer->DrawSliderShaft(dc, rect, orient, flags, rectShaft); }
+        { m_renderer->DrawSliderShaft(dc, rect, lenThumb, orient, flags, style, rectShaft); }
     virtual void DrawSliderThumb(wxDC& dc,
                                  const wxRect& rect,
                                  wxOrientation orient,
-                                 int flags = 0)
-        { m_renderer->DrawSliderThumb(dc, rect, orient, flags); }
+                                 int flags = 0,
+                                 long style = 0)
+        { m_renderer->DrawSliderThumb(dc, rect, orient, flags, style); }
     virtual void DrawSliderTicks(wxDC& dc,
                                  const wxRect& rect,
-                                 const wxSize& sizeThumb,
+                                 int lenThumb,
                                  wxOrientation orient,
                                  int start,
                                  int end,
-                                 int step = 1,
-                                 int flags = 0)
-        { m_renderer->DrawSliderTicks(dc, rect, sizeThumb, orient,
-                                      start, end, start, flags); }
+                                 int WXUNUSED(step) = 1,
+                                 int flags = 0,
+                                 long style = 0)
+        { m_renderer->DrawSliderTicks(dc, rect, lenThumb, orient,
+                                      start, end, start, flags, style); }
 
     virtual void DrawMenuBarItem(wxDC& dc,
                                  const wxRect& rect,
@@ -681,8 +701,8 @@ public:
     virtual void DrawStatusField(wxDC& dc,
                                  const wxRect& rect,
                                  const wxString& label,
-                                 int flags = 0)
-        { m_renderer->DrawStatusField(dc, rect, label, flags); }
+                                 int flags = 0, int style = 0)
+        { m_renderer->DrawStatusField(dc, rect, label, flags, style); }
 
     virtual void DrawFrameTitleBar(wxDC& dc,
                                    const wxRect& rect,
@@ -778,11 +798,14 @@ public:
     virtual wxCoord GetSliderTickLen() const
         { return m_renderer->GetSliderTickLen(); }
     virtual wxRect GetSliderShaftRect(const wxRect& rect,
-                                      wxOrientation orient) const
-        { return m_renderer->GetSliderShaftRect(rect, orient); }
+                                      int lenThumb,
+                                      wxOrientation orient,
+                                      long style = 0) const
+        { return m_renderer->GetSliderShaftRect(rect, lenThumb, orient, style); }
     virtual wxSize GetSliderThumbSize(const wxRect& rect,
+                                      int lenThumb,
                                       wxOrientation orient) const
-        { return m_renderer->GetSliderThumbSize(rect, orient); }
+        { return m_renderer->GetSliderThumbSize(rect, lenThumb, orient); }
     virtual wxSize GetProgressBarStep() const
         { return m_renderer->GetProgressBarStep(); }
     virtual wxSize GetMenuBarItemSize(const wxSize& sizeText) const
@@ -804,6 +827,17 @@ public:
                              const wxPoint& pt,
                              int flags) const
         { return m_renderer->HitTestFrame(rect, pt, flags); }
+
+    virtual void DrawHeaderButton(wxWindow *win,
+                                  wxDC& dc,
+                                  const wxRect& rect,
+                                  int flags = 0)
+        { m_renderer->DrawHeaderButton(win, dc, rect, flags); }
+    virtual void DrawTreeItemButton(wxWindow *win,
+                                    wxDC& dc,
+                                    const wxRect& rect,
+                                    int flags = 0)
+        { m_renderer->DrawTreeItemButton(win, dc, rect, flags); }
 
 protected:
     wxRenderer *m_renderer;
@@ -863,7 +897,7 @@ private:
     // common part of DrawItems() and DrawCheckItems()
     void DoDrawItems(const wxListBox *listbox,
                      size_t itemFirst, size_t itemLast,
-                     bool isCheckLbox = FALSE);
+                     bool isCheckLbox = false);
 
     wxWindow *m_window;
     wxRenderer *m_renderer;

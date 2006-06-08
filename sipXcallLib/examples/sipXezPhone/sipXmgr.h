@@ -289,6 +289,9 @@ public:
     bool isLocationHeaderEnabled()
         {return mbLocationHeaderEnabled;}
 
+    void prepareToHibernate();
+    void unHibernate();
+    
     /**
     * Destructor.
     */

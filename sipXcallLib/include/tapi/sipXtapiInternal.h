@@ -47,6 +47,9 @@
 // FORWARD DECLARATIONS
 class SipSubscribeServer;
 class SipSubscribeClient;
+class CallManager ;
+class SipUserAgent ;
+class SipRefreshMgr ;
 
 // STRUCTS
 
@@ -156,6 +159,7 @@ typedef struct SIPX_INSTANCE_DATA
     bool             bDateHeader;   /**< use Date header in sip messages>*/
     char             szAcceptLanguage[16]; /**< accept language to use in sip messages>*/
     char             szLocationHeader[256]; /**< location header */
+    bool             bRtpOverTcp;   /**< allow RTP over TCP */
 } SIPX_INSTANCE_DATA ;
 
 typedef enum SIPX_INTERNAL_CALLSTATE
@@ -168,6 +172,7 @@ typedef enum SIPX_INTERNAL_CALLSTATE
     SIPX_INTERNAL_CALLSTATE_REMOTE_HELD,        /** Remotely held call */
     SIPX_INTERNAL_CALLSTATE_BRIDGED,            /** Locally held call, bridging */
     SIPX_INTERNAL_CALLSTATE_DISCONNECTED,       /** Disconnected or failed */
+    SIPX_INTERNAL_CALLSTATE_DESTROYING,         /** In the process of being destroyed */
 } SIPX_INTERNAL_CALLSTATE ;
 
 
@@ -178,6 +183,7 @@ typedef struct SIPX_CALL_DATA
     UtlString* ghostCallId;    
     UtlString* remoteAddress ;
     UtlString* lineURI ;
+    UtlString* contactAddress ;
     SIPX_LINE  hLine ;
     SIPX_INSTANCE_DATA* pInst ;
     OsRWMutex* pMutex ;
@@ -200,6 +206,16 @@ typedef struct SIPX_CALL_DATA
     SIPX_INTERNAL_CALLSTATE state ;
     UtlBoolean bInFocus ;
     int connectionId;                  /** Cache the connection id */
+    SIPX_TRANSPORT hTransport;
+    bool bHoldAfterConnect;            /** Used if we are the transfer target, and the
+                                           replaced call is HELD or REMOTE_HELD, then
+                                           this flag is set, and indicates that the call
+                                           should be placed on hold after the connection
+                                           is established. */
+    bool bCallHoldInvoked;             /** Set to true if sipxCallHold has been invoked.
+                                           Set to fales if sipxCallUnhold has been invoked. */                                          
+    bool bTonePlaying;
+    int nFilesPlaying;
 } SIPX_CALL_DATA ;
 
 typedef enum CONF_HOLD_STATE
@@ -216,9 +232,10 @@ typedef struct
     size_t              nCalls ;
     SIPX_CALL           hCalls[CONF_MAX_CONNECTIONS] ;
     CONF_HOLD_STATE     confHoldState;
+    SIPX_TRANSPORT hTransport;
+    int                 nNumFilesPlaying;
     OsRWMutex*          pMutex ;
 } SIPX_CONF_DATA ;
-
 
 typedef struct
 {
@@ -243,13 +260,88 @@ typedef struct
     UtlString* pResourceId;
     UtlString* pEventType;
     HttpBody* pContent;
+    OsRWMutex* pMutex;
 } SIPX_PUBLISH_DATA;
 
 typedef struct
 {
     SIPX_INSTANCE_DATA* pInst;
     UtlString* pDialogHandle;
+    OsRWMutex* pMutex;
 } SIPX_SUBSCRIPTION_DATA;
+
+#define MAX_TRANSPORT_NAME 32
+class SIPX_TRANSPORT_DATA
+{
+public:
+    SIPX_TRANSPORT_DATA() :
+        pInst(NULL),
+        bIsReliable(false),
+        iLocalPort(-1),
+        pFnWriteProc(NULL),
+        pMutex(NULL),
+        hTransport(0),
+        pUserData(NULL)
+    {
+        memset(szLocalIp, 0, sizeof(szLocalIp));
+        memset(szTransport, 0, sizeof(szTransport));
+        memset(cRoutingId, 0, sizeof(cRoutingId)) ;
+    }
+    /** Copy constructor. */
+    SIPX_TRANSPORT_DATA(const SIPX_TRANSPORT_DATA& ref)
+    {
+        copy(ref);
+    }
+    /** Assignment operator. */
+    SIPX_TRANSPORT_DATA& operator=(const SIPX_TRANSPORT_DATA& ref)
+    {
+        // check for assignment to self
+        if (this == &ref) return *this;
+        
+        return copy(ref);
+    }    
+    
+    SIPX_TRANSPORT_DATA& copy(const SIPX_TRANSPORT_DATA& ref)
+    {
+        hTransport = ref.hTransport;
+        pInst = ref.pInst;
+        bIsReliable = ref.bIsReliable;
+        memset(szTransport, 0, sizeof(szTransport)) ;
+        strncpy(szTransport, ref.szTransport, MAX_TRANSPORT_NAME - 1);
+        memset(szLocalIp, 0, sizeof(szLocalIp)) ;
+        strncpy(szLocalIp, ref.szLocalIp, sizeof(szLocalIp)-1);
+        memset(cRoutingId, 0, sizeof(cRoutingId)) ;
+        strncpy(cRoutingId, ref.cRoutingId, sizeof(cRoutingId)-1);
+        iLocalPort = ref.iLocalPort;
+        pFnWriteProc = ref.pFnWriteProc;
+        pUserData = ref.pUserData ;        
+        return *this;
+    }
+
+    static const bool isCustomTransport(const SIPX_TRANSPORT_DATA* const pTransport)
+    {
+        bool bRet = false;
+        if (pTransport)
+        {
+            if (strlen(pTransport->szTransport) > 0)
+            {
+                bRet = true;
+            }
+        }
+        return bRet;
+    }
+    
+    SIPX_TRANSPORT            hTransport;
+    SIPX_INSTANCE_DATA*       pInst;
+    bool                      bIsReliable;
+    char                      szTransport[MAX_TRANSPORT_NAME];
+    char                      szLocalIp[32];
+    int                       iLocalPort;
+    SIPX_TRANSPORT_WRITE_PROC pFnWriteProc;
+    OsRWMutex*                pMutex;
+    const void*               pUserData;
+    char                      cRoutingId[64] ;
+} ;
 
 /**
  * internal sipXtapi structure that binds a
@@ -378,9 +470,9 @@ bool sipxFireEvent(const void* pSrc,
                      
 SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager) ;
 
-SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type);
-void sipxCallReleaseLock(SIPX_CALL_DATA*, SIPX_LOCK_TYPE type);
-void sipxCallObjectFree(const SIPX_CALL hCall);
+SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+void sipxCallReleaseLock(SIPX_CALL_DATA*, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+void sipxCallObjectFree(const SIPX_CALL hCall, const OsStackTraceLogger& oneBackInStack);
 SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc);
 void destroyCallData(SIPX_CALL_DATA* pData);
 UtlBoolean validCallData(SIPX_CALL_DATA* pData);
@@ -389,7 +481,8 @@ UtlBoolean sipxCallGetCommonData(SIPX_CALL hCall,
                                  UtlString* pStrCallId,
                                  UtlString* pStrRemoteAddress,
                                  UtlString* pLineId,
-                                 UtlString* pGhostCallId = NULL) ;
+                                 UtlString* pGhostCallId = NULL,
+                                 UtlString* pContactAddress = NULL) ;
 
 SIPX_CONF sipxCallGetConf(SIPX_CALL hCall) ;
 
@@ -414,8 +507,8 @@ UtlBoolean sipxCallSetState(SIPX_CALL hCall,
 
 SIPX_CONTACT_TYPE sipxCallGetLineContactType(SIPX_CALL hCall) ;
 
-SIPX_LINE_DATA* sipxLineLookup(const SIPX_LINE hLine, SIPX_LOCK_TYPE type);
-void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type) ;
+SIPX_LINE_DATA* sipxLineLookup(const SIPX_LINE hLine, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
 void sipxLineObjectFree(const SIPX_LINE hLine) ;
 SIPX_LINE sipxLineLookupHandle(const char* szLineURI, const char* requestUri); 
 SIPX_LINE sipxLineLookupHandleByURI(const char* szURI); 
@@ -427,8 +520,8 @@ UtlBoolean sipxAddCallHandleToConf(const SIPX_CALL hCall,
 UtlBoolean sipxRemoveCallHandleFromConf(const SIPX_CONF hConf,
                                         const SIPX_CALL hCall) ;
 
-SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type) ;
-void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type) ;
+SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
 void sipxConfFree(const SIPX_CONF hConf) ;
 UtlBoolean validConfData(const SIPX_CONF_DATA* pData) ;
 
@@ -458,6 +551,21 @@ void sipxInfoFree(SIPX_INFO_DATA* pData);
  */
 void sipxInfoObjectFree(SIPX_INFO hInfo);
 
+/**
+ * Frees the TRANSPORT structure allocated by a call to sipxConfigExternalTransportAdd
+ *
+ * @param pData Pointer to SIPX_TRANSPORT_DATA structure
+ */
+void sipxTransportFree(SIPX_TRANSPORT_DATA* pData);
+
+/**
+ * Releases the TRANSPORT handle created sipxConfigExternalTransportAdd
+ * Also cals sipxTransportFree.
+ *
+ * @param hInfo Handle to the Transport object
+ */
+void sipxTransportObjectFree(SIPX_TRANSPORT hTransport);
+
 void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData, 
                             SIPX_CONTACT_TYPE   contactType, 
                             Url&                uri,
@@ -469,7 +577,7 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
  * @param hInfo Info Handle
  * @param type Lock type to use during lookup.
  */
-SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type);
+SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
 
 /**
  * Unlocks the mutex associated with the INFO DATA
@@ -477,7 +585,28 @@ SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type);
  * @param pData pointer to the SIPX_INFO structure
  * @param type Type of lock (read or write)
  */
-void sipxInfoReleaseLock(SIPX_INFO_DATA* pData, SIPX_LOCK_TYPE type);
+void sipxInfoReleaseLock(SIPX_INFO_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+
+SIPX_PUBLISH_DATA* sipxPublishLookup(const SIPX_PUB hPub, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+void sipxPublishReleaseLock(SIPX_PUBLISH_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+
+SIPX_SUBSCRIPTION_DATA* sipxSubscribeLookup(const SIPX_SUB hSub, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+void sipxSubscribeReleaseLock(SIPX_SUBSCRIPTION_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack);
+
+/**
+ * Looks up the SIPX_TRANSPORT_DATA structure pointer, given the SIPX_TRANSPORT handle.
+ * @param hTransport Transport Handle
+ * @param type Lock type to use during lookup.
+ */
+SIPX_TRANSPORT_DATA* sipxTransportLookup(const SIPX_TRANSPORT hTransport, SIPX_LOCK_TYPE type);
+
+/**
+ * Unlocks the mutex associated with the TRANSPORT DATA
+ * 
+ * @param pData pointer to the SIPX_TRANSPORT structure
+ * @param type Type of lock (read or write)
+ */
+void sipxTransportReleaseLock(SIPX_TRANSPORT_DATA* pData, SIPX_LOCK_TYPE type);
 
 /**
  * Adds a log entry to the system log - made necessary to add logging
@@ -652,6 +781,12 @@ void sipxUpdateListeners(SIPX_INST hOldInst, SIPX_INST hNewInst) ;
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigLoadSecurityRuntime();
 
+/**
+ * Called from sipxConfigExternalTransportAdd, this function creates
+ * LOCAL, STUN, and RELAY contact records for the newly added
+ * transport mechanism.
+ */
+void sipxCreateExternalTransportContacts(const SIPX_TRANSPORT_DATA* pData);
 
 class SecurityHelper
 {

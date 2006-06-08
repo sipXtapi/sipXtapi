@@ -5,21 +5,23 @@
 // Author:      Karsten Ballüder & Vadim Zeitlin
 // Modified by:
 // Created:     07.04.98 (adapted from appconf.h)
-// RCS-ID:      $Id: confbase.h,v 1.39.2.1 2003/06/01 19:00:41 JS Exp $
+// RCS-ID:      $Id: confbase.h,v 1.53 2004/10/13 14:07:56 ABX Exp $
 // Copyright:   (c) 1997 Karsten Ballüder   Ballueder@usa.net
 //                       Vadim Zeitlin      <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef   _WX_CONFBASE_H_
 #define   _WX_CONFBASE_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "confbase.h"
 #endif
 
 #include "wx/defs.h"
 #include "wx/string.h"
+
+class WXDLLIMPEXP_BASE wxArrayString;
 
 // ----------------------------------------------------------------------------
 // constants
@@ -47,8 +49,7 @@
 
 /// should we use registry instead of configuration files under Windows?
 // (i.e. whether wxConfigBase::Create() will create a wxFileConfig (if it's
-//  FALSE) or wxRegConfig (if it's true and we're under Win32) or wxIniConfig
-//  (under Win16))
+//  false) or wxRegConfig (if it's true and we're under Win32))
 #ifndef   wxUSE_CONFIG_NATIVE
   #define wxUSE_CONFIG_NATIVE 1
 #endif
@@ -62,10 +63,6 @@ enum
     wxCONFIG_USE_NO_ESCAPE_CHARACTERS = 8
 };
 
-#ifdef __BORLANDC__
-#   pragma option -w-inl
-#endif
-
 // ----------------------------------------------------------------------------
 // abstract base class wxConfigBase which defines the interface for derived
 // classes
@@ -77,7 +74,8 @@ enum
 // Keys are pairs "key_name = value" where value may be of string or integer
 // (long) type (TODO doubles and other types such as wxDate coming soon).
 // ----------------------------------------------------------------------------
-class WXDLLEXPORT wxConfigBase
+
+class WXDLLIMPEXP_BASE wxConfigBase
 {
 public:
   // constants
@@ -96,7 +94,7 @@ public:
   static wxConfigBase *Set(wxConfigBase *pConfig);
     // get the config object, creates it on demand unless DontCreateOnDemand
     // was called
-  static wxConfigBase *Get(bool createOnDemand = TRUE) 
+  static wxConfigBase *Get(bool createOnDemand = true)
        { if ( createOnDemand && (!ms_pConfig) ) Create(); return ms_pConfig; }
     // create a new config object: this function will create the "best"
     // implementation of wxConfig available for the current platform, see
@@ -104,7 +102,7 @@ public:
     // the created object and also sets it as ms_pConfig.
   static wxConfigBase *Create();
     // should Get() try to create a new log object if the current one is NULL?
-  static void DontCreateOnDemand() { ms_bAutoCreate = FALSE; }
+  static void DontCreateOnDemand() { ms_bAutoCreate = false; }
 
   // ctor & virtual dtor
       // ctor (can be used as default ctor too)
@@ -139,15 +137,15 @@ public:
   virtual bool GetNextEntry (wxString& str, long& lIndex) const = 0;
     // get number of entries/subgroups in the current group, with or without
     // it's subgroups
-  virtual size_t GetNumberOfEntries(bool bRecursive = FALSE) const = 0;
-  virtual size_t GetNumberOfGroups(bool bRecursive = FALSE) const = 0;
+  virtual size_t GetNumberOfEntries(bool bRecursive = false) const = 0;
+  virtual size_t GetNumberOfGroups(bool bRecursive = false) const = 0;
 
   // tests of existence
-    // returns TRUE if the group by this name exists
+    // returns true if the group by this name exists
   virtual bool HasGroup(const wxString& strName) const = 0;
     // same as above, but for an entry
   virtual bool HasEntry(const wxString& strName) const = 0;
-    // returns TRUE if either a group or an entry with a given name exist
+    // returns true if either a group or an entry with a given name exist
   bool Exists(const wxString& strName) const
     { return HasGroup(strName) || HasEntry(strName); }
 
@@ -158,7 +156,7 @@ public:
     return HasEntry(name) ? Type_String : Type_Unknown;
   }
 
-  // key access: returns TRUE if value was really read, FALSE if default used
+  // key access: returns true if value was really read, false if default used
   // (and if the key is not found the default value is returned.)
 
     // read a string from the key
@@ -212,9 +210,9 @@ public:
     { return Write(key, wxString(value)); }
 
   // permanently writes all changes
-  virtual bool Flush(bool bCurrentOnly = FALSE) = 0;
+  virtual bool Flush(bool bCurrentOnly = false) = 0;
 
-  // renaming, all functions return FALSE on failure (probably because the new
+  // renaming, all functions return false on failure (probably because the new
   // name is already taken by an existing entry)
     // rename an entry
   virtual bool RenameEntry(const wxString& oldName,
@@ -227,7 +225,7 @@ public:
     // deletes the specified entry and the group it belongs to if
     // it was the last key in it and the second parameter is true
   virtual bool DeleteEntry(const wxString& key,
-                           bool bDeleteGroupIfEmpty = TRUE) = 0;
+                           bool bDeleteGroupIfEmpty = true) = 0;
     // delete the group (with all subgroups)
   virtual bool DeleteGroup(const wxString& key) = 0;
     // delete the whole underlying object (disk file, registry key, ...)
@@ -238,9 +236,9 @@ public:
     // we can automatically expand environment variables in the config entries
     // (this option is on by default, you can turn it on/off at any time)
   bool IsExpandingEnvVars() const { return m_bExpandEnvVars; }
-  void SetExpandEnvVars(bool bDoIt = TRUE) { m_bExpandEnvVars = bDoIt; }
+  void SetExpandEnvVars(bool bDoIt = true) { m_bExpandEnvVars = bDoIt; }
     // recording of default values
-  void SetRecordDefaults(bool bDoIt = TRUE) { m_bRecordDefaults = bDoIt; }
+  void SetRecordDefaults(bool bDoIt = true) { m_bRecordDefaults = bDoIt; }
   bool IsRecordingDefaults() const { return m_bRecordDefaults; }
   // does expansion only if needed
   wxString ExpandEnvVars(const wxString& str) const;
@@ -291,16 +289,12 @@ private:
   long              m_style;
 };
 
-#ifdef __BORLANDC__
-#   pragma option -w.inl
-#endif
-
 // a handy little class which changes current path to the path of given entry
 // and restores it in dtor: so if you declare a local variable of this type,
 // you work in the entry directory and the path is automatically restored
 // when the function returns
 // Taken out of wxConfig since not all compilers can cope with nested classes.
-class wxConfigPathChanger
+class WXDLLIMPEXP_BASE wxConfigPathChanger
 {
 public:
   // ctor/dtor do path changing/restorin
@@ -315,6 +309,8 @@ private:
   wxString      m_strName,      // name of entry (i.e. name only)
                 m_strOldPath;   // saved path
   bool          m_bChanged;     // was the path changed?
+
+  DECLARE_NO_COPY_CLASS(wxConfigPathChanger)
 };
 
 
@@ -323,17 +319,11 @@ private:
 // ----------------------------------------------------------------------------
 
 // under Windows we prefer to use the native implementation
+// wxIniConfig isn't native anywhere after droping win16 in wxWidgets 2.6
 #if defined(__WXMSW__) && wxUSE_CONFIG_NATIVE
-  #ifdef __WIN32__
     #define wxConfig  wxRegConfig
-    #define sm_classwxConfig sm_classwxRegConfig
-  #else  //WIN16
-    #define wxConfig  wxIniConfig
-    #define sm_classwxConfig sm_classwxIniConfig
-  #endif
 #else // either we're under Unix or wish to use files even under Windows
   #define wxConfig  wxFileConfig
-  #define sm_classwxConfig sm_classwxFileConfig
 #endif
 
 #endif // wxUSE_CONFIG
@@ -344,12 +334,12 @@ private:
   '_' only. '$' must be escaped ('\$') in order to be taken literally.
 */
 
-WXDLLEXPORT wxString wxExpandEnvVars(const wxString &sz);
+WXDLLIMPEXP_BASE wxString wxExpandEnvVars(const wxString &sz);
 
 /*
   Split path into parts removing '..' in progress
  */
-WXDLLEXPORT void wxSplitPath(wxArrayString& aParts, const wxChar *sz);
+WXDLLIMPEXP_BASE void wxSplitPath(wxArrayString& aParts, const wxChar *sz);
 
 
 #endif

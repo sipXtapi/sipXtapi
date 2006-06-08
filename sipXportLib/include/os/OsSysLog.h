@@ -20,6 +20,7 @@
 #include "os/OsDefs.h"
 #include "os/OsStatus.h"
 #include "os/OsTime.h"
+#include "os/OsTimer.h"
 
 // DEFINES
 #define SYSLOG_NUM_PRIORITIES    8  // Number of OsSysLogPriority entries
@@ -431,6 +432,7 @@ public:
    static int getNumFacilities();
      //:Return the number of available facilities.
 
+   static OsTimer* getTimer();
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
    static OsSysLogTask* spOsSysLogTask;
@@ -467,6 +469,38 @@ private:
    /** Protect against simple apps that do not call setLoggingPriority */
    static void initializePriorities() ;
 
+};
+
+class OsStackTraceLogger
+{
+public:
+    OsStackTraceLogger(const OsSysLogFacility facility,
+                       const OsSysLogPriority priority,
+                       const char* methodName);
+    OsStackTraceLogger(const OsSysLogFacility facility,
+                       const OsSysLogPriority priority,
+                       const char* methodName,
+                       const OsStackTraceLogger& oneBackInStack);
+    ~OsStackTraceLogger();
+private:
+    // disallow copy
+    OsStackTraceLogger(const OsStackTraceLogger& ref) :
+        mFacility(FAC_LOG),
+        mPriority(PRI_ERR)
+    {
+        // should never get here
+    }
+    
+    // disallow assignment
+    OsStackTraceLogger& OsStackTraceLogger::operator=(const OsStackTraceLogger& ref)
+    {
+        // should never get here
+    }
+    
+    UtlString mMethodName;
+    const OsSysLogFacility mFacility;
+    const OsSysLogPriority mPriority;    
+    int mTid;
 };
 
 /* ============================ INLINE METHODS ============================ */

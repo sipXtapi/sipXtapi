@@ -2,16 +2,16 @@
 // Name:        htmlfilt.h
 // Purpose:     filters
 // Author:      Vaclav Slavik
-// RCS-ID:      $Id: htmlfilt.h,v 1.4.2.1 2002/11/10 23:58:51 VS Exp $
+// RCS-ID:      $Id: htmlfilt.h,v 1.10 2004/09/27 19:06:39 ABX Exp $
 // Copyright:   (c) 1999 Vaclav Slavik
-// Licence:     wxWindows Licence
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _WX_HTMLFILT_H_
 #define _WX_HTMLFILT_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "htmlfilt.h"
 #endif
 
@@ -30,7 +30,7 @@
 //                  kinds of files (HTPP, FTP, local, tar.gz etc..)
 //--------------------------------------------------------------------------------
 
-class WXDLLEXPORT wxHtmlFilter : public wxObject
+class WXDLLIMPEXP_HTML wxHtmlFilter : public wxObject
 {
     DECLARE_ABSTRACT_CLASS(wxHtmlFilter)
 
@@ -38,7 +38,7 @@ public:
     wxHtmlFilter() : wxObject() {}
     virtual ~wxHtmlFilter() {}
 
-    // returns TRUE if this filter is able to open&read given file
+    // returns true if this filter is able to open&read given file
     virtual bool CanRead(const wxFSFile& file) const = 0;
 
     // Reads given file and returns HTML document.
@@ -56,7 +56,7 @@ public:
 //--------------------------------------------------------------------------------
 
 
-class WXDLLEXPORT wxHtmlFilterPlainText : public wxHtmlFilter
+class WXDLLIMPEXP_HTML wxHtmlFilterPlainText : public wxHtmlFilter
 {
     DECLARE_DYNAMIC_CLASS(wxHtmlFilterPlainText)
 

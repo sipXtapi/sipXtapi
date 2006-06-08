@@ -20,6 +20,7 @@
 #include "utl/UtlVoidPtr.h"
 #include "os/OsEventMsg.h"
 #include "os/OsLock.h"
+#include "os/OsTimer.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -69,6 +70,32 @@ UtlBoolean SipXMessageObserver::handleMessage(OsMsg& rMsg)
                 handleStunOutcome(pEventMsg) ;
                 bRet = TRUE ;
                 break ;
+            default:
+                if ( rMsg.getMsgSubType() == OsEventMsg::NOTIFY)
+                {
+                     SIPX_CALL_DATA* pData = NULL;
+                     OsTimer* timer = NULL;
+ 
+                     pEventMsg->getUserData((int&)pData);
+                     pEventMsg->getEventData((int&)timer);
+ 
+                     if(timer)
+                     {
+                         timer->stop();
+                         delete timer;
+                         timer = NULL;
+                     }
+                     if(pData)
+                     {
+                         if (pData->pMutex)
+                         {
+                            pData->pMutex->acquireWrite();
+                            destroyCallData(pData) ;
+                            pData = NULL;
+                         }
+                     }
+                }
+               break;                
         }                
     }
     else
@@ -202,6 +229,8 @@ bool SipXMessageObserver::handleIncomingInfoMessage(SipMessage* pMessage)
 
 bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
 {
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "SipXMessageObserver::handleIncomingInfoStatus");
+
     if (NULL == pSipMessage)
     {
         // something went wrong
@@ -216,7 +245,7 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
         memset((void*) &infoStatus, 0, sizeof(SIPX_INFOSTATUS_INFO));
         
         infoStatus.hInfo = hInfo;
-        SIPX_INFO_DATA* pInfoData = sipxInfoLookup(hInfo, SIPX_LOCK_READ);
+        SIPX_INFO_DATA* pInfoData = sipxInfoLookup(hInfo, SIPX_LOCK_READ, stackLogger);
         infoStatus.nSize = sizeof(SIPX_INFOSTATUS_INFO);
         infoStatus.responseCode = pSipMessage->getResponseStatusCode();
         infoStatus.event = INFOSTATUS_RESPONSE;
@@ -258,7 +287,7 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
         pInfoData->pInst->pSipUserAgent->removeMessageObserver(*(this->getMessageQueue()), (void*)hInfo);
         
         // release lock
-        sipxInfoReleaseLock(pInfoData, SIPX_LOCK_READ);
+        sipxInfoReleaseLock(pInfoData, SIPX_LOCK_READ, stackLogger);
         // info message has been handled, so go ahead and delete the object    
         sipxInfoObjectFree(hInfo);
      }
@@ -269,8 +298,8 @@ bool SipXMessageObserver::handleIncomingInfoStatus(SipMessage* pSipMessage)
 bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg) 
 {
     SIPX_CONTACT_ADDRESS sipxContact; // contact structure for notifying
-                                       // sipxtapi event listeners
-    CONTACT_ADDRESS* pContact = NULL;
+                                      // sipxtapi event listeners
+    SIPX_CONTACT_ADDRESS* pContact = NULL;
     pMsg->getEventData((int&)pContact) ;
 
     SIPX_CONFIG_INFO eventInfo ;
@@ -281,26 +310,58 @@ bool SipXMessageObserver::handleStunOutcome(OsEventMsg* pMsg)
         // first, find the user-agent, and add the contact to
         // the user-agent's db
         SIPX_INSTANCE_DATA* pInst = (SIPX_INSTANCE_DATA*) mhInst;
+        assert(pInst != NULL) ;
         pInst->pSipUserAgent->addContactAddress(*pContact);
-        
-        // ok, now generate an event for the sipXtapi application layer
+
+        // If we have an external transport, also create a record for the 
+        // external transport
+        SIPX_CONTACT_ADDRESS externalTransportContact ;
+        SIPX_CONTACT_ADDRESS* pNewContact = NULL ;
+
+        // TODO: At the point where we support multiple external 
+        // transports, this code needs to interate through ALL of
+        // the external transports.
+        if (pInst->pSipUserAgent->getContactDb().getRecordForAdapter(externalTransportContact, pContact->cInterface, CONTACT_LOCAL, TRANSPORT_CUSTOM))
+        {
+            pNewContact = new SIPX_CONTACT_ADDRESS(externalTransportContact) ;
+            pNewContact->eContactType = CONTACT_NAT_MAPPED ;
+            pNewContact->id = 0 ;            
+            strcpy(pNewContact->cIpAddress, pContact->cIpAddress);
+            pNewContact->iPort = pContact->iPort ;
+            pInst->pSipUserAgent->addContactAddress(*pNewContact) ;
+        }
+                
+        // Fire off an event for the STUN contact (normal)
+        sipxContact.id = pContact->id;
+        sipxContact.eContactType = CONTACT_NAT_MAPPED;
         strcpy(sipxContact.cInterface, pContact->cInterface);
         strcpy(sipxContact.cIpAddress, pContact->cIpAddress);
-        sipxContact.eContactType = CONTACT_NAT_MAPPED;
-        sipxContact.id = pContact->id;
-        sipxContact.iPort = pContact->iPort;
-        
+        sipxContact.iPort = pContact->iPort;               
         eventInfo.pData = &sipxContact;
         eventInfo.event = CONFIG_STUN_SUCCESS ;
-        
+        sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;        
         delete pContact;
+
+        // Fire off an event for the STUN contact (external transport)
+        if (pNewContact)
+        {
+            sipxContact.id = pNewContact->id;
+            sipxContact.eContactType = CONTACT_NAT_MAPPED;
+            strcpy(sipxContact.cInterface, pNewContact->cInterface);
+            strcpy(sipxContact.cIpAddress, pNewContact->cIpAddress);                        
+            sipxContact.iPort = pNewContact->iPort;                
+            eventInfo.pData = &sipxContact;
+            eventInfo.event = CONFIG_STUN_SUCCESS ;
+            sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;
+            delete pNewContact;
+        }
     }
     else
     {
         eventInfo.event = CONFIG_STUN_FAILURE ;
+        sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;
     }
-
-    sipxFireEvent(this, EVENT_CATEGORY_CONFIG, &eventInfo) ;
+    
 
     return true ;
 }

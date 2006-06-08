@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     19.05.01
-// RCS-ID:      $Id: frame.h,v 1.16.2.2 2003/01/03 12:09:48 JS Exp $
+// RCS-ID:      $Id: frame.h,v 1.25 2005/02/20 00:11:58 VZ Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_UNIV_FRAME_H_
 #define _WX_UNIV_FRAME_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univframe.h"
 #endif
 
@@ -44,7 +44,7 @@ public:
                 const wxString& name = wxFrameNameStr);
 
     virtual wxPoint GetClientAreaOrigin() const;
-    virtual bool Enable(bool enable = TRUE);
+    virtual bool Enable(bool enable = true);
 
 #if wxUSE_STATUSBAR
     virtual wxStatusBar* CreateStatusBar(int number = 1,
@@ -55,8 +55,8 @@ public:
 
 #if wxUSE_TOOLBAR
     // create main toolbar bycalling OnCreateToolBar()
-    virtual wxToolBar* CreateToolBar(long style = wxNO_BORDER|wxTB_HORIZONTAL,
-                                     wxWindowID id = -1,
+    virtual wxToolBar* CreateToolBar(long style = -1,
+                                     wxWindowID id = wxID_ANY,
                                      const wxString& name = wxToolBarNameStr);
     virtual void PositionToolBar();
 #endif // wxUSE_TOOLBAR
@@ -69,6 +69,7 @@ public:
 
 protected:
     void OnSize(wxSizeEvent& event);
+    void OnSysColourChanged(wxSysColourChangedEvent& event);
 
     virtual void DoGetClientSize(int *width, int *height) const;
     virtual void DoSetClientSize(int width, int height);

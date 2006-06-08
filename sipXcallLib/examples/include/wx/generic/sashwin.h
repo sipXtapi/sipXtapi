@@ -6,15 +6,15 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: sashwin.h,v 1.10.2.2 2002/10/29 21:47:27 RR Exp $
+// RCS-ID:      $Id: sashwin.h,v 1.22 2005/05/17 23:05:33 VZ Exp $
 // Copyright:   (c) Julian Smart
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_SASHWIN_H_G_
 #define _WX_SASHWIN_H_G_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "sashwin.h"
 #endif
 
@@ -40,10 +40,10 @@ enum wxSashEdgePosition {
  * wxSashEdge represents one of the four edges of a window.
  */
 
-class WXDLLEXPORT wxSashEdge
+class WXDLLIMPEXP_ADV wxSashEdge
 {
 public:
-    wxSashEdge() { m_show = FALSE; m_border = FALSE; m_margin = 0; }
+    wxSashEdge() { m_show = false; m_border = false; m_margin = 0; }
 
     bool    m_show;     // Is the sash showing?
     bool    m_border;   // Do we draw a border?
@@ -67,7 +67,7 @@ public:
  * of wxSashWindow.
  */
 
-class WXDLLEXPORT wxSashWindow: public wxWindow
+class WXDLLIMPEXP_ADV wxSashWindow: public wxWindow
 {
 public:
     // Default constructor
@@ -77,7 +77,7 @@ public:
     }
 
     // Normal constructor
-    wxSashWindow(wxWindow *parent, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition,
+    wxSashWindow(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize, long style = wxSW_3D|wxCLIP_CHILDREN, const wxString& name = wxT("sashWindow"))
     {
         Init();
@@ -86,35 +86,35 @@ public:
 
     ~wxSashWindow();
 
-    bool Create(wxWindow *parent, wxWindowID id = -1, const wxPoint& pos = wxDefaultPosition,
+    bool Create(wxWindow *parent, wxWindowID id = wxID_ANY, const wxPoint& pos = wxDefaultPosition,
         const wxSize& size = wxDefaultSize, long style = wxSW_3D|wxCLIP_CHILDREN, const wxString& name = wxT("sashWindow"));
 
     // Set whether there's a sash in this position
     void SetSashVisible(wxSashEdgePosition edge, bool sash);
 
     // Get whether there's a sash in this position
-    inline bool GetSashVisible(wxSashEdgePosition edge) const { return m_sashes[edge].m_show; }
+    bool GetSashVisible(wxSashEdgePosition edge) const { return m_sashes[edge].m_show; }
 
     // Set whether there's a border in this position
-    inline void SetSashBorder(wxSashEdgePosition edge, bool border) { m_sashes[edge].m_border = border; }
+    void SetSashBorder(wxSashEdgePosition edge, bool border) { m_sashes[edge].m_border = border; }
 
     // Get whether there's a border in this position
-    inline bool HasBorder(wxSashEdgePosition edge) const { return m_sashes[edge].m_border; }
+    bool HasBorder(wxSashEdgePosition edge) const { return m_sashes[edge].m_border; }
 
     // Get border size
-    inline int GetEdgeMargin(wxSashEdgePosition edge) const { return m_sashes[edge].m_margin; }
+    int GetEdgeMargin(wxSashEdgePosition edge) const { return m_sashes[edge].m_margin; }
 
     // Sets the default sash border size
-    inline void SetDefaultBorderSize(int width) { m_borderSize = width; }
+    void SetDefaultBorderSize(int width) { m_borderSize = width; }
 
     // Gets the default sash border size
-    inline int GetDefaultBorderSize() const { return m_borderSize; }
+    int GetDefaultBorderSize() const { return m_borderSize; }
 
     // Sets the addition border size between child and sash window
-    inline void SetExtraBorderSize(int width) { m_extraBorderSize = width; }
+    void SetExtraBorderSize(int width) { m_extraBorderSize = width; }
 
     // Gets the addition border size between child and sash window
-    inline int GetExtraBorderSize() const { return m_extraBorderSize; }
+    int GetExtraBorderSize() const { return m_extraBorderSize; }
 
     virtual void SetMinimumSizeX(int min) { m_minimumPaneSizeX = min; }
     virtual void SetMinimumSizeY(int min) { m_minimumPaneSizeY = min; }
@@ -138,7 +138,7 @@ public:
     // Adjusts the panes
     void OnSize(wxSizeEvent& event);
 
-#ifdef __WXMSW__
+#if defined(__WXMSW__) || defined(__WXMAC__)
     // Handle cursor correctly
     void OnSetCursor(wxSetCursorEvent& event);
 #endif // wxMSW
@@ -193,13 +193,13 @@ private:
 private:
     DECLARE_DYNAMIC_CLASS(wxSashWindow)
     DECLARE_EVENT_TABLE()
+    DECLARE_NO_COPY_CLASS(wxSashWindow)
 };
 
 BEGIN_DECLARE_EVENT_TYPES()
-    DECLARE_EVENT_TYPE(wxEVT_SASH_DRAGGED, wxEVT_FIRST + 1200)
+    DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_ADV,
+                                wxEVT_SASH_DRAGGED, wxEVT_FIRST + 1200)
 END_DECLARE_EVENT_TYPES()
-
-// #define wxEVT_SASH_DRAGGED (wxEVT_FIRST + 1200)
 
 enum wxSashDragStatus
 {
@@ -207,39 +207,46 @@ enum wxSashDragStatus
     wxSASH_STATUS_OUT_OF_RANGE
 };
 
-class WXDLLEXPORT wxSashEvent: public wxCommandEvent
+class WXDLLIMPEXP_ADV wxSashEvent: public wxCommandEvent
 {
 public:
-    inline wxSashEvent(int id = 0, wxSashEdgePosition edge = wxSASH_NONE) {
-     m_eventType = (wxEventType) wxEVT_SASH_DRAGGED; m_id = id; m_edge = edge; }
+    wxSashEvent(int id = 0, wxSashEdgePosition edge = wxSASH_NONE)
+    {
+        m_eventType = (wxEventType) wxEVT_SASH_DRAGGED;
+        m_id = id;
+        m_edge = edge;
+    }
 
-    inline void SetEdge(wxSashEdgePosition edge) { m_edge = edge; }
-    inline wxSashEdgePosition GetEdge() const { return m_edge; }
+    void SetEdge(wxSashEdgePosition edge) { m_edge = edge; }
+    wxSashEdgePosition GetEdge() const { return m_edge; }
 
     //// The rectangle formed by the drag operation
-    inline void SetDragRect(const wxRect& rect) { m_dragRect = rect; }
-    inline wxRect GetDragRect() const { return m_dragRect; }
+    void SetDragRect(const wxRect& rect) { m_dragRect = rect; }
+    wxRect GetDragRect() const { return m_dragRect; }
 
     //// Whether the drag caused the rectangle to be reversed (e.g.
     //// dragging the top below the bottom)
-    inline void SetDragStatus(wxSashDragStatus status) { m_dragStatus = status; }
-    inline wxSashDragStatus GetDragStatus() const { return m_dragStatus; }
-    
+    void SetDragStatus(wxSashDragStatus status) { m_dragStatus = status; }
+    wxSashDragStatus GetDragStatus() const { return m_dragStatus; }
+
 private:
     wxSashEdgePosition  m_edge;
     wxRect              m_dragRect;
     wxSashDragStatus    m_dragStatus;
 
 private:
-    DECLARE_DYNAMIC_CLASS(wxSashEvent)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxSashEvent)
 };
 
 typedef void (wxEvtHandler::*wxSashEventFunction)(wxSashEvent&);
 
+#define wxSashEventHandler(func) \
+    (wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(wxSashEventFunction, &func)
+
 #define EVT_SASH_DRAGGED(id, fn) \
-    DECLARE_EVENT_TABLE_ENTRY( wxEVT_SASH_DRAGGED, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxSashEventFunction) & fn, NULL ),
+    wx__DECLARE_EVT1(wxEVT_SASH_DRAGGED, id, wxSashEventHandler(fn))
 #define EVT_SASH_DRAGGED_RANGE(id1, id2, fn) \
-    DECLARE_EVENT_TABLE_ENTRY( wxEVT_SASH_DRAGGED, id1, id2, (wxObjectEventFunction) (wxEventFunction) (wxSashEventFunction) & fn, NULL ),
+    wx__DECLARE_EVT2(wxEVT_SASH_DRAGGED, id1, id2, wxSashEventHandler(fn))
 
 #endif // wxUSE_SASH
 

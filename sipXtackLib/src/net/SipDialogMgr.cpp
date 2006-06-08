@@ -167,6 +167,13 @@ UtlBoolean SipDialogMgr::setNextLocalTransactionInfo(SipMessage& request,
 #endif
 
     }
+    else
+    {
+        OsSysLog::add(FAC_SIP,
+                      PRI_WARNING, 
+                      "SipDialogMgr::setNextLocalTransactionInfo could not find dialog with handle %s",
+                      dialogHandle);
+    }
 
     unlock();
 

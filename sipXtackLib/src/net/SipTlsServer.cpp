@@ -189,7 +189,7 @@ OsStatus SipTlsServer::createServerSocket(const char* szBindAddr,
 
             getContactAdapterName(szAdapterName, contact.cIpAddress, false);
             strcpy(contact.cInterface, szAdapterName);
-            contact.transportType = OsSocket::SSL_SOCKET;
+            contact.eTransportType = OsSocket::SSL_SOCKET;
             mSipUserAgent->addContactAddress(contact);
        
             // add address and port to the maps

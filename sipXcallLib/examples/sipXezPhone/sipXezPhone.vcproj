@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../include;..\..\lib\mswd;&quot;\wxWindows-2.4.2\include&quot;;..\..\..\sipXportLib\include;..\..\..\sipXtackLib\include;..\..\..\gips;..\..\..\sipXportLib\include\glib"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -45,7 +45,7 @@
 				OutputFile="debug\sipXezPhone.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\sipXtapi\Debug,\wxWindows-2.4.2\lib,..\..\..\sipXportLib\Debug"
+				AdditionalLibraryDirectories="..\lib\wnt;..\lib;..\lib\wnt\nss;..\lib\wnt\wx"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames="msvcrt.lib"
 				GenerateDebugInformation="TRUE"
@@ -62,7 +62,7 @@
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Populating sipXtapi[d].dll into sipXezPhone env"
+				Description="Populating sipXtapi.dll"
 				CommandLine="copy ..\..\sipXtapi\Debug\sipXtapid.dll Debug
 xcopy  res Debug\res /I /Y /S
 "/>
@@ -96,7 +96,7 @@ xcopy  res Debug\res /I /Y /S
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="../../include,..\..\lib\mswd,\wxWindows-2.4.2\include,..\..\..\sipXportLib\include,..\..\..\sipXtackLib\include,..\..\..\gips;..\..\..\sipXportLib\include\glib"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;WINVER=0x400;_MT;wxUSE_GUI=1;"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -119,7 +119,7 @@ xcopy  res Debug\res /I /Y /S
 				OutputFile="release\sipXezPhone.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="..\..\sipXtapi\Release;..\..\Release\;&quot;\wxWindows-2.4.2\lib&quot;;..\..\..\sipXportLib\Release"
+				AdditionalLibraryDirectories="..\lib\wnt;..\lib;..\lib\wnt\nss;..\lib\wnt\wx"
 				ProgramDatabaseFile=".\Release/sipXezPhone.pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
@@ -133,9 +133,10 @@ xcopy  res Debug\res /I /Y /S
 				HeaderFileName=""/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				Description="Populating sipXtapi[d].dll into sipXezPhone env"
+				Description="Populating sipXtapi.dll"
 				CommandLine="copy ..\..\sipXtapi\Release\sipXtapi.dll Release
-xcopy  res Release\res /I /Y /S"/>
+xcopy  res Release\res /I /Y /S
+"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool

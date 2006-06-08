@@ -63,6 +63,9 @@ static DWORD (WINAPI *GetInterfaceInfo)(
   PULONG dwOutBufLen
 );
 
+static HMODULE hIpHelperModule = NULL;
+
+
 //retrieves the current windows version and returns
 //one of the WINDOWS_VERSION definitions.
 static int getWindowsVersion()
@@ -104,74 +107,72 @@ static int getWindowsVersion()
 //loads the iphlpapi.dll and sets any func pointers we may need
 static HMODULE loadIPHelperAPI()
 {
-   HMODULE hRetModule = NULL;
     char caFullDLLPath[256];
 
-    //first try loading it using the systems path
-    hRetModule = LoadLibrary("iphlpapi.dll");
-   if (hRetModule == NULL)
-   {
+    if (hIpHelperModule == NULL)
+    {
+        //first try loading it using the systems path
+        hIpHelperModule = LoadLibrary("iphlpapi.dll");
+        
         //if that fails, (it shouldn't), try using the GetSystemPath func 
         GetSystemDirectory(caFullDLLPath,sizeof(caFullDLLPath));
         strcat(caFullDLLPath,"\\iphlpapi.dll");
-        
+
         //try again
-        hRetModule = LoadLibrary(caFullDLLPath);
+        hIpHelperModule = LoadLibrary(caFullDLLPath);
 
         //ok, I give up...where the heck did they put the iphlpapi.dll???????
-      if (!hRetModule)
-      {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Cannot find iphlpapi.dll!\n");
-      }
+        if (!hIpHelperModule)
+        {
+            OsSysLog::add(FAC_KERNEL, PRI_ERR, "Cannot find iphlpapi.dll!\n");
+        }
+        else
+        {
+            //now find IPHelper functions
+            *(FARPROC*)&GetNetworkParams = GetProcAddress(hIpHelperModule,"GetNetworkParams");
+            if (GetNetworkParams == NULL)
+            {
+                OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetNetworkParams!\n");
+                FreeLibrary(hIpHelperModule);
+                hIpHelperModule = NULL;
+            }   
+
+            *(FARPROC*)&GetPerAdapterInfo = GetProcAddress(hIpHelperModule,"GetPerAdapterInfo");
+            if (GetPerAdapterInfo == NULL)
+            {
+                OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetPerAdapterInfo!\n");
+                FreeLibrary(hIpHelperModule);
+                hIpHelperModule = NULL;
+            }   
+
+
+            *(FARPROC*)&GetInterfaceInfo = GetProcAddress(hIpHelperModule,"GetInterfaceInfo");
+            if (GetPerAdapterInfo == NULL)
+            {
+                OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetInterfaceInfo!\n");
+                FreeLibrary(hIpHelperModule);
+                hIpHelperModule = NULL;
+            }   
+
+            *(FARPROC*)&GetAdapterIndex = GetProcAddress(hIpHelperModule,"GetAdapterIndex");
+            if (GetAdapterIndex == NULL)
+            {
+                OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetAdapterIndex!\n");
+                FreeLibrary(hIpHelperModule);
+                hIpHelperModule = NULL;
+            }   
+
+            *(FARPROC*)&GetAdaptersInfo = GetProcAddress(hIpHelperModule,"GetAdaptersInfo");
+            if (GetAdaptersInfo == NULL)
+            {
+                OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetAdaptersInfo!\n");
+                FreeLibrary(hIpHelperModule);
+                hIpHelperModule = NULL;
+            }   
+        }
     }
 
-   if (hRetModule)
-   {
-       //now find IPHelper functions
-       *(FARPROC*)&GetNetworkParams = GetProcAddress(hRetModule,"GetNetworkParams");
-       if (GetNetworkParams == NULL)
-       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetNetworkParams!\n");
-         FreeLibrary(hRetModule);
-         hRetModule = NULL;
-       }   
-       
-       *(FARPROC*)&GetPerAdapterInfo = GetProcAddress(hRetModule,"GetPerAdapterInfo");
-       if (GetPerAdapterInfo == NULL)
-       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetPerAdapterInfo!\n");
-         FreeLibrary(hRetModule);
-         hRetModule = NULL;
-       }   
-       
-
-       *(FARPROC*)&GetInterfaceInfo = GetProcAddress(hRetModule,"GetInterfaceInfo");
-       if (GetPerAdapterInfo == NULL)
-       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetInterfaceInfo!\n");
-         FreeLibrary(hRetModule);
-         hRetModule = NULL;
-       }   
-
-       *(FARPROC*)&GetAdapterIndex = GetProcAddress(hRetModule,"GetAdapterIndex");
-       if (GetAdapterIndex == NULL)
-       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetAdapterIndex!\n");
-         FreeLibrary(hRetModule);
-         hRetModule = NULL;
-       }   
-       
-       *(FARPROC*)&GetAdaptersInfo = GetProcAddress(hRetModule,"GetAdaptersInfo");
-       if (GetAdaptersInfo == NULL)
-       {
-         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Could not get the proc address to GetAdaptersInfo!\n");
-         FreeLibrary(hRetModule);
-         hRetModule = NULL;
-       }   
-       
-   }
-
-   return hRetModule;
+    return hIpHelperModule;
 }
 
 
@@ -183,7 +184,6 @@ static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max, const cha
     DWORD dwNetworkInfoSize;
     DWORD retErr;
     int windowsVersion; 
-    HMODULE hModule = NULL;
 
     windowsVersion = getWindowsVersion();
 
@@ -192,7 +192,7 @@ static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max, const cha
     {
         GetNetworkParams = NULL;
 
-        hModule = loadIPHelperAPI();
+        HMODULE hModule = loadIPHelperAPI();
 
         if (hModule)
         {
@@ -234,7 +234,6 @@ static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max, const cha
                 outBufLen = 0;
                 
                 GetPerAdapterInfo(index, NULL, &outBufLen);
-                     
                 if (outBufLen)
                 {
                     pPerAdapterInfo = (IP_PER_ADAPTER_INFO*) malloc(outBufLen);
@@ -297,8 +296,6 @@ static int getIPHelperDNSEntries(char DNSServers[][MAXIPLEN], int max, const cha
                     OsSysLog::add(FAC_KERNEL, PRI_ERR,  "DNS ERROR: Memory allocation error\n" );
                 }
             }
-            FreeLibrary(hModule);
-            hModule = NULL;
         }
 
     }
@@ -331,7 +328,7 @@ static int getDNSEntriesFromRegistry(char regDNSServers[][MAXIPLEN], int max)
 
    if (err == ERROR_SUCCESS)
    {
-       cbData = sizeof(data);
+      cbData = sizeof(data);
       
       err = RegQueryValueEx(
                   hKey,                      // handle to key
@@ -353,31 +350,37 @@ static int getDNSEntriesFromRegistry(char regDNSServers[][MAXIPLEN], int max)
                      &cbData);            // size of data buffer
 
        }
-   }
-    
-   if (err == ERROR_SUCCESS)
-   {
-       //we need to break it up on NT.  It puts all the IP's on one line.
-       //it may not be a space, which I set as default, ...lets check for a ','
-       if (strstr((char *)data,","))
-           token = ",";
-       else
-         token = " ";
 
-       //find the first token
-       ptr = strtok((char *)data,token);
-       while (ptr != NULL && retRegDNSServerCount < max)
+       if (err == ERROR_SUCCESS)
        {
-           strncpy(regDNSServers[retRegDNSServerCount++],ptr,MAXIPLEN);
-                    
-           //search for the next one
-           ptr = strtok(NULL,token);
-       }
+          //we need to break it up on NT.  It puts all the IP's on one line.
+          //it may not be a space, which I set as default, ...lets check for a ','
+          if (strstr((char *)data,","))
+             token = ",";
+          else
+             token = " ";
+
+          //find the first token
+          ptr = strtok((char *)data,token);
+          while (ptr != NULL && retRegDNSServerCount < max)
+          {
+             strncpy(regDNSServers[retRegDNSServerCount++],ptr,MAXIPLEN);
+                       
+             //search for the next one
+             ptr = strtok(NULL,token);
+          }
+      }
+      else
+      {
+         OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error reading values from registry in func: getDNSEntriesFromRegistry\n"); 
+      }
+
+      RegCloseKey(hKey);
    }
    else
    {
-      OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error reading values from registry in func: getDNSEntriesFromRegistry\n"); 
-   }
+      OsSysLog::add(FAC_KERNEL, PRI_ERR, "Error opening registry in func: getDNSEntriesFromRegistry\n");
+   }   
    
    return retRegDNSServerCount;
 }

@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     14.10.01
-// RCS-ID:      $Id: statusbr.h,v 1.4 2002/03/15 15:10:13 VZ Exp $
+// RCS-ID:      $Id: statusbr.h,v 1.9 2004/08/10 13:08:34 ABX Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,11 +12,12 @@
 #ifndef _WX_UNIV_STATUSBR_H_
 #define _WX_UNIV_STATUSBR_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univstatusbr.h"
 #endif
 
 #include "wx/univ/inpcons.h"
+#include "wx/arrstr.h"
 
 // ----------------------------------------------------------------------------
 // wxStatusBar: a window near the bottom of the frame used for status info
@@ -29,7 +30,7 @@ public:
     wxStatusBarUniv() { Init(); }
 
     wxStatusBarUniv(wxWindow *parent,
-                    wxWindowID id = -1,
+                    wxWindowID id = wxID_ANY,
                     long style = 0,
                     const wxString& name = wxPanelNameStr)
     {
@@ -39,7 +40,7 @@ public:
     }
 
     bool Create(wxWindow *parent,
-                wxWindowID id = -1,
+                wxWindowID id = wxID_ANY,
                 long style = 0,
                 const wxString& name = wxPanelNameStr);
 

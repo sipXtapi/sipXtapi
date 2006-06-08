@@ -4,15 +4,15 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: colrdlgg.h,v 1.11 2002/08/31 11:29:12 GD Exp $
-// Copyright:   (c)
+// RCS-ID:      $Id: colrdlgg.h,v 1.18 2005/05/04 18:52:32 JS Exp $
+// Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __COLORDLGH_G__
 #define __COLORDLGH_G__
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "colrdlgg.h"
 #endif
 
@@ -22,11 +22,17 @@
 #include "wx/cmndata.h"
 
 #define wxID_ADD_CUSTOM     3000
-#define wxID_RED_SLIDER     3001
-#define wxID_GREEN_SLIDER   3002
-#define wxID_BLUE_SLIDER    3003
 
-class WXDLLEXPORT wxSlider;
+#if wxUSE_SLIDER
+
+    #define wxID_RED_SLIDER     3001
+    #define wxID_GREEN_SLIDER   3002
+    #define wxID_BLUE_SLIDER    3003
+
+    class WXDLLEXPORT wxSlider;
+
+#endif // wxUSE_SLIDER
+
 class WXDLLEXPORT wxGenericColourDialog : public wxDialog
 {
 public:
@@ -59,9 +65,11 @@ public:
 
     void OnAddCustom(wxCommandEvent& event);
 
+#if wxUSE_SLIDER
     void OnRedSlider(wxCommandEvent& event);
     void OnGreenSlider(wxCommandEvent& event);
     void OnBlueSlider(wxCommandEvent& event);
+#endif // wxUSE_SLIDER
 
     void OnCloseWindow(wxCloseEvent& event);
 
@@ -92,16 +100,15 @@ protected:
     // 16 'custom' colours
     wxColour customColours[16];
 
-    // One single custom colour (use sliders)
-    wxColour singleCustomColour;
-
     // Which colour is selected? An index into one of the two areas.
     int colourSelection;
     int whichKind; // 1 for standard colours, 2 for custom colours,
 
+#if wxUSE_SLIDER
     wxSlider *redSlider;
     wxSlider *greenSlider;
     wxSlider *blueSlider;
+#endif // wxUSE_SLIDER
 
     int buttonY;
 
@@ -113,11 +120,5 @@ protected:
     DECLARE_EVENT_TABLE()
     DECLARE_DYNAMIC_CLASS(wxGenericColourDialog)
 };
-
-/* This shouldn't be necessary, we have a #define in wx/colordlg.h.
-#ifdef __WXGTK__
-typedef wxGenericColourDialog wxColourDialog;
-#endif
-*/
 
 #endif

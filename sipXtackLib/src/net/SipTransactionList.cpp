@@ -16,8 +16,8 @@
 #include <utl/UtlString.h>
 #include <utl/UtlHashBagIterator.h>
 
-#include <net/SipTransactionList.h>
 #include <net/SipTransaction.h>
+#include <net/SipTransactionList.h>
 #include <net/SipMessage.h>
 #include <os/OsTask.h>
 #include <os/OsEvent.h>
@@ -276,6 +276,25 @@ void SipTransactionList::stopTransactionTimers()
         while((transactionFound = (SipTransaction*) iterator()))
         {
             transactionFound->stopTimers();
+        }
+    }
+
+    unlock();
+}
+
+void SipTransactionList::startTransactionTimers()
+{
+    lock();
+
+    int numTransactions = mTransactions.entries();
+    if(numTransactions > 0)
+    {
+        UtlHashBagIterator iterator(mTransactions);
+        SipTransaction* transactionFound = NULL;
+
+        while((transactionFound = (SipTransaction*) iterator()))
+        {
+            transactionFound->startTimers();
         }
     }
 

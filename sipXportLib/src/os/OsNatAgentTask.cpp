@@ -918,17 +918,17 @@ UtlBoolean OsNatAgentTask::setTurnDestination(OsNatDatagramSocket* pSocket,
     UtlBoolean bRC = false ;
     OsLock lock(mMapsLock) ;
 
-    UtlString localHostIp ;
-    pSocket->getLocalHostIp(&localHostIp) ;
-    OsSysLog::add(FAC_NET, PRI_INFO, "Turn destination %s:%d -> %s:%d",
-            localHostIp.data(),         
-            pSocket->getLocalHostPort(),
-            szAddress,
-            iPort) ;
-
     NAT_AGENT_CONTEXT* pBinding = getBinding(pSocket, TURN_ALLOCATION) ;
     if (pBinding)
     {
+        UtlString localHostIp ;
+        pSocket->getLocalHostIp(&localHostIp) ;
+        OsSysLog::add(FAC_NET, PRI_INFO, "Turn destination %s:%d -> %s:%d",
+                localHostIp.data(),         
+                pSocket->getLocalHostPort(),
+                szAddress,
+                iPort) ;
+
         // Release Binding ...
         TurnMessage msgSend ;
 
@@ -1331,6 +1331,72 @@ UtlBoolean OsNatAgentTask::areProbesOutstanding(OsNatDatagramSocket* pSocket, in
 
 /* ============================ ACCESSORS ================================= */
 
+UtlBoolean OsNatAgentTask::findContactAddress(const UtlString& destHost, 
+                                              int              destPort, 
+                                              UtlString*       pContactHost, 
+                                              int*             pContactPort) 
+{
+    NAT_AGENT_CONTEXT* pRC = NULL ;
+    UtlVoidPtr* pKey;
+    UtlBoolean  bFound = FALSE ;
+    int         iAttempts = 0 ;
+    UtlBoolean  bTryAgain = false ;
+
+    // Poll for upto 400 ms if the record isn't ready
+    while ((iAttempts == 0 || bTryAgain) && iAttempts < 8)
+    {
+        bTryAgain = false ;
+        iAttempts++ ;
+
+        OsLock lock(mMapsLock) ;
+        UtlHashMapIterator iterator(mContextMap);
+        while (pKey = (UtlVoidPtr*)iterator())
+        {        
+            NAT_AGENT_CONTEXT* pContext = (NAT_AGENT_CONTEXT*) pKey->getValue();
+
+            // Ignore uninteresting contexts
+            if (    (pContext->type == TURN_ALLOCATION) || 
+                    (pContext->type == CRLF_KEEPALIVE)  ||
+                    (pContext->status == FAILED)    )
+            {
+                continue ;
+            }
+
+            // Search for a match
+            if (    (destPort == pContext->serverPort) &&
+                    (destHost.compareTo(pContext->serverAddress, UtlString::ignoreCase) == 0))
+            {
+                if (pContext->port != PORT_NONE)
+                {
+                    if (pContactHost)
+                    {
+                        *pContactHost = pContext->address ;
+                    }
+                    if (pContactPort)
+                    {
+                        *pContactPort = pContext->port ;
+                    }
+
+                    bFound = true ;
+                    break ;
+                }
+                else
+                {
+                    bTryAgain = true ;
+                }
+            }        
+        }
+
+        if (bTryAgain && iAttempts < 8) 
+        {
+            Sleep(50) ;
+        }
+    }
+
+    return bFound ;
+}
+
+
 /* ============================ INQUIRY =================================== */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
@@ -1597,6 +1663,7 @@ UtlBoolean OsNatAgentTask::sendTurnRequest(NAT_AGENT_CONTEXT* pBinding)
 
 void OsNatAgentTask::markStunSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlString& mappedAddress, int mappedPort) 
 {    
+    bool bAddressChanged = false ;
     OsTime refreshPeriod(pBinding->keepAliveSecs, 0) ;
 
     assert(pBinding != NULL) ;
@@ -1613,9 +1680,31 @@ void OsNatAgentTask::markStunSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlStrin
         assert(pBinding->pTimer != NULL) ;
         assert(pBinding->pSocket != NULL) ;
 
-        pBinding->address = mappedAddress ;
-        pBinding->port = mappedPort ;
+        // Check for a change in mapped IP/PORT
+        if (    (pBinding->status == RESENDING) || 
+                (pBinding->status == RESENDING_ERROR)   )
+        {
+            if (    (mappedAddress.compareTo(pBinding->address) != 0) ||
+                    (mappedPort != pBinding->port)  )
+            {
+                // This is really a critial problem -- we are likely not able
+                // to communicate if our NAT binding is bouncing around.
+                OsSysLog::add(FAC_NET, PRI_CRIT, 
+                        "Stun binding changed for %s:%d, %s:%d is now %s:%d",
+                        localHostIp.data(),
+                        pBinding->pSocket->getLocalHostPort(),
+                        pBinding->address.data(),
+                        pBinding->port,
+                        mappedAddress.data(),
+                        mappedPort) ;
 
+                bAddressChanged = true ;
+            }
+        }
+
+        // Update State
+        pBinding->address = mappedAddress ;
+        pBinding->port = mappedPort ;       
         pBinding->status = SUCCESS ;
         pBinding->refreshErrors = 0 ;
 
@@ -1630,7 +1719,7 @@ void OsNatAgentTask::markStunSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlStrin
         if (pBinding->type == STUN_DISCOVERY)
         {
             pBinding->pSocket->setStunAddress(mappedAddress, mappedPort) ;
-                    pBinding->pSocket->markStunSuccess() ;
+            pBinding->pSocket->markStunSuccess(bAddressChanged) ;
         } 
         else if (pBinding->type == STUN_PROBE)
         {                                
@@ -1639,6 +1728,7 @@ void OsNatAgentTask::markStunSuccess(NAT_AGENT_CONTEXT* pBinding, const UtlStrin
         }
         else if (pBinding->type == STUN_KEEPALIVE)
         {
+            // We are currently ignore keep alive responses
         }
         else
         {
@@ -1682,6 +1772,7 @@ void OsNatAgentTask::markStunFailure(NAT_AGENT_CONTEXT* pBinding)
         }
         else if (pBinding->type == STUN_KEEPALIVE)
         {
+            // We are currently ignore keep alive responses
         }
         else
         {
@@ -1763,7 +1854,9 @@ void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBindin
     {
         "STUN_DISCOVERY",
         "STUN_PROBE",
-        "TURN_ALLOCATION"
+        "TURN_ALLOCATION",
+        "CRLF_KEEPALIVE",
+        "STUN_KEEPALIVE"
     } ;
 
     char* cStatus[] =

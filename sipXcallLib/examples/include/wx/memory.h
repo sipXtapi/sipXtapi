@@ -4,20 +4,21 @@
 // Author:      Arthur Seaton, Julian Smart
 // Modified by:
 // Created:     29/01/98
-// RCS-ID:      $Id: memory.h,v 1.35 2002/08/31 11:29:10 GD Exp $
+// RCS-ID:      $Id: memory.h,v 1.47 2005/02/09 21:36:08 JS Exp $
 // Copyright:   (c) 1998 Julian Smart
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_MEMORYH__
 #define _WX_MEMORYH__
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "memory.h"
 #endif
 
 #include "wx/defs.h"
 #include "wx/string.h"
+#include "wx/msgout.h"
 
 /*
   The macro which will be expanded to include the file and line number
@@ -28,24 +29,10 @@
 
 #include <stddef.h>
 
-// Obsolete
-#if 0
-#if wxUSE_IOSTREAMH
-    // N.B. BC++ doesn't have istream.h, ostream.h
-#   include <iostream.h>
-#else
-#   include <iostream>
-#   if defined(__VISUALC__) || defined(__MWERKS__)
-//        using namespace std;
-#   endif
-#endif
-#endif
-
 #ifdef __WXDEBUG__
 
-// devik 2000-8-27: export these because new/delete operators are now inline
-WXDLLEXPORT void * wxDebugAlloc(size_t size, wxChar * fileName, int lineNum, bool isObject, bool isVect = FALSE);
-WXDLLEXPORT void wxDebugFree(void * buf, bool isVect = FALSE);
+WXDLLIMPEXP_BASE void * wxDebugAlloc(size_t size, wxChar * fileName, int lineNum, bool isObject, bool isVect = false);
+WXDLLIMPEXP_BASE void wxDebugFree(void * buf, bool isVect = false);
 
 //**********************************************************************************
 /*
@@ -55,9 +42,7 @@ WXDLLEXPORT void wxDebugFree(void * buf, bool isVect = FALSE);
 
 // We'll only do malloc and free for the moment: leave the interesting
 // stuff for the wxObject versions.
-// devik 2000-8-29: All new/delete ops are now inline because they can't
-// be marked as dllexport/dllimport. It then leads to weird bugs when
-// used on MSW as DLL
+
 
 #if wxUSE_GLOBAL_MEMORY_OPERATORS
 
@@ -83,6 +68,10 @@ WXDLLEXPORT void wxDebugFree(void * buf, bool isVect = FALSE);
     #define wxUSE_ARRAY_MEMORY_OPERATORS 0
 #endif
 
+// devik 2000-8-29: All new/delete ops are now inline because they can't
+// be marked as dllexport/dllimport. It then leads to weird bugs when
+// used on MSW as DLL
+#if defined(__WXMSW__) && (defined(WXUSINGDLL) || defined(WXMAKINGDLL_BASE))
 inline void * operator new (size_t size, wxChar * fileName, int lineNum)
 {
   return wxDebugAlloc(size, fileName, lineNum, FALSE, FALSE);
@@ -113,17 +102,34 @@ inline void operator delete[] (void * buf)
 {
   wxDebugFree(buf, TRUE);
 }
-#endif
+#endif // wxUSE_ARRAY_MEMORY_OPERATORS
+
+#else
+
+void * operator new (size_t size, wxChar * fileName, int lineNum);
+
+void * operator new (size_t size);
+
+void operator delete (void * buf);
+
+#if wxUSE_ARRAY_MEMORY_OPERATORS
+void * operator new[] (size_t size);
+
+void * operator new[] (size_t size, wxChar * fileName, int lineNum);
+
+void operator delete[] (void * buf);
+#endif // wxUSE_ARRAY_MEMORY_OPERATORS
+#endif // defined(__WXMSW__) && (defined(WXUSINGDLL) || defined(WXMAKINGDLL_BASE))
 
 // VC++ 6.0 and MWERKS
 #if ( defined(__VISUALC__) && (__VISUALC__ >= 1200) ) || defined(__MWERKS__)
 inline void operator delete(void* pData, wxChar* /* fileName */, int /* lineNum */)
 {
-  wxDebugFree(pData, FALSE);
+    wxDebugFree(pData, false);
 }
 inline void operator delete[](void* pData, wxChar* /* fileName */, int /* lineNum */)
 {
-  wxDebugFree(pData, TRUE);
+    wxDebugFree(pData, true);
 }
 #endif // __VISUALC__>=1200
 #endif // wxUSE_GLOBAL_MEMORY_OPERATORS
@@ -138,9 +144,9 @@ typedef unsigned int wxMarkerType;
   allocated memory.
 */
 
-class WXDLLEXPORT wxMemStruct {
+class WXDLLIMPEXP_BASE wxMemStruct {
 
-friend class WXDLLEXPORT wxDebugContext; // access to the m_next pointer for list traversal.
+friend class WXDLLIMPEXP_BASE wxDebugContext; // access to the m_next pointer for list traversal.
 
 public:
 public:
@@ -207,16 +213,16 @@ typedef void (wxMemStruct::*PmSFV) ();
 
 
 /*
-  Debugging class. This will only have a single instance, but it\'s
+  Debugging class. This will only have a single instance, but it's
   a reasonable way to keep everything together and to make this
   available for change if needed by someone else.
   A lot of this stuff would be better off within the wxMemStruct class, but
-  it\'s stuff which we need to access at times when there is no wxMemStruct
+  it's stuff which we need to access at times when there is no wxMemStruct
   object so we use this class instead. Think of it as a collection of
   globals which have to do with the wxMemStruct class.
 */
 
-class WXDLLEXPORT wxDebugContext {
+class WXDLLIMPEXP_BASE wxDebugContext {
 
 protected:
     // Used to set alignment for markers.
@@ -229,12 +235,6 @@ protected:
 
     // Traverse the list.
     static void TraverseList (PmSFV, wxMemStruct *from = NULL);
-
-    // Obsolete
-#if 0
-    static wxSTD streambuf *m_streamBuf;
-    static wxSTD ostream *m_debugStream;
-#endif
 
     static int debugLevel;
     static bool debugOn;
@@ -249,23 +249,13 @@ public:
     wxDebugContext(void);
     ~wxDebugContext(void);
 
-    // Obsolete
-#if 0
-    static bool HasStream(void) { return (m_debugStream != NULL); };
-    static wxSTD ostream& GetStream(void) { return *m_debugStream; }
-    static wxSTD streambuf *GetStreamBuf(void) { return m_streamBuf; }
-    static void SetStream(wxSTD ostream *stream, wxSTD streambuf *buf = NULL);
-    static bool SetFile(const wxString& file);
-    static bool SetStandardError(void);
-#endif
-
     static int GetLevel(void) { return debugLevel; }
     static void SetLevel(int level) { debugLevel = level; }
 
     static bool GetDebugMode(void) { return debugOn; }
     static void SetDebugMode(bool flag) { debugOn = flag; }
 
-    static void SetCheckpoint(bool all = FALSE);
+    static void SetCheckpoint(bool all = false);
     static wxMemStruct *GetCheckpoint(void) { return checkPoint; }
 
     // Calculated from the request size and any padding needed
@@ -299,8 +289,8 @@ public:
     static bool GetCheckPrevious () { return m_checkPrevious; }
     static void SetCheckPrevious (bool value) { m_checkPrevious = value; }
 
-    // Checks all nodes, or all nodes if checkAll is TRUE
-    static int Check(bool checkAll = FALSE);
+    // Checks all nodes, or all nodes if checkAll is true
+    static int Check(bool checkAll = false);
 
     // Print out the list of wxMemStruct nodes.
     static bool PrintList(void);
@@ -309,14 +299,17 @@ public:
     static bool Dump(void);
 
     // Print statistics
-    static bool PrintStatistics(bool detailed = TRUE);
+    static bool PrintStatistics(bool detailed = true);
 
     // Print out the classes in the application.
     static bool PrintClasses(void);
 
     // Count the number of non-wxDebugContext-related objects
     // that are outstanding
-    static int CountObjectsLeft(bool sinceCheckpoint = FALSE);
+    static int CountObjectsLeft(bool sinceCheckpoint = false);
+
+    // This function is used to output the dump
+    static void OutputDumpLine(const wxChar *szFormat, ...);
 
 private:
     // Store these here to allow access to the list without
@@ -324,28 +317,61 @@ private:
     static wxMemStruct*         m_head;
     static wxMemStruct*         m_tail;
 
-    // Set to FALSE if we're not checking all previous nodes when
-    // we do a new. Set to TRUE when we are.
+    // Set to false if we're not checking all previous nodes when
+    // we do a new. Set to true when we are.
     static bool                 m_checkPrevious;
 };
 
+// Final cleanup (e.g. deleting the log object and doing memory leak checking)
+// will be delayed until all wxDebugContextDumpDelayCounter objects have been
+// destructed. Adding one wxDebugContextDumpDelayCounter per file will delay
+// memory leak checking until after destructing all global objects.
+class WXDLLIMPEXP_BASE wxDebugContextDumpDelayCounter
+{
+public:
+    wxDebugContextDumpDelayCounter() {
+        sm_count++;
+    }
+
+    ~wxDebugContextDumpDelayCounter() {
+        sm_count--;
+        if(!sm_count) DoDump();
+    }
+private:
+    void DoDump();
+    static int sm_count;
+};
+
+// make leak dump after all globals have been destructed
+static wxDebugContextDumpDelayCounter wxDebugContextDumpDelayCounter_File;
+#define WXDEBUG_DUMPDELAYCOUNTER \
+    static wxDebugContextDumpDelayCounter wxDebugContextDumpDelayCounter_Extra;
+
 // Output a debug message, in a system dependent fashion.
-void WXDLLEXPORT wxTrace(const wxChar *fmt ...) ATTRIBUTE_PRINTF_1;
-void WXDLLEXPORT wxTraceLevel(int level, const wxChar *fmt ...) ATTRIBUTE_PRINTF_2;
+void WXDLLIMPEXP_BASE wxTrace(const wxChar *fmt ...) ATTRIBUTE_PRINTF_1;
+void WXDLLIMPEXP_BASE wxTraceLevel(int level, const wxChar *fmt ...) ATTRIBUTE_PRINTF_2;
 
 #define WXTRACE wxTrace
 #define WXTRACELEVEL wxTraceLevel
 
-#else // else part for the #if __WXDEBUG__
+#else // (defined(__WXDEBUG__) && wxUSE_MEMORY_TRACING) || wxUSE_DEBUG_CONTEXT
 
-inline void wxTrace(const wxChar *WXUNUSED(fmt)) {}
-inline void wxTraceLevel(int WXUNUSED(level), const wxChar *WXUNUSED(fmt)) {}
+#define WXDEBUG_DUMPDELAYCOUNTER
 
-#define WXTRACE TRUE ? (void)0 : wxTrace
-#define WXTRACELEVEL TRUE ? (void)0 : wxTraceLevel
-// #define WXDEBUG_NEW new
+// Borland C++ Builder 6 seems to have troubles with inline functions (see bug
+// 819700)
+#if 0
+    inline void wxTrace(const wxChar *WXUNUSED(fmt)) {}
+    inline void wxTraceLevel(int WXUNUSED(level), const wxChar *WXUNUSED(fmt)) {}
+#else
+    #define wxTrace(fmt)
+    #define wxTraceLevel(l, fmt)
+#endif
 
-#endif // __WXDEBUG__
+#define WXTRACE true ? (void)0 : wxTrace
+#define WXTRACELEVEL true ? (void)0 : wxTraceLevel
+
+#endif // (defined(__WXDEBUG__) && wxUSE_MEMORY_TRACING) || wxUSE_DEBUG_CONTEXT
 
 #endif
     // _WX_MEMORYH__

@@ -4,12 +4,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.02.01
-// RCS-ID:      $Id: gauge.h,v 1.6 2001/10/06 13:39:51 VS Exp $
+// RCS-ID:      $Id: gauge.h,v 1.9.4.1 2005/09/25 20:46:43 MW Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifdef __GNUG__
+#ifndef _WX_UNIV_GAUGE_H_
+#define _WX_UNIV_GAUGE_H_
+
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "gaugeuniv.h"
 #endif
 
@@ -72,3 +75,5 @@ protected:
 
     DECLARE_DYNAMIC_CLASS(wxGauge)
 };
+
+#endif // _WX_UNIV_GAUGE_H_

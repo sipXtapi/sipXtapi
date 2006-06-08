@@ -4,19 +4,17 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     12.04.99
-// RCS-ID:      $Id: buffer.h,v 1.23.2.4 2002/11/30 22:22:25 VZ Exp $
+// RCS-ID:      $Id: buffer.h,v 1.34 2005/04/16 04:08:35 RD Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
-
-// these classes are for private use only for now, they're not documented
 
 #ifndef _WX_BUFFER_H
 #define _WX_BUFFER_H
 
 #include "wx/wxchar.h"
 
-#include <string.h> // strdup
+#include <stdlib.h>             // malloc() and free()
 
 // ----------------------------------------------------------------------------
 // Special classes for (wide) character strings: they use malloc/free instead
@@ -24,7 +22,7 @@
 // ----------------------------------------------------------------------------
 
 #define DEFINE_BUFFER(classname, chartype, strdupfunc)                      \
-class classname                                                             \
+class WXDLLIMPEXP_BASE classname                                            \
 {                                                                           \
 public:                                                                     \
     classname(const chartype *str)                                          \
@@ -32,7 +30,7 @@ public:                                                                     \
     {                                                                       \
     }                                                                       \
                                                                             \
-    classname(size_t len)                                                   \
+    classname(size_t len=0)                                                 \
         : m_str((chartype *)malloc((len + 1)*sizeof(chartype)))             \
     {                                                                       \
         m_str[len] = (chartype)0;                                           \
@@ -95,19 +93,11 @@ private:                                                                    \
     chartype *m_str;                                                        \
 }
 
-DEFINE_BUFFER(wxCharBuffer, char, strdup);
+DEFINE_BUFFER(wxCharBuffer, char, wxStrdupA);
 
 #if wxUSE_WCHAR_T
 
-inline wchar_t *wxWcsdupReplacement(const wchar_t *wcs)
-{
-    const size_t siz = (wxWcslen(wcs) + 1)*sizeof(wchar_t);
-    wchar_t *wcsCopy = (wchar_t *)malloc(siz);
-    memcpy(wcsCopy, wcs, siz);
-    return wcsCopy;
-}
-
-DEFINE_BUFFER(wxWCharBuffer, wchar_t, wxWcsdupReplacement);
+DEFINE_BUFFER(wxWCharBuffer, wchar_t, wxStrdupW);
 
 #endif // wxUSE_WCHAR_T
 
@@ -182,6 +172,8 @@ private:
 
     // the reference count
     size_t m_ref;
+
+    DECLARE_NO_COPY_CLASS(wxMemoryBufferData)
 };
 
 

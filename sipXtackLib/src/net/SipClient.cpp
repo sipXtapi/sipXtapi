@@ -16,9 +16,9 @@
 
 // APPLICATION INCLUDES
 #include <net/SipMessage.h>
+#include <net/SipUserAgentBase.h>
 #include <net/SipClient.h>
 #include <net/SipMessageEvent.h>
-#include <net/SipUserAgentBase.h>
 
 #include <os/OsDateTime.h>
 #include <os/OsDatagramSocket.h>

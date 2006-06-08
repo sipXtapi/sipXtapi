@@ -1,18 +1,18 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        wx/msw/region.h
 // Purpose:     wxRegion class
-// Author:      Markus Holzem, Julian Smart
+// Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: region.h,v 1.12.2.3 2003/05/03 17:56:24 RD Exp $
-// Copyright:   (c) 1997-2002 wxWindows team
+// RCS-ID:      $Id: region.h,v 1.22 2004/09/16 22:36:12 VZ Exp $
+// Copyright:   (c) 1997-2002 wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_REGION_H_
 #define _WX_REGION_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "region.h"
 #endif
 
@@ -48,9 +48,12 @@ public:
     wxRegion(const wxRect& rect);
     wxRegion(WXHRGN hRegion); // Hangs on to this region
     wxRegion(size_t n, const wxPoint *points, int fillStyle = wxODDEVEN_RULE );
+    wxRegion( const wxBitmap& bmp)
+    {
+        Union(bmp);
+    }
     wxRegion( const wxBitmap& bmp,
-              const wxColour& transColour = wxNullColour,
-              int   tolerance = 0)
+              const wxColour& transColour, int tolerance = 0)
     {
         Union(bmp, transColour, tolerance);
     }
@@ -58,7 +61,7 @@ public:
     virtual ~wxRegion();
 
     // Copying
-    wxRegion(const wxRegion& r)
+    wxRegion(const wxRegion& r) : wxGDIObject(r)
         { Ref(r); }
     wxRegion& operator = (const wxRegion& r)
         { Ref(r); return (*this); }
@@ -119,12 +122,13 @@ public:
     wxBitmap ConvertToBitmap() const;
 
     // Use the non-transparent pixels of a wxBitmap for the region to combine
-    // with this region.  If the bitmap has a mask then it will be used,
-    // otherwise the colour to be treated as transparent may be specified,
+    // with this region.  First version takes transparency from bitmap's mask,
+    // second lets the user specify the colour to be treated as transparent
     // along with an optional tolerance value.
+    // NOTE: implemented in common/rgncmn.cpp
+    bool Union(const wxBitmap& bmp);
     bool Union(const wxBitmap& bmp,
-               const wxColour& transColour = wxNullColour,
-               int   tolerance = 0);
+               const wxColour& transColour, int tolerance = 0);
 
 // Internal
     bool Combine(wxCoord x, wxCoord y, wxCoord width, wxCoord height, wxRegionOp op);
@@ -148,7 +152,7 @@ class WXDLLEXPORT wxRegionIterator : public wxObject
 public:
     wxRegionIterator() { Init(); }
     wxRegionIterator(const wxRegion& region);
-    wxRegionIterator(const wxRegionIterator& ri) { Init(); *this = ri; }
+    wxRegionIterator(const wxRegionIterator& ri) : wxObject(ri) { Init(); *this = ri; }
 
     wxRegionIterator& operator=(const wxRegionIterator& ri);
 
@@ -184,7 +188,7 @@ private:
     wxRegion m_region;
     wxRect*  m_rects;
 
-    DECLARE_DYNAMIC_CLASS(wxRegionIterator);
+    DECLARE_DYNAMIC_CLASS(wxRegionIterator)
 };
 
 #endif

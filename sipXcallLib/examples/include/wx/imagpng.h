@@ -2,7 +2,7 @@
 // Name:        imagpng.h
 // Purpose:     wxImage PNG handler
 // Author:      Robert Roebling
-// RCS-ID:      $Id: imagpng.h,v 1.3.2.1 2002/10/23 17:32:03 RR Exp $
+// RCS-ID:      $Id: imagpng.h,v 1.11 2005/03/16 16:18:19 ABX Exp $
 // Copyright:   (c) Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -10,17 +10,30 @@
 #ifndef _WX_IMAGPNG_H_
 #define _WX_IMAGPNG_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "imagpng.h"
 #endif
 
-#include "wx/image.h"
+#include "wx/defs.h"
 
 //-----------------------------------------------------------------------------
 // wxPNGHandler
 //-----------------------------------------------------------------------------
 
 #if wxUSE_LIBPNG
+
+#include "wx/image.h"
+
+#define wxIMAGE_OPTION_PNG_FORMAT    wxT("PngFormat")
+#define wxIMAGE_OPTION_PNG_BITDEPTH  wxT("PngBitDepth")
+
+enum
+{
+    wxPNG_TYPE_COLOUR = 0,
+    wxPNG_TYPE_GREY = 2,
+    wxPNG_TYPE_GREY_RED = 3
+};
+
 class WXDLLEXPORT wxPNGHandler: public wxImageHandler
 {
 public:
@@ -33,16 +46,17 @@ public:
     }
 
 #if wxUSE_STREAMS
-    virtual bool LoadFile( wxImage *image, wxInputStream& stream, bool verbose=TRUE, int index=-1 );
-    virtual bool SaveFile( wxImage *image, wxOutputStream& stream, bool verbose=TRUE );
+    virtual bool LoadFile( wxImage *image, wxInputStream& stream, bool verbose=true, int index=-1 );
+    virtual bool SaveFile( wxImage *image, wxOutputStream& stream, bool verbose=true );
     virtual bool DoCanRead( wxInputStream& stream );
 #endif
 
 private:
     DECLARE_DYNAMIC_CLASS(wxPNGHandler)
 };
-#endif
 
+#endif
+  // wxUSE_LIBPNG
 
 #endif
   // _WX_IMAGPNG_H_

@@ -24,6 +24,8 @@
 #include <net/SipMessageEvent.h>
 #include <net/SipContactDb.h>
 
+class SIPX_TRANSPORT_DATA;
+
 
 
 
@@ -72,7 +74,8 @@ public:
     // specified in the message
     virtual UtlBoolean send(SipMessage& message,
         OsMsgQ* responseListener = NULL,
-        void* responseListenerData = NULL) = 0;
+        void* responseListenerData = NULL,
+        SIPX_TRANSPORT_DATA* pTransport = NULL) = 0;
     //! param: message - the sip message to be sent
     //! param: responseListener - the queue on which to place SipMessageEvents containing SIP responses from the same transaction as the request sent in message
     //! param: responseListenerData - data to be passed back with responses
@@ -85,7 +88,8 @@ public:
     // APPLICATION type are normal incoming messages
     // TRANSPORT_ERROR type are notification of failures to send messages
     virtual void dispatch(SipMessage* message,
-                              int messageType = SipMessageEvent::APPLICATION) = 0;
+                              int messageType = SipMessageEvent::APPLICATION,
+                              SIPX_TRANSPORT_DATA* pTransport = NULL) = 0;
 
     void addConfigChangeConsumer(OsMsgQ& messageQueue);
     //: Register to find out when UA config changes (i.e. contact address)

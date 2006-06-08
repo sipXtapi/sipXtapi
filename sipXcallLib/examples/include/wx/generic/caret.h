@@ -4,21 +4,21 @@
 // Author:      Vadim Zeitlin (original code by Robert Roebling)
 // Modified by:
 // Created:     25.05.99
-// RCS-ID:      $Id: caret.h,v 1.6 2002/08/31 11:29:12 GD Exp $
-// Copyright:   (c) wxWindows team
+// RCS-ID:      $Id: caret.h,v 1.12 2005/08/02 18:16:37 MW Exp $
+// Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_CARET_H_
 #define _WX_CARET_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "caret.h"
 #endif
 
 #include "wx/timer.h"
 
-class wxCaret;
+class WXDLLIMPEXP_CORE wxCaret;
 
 class WXDLLEXPORT wxCaretTimer : public wxTimer
 {
@@ -30,7 +30,7 @@ private:
     wxCaret *m_caret;
 };
 
-class wxCaret : public wxCaretBase
+class WXDLLIMPEXP_CORE wxCaret : public wxCaretBase
 {
 public:
     // ctors
@@ -59,6 +59,7 @@ protected:
     virtual void DoShow();
     virtual void DoHide();
     virtual void DoMove();
+    virtual void DoSize();
 
     // blink the caret once
     void Blink();
@@ -68,7 +69,7 @@ protected:
 
     // draw the caret on the given DC
     void DoDraw(wxDC *dc);
-    
+
 private:
     // GTK specific initialization
     void InitGeneric();
@@ -80,8 +81,8 @@ private:
                   m_yOld;
 
     wxCaretTimer  m_timer;
-    bool          m_blinkedOut,     // TRUE => caret hidden right now
-                  m_hasFocus;       // TRUE => our window has focus
+    bool          m_blinkedOut,     // true => caret hidden right now
+                  m_hasFocus;       // true => our window has focus
 };
 
 #endif // _WX_CARET_H_

@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     05.05.01
-// RCS-ID:      $Id: menuitem.h,v 1.7 2002/03/22 19:17:01 VS Exp $
+// RCS-ID:      $Id: menuitem.h,v 1.13 2004/08/10 13:08:33 ABX Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_UNIV_MENUITEM_H_
 #define _WX_UNIV_MENUITEM_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univmenuitem.h"
 #endif
 
@@ -36,8 +36,8 @@ public:
     virtual void SetText(const wxString& text);
     virtual void SetCheckable(bool checkable);
 
-    virtual void Enable(bool enable = TRUE);
-    virtual void Check(bool check = TRUE);
+    virtual void Enable(bool enable = true);
+    virtual void Check(bool check = true);
 
     // we add some extra functions which are also available under MSW from
     // wxOwnerDrawn class - they will be moved to wxMenuItemBase later
@@ -45,8 +45,18 @@ public:
     void SetBitmaps(const wxBitmap& bmpChecked,
                     const wxBitmap& bmpUnchecked = wxNullBitmap);
     void SetBitmap(const wxBitmap& bmp) { SetBitmaps(bmp); }
-    const wxBitmap& GetBitmap(bool checked = TRUE) const
+    const wxBitmap& GetBitmap(bool checked = true) const
       { return checked ? m_bmpChecked : m_bmpUnchecked; }
+
+    void SetDisabledBitmap( const wxBitmap& bmpDisabled )
+      { m_bmpDisabled = bmpDisabled; }
+    const wxBitmap& GetDisabledBitmap() const
+      { return m_bmpDisabled; }
+
+    // mark item as belonging to the given radio group
+    void SetAsRadioGroupStart();
+    void SetRadioGroupStart(int start);
+    void SetRadioGroupEnd(int end);
 
     // wxUniv-specific methods for implementation only starting from here
 
@@ -66,14 +76,14 @@ public:
 
     wxCoord GetPosition() const
     {
-        wxASSERT_MSG( m_posY != -1, _T("must call SetHeight first!") );
+        wxASSERT_MSG( m_posY != wxDefaultCoord, _T("must call SetHeight first!") );
 
         return m_posY;
     }
 
     wxCoord GetHeight() const
     {
-        wxASSERT_MSG( m_height != -1, _T("must call SetHeight first!") );
+        wxASSERT_MSG( m_height != wxDefaultCoord, _T("must call SetHeight first!") );
 
         return m_height;
     }
@@ -87,7 +97,21 @@ protected:
 
     // the bitmaps (may be invalid, then they're not used)
     wxBitmap m_bmpChecked,
-             m_bmpUnchecked;
+             m_bmpUnchecked,
+             m_bmpDisabled; 
+
+    // the positions of the first and last items of the radio group this item
+    // belongs to or -1: start is the radio group start and is valid for all
+    // but first radio group items (m_isRadioGroupStart == false), end is valid
+    // only for the first one
+    union
+    {
+        int start;
+        int end;
+    } m_radioGroup;
+
+    // does this item start a radio group?
+    bool m_isRadioGroupStart;
 
     // the position of the accelerator in our label, -1 if none
     int m_indexAccel;

@@ -4,15 +4,15 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: splitter.h,v 1.32.2.1 2002/10/29 21:47:27 RR Exp $
-// Copyright:   (c) Julian Smart and Markus Holzem
-// Licence:     wxWindows license
+// RCS-ID:      $Id: splitter.h,v 1.53 2005/03/17 21:21:41 JS Exp $
+// Copyright:   (c) Julian Smart
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __SPLITTERH_G__
 #define __SPLITTERH_G__
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "splitter.h"
 #endif
 
@@ -49,7 +49,7 @@ enum
 //    The MFC splitter window manages scrollbars as well so is able to
 //    put sash buttons on the scrollbars, but we probably don't want to go down
 //    this path.
-// 2) for wxWindows 2.0, we must find a way to set the WS_CLIPCHILDREN style
+// 2) for wxWidgets 2.0, we must find a way to set the WS_CLIPCHILDREN style
 //    to prevent flickering. (WS_CLIPCHILDREN doesn't work in all cases so can't be
 //    standard).
 
@@ -67,7 +67,7 @@ public:
     }
 
     // Normal constructor
-    wxSplitterWindow(wxWindow *parent, wxWindowID id = -1,
+    wxSplitterWindow(wxWindow *parent, wxWindowID id = wxID_ANY,
                      const wxPoint& pos = wxDefaultPosition,
                      const wxSize& size = wxDefaultSize,
                      long style = wxSP_3D,
@@ -79,7 +79,7 @@ public:
 
     virtual ~wxSplitterWindow();
 
-    bool Create(wxWindow *parent, wxWindowID id = -1,
+    bool Create(wxWindow *parent, wxWindowID id = wxID_ANY,
                      const wxPoint& pos = wxDefaultPosition,
                      const wxSize& size = wxDefaultSize,
                      long style = wxSP_3D,
@@ -108,7 +108,7 @@ public:
 
     // Associates the given window with window 2, drawing the appropriate sash
     // and changing the split mode.
-    // Does nothing and returns FALSE if the window is already split.
+    // Does nothing and returns false if the window is already split.
     // A sashPosition of 0 means choose a default sash position,
     // negative sashPosition specifies the size of right/lower pane as it's
     // absolute value rather than the size of left/upper pane.
@@ -129,6 +129,11 @@ public:
     // parameter should be NULL)
     bool ReplaceWindow(wxWindow *winOld, wxWindow *winNew);
 
+    // Make sure the child window sizes are updated. This is useful
+    // for reducing flicker by updating the sizes before a
+    // window is shown, if you know the overall size is correct.
+    void UpdateSize();
+
     // Is the window split?
     bool IsSplit() const { return (m_windowTwo != NULL); }
 
@@ -136,19 +141,25 @@ public:
     void SetSashSize(int width) { m_sashSize = width; }
 
     // Sets the border size
-    void SetBorderSize(int width) { m_borderSize = width; }
+    void SetBorderSize(int WXUNUSED(width)) { }
 
     // Gets the sash size
-    int GetSashSize() const { return m_sashSize; }
+    int GetSashSize() const;
 
     // Gets the border size
-    int GetBorderSize() const { return m_borderSize; }
+    int GetBorderSize() const;
 
     // Set the sash position
-    void SetSashPosition(int position, bool redraw = TRUE);
+    void SetSashPosition(int position, bool redraw = true);
 
     // Gets the sash position
     int GetSashPosition() const { return m_sashPosition; }
+
+    // Set the sash gravity
+    void SetSashGravity(double gravity);
+
+    // Gets the sash gravity
+    double GetSashGravity() const { return m_sashGravity; }
 
     // If this is zero, we can remove panes by dragging the sash.
     void SetMinimumPaneSize(int min);
@@ -162,7 +173,7 @@ public:
     virtual int OnSashPositionChanging(int newSashPosition);
 
     // Called when the sash position is about to be changed, return
-    // FALSE from here to prevent the change from taking place.
+    // false from here to prevent the change from taking place.
     // Repositions sash to minimum position if pane would be too small.
     // newSashPosition here is always positive or zero.
     virtual bool OnSashPositionChange(int newSashPosition);
@@ -190,10 +201,7 @@ public:
     void OnSize(wxSizeEvent& event);
 
     // In live mode, resize child windows in idle time
-    void OnIdle(wxIdleEvent& event);
-
-    // Draws borders
-    virtual void DrawBorders(wxDC& dc);
+    void OnInternalIdle();
 
     // Draws the sash
     virtual void DrawSash(wxDC& dc);
@@ -202,28 +210,28 @@ public:
     virtual void DrawSashTracker(int x, int y);
 
     // Tests for x, y over sash
-    virtual bool SashHitTest(int x, int y, int tolerance = 2);
+    virtual bool SashHitTest(int x, int y, int tolerance = 5);
 
     // Resizes subwindows
     virtual void SizeWindows();
 
-    // Initialize colours
-    void InitColours();
-
     void SetNeedUpdating(bool needUpdating) { m_needUpdating = needUpdating; }
     bool GetNeedUpdating() const { return m_needUpdating ; }
 
+#ifdef __WXMAC__
+    virtual bool MacClipGrandChildren() const { return true ; }
+#endif
+
 protected:
     // event handlers
-#ifdef __WXMSW__
+#if defined(__WXMSW__) || defined(__WXMAC__)
     void OnSetCursor(wxSetCursorEvent& event);
 #endif // wxMSW
 
-    // send the given event, return FALSE if the event was processed and vetoed
+    // send the given event, return false if the event was processed and vetoed
     // by the user code
     inline bool DoSendEvent(wxSplitterEvent& event);
 
-protected:
     // common part of all ctors
     void Init();
 
@@ -245,26 +253,38 @@ protected:
 
     // set the real sash position, sashPos here must be positive
     //
-    // returns TRUE if the sash position has been changed, FALSE otherwise
+    // returns true if the sash position has been changed, false otherwise
     bool DoSetSashPosition(int sashPos);
 
     // set the sash position and send an event about it having been changed
     void SetSashPositionAndNotify(int sashPos);
 
+    // callbacks executed when we detect that the mouse has entered or left
+    // the sash
+    virtual void OnEnterSash();
+    virtual void OnLeaveSash();
+
     // set the cursor appropriate for the current split mode
     void SetResizeCursor();
 
+    // redraw the splitter if its "hotness" changed if necessary
+    void RedrawIfHotSensitive(bool isHot);
+
+    // return the best size of the splitter equal to best sizes of its
+    // subwindows
+    virtual wxSize DoGetBestSize() const;
+
+
     wxSplitMode m_splitMode;
-    bool        m_permitUnsplitAlways;
-    bool        m_needUpdating; // when in live mode, set this to TRUE to resize children in idle
     wxWindow*   m_windowOne;
     wxWindow*   m_windowTwo;
     int         m_dragMode;
     int         m_oldX;
     int         m_oldY;
-    int         m_borderSize;
-    int         m_sashSize;     // Sash width or height
     int         m_sashPosition; // Number of pixels from left or top
+    double      m_sashGravity;
+    int         m_sashSize;
+    wxSize      m_lastSize;
     int         m_requestedSashPosition;
     int         m_sashPositionCurrent; // while dragging
     int         m_firstX;
@@ -272,19 +292,20 @@ protected:
     int         m_minimumPaneSize;
     wxCursor    m_sashCursorWE;
     wxCursor    m_sashCursorNS;
-    wxPen*      m_sashTrackerPen;
-    wxPen*      m_lightShadowPen;
-    wxPen*      m_mediumShadowPen;
-    wxPen*      m_darkShadowPen;
-    wxPen*      m_hilightPen;
-    wxBrush*    m_faceBrush;
-    wxPen*      m_facePen;
+    wxPen      *m_sashTrackerPen;
+
+    // when in live mode, set this to true to resize children in idle
+    bool        m_needUpdating:1;
+    bool        m_permitUnsplitAlways:1;
+    bool        m_isHot:1;
+    bool        m_checkRequestedSashPosition:1;
 
 private:
     WX_DECLARE_CONTROL_CONTAINER();
 
     DECLARE_DYNAMIC_CLASS(wxSplitterWindow)
     DECLARE_EVENT_TABLE()
+    DECLARE_NO_COPY_CLASS(wxSplitterWindow)
 };
 
 // ----------------------------------------------------------------------------
@@ -363,45 +384,27 @@ private:
         } pt;               // position of double click for DCLICK event
     } m_data;
 
-    DECLARE_DYNAMIC_CLASS(wxSplitterEvent)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxSplitterEvent)
 };
 
 typedef void (wxEvtHandler::*wxSplitterEventFunction)(wxSplitterEvent&);
 
-#define EVT_SPLITTER_SASH_POS_CHANGED(id, fn)                               \
-  DECLARE_EVENT_TABLE_ENTRY(                                                \
-    wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGED,                                \
-    id,                                                                     \
-    -1,                                                                     \
-    (wxObjectEventFunction)(wxEventFunction)(wxSplitterEventFunction) &fn,  \
-    NULL                                                                    \
-  ),
+#define wxSplitterEventHandler(func) \
+    (wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(wxSplitterEventFunction, &func)
 
-#define EVT_SPLITTER_SASH_POS_CHANGING(id, fn)                              \
-  DECLARE_EVENT_TABLE_ENTRY(                                                \
-    wxEVT_COMMAND_SPLITTER_SASH_POS_CHANGING,                               \
-    id,                                                                     \
-    -1,                                                                     \
-    (wxObjectEventFunction)(wxEventFunction)(wxSplitterEventFunction) &fn,  \
-    NULL                                                                    \
-  ),
+#define wx__DECLARE_SPLITTEREVT(evt, id, fn) \
+    wx__DECLARE_EVT1(wxEVT_COMMAND_SPLITTER_ ## evt, id, wxSplitterEventHandler(fn))
 
-#define EVT_SPLITTER_DCLICK(id, fn)                                         \
-  DECLARE_EVENT_TABLE_ENTRY(                                                \
-    wxEVT_COMMAND_SPLITTER_DOUBLECLICKED,                                   \
-    id,                                                                     \
-    -1,                                                                     \
-    (wxObjectEventFunction)(wxEventFunction)(wxSplitterEventFunction) &fn,  \
-    NULL                                                                    \
-  ),
+#define EVT_SPLITTER_SASH_POS_CHANGED(id, fn) \
+    wx__DECLARE_SPLITTEREVT(SASH_POS_CHANGED, id, fn)
 
-#define EVT_SPLITTER_UNSPLIT(id, fn)                                        \
-  DECLARE_EVENT_TABLE_ENTRY(                                                \
-    wxEVT_COMMAND_SPLITTER_UNSPLIT,                                         \
-    id,                                                                     \
-    -1,                                                                     \
-    (wxObjectEventFunction)(wxEventFunction)(wxSplitterEventFunction) &fn,  \
-    NULL                                                                    \
-  ),
+#define EVT_SPLITTER_SASH_POS_CHANGING(id, fn) \
+    wx__DECLARE_SPLITTEREVT(SASH_POS_CHANGING, id, fn)
+
+#define EVT_SPLITTER_DCLICK(id, fn) \
+    wx__DECLARE_SPLITTEREVT(DOUBLECLICKED, id, fn)
+
+#define EVT_SPLITTER_UNSPLIT(id, fn) \
+    wx__DECLARE_SPLITTEREVT(UNSPLIT, id, fn)
 
 #endif // __SPLITTERH_G__

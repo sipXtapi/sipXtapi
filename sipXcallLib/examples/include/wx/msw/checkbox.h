@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: checkbox.h,v 1.11.2.1 2002/09/22 20:56:25 VZ Exp $
+// RCS-ID:      $Id: checkbox.h,v 1.22 2005/05/18 23:16:44 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_CHECKBOX_H_
 #define _WX_CHECKBOX_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "checkbox.h"
 #endif
 
@@ -45,16 +45,45 @@ public:
     virtual void SetValue(bool value);
     virtual bool GetValue() const;
 
-    virtual void SetLabel(const wxString& label);
-
+    // override some base class virtuals
     virtual bool MSWCommand(WXUINT param, WXWORD id);
     virtual void Command(wxCommandEvent& event);
+    virtual bool SetForegroundColour(const wxColour& colour);
 
 protected:
     virtual wxSize DoGetBestSize() const;
+    virtual bool MSWOnDraw(WXDRAWITEMSTRUCT *item);
+
+    virtual void DoSet3StateValue(wxCheckBoxState value);
+    virtual wxCheckBoxState DoGet3StateValue() const;
+
+    // make the checkbox owner drawn or reset it to normal style
+    void MakeOwnerDrawn(bool ownerDrawn);
+
+    // return true if this checkbox is owner drawn
+    bool IsOwnerDrawn() const;
 
 private:
-    DECLARE_DYNAMIC_CLASS(wxCheckBox)
+    // common part of all ctors
+    void Init();
+
+    // event handlers used by owner-drawn checkbox
+    void OnMouseEnterOrLeave(wxMouseEvent& event);
+    void OnMouseLeft(wxMouseEvent& event);
+    void OnFocus(wxFocusEvent& event);
+
+
+    // current state of the checkbox
+    wxCheckBoxState m_state;
+
+    // true if the checkbox is currently pressed
+    bool m_isPressed;
+
+    // true if mouse is currently over the control
+    bool m_isHot;
+
+
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxCheckBox)
 };
 
 #endif

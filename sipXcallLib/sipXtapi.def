@@ -4,14 +4,8 @@ EXPORTS
     ?GIPSVE_AddToConference@VEAPI@@UAEHH_N00@Z
     ?GIPSVE_Authenticate@VEAPI@@UAEHPADH@Z
     ?GIPSVE_CheckIfAudioIsAvailable@VEAPI@@UAEHHH@Z
-    ?GIPSVE_ConvertCompressedToPCM@VEAPI@@UAEHPAD0@Z
-    ?GIPSVE_ConvertCompressedToPCM@VEAPI@@UAEHPAVInStream@@PAVOutStream@@@Z
-    ?GIPSVE_ConvertPCMToCompressed@VEAPI@@UAEHPAD0PAUGIPSVE_CodecInst@@@Z
-    ?GIPSVE_ConvertPCMToCompressed@VEAPI@@UAEHPAVInStream@@PAVOutStream@@PAUGIPSVE_CodecInst@@@Z
     ?GIPSVE_ConvertPCMToWav@VEAPI@@UAEHPAD0@Z
-    ?GIPSVE_ConvertPCMToWav@VEAPI@@UAEHPAVInStream@@PAVOutStream@@H@Z
     ?GIPSVE_ConvertWavToPCM@VEAPI@@UAEHPAD0@Z
-    ?GIPSVE_ConvertWavToPCM@VEAPI@@UAEHPAVInStream@@PAVOutStream@@@Z
     ?GIPSVE_CreateChannel@VEAPI@@UAEHXZ
     ?GIPSVE_DeleteChannel@VEAPI@@UAEHH@Z
     ?GIPSVE_DisableEncryption@VEAPI@@UAEHH@Z
@@ -29,8 +23,6 @@ EXPORTS
     ?GIPSVE_Enable_External_Recording@VEAPI@@UAEH_N@Z
     ?GIPSVE_GetAGCStatus@VEAPI@@UAEHXZ
     ?GIPSVE_GetChannelOutputVolumeScale@VEAPI@@UAEMH@Z
-    ?GIPSVE_GetCodec@VEAPI@@UAEHFPAUGIPSVE_CodecInst@@@Z
-    ?GIPSVE_GetCurrentSendCodec@VEAPI@@UAEHFPAUGIPSVE_CodecInst@@@Z
     ?GIPSVE_GetDTMFFeedbackStatus@VEAPI@@UAEHXZ
     ?GIPSVE_GetECActivity@VEAPI@@UAEHXZ
     ?GIPSVE_GetECStatus@VEAPI@@UAEHXZ
@@ -49,7 +41,6 @@ EXPORTS
     ?GIPSVE_GetPTTSession@VEAPI@@UAEHHPAUGIPSVE_PTTState@@@Z
     ?GIPSVE_GetPlayData@VEAPI@@UAEHPAFHH@Z
     ?GIPSVE_GetPlayoutTimeStamp@VEAPI@@UAEKH@Z
-    ?GIPSVE_GetRecCodec@VEAPI@@UAEHHPAUGIPSVE_CodecInst@@@Z
     ?GIPSVE_GetRecPort@VEAPI@@UAEHH@Z
     ?GIPSVE_GetSendGQOS@VEAPI@@UAEHH@Z
     ?GIPSVE_GetSendIP@VEAPI@@UAEHHPADH@Z
@@ -60,8 +51,6 @@ EXPORTS
     ?GIPSVE_GetVADStatus@VEAPI@@UAEHH@Z
     ?GIPSVE_GetVersion@VEAPI@@UAEHPADH@Z
     ?GIPSVE_GetVoIPMetrics@VEAPI@@UAEHHPAEI@Z
-    ?GIPSVE_GetWaveOutVolume@VEAPI@@QAEHXZ
-    ?GIPSVE_Init@VEAPI@@UAEH_N0HHH@Z
     ?GIPSVE_InitEncryption@VEAPI@@UAEHAAVGIPS_encryption@@@Z
     ?GIPSVE_InstallAlertHandler@VEAPI@@UAEHP6AXHPAX@Z@Z
     ?GIPSVE_IsPlayingFile@VEAPI@@UAEHH@Z
@@ -98,32 +87,20 @@ EXPORTS
     ?GIPSVE_SetNetEqMode@VEAPI@@QAEHHH@Z
     ?GIPSVE_SetNetworkStatus@VEAPI@@UAEHH@Z
     ?GIPSVE_SetRTCPCNAME@VEAPI@@UAEHHPAD@Z
-    ?GIPSVE_SetRecPayloadType@VEAPI@@UAEHFPAUGIPSVE_CodecInst@@@Z
-    ?GIPSVE_SetRecPort@VEAPI@@UAEHHHPAD0@Z
     ?GIPSVE_SetSendCNPayloadType@VEAPI@@UAEHHF@Z
-    ?GIPSVE_SetSendCodec@VEAPI@@UAEHHPAUGIPSVE_CodecInst@@@Z
     ?GIPSVE_SetSendGQOS@VEAPI@@UAEHH_NH@Z
     ?GIPSVE_SetSendIP@VEAPI@@UAEHHPAD@Z
-    ?GIPSVE_SetSendPort@VEAPI@@UAEHHH@Z
     ?GIPSVE_SetSendSSRC@VEAPI@@UAEHHK@Z
     ?GIPSVE_SetSendTOS@VEAPI@@UAEHHH@Z
     ?GIPSVE_SetSendTransport@VEAPI@@UAEHHAAVGIPS_transport@@@Z
-    ?GIPSVE_SetSoundDevices@VEAPI@@UAEHII_N@Z
     ?GIPSVE_SetSpeakerVolume@VEAPI@@UAEHI@Z
     ?GIPSVE_SetSrcPort@VEAPI@@UAEHHH@Z
     ?GIPSVE_SetTrace@VEAPI@@UAEHH@Z
     ?GIPSVE_SetTraceFileName@VEAPI@@UAEHPAD@Z
-    ?GIPSVE_SetWaveOutVolume@VEAPI@@QAEHI@Z
     ?GIPSVE_SetiSACBitRate@VEAPI@@QAEHHHH@Z
     ?GIPSVE_StartListen@VEAPI@@UAEHH@Z
     ?GIPSVE_StartPTTPlayout@VEAPI@@UAEHH@Z
     ?GIPSVE_StartPlayout@VEAPI@@UAEHH@Z
-    ?GIPSVE_StartRecording@VEAPI@@UAEHHPADPAUGIPSVE_CodecInst@@@Z
-    ?GIPSVE_StartRecording@VEAPI@@UAEHHPAVOutStream@@PAUGIPSVE_CodecInst@@@Z
-    ?GIPSVE_StartRecordingCall@VEAPI@@UAEHPADPAUGIPSVE_CodecInst@@@Z
-    ?GIPSVE_StartRecordingCall@VEAPI@@UAEHPAVOutStream@@PAUGIPSVE_CodecInst@@@Z
-    ?GIPSVE_StartRecordingMicrophone@VEAPI@@UAEHPADPAUGIPSVE_CodecInst@@@Z
-    ?GIPSVE_StartRecordingMicrophone@VEAPI@@UAEHPAVOutStream@@PAUGIPSVE_CodecInst@@@Z
     ?GIPSVE_StartSend@VEAPI@@UAEHH@Z
     ?GIPSVE_StopListen@VEAPI@@UAEHH@Z
     ?GIPSVE_StopPlayingFile@VEAPI@@UAEHH@Z

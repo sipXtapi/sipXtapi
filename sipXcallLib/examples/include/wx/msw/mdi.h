@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: mdi.h,v 1.21 2002/01/13 01:26:04 VZ Exp $
+// RCS-ID:      $Id: mdi.h,v 1.34 2005/08/11 13:24:53 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,14 +12,14 @@
 #ifndef _WX_MDI_H_
 #define _WX_MDI_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "mdi.h"
 #endif
 
 #include "wx/frame.h"
 
-WXDLLEXPORT_DATA(extern const wxChar*) wxFrameNameStr;
-WXDLLEXPORT_DATA(extern const wxChar*) wxStatusLineNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxFrameNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxStatusLineNameStr;
 
 class WXDLLEXPORT wxMDIClientWindow;
 class WXDLLEXPORT wxMDIChildFrame;
@@ -69,11 +69,12 @@ public:
     // MDI windows menu
     wxMenu* GetWindowMenu() const { return m_windowMenu; };
     void SetWindowMenu(wxMenu* menu) ;
+    virtual void DoMenuUpdates(wxMenu* menu = NULL);
 
     // MDI operations
     // --------------
     virtual void Cascade();
-    virtual void Tile();
+    virtual void Tile(wxOrientation orient = wxHORIZONTAL);
     virtual void ArrangeIcons();
     virtual void ActivateNext();
     virtual void ActivatePrevious();
@@ -85,14 +86,15 @@ public:
     void OnSysColourChanged(wxSysColourChangedEvent& event);
 
     void OnSize(wxSizeEvent& event);
+    void OnIconized(wxIconizeEvent& event);
 
     bool HandleActivate(int state, bool minimized, WXHWND activate);
     bool HandleCommand(WXWORD id, WXWORD cmd, WXHWND control);
 
     // override window proc for MDI-specific message processing
-    virtual long MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam);
+    virtual WXLRESULT MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam);
 
-    virtual long MSWDefWindowProc(WXUINT, WXWPARAM, WXLPARAM);
+    virtual WXLRESULT MSWDefWindowProc(WXUINT, WXWPARAM, WXLPARAM);
     virtual bool MSWTranslateMessage(WXMSG* msg);
 
 protected:
@@ -102,11 +104,15 @@ protected:
 
     virtual WXHICON GetDefaultIcon() const;
 
+    // set the size of the MDI client window to match the frame size
+    void UpdateClientSize();
+
+
     wxMDIClientWindow *             m_clientWindow;
     wxMDIChildFrame *               m_currentChild;
     wxMenu*                         m_windowMenu;
 
-    // TRUE if MDI Frame is intercepting commands, not child
+    // true if MDI Frame is intercepting commands, not child
     bool m_parentFrameActive;
 
 private:
@@ -114,6 +120,7 @@ private:
 
     DECLARE_EVENT_TABLE()
     DECLARE_DYNAMIC_CLASS(wxMDIParentFrame)
+    DECLARE_NO_COPY_CLASS(wxMDIParentFrame)
 };
 
 // ---------------------------------------------------------------------------
@@ -147,10 +154,10 @@ public:
                 long style = wxDEFAULT_FRAME_STYLE,
                 const wxString& name = wxFrameNameStr);
 
-    virtual bool IsTopLevel() const { return FALSE; }
+    virtual bool IsTopLevel() const { return false; }
 
     // MDI operations
-    virtual void Maximize(bool maximize = TRUE);
+    virtual void Maximize(bool maximize = true);
     virtual void Restore();
     virtual void Activate();
 
@@ -163,8 +170,8 @@ public:
     bool HandleCommand(WXWORD id, WXWORD cmd, WXHWND control);
     bool HandleGetMinMaxInfo(void *mmInfo);
 
-    virtual long MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
-    virtual long MSWDefWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
+    virtual WXLRESULT MSWWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
+    virtual WXLRESULT MSWDefWindowProc(WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
     virtual bool MSWTranslateMessage(WXMSG *msg);
 
     virtual void MSWDestroyWindow();
@@ -173,11 +180,13 @@ public:
 
     void OnIdle(wxIdleEvent& event);
 
+    virtual bool Show(bool show = true);
+
 protected:
     virtual void DoGetPosition(int *x, int *y) const;
     virtual void DoSetClientSize(int width, int height);
     virtual void InternalSetMenuBar();
-    virtual bool IsMDIChild() const { return TRUE; }
+    virtual bool IsMDIChild() const { return true; }
 
     virtual WXHICON GetDefaultIcon() const;
 
@@ -185,10 +194,12 @@ protected:
     void Init();
 
 private:
+    bool m_needsInitialShow; // Show must be called in idle time after Creation
     bool m_needsResize; // flag which tells us to artificially resize the frame
+    virtual void DetachMenuBar() ;
 
     DECLARE_EVENT_TABLE()
-    DECLARE_DYNAMIC_CLASS(wxMDIChildFrame)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxMDIChildFrame)
 };
 
 // ---------------------------------------------------------------------------
@@ -223,7 +234,7 @@ protected:
 
 private:
     DECLARE_EVENT_TABLE()
-    DECLARE_DYNAMIC_CLASS(wxMDIClientWindow)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxMDIClientWindow)
 };
 
 #endif

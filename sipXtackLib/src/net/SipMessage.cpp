@@ -104,6 +104,7 @@ SipMessage::SipMessage(const SipMessage& rSipMessage) :
    m_dnsPort = rSipMessage.m_dnsPort;
    mpSipTransaction = rSipMessage.mpSipTransaction;
    mbFromThisSide = rSipMessage.mbFromThisSide;
+   mCustomRouteId = rSipMessage.mCustomRouteId;
 }
 
 // Destructor
@@ -121,14 +122,14 @@ SipMessage::operator=(const SipMessage& rSipMessage)
    HttpMessage::operator =((HttpMessage&)rSipMessage);
    if (this != &rSipMessage)
    {
-         replaceShortFieldNames();
+      replaceShortFieldNames();
       mLocalIp = rSipMessage.mLocalIp;
-      //SDUA
       m_dnsProtocol = rSipMessage.m_dnsProtocol;
       m_dnsAddress = rSipMessage.m_dnsAddress;
       m_dnsPort = rSipMessage.m_dnsPort;
-       mpSipTransaction = rSipMessage.mpSipTransaction;
+      mpSipTransaction = rSipMessage.mpSipTransaction;
       mbFromThisSide = rSipMessage.mbFromThisSide;
+      mCustomRouteId = rSipMessage.mCustomRouteId;
    }
    return *this;
 }
@@ -291,7 +292,7 @@ void SipMessage::setReinviteData(SipMessage* invite,
     UtlString lastResponseContact;
     mbFromThisSide = inviteFromThisSide;
 
-    setLocalIp(invite->getLocalIp()) ;
+    setTransportInfo(invite) ;
 
     // Get the to, from and callId fields
     if(inviteFromThisSide)
@@ -676,19 +677,16 @@ void SipMessage::setResponseData(int statusCode, const char* statusText,
 
 void SipMessage::setTryingResponseData(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_TRYING_CODE, SIP_TRYING_TEXT);
 }
 
 void SipMessage::setInviteRingingData(const SipMessage* inviteRequest)
 {
-   setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_RINGING_CODE, SIP_RINGING_TEXT);
 }
 
 void SipMessage::setQueuedResponseData(const SipMessage* inviteRequest)
 {
-   setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_QUEUED_CODE, SIP_QUEUED_TEXT);
 }
 
@@ -703,14 +701,12 @@ void SipMessage::setInviteBusyData(const char* fromField, const char* toField,
 
 void SipMessage::setBadTransactionData(const SipMessage* inviteRequest)
 {
-   setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_BAD_TRANSACTION_CODE,
         SIP_BAD_TRANSACTION_TEXT);
 }
 
 void SipMessage::setLoopDetectedData(const SipMessage* inviteRequest)
 {
-   setLocalIp(inviteRequest->getLocalIp());
    setResponseData(inviteRequest, SIP_LOOP_DETECTED_CODE,
         SIP_LOOP_DETECTED_TEXT);
 }
@@ -723,7 +719,8 @@ void SipMessage::setInviteBusyData(const SipMessage* inviteRequest)
    int sequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setTransportInfo(inviteRequest) ;
+
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -743,7 +740,8 @@ void SipMessage::setRequestPendingData(const SipMessage* inviteRequest)
    int sequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setTransportInfo(inviteRequest) ;
+
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -758,36 +756,24 @@ void SipMessage::setRequestPendingData(const SipMessage* inviteRequest)
 
 void SipMessage::setForwardResponseData(const SipMessage* request,
                      const char* forwardAddress)
-{
-   setLocalIp(request->getLocalIp());
+{   
    setResponseData(request, SIP_TEMPORARY_MOVE_CODE, SIP_TEMPORARY_MOVE_TEXT);
 
    // Add the contact field for the forward address
    UtlString contactAddress;
-   //UtlString address;
-   //UtlString protocol;
-   //UtlString user;
-   //UtlString userLabel;
-   //int port;
-   //parseAddressFromUri(forwardAddress, &address, &port,
-   // &protocol, &user, &userLabel);
-   //buildSipUrl(&contactAddress, address.data(), port,
-   // protocol.data(), user.data(), userLabel.data());
-    Url contactUrl(forwardAddress);
-    contactUrl.removeFieldParameters();
-    contactUrl.toString(contactAddress);
+
+   Url contactUrl(forwardAddress);
+   contactUrl.removeFieldParameters();
+   contactUrl.toString(contactAddress);
    setContactField(contactAddress.data());
 }
 
 void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
                                     SipUserAgent* ua)
 {
-   setLocalIp(inviteRequest->getLocalIp());
    char warningCodeString[MAXIMUM_INTEGER_STRING_LENGTH + 1];
    UtlString warningField;
 
-   //setInviteBusyData(fromField.data(), toField.data(),
-   // callId.data(), sequenceNum);
    setResponseData(inviteRequest, SIP_REQUEST_NOT_ACCEPTABLE_HERE_CODE,
                    SIP_REQUEST_NOT_ACCEPTABLE_HERE_TEXT);
 
@@ -818,14 +804,12 @@ void SipMessage::setInviteBadCodecs(const SipMessage* inviteRequest,
 
 void SipMessage::setInviteForbidden(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_FORBIDDEN_CODE, SIP_FORBIDDEN_TEXT);
 }
 
 void SipMessage::setRequestBadMethod(const SipMessage* request,
                             const char* allowedMethods)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_METHOD_CODE, SIP_BAD_METHOD_TEXT);
 
    // Add a methods supported field
@@ -834,7 +818,6 @@ void SipMessage::setRequestBadMethod(const SipMessage* request,
 
 void SipMessage::setRequestUnimplemented(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_UNIMPLEMENTED_METHOD_CODE,
         SIP_UNIMPLEMENTED_METHOD_TEXT);
 }
@@ -842,7 +825,6 @@ void SipMessage::setRequestUnimplemented(const SipMessage* request)
 void SipMessage::setRequestBadExtension(const SipMessage* request,
                             const char* disallowedExtension)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_EXTENSION_CODE, SIP_BAD_EXTENSION_TEXT);
 
    // Add a methods supported field
@@ -852,7 +834,6 @@ void SipMessage::setRequestBadExtension(const SipMessage* request,
 void SipMessage::setRequestBadContentEncoding(const SipMessage* request,
                    const char* allowedEncodings)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_MEDIA_CODE, SIP_BAD_MEDIA_TEXT);
 
    // Add a encodings supported field
@@ -865,25 +846,21 @@ void SipMessage::setRequestBadContentEncoding(const SipMessage* request,
 
 void SipMessage::setRequestBadAddress(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_ADDRESS_CODE, SIP_BAD_ADDRESS_TEXT);
 }
 
 void SipMessage::setRequestBadVersion(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_VERSION_CODE, SIP_BAD_VERSION_TEXT);
 }
 
 void SipMessage::setRequestBadRequest(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
 }
 
 void SipMessage::setRequestBadUrlType(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_UNSUPPORTED_URI_SCHEME_CODE,
                    SIP_UNSUPPORTED_URI_SCHEME_TEXT);
 }
@@ -898,7 +875,8 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
    UtlString sequenceMethod;
    const SdpBody* inviteSdp = NULL;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setTransportInfo(inviteRequest) ;
+
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -950,7 +928,6 @@ void SipMessage::setInviteOkData(const SipMessage* inviteRequest,
 void SipMessage::setOkResponseData(const SipMessage* request,
                                    const char* localContact)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_OK_CODE, SIP_OK_TEXT, localContact);
 }
 
@@ -968,7 +945,8 @@ void SipMessage::setNotifyData(SipMessage *subscribeRequest,
    int dummySequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(subscribeRequest->getLocalIp());
+   setTransportInfo(subscribeRequest) ;
+
    subscribeRequest->getFromField(&fromField);
    subscribeRequest->getToField(&toField);
    subscribeRequest->getCallIdField(&callId);
@@ -1019,7 +997,6 @@ void SipMessage::setNotifyData(SipMessage *subscribeRequest,
    {
       uri.append(fromField.data());
    }
-
 
    setRequestData(SIP_NOTIFY_METHOD, uri.data(),
         toField.data(), fromField.data(), callId, localCSequenceNumber);
@@ -1193,7 +1170,6 @@ void SipMessage::setVoicemailData(const char* fromField,
 
 void SipMessage::setRequestTerminatedResponseData(const SipMessage* request)
 {
-   setLocalIp(request->getLocalIp());
    setResponseData(request, SIP_REQUEST_TERMINATED_CODE, SIP_REQUEST_TERMINATED_TEXT);
 }
 
@@ -1204,7 +1180,8 @@ void SipMessage::setRequestUnauthorized(const SipMessage* request,
                             const char* authenticationOpaque,
                             enum HttpEndpointEnum authEntity)
 {
-   setLocalIp(request->getLocalIp());
+    setTransportInfo(request) ;
+
     if(authEntity == SERVER)
     {
         setResponseData(request,
@@ -1290,7 +1267,8 @@ void SipMessage::setResponseData(const SipMessage* request,
                          const char* responseText,
                          const char* localContact)
 {
-   setLocalIp(request->getLocalIp());
+   setTransportInfo(request) ;
+
    UtlString fromField;
    UtlString toField;
    UtlString callId;
@@ -1325,7 +1303,8 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
                             const char* contact,
                             int sessionTimerExpires)
 {
-   setLocalIp(inviteResponse->getLocalIp());
+   setTransportInfo(inviteResponse) ;
+
    UtlString fromField;
    UtlString toField;
    UtlString uri;
@@ -1439,7 +1418,6 @@ void SipMessage::setAckData(const SipMessage* inviteResponse,
 
 void SipMessage::setAckErrorData(const SipMessage* byeRequest)
 {
-   setLocalIp(byeRequest->getLocalIp());
    setResponseData(byeRequest, SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
 }
 
@@ -1471,7 +1449,7 @@ void SipMessage::setByeData(const SipMessage* inviteRequest,
    UtlString sequenceMethod;
    UtlString remoteContactString;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setTransportInfo(inviteRequest) ;
 
    if (remoteContact)
       remoteContactString.append(remoteContact);
@@ -1492,14 +1470,12 @@ void SipMessage::setByeData(const SipMessage* inviteRequest,
     if(!uri.isNull())
     {
     }
-
     // Use the original uri from the INVITE if the INVITE is from
     // this side.
-   else if(byeToCallee)
-   {
-      inviteRequest->getRequestUri(&uri);
-   }
-
+    else if(byeToCallee)
+    {
+        inviteRequest->getRequestUri(&uri);
+    }
     // Use contact if present
     else if(inviteRequest->getContactUri(0, &uri) && !uri.isNull())
     {
@@ -1549,7 +1525,8 @@ void SipMessage::setReferData(const SipMessage* inviteRequest,
    int dummySequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setTransportInfo(inviteRequest) ;
+
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -1646,19 +1623,16 @@ void SipMessage::setReferData(const SipMessage* inviteRequest,
 
 void SipMessage::setReferOkData(const SipMessage* referRequest)
 {
-   setLocalIp(referRequest->getLocalIp());
    setResponseData(referRequest, SIP_OK_CODE, SIP_OK_TEXT);
 }
 
 void SipMessage::setReferDeclinedData(const SipMessage* referRequest)
 {
-   setLocalIp(referRequest->getLocalIp());
    setResponseData(referRequest, SIP_DECLINE_CODE, SIP_DECLINE_TEXT);
 }
 
 void SipMessage::setReferFailedData(const SipMessage* referRequest)
 {
-   setLocalIp(referRequest->getLocalIp());
    setResponseData(referRequest, SIP_SERVICE_UNAVAILABLE_CODE, SIP_SERVICE_UNAVAILABLE_TEXT);
 }
 
@@ -1676,7 +1650,8 @@ void SipMessage::setOptionsData(const SipMessage* inviteRequest,
    int dummySequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setTransportInfo(inviteRequest) ;
+
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
    inviteRequest->getCallIdField(&callId);
@@ -1734,7 +1709,6 @@ void SipMessage::setOptionsData(const SipMessage* inviteRequest,
 
 void SipMessage::setByeErrorData(const SipMessage* byeRequest)
 {
-   setLocalIp(byeRequest->getLocalIp());
    setResponseData(byeRequest, SIP_BAD_REQUEST_CODE, SIP_BAD_REQUEST_TEXT);
 }
 
@@ -1756,7 +1730,7 @@ void SipMessage::setCancelData(const SipMessage* inviteRequest)
    int sequenceNum;
    UtlString sequenceMethod;
 
-   setLocalIp(inviteRequest->getLocalIp());
+   setTransportInfo(inviteRequest) ;
 
    inviteRequest->getFromField(&fromField);
    inviteRequest->getToField(&toField);
@@ -1815,29 +1789,39 @@ void SipMessage::addVia(const char* domainName,
                         int port,
                         const char* protocol,
                         const char* branchId,
-                        const bool  bIncludeRport)
+                        const bool  bIncludeRport,
+                        const char* customRouteId)
 {
    UtlString viaField(SIP_PROTOCOL_VERSION);
    char portString[MAXIMUM_INTEGER_STRING_LENGTH + 1];
+   bool bCustomRouteId = (customRouteId && strlen(customRouteId)) ;
 
    viaField.append("/");
    if(protocol && strlen(protocol))
    {
       viaField.append(protocol);
    }
-
    // Default the protocol if not set
    else
    {
       viaField.append(SIP_TRANSPORT_TCP);
    }
    viaField.append(" ");
-   viaField.append(domainName);
-   if(portIsValid(port))
-   {
-      sprintf(portString, ":%d", port);
-      viaField.append(portString);
-   }
+   
+    if (bCustomRouteId)
+    {
+        viaField.append(customRouteId);
+    }
+    else
+    {
+        viaField.append(domainName);
+        if(portIsValid(port))
+        {
+            sprintf(portString, ":%d", port);
+            viaField.append(portString);
+        }        
+    }
+   
 
     if(branchId && *branchId)
     {
@@ -1847,7 +1831,7 @@ void SipMessage::addVia(const char* domainName,
         viaField.append(branchId);
     }
 
-    if (bIncludeRport)
+    if (bIncludeRport && !bCustomRouteId)
     {
         viaField.append(';');
         viaField.append("rport");
@@ -2198,8 +2182,8 @@ void SipMessage::setMinExpiresField(int minimumExpiresInSeconds)
 
 void SipMessage::setContactField(const char* contactField, int index)
 {
-   // If the field exists change it.  If it does not exist, create it.
-   setHeaderValue(SIP_CONTACT_FIELD, contactField, index);
+    // If the field exists change it.  If it does not exist, create it.
+    setHeaderValue(SIP_CONTACT_FIELD, contactField, index);
 }
 
 void SipMessage::setRequestDispositionField(const char* dispositionField)
@@ -2661,9 +2645,6 @@ void SipMessage::convertProtocolStringToEnum(const char* protocolString,
     }
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-                      "SipMessage::convertProtocolStringToEnum unrecognized protocol: %s",
-                      protocolString);
         protocolEnum = OsSocket::UNKNOWN;
     }
 
@@ -2676,23 +2657,18 @@ void SipMessage::convertProtocolEnumToString(enum OsSocket::SocketProtocolTypes 
     {
     case OsSocket::UDP:
         protocolString = SIP_TRANSPORT_UDP;
-            ;
         break;
 
     case OsSocket::TCP:
         protocolString = SIP_TRANSPORT_TCP;
-            ;
-
         break;
 
     case OsSocket::SSL_SOCKET:
         protocolString = SIP_TRANSPORT_TLS;
-            ;
         break;
 
     default:
         protocolString = SIP_TRANSPORT_UDP;
-
         break;
     }
 }
@@ -4493,6 +4469,33 @@ SipTransaction* SipMessage::getSipTransaction() const
     return(mpSipTransaction);
 }
 
+const UtlString SipMessage::getTransportName(bool& bCustom) const
+{
+    UtlString transport;
+    UtlString toField;
+    getToField(&toField);
+    Url toUrl(toField);
+    
+    toUrl.getUrlParameter("transport", transport);
+    if (transport.length() < 1)
+    {
+        bCustom = false;
+    }
+    else if ("UDP" == transport ||
+        "TCP" == transport ||
+        "TLS" == transport)
+    {
+        bCustom = false;
+    }
+    else
+    {
+        bCustom = true;
+    }
+    return transport;
+
+}
+
+
 void SipMessage::ParseContactFields(const SipMessage *registerResponse,
                                     const SipMessage *SipRequest,
                                     const UtlString &subField,
@@ -4582,6 +4585,15 @@ const UtlString& SipMessage::getLocalIp() const
 void SipMessage::setLocalIp(const UtlString& localIp)
 {
     mLocalIp = localIp;
+}
+
+void SipMessage::setTransportInfo(const SipMessage* pMsg) 
+{
+    assert(pMsg != NULL) ;
+    if (pMsg)
+    {
+        setLocalIp(pMsg->getLocalIp()) ;
+    }
 }
 
 /// Get the name/value pairs for a Via field
@@ -4928,4 +4940,3 @@ bool SipMessage::OnSignature(void* pCert, char* szSubjAltName)
                              pCert,
                              szSubjAltName);
 }
-

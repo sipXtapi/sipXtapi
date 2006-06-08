@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.03.98
-// RCS-ID:      $Id: dropsrc.h,v 1.15.2.1 2002/12/13 21:36:19 MBN Exp $
+// RCS-ID:      $Id: dropsrc.h,v 1.21 2004/08/16 12:45:40 ABX Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,13 +12,11 @@
 #ifndef   _WX_OLEDROPSRC_H
 #define   _WX_OLEDROPSRC_H
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface
 #endif
 
-#if !wxUSE_DRAG_AND_DROP
-  #error  "You should #define wxUSE_DRAG_AND_DROP to 1 to compile this file!"
-#endif  //WX_DRAG_DROP
+#if wxUSE_DRAG_AND_DROP
 
 // ----------------------------------------------------------------------------
 // forward declarations
@@ -76,6 +74,10 @@ protected:
 
 private:
     wxIDropSource *m_pIDropSource;  // the pointer to COM interface
+
+    DECLARE_NO_COPY_CLASS(wxDropSource)
 };
+
+#endif  //wxUSE_DRAG_AND_DROP
 
 #endif  //_WX_OLEDROPSRC_H

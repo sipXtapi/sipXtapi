@@ -4,15 +4,15 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     4/1/98
-// RCS-ID:      $Id: ipcbase.h,v 1.15 2002/09/03 11:22:55 JS Exp $
-// Copyright:   (c) Julian Smart and Markus Holzem
-// Licence:     wxWindows license
+// RCS-ID:      $Id: ipcbase.h,v 1.25 2004/10/13 14:03:57 ABX Exp $
+// Copyright:   (c) Julian Smart
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_IPCBASEH__
 #define _WX_IPCBASEH__
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "ipcbase.h"
 #endif
 
@@ -42,10 +42,10 @@ enum wxIPCFormat
   wxIPC_PRIVATE =          20
 };
 
-class WXDLLEXPORT wxServerBase;
-class WXDLLEXPORT wxClientBase;
+class WXDLLIMPEXP_BASE wxServerBase;
+class WXDLLIMPEXP_BASE wxClientBase;
 
-class WXDLLEXPORT wxConnectionBase: public wxObject
+class WXDLLIMPEXP_BASE wxConnectionBase: public wxObject
 {
   DECLARE_CLASS(wxConnectionBase)
 
@@ -77,7 +77,7 @@ public:
                                wxChar *WXUNUSED(data),
                                int WXUNUSED(size),
                                wxIPCFormat WXUNUSED(format) )
-                             { return FALSE; };
+                             { return false; };
 
   virtual wxChar *OnRequest    ( const wxString& WXUNUSED(topic),
                                const wxString& WXUNUSED(item),
@@ -90,15 +90,15 @@ public:
                                wxChar *WXUNUSED(data),
                                int WXUNUSED(size),
                                wxIPCFormat WXUNUSED(format) )
-                             { return FALSE; };
+                             { return false; };
 
   virtual bool OnStartAdvise ( const wxString& WXUNUSED(topic),
                                const wxString& WXUNUSED(item) )
-                             { return FALSE; };
+                             { return false; };
 
   virtual bool OnStopAdvise  ( const wxString& WXUNUSED(topic),
                                const wxString& WXUNUSED(item) )
-                             { return FALSE; };
+                             { return false; };
 
   // Callbacks to CLIENT - override at will
   virtual bool OnAdvise      ( const wxString& WXUNUSED(topic),
@@ -106,10 +106,10 @@ public:
                                wxChar *WXUNUSED(data),
                                int WXUNUSED(size),
                                wxIPCFormat WXUNUSED(format) )
-                             { return FALSE; };
+                             { return false; };
 
   // Callbacks to BOTH - override at will
-  // Default behaviour is to delete connection and return TRUE
+  // Default behaviour is to delete connection and return true
   virtual bool OnDisconnect(void) = 0;
 
   // return a buffer at least this size, reallocating buffer if needed
@@ -122,31 +122,35 @@ private:
   wxChar *      m_buffer;
   size_t        m_buffersize;
   bool          m_deletebufferwhendone;
+
+  // can't use DECLARE_NO_COPY_CLASS(wxConnectionBase) because we already
+  // have copy ctor but still forbid the default assignment operator
+  wxConnectionBase& operator=(const wxConnectionBase&);
 };
 
 
-class WXDLLEXPORT wxServerBase: public wxObject
+class WXDLLIMPEXP_BASE wxServerBase: public wxObject
 {
   DECLARE_CLASS(wxServerBase)
 
 public:
   inline wxServerBase(void) {}
-  inline ~wxServerBase(void) {};
+  inline ~wxServerBase(void) {}
 
-  // Returns FALSE on error (e.g. port number is already in use)
+  // Returns false on error (e.g. port number is already in use)
   virtual bool Create(const wxString& serverName) = 0;
 
   // Callbacks to SERVER - override at will
   virtual wxConnectionBase *OnAcceptConnection(const wxString& topic) = 0;
 };
 
-class WXDLLEXPORT wxClientBase: public wxObject
+class WXDLLIMPEXP_BASE wxClientBase: public wxObject
 {
   DECLARE_CLASS(wxClientBase)
 
 public:
-  inline wxClientBase(void) {};
-  inline ~wxClientBase(void) {};
+  inline wxClientBase(void) {}
+  inline ~wxClientBase(void) {}
 
   virtual bool ValidHost(const wxString& host) = 0;
 

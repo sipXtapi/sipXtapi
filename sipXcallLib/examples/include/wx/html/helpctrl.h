@@ -4,7 +4,7 @@
 // Notes:       Based on htmlhelp.cpp, implementing a monolithic
 //              HTML Help controller class,  by Vaclav Slavik
 // Author:      Harm van der Heijden and Vaclav Slavik
-// RCS-ID:      $Id: helpctrl.h,v 1.20.2.2 2002/12/16 00:16:49 VS Exp $
+// RCS-ID:      $Id: helpctrl.h,v 1.31 2004/10/13 14:04:15 ABX Exp $
 // Copyright:   (c) Harm van der Heijden and Vaclav Slavik
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -14,18 +14,18 @@
 
 #include "wx/defs.h"
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "helpctrl.h"
 #endif
 
 #if wxUSE_WXHTML_HELP
 
-#include "wx/html/helpfrm.h"
 #include "wx/helpbase.h"
+#include "wx/html/helpfrm.h"
 
 #define wxID_HTML_HELPFRAME   (wxID_HIGHEST + 1)
 
-class WXDLLEXPORT wxHtmlHelpController : public wxHelpControllerBase // wxEvtHandler
+class WXDLLIMPEXP_HTML wxHtmlHelpController : public wxHelpControllerBase // wxEvtHandler
 {
     DECLARE_DYNAMIC_CLASS(wxHtmlHelpController)
 
@@ -35,14 +35,15 @@ public:
 
     void SetTitleFormat(const wxString& format);
     void SetTempDir(const wxString& path) { m_helpData.SetTempDir(path); }
-    bool AddBook(const wxString& book_url, bool show_wait_msg = FALSE);
-    bool AddBook(const wxFileName& book_file, bool show_wait_msg = FALSE);
+    bool AddBook(const wxString& book_url, bool show_wait_msg = false);
+    bool AddBook(const wxFileName& book_file, bool show_wait_msg = false);
 
     bool Display(const wxString& x);
     bool Display(int id);
     bool DisplayContents();
     bool DisplayIndex();
-    bool KeywordSearch(const wxString& keyword);
+    bool KeywordSearch(const wxString& keyword,
+                       wxHelpSearchMode mode = wxHELP_SEARCH_ALL);
 
     wxHtmlHelpFrame* GetFrame() { return m_helpFrame; }
     void UseConfig(wxConfigBase *config, const wxString& rootpath = wxEmptyString);
@@ -67,7 +68,7 @@ public:
     virtual void SetFrameParameters(const wxString& title,
                                const wxSize& size,
                                const wxPoint& pos = wxDefaultPosition,
-                               bool newFrameEachTime = FALSE);
+                               bool newFrameEachTime = false);
     /// Obtains the latest settings used by the help frame and the help
     /// frame.
     virtual wxFrame *GetFrameParameters(wxSize *size = NULL,
@@ -78,7 +79,7 @@ public:
     wxHtmlHelpData *GetHelpData() { return &m_helpData; }
 
     virtual bool Quit() ;
-    virtual void OnQuit() {};
+    virtual void OnQuit() {}
 
     void OnCloseFrame(wxCloseEvent& evt);
 
@@ -99,6 +100,8 @@ protected:
     wxString            m_titleFormat;
     int                 m_FrameStyle;
     // DECLARE_EVENT_TABLE()
+
+    DECLARE_NO_COPY_CLASS(wxHtmlHelpController)
 };
 
 #endif // wxUSE_WXHTML_HELP

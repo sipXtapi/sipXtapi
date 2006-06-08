@@ -1,3 +1,14 @@
+/////////////////////////////////////////////////////////////////////////////
+// Name:        wx/tabctrl.h
+// Purpose:     wxTabCtrl base header
+// Author:      Julian Smart
+// Modified by:
+// Created:
+// Copyright:   (c) Julian Smart
+// RCS-ID:      $Id: tabctrl.h,v 1.8 2005/05/04 18:52:03 JS Exp $
+// Licence:     wxWindows licence
+/////////////////////////////////////////////////////////////////////////////
+
 #ifndef _WX_TABCTRL_H_BASE_
 #define _WX_TABCTRL_H_BASE_
 
@@ -15,8 +26,6 @@ END_DECLARE_EVENT_TYPES()
 #include "wx/mac/tabctrl.h"
 #elif defined(__WXPM__)
 #include "wx/os2/tabctrl.h"
-#elif defined(__WXSTUBS__)
-#include "wx/stubs/tabctrl.h"
 #endif
 
 #endif

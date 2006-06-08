@@ -4,15 +4,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     01.02.01
-// RCS-ID:      $Id: notebook.h,v 1.22.2.2 2003/06/03 10:39:56 VZ Exp $
-// Copyright:   (c) 1996-2000 wxWindows team
+// RCS-ID:      $Id: notebook.h,v 1.53 2005/06/26 15:46:08 RR Exp $
+// Copyright:   (c) 1996-2000 Vadim Zeitlin
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_NOTEBOOK_H_BASE_
 #define _WX_NOTEBOOK_H_BASE_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "notebookbase.h"
 #endif
 
@@ -24,81 +24,54 @@
 
 #if wxUSE_NOTEBOOK
 
-#include "wx/control.h"
-#include "wx/dynarray.h"
-#include "wx/imaglist.h"
+#include "wx/bookctrl.h"
 
 // ----------------------------------------------------------------------------
-// types
+// constants
 // ----------------------------------------------------------------------------
 
-// array of notebook pages
+// wxNotebook hit results
+enum
+{
+    wxNB_HITTEST_NOWHERE = 1,   // not on tab
+    wxNB_HITTEST_ONICON  = 2,   // on icon
+    wxNB_HITTEST_ONLABEL = 4,   // on label
+    wxNB_HITTEST_ONITEM  = wxNB_HITTEST_ONICON | wxNB_HITTEST_ONLABEL
+};
+
 typedef wxWindow wxNotebookPage;  // so far, any window can be a page
 
-WX_DEFINE_EXPORTED_ARRAY(wxNotebookPage *, wxArrayPages);
+extern WXDLLEXPORT_DATA(const wxChar*) wxNotebookNameStr;
 
-#define wxNOTEBOOK_NAME _T("notebook")
+#if WXWIN_COMPATIBILITY_2_4
+    #define wxNOTEBOOK_NAME wxNotebookNameStr
+#endif
 
 // ----------------------------------------------------------------------------
 // wxNotebookBase: define wxNotebook interface
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxNotebookBase : public wxControl
+class WXDLLEXPORT wxNotebookBase : public wxBookCtrlBase
 {
 public:
-    // ctor
-    wxNotebookBase()
-    {
-        Init();
-    }
+    // ctors
+    // -----
 
-    // quasi ctor
-    bool Create(wxWindow *parent,
-                wxWindowID id,
-                const wxPoint& pos = wxDefaultPosition,
-                const wxSize& size = wxDefaultSize,
-                long style = 0,
-                const wxString& name = wxNOTEBOOK_NAME);
+    wxNotebookBase() { }
 
-    // dtor
-    virtual ~wxNotebookBase();
+    wxNotebookBase(wxWindow *parent,
+                   wxWindowID winid,
+                   const wxPoint& pos = wxDefaultPosition,
+                   const wxSize& size = wxDefaultSize,
+                   long style = 0,
+                   const wxString& name = wxNotebookNameStr) ;
 
-    // accessors
-    // ---------
-
-    // get number of pages in the dialog
-    int GetPageCount() const { return m_pages.GetCount(); }
-
-    // get the panel which represents the given page
-    wxNotebookPage *GetPage(int nPage) { return m_pages[nPage]; }
-
-    // get the currently selected page
-    virtual int GetSelection() const = 0;
-
-    // set/get the title of a page
-    virtual bool SetPageText(int nPage, const wxString& strText) = 0;
-    virtual wxString GetPageText(int nPage) const = 0;
-
-    // image list stuff: each page may have an image associated with it (all
-    // images belong to the same image list)
-    virtual void SetImageList(wxImageList* imageList);
-
-    // as SetImageList() but we will delete the image list ourselves
-    void AssignImageList(wxImageList* imageList);
-
-    // get pointer (may be NULL) to the associated image list
-    wxImageList* GetImageList() const { return m_imageList; }
-
-    // sets/returns item's image index in the current image list
-    virtual int GetPageImage(int nPage) const = 0;
-    virtual bool SetPageImage(int nPage, int nImage) = 0;
+    // wxNotebook-specific additions to wxBookCtrlBase interface
+    // ---------------------------------------------------------
 
     // get the number of rows for a control with wxNB_MULTILINE style (not all
     // versions support it - they will always return 1 then)
     virtual int GetRowCount() const { return 1; }
-
-    // set the size (the same for all pages)
-    virtual void SetPageSize(const wxSize& size) = 0;
 
     // set the padding between tabs (in pixels)
     virtual void SetPadding(const wxSize& padding) = 0;
@@ -106,118 +79,49 @@ public:
     // set the size of the tabs for wxNB_FIXEDWIDTH controls
     virtual void SetTabSize(const wxSize& sz) = 0;
 
-    // calculate the size of the notebook from the size of its page
-    virtual wxSize CalcSizeFromPage(const wxSize& sizePage);
-
-    // operations
-    // ----------
-
-    // remove one page from the notebook and delete it
-    virtual bool DeletePage(int nPage);
-
-    // remove one page from the notebook, without deleting it
-    virtual bool RemovePage(int nPage) { return DoRemovePage(nPage) != NULL; }
-
-#ifdef __BORLANDC__
-#   pragma option -w-inl
-#endif
-
-    // remove all pages and delete them
-    virtual bool DeleteAllPages() { WX_CLEAR_ARRAY(m_pages); return TRUE; }
-
-#ifdef __BORLANDC__
-#   pragma option -w.inl
-#endif
-
-    // adds a new page to the notebook (it will be deleted by the notebook,
-    // don't delete it yourself) and make it the current one if bSelect
-    virtual bool AddPage(wxNotebookPage *pPage,
-                         const wxString& strText,
-                         bool bSelect = FALSE,
-                         int imageId = -1)
+    // hit test, returns which tab is hit and, optionally, where (icon, label)
+    // (not implemented on all platforms)
+    virtual int HitTest(const wxPoint& WXUNUSED(pt),
+                        long * WXUNUSED(flags) = NULL) const
     {
-        return InsertPage(GetPageCount(), pPage, strText, bSelect, imageId);
+        return wxNOT_FOUND;
     }
 
-    // the same as AddPage(), but adds the page at the specified position
-    virtual bool InsertPage(int nPage,
-                            wxNotebookPage *pPage,
-                            const wxString& strText,
-                            bool bSelect = FALSE,
-                            int imageId = -1) = 0;
 
-    // set the currently selected page, return the index of the previously
-    // selected one (or -1 on error)
-    //
-    // NB: this function will _not_ generate wxEVT_NOTEBOOK_PAGE_xxx events
-    virtual int SetSelection(int nPage) = 0;
+    // implement some base class functions
+    virtual wxSize CalcSizeFromPage(const wxSize& sizePage) const;
 
-    // cycle thru the tabs
-    void AdvanceSelection(bool forward = TRUE)
-    {
-        int nPage = GetNextPage(forward);
-        if ( nPage != -1 )
-            SetSelection(nPage);
-    }
+    // On platforms that support it, get the theme page background colour, else invalid colour
+    virtual wxColour GetThemeBackgroundColour() const { return wxNullColour; }
+
+
+    // Reserved for future use
+    virtual void ReservedNotebookFunc1() {}
+    virtual void ReservedNotebookFunc2() {}
+    virtual void ReservedNotebookFunc3() {}
+    virtual void ReservedNotebookFunc4() {}
+    virtual void ReservedNotebookFunc5() {}
 
 protected:
-    // calculate the best size of the notebook as the max of the best sizes of
-    // its pages
-    virtual wxSize DoGetBestSize() const;
-
-    // remove the page and return a pointer to it
-    virtual wxNotebookPage *DoRemovePage(int page);
-
-    // common part of all ctors
-    void Init();
-
-    // get the next page wrapping if we reached the end
-    int GetNextPage(bool forward) const;
-
-    wxArrayPages  m_pages;      // array of pages
-    wxImageList  *m_imageList;  // we can have an associated image list
-    bool m_ownsImageList;       // true if we must delete m_imageList
+    DECLARE_NO_COPY_CLASS(wxNotebookBase)
 };
 
 // ----------------------------------------------------------------------------
-// notebook event class (used by NOTEBOOK_PAGE_CHANGED/ING events)
+// notebook event class and related stuff
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxNotebookEvent : public wxNotifyEvent
+class WXDLLEXPORT wxNotebookEvent : public wxBookCtrlBaseEvent
 {
 public:
-    wxNotebookEvent(wxEventType commandType = wxEVT_NULL, int id = 0,
+    wxNotebookEvent(wxEventType commandType = wxEVT_NULL, int winid = 0,
                     int nSel = -1, int nOldSel = -1)
-        : wxNotifyEvent(commandType, id)
-        {
-            m_nSel = nSel;
-            m_nOldSel = nOldSel;
-        }
-
-    // accessors
-        // the currently selected page (-1 if none)
-    int GetSelection() const { return m_nSel; }
-    void SetSelection(int nSel) { m_nSel = nSel; }
-        // the page that was selected before the change (-1 if none)
-    int GetOldSelection() const { return m_nOldSel; }
-    void SetOldSelection(int nOldSel) { m_nOldSel = nOldSel; }
+        : wxBookCtrlBaseEvent(commandType, winid, nSel, nOldSel)
+    {
+    }
 
 private:
-    int m_nSel,     // currently selected page
-        m_nOldSel;  // previously selected page
-
-    DECLARE_DYNAMIC_CLASS(wxNotebookEvent)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxNotebookEvent)
 };
-
-// ----------------------------------------------------------------------------
-// event types and macros for them
-// ----------------------------------------------------------------------------
-
-#if defined(__BORLANDC__) && defined(__WIN16__)
-    // For 16-bit BC++, these 2 would be identical otherwise (truncated)
-    #define wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED wxEVT_COMMAND_NB_PAGE_CHANGED
-    #define wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGING wxEVT_COMMAND_NB_PAGE_CHANGING
-#endif
 
 BEGIN_DECLARE_EVENT_TYPES()
     DECLARE_EVENT_TYPE(wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, 802)
@@ -226,47 +130,14 @@ END_DECLARE_EVENT_TYPES()
 
 typedef void (wxEvtHandler::*wxNotebookEventFunction)(wxNotebookEvent&);
 
-// Truncation in 16-bit BC++ means we need to define these differently
-#if defined(__BORLANDC__) && defined(__WIN16__)
-#define EVT_NOTEBOOK_PAGE_CHANGED(id, fn)                                   \
-  DECLARE_EVENT_TABLE_ENTRY(                                                \
-    wxEVT_COMMAND_NB_PAGE_CHANGED,                                          \
-    id,                                                                     \
-    -1,                                                                     \
-    (wxObjectEventFunction)(wxEventFunction)(wxNotebookEventFunction) &fn,  \
-    NULL                                                                    \
-  ),
+#define wxNotebookEventHandler(func) \
+    (wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(wxNotebookEventFunction, &func)
 
-#define EVT_NOTEBOOK_PAGE_CHANGING(id, fn)                                  \
-  DECLARE_EVENT_TABLE_ENTRY(                                                \
-    wxEVT_COMMAND_NB_PAGE_CHANGING,                                         \
-    id,                                                                     \
-    -1,                                                                     \
-    (wxObjectEventFunction)(wxEventFunction)(wxNotebookEventFunction) &fn,  \
-    NULL                                                                    \
-  ),
+#define EVT_NOTEBOOK_PAGE_CHANGED(winid, fn) \
+    wx__DECLARE_EVT1(wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED, winid, wxNotebookEventHandler(fn))
 
-#else
-
-#define EVT_NOTEBOOK_PAGE_CHANGED(id, fn)                                   \
-  DECLARE_EVENT_TABLE_ENTRY(                                                \
-    wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGED,                                    \
-    id,                                                                     \
-    -1,                                                                     \
-    (wxObjectEventFunction)(wxEventFunction)(wxNotebookEventFunction) &fn,  \
-    NULL                                                                    \
-  ),
-
-#define EVT_NOTEBOOK_PAGE_CHANGING(id, fn)                                  \
-  DECLARE_EVENT_TABLE_ENTRY(                                                \
-    wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGING,                                   \
-    id,                                                                     \
-    -1,                                                                     \
-    (wxObjectEventFunction)(wxEventFunction)(wxNotebookEventFunction) &fn,  \
-    NULL                                                                    \
-  ),
-
-#endif
+#define EVT_NOTEBOOK_PAGE_CHANGING(winid, fn) \
+    wx__DECLARE_EVT1(wxEVT_COMMAND_NOTEBOOK_PAGE_CHANGING, winid, wxNotebookEventHandler(fn))
 
 // ----------------------------------------------------------------------------
 // wxNotebook class itself
@@ -275,21 +146,17 @@ typedef void (wxEvtHandler::*wxNotebookEventFunction)(wxNotebookEvent&);
 #if defined(__WXUNIVERSAL__)
     #include "wx/univ/notebook.h"
 #elif defined(__WXMSW__)
-    #ifdef __WIN16__
-        #include  "wx/generic/notebook.h"
-    #else
-        #include  "wx/msw/notebook.h"
-    #endif
+    #include  "wx/msw/notebook.h"
 #elif defined(__WXMOTIF__)
     #include  "wx/generic/notebook.h"
 #elif defined(__WXGTK__)
     #include  "wx/gtk/notebook.h"
 #elif defined(__WXMAC__)
     #include  "wx/mac/notebook.h"
+#elif defined(__WXCOCOA__)
+    #include  "wx/cocoa/notebook.h"
 #elif defined(__WXPM__)
     #include  "wx/os2/notebook.h"
-#elif defined(__WXSTUBS__)
-    #include  "wx/stubs/notebook.h"
 #endif
 
 #endif // wxUSE_NOTEBOOK

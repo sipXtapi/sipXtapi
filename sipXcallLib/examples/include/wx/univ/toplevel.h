@@ -2,7 +2,7 @@
 // Name:        wx/toplevel.h
 // Purpose:     Top level window, abstraction of wxFrame and wxDialog
 // Author:      Vaclav Slavik
-// Id:          $Id: toplevel.h,v 1.15.2.2 2002/09/21 20:38:05 VZ Exp $
+// Id:          $Id: toplevel.h,v 1.24 2004/12/19 20:51:06 VZ Exp $
 // Copyright:   (c) 2001-2002 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 #ifndef __WX_UNIV_TOPLEVEL_H__
 #define __WX_UNIV_TOPLEVEL_H__
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univtoplevel.h"
 #endif
 
@@ -143,8 +143,6 @@ public:
     virtual int GetMinWidth() const;
     virtual int GetMinHeight() const;
 
-    virtual bool ProvidesBackground() const { return TRUE; }
-    
 protected:
     // handle titlebar button click event
     virtual void ClickTitleBarButton(long button);
@@ -158,12 +156,12 @@ protected:
     void Init();
 
     void RefreshTitleBar();
-    void OnNcPaint(wxPaintEvent& event);
+    void OnNcPaint(wxNcPaintEvent& event);
     void OnSystemMenu(wxCommandEvent& event);
 
-    // TRUE if wxTLW should render decorations (aka titlebar) itself
+    // true if wxTLW should render decorations (aka titlebar) itself
     static int ms_drawDecorations;
-    // TRUE if wxTLW can be iconized
+    // true if wxTLW can be iconized
     static int ms_canIconize;
     // true for currently active frame
     bool m_isActive:1;

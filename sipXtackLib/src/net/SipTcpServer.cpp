@@ -136,17 +136,17 @@ OsStatus SipTcpServer::createServerSocket(const char* szBindAddr, int& port, con
         if (pSocket && pSocket->isOk())
         {
             port = pSocket->getLocalHostPort();
-            CONTACT_ADDRESS contact;
+            SIPX_CONTACT_ADDRESS contact;
             strcpy(contact.cIpAddress, szBindAddr);
             contact.iPort = port;
-            contact.eContactType = LOCAL;
+            contact.eContactType = CONTACT_LOCAL;
             char szAdapterName[16];
             memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
             
 
             getContactAdapterName(szAdapterName, contact.cIpAddress, false);
             strcpy(contact.cInterface, szAdapterName);
-            contact.transportType = OsSocket::TCP;
+            contact.eTransportType = TRANSPORT_TCP;
             mSipUserAgent->addContactAddress(contact);
        
             // add address and port to the maps

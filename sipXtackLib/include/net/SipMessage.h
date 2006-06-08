@@ -697,7 +697,8 @@ public:
                 int port,
                 const char* protocol,
                 const char* branchId = NULL,
-                const bool bIncludeRport = false) ;
+                const bool bIncludeRport = false,
+                const char* customRouteId = NULL) ;
 
     void addViaField(const char* viaField, UtlBoolean afterOtherVias = TRUE);
 
@@ -843,6 +844,8 @@ public:
     
     void setLocalIp(const UtlString& localIp);
 
+    void setTransportInfo(const SipMessage* pMsg) ;
+
     //@}
 
     //! @name SIP Routing header field accessors and manipulators
@@ -957,6 +960,11 @@ public:
      */
     SipTransaction* getSipTransaction() const;
 
+    //! Accessor to retrieve any transport string from
+    /*! \the to-field.  Also determines if it is a custom transport.
+     */
+    const UtlString getTransportName(bool& bCustom) const;       
+
 /* ============================ INQUIRY =================================== */
 
     //! Returns TRUE if this a SIP response
@@ -1015,6 +1023,7 @@ private:
     SipTransaction* mpSipTransaction;
     mutable SIPXTACK_SECURITY_ATTRIBUTES* mpSecurity;
     mutable void* mpEventData;
+    UtlString mCustomRouteId;
 
     UtlString mLocalIp;
     bool mbFromThisSide;

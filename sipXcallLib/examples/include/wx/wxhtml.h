@@ -1,16 +1,16 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        wxhtml.h
-// Purpose:     wxHTML library for wxWindows
+// Purpose:     wxHTML library for wxWidgets
 // Author:      Vaclav Slavik
-// RCS-ID:      $Id: wxhtml.h,v 1.6 2002/08/31 11:29:11 GD Exp $
+// RCS-ID:      $Id: wxhtml.h,v 1.9 2004/05/23 20:50:26 JS Exp $
 // Copyright:   (c) 1999 Vaclav Slavik
-// Licence:     wxWindows Licence
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_HTML_H_
 #define _WX_HTML_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface
 #endif
 

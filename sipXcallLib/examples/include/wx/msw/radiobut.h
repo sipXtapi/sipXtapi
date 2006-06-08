@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: radiobut.h,v 1.10 2002/07/05 14:09:30 JS Exp $
+// RCS-ID:      $Id: radiobut.h,v 1.20 2005/04/10 15:22:58 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_RADIOBUT_H_
 #define _WX_RADIOBUT_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "radiobut.h"
 #endif
 
@@ -52,9 +52,7 @@ public:
     // implementation only from now on
     virtual bool MSWCommand(WXUINT param, WXWORD id);
     virtual void Command(wxCommandEvent& event);
-    virtual long MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam);
-
-    virtual void SetFocus();
+    virtual bool HasTransparentBackground() { return true; }
 
 protected:
     virtual wxSize DoGetBestSize() const;
@@ -63,10 +61,11 @@ private:
     // common part of all ctors
     void Init();
 
-    // see the comments in SetFocus()
-    bool m_focusJustSet;
+    // we need to store the state internally as the result of GetValue()
+    // sometimes gets out of sync in WM_COMMAND handler
+    bool m_isChecked;
 
-    DECLARE_DYNAMIC_CLASS(wxRadioButton)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxRadioButton)
 };
 
 #endif

@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\include"
+				AdditionalIncludeDirectories="include,..\include;..\PlaceCall\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -40,7 +40,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sipXtapid.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib sipXtapid.lib odbc32.lib odbccp32.lib sipXportLibD.lib libpcre.a"
 				OutputFile="..\bin\ReceiveCall_dbg.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -86,7 +86,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\include"
+				AdditionalIncludeDirectories="include,..\include;..\PlaceCall\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -99,12 +99,13 @@
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sipXtapi.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib Ws2_32.lib sipXtapi.lib odbc32.lib odbccp32.lib libpcre.a sipXportLib.lib"
 				OutputFile="..\bin\ReceiveCall.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -148,7 +149,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\include"
+				AdditionalIncludeDirectories="include,..\include;..\PlaceCall\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -166,7 +167,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sipXtapid.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="msvcrtd.lib msvcprtd.lib rpcrt4.lib Ws2_32.lib sipXtapid.lib odbc32.lib odbccp32.lib sipXportLibD.lib libpcre.a"
 				OutputFile="..\bin\ReceiveCall_dbgNoVideo.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
@@ -212,7 +213,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include;..\include"
+				AdditionalIncludeDirectories="include,..\include;..\PlaceCall\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
@@ -225,17 +226,18 @@
 				ProgramDataBaseFileName=".\Release_NoVideo/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="3"
 				CompileAs="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="sipXtapi.lib odbc32.lib odbccp32.lib"
+				AdditionalDependencies="msvcrt.lib msvcprt.lib rpcrt4.lib Ws2_32.lib sipXtapi.lib odbc32.lib odbccp32.lib libpcre.a sipXportLib.lib"
 				OutputFile="..\bin\ReceiveCall_NoVideo.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\lib"
-				ProgramDatabaseFile=".\Release/ReceiveCall.pdb"
+				ProgramDatabaseFile=""
 				SubSystem="1"
 				TargetMachine="1"/>
 			<Tool
@@ -270,6 +272,9 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="..\PlaceCall\src\ExternalTransport.cpp">
+			</File>
 			<File
 				RelativePath="src\ReceiveCall.cpp">
 				<FileConfiguration
@@ -314,6 +319,9 @@
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\PlaceCall\include\ExternalTransport.h">
+			</File>
 			<File
 				RelativePath=".\include\ReceiveCall.h">
 			</File>

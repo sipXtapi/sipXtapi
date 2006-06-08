@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     16.11.97
-// RCS-ID:      $Id: checklst.h,v 1.16.2.1 2002/09/22 21:01:59 VZ Exp $
+// RCS-ID:      $Id: checklst.h,v 1.24 2004/08/20 12:03:03 ABX Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef   __CHECKLST__H_
 #define   __CHECKLST__H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "checklst.h"
 #endif
 
@@ -36,11 +36,25 @@ public:
                  long style = 0,
                  const wxValidator& validator = wxDefaultValidator,
                  const wxString& name = wxListBoxNameStr);
+  wxCheckListBox(wxWindow *parent, wxWindowID id,
+                 const wxPoint& pos,
+                 const wxSize& size,
+                 const wxArrayString& choices,
+                 long style = 0,
+                 const wxValidator& validator = wxDefaultValidator,
+                 const wxString& name = wxListBoxNameStr);
 
   bool Create(wxWindow *parent, wxWindowID id,
                 const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize,
                 int n = 0, const wxString choices[] = NULL,
+                long style = 0,
+                const wxValidator& validator = wxDefaultValidator,
+                const wxString& name = wxListBoxNameStr);
+  bool Create(wxWindow *parent, wxWindowID id,
+                const wxPoint& pos,
+                const wxSize& size,
+                const wxArrayString& choices,
                 long style = 0,
                 const wxValidator& validator = wxDefaultValidator,
                 const wxString& name = wxListBoxNameStr);
@@ -52,7 +66,7 @@ public:
 
   // items may be checked
   virtual bool IsChecked(size_t uiIndex) const;
-  virtual void Check(size_t uiIndex, bool bCheck = TRUE);
+  virtual void Check(size_t uiIndex, bool bCheck = true);
 
   // return the index of the item at this position or wxNOT_FOUND
   int HitTest(const wxPoint& pt) const { return DoHitTestItem(pt.x, pt.y); }
@@ -74,11 +88,13 @@ protected:
   void OnKeyDown(wxKeyEvent& event);
   void OnLeftClick(wxMouseEvent& event);
 
+  wxSize DoGetBestSize() const;
+
 private:
   size_t    m_nItemHeight;  // height of checklistbox items (the same for all)
 
   DECLARE_EVENT_TABLE()
-  DECLARE_DYNAMIC_CLASS(wxCheckListBox)
+  DECLARE_DYNAMIC_CLASS_NO_COPY(wxCheckListBox)
 };
 
 #endif    //_CHECKLST_H

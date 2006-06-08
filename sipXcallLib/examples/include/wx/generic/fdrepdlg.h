@@ -5,11 +5,14 @@
 // Modified by:
 // Created:     25/05/2001
 // RCS-ID:
-// Copyright:   (c) wxWindows team
+// Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#ifndef _WX_GENERIC_FDREPDLG_H_
+#define _WX_GENERIC_FDREPDLG_H_
+
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "genericfdrepdlg.h"
 #endif
 
@@ -69,3 +72,4 @@ private:
     DECLARE_EVENT_TABLE()
 };
 
+#endif // _WX_GENERIC_FDREPDLG_H_

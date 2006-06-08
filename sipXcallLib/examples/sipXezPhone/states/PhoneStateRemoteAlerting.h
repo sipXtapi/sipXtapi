@@ -44,7 +44,7 @@ public:
    //virtual PhoneState* OnRinging();
    //virtual PhoneState* OnRemoteAlerting();
    //virtual PhoneState* OnRemoteBusy();
-   //virtual PhoneState* OnFlashButton();
+   virtual PhoneState* OnFlashButton();
    virtual PhoneState* OnConnected();
    virtual PhoneState* OnDisconnected(const SIPX_CALL hCall);
 

@@ -4,19 +4,17 @@
 //              font encodings
 // Author:      Vaclav Slavik
 // Copyright:   (c) 1999 Vaclav Slavik
-// Licence:     wxWindows Licence
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_ENCCONV_H_
 #define _WX_ENCCONV_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "encconv.h"
 #endif
 
 #include "wx/defs.h"
-
-#if wxUSE_FONTMAP
 
 #include "wx/object.h"
 #include "wx/fontenc.h"
@@ -55,7 +53,7 @@ WX_DEFINE_ARRAY_INT(wxFontEncoding, wxFontEncodingArray);
 //                  8bit encodings/charsets. It can also convert from/to Unicode
 //--------------------------------------------------------------------------------
 
-class WXDLLEXPORT wxEncodingConverter : public wxObject
+class WXDLLIMPEXP_BASE wxEncodingConverter : public wxObject
 {
     public:
 
@@ -85,23 +83,23 @@ class WXDLLEXPORT wxEncodingConverter : public wxObject
             //     both modes gurantee that output string will have same length
             //     as input string
             //
-            // Returns FALSE if given conversion is impossible, TRUE otherwise
+            // Returns false if given conversion is impossible, true otherwise
             // (conversion may be impossible either if you try to convert
-            // to Unicode with non-Unicode build of wxWindows or if input
+            // to Unicode with non-Unicode build of wxWidgets or if input
             // or output encoding is not supported.)
             bool Init(wxFontEncoding input_enc, wxFontEncoding output_enc, int method = wxCONVERT_STRICT);
 
             // Convert input string according to settings passed to Init.
             // Note that you must call Init before using Convert!
-            void Convert(const char* input, char* output);
-            void Convert(char* str) { Convert(str, str); }
-            wxString Convert(const wxString& input);
+            bool Convert(const char* input, char* output) const;
+            bool Convert(char* str) const { return Convert(str, str); }
+            wxString Convert(const wxString& input) const;
 
 #if wxUSE_WCHAR_T
-            void Convert(const char* input, wchar_t* output);
-            void Convert(const wchar_t* input, char* output);
-            void Convert(const wchar_t* input, wchar_t* output);
-            void Convert(wchar_t* str) { Convert(str, str); }
+            bool Convert(const char* input, wchar_t* output) const;
+            bool Convert(const wchar_t* input, char* output) const;
+            bool Convert(const wchar_t* input, wchar_t* output) const;
+            bool Convert(wchar_t* str) const { return Convert(str, str); }
 #endif
             // Return equivalent(s) for given font that are used
             // under given platform. wxPLATFORM_CURRENT means the plaform
@@ -138,6 +136,17 @@ class WXDLLEXPORT wxEncodingConverter : public wxObject
             // equivalent encodings, regardless the platform, including itself.
             static wxFontEncodingArray GetAllEquivalents(wxFontEncoding enc);
 
+            // Return true if [any text in] one multibyte encoding can be
+            // converted to another one losslessly.
+            //
+            // Do not call this with wxFONTENCODING_UNICODE, it doesn't make
+            // sense (always works in one sense and always depends on the text
+            // to convert in the other)
+            static bool CanConvert(wxFontEncoding encIn, wxFontEncoding encOut)
+            {
+                return GetAllEquivalents(encIn).Index(encOut) != wxNOT_FOUND;
+            }
+
     private:
 
 #if wxUSE_WCHAR_T
@@ -148,8 +157,7 @@ class WXDLLEXPORT wxEncodingConverter : public wxObject
             bool m_UnicodeInput, m_UnicodeOutput;
             bool m_JustCopy;
 
+    DECLARE_NO_COPY_CLASS(wxEncodingConverter)
 };
-
-#endif // wxUSE_FONTMAP
 
 #endif  // _WX_ENCCONV_H_

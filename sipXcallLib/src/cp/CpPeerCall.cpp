@@ -241,15 +241,16 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
     UtlString desiredCallId;
     UtlString remoteHostName;
     UtlString locationHeader;
-    CONTACT_ID contactId ;
+    SIPX_CONTACT_ID contactId ;
 
     ((CpMultiStringMessage*)pEventMessage)->getString1Data(dialString);    
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(desiredCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(locationHeader);
-    contactId = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    contactId = (SIPX_CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     void* pDisplay = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
     void* pSecurity = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
+    SIPX_TRANSPORT_DATA* pTransport = (SIPX_TRANSPORT_DATA*)((CpMultiStringMessage*)pEventMessage)->getInt5Data();
     const char* locationHeaderData = (locationHeader.length() == 0) ? NULL : locationHeader.data();
 
 #ifdef TEST_PRINT
@@ -285,16 +286,16 @@ UtlBoolean CpPeerCall::handleDialString(OsMsg* pEventMessage)
         {
             // Use supplied callId
             addParty(remoteHostName.data(), NULL, NULL, desiredCallId.data(), contactId, pDisplay, pSecurity, 
-                     locationHeaderData, bandWidth);
+                     locationHeaderData, bandWidth, false, NULL, pTransport);
         }
         else
         {
             // Use default call id
             addParty(remoteHostName.data(), NULL, NULL, NULL, contactId, pDisplay, pSecurity,
-                     locationHeaderData, bandWidth);
+                     locationHeaderData, bandWidth, false, NULL, pTransport);
         }        
     } 
-
+	delete pTransport;  // (SipConnection should have a copy of it)
     return TRUE ;
 }
 
@@ -539,7 +540,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
     ((CpMultiStringMessage*)pEventMessage)->getString3Data(referredBy);
     ((CpMultiStringMessage*)pEventMessage)->getString4Data(originalCallId);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(originalConnectionAddress);
-    bool bOnHold = ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
+    bool bOnHold = (bool) ((CpMultiStringMessage*)pEventMessage)->getInt1Data() ;
 
 #ifdef TEST_PRINT
     osPrintf("%s-CpPeerCall::CP_TRANSFEREE_CONNECTION referTo: %s referredBy: \"%s\" originalCallId: %s originalConnectionAddress: %s\n",
@@ -569,7 +570,7 @@ UtlBoolean CpPeerCall::handleTransfereeConnection(OsMsg* pEventMessage)
             osPrintf("%s-CpPeerCall:CP_TRANSFEREE_CONNECTION creating connection via addParty\n", mName.data());
 #endif
             addParty(referTo, referredBy, originalConnectionAddress, NULL, 0, 
-                    NULL, NULL, FALSE, AUDIO_CODEC_BW_DEFAULT, bOnHold);
+                    NULL, NULL, FALSE, AUDIO_CODEC_BW_DEFAULT, bOnHold, originalCallId);
             // Note: The connection is added to the call in addParty
         }
 #ifdef TEST_PRINT
@@ -831,7 +832,7 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
     UtlBoolean connectionFound = FALSE;
     ((CpMultiStringMessage*)pEventMessage)->getString2Data(remoteAddress);
     ((CpMultiStringMessage*)pEventMessage)->getString5Data(locationHeader);
-    CONTACT_TYPE eType = (CONTACT_TYPE) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    SIPX_CONTACT_ID contactId = (SIPX_CONTACT_ID) ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
     void* hWnd = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
     void* security = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     int bandWidth = ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
@@ -879,11 +880,11 @@ UtlBoolean CpPeerCall::handleAcceptConnection(OsMsg* pEventMessage)
 
         if(connectState == Connection::CONNECTION_OFFERING)
         {
-            connection->setContactType(eType) ;
+            connection->setContactId(contactId) ;
             connection->accept(noAnswerTimeout, security, locationHeaderData, bandWidth);
             connectionFound = TRUE;
             break;
-        }        
+        }
     }
 
     if(connectionFound)
@@ -1667,7 +1668,7 @@ UtlBoolean CpPeerCall::handleGetNextCseq(OsMsg* pEventMessage)
 }
 
 // Enumerate possible contact addresses
-void CpPeerCall::getLocalContactAddresses( CONTACT_ADDRESS contacts[], 
+void CpPeerCall::getLocalContactAddresses( SIPX_CONTACT_ADDRESS contacts[], 
                                           size_t nMaxContacts, 
                                           size_t& nActualContacts)
 {
@@ -1678,52 +1679,52 @@ void CpPeerCall::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
     nActualContacts = 0 ;
 
     if (    (nActualContacts < nMaxContacts) && 
-        (sipUserAgent->getLocalAddress(&ipAddress, &port, OsSocket::UDP)))
+        (sipUserAgent->getLocalAddress(&ipAddress, &port, TRANSPORT_UDP)))
     {
-        contacts[nActualContacts].eContactType = LOCAL ;
+        contacts[nActualContacts].eContactType = CONTACT_LOCAL ;
         strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
         contacts[nActualContacts].iPort = port ;
-        contacts[nActualContacts].transportType = OsSocket::UDP;
+        contacts[nActualContacts].eTransportType = TRANSPORT_UDP;
         nActualContacts++ ;
     }
 
     if (    (nActualContacts < nMaxContacts) && 
-        (sipUserAgent->getLocalAddress(&ipAddress, &port, OsSocket::TCP)))
+        (sipUserAgent->getLocalAddress(&ipAddress, &port, TRANSPORT_TCP)))
     {
-        contacts[nActualContacts].eContactType = LOCAL ;
+        contacts[nActualContacts].eContactType = CONTACT_LOCAL ;
         strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
         contacts[nActualContacts].iPort = port ;
-        contacts[nActualContacts].transportType = OsSocket::TCP;
+        contacts[nActualContacts].eTransportType = TRANSPORT_TCP;
         nActualContacts++ ;
     }
 
     if (    (nActualContacts < nMaxContacts) && 
-        (sipUserAgent->getLocalAddress(&ipAddress, &port, OsSocket::SSL_SOCKET)))
+        (sipUserAgent->getLocalAddress(&ipAddress, &port, TRANSPORT_TLS)))
     {
-        contacts[nActualContacts].eContactType = LOCAL ;
+        contacts[nActualContacts].eContactType = CONTACT_LOCAL ;
         strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
         contacts[nActualContacts].iPort = port ;
-        contacts[nActualContacts].transportType = OsSocket::SSL_SOCKET;
+        contacts[nActualContacts].eTransportType = TRANSPORT_TLS;
         nActualContacts++ ;
     }
 
     if (    (nActualContacts < nMaxContacts) && 
         (sipUserAgent->getNatMappedAddress(&ipAddress, &port)))
     {
-        contacts[nActualContacts].eContactType = NAT_MAPPED ;
+        contacts[nActualContacts].eContactType = CONTACT_NAT_MAPPED ;
         strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
         contacts[nActualContacts].iPort = port ;
-        contacts[nActualContacts].transportType = OsSocket::UDP;
+        contacts[nActualContacts].eTransportType = TRANSPORT_UDP;
         nActualContacts++ ;
     }
 
     if (    (nActualContacts < nMaxContacts) && 
         (sipUserAgent->getConfiguredPublicAddress(&ipAddress, &port)))
     {
-        contacts[nActualContacts].eContactType = CONFIG ;
+        contacts[nActualContacts].eContactType = CONTACT_CONFIG ;
         strncpy(contacts[nActualContacts].cIpAddress, ipAddress.data(), 32) ;
         contacts[nActualContacts].iPort = port ;
-        contacts[nActualContacts].transportType = OsSocket::UDP;
+        contacts[nActualContacts].eTransportType = TRANSPORT_UDP;
         nActualContacts++ ;
     }
 }
@@ -1734,7 +1735,7 @@ UtlBoolean CpPeerCall::handleGetLocalContacts(OsMsg* pEventMessage)
     OsProtectedEvent* pProtectedEvent = (OsProtectedEvent*) 
         ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
 
-    CONTACT_ADDRESS* addresses = (CONTACT_ADDRESS*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
+    SIPX_CONTACT_ADDRESS* addresses = (SIPX_CONTACT_ADDRESS*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
     size_t nMaxAddresses = (size_t) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
     size_t* nActualAddresses = (size_t*) ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
 
@@ -2351,8 +2352,14 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
             if (connection && mpMediaInterface)
             {   
                 int connectionId = connection->getConnectionId() ;
-                mpMediaInterface->playChannelAudio(connectionId, url, repeat, local, remote) ;
-            }           
+                mpMediaInterface->playChannelAudio(connectionId, url, repeat, 
+                                                   local, remote, mixWithMic, downScaling) ;
+            }     
+            else if (mpMediaInterface)
+            {
+                mpMediaInterface->playAudio(url, repeat, local, remote);
+            }
+
         }
 
         break ;
@@ -3059,15 +3066,27 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
                                  const char* callController,
                                  const char* originalCallConnectionAddress,
                                  const char* newCallId,
-                                 CONTACT_ID contactId,
+                                 SIPX_CONTACT_ID contactId,
                                  const void* pDisplay,
                                  const void* pSecurity,
                                  const char* locationHeader,
                                  const int bandWidth,
-                                 UtlBoolean bOnHold)
+                                 UtlBoolean bOnHold,
+								 const char* originalCallId,
+                                 SIPX_TRANSPORT_DATA* pTransport)
 {
     SipConnection* connection = NULL;
 
+    // add transport tag to target address, for custom transport
+    if (pTransport)
+    {
+        Url targetUrl(transferTargetAddress);
+        targetUrl.setUrlParameter("transport", pTransport->szTransport);
+        UtlString sTransferTargetAddress;
+        targetUrl.toString(sTransferTargetAddress);   
+        transferTargetAddress = sTransferTargetAddress.data();
+    }    
+    
     // Should be using the outgoing call type here
     // for SIP, MGCP, etc.
     connection = new SipConnection(mLocalAddress,
@@ -3083,8 +3102,10 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
         connection->setSecurity((SIPXTACK_SECURITY_ATTRIBUTES*)pSecurity);
     }
     
+    connection->setExternalTransport(pTransport);
+
     connection->setContactId(contactId);
-    CONTACT_ADDRESS* pContact = NULL;
+    SIPX_CONTACT_ADDRESS* pContact = NULL;
     
     // if we are calling someone with a "sips:" schema, 
     // we should assume that we want to use our TLS contact,
@@ -3092,7 +3113,7 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     UtlString toAddress(transferTargetAddress);
     if (toAddress.contains("sips:"))
     {
-        pContact = sipUserAgent->getContactDb().findByType(LOCAL, OsSocket::SSL_SOCKET);
+        pContact = sipUserAgent->getContactDb().findByType(CONTACT_LOCAL, TRANSPORT_TLS);
         connection->setContactId(pContact->id);
     }
     if (!pContact)
@@ -3101,11 +3122,13 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
     }
     if (pContact)
     {
-        connection->setContactType(pContact->eContactType);
+        Url url(transferTargetAddress) ;
+        connection->setContactType(pContact->eContactType, &url);
     }
     else
     {
-        connection->setContactType(AUTO);
+        Url url(transferTargetAddress) ;
+        connection->setContactType(CONTACT_AUTO, &url);
     }
     addConnection(connection);
 
@@ -3128,7 +3151,8 @@ Connection* CpPeerCall::addParty(const char* transferTargetAddress,
         pSecurity,
         locationHeader,
         bandWidth,
-        bOnHold); 
+        bOnHold,
+		originalCallId); 
 
     addToneListenersToConnection(connection) ;
 
@@ -3541,9 +3565,8 @@ void CpPeerCall::dropDeadConnections()
 
 void CpPeerCall::offHook(const void* pDisplay)
 {
-#ifdef TEST_PRINT
-    osPrintf("%s-CpPeerCall::offHook\n", mName.data());
-#endif
+    OsSysLog::add(FAC_CP, PRI_DEBUG,"%s-CpPeerCall::offHook\n", mName.data());
+
     OsReadLock lock(mConnectionMutex);
     Connection* connection = NULL;
 

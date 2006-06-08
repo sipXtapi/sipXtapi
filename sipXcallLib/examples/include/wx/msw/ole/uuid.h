@@ -2,9 +2,9 @@
 // Name:        ole/uuid.h
 // Purpose:     encapsulates an UUID with some added helper functions
 // Author:      Vadim Zeitlin
-// Modified by: 
+// Modified by:
 // Created:     11.07.97
-// RCS-ID:      $Id: uuid.h,v 1.6 1999/08/09 17:47:25 RS Exp $
+// RCS-ID:      $Id: uuid.h,v 1.11 2004/08/16 12:45:40 ABX Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 //
@@ -14,7 +14,7 @@
 #ifndef   _WX_OLEUUID_H
 #define   _WX_OLEUUID_H
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "uuid.h"
 #endif
 #include "wx/wxchar.h"
@@ -25,15 +25,13 @@
 // ----- taken from RPC.H
 #ifndef UUID_DEFINED            // in some cases RPC.H will be already
   #ifdef  __WIN32__             // included, so avoid redefinition
-    typedef struct                
+    typedef struct
     {
       unsigned long   Data1;
       unsigned short  Data2;
       unsigned short  Data3;
       unsigned char   Data4[8];
     } UUID;                     // UUID = GUID = CLSID = LIBID = IID
-  #else   // WIN16
-    #error "Don't know about UUIDs on this platform"
   #endif  // WIN32
 #endif  // UUID_DEFINED
 
@@ -53,7 +51,7 @@ class WXDLLEXPORT Uuid
 {
 private:
   UUID  m_uuid;
-  wxUChar *m_pszUuid;   // this string is alloc'd and freed by RPC 
+  wxUChar *m_pszUuid;   // this string is alloc'd and freed by RPC
   wxChar  *m_pszCForm;  // this string is allocated in Set/Create
 
   void  UuidToCForm();
@@ -75,7 +73,7 @@ public:
   // create a brand new UUID
   void Create();
 
-  // set value of UUID 
+  // set value of UUID
   bool Set(const wxChar *pc); // from a string, returns true if ok
   void Set(const UUID& uuid); // from another UUID (never fails)
 

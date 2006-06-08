@@ -27,6 +27,7 @@
 #include "net/SipContactDb.h"
 #include "net/SipDialog.h"
 #include "cp/Connection.h"
+#include "tapi/sipXtapiInternal.h"
 
 // DEFINES
 // MACROS
@@ -279,6 +280,9 @@ public:
     //! For internal use only
     virtual void getNewCallId(UtlString* callId);
 
+    //! Generate a new Call-Id with the specified prefix.
+    static void getNewCallId(const char* callIdPrefix, UtlString* callId);
+
     //! For internal use only
     void getNewSessionId(UtlString* sessionId);
 
@@ -325,11 +329,12 @@ public:
                              const char* toAddress,
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
-                             CONTACT_ID contactId = 0,
+                             SIPX_CONTACT_ID contactId = 0,
                              const void* pDisplay = NULL,
                              const void* pSecurity = NULL,
                              const char* locationHeader = NULL,
-                             const int bandWidth=AUDIO_CODEC_BW_DEFAULT) = 0;
+                             const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
+                             SIPX_TRANSPORT_DATA* pTransportData = NULL) = 0;
 
     //! Create a new call and associate it with an existing call.
     /*! This is usually done to create the consultative call as a
@@ -501,7 +506,7 @@ public:
      */
     virtual void acceptConnection(const char* callId,
                                   const char* address,
-                                  CONTACT_TYPE contactType = AUTO,
+                                  SIPX_CONTACT_ID contactId = 0,
                                   const void* hWnd = NULL,
                                   const void* security = NULL,
                                   const char* locationHeader = NULL,
@@ -509,7 +514,7 @@ public:
 
     virtual void setOutboundLineForCall(const char* callId, 
                                         const char* address, 
-                                        CONTACT_TYPE eType = AUTO) = 0;
+                                        SIPX_CONTACT_TYPE eType = CONTACT_AUTO) = 0;
 
 
     //! Reject the incoming connection
@@ -806,7 +811,6 @@ public:
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
-    void getNewCallId(const char* callIdPrefix, UtlString* callId);
 
     /*! Note: you better put a lock with the mCallListMutex around what ever
      * you do with call as this method only locks to retrieve.  There is
@@ -873,9 +877,9 @@ private:
     int mLastMetaEventId;
     UtlBoolean mbEnableICE ;
 
-    static unsigned long mCallNum;
-
-
+    // Every CallManager shares the same call counter for generating Call-IDs.
+    static intll mCallNum;
+ 
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 };

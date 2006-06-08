@@ -51,6 +51,7 @@
 #define SIPX_CALLING_CONVENTION
 #endif 
 
+
 /**
  * Enum with all of the possible event types.
  */

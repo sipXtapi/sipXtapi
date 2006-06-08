@@ -23,6 +23,7 @@
 
 #include <tao/TaoObjectMap.h>
 #include <os/OsProtectEventMgr.h>
+#include <tapi/sipXtapiInternal.h>
 
 // DEFINES
 #ifdef LONG_EVENT_RESPONSE_TIMEOUTS
@@ -111,7 +112,7 @@ public:
     virtual void requestShutdown(void);
 
     virtual void setOutboundLine(const char* lineUrl);
-    virtual void setOutboundLineForCall(const char* callId, const char* address, CONTACT_TYPE eType = AUTO);
+    virtual void setOutboundLineForCall(const char* callId, const char* address, SIPX_CONTACT_TYPE eType = CONTACT_AUTO);
 
     // Operations for calls
     virtual void createCall(UtlString* callId,
@@ -126,11 +127,12 @@ public:
                              const char* toAddress,
                              const char* fromAddress = NULL,
                              const char* desiredConnectionCallId = NULL,
-                             CONTACT_ID contactId = 0,
+                             SIPX_CONTACT_ID contactId = 0,
                              const void* pDisplay = NULL,
                              const void* pSecurity = NULL,
                              const char* locationHeader = NULL,
-                             const int bandWidth=AUDIO_CODEC_BW_DEFAULT) ;
+                             const int bandWidth=AUDIO_CODEC_BW_DEFAULT,
+                             SIPX_TRANSPORT_DATA* pTransportData = NULL) ;
 
     virtual PtStatus consult(const char* idleTargetCallId,
         const char* activeOriginalCallId, const char* originalCallControllerAddress,
@@ -188,7 +190,7 @@ public:
     // Operations for calls & connections
     virtual void acceptConnection(const char* callId,
                                   const char* address,
-                                  CONTACT_TYPE contactType = AUTO,
+                                  SIPX_CONTACT_ID contactId = 0,
                                   const void* hWnd = NULL,
                                   const void* security = NULL,
                                   const char* locationHeader = NULL,
@@ -389,7 +391,7 @@ public:
      //:calls to be admitted to the system.
 
    virtual OsStatus getLocalContactAddresses(const char* callid,
-                                             CONTACT_ADDRESS addresses[],
+                                             SIPX_CONTACT_ADDRESS addresses[],
                                              size_t  nMaxAddresses,
                                              size_t& nActaulAddresses) ;
      //:The available local contact addresses
@@ -521,11 +523,12 @@ private:
     void doConnect(const char* callId,
                    const char* addressUrl,
                    const char* szDesiredConnectionCallId,
-                   CONTACT_ID contactId = 0,
+                   SIPX_CONTACT_ID contactId = 0,
                    const void* pDisplay = NULL,
                    const void* pSecurity = NULL,
                    const char* locationHeader = NULL,
-                   const int bandWidth = AUDIO_CODEC_BW_DEFAULT) ;
+                   const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
+                   SIPX_TRANSPORT_DATA* pTransport = SIPX_TRANSPORT_NULL) ;
 
     void doEnableStun(const UtlString& szStunServer, 
                       int              iServerPort,
@@ -550,6 +553,9 @@ private:
            CallManager& operator=(const CallManager& rhs);
      //:Assignment operator (disabled)
 
+#ifdef _WIN32
+    bool IsTroubleShootingModeEnabled();
+#endif
 };
 
 /* ============================ INLINE METHODS ============================ */

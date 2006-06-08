@@ -5,24 +5,26 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     04.01.00
-// RCS-ID:      $Id: cmdline.h,v 1.13 2002/08/31 11:29:09 GD Exp $
+// RCS-ID:      $Id: cmdline.h,v 1.26 2005/05/31 09:18:13 JS Exp $
 // Copyright:   (c) 2000 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_CMDLINE_H_
 #define _WX_CMDLINE_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "cmdline.h"
 #endif
 
 #include "wx/defs.h"
+
 #include "wx/string.h"
+#include "wx/arrstr.h"
 
 #if wxUSE_CMDLINE_PARSER
 
-class WXDLLEXPORT wxDateTime;
+class WXDLLIMPEXP_BASE wxDateTime;
 
 // ----------------------------------------------------------------------------
 // constants
@@ -91,7 +93,7 @@ struct wxCmdLineEntryDesc
 // 4. use GetXXX() to retrieve the parsed info
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxCmdLineParser
+class WXDLLIMPEXP_BASE wxCmdLineParser
 {
 public:
     // ctors and initializers
@@ -99,20 +101,30 @@ public:
 
     // default ctor or ctor giving the cmd line in either Unix or Win form
     wxCmdLineParser() { Init(); }
+    wxCmdLineParser(int argc, char **argv) { Init(); SetCmdLine(argc, argv); }
+#if wxUSE_UNICODE
     wxCmdLineParser(int argc, wxChar **argv) { Init(); SetCmdLine(argc, argv); }
+#endif // wxUSE_UNICODE
     wxCmdLineParser(const wxString& cmdline) { Init(); SetCmdLine(cmdline); }
 
     // the same as above, but also gives the cmd line description - otherwise,
     // use AddXXX() later
     wxCmdLineParser(const wxCmdLineEntryDesc *desc)
         { Init(); SetDesc(desc); }
+    wxCmdLineParser(const wxCmdLineEntryDesc *desc, int argc, char **argv)
+        { Init(); SetCmdLine(argc, argv); SetDesc(desc); }
+#if wxUSE_UNICODE
     wxCmdLineParser(const wxCmdLineEntryDesc *desc, int argc, wxChar **argv)
         { Init(); SetCmdLine(argc, argv); SetDesc(desc); }
+#endif // wxUSE_UNICODE
     wxCmdLineParser(const wxCmdLineEntryDesc *desc, const wxString& cmdline)
         { Init(); SetCmdLine(cmdline); SetDesc(desc); }
 
     // set cmd line to parse after using one of the ctors which don't do it
+    void SetCmdLine(int argc, char **argv);
+#if wxUSE_UNICODE
     void SetCmdLine(int argc, wxChar **argv);
+#endif // wxUSE_UNICODE
     void SetCmdLine(const wxString& cmdline);
 
     // not virtual, don't use this class polymorphically
@@ -127,8 +139,8 @@ public:
     void SetSwitchChars(const wxString& switchChars);
 
     // long options are not POSIX-compliant, this option allows to disable them
-    void EnableLongOptions(bool enable = TRUE);
-    void DisableLongOptions() { EnableLongOptions(FALSE); }
+    void EnableLongOptions(bool enable = true);
+    void DisableLongOptions() { EnableLongOptions(false); }
 
     bool AreLongOptionsEnabled();
 
@@ -162,11 +174,11 @@ public:
 
     // parse the command line, return 0 if ok, -1 if "-h" or "--help" option
     // was encountered and the help message was given or a positive value if a
-    // syntax error occured
+    // syntax error occurred
     //
     // if showUsage is true, Usage() is called in case of syntax error or if
     // help was requested
-    int Parse(bool showUsage = TRUE);
+    int Parse(bool showUsage = true);
 
     // give the usage message describing all program options
     void Usage();
@@ -174,20 +186,22 @@ public:
     // get the command line arguments
     // ------------------------------
 
-    // returns TRUE if the given switch was found
+    // returns true if the given switch was found
     bool Found(const wxString& name) const;
 
-    // returns TRUE if an option taking a string value was found and stores the
+    // returns true if an option taking a string value was found and stores the
     // value in the provided pointer
     bool Found(const wxString& name, wxString *value) const;
 
-    // returns TRUE if an option taking an integer value was found and stores
+    // returns true if an option taking an integer value was found and stores
     // the value in the provided pointer
     bool Found(const wxString& name, long *value) const;
 
-    // returns TRUE if an option taking a date value was found and stores the
+#if wxUSE_DATETIME
+    // returns true if an option taking a date value was found and stores the
     // value in the provided pointer
     bool Found(const wxString& name, wxDateTime *value) const;
+#endif // wxUSE_DATETIME
 
     // gets the number of parameters found
     size_t GetParamCount() const;
@@ -209,13 +223,15 @@ private:
     void Init();
 
     struct wxCmdLineParserData *m_data;
+
+    DECLARE_NO_COPY_CLASS(wxCmdLineParser)
 };
 
 #else // !wxUSE_CMDLINE_PARSER
 
 // this function is always available (even if !wxUSE_CMDLINE_PARSER) because it
 // is used by wxWin itself under Windows
-class WXDLLEXPORT wxCmdLineParser
+class WXDLLIMPEXP_BASE wxCmdLineParser
 {
 public:
     static wxArrayString ConvertStringToArgs(const wxChar *cmdline);

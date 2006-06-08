@@ -3,7 +3,7 @@
 // Purpose:     MSW version of wxStaticLine class
 // Author:      Vadim Zeitlin
 // Created:     28.06.99
-// Version:     $Id: statline.h,v 1.3 2002/02/20 00:25:54 VZ Exp $
+// Version:     $Id: statline.h,v 1.9 2005/03/11 02:12:40 VZ Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 #ifndef _WX_MSW_STATLINE_H_
 #define _WX_MSW_STATLINE_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface
 #endif
 
@@ -21,16 +21,14 @@
 
 class WXDLLEXPORT wxStaticLine : public wxStaticLineBase
 {
-    DECLARE_DYNAMIC_CLASS(wxStaticLine)
-
 public:
     // constructors and pseudo-constructors
     wxStaticLine() { }
 
     wxStaticLine( wxWindow *parent,
-                  wxWindowID id,
-                  const wxPoint &pos = wxDefaultPosition,
-                  const wxSize &size = wxDefaultSize,
+                  wxWindowID id = wxID_ANY,
+                  const wxPoint& pos = wxDefaultPosition,
+                  const wxSize& size = wxDefaultSize,
                   long style = wxLI_HORIZONTAL,
                   const wxString &name = wxStaticTextNameStr )
     {
@@ -38,18 +36,20 @@ public:
     }
 
     bool Create( wxWindow *parent,
-                 wxWindowID id,
-                 const wxPoint &pos = wxDefaultPosition,
-                 const wxSize &size = wxDefaultSize,
+                 wxWindowID id = wxID_ANY,
+                 const wxPoint& pos = wxDefaultPosition,
+                 const wxSize& size = wxDefaultSize,
                  long style = wxLI_HORIZONTAL,
                  const wxString &name = wxStaticTextNameStr );
 
     // overriden base class virtuals
-    virtual bool AcceptsFocus() const { return FALSE; }
+    virtual bool AcceptsFocus() const { return false; }
 
 protected:
     // usually overridden base class virtuals
     virtual WXDWORD MSWGetStyle(long style, WXDWORD *exstyle) const;
+
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxStaticLine)
 };
 
 #endif // _WX_MSW_STATLINE_H_

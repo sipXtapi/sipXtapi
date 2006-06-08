@@ -4,15 +4,15 @@
 // Author:      Guilhem Lavaux
 // Modified by:
 // Created:     10/07/1997
-// RCS-ID:      $Id: protocol.h,v 1.11 2002/08/31 11:29:13 GD Exp $
+// RCS-ID:      $Id: protocol.h,v 1.20 2004/05/23 20:51:44 JS Exp $
 // Copyright:   (c) 1997, 1998 Guilhem Lavaux
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_PROTOCOL_PROTOCOL_H
 #define _WX_PROTOCOL_PROTOCOL_H
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface
 #endif
 
@@ -50,7 +50,7 @@ typedef enum
 // wxProtocol: abstract base class for all protocols
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxProtocol
+class WXDLLIMPEXP_NET wxProtocol
 #if wxUSE_SOCKETS
  : public wxSocketClient
 #else
@@ -82,11 +82,11 @@ public:
     virtual void SetPassword(const wxString& WXUNUSED(passwd) ) {}
 
 private:
-    DECLARE_ABSTRACT_CLASS(wxProtocol)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxProtocol)
 };
 
 #if wxUSE_SOCKETS
-wxProtocolError WXDLLEXPORT GetLine(wxSocketBase *sock, wxString& result);
+wxProtocolError WXDLLIMPEXP_NET GetLine(wxSocketBase *sock, wxString& result);
 #endif
 
 // ----------------------------------------------------------------------------
@@ -108,7 +108,7 @@ bool wxProtocolUse##class = TRUE;
         wxProtocolUserFor##class() { wxProtocolUse##class = TRUE; } \
     } wxProtocolDoUse##class;
 
-class WXDLLEXPORT wxProtoInfo : public wxObject
+class WXDLLIMPEXP_NET wxProtoInfo : public wxObject
 {
 public:
     wxProtoInfo(const wxChar *name,
@@ -127,6 +127,7 @@ protected:
     friend class wxURL;
 
     DECLARE_DYNAMIC_CLASS(wxProtoInfo)
+    DECLARE_NO_COPY_CLASS(wxProtoInfo)
 };
 
 #endif // wxUSE_PROTOCOL

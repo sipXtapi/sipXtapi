@@ -3,8 +3,8 @@
 // Purpose:     wxMemoryText allows to use wxTextBuffer without a file
 // Created:     14.11.01
 // Author:      Morten Hanssen
-// Copyright:   (c) 2001 wxWindows team
-// Licence:     wxWindows license
+// Copyright:   (c) 2001 Morten Hanssen
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_MEMTEXT_H
@@ -19,7 +19,7 @@
 // wxMemoryText
 // ----------------------------------------------------------------------------
 
-class wxMemoryText : public wxTextBuffer
+class WXDLLIMPEXP_BASE wxMemoryText : public wxTextBuffer
 {
 public:
     // Constructors.
@@ -28,21 +28,24 @@ public:
 
 protected:
     virtual bool OnExists() const
-        { return FALSE; }
+        { return false; }
 
     virtual bool OnOpen(const wxString & WXUNUSED(strBufferName),
                         wxTextBufferOpenMode WXUNUSED(OpenMode))
-        { return TRUE; }
+        { return true; }
 
     virtual bool OnClose()
-        { return TRUE; }
+        { return true; }
 
     virtual bool OnRead(wxMBConv& WXUNUSED(conv))
-        { return TRUE; }
+        { return true; }
 
     virtual bool OnWrite(wxTextFileType WXUNUSED(typeNew),
-                         wxMBConv& WXUNUSED(conv) = wxConvLibc)
-        { return TRUE; }
+                         wxMBConv& WXUNUSED(conv) = wxConvUTF8)
+        { return true; }
+
+private:
+    DECLARE_NO_COPY_CLASS(wxMemoryText)
 };
 
 #endif // wxUSE_TEXTBUFFER

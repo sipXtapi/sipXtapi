@@ -4,21 +4,22 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     20.08.00
-// RCS-ID:      $Id: scrolbar.h,v 1.10 2002/05/16 10:45:48 VZ Exp $
+// RCS-ID:      $Id: scrolbar.h,v 1.17 2004/08/10 13:08:34 ABX Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_UNIV_SCROLBAR_H_
 #define _WX_UNIV_SCROLBAR_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univscrolbar.h"
 #endif
 
 class WXDLLEXPORT wxScrollTimer;
 
 #include "wx/univ/scrarrow.h"
+#include "wx/renderer.h"
 
 // ----------------------------------------------------------------------------
 // the actions supported by this control
@@ -87,7 +88,7 @@ public:
     virtual void SetThumbPosition(int thumbPos);
     virtual void SetScrollbar(int position, int thumbSize,
                               int range, int pageSize,
-                              bool refresh = TRUE);
+                              bool refresh = true);
 
     // wxScrollBar actions
     void ScrollToStart();
@@ -119,15 +120,15 @@ public:
     // for wxControlRenderer::DrawScrollbar() only
     const wxScrollArrows& GetArrows() const { return m_arrows; }
 
+    // idle processing
+    virtual void OnInternalIdle();
+
 protected:
     virtual wxSize DoGetBestClientSize() const;
     virtual void DoDraw(wxControlRenderer *renderer);
     virtual wxBorder GetDefaultBorder() const { return wxBORDER_NONE; }
 
-    // event handlers
-    void OnIdle(wxIdleEvent& event);
-
-    // forces update of thumb's visual appearence (does nothing if m_dirty=FALSE)
+    // forces update of thumb's visual appearence (does nothing if m_dirty=false)
     void UpdateThumb();
 
     // SetThumbPosition() helper
@@ -191,14 +192,14 @@ public:
 
     // this method is called by wxScrollBarTimer only and may be overridden
     //
-    // return TRUE to continue scrolling, FALSE to stop the timer
+    // return true to continue scrolling, false to stop the timer
     virtual bool OnScrollTimer(wxScrollBar *scrollbar,
                                const wxControlAction& action);
 
 protected:
     // the methods which must be overridden in the derived class
 
-    // return TRUE if the mouse button can be used to activate scrollbar, FALSE
+    // return true if the mouse button can be used to activate scrollbar, false
     // if not (only left mouse button can do it under Windows, any button under
     // GTK+)
     virtual bool IsAllowedButton(int button) = 0;

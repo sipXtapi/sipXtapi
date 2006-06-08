@@ -6,15 +6,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     03.04.98
-// RCS-ID:      $Id: textfile.h,v 1.25.2.1 2002/11/06 13:12:53 VS Exp $
+// RCS-ID:      $Id: textfile.h,v 1.33 2004/05/23 20:50:25 JS Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_TEXTFILE_H
 #define _WX_TEXTFILE_H
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "textfile.h"
 #endif
 
@@ -30,7 +30,7 @@
 // wxTextFile
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxTextFile : public wxTextBuffer
+class WXDLLIMPEXP_BASE wxTextFile : public wxTextBuffer
 {
 public:
     // constructors
@@ -47,7 +47,10 @@ protected:
     virtual bool OnWrite(wxTextFileType typeNew, wxMBConv& conv);
 
 private:
+
     wxFile m_file;
+
+    DECLARE_NO_COPY_CLASS(wxTextFile)
 };
 
 #else // !wxUSE_TEXTFILE

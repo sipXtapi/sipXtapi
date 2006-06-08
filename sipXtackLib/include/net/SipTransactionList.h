@@ -17,8 +17,6 @@
 // APPLICATION INCLUDES
 #include <utl/UtlHashBag.h>
 
-#include <net/SipTransaction.h>
-
 #include <os/OsDefs.h>
 #include <os/OsMutex.h>
 
@@ -30,7 +28,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class SipTransaction;
+
 class SipMessage;
 
 //:Class short description which may consist of multiple lines (note the ':')
@@ -83,6 +81,7 @@ public:
     //: Remove transactions not accessed after given time
 
     void stopTransactionTimers();
+    void startTransactionTimers();
 
     void deleteTransactionTimers();
 
