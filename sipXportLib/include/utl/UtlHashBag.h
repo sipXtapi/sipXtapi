@@ -135,7 +135,7 @@ class UtlHashBag : public UtlContainer
   protected:
    friend class UtlHashBagIterator;
 
-   void UtlHashBag::notifyIteratorsOfRemove(const UtlLink* pair);
+   void notifyIteratorsOfRemove(const UtlLink* pair);
 
    /// If the Hash is too full, add additional buckets.
    /**

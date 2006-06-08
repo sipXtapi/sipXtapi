@@ -492,7 +492,7 @@ private:
     }
     
     // disallow assignment
-    OsStackTraceLogger& OsStackTraceLogger::operator=(const OsStackTraceLogger& ref)
+    OsStackTraceLogger& operator=(const OsStackTraceLogger& ref)
     {
         // should never get here
     }

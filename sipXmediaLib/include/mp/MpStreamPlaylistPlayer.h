@@ -219,7 +219,7 @@ protected:
    void handleFailedState(int index, PlayerState oldState, PlayerState newState);
      //:Handles processing for the failed state
 
-   const char* MpStreamPlaylistPlayer::getFeederEventString(int iEvent);
+   const char* getFeederEventString(int iEvent);
      // :Handles converting Feeder events into human readable form
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

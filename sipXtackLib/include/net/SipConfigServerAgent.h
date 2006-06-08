@@ -142,10 +142,10 @@ public:
    void setChangeNotifyStatusCallback(NotifyResponseCallbackFunc callback);
    //: Sets the function which gets called when a response is received for a change notification
 
-   static SipConfigServerAgent* SipConfigServerAgent::getSipConfigServerAgent();
+   static SipConfigServerAgent* getSipConfigServerAgent();
     //: Returns a singleton reference to the Sip Config Server Agent
 
-   SipUserAgent* SipConfigServerAgent::getSipUserAgent();
+   SipUserAgent* getSipUserAgent();
     //: Returns a reference to the Sip User Agent
 
 /* ============================ INQUIRY =================================== */
@@ -156,7 +156,7 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 
-    static SipConfigServerAgent* SipConfigServerAgent::startAgents(const char* configFileName) ;
+    static SipConfigServerAgent* startAgents(const char* configFileName) ;
     //: Starts up the SipUserAgent and the SipConfigServerAgent
 
     SipConfigServerAgent(const SipConfigServerAgent& rSipConfigServerAgent);

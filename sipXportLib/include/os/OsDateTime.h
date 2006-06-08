@@ -134,11 +134,11 @@ public:
 
    /// Set the dateString to the time as UTC time in the following format:
    ///   2002-08-26T19:21:32.000Z
-   void OsDateTimeBase::getIsoTimeStringZ(UtlString& dateString);
+   void getIsoTimeStringZ(UtlString& dateString);
 
    /// Set the dateString to the time as UTC time in the following format:
    ///   2002-08-26T19:21:32.000000Z
-   void OsDateTimeBase::getIsoTimeStringZus(UtlString& dateString);
+   void getIsoTimeStringZus(UtlString& dateString);
 
    static void getCurTime(OsDateTimeBase& rDateTime);
      //:Return the current time as an OsDateTime value

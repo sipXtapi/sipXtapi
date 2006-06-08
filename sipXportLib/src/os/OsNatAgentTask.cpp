@@ -1389,7 +1389,7 @@ UtlBoolean OsNatAgentTask::findContactAddress(const UtlString& destHost,
 
         if (bTryAgain && iAttempts < 8) 
         {
-            Sleep(50) ;
+            OsTask::delay(50) ;
         }
     }
 
@@ -1850,7 +1850,7 @@ void OsNatAgentTask::markTurnFailure(NAT_AGENT_CONTEXT* pBinding)
 
 void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBinding) 
 {
-    char* cBindingTypes[] =
+    const char* cBindingTypes[] =
     {
         "STUN_DISCOVERY",
         "STUN_PROBE",
@@ -1859,7 +1859,7 @@ void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBindin
         "STUN_KEEPALIVE"
     } ;
 
-    char* cStatus[] =
+    const char* cStatus[] =
     {
         "SUCCESS",
         "SENDING",
@@ -1889,8 +1889,8 @@ void OsNatAgentTask::dumpContext(UtlString* pResults, NAT_AGENT_CONTEXT* pBindin
                 " Server Port: %d\n"
                 " Servers Opt: %d\n"
                 " Transaction: %s\n"
-                " Socket     : 0x%08X (%s:%d)\n"
-                " Timer      : 0x%08X\n"
+                " Socket     : %p (%s:%d)\n"
+                " Timer      : %p\n"
                 " KeepAlive  : %d\n"
                 " Errors     : %d\n"
                 " Address    : %s\n"

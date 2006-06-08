@@ -179,7 +179,7 @@ public:
    // code.
 
 
-   static void OsSocket::getDomainName(UtlString &domain_name);
+   static void getDomainName(UtlString &domain_name);
         //gets static member m_DomainName
 
    static unsigned long getDefaultBindAddress();

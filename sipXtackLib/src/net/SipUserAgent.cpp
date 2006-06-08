@@ -3882,10 +3882,6 @@ const bool SipUserAgent::addContactAddress(SIPX_CONTACT_ADDRESS& contactAddress)
     if (!bRC)
         bRC = mContactDb.addContact(contactAddress);
 
-    UtlString output ;
-    mContactDb.dump(output) ;
-    OutputDebugString(output.data()) ;
-
     return bRC ;
 }
 
@@ -3913,7 +3909,7 @@ void SipUserAgent::prepareVia(SipMessage& message,
     UtlString viaAddress;
     UtlString viaProtocolString;
     SipMessage::convertProtocolEnumToString(toProtocol, viaProtocolString);
-    if ((pTransport) && toProtocol == OsSocket::SocketProtocolTypes::CUSTOM)
+    if ((pTransport) && toProtocol == OsSocket::CUSTOM)
     {
         viaProtocolString = pTransport->szTransport ;
     }
@@ -3987,7 +3983,7 @@ void SipUserAgent::prepareVia(SipMessage& message,
     }
 
     UtlString routeId ;
-    if ((pTransport) && toProtocol == OsSocket::SocketProtocolTypes::CUSTOM)
+    if ((pTransport) && toProtocol == OsSocket::CUSTOM)
     {
         routeId = pTransport->cRoutingId ;
     }
