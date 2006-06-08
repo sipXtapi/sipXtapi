@@ -254,7 +254,10 @@ public class Phone extends BeanWithGroups {
         }
 
         Line line = getLine(0);
-        String outboundProxy = m_phoneContext.getPhoneDefaults().getFullyQualifiedDomainName();
+
+        // XCF-1059
+        String outboundProxy = m_phoneContext.getPhoneDefaults().getDomainName();
+        
         String outboundProxyPort = m_phoneContext.getPhoneDefaults().getProxyServerSipPort();
         m_sip.sendCheckSync(line.getUri(), outboundProxy, outboundProxyPort);
     }
