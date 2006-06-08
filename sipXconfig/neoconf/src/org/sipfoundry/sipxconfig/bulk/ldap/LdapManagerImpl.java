@@ -24,16 +24,19 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
+import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
  */
 public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager,
-        BeanFactoryAware {
+        BeanFactoryAware, ApplicationListener {
     public static final String FILTER_ALL_CLASSES = "objectclass=*";
 
     public static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
@@ -177,12 +180,17 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         m_ldapImportManager = ldapImportManager;
     }
 
-    public void init() {
-        CronSchedule schedule = getConnectionParams().getSchedule();
-        TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager);
-        m_timer = schedule.schedule(ldapImportTask);
+    /**
+     * start timers after app is initialized
+     */
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof ApplicationInitializedEvent) {
+            CronSchedule schedule = getConnectionParams().getSchedule();
+            TimerTask ldapImportTask = new LdapImportTask(m_ldapImportManager);
+            m_timer = schedule.schedule(ldapImportTask);
+        }
     }
-
+    
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }

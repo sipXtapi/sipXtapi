@@ -38,8 +38,7 @@
     <property name="intialContextFactory" value="com.sun.jndi.ldap.LdapCtxFactory" />
   </bean>
 
-  <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl"
-    init-method="init">
+  <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl">
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>    
