@@ -43,6 +43,7 @@
   <table name="user_alias"/>
   <table name="user_ring"/>
   <table name="user_group"/>
+  <table name="supervisor"/>
     
   <!-- phone -->  
   <table name="job"/>

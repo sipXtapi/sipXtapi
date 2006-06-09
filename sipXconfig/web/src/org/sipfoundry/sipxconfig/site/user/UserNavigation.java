@@ -14,6 +14,7 @@ package org.sipfoundry.sipxconfig.site.user;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.callback.PageCallback;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -53,6 +54,13 @@ public abstract class UserNavigation extends BaseComponent {
         UserSettings page = (UserSettings) cycle.getPage(UserSettings.PAGE);
         page.setUserId(userId);
         page.setParentSettingName(section);
+        return page;
+    }
+    
+    public IPage editSupervisorPermission(IRequestCycle cycle, Integer userId) {
+        SupervisorPermission page = (SupervisorPermission) cycle.getPage(SupervisorPermission.PAGE);
+        page.setUserId(userId);
+        page.setCallback(new PageCallback(ManageUsers.PAGE));
         return page;
     }
 

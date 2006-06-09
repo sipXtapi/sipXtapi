@@ -442,6 +442,11 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                         group.getId()
                     };
                     DataCollectionUtil.removeByPrimaryKey(user.getGroups(), ids);
+                    Set supervisors = user.getSupervisorForGroups();
+                    if (supervisors != null) {
+                        DataCollectionUtil.removeByPrimaryKey(supervisors, ids);
+                    }
+
                     saveUser(user);
                 }
             }

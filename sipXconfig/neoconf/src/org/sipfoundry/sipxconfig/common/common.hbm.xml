@@ -30,6 +30,10 @@
       <key column="user_id"/>
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>
+  	<set name="supervisorForGroups" table="supervisor" sort="natural" >
+      <key column="user_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
+    </set>
   </class>
 
   <class name="ExtensionPool" table="extension_pool">

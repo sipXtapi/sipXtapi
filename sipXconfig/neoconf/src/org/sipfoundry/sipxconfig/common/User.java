@@ -13,6 +13,7 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
+import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -55,6 +57,8 @@ public class User extends BeanWithGroups {
     private String m_userName;
 
     private Set m_aliases = new LinkedHashSet(0);
+    
+    private Set m_supervisorForGroups;
     
     @Override
     public void initialize() {        
@@ -221,5 +225,20 @@ public class User extends BeanWithGroups {
 
     public boolean isAdmin() {
         return hasPermission(Permission.SUPERADMIN);
+    }
+    
+    public Set getSupervisorForGroups() {
+        return m_supervisorForGroups;
+    }
+    
+    public void setSupervisorForGroups(Set supervisorForGroups) {
+        m_supervisorForGroups = supervisorForGroups;
+    }
+    
+    public void addSupervisorForGroup(Group group) {
+        if (m_supervisorForGroups == null) {
+            m_supervisorForGroups = new HashSet();
+        }
+        m_supervisorForGroups.add(group);
     }
 }

@@ -101,6 +101,7 @@
   <target name="version3" description="upgrade from version 2" unless="version4">
     <antcall target="settings-refactoring"/>
     <antcall target="ldap"/>
+    <antcall target="supervisor"/>
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="4" -->
   </target>
@@ -112,10 +113,14 @@
     <sipx-version version="3"/>
   </target>
   
+  <target name="supervisor" unless="supervisor">
+    <db-patch patch="supervisor"/>
+  </target>  
+
   <target name="settings-refactoring" unless="settings-refactoring">
     <db-patch patch="settings-refactoring"/>
   </target>  
-	
+
   <target name="ldap" unless="ldap">
     <db-patch patch="ldap"/>
   </target>  	

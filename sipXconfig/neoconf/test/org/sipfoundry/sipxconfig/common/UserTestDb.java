@@ -136,4 +136,24 @@ public class UserTestDb extends SipxDatabaseTestCase {
         ITable actual = TestHelper.getConnection().createDataSet().getTable("user_group");
         assertEquals(0, actual.getRowCount());
     }
+    
+    public void testSupervisorSave() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        Group group = m_settingDao.getGroup(new Integer(1001));
+        Integer id = new Integer(1000);
+        User user = m_core.loadUser(id);
+        assertTrue(user.getSupervisorForGroups().isEmpty());
+        
+        user.addSupervisorForGroup(group);
+        
+        m_core.saveUser(user);
+        
+        IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveSupervisorExpected.xml");
+        ITable expected = expectedDs.getTable("supervisor");
+        ITable actual = TestHelper.getConnection().createQueryTable("supervisor",
+                "select * from supervisor");
+        Assertion.assertEquals(expected, actual);
+    }
 }

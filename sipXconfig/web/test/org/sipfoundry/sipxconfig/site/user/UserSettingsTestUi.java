@@ -30,13 +30,13 @@ public class UserSettingsTestUi extends WebTestCase {
         clickLinkWithText(SiteTestHelper.TEST_USER);        
     }
     
-    public void _testDisplay() {
-        clickLinkWithText("Permission");        
+    public void testDisplay() {
+        clickLinkWithText("Permissions");        
         SiteTestHelper.assertNoException(tester);        
     }
 
     public void testSaveSetting() {
-        clickLinkWithText("Permission");
+        clickLinkWithText("Permissions");
         SiteTestHelper.enableCheckbox(tester, "booleanField", 0, true);
         
         clickButton("setting:ok");

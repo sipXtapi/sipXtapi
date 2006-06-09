@@ -32,6 +32,10 @@
     <binding name="listener" value="listener:editUser"/>
     <binding name="parameters" value="user.id"/>
   </component>
+  <component id="supervisorPermissionLink" type="DirectLink">
+    <binding name="listener" value="listener:editSupervisorPermission"/>
+    <binding name="parameters" value="user.id"/>
+  </component>
   <component id="settingsTabs" type="For">
     <binding name="source" value="settings.values"/>
     <binding name="value" value="currentSetting"/>
