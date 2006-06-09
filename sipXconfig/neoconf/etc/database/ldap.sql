@@ -14,6 +14,7 @@ create table ldap_attr_map (
    default_pin varchar(255),
    search_base varchar(255),
    object_class varchar(255),
+   filter varchar(255),
    primary key (ldap_attr_map_id)
 );
 

@@ -45,10 +45,25 @@ public class AttrMapTest extends TestCase {
         assertTrue(ldapAttributes.contains(m_map.getIdentityAttributeName()));
     }
     
-    public void testGetFilter() {
+    public void testGetSearchFilter() {
         AttrMap map = new AttrMap();
-        assertEquals("", map.getFilter());
+        assertEquals("(objectclass=*)", map.getSearchFilter());
         map.setObjectClass("person");
-        assertEquals("objectclass=person", map.getFilter());        
+        assertEquals("(objectclass=person)", map.getSearchFilter());        
+    }
+
+
+    public void testGetSearchFilterExtra() {
+        AttrMap map = new AttrMap();
+        map.setFilter("attr=kuku");
+        assertEquals("(&(objectclass=*)(attr=kuku))", map.getSearchFilter());        
+        map.setObjectClass("person");
+        assertEquals("(&(objectclass=person)(attr=kuku))", map.getSearchFilter());        
+        map.setFilter("(attr=kuku)");
+        assertEquals("(&(objectclass=person)(attr=kuku))", map.getSearchFilter());        
+        map.setFilter("!(attr=kuku)(attr=bongo)");
+        assertEquals("(&(objectclass=person)(!(attr=kuku)(attr=bongo)))", map.getSearchFilter());        
+        map.setFilter("(!(attr=kuku)(attr=bongo))");
+        assertEquals("(&(objectclass=person)(!(attr=kuku)(attr=bongo)))", map.getSearchFilter());        
     }
 }

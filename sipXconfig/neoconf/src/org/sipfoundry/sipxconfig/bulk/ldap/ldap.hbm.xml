@@ -25,6 +25,7 @@
     <property name="defaultPin" />
     <property name="searchBase" />
     <property name="objectClass" />
+    <property name="filter" />
     <map name="userToLdap" table="ldap_user_property_to_ldap_attr">
       <key column="ldap_attr_map_id"
         foreign-key="fk_ldap_user_property_to_ldap_attr_ldap_attr_map" />

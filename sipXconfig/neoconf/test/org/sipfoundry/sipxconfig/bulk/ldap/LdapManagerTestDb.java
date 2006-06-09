@@ -85,12 +85,19 @@ public class LdapManagerTestDb extends TestCaseDb {
 
     public void testSetAttrMap() throws Exception {
         AttrMap attrMap = m_context.getAttrMap();
+        attrMap.setFilter("ou=marketing");
         assertNotNull(attrMap);
 
         attrMap.setAttribute("a", "1");
         attrMap.setAttribute("b", "2");
 
         m_context.setAttrMap(attrMap);
+
+        ITable attrMapTable = TestHelper.getConnection().createDataSet()
+                .getTable("ldap_attr_map");
+        assertEquals(1, attrMapTable.getRowCount());
+        assertEquals("ou=marketing", attrMapTable.getValue(0, "filter"));
+
         ITable userToLdapTable = TestHelper.getConnection().createDataSet().getTable(
                 "ldap_user_property_to_ldap_attr");
         assertTrue(1 < userToLdapTable.getRowCount());

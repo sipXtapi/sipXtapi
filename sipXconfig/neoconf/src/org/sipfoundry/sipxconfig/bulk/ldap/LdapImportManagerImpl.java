@@ -84,7 +84,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         sc.setReturningAttributes(attrMap.getLdapAttributesArray());
 
         String base = attrMap.getSearchBase();
-        String filter = attrMap.getFilter();
+        String filter = attrMap.getSearchFilter();
 
         // FIXME: this is a potential threading problem - we cannot have one template shared
         // if we are changing the connection params for each insert operation

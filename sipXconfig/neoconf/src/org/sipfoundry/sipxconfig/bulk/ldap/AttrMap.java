@@ -44,6 +44,11 @@ public class AttrMap extends BeanWithId {
     private String m_searchBase;
 
     /**
+     * Additional filter expression
+     */
+    private String m_filter;
+
+    /**
      * Object class containing user attributes.
      * 
      * This is used in a filter that selects user related entries. It's perfectly OK to use
@@ -102,7 +107,7 @@ public class AttrMap extends BeanWithId {
     public void setObjectClass(String objectClass) {
         m_objectClass = objectClass;
     }
-    
+
     public String getObjectClass() {
         return m_objectClass;
     }
@@ -110,17 +115,23 @@ public class AttrMap extends BeanWithId {
     /**
      * @return filter string based on object class selected by the user
      */
-    public String getFilter() {
-        if (m_objectClass == null) {
-            return StringUtils.EMPTY;
+    public String getSearchFilter() {
+        String objectClass = StringUtils.defaultIfEmpty(m_objectClass, "*");
+        // strip - it's added later
+        if (m_filter == null) {
+            return String.format("(objectclass=%s)", objectClass);
         }
-        return String.format("objectclass=%s", m_objectClass);        
+        String filter = m_filter;
+        if (m_filter.startsWith("(") && m_filter.endsWith(")")) {
+            filter = m_filter.substring(1, m_filter.length() - 1);
+        }
+        return String.format("(&(objectclass=%s)(%s))", objectClass, filter);
     }
 
     public void setUserToLdap(Map<String, String> user2ldap) {
         m_user2ldap = user2ldap;
     }
-    
+
     public Map<String, String> getUserToLdap() {
         return m_user2ldap;
     }
@@ -131,6 +142,14 @@ public class AttrMap extends BeanWithId {
 
     public String getAttribute(String field) {
         return m_user2ldap.get(field);
+    }
+
+    public String getFilter() {
+        return m_filter;
+    }
+
+    public void setFilter(String filter) {
+        m_filter = filter;
     }
 
     public boolean verified() {

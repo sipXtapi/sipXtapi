@@ -35,6 +35,17 @@
     <binding name="displayName" value="message:label.objectClass" />
   </component>
 
+  <component id="filterPanel" type="FieldPanel">
+    <binding name="field" value="components.filter" />
+    <binding name="label" value="message:label.filter" />
+    <binding name="description" value="message:description.filter" />
+  </component>
+  <component id="filter" type="TextField">
+    <binding name="value" value="attrMap.filter" />
+    <binding name="validators" value="validators:maxLength=255" />
+    <binding name="displayName" value="message:label.filter" />
+  </component>
+
   <component id="userNamePanel" type="FieldPanel">
     <binding name="field" value="components.userName" />
     <binding name="label" value="message:label.userName" />
