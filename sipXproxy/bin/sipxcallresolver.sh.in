@@ -97,7 +97,7 @@ databasePatch() {
             ;;
             
         *)
-            UpgradePatches=""
+            UpgradePatches="view_cdrs"
             ;;
     esac
     if [ -f ${DbPatchLog} ]; then

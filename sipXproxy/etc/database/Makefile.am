@@ -5,7 +5,8 @@ include $(top_builddir)/config/sipXcommon.mak
 
 sql_files = \
     schema.sql \
-    refer_uri.sql
+    refer_uri.sql \
+    view_cdrs.sql
 
 EXTRA_DIST = \
     $(sql_files)
