@@ -20,15 +20,14 @@ require 'process_config'
 
 :TODO: Honor process config:
 :TODO: "manage" flag -- if false then don't do anything with the process
-:TODO: "stop" flag -- if false then have to kill the process to stop it
-:TODO: "restart" flag -- if false then have to stop-start the process to restart it
 :TODO: "max_restarts" setting
 :TODO: "report", "max_reports" settings
 :TODO: "failure_contact" setting
 :TODO: "stdout", "stderr", "stdin" settings
 
-:TODO: Remote service to replicate files
-:TODO: Remote service to replicate sipdb data
+:TODO: Remote method to replicate files
+:TODO: Remote method to replicate sipdb data
+:LATER: Remote method to add/edit/remove crontab entry
 :LATER: Create the process schema referenced by process config files
 =end
 
@@ -36,7 +35,7 @@ require 'process_config'
 # * Start, monitor, stop, report status on sipX processes
 #   * Replaces watchdog, processcgi, WatchDog.xml, ProcessDefinitions.xml, ...
 # * Offer network services:
-#   * Replicate sipdb databases and arbitrary files (replace replicationcgi)
+#   * Read/write sipdb databases and arbitrary files (replace and extend replicationcgi)
 # * Configured via files that are installed into /etc/sipxpbx/process
 class ProcessManager
   

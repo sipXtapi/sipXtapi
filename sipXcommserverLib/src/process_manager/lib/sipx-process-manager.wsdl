@@ -27,22 +27,77 @@
 
       <xsd:simpleType name="ProcessStatus">
         <xsd:restriction base="xsd:string">
-          <xsd:enumeration value="Starting" />
-          <xsd:enumeration value="Started" />
-          <xsd:enumeration value="Stopping" />
-          <xsd:enumeration value="Stopped" />
-          <xsd:enumeration value="Failed" />
+          <xsd:enumeration value="starting" />
+          <xsd:enumeration value="started" />
+          <xsd:enumeration value="stopping" />
+          <xsd:enumeration value="stopped" />
+          <xsd:enumeration value="failed" />
         </xsd:restriction>
       </xsd:simpleType>      
 
       <xsd:complexType name="NamedProcessStatus">
+        <xsd:sequence>
           <xsd:element name="name" type="xsd:string" minOccurs="1" maxOccurs="1" />
           <xsd:element name="status" type="tns:ProcessStatus" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
       </xsd:complexType>
 
       <xsd:complexType name="ArrayOfNamedProcessStatus">
         <xsd:sequence>
-          <xsd:element name="namedProcessStatus" type="tns:NamedProcessStatus" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+          <xsd:element name="namedProcessStatus" type="tns:NamedProcessStatus" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:simpleType name="SipxDirectory">
+        <xsd:restriction base="xsd:string">
+          <xsd:enumeration value="data" />    <!-- usually maps to /var/sipxdata/ -->
+          <xsd:enumeration value="etc" />     <!-- usually maps to /etc/sipxpbx/ -->
+          <xsd:enumeration value="log" />     <!-- usually maps to /var/log/sipxpbx/ -->
+        </xsd:restriction>
+      </xsd:simpleType>
+
+      <xsd:complexType name="FilePath">
+        <xsd:sequence>
+          <!-- Append the fileRelativePath to the mapped sipX directory to get
+               the absolute path to the file -->
+          <xsd:element name="sipXdir" type="tns:SipxDirectory" />
+          <xsd:element name="fileRelativePath" type="xsd:string" />
+        </xsd:sequence>
+      </xsd:complexType>
+      
+      <xsd:complexType name="ReadFileOutput">
+        <xsd:sequence>
+          <!-- fileText is the content read from the file, which is null if the read fails.
+               status is 0 for success.  Any other value indicates failure. -->
+          <xsd:element name="fileText" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1" />
+          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />          
+        </xsd:sequence>
+      </xsd:complexType>
+      
+      <xsd:complexType name="WriteFileInput">
+        <xsd:sequence>
+          <!-- fileText is the content read from the file, which is null if the read fails.
+               status is 0 for success.  Any other value indicates failure. -->
+          <xsd:element name="filePath" type="tns:FilePath" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="fileText" type="xsd:string" minOccurs="1" maxOccurs="1" />          
+        </xsd:sequence>
+      </xsd:complexType>
+      
+      <xsd:complexType name="WriteFileOutput">
+        <xsd:sequence>
+          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />          
+        </xsd:sequence>
+      </xsd:complexType>
+      
+      <xsd:complexType name="DeleteFileInput">
+        <xsd:sequence>
+          <xsd:element name="filePath" type="tns:FilePath" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="DeleteFileOutput">
+        <xsd:sequence>
+          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />          
         </xsd:sequence>
       </xsd:complexType>
 
@@ -60,23 +115,25 @@
   </message>
 
   <message name="readFileRequest">
-    <part name="readFileRequest" type="xsd:string" />     <!-- file path -->
+    <part name="readFileRequest" type="tns:FilePath" />
   </message>    
   <message name="readFileResponse">
-    <part name="readFileResponse" type="xsd:string" />    <!-- file content -->
+    <part name="readFileResponse" type="tns:ReadFileOutput" />
   </message>
-
-TODO: continue here
 
   <message name="writeFileRequest">
-    <part name="writeFileRequest" type="xsd:string" />     <!-- file path -->
+    <part name="writeFileRequest" type="tns:WriteFileInput" />
   </message>    
   <message name="writeFileResponse">
-    <part name="writeFileResponse" type="xsd:string" />    <!-- file content -->
+    <part name="writeFileResponse" type="tns:WriteFileOutput" />
   </message>
 
-  <message name="deleteFileRequest" />
-  <message name="deleteFileResponse" />
+  <message name="deleteFileRequest">
+    <part name="deleteFileRequest" type="tns:DeleteFileInput" />
+  </message>    
+  <message name="deleteFileResponse">
+    <part name="deleteFileResponse" type="tns:DeleteFileOutput" />
+  </message>
 
   <portType name="ProcessManagerService">
 
