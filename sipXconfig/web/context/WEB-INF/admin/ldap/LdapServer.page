@@ -11,7 +11,6 @@
   <property name="connectionParams" />
   <property name="attrMap" />
   <property name="schema" persist="session" />
-  <property name="selectedObjectClasses" persist="session" />
   <property name="selectedAttributes" persist="session" />
 
   <property name="stage" persist="client" />
@@ -42,7 +41,7 @@
   <!-- object class selection stage -->
   <component id="ldapObjectClassPanel" type="LdapObjectClassPanel">
     <binding name="objectClasses" value="schema.objectClassesNames" />
-    <binding name="selectedObjectClasses" value="selectedObjectClasses" />
+    <binding name="selectedObjectClasses" value="attrMap.selectedObjectClasses" />
   </component>
   <component id="applyObjectClassesSelection" type="Submit">
     <binding name="value" value="message:label.continue" />

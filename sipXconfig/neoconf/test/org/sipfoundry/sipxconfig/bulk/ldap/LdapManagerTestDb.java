@@ -11,6 +11,7 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.dbunit.dataset.ITable;
@@ -81,6 +82,13 @@ public class LdapManagerTestDb extends TestCaseDb {
 
         assertEquals("uid", attrMap.getAttribute("username"));
         assertEquals("cn", attrMap.getAttribute("firstname"));
+        
+        assertEquals("filter", attrMap.getFilter());
+        Collection<String> selectedObjectClasses = attrMap.getSelectedObjectClasses();
+        
+        assertEquals(2, selectedObjectClasses.size());
+        assertTrue(selectedObjectClasses.contains("abc"));
+        assertTrue(selectedObjectClasses.contains("def"));
     }
 
     public void testSetAttrMap() throws Exception {

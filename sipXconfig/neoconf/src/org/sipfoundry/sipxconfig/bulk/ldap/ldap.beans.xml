@@ -21,6 +21,14 @@
     <property name="defaultGroupName" value="ldap_imports" />
     <property name="defaultPin" value="1111" />
     <property name="objectClass" value="person" />
+    <property name="selectedObjectClasses">
+      <set>
+        <value>person</value>
+        <value>inetOrgPerson</value>
+        <value>residentialPerson</value>
+        <value>organizationalPerson</value>        
+      </set>
+    </property>
   </bean>
 
   <bean id="ldapConnectionParams"

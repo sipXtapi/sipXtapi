@@ -72,4 +72,5 @@
   <table name="ldap_connection"/>
   <table name="ldap_attr_map"/>
   <table name="ldap_user_property_to_ldap_attr"/>
+  <table name="ldap_selected_object_classes"/>  
 </dataset>

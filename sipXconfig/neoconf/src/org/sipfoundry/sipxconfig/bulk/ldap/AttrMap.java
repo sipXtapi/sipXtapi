@@ -32,7 +32,7 @@ public class AttrMap extends BeanWithId {
      * name of the group that will keep all users imported from LDAP
      */
     private String m_defaultGroupName;
-
+    
     /**
      * PIN to be used for Users that do not have PIN mapped
      */
@@ -52,11 +52,17 @@ public class AttrMap extends BeanWithId {
      * Object class containing user attributes.
      * 
      * This is used in a filter that selects user related entries. It's perfectly OK to use
-     * attributes from other object class in the mapping.
+     * attributes from other object class in the mapping
      * 
-     * At some point we may require listing of all supported object classes.
+     * @see m_selectedObjectClasses
+     * 
      */
     private String m_objectClass;
+
+    /**
+     * Selected object classes - we will only consider attributes from this list for mapping.
+     */
+    private Collection<String> m_selectedObjectClasses;
 
     /**
      * Returns non null LDAP attributes. Used to limit search results.
@@ -110,6 +116,14 @@ public class AttrMap extends BeanWithId {
 
     public String getObjectClass() {
         return m_objectClass;
+    }
+    
+    public void setSelectedObjectClasses(Collection<String> selectedObjectClasses) {
+        m_selectedObjectClasses = selectedObjectClasses;
+    }
+    
+    public Collection<String> getSelectedObjectClasses() {
+        return m_selectedObjectClasses;
     }
 
     /**

@@ -11,7 +11,6 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.ldap;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.tapestry.AbstractPage;
@@ -49,10 +48,6 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
 
     public abstract void setSchema(Schema schema);
 
-    public abstract Collection<String> getSelectedObjectClasses();
-
-    public abstract void setSelectedObjectClasses(Collection<String> objectClasses);
-
     public abstract String[] getSelectedAttributes();
 
     public abstract void setSelectedAttributes(String[] selectedAttributes);
@@ -85,22 +80,17 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
         // save new connection params
         ldapManager.setConnectionParams(connectionParams);
         ldapManager.setAttrMap(attrMap);
-        
+
         Schema schema = ldapManager.getSchema();
         setSchema(schema);
-
-        String objectClass = attrMap.getObjectClass();
-
-        Collection<String> selectedObjectClasses = new ArrayList<String>(1);
-        selectedObjectClasses.add(objectClass);
-        setSelectedObjectClasses(selectedObjectClasses);
 
         setStage("objectClasses");
     }
 
     public void applyObjectClassesSelection() {
         Schema schema = getSchema();
-        String[] attributesPool = schema.getAttributesPool(getSelectedObjectClasses());
+        AttrMap attrMap = getAttrMap();
+        String[] attributesPool = schema.getAttributesPool(attrMap.getSelectedObjectClasses());
         setSelectedAttributes(attributesPool);
 
         setStage("attrs");
@@ -116,7 +106,7 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
     }
 
     public IPropertySelectionModel getObjectClassesSelectionModel() {
-        Collection<String> objectClasses = getSelectedObjectClasses();
+        Collection<String> objectClasses = getAttrMap().getSelectedObjectClasses();
         return new StringPropertySelectionModel(objectClasses.toArray(new String[objectClasses
                 .size()]));
     }

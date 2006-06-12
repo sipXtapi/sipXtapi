@@ -222,6 +222,7 @@
     default_pin CDATA #IMPLIED
     search_base CDATA #IMPLIED
     object_class CDATA #IMPLIED
+    filter CDATA #IMPLIED
 >
 
 <!ELEMENT ldap_connection EMPTY>
@@ -232,6 +233,12 @@
     principal CDATA #IMPLIED
     secret CDATA #IMPLIED
     cron_schedule_id CDATA #IMPLIED
+>
+
+<!ELEMENT ldap_selected_object_classes EMPTY>
+<!ATTLIST ldap_selected_object_classes
+    ldap_attr_map_id CDATA #REQUIRED
+    object_class CDATA #IMPLIED
 >
 
 <!ELEMENT ldap_user_property_to_ldap_attr EMPTY>
@@ -360,6 +367,12 @@
     value_storage_id CDATA #REQUIRED
     value CDATA #REQUIRED
     path CDATA #REQUIRED
+>
+
+<!ELEMENT supervisor EMPTY>
+<!ATTLIST supervisor
+    user_id CDATA #REQUIRED
+    group_id CDATA #REQUIRED
 >
 
 <!ELEMENT upload EMPTY>
