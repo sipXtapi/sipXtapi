@@ -6,17 +6,15 @@
   <!--
       - P A R A M E T E R S
       -->
-  <parameter name="user"  required="yes" >
-  </parameter>
-  <parameter name="tab"  required="yes" >
-  </parameter>
-  <parameter name="heading"  required="yes" >
-  </parameter>
+  <parameter name="user" required="yes"/>
+  <parameter name="tab" required="yes"/>
+  <parameter name="heading" required="yes"/>
   <!--
       - P R O P E R T I E S
       -->
   <property name="currentSetting" />
   <property name="settings" />
+  <property name="currentSettingSetName" persist="session"/>
   <inject property="coreContext" object="spring:coreContext"/>
   <!--
       - C O M P O N E N T S
@@ -37,7 +35,7 @@
     <binding name="parameters" value="user.id"/>
   </component>
   <component id="settingsTabs" type="For">
-    <binding name="source" value="settings.values"/>
+    <binding name="source" value="settings.getSetting('permission').values"/>
     <binding name="value" value="currentSetting"/>
   </component>
   <component id="settingsLink" type="DirectLink">

@@ -50,6 +50,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private static final String QUERY_USER_BY_NAME_OR_ALIAS = "userByNameOrAlias";
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
     private static final String QUERY_USER = "from User";
+    private static final String GROUP_ID = "groupId";
 
     private String m_authorizationRealm;
     private String m_domainName;
@@ -114,6 +115,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                 }
             }
         }
+        
         getHibernateTemplate().saveOrUpdate(user);
     }
 
@@ -425,7 +427,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public Collection getGroupMembers(Group group) {
         Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "userGroupMembers", "groupId", group.getId());
+                "userGroupMembers", GROUP_ID, group.getId());
         return users;
     }
 
@@ -449,6 +451,20 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
                     saveUser(user);
                 }
+                
+                Collection<User> groupSupervisors = getGroupSupervisors(group);
+                for (User user : groupSupervisors) {
+                    Set supervisors = user.getSupervisorForGroups();
+                    if (supervisors != null) {
+                        Object[] ids = new Object[] {
+                            group.getId()
+                        };
+                        DataCollectionUtil.removeByPrimaryKey(supervisors, ids);
+                    }
+
+                    saveUser(user);
+                }
+                // TODO
             }
         }
     }
@@ -482,5 +498,11 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
+    }
+    
+    public List<User> getGroupSupervisors(Group group) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "groupSupervisors", GROUP_ID, group.getId());    
+        return (List<User>) objs;
     }
 }

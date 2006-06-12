@@ -16,7 +16,7 @@
     <property name="serialNumber"/>
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
-	  <set name="groups" table="phone_group" sort="natural">
+    <set name="groups" table="phone_group" sort="natural" cascade="save-update">
       <key column="phone_id"/>
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
     </set>

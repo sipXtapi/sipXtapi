@@ -289,7 +289,7 @@
 	<target name="dataset-db"
 		description="Generates the sipconfig-db.dtd which is used to validate datasets"
 		depends="compile.test, reset-db">
-		<java classname="org.sipfoundry.sipxconfig.TestHelper" classpathref="test.path" 
+		<java classname="org.sipfoundry.sipxconfig.GenerateDatabaseDtd" classpathref="test.path" 
 			fork="on" error="/dev/null" output="/dev/null">
 			<arg value="${test.classes.dir}"/>
 		</java>

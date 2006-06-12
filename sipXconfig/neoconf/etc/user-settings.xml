@@ -15,7 +15,7 @@
   <group name="permission">
     <label>Permissions</label>
     <group name="application">
-      <label>Web UI Permissions</label>
+      <label>General Permission</label>
       <setting name="superadmin">
         <label>Superadmin Access</label>
         <type refid="enable-disable"/>
@@ -35,7 +35,7 @@
     </group>
     <!-- Copy of permissions exist in Permission.java -->
     <group name="call-handling">
-      <label>Call Handling Permissions</label>
+      <label>Call Permission</label>
       <setting name="900Dialing">
         <label>900 Dialing</label>
         <type refid="enable-disable"/>

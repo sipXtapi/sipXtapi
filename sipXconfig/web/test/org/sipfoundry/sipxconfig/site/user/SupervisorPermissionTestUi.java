@@ -31,7 +31,7 @@ public class SupervisorPermissionTestUi extends WebTestCase {
     }
 
     public void testDisplay() throws Exception {
-        clickLinkWithText("Supervisor Permission");        
+        clickLink("groupSupervisorLink");        
         SiteTestHelper.assertNoException(tester);                
     }
 }

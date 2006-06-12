@@ -124,4 +124,6 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     public void addToGroup(Integer groupId, Collection ids);
 
     public void removeFromGroup(Integer groupId, Collection ids);
+
+    public List<User> getGroupSupervisors(Group group);
 }

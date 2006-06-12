@@ -30,7 +30,6 @@ import org.dbunit.database.DatabaseConnection;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
 import org.dbunit.dataset.ReplacementDataSet;
-import org.dbunit.dataset.xml.FlatDtdDataSet;
 import org.dbunit.dataset.xml.FlatXmlDataSet;
 import org.dbunit.dataset.xml.XmlDataSet;
 import org.dbunit.operation.DatabaseOperation;
@@ -146,18 +145,17 @@ public final class TestHelper {
     public static Properties getSysDirProperties() {
         if (s_sysDirProps == null) {
             String classpathDirectory = getClasspathDirectory();
-            s_sysDirProps = initSysDirProperties(classpathDirectory);
+            initSysDirProperties(classpathDirectory);
         }
         return s_sysDirProps;
     }
 
-    public static Properties initSysDirProperties(String dir) {
+    public static void initSysDirProperties(String dir) {
         String etcDir = TestUtil.getProjectDirectory() + "/etc";
         String outDir = getTestDirectory();
-        Properties props = new Properties();
-        TestUtil.setSysDirProperties(props, etcDir, outDir);
-        TestUtil.saveSysDirProperties(props, dir);
-        return props;
+        s_sysDirProps = new Properties();
+        TestUtil.setSysDirProperties(s_sysDirProps, etcDir, outDir);
+        TestUtil.saveSysDirProperties(s_sysDirProps, dir);
     }
 
     public static IDatabaseConnection getConnection() throws Exception {
@@ -180,34 +178,6 @@ public final class TestHelper {
             s_dbunitConnection.close();
             s_dbunitConnection = null;
         }
-    }
-
-    public static void main(String[] args) {
-        try {
-            if (args.length > 0) {
-                s_sysDirProps = initSysDirProperties(args[0]);
-            }
-            generateDbDtd();
-            generateDbXml();
-            System.exit(0);
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
-    }
-
-    private static void generateDbDtd() throws Exception {
-        IDatabaseConnection c = getConnection();
-
-        FlatDtdDataSet.write(c.createDataSet(), new FileOutputStream(
-                "test/org/sipfoundry/sipxconfig/sipxconfig-db.dtd"));
-    }
-
-    private static void generateDbXml() throws Exception {
-        IDatabaseConnection c = getConnection();
-
-        XmlDataSet.write(c.createDataSet(), new FileOutputStream(
-                "test/org/sipfoundry/sipxconfig/sipxconfig-db.xml"));
     }
 
     public static IDataSet loadDataSet(String fileResource) throws Exception {

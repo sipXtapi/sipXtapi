@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
 
 public class CoreContextImplTestDb extends SipxDatabaseTestCase {
@@ -30,11 +31,13 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     private static final int NUM_USERS = 10;
 
     private CoreContextImpl m_core;
+    private SettingDao m_settingDao;
 
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_core = (CoreContextImpl) app
                 .getBean(CoreContextImpl.CONTEXT_BEAN_NAME);
+        m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -465,4 +468,13 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
             assertTrue(true);
         }
     }
+
+    public void testGetGroupSupervisors() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");
+        Group group = m_settingDao.getGroup(1001);
+        List<User> supervisors = m_core.getGroupSupervisors(group);
+        assertEquals(1, supervisors.size());
+        assertEquals((Integer) 1001, supervisors.get(0).getId());        
+    }   
 }

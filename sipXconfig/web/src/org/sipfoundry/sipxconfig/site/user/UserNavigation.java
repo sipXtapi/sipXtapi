@@ -53,7 +53,8 @@ public abstract class UserNavigation extends BaseComponent {
     public IPage editSettings(IRequestCycle cycle, Integer userId, String section) {
         UserSettings page = (UserSettings) cycle.getPage(UserSettings.PAGE);
         page.setUserId(userId);
-        page.setParentSettingName(section);
+        // only permissions are interesting in user settings.
+        page.setParentSettingName("permission/" + section);
         return page;
     }
     

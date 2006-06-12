@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.DataIntegrityViolationException;
 
 public class UserTestDb extends SipxDatabaseTestCase {
 
@@ -141,9 +142,8 @@ public class UserTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/TestUserSeed.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");
-        Group group = m_settingDao.getGroup(new Integer(1001));
-        Integer id = new Integer(1000);
-        User user = m_core.loadUser(id);
+        Group group = m_settingDao.getGroup(1001);
+        User user = m_core.loadUser(1000);
         assertTrue(user.getSupervisorForGroups().isEmpty());
         
         user.addSupervisorForGroup(group);
@@ -155,5 +155,41 @@ public class UserTestDb extends SipxDatabaseTestCase {
         ITable actual = TestHelper.getConnection().createQueryTable("supervisor",
                 "select * from supervisor");
         Assertion.assertEquals(expected, actual);
+    }
+    
+    public void testSupervisorSaveNewGroup() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.xml");
+        User user = m_core.loadUser(1000);
+        Group group = new Group();
+        group.setResource(User.GROUP_RESOURCE_ID);
+        group.setName("new-supervised-group");
+        
+        user.addSupervisorForGroup(group);
+        m_core.saveUser(user);                
+    }
+
+    public void testUserSaveNewGroup() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/TestUserSeed.xml");
+        User user = m_core.loadUser(1000);
+        Group group = new Group();
+        group.setResource(User.GROUP_RESOURCE_ID);
+        group.setName("new-supervised-group");
+        
+        user.addGroup(group);
+        m_core.saveUser(user);                
+    }
+    
+    public void testDeleteGroupUpdateSupervisor() throws Exception {
+        try {
+            TestHelper.cleanInsert("ClearDb.xml");
+            TestHelper.insertFlat("common/GroupSupervisorSeed.db.xml");        
+            m_settingDao.deleteGroups(Collections.singletonList(1001));
+            assertEquals(0, TestHelper.getConnection().getRowCount("supervisor"));
+            assertEquals(0, TestHelper.getConnection().getRowCount("group_storage"));
+        } catch (DataIntegrityViolationException e) {
+            fail();
+        }
     }
 }
