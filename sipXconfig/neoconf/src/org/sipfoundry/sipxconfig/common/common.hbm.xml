@@ -64,6 +64,10 @@
   <query name="userGroupMembers">
     <![CDATA[from User u where u.groups.id = :groupId]]>
   </query>
+  
+  <query name="userNamesGroupMembers">
+    <![CDATA[select u.userName from User u where u.groups.id = :groupId]]>
+  </query>  
 	  
   <query name="extensionPoolByName">
     <![CDATA[from ExtensionPool pool where pool.name = :name]]>

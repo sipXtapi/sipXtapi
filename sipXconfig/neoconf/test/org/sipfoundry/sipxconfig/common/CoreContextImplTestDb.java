@@ -227,6 +227,27 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
                 "users");
         assertEquals(NUM_USERS - 2, usersTable.getRowCount());
     }
+    
+    public void testDeleteUsersByUserName() throws Exception {
+        TestHelper.cleanInsertFlat("common/UserSearchSeed.xml");
+
+        // Check that we have the expected number of users
+        ITable usersTable = TestHelper.getConnection().createDataSet()
+                .getTable("users");
+        assertEquals(NUM_USERS, usersTable.getRowCount());
+
+        // Delete two users
+        List<String> usersToDelete = new ArrayList();
+        usersToDelete.add("userseed1");
+        usersToDelete.add("userseed2");
+        m_core.deleteUsersByUserName(usersToDelete);
+
+        // We should have reduced the user count by two
+        usersTable = TestHelper.getConnection().createDataSet().getTable(
+                "users");
+        assertEquals(NUM_USERS - 2, usersTable.getRowCount());
+    }
+    
 
     public void testLoadGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");

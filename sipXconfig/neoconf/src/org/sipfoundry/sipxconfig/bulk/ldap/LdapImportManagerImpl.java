@@ -32,14 +32,16 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     private LdapManager m_ldapManager;
 
     private LdapRowInserter m_rowInserter;
-
+    
     public void insert() {
         try {
             NamingEnumeration<SearchResult> result = search(0);
+            m_rowInserter.beforeInserting();
             while (result.hasMore()) {
                 SearchResult searchResult = result.next();
                 m_rowInserter.execute(searchResult);
             }
+            m_rowInserter.afterInserting();
 
         } catch (NamingException e) {
             LOG.error("Retrieving users list from LDAP server", e);
@@ -70,7 +72,7 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
     }
-
+    
     private NamingEnumeration<SearchResult> search(long limit) throws NamingException {
         SearchControls sc = new SearchControls();
         sc.setCountLimit(limit);

@@ -33,7 +33,9 @@ public class BulkManagerImpl extends HibernateDaoSupport implements BulkManager 
     }
 
     public void insertFromCsv(Reader reader) {
+        m_rowInserter.beforeInserting();
         m_csvParser.parse(reader, m_rowInserter);
+        m_rowInserter.afterInserting();
     }
 
     public void insertFromCsv(File file, boolean deleteOnImport) {

@@ -50,7 +50,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     private static final String QUERY_USER_BY_NAME_OR_ALIAS = "userByNameOrAlias";
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS = "userIdsByNameOrAlias";
     private static final String QUERY_USER = "from User";
-    private static final String GROUP_ID = "groupId";
+    private static final String QUERY_PARAM_GROUP_ID = "groupId";
 
     private String m_authorizationRealm;
     private String m_domainName;
@@ -68,7 +68,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public User newUser() {
         return (User) m_beanFactory.getBean(User.class.getName());
     }
-    
+
     public String getAuthorizationRealm() {
         return m_authorizationRealm;
     }
@@ -80,7 +80,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     public void setMaxUserCount(int maxUserCount) {
         m_maxUserCount = maxUserCount;
     }
-    
+
     public String getDomainName() {
         return m_domainName;
     }
@@ -122,8 +122,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     /**
      * Check that the system has been restricted to a certain number of users
      * 
-     * @param maxUserCount
-     *            -1 or represent infinite number
+     * @param maxUserCount -1 or represent infinite number
      */
     void checkMaxUsers(int maxUserCount) {
         if (maxUserCount < 0) {
@@ -138,8 +137,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     static class MaxUsersException extends UserException {
         MaxUsersException(int maxCount) {
-            super("You cannot exceed the maximum number of allowed users: "
-                    + maxCount);
+            super("You cannot exceed the maximum number of allowed users: " + maxCount);
         }
     }
 
@@ -162,6 +160,20 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
         for (Iterator i = userIds.iterator(); i.hasNext();) {
             Integer id = (Integer) i.next();
             User user = loadUser(id);
+            users.add(user);
+            m_daoEventPublisher.publishDelete(user);
+        }
+        getHibernateTemplate().deleteAll(users);
+    }
+
+    public void deleteUsersByUserName(Collection<String> userNames) {
+        if (userNames.isEmpty()) {
+            // no users to delete => nothing to do
+            return;
+        }
+        List users = new ArrayList(userNames.size());
+        for (String userName : userNames) {
+            User user = loadUserByUserName(userName);
             users.add(user);
             m_daoEventPublisher.publishDelete(user);
         }
@@ -427,8 +439,14 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
 
     public Collection getGroupMembers(Group group) {
         Collection users = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "userGroupMembers", GROUP_ID, group.getId());
+                "userGroupMembers", QUERY_PARAM_GROUP_ID, group.getId());
         return users;
+    }
+
+    public Collection<String> getGroupMembersNames(Group group) {
+        Collection<String> userNames = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "userNamesGroupMembers", QUERY_PARAM_GROUP_ID, group.getId());
+        return userNames;
     }
 
     public void onDelete(Object entity) {
@@ -502,7 +520,7 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
     
     public List<User> getGroupSupervisors(Group group) {
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "groupSupervisors", GROUP_ID, group.getId());    
-        return (List<User>) objs;
+                "groupSupervisors", QUERY_PARAM_GROUP_ID, group.getId());    
+        return objs;
     }
 }

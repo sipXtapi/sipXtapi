@@ -129,6 +129,17 @@ public class UserTestDb extends SipxDatabaseTestCase {
         assertEquals(actualUser.getDisplayName(), expectedUser.getDisplayName());
     }
 
+    public void testGroupMembersNames() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/UserGroupSeed.xml");
+        Group group = m_settingDao.getGroup(new Integer(1001));
+        Collection<String> users = m_core.getGroupMembersNames(group);
+        assertEquals(1, users.size());
+        User actualUser = m_core.loadUser(new Integer(1001));
+        String expected = users.iterator().next();
+        assertEquals(actualUser.getUserName(), expected);
+    }
+
     public void testDeleteUserGroups() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.insertFlat("common/UserGroupSeed.xml");

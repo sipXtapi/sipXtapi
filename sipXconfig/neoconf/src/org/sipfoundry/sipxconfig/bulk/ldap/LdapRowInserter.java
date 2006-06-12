@@ -42,6 +42,8 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
     private CoreContext m_coreContext;
 
+    private Set<String> m_existingUserNames;
+
     /**
      * Initial implementation will just print all attributes...
      */
@@ -63,6 +65,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
                 user = m_coreContext.newUser();
                 user.setUserName(userName);
             }
+            m_existingUserNames.remove(userName);
 
             setUserProperties(user, attrs);
             String pin = getValue(attrs, Index.PIN);
@@ -214,5 +217,21 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void beforeInserting() {
+        // get all the users from LDAP group
+        m_existingUserNames = new HashSet<String>();
+        Group defaultGroup = m_coreContext.getGroupByName(m_attrMap.getDefaultGroupName(), false);
+        if (defaultGroup != null) {
+            Collection<String> userNames = m_coreContext.getGroupMembersNames(defaultGroup);
+            m_existingUserNames.addAll(userNames);
+        }
+    }
+
+    public void afterInserting() {
+        // remove all the users that were not re-imported from LDAP
+        m_coreContext.deleteUsersByUserName(m_existingUserNames);
+        m_existingUserNames.clear();
     }
 }

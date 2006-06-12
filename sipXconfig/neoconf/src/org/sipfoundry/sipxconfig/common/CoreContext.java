@@ -36,6 +36,8 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     public void deleteUser(User user);
 
     public void deleteUsers(Collection usersIds);
+    
+    public void deleteUsersByUserName(Collection<String> usersName);
 
     public User loadUser(Integer id);
 
@@ -107,6 +109,8 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     public Setting getUserSettingsModel();
 
     public Collection getGroupMembers(Group group);
+    
+    public Collection<String> getGroupMembersNames(Group group);
 
     /**
      * Called to create a superadmin user with an empty password, to recover from a situation

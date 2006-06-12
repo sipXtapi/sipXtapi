@@ -74,7 +74,22 @@ public abstract class RowInserter<T> implements Closure {
     protected boolean checkRowData(T input) {
         return input != null;
     }
+    
+    /**
+     * Called before inserting begins, before the first time insertRow is called
+     */
+    public void beforeInserting() {
+        // do nothing
+    }
 
+    
+    /**
+     * Called after all insertions are doen: after the last one insertRow is called.
+     */
+    public void afterInserting() {
+        // do nothing
+    }
+    
     /**
      * Provide user-readable representation of the row
      * 
