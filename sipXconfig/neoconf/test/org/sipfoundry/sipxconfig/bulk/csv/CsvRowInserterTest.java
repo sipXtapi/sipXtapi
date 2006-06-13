@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.phone.cisco.CiscoModel;
 import org.sipfoundry.sipxconfig.phone.polycom.PolycomModel;
 
 public class CsvRowInserterTest extends TestCase {
@@ -127,4 +128,35 @@ public class CsvRowInserterTest extends TestCase {
 
         phoneContextCtrl.verify();
     }
+    
+    public void testPhoneFromRowSpaces() {
+        final String[] phoneRow1 = new String[] {
+            "", "", "", "", "", "", "", "001122334455", "ciscoAta ", " 18x", "yellow phone",
+            "phone in John room"
+        };
+
+        Phone phone = new Phone();
+        phone.setDescription("old description");
+
+        IMocksControl phoneContextCtrl = EasyMock.createControl();
+        PhoneContext phoneContext = phoneContextCtrl.createMock(PhoneContext.class);
+
+        phoneContext.getPhoneIdBySerialNumber("001122334455");
+        phoneContextCtrl.andReturn(null);
+        phoneContext.newPhone(CiscoModel.MODEL_ATA18X);
+        phoneContextCtrl.andReturn(phone);
+
+        phoneContextCtrl.replay();
+
+        CsvRowInserter impl = new CsvRowInserter();
+        impl.setPhoneContext(phoneContext);
+
+        // new phone
+        Phone phone1 = impl.phoneFromRow(phoneRow1);
+        assertEquals("phone in John room", phone1.getDescription());
+        assertEquals("001122334455", phone1.getSerialNumber());
+
+        phoneContextCtrl.verify();
+    }
+    
 }
