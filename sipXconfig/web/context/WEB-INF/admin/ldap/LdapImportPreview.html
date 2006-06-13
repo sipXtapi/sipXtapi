@@ -31,7 +31,15 @@
       </table>
     </fieldset>
     <ul class="form-actions">
-      <li><input jwcid="ok" id="preview:ok" type="submit" value="OK" /></li>
+      <li jwcid="ifRenderPrevious" element="li">
+        <input jwcid="previous" id="preview:previous" type="submit" value="Previous" />
+      </li>
+      <li jwcid="ifRenderNext" element="li">
+        <input jwcid="next" id="preview:next" type="submit" value="Next" />
+      </li>
+      <li>
+        <input jwcid="ok" id="preview:ok" type="submit" value="OK" />
+      </li>
     </ul>
   </form>
 </div>

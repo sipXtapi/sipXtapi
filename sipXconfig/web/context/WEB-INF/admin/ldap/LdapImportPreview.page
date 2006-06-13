@@ -9,6 +9,8 @@
 
   <property name="user" />
   <property name="groupsString" />
+  <property name="index" persist="session" />
+  <property name="exampleSize" />
 
   <!--
     - B E A N S
@@ -25,6 +27,24 @@
   <component id="ok" type="Submit">
     <binding name="value" value="message:button.ok" />
     <binding name="listener" value="listeners.ok" />
+  </component>
+
+  <component id="next" type="Submit">
+    <binding name="value" value="message:button.next" />
+    <binding name="listener" value="listeners.next" />
+  </component>
+
+  <component id="ifRenderNext" type="If">
+    <binding name="condition" value="index lt (exampleSize - 1)"></binding>
+  </component>
+
+  <component id="ifRenderPrevious" type="If">
+    <binding name="condition" value="index gt 0"></binding>
+  </component>
+
+  <component id="previous" type="Submit">
+    <binding name="value" value="message:button.previous" />
+    <binding name="listener" value="listeners.previous" />
   </component>
 
   <component id="firstNamePanel" type="FieldPanel">

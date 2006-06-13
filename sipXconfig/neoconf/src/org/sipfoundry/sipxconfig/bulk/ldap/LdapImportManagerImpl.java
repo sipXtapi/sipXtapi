@@ -11,7 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
@@ -20,6 +21,7 @@ import javax.naming.directory.SearchResult;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -32,7 +34,9 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     private LdapManager m_ldapManager;
 
     private LdapRowInserter m_rowInserter;
-    
+
+    private int m_previewSize;
+
     public void insert() {
         try {
             NamingEnumeration<SearchResult> result = search(0);
@@ -48,14 +52,19 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         }
     }
 
-    public void getExample(User user, Collection<String> groupNames) {
+    public List<UserPreview> getExample() {
         try {
-            NamingEnumeration<SearchResult> result = search(1);
-            if (result.hasMore()) {
+            ArrayList<UserPreview> example = new ArrayList<UserPreview>(m_previewSize);
+            NamingEnumeration<SearchResult> result = search(m_previewSize);
+            while (result.hasMore()) {
                 SearchResult searchResult = result.next();
+                User user = new User();
                 m_rowInserter.setUserProperties(user, searchResult.getAttributes());
-                groupNames.addAll(m_rowInserter.getGroupNames(searchResult));
+                List<String> groupNames = new ArrayList<String>(m_rowInserter
+                        .getGroupNames(searchResult));
+                example.add(new UserPreview(user, groupNames));
             }
+            return example;
         } catch (NamingException e) {
             throw new UserException(e.getMessage());
         }
@@ -72,7 +81,11 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
     public void setLdapManager(LdapManager ldapManager) {
         m_ldapManager = ldapManager;
     }
-    
+
+    public void setPreviewSize(int previewSize) {
+        m_previewSize = previewSize;
+    }
+
     private NamingEnumeration<SearchResult> search(long limit) throws NamingException {
         SearchControls sc = new SearchControls();
         sc.setCountLimit(limit);

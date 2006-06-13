@@ -11,9 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
-import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.common.User;
+import java.util.List;
+
+import org.sipfoundry.sipxconfig.bulk.UserPreview;
 
 public interface LdapImportManager {
     void insert();
@@ -23,5 +24,5 @@ public interface LdapImportManager {
      * @param user object to be filled with imported data
      * @param groupNames collection of group names created for this user
      */
-    void getExample(User user, Collection<String> groupNames);
+    List<UserPreview> getExample();
 }

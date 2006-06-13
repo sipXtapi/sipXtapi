@@ -11,14 +11,15 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.ldap;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.ValidatorException;
+import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -37,6 +38,14 @@ public abstract class LdapImportPreview extends BasePage implements PageBeginRen
 
     public abstract void setGroupsString(String groups);
 
+    public abstract int getIndex();
+
+    public abstract void setIndex(int index);
+
+    public abstract int getExampleSize();
+
+    public abstract void setExampleSize(int size);
+
     public void pageBeginRender(PageEvent event) {
         if (getUser() == null) {
             setUser(new User());
@@ -51,8 +60,22 @@ public abstract class LdapImportPreview extends BasePage implements PageBeginRen
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
                 .getValidator(getPage());
         try {
-            Collection<String> groupNames = new ArrayList<String>();
-            getLdapImportManager().getExample(getUser(), groupNames);
+            List<UserPreview> example = getLdapImportManager().getExample();
+            setExampleSize(example.size());
+            if (example.isEmpty()) {
+                throw new UserException(getMessages().getMessage("msg.empty"));
+            }
+
+            if (getIndex() >= getExampleSize()) {
+                setIndex(getExampleSize() - 1);
+            }
+            if (getIndex() < 0) {
+                setIndex(0);
+            }
+
+            UserPreview preview = example.get(getIndex());
+            setUser(preview.getUser());
+            Collection<String> groupNames = preview.getGroupNames();
             String groupsString = StringUtils.join(groupNames.iterator(), " ");
             setGroupsString(groupsString);
 
@@ -61,6 +84,18 @@ public abstract class LdapImportPreview extends BasePage implements PageBeginRen
         } catch (UserException e) {
             validator.record(new ValidatorException(e.getMessage()));
         }
+    }
+
+    public void next() {
+        int index = getIndex();
+        setIndex(index + 1);
+        importExampleUser();
+    }
+
+    public void previous() {
+        int index = getIndex();
+        setIndex(index - 1);
+        importExampleUser();
     }
 
     public String ok() {

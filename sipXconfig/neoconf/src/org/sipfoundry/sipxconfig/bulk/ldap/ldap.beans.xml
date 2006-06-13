@@ -26,15 +26,15 @@
         <value>person</value>
         <value>inetOrgPerson</value>
         <value>residentialPerson</value>
-        <value>organizationalPerson</value>        
+        <value>organizationalPerson</value>
       </set>
     </property>
   </bean>
 
-  <bean id="ldapConnectionParams"
-    class="org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams" singleton="false">
+  <bean id="ldapConnectionParams" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams"
+    singleton="false">
     <property name="host" value="localhost" />
-    <property name="port" value="389" />    
+    <property name="port" value="389" />
   </bean>
 
   <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowInserter"
@@ -48,8 +48,8 @@
 
   <bean id="ldapManagerImpl" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapManagerImpl">
     <property name="sessionFactory">
-      <ref bean="sessionFactory"/>
-    </property>    
+      <ref bean="sessionFactory" />
+    </property>
     <property name="jndiTemplate">
       <ref local="jndiTemplate" />
     </property>
@@ -75,6 +75,7 @@
     <property name="ldapManager">
       <ref local="ldapManager" />
     </property>
+    <property name="previewSize" value="10" />
   </bean>
 
   <bean id="eagerLdapImportManager" class="org.springframework.aop.framework.ProxyFactoryBean">
