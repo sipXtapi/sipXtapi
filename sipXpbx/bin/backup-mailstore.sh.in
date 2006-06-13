@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# SIPxchange home directory
 MAILSTORE=@SIPX_VXMLDATADIR@
 INTERACTIVE="yes"
 
@@ -85,4 +84,4 @@ echo -n "Copying files... "
 tar cC / $FILES | gzip --best > $BACKUP_DIR/mailstore.tar.gz
 echo "done."
 
-chown -R sipxchange:sipxchange $BACKUP_DIR
+chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ $BACKUP_DIR

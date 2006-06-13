@@ -132,14 +132,24 @@ rm -rf $RPM_BUILD_ROOT
 %{_includedir}/odbc/*
 
 %pre
+# if needed, change old daemon user names to the new one
+for oldname in sipxchange sipxpbx; do 
+  if [ "@SIPXPBXUSER@" != "${oldname}" ] && id -u ${oldname} > /dev/null 2>&1 
+  then
+     /usr/sbin/usermod --login @SIPXPBXUSER@ ${oldname}
+  fi
+done
+
+# if there is no daemon user, create it
 id -u @SIPXPBXUSER@ > /dev/null 2>&1 \
 || /usr/sbin/useradd \
-   -c "sipX PBX service" \
+   -c "sipX service daemon" \
    -g @SIPXPBXUSER@ \
    -d %{_sysconfdir}/sipxpbx \
    -s /bin/bash \
    @SIPXPBXUSER@
 
+# record the old version
 sipx-upgrade -p sipxcommserverlib -c
 
 %post

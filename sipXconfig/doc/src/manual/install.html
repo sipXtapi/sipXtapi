@@ -154,7 +154,7 @@ file, run this command:</p>
 <h3><a name="src-jboss">JBoss Setup</a></h3>
 <p>If you've installed JBoss from <a
  href="http://www.sipfoundry.org/pub/sipX/depends/">the RPM found on
-sipfoundry website</a> then add user 'sipxchange' (or user defined
+sipfoundry website</a> then add user 'sipx' (or user defined
 SIPXPBXUSER) to the jboss user group and skip the next few steps about
 patching JBoss and skip to setting up your database</p>
 <p> JBoss 4.0 is distributed with several server configurations. They
@@ -182,12 +182,12 @@ If you use custom JBoss server configuration use its name instead of <q>default<
 Every configuration has to be patched separately. </li>
   <li>Remove Hibernate distributed with JBoss (it's too old to support sipXconfig):
       <pre> rm -rf ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/deploy/jboss-hibernate.deployer</pre>
-      Hibernate 2.1 required by sipXconfig is included in the source distribution. 
+      Hibernate 2.1 required by sipXconfig is included in the source distribution.
   </li>
   <li>Copy in web certificate for basic https support<br />
     <pre>     cp meta/ssl.pkcs12 ${JBOSS_HOME}/server/${JBOSS_SERVER_CONF}/conf</pre>
   </li>
-  <li>Be sure user running sipxpbx (most cases sipxchange) has full r/w
+  <li>Be sure user running sipxpbx (most cases 'sipx') has full r/w
 access to all files and directories in <code>${JBOSS_HOME}</code></li>
 </ol>
 <p> If you are runnning sipXconfig 2.6.x (or older) on the same machine
@@ -312,8 +312,6 @@ or use Cygwin to start your system:
     </ol>
   </li>
 </ol>
-<span id="lastmodified"><!-- hhmts start -->
-Last modified: Mon Feb 21 14:53:32 EST 2005
-<!-- hhmts end --></span>
+<span id="lastmodified"><!-- hhmts start -->2006-06-13 14:56:46-0400<!-- hhmts end --></span>
 </body>
 </html>

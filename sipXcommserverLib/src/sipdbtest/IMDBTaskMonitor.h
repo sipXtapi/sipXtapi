@@ -24,7 +24,7 @@
 // DEFINES
 #define LOG_FACILITY        FAC_DB
 #ifndef SIPXCHANGE_USERNAME
-# define SIPXCHANGE_USERNAME "sipxchange"
+# define SIPXCHANGE_USERNAME "sipx"
 #endif
 #define EXIT_SUCCESS        0
 #define EXIT_BADUSERID      1

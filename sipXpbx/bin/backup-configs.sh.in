@@ -4,7 +4,7 @@
 BACKUP_DIR=backup-configs
 INTERACTIVE="yes"
 
-# All files (in $SIPXCHANGE_HOME or linked therefrom) with extensions in this list will be copied
+# All files (in @SIPXPBXUSER@ HOME or linked therefrom) with extensions in this list will be copied
 EXTENSION_MATCH="in"
 
 BackupFiles="\
@@ -78,7 +78,7 @@ do
         echo "   /$File"
 done
 
-echo "Will back up the SIPxchange database."
+echo "Will back up the database."
 
 # Assume a 10:1 compression ratio
 echo "Will back up about $(($SIZE / 10))K to: `pwd`/$BACKUP_DIR"
@@ -140,4 +140,4 @@ echo -n "Copying database... "
 dump_database | gzip --best > $BACKUP_DIR/pds.tar.gz
 echo "done."
 
-chown -R sipxchange:sipxchange $BACKUP_DIR
+chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ $BACKUP_DIR

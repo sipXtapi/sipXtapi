@@ -38,7 +38,7 @@
 #define WEB_LOG_FILENAME    "apacheauth.log"
 #define WEB_DEFAULT_LOG_DIR SIPX_LOGDIR
 #ifndef  SIPXCHANGE_USERNAME
-# define SIPXCHANGE_USERNAME "sipxchange"
+# define SIPXCHANGE_USERNAME "sipx"
 #endif
 #define LOG_FACILITY        FAC_APACHE_AUTH
 

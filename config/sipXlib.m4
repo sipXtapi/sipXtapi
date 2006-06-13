@@ -59,8 +59,8 @@ AC_DEFUN([SFAC_INIT_FLAGS],
                         WARNING: Adjust accordingly when following INSTALL instructions])
     test -z $wwwdir && wwwdir='${datadir}/www'
 
-    AC_ARG_VAR(SIPXPBXUSER, [The user that sipXpbx runs under, default is 'sipxchange'])
-    test -z $SIPXPBXUSER && SIPXPBXUSER=sipxchange
+    AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is 'sipx'])
+    test -z $SIPXPBXUSER && SIPXPBXUSER=sipx
 
     AC_SUBST(SIPXPHONECONF, [${sysconfdir}/sipxphone])
     AC_SUBST(SIPXPHONEDATA, [${datadir}/sipxphone])

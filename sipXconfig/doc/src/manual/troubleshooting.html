@@ -46,7 +46,8 @@ can check the CA by running this command.
   <dt>Start server from console</dt>
   <dd>You can run Profile Generator by itself after RMI Registry is
 started by running
-    <pre>   su - sipxchange profilegenerator.sh<br />   </pre>
+    <pre>   su - SIPXPBXUSER profilegenerator.sh<br />   </pre>
+    where SIPXPBXUSER is the daemon sipX user account (default is 'sipx')
   </dd>
   <dt>Resetting superadmin password</dt>
   <dd>Run this command from the console, superadmin password will be
@@ -72,7 +73,8 @@ processses. </dd>
   <dt>Start server from console</dt>
   <dd>You can run Profile Publisher by itself after RMI Registry is
 started by running
-    <pre>   su - sipxchange profilepublisher.sh<br />   </pre>
+    <pre>   su - SIPXPBXUSER profilepublisher.sh<br />   </pre>
+    where SIPXPBXUSER is the daemon sipX user account (default is 'sipx')
   </dd>
 </dl>
 <h2>Profile Writer</h2>
@@ -86,7 +88,8 @@ processses </dd>
   <dt>Start server from console</dt>
   <dd>You can run Profile Publisher by itself after RMI Registry is
 started by running:
-    <pre>   su - sipxchange profilewriter.sh<br />   </pre>
+    <pre>   su - SIPXPBXUSER profilewriter.sh<br />   </pre>
+    where SIPXPBXUSER is the daemon sipX user account (default is 'sipx')
   </dd>
 </dl>
 <h2>RMI registry</h2>
@@ -94,7 +97,8 @@ started by running:
   <dt>Start server from console</dt>
   <dd>RMI registry does not have a console, but you analyze what's
 getting written to stdout or stderr by running rmi from the console:
-    <pre>      su - sipxchange startrmireg.sh<br />  </pre>
+    <pre>      su - SIPXPBXUSER startrmireg.sh<br />  </pre>
+    where SIPXPBXUSER is the daemon sipX user account (default is 'sipx').
 Personally, I've never seen an error here, but it's worth noting. </dd>
 </dl>
 </body>
