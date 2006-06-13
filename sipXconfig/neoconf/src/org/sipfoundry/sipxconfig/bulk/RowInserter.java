@@ -26,7 +26,7 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 public abstract class RowInserter<T> implements Closure {
-    public static final Log LOG = LogFactory.getLog(CsvRowInserter.class);    
+    public static final Log LOG = LogFactory.getLog(CsvRowInserter.class);
 
     private JobContext m_jobContext;
 
@@ -42,13 +42,9 @@ public abstract class RowInserter<T> implements Closure {
 
     public final void execute(Object input) {
         T row = (T) input;
-        if (!checkRowData(row)) {
-            // if something is wrong with the data do not event start
-            LOG.warn("Invalid data format when importing:" + dataToString(row));            
-            return;
-        }
+        String jobDescription = dataToString(row);
+        final Serializable jobId = m_jobContext.schedule("Import data: " + jobDescription);
         TransactionTemplate tt = new TransactionTemplate(m_transactionManager);
-        final Serializable jobId = m_jobContext.schedule("Import data: " + dataToString(row));
         try {
             TransactionCallback callback = new JobTransaction(jobId, row);
             tt.execute(callback);
@@ -74,7 +70,7 @@ public abstract class RowInserter<T> implements Closure {
     protected boolean checkRowData(T input) {
         return input != null;
     }
-    
+
     /**
      * Called before inserting begins, before the first time insertRow is called
      */
@@ -82,14 +78,13 @@ public abstract class RowInserter<T> implements Closure {
         // do nothing
     }
 
-    
     /**
      * Called after all insertions are doen: after the last one insertRow is called.
      */
     public void afterInserting() {
         // do nothing
     }
-    
+
     /**
      * Provide user-readable representation of the row
      * 
@@ -109,8 +104,15 @@ public abstract class RowInserter<T> implements Closure {
 
         protected void doInTransactionWithoutResult(TransactionStatus status_) {
             m_jobContext.start(m_id);
-            insertRow(m_input);
-            m_jobContext.success(m_id);
+            if (checkRowData(m_input)) {
+                insertRow(m_input);
+                m_jobContext.success(m_id);
+            } else {
+                String errorMessage = "Invalid data format when importing:"
+                        + dataToString(m_input);
+                LOG.warn(errorMessage);
+                m_jobContext.failure(m_id, errorMessage, null);
+            }
         }
     }
 }

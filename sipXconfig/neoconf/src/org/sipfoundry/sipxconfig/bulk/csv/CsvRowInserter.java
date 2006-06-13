@@ -69,7 +69,12 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
     }
 
     protected boolean checkRowData(String[] row) {
-        return row.length > Index.PHONE_DESCRIPTION.getValue();
+        if (row.length <= Index.PHONE_DESCRIPTION.getValue()) {
+            return false;
+        }
+        String userName = get(row, Index.USERNAME);
+        String serialNo = get(row, Index.SERIAL_NUMBER);
+        return StringUtils.isNotBlank(serialNo) && StringUtils.isNotBlank(userName);
     }
 
     /**

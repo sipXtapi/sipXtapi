@@ -15,6 +15,7 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter.Index;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -66,6 +67,24 @@ public class CsvRowInserterTest extends TestCase {
         assertEquals("jlennon, 121212", user2.getAliasesString());
 
         coreContextCtrl.verify();
+    }
+
+    public void testCheckRowData() {
+        CsvRowInserter impl = new CsvRowInserter();
+        String[] row = {
+            "kuku", "", "", "", "", "", "", "001122334466", "polycom", "300", "yellow phone", ""
+        };
+        assertTrue(impl.checkRowData(row));
+        String[] rowShort = {
+            "kuku", "", "", "", "", "", "", "001122334466", "polycom", "300", "yellow phone"
+        };
+        assertFalse(impl.checkRowData(rowShort));
+        row[Index.USERNAME.getValue()] = "";
+        assertFalse(impl.checkRowData(row));
+        row[Index.SERIAL_NUMBER.getValue()] = "";
+        assertFalse(impl.checkRowData(row));
+        row[Index.USERNAME.getValue()] = "kuku";
+        assertFalse(impl.checkRowData(row));
     }
 
     public void testPhoneFromRowUpdate() {
@@ -128,7 +147,7 @@ public class CsvRowInserterTest extends TestCase {
 
         phoneContextCtrl.verify();
     }
-    
+
     public void testPhoneFromRowSpaces() {
         final String[] phoneRow1 = new String[] {
             "", "", "", "", "", "", "", "001122334455", "ciscoAta ", " 18x", "yellow phone",
@@ -158,5 +177,4 @@ public class CsvRowInserterTest extends TestCase {
 
         phoneContextCtrl.verify();
     }
-    
 }
