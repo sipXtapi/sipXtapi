@@ -138,8 +138,9 @@ public class BulkManagerImpl extends SipxHibernateDaoSupport implements BulkMana
         if (phoneId != null) {
             phone = m_phoneContext.loadPhone(phoneId);
         } else {
-            PhoneModel model = PhoneModel.getModel(get(row, Index.BEAN_ID), get(row,
-                    Index.MODEL_ID));
+            String beanId = get(row, Index.BEAN_ID).trim();
+            String modelId = get(row, Index.MODEL_ID).trim();
+            PhoneModel model = PhoneModel.getModel(beanId, modelId);
             phone = m_phoneContext.newPhone(model);
             phone.setSerialNumber(serialNo);
         }

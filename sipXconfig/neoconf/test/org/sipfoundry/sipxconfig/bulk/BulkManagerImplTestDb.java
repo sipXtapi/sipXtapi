@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
+import org.sipfoundry.sipxconfig.phone.cisco.CiscoModel;
 import org.springframework.context.ApplicationContext;
 
 public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
@@ -229,6 +230,36 @@ public class BulkManagerImplTestDb extends SipxDatabaseTestCase {
         phoneContext.getPhoneIdBySerialNumber("001122334455");
         phoneContextCtrl.setReturnValue(null);
         phoneContext.newPhone(PhoneModel.getModel("polycom", "500"));
+        phoneContextCtrl.setReturnValue(phone);
+
+        phoneContextCtrl.replay();
+
+        BulkManagerImpl impl = new BulkManagerImpl();
+        impl.setPhoneContext(phoneContext);
+
+        // new phone
+        Phone phone1 = impl.phoneFromRow(phoneRow1);
+        assertEquals("phone in John room", phone1.getDescription());
+        assertEquals("001122334455", phone1.getSerialNumber());
+
+        phoneContextCtrl.verify();
+    }
+
+    public void testPhoneFromRowSpaces() {
+        final String[] phoneRow1 = new String[] {
+            "", "", "", "", "", "", "", "001122334455", "ciscoAta ", " 18x", "yellow phone",
+            "phone in John room"
+        };
+
+        Phone phone = new Phone();
+        phone.setDescription("old description");
+
+        MockControl phoneContextCtrl = MockControl.createControl(PhoneContext.class);
+        PhoneContext phoneContext = (PhoneContext) phoneContextCtrl.getMock();
+
+        phoneContext.getPhoneIdBySerialNumber("001122334455");
+        phoneContextCtrl.setReturnValue(null);
+        phoneContext.newPhone(CiscoModel.MODEL_ATA18X);
         phoneContextCtrl.setReturnValue(phone);
 
         phoneContextCtrl.replay();
