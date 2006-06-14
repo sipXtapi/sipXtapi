@@ -19,7 +19,7 @@ import java.util.TreeMap;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.functors.NotNullPredicate;
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter.Index;
+import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 /**

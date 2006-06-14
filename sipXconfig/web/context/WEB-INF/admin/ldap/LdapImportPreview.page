@@ -10,7 +10,8 @@
   <property name="user" />
   <property name="groupsString" />
   <property name="index" persist="session" />
-  <property name="exampleSize" />
+  <property name="example" persist="session" />
+  <property name="file" persist="session"/>
 
   <!--
     - B E A N S
@@ -20,6 +21,16 @@
   <!--
     - C O M P O N E N T S
   -->
+  <component id="download" type="DownloadLink">
+    <binding name="fileName" value="file.name" />
+    <binding name="dirName" value="file.parent" />
+    <binding name="contentType" value="literal:text/comma-separated-values" />
+  </component>
+
+  <component id="renderDownload" type="If">
+    <binding name="condition" value="file != null" />
+  </component>
+
   <component id="previewForm" type="Form">
     <binding name="delegate" value="bean:validator" />
   </component>
@@ -35,7 +46,7 @@
   </component>
 
   <component id="ifRenderNext" type="If">
-    <binding name="condition" value="index lt (exampleSize - 1)"></binding>
+    <binding name="condition" value="(example != null) and (index lt (example.size() - 1))"></binding>
   </component>
 
   <component id="ifRenderPrevious" type="If">

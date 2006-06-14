@@ -14,6 +14,8 @@ package org.sipfoundry.sipxconfig.site.admin.ldap;
 import java.util.Collection;
 
 import org.apache.tapestry.AbstractPage;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -96,13 +98,15 @@ public abstract class LdapServer extends BasePage implements PageBeginRenderList
         setStage("attrs");
     }
 
-    public String applyAttrMap() {
+    public IPage applyAttrMap(IRequestCycle cycle) {
         if (!TapestryUtils.isValid((AbstractPage) getPage())) {
             return null;
         }
         getLdapManager().setAttrMap(getAttrMap());
         // send us to import preview
-        return LdapImportPreview.PAGE;
+        LdapImportPreview ldapImportPreview = (LdapImportPreview) cycle.getPage(LdapImportPreview.PAGE);
+        ldapImportPreview.setExample(null);
+        return ldapImportPreview;
     }
 
     public IPropertySelectionModel getObjectClassesSelectionModel() {

@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.ldap;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
@@ -42,63 +45,90 @@ public abstract class LdapImportPreview extends BasePage implements PageBeginRen
 
     public abstract void setIndex(int index);
 
-    public abstract int getExampleSize();
+    public abstract List<UserPreview> getExample();
 
-    public abstract void setExampleSize(int size);
+    public abstract void setExample(List<UserPreview> example);
+
+    public abstract void setFile(File file);
+
+    public abstract File getFile();
 
     public void pageBeginRender(PageEvent event) {
         if (getUser() == null) {
             setUser(new User());
         }
 
-        if (!event.getRequestCycle().isRewinding()) {
-            importExampleUser();
-        }
-    }
-
-    public void importExampleUser() {
         SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils
                 .getValidator(getPage());
         try {
-            List<UserPreview> example = getLdapImportManager().getExample();
-            setExampleSize(example.size());
-            if (example.isEmpty()) {
-                throw new UserException(getMessages().getMessage("msg.empty"));
+            if (getExample() == null) {
+                List<UserPreview> example = getLdapImportManager().getExample();
+                setExample(example);
+                File file = loadPreviewToFile();
+                setFile(file);
             }
 
-            if (getIndex() >= getExampleSize()) {
-                setIndex(getExampleSize() - 1);
+            if (!event.getRequestCycle().isRewinding()) {
+                move(validator);
             }
-            if (getIndex() < 0) {
-                setIndex(0);
-            }
-
-            UserPreview preview = example.get(getIndex());
-            setUser(preview.getUser());
-            Collection<String> groupNames = preview.getGroupNames();
-            String groupsString = StringUtils.join(groupNames.iterator(), " ");
-            setGroupsString(groupsString);
-
-            validator.recordSuccess(getMessages().getMessage("msg.success"));
-
         } catch (UserException e) {
             validator.record(new ValidatorException(e.getMessage()));
         }
     }
 
+    private File loadPreviewToFile() {
+        try {
+            File file = getFile();
+            if (file != null) {
+                file.delete();
+            }
+            file = File.createTempFile("ldap", "csv");
+            // FIXME: it really should be deleted by the time session terminates
+            file.deleteOnExit();
+            FileWriter writer = new FileWriter(file);
+            getLdapImportManager().dumpExample(writer);
+            writer.close();
+            return file;
+        } catch (IOException e) {
+            throw new UserException(e.getMessage());
+        }
+    }
+
+    private void move(SipxValidationDelegate validator) {
+        List<UserPreview> example = getExample();
+        if (example.isEmpty()) {
+            throw new UserException(getMessages().getMessage("msg.empty"));
+        }
+
+        if (getIndex() >= example.size()) {
+            setIndex(example.size() - 1);
+        }
+        if (getIndex() < 0) {
+            setIndex(0);
+        }
+
+        UserPreview preview = example.get(getIndex());
+        setUser(preview.getUser());
+        Collection<String> groupNames = preview.getGroupNames();
+        String groupsString = StringUtils.join(groupNames.iterator(), " ");
+        setGroupsString(groupsString);
+
+        validator.recordSuccess(getMessages().getMessage("msg.success"));
+    }
+
     public void next() {
         int index = getIndex();
         setIndex(index + 1);
-        importExampleUser();
     }
 
     public void previous() {
         int index = getIndex();
         setIndex(index - 1);
-        importExampleUser();
     }
 
     public String ok() {
+        setExample(null);
+        setFile(null);
         return LdapImport.PAGE;
     }
 }

@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,9 +21,12 @@ import javax.naming.NamingException;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
+import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
+import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -70,6 +75,37 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         }
     }
 
+    public void dumpExample(Writer out) {
+        try {
+            CsvWriter writer = new CsvWriter(out);
+            String[] allNames = Index.getAllNames();
+            writer.write(allNames, false);
+            
+            NamingEnumeration<SearchResult> result = search(0);
+            while (result.hasMore()) {
+                SearchResult searchResult = result.next();
+                User user = new User();
+                m_rowInserter.setUserProperties(user, searchResult.getAttributes());
+                List<String> groupNames = new ArrayList<String>(m_rowInserter
+                        .getGroupNames(searchResult));
+                String groupNamesString = StringUtils.join(groupNames.iterator(), ", ");
+                String[] row = new String[allNames.length];
+                Index.USERNAME.set(row, user.getUserName());
+                Index.FIRST_NAME.set(row, user.getFirstName());
+                Index.LAST_NAME.set(row, user.getLastName());
+                Index.ALIAS.set(row, user.getAliasesString());
+                Index.SIP_PASSWORD.set(row, user.getSipPassword());
+                Index.USER_GROUP.set(row, groupNamesString);                
+                
+                writer.write(row, true);
+            }
+        } catch (NamingException e) {
+            throw new UserException(e.getMessage());
+        } catch (IOException e) {
+            throw new UserException(e.getMessage());
+        }
+    }
+
     public void setJndiTemplate(JndiLdapTemplate jndiTemplate) {
         m_jndiTemplate = jndiTemplate;
     }
@@ -108,4 +144,5 @@ public class LdapImportManagerImpl extends HibernateDaoSupport implements LdapIm
         NamingEnumeration<SearchResult> result = m_jndiTemplate.search(base, filter, sc);
         return result;
     }
+
 }

@@ -27,14 +27,14 @@ import org.apache.commons.collections.Closure;
  */
 public class CsvParserImpl implements CsvParser {
 
+    static final char FIELD_SEPARATOR = ',';
+    static final char FIELD_QUOTE = '"';
+
     /**
      * it's only used as initialization of ArrayList - the parses will well with more fields as
      * well
      */
     private static final int DEFAULT_FIELD_COUNT = 32;
-
-    private static final char FIELD_SEPARATOR = ',';
-    private static final char FIELD_QUOTE = '"';
 
     public List parse(Reader csv) {
         final List result = new ArrayList();

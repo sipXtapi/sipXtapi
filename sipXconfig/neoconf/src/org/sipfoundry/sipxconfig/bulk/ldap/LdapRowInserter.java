@@ -27,8 +27,9 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter.Index;
+import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -55,10 +56,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         try {
             Attributes attrs = sr.getAttributes();
             LOG.info("Inserting:" + attrs.toString());
-            String attrName = m_attrMap.getIdentityAttributeName();
-            String userName;
-            userName = getValue(attrs, attrName);
-
+            String userName = getUserName(attrs);
             User user = m_coreContext.loadUserByUserName(userName);
             boolean newUser = user == null;
             if (newUser) {
@@ -68,11 +66,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             m_existingUserNames.remove(userName);
 
             setUserProperties(user, attrs);
-            String pin = getValue(attrs, Index.PIN);
-            if (pin == null && newUser) {
-                // for new users consider default pin
-                pin = m_attrMap.getDefaultPin();
-            }
+            String pin = getPin(attrs, newUser);
             if (pin != null) {
                 user.setPin(pin, m_coreContext.getAuthorizationRealm());
             }
@@ -90,10 +84,31 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         }
     }
 
+    private String getPin(Attributes attrs, boolean newUser) throws NamingException {
+        String pin = getValue(attrs, Index.PIN);
+        if (pin == null && newUser) {
+            // for new users consider default pin
+            pin = m_attrMap.getDefaultPin();
+        }
+        return pin;
+    }
+
+    private String getUserName(Attributes attrs) throws NamingException {
+        String attrName = m_attrMap.getIdentityAttributeName();
+        String userName = getValue(attrs, attrName);
+        return userName;
+    }
+
     /**
      * Sets user properties based on the attributes of the found LDAP entry
      */
     void setUserProperties(User user, Attributes attrs) throws NamingException {
+        // in most cases userName is already set - this code is here to support retrieving user
+        // previe
+        String userName = user.getUserName();
+        if (StringUtils.isBlank(userName)) {
+            user.setUserName(getUserName(attrs));
+        }
         setProperty(user, attrs, Index.FIRST_NAME);
         setProperty(user, attrs, Index.LAST_NAME);
         setProperty(user, attrs, Index.SIP_PASSWORD);

@@ -12,6 +12,8 @@
 package org.sipfoundry.sipxconfig.site.admin.ldap;
 
 import org.apache.tapestry.AbstractPage;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.html.BasePage;
@@ -32,7 +34,7 @@ public abstract class LdapImport extends BasePage implements PageBeginRenderList
     public abstract CronSchedule getSchedule();
 
     public abstract void setSchedule(CronSchedule schedule);
-
+    
     public void pageBeginRender(PageEvent event) {
         if (getSchedule() == null) {
             setSchedule(getLdapManager().getSchedule());
@@ -49,8 +51,10 @@ public abstract class LdapImport extends BasePage implements PageBeginRenderList
         validator.recordSuccess(getMessages().getMessage("msg.success"));
     }
 
-    public String verifyLdap() {
-        return LdapImportPreview.PAGE;
+    public IPage verifyLdap(IRequestCycle cycle) {
+        LdapImportPreview ldapImportPreview = (LdapImportPreview) cycle.getPage(LdapImportPreview.PAGE);
+        ldapImportPreview.setExample(null);
+        return ldapImportPreview;
     }
     
     public void applySchedule() {

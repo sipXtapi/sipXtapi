@@ -11,13 +11,10 @@
  */
 package org.sipfoundry.sipxconfig.bulk.csv;
 
-import java.lang.reflect.InvocationTargetException;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.enums.ValuedEnum;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -28,34 +25,6 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.setting.Group;
 
 public class CsvRowInserter extends RowInserter<String[]> implements Closure {
-    /**
-     * Values of the enums below determine the exact format of CSV file
-     * 
-     * "Username", "Pintoken", "Sip Password", "FirstName", "LastName", "Alias", "UserGroup",
-     * "SerialNumber", "Manufacturer", "Model", "Phone Group", "Phone Description"
-     */
-    public static final class Index extends ValuedEnum {
-        // user fields
-        public static final Index USERNAME = new Index("userName", 0);
-        public static final Index PIN = new Index("pin", 1);
-        public static final Index SIP_PASSWORD = new Index("sipPassword", 2);
-        public static final Index FIRST_NAME = new Index("firstName", 3);
-        public static final Index LAST_NAME = new Index("lastName", 4);
-        public static final Index ALIAS = new Index("aliasesString", 5);
-        public static final Index USER_GROUP = new Index("userGroupName", 6);
-
-        // phone fields
-        public static final Index SERIAL_NUMBER = new Index("serialNumber", 7);
-        public static final Index BEAN_ID = new Index("beanId", 8);
-        public static final Index MODEL_ID = new Index("modelId", 9);
-        public static final Index PHONE_GROUP = new Index("phoneGroupName", 10);
-        public static final Index PHONE_DESCRIPTION = new Index("description", 11);
-
-        private Index(String name, int value) {
-            super(name, value);
-        }
-    }
-
     private CoreContext m_coreContext;
 
     private PhoneContext m_phoneContext;
@@ -72,8 +41,8 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         if (row.length <= Index.PHONE_DESCRIPTION.getValue()) {
             return false;
         }
-        String userName = get(row, Index.USERNAME);
-        String serialNo = get(row, Index.SERIAL_NUMBER);
+        String userName = Index.USERNAME.get(row);
+        String serialNo = Index.SERIAL_NUMBER.get(row);
         return StringUtils.isNotBlank(serialNo) && StringUtils.isNotBlank(userName);
     }
 
@@ -86,13 +55,13 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         User user = userFromRow(row);
         Phone phone = phoneFromRow(row);
 
-        String phoneGroupName = get(row, Index.PHONE_GROUP);
+        String phoneGroupName = Index.PHONE_GROUP.get(row);
         Group phoneGroup = null;
         if (StringUtils.isNotBlank(phoneGroupName)) {
             phoneGroup = m_phoneContext.getGroupByName(phoneGroupName, true);
         }
 
-        String userGroupName = get(row, Index.USER_GROUP);
+        String userGroupName = Index.USER_GROUP.get(row);
         Group userGroup = null;
         if (StringUtils.isNotBlank(userGroupName)) {
             userGroup = m_coreContext.getGroupByName(userGroupName, true);
@@ -110,7 +79,7 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
      * @return modified (but not saved used object)
      */
     User userFromRow(String[] row) {
-        String userName = get(row, Index.USERNAME);
+        String userName = Index.USERNAME.get(row);
         User user = m_coreContext.loadUserByUserName(userName);
 
         if (user == null) {
@@ -118,35 +87,35 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
             user.setUserName(userName);
         }
 
-        String pin = get(row, Index.PIN);
+        String pin = Index.PIN.get(row);
         if (pin.length() > 0) {
             user.setPin(pin, m_coreContext.getAuthorizationRealm());
         }
 
-        setProperty(user, row, Index.FIRST_NAME);
-        setProperty(user, row, Index.LAST_NAME);
-        setProperty(user, row, Index.ALIAS);
-        setProperty(user, row, Index.SIP_PASSWORD);
+        Index.FIRST_NAME.setProperty(user, row);
+        Index.LAST_NAME.setProperty(user, row);
+        Index.ALIAS.setProperty(user, row);
+        Index.SIP_PASSWORD.setProperty(user, row);
 
         return user;
     }
 
     Phone phoneFromRow(String[] row) {
-        String serialNo = get(row, Index.SERIAL_NUMBER);
+        String serialNo = Index.SERIAL_NUMBER.get(row);
 
         Integer phoneId = m_phoneContext.getPhoneIdBySerialNumber(serialNo);
         Phone phone = null;
         if (phoneId != null) {
             phone = m_phoneContext.loadPhone(phoneId);
         } else {
-            String beanId = get(row, Index.BEAN_ID).trim();
-            String modelId = get(row, Index.MODEL_ID).trim();
+            String beanId = Index.BEAN_ID.get(row).trim();
+            String modelId = Index.MODEL_ID.get(row).trim();
             PhoneModel model = PhoneModel.getModel(beanId, modelId);
             phone = m_phoneContext.newPhone(model);
             phone.setSerialNumber(serialNo);
         }
 
-        String description = get(row, Index.PHONE_DESCRIPTION);
+        String description = Index.PHONE_DESCRIPTION.get(row);
         if (description.length() > 0) {
             phone.setDescription(description);
         }
@@ -178,25 +147,6 @@ public class CsvRowInserter extends RowInserter<String[]> implements Closure {
         phone.addLine(line);
 
         m_phoneContext.storePhone(phone);
-    }
-
-    private static void setProperty(Object bean, String[] row, Index index) {
-        String value = get(row, index);
-        if (value.length() == 0) {
-            return;
-        }
-        String property = index.getName();
-        try {
-            BeanUtils.setProperty(bean, property, value);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e.getCause());
-        }
-    }
-
-    private static String get(String[] row, Index index) {
-        return row[index.getValue()];
     }
 
     protected String dataToString(String[] row) {
