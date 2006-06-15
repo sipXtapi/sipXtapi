@@ -55,13 +55,31 @@ case ${Action} in
      mkdir -p @SIPX_VXMLDATADIR@/voicemail/ui/adminui
      mkdir -p @SIPX_VXMLDATADIR@/voicemail/vxml
 
+     ## if we are configured to create core files,
+     ## and this system is capable of creating core files for setuid 
+     ## executables, so set it to create those core files (read-only to root) 
+     ##    this allows debugging of sipXvxml crashes
+
      if [ "${SIPX_CORELIMIT}" = "unlimited" -a -w /proc/sys/kernel/suid_dumpable ]
      then
-         ## we are configured to create core files,
-         ## and this system is capable of creating core files for setuid executables,
-         ## so set it to create those core files (read-only to root) 
-         ##    this allows debugging of sipXvxml crashes
+         # RHEL uses this
          echo 2 > /proc/sys/kernel/suid_dumpable
+     fi
+     if [ "${SIPX_CORELIMIT}" = "unlimited" -a -w /proc/sys/fs/suid_dumpable ]
+     then
+         # FC4 and kernel.org uses this
+         echo 1 > /proc/sys/fs/suid_dumpable
+
+         ## According to the PROC man page /proc/sys/fs/suid_dumpable has
+         ## the following behavior:
+         ##   0 (default)
+         ##   1 ("debug") All processes dump core when possible
+         ##   2 ("suidsafe") Any binary which normally would not be dumped 
+         ##     (see "0" above) is dumped readable by root only.
+         ## However experimentation shows 2 doesn't seem to work 
+         ## (with sipXvxml on FC4, anyway), and 1
+         ## creates core dumps that are only readable by root.  
+         ## So lets use 1 for now until proven otherwise.
      fi
 
      echo $$ > @SIPX_RUNDIR@/sipXvxml.pid
