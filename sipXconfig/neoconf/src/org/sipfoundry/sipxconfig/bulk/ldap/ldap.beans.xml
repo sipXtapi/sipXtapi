@@ -38,8 +38,9 @@
   </bean>
 
   <bean id="ldapRowInserter" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapRowInserter"
-    parent="rowInserter">
+    parent="rowInserter" singleton="false">
     <property name="coreContext" ref="coreContext" />
+    <property name="preserveMissingUsers" value="false" />
   </bean>
 
   <bean id="jndiTemplate" class="org.sipfoundry.sipxconfig.bulk.ldap.JndiLdapTemplate">

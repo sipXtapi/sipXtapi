@@ -159,7 +159,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         if (!connections.isEmpty()) {
             return connections.get(0);
         }
-        LdapConnectionParams params = new LdapConnectionParams();
+        LdapConnectionParams params = (LdapConnectionParams) m_beanFactory.getBean(
+                "ldapConnectionParams", LdapConnectionParams.class);
         getHibernateTemplate().save(params);
         return params;
     }
@@ -190,21 +191,21 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             m_timer = schedule.schedule(ldapImportTask);
         }
     }
-    
+
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
 
     private static final class LdapImportTask extends TimerTask {
         private LdapImportManager m_ldapImportManager;
-        
+
         public LdapImportTask(LdapImportManager ldapImportManager) {
             m_ldapImportManager = ldapImportManager;
-            
+
         }
-        
+
         public void run() {
             m_ldapImportManager.insert();
         }
-    }    
+    }
 }

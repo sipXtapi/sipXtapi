@@ -45,6 +45,27 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
     private Set<String> m_existingUserNames;
 
+    private boolean m_preserveMissingUsers;
+
+    public void beforeInserting() {
+        // get all the users from LDAP group
+        m_existingUserNames = new HashSet<String>();
+        Group defaultGroup = m_coreContext.getGroupByName(m_attrMap.getDefaultGroupName(), false);
+        if (defaultGroup != null) {
+            Collection<String> userNames = m_coreContext.getGroupMembersNames(defaultGroup);
+            m_existingUserNames.addAll(userNames);
+        }
+    }
+
+    public void afterInserting() {
+        if (m_preserveMissingUsers) {
+            return;
+        }
+        // remove all the users that were not re-imported from LDAP
+        m_coreContext.deleteUsersByUserName(m_existingUserNames);
+        m_existingUserNames.clear();
+    }
+
     /**
      * Initial implementation will just print all attributes...
      */
@@ -84,19 +105,10 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         }
     }
 
-    private String getPin(Attributes attrs, boolean newUser) throws NamingException {
-        String pin = getValue(attrs, Index.PIN);
-        if (pin == null && newUser) {
-            // for new users consider default pin
-            pin = m_attrMap.getDefaultPin();
-        }
-        return pin;
-    }
-
-    private String getUserName(Attributes attrs) throws NamingException {
-        String attrName = m_attrMap.getIdentityAttributeName();
-        String userName = getValue(attrs, attrName);
-        return userName;
+    protected boolean checkRowData(SearchResult sr) {
+        Attributes attrs = sr.getAttributes();
+        String idAttrName = m_attrMap.getIdentityAttributeName();
+        return (attrs.get(idAttrName) != null);
     }
 
     /**
@@ -220,10 +232,19 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         return values;
     }
 
-    protected boolean checkRowData(SearchResult sr) {
-        Attributes attrs = sr.getAttributes();
-        String idAttrName = m_attrMap.getIdentityAttributeName();
-        return (attrs.get(idAttrName) != null);
+    private String getPin(Attributes attrs, boolean newUser) throws NamingException {
+        String pin = getValue(attrs, Index.PIN);
+        if (pin == null && newUser) {
+            // for new users consider default pin
+            pin = m_attrMap.getDefaultPin();
+        }
+        return pin;
+    }
+
+    private String getUserName(Attributes attrs) throws NamingException {
+        String attrName = m_attrMap.getIdentityAttributeName();
+        String userName = getValue(attrs, attrName);
+        return userName;
     }
 
     public void setAttrMap(AttrMap attrMap) {
@@ -234,19 +255,7 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
         m_coreContext = coreContext;
     }
 
-    public void beforeInserting() {
-        // get all the users from LDAP group
-        m_existingUserNames = new HashSet<String>();
-        Group defaultGroup = m_coreContext.getGroupByName(m_attrMap.getDefaultGroupName(), false);
-        if (defaultGroup != null) {
-            Collection<String> userNames = m_coreContext.getGroupMembersNames(defaultGroup);
-            m_existingUserNames.addAll(userNames);
-        }
-    }
-
-    public void afterInserting() {
-        // remove all the users that were not re-imported from LDAP
-        m_coreContext.deleteUsersByUserName(m_existingUserNames);
-        m_existingUserNames.clear();
+    public void setPreserveMissingUsers(boolean removeMissingUsers) {
+        m_preserveMissingUsers = removeMissingUsers;
     }
 }

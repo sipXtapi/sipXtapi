@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.common.BeanWithId;
  */
 public class LdapConnectionParams extends BeanWithId {
     private String m_host;
-    private int m_port = 389;
+    private int m_port;
     private String m_principal;
     private String m_secret;
     private CronSchedule m_schedule = new CronSchedule();
