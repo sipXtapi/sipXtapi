@@ -36,14 +36,14 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     # override the PID dir to avoid complaints about the directory not existing
     pm.pid_dir = '/tmp'
     
-    @httpd = ProcessManagerServer.new(pm, :Port => TEST_PORT)
+    httpd = ProcessManagerServer.new(pm, :Port => TEST_PORT)
 
     trap(:INT) do
-      @httpd.shutdown
+      httpd.shutdown
     end
 
     @@server = Thread.new do
-      @httpd.start
+      httpd.start
     end
     puts "Started"
   end

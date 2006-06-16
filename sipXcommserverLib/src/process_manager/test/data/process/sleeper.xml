@@ -4,7 +4,7 @@
   name="sleeper" manage="enable" max_restarts="3"
   report="enable" max_reports="3">
   <run command="/bin/sleep"
-       parameters="999"
+       parameters="10"
        defaultdir="/tmp"/>
   <stdout file="/dev/null"/>
   <stderr file="/dev/null"/>

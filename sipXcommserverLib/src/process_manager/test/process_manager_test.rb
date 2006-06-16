@@ -21,7 +21,7 @@ require 'process_manager'
 
 class ProcessManagerTest < Test::Unit::TestCase
   TEST_PROCESS_NAME = 'sleeper'
-  TEST_PROCESS_RUN_PARAMS = "999"
+  TEST_PROCESS_RUN_PARAMS = "10"
   
   def setup
     @process_config_dir = File.join($PROCESS_MANAGER_TEST_DIR, "data", "process")

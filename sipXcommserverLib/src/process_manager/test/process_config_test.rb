@@ -38,7 +38,7 @@ class ProcessConfigTest < Test::Unit::TestCase
     run = @config.run
     assert(run)
     assert_equal("/bin/sleep", run.command)
-    assert_equal("999", run.parameters)
+    assert_equal("10", run.parameters)
     assert_equal("/tmp", run.defaultdir)
   end
 end

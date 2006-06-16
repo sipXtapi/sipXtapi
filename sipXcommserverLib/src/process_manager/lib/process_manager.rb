@@ -21,7 +21,10 @@ require 'process_config'
 :TODO: Don't start a process if it's already running
 :TODO: Monitor processes and try to restart them if they go down
 :TODO: Don't hardwire directories like /var/log/sipxpbx, instead get them from
-         autoconfiguration directory variables
+         sipX directory variables, as defined in
+         http://www.sipfoundry.org/sipX/doc/filesystem.html .
+        The file config/sipXcommon.mak.in provides some machinery that can be
+        applied via a Makefile.
 
 :TODO: Honor process config:
 :TODO: "manage" flag -- if false then don't do anything with the process
