@@ -14,9 +14,14 @@ require 'logger'
 require 'process_config'
 
 =begin
+:NOW: In the process manager server test, clean up the sleeper process that it
+      starts & figure out how to shut down the server so that the test can be
+      run more than once.
 :TODO: Start, stop, report status
 :TODO: Don't start a process if it's already running
 :TODO: Monitor processes and try to restart them if they go down
+:TODO: Don't hardwire directories like /var/log/sipxpbx, instead get them from
+         autoconfiguration directory variables
 
 :TODO: Honor process config:
 :TODO: "manage" flag -- if false then don't do anything with the process
@@ -59,6 +64,17 @@ public
     init_process_config
     init_logging
     init_pid_dir
+  end
+
+  # Manage the named processes.  verb is the operation to perform, e.g., 'start'.
+  # processes is an array of process names, which must match the names of
+  # configured processes.
+  # By convention, the verb 'blah' invokes a method named 'blah_process_by_name'.
+  def manageProcesses(verb, process_names)
+    method_name = (verb + '_process_by_name').to_sym
+    process_names.each do |process_name|
+      self.send(method_name, process_name)
+    end
   end
 
   attr_accessor :pid_dir
@@ -117,11 +133,11 @@ private
     end
   end
 
-  # Start the named process. Raise an exception if no such process is configured.
+  # Start the named process. Log an error if no such process is configured.
   def start_process_by_name(process_name)
     config = @process_config_map[process_name]
     if !config
-      raise("Cannot start \"#{process_name}\", no such process is configured")
+      log.error("start_process_by_name: cannot start \"#{process_name}\", no such process is configured")
     end
     start_process(config)
   end

@@ -55,12 +55,12 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   
   #:TODO: pass this call through to the process manager
   def manageProcesses(input)
-    puts 'manageProcesses'
-    
     # debug printing
     # pretty-print the processes array
     processes = PP.pp(input.processes, "")
     puts("manageProcesses: verb = #{input.verb}, processes = #{processes}")
+    
+    @process_manager.manageProcesses(input.verb, input.processes)
   end
 
   #:TODO: pass this call through to the process manager

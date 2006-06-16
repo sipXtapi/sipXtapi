@@ -39,6 +39,6 @@ class ProcessConfigTest < Test::Unit::TestCase
     assert(run)
     assert_equal("/bin/sleep", run.command)
     assert_equal("999", run.parameters)
-    assert_equal("/var/log/sipxpbx", run.defaultdir)
+    assert_equal("/tmp", run.defaultdir)
   end
 end

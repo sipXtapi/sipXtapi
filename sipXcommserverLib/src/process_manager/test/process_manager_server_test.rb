@@ -30,14 +30,20 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     return if defined? @@server
 
     puts "Starting"
-    httpd = ProcessManagerServer.new(ProcessManager.new(:ProcessConfigDir => '/tmp'), :Port => TEST_PORT)
+    process_config_dir = File.join($PROCESS_MANAGER_TEST_DIR, "data", "process")
+    pm = ProcessManager.new(:ProcessConfigDir => process_config_dir)
+    
+    # override the PID dir to avoid complaints about the directory not existing
+    pm.pid_dir = '/tmp'
+    
+    @httpd = ProcessManagerServer.new(pm, :Port => TEST_PORT)
 
     trap(:INT) do
-      httpd.shutdown
+      @httpd.shutdown
     end
 
     @@server = Thread.new do
-      httpd.start
+      @httpd.start
     end
     puts "Started"
   end
@@ -57,7 +63,7 @@ class ProcessManagerServerTest < Test::Unit::TestCase
 
   def test_manageProcesses
     input = ProcessManagerServer::ManageProcessesInput.new
-    input.processes = ProcessManagerServer::Array['p1', 'p2']
+    input.processes = ProcessManagerServer::Array['sleeper']
     input.verb = 'start'
     @pm.manageProcesses(input)
   end
