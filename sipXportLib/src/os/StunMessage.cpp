@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 Robert J. Andreasen, Jr.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -9,7 +12,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-
+#include <assert.h>
 #if defined(__pingtel_on_posix__)
 #   include <sys/types.h>
 #   include <sys/socket.h>
@@ -65,6 +68,10 @@ void StunMessage::reset()
     mbUsernameValid = false ;
     memset(&mPassword, 0, STUN_MAX_STRING_LENGTH+1) ;
     mbPasswordValid = false ;
+    memset(&mRealm, 0, STUN_MAX_STRING_LENGTH+1) ;
+    mbRealmValid = false ;
+    memset(&mNonce, 0, STUN_MAX_STRING_LENGTH+1) ;
+    mbNonceValid = false ;
     memset(&mMessageIntegrity, 0, STUN_MAX_MESSAGE_INTEGRITY_LENGTH) ;
     mbMessageIntegrityValid = false ;
     memset(&mError, 0, sizeof(STUN_ATTRIBUTE_ERROR)) ;
@@ -75,9 +82,11 @@ void StunMessage::reset()
     mbReflectedFromValid = false ;
     memset(&mServer, 0, STUN_MAX_STRING_LENGTH+1) ;
     mbServerValid = false ;
-    mbSendXorOnly = true ;
+    mbSendXorOnly = false ;
     mbRequestXorOnly = true ;
     mbIncludeMessageIntegrity = false ;
+    memset(&mAltServer, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
+    mbAltServerValid = false ;
 
     memset(&mUnknownParsedAttributes, 0, sizeof(STUN_ATTRIBUTE_UNKNOWN)) ;        
 }
@@ -97,6 +106,7 @@ bool StunMessage::parse(const char* pBuf, size_t nBufLength)
         pTraverse += sizeof(STUN_MESSAGE_HEADER) ;
         mMsgHeader.type = ntohs(mMsgHeader.type) ;
         mMsgHeader.length = ntohs(mMsgHeader.length) ;
+        mMsgHeader.magicId.id = ntohl(mMsgHeader.magicId.id) ;
 
         // Validate Header / Sanity
         if (    (nBufLength == (sizeof(STUN_MESSAGE_HEADER) + mMsgHeader.length)) && 
@@ -274,6 +284,20 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
                 nBytesLeft) ;
     }
 
+    // Add Realm
+    if ((!bError) && mbRealmValid)
+    {
+        bError = !encodeString(ATTR_STUN_REALM, mRealm, pTraverse, 
+                nBytesLeft) ;
+    }
+
+    // Add Nonce
+    if ((!bError) && mbNonceValid)
+    {
+        bError = !encodeString(ATTR_STUN_NONCE, mNonce, pTraverse, 
+                nBytesLeft) ;
+    }
+
     // Add Error
     if ((!bError) && mbErrorValid)
     {
@@ -293,9 +317,28 @@ bool StunMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
                 &mReflectedFrom, pTraverse, nBytesLeft) ;
     }
 
+    // Add Alt server
+    if ((!bError) && mbAltServerValid)
+    {
+        bError = !encodeAttributeAddress(ATTR_STUN_ALTERNATE_SERVER, 
+                &mAltServer, pTraverse, nBytesLeft) ;
+    }
+
+    // Add server
+    if ((!bError) && mbServerValid)
+    {
+        bError = !encodeString(ATTR_STUN_SERVER, mServer, pTraverse, 
+                nBytesLeft) ;
+    }
+
     nBytesUsed = nBufLength - nBytesLeft ;
 
     return bError ;
+}
+
+void StunMessage::setMagicId(STUN_MAGIC_ID& rMagicId)
+{
+    memcpy(&mMsgHeader.magicId, &rMagicId, sizeof(STUN_MAGIC_ID)) ;
 }
 
 
@@ -307,7 +350,8 @@ void StunMessage::setTransactionId(STUN_TRANSACTION_ID& rTransactionId)
 
 void StunMessage::allocTransactionId()
 {
-    for (int i=0; i<16; i++) 
+    mMsgHeader.magicId.id = STUN_MAGIC_COOKIE ;
+    for (int i=0; i<12; i++) 
     {
         mMsgHeader.transactionId.id[i] = (unsigned char) (mbRandomGenerator.rand() % 0x0100) ;
     }
@@ -401,6 +445,24 @@ void StunMessage::setPassword(const char* szPassword)
     }
 }
 
+void StunMessage::setRealm(const char* szRealm) 
+{
+    if (szRealm && strlen(szRealm))
+    {
+        strncpy(mRealm, szRealm, STUN_MAX_STRING_LENGTH) ;
+        mbRealmValid = true ;
+    }
+}
+
+void StunMessage::setNonce(const char* szNonce) 
+{
+    if (szNonce && strlen(szNonce))
+    {
+        strncpy(mNonce, szNonce, STUN_MAX_STRING_LENGTH) ;
+        mbNonceValid = true ;
+    }
+}
+
 void StunMessage::setError(const unsigned short code, const char* szReason) 
 {
     mError.errorClass = code / 100 ;
@@ -451,7 +513,21 @@ void StunMessage::setIncludeMessageIntegrity(bool bInclude)
     mbIncludeMessageIntegrity = bInclude ;
 }
 
+void StunMessage::setAltServer(const char* szIp, unsigned short port) 
+{
+    mAltServer.family = ATTR_ADDRESS_FAMILY_IPV4 ;
+    mAltServer.address = ntohl(inet_addr(szIp)) ;
+    mAltServer.port = port ;
+    mbAltServerValid = true ;
+}
+
 /* ============================ ACCESSORS ================================= */
+
+void StunMessage::getMagicId(STUN_MAGIC_ID* pMagic)
+{
+    memcpy(pMagic, &mMsgHeader.magicId, sizeof(STUN_MAGIC_ID)) ;
+}
+
 
 void StunMessage::getTransactionId(STUN_TRANSACTION_ID* pTransactionId)
 {
@@ -564,6 +640,26 @@ bool StunMessage::getPassword(char* szPassword)
     return mbPasswordValid ;
 }
 
+bool StunMessage::getRealm(char* szRealm) 
+{
+    if (mbRealmValid)
+    {
+        strncpy(szRealm, mRealm, STUN_MAX_STRING_LENGTH) ;
+    }
+
+    return mbRealmValid ;
+}
+
+bool StunMessage::getNonce(char* szNone) 
+{
+    if (mbNonceValid)
+    {
+        strncpy(szNone, mNonce, STUN_MAX_STRING_LENGTH) ;
+    }
+
+    return mbNonceValid ;
+}
+
 bool StunMessage::getMessageIntegrity(char* cMessageIntegrity) 
 {
     if (mbMessageIntegrityValid)
@@ -642,6 +738,18 @@ bool StunMessage::getUnknownParsedAttributes(unsigned short* pList, size_t nMaxI
     }
 
     return (nActualItems > 0) ;
+}
+
+bool StunMessage::getAltServer(char* szIp, unsigned short& rPort) 
+{
+    if (mbAltServerValid)
+    {
+        unsigned long address = htonl(mAltServer.address) ;
+        strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
+        rPort = mAltServer.port ;          
+    } 
+
+    return mbAltServerValid ;        
 }
 
 
@@ -724,6 +832,7 @@ bool StunMessage::isRequestOrNonErrorResponse()
 
     return bRequestOrNonErrorResponse ;
 }
+
  
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
@@ -802,7 +911,6 @@ bool StunMessage::encodeRaw(const char* cRaw, size_t length, char*& pBuf, size_t
     return bRC ;
 }
 
-
 bool StunMessage::encodeHeader(STUN_MESSAGE_HEADER* pHeader, char*& pBuf, size_t& nBytesLeft)
     {
     bool bRC = false ;
@@ -810,6 +918,7 @@ bool StunMessage::encodeHeader(STUN_MESSAGE_HEADER* pHeader, char*& pBuf, size_t
     if (    (nBytesLeft >= sizeof(STUN_MESSAGE_HEADER)) &&
             encodeShort(pHeader->type, pBuf, nBytesLeft) &&
             encodeShort(pHeader->length, pBuf, nBytesLeft) &&
+            encodeLong(pHeader->magicId.id, pBuf, nBytesLeft) &&
             encodeRaw((char*) pHeader->transactionId.id, sizeof(STUN_TRANSACTION_ID), 
             pBuf, nBytesLeft))
     {
@@ -1004,6 +1113,14 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
             bValid = parseStringAttribute(pBuf, pHeader->length, mPassword) ;
             mbPasswordValid = bValid ;
             break ;
+        case ATTR_STUN_REALM:
+            bValid = parseStringAttribute(pBuf, pHeader->length, mRealm) ;                
+            mbRealmValid = bValid ;
+            break ;
+        case ATTR_STUN_NONCE:
+            bValid = parseStringAttribute(pBuf, pHeader->length, mNonce) ;
+            mbNonceValid = bValid ;
+            break ;
         case ATTR_STUN_MESSAGE_INTEGRITY:
             bValid = parseRawAttribute(pBuf, pHeader->length, mMessageIntegrity, sizeof(mMessageIntegrity)) ;
             mbMessageIntegrityValid = bValid ;
@@ -1019,9 +1136,9 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
         case ATTR_STUN_REFLECTED_FROM:
             bValid = parseAddressAttribute(pBuf, pHeader->length, &mReflectedFrom) ;
             mbReflectedFromValid = bValid ;
-            break ;
-        case 0x8020:    // backwards compatibility
+            break ;        
         case ATTR_STUN_XOR_MAPPED_ADDRESS:
+        case ATTR_STUN_XOR_MAPPED_ADDRESS2:
             bValid = parseXorAddressAttribute(pBuf, pHeader->length, &mMappedAddress) ;
             mbMappedAddressValid = bValid ;            
             break ;
@@ -1029,10 +1146,15 @@ bool StunMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
             mbRequestXorOnly = true ;
             bValid = true ;
             break ;
-        case 0x8022:    // backwards compatibility
         case ATTR_STUN_SERVER:
+        case ATTR_STUN_SERVER2:
             bValid = parseStringAttribute(pBuf, pHeader->length, mServer) ;
             mbServerValid = bValid ;
+            break ;
+        case ATTR_STUN_ALTERNATE_SERVER:
+        case ATTR_STUN_ALTERNATE_SERVER2:
+            bValid = parseAddressAttribute(pBuf, pHeader->length, &mAltServer) ;
+            mbAltServerValid = bValid ;
             break ;
         default:
             if ((pHeader->type <= 0x7FFF) && (mUnknownParsedAttributes.nTypes < STUN_MAX_UNKNOWN_ATTRIBUTES))

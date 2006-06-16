@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 Robert J. Andreasen, Jr.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -35,14 +38,11 @@
  * TURN attribute IDs
  */
 #define ATTR_TURN_LIFETIME                      0x000d
-#define ATTR_TURN_ALTERNATE_SERVER              0x000e
 #define ATTR_TURN_MAGIC_COOKIE                  0x000f
 #define ATTR_TURN_BANDWIDTH                     0x0010
 #define ATTR_TURN_DESTINATION_ADDRESS           0x0011
 #define ATTR_TURN_SOURCE_ADDRESS                0x0012
 #define ATTR_TURN_DATA                          0x0013
-#define ATTR_TURN_NONCE                         0x0014
-#define ATTR_TURN_REALM                         0x0015
 
 #define ATTR_MAGIC_COOKIE                       0x72c64bc6
 
@@ -106,8 +106,6 @@ class TurnMessage : public StunMessage
 
     void setLifetime(unsigned long secs) ;
 
-    void setAltServer(const char* szIp, unsigned short port) ;
-
     void setBandwidth(unsigned long rKBPS) ;
 
     void setDestinationAddress(const char* szIp, unsigned short port) ;
@@ -119,8 +117,6 @@ class TurnMessage : public StunMessage
 /* ============================ ACCESSORS ================================= */
 
     bool getLifetime(unsigned long& rSecs) ;
-
-    bool getAltServer(char* szIp, unsigned short& rPort) ;
 
     bool getBandwidth(unsigned long& rKBPS) ;
 
@@ -161,9 +157,6 @@ class TurnMessage : public StunMessage
 
     unsigned long mBandwidth ;
     bool mbBandwidthValid ;
-
-    STUN_ATTRIBUTE_ADDRESS mAltServer ;
-    bool mbAltServerValid ;
 
     STUN_ATTRIBUTE_ADDRESS mDestinationAddress ;
     bool mbDestinationAddressValid ;
