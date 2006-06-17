@@ -137,6 +137,7 @@ for oldname in sipxchange sipxpbx; do
   if [ "@SIPXPBXUSER@" != "${oldname}" ] && id -u ${oldname} > /dev/null 2>&1 
   then
      /usr/sbin/usermod --login @SIPXPBXUSER@ ${oldname}
+     /usr/sbin/groupmod -n @SIPXPBXUSER@ ${oldname}
   fi
 done
 
