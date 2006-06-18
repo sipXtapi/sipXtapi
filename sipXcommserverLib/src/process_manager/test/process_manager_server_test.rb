@@ -26,14 +26,16 @@ class ProcessManagerServerTest < Test::Unit::TestCase
   TEST_PORT = 2000
 
   def start_server
-    # not starting each time, port doesn't get freed in time
+    # Start the server only once for all the tests in this file.
+    # If we shut down the server at the end of each test, then it would take a
+    # while for the port to free up, delaying the start of the next test.
     return if defined? @@server
 
     puts "Starting"
     process_config_dir = File.join($PROCESS_MANAGER_TEST_DIR, "data", "process")
     pm = ProcessManager.new(:ProcessConfigDir => process_config_dir)
     
-    # override the PID dir to avoid complaints about the directory not existing
+    # Override the PID dir to avoid complaints about the directory not existing
     pm.pid_dir = '/tmp'
     
     httpd = ProcessManagerServer.new(pm, :Port => TEST_PORT)
@@ -64,7 +66,13 @@ class ProcessManagerServerTest < Test::Unit::TestCase
   def test_manageProcesses
     input = ProcessManagerServer::ManageProcessesInput.new
     input.processes = ProcessManagerServer::Array['sleeper']
+
+    # start the process
     input.verb = 'start'
+    @pm.manageProcesses(input)
+
+    # stop the process
+    input.verb = 'stop'
     @pm.manageProcesses(input)
   end
 

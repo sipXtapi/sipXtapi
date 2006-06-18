@@ -63,6 +63,8 @@ class ProcessManager
 public
 
   def initialize(config = {})
+    @pid_map = {}       # map process names to PIDs
+    
     init_process_config_dir(config[:ProcessConfigDir])
     init_process_config
     init_logging
@@ -145,8 +147,13 @@ private
     start_process(config)
   end
 
-  # Start the named process. Raise an exception if no such process is configured.
+  # Start the named process if it is not already running.  Log an error if no
+  # such process is configured.  Return the PID of the new or existing process.
   def start_process(process_config)
+    # Return the existing PID if the named process is already running
+    pid = @pid_map[process_config.name]
+    return pid if pid
+    
     # Get info on how to run the process. Assume that the config has been validated already.
     run = process_config.run
     command = run.command
@@ -162,8 +169,11 @@ private
     end
 
     # Remember the process
+    @pid_map[process_config.name] = pid
     pid_file_path = create_process_pid_file(process_config.name, pid)
     log.debug("start_process: PID file = \"#{pid_file_path}\"")
+    
+    pid
   end
 
   # Create a PID file for the named process.  Return the path to the file.
@@ -174,6 +184,21 @@ private
     end
     
     pid_file_path
+  end
+
+  # Stop the named process.  Return true if a process was running and we stopped
+  # it, false otherwise.
+  def stop_process_by_name(process_name)
+    did_stop = false
+    pid = @pid_map[process_name]
+    if pid
+      # Whack it with the rhythm stick.  Whack it hard and whack it quick.
+      Process.kill('TERM', pid)
+      did_stop = true
+      @pid_map[process_name] = nil
+    end
+
+    did_stop
   end
 
 end
