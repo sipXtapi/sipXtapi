@@ -1,11 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+//////////////////////////////////////////////////////////////////////////////
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _CallManager_h_
 #define _CallManager_h_
@@ -217,6 +223,17 @@ public:
     virtual OsStatus getSipDialog(const char* callId,
                                   const char* address,
                                   SipDialog& dialog);
+
+    //! Send a SIP request in the context of the dialog of the given call/session
+    /*! The response gets queued to the optional response message queue.
+     *  \param responseQueue - optional queue in which to put response(s) to request
+     *  \param requestListenerData - data to be attached to response(s) added to queue
+     */
+    virtual UtlBoolean sendInDialog(const char* callId,
+                                    const char* address,
+                                    SipMessage& request,
+                                    OsMsgQ* responseQueue = NULL,
+                                    void* requestListenerData = NULL);
 
     // Stimulus based operations DEPRICATED DO NOT USE
     virtual void unhold(const char* callId);

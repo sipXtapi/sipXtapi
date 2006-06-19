@@ -1,10 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 #ifndef _Connection_h_
 #define _Connection_h_
@@ -305,6 +312,11 @@ public:
    //! returns: TRUE/FALSE if the connection has an address.  The connection may not have an address assigned yet (i.e. if it is not fully setup).
 
  	virtual UtlBoolean getSession(SipSession& sessioon) = 0;
+
+    //! Send a SIP message, only implemented by SIP enabled connections
+    virtual UtlBoolean sendInDialog(SipMessage& message, 
+                                    OsMsgQ* responseQueue,
+                                    void* responseListenerData) = 0;
 
 	int getResponseCode() { return mResponseCode; };
 

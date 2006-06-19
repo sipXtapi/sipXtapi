@@ -94,7 +94,8 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testCallGetRemoteID) ;
     CPPUNIT_TEST(testCallGetLocalID) ;
     CPPUNIT_TEST(testCallBasic) ;
-    CPPUNIT_TEST(testCallBasic2) ;  
+    CPPUNIT_TEST(testCallBasic2) ; 
+    CPPUNIT_TEST(testInDialogSipRequest);
     //CPPUNIT_TEST(testCallMute);
     CPPUNIT_TEST(testCallBusy) ;
     //CPPUNIT_TEST(testCallHold) ;
@@ -195,6 +196,7 @@ public:
     
     void testCallBasic() ;
     void testCallBasic2() ;
+    void testInDialogSipRequest();
     void testCallBusy() ;
     void testCallHold() ;
     void testCallMute();

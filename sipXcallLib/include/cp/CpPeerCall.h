@@ -1,10 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 
 #ifndef _CpPeerCall_h_
@@ -232,6 +239,10 @@ protected:
     UtlBoolean handleGetSession(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_GET_SESSION
     //: message
+
+    UtlBoolean handleSendSipRequest(OsMsg* pEventMessage);
+    //: Handles CallManager::CP_SEND_SIP_REQUEST
+
     UtlBoolean handleGetCallState(OsMsg* pEventMessage);
     //: Handles the processing of a CallManager::CP_GET_CALLSTATE
     //: message

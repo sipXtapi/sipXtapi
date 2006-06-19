@@ -189,7 +189,8 @@ public:
         CP_GET_CAN_ADD_PARTY, //80
         CP_SPLIT_CONNECTION,
         CP_JOIN_CONNECTION,
-        CP_CONSULT_TRANSFER_ADDRESS
+        CP_CONSULT_TRANSFER_ADDRESS,
+        CP_SEND_SIP_REQUEST
     };
 
 /*
@@ -605,6 +606,15 @@ public:
     virtual OsStatus getSipDialog(const char* callId,
                                   const char* address,
                                   SipDialog& dialog) = 0;
+
+    //! Send a SIP request in the context of the dialog of the given call/session
+    /*! The response gets queued to the optional response message queue
+     */
+    virtual UtlBoolean sendInDialog(const char* callId,
+                                    const char* address,
+                                    SipMessage& request,
+                                    OsMsgQ* responseQueue = NULL,
+                                    void* requestListenerData = NULL) = 0;
     //@}
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS

@@ -1,10 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 
 // SYSTEM INCLUDES
@@ -916,6 +923,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_GET_CAN_ADD_PARTY:
         case CP_SPLIT_CONNECTION:
         case CP_JOIN_CONNECTION:
+        case CP_SEND_SIP_REQUEST:
             // Forward the message to the call
             {
                 UtlString callId;
@@ -954,7 +962,8 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
                         msgSubType == CP_PLAY_BUFFER_TERM_CONNECTION ||
                         msgSubType == CP_GET_LOCAL_CONTACTS || 
                         msgSubType == CP_GET_MEDIA_CONNECTION_ID ||
-                        msgSubType == CP_GET_CAN_ADD_PARTY)
+                        msgSubType == CP_GET_CAN_ADD_PARTY ||
+                        msgSubType == CP_SEND_SIP_REQUEST)
                     {
                         // Get the OsProtectedEvent and signal it to go away
                         OsProtectedEvent* eventWithoutCall = (OsProtectedEvent*)
@@ -2125,6 +2134,58 @@ OsStatus CallManager::getSipDialog(const char* callId,
     }
     
     return(returnCode);
+}
+
+UtlBoolean CallManager::sendInDialog(const char* callId,
+                                     const char* address,
+                                     SipMessage& request,
+                                     OsMsgQ* responseQueue,
+                                     void* requestListenerData)
+{
+    OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::sendInDialog callId = '%s', address = '%s'",
+                 callId, address);
+
+    SipMessage* requestCopy = new SipMessage(request);
+    OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+    OsProtectedEvent* getSentEvent = eventMgr->alloc();
+    //getSessionEvent->setIntData((int) request);
+    OsTime maxEventTime(CP_MAX_EVENT_WAIT_SECONDS, 0);
+    UtlBoolean messageWasSent = FALSE;
+    CpMultiStringMessage getFieldMessage(CP_SEND_SIP_REQUEST, callId, address,
+        NULL, NULL, NULL,
+        (int)getSentEvent ,(int)requestCopy, (int)responseQueue,
+        (int)requestListenerData);
+    postMessage(getFieldMessage);
+
+    // Wait until the request is sent
+    if(getSentEvent->wait(0, maxEventTime) == OS_SUCCESS)
+    {
+        getSentEvent->getEventData(messageWasSent);
+
+        OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::sendInDialog deleting requestCopy: 0x%x",
+            requestCopy);
+
+        delete requestCopy;
+        requestCopy = NULL;
+        eventMgr->release(getSentEvent);
+    }
+    else
+    {
+        OsSysLog::add(FAC_CP, PRI_ERR, "CallManager::getSession TIMED OUT\n");
+        // If the event has already been signalled, clean up
+        if(OS_ALREADY_SIGNALED == getSentEvent->signal(0))
+        {
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CallManager::sendInDialog deleting timed out requestCopy: 0x%x",
+                requestCopy);
+#endif
+            delete requestCopy;
+            requestCopy = NULL;
+
+            eventMgr->release(getSentEvent);
+        }
+    }
+    return(messageWasSent);
 }
 
 /**

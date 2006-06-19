@@ -1,11 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+//////////////////////////////////////////////////////////////////////////////
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 
 // SYSTEM INCLUDES
@@ -191,9 +197,16 @@ UtlBoolean CpGhostConnection::getRemoteAddress(UtlString* remoteAddress, UtlBool
 UtlBoolean CpGhostConnection::getSession(SipSession& session)
 {
     unimplemented("CpGhostConnection::getSession");
-    return(OS_NOT_FOUND);
+    return(FALSE);
 }
 
+UtlBoolean CpGhostConnection::sendInDialog(SipMessage& message, 
+                                           OsMsgQ* responseQueue,
+                                           void* responseListenerData)
+{
+    unimplemented("CpGhostConnection::sendInDialog");
+    return(FALSE);
+}
 
 // Enumerate possible contact addresses
 void CpGhostConnection::getLocalContactAddresses( CONTACT_ADDRESS contacts[],

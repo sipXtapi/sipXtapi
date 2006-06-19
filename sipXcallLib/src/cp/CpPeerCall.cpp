@@ -1,11 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+//////////////////////////////////////////////////////////////////////////////
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 
 // SYSTEM INCLUDES
@@ -1585,6 +1591,92 @@ UtlBoolean CpPeerCall::handleGetSession(OsMsg* pEventMessage)
     return TRUE ;
 }
 
+// Handles CP_SEND_SIP_REQUEST
+UtlBoolean CpPeerCall::handleSendSipRequest(OsMsg* pEventMessage)
+{
+    UtlString callId;
+    UtlString address;
+    OsProtectedEvent* sentEvent = NULL;
+    SipMessage* request = NULL;
+    OsMsgQ* requestQueue = NULL;
+    void* requestListenerData = 0;
+    ((CpMultiStringMessage*)pEventMessage)->getString1Data(callId);
+    ((CpMultiStringMessage*)pEventMessage)->getString2Data(address);
+    sentEvent = (OsProtectedEvent*) 
+        ((CpMultiStringMessage*)pEventMessage)->getInt1Data();
+    request = (SipMessage*) ((CpMultiStringMessage*)pEventMessage)->getInt2Data();
+    requestQueue = (OsMsgQ*) ((CpMultiStringMessage*)pEventMessage)->getInt3Data();
+    requestListenerData = (void*) ((CpMultiStringMessage*)pEventMessage)->getInt4Data();
+
+    if(sentEvent)
+    {
+        UtlBoolean requestSent = FALSE;
+        if(request)
+        {
+            // Find the SipConnection which had the dialog on which to
+            // send this request.
+            OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleSendSipRequest request: 0x%x for callId %s address %s",
+                          request, callId.data(), address.data());
+
+            // Check whether the tag is set in addresses or not. If so, do not need to use callId
+            // for comparison.
+            UtlBoolean hasTag = checkForTag(address);
+
+            // Get the remote connection(s)/address(es)
+            Connection* connection = NULL;
+            UtlString localAddress;
+            UtlString remoteAddress;
+            UtlString connCallId;
+            OsReadLock lock(mConnectionMutex);
+            UtlDListIterator iterator(mConnections);
+            while ((connection = (Connection*) iterator()))
+            {
+                connection->getCallId(&connCallId);
+                connection->getLocalAddress(&localAddress);
+                connection->getRemoteAddress(&remoteAddress);
+
+                OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleSendSipRequest looking for the Dialog for %s, %s, %s",
+                              connCallId.data(), localAddress.data(), remoteAddress.data());
+
+                if ((hasTag && (address.compareTo(localAddress) == 0)) ||
+                    (hasTag && (address.compareTo(remoteAddress) == 0)) ||
+                    (callId.compareTo(connCallId) == 0) &&
+                    (address.compareTo(localAddress) == 0 || address.compareTo(remoteAddress) == 0))
+                {
+
+                    // Send the request in the context of the connection's SIP dialog
+                    requestSent = 
+                        connection->sendInDialog(*request, 
+                                                 requestQueue,
+                                                 requestListenerData);
+                    OsSysLog::add(FAC_CP, PRI_DEBUG, "CpPeerCall::handleSendSipRequest sent request: 0x%x $s",
+                        request, 
+                        requestSent, requestSent ? "succeeded" : "failed");
+
+                    // Signal the caller that we are done.
+                    break;
+                }
+            }
+        }
+
+        // If the event has already been signalled, clean up
+        if(OS_ALREADY_SIGNALED == sentEvent->signal(requestSent))
+        {
+            // The other end must have timed out on the wait
+            OsSysLog::add(FAC_CP, PRI_DEBUG,
+                          "CpPeerCall::handleSendSipRequest deleting request: %p",
+                          request);
+            if(request)
+            {
+                delete request;
+                request = NULL;
+            }
+            OsProtectEventMgr* eventMgr = OsProtectEventMgr::getEventMgr();
+            eventMgr->release(sentEvent);
+        }
+    }
+    return(TRUE);
+}
 
 // Handles the processing of a CallManager::CP_GET_CALLSTATE 
 // message
@@ -2147,6 +2239,10 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_GET_SESSION:
         handleGetSession(&eventMessage);
         break ;
+
+    case CallManager::CP_SEND_SIP_REQUEST:
+        handleSendSipRequest(&eventMessage);
+        break;
 
     case CallManager::CP_GET_TERM_CONNECTIONS:
         handleGetTermConnections(&eventMessage);

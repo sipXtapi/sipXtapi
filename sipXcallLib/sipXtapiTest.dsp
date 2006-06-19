@@ -68,7 +68,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\sipXportLib\include" /I "..\sipXcallLib\include" /I "include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\gips" /D "_DEBUG" /D "_CONSOLE" /D "DONT_USE_LONG_LONG" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GX /ZI /Od /I "..\sipXportLib\include" /I "..\sipXcallLib\include" /I "include" /I "..\sipXportLib\include\glib" /I "..\sipXtackLib\include" /I "..\sipXmediaLib\include" /I "..\sipXmediaAdapterLib\interface" /I "..\gips" /D "_DEBUG" /D "_CONSOLE" /D "DONT_USE_LONG_LONG" /D "WIN32" /D "_MBCS" /D "SIPXTAPI_STATIC" /FR /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe

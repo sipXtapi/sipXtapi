@@ -1,11 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+//////////////////////////////////////////////////////////////////////////////
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
 
 // SYSTEM INCLUDES
@@ -5174,6 +5180,78 @@ UtlBoolean SipConnection::getSession(SipSession& session)
 
     session = ssn;
     return(TRUE);
+}
+
+UtlBoolean SipConnection::sendInDialog(SipMessage& message, 
+                                       OsMsgQ* responseQueue,
+                                       void* responseListenerData)
+{
+    UtlBoolean sendSucceeded = FALSE;
+
+    // TODO: If an INVITE transaction is in progress and this is a
+    // request, we should queue the request to be sent after the INVITE
+    // transaction is complete
+    //if(!message.isResponse() && mOutstandingInviteTranasaction)
+    {
+    }
+    //else
+    {
+        if(message.isResponse())
+        {
+            // Do nothing, all the transaction info should be set for
+            // a response based upon the request.  There really is no
+            // reason to send responces through call processing in this
+            // way it could be sent directly via the SipUserAgent
+        }
+        // Requests:
+        else
+        {
+            // Get the transaction related information
+            // Call-Id:
+            UtlString callId;
+            getCallId(&callId);
+            // From:
+            UtlString from;
+            mFromUrl.toString(from);
+            // To:
+            UtlString to;
+            mToUrl.toString(to);
+
+            // Get the next Cseq
+            UtlString method;
+            message.getRequestMethod(&method);
+            int cseq = getNextCseq();
+
+            // Set the transaction information
+            message.setRequestData(method,
+                                    mRemoteContact,
+                                    from,
+                                    to,
+                                    callId,
+                                    cseq,
+                                    mLocalContact);
+
+            //remove all routes
+            UtlString route;
+            while ( message.removeRouteUri(0 , &route)){}
+
+            if ( !mRouteField.isNull())
+            {
+                //set correct route
+                message.setRouteField(mRouteField);
+            }
+
+        }
+
+        if(sipUserAgent)
+        {
+            sendSucceeded = 
+                sipUserAgent->send(message, 
+                                   responseQueue,
+                                   responseListenerData);
+        }
+    }
+    return(sendSucceeded);
 }
 
 int SipConnection::getNextCseq()

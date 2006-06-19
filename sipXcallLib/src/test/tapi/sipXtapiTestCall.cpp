@@ -1,7 +1,14 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
@@ -11,6 +18,7 @@
 #include "sipXtapiTest.h"
 #include "EventValidator.h"
 #include "callbacks.h"
+#include <cp/CallManager.h>
 
 extern SIPX_INST g_hInst;
 extern SIPX_INST g_hInst2;
@@ -369,7 +377,6 @@ void sipXtapiTestSuite::testCallBasic()
 }
 
 
-
 // A calls B, B answers, A mutes and unmutes repeatedly, then hangs up
 void sipXtapiTestSuite::testCallMute() 
 {
@@ -567,6 +574,179 @@ void sipXtapiTestSuite::testCallBasic2()
     checkForLeaks() ;
 }
 
+// Send a message in the dialog of the existing call
+// This is not strictly a sipXtapi feature, but it is easiest to
+// test using sipXtapi to set up the call/dialog in which to send
+// the message.
+void sipXtapiTestSuite::testInDialogSipRequest() 
+{
+    bool bRC ;
+    EventValidator validatorCalling("testInDialogSipRequest.calling") ;
+    EventValidator validatorCalled("testInDialogSipRequest.called") ;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestCallBasic (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        SIPX_CALL hCall ;
+        SIPX_LINE hLine ;
+        SIPX_LINE hReceivingLine;     
+
+        validatorCalling.reset() ;
+        validatorCalled.reset() ;
+
+        // Setup Auto-answer call back
+        resetAutoAnswerCallback() ;
+        sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;
+        sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
+        sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
+
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
+        bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        createCall(&hLine, &hCall) ;
+        bRC = validatorCalling.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        sipxCallConnect(hCall, "sip:foo@127.0.0.1:9100") ;
+        
+
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_UNKNOWN, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_OFFERING, CALLSTATE_REMOTE_OFFERING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_OFFERING, CALLSTATE_OFFERING_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_ALERTING, CALLSTATE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+                
+        int connectionId = -1;
+        
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetConnectionId(hCall, connectionId), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT(connectionId != -1) ;
+
+        const char* requestMethod = "FOO";
+        // BEGIN DIRTY USE OF SIPXTAPI
+        // Here we do some unnatural or dirty messing about with some of
+        // the sipXtapi internals.  
+        SIPX_INSTANCE_DATA* sipXtapiCallingContext = 
+            (SIPX_INSTANCE_DATA*) g_hInst;
+        //  Create a queue to recieve FOO requests and register the queue with
+        // the calling side SipUserAgent.
+        OsMsgQ requestReceiveQueue;
+        sipXtapiCallingContext->pSipUserAgent->addMessageObserver(requestReceiveQueue,
+                                                  requestMethod,
+                                                  TRUE, // get requests
+                                                  FALSE, // ignore responses
+                                                  TRUE); // want incoming messages
+
+        // Create a request and add a header to be sure it gets passed through
+        SipMessage request;
+        request.setRequestData(requestMethod,
+                               "bogusRequestUri",
+                               "bogusFrom",
+                               "bogusTo",
+                               "bogusCallId",
+                               11111111,
+                               "bogusLocalContact");
+        request.setHeaderValue("bar", "splat");
+
+        // Create a queue to recieve the response on
+        OsMsgQ responseReceiveQueue;
+        int applicationData = 22222222;
+        SIPX_INSTANCE_DATA* sipXtapiCalledContext = 
+            (SIPX_INSTANCE_DATA*) g_hInst2;
+
+        // get the dialog info to be validated
+        SIPX_INSTANCE_DATA* dummyHandle = NULL;
+        UtlString calledSideCallId;
+        UtlString remoteCallerAddress;
+        sipxCallGetCommonData(g_hAutoAnswerCallbackCall, 
+                              &dummyHandle, 
+                              &calledSideCallId, 
+                              &remoteCallerAddress, 
+                              NULL);
+        SipDialog calledSipDialog;  // Dialog info for the called party side
+        sipXtapiCalledContext->pCallManager->getSipDialog(calledSideCallId, 
+                                                          remoteCallerAddress, 
+                                                          calledSipDialog);
+
+        // Send the request in the dialog of the call
+        sipXtapiCalledContext->pCallManager->sendInDialog(calledSideCallId, 
+                                                          remoteCallerAddress,
+                                                          request,
+                                                          &responseReceiveQueue,
+                                                          (void*) applicationData);
+
+        // Wait for the request
+        OsMsg* requestEvent = NULL;
+        OsTime queueWaitTime(5,0); // (secs, usecs)
+        requestReceiveQueue.receive(requestEvent, queueWaitTime);
+        CPPUNIT_ASSERT(requestEvent);
+        CPPUNIT_ASSERT(requestEvent->getMsgType() == OsMsg::PHONE_APP);
+        CPPUNIT_ASSERT(requestEvent->getMsgSubType() == CpCallManager::CP_SIP_MESSAGE);
+
+        // Get the actual request
+        const SipMessage* requestPtr = ((SipMessageEvent&)requestEvent).getMessage();
+
+        // TODO: validate the request transaction info.
+
+
+
+
+
+
+
+        // END DIRTY USE OF SIPXTAPI
+                
+        SIPX_CALL hDestroyedCall = hCall ;
+        destroyCall(hCall) ;
+
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, AutoAnswerCallback, NULL), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled), SIPX_RESULT_SUCCESS) ;
+    
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine), SIPX_RESULT_SUCCESS);
+    }
+
+    OsTask::delay(TEST_DELAY) ;
+
+    checkForLeaks();
+}
 
 // A calls B, B is busy
 void sipXtapiTestSuite::testCallBusy() 

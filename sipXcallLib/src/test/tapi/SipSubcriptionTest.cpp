@@ -1,5 +1,13 @@
+// 
+// 
+// Copyright (C) 2005, 2006 SIPez LLC
+// Licensed to SIPfoundry under a Contributor Agreement.
 //
+// Copyright (C) 2005, 2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
 // Copyright (C) 2004, 2005 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
@@ -262,7 +270,7 @@ class SipSubscriptionTest : public CppUnit::TestCase
             {
                 printf(".");
             }
-            if(waitTime > 10000)
+            if(waitTime > 100)
             {
                 break;
             }
