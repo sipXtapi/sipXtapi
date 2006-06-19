@@ -82,6 +82,77 @@ public
     end
   end
 
+  # Start the named process. Log an error if no such process is configured.
+  def start_process_by_name(process_name)
+    config = @process_config_map[process_name]
+    if !config
+      log.error("start_process_by_name: cannot start \"#{process_name}\", no such process is configured")
+    end
+    start_process(config)
+  end
+
+  # Start the named process if it is not already running.  Log an error if no
+  # such process is configured.  Return the PID of the new or existing process.
+  def start_process(process_config)
+    # Return the existing PID if the named process is already running
+    pid = @pid_map[process_config.name]
+    return pid if pid
+    
+    # Get info on how to run the process. Assume that the config has been validated already.
+    run = process_config.run
+    command = run.command
+    parameters = run.parameters
+    defaultdir = run.defaultdir
+    
+    # Start the process
+    pid = fork do
+      log.debug("start_process: command = \"#{command}\", parameters = " +
+                "\"#{parameters}\", defaultdir = \"#{defaultdir}\"")
+      Dir.chdir(defaultdir) if defaultdir
+      exec("#{command} #{parameters}")
+    end
+
+    # Remember the process
+    @pid_map[process_config.name] = pid
+    pid_file_path = create_process_pid_file(process_config.name, pid)
+    log.debug("start_process: PID file = \"#{pid_file_path}\"")
+    
+    pid
+  end
+
+  # Stop the named process.  Return true if a process was running and we stopped
+  # it, false otherwise.
+  def stop_process_by_name(process_name)
+    did_stop = false
+    pid = @pid_map[process_name]
+    if pid
+      # Looks like there is a process running -- kill it.
+      Process.kill('TERM', pid)
+      did_stop = true
+      @pid_map[process_name] = nil
+    end
+
+    did_stop
+  end
+
+  # Retart the named process. Log an error if no such process is configured.
+  def restart_process_by_name(process_name)
+    config = @process_config_map[process_name]
+    if !config
+      log.error("restart_process_by_name: cannot restart \"#{process_name}\", no such process is configured")
+    end
+    pid = restart_process(config)
+  end
+
+  # Restart the process.  Return the new pid.
+  def restart_process(process_config)
+    stop_process_by_name(process_config.name)
+    pid = start_process(process_config)
+    puts pid
+    pid
+  end
+
+  # These accessors are mainly used for testing
   attr_accessor :pid_dir
   attr_reader :process_config_dir, :process_config_map, :log
 
@@ -138,44 +209,6 @@ private
     end
   end
 
-  # Start the named process. Log an error if no such process is configured.
-  def start_process_by_name(process_name)
-    config = @process_config_map[process_name]
-    if !config
-      log.error("start_process_by_name: cannot start \"#{process_name}\", no such process is configured")
-    end
-    start_process(config)
-  end
-
-  # Start the named process if it is not already running.  Log an error if no
-  # such process is configured.  Return the PID of the new or existing process.
-  def start_process(process_config)
-    # Return the existing PID if the named process is already running
-    pid = @pid_map[process_config.name]
-    return pid if pid
-    
-    # Get info on how to run the process. Assume that the config has been validated already.
-    run = process_config.run
-    command = run.command
-    parameters = run.parameters
-    defaultdir = run.defaultdir
-    
-    # Start the process
-    pid = fork do
-      log.debug("start_process: command = \"#{command}\", parameters = " +
-                "\"#{parameters}\", defaultdir = \"#{defaultdir}\"")
-      Dir.chdir(defaultdir) if defaultdir
-      exec("#{command} #{parameters}")
-    end
-
-    # Remember the process
-    @pid_map[process_config.name] = pid
-    pid_file_path = create_process_pid_file(process_config.name, pid)
-    log.debug("start_process: PID file = \"#{pid_file_path}\"")
-    
-    pid
-  end
-
   # Create a PID file for the named process.  Return the path to the file.
   def create_process_pid_file(process_name, pid)
     pid_file_path = File.join(@pid_dir, process_name + PID_FILE_EXT)
@@ -184,21 +217,6 @@ private
     end
     
     pid_file_path
-  end
-
-  # Stop the named process.  Return true if a process was running and we stopped
-  # it, false otherwise.
-  def stop_process_by_name(process_name)
-    did_stop = false
-    pid = @pid_map[process_name]
-    if pid
-      # Whack it with the rhythm stick.  Whack it hard and whack it quick.
-      Process.kill('TERM', pid)
-      did_stop = true
-      @pid_map[process_name] = nil
-    end
-
-    did_stop
   end
 
 end

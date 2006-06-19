@@ -21,10 +21,14 @@ require 'utils'
 class UtilsTest < Test::Unit::TestCase
   def test_get_process_pid
     # Kill off any existing "sleep" processes to avoid confusion
+    # TODO: move the method kill_all_sleepers from process_manager_test into
+    # a common test utils class and use it here.  Perhaps put Utils.get_process_pid
+    # in a test utils class as well since it is really a test hack.
     `killall sleep`
+    sleep(0.1)    # allow time for sleepers to die
     
     # No one should be sleeping now
-    ps_out = `ps -fC sleep | grep sleep`
+    ps_out = `ps -fC sleep | grep -v defunct | grep sleep`
     puts ps_out
     assert_equal(0, ps_out.length)
     assert_nil(Utils.get_process_pid('sleep'))

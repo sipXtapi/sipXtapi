@@ -74,16 +74,13 @@ class ProcessManagerTest < Test::Unit::TestCase
   
   def test_start_process
     config = ProcessConfig.new
-
-    # Change the PID dir to be temporary, for testing
-    @pm.send(:pid_dir=, @tmpdir)
   
     # Run the echo command.  Print out "moose" with no newline.
     config.name = 'moose'
     run = ProcessConfig::Run.new("echo",              # command
                                  "-n moose")          # parameters
     config.run = run
-    @pm.send(:start_process, config)
+    @pm.start_process(config)
   
     # Create a temporary file to check that the defaultdir setting is right
     tempfilename = 'process_manager_test_tempfile'
@@ -101,7 +98,7 @@ class ProcessManagerTest < Test::Unit::TestCase
     config.name = 'touch'
     config.run = run
     assert(!File.exists?(tempfilepath), "File \"#{tempfilepath}\" must not exist but does")
-    @pm.send(:start_process, config)
+    @pm.start_process(config)
     
     # Give the child process some time to create the file
     1.upto(100) do |i|
@@ -122,15 +119,15 @@ class ProcessManagerTest < Test::Unit::TestCase
                                  1)                 # parameters
     config.name = SLEEP_CMD
     config.run = run
-    pid1 = @pm.send(:start_process, config)
-    pid2 = @pm.send(:start_process, config)
+    pid1 = @pm.start_process(config)
+    pid2 = @pm.start_process(config)
     assert_equal(pid1, pid2, 'Expected the same PID but got two different PIDs')
   end
 
   def test_stop_process_by_name
     # Kill off any existing "sleep" processes to avoid confusion
-    `killall #{SLEEP_CMD}`    
-    
+    kill_all_sleepers
+
     config = ProcessConfig.new
     run = ProcessConfig::Run.new(SLEEP_CMD,         # command
                                  999)               # parameters
@@ -138,18 +135,42 @@ class ProcessManagerTest < Test::Unit::TestCase
     config.run = run
     
     # Start the process
-    pid = @pm.send(:start_process, config)
+    pid = @pm.start_process(config)
     assert_equal(Utils.get_process_pid(SLEEP_CMD), pid)
     
     # Stop the process, should work
-    did_stop = @pm.send(:stop_process_by_name, config.name)
+    did_stop = @pm.stop_process_by_name(config.name)
     assert_equal(true, did_stop)
     puts `ps -fC #{SLEEP_CMD}`
     assert_nil(Utils.get_process_pid(SLEEP_CMD))
     
     # Ask to stop it again, should already be stopped.
-    did_stop = @pm.send(:stop_process_by_name, config.name)
+    did_stop = @pm.stop_process_by_name(config.name)
     assert_equal(false, did_stop)
+  end
+
+  def test_restart_process
+    # Kill off any existing "sleep" processes to avoid confusion
+    kill_all_sleepers
+    
+    config = ProcessConfig.new
+    run = ProcessConfig::Run.new(SLEEP_CMD,         # command
+                                 999)               # parameters
+    config.name = 'yet_another_sleep'  # don't use the same name as the previous test
+    config.run = run
+    
+    # Start the process
+    pid1 = @pm.start_process(config)
+    assert_equal(Utils.get_process_pid(SLEEP_CMD), pid1)
+    
+    # Test restarting the process
+    pid2 = @pm.restart_process(config)
+    sleep(0.1)   # give the killed process time to die
+    assert_equal(Utils.get_process_pid(SLEEP_CMD), pid2)
+    assert_not_equal(pid1, pid2)
+    
+    # Stop the restarted process so we don't leave debris behind
+    @pm.stop_process_by_name(config.name)
   end
 
   def test_create_process_pid_file
@@ -180,4 +201,12 @@ class ProcessManagerTest < Test::Unit::TestCase
     # Clean up
     File.delete(pid_file_path)
   end  
+
+  def kill_all_sleepers
+    # Kill off any existing "sleep" processes to avoid confusion
+    `killall #{SLEEP_CMD}`
+    
+    # Sleep for a little while to give the processes time to die
+    sleep(0.1)
+  end
 end
