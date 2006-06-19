@@ -86,6 +86,40 @@ AC_DEFUN([SFAC_AUTOMAKE_VERSION],[
    AX_COMPARE_VERSION( [$1], [le], [$sf_am_version], AC_MSG_RESULT( $sf_am_version is ok), AC_MSG_ERROR( found $sf_am_version - you must upgrade automake ))
 ])
 
+AC_DEFUN([SFAC_DISTRO_CONDITIONAL],
+[
+   distroid="${DISTRO}${DISTROVER}"
+   AC_MSG_CHECKING(Distribution specific settings for '${distroid}')
+ 
+   AM_CONDITIONAL([PLATFORM_FC4], [test "${distroid}" = "FC4"])
+   AM_CONDITIONAL([PLATFORM_FC5], [test "${distroid}" = "FC5"])
+   AM_CONDITIONAL([PLATFORM_RHE3],[test "${distroid}" = "RHE3"])
+   AM_CONDITIONAL([PLATFORM_RHE4],[test "${distroid}" = "RHE4"])
+
+   LIBWWW_RPM=w3c-libwww
+
+   case "${DISTRO}${DISTROVER}" in
+    FC4)
+      AC_MSG_RESULT()
+      ;;
+    FC5)
+      AC_MSG_RESULT()
+      ;;
+    RHE3)
+      AC_MSG_RESULT([  using sipx version of libwww])
+      LIBWWW_RPM=sipx-w3c-libwww
+      ;;
+    RHE4)
+      AC_MSG_RESULT([  using sipx version of libwww])
+      LIBWWW_RPM=sipx-w3c-libwww
+      ;;
+    *)
+      AC_MSG_WARN(Unrecognized distribution '${DISTRO}${DISTROVER}')
+      ;;
+   esac
+
+   AC_SUBST([LIBWWW_RPM])
+])
 
 ## sipXportLib 
 # SFAC_LIB_PORT attempts to find the sf portability library and include

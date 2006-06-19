@@ -64,4 +64,5 @@ LocalizeSipXconfig = sed \
 		  -e 's,@SIPXPHONEDATA\@,@SIPXPHONEDATA@,g' \
 		  -e 's,@SIPXPHONECONF\@,@SIPXPHONECONF@,g' \
 		  -e 's,@NAMED_PROGRAM\@,@NAMED_PROGRAM@,g' \
-		  -e 's,@SELINUX_GETENFORCE\@,@SELINUX_GETENFORCE@,g'
+		  -e 's,@SELINUX_GETENFORCE\@,@SELINUX_GETENFORCE@,g' \
+		  -e 's,@LIBWWW_RPM\@,@LIBWWW_RPM@,g'

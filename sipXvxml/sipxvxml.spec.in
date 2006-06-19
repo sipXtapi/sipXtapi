@@ -18,6 +18,8 @@ Requires: sipxmediaadapterlib >= 3.5
 Requires: sipxtacklib >= 3.5
 Requires: sipxportlib >= 3.5
 
+Requires: @LIBWWW_RPM@ >= 5.4.0
+
 # Httpd is needed to serve VXML applications and execute supporting CGIs.
 Requires: httpd >= 2.0
 

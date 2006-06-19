@@ -758,6 +758,7 @@ AC_DEFUN([CHECK_LIBWWW],
     if test x_$found_www != x_yes; then
         AC_MSG_ERROR(not found; 'include/w3c-libwww/WWWLib.h' and 'include/WWWLib.h' not in any of: $withval /usr/local/w3c-libwww /usr/lib/w3c-libwww /usr/w3c-libwww /usr/pkg /usr/local /usr)
     fi
+
     if test ! -e "$dir/lib/libwwwapp.so";then
         AC_MSG_ERROR(not found; 'libwwwapps.so' not in: $dir/lib)
     fi
@@ -796,6 +797,49 @@ AC_DEFUN([CHECK_LIBWWW],
     AC_MSG_RESULT(yes)
 ])
 ])dnl
+
+# ================ ZLIB ================
+AC_DEFUN([CHECK_ZLIB],
+[
+    have_zlib='no'
+    LIB_ZLIB=''
+    if test "$with_zlib" != 'no'
+    then
+      LIB_ZLIB=''
+      AC_MSG_CHECKING(for ZLIB support )
+      AC_MSG_RESULT()
+      failed=0;
+      passed=0;
+      AC_CHECK_HEADER(zconf.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
+      AC_CHECK_HEADER(zlib.h,passed=`expr $passed + 1`,failed=`expr $failed + 1`)
+      AC_CHECK_LIB(z,compress,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+      AC_CHECK_LIB(z,uncompress,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+      AC_CHECK_LIB(z,deflate,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+      AC_CHECK_LIB(z,inflate,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+      AC_CHECK_LIB(z,gzseek,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+      AC_CHECK_LIB(z,gztell,passed=`expr $passed + 1`,failed=`expr $failed + 1`,)
+      AC_MSG_CHECKING(if ZLIB package is complete)
+      if test $passed -gt 0
+      then
+        if test $failed -gt 0
+        then
+          AC_MSG_RESULT(no -- some components failed test)
+          have_zlib='no (failed tests)'
+        else
+          LIB_ZLIB='-lz'
+          LIBS="$LIB_ZLIB $LIBS"
+          AC_DEFINE(HasZLIB,1,Define if you have zlib compression library)
+          AC_MSG_RESULT(yes)
+          have_zlib='yes'
+        fi
+      else
+        AC_MSG_RESULT(no)
+        AC_MSG_ERROR(ZLIB required)
+      fi
+    fi
+    AM_CONDITIONAL(HasZLIB, test "$have_zlib" = 'yes')
+    AC_SUBST(LIB_ZLIB)
+])
 
 # ============ P C R E ==================
 AC_DEFUN([CHECK_PCRE],
@@ -1274,7 +1318,6 @@ AC_DEFUN([CHECK_RUBY_GEM],
     AC_MSG_ERROR([type 'gem install $rubyGem --no-rdoc' to install])
   fi
 ])
-
 
 # ==================== profile with gprof ====================
 AC_DEFUN([ENABLE_PROFILE],
