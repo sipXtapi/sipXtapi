@@ -36,7 +36,7 @@ require 'process_config'
 :TODO: Remote method to replicate files
 :TODO: Remote method to replicate sipdb data
 :LATER: Remote method to add/edit/remove crontab entry
-:LATER: Create the process schema referenced by process config files
+:LATER: Create the XML schema referenced by process config files
 =end
 
 # ProcessManager features:

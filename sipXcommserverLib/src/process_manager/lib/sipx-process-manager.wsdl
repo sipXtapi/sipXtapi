@@ -50,13 +50,14 @@
 
       <xsd:simpleType name="SipxDirectory">
         <xsd:restriction base="xsd:string">
-          <xsd:enumeration value="data" />    <!-- usually maps to /var/sipxdata/ -->
-          <xsd:enumeration value="etc" />     <!-- usually maps to /etc/sipxpbx/ -->
-          <xsd:enumeration value="log" />     <!-- usually maps to /var/log/sipxpbx/ -->
+          <xsd:enumeration value="data" />           <!-- usually maps to /var/sipxdata/ -->
+          <xsd:enumeration value="etc" />            <!-- usually maps to /etc/sipxpbx/ -->
+          <xsd:enumeration value="log" />            <!-- usually maps to /var/log/sipxpbx/ -->
+          <xsd:enumeration value="yum.repos.d" />    <!-- usually maps to /etc/yum.repos.d/ -->
         </xsd:restriction>
       </xsd:simpleType>
 
-      <xsd:complexType name="FilePath">
+      <xsd:complexType name="SipxFilePath">
         <xsd:sequence>
           <!-- Append the fileRelativePath to the mapped sipX directory to get
                the absolute path to the file -->
@@ -78,7 +79,7 @@
         <xsd:sequence>
           <!-- fileText is the content read from the file, which is null if the read fails.
                status is 0 for success.  Any other value indicates failure. -->
-          <xsd:element name="filePath" type="tns:FilePath" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="filePath" type="tns:SipxFilePath" minOccurs="1" maxOccurs="1" />
           <xsd:element name="fileText" type="xsd:string" minOccurs="1" maxOccurs="1" />          
         </xsd:sequence>
       </xsd:complexType>
@@ -91,13 +92,55 @@
       
       <xsd:complexType name="DeleteFileInput">
         <xsd:sequence>
-          <xsd:element name="filePath" type="tns:FilePath" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="filePath" type="tns:SipxFilePath" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
       </xsd:complexType>
 
       <xsd:complexType name="DeleteFileOutput">
         <xsd:sequence>
-          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />          
+          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />      
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="readSipDataInput">
+        <xsd:sequence>
+          <!-- Name of the sipdb database, e.g., registration, subscription, ... -->
+          <xsd:element name="dbName" type="xsd:string" minOccurs="1" maxOccurs="1" />          
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="readSipDataOutput">
+        <xsd:sequence>
+          <!-- sipData is a string containing data read from the DB -->
+          <xsd:element name="sipData" type="xsd:string" minOccurs="0" maxOccurs="1" />
+          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />      
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="writeSipDataInput">
+        <xsd:sequence>
+          <!-- Name of the sipdb database, e.g., registration, subscription, ... -->
+          <xsd:element name="dbName" type="xsd:string" minOccurs="1" maxOccurs="1" />          
+          <xsd:element name="sipData" type="xsd:string" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="writeSipDataOutput">
+        <xsd:sequence>
+          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />      
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="yumInput">
+        <xsd:sequence>
+          <!-- String of arguments to be fed to yum -->
+          <xsd:element name="command" type="xsd:int" minOccurs="1" maxOccurs="1" />      
+        </xsd:sequence>
+      </xsd:complexType>
+
+      <xsd:complexType name="yumOutput">
+        <xsd:sequence>
+          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />      
         </xsd:sequence>
       </xsd:complexType>
 
@@ -115,7 +158,7 @@
   </message>
 
   <message name="readFileRequest">
-    <part name="readFileRequest" type="tns:FilePath" />
+    <part name="readFileRequest" type="tns:SipxFilePath" />
   </message>    
   <message name="readFileResponse">
     <part name="readFileResponse" type="tns:ReadFileOutput" />
@@ -133,6 +176,27 @@
   </message>    
   <message name="deleteFileResponse">
     <part name="deleteFileResponse" type="tns:DeleteFileOutput" />
+  </message>
+
+  <message name="readSipDataRequest">
+    <part name="readSipDataRequest" type="tns:readSipDataInput" />
+  </message>
+  <message name="readSipDataResponse">
+    <part name="readSipDataResponse" type="tns:readSipDataOutput" />
+  </message>
+
+  <message name="writeSipDataRequest">
+    <part name="writeSipDataRequest" type="tns:writeSipDataInput" />
+  </message>  
+  <message name="writeSipDataResponse">
+    <part name="writeSipDataResponse" type="tns:writeSipDataOutput" />
+  </message>  
+
+  <message name="yumRequest">
+    <message name="yumRequest" type="tns:yumInput" />
+  </message>
+  <message name="yumResponse">
+    <message name="yumResponse" type="tns:yumOutput" />
   </message>
 
   <portType name="ProcessManagerService">
@@ -160,6 +224,21 @@
     <operation name="deleteFile">
       <input message="tns:deleteFileRequest" />
       <output message="tns:deleteFileResponse" />
+    </operation>
+
+    <operation name="readSipData">
+      <input message="tns:readSipDataRequest" />
+      <output message="tns:readSipDataResponse" />
+    </operation>
+
+    <operation name="writeSipData">
+      <input message="tns:writeSipDataRequest" />
+      <output message="tns:writeSipDataResponse" />
+    </operation>
+
+    <operation name="yum">
+      <input message="tns:yumRequest" />
+      <output message="tns:yumResponse" />
     </operation>
 
   </portType>
@@ -209,6 +288,36 @@
 
     <operation name="deleteFile">
       <soap:operation soapAction="urn:ProcessManagerService#deleteFile" />
+      <input>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </output>
+    </operation>
+
+    <operation name="readSipData">
+      <soap:operation soapAction="urn:ProcessManagerService#readSipData" />
+      <input>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </output>
+    </operation>
+
+    <operation name="writeSipData">
+      <soap:operation soapAction="urn:ProcessManagerService#writeSipData" />
+      <input>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </input>
+      <output>
+        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+      </output>
+    </operation>
+
+    <operation name="yum">
+      <soap:operation soapAction="urn:ProcessManagerService#yum" />
       <input>
         <soap:body use="literal" namespace="urn:ProcessManagerService" />
       </input>

@@ -53,7 +53,6 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   #=============================================================================
   # SOAP methods
   
-  #:TODO: pass this call through to the process manager
   def manageProcesses(input)
     # debug printing
     # pretty-print the processes array
@@ -75,6 +74,20 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
     s2.name = 'proc2'
     s2.status = 'stopped'
     return ProcessManagerServer::Array[s1, s2]
+  end
+  
+  #:TODO: implement these methods
+  def readFile
+  end
+  def writeFile
+  end
+  def deleteFile
+  end
+  def readSipData
+  end
+  def writeSipData
+  end
+  def yum
   end
   
   #=============================================================================
