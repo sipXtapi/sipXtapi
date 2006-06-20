@@ -97,7 +97,7 @@ class SystemService
   end
 
   def console(msg)
-    puts msg
+    # puts msg
     return msg
   end
 
