@@ -523,4 +523,10 @@ public class CoreContextImpl extends SipxHibernateDaoSupport implements CoreCont
                 "groupSupervisors", QUERY_PARAM_GROUP_ID, group.getId());    
         return objs;
     }
+    
+    public List<User> getUsersThatISupervise(User supervisor) {
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "usersThatISupervise", "supervisorId", supervisor.getId());    
+        return (List<User>) objs;        
+    }
 }

@@ -497,5 +497,17 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         List<User> supervisors = m_core.getGroupSupervisors(group);
         assertEquals(1, supervisors.size());
         assertEquals((Integer) 1001, supervisors.get(0).getId());        
-    }   
+    }
+    
+    public void testUsersThatISupervisr() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.insertFlat("common/UsersThatISupervise.db.xml");
+        User supervisor = m_core.loadUser(2001);
+        
+        List<User> peons = m_core.getUsersThatISupervise(supervisor);
+        assertEquals(3, peons.size());
+        assertEquals("peon1", peons.get(0).getUserName());        
+        assertEquals("peon2", peons.get(1).getUserName());        
+        assertEquals("peon5", peons.get(2).getUserName());        
+    }
 }

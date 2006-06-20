@@ -26,6 +26,8 @@ public class UserSession {
     private boolean m_navigationVisible = true;
 
     private boolean m_admin;
+    
+    private boolean m_supervisor;
 
     /**
      * user that is currently logged in
@@ -43,6 +45,10 @@ public class UserSession {
     public boolean isAdmin() {
         return m_admin;
     }
+    
+    public boolean isSupervisor() {
+        return m_supervisor;
+    }
 
     public Integer getUserId() {
         return m_userId;
@@ -52,9 +58,10 @@ public class UserSession {
         return getUserId() != null;
     }
 
-    public void login(Integer userId, boolean admin) {
+    public void login(Integer userId, boolean admin, boolean supervisor) {
         m_userId = userId;
         m_admin = admin;
+        m_supervisor = supervisor;
     }
     
     public void logout() {

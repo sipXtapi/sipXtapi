@@ -92,7 +92,7 @@ public abstract class LoginPage extends BasePage implements PageBeginRenderListe
         }
 
         UserSession userSession = getUserSession();
-        userSession.login(user.getId(), context.isAdmin(user));
+        userSession.login(user.getId(), context.isAdmin(user), user.isSupervisor());
 
         // Ignore any callback and go to the home page. If the user was redirected to the login
         // page because the session timed out, then after logging in we will have lost all session

@@ -76,5 +76,9 @@
   <query name="groupSupervisors">
     <![CDATA[from User u where u.supervisorForGroups.id = :groupId]]>
   </query>
+  
+  <query name="usersThatISupervise">
+    <![CDATA[select distinct u from User u, Group g, User s where s.id = :supervisorId and s.supervisorForGroups.id = g.id and g.id = u.groups.id order by u.userName]]>
+  </query>
 	
 </hibernate-mapping>

@@ -160,11 +160,12 @@ public abstract class TestPage extends BasePage {
     public void toggleAdmin() {
         UserSession userSession = getUserSession();
         boolean admin = !userSession.isAdmin();
+        boolean supervisor = !userSession.isSupervisor();
         Integer userId = userSession.getUserId();
         if (userId == null) {
             login();
         } else {
-            userSession.login(userId, admin);
+            userSession.login(userId, admin, supervisor);
         }
     }
 
@@ -215,7 +216,7 @@ public abstract class TestPage extends BasePage {
 
         // Log it in
         UserSession userSession = getUserSession();
-        userSession.login(user.getId(), false);
+        userSession.login(user.getId(), false, true);
     }
 
     public void deleteAllUsers() {
@@ -260,7 +261,7 @@ public abstract class TestPage extends BasePage {
 
     public void login() {
         User user = createTestUserIfMissing();
-        getUserSession().login(user.getId(), true);
+        getUserSession().login(user.getId(), true, true);
     }
 
     public void generateDataSet(String setName) {

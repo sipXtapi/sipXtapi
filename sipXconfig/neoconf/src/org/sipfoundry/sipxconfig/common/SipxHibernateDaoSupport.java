@@ -24,6 +24,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.engine.SessionImplementor;
+import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.EntityPersister;
 import org.sipfoundry.sipxconfig.setting.Storage;
 import org.sipfoundry.sipxconfig.setting.ValueStorage;
@@ -31,7 +32,20 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class SipxHibernateDaoSupport extends HibernateDaoSupport {
+public class SipxHibernateDaoSupport extends HibernateDaoSupport {    
+    
+    /**
+     * Check if a bean exists w/o loading it or trying to load it and getting
+     * a dataintegrityexcepiton
+     */
+    public boolean isBeanAvailable(Class c, Serializable id) {
+        ClassMetadata classMetadata = getHibernateTemplate().getSessionFactory().getClassMetadata(c);
+        String name = classMetadata.getEntityName();
+        List results = getHibernateTemplate().findByNamedParam("select 1 from " + name + " where id = :id", 
+                "id", id);
+        return !results.isEmpty();        
+    }
+    
     public Object load(Class c, Serializable id) {
         return getHibernateTemplate().load(c, id);
     }

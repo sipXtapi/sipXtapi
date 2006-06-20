@@ -85,4 +85,11 @@ public class SipxHibernateDaoSupportTestDb extends SipxDatabaseTestCase {
             assertTrue(e.getMessage().indexOf("eyeglassPerscription") >= 0);
         }
     }    
+    
+    public void testIsBeanAvailable() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        assertFalse(m_dao.isBeanAvailable(User.class, 1000));
+        TestHelper.insertFlat("common/TestUserSeed.xml");
+        assertTrue(m_dao.isBeanAvailable(User.class, 1000));        
+    }
 }

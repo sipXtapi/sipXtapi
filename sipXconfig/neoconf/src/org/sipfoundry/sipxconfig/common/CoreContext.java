@@ -130,4 +130,6 @@ public interface CoreContext extends DataObjectSource, AliasProvider, AliasOwner
     public void removeFromGroup(Integer groupId, Collection ids);
 
     public List<User> getGroupSupervisors(Group group);
+    
+    public List<User> getUsersThatISupervise(User uservisor);
 }

@@ -29,7 +29,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
-public class User extends BeanWithGroups {
+public class User extends BeanWithGroups implements NamedObject {
     public static final String GROUP_RESOURCE_ID = "user";
 
     // security roles
@@ -227,6 +227,10 @@ public class User extends BeanWithGroups {
         return hasPermission(Permission.SUPERADMIN);
     }
     
+    public boolean isSupervisor() {
+        return m_supervisorForGroups != null && m_supervisorForGroups.size() > 0;        
+    }
+    
     public Set getSupervisorForGroups() {
         return m_supervisorForGroups;
     }
@@ -240,5 +244,13 @@ public class User extends BeanWithGroups {
             m_supervisorForGroups = new HashSet();
         }
         m_supervisorForGroups.add(group);
+    }
+
+    public String getName() {
+        return getUserName();
+    }
+
+    public void setName(String name) {
+        setUserName(name);
     }
 }
