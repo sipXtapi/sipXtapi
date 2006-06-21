@@ -1,5 +1,10 @@
 #!@RUBY@
 
+# see http://docs.rubygems.org/shelf
+#  RubyGemsUserGuide/Installing Ruby/Installing RubyGems in a User Directory
+# NOTE: Keep this at top of file, see XCF-1096 
+ENV['GEM_PATH'] = '@GEM_LIB_DIR@:/usr/lib/ruby/gems/1.8'
+
 require 'tempfile'
 require 'optparse'
 require 'ostruct'
@@ -37,10 +42,6 @@ end
 
 load_config_defs
 parse(ARGV)
-
-# see http://docs.rubygems.org/shelf
-#  RubyGemsUserGuide/Installing Ruby/Installing RubyGems in a User Directory
-ENV['GEM_PATH'] = '@GEM_LIB_DIR@:/usr/lib/ruby/gems/1.8'
 
 require 'rubygems'
 require 'main'
