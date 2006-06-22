@@ -68,10 +68,8 @@
       
       <xsd:complexType name="ReadFileOutput">
         <xsd:sequence>
-          <!-- fileText is the content read from the file, which is null if the read fails.
-               status is 0 for success.  Any other value indicates failure. -->
+          <!-- fileText is the content read from the file, which is null if the read fails -->
           <xsd:element name="fileText" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1" />
-          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />          
         </xsd:sequence>
       </xsd:complexType>
       
@@ -84,21 +82,9 @@
         </xsd:sequence>
       </xsd:complexType>
       
-      <xsd:complexType name="WriteFileOutput">
-        <xsd:sequence>
-          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />          
-        </xsd:sequence>
-      </xsd:complexType>
-      
       <xsd:complexType name="DeleteFileInput">
         <xsd:sequence>
           <xsd:element name="filePath" type="tns:SipxFilePath" minOccurs="1" maxOccurs="1" />
-        </xsd:sequence>
-      </xsd:complexType>
-
-      <xsd:complexType name="DeleteFileOutput">
-        <xsd:sequence>
-          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />      
         </xsd:sequence>
       </xsd:complexType>
 
@@ -113,7 +99,6 @@
         <xsd:sequence>
           <!-- sipData is a string containing data read from the DB -->
           <xsd:element name="sipData" type="xsd:string" minOccurs="0" maxOccurs="1" />
-          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />      
         </xsd:sequence>
       </xsd:complexType>
 
@@ -122,25 +107,6 @@
           <!-- Name of the sipdb database, e.g., registration, subscription, ... -->
           <xsd:element name="dbName" type="xsd:string" minOccurs="1" maxOccurs="1" />          
           <xsd:element name="sipData" type="xsd:string" minOccurs="1" maxOccurs="1" />
-        </xsd:sequence>
-      </xsd:complexType>
-
-      <xsd:complexType name="writeSipDataOutput">
-        <xsd:sequence>
-          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />      
-        </xsd:sequence>
-      </xsd:complexType>
-
-      <xsd:complexType name="yumInput">
-        <xsd:sequence>
-          <!-- String of arguments to be fed to yum -->
-          <xsd:element name="command" type="xsd:int" minOccurs="1" maxOccurs="1" />      
-        </xsd:sequence>
-      </xsd:complexType>
-
-      <xsd:complexType name="yumOutput">
-        <xsd:sequence>
-          <xsd:element name="status" type="xsd:int" minOccurs="1" maxOccurs="1" />      
         </xsd:sequence>
       </xsd:complexType>
 
@@ -167,16 +133,12 @@
   <message name="writeFileRequest">
     <part name="writeFileRequest" type="tns:WriteFileInput" />
   </message>    
-  <message name="writeFileResponse">
-    <part name="writeFileResponse" type="tns:WriteFileOutput" />
-  </message>
+  <message name="writeFileResponse" />
 
   <message name="deleteFileRequest">
     <part name="deleteFileRequest" type="tns:DeleteFileInput" />
   </message>    
-  <message name="deleteFileResponse">
-    <part name="deleteFileResponse" type="tns:DeleteFileOutput" />
-  </message>
+  <message name="deleteFileResponse" />
 
   <message name="readSipDataRequest">
     <part name="readSipDataRequest" type="tns:readSipDataInput" />
@@ -188,16 +150,7 @@
   <message name="writeSipDataRequest">
     <part name="writeSipDataRequest" type="tns:writeSipDataInput" />
   </message>  
-  <message name="writeSipDataResponse">
-    <part name="writeSipDataResponse" type="tns:writeSipDataOutput" />
-  </message>  
-
-  <message name="yumRequest">
-    <message name="yumRequest" type="tns:yumInput" />
-  </message>
-  <message name="yumResponse">
-    <message name="yumResponse" type="tns:yumOutput" />
-  </message>
+  <message name="writeSipDataResponse" />
 
   <portType name="ProcessManagerService">
 
@@ -234,11 +187,6 @@
     <operation name="writeSipData">
       <input message="tns:writeSipDataRequest" />
       <output message="tns:writeSipDataResponse" />
-    </operation>
-
-    <operation name="yum">
-      <input message="tns:yumRequest" />
-      <output message="tns:yumResponse" />
     </operation>
 
   </portType>
