@@ -35,7 +35,7 @@ class UtilsTest < Test::Unit::TestCase
 
     # Start a sleeper
     fork do
-      exec('sleep 0.05')
+      exec('sleep 0.5')
     end
 
     # Now we have a sleeper
