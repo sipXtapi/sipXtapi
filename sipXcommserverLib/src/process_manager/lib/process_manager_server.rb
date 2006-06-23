@@ -41,7 +41,7 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   end
   
   def on_init
-    add_method(self, 'manageProcesses')
+    add_method(self, 'manageProcesses', 'verb', 'processes')
     add_method(self, 'getProcessStatus')
   end
 
@@ -53,13 +53,12 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   #=============================================================================
   # SOAP methods
   
-  def manageProcesses(input)
+  def manageProcesses(verb, processes)
     # debug printing
     # pretty-print the processes array
-    processes = PP.pp(input.processes, "")
-    puts("manageProcesses: verb = #{input.verb}, processes = #{processes}")
+    puts("manageProcesses: verb = #{verb}, processes = #{processes}")
     
-    @process_manager.manageProcesses(input.verb, input.processes)
+    @process_manager.manageProcesses(verb, processes)
   end
 
   #:TODO: pass this call through to the process manager
@@ -86,8 +85,6 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   def readSipData
   end
   def writeSipData
-  end
-  def yum
   end
   
   #=============================================================================

@@ -56,7 +56,7 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     @pm = SOAP::RPC::Driver.new("http://localhost:#{TEST_PORT}",
                                  ProcessManagerServer::SOAP_NAMESPACE)
     @pm.wiredump_dev = STDERR if $DEBUG
-    @pm.add_method('manageProcesses', 'input')
+    @pm.add_method('manageProcesses', 'verb', 'processes')
     @pm.add_method('getProcessStatus')
   end
   
@@ -64,16 +64,12 @@ class ProcessManagerServerTest < Test::Unit::TestCase
   end
 
   def test_manageProcesses
-    input = ProcessManagerServer::ManageProcessesInput.new
-    input.processes = ProcessManagerServer::Array['sleeper']
-
     # start the process
-    input.verb = 'start'
-    @pm.manageProcesses(input)
+    processes = ProcessManagerServer::Array['sleeper']
+    @pm.manageProcesses('start', processes)
 
     # stop the process
-    input.verb = 'stop'
-    @pm.manageProcesses(input)
+    @pm.manageProcesses('stop', processes)
   end
 
   def test_getProcessStatus
