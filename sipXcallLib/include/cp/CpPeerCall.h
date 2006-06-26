@@ -294,6 +294,9 @@ protected:
     //: Handles the processing of a CP_JOIN_CONNECTION message
     UtlBoolean handleJoinConnection(OsMsg* pEventMessage) ;
 
+    //: Handle the processing of a CP_NEW_PASSERTED_ID message
+    UtlBoolean handleChangeLocalIdentity(OsMsg* pEventMessage);
+
     virtual UtlBoolean getConnectionState(const char* remoteAddress, int& state);
 
     virtual UtlBoolean getTermConnectionState(const char* address,

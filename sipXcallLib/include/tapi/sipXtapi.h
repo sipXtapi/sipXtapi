@@ -1,5 +1,13 @@
 //
-// Copyright (C) 2004, 2005 Pingtel Corp.
+//
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+//
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 //
 // $$
@@ -770,6 +778,27 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteID(const SIPX_CALL hCall,
                                              char* szId, 
                                              const size_t iMaxLength) ;
 
+/**
+ * Set a new asserted identity for the local connection 
+ *
+ * This function is used to change the identity of the local connection
+ * used in the SIP signalling for the given call.  This operation is
+ * useful in applications like B2BUA where the local identity changes
+ * (e.g. as a result of a local operation like bridging or transfer not 
+ * exposed to the signalling in this call.  From a SIP signalling 
+ * perspective this sets the PAssertedIdentity header field (RFC 3325).
+ *
+ * @param hCall the call in which the local identity or caller id is to be 
+ *        changed
+ * @param szPAssertedId the new SIP identity to be user for the local
+ *        connection in the given call.  
+ * @param bSignalNow signal the identity change now.  true causes a
+ *        SIP reINVITE now, false will signal the identity change with
+ *        the next on or off hold reINVITE
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallSetAssertedId(const SIPX_CALL hCall, 
+                                               const char* szPAssertedId,
+                                               const bool bSignalNow);
 
 /**
  * Gets the media interface connectionid.

@@ -126,6 +126,18 @@ public:
 
     virtual UtlBoolean redirect(const char* forwardAddress);
 
+    //! Change the local identity for the existing connection
+    /*! This sets the value used for PAssertedIdentity header in INVITE requests
+     *  (see RFC 3325).
+     *
+     *  \param newLocalIdentity - new identity to be used for local side in subsequent signalling
+     *  \param shouldSignalIdentityChangeNow - send SIP reINVITE now to indicate 
+     *         local identity change.  FALSE means that the next reINVITE sent
+     *         for some other operation (e.g. on/off hold).
+     */
+    virtual UtlBoolean changeLocalIdentity(const UtlString& newLocalIdentity,
+                                           const UtlBoolean& shouldSignalIdentityChangeNow);
+
     virtual UtlBoolean sendInfo(UtlString contentType, UtlString sContent);
 
     virtual UtlBoolean processMessage(OsMsg& eventMessage,
@@ -241,6 +253,8 @@ private:
     Url mToUrl;  //  SIP address for the remote side
     UtlString mRemoteUriStr;  //  SIP uri string for the remote side
     UtlString mLocalUriStr;  //  SIP uri string for the local side
+    UtlDList mRemotePAssertedIdentities; // SIP identities from p-Asserted-Identity header
+    UtlString mLocalPAssertedIdentity;
 
     int lastLocalSequenceNumber;
     int lastRemoteSequenceNumber;
@@ -275,7 +289,8 @@ private:
 
     void doBlindRefer();
 
-
+    //! Check INVITE for asserted identity change
+    UtlBoolean updateAssertedIds(const SipMessage& sipMessage);
 
     SipConnection& operator=(const SipConnection& rhs);
     //:Assignment operator (disabled)

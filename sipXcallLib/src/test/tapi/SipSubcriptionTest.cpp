@@ -13,6 +13,7 @@
 //////////////////////////////////////////////////////////////////////////////
 // Author: Dan Petrie (dpetrie AT SIPez DOT com)
 
+
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <utl/UtlHashMap.h>
@@ -92,6 +93,12 @@ class SipSubscriptionTest : public CppUnit::TestCase
             }
 #ifdef TEST_PRINT
             printf("inst1Callback EVENT_CATEGORY_CALLSTATE: %d\n", state->event);
+            char szBuffer[256];
+            sipxCallEventToString((SIPX_CALLSTATE_MAJOR)(int)state->event, 
+                                  (SIPX_CALLSTATE_MINOR)(int)state->cause, 
+                                  szBuffer,
+                                  sizeof(szBuffer));
+            printf("%s\n", szBuffer);
 #endif
         }
         // Subscribe state event
@@ -268,7 +275,11 @@ class SipSubscriptionTest : public CppUnit::TestCase
             waitTime++;
             if(waitTime % 10 == 0)
             {
+#ifdef TEST_PRINT
+                printf("mLastStateInst1: %d\n", mLastStateInst1);
+#else
                 printf(".");
+#endif
             }
             if(waitTime > 100)
             {

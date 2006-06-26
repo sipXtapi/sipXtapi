@@ -1,11 +1,18 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
+// Author: Dan Petrie (dpetrie AT SIPez DOT com)
  
 
 // SYSTEM INCLUDES
@@ -487,7 +494,10 @@ UtlBoolean Connection::validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CAL
 
 
 
-void Connection::fireSipXEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTATE_CAUSE causeCode, void* pEventData) 
+void Connection::fireSipXEvent(SIPX_CALLSTATE_EVENT eventCode, 
+                               SIPX_CALLSTATE_CAUSE causeCode, 
+                               void* pEventData,
+                               const char* assertedRemoteIdentity) 
 {
     UtlString callId ;
     UtlString remoteAddress ;
@@ -499,22 +509,37 @@ void Connection::fireSipXEvent(SIPX_CALLSTATE_EVENT eventCode, SIPX_CALLSTATE_CA
     if ((   (eventCode != m_eLastMajor) || (causeCode != m_eLastMinor)) && 
             validStateTransition(m_eLastMajor, eventCode) && !bDuplicateAudio)
     {
-        if (eventCode != CALLSTATE_AUDIO_EVENT)
-        {
-            m_eLastMajor = eventCode;
-            m_eLastMinor = causeCode;
-        }
-        else
+        if (eventCode == CALLSTATE_AUDIO_EVENT)
         {
             m_eLastAudioMajor = eventCode;
             m_eLastAudioMinor = causeCode;
+        }
+        else if(eventCode == CALLSTATE_IDENTITY_CHANGE)
+        {
+            // Do not cache the asserted identity change as it
+            // should always be sent through.  Also do not cache so
+            // we do not duplicate other event types (e.g.
+            // CALLSTATE_FOO, CALLSTATE_IDENTITY_CHANGE, CALLSTATE_FOO
+            // should not notify CALLSTATE_FOO twice
+        }
+        else
+        {
+            m_eLastMajor = eventCode;
+            m_eLastMinor = causeCode;
         }
 
         getCallId(&callId) ;
         getRemoteAddress(&remoteAddress);
         getSession(session) ;
 
-        TapiMgr::getInstance().fireCallEvent(mpCallManager, callId.data(), &session, remoteAddress.data(), eventCode, causeCode, pEventData) ;
+        TapiMgr::getInstance().fireCallEvent(mpCallManager, 
+                                             callId.data(), 
+                                             &session, 
+                                             remoteAddress.data(), 
+                                             eventCode, 
+                                             causeCode, 
+                                             pEventData,
+                                             assertedRemoteIdentity);
     }
 }
 

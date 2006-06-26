@@ -1,8 +1,17 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
+
 
 #include "EventValidator.h"
 #include "tapi/sipXtapi.h"
@@ -100,7 +109,8 @@ bool EventValidator::waitForCallEvent(SIPX_LINE hLine,
                                       SIPX_CALLSTATE_EVENT event,
                                       SIPX_CALLSTATE_CAUSE cause,
                                       bool bStrictOrderMatch,
-                                      int iTimeoutInSecs)
+                                      int iTimeoutInSecs,
+                                      const char* remoteAssertedIdentity)
 {
     bool bFound = true ;
 
@@ -110,7 +120,8 @@ bool EventValidator::waitForCallEvent(SIPX_LINE hLine,
         UtlString* pString = allocCallStateEntry(hCall, 
                 hLine, 
                 event, 
-                cause) ;
+                cause,
+                remoteAssertedIdentity) ;
 
         bFound = waitForEvent(pString->data(), bStrictOrderMatch, iTimeoutInSecs) ;
         delete pString ;
@@ -383,7 +394,8 @@ void EventValidator::addEvent(SIPX_EVENT_CATEGORY category, void* pInfo)
                     UtlString* pString = allocCallStateEntry(pStateInfo->hCall, 
                             pStateInfo->hLine, 
                             pStateInfo->event, 
-                            pStateInfo->cause) ;
+                            pStateInfo->cause,
+                            pStateInfo->szRemoteIdentity) ;
 
                     m_unprocessedEvents.append(pString) ;
                     m_semUnprocessed.release() ;
@@ -470,7 +482,8 @@ void EventValidator::addMarker(const char* szMarkerText)
 UtlString* EventValidator::allocCallStateEntry(SIPX_CALL hCall,
                                                SIPX_LINE hLine,
                                                SIPX_CALLSTATE_EVENT event,
-                                               SIPX_CALLSTATE_CAUSE cause)
+                                               SIPX_CALLSTATE_CAUSE cause,
+                                               const char* remoteAssertedIdentity)
 {
     char szBuffer[256] ;
     char szBuffer2[256];
@@ -482,12 +495,20 @@ UtlString* EventValidator::allocCallStateEntry(SIPX_CALL hCall,
             szBuffer, 
             sizeof(szBuffer));
 
-    sprintf(szBuffer2, "<CALL> hLine=%d, hCall=%d: %s", 
+    sprintf(szBuffer2, "<CALL> hLine=%d, hCall=%d: ", 
             hLine, 
-            hCall,
-            szBuffer);
+            hCall);
 
-    return new UtlString(szBuffer2) ;
+    UtlString* eventString = new UtlString(szBuffer2);
+    eventString->append(szBuffer);
+
+    if(remoteAssertedIdentity)
+    {
+        eventString->append(" szRemoteIdentity=");
+        eventString->append(remoteAssertedIdentity);
+    }
+
+    return(eventString);
 }
 
 

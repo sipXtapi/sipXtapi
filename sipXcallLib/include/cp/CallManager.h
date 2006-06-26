@@ -212,9 +212,26 @@ public:
     virtual void unholdTerminalConnection(const char* callId, const char* addresss, const char* terminalId);
     virtual void renegotiateCodecsTerminalConnection(const char* callId, const char* addresss, const char* terminalId);
     virtual void renegotiateCodecsAllTerminalConnections(const char* callId);
-         virtual void getNumTerminalConnections(const char* callId, const char* address, int& numTerminalConnections);
-         virtual OsStatus getTerminalConnections(const char* callId, const char* address,
-                int maxTerminalConnections, int& numTerminalConnections, UtlString terminalNames[]);
+
+    //! Change the identity used in SIP PAssertedIdentity header for INVITEs sent
+    /*! Set the SIP AOR which used in the SIP PAssertedIdentity header for
+     * INVITE requests send from this side.  The callId and remoteAddress
+     * identity the SIP dialog to which the local identity is to be changed.
+     * signalNow TRUE indicates that a SIP reINVITE should be forced to occur now
+     * as opposed when the next reINVITE occurs during a on/off hold operation.
+     *
+     * This method is used to change the identity when some local operation 
+     * occurs that does not get reflected in the SIP signalling.  Setting
+     * the PAssertedIdentity allows the signalling to indicate the the
+     * identity change has occurred.
+     */
+    virtual UtlBoolean setLocalPAssertedIdentity(const char* callId, 
+                                                 const char* remoteAddress,
+                                                 const char* newPAssertedId,
+                                                 const UtlBoolean signalNow);
+    virtual void getNumTerminalConnections(const char* callId, const char* address, int& numTerminalConnections);
+    virtual OsStatus getTerminalConnections(const char* callId, const char* address,
+    int maxTerminalConnections, int& numTerminalConnections, UtlString terminalNames[]);
     virtual UtlBoolean isTerminalConnectionLocal(const char* callId, const char* address, const char* terminalId);
     virtual OsStatus getSession(const char* callId,
                                 const char* address,

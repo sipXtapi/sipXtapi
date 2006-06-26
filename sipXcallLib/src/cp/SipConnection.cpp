@@ -629,6 +629,12 @@ UtlBoolean SipConnection::dial(const char* dialString,
                 lastLocalSequenceNumber,
                 numCodecs, rtpCodecsArray, mDefaultSessionReinviteTimer);
 
+            // Set the asserted Identity if provided
+            if(!mLocalPAssertedIdentity.isNull())
+            {
+                sipInvite.addPAssertedIdentityField(mLocalPAssertedIdentity);
+            }
+
             // Free up the codecs and the array
             for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
             {
@@ -1211,6 +1217,12 @@ UtlBoolean SipConnection::hold()
             &srtpParams,
             mDefaultSessionReinviteTimer);
 
+        // Set the asserted Identity if provided
+        if(!mLocalPAssertedIdentity.isNull())
+        {
+            holdMessage.addPAssertedIdentityField(mLocalPAssertedIdentity);
+        }
+
         if(inviteMsg) 
         {
             delete inviteMsg;
@@ -1247,6 +1259,22 @@ UtlBoolean SipConnection::offHold()
 UtlBoolean SipConnection::renegotiateCodecs()
 {
     return(doOffHold(TRUE));
+}
+
+UtlBoolean SipConnection::changeLocalIdentity(const UtlString& newLocalIdentity,
+                                              const UtlBoolean& shouldSignalIdentityChangeNow)
+{
+    UtlBoolean returnStatus = TRUE;
+    mLocalPAssertedIdentity = newLocalIdentity;
+
+    if(shouldSignalIdentityChangeNow)
+    {
+        // Send a reINVITE now, the new identity will get picked up in
+        // the construction of the INVITE
+        returnStatus = renegotiateCodecs();
+    }
+
+    return(returnStatus);
 }
 
 UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
@@ -1305,6 +1333,12 @@ UtlBoolean SipConnection::doOffHold(UtlBoolean forceReInvite)
             rtpCodecs,
             &srtpParams,
             mDefaultSessionReinviteTimer);
+
+        // Set the asserted Identity if provided
+        if(!mLocalPAssertedIdentity.isNull())
+        {
+            offHoldMessage.addPAssertedIdentityField(mLocalPAssertedIdentity);
+        }
 
         // Free up the codec copies and array
         for(int codecIndex = 0; codecIndex < numCodecs; codecIndex++)
@@ -2154,6 +2188,7 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     int requestSequenceNum = 0;
     UtlString requestSeqMethod;
     int tagNum = -1;
+    UtlString* newRemoteAssertedId = NULL;
 
     setLocalAddress(request->getLocalIp().data());
     request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
@@ -2333,6 +2368,14 @@ void SipConnection::processInviteRequest(const SipMessage* request)
            OsSysLog::add(FAC_CP, PRI_DEBUG, "SipConnection::processInviteRequest - parsedURI to string '%s'", mLocalContact.data());           
         }
 
+        // Check if the P-Asserted-Identity header is present and update
+        // the saved asserted IDs if they changed
+        if(updateAssertedIds(*request))
+        {
+            newRemoteAssertedId = 
+                (UtlString*) mRemotePAssertedIdentities.at(0);
+        }
+
         int cause = CONNECTION_CAUSE_NORMAL;
 
         // Replaces is independent of REFER so
@@ -2364,7 +2407,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 2, metaEventCallIds);
             mpCall->setCallType(CpCall::CP_TRANSFER_TARGET_TARGET_CALL);
 
-            fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_TRANSFERRED, (void*) replaceCallId.data()) ;
+            fireSipXEvent(CALLSTATE_NEWCALL, 
+                          CALLSTATE_NEW_CALL_TRANSFERRED, 
+                          (void*) replaceCallId.data(),
+                          newRemoteAssertedId ? newRemoteAssertedId->data() : NULL);
 
 #ifdef TEST_PRINT
             osPrintf("SipConnection::processInviteRequest replaceCallId: %s, toTag: %s, fromTag: %s\n", replaceCallId.data(),
@@ -2397,7 +2443,10 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 mpCall->setCallState(mResponseCode, mResponseText, PtCall::ACTIVE);
                 setState(CONNECTION_ESTABLISHED, CONNECTION_REMOTE, PtEvent::CAUSE_NEW_CALL);
                 setState(CONNECTION_INITIATED, CONNECTION_LOCAL, PtEvent::CAUSE_NEW_CALL);
-                fireSipXEvent(CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL) ;
+                fireSipXEvent(CALLSTATE_NEWCALL, 
+                              CALLSTATE_NEW_CALL_NORMAL,
+                              NULL, //pEventData
+                              newRemoteAssertedId ? newRemoteAssertedId->data() : NULL);
             }
         }
 
@@ -2505,6 +2554,22 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // The route set is set only on the initial dialog transaction
         //request->buildRouteField(&mRouteField);
         //osPrintf("reINVITE set mRouteField: %s\n", mRouteField.data());
+
+        // Check if the P-Asserted-Identity header is present and update
+        // the saved asserted IDs if they changed
+        if(updateAssertedIds(*request))
+        {
+            newRemoteAssertedId = 
+                (UtlString*) mRemotePAssertedIdentities.at(0);
+
+            // Don't think we care what sort of call state change is going
+            // to occur or not, if the P-Asserted-Identity changes for the
+            // remote side we send a remoteAssertedIdentity changed event
+            fireSipXEvent(CALLSTATE_IDENTITY_CHANGE, 
+                          CALLSTATE_IDENTITY_CHANGE_UNKNOWN,
+                          NULL, //pEventData
+                          newRemoteAssertedId->data());
+        }
 
         // Do not allow other Requests until the ReINVITE is complete
         reinviteState = REINVITED;
@@ -5086,6 +5151,7 @@ void SipConnection::setContactType(CONTACT_TYPE eType)
     OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipConnection::setContactType contact type %d contactUrl '%s'", eType, localContact.data());     
 }
 
+
 /* ============================ ACCESSORS ================================= */
 
 UtlBoolean SipConnection::getRemoteAddress(UtlString* remoteAddress) const
@@ -5475,4 +5541,48 @@ UtlBoolean SipConnection::send(SipMessage& message,
     }
     return sipUserAgent->send(message, responseListener, responseListenerData);
 }
+
+
+UtlBoolean SipConnection::updateAssertedIds(const SipMessage& sipMessage)
+{
+    UtlBoolean idsUpdated = FALSE;
+
+    // TODO: this should be generalized at some point and compare all IDs.
+    // For now make the simple assumption that if the first
+    // id in the message is different than the first id in the
+    // list then the IDs have changed.
+    UtlString messageAssertedId;
+    int messageIdIndex = 0;
+    if(sipMessage.getPAssertedIdentityField(messageAssertedId, messageIdIndex))
+    {
+        UtlString* listAssertedId = 
+            (UtlString*) mRemotePAssertedIdentities.at(0);
+
+        // The IDs changed
+        if(listAssertedId == NULL || // none in list or
+           // differs from first in list
+           listAssertedId->compareTo(messageAssertedId, UtlString::ignoreCase))
+        {
+            // Remove the old asserted IDs
+            mRemotePAssertedIdentities.destroyAll();
+            idsUpdated = TRUE;
+
+            // Get the rest of the P-Asserted-Ids if there are more and
+            // put them in the list
+            do
+            {
+                mRemotePAssertedIdentities.append(new UtlString(messageAssertedId));
+                messageIdIndex++;
+
+            }
+            while(sipMessage.getPAssertedIdentityField(messageAssertedId, messageIdIndex));
+
+            
+        }
+    }
+
+    return(idsUpdated);
+}
+
+
 /* ============================ FUNCTIONS ================================= */

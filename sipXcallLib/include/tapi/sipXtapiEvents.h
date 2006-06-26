@@ -1,11 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
-
+//////////////////////////////////////////////////////////////////////////////
 
 /**
  * @file sipXtapiEvents.h
@@ -164,9 +169,11 @@ typedef enum SIPX_CALLSTATE_EVENT
     CALLSTATE_TRANSFER         = 10000, /**< The transfer state indicates a state change in a 
                                  transfer attempt.  Please see the CALLSTATE_TRANSFER cause 
                                  codes for details on each state transition */
-    CALLSTATE_SECURITY_EVENT   = 11000 /** The SECURITY_EVENT is sent to the application 
+    CALLSTATE_SECURITY_EVENT   = 11000, /** The SECURITY_EVENT is sent to the application 
                                            when S/MIME or SRTP events occur which the application
                                            should know about. */ 
+    CALLSTATE_IDENTITY_CHANGE  = 12000 /** The identity of the remote party on this call has changed
+                                           to the identity given  in szRemoteIdentity. */
 } SIPX_CALLSTATE_EVENT;
 
  
@@ -247,6 +254,10 @@ typedef enum SIPX_CALLSTATE_CAUSE
     CALLSTATE_SECURITY_SESSION_NOT_SECURED,                             /**< Fired if a secure session could not be made. */
     CALLSTATE_SECURITY_REMOTE_SMIME_UNSUPPORTED,                        /**< Fired if the remote party's user-agent does not
                                                                              support S/MIME. */
+    CALLSTATE_IDENTITY_CHANGE_UNKNOWN = CALLSTATE_IDENTITY_CHANGE + 1,   /**< The P-Asserted-Identity changed for a unknown reason
+                                                                             The identity may have changed because of a transfer or
+                                                                             some other reason, but the signalling did not give any
+                                                                             indication as to why it changed. */
 } SIPX_CALLSTATE_CAUSE ;
 
 /**
@@ -369,6 +380,8 @@ typedef struct
                                          a new call is created as part of a consultative 
                                          transfer, this handle contains the handle of the 
                                          original call. */
+    const char* szRemoteIdentity;   /**< The asserted identity of the remote party on this call. */
+
 } SIPX_CALLSTATE_INFO; 
 
 
@@ -601,10 +614,14 @@ typedef enum SIPX_CALLSTATE_MAJOR
                                  call handle is invalid after this event is received. */
     AUDIO_EVENT     = 9000, /**< The  AUDIO_EVENT event indicates the RTP session has 
                                  either started or stopped. */
-    TRANSFER        = 10000 /**< The transfer state indicates a state change in a 
+    TRANSFER        = 10000, /**< The transfer state indicates a state change in a 
                                  transfer attempt.  Please see the TRANSFER cause 
                                  codes for details on each state transition */
-
+    SECURITY_EVENT  = 11000, /** The SECURITY_EVENT is sent to the application 
+                                 when S/MIME or SRTP events occur which the application
+                                 should know about. */ 
+    IDENTITY_CHANGE = 12000 /**  The identity of the remote party on this call has changed
+                                 to the identity given  in szRemoteIdentity. */
                                  
 } SIPX_CALLSTATE_MAJOR ;
 
@@ -682,6 +699,15 @@ typedef enum SIPX_CALLSTATE_MINOR
                                                             the application layer is responsible for 
                                                             recovering original call to the transferee. 
                                                             That call is left on hold. */
+    SECURITY_SELF_SIGNED_CERT = SECURITY_EVENT + 1,    /**< A self-signed certificate is being used for S/MIME. */
+    SECURITY_SESSION_NOT_SECURED,                      /**< Fired if a secure session could not be made. */
+    SECURITY_REMOTE_SMIME_UNSUPPORTED,                 /**< Fired if the remote party's user-agent does not
+                                                                             support S/MIME. */
+    IDENTITY_CHANGE_UNKNOWN = IDENTITY_CHANGE + 1,   /**< The P-Asserted-Identity changed for a unknown reason
+                                                                             The identity may have changed because of a transfer or
+                                                                             some other reason, but the signalling did not give any
+                                                                             indication as to why it changed. */
+
 } SIPX_CALLSTATE_MINOR ;
 
 

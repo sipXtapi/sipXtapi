@@ -174,6 +174,13 @@ UtlBoolean CpGhostConnection::accept(int forwardOnNoAnswerSeconds)
     return(FALSE);
 }
 
+UtlBoolean CpGhostConnection::changeLocalIdentity(const UtlString& newLocalIdentity,
+                                                  const UtlBoolean& shouldSignalIdentityChangeNow)
+{
+    unimplemented("CpGhostConnection::changeLocalIdentity");
+    return(FALSE);
+}
+
 UtlBoolean CpGhostConnection::processMessage(OsMsg& eventMessage,
                                     UtlBoolean callInFocus, UtlBoolean onHook)
 {

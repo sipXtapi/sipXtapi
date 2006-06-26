@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 
 // SYSTEM INCLUDES
@@ -130,6 +136,12 @@ static const char* MajorEventToString(SIPX_CALLSTATE_MAJOR eMajor)
         case TRANSFER:
                 str = "TRANSFER" ;
                 break ;
+        case SECURITY_EVENT:
+                str = "SECURITY_EVENT";
+                break;
+        case IDENTITY_CHANGE:
+                str = "IDENTITY_CHANGE";
+                break;
     }
    return str;
 }
@@ -231,6 +243,18 @@ static const char* MinorEventToString(SIPX_CALLSTATE_MINOR eMinor)
                 break;
         case TRANSFER_FAILURE:
                 str = "TRANSFER_FAILURE";
+                break;
+        case SECURITY_SELF_SIGNED_CERT:
+                str = "SECURITY_SELF_SIGNED_CERT";
+                break;
+        case SECURITY_SESSION_NOT_SECURED:
+                str = "SECURITY_SESSION_NOT_SECURED";
+                break;
+        case SECURITY_REMOTE_SMIME_UNSUPPORTED:
+                str = "SECURITY_REMOTE_SMIME_UNSUPPORTED";
+                break;
+        case IDENTITY_CHANGE_UNKNOWN:
+                str = "IDENTITY_CHANGE_UNKNOWN";
                 break;
     }
     return str;
@@ -474,11 +498,13 @@ void sipxFireCallEvent(const void* pSrc,
                        const char* szRemoteAddress,
                        SIPX_CALLSTATE_MAJOR major,
                        SIPX_CALLSTATE_MINOR minor,
-                       void* pEventData)
+                       void* pEventData,
+                       const char* szRemoteAssertedIdentity)
 {
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
-        "sipxFireCallEvent pSrc=%p callId=%s pSession=%p, szRemoteAddress=%s major=%d minor=%d",
-        pSrc, szCallId, pSession, szRemoteAddress, major, minor);
+        "sipxFireCallEvent pSrc=%p callId=%s pSession=%p, szRemoteAddress=%s major=%d minor=%d assertedId=%s",
+        pSrc, szCallId, pSession, szRemoteAddress, major, minor, 
+        szRemoteAssertedIdentity ? szRemoteAssertedIdentity : "");
      
     SIPX_CALL hCall = SIPX_CALL_NULL;
 
@@ -619,6 +645,7 @@ void sipxFireCallEvent(const void* pSrc,
                     callInfo.hCall = hCall;
                     callInfo.hLine = hLine;
                     callInfo.hAssociatedCall = hAssociatedCall ;
+                    callInfo.szRemoteIdentity = szRemoteAssertedIdentity;
                     callInfo.nSize = sizeof(SIPX_CALLSTATE_INFO);
                     if (minor == CALLSTATE_AUDIO_START)
                     {

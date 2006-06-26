@@ -190,7 +190,8 @@ public:
         CP_SPLIT_CONNECTION,
         CP_JOIN_CONNECTION,
         CP_CONSULT_TRANSFER_ADDRESS,
-        CP_SEND_SIP_REQUEST
+        CP_SEND_SIP_REQUEST,
+        CP_NEW_PASSERTED_ID
     };
 
 /*
@@ -579,6 +580,23 @@ public:
     //! Convenience method to renegotiate the codecs for all of the terminal
     //! connections in the specified call.
     virtual void renegotiateCodecsAllTerminalConnections(const char* callId) = 0 ;
+
+    //! Change the identity used in SIP PAssertedIdentity header for INVITEs sent
+    /*! Set the SIP AOR which used in the SIP PAssertedIdentity header for
+     * INVITE requests send from this side.  The callId and remoteAddress
+     * identity the SIP dialog to which the local identity is to be changed.
+     * signalNow TRUE indicates that a SIP reINVITE should be forced to occur now
+     * as opposed when the next reINVITE occurs during a on/off hold operation.
+     *
+     * This method is used to change the identity when some local operation 
+     * occurs that does not get reflected in the SIP signalling.  Setting
+     * the PAssertedIdentity allows the signalling to indicate the the
+     * identity change has occurred.
+     */
+    virtual UtlBoolean setLocalPAssertedIdentity(const char* callId, 
+                                                 const char* remoteAddress,
+                                                 const char* newPAssertedId,
+                                                 const UtlBoolean signalNow) = 0;
 
     //! Query the number of terminal connections in the specified call.
         virtual void getNumTerminalConnections(const char* callId,

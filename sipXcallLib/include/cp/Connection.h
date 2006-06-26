@@ -269,6 +269,14 @@ public:
 
 	void setLocalAddress(const char* address);
 
+    //! Change the local identity for the existing connection
+    /*! 
+     *  \param newLocalIdentity - new identity to be used for local side in subsequent signalling
+     *  \param shouldSignalIdentityChangeNow - send signalling to indicate local identity change now
+     */
+    virtual UtlBoolean changeLocalIdentity(const UtlString& newLocalIdentity,
+                                           const UtlBoolean& shouldSignalIdentityChangeNow) = 0;
+
     void unimplemented(const char* methodName) const;
 
     void markForDeletion() ;
@@ -281,7 +289,18 @@ public:
       //:Gets the media interface pointer for this connection.
 
     UtlBoolean validStateTransition(SIPX_CALLSTATE_EVENT eFrom, SIPX_CALLSTATE_EVENT eTo) ;
-    void fireSipXEvent(SIPX_CALLSTATE_EVENT eMajor, SIPX_CALLSTATE_CAUSE eMinor, void *pEventData=NULL) ;
+
+    //! notify call state event change
+    /*!
+     *  \param eMajor - major event type
+     *  \param sMinor - minor event type
+     *  \param pEventData - who knows, it is different for each event type ?????  Yuck
+     *  \param assertedRemoteIdentity - the asserted identity if it has changed otherwise NULL
+     */
+    void fireSipXEvent(SIPX_CALLSTATE_EVENT eMajor, 
+                       SIPX_CALLSTATE_CAUSE eMinor, 
+                       void *pEventData = NULL,
+                       const char* assertedRemoteIdentity = NULL);
 
 /* ============================ ACCESSORS ================================= */
 

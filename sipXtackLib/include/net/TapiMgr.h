@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 #ifndef _TapiMgr_h
 #define _TapiMgr_h
@@ -67,7 +73,8 @@ public:
 				       const char*          szRemoteAddress,                   
 				       SIPX_CALLSTATE_EVENT eMajorState,
 				       SIPX_CALLSTATE_CAUSE eMinorState,
-                       void*                pEventData) ;
+                       void*                pEventData,
+                       const char*          remoteAssertedIdentity);
     
     /** 
      * This method calls the Line event callback using the function pointer.

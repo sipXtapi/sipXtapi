@@ -101,6 +101,12 @@ public:
 
    virtual UtlBoolean accept(int forwardOnNoAnswerSeconds);
 
+   //! Change the local identity for the existing connection
+   /*! Not implemented for CpGhostCOnnections
+    */
+   virtual UtlBoolean changeLocalIdentity(const UtlString& newLocalIdentity,
+                                          const UtlBoolean& shouldSignalIdentityChangeNow);
+
    virtual UtlBoolean processMessage(OsMsg& eventMessage,
                                     UtlBoolean callInFocus, UtlBoolean onHook);
 

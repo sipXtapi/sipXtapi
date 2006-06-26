@@ -93,6 +93,7 @@ class sipXtapiTestSuite : public CppUnit::TestFixture
     CPPUNIT_TEST(testCallGetID) ;
     CPPUNIT_TEST(testCallGetRemoteID) ;
     CPPUNIT_TEST(testCallGetLocalID) ;
+    CPPUNIT_TEST(testCallPAssertedID);
     CPPUNIT_TEST(testCallBasic) ;
     CPPUNIT_TEST(testCallBasic2) ; 
     CPPUNIT_TEST(testInDialogSipRequest);
@@ -192,6 +193,7 @@ public:
     void testCallMakeAPI() ;
     void testCallGetID() ;
     void testCallGetRemoteID() ;
+    void testCallPAssertedID();
     void testCallGetLocalID() ;
     
     void testCallBasic() ;

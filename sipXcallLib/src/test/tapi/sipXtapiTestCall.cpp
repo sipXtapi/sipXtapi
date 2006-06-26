@@ -249,6 +249,144 @@ void sipXtapiTestSuite::testCallGetLocalID()
     checkForLeaks();
 }
 
+void sipXtapiTestSuite::testCallPAssertedID()
+{
+    bool bRC ;
+    EventValidator validatorCalling("testCallPAssertedID.calling") ;
+    EventValidator validatorCalled("testCallPAssertedID.called") ;
+
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+        printf("\ntestCallPAssertedID (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        SIPX_CALL hCall ;
+        SIPX_LINE hLine ;
+        SIPX_LINE hReceivingLine;     
+
+        validatorCalling.reset() ;
+        validatorCalled.reset() ;
+
+        // Setup Auto-answer call back
+        resetAutoAnswerCallback() ;
+        sipxEventListenerAdd(g_hInst2, AutoAnswerCallback, NULL) ;
+        sipxEventListenerAdd(g_hInst2, UniversalEventValidatorCallback, &validatorCalled) ;        
+        sipxEventListenerAdd(g_hInst, UniversalEventValidatorCallback, &validatorCalling) ;
+
+        sipxLineAdd(g_hInst2, "sip:foo@127.0.0.1:9100", &hReceivingLine, CONTACT_LOCAL);
+        bRC = validatorCalled.waitForLineEvent(hReceivingLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        createCall(&hLine, &hCall) ;
+        bRC = validatorCalling.waitForLineEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        const char* callTo = "<sip:foo@127.0.0.1:9100>";
+        const char* identityToAssert = "sip:freddy@example.com";
+        const char* identity2ToAssert = "Freddy Jr.<sip:freddyjr@example.com>";
+        const char* identity3ToAssert = "Betty<sip:betty@example.com>";
+        Url callToUrl(callTo);
+        callToUrl.setHeaderParameter("P-Asserted-Identity", identityToAssert);
+        UtlString callToAddress;
+        callToUrl.toString(callToAddress);
+        sipxCallConnect(hCall, callToAddress) ;
+        
+
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_DIALTONE, CALLSTATE_DIALTONE_UNKNOWN, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_OFFERING, CALLSTATE_REMOTE_OFFERING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_REMOTE_ALERTING, CALLSTATE_REMOTE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        // Need to pass expected P-Aserted-Identity as it is part of the event
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_NEWCALL, CALLSTATE_NEW_CALL_NORMAL, true,
+            DEFAULT_TIMEOUT, identityToAssert);
+        CPPUNIT_ASSERT(bRC);
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_OFFERING, CALLSTATE_OFFERING_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_ALERTING, CALLSTATE_ALERTING_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_START, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Test sipxCallGetRemoteID
+        char cBuf[128] ;
+        memset(cBuf, 0, sizeof(cBuf));
+        CPPUNIT_ASSERT_EQUAL( sipxCallGetRemoteID(hCall, cBuf, sizeof(cBuf)), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(strlen(cBuf) > 0) ;
+        printf("line: %d cBuf: \"%s\"\n", __LINE__, cBuf);
+        
+        memset(cBuf, ' ', sizeof(cBuf)) ;
+        CPPUNIT_ASSERT_EQUAL(sipxCallGetRemoteID(hCall, cBuf, 4), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT(strlen(cBuf) == 3) ;
+        CPPUNIT_ASSERT(cBuf[5] == ' ') ;
+        printf("line: %d cBuf: \"%s\"\n", __LINE__, cBuf);
+
+        // Change the caller ID in the PAssertedIdentity for the caller
+        // and force a reINVITE now.
+        CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == 
+            sipxCallSetAssertedId(hCall, identity2ToAssert, TRUE /* reINVITE now */));
+
+        // Need to pass expected P-Aserted-Identity as it is part of the event
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_IDENTITY_CHANGE, CALLSTATE_IDENTITY_CHANGE_UNKNOWN, true,
+            DEFAULT_TIMEOUT, identity2ToAssert);
+        CPPUNIT_ASSERT(bRC);
+
+        // Need to wait a bit for the prior reINVITE transaction to complete 
+        // before tring to start provoke a reINVITE on the other side.  
+        // Overlapping INVITE transactions are disallowed.
+        OsTask::delay(CALL_DELAY);
+
+        // Change the caller ID in the PAssertedIdentity for the called side
+        // and force a reINVITE now.
+        CPPUNIT_ASSERT(SIPX_RESULT_SUCCESS == 
+            sipxCallSetAssertedId(g_hAutoAnswerCallbackCall, identity3ToAssert, TRUE /* reINVITE now */));
+
+        // Need to pass expected P-Aserted-Identity as it is part of the event
+        bRC = validatorCalling.waitForCallEvent(hLine, hCall, CALLSTATE_IDENTITY_CHANGE, CALLSTATE_IDENTITY_CHANGE_UNKNOWN, true,
+            DEFAULT_TIMEOUT, identity3ToAssert);
+        CPPUNIT_ASSERT(bRC);
+
+        SIPX_CALL hDestroyedCall = hCall ;
+        destroyCall(hCall) ;
+
+        // Validate Calling Side
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_CONNECTED, CALLSTATE_CONNECTED_ACTIVE_HELD, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalling.waitForCallEvent(hLine, hDestroyedCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+
+        // Validate Called Side
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_AUDIO_EVENT, CALLSTATE_AUDIO_STOP, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DISCONNECTED, CALLSTATE_DISCONNECTED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        bRC = validatorCalled.waitForCallEvent(g_hAutoAnswerCallbackLine, g_hAutoAnswerCallbackCall, CALLSTATE_DESTROYED, CALLSTATE_DESTROYED_NORMAL, true) ;
+        CPPUNIT_ASSERT(bRC) ;
+        
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst, UniversalEventValidatorCallback, &validatorCalling), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, AutoAnswerCallback, NULL), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, UniversalEventValidatorCallback, &validatorCalled), SIPX_RESULT_SUCCESS) ;
+    
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hReceivingLine), SIPX_RESULT_SUCCESS);
+    }
+
+    OsTask::delay(TEST_DELAY) ;
+
+    checkForLeaks();
+}
 
 void sipXtapiTestSuite::createCall(SIPX_LINE* phLine, SIPX_CALL* phCall)
 {

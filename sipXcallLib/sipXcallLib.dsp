@@ -934,7 +934,31 @@ SOURCE=.\include\cp\SipConnection.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\include\tapi\SipXHandleMap.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\include\cp\sipXmediaFactoryImpl.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\tapi\SipXMessageObserver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\tapi\sipXtapi.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\tapi\SipXtapiEventDispatcher.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\tapi\sipXtapiEvents.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\include\tapi\sipXtapiInternal.h
 # End Source File
 # Begin Source File
 

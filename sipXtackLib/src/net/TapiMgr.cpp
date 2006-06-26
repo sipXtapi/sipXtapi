@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
@@ -60,12 +66,19 @@ void TapiMgr::fireCallEvent(const void*          pSrc,
 				       const char*          szRemoteAddress,                   
 				       SIPX_CALLSTATE_EVENT eMajorState,
 				       SIPX_CALLSTATE_CAUSE eMinorState,
-                       void*                pEventData)
+                       void*                pEventData,
+                       const char*          remoteAssertedIdentity)
 {
     if (sipxCallEventCallbackPtr)
     {
-        (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress, 
-                                    (SIPX_CALLSTATE_MAJOR)(int)eMajorState, (SIPX_CALLSTATE_MINOR)(int)eMinorState, pEventData);
+        (*sipxCallEventCallbackPtr)(pSrc, 
+                                    szCallId, 
+                                    pSession, 
+                                    szRemoteAddress, 
+                                    (SIPX_CALLSTATE_MAJOR)(int)eMajorState, 
+                                    (SIPX_CALLSTATE_MINOR)(int)eMinorState, 
+                                    pEventData,
+                                    remoteAssertedIdentity);
     }
     return;
 }

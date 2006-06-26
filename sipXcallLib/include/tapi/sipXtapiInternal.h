@@ -1,10 +1,16 @@
-//
-// Copyright (C) 2004, 2005 Pingtel Corp.
 // 
-//
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
 // $$
-////////////////////////////////////////////////////////////////////////
-//////
+//////////////////////////////////////////////////////////////////////////////
 
 
 #ifndef _SIPXTAPIINTERNAL_H /* [ */
@@ -275,7 +281,8 @@ typedef void (*sipxCallEventCallbackFn)(const void* pSrc,
                                         const char* szRemoteAddress,
                                         SIPX_CALLSTATE_MAJOR eMajorState,
                                         SIPX_CALLSTATE_MINOR eMinorState,
-                                        void* pEventData);
+                                        void* pEventData,
+                                        const char* assertedIdentity);
 
 typedef void (*sipxLineEventCallbackFn)(const void* pSrc,
                                         const char* szLineIdentifier,
@@ -299,7 +306,8 @@ void sipxFireCallEvent(const void* pSrc,
                        const char* szRemoteAddress,
                        SIPX_CALLSTATE_MAJOR eMajorState,
                        SIPX_CALLSTATE_MINOR eMinorState,
-                       void* pEventData=NULL) ;
+                       void* pEventData = NULL,
+                       const char* szRemoteAssertedIdentity = NULL);
 
 /**
  * Fires a Line Event to the listeners.

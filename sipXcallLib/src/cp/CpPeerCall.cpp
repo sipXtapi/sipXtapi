@@ -1817,6 +1817,23 @@ UtlBoolean CpPeerCall::handleGetLocalContacts(OsMsg* pEventMessage)
     return TRUE ;
 }
 
+UtlBoolean CpPeerCall::handleChangeLocalIdentity(OsMsg* eventMessage)
+{
+    UtlString remoteAddress;
+    UtlString newLocalIdentity;
+    ((CpMultiStringMessage*)eventMessage)->getString2Data(remoteAddress);
+    ((CpMultiStringMessage*)eventMessage)->getString3Data(newLocalIdentity);
+    UtlBoolean shouldSignalIdentityChangeNow = 
+        ((CpMultiStringMessage*)eventMessage)->getInt1Data();
+    Connection* connection = findHandlingConnection(remoteAddress);
+    if(connection)
+    {
+        connection->changeLocalIdentity(newLocalIdentity,
+                                        shouldSignalIdentityChangeNow);
+    }
+
+    return(TRUE);
+}
 
 // Handles the processing of a 
 // CallManager::CP_GET_TERMINALCONNECTIONSTATE message    
@@ -2351,6 +2368,11 @@ UtlBoolean CpPeerCall::handleCallMessage(OsMsg& eventMessage)
     case CallManager::CP_GET_LOCAL_CONTACTS:
         handleGetLocalContacts(&eventMessage) ;
         break ;
+
+    case CallManager::CP_NEW_PASSERTED_ID:
+        handleChangeLocalIdentity(&eventMessage);
+        break ;
+
     default:
         processedMessage = FALSE;
 #ifdef TEST_PRINT

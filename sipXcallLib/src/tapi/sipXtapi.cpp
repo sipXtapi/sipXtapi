@@ -1222,6 +1222,32 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteID(const SIPX_CALL hCall,
     return sr ;
 }
 
+SIPXTAPI_API SIPX_RESULT sipxCallSetAssertedId(const SIPX_CALL hCall, 
+                                               const char* szPAssertedId,
+                                               const bool bSignalNow)
+{
+    SIPX_RESULT resultCode = SIPX_RESULT_FAILURE;
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
+        "sipxCallSetAssertedId hCall=%d szPAssertedId=\"%s\" bSignalNow=%s",
+        hCall, szPAssertedId, bSignalNow ? "true" : "false");
+
+    SIPX_INSTANCE_DATA* pInst ;
+    UtlString callId ;
+    UtlString remoteAddress;
+    
+    if (sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, NULL))
+    {
+        if(pInst->pCallManager->setLocalPAssertedIdentity(callId, 
+                                                         remoteAddress,
+                                                         szPAssertedId,
+                                                         bSignalNow ? TRUE : FALSE))
+        {
+            resultCode = SIPX_RESULT_SUCCESS;
+        }
+    }
+
+    return(resultCode);
+}
 
 SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionId(const SIPX_CALL hCall,
                                                  int& connectionId)

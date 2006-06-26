@@ -1,8 +1,17 @@
-//
-// Copyright (C) 2005 Pingtel Corp.
+// 
+// 
+// Copyright (C) 2005-2006 SIPez LLC.
+// Licensed to SIPfoundry under a Contributor Agreement.
+// 
+// Copyright (C) 2004-2006 SIPfoundry Inc.
+// Licensed by SIPfoundry under the LGPL license.
+// 
+// Copyright (C) 2004-2006 Pingtel Corp.
+// Licensed to SIPfoundry under a Contributor Agreement.
 // 
 // $$
 //////////////////////////////////////////////////////////////////////////////
+
 
 #ifndef _EVENTVALIDATOR_H /* [ */
 #define _EVENTVALIDATOR_H
@@ -62,7 +71,8 @@ public:
                           SIPX_CALLSTATE_EVENT event,
                           SIPX_CALLSTATE_CAUSE cause,
                           bool bStrictOrderMatch = true,
-                          int iTimeoutInSecs = DEFAULT_TIMEOUT) ;
+                          int iTimeoutInSecs = DEFAULT_TIMEOUT,
+                          const char* remoteAssertedIdentity = NULL);
 
 
     bool waitForMessage(SIPX_LINE hLine, 
@@ -116,7 +126,8 @@ protected:
     UtlString* allocCallStateEntry(SIPX_CALL hCall,
                                    SIPX_LINE hLine,
                                    SIPX_CALLSTATE_EVENT event,
-                                   SIPX_CALLSTATE_CAUSE cause) ;
+                                   SIPX_CALLSTATE_CAUSE cause,
+                                   const char* remoteAssertedIdentity);
     UtlString* allocLineStateEntry(SIPX_LINE hLine,
                                    SIPX_LINESTATE_EVENT event,
                                    SIPX_LINESTATE_CAUSE cause) ;

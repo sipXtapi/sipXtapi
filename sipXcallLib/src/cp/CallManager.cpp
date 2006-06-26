@@ -924,6 +924,7 @@ UtlBoolean CallManager::handleMessage(OsMsg& eventMessage)
         case CP_SPLIT_CONNECTION:
         case CP_JOIN_CONNECTION:
         case CP_SEND_SIP_REQUEST:
+        case CP_NEW_PASSERTED_ID:
             // Forward the message to the call
             {
                 UtlString callId;
@@ -2550,6 +2551,23 @@ void CallManager::renegotiateCodecsAllTerminalConnections(const char* callId)
 {
     CpMultiStringMessage renegotiateMessage(CP_RENEGOTIATE_CODECS_ALL_CONNECTIONS, callId);
     postMessage(renegotiateMessage);
+}
+
+UtlBoolean CallManager::setLocalPAssertedIdentity(const char* callId, 
+                                                  const char* remoteAddress,
+                                                  const char* newPAssertedId,
+                                                  const UtlBoolean signalNow)
+{
+    CpMultiStringMessage newAssertedIdMessage(CP_NEW_PASSERTED_ID, 
+                                              callId,         // String 1
+                                              remoteAddress,  // 2
+                                              newPAssertedId, // 3
+                                              NULL,           // 4
+                                              NULL,           // 5
+                                              signalNow);     // int 1
+    postMessage(newAssertedIdMessage);
+
+    return(TRUE);
 }
 
 UtlBoolean CallManager::isTerminalConnectionLocal(const char* callId, const char* address, const char* terminalId)
