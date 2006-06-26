@@ -145,7 +145,6 @@ done
 id -u @SIPXPBXUSER@ > /dev/null 2>&1 \
 || /usr/sbin/useradd \
    -c "sipX service daemon" \
-   -g @SIPXPBXUSER@ \
    -d %{_sysconfdir}/sipxpbx \
    -s /bin/bash \
    @SIPXPBXUSER@
