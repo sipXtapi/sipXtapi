@@ -46,7 +46,6 @@
           <xsd:enumeration value="data" />           <!-- usually maps to /var/sipxdata/ -->
           <xsd:enumeration value="etc" />            <!-- usually maps to /etc/sipxpbx/ -->
           <xsd:enumeration value="log" />            <!-- usually maps to /var/log/sipxpbx/ -->
-          <xsd:enumeration value="yum.repos.d" />    <!-- usually maps to /etc/yum.repos.d/ -->
         </xsd:restriction>
       </xsd:simpleType>
 
@@ -56,13 +55,6 @@
                the absolute path to the file -->
           <xsd:element name="sipXdir" type="tns:SipxDirectory" />
           <xsd:element name="fileRelativePath" type="xsd:string" />
-        </xsd:sequence>
-      </xsd:complexType>
-      
-      <xsd:complexType name="ReadFileOutput">
-        <xsd:sequence>
-          <!-- fileText is the content read from the file, which is null if the read fails -->
-          <xsd:element name="fileText" type="xsd:string" nillable="true" minOccurs="0" maxOccurs="1" />
         </xsd:sequence>
       </xsd:complexType>
       
@@ -120,9 +112,7 @@
   <message name="readFileRequest">
     <part name="readFileRequest" type="tns:SipxFilePath" />
   </message>    
-  <message name="readFileResponse">
-    <part name="readFileResponse" type="tns:ReadFileOutput" />
-  </message>
+  <message name="readFileResponse" />
 
   <message name="writeFileRequest">
     <part name="writeFileRequest" type="tns:WriteFileInput" />
@@ -208,13 +198,26 @@
       </output>
     </operation>
 
+    <!-- The readFile operation uses the "SOAP with Attachments" extension to
+         return the file as an attachment.  See
+         https://jax-rpc.dev.java.net/whitepaper/1.1.2/attachments.html and
+         http://publib.boulder.ibm.com/infocenter/wasinfo/v6r0/index.jsp?topic=/com.ibm.websphere.pmc.express.doc/tasks/tjw_attach_wsdl.html .
+     -->
     <operation name="readFile">
       <soap:operation soapAction="urn:ProcessManagerService#readFile" />
       <input>
         <soap:body use="literal" namespace="urn:ProcessManagerService" />
       </input>
       <output>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <mime:multipartRelated>
+          <mime:part>
+            <!-- The message has no SOAP parts so we don't need a "parts" attribute here -->
+            <soap:body use="literal" namespace="urn:ProcessManagerService" />
+          </mime:part>
+          <mime:part>
+            <mime:content part="attach" type="text/plain"/>
+          </mime:part>
+        </mime:multipartRelated>
       </output>
     </operation>
 
@@ -250,16 +253,6 @@
 
     <operation name="writeSipData">
       <soap:operation soapAction="urn:ProcessManagerService#writeSipData" />
-      <input>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
-      </input>
-      <output>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
-      </output>
-    </operation>
-
-    <operation name="yum">
-      <soap:operation soapAction="urn:ProcessManagerService#yum" />
       <input>
         <soap:body use="literal" namespace="urn:ProcessManagerService" />
       </input>

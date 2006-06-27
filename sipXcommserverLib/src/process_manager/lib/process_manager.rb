@@ -60,6 +60,11 @@ class ProcessManager
   
   CONFIG_FILE_PATTERN = Regexp.new('.*\.xml')
   
+  DIR_MAP_DEFAULT = {
+    'data' => '/var/sipxdata/',
+    'etc'  => '/etc/sipxpbx/',
+    'log'  => '/var/log/sipxpbx/'}
+  
 public
 
   def initialize(config = {})
@@ -135,7 +140,7 @@ public
     did_stop
   end
 
-  # Retart the named process. Log an error if no such process is configured.
+  # Restart the named process. Log an error if no such process is configured.
   def restart_process_by_name(process_name)
     config = @process_config_map[process_name]
     if !config
@@ -151,6 +156,13 @@ public
     puts pid
     pid
   end
+  
+  # Given a sipxFilePath specifier, return the absolute path to the file, as a string.
+  # The specifier has two components: a symbolic directory name, and a path relative
+  # to that directory.
+  def readFile(sipxFilePath)
+    puts sipxFilePath.inspect
+  end
 
   # These accessors are mainly used for testing
   attr_accessor :pid_dir
@@ -165,10 +177,7 @@ private
       @process_config_dir = PROCESS_CONFIG_DIR_DEFAULT
       
       # Prepend the prefix dir if $SIPX_PREFIX is defined
-      prefix = ENV[SIPX_PREFIX]
-      if prefix
-        @process_config_dir = File.join(prefix, @process_config_dir)
-      end
+      @process_config_dir = prepend_sipx_prefix(@process_config_dir)
     end
   end
   
@@ -203,10 +212,7 @@ private
     @pid_dir = PID_DIR_DEFAULT
       
     # Prepend the prefix dir if $SIPX_PREFIX is defined
-    prefix = ENV[SIPX_PREFIX]
-    if prefix
-      @pid_dir = File.join(prefix, @pid_dir)
-    end
+    @pid_dir = prepend_sipx_prefix(@pid_dir)
   end
 
   # Create a PID file for the named process.  Return the path to the file.
@@ -218,9 +224,29 @@ private
     
     pid_file_path
   end
+  
+  # Return the named sipX directory.  Raise a runtime exception if there is no
+  # such directory.
+  def get_sipx_directory(name)
+    sipx_dir = DIR_MAP_DEFAULT[name]
+    if !sipx_dir
+      raise(RuntimeError, "Unknown sipX directory name \"#{name}\"", caller)
+    end
+
+    # Prepend the prefix dir if $SIPX_PREFIX is defined
+    sipx_dir = prepend_sipx_prefix(sipx_dir)
+    
+    sipx_dir
+  end
+
+  # If the environment variable SIPX_PREFIX is defined, then prepend it to the
+  # path.  Return the path.
+  def prepend_sipx_prefix(path)
+    prefix = ENV[SIPX_PREFIX]
+    if prefix
+      path = File.join(prefix, path)
+    end
+    path
+  end
 
 end
-
-
-
-

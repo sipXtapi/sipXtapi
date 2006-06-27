@@ -43,6 +43,7 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   def on_init
     add_method(self, 'manageProcesses', 'verb', 'processes')
     add_method(self, 'getProcessStatus')
+    add_method(self, 'readFile', 'sipxFilePath')
   end
 
   def port
@@ -76,8 +77,11 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   end
   
   #:TODO: implement these methods
-  def readFile
+  
+  def readFile(sipxFilePath)
+    puts sipxFilePath.inspect
   end
+  
   def writeFile
   end
   def deleteFile
@@ -105,6 +109,12 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
     @@schema_ns = SOAP_NAMESPACE
     @@schema_type = 'NamedProcessStatus'
     attr_accessor :name, :status
+  end
+
+  class SipxFilePath; include SOAP::Marshallable
+    @@schema_ns = SOAP_NAMESPACE
+    @@schema_type = 'SipxFilePath'
+    attr_accessor :sipxDir, :fileRelativePath
   end
   
 end

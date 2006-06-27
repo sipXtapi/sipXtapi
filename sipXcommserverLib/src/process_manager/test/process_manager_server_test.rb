@@ -58,6 +58,7 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     @pm.wiredump_dev = STDERR if $DEBUG
     @pm.add_method('manageProcesses', 'verb', 'processes')
     @pm.add_method('getProcessStatus')
+    @pm.add_method('readFile', 'sipxFilePath')
   end
   
   def teardown
@@ -78,6 +79,13 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     puts "s1: name=#{s1.name} status=#{s1.status}"
     s2 = result_array[1]
     puts "s2: name=#{s2.name} status=#{s2.status}"
+  end
+  
+  def test_readFile
+    sipxFilePath = ProcessManagerServer::SipxFilePath.new
+    sipxFilePath.sipxDir = 'data'
+    sipxFilePath.fileRelativePath = '/subdir'
+    @pm.readFile(sipxFilePath)
   end
 
 end

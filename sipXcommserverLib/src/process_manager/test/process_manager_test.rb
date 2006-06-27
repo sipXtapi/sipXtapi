@@ -25,6 +25,9 @@ class ProcessManagerTest < Test::Unit::TestCase
   TEST_PROCESS_NAME = 'sleeper'
   TEST_PROCESS_RUN_PARAMS = "10"
   
+  # If set, then this becomes a prefix to the default sipX directories
+  SIPX_PREFIX = 'SIPX_PREFIX'
+  
   def setup
     @process_config_dir = File.join($PROCESS_MANAGER_TEST_DIR, "data", "process")
     @pm = ProcessManager.new(:ProcessConfigDir => @process_config_dir)
@@ -201,6 +204,43 @@ class ProcessManagerTest < Test::Unit::TestCase
     # Clean up
     File.delete(pid_file_path)
   end  
+
+  def test_get_sipx_directory
+    begin
+      # Use an unknown sipX directory name, should blow up
+      assert_raises(@pm.send(:get_sipx_directory, 'unknown'))
+    rescue RuntimeError
+    end
+    
+    # Try a known sipX directory name, with or without SIPX_PREFIX
+    save_prefix = ENV[SIPX_PREFIX]
+    begin
+      ENV[SIPX_PREFIX] = '/my_prefix'
+      sipx_dir = @pm.send(:get_sipx_directory, 'data')
+      assert_equal('/my_prefix/var/sipxdata/', sipx_dir)
+      
+      ENV[SIPX_PREFIX] = nil
+      sipx_dir = @pm.send(:get_sipx_directory, 'data')
+      assert_equal('/var/sipxdata/', sipx_dir)
+    ensure
+      ENV[SIPX_PREFIX] = save_prefix
+    end
+  end
+
+  def test_prepend_sipx_prefix
+    save_prefix = ENV[SIPX_PREFIX]
+    begin
+      ENV[SIPX_PREFIX] = '/my_prefix'
+      prefixed_dir = @pm.send(:prepend_sipx_prefix, 'banana')
+      assert_equal('/my_prefix/banana', prefixed_dir)
+
+      ENV[SIPX_PREFIX] = nil
+      prefixed_dir = @pm.send(:prepend_sipx_prefix, 'banana')
+      assert_equal('banana', prefixed_dir)      
+    ensure
+      ENV[SIPX_PREFIX] = save_prefix
+    end
+  end
 
   def kill_all_sleepers
     # Kill off any existing "sleep" processes to avoid confusion
