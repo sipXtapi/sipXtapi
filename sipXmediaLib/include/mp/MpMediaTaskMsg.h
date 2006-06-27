@@ -40,7 +40,7 @@ public:
       START_SEND_RTP,
       STOP_SEND_RTP,
       START_RECEIVE_RTP,
-      STOP_RECEIVE_RTP,
+      STOP_RECEIVE_RTP
    };
 
 /* ============================ CREATORS ================================== */

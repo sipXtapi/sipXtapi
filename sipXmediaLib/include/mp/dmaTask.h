@@ -60,7 +60,7 @@ extern int muteMic(void);
 enum MpDmaMicChoice {
     MP_MIC_SELECT_NEITHER,
     MP_MIC_SELECT_HANDSET,
-    MP_MIC_SELECT_BASE,
+    MP_MIC_SELECT_BASE
 };
 
 extern OsStatus MpDma_selectMic(MpDmaMicChoice choice);

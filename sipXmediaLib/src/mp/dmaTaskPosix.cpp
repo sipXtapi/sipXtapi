@@ -66,6 +66,9 @@
 #define timediff(early, late) ((late.tv_sec-early.tv_sec)*1000000+(late.tv_usec-early.tv_usec))
 
 // STATIC VARIABLE INITIALIZATIONS
+const int DmaTask::DEF_DMA_TASK_OPTIONS = 0; // default task options
+const int DmaTask::DEF_DMA_TASK_PRIORITY = 128; // default task priority
+const int DmaTask::DEF_DMA_TASK_STACKSIZE = 16384; // default task stacksize
 UtlString DmaTask::mRingDeviceName = "" ;
 UtlString DmaTask::mCallDeviceName = "" ;
 UtlString DmaTask::mMicDeviceName = "" ;
