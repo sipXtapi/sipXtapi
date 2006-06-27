@@ -27,8 +27,11 @@ libsipXport_la_LIBADD = \
 	@SSL_LIBS@ \
 	@RT_LIBS@ \
 	-ldl \
-	-lpthread  \
-	-lstdc++
+	-lpthread 
+
+if ISGCC
+libsipXport_la_LIBADD += -lstdc++
+endif
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline

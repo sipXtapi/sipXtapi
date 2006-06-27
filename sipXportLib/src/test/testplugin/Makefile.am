@@ -33,8 +33,11 @@ version_Age=0
 libtestpluginA_la_LIBADD = \
 	@RT_LIBS@  \
 	-ldl \
-	-lpthread  \
-	-lstdc++
+	-lpthread  
+
+if ISGCC
+libtestpluginA_la_LIBADD += -lstdc++
+endif
 
 libtestpluginB_la_LIBADD = $(libtestpluginA_la_LIBADD)
 

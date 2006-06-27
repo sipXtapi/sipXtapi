@@ -493,7 +493,7 @@ void OsStunAgentTask::removeSocket(OsStunDatagramSocket* pSocket)
         if (pEvent)
         {
             pEvent->setUserData(0) ; 
-            if (!mTimerPool.find(&UtlVoidPtr(pTimer)))       
+            if (!mTimerPool.find(pTimer))       
             {
                 mTimerPool.insert(new UtlVoidPtr(pTimer)) ;    
             }
@@ -542,7 +542,7 @@ void OsStunAgentTask::signalStunOutcome(OsStunDatagramSocket* pSocket,
             if (pEvent)
             {
                 pEvent->setUserData(0) ;        
-                if (!mTimerPool.find(&UtlVoidPtr(pTimer)))       
+                if (!mTimerPool.find(pTimer))       
                 {
                     mTimerPool.insert(new UtlVoidPtr(pTimer)) ;
                 }

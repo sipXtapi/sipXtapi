@@ -20,6 +20,24 @@ AC_PROG_LIBTOOL
 AC_PROG_CXX
 AC_PROG_CC
 
+
+AC_MSG_CHECKING(whether MSG_NOSIGNAL exists)
+AC_TRY_COMPILE([#include <sys/socket.h>],
+[
+int main()
+{
+ int f=MSG_NOSIGNAL;
+}
+],
+ # Yes, we have it...
+ AC_MSG_RESULT(yes)
+,
+ # We'll have to use signals
+[ AC_MSG_RESULT(no)
+ CPPFLAGS="$CPPFLAGS -DMSG_NOSIGNAL=0"
+])
++ 
+
 # Checks for libraries.
 CHECK_LIBRT
 CHECK_CPPUNIT

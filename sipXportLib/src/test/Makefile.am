@@ -12,14 +12,19 @@ check_PROGRAMS = testsuite sandbox UtlListPerformance UtlHashMapPerformance
 ## gdb console just before stepping into function in sipXportLib
 testsuite_LDADD = \
     sipxunit/libsipXunit.la \
-    ../libsipXport.la
+    ../libsipXport.la \
+	@SSL_LDFLAGS@
 
 testsuite_CXXFLAGS = \
 	-I$(top_srcdir)/include \
 	@PCRE_CFLAGS@ @CPPUNIT_CFLAGS@ \
 	@SSL_CXXFLAGS@ \
 	-DTEST_DIR=\"@abs_builddir@\" \
-	-fno-gcse -O0
+	-O0
+
+if ISGCC
+testsuite_CXXFLAGS += -fno-gcse
+endif
 
 # ORDER NOTE: the utl/UtlLinkTest and utl/UtlChainTest must be before
 #             any test that uses any UtlContainer.

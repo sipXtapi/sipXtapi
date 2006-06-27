@@ -4,6 +4,7 @@ INCLUDES = -I$(top_srcdir)/src/test
 lib_LTLIBRARIES = libsipXunit.la
 
 libsipXunit_la_LDFLAGS = -static # no version info for static libs
+libsipXunit_la_CXXFLAGS = @CPPUNIT_CFLAGS@
 
 libsipXunit_la_SOURCES =  \
     unitmain.cpp \
@@ -17,7 +18,7 @@ libsipXunit_la_SOURCES =  \
     TestTemplate.cpp
 
 libsipXunit_la_LIBADD = \
-	-lcppunit
+	@CPPUNIT_LIBS@
 
 sipxincludedir = $(includedir)/sipxunit
 sipxinclude_HEADERS = \
