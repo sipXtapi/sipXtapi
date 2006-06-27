@@ -318,7 +318,7 @@ AC_DEFUN([CHECK_SSL],
         AC_MSG_ERROR(['libssl.so' not found; tried $openssl_path, each with lib, lib/openssl, and lib/ssl])
     else
         AC_MSG_RESULT($ssllibdir)
-        AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir")
+        AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir -R$ssllibdir")
         AC_SUBST(SSL_LIBS,"-lssl -lcrypto")
     fi
 
@@ -407,7 +407,7 @@ AC_DEFUN([CHECK_XERCES],
 [   AC_MSG_CHECKING([for xerces])
     AC_ARG_WITH(xerces,
                 [  --with-xerces=PATH to xerces source directory],
-                [xerces_path=$with_val],
+                [xerces_path=$withval],
                 [xerces_path="/usr/local/xercesc /usr/lib/xercesc /usr/xercesc /usr/pkg /usr/local /usr"]
                 )
     for dir in $xerces_path ; do
@@ -900,7 +900,11 @@ AC_DEFUN([CHECK_PCRE],
             AC_MSG_ERROR(Cannot find libpcre.so or libpcre.a libraries - looked in $libval)
         else
             ## Test for version
-            pcre_ver=`pcre-config --version`
+	    if test x$homval != x; then
+		pcre_ver=`$homeval/bin/pcre-config --version`
+	    else
+            	pcre_ver=`pcre-config --version`
+            fi
             AX_COMPARE_VERSION([$pcre_ver],[ge],[4.5],
                                [AC_MSG_RESULT($pcre_ver is ok)],
                                [AC_MSG_ERROR([pcre version must be >= 4.5 - found $pcre_ver])])
@@ -1068,8 +1072,8 @@ x$B" | sed 's/^ *//' | sort -r | sed "s/x${A}/true/;s/x${B}/false/;1q"`
     [0],[
       # A count of zero means use the length of the shorter version.
       # Determine the number of characters in A and B.
-      ax_compare_version_len_A=`echo "$A" | awk '{print(length)}'`
-      ax_compare_version_len_B=`echo "$B" | awk '{print(length)}'`
+      ax_compare_version_len_A=`echo "$A" | $AWK '{print(length)}'`
+      ax_compare_version_len_B=`echo "$B" | $AWK '{print(length)}'`
 
       # Set A to no more than B's length and B to no more than A's length.
       A=`echo "$A" | sed "s/\(.\{$ax_compare_version_len_B\}\).*/\1/"`
@@ -1343,7 +1347,7 @@ AC_DEFUN([CHECK_ODBC],
     # Process the --with-odbc argument which gives the odbc base directory.
     AC_ARG_WITH(odbc,
                 [  --with-odbc=PATH path to odbc install directory],
-                [odbc_homeval=$with_val],
+                [odbc_homeval=$withval],
                 [odbc_homeval=""]
                 )
     
