@@ -8,8 +8,8 @@
 ##############################################################################
 
 # set up the load path
-$PROCESS_MANAGER_TEST_DIR = File.dirname(__FILE__)
-$:.unshift File.join($PROCESS_MANAGER_TEST_DIR, "..", "lib")
+$THIS_DIR = File.dirname(__FILE__)
+$:.unshift File.join($THIS_DIR, "..", "lib")
 
 # system requires
 require 'test/unit'
@@ -32,7 +32,7 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     return if defined? @@server
 
     puts "Starting"
-    process_config_dir = File.join($PROCESS_MANAGER_TEST_DIR, "data", "process")
+    process_config_dir = File.join($THIS_DIR, "data", "process")
     pm = ProcessManager.new(:ProcessConfigDir => process_config_dir)
     
     # Override the PID dir to avoid complaints about the directory not existing
@@ -84,12 +84,36 @@ class ProcessManagerServerTest < Test::Unit::TestCase
   def test_readFile
     sipxFilePath = ProcessManagerServer::SipxFilePath.new
     sipxFilePath.sipxDir = ProcessManager::TMP_DIR
+    
+    # Read a text file and check the answer
     bananafile = 'banana.txt'
     bananatext = 'bananaphone'
     sipxFilePath.fileRelativePath = bananafile
     `echo "#{bananatext}" > #{Dir.tmpdir}/#{bananafile}`
     file = @pm.readFile(sipxFilePath)
     assert_equal(bananatext, file.content.chomp)
+    
+    # Read a WAV file and check the answer
+    wavfile = '07.wav'
+    source = File.join($THIS_DIR, 'data', wavfile)
+    goodsum = checksum_file(source)
+    `cp #{source} #{Dir.tmpdir}`
+    sipxFilePath.fileRelativePath = wavfile
+    file = @pm.readFile(sipxFilePath)
+    assert_equal(goodsum, checksum_stream(file.content))
+  end
+
+private
+
+  def checksum_file(path)
+    file = File.open(path, 'rb')
+    checksum_stream(file)
+  end
+
+  def checksum_stream(stream)
+    checksum = 0
+    stream.each_byte {|x| checksum += x }
+    checksum
   end
 
 end

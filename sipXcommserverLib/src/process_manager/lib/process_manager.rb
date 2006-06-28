@@ -67,6 +67,7 @@ class ProcessManager
   LOG_DIR = 'log'
   TMP_DIR = 'tmp'   # used for testing
   
+  # Map directory names to directory locations
   DIR_MAP_DEFAULT = {
     DATA_DIR => '/var/sipxdata/',
     ETC_DIR  => '/etc/sipxpbx/',
@@ -173,8 +174,11 @@ public
       raise(RuntimeError, "Unknown sipX directory name \"#{name}\"", caller)
     end
 
-    # Prepend the prefix dir if $SIPX_PREFIX is defined
-    sipx_dir = prepend_sipx_prefix(sipx_dir)
+    # Prepend the prefix dir if $SIPX_PREFIX is defined, except for TMP_DIR, which
+    # is a special case for testing.
+    if name != TMP_DIR
+      sipx_dir = prepend_sipx_prefix(sipx_dir)
+    end
     
     sipx_dir
   end

@@ -80,7 +80,6 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   #:TODO: implement these methods
   
   def readFile(sipxFilePath)
-    puts sipxFilePath.inspect
     dir = @process_manager.get_sipx_directory(sipxFilePath.sipxDir)
     if !File.exists?(dir)
       raise("Directory \"#{dir}\" does not exist")
