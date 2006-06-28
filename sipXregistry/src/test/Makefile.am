@@ -8,9 +8,9 @@ TESTS = testsuite
 
 check_PROGRAMS = testsuite sandbox
 
-testsuite_CXXFLAGS = \
+testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
-    -DTEST_WORK_DIR=\"@abs_top_builddir@/src/test/work\"
+    -DTEST_WORK_DIR=\"@abs_top_builddir@/src/test/work\" 
 
 testsuite_LDADD = \
    @SIPXCOMMSERVERTEST_LIBS@ \

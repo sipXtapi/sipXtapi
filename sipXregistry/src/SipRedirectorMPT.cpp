@@ -703,4 +703,5 @@ int MPTWriterTask::run(void* arg)
                                    &redirector->mMapUserToContacts);
       }
    }
+return 0;
 }

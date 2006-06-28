@@ -20,6 +20,9 @@ ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 
 # Checks for libraries.
+# Checks for libraries.
+CHECK_LIBRT
+CHECK_CPPUNIT
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
