@@ -7,6 +7,7 @@ TESTS = testsuite
 check_PROGRAMS = testsuite sandbox
 
 testsuite_CXXFLAGS = \
+	@CPPUNIT_CFLAGS@ \
 	-DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 	-I$(top_srcdir)/src/cse \
