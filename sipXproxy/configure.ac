@@ -23,6 +23,8 @@ SFAC_INIT_FLAGS
 AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 
 # Checks for libraries.
+CHECK_LIBRT
+CHECK_CPPUNIT
 
 # Checks for header files.
 # Checks for typedefs, structures, and compiler characteristics.
