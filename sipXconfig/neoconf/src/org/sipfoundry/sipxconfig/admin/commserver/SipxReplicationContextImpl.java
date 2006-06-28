@@ -17,6 +17,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -25,6 +26,8 @@ import org.apache.commons.digester.Digester;
 import org.apache.commons.digester.SetNestedPropertiesRule;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
@@ -97,6 +100,20 @@ public class SipxReplicationContextImpl implements ApplicationEventPublisherAwar
         }
     }
 
+    public String getXml(DataSet dataSet) {
+        String beanName = dataSet.getBeanName();
+        DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
+                DataSetGenerator.class);
+        try {
+            StringWriter writer = new StringWriter();
+            XMLWriter xmlWriter = new XMLWriter(writer, OutputFormat.createPrettyPrint());
+            xmlWriter.write(generator.generate());
+            return writer.toString();
+        } catch (IOException e) {
+            return "";
+        }
+    }
+    
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }

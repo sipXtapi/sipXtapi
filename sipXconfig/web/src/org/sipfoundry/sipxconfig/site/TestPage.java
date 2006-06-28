@@ -37,6 +37,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.search.IndexManager;
+import org.sipfoundry.sipxconfig.site.admin.commserver.ReplicationData;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartReminder;
 import org.sipfoundry.sipxconfig.site.search.EnumEditPageProvider;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
@@ -288,5 +289,11 @@ public abstract class TestPage extends BasePage {
 
     public void resetUploadManager() {
         getUploadManager().clear();
+    }
+    
+    public IPage showDataSet(IRequestCycle cycle, String setName) {
+        ReplicationData page = (ReplicationData) cycle.getPage(ReplicationData.PAGE);
+        page.setDataSetName(setName);
+        return page;
     }
 }

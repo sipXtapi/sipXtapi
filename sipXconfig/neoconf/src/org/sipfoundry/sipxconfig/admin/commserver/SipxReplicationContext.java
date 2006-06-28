@@ -22,6 +22,8 @@ public interface SipxReplicationContext {
 
     void replicate(XmlFile xmlFile);
 
+    String getXml(DataSet dataSet);
+
     /**
      * This function will publish application event - in case the application is done lazily it
      * will publish the even only after everything has been replicated

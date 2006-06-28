@@ -65,6 +65,10 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         notifyWorker();
     }
 
+    public String getXml(DataSet dataSet) {
+        return m_target.getXml(dataSet);
+    }
+    
     public synchronized void publishEvent(ApplicationEvent event) {
         m_events.add(event);
         // we call notify and not notifyWorker - publishing event is not real work

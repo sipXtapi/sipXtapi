@@ -73,6 +73,7 @@
     <page name="PhoneModels" specification-path="phone/PhoneModels.page"/>    
     <page name="PhoneSettings" specification-path="phone/PhoneSettings.page"/>
     <page name="Registrations" specification-path="admin/commserver/Registrations.page"/>
+    <page name="ReplicationData" specification-path="admin/commserver/ReplicationData.page"/>
     <page name="RestartReminder" specification-path="admin/commserver/RestartReminder.page"/>
     <page name="SelectGateways" specification-path="gateway/SelectGateways.page"/>
     <page name="SelectRuleType" specification-path="dialplan/SelectRuleType.page"/>

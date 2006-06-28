@@ -122,4 +122,11 @@
   <component id="generateLinkLabel" type="Insert">
     <binding name="value" value="'Generate ' + dataSet.name + 's'"/>
   </component>
+  <component id="generateFileLink" type="DirectLink">
+    <binding name="listener" value="listener:showDataSet"/>
+    <binding name="parameters" value="dataSet.name"/>
+  </component>
+  <component id="generateFileLinkLabel" type="Insert">
+    <binding name="value" value="'View ' + dataSet.name + '.xml'"/>
+  </component>
 </page-specification>
