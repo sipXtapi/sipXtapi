@@ -59,6 +59,7 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     @pm.add_method('manageProcesses', 'verb', 'processes')
     @pm.add_method('getProcessStatus')
     @pm.add_method('readFile', 'sipxFilePath')
+    @pm.add_method('writeFile', 'sipxFilePath', 'file')
   end
   
   def teardown
@@ -81,6 +82,8 @@ class ProcessManagerServerTest < Test::Unit::TestCase
     puts "s2: name=#{s2.name} status=#{s2.status}"
   end
   
+  # :TODO: Test what happens when we try to read a file that doesn't exist.
+  # Should get back a SOAP fault. If not then make that work right.
   def test_readFile
     sipxFilePath = ProcessManagerServer::SipxFilePath.new
     sipxFilePath.sipxDir = ProcessManager::TMP_DIR

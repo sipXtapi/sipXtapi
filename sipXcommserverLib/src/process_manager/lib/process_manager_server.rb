@@ -45,6 +45,7 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
     add_method(self, 'manageProcesses', 'verb', 'processes')
     add_method(self, 'getProcessStatus')
     add_method(self, 'readFile', 'sipxFilePath')
+    add_method(self, 'writeFile', 'sipxFilePath', 'file')
   end
 
   def port
@@ -80,19 +81,15 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   #:TODO: implement these methods
   
   def readFile(sipxFilePath)
-    dir = @process_manager.get_sipx_directory(sipxFilePath.sipxDir)
-    if !File.exists?(dir)
-      raise("Directory \"#{dir}\" does not exist")
-    end
-    path = File.join(dir, sipxFilePath.fileRelativePath)
-    if !File.exists?(path)
-      raise("File \"#{path}\" does not exist")
-    end
+    dir, path = *unpack_sipx_file_path(sipxFilePath)
     SOAP::Attachment.new(File.open(path))
   end
   
-  def writeFile
+  def writeFile(sipxFilePath, file)
+    dir, path = *unpack_sipx_file_path(sipxFilePath)
+    file.save('\tmp\junk.txt')  
   end
+  
   def deleteFile
   end
   def readSipData
@@ -118,6 +115,22 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
     @@schema_ns = SOAP_NAMESPACE
     @@schema_type = 'SipxFilePath'
     attr_accessor :sipxDir, :fileRelativePath
+  end
+
+private
+  
+  # Unpack the dir and path parts of a sipX file path and return them as an
+  # array. Raise an exception if the dir or the file doesn't exist.
+  def unpack_sipx_file_path(sipxFilePath)
+    dir = @process_manager.get_sipx_directory(sipxFilePath.sipxDir)
+    if !File.exists?(dir)
+      raise("Directory \"#{dir}\" does not exist")
+    end
+    path = File.join(dir, sipxFilePath.fileRelativePath)
+    if !File.exists?(path)
+      raise("File \"#{path}\" does not exist")
+    end
+    [dir, path]
   end
   
 end

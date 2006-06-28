@@ -5,6 +5,7 @@
   xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
   xmlns:si="http://soapinterop.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
   xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
   targetNamespace="urn:ProcessManagerService">
 
   <types>
@@ -58,15 +59,6 @@
         </xsd:sequence>
       </xsd:complexType>
       
-      <xsd:complexType name="WriteFileInput">
-        <xsd:sequence>
-          <!-- fileText is the content read from the file, which is null if the read fails.
-               status is 0 for success.  Any other value indicates failure. -->
-          <xsd:element name="filePath" type="tns:SipxFilePath" minOccurs="1" maxOccurs="1" />
-          <xsd:element name="fileText" type="xsd:string" minOccurs="1" maxOccurs="1" />          
-        </xsd:sequence>
-      </xsd:complexType>
-      
       <xsd:complexType name="DeleteFileInput">
         <xsd:sequence>
           <xsd:element name="filePath" type="tns:SipxFilePath" minOccurs="1" maxOccurs="1" />
@@ -100,7 +92,7 @@
 
   <message name="manageProcessesRequest">
     <part name="verb" type="xsd:string" />
-    <part name="processes" type="pms:ArrayOfString" />
+    <part name="processes" type="ArrayOfString" />
   </message>
   <message name="manageProcessesResponse" />
 
@@ -115,7 +107,7 @@
   <message name="readFileResponse" />
 
   <message name="writeFileRequest">
-    <part name="writeFileRequest" type="tns:WriteFileInput" />
+    <part name="sipxFilePath" type="tns:SipxFilePath" />
   </message>    
   <message name="writeFileResponse" />
 
@@ -226,7 +218,16 @@
     <operation name="writeFile">
       <soap:operation soapAction="urn:ProcessManagerService#writeFile" />
       <input>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <mime:multipartRelated>
+          <mime:part>
+            <soap:body parts="sipxFilePath" use="literal" namespace="urn:ProcessManagerService" />
+          </mime:part>
+          <mime:part>
+            <!-- See RFC 2046, "Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types".
+                 When writing files, the content could be anything. -->
+            <mime:content part="attach" type="application/octet-stream"/>
+          </mime:part>
+        </mime:multipartRelated>
       </input>
       <output>
         <soap:body use="literal" namespace="urn:ProcessManagerService" />
