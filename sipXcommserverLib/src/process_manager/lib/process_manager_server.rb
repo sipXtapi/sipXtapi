@@ -10,6 +10,7 @@
 # system requires
 require 'logger'
 require 'pp'
+require 'soap/attachment'
 require 'soap/rpc/standaloneServer'
 require 'soap/mapping'
 
@@ -80,6 +81,15 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   
   def readFile(sipxFilePath)
     puts sipxFilePath.inspect
+    dir = @process_manager.get_sipx_directory(sipxFilePath.sipxDir)
+    if !File.exists?(dir)
+      raise("Directory \"#{dir}\" does not exist")
+    end
+    path = File.join(dir, sipxFilePath.fileRelativePath)
+    if !File.exists?(path)
+      raise("File \"#{path}\" does not exist")
+    end
+    SOAP::Attachment.new(File.open(path))
   end
   
   def writeFile
@@ -97,12 +107,6 @@ class ProcessManagerServer < SOAP::RPC::StandaloneServer
   # marshallable version of the standard Array
   class Array < ::Array; include SOAP::Marshallable
     @@schema_ns = SOAP_NAMESPACE  
-  end
-
-  class ManageProcessesInput; include SOAP::Marshallable
-    @@schema_ns = SOAP_NAMESPACE
-    @@schema_type = 'ManageProcessesInput'
-    attr_accessor :processes, :verb
   end
 
   class NamedProcessStatus; include SOAP::Marshallable

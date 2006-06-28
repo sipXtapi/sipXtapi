@@ -215,7 +215,9 @@
             <soap:body use="literal" namespace="urn:ProcessManagerService" />
           </mime:part>
           <mime:part>
-            <mime:content part="attach" type="text/plain"/>
+            <!-- See RFC 2046, "Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types".
+                 When reading files, the content could be anything. -->
+            <mime:content part="attach" type="application/octet-stream"/>
           </mime:part>
         </mime:multipartRelated>
       </output>

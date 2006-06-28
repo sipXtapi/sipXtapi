@@ -208,7 +208,7 @@ class ProcessManagerTest < Test::Unit::TestCase
   def test_get_sipx_directory
     begin
       # Use an unknown sipX directory name, should blow up
-      assert_raises(@pm.send(:get_sipx_directory, 'unknown'))
+      assert_raises(@pm.get_sipx_directory('unknown'))
     rescue RuntimeError
     end
     
@@ -216,11 +216,11 @@ class ProcessManagerTest < Test::Unit::TestCase
     save_prefix = ENV[SIPX_PREFIX]
     begin
       ENV[SIPX_PREFIX] = '/my_prefix'
-      sipx_dir = @pm.send(:get_sipx_directory, 'data')
+      sipx_dir = @pm.get_sipx_directory(ProcessManager::DATA_DIR)
       assert_equal('/my_prefix/var/sipxdata/', sipx_dir)
       
       ENV[SIPX_PREFIX] = nil
-      sipx_dir = @pm.send(:get_sipx_directory, 'data')
+      sipx_dir = @pm.get_sipx_directory(ProcessManager::DATA_DIR)
       assert_equal('/var/sipxdata/', sipx_dir)
     ensure
       ENV[SIPX_PREFIX] = save_prefix

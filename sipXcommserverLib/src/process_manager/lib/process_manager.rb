@@ -9,6 +9,7 @@
 
 # system requires
 require 'logger'
+require 'tmpdir'
 
 # application requires
 require 'process_config'
@@ -60,10 +61,17 @@ class ProcessManager
   
   CONFIG_FILE_PATTERN = Regexp.new('.*\.xml')
   
+  # Logical sipX directory names
+  DATA_DIR = 'data'
+  ETC_DIR = 'etc'
+  LOG_DIR = 'log'
+  TMP_DIR = 'tmp'   # used for testing
+  
   DIR_MAP_DEFAULT = {
-    'data' => '/var/sipxdata/',
-    'etc'  => '/etc/sipxpbx/',
-    'log'  => '/var/log/sipxpbx/'}
+    DATA_DIR => '/var/sipxdata/',
+    ETC_DIR  => '/etc/sipxpbx/',
+    LOG_DIR  => '/var/log/sipxpbx/',
+    TMP_DIR  => Dir.tmpdir}
   
 public
 
@@ -157,11 +165,18 @@ public
     pid
   end
   
-  # Given a sipxFilePath specifier, return the absolute path to the file, as a string.
-  # The specifier has two components: a symbolic directory name, and a path relative
-  # to that directory.
-  def readFile(sipxFilePath)
-    puts sipxFilePath.inspect
+  # Return the named sipX directory.  Raise a runtime exception if there is no
+  # such directory.
+  def get_sipx_directory(name)
+    sipx_dir = DIR_MAP_DEFAULT[name]
+    if !sipx_dir
+      raise(RuntimeError, "Unknown sipX directory name \"#{name}\"", caller)
+    end
+
+    # Prepend the prefix dir if $SIPX_PREFIX is defined
+    sipx_dir = prepend_sipx_prefix(sipx_dir)
+    
+    sipx_dir
   end
 
   # These accessors are mainly used for testing
@@ -223,20 +238,6 @@ private
     end
     
     pid_file_path
-  end
-  
-  # Return the named sipX directory.  Raise a runtime exception if there is no
-  # such directory.
-  def get_sipx_directory(name)
-    sipx_dir = DIR_MAP_DEFAULT[name]
-    if !sipx_dir
-      raise(RuntimeError, "Unknown sipX directory name \"#{name}\"", caller)
-    end
-
-    # Prepend the prefix dir if $SIPX_PREFIX is defined
-    sipx_dir = prepend_sipx_prefix(sipx_dir)
-    
-    sipx_dir
   end
 
   # If the environment variable SIPX_PREFIX is defined, then prepend it to the

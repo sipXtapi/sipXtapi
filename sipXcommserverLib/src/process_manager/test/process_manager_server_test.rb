@@ -83,9 +83,13 @@ class ProcessManagerServerTest < Test::Unit::TestCase
   
   def test_readFile
     sipxFilePath = ProcessManagerServer::SipxFilePath.new
-    sipxFilePath.sipxDir = 'data'
-    sipxFilePath.fileRelativePath = '/subdir'
-    @pm.readFile(sipxFilePath)
+    sipxFilePath.sipxDir = ProcessManager::TMP_DIR
+    bananafile = 'banana.txt'
+    bananatext = 'bananaphone'
+    sipxFilePath.fileRelativePath = bananafile
+    `echo "#{bananatext}" > #{Dir.tmpdir}/#{bananafile}`
+    file = @pm.readFile(sipxFilePath)
+    assert_equal(bananatext, file.content.chomp)
   end
 
 end
