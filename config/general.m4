@@ -11,6 +11,12 @@ AC_DEFUN([CHECK_AUTOCONF],
     fi
 ])
 
+# =========== Some conditionals since even in the specific packages stuff we have to do some platform checks ===================
+
+AM_CONDITIONAL(ISLINUX, [test `uname -s` = Linux])
+AM_CONDITIONAL(ISMAC, [test `uname -s` = Darwin])
+AM_CONDITIONAL(IS64BITLINUX, [test `uname -m` = x86_64])
+AM_CONDITIONAL(ISSUNOS, [test `uname -s` = SunOS])
 
 # ============ C L O V E R  =======================
 AC_DEFUN([CHECK_CLOVER],
@@ -318,7 +324,11 @@ AC_DEFUN([CHECK_SSL],
         AC_MSG_ERROR(['libssl.so' not found; tried $openssl_path, each with lib, lib/openssl, and lib/ssl])
     else
         AC_MSG_RESULT($ssllibdir)
-        AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir -R$ssllibdir")
+       if test x_${ISSUNOS} != _x ; then
+          AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir -R$ssllibdir")
+	else
+	  AC_SUBST(SSL_LDFLAGS,"-L$ssllibdir")
+	fi
         AC_SUBST(SSL_LIBS,"-lssl -lcrypto")
     fi
 
