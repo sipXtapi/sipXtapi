@@ -37,10 +37,10 @@
 #ifndef _VXITYPES_H
 #define _VXITYPES_H
 
-#ifdef __cplusplus
-#include <cwchar>         /* C++ wchar_t support */
+#if !defined __cplusplus || defined (__SUNPRO_CC)
+#include <wchar.h>         /* C wchar_t support and required c++ includes for SUN Solaris :)*/
 #else
-#include <wchar.h>        /* C wchar_t support */
+#include <cwchar>        /* C++ wchar_t support */
 #endif
 
 #include "VXIheaderPrefix.h"
