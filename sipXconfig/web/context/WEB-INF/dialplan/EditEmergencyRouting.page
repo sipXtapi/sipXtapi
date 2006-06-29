@@ -44,7 +44,7 @@
   </component>
   <component id="externalNumber" type="TextField">
     <binding name="value" value="emergencyRouting.externalNumber"/>
-    <binding name="validators" value="spring-validators:validPhone,required"/>
+    <binding name="validators" value="spring-validators:validSipUserId,required"/>
     <binding name="displayName" value="literal:External emergency number"/>
   </component>
   <component id="exceptions" type="ListEdit">

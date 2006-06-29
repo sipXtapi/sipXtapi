@@ -29,7 +29,7 @@
   </component>
   <component id="externalNumber" type="TextField">
     <binding name="value" value="exception.externalNumber"/>
-    <binding name="validators" value="spring-validators:validPhone,required"/>
+    <binding name="validators" value="spring-validators:validSipUserId,required"/>
     <binding name="displayName" value="literal:External emergency number"/>
   </component>
   <component id="gatewaysLabel" type="FieldLabel">

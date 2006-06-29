@@ -53,7 +53,7 @@
   </component>
   <component id="pstnPrefix" type="TextField">
     <binding name="value" value="rule.pstnPrefix"/>
-    <binding name="validators" value="spring-validators:validPhone,required"/>
+    <binding name="validators" value="spring-validators:validSipUserId"/>
     <binding name="displayName" value="literal:PSTN prefix"/>
   </component>
   <component id="longDistancePrefixLabel" type="FieldLabel">
@@ -61,7 +61,7 @@
   </component>
   <component id="longDistancePrefix" type="TextField">
     <binding name="value" value="rule.longDistancePrefix"/>
-    <binding name="validators" value="spring-validators:validPhone,required"/>
+    <binding name="validators" value="spring-validators:validSipUserId"/>
     <binding name="displayName" value="literal:Long distance prefix"/>
   </component>
   <component id="areaCodesLabel" type="FieldLabel">
