@@ -55,6 +55,7 @@
           <xsd:enumeration value="data" />           <!-- usually maps to /var/sipxdata/ -->
           <xsd:enumeration value="etc" />            <!-- usually maps to /etc/sipxpbx/ -->
           <xsd:enumeration value="log" />            <!-- usually maps to /var/log/sipxpbx/ -->
+          <xsd:enumeration value="tmp" />            <!-- maps to the system temp directory -->        
         </xsd:restriction>
       </xsd:simpleType>
 
@@ -64,12 +65,6 @@
                the absolute path to the file -->
           <xsd:element name="sipXdir" type="tns:SipxDirectory" />
           <xsd:element name="fileRelativePath" type="xsd:string" />
-        </xsd:sequence>
-      </xsd:complexType>
-      
-      <xsd:complexType name="DeleteFileInput">
-        <xsd:sequence>
-          <xsd:element name="filePath" type="tns:SipxFilePath" minOccurs="1" maxOccurs="1" />
         </xsd:sequence>
       </xsd:complexType>
 
@@ -122,7 +117,7 @@
   <message name="writeFileResponse" />
 
   <message name="deleteFileRequest">
-    <part name="deleteFileRequest" type="tns:DeleteFileInput" />
+    <part name="deleteFileRequest" type="tns:SipxFilePath" />
   </message>    
   <message name="deleteFileResponse" />
 
