@@ -36,7 +36,6 @@ int main()
 [ AC_MSG_RESULT(no)
  CPPFLAGS="$CPPFLAGS -DMSG_NOSIGNAL=0"
 ])
-+ 
 
 # Checks for libraries.
 CHECK_LIBRT
