@@ -1,22 +1,30 @@
 <?xml version="1.0"?>
-<definitions xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
-  xmlns:tns="urn:ProcessManagerService" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<definitions
+  targetNamespace="urn:ProcessManagerService"
+  xmlns:tns="urn:ProcessManagerService"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/"
-  xmlns:si="http://soapinterop.org/xsd" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
-  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:soap-enc="http://schemas.xmlsoap.org/soap/encoding/"
+  xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:si="http://soapinterop.org/xsd"
+  xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
   xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/"
-  targetNamespace="urn:ProcessManagerService">
+  xmlns="http://schemas.xmlsoap.org/wsdl/">
 
   <types>
-    <xsd:schema targetNamespace="urn:ProcessManagerService">
+    <xsd:schema targetNamespace="urn:ProcessManagerService" xmlns="http://www.w3.org/2000/10/XMLSchema">>
 
       <xsd:complexType name="ArrayOfString">
-        <xsd:complexContent>
-          <xsd:restriction base="SOAP-ENC:Array">
-            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="xsd:string[]" />
-          </xsd:restriction>
-        </xsd:complexContent>
+        <xsd:restriction base="soap-enc:Array">
+          <xsd:attribute ref="soap-enc:arrayType" wsdl:arrayType="xsd:string[]" />
+        </xsd:restriction>
+      </xsd:complexType>
+
+      <xsd:complexType name="ArrayOfBinary">
+        <xsd:restriction base="soap-enc:Array">
+          <xsd:attribute ref="soap-enc:arrayType" wsdl:arrayType="xsd:binary[] "/>
+        </xsd:restriction>
       </xsd:complexType>
 
       <xsd:simpleType name="ProcessStatus">
@@ -92,7 +100,7 @@
 
   <message name="manageProcessesRequest">
     <part name="verb" type="xsd:string" />
-    <part name="processes" type="ArrayOfString" />
+    <part name="processes" type="tns:ArrayOfString" />
   </message>
   <message name="manageProcessesResponse" />
 
@@ -103,11 +111,13 @@
 
   <message name="readFileRequest">
     <part name="readFileRequest" type="tns:SipxFilePath" />
+    <part name="attach" type="tns:ArrayOfBinary" />
   </message>    
   <message name="readFileResponse" />
 
   <message name="writeFileRequest">
     <part name="sipxFilePath" type="tns:SipxFilePath" />
+    <part name="attach" type="tns:ArrayOfBinary" />
   </message>    
   <message name="writeFileResponse" />
 
@@ -168,25 +178,25 @@
   </portType>
 
   <binding name="ProcessManagerBinding" type="tns:ProcessManagerService">
-    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http" />
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http" />
 
     <operation name="manageProcesses">
       <soap:operation soapAction="urn:ProcessManagerService#manageProcesses" />
       <input>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </input>
       <output>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </output>
     </operation>
 
     <operation name="getProcessStatus">
       <soap:operation soapAction="urn:ProcessManagerService#getProcessStatus" />
       <input>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </input>
       <output>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </output>
     </operation>
 
@@ -198,13 +208,13 @@
     <operation name="readFile">
       <soap:operation soapAction="urn:ProcessManagerService#readFile" />
       <input>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </input>
       <output>
         <mime:multipartRelated>
           <mime:part>
             <!-- The message has no SOAP parts so we don't need a "parts" attribute here -->
-            <soap:body use="literal" namespace="urn:ProcessManagerService" />
+            <soap:body use="encoded" namespace="urn:ProcessManagerService" />
           </mime:part>
           <mime:part>
             <!-- See RFC 2046, "Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types".
@@ -220,7 +230,7 @@
       <input>
         <mime:multipartRelated>
           <mime:part>
-            <soap:body parts="sipxFilePath" use="literal" namespace="urn:ProcessManagerService" />
+            <soap:body parts="sipxFilePath" use="encoded" namespace="urn:ProcessManagerService" />
           </mime:part>
           <mime:part>
             <!-- See RFC 2046, "Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types".
@@ -230,37 +240,37 @@
         </mime:multipartRelated>
       </input>
       <output>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </output>
     </operation>
 
     <operation name="deleteFile">
       <soap:operation soapAction="urn:ProcessManagerService#deleteFile" />
       <input>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </input>
       <output>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </output>
     </operation>
 
     <operation name="readSipData">
       <soap:operation soapAction="urn:ProcessManagerService#readSipData" />
       <input>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </input>
       <output>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </output>
     </operation>
 
     <operation name="writeSipData">
       <soap:operation soapAction="urn:ProcessManagerService#writeSipData" />
       <input>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </input>
       <output>
-        <soap:body use="literal" namespace="urn:ProcessManagerService" />
+        <soap:body use="encoded" namespace="urn:ProcessManagerService" />
       </output>
     </operation>
 
