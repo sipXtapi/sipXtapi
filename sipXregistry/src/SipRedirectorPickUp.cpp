@@ -1133,6 +1133,7 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
 
       if (method.compareTo(SIP_NOTIFY_METHOD, UtlString::ignoreCase) == 0)
       {
+         bool foundCallId = false ;
          // Get the Call-Id.
          UtlString callId;
          message->getCallIdField(&callId);
@@ -1198,19 +1199,31 @@ SipRedirectorPickUpTask::handleMessage(OsMsg& eventMessage)
                      // information in private storage.
                      pStorage->processNotify(body);
                   }
-
+                  foundCallId = true ;
                   // Don't bother checking for a match with any other request.
                   break;
                }
             }
          }
 
-         // Return a 200 response.
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+         SipMessage response;
+         if (foundCallId)
+         {
+            // Return a 200 response.
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::handleMessage "
                        "Sending 200 OK response to NOTIFY");
-         SipMessage response;
-         response.setOkResponseData(message);
+            response.setOkResponseData(message);
+         }
+         else
+         {
+            // Return a 481 Subscription does not exist
+            // per RFC 3265 3.2.4
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipRedirectServer::handleMessage "
+                       "Sending 481 Subscription does not exist response to NOTIFY");
+            response.setResponseData(message, 481, "Subscription does not exist");
+         }
          mpSipUserAgent->send(response);
       }
    }
