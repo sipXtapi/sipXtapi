@@ -134,12 +134,15 @@
     <property name="availableGatewayModels">
       <list>
         <ref local="gmGeneric"/>
+        <!-- 
+        temporarily remove support for AudioCodes gateways
         <ref local="gmAudiocodesMP1X4_4_FXO"/>
         <ref local="gmAudiocodesMP1X8_8_FXO"/>
         <ref local="gmAudiocodesTP260_1_Span"/>
         <ref local="gmAudiocodesTP260_2_Span"/>
         <ref local="gmAudiocodesTP260_4_Span"/>
         <ref local="gmAudiocodesTP260_8_Span"/>
+         -->
         <!-- 
           testing and example only
         <ref local="gmAcme"/>

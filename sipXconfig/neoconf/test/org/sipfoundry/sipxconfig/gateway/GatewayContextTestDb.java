@@ -158,8 +158,8 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     }
 
     /**
-     * Make sure all gateway beans are registered with the factory. In future maybe we could build
-     * factory from the beans
+     * Make sure all gateway beans registered with the factory are properly declared. 
+     * In future maybe we could build factory from the beans
      */
     public void testGetFactoryIds() {
         // TODO: introduce gateway model - otherwise we will have problems if phone models are
@@ -168,7 +168,9 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         List gatewayModelBeans = Arrays.asList(gatewayModelBeansArray);
 
         Collection models = m_context.getAvailableGatewayModels();
-        assertEquals(gatewayModelBeans.size(), models.size());
+        // not all models have to be accessible
+        assertTrue(gatewayModelBeans.size() >= models.size());
+        
         for (Iterator i = models.iterator(); i.hasNext();) {
             PhoneModel model = (PhoneModel) i.next();
             String beanId = model.getBeanId();
