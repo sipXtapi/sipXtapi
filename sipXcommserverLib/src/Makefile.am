@@ -11,9 +11,6 @@ EXTRA_DIST = \
 
 lib_LTLIBRARIES = libsipXcommserver.la
 
-EXTRA_DIST = \
-    $(libexec_SCRIPTS)
-
 ## Libtool version info - update only immediately before a release
 # Current - increment if any interfaces are added, removed, or changed
 version_Current=1
