@@ -11,6 +11,8 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.text.MessageFormat;
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -34,6 +36,8 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     private VersionInfo m_version = new VersionInfo();
 
     public abstract CoreContext getCoreContext();
+    
+    public abstract SkinControl getSkin();
     
     /**
      * When true - page does not require login
@@ -89,5 +93,14 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     
     public VersionInfo getVersionInfo() {
         return m_version;
+    }
+    
+    public String getHelpLink() {
+        String help = getSkin().getHelpLink();
+        if (help == null) {
+            help = getMessages().getMessage("link.helpUrl");
+        }
+        String url = MessageFormat.format(help, getVersionInfo().getVersionIds());
+        return url;
     }
 }

@@ -27,7 +27,7 @@ public class CronScheduleTest extends TestCase {
         CronSchedule schedule = new CronSchedule();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.roll(Calendar.DATE, true);
+        calendar.add(Calendar.DATE, 1);
 
         schedule.setType(CronSchedule.Type.WEEKLY);
         schedule.setDayOfWeek(calendar.get(Calendar.DAY_OF_WEEK));
@@ -48,7 +48,7 @@ public class CronScheduleTest extends TestCase {
         CronSchedule schedule = new CronSchedule();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.roll(Calendar.HOUR_OF_DAY, true);
+        calendar.add(Calendar.HOUR_OF_DAY, 1);
         calendar.set(Calendar.MINUTE, 30);
 
         schedule.setType(CronSchedule.Type.DAILY);

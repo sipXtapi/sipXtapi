@@ -140,5 +140,9 @@ public class BorderTest extends TestCase {
                 }
             };
         }
+
+        public SkinControl getSkin() {
+            return null;
+        }
     }
 }

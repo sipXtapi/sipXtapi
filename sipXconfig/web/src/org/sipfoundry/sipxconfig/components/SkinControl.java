@@ -25,6 +25,25 @@ public class SkinControl {
     private String m_colors = RESOURCE_PATH + "/colors.css";
     private String m_logo = RESOURCE_PATH + "/sipxconfig-logo.png";
     private TapestryContext m_tapestryContext;
+    private String m_helpLink;
+
+    /**
+     * Link to online help.  Can include 2 placeholders for app major and minor version numbers
+     * example 
+     *  http://example.com/help-{0}-{1}.html
+     * will become
+     *   "http://example.com/help-9-0.html
+     * for version 9.0 of sipX
+     * 
+     * @return
+     */
+    public String getHelpLink() {
+        return m_helpLink;
+    }
+
+    public void setHelpLink(String helpLink) {
+        m_helpLink = helpLink;
+    }
 
     public IAsset[] getStylesheetAssets() {
         IAsset[] assets = new IAsset[2];
