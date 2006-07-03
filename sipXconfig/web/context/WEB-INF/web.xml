@@ -57,7 +57,7 @@
   <!--
     - Configure Acegi Security filters.  Use FilterChainProxy to avoid cluttering up
     - web.xml with lots of filters.
-    - See http://acegisecurity.sourceforge.net/docbook/acegi.html#security-filters .
+    - See http://acegisecurity.org/docbook/acegi.html#filters .
     -->
   <filter>
     <filter-name>Acegi Filter Chain Proxy</filter-name>
