@@ -8,8 +8,13 @@
 // $$
 ///////////////////////////////////////////////////////////////////////////////
 
+// The cppunit/TestRunner.h file has to be included twice
+//   once before cppunit/TestResult.h for cppunit 1.11
+#include <cppunit/TestRunner.h>
 #include <cppunit/TestResult.h>
+//   once after cppunit/TestResult.h for cppunit 1.10
 #include <sipxunit/TestRunner.h>
+
 #include <sipxunit/TestOutputter.h>
 #include <sipxunit/TestMonitor.h>
 

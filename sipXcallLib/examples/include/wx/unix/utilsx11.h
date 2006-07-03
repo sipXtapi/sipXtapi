@@ -4,9 +4,9 @@
 // Author:      Mattia Barbon, Vaclav Slavik
 // Modified by:
 // Created:     25.03.02
-// RCS-ID:      $Id: utilsx11.h,v 1.1.2.1 2003/04/06 17:43:12 JS Exp $
-// Copyright:   (c) wxWindows team
-// Licence:     wxWindows license
+// RCS-ID:      $Id: utilsx11.h,v 1.5 2004/05/23 20:51:50 JS Exp $
+// Copyright:   (c) wxWidgets team
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_UNIX_UTILSX11_H_
@@ -15,7 +15,7 @@
 #include "wx/defs.h"
 #include "wx/gdicmn.h"
 
-// NB: Content of this header is for wxWindows' private use! It is not
+// NB: Content of this header is for wxWidgets' private use! It is not
 //     part of public API and may be modified or even disappear in the future!
 
 #if defined(__WXMOTIF__) || defined(__WXGTK__) || defined(__WXX11__)

@@ -14,6 +14,7 @@
 #include <os/OsFS.h>
 #include <os/OsSysLog.h>
 #include <utl/UtlHashMapIterator.h>
+#include <net/SipTransaction.h>
 #include <net/SipResourceList.h>
 #include <net/NetMd5Codec.h>
 #include <net/SipMessage.h>

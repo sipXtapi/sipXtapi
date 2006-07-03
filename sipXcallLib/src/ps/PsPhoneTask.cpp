@@ -1182,12 +1182,13 @@ int PsPhoneTask::activateGroup(int type)
         case PtComponentGroup::SOUND:
                 if (mpSpeakerPhoneGroup)
                 {
+/*
                    int low;
                    int high;
                    int nominal;     // low <= nominal <= high
                    int stepsize;    // in .1 dB
                    int mute;
-
+*/
                   assert(false);
                 }
                 break;

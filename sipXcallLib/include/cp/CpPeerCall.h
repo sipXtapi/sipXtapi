@@ -95,14 +95,18 @@ public:
 
     //virtual void conferenceAddParty();
 
-    Connection* addParty(const char* partyAddress, const char* callController,
-        const char* originalCallConnectionAddress, const char* pNewCallId,
-        CONTACT_ID contactId = 0,
+    Connection* addParty(const char* partyAddress,
+		const char* callController,
+        const char* originalCallConnectionAddress,
+		const char* pNewCallId,
+        SIPX_CONTACT_ID contactId = 0,
         const void* pDisplay = NULL,
         const void* pSecurity = NULL,
         const char* locationHeader = NULL,
         const int bandWidth = AUDIO_CODEC_BW_DEFAULT,
-        UtlBoolean bOnHold = false);
+        UtlBoolean bOnHold = false,
+		const char* originalCallId = NULL,
+        SIPX_TRANSPORT_DATA* pTransport = NULL);
 
     Connection* stringDial(OsMsg& eventMessage, UtlString& dialString);
 
@@ -344,7 +348,7 @@ protected:
     void handleGetTermConnections(OsMsg* pEventMessage);
     void handleSetOutboundLine(OsMsg* pEventMessage);
 
-    void getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+    void getLocalContactAddresses( SIPX_CONTACT_ADDRESS contacts[],
         size_t nMaxContacts,
         size_t& nActualContacts) ;
 

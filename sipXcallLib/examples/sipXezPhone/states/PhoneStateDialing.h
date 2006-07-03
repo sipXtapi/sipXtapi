@@ -42,7 +42,7 @@ public:
 
    //virtual PhoneState* OnDial(const wxString phoneNumber);
    //virtual PhoneState* OnRinging();
-   //virtual PhoneState* OnRemoteAlerting();
+   virtual PhoneState* OnRemoteAlerting();
    //virtual PhoneState* OnRemoteBusy();
    virtual PhoneState* OnFlashButton();
    virtual PhoneState* OnConnected();

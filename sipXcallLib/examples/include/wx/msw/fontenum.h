@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id: fontenum.h,v 1.1 1999/09/06 09:36:06 JS Exp $
+// RCS-ID:      $Id: fontenum.h,v 1.6 2004/10/13 14:04:19 ABX Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_FONTENUM_H_
 #define _WX_FONTENUM_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "fontenum.h"
 #endif
 
@@ -24,12 +24,12 @@ class wxFontEnumerator: public wxObject
 {
 DECLARE_CLASS(wxFontEnumerator)
 public:
-    wxFontEnumerator() {};
+    wxFontEnumerator() {}
 
     // Enumerate the fonts.
     bool Enumerate();
 
-    // Stop enumeration if FALSE is returned.
+    // Stop enumeration if false is returned.
     // By default, the enumerator stores the facenames in a list for
     // retrieval via GetFacenames().
     virtual bool OnFont(const wxFont& font);

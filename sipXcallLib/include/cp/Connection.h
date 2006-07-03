@@ -215,8 +215,8 @@ public:
                           const void* pSecurity = NULL,
                           const char* locationHeader = NULL,
                           const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
-                          UtlBoolean bOnHold = FALSE) = 0;
-
+                          UtlBoolean bOnHold = FALSE,
+						  const char* originalCallId = NULL) = 0;
    //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
    virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
@@ -426,6 +426,7 @@ protected:
 	UtlBoolean mRemoteIsCallee;
 	//UtlBoolean mLocalHeld;
 	UtlBoolean mRemoteRequestedHold;
+    UtlString mLastToAddress;
 
 	UtlString remoteRtpAddress;
 	int remoteRtpPort;

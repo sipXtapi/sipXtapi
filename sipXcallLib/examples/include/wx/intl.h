@@ -1,18 +1,19 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        wx/intl.h
-// Purpose:     Internationalization and localisation for wxWindows
+// Purpose:     Internationalization and localisation for wxWidgets
 // Author:      Vadim Zeitlin
-// Modified by:
+// Modified by: Michael N. Filippov <michael@idisys.iae.nsk.su>
+//              (2003/09/30 - plural forms support)
 // Created:     29/01/98
-// RCS-ID:      $Id: intl.h,v 1.37.2.1 2003/05/25 11:18:28 VS Exp $
+// RCS-ID:      $Id: intl.h,v 1.58 2005/06/01 21:16:27 VZ Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_INTL_H_
 #define _WX_INTL_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "intl.h"
 #endif
 
@@ -31,10 +32,12 @@
 // macros
 // ----------------------------------------------------------------------------
 
-// gettext() style macro (notice that xgettext should be invoked with "-k_"
-// option to extract the strings inside _() from the sources)
+// gettext() style macros (notice that xgettext should be invoked with
+// --keyword="_" --keyword="wxPLURAL:1,2" options
+// to extract the strings from the sources)
 #ifndef WXINTL_NO_GETTEXT_MACRO
-    #define   _(str)  wxGetTranslation(_T(str))
+    #define _(s)                     wxGetTranslation(_T(s))
+    #define wxPLURAL(sing, plur, n)  wxGetTranslation(_T(sing), _T(plur), n)
 #endif
 
 // another one which just marks the strings for extraction, but doesn't
@@ -45,9 +48,9 @@
 // forward decls
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxLocale;
-class WXDLLEXPORT wxMsgCatalog;
-class WXDLLEXPORT wxLanguageInfoArray;
+class WXDLLIMPEXP_BASE wxLocale;
+class WXDLLIMPEXP_BASE wxLanguageInfoArray;
+class wxMsgCatalog;
 
 // ============================================================================
 // locale support
@@ -308,7 +311,7 @@ enum wxLanguage
 //                 translation information
 // ----------------------------------------------------------------------------
 
-struct WXDLLEXPORT wxLanguageInfo
+struct WXDLLIMPEXP_BASE wxLanguageInfo
 {
     int Language;                   // wxLanguage id
     wxString CanonicalName;         // Canonical name, e.g. fr_FR
@@ -362,43 +365,50 @@ enum wxLocaleInitFlags
     wxLOCALE_CONV_ENCODING = 0x0002      // convert encoding on the fly?
 };
 
-class WXDLLEXPORT wxLocale
+class WXDLLIMPEXP_BASE wxLocale
 {
 public:
     // ctor & dtor
     // -----------
 
         // call Init() if you use this ctor
-    wxLocale();
+    wxLocale() { DoCommonInit(); }
+
         // the ctor has a side effect of changing current locale
     wxLocale(const wxChar *szName,                               // name (for messages)
              const wxChar *szShort = (const wxChar *) NULL,      // dir prefix (for msg files)
              const wxChar *szLocale = (const wxChar *) NULL,     // locale (for setlocale)
-             bool bLoadDefault = TRUE,                           // preload wxstd.mo?
-             bool bConvertEncoding = FALSE)                      // convert Win<->Unix if neccessary?
+             bool bLoadDefault = true,                           // preload wxstd.mo?
+             bool bConvertEncoding = false)                      // convert Win<->Unix if necessary?
         {
+            DoCommonInit();
+
             Init(szName, szShort, szLocale, bLoadDefault, bConvertEncoding);
         }
 
     wxLocale(int language, // wxLanguage id or custom language
              int flags = wxLOCALE_LOAD_DEFAULT | wxLOCALE_CONV_ENCODING)
-        { Init(language, flags); }
+        {
+            DoCommonInit();
 
-        // the same as a function (returns TRUE on success)
+            Init(language, flags);
+        }
+
+        // the same as a function (returns true on success)
     bool Init(const wxChar *szName,
               const wxChar *szShort = (const wxChar *) NULL,
               const wxChar *szLocale = (const wxChar *) NULL,
-              bool bLoadDefault = TRUE,
-              bool bConvertEncoding = FALSE);
+              bool bLoadDefault = true,
+              bool bConvertEncoding = false);
 
-        // same as second ctor (returns TRUE on success)
+        // same as second ctor (returns true on success)
     bool Init(int language = wxLANGUAGE_DEFAULT,
               int flags = wxLOCALE_LOAD_DEFAULT | wxLOCALE_CONV_ENCODING);
 
         // restores old locale
     ~wxLocale();
 
-    // Try to get user's (or OS's) prefered language setting.
+    // Try to get user's (or OS's) preferred language setting.
     // Return wxLANGUAGE_UNKNOWN if language-guessing algorithm failed
     static int GetSystemLanguage();
 
@@ -414,7 +424,7 @@ public:
     // is used, the US default value is returned if everything else fails
     static wxString GetInfo(wxLocaleInfo index, wxLocaleCategory cat);
 
-    // return TRUE if the locale was set successfully
+    // return true if the locale was set successfully
     bool IsOk() const { return m_pszOldLocale != NULL; }
 
     // returns locale name
@@ -446,6 +456,8 @@ public:
     //
     // Returns 'true' if it was successfully loaded
     bool AddCatalog(const wxChar *szDomain);
+    bool AddCatalog(const wxChar *szDomain,
+                    wxLanguage msgIdLanguage, const wxChar *msgIdCharset);
 
     // check if the given catalog is loaded
     bool IsLoaded(const wxChar *szDomain) const;
@@ -455,6 +467,17 @@ public:
     // Returns NULL if no info found, pointer must *not* be deleted by caller
     static const wxLanguageInfo *GetLanguageInfo(int lang);
 
+    // Returns language name in English or empty string if the language
+    // is not in database
+    static wxString GetLanguageName(int lang);
+
+    // Find the language for the given locale string which may be either a
+    // canonical ISO 2 letter language code ("xx"), a language code followed by
+    // the country code ("xx_XX") or a Windows full language name ("Xxxxx...")
+    //
+    // Returns NULL if no info found, pointer must *not* be deleted by caller
+    static const wxLanguageInfo *FindLanguageInfo(const wxString& locale);
+
     // Add custom language to the list of known languages.
     // Notes: 1) wxLanguageInfo contains platform-specific data
     //        2) must be called before Init to have effect
@@ -463,6 +486,7 @@ public:
     // retrieve the translation for a string in all loaded domains unless
     // the szDomain parameter is specified (and then only this domain is
     // searched)
+    // n - additional parameter for PluralFormsParser
     //
     // return original string if translation is not available
     // (in this case an error message is generated the first time
@@ -471,10 +495,19 @@ public:
     // domains are searched in the last to first order, i.e. catalogs
     // added later override those added before.
     const wxChar *GetString(const wxChar *szOrigString,
-                            const wxChar *szDomain = (const wxChar *) NULL) const;
+                            const wxChar *szDomain = NULL) const;
+    // plural form version of the same:
+    const wxChar *GetString(const wxChar *szOrigString,
+                            const wxChar *szOrigString2,
+                            size_t n,
+                            const wxChar *szDomain = NULL) const;
 
     // Returns the current short name for the locale
     const wxString& GetName() const { return m_strShort; }
+
+    // return the contents of .po file header
+    wxString GetHeaderValue( const wxChar* szHeader,
+                             const wxChar* szDomain = NULL ) const;
 
     // These two methods are for internal use only. First one creates
     // ms_languagesDB if it doesn't already exist, second one destroys
@@ -490,6 +523,9 @@ private:
     // m_langugagesInfo, called by InitLanguagesDB
     static void InitLanguagesDB();
 
+    // initialize the member fields to default values
+    void DoCommonInit();
+
     wxString       m_strLocale,       // this locale name
                    m_strShort;        // short name for the locale
     int            m_language;        // this locale wxLanguage value
@@ -501,7 +537,11 @@ private:
 
     bool           m_bConvertEncoding;
 
+    bool           m_initialized;
+
     static wxLanguageInfoArray *ms_languagesDB;
+
+    DECLARE_NO_COPY_CLASS(wxLocale)
 };
 
 // ----------------------------------------------------------------------------
@@ -509,7 +549,7 @@ private:
 // ----------------------------------------------------------------------------
 
 // get the current locale object (note that it may be NULL!)
-extern WXDLLEXPORT wxLocale* wxGetLocale();
+extern WXDLLIMPEXP_BASE wxLocale* wxGetLocale();
 
 // get the translation of the string in the current locale
 inline const wxChar *wxGetTranslation(const wxChar *sz)
@@ -520,13 +560,24 @@ inline const wxChar *wxGetTranslation(const wxChar *sz)
     else
         return sz;
 }
+inline const wxChar *wxGetTranslation(const wxChar *sz1, const wxChar *sz2,
+                                      size_t n)
+{
+    wxLocale *pLoc = wxGetLocale();
+    if (pLoc)
+        return pLoc->GetString(sz1, sz2, n);
+    else
+        return n == 1 ? sz1 : sz2;
+}
 
 #else // !wxUSE_INTL
 
 // the macros should still be defined - otherwise compilation would fail
 
-#if !defined(WXINTL_NO_GETTEXT_MACRO) && !defined(_)
-    #define   _(str)  (_T(str))
+#if !defined(WXINTL_NO_GETTEXT_MACRO)
+    #if !defined(_)
+        #define _(s)                 (_T(s))
+    #endif
 #endif
 
 #define wxTRANSLATE(str) _T(str)
@@ -539,8 +590,13 @@ inline const wxChar *wxGetTranslation(const wxChar *sz)
 
 // define this one just in case it occurs somewhere (instead of preferred
 // wxTRANSLATE) too
-#if !defined(WXINTL_NO_GETTEXT_MACRO) && !defined(gettext_noop)
-    #define gettext_noop(str) _T(str)
+#if !defined(WXINTL_NO_GETTEXT_MACRO)
+    #if !defined(gettext_noop)
+        #define gettext_noop(str) _T(str)
+    #endif
+    #if !defined(N_)
+        #define N_(s)             _T(s)
+    #endif
 #endif
 
 #endif // _WX_INTL_H_

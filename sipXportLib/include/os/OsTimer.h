@@ -149,6 +149,7 @@ public:
     virtual int getState(void) const;
      //:Return the state value for this OsTimer object
 
+    void start() { doStartTimer(); }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:

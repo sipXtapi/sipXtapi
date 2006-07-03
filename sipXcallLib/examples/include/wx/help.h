@@ -1,25 +1,43 @@
+/////////////////////////////////////////////////////////////////////////////
+// Name:        help.h
+// Purpose:     wxHelpController base header
+// Author:      wxWidgets Team
+// Modified by:
+// Created:
+// Copyright:   (c) Julian Smart
+// RCS-ID:      $Id: help.h,v 1.24 2005/05/04 18:51:58 JS Exp $
+// Licence:     wxWindows licence
+/////////////////////////////////////////////////////////////////////////////
+
 #ifndef _WX_HELP_H_BASE_
 #define _WX_HELP_H_BASE_
+
+#include "wx/defs.h"
 
 #if wxUSE_HELP
 
 #include "wx/helpbase.h"
 
-#ifdef __WXMSW__
-    #include "wx/msw/helpwin.h"
+#ifdef __WXWINCE__
+    #include "wx/msw/wince/helpwce.h"
 
-    #define wxHelpController wxWinHelpController
-    #define sm_classwxHelpController sm_classwxWinHelpController
+    #define wxHelpController wxWinceHelpController
+#elif defined(__WXPALMOS__)
+    #include "wx/palmos/help.h"
+
+    #define wxHelpController wxPalmHelpController
+#elif defined(__WXMSW__)
+    #include "wx/msw/helpchm.h"
+
+    #define wxHelpController wxCHMHelpController
 #else // !MSW
 
 #if wxUSE_WXHTML_HELP
     #include "wx/html/helpctrl.h"
     #define wxHelpController wxHtmlHelpController
-    #define sm_classwxHelpController sm_classwxHtmlHelpController
 #else
     #include "wx/generic/helpext.h"
     #define wxHelpController wxExtHelpController
-    #define sm_classwxHelpController sm_classwxExtHelpController
 #endif
 
 #endif // MSW/!MSW

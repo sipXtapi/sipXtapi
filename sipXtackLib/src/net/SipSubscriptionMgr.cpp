@@ -484,7 +484,7 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
     acceptHeaderValuesArray = NULL;
     notifyArray = NULL;
 
-        while(iterator())
+    while(iterator())
     {
         count++;
     }
@@ -520,18 +520,21 @@ UtlBoolean SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
                 acceptHeaderValuesArray[index] = 
                     new UtlString(contentTypeIndex->mpState->mAcceptHeaderValue);
                 notifyArray[index] = new SipMessage;
-                mpDialogMgr->setNextLocalTransactionInfo(*(notifyArray[index]),
+                if (true == 
+                    mpDialogMgr->setNextLocalTransactionInfo(*(notifyArray[index]),
                                                          SIP_NOTIFY_METHOD, 
-                                                         *(contentTypeIndex->mpState));
+                                                         *(contentTypeIndex->mpState)))
+                {                                                         
 
-                UtlString eventHeader;
-                if(contentTypeIndex->mpState->mpLastSubscribeRequest)
-                {
-                    contentTypeIndex->mpState->mpLastSubscribeRequest->getEventField(eventHeader);
+                    UtlString eventHeader;
+                    if(contentTypeIndex->mpState->mpLastSubscribeRequest)
+                    {
+                        contentTypeIndex->mpState->mpLastSubscribeRequest->getEventField(eventHeader);
+                    }
+                    (notifyArray[index])->setEventField(eventHeader);
+
+                    index++;
                 }
-                (notifyArray[index])->setEventField(eventHeader);
-
-                index++;
             }
         }
     }

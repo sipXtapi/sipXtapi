@@ -1788,7 +1788,14 @@ void HttpMessage::escapeOneChar(UtlString& unEscapedText, char tobeEscapedChar)
         unEscapedChar = *unescapedTextPtr;
         if(unEscapedChar == tobeEscapedChar )
         {
-            sprintf(escapedChar, "%%%X", (int) unEscapedChar);
+            if (' ' == unEscapedChar)
+            {
+                strcpy(escapedChar, "+");
+            }
+            else
+            {
+                sprintf(escapedChar, "%%%X", (int) unEscapedChar);
+            }
 #ifdef TEST_PRINT
             osPrintf("%d escaped: %s\n", (int) unEscapedChar,
                 escapedChar);

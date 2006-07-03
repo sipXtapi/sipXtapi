@@ -1,8 +1,10 @@
 /* -------------------------------------------------------------------------
- * Project: GSocket (Generic Socket) for WX
- * Name:    gsockunx.h
- * Purpose: GSocket Unix header
- * CVSID:   $Id: gsockunx.h,v 1.7 2001/05/10 06:31:39 GRG Exp $
+ * Project:     GSocket (Generic Socket) for WX
+ * Name:        gsockunx.h
+ * Copyright:   (c) Guilhem Lavaux
+ * Licence:     wxWindows Licence
+ * Purpose:     GSocket Unix header
+ * CVSID:       $Id: gsockunx.h,v 1.21 2005/05/04 18:53:05 JS Exp $
  * -------------------------------------------------------------------------
  */
 
@@ -21,33 +23,74 @@
 #include "gsocket.h"
 #endif
 
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-
-
-/* Definition of GSocket */
-struct _GSocket
+class GSocketGUIFunctionsTableConcrete: public GSocketGUIFunctionsTable
 {
+public:
+    virtual bool OnInit();
+    virtual void OnExit();
+    virtual bool CanUseEventLoop();
+    virtual bool Init_Socket(GSocket *socket);
+    virtual void Destroy_Socket(GSocket *socket);
+    virtual void Install_Callback(GSocket *socket, GSocketEvent event);
+    virtual void Uninstall_Callback(GSocket *socket, GSocketEvent event);
+    virtual void Enable_Events(GSocket *socket);
+    virtual void Disable_Events(GSocket *socket);
+};
+
+class GSocket
+{
+public:
+    GSocket();
+    virtual ~GSocket();
+    bool IsOk() { return m_ok; }
+    void Close();
+    void Shutdown();
+    GSocketError SetLocal(GAddress *address);
+    GSocketError SetPeer(GAddress *address);
+    GAddress *GetLocal();
+    GAddress *GetPeer();
+    GSocketError SetServer();
+    GSocket *WaitConnection();
+    bool SetReusable();
+    GSocketError Connect(GSocketStream stream);
+    GSocketError SetNonOriented();
+    int Read(char *buffer, int size);
+    int Write(const char *buffer, int size);
+    GSocketEventFlags Select(GSocketEventFlags flags);
+    void SetNonBlocking(bool non_block);
+    void SetTimeout(unsigned long millisec);
+    GSocketError WXDLLIMPEXP_NET GetError();
+    void SetCallback(GSocketEventFlags flags,
+        GSocketCallback callback, char *cdata);
+    void UnsetCallback(GSocketEventFlags flags);
+    GSocketError GetSockOpt(int level, int optname, void *optval, int *optlen);
+    GSocketError SetSockOpt(int level, int optname,
+        const void *optval, int optlen);
+    virtual void Detected_Read();
+    virtual void Detected_Write();
+protected:
+    void Enable(GSocketEvent event);
+    void Disable(GSocketEvent event);
+    GSocketError Input_Timeout();
+    GSocketError Output_Timeout();
+    int Recv_Stream(char *buffer, int size);
+    int Recv_Dgram(char *buffer, int size);
+    int Send_Stream(const char *buffer, int size);
+    int Send_Dgram(const char *buffer, int size);
+    bool m_ok;
+public:
+    /* DFE: We can't protect these data member until the GUI code is updated */
+    /* protected: */
   int m_fd;
   GAddress *m_local;
   GAddress *m_peer;
   GSocketError m_error;
 
-  int m_non_blocking;
-  int m_server;
-  int m_stream;
-  int m_oriented;
-  int m_establishing;
+  bool m_non_blocking;
+  bool m_server;
+  bool m_stream;
+  bool m_establishing;
+  bool m_reusable;
   unsigned long m_timeout;
 
   /* Callbacks */
@@ -56,8 +99,12 @@ struct _GSocket
   char *m_data[GSOCK_MAX_EVENT];
 
   char *m_gui_dependent;
+
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 /* Definition of GAddress */
 struct _GAddress
 {
@@ -69,30 +116,15 @@ struct _GAddress
 
   GSocketError m_error;
 };
+#ifdef __cplusplus
+}
+#endif  /* __cplusplus */
 
-/* Input / Output */
 
-GSocketError _GSocket_Input_Timeout(GSocket *socket);
-GSocketError _GSocket_Output_Timeout(GSocket *socket);
-int _GSocket_Recv_Stream(GSocket *socket, char *buffer, int size);
-int _GSocket_Recv_Dgram(GSocket *socket, char *buffer, int size);
-int _GSocket_Send_Stream(GSocket *socket, const char *buffer, int size);
-int _GSocket_Send_Dgram(GSocket *socket, const char *buffer, int size);
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
-/* Callbacks */
-
-int  _GSocket_GUI_Init(GSocket *socket);
-void _GSocket_GUI_Destroy(GSocket *socket);
-
-void _GSocket_Enable_Events(GSocket *socket);
-void _GSocket_Disable_Events(GSocket *socket);
-void _GSocket_Install_Callback(GSocket *socket, GSocketEvent event);
-void _GSocket_Uninstall_Callback(GSocket *socket, GSocketEvent event);
-
-void _GSocket_Enable(GSocket *socket, GSocketEvent event);
-void _GSocket_Disable(GSocket *socket, GSocketEvent event);
-void _GSocket_Detected_Read(GSocket *socket);
-void _GSocket_Detected_Write(GSocket *socket);
 
 /* GAddress */
 

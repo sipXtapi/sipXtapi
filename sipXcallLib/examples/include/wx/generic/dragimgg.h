@@ -5,7 +5,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     29/2/2000
-// RCS-ID:      $Id: dragimgg.h,v 1.5.2.1 2002/11/13 08:32:19 RL Exp $
+// RCS-ID:      $Id: dragimgg.h,v 1.12 2004/06/17 16:22:26 ABX Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 #ifndef _WX_DRAGIMGG_H_
 #define _WX_DRAGIMGG_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "dragimgg.h"
 #endif
 
@@ -30,7 +30,7 @@
   void MyTreeCtrl::OnBeginDrag(wxTreeEvent& event)
   {
 #ifdef __WXMSW__
-    ::UpdateWindow((HWND) GetHWND()); // We need to implement this in wxWindows
+    ::UpdateWindow((HWND) GetHWND()); // We need to implement this in wxWidgets
 #endif
 
     CaptureMouse();
@@ -156,19 +156,24 @@ public:
         Create(str, cursor, cursorHotspot);
     }
 
+#if wxUSE_TREECTRL
     wxGenericDragImage(const wxTreeCtrl& treeCtrl, wxTreeItemId& id)
     {
         Init();
 
         Create(treeCtrl, id);
     }
+#endif
 
+#if wxUSE_LISTCTRL
     wxGenericDragImage(const wxListCtrl& listCtrl, long id)
     {
         Init();
 
         Create(listCtrl, id);
     }
+#endif
+
     ~wxGenericDragImage();
 
     // Attributes
@@ -213,15 +218,19 @@ public:
         return Create(str, cursor);
     }
 
+#if wxUSE_TREECTRL
     // Create a drag image for the given tree control item
     bool Create(const wxTreeCtrl& treeCtrl, wxTreeItemId& id);
+#endif
 
+#if wxUSE_LISTCTRL
     // Create a drag image for the given list control item
     bool Create(const wxListCtrl& listCtrl, long id);
+#endif
 
     // Begin drag. hotspot is the location of the drag position relative to the upper-left
     // corner of the image.
-    bool BeginDrag(const wxPoint& hotspot, wxWindow* window, bool fullScreen = FALSE, wxRect* rect = (wxRect*) NULL);
+    bool BeginDrag(const wxPoint& hotspot, wxWindow* window, bool fullScreen = false, wxRect* rect = (wxRect*) NULL);
 
     // Begin drag. hotspot is the location of the drag position relative to the upper-left
     // corner of the image. This is full screen only. fullScreenRect gives the
@@ -288,6 +297,7 @@ protected:
 
 private:
     DECLARE_DYNAMIC_CLASS(wxGenericDragImage)
+    DECLARE_NO_COPY_CLASS(wxGenericDragImage)
 };
 
 #endif

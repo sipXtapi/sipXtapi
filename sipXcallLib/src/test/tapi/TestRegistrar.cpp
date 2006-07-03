@@ -34,7 +34,8 @@ TestRegistrarUsers gUsers[] =
 
 // Constructor
 TestRegistrar::TestRegistrar() 
-    : OsServerTask("TestRegistrarServer", NULL, 2000)   
+    : OsServerTask("TestRegistrarServer", NULL, 2000)   ,
+      mbPaused(false)
 {
     mpUserAgent = new  SipUserAgent(
                 5070,                    // sipTcpPort
@@ -90,6 +91,11 @@ void TestRegistrar::init()
     this->start();
 }
 
+void TestRegistrar::pause(bool bPause)
+{
+    mbPaused = bPause;
+}
+
 UtlBoolean TestRegistrar::handleMessage(OsMsg& rMsg)
 {
     int msgType = rMsg.getMsgType();
@@ -100,17 +106,24 @@ UtlBoolean TestRegistrar::handleMessage(OsMsg& rMsg)
     {
         case OsMsg::PHONE_APP:
         {
-            const SipMessage& message = *((SipMessageEvent&)rMsg).getMessage();
-            UtlString method;
-            
-            if (!message.isResponse())
+            if (!mbPaused)
             {
-                message.getRequestMethod(&method);
+                const SipMessage& message = *((SipMessageEvent&)rMsg).getMessage();
+                UtlString method;
                 
-                if (SIP_REGISTER_METHOD == method)
+                if (!message.isResponse())
                 {
-                    messageProcessed = handleRegisterRequest(message);
+                    message.getRequestMethod(&method);
+                    
+                    if (SIP_REGISTER_METHOD == method)
+                    {
+                        messageProcessed = handleRegisterRequest(message);
+                    }
                 }
+            }
+            else
+            {
+                messageProcessed = true; // eat it
             }
             break;
         }

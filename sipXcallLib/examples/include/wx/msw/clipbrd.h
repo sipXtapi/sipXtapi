@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: clipbrd.h,v 1.16 1999/10/22 13:26:42 VZ Exp $
+// RCS-ID:      $Id: clipbrd.h,v 1.24 2004/08/20 12:03:03 ABX Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_CLIPBRD_H_
 #define _WX_CLIPBRD_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "clipbrd.h"
 #endif
 
@@ -52,7 +52,7 @@ WXDLLEXPORT bool wxGetClipboardFormatName(wxDataFormat dataFormat,
 //-----------------------------------------------------------------------------
 
 class WXDLLEXPORT wxDataObject;
-class WXDLLEXPORT wxClipboard : public wxObject
+class WXDLLEXPORT wxClipboard : public wxClipboardBase
 {
     DECLARE_DYNAMIC_CLASS(wxClipboard)
 
@@ -76,7 +76,7 @@ public:
     virtual bool AddData( wxDataObject *data );
 
     // ask if data in correct format is available
-    virtual bool IsSupported( wxDataFormat format );
+    virtual bool IsSupported( const wxDataFormat& format );
 
     // fill data with data on the clipboard (if available)
     virtual bool GetData( wxDataObject& data );
@@ -90,10 +90,11 @@ public:
     virtual bool Flush();
 
     // X11 has two clipboards which get selected by this call. Empty on MSW.
-    void UsePrimarySelection( bool WXUNUSED(primary) = FALSE ) { }
+    void UsePrimarySelection( bool WXUNUSED(primary) = false ) { }
 
 private:
     bool m_clearOnExit;
+    bool m_isOpened;
 };
 
 #endif // wxUSE_CLIPBOARD

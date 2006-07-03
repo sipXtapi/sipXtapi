@@ -33,7 +33,7 @@ PhoneStateRemoteBusy::PhoneStateRemoteBusy(void)
 
 PhoneStateRemoteBusy::~PhoneStateRemoteBusy(void)
 {
-    sipXmgr::getInstance().stopTone();
+    sipxCallAudioPlayFileStop(sipXmgr::getInstance().getCurrentCall());
 }
 
 PhoneState* PhoneStateRemoteBusy::OnFlashButton()
@@ -45,7 +45,7 @@ PhoneState* PhoneStateRemoteBusy::Execute()
 {
     thePhoneApp->setStatusMessage("Busy.");
     
-    sipxCallStartTone(sipXmgr::getInstance().getCurrentCall(), ID_TONE_BUSY, true, false); 
+    sipxCallAudioPlayFileStart(sipXmgr::getInstance().getCurrentCall(), "res\\busy.wav", true, true, false);
    
     return this;
 }

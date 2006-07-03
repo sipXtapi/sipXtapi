@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: scrolbar.h,v 1.7 2001/06/26 20:59:07 VZ Exp $
+// RCS-ID:      $Id: scrolbar.h,v 1.19 2005/05/31 14:52:17 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,15 +12,13 @@
 #ifndef _WX_SCROLBAR_H_
 #define _WX_SCROLBAR_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "scrolbar.h"
 #endif
 
 // Scrollbar item
 class WXDLLEXPORT wxScrollBar: public wxScrollBarBase
 {
-    DECLARE_DYNAMIC_CLASS(wxScrollBar)
-
 public:
     wxScrollBar() { m_pageSize = 0; m_viewSize = 0; m_objectSize = 0; }
     ~wxScrollBar();
@@ -48,39 +46,29 @@ public:
 
     virtual void SetThumbPosition(int viewStart);
     virtual void SetScrollbar(int position, int thumbSize, int range, int pageSize,
-            bool refresh = TRUE);
+            bool refresh = true);
 
-#if WXWIN_COMPATIBILITY
-    // Backward compatibility
-    int GetValue() const { return GetThumbPosition(); }
-    void SetValue(int viewStart) { SetThumbPosition(viewStart); }
-    void GetValues(int *viewStart, int *viewLength, int *objectLength,
-            int *pageLength) const ;
-    int GetViewLength() const { return m_viewSize; }
-    int GetObjectLength() const { return m_objectSize; }
-
-    void SetPageSize(int pageLength);
-    void SetObjectLength(int objectLength);
-    void SetViewLength(int viewLength);
-#endif
+    // needed for RTTI
+    void SetThumbSize( int s ) { SetScrollbar( GetThumbPosition() , s , GetRange() , GetPageSize() , true ) ; }
+    void SetPageSize( int s ) { SetScrollbar( GetThumbPosition() , GetThumbSize() , GetRange() , s , true ) ; }
+    void SetRange( int s ) { SetScrollbar( GetThumbPosition() , GetThumbSize() , s , GetPageSize() , true ) ; }
 
     void Command(wxCommandEvent& event);
-    virtual WXHBRUSH OnCtlColor(WXHDC pDC, WXHWND pWnd, WXUINT nCtlColor,
-            WXUINT message, WXWPARAM wParam, WXLPARAM lParam);
     virtual bool MSWOnScroll(int orientation, WXWORD wParam,
                              WXWORD pos, WXHWND control);
 
-#if WXWIN_COMPATIBILITY
-    // Backward compatibility: generate an old-style scroll command
-    void OnScroll(wxScrollEvent& event);
-#endif // WXWIN_COMPATIBILITY
+    // override wxControl version to not use solid background here
+    virtual WXHBRUSH MSWControlColor(WXHDC pDC, WXHWND hWnd);
 
 protected:
+    virtual wxSize DoGetBestSize() const;
+    virtual WXDWORD MSWGetStyle(long style, WXDWORD *exstyle) const;
+
     int m_pageSize;
     int m_viewSize;
     int m_objectSize;
 
-    DECLARE_EVENT_TABLE()
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxScrollBar)
 };
 
 #endif

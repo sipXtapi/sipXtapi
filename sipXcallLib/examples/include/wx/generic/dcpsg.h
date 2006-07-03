@@ -1,17 +1,17 @@
 /////////////////////////////////////////////////////////////////////////////
-// Name:        dcps.h
+// Name:        wx/generic/dcps.h
 // Purpose:     wxPostScriptDC class
 // Author:      Julian Smart and others
 // Modified by:
-// RCS-ID:      $Id: dcpsg.h,v 1.21 2002/09/13 22:00:44 RR Exp $
-// Copyright:   (c) Julian Smart, Robert Roebling and Markus Holzem
+// RCS-ID:      $Id: dcpsg.h,v 1.33 2005/09/15 15:26:19 ABX Exp $
+// Copyright:   (c) Julian Smart and Robert Roebling
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_DCPSG_H_
 #define _WX_DCPSG_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "dcpsg.h"
 #endif
 
@@ -38,18 +38,13 @@ class wxPostScriptDC;
 class WXDLLEXPORT wxPostScriptDC: public wxDC
 {
 public:
-  wxPostScriptDC();
+    wxPostScriptDC();
 
-  // Recommended constructor
-  wxPostScriptDC(const wxPrintData& printData);
-  
-  ~wxPostScriptDC();
+    // Recommended constructor
+    wxPostScriptDC(const wxPrintData& printData);
 
-#if WXWIN_COMPATIBILITY_2_2
-  wxPostScriptDC( const wxString &output, bool interactive = FALSE, wxWindow *parent = NULL )
-      { Create( output, interactive, parent ); }
-  bool Create ( const wxString &output, bool interactive = FALSE, wxWindow *parent = NULL );
-#endif
+    // Recommended destructor :-)
+    ~wxPostScriptDC();
 
   virtual bool Ok() const;
 
@@ -66,19 +61,21 @@ public:
   void DoDrawPoint(wxCoord x, wxCoord y);
   void DoDrawLines(int n, wxPoint points[], wxCoord xoffset = 0, wxCoord yoffset = 0);
   void DoDrawPolygon(int n, wxPoint points[], wxCoord xoffset = 0, wxCoord yoffset = 0, int fillStyle=wxODDEVEN_RULE);
+  void DoDrawPolyPolygon(int n, int count[], wxPoint points[], wxCoord xoffset = 0, wxCoord yoffset = 0, int fillStyle=wxODDEVEN_RULE);
   void DoDrawRectangle(wxCoord x, wxCoord y, wxCoord width, wxCoord height);
   void DoDrawRoundedRectangle(wxCoord x, wxCoord y, wxCoord width, wxCoord height, double radius = 20);
   void DoDrawEllipse(wxCoord x, wxCoord y, wxCoord width, wxCoord height);
 
+#if wxUSE_SPLINES
   void DoDrawSpline(wxList *points);
-
+#endif // wxUSE_SPLINES
   bool DoBlit(wxCoord xdest, wxCoord ydest, wxCoord width, wxCoord height,
-            wxDC *source, wxCoord xsrc, wxCoord ysrc, int rop = wxCOPY, bool useMask = FALSE,
-            wxCoord xsrcMask = -1, wxCoord ysrcMask = -1);
-  bool CanDrawBitmap() const { return TRUE; }
+            wxDC *source, wxCoord xsrc, wxCoord ysrc, int rop = wxCOPY, bool useMask = false,
+            wxCoord xsrcMask = wxDefaultCoord, wxCoord ysrcMask = wxDefaultCoord);
+  bool CanDrawBitmap() const { return true; }
 
   void DoDrawIcon( const wxIcon& icon, wxCoord x, wxCoord y );
-  void DoDrawBitmap( const wxBitmap& bitmap, wxCoord x, wxCoord y, bool useMask=FALSE );
+  void DoDrawBitmap( const wxBitmap& bitmap, wxCoord x, wxCoord y, bool useMask = false );
 
   void DoDrawText(const wxString& text, wxCoord x, wxCoord y );
   void DoDrawRotatedText(const wxString& text, wxCoord x, wxCoord y, double angle);
@@ -102,7 +99,7 @@ public:
 
   wxCoord GetCharHeight() const;
   wxCoord GetCharWidth() const;
-  bool CanGetTextExtent() const { return TRUE; }
+  bool CanGetTextExtent() const { return true; }
   void DoGetTextExtent(const wxString& string, wxCoord *x, wxCoord *y,
                      wxCoord *descent = (wxCoord *) NULL,
                      wxCoord *externalLeading = (wxCoord *) NULL,
@@ -124,14 +121,23 @@ public:
   void SetPrintData(const wxPrintData& data) { m_printData = data; }
 
   virtual int GetDepth() const { return 24; }
-  
+
   static void SetResolution(int ppi);
   static int GetResolution();
-  
-private:  
+
+  void PsPrintf( const wxChar* fmt, ... );
+  void PsPrint( const char* psdata );
+  void PsPrint( int ch );
+
+#if wxUSE_UNICODE
+  void PsPrint( const wxChar* psdata ) { PsPrint( wxConvUTF8.cWX2MB( psdata ) ); }
+#endif
+
+private:
     static float ms_PSScaleFactor;
 
 protected:
+
     FILE*             m_pstream;    // PostScript output stream
     wxString          m_title;
     unsigned char     m_currentRed;
@@ -142,54 +148,10 @@ protected:
     double            m_underlinePosition;
     double            m_underlineThickness;
     wxPrintData       m_printData;
-    
+
 private:
     DECLARE_DYNAMIC_CLASS(wxPostScriptDC)
 };
-
-
-#if WXWIN_COMPATIBILITY_2_2
-// Print Orientation
-enum
-{
-    PS_PORTRAIT = wxPORTRAIT,
-    PS_LANDSCAPE = wxLANDSCAPE
-};
-
-// Print Actions
-enum
-{
-    PS_NONE = wxPRINT_MODE_NONE,
-    PS_PREVIEW = wxPRINT_MODE_PREVIEW,
-    PS_FILE = wxPRINT_MODE_FILE,
-    PS_PRINTER = wxPRINT_MODE_PRINTER
-};
-    
-class wxPrintSetupData: public wxPrintData
-{
-public:
-    wxPrintSetupData() {}
-    
-    void SetPrinterOrientation( int orient ) 
-        { SetOrientation( orient ); }
-    void SetPrinterMode( wxPrintMode mode ) 
-        { SetPrintMode( mode ); }
-    void SetAFMPath( const wxString &path ) 
-        { SetFontMetricPath( path ); }
-    
-    void SetPaperName(const wxString& paper) { m_paperName = paper; }
-    void SetPrinterFile(const wxString& file) { m_printerFile = file; }
-    wxString GetPaperName() const { return m_paperName; }
-    wxString GetPrinterFile() const { return m_printerFile; };
-    
-    wxString        m_paperName;
-    wxString        m_printerFile;
-};
-
-WXDLLEXPORT_DATA(extern wxPrintSetupData*) wxThePrintSetupData;
-WXDLLEXPORT extern void wxInitializePrintSetupData(bool init = TRUE);
-#endif
-
 
 #endif
     // wxUSE_POSTSCRIPT

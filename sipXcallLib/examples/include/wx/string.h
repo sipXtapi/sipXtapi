@@ -1,33 +1,22 @@
 ///////////////////////////////////////////////////////////////////////////////
-// Name:        string.h
+// Name:        wx/string.h
 // Purpose:     wxString and wxArrayString classes
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     29/01/98
-// RCS-ID:      $Id: string.h,v 1.146.4.6 2003/08/24 09:56:16 SN Exp $
+// RCS-ID:      $Id: string.h,v 1.206.2.3 2005/12/15 19:26:27 VZ Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
     Efficient string class [more or less] compatible with MFC CString,
-    wxWindows version 1 wxString and std::string and some handy functions
+    wxWidgets version 1 wxString and std::string and some handy functions
     missing from string.h.
 */
 
 #ifndef _WX_WXSTRINGH__
 #define _WX_WXSTRINGH__
-
-#if defined(__GNUG__) && !defined(__APPLE__)
-    #pragma interface "string.h"
-#endif
-
-// ----------------------------------------------------------------------------
-// conditinal compilation
-// ----------------------------------------------------------------------------
-
-// compile the std::string compatibility functions if defined
-#define   wxSTD_STRING_COMPATIBILITY
 
 // ----------------------------------------------------------------------------
 // headers
@@ -54,13 +43,19 @@
 #  include <stdlib.h>
 #endif
 
-#ifdef HAVE_STRINGS_H
+#ifdef HAVE_STRCASECMP_IN_STRINGS_H
     #include <strings.h>    // for strcasecmp()
-#endif // HAVE_STRINGS_H
+#endif // HAVE_STRCASECMP_IN_STRINGS_H
+
+#ifdef __WXPALMOS__
+    #include <StringMgr.h>
+#endif
 
 #include "wx/wxchar.h"      // for wxChar
 #include "wx/buffer.h"      // for wxCharBuffer
 #include "wx/strconv.h"     // for wxConvertXXX() macros and wxMBConv classes
+
+class WXDLLIMPEXP_BASE wxString;
 
 // ---------------------------------------------------------------------------
 // macros
@@ -75,29 +70,21 @@
 
 // implementation only
 #define   wxASSERT_VALID_INDEX(i) \
-    wxASSERT_MSG( (size_t)(i) <= Len(), _T("invalid index in wxString") )
+    wxASSERT_MSG( (size_t)(i) <= length(), _T("invalid index in wxString") )
 
 // ----------------------------------------------------------------------------
 // constants
 // ----------------------------------------------------------------------------
 
-#if defined(__VISAGECPP__) && __IBMCPP__ >= 400
-// must define this static for VA or else you get multiply defined symbols everywhere
-extern const unsigned int wxSTRING_MAXLEN;
-
-#else
 // maximum possible length for a string means "take all string" everywhere
-//  (as sizeof(StringData) is unknown here, we substract 100)
-const unsigned int wxSTRING_MAXLEN = UINT_MAX - 100;
-
-#endif
+#define wxSTRING_MAXLEN wxStringBase::npos
 
 // ----------------------------------------------------------------------------
 // global data
 // ----------------------------------------------------------------------------
 
 // global pointer to empty string
-WXDLLEXPORT_DATA(extern const wxChar*) wxEmptyString;
+extern WXDLLIMPEXP_DATA_BASE(const wxChar*) wxEmptyString;
 
 // ---------------------------------------------------------------------------
 // global functions complementing standard C string library replacements for
@@ -117,7 +104,15 @@ inline size_t Strlen(const char *psz)
 // portable strcasecmp/_stricmp
 inline int Stricmp(const char *psz1, const char *psz2)
 {
-#if defined(__VISUALC__) || ( defined(__MWERKS__) && defined(__INTEL__) )
+#if defined(__VISUALC__) && defined(__WXWINCE__)
+  register char c1, c2;
+  do {
+    c1 = tolower(*psz1++);
+    c2 = tolower(*psz2++);
+  } while ( c1 && (c1 == c2) );
+
+  return c1 - c2;
+#elif defined(__VISUALC__) || ( defined(__MWERKS__) && defined(__INTEL__) )
   return _stricmp(psz1, psz2);
 #elif defined(__SC__)
   return _stricmp(psz1, psz2);
@@ -133,7 +128,10 @@ inline int Stricmp(const char *psz1, const char *psz2)
   return stricmp(psz1, psz2);
 #elif defined(__WXPM__)
   return stricmp(psz1, psz2);
-#elif defined(__UNIX__) || defined(__GNUWIN32__)
+#elif defined(__WXPALMOS__) || \
+      defined(HAVE_STRCASECMP_IN_STRING_H) || \
+      defined(HAVE_STRCASECMP_IN_STRINGS_H) || \
+      defined(__GNUWIN32__)
   return strcasecmp(psz1, psz2);
 #elif defined(__MWERKS__) && !defined(__INTEL__)
   register char c1, c2;
@@ -161,16 +159,55 @@ inline int Stricmp(const char *psz1, const char *psz2)
 #endif  // OS/compiler
 }
 
-// return an empty wxString
-class WXDLLEXPORT wxString; // not yet defined
-inline const wxString& wxGetEmptyString() { return *(wxString *)&wxEmptyString; }
+// ----------------------------------------------------------------------------
+// deal with STL/non-STL/non-STL-but-wxUSE_STD_STRING
+// ----------------------------------------------------------------------------
+
+// in both cases we need to define wxStdString
+#if wxUSE_STL || wxUSE_STD_STRING
+
+#include "wx/beforestd.h"
+#include <string>
+#include "wx/afterstd.h"
+
+#if wxUSE_UNICODE
+    #ifdef HAVE_STD_WSTRING
+        typedef std::wstring wxStdString;
+    #else
+        typedef std::basic_string<wxChar> wxStdString;
+    #endif
+#else
+    typedef std::string wxStdString;
+#endif
+
+#endif // need <string>
+
+#if wxUSE_STL
+
+    // we don't need an extra ctor from std::string when copy ctor already does
+    // the work
+    #undef wxUSE_STD_STRING
+    #define wxUSE_STD_STRING 0
+
+    #if (defined(__GNUG__) && (__GNUG__ < 3)) || \
+        (defined(_MSC_VER) && (_MSC_VER <= 1200))
+        #define wxSTRING_BASE_HASNT_CLEAR
+    #endif
+
+    typedef wxStdString wxStringBase;
+#else // if !wxUSE_STL
+
+#if !defined(HAVE_STD_STRING_COMPARE) && \
+    (!defined(__WX_SETUP_H__) || wxUSE_STL == 0)
+    #define HAVE_STD_STRING_COMPARE
+#endif
 
 // ---------------------------------------------------------------------------
 // string data prepended with some housekeeping info (used by wxString class),
 // is never used directly (but had to be put here to allow inlining)
 // ---------------------------------------------------------------------------
 
-struct WXDLLEXPORT wxStringData
+struct WXDLLIMPEXP_BASE wxStringData
 {
   int     nRefs;        // reference count
   size_t  nDataLength,  // actual string length
@@ -206,37 +243,15 @@ struct WXDLLEXPORT wxStringData
   bool  IsValid() const   { return (nRefs != 0); }
 };
 
-// ---------------------------------------------------------------------------
-// This is (yet another one) String class for C++ programmers. It doesn't use
-// any of "advanced" C++ features (i.e. templates, exceptions, namespaces...)
-// thus you should be able to compile it with practicaly any C++ compiler.
-// This class uses copy-on-write technique, i.e. identical strings share the
-// same memory as long as neither of them is changed.
-//
-// This class aims to be as compatible as possible with the new standard
-// std::string class, but adds some additional functions and should be at
-// least as efficient than the standard implementation.
-//
-// Performance note: it's more efficient to write functions which take "const
-// String&" arguments than "const char *" if you assign the argument to
-// another string.
-//
-// It was compiled and tested under Win32, Linux (libc 5 & 6), Solaris 5.5.
-//
-// To do:
-//  - ressource support (string tables in ressources)
-//  - more wide character (UNICODE) support
-//  - regular expressions support
-// ---------------------------------------------------------------------------
-
-class WXDLLEXPORT wxString
+class WXDLLIMPEXP_BASE wxStringBase
 {
-friend class WXDLLEXPORT wxArrayString;
-
-  // NB: special care was taken in arranging the member functions in such order
-  //     that all inline functions can be effectively inlined, verify that all
-  //     performace critical functions are still inlined if you change order!
-private:
+#if !wxUSE_STL
+friend class WXDLLIMPEXP_BASE wxArrayString;
+#endif
+public :
+  // an 'invalid' value for string index, moved to this place due to a CW bug
+  static const size_t npos;
+protected:
   // points to data preceded by wxStringData structure with ref count info
   wxChar *m_pchData;
 
@@ -248,7 +263,7 @@ private:
     // ctors, use Reinit() otherwise)
   void Init() { m_pchData = (wxChar *)wxEmptyString; }
     // initializaes the string with (a part of) C-string
-  void InitWith(const wxChar *psz, size_t nPos = 0, size_t nLen = wxSTRING_MAXLEN);
+  void InitWith(const wxChar *psz, size_t nPos = 0, size_t nLen = npos);
     // as Init, but also frees old data
   void Reinit() { GetStringData()->Unlock(); Init(); }
 
@@ -261,13 +276,347 @@ private:
   bool AssignCopy(size_t, const wxChar *);
 
   // append a (sub)string
-  bool ConcatSelf(int nLen, const wxChar *src);
+  bool ConcatSelf(size_t nLen, const wxChar *src, size_t nMaxLen);
+  bool ConcatSelf(size_t nLen, const wxChar *src)
+    { return ConcatSelf(nLen, src, nLen); }
 
   // functions called before writing to the string: they copy it if there
   // are other references to our data (should be the only owner when writing)
   bool CopyBeforeWrite();
   bool AllocBeforeWrite(size_t);
 
+    // compatibility with wxString
+  bool Alloc(size_t nLen);
+public:
+  // standard types
+  typedef wxChar value_type;
+  typedef wxChar char_type;
+  typedef size_t size_type;
+  typedef value_type& reference;
+  typedef const value_type& const_reference;
+  typedef value_type* pointer;
+  typedef const value_type* const_pointer;
+  typedef value_type *iterator;
+  typedef const value_type *const_iterator;
+
+  // constructors and destructor
+    // ctor for an empty string
+  wxStringBase() { Init(); }
+    // copy ctor
+  wxStringBase(const wxStringBase& stringSrc)
+  {
+    wxASSERT_MSG( stringSrc.GetStringData()->IsValid(),
+                  _T("did you forget to call UngetWriteBuf()?") );
+
+    if ( stringSrc.empty() ) {
+      // nothing to do for an empty string
+      Init();
+    }
+    else {
+      m_pchData = stringSrc.m_pchData;            // share same data
+      GetStringData()->Lock();                    // => one more copy
+    }
+  }
+    // string containing nRepeat copies of ch
+  wxStringBase(size_type nRepeat, wxChar ch);
+    // ctor takes first nLength characters from C string
+    // (default value of npos means take all the string)
+  wxStringBase(const wxChar *psz)
+      { InitWith(psz, 0, npos); }
+  wxStringBase(const wxChar *psz, size_t nLength)
+      { InitWith(psz, 0, nLength); }
+  wxStringBase(const wxChar *psz, wxMBConv& WXUNUSED(conv), size_t nLength = npos)
+      { InitWith(psz, 0, nLength); }
+    // take nLen chars starting at nPos
+  wxStringBase(const wxStringBase& str, size_t nPos, size_t nLen)
+  {
+    wxASSERT_MSG( str.GetStringData()->IsValid(),
+                  _T("did you forget to call UngetWriteBuf()?") );
+    Init();
+    size_t strLen = str.length() - nPos; nLen = strLen < nLen ? strLen : nLen;
+    InitWith(str.c_str(), nPos, nLen);
+  }
+    // take all characters from pStart to pEnd
+  wxStringBase(const void *pStart, const void *pEnd);
+
+    // dtor is not virtual, this class must not be inherited from!
+  ~wxStringBase()
+  {
+#if defined(__VISUALC__) && (__VISUALC__ >= 1200)
+      //RN - according to the above VC++ does indeed inline this,
+      //even though it spits out two warnings
+      #pragma warning (disable:4714)
+#endif
+
+      GetStringData()->Unlock();
+  }
+
+#if defined(__VISUALC__) && (__VISUALC__ >= 1200)
+    //re-enable inlining warning
+    #pragma warning (default:4714)
+#endif
+  // overloaded assignment
+    // from another wxString
+  wxStringBase& operator=(const wxStringBase& stringSrc);
+    // from a character
+  wxStringBase& operator=(wxChar ch);
+    // from a C string
+  wxStringBase& operator=(const wxChar *psz);
+
+    // return the length of the string
+  size_type size() const { return GetStringData()->nDataLength; }
+    // return the length of the string
+  size_type length() const { return size(); }
+    // return the maximum size of the string
+  size_type max_size() const { return wxSTRING_MAXLEN; }
+    // resize the string, filling the space with c if c != 0
+  void resize(size_t nSize, wxChar ch = wxT('\0'));
+    // delete the contents of the string
+  void clear() { erase(0, npos); }
+    // returns true if the string is empty
+  bool empty() const { return size() == 0; }
+    // inform string about planned change in size
+  void reserve(size_t sz) { Alloc(sz); }
+  size_type capacity() const { return GetStringData()->nAllocLength; }
+
+  // lib.string.access
+    // return the character at position n
+  value_type at(size_type n) const
+    { wxASSERT_VALID_INDEX( n ); return m_pchData[n]; }
+    // returns the writable character at position n
+  reference at(size_type n)
+    { wxASSERT_VALID_INDEX( n ); CopyBeforeWrite(); return m_pchData[n]; }
+
+  // lib.string.modifiers
+    // append elements str[pos], ..., str[pos+n]
+  wxStringBase& append(const wxStringBase& str, size_t pos, size_t n)
+  {
+    wxASSERT(pos <= str.length());
+    ConcatSelf(n, str.c_str() + pos, str.length() - pos);
+    return *this;
+  }
+    // append a string
+  wxStringBase& append(const wxStringBase& str)
+    { ConcatSelf(str.length(), str.c_str()); return *this; }
+    // append first n (or all if n == npos) characters of sz
+  wxStringBase& append(const wxChar *sz)
+    { ConcatSelf(wxStrlen(sz), sz); return *this; }
+  wxStringBase& append(const wxChar *sz, size_t n)
+    { ConcatSelf(n, sz); return *this; }
+    // append n copies of ch
+  wxStringBase& append(size_t n, wxChar ch);
+    // append from first to last
+  wxStringBase& append(const_iterator first, const_iterator last)
+    { ConcatSelf(last - first, first); return *this; }
+
+    // same as `this_string = str'
+  wxStringBase& assign(const wxStringBase& str)
+    { return *this = str; }
+    // same as ` = str[pos..pos + n]
+  wxStringBase& assign(const wxStringBase& str, size_t pos, size_t n)
+    { clear(); return append(str, pos, n); }
+    // same as `= first n (or all if n == npos) characters of sz'
+  wxStringBase& assign(const wxChar *sz)
+    { clear(); return append(sz, wxStrlen(sz)); }
+  wxStringBase& assign(const wxChar *sz, size_t n)
+    { clear(); return append(sz, n); }
+    // same as `= n copies of ch'
+  wxStringBase& assign(size_t n, wxChar ch)
+    { clear(); return append(n, ch); }
+    // assign from first to last
+  wxStringBase& assign(const_iterator first, const_iterator last)
+    { clear(); return append(first, last); }
+
+    // first valid index position
+  const_iterator begin() const { return m_pchData; }
+    // position one after the last valid one
+  const_iterator end() const { return m_pchData + length(); }
+
+  // first valid index position
+  iterator begin();
+  // position one after the last valid one
+  iterator end();
+
+    // insert another string
+  wxStringBase& insert(size_t nPos, const wxStringBase& str)
+  {
+    wxASSERT( str.GetStringData()->IsValid() );
+    return insert(nPos, str.c_str(), str.length());
+  }
+    // insert n chars of str starting at nStart (in str)
+  wxStringBase& insert(size_t nPos, const wxStringBase& str, size_t nStart, size_t n)
+  {
+    wxASSERT( str.GetStringData()->IsValid() );
+    wxASSERT( nStart < str.length() );
+    size_t strLen = str.length() - nStart;
+    n = strLen < n ? strLen : n;
+    return insert(nPos, str.c_str() + nStart, n);
+  }
+    // insert first n (or all if n == npos) characters of sz
+  wxStringBase& insert(size_t nPos, const wxChar *sz, size_t n = npos);
+    // insert n copies of ch
+  wxStringBase& insert(size_t nPos, size_t n, wxChar ch)
+    { return insert(nPos, wxStringBase(n, ch)); }
+  iterator insert(iterator it, wxChar ch)
+    { size_t idx = it - begin(); insert(idx, 1, ch); return begin() + idx; }
+  void insert(iterator it, const_iterator first, const_iterator last)
+    { insert(it - begin(), first, last - first); }
+  void insert(iterator it, size_type n, wxChar ch)
+    { insert(it - begin(), n, ch); }
+
+    // delete characters from nStart to nStart + nLen
+  wxStringBase& erase(size_type pos = 0, size_type n = npos);
+  iterator erase(iterator first, iterator last)
+  {
+    size_t idx = first - begin();
+    erase(idx, last - first);
+    return begin() + idx;
+  }
+  iterator erase(iterator first);
+
+  // explicit conversion to C string (use this with printf()!)
+  const wxChar* c_str() const { return m_pchData; }
+  const wxChar* data() const { return m_pchData; }
+
+    // replaces the substring of length nLen starting at nStart
+  wxStringBase& replace(size_t nStart, size_t nLen, const wxChar* sz);
+    // replaces the substring of length nLen starting at nStart
+  wxStringBase& replace(size_t nStart, size_t nLen, const wxStringBase& str)
+    { return replace(nStart, nLen, str.c_str()); }
+    // replaces the substring with nCount copies of ch
+  wxStringBase& replace(size_t nStart, size_t nLen, size_t nCount, wxChar ch);
+    // replaces a substring with another substring
+  wxStringBase& replace(size_t nStart, size_t nLen,
+                        const wxStringBase& str, size_t nStart2, size_t nLen2);
+    // replaces the substring with first nCount chars of sz
+  wxStringBase& replace(size_t nStart, size_t nLen,
+                        const wxChar* sz, size_t nCount);
+  wxStringBase& replace(iterator first, iterator last, const_pointer s)
+    { return replace(first - begin(), last - first, s); }
+  wxStringBase& replace(iterator first, iterator last, const_pointer s,
+                        size_type n)
+    { return replace(first - begin(), last - first, s, n); }
+  wxStringBase& replace(iterator first, iterator last, const wxStringBase& s)
+    { return replace(first - begin(), last - first, s); }
+  wxStringBase& replace(iterator first, iterator last, size_type n, wxChar c)
+    { return replace(first - begin(), last - first, n, c); }
+  wxStringBase& replace(iterator first, iterator last,
+                        const_iterator first1, const_iterator last1)
+    { return replace(first - begin(), last - first, first1, last1 - first1); }
+
+    // swap two strings
+  void swap(wxStringBase& str);
+
+    // All find() functions take the nStart argument which specifies the
+    // position to start the search on, the default value is 0. All functions
+    // return npos if there were no match.
+
+    // find a substring
+  size_t find(const wxStringBase& str, size_t nStart = 0) const;
+
+    // find first n characters of sz
+  size_t find(const wxChar* sz, size_t nStart = 0, size_t n = npos) const;
+
+    // find the first occurence of character ch after nStart
+  size_t find(wxChar ch, size_t nStart = 0) const;
+
+    // rfind() family is exactly like find() but works right to left
+
+    // as find, but from the end
+  size_t rfind(const wxStringBase& str, size_t nStart = npos) const;
+
+    // as find, but from the end
+  size_t rfind(const wxChar* sz, size_t nStart = npos,
+               size_t n = npos) const;
+    // as find, but from the end
+  size_t rfind(wxChar ch, size_t nStart = npos) const;
+
+    // find first/last occurence of any character in the set
+
+    // as strpbrk() but starts at nStart, returns npos if not found
+  size_t find_first_of(const wxStringBase& str, size_t nStart = 0) const
+    { return find_first_of(str.c_str(), nStart); }
+    // same as above
+  size_t find_first_of(const wxChar* sz, size_t nStart = 0) const;
+  size_t find_first_of(const wxChar* sz, size_t nStart, size_t n) const;
+    // same as find(char, size_t)
+  size_t find_first_of(wxChar c, size_t nStart = 0) const
+    { return find(c, nStart); }
+    // find the last (starting from nStart) char from str in this string
+  size_t find_last_of (const wxStringBase& str, size_t nStart = npos) const
+    { return find_last_of(str.c_str(), nStart); }
+    // same as above
+  size_t find_last_of (const wxChar* sz, size_t nStart = npos) const;
+  size_t find_last_of(const wxChar* sz, size_t nStart, size_t n) const;
+    // same as above
+  size_t find_last_of(wxChar c, size_t nStart = npos) const
+    { return rfind(c, nStart); }
+
+    // find first/last occurence of any character not in the set
+
+    // as strspn() (starting from nStart), returns npos on failure
+  size_t find_first_not_of(const wxStringBase& str, size_t nStart = 0) const
+    { return find_first_not_of(str.c_str(), nStart); }
+    // same as above
+  size_t find_first_not_of(const wxChar* sz, size_t nStart = 0) const;
+  size_t find_first_not_of(const wxChar* sz, size_t nStart, size_t n) const;
+    // same as above
+  size_t find_first_not_of(wxChar ch, size_t nStart = 0) const;
+    //  as strcspn()
+  size_t find_last_not_of(const wxStringBase& str, size_t nStart = npos) const
+    { return find_last_not_of(str.c_str(), nStart); }
+    // same as above
+  size_t find_last_not_of(const wxChar* sz, size_t nStart = npos) const;
+  size_t find_last_not_of(const wxChar* sz, size_t nStart, size_t n) const;
+    // same as above
+  size_t find_last_not_of(wxChar ch, size_t nStart = npos) const;
+
+    // All compare functions return -1, 0 or 1 if the [sub]string is less,
+    // equal or greater than the compare() argument.
+
+    // comparison with another string
+  int compare(const wxStringBase& str) const;
+    // comparison with a substring
+  int compare(size_t nStart, size_t nLen, const wxStringBase& str) const;
+    // comparison of 2 substrings
+  int compare(size_t nStart, size_t nLen,
+              const wxStringBase& str, size_t nStart2, size_t nLen2) const;
+    // comparison with a c string
+  int compare(const wxChar* sz) const;
+    // substring comparison with first nCount characters of sz
+  int compare(size_t nStart, size_t nLen,
+              const wxChar* sz, size_t nCount = npos) const;
+
+  size_type copy(wxChar* s, size_type n, size_type pos = 0);
+
+  // substring extraction
+  wxStringBase substr(size_t nStart = 0, size_t nLen = npos) const;
+
+      // string += string
+  wxStringBase& operator+=(const wxStringBase& s) { return append(s); }
+      // string += C string
+  wxStringBase& operator+=(const wxChar *psz) { return append(psz); }
+      // string += char
+  wxStringBase& operator+=(wxChar ch) { return append(1, ch); }
+};
+
+#endif // !wxUSE_STL
+
+// ----------------------------------------------------------------------------
+// wxString: string class trying to be compatible with std::string, MFC
+//           CString and wxWindows 1.x wxString all at once
+// ---------------------------------------------------------------------------
+
+class WXDLLIMPEXP_BASE wxString : public wxStringBase
+{
+#if !wxUSE_STL
+friend class WXDLLIMPEXP_BASE wxArrayString;
+#endif
+
+  // NB: special care was taken in arranging the member functions in such order
+  //     that all inline functions can be effectively inlined, verify that all
+  //     performace critical functions are still inlined if you change order!
+private:
   // if we hadn't made these operators private, it would be possible to
   // compile "wxString s; s = 17;" without any warnings as 17 is implicitly
   // converted to char in C and we do have operator=(char)
@@ -286,67 +635,61 @@ private:
 public:
   // constructors and destructor
     // ctor for an empty string
-  wxString() : m_pchData(NULL) { Init(); }
+  wxString() : wxStringBase() { }
     // copy ctor
-  wxString(const wxString& stringSrc) : m_pchData(NULL)
-  {
-    wxASSERT_MSG( stringSrc.GetStringData()->IsValid(),
-                  _T("did you forget to call UngetWriteBuf()?") );
-
-    if ( stringSrc.IsEmpty() ) {
-      // nothing to do for an empty string
-      Init();
-    }
-    else {
-      m_pchData = stringSrc.m_pchData;            // share same data
-      GetStringData()->Lock();                    // => one more copy
-    }
-  }
+  wxString(const wxStringBase& stringSrc) : wxStringBase(stringSrc) { }
+  wxString(const wxString& stringSrc) : wxStringBase(stringSrc) { }
     // string containing nRepeat copies of ch
-  wxString(wxChar ch, size_t nRepeat = 1);
+  wxString(wxChar ch, size_t nRepeat = 1)
+      : wxStringBase(nRepeat, ch) { }
+  wxString(size_t nRepeat, wxChar ch)
+      : wxStringBase(nRepeat, ch) { }
     // ctor takes first nLength characters from C string
-    // (default value of wxSTRING_MAXLEN means take all the string)
-  wxString(const wxChar *psz, size_t nLength = wxSTRING_MAXLEN)
-      : m_pchData(NULL)
-      { InitWith(psz, 0, nLength); }
-  wxString(const wxChar *psz, wxMBConv& WXUNUSED(conv), size_t nLength = wxSTRING_MAXLEN)
-      : m_pchData(NULL)
-      { InitWith(psz, 0, nLength); }
+    // (default value of npos means take all the string)
+  wxString(const wxChar *psz)
+      : wxStringBase(psz ? psz : wxT("")) { }
+  wxString(const wxChar *psz, size_t nLength)
+      : wxStringBase(psz, nLength) { }
+  wxString(const wxChar *psz, wxMBConv& WXUNUSED(conv), size_t nLength = npos)
+      : wxStringBase(psz, nLength == npos ? wxStrlen(psz) : nLength) { }
+
+  // even we're not build with wxUSE_STL == 1 it is very convenient to allow
+  // implicit conversions from std::string to wxString as this allows to use
+  // the same strings in non-GUI and GUI code, however we don't want to
+  // unconditionally add this ctor as it would make wx lib dependent on
+  // libstdc++ on some Linux versions which is bad, so instead we ask the
+  // client code to define this wxUSE_STD_STRING symbol if they need it
+#if wxUSE_STD_STRING
+  wxString(const wxStdString& s)
+      : wxStringBase(s.c_str()) { }
+#endif // wxUSE_STD_STRING
 
 #if wxUSE_UNICODE
     // from multibyte string
-    // (NB: nLength is right now number of Unicode characters, not
-    //  characters in psz! So try not to use it yet!)
-  wxString(const char *psz, wxMBConv& conv, size_t nLength = wxSTRING_MAXLEN);
+  wxString(const char *psz, wxMBConv& conv, size_t nLength = npos);
     // from wxWCharBuffer (i.e. return from wxGetString)
-  wxString(const wxWCharBuffer& psz)
-    { InitWith(psz, 0, wxSTRING_MAXLEN); }
+  wxString(const wxWCharBuffer& psz) : wxStringBase(psz.data()) { }
 #else // ANSI
     // from C string (for compilers using unsigned char)
-  wxString(const unsigned char* psz, size_t nLength = wxSTRING_MAXLEN)
-      : m_pchData(NULL)
-      { InitWith((const char*)psz, 0, nLength); }
+  wxString(const unsigned char* psz, size_t nLength = npos)
+      : wxStringBase((const char*)psz, nLength) { }
 
 #if wxUSE_WCHAR_T
     // from wide (Unicode) string
-  wxString(const wchar_t *pwz, wxMBConv& conv = wxConvLibc, size_t nLength = wxSTRING_MAXLEN);
+  wxString(const wchar_t *pwz, wxMBConv& conv = wxConvLibc, size_t nLength = npos);
 #endif // !wxUSE_WCHAR_T
 
     // from wxCharBuffer
   wxString(const wxCharBuffer& psz)
-      : m_pchData(NULL)
-      { InitWith(psz, 0, wxSTRING_MAXLEN); }
+      : wxStringBase(psz) { }
 #endif // Unicode/ANSI
-
-    // dtor is not virtual, this class must not be inherited from!
- ~wxString() { GetStringData()->Unlock(); }
 
   // generic attributes & operations
     // as standard strlen()
-  size_t Len() const { return GetStringData()->nDataLength; }
+  size_t Len() const { return length(); }
     // string contains any characters?
-  bool IsEmpty() const { return Len() == 0; }
-    // empty string is "FALSE", so !str will return TRUE
+  bool IsEmpty() const { return empty(); }
+    // empty string is "false", so !str will return true
   bool operator!() const { return IsEmpty(); }
     // truncate the string to given length
   wxString& Truncate(size_t uiLen);
@@ -355,17 +698,13 @@ public:
   {
     Truncate(0);
 
-    wxASSERT_MSG( IsEmpty(), _T("string not empty after call to Empty()?") );
+    wxASSERT_MSG( empty(), _T("string not empty after call to Empty()?") );
   }
     // empty the string and free memory
   void Clear()
   {
-    if ( !GetStringData()->IsEmpty() )
-      Reinit();
-
-    wxASSERT_MSG( !GetStringData()->nDataLength &&
-                  !GetStringData()->nAllocLength,
-                  _T("string should be empty after Clear()") );
+    wxString tmp(wxEmptyString);
+    swap(tmp);
   }
 
   // contents test
@@ -379,83 +718,67 @@ public:
   // data access (all indexes are 0 based)
     // read access
     wxChar  GetChar(size_t n) const
-      { wxASSERT_VALID_INDEX( n );  return m_pchData[n]; }
+      { return at(n); }
     // read/write access
     wxChar& GetWritableChar(size_t n)
-      { wxASSERT_VALID_INDEX( n ); CopyBeforeWrite(); return m_pchData[n]; }
+      { return at(n); }
     // write access
     void  SetChar(size_t n, wxChar ch)
-      { wxASSERT_VALID_INDEX( n ); CopyBeforeWrite(); m_pchData[n] = ch; }
+      { at(n) = ch; }
 
     // get last character
     wxChar  Last() const
       {
-          wxASSERT_MSG( !IsEmpty(), _T("wxString: index out of bounds") );
+          wxASSERT_MSG( !empty(), _T("wxString: index out of bounds") );
 
-          return m_pchData[Len() - 1];
+          return at(length() - 1);
       }
 
     // get writable last character
     wxChar& Last()
       {
-          wxASSERT_MSG( !IsEmpty(), _T("wxString: index out of bounds") );
-          CopyBeforeWrite();
-          return m_pchData[Len()-1];
+          wxASSERT_MSG( !empty(), _T("wxString: index out of bounds") );
+          return at(length() - 1);
       }
 
     /*
-        So why do we have all these overloaded operator[]s? A bit of history:
-        initially there was only one of them, taking size_t. Then people
-        started complaining because they wanted to use ints as indices (I
-        wonder why) and compilers were giving warnings about it, so we had to
-        add the operator[](int). Then it became apparent that you couldn't
-        write str[0] any longer because there was ambiguity between two
-        overloads and so you now had to write str[0u] (or, of course, use the
-        explicit casts to either int or size_t but nobody did this).
-
-        Finally, someone decided to compile wxWin on an Alpha machine and got
-        a surprize: str[0u] didn't compile there because it is of type
-        unsigned int and size_t is unsigned _long_ on Alpha and so there was
-        ambiguity between converting uint to int or ulong. To fix this one we
-        now add operator[](uint) for the machines where size_t is not already
-        the same as unsigned int - hopefully this fixes the problem (for some
-        time)
-
-        The only real fix is, of course, to remove all versions but the one
-        taking size_t...
+       Note that we we must define all of the overloads below to avoid
+       ambiguity when using str[0]. Also note that for a conforming compiler we
+       don't need const version of operatorp[] at all as indexed access to
+       const string is provided by implicit conversion to "const wxChar *"
+       below and defining them would only result in ambiguities, but some other
+       compilers refuse to compile "str[0]" without them.
      */
 
-    // operator version of GetChar
-    wxChar  operator[](size_t n) const
-      { wxASSERT_VALID_INDEX( n ); return m_pchData[n]; }
-
-    // operator version of GetChar
-    wxChar  operator[](int n) const
-      { wxASSERT_VALID_INDEX( n ); return m_pchData[n]; }
-
-    // operator version of GetWriteableChar
-    wxChar& operator[](size_t n)
-      { wxASSERT_VALID_INDEX( n ); CopyBeforeWrite(); return m_pchData[n]; }
-
+#if defined(__BORLANDC__) || defined(__WATCOMC__) || defined(__MWERKS__)
+    wxChar operator[](int n) const
+      { return wxStringBase::at(n); }
+    wxChar operator[](size_type n) const
+      { return wxStringBase::at(n); }
 #ifndef wxSIZE_T_IS_UINT
-    // operator version of GetChar
     wxChar operator[](unsigned int n) const
-      { wxASSERT_VALID_INDEX( n ); return m_pchData[n]; }
+      { return wxStringBase::at(n); }
+#endif // size_t != unsigned int
+#endif // broken compiler
 
-    // operator version of GetWriteableChar
+
+    // operator versions of GetWriteableChar()
+    wxChar& operator[](int n)
+      { return wxStringBase::at(n); }
+    wxChar& operator[](size_type n)
+      { return wxStringBase::at(n); }
+#ifndef wxSIZE_T_IS_UINT
     wxChar& operator[](unsigned int n)
-      { wxASSERT_VALID_INDEX( n ); CopyBeforeWrite(); return m_pchData[n]; }
+      { return wxStringBase::at(n); }
 #endif // size_t != unsigned int
 
     // implicit conversion to C string
-    operator const wxChar*() const { return m_pchData; }
+    operator const wxChar*() const { return c_str(); }
 
-    // explicit conversion to C string (use this with printf()!)
-    const wxChar* c_str()   const { return m_pchData; }
     // identical to c_str(), for wxWin 1.6x compatibility
-    const wxChar* wx_str()  const { return m_pchData; }
+    const wxChar* wx_str()  const { return c_str(); }
     // identical to c_str(), for MFC compatibility
-    const wxChar* GetData() const { return m_pchData; }
+    const wxChar* GetData() const { return c_str(); }
 
     // conversion to/from plain (i.e. 7 bit) ASCII: this is useful for
     // converting numbers or strings which are certain not to contain special
@@ -483,48 +806,59 @@ public:
     // type differs because a function may either return pointer to the buffer
     // directly or have to use intermediate buffer for translation.
 #if wxUSE_UNICODE
-    const wxCharBuffer mb_str(wxMBConv& conv = wxConvLibc) const
-        { return conv.cWC2MB(m_pchData); }
+    const wxCharBuffer mb_str(wxMBConv& conv = wxConvLibc) const;
 
     const wxWX2MBbuf mbc_str() const { return mb_str(*wxConvCurrent); }
 
-    const wxChar* wc_str() const { return m_pchData; }
+    const wxChar* wc_str() const { return c_str(); }
 
     // for compatibility with !wxUSE_UNICODE version
-    const wxChar* wc_str(wxMBConv& WXUNUSED(conv)) const { return m_pchData; }
+    const wxChar* wc_str(wxMBConv& WXUNUSED(conv)) const { return c_str(); }
 
 #if wxMBFILES
     const wxCharBuffer fn_str() const { return mb_str(wxConvFile); }
 #else // !wxMBFILES
-    const wxChar* fn_str() const { return m_pchData; }
+    const wxChar* fn_str() const { return c_str(); }
 #endif // wxMBFILES/!wxMBFILES
 #else // ANSI
-    const wxChar* mb_str() const { return m_pchData; }
+    const wxChar* mb_str() const { return c_str(); }
 
     // for compatibility with wxUSE_UNICODE version
-    const wxChar* mb_str(wxMBConv& WXUNUSED(conv)) const { return m_pchData; }
+    const wxChar* mb_str(wxMBConv& WXUNUSED(conv)) const { return c_str(); }
 
     const wxWX2MBbuf mbc_str() const { return mb_str(); }
 
 #if wxUSE_WCHAR_T
-    const wxWCharBuffer wc_str(wxMBConv& conv) const
-        { return conv.cMB2WC(m_pchData); }
+    const wxWCharBuffer wc_str(wxMBConv& conv) const;
 #endif // wxUSE_WCHAR_T
-
-    const wxChar* fn_str() const { return m_pchData; }
+#ifdef __WXOSX__
+    const wxCharBuffer fn_str() const { return wxConvFile.cWC2WX( wc_str( wxConvLocal ) ); }
+#else
+    const wxChar* fn_str() const { return c_str(); }
+#endif
 #endif // Unicode/ANSI
 
   // overloaded assignment
     // from another wxString
-  wxString& operator=(const wxString& stringSrc);
+  wxString& operator=(const wxStringBase& stringSrc)
+    { return (wxString&)wxStringBase::operator=(stringSrc); }
     // from a character
-  wxString& operator=(wxChar ch);
-    // from a C string
-  wxString& operator=(const wxChar *psz);
+  wxString& operator=(wxChar ch)
+    { return (wxString&)wxStringBase::operator=(ch); }
+    // from a C string - STL probably will crash on NULL,
+    // so we need to compensate in that case
+#if wxUSE_STL
+  wxString& operator=(const wxChar *psz)
+    { if(psz) wxStringBase::operator=(psz); else Clear(); return *this; }
+#else
+  wxString& operator=(const wxChar *psz)
+    { return (wxString&)wxStringBase::operator=(psz); }
+#endif
+
 #if wxUSE_UNICODE
     // from wxWCharBuffer
   wxString& operator=(const wxWCharBuffer& psz)
-  { (void) operator=((const wchar_t *)psz); return *this; }
+    { (void) operator=((const wchar_t *)psz); return *this; }
 #else // ANSI
     // from another kind of C string
   wxString& operator=(const unsigned char* psz);
@@ -534,7 +868,7 @@ public:
 #endif
     // from wxCharBuffer
   wxString& operator=(const wxCharBuffer& psz)
-  { (void) operator=((const char *)psz); return *this; }
+    { (void) operator=((const char *)psz); return *this; }
 #endif // Unicode/ANSI
 
   // string concatenation
@@ -547,24 +881,19 @@ public:
       // string += string
   wxString& operator<<(const wxString& s)
   {
+#if !wxUSE_STL
     wxASSERT_MSG( s.GetStringData()->IsValid(),
                   _T("did you forget to call UngetWriteBuf()?") );
+#endif
 
-    ConcatSelf(s.Len(), s);
+    append(s);
     return *this;
   }
       // string += C string
   wxString& operator<<(const wxChar *psz)
-    { ConcatSelf(wxStrlen(psz), psz); return *this; }
+    { append(psz); return *this; }
       // string += char
-  wxString& operator<<(wxChar ch) { ConcatSelf(1, &ch); return *this; }
-
-      // string += string
-  void operator+=(const wxString& s) { (void)operator<<(s); }
-      // string += C string
-  void operator+=(const wxChar *psz) { (void)operator<<(psz); }
-      // string += char
-  void operator+=(wxChar ch) { (void)operator<<(ch); }
+  wxString& operator<<(wxChar ch) { append(1, ch); return *this; }
 
       // string += buffer (i.e. from wxGetString)
 #if wxUSE_UNICODE
@@ -582,20 +911,20 @@ public:
     // string += C string
   wxString& Append(const wxString& s)
     {
-        // test for IsEmpty() to share the string if possible
-        if ( IsEmpty() )
+        // test for empty() to share the string if possible
+        if ( empty() )
             *this = s;
         else
-            ConcatSelf(s.Length(), s.c_str());
+            append(s);
         return *this;
     }
   wxString& Append(const wxChar* psz)
-    { ConcatSelf(wxStrlen(psz), psz); return *this; }
+    { append(psz); return *this; }
     // append count copies of given character
   wxString& Append(wxChar ch, size_t count = 1u)
-    { wxString str(ch, count); return *this << str; }
+    { append(count, ch); return *this; }
   wxString& Append(const wxChar* psz, size_t nLen)
-    { ConcatSelf(nLen, psz); return *this; }
+    { append(psz, nLen); return *this; }
 
     // prepend a string, return the string itself
   wxString& Prepend(const wxString& str)
@@ -603,15 +932,15 @@ public:
 
     // non-destructive concatenation
       //
-  friend wxString WXDLLEXPORT operator+(const wxString& string1,  const wxString& string2);
+  friend wxString WXDLLIMPEXP_BASE operator+(const wxString& string1,  const wxString& string2);
       //
-  friend wxString WXDLLEXPORT operator+(const wxString& string, wxChar ch);
+  friend wxString WXDLLIMPEXP_BASE operator+(const wxString& string, wxChar ch);
       //
-  friend wxString WXDLLEXPORT operator+(wxChar ch, const wxString& string);
+  friend wxString WXDLLIMPEXP_BASE operator+(wxChar ch, const wxString& string);
       //
-  friend wxString WXDLLEXPORT operator+(const wxString& string, const wxChar *psz);
+  friend wxString WXDLLIMPEXP_BASE operator+(const wxString& string, const wxChar *psz);
       //
-  friend wxString WXDLLEXPORT operator+(const wxChar *psz, const wxString& string);
+  friend wxString WXDLLIMPEXP_BASE operator+(const wxChar *psz, const wxString& string);
 
   // stream-like functions
       // insert an int into string
@@ -626,6 +955,22 @@ public:
       // insert an unsigned long into string
   wxString& operator<<(unsigned long ul)
     { return (*this) << Format(_T("%lu"), ul); }
+#if wxABI_VERSION >= 20603
+#if defined wxLongLong_t && !defined wxLongLongIsLong
+      // insert a long long if they exist and aren't longs
+  wxString& operator<<(wxLongLong_t ll)
+    {
+      const wxChar *fmt = _T("%") wxLongLongFmtSpec _T("d");
+      return (*this) << Format(fmt, ll);
+    }
+      // insert an unsigned long long
+  wxString& operator<<(wxULongLong_t ull)
+    {
+      const wxChar *fmt = _T("%") wxLongLongFmtSpec _T("u");
+      return (*this) << Format(fmt , ull);
+    }
+#endif
+#endif
       // insert a float into string
   wxString& operator<<(float f)
     { return (*this) << Format(_T("%f"), f); }
@@ -635,24 +980,26 @@ public:
 
   // string comparison
     // case-sensitive comparison (returns a value < 0, = 0 or > 0)
-  int Cmp(const wxChar *psz) const { return wxStrcmp(c_str(), psz); }
+  int Cmp(const wxChar *psz) const;
+  int Cmp(const wxString& s) const;
     // same as Cmp() but not case-sensitive
-  int CmpNoCase(const wxChar *psz) const { return wxStricmp(c_str(), psz); }
+  int CmpNoCase(const wxChar *psz) const;
+  int CmpNoCase(const wxString& s) const;
     // test for the string equality, either considering case or not
     // (if compareWithCase then the case matters)
-  bool IsSameAs(const wxChar *psz, bool compareWithCase = TRUE) const
+  bool IsSameAs(const wxChar *psz, bool compareWithCase = true) const
     { return (compareWithCase ? Cmp(psz) : CmpNoCase(psz)) == 0; }
-    // comparison with a signle character: returns TRUE if equal
-  bool IsSameAs(wxChar c, bool compareWithCase = TRUE) const
+    // comparison with a signle character: returns true if equal
+  bool IsSameAs(wxChar c, bool compareWithCase = true) const
     {
-      return (Len() == 1) && (compareWithCase ? GetChar(0u) == c
+      return (length() == 1) && (compareWithCase ? GetChar(0u) == c
                               : wxToupper(GetChar(0u)) == wxToupper(c));
     }
 
   // simple sub-string extraction
       // return substring starting at nFirst of length nCount (or till the end
       // if nCount = default value)
-  wxString Mid(size_t nFirst, size_t nCount = wxSTRING_MAXLEN) const;
+  wxString Mid(size_t nFirst, size_t nCount = npos) const;
 
       // operator version of Mid()
   wxString  operator()(size_t start, size_t len) const
@@ -660,7 +1007,7 @@ public:
 
       // check that the string starts with prefix and return the rest of the
       // string in the provided pointer if it is not NULL, otherwise return
-      // FALSE
+      // false
   bool StartsWith(const wxChar *prefix, wxString *rest = NULL) const;
 
       // get first nCount characters
@@ -697,25 +1044,25 @@ public:
 
   // trimming/padding whitespace (either side) and truncating
       // remove spaces from left or from right (default) side
-  wxString& Trim(bool bFromRight = TRUE);
+  wxString& Trim(bool bFromRight = true);
       // add nCount copies chPad in the beginning or at the end (default)
-  wxString& Pad(size_t nCount, wxChar chPad = wxT(' '), bool bFromRight = TRUE);
+  wxString& Pad(size_t nCount, wxChar chPad = wxT(' '), bool bFromRight = true);
 
   // searching and replacing
       // searching (return starting index, or -1 if not found)
-  int Find(wxChar ch, bool bFromEnd = FALSE) const;   // like strchr/strrchr
+  int Find(wxChar ch, bool bFromEnd = false) const;   // like strchr/strrchr
       // searching (return starting index, or -1 if not found)
   int Find(const wxChar *pszSub) const;               // like strstr
       // replace first (or all of bReplaceAll) occurences of substring with
       // another string, returns the number of replacements made
   size_t Replace(const wxChar *szOld,
                  const wxChar *szNew,
-                 bool bReplaceAll = TRUE);
+                 bool bReplaceAll = true);
 
     // check if the string contents matches a mask containing '*' and '?'
   bool Matches(const wxChar *szMask) const;
 
-    // conversion to numbers: all functions return TRUE only if the whole
+    // conversion to numbers: all functions return true only if the whole
     // string is a number and put the value of this number into the pointer
     // provided, the base is the numeric base in which the conversion should be
     // done and must be comprised between 2 and 36 or be 0 in which case the
@@ -742,18 +1089,20 @@ public:
   // raw access to string memory
     // ensure that string has space for at least nLen characters
     // only works if the data of this string is not shared
-  bool Alloc(size_t nLen);
+  bool Alloc(size_t nLen) { reserve(nLen); /*return capacity() >= nLen;*/ return true; }
     // minimize the string's memory
     // only works if the data of this string is not shared
   bool Shrink();
+#if !wxUSE_STL
     // get writable buffer of at least nLen bytes. Unget() *must* be called
     // a.s.a.p. to put string back in a reasonable state!
   wxChar *GetWriteBuf(size_t nLen);
     // call this immediately after GetWriteBuf() has been used
   void UngetWriteBuf();
   void UngetWriteBuf(size_t nLen);
+#endif
 
-  // wxWindows version 1 compatibility functions
+  // wxWidgets version 1 compatibility functions
 
   // use Mid()
   wxString SubString(size_t from, size_t to) const
@@ -772,7 +1121,7 @@ public:
     { return cmp == exact ? Cmp(psz) : CmpNoCase(psz); }
 
     // use Len
-  size_t Length() const { return Len(); }
+  size_t Length() const { return length(); }
     // Count the number of characters
   int Freq(wxChar ch) const;
     // use MakeLower
@@ -787,373 +1136,247 @@ public:
   size_t Index(wxChar ch)         const { return Find(ch);  }
     // use Truncate
   wxString& Remove(size_t pos) { return Truncate(pos); }
-  wxString& RemoveLast(size_t n = 1) { return Truncate(Len() - n); }
+  wxString& RemoveLast(size_t n = 1) { return Truncate(length() - n); }
 
-  wxString& Remove(size_t nStart, size_t nLen) { return erase( nStart, nLen ); }
+  wxString& Remove(size_t nStart, size_t nLen)
+      { return (wxString&)erase( nStart, nLen ); }
 
     // use Find()
   int First( const wxChar ch ) const { return Find(ch); }
   int First( const wxChar* psz ) const { return Find(psz); }
   int First( const wxString &str ) const { return Find(str); }
-  int Last( const wxChar ch ) const { return Find(ch, TRUE); }
-  bool Contains(const wxString& str) const { return Find(str) != -1; }
+  int Last( const wxChar ch ) const { return Find(ch, true); }
+  bool Contains(const wxString& str) const { return Find(str) != wxNOT_FOUND; }
 
-    // use IsEmpty()
-  bool IsNull() const { return IsEmpty(); }
+    // use empty()
+  bool IsNull() const { return empty(); }
 
-#ifdef  wxSTD_STRING_COMPATIBILITY
   // std::string compatibility functions
 
-  // standard types
-  typedef wxChar value_type;
-  typedef const value_type *const_iterator;
-
-  // an 'invalid' value for string index
-  static const size_t npos;
-
-  // constructors
     // take nLen chars starting at nPos
   wxString(const wxString& str, size_t nPos, size_t nLen)
-      : m_pchData(NULL)
-  {
-    wxASSERT_MSG( str.GetStringData()->IsValid(),
-                  _T("did you forget to call UngetWriteBuf()?") );
-
-    InitWith(str.c_str(), nPos, nLen == npos ? 0 : nLen);
-  }
+      : wxStringBase(str, nPos, nLen) { }
     // take all characters from pStart to pEnd
-  wxString(const void *pStart, const void *pEnd);
-
-  // lib.string.capacity
-    // return the length of the string
-  size_t size() const { return Len(); }
-    // return the length of the string
-  size_t length() const { return Len(); }
-    // return the maximum size of the string
-  size_t max_size() const { return wxSTRING_MAXLEN; }
-    // resize the string, filling the space with c if c != 0
-  void resize(size_t nSize, wxChar ch = wxT('\0'));
-    // delete the contents of the string
-  void clear() { Empty(); }
-    // returns true if the string is empty
-  bool empty() const { return IsEmpty(); }
-    // inform string about planned change in size
-  void reserve(size_t sz) { Alloc(sz); }
-
-  // lib.string.access
-    // return the character at position n
-  wxChar at(size_t n) const { return GetChar(n); }
-    // returns the writable character at position n
-  wxChar& at(size_t n) { return GetWritableChar(n); }
-
-    // first valid index position
-  const_iterator begin() const { return wx_str(); }
-    // position one after the last valid one
-  const_iterator end() const { return wx_str() + length(); }
+  wxString(const void *pStart, const void *pEnd)
+      : wxStringBase((const wxChar*)pStart, (const wxChar*)pEnd) { }
+#if wxUSE_STL
+  wxString(const_iterator first, const_iterator last)
+      : wxStringBase(first, last) { }
+#endif
 
   // lib.string.modifiers
-    // append a string
-  wxString& append(const wxString& str)
-    { *this += str; return *this; }
     // append elements str[pos], ..., str[pos+n]
   wxString& append(const wxString& str, size_t pos, size_t n)
-    { ConcatSelf(n, str.c_str() + pos); return *this; }
+    { return (wxString&)wxStringBase::append(str, pos, n); }
+    // append a string
+  wxString& append(const wxString& str)
+    { return (wxString&)wxStringBase::append(str); }
     // append first n (or all if n == npos) characters of sz
-  wxString& append(const wxChar *sz, size_t n = npos)
-    { ConcatSelf(n == npos ? wxStrlen(sz) : n, sz); return *this; }
-
+  wxString& append(const wxChar *sz)
+    { return (wxString&)wxStringBase::append(sz); }
+  wxString& append(const wxChar *sz, size_t n)
+    { return (wxString&)wxStringBase::append(sz, n); }
     // append n copies of ch
-  wxString& append(size_t n, wxChar ch) { return Pad(n, ch); }
+  wxString& append(size_t n, wxChar ch)
+    { return (wxString&)wxStringBase::append(n, ch); }
+    // append from first to last
+  wxString& append(const_iterator first, const_iterator last)
+    { return (wxString&)wxStringBase::append(first, last); }
 
     // same as `this_string = str'
   wxString& assign(const wxString& str)
-    { return *this = str; }
+    { return (wxString&)wxStringBase::assign(str); }
     // same as ` = str[pos..pos + n]
   wxString& assign(const wxString& str, size_t pos, size_t n)
-    { Empty(); return Append(str.c_str() + pos, n); }
+    { return (wxString&)wxStringBase::assign(str, pos, n); }
     // same as `= first n (or all if n == npos) characters of sz'
-  wxString& assign(const wxChar *sz, size_t n = npos)
-    { Empty(); return Append(sz, n == npos ? wxStrlen(sz) : n); }
+  wxString& assign(const wxChar *sz)
+    { return (wxString&)wxStringBase::assign(sz); }
+  wxString& assign(const wxChar *sz, size_t n)
+    { return (wxString&)wxStringBase::assign(sz, n); }
     // same as `= n copies of ch'
   wxString& assign(size_t n, wxChar ch)
-    { Empty(); return Append(ch, n); }
+    { return (wxString&)wxStringBase::assign(n, ch); }
+    // assign from first to last
+  wxString& assign(const_iterator first, const_iterator last)
+    { return (wxString&)wxStringBase::assign(first, last); }
 
-    // insert another string
-  wxString& insert(size_t nPos, const wxString& str);
-    // insert n chars of str starting at nStart (in str)
-  wxString& insert(size_t nPos, const wxString& str, size_t nStart, size_t n)
-    { return insert(nPos, wxString((const wxChar *)str + nStart, n)); }
-
-    // insert first n (or all if n == npos) characters of sz
-  wxString& insert(size_t nPos, const wxChar *sz, size_t n = npos)
-    { return insert(nPos, wxString(sz, n)); }
-    // insert n copies of ch
-  wxString& insert(size_t nPos, size_t n, wxChar ch)
-    { return insert(nPos, wxString(ch, n)); }
-
-    // delete characters from nStart to nStart + nLen
-  wxString& erase(size_t nStart = 0, size_t nLen = npos);
-
-    // replaces the substring of length nLen starting at nStart
-  wxString& replace(size_t nStart, size_t nLen, const wxChar* sz);
-    // replaces the substring with nCount copies of ch
-  wxString& replace(size_t nStart, size_t nLen, size_t nCount, wxChar ch);
-    // replaces a substring with another substring
-  wxString& replace(size_t nStart, size_t nLen,
-                    const wxString& str, size_t nStart2, size_t nLen2);
-    // replaces the substring with first nCount chars of sz
-  wxString& replace(size_t nStart, size_t nLen,
-                    const wxChar* sz, size_t nCount);
-
-    // swap two strings
-  void swap(wxString& str);
-
-    // All find() functions take the nStart argument which specifies the
-    // position to start the search on, the default value is 0. All functions
-    // return npos if there were no match.
-
-    // find a substring
-  size_t find(const wxString& str, size_t nStart = 0) const;
-
-  // VC++ 1.5 can't cope with this syntax.
-#if !defined(__VISUALC__) || defined(__WIN32__)
-    // find first n characters of sz
-  size_t find(const wxChar* sz, size_t nStart = 0, size_t n = npos) const;
-#endif // VC++ 1.5
-
-  // Gives a duplicate symbol (presumably a case-insensitivity problem)
-#if !defined(__BORLANDC__)
-    // find the first occurence of character ch after nStart
-  size_t find(wxChar ch, size_t nStart = 0) const;
-#endif
-    // rfind() family is exactly like find() but works right to left
-
-    // as find, but from the end
-  size_t rfind(const wxString& str, size_t nStart = npos) const;
-
-  // VC++ 1.5 can't cope with this syntax.
-#if !defined(__VISUALC__) || defined(__WIN32__)
-    // as find, but from the end
-  size_t rfind(const wxChar* sz, size_t nStart = npos,
-          size_t n = npos) const;
-    // as find, but from the end
-  size_t rfind(wxChar ch, size_t nStart = npos) const;
-#endif // VC++ 1.5
-
-    // find first/last occurence of any character in the set
-
-    // as strpbrk() but starts at nStart, returns npos if not found
-  size_t find_first_of(const wxString& str, size_t nStart = 0) const
-    { return find_first_of(str.c_str(), nStart); }
-    // same as above
-  size_t find_first_of(const wxChar* sz, size_t nStart = 0) const;
-    // same as find(char, size_t)
-  size_t find_first_of(wxChar c, size_t nStart = 0) const
-    { return find(c, nStart); }
-    // find the last (starting from nStart) char from str in this string
-  size_t find_last_of (const wxString& str, size_t nStart = npos) const
-    { return find_last_of(str.c_str(), nStart); }
-    // same as above
-  size_t find_last_of (const wxChar* sz, size_t nStart = npos) const;
-    // same as above
-  size_t find_last_of(wxChar c, size_t nStart = npos) const
-    { return rfind(c, nStart); }
-
-    // find first/last occurence of any character not in the set
-
-    // as strspn() (starting from nStart), returns npos on failure
-  size_t find_first_not_of(const wxString& str, size_t nStart = 0) const
-    { return find_first_not_of(str.c_str(), nStart); }
-    // same as above
-  size_t find_first_not_of(const wxChar* sz, size_t nStart = 0) const;
-    // same as above
-  size_t find_first_not_of(wxChar ch, size_t nStart = 0) const;
-    //  as strcspn()
-  size_t find_last_not_of(const wxString& str, size_t nStart = npos) const
-    { return find_first_not_of(str.c_str(), nStart); }
-    // same as above
-  size_t find_last_not_of(const wxChar* sz, size_t nStart = npos) const;
-    // same as above
-  size_t find_last_not_of(wxChar ch, size_t nStart = npos) const;
-
-    // All compare functions return -1, 0 or 1 if the [sub]string is less,
-    // equal or greater than the compare() argument.
-
-    // just like strcmp()
-  int compare(const wxString& str) const { return Cmp(str); }
+    // string comparison
+#if !defined(HAVE_STD_STRING_COMPARE)
+  int compare(const wxStringBase& str) const;
     // comparison with a substring
-  int compare(size_t nStart, size_t nLen, const wxString& str) const
-    { return Mid(nStart, nLen).Cmp(str); }
+  int compare(size_t nStart, size_t nLen, const wxStringBase& str) const;
     // comparison of 2 substrings
   int compare(size_t nStart, size_t nLen,
-              const wxString& str, size_t nStart2, size_t nLen2) const
-    { return Mid(nStart, nLen).Cmp(str.Mid(nStart2, nLen2)); }
+              const wxStringBase& str, size_t nStart2, size_t nLen2) const;
     // just like strcmp()
-  int compare(const wxChar* sz) const { return Cmp(sz); }
+  int compare(const wxChar* sz) const;
     // substring comparison with first nCount characters of sz
   int compare(size_t nStart, size_t nLen,
-              const wxChar* sz, size_t nCount = npos) const
-    { return Mid(nStart, nLen).Cmp(wxString(sz, nCount)); }
+              const wxChar* sz, size_t nCount = npos) const;
+#endif // !defined HAVE_STD_STRING_COMPARE
 
-  // substring extraction
-  wxString substr(size_t nStart = 0, size_t nLen = npos) const
-    { return Mid(nStart, nLen); }
-#endif // wxSTD_STRING_COMPATIBILITY
+    // insert another string
+  wxString& insert(size_t nPos, const wxString& str)
+    { return (wxString&)wxStringBase::insert(nPos, str); }
+    // insert n chars of str starting at nStart (in str)
+  wxString& insert(size_t nPos, const wxString& str, size_t nStart, size_t n)
+    { return (wxString&)wxStringBase::insert(nPos, str, nStart, n); }
+    // insert first n (or all if n == npos) characters of sz
+  wxString& insert(size_t nPos, const wxChar *sz)
+    { return (wxString&)wxStringBase::insert(nPos, sz); }
+  wxString& insert(size_t nPos, const wxChar *sz, size_t n)
+    { return (wxString&)wxStringBase::insert(nPos, sz, n); }
+    // insert n copies of ch
+  wxString& insert(size_t nPos, size_t n, wxChar ch)
+    { return (wxString&)wxStringBase::insert(nPos, n, ch); }
+  iterator insert(iterator it, wxChar ch)
+    { return wxStringBase::insert(it, ch); }
+  void insert(iterator it, const_iterator first, const_iterator last)
+    { wxStringBase::insert(it, first, last); }
+  void insert(iterator it, size_type n, wxChar ch)
+    { wxStringBase::insert(it, n, ch); }
+
+    // delete characters from nStart to nStart + nLen
+  wxString& erase(size_type pos = 0, size_type n = npos)
+    { return (wxString&)wxStringBase::erase(pos, n); }
+  iterator erase(iterator first, iterator last)
+    { return wxStringBase::erase(first, last); }
+  iterator erase(iterator first)
+    { return wxStringBase::erase(first); }
+
+#ifdef wxSTRING_BASE_HASNT_CLEAR
+  void clear() { erase(); }
+#endif
+
+    // replaces the substring of length nLen starting at nStart
+  wxString& replace(size_t nStart, size_t nLen, const wxChar* sz)
+    { return (wxString&)wxStringBase::replace(nStart, nLen, sz); }
+    // replaces the substring of length nLen starting at nStart
+  wxString& replace(size_t nStart, size_t nLen, const wxString& str)
+    { return (wxString&)wxStringBase::replace(nStart, nLen, str); }
+    // replaces the substring with nCount copies of ch
+  wxString& replace(size_t nStart, size_t nLen, size_t nCount, wxChar ch)
+    { return (wxString&)wxStringBase::replace(nStart, nLen, nCount, ch); }
+    // replaces a substring with another substring
+  wxString& replace(size_t nStart, size_t nLen,
+                    const wxString& str, size_t nStart2, size_t nLen2)
+    { return (wxString&)wxStringBase::replace(nStart, nLen, str,
+                                              nStart2, nLen2); }
+     // replaces the substring with first nCount chars of sz
+  wxString& replace(size_t nStart, size_t nLen,
+                    const wxChar* sz, size_t nCount)
+    { return (wxString&)wxStringBase::replace(nStart, nLen, sz, nCount); }
+  wxString& replace(iterator first, iterator last, const_pointer s)
+    { return (wxString&)wxStringBase::replace(first, last, s); }
+  wxString& replace(iterator first, iterator last, const_pointer s,
+                    size_type n)
+    { return (wxString&)wxStringBase::replace(first, last, s, n); }
+  wxString& replace(iterator first, iterator last, const wxString& s)
+    { return (wxString&)wxStringBase::replace(first, last, s); }
+  wxString& replace(iterator first, iterator last, size_type n, wxChar c)
+    { return (wxString&)wxStringBase::replace(first, last, n, c); }
+  wxString& replace(iterator first, iterator last,
+                    const_iterator first1, const_iterator last1)
+    { return (wxString&)wxStringBase::replace(first, last, first1, last1); }
+
+      // string += string
+  wxString& operator+=(const wxString& s)
+    { return (wxString&)wxStringBase::operator+=(s); }
+      // string += C string
+  wxString& operator+=(const wxChar *psz)
+    { return (wxString&)wxStringBase::operator+=(psz); }
+      // string += char
+  wxString& operator+=(wxChar ch)
+    { return (wxString&)wxStringBase::operator+=(ch); }
 };
 
-// ----------------------------------------------------------------------------
-// The string array uses it's knowledge of internal structure of the wxString
-// class to optimize string storage. Normally, we would store pointers to
-// string, but as wxString is, in fact, itself a pointer (sizeof(wxString) is
-// sizeof(char *)) we store these pointers instead. The cast to "wxString *" is
-// really all we need to turn such pointer into a string!
-//
-// Of course, it can be called a dirty hack, but we use twice less memory and
-// this approach is also more speed efficient, so it's probably worth it.
-//
-// Usage notes: when a string is added/inserted, a new copy of it is created,
-// so the original string may be safely deleted. When a string is retrieved
-// from the array (operator[] or Item() method), a reference is returned.
-// ----------------------------------------------------------------------------
+// notice that even though for many compilers the friend declarations above are
+// enough, from the point of view of C++ standard we must have the declarations
+// here as friend ones are not injected in the enclosing namespace and without
+// them the code fails to compile with conforming compilers such as xlC or g++4
+wxString WXDLLIMPEXP_BASE operator+(const wxString& string1,  const wxString& string2);
+wxString WXDLLIMPEXP_BASE operator+(const wxString& string, wxChar ch);
+wxString WXDLLIMPEXP_BASE operator+(wxChar ch, const wxString& string);
+wxString WXDLLIMPEXP_BASE operator+(const wxString& string, const wxChar *psz);
+wxString WXDLLIMPEXP_BASE operator+(const wxChar *psz, const wxString& string);
 
-class WXDLLEXPORT wxArrayString
-{
-public:
-  // type of function used by wxArrayString::Sort()
-  typedef int (*CompareFunction)(const wxString& first,
-                                 const wxString& second);
+// define wxArrayString, for compatibility
+#if WXWIN_COMPATIBILITY_2_4 && !wxUSE_STL
+    #include "wx/arrstr.h"
+#endif
 
-  // constructors and destructor
-    // default ctor
-  wxArrayString()
-      : m_nSize(0), m_nCount(0), m_pItems(NULL), m_autoSort(FALSE)
-      { Init(FALSE); }
-    // if autoSort is TRUE, the array is always sorted (in alphabetical order)
-    //
-    // NB: the reason for using int and not bool is that like this we can avoid
-    //     using this ctor for implicit conversions from "const char *" (which
-    //     we'd like to be implicitly converted to wxString instead!)
-    //
-    //     of course, using explicit would be even better - if all compilers
-    //     supported it...
-  wxArrayString(int autoSort)
-      : m_nSize(0), m_nCount(0), m_pItems(NULL), m_autoSort(FALSE)
-      { Init(autoSort != 0); }
-    // copy ctor
-  wxArrayString(const wxArrayString& array);
-    // assignment operator
-  wxArrayString& operator=(const wxArrayString& src);
-    // not virtual, this class should not be derived from
- ~wxArrayString();
-
-  // memory management
-    // empties the list, but doesn't release memory
-  void Empty();
-    // empties the list and releases memory
-  void Clear();
-    // preallocates memory for given number of items
-  void Alloc(size_t nCount);
-    // minimzes the memory usage (by freeing all extra memory)
-  void Shrink();
-
-  // simple accessors
-    // number of elements in the array
-  size_t GetCount() const { return m_nCount; }
-    // is it empty?
-  bool IsEmpty() const { return m_nCount == 0; }
-    // number of elements in the array (GetCount is preferred API)
-  size_t Count() const { return m_nCount; }
-
-  // items access (range checking is done in debug version)
-    // get item at position uiIndex
-  wxString& Item(size_t nIndex) const
+#if wxUSE_STL
+    // return an empty wxString (not very useful with wxUSE_STL == 1)
+    inline const wxString wxGetEmptyString() { return wxString(); }
+#else // !wxUSE_STL
+    // return an empty wxString (more efficient than wxString() here)
+    inline const wxString& wxGetEmptyString()
     {
-        wxASSERT_MSG( nIndex < m_nCount,
-                      _T("wxArrayString: index out of bounds") );
-
-        return *(wxString *)&(m_pItems[nIndex]);
+        return *(wxString *)&wxEmptyString;
     }
-
-    // same as Item()
-  wxString& operator[](size_t nIndex) const { return Item(nIndex); }
-    // get last item
-  wxString& Last() const
-  {
-      wxASSERT_MSG( !IsEmpty(),
-                    _T("wxArrayString: index out of bounds") );
-      return Item(Count() - 1);
-  }
-
-    // return a wxString[], useful for the controls which
-    // take one in their ctor.  You must delete[] it yourself
-    // once you are done with it.  Will return NULL if the
-    // ArrayString was empty.
-  wxString* GetStringArray() const;
-
-  // item management
-    // Search the element in the array, starting from the beginning if
-    // bFromEnd is FALSE or from end otherwise. If bCase, comparison is case
-    // sensitive (default). Returns index of the first item matched or
-    // wxNOT_FOUND
-  int  Index (const wxChar *sz, bool bCase = TRUE, bool bFromEnd = FALSE) const;
-    // add new element at the end (if the array is not sorted), return its
-    // index
-  size_t Add(const wxString& str, size_t nInsert = 1);
-    // add new element at given position
-  void Insert(const wxString& str, size_t uiIndex, size_t nInsert = 1);
-    // expand the array to have count elements
-  void SetCount(size_t count);
-    // remove first item matching this value
-  void Remove(const wxChar *sz);
-    // remove item by index
-  void Remove(size_t nIndex, size_t nRemove = 1);
-  void RemoveAt(size_t nIndex, size_t nRemove = 1) { Remove(nIndex, nRemove); }
-
-  // sorting
-    // sort array elements in alphabetical order (or reversed alphabetical
-    // order if reverseOrder parameter is TRUE)
-  void Sort(bool reverseOrder = FALSE);
-    // sort array elements using specified comparaison function
-  void Sort(CompareFunction compareFunction);
-
-  // comparison
-    // compare two arrays case sensitively
-  bool operator==(const wxArrayString& a) const;
-    // compare two arrays case sensitively
-  bool operator!=(const wxArrayString& a) const { return !(*this == a); }
-
-protected:
-  void Init(bool autoSort);             // common part of all ctors
-  void Copy(const wxArrayString& src);  // copies the contents of another array
-
-private:
-  void Grow(size_t nIncrement = 0);     // makes array bigger if needed
-  void Free();                          // free all the strings stored
-
-  void DoSort();                        // common part of all Sort() variants
-
-  size_t  m_nSize,    // current size of the array
-          m_nCount;   // current number of elements
-
-  wxChar  **m_pItems; // pointer to data
-
-  bool    m_autoSort; // if TRUE, keep the array always sorted
-};
-
-class WXDLLEXPORT wxSortedArrayString : public wxArrayString
-{
-public:
-  wxSortedArrayString() : wxArrayString(TRUE)
-    { }
-  wxSortedArrayString(const wxArrayString& array) : wxArrayString(TRUE)
-    { Copy(array); }
-};
+#endif // wxUSE_STL/!wxUSE_STL
 
 // ----------------------------------------------------------------------------
 // wxStringBuffer: a tiny class allowing to get a writable pointer into string
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxStringBuffer
+#if wxUSE_STL
+
+class WXDLLIMPEXP_BASE wxStringBuffer
+{
+public:
+    wxStringBuffer(wxString& str, size_t lenWanted = 1024)
+        : m_str(str), m_buf(lenWanted)
+        { }
+
+    ~wxStringBuffer() { m_str.assign(m_buf.data(), wxStrlen(m_buf.data())); }
+
+    operator wxChar*() { return m_buf.data(); }
+
+private:
+    wxString& m_str;
+#if wxUSE_UNICODE
+    wxWCharBuffer m_buf;
+#else
+    wxCharBuffer m_buf;
+#endif
+
+    DECLARE_NO_COPY_CLASS(wxStringBuffer)
+};
+
+class WXDLLIMPEXP_BASE wxStringBufferLength
+{
+public:
+    wxStringBufferLength(wxString& str, size_t lenWanted = 1024)
+        : m_str(str), m_buf(lenWanted), m_len(0), m_lenSet(false)
+        { }
+
+    ~wxStringBufferLength()
+    {
+        wxASSERT(m_lenSet);
+        m_str.assign(m_buf.data(), m_len);
+    }
+
+    operator wxChar*() { return m_buf.data(); }
+    void SetLength(size_t length) { m_len = length; m_lenSet = true; }
+
+private:
+    wxString& m_str;
+#if wxUSE_UNICODE
+    wxWCharBuffer m_buf;
+#else
+    wxCharBuffer  m_buf;
+#endif
+    size_t        m_len;
+    bool          m_lenSet;
+
+    DECLARE_NO_COPY_CLASS(wxStringBufferLength)
+};
+
+#else // if !wxUSE_STL
+
+class WXDLLIMPEXP_BASE wxStringBuffer
 {
 public:
     wxStringBuffer(wxString& str, size_t lenWanted = 1024)
@@ -1171,9 +1394,44 @@ private:
     DECLARE_NO_COPY_CLASS(wxStringBuffer)
 };
 
+class WXDLLIMPEXP_BASE wxStringBufferLength
+{
+public:
+    wxStringBufferLength(wxString& str, size_t lenWanted = 1024)
+        : m_str(str), m_buf(NULL), m_len(0), m_lenSet(false)
+    {
+        m_buf = m_str.GetWriteBuf(lenWanted);
+        wxASSERT(m_buf != NULL);
+    }
+
+    ~wxStringBufferLength()
+    {
+        wxASSERT(m_lenSet);
+        m_str.UngetWriteBuf(m_len);
+    }
+
+    operator wxChar*() const { return m_buf; }
+    void SetLength(size_t length) { m_len = length; m_lenSet = true; }
+
+private:
+    wxString& m_str;
+    wxChar   *m_buf;
+    size_t    m_len;
+    bool      m_lenSet;
+
+    DECLARE_NO_COPY_CLASS(wxStringBufferLength)
+};
+
+#endif // !wxUSE_STL
+
 // ---------------------------------------------------------------------------
 // wxString comparison functions: operator versions are always case sensitive
 // ---------------------------------------------------------------------------
+
+// note that when wxUSE_STL == 1 the comparison operators taking std::string
+// are used and defining them also for wxString would only result in
+// compilation ambiguities when comparing std::string and wxString
+#if !wxUSE_STL
 
 inline bool operator==(const wxString& s1, const wxString& s2)
     { return (s1.Len() == s2.Len()) && (s1.Cmp(s2) == 0); }
@@ -1212,12 +1470,6 @@ inline bool operator>=(const wxString& s1, const wxChar  * s2)
 inline bool operator>=(const wxChar  * s1, const wxString& s2)
     { return s2.Cmp(s1) <= 0; }
 
-// comparison with char
-inline bool operator==(wxChar c, const wxString& s) { return s.IsSameAs(c); }
-inline bool operator==(const wxString& s, wxChar c) { return s.IsSameAs(c); }
-inline bool operator!=(wxChar c, const wxString& s) { return !s.IsSameAs(c); }
-inline bool operator!=(const wxString& s, wxChar c) { return !s.IsSameAs(c); }
-
 #if wxUSE_UNICODE
 inline bool operator==(const wxString& s1, const wxWCharBuffer& s2)
     { return (s1.Cmp((const wchar_t *)s2) == 0); }
@@ -1238,11 +1490,6 @@ inline bool operator!=(const wxCharBuffer& s1, const wxString& s2)
     { return (s2.Cmp((const char *)s1) != 0); }
 #endif // wxUSE_UNICODE/!wxUSE_UNICODE
 
-wxString WXDLLEXPORT operator+(const wxString& string1,  const wxString& string2);
-wxString WXDLLEXPORT operator+(const wxString& string, wxChar ch);
-wxString WXDLLEXPORT operator+(wxChar ch, const wxString& string);
-wxString WXDLLEXPORT operator+(const wxString& string, const wxChar *psz);
-wxString WXDLLEXPORT operator+(const wxChar *psz, const wxString& string);
 #if wxUSE_UNICODE
 inline wxString operator+(const wxString& string, const wxWCharBuffer& buf)
     { return string + (const wchar_t *)buf; }
@@ -1255,6 +1502,15 @@ inline wxString operator+(const wxCharBuffer& buf, const wxString& string)
     { return (const char *)buf + string; }
 #endif // wxUSE_UNICODE/!wxUSE_UNICODE
 
+#endif // !wxUSE_STL
+
+// comparison with char (those are not defined by std::[w]string and so should
+// be always available)
+inline bool operator==(wxChar c, const wxString& s) { return s.IsSameAs(c); }
+inline bool operator==(const wxString& s, wxChar c) { return s.IsSameAs(c); }
+inline bool operator!=(wxChar c, const wxString& s) { return !s.IsSameAs(c); }
+inline bool operator!=(const wxString& s, wxChar c) { return !s.IsSameAs(c); }
+
 // ---------------------------------------------------------------------------
 // Implementation only from here until the end of file
 // ---------------------------------------------------------------------------
@@ -1262,12 +1518,12 @@ inline wxString operator+(const wxCharBuffer& buf, const wxString& string)
 // don't pollute the library user's name space
 #undef wxASSERT_VALID_INDEX
 
-#if defined(wxSTD_STRING_COMPATIBILITY) && wxUSE_STD_IOSTREAM
+#if wxUSE_STD_IOSTREAM
 
-#include "wx/ioswrap.h"
+#include "wx/iosfwrap.h"
 
-WXDLLEXPORT wxSTD istream& operator>>(wxSTD istream&, wxString&);
-WXDLLEXPORT wxSTD ostream& operator<<(wxSTD ostream&, const wxString&);
+WXDLLIMPEXP_BASE wxSTD istream& operator>>(wxSTD istream&, wxString&);
+WXDLLIMPEXP_BASE wxSTD ostream& operator<<(wxSTD ostream&, const wxString&);
 
 #endif  // wxSTD_STRING_COMPATIBILITY
 

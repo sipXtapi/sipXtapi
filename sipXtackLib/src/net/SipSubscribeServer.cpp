@@ -187,11 +187,11 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
         // Setup and send a NOTIFY for each subscription interested in
         // this resourcesId and eventTypeKey
         SipMessage* notify = NULL;
-        for(int notifyIndex = 0; 
-        notifyArray != NULL && 
-            notifyIndex < numSubscriptions && 
-            notifyArray[notifyIndex+1] != NULL; 
-        notifyIndex++)
+        for(int notifyIndex = 0;
+            notifyArray != NULL && 
+              notifyIndex < numSubscriptions && 
+              notifyArray[notifyIndex] != NULL;
+            notifyIndex++)
         {
             notify = notifyArray[notifyIndex];
 
@@ -204,8 +204,6 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
 
             // Send the NOTIFY request
             eventData->mpEventSpecificUserAgent->send(*notify);
-
-
         }
 
         // Free up the NOTIFY requests and accept header field values

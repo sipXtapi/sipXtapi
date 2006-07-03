@@ -4,8 +4,8 @@
 // Author:      Vaclav Slavik
 // Modified by:
 // Created:     22.04.01
-// RCS-ID:      $Id: bitmap.h,v 1.14 2002/08/31 11:29:09 GD Exp $
-// Copyright:   (c) wxWindows team
+// RCS-ID:      $Id: bitmap.h,v 1.29 2005/02/05 14:17:21 RR Exp $
+// Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 // headers
 // ----------------------------------------------------------------------------
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "bitmapbase.h"
 #endif
 
@@ -32,7 +32,12 @@ class WXDLLEXPORT wxImage;
 class WXDLLEXPORT wxMask;
 class WXDLLEXPORT wxPalette;
 
-#if defined(__WXMGL__) || defined(__WXMAC__)
+#if defined(__WXMGL__) || \
+    defined(__WXMAC__) || \
+    defined(__WXGTK__) || \
+    defined(__WXCOCOA__) || \
+    defined(__WXMOTIF__) || \
+    defined(__WXX11__)
 // Only used by some ports
 // FIXME -- make all ports (but MSW which uses wxGDIImage) use these base classes
 
@@ -59,18 +64,19 @@ public:
     virtual bool SaveFile(const wxBitmap *bitmap, const wxString& name,
                           int type, const wxPalette *palette = NULL) = 0;
 
-    void SetName(const wxString& name) { m_name = name; }
-    void SetExtension(const wxString& ext) { m_extension = ext; }
-    void SetType(wxBitmapType type) { m_type = type; }
-    wxString GetName() const { return m_name; }
-    wxString GetExtension() const { return m_extension; }
-    wxBitmapType GetType() const { return m_type; }
+    void SetName(const wxString& name)      { m_name = name; }
+    void SetExtension(const wxString& ext)  { m_extension = ext; }
+    void SetType(wxBitmapType type)         { m_type = type; }
+    wxString GetName() const                { return m_name; }
+    wxString GetExtension() const           { return m_extension; }
+    wxBitmapType GetType() const            { return m_type; }
 
-protected:
+private:
     wxString      m_name;
     wxString      m_extension;
     wxBitmapType  m_type;
 
+private:
     DECLARE_ABSTRACT_CLASS(wxBitmapHandlerBase)
 };
 
@@ -117,13 +123,18 @@ public:
                           const wxPalette *palette = (wxPalette *)NULL) const = 0;
     virtual bool LoadFile(const wxString &name, wxBitmapType type) = 0;
 
+    /*
+       If raw bitmap access is supported (see wx/rawbmp.h), the following
+       methods should be implemented:
+
+       virtual bool GetRawData(wxRawBitmapData *data) = 0;
+       virtual void UngetRawData(wxRawBitmapData *data) = 0;
+     */
+
+#if wxUSE_PALETTE
     virtual wxPalette *GetPalette() const = 0;
     virtual void SetPalette(const wxPalette& palette) = 0;
-
-#if WXWIN_COMPATIBILITY
-    wxPalette *GetColourMap() const { return GetPalette(); }
-    void SetColourMap(wxPalette *cmap) { SetPalette(*cmap); };
-#endif // WXWIN_COMPATIBILITY
+#endif // wxUSE_PALETTE
 
     // copies the contents and mask of the given (colour) icon to the bitmap
     virtual bool CopyFromIcon(const wxIcon& icon) = 0;
@@ -154,10 +165,12 @@ protected:
 };
 #endif
 
-#if defined(__WXMSW__)
+#if defined(__WXPALMOS__)
+#include "wx/palmos/bitmap.h"
+#elif defined(__WXMSW__)
 #include "wx/msw/bitmap.h"
 #elif defined(__WXMOTIF__)
-#include "wx/motif/bitmap.h"
+#include "wx/x11/bitmap.h"
 #elif defined(__WXGTK__)
 #include "wx/gtk/bitmap.h"
 #elif defined(__WXX11__)
@@ -166,10 +179,10 @@ protected:
 #include "wx/mgl/bitmap.h"
 #elif defined(__WXMAC__)
 #include "wx/mac/bitmap.h"
+#elif defined(__WXCOCOA__)
+#include "wx/cocoa/bitmap.h"
 #elif defined(__WXPM__)
 #include "wx/os2/bitmap.h"
-#elif defined(__WXSTUBS__)
-#include "wx/stubs/bitmap.h"
 #endif
 
 #endif

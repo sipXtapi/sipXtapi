@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     22.01.01
-// RCS-ID:      $Id: scrarrow.h,v 1.5 2001/07/04 18:07:14 VZ Exp $
+// RCS-ID:      $Id: scrarrow.h,v 1.9 2004/08/10 13:08:34 ABX Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_UNIV_SCRARROW_H_
 #define _WX_UNIV_SCRARROW_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univscrarrow.h"
 #endif
 
@@ -54,7 +54,7 @@ public:
     // draws the arrow on the given DC in the given rectangle, uses
     // wxControlWithArrows::GetArrowState() to get its current state
     void DrawArrow(Arrow arrow, wxDC& dc, const wxRect& rect,
-                   bool scrollbarLike = FALSE) const;
+                   bool scrollbarLike = false) const;
 
     // process a mouse move, enter or leave event, possibly calling
     // wxControlWithArrows::SetArrowState() if wxControlWithArrows::HitTest()
@@ -100,13 +100,13 @@ public:
     // set or clear the specified flag in the arrow state: this function is
     // responsible for refreshing the control
     virtual void SetArrowFlag(wxScrollArrows::Arrow arrow,
-                              int flag, bool set = TRUE) = 0;
+                              int flag, bool set = true) = 0;
 
     // hit testing: return on which arrow the point is (or Arrow_None)
     virtual wxScrollArrows::Arrow HitTest(const wxPoint& pt) const = 0;
 
-    // called when the arrow is pressed, return TRUE to continue scrolling and
-    // FALSE to stop it
+    // called when the arrow is pressed, return true to continue scrolling and
+    // false to stop it
     virtual bool OnArrow(wxScrollArrows::Arrow arrow) = 0;
 };
 

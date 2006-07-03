@@ -4,15 +4,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     14.08.00
-// RCS-ID:      $Id: stattext.h,v 1.8 2002/04/14 14:42:42 RR Exp $
+// RCS-ID:      $Id: stattext.h,v 1.15 2005/01/07 16:54:07 VZ Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_UNIV_STATTEXT_H_
 #define _WX_UNIV_STATTEXT_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univstattext.h"
 #endif
 
@@ -27,7 +27,7 @@ public:
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxDefaultSize)
     {
-        Create(parent, -1, label, pos, size, 0, wxStaticTextNameStr);
+        Create(parent, wxID_ANY, label, pos, size, 0, wxStaticTextNameStr);
     }
 
     // full form
@@ -55,8 +55,8 @@ public:
 
     virtual void SetLabel(const wxString& label);
 
-    virtual bool HasTransparentBackground() { return TRUE; }
-    
+    virtual bool IsFocused() const { return false; }
+
 protected:
     // calculate the optimal size for the label
     virtual wxSize DoGetBestClientSize() const;

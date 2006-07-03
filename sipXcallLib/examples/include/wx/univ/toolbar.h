@@ -4,15 +4,15 @@
 // Author:      Robert Roebling
 // Modified by:
 // Created:     10.09.00
-// RCS-ID:      $Id: toolbar.h,v 1.8.2.1 2003/01/03 12:09:48 JS Exp $
+// RCS-ID:      $Id: toolbar.h,v 1.16 2004/08/10 13:08:34 ABX Exp $
 // Copyright:   (c) Robert Roebling
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_UNIV_TOOLBAR_H_
 #define _WX_UNIV_TOOLBAR_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univtoolbar.h"
 #endif
 
@@ -110,7 +110,7 @@ protected:
     void RefreshTool(wxToolBarToolBase *tool);
 
     // (re)calculate the tool positions, should only be called if it is
-    // necessary to do it, i.e. m_needsLayout == TRUE
+    // necessary to do it, i.e. m_needsLayout == true
     void DoLayout();
     
     // get the rect limits depending on the orientation: top/bottom for a

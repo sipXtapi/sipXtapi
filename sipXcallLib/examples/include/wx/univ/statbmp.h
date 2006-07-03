@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     25.08.00
-// RCS-ID:      $Id: statbmp.h,v 1.6 2002/04/14 14:42:42 RR Exp $
+// RCS-ID:      $Id: statbmp.h,v 1.11 2004/08/10 13:08:34 ABX Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_UNIV_STATBMP_H_
 #define _WX_UNIV_STATBMP_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univstatbmp.h"
 #endif
 
@@ -22,7 +22,7 @@
 // wxStaticBitmap
 // ----------------------------------------------------------------------------
 
-class wxStaticBitmap : public wxStaticBitmapBase
+class WXDLLEXPORT wxStaticBitmap : public wxStaticBitmapBase
 {
 public:
     wxStaticBitmap()
@@ -35,7 +35,7 @@ public:
                    const wxSize& size = wxDefaultSize,
                    long style = 0)
     {
-        Create(parent, -1, label, pos, size, style);
+        Create(parent, wxID_ANY, label, pos, size, style);
     }
 
     wxStaticBitmap(wxWindow *parent,
@@ -63,7 +63,7 @@ public:
 
     wxIcon GetIcon() const;
 
-    virtual bool HasTransparentBackground() { return TRUE; }
+    virtual bool HasTransparentBackground() { return true; }
     
 private:
     virtual void DoDraw(wxControlRenderer *renderer);

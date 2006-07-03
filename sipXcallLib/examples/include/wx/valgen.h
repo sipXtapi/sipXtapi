@@ -5,14 +5,14 @@
 // Modified by:
 // Created:     Jan 22 1999
 // RCS-ID:
-// Copyright:   (c) 1999 Kevin Smith
+// Copyright:   (c) 1999 Julian Smart (assigned from Kevin)
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_VALGENH__
 #define _WX_VALGENH__
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "valgen.h"
 #endif
 
@@ -30,7 +30,7 @@ public:
   wxGenericValidator(wxArrayInt* val);
   wxGenericValidator(const wxGenericValidator& copyFrom);
 
-  ~wxGenericValidator();
+  ~wxGenericValidator(){}
 
   // Make a clone of this validator (or return NULL) - currently necessary
   // if you're passing a reference to a validator.
@@ -41,7 +41,7 @@ public:
 
   // Called when the value in the window must be validated.
   // This function can pop up an error message.
-  virtual bool Validate(wxWindow * WXUNUSED(parent)) { return TRUE; }
+  virtual bool Validate(wxWindow * WXUNUSED(parent)) { return true; }
 
   // Called to transfer data to the window
   virtual bool TransferToWindow();
@@ -56,10 +56,18 @@ protected:
   int*        m_pInt;
   wxString*   m_pString;
   wxArrayInt* m_pArrayInt;
+
+private:
+// Cannot use
+//  DECLARE_NO_COPY_CLASS(wxGenericValidator)
+// because copy constructor is explicitly declared above;
+// but no copy assignment operator is defined, so declare
+// it private to prevent the compiler from defining it:
+    wxGenericValidator& operator=(const wxGenericValidator&);
 };
 
 #endif
   // wxUSE_VALIDATORS
 
-#endif    
+#endif
   // _WX_VALGENH__

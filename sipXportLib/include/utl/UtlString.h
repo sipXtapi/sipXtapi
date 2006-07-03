@@ -436,7 +436,7 @@ public:
 ///@{
 
     /// Replace a single character at the designated position.
-    void UtlString::replaceAt(size_t pos,  ///< offset into data to replace - must be < the length
+    void replaceAt(size_t pos,  ///< offset into data to replace - must be < the length
                               char newChar ///< character to be put into that offset
                               );
 

@@ -65,7 +65,9 @@ enum
     ID_ColorDialog,
     ID_TestTabs,
     ID_AVWizard,
-    ID_RenegotiateCodecs
+    ID_RenegotiateCodecs,
+    ID_PrepareForHibernate,
+    ID_UnHibernate
 };
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -84,6 +86,8 @@ BEGIN_EVENT_TABLE(sipXezPhoneFrame, wxFrame)
     EVT_MENU(ID_AudioSettings, sipXezPhoneFrame::OnAudioSettings)
     EVT_MENU(ID_AVWizard, sipXezPhoneFrame::OnAVWizard)
     EVT_MENU(ID_RenegotiateCodecs, sipXezPhoneFrame::OnRenegotiate)
+    EVT_MENU(ID_PrepareForHibernate, sipXezPhoneFrame::OnPrepareForHibernate)
+    EVT_MENU(ID_UnHibernate, sipXezPhoneFrame::OnUnHibernate)
 #ifdef VOICE_ENGINE
     EVT_MENU(ID_AudioWizardTest, sipXezPhoneFrame::OnAudioWizardTest)
 #endif    
@@ -199,6 +203,8 @@ wxFrame((wxFrame *)NULL, -1, title, pos, size,  wxMINIMIZE_BOX | wxCAPTION | wxC
         mpMenuTest->Append(ID_AudioWizardTest, "Audio &Wizard Test");
 #endif
         mpMenuTest->Append(ID_RenegotiateCodecs, "Renegotiate H263 video codec");
+        mpMenuTest->Append(ID_PrepareForHibernate, "Prepare for Hibernate");
+        mpMenuTest->Append(ID_UnHibernate, "UnHibernate");
     }
     
     // Set initial view state to normal
@@ -596,6 +602,16 @@ void sipXezPhoneFrame::OnRenegotiate(wxCommandEvent& WXUNUSED(event))
 {
     SIPX_CONF hConf = sipXmgr::getInstance().getCurrentConference();
     sipxConferenceLimitCodecPreferences(hConf, AUDIO_CODEC_BW_DEFAULT, VIDEO_CODEC_BW_DEFAULT, "H263-CIF") ;
+}
+
+void sipXezPhoneFrame::OnPrepareForHibernate(wxCommandEvent& WXUNUSED(event))
+{
+    sipXmgr::getInstance().prepareToHibernate();
+}
+
+void sipXezPhoneFrame::OnUnHibernate(wxCommandEvent& WXUNUSED(event))
+{
+    sipXmgr::getInstance().unHibernate();
 }
 
 void sipXezPhoneFrame::OnStopFile(wxCommandEvent& WXUNUSED(event))

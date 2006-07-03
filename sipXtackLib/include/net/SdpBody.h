@@ -364,15 +364,15 @@ class SdpBody : public HttpBody
                                int videoSizes[]) const;
 
    // Get the crypto field for SRTP
-   UtlBoolean SdpBody::getSrtpCryptoField(int mediaIndex,                  ///< mediaIndex of crypto field
-                                          int index,                       ///< Index inside of media type
-                                          SdpSrtpParameters& params) const;
+   UtlBoolean getSrtpCryptoField(int mediaIndex,                  ///< mediaIndex of crypto field
+                                 int index,                       ///< Index inside of media type
+                                 SdpSrtpParameters& params) const;
 
    // Get the framerate field if there
-   UtlBoolean SdpBody::getFramerateField(int mediaIndex,
-                                         int& videoFramerate) const;
+   UtlBoolean getFramerateField(int mediaIndex,
+                                int& videoFramerate) const;
 
-   UtlBoolean SdpBody::getBandwidthField(int& bandwidth) const;
+   UtlBoolean getBandwidthField(int& bandwidth) const;
 
    /**<
     * Find the "a" record containing an rtpmap for the given
@@ -455,6 +455,12 @@ class SdpBody : public HttpBody
                                      UtlString   candidateIps[], 
                                      int         candidatePorts[],
                                      int&        nActualAddresses) const ;
+
+   /**
+     * Locates a specific value for an attribute field
+     * Used to locate sendonly and recvonly in case if hold and unhold INVITE messages
+     */
+   UtlBoolean findValueInField(const char* pField, const char* pvalue) const;
 
 
 ///@}

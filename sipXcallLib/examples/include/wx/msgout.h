@@ -4,8 +4,8 @@
 // Author:      Mattia Barbon
 // Modified by:
 // Created:     17.07.02
-// RCS-ID:      $Id: msgout.h,v 1.4 2002/08/31 11:29:11 GD Exp $
-// Copyright:   (c) wxWindows team
+// RCS-ID:      $Id: msgout.h,v 1.15 2005/07/17 13:00:08 MW Exp $
+// Copyright:   (c) Mattia Barbon
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,14 @@
 // headers
 // ----------------------------------------------------------------------------
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA) && !defined(__EMX__)
+// Some older compilers (such as EMX) cannot handle
+// #pragma interface/implementation correctly, iff
+// #pragma implementation is used in _two_ translation
+// units (as created by e.g. event.cpp compiled for
+// libwx_base and event.cpp compiled for libwx_gui_core).
+// So we must not use those pragmas for those compilers in
+// such files.
     #pragma interface "msgout.h"
 #endif
 
@@ -28,7 +35,7 @@
 // something you can printf() to
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxMessageOutput
+class WXDLLIMPEXP_BASE wxMessageOutput
 {
 public:
     virtual ~wxMessageOutput() { }
@@ -36,7 +43,8 @@ public:
     // show a message to the user
     virtual void Printf(const wxChar* format, ...)  ATTRIBUTE_PRINTF_2 = 0;
 
-    // gets the current wxMessageOutput object
+    // gets the current wxMessageOutput object (may be NULL during
+    // initialization or shutdown)
     static wxMessageOutput* Get();
 
     // sets the global wxMessageOutput instance; returns the previous one
@@ -47,10 +55,28 @@ private:
 };
 
 // ----------------------------------------------------------------------------
+// implementation showing the message to the user in "best" possible way: uses
+// native message box if available (currently only under Windows) and stderr
+// otherwise; unlike wxMessageOutputMessageBox this class is always safe to use
+// ----------------------------------------------------------------------------
+
+#if wxABI_VERSION > 20601
+
+class WXDLLIMPEXP_BASE wxMessageOutputBest : public wxMessageOutput
+{
+public:
+    wxMessageOutputBest() { }
+
+    virtual void Printf(const wxChar* format, ...) ATTRIBUTE_PRINTF_2;
+};
+
+#endif // wxABI_VERSION
+
+// ----------------------------------------------------------------------------
 // implementation which sends output to stderr
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxMessageOutputStderr : public wxMessageOutput
+class WXDLLIMPEXP_BASE wxMessageOutputStderr : public wxMessageOutput
 {
 public:
     wxMessageOutputStderr() { }
@@ -64,7 +90,7 @@ public:
 
 #if wxUSE_GUI
 
-class WXDLLEXPORT wxMessageOutputMessageBox : public wxMessageOutput
+class WXDLLIMPEXP_CORE wxMessageOutputMessageBox : public wxMessageOutput
 {
 public:
     wxMessageOutputMessageBox() { }
@@ -75,10 +101,22 @@ public:
 #endif // wxUSE_GUI
 
 // ----------------------------------------------------------------------------
+// implementation using the native way of outputting debug messages
+// ----------------------------------------------------------------------------
+
+class WXDLLIMPEXP_BASE wxMessageOutputDebug : public wxMessageOutput
+{
+public:
+    wxMessageOutputDebug() { }
+
+    virtual void Printf(const wxChar* format, ...) ATTRIBUTE_PRINTF_2;
+};
+
+// ----------------------------------------------------------------------------
 // implementation using wxLog (mainly for backwards compatibility)
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxMessageOutputLog : public wxMessageOutput
+class WXDLLIMPEXP_BASE wxMessageOutputLog : public wxMessageOutput
 {
 public:
     wxMessageOutputLog() { }

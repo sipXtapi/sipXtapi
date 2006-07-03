@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     27.04.98
-// RCS-ID:      $Id: regconf.h,v 1.23 2002/03/05 00:32:46 VZ Exp $
+// RCS-ID:      $Id: regconf.h,v 1.33 2004/10/13 14:04:19 ABX Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,32 +12,34 @@
 #ifndef   _REGCONF_H
 #define   _REGCONF_H
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "regconf.h"
 #endif
 
 #ifndef   _REGISTRY_H
   #include "wx/msw/registry.h"
 #endif
+
 #include "wx/object.h"
+#include "wx/confbase.h"
 
 // ----------------------------------------------------------------------------
 // wxRegConfig
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxRegConfig : public wxConfigBase
+class WXDLLIMPEXP_BASE wxRegConfig : public wxConfigBase
 {
 public:
   // ctor & dtor
     // will store data in HKLM\appName and HKCU\appName
-  wxRegConfig(const wxString& appName = _T(""),
-              const wxString& vendorName = _T(""),
-              const wxString& localFilename = _T(""),
-              const wxString& globalFilename = _T(""),
-              long style = 0);
+  wxRegConfig(const wxString& appName = wxEmptyString,
+              const wxString& vendorName = wxEmptyString,
+              const wxString& localFilename = wxEmptyString,
+              const wxString& globalFilename = wxEmptyString,
+              long style = wxCONFIG_USE_GLOBAL_FILE);
 
     // dtor will save unsaved data
-  virtual ~wxRegConfig();
+  virtual ~wxRegConfig(){}
 
   // implement inherited pure virtual functions
   // ------------------------------------------
@@ -60,17 +62,17 @@ public:
 
     // get number of entries/subgroups in the current group, with or without
     // it's subgroups
-  virtual size_t GetNumberOfEntries(bool bRecursive = FALSE) const;
-  virtual size_t GetNumberOfGroups(bool bRecursive = FALSE) const;
+  virtual size_t GetNumberOfEntries(bool bRecursive = false) const;
+  virtual size_t GetNumberOfGroups(bool bRecursive = false) const;
 
-  virtual bool Flush(bool WXUNUSED(bCurrentOnly) = FALSE) { return TRUE; }
+  virtual bool Flush(bool WXUNUSED(bCurrentOnly) = false) { return true; }
 
   // rename
   virtual bool RenameEntry(const wxString& oldName, const wxString& newName);
   virtual bool RenameGroup(const wxString& oldName, const wxString& newName);
 
   // delete
-  virtual bool DeleteEntry(const wxString& key, bool bGroupIfEmptyAlso = TRUE);
+  virtual bool DeleteEntry(const wxString& key, bool bGroupIfEmptyAlso = true);
   virtual bool DeleteGroup(const wxString& key);
   virtual bool DeleteAll();
 

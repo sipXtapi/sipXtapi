@@ -5,15 +5,15 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: printps.h,v 1.8 2002/09/13 22:00:45 RR Exp $
-// Copyright:   (c)
+// RCS-ID:      $Id: printps.h,v 1.13 2005/05/04 18:52:32 JS Exp $
+// Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef __PRINTPSH__
 #define __PRINTPSH__
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "printps.h"
 #endif
 
@@ -31,10 +31,10 @@ public:
     wxPostScriptPrinter(wxPrintDialogData *data = (wxPrintDialogData *) NULL);
     virtual ~wxPostScriptPrinter();
 
-    virtual bool Print(wxWindow *parent, wxPrintout *printout, bool prompt = TRUE);
+    virtual bool Print(wxWindow *parent, wxPrintout *printout, bool prompt = true);
     virtual wxDC* PrintDialog(wxWindow *parent);
     virtual bool Setup(wxWindow *parent);
-    
+
 private:
     DECLARE_DYNAMIC_CLASS(wxPostScriptPrinter)
 };

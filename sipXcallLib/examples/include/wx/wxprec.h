@@ -4,8 +4,8 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: wxprec.h,v 1.24.4.1 2003/08/14 11:46:19 CE Exp $
-// Copyright:   (c)
+// RCS-ID:      $Id: wxprec.h,v 1.36 2005/07/01 19:36:47 ABX Exp $
+// Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
@@ -14,8 +14,17 @@
 
 // check if to use precompiled headers: do it for most Windows compilers unless
 // explicitly disabled by defining NOPCH
-#if ((defined(__BORLANDC__) || defined(__VISUALC__) || defined(__DIGITALMARS__) || defined(__WATCOMC__)) && defined(__WXMSW__)) || defined(__VISAGECPP__) || defined(__MWERKS__)
-    #if !defined(NOPCH)
+#if ( defined(__WXMSW__) && \
+       ( defined(__BORLANDC__)    || \
+         defined(__VISUALC__)     || \
+         defined(__DIGITALMARS__) || \
+         defined(__WATCOMC__) ) ) || \
+      defined(__VISAGECPP__) || \
+      defined(__MWERKS__)
+
+    // If user did not request NOCPH and we're not building using configure
+    // then assume user wants precompiled headers.
+    #if !defined(NOPCH) && !defined(__WX_SETUP_H__)
         #define WX_PRECOMP
     #endif
 #endif
@@ -32,13 +41,13 @@
 #include "wx/wxchar.h"
 
 // include standard Windows headers
-#if defined(__WXMSW__) && !wxUSE_MFC
-    #ifndef STRICT
-        #define STRICT 1
-    #endif
+#if defined(__WXMSW__)
+    #include "wx/msw/wrapwin.h"
+#endif
 
-    #include <windows.h>
-    #include "wx/msw/winundef.h"
+// include all PalmOS headers at once
+#ifdef __WXPALMOS__
+#   include <PalmOS.h>
 #endif
 
 // include the most common wx headers

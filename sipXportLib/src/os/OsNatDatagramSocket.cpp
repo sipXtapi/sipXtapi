@@ -23,10 +23,12 @@
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #include "os/OsEvent.h"
+#include "tapi/sipXtapi.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+#define DEFAULT_MEDIA_STUN_KEEPALIVE        28
 
 // STATIC VARIABLE INITIALIZATIONS
 
@@ -65,6 +67,7 @@ OsNatDatagramSocket::OsNatDatagramSocket(int remoteHostPortNum,
     miDestPriority = -1 ;
 
     mpNotification = pNotification ;      
+    mbNotified = false ;
 }
 
 
@@ -502,6 +505,7 @@ void OsNatDatagramSocket::readyDestination(const char* szAddress, int iPort)
 void OsNatDatagramSocket::setNotifier(OsNotification* pNotification) 
 {
     mpNotification = pNotification ;
+    mbNotified = false ;
 }
 
 
@@ -524,33 +528,33 @@ void OsNatDatagramSocket::setTurnAddress(const UtlString& address,
 }
 
 
-void OsNatDatagramSocket::markStunSuccess()
+void OsNatDatagramSocket::markStunSuccess(bool bAddressChanged)
 {
     mStunState.status = NAT_STATUS_SUCCESS ;
 
     // Signal external identities interested in the STUN outcome.
-    if (mpNotification)
+    if (mpNotification && (!mbNotified || bAddressChanged))
     {   
         char szAdapterName[256];
         memset((void*)szAdapterName, 0, sizeof(szAdapterName));
         
-        #ifdef _WIN32
-            getContactAdapterName(szAdapterName, mLocalIp.data(), false);
-        #else
-            // TODO - call the appropriate Linux function to the adapter name
-            assert(false) ;
-        #endif
+#ifdef _WIN32
+        getContactAdapterName(szAdapterName, mLocalIp.data(), false);
+#else
+        // TODO - call the appropriate Linux function to the adapter name
+        assert(false) ;
+#endif
 
-        CONTACT_ADDRESS* pContact = new CONTACT_ADDRESS();
+        SIPX_CONTACT_ADDRESS* pContact = new SIPX_CONTACT_ADDRESS();
         
         strcpy(pContact->cIpAddress, mStunState.mappedAddress);
         pContact->iPort = mStunState.mappedPort;
         strcpy(pContact->cInterface, szAdapterName);
-        pContact->eContactType = NAT_MAPPED;
-        pContact->transportType = OsSocket::UDP ;
+        pContact->eContactType = CONTACT_NAT_MAPPED;
+        pContact->eTransportType = TRANSPORT_UDP ;
                 
-        mpNotification->signal((int) pContact) ;        
-        mpNotification = NULL ;
+        mpNotification->signal((int) pContact) ;
+        mbNotified = true ;
     }
 }
 
@@ -560,10 +564,10 @@ void OsNatDatagramSocket::markStunFailure()
     mStunState.status = NAT_STATUS_FAILURE ;
 
     // Signal external identities interested in the STUN outcome.
-    if (mpNotification)
+    if (mpNotification && !mbNotified)
     {
         mpNotification->signal(0) ;
-        mpNotification = NULL ;
+        mbNotified = true ;
     }
 }
 
@@ -628,7 +632,20 @@ UtlBoolean OsNatDatagramSocket::getBestDestinationAddress(UtlString& address,
 
 UtlBoolean OsNatDatagramSocket::applyDestinationAddress(const char* szAddress, int iPort) 
 {
-    UtlBoolean bRC = mpNatAgent->setTurnDestination(this, szAddress, iPort) ;
+    UtlBoolean bRC = false ;
+
+    // ::TODO:: The keepalive period should be configurable (taken from 
+    // default stun keepalive setting)
+    if (!addStunKeepAlive(szAddress, iPort, DEFAULT_MEDIA_STUN_KEEPALIVE))
+    {
+        OsSysLog::add(FAC_NET, PRI_ERR, "Unable to add stun keepalive to %s:%d\n",
+                szAddress, iPort) ;
+    }
+   
+    if (mpNatAgent->setTurnDestination(this, szAddress, iPort))
+    {
+        bRC = true ;
+    }
 
     return bRC ;
 }

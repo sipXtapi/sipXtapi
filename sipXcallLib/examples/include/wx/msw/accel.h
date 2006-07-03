@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     31/7/98
-// RCS-ID:      $Id: accel.h,v 1.6 2001/06/26 20:59:07 VZ Exp $
+// RCS-ID:      $Id: accel.h,v 1.14 2004/12/10 11:23:06 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_ACCEL_H_
 #define _WX_ACCEL_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "accel.h"
 #endif
 
@@ -24,10 +24,10 @@ class WXDLLEXPORT wxAcceleratorTable : public wxObject
 {
 public:
     // default ctor
-    wxAcceleratorTable();
+    wxAcceleratorTable() : wxObject() { }
 
     // copy ctor
-    wxAcceleratorTable(const wxAcceleratorTable& accel) { Ref(accel); }
+    wxAcceleratorTable(const wxAcceleratorTable& accel) : wxObject(accel) { Ref(accel); }
 
     // load from .rc resource (Windows specific)
     wxAcceleratorTable(const wxString& resource);
@@ -35,11 +35,14 @@ public:
     // initialize from array
     wxAcceleratorTable(int n, const wxAcceleratorEntry entries[]);
 
-    virtual ~wxAcceleratorTable();
+    wxAcceleratorTable& operator=(const wxAcceleratorTable& accel)
+    {
+        if ( *this != accel )
+            Ref(accel);
+        return *this;
+    }
 
-    wxAcceleratorTable& operator = (const wxAcceleratorTable& accel) { if ( *this != accel ) Ref(accel); return *this; }
-    bool operator==(const wxAcceleratorTable& accel) const
-        { return m_refData == accel.m_refData; } // FIXME: this is wrong (VZ)
+    bool operator==(const wxAcceleratorTable& accel) const;
     bool operator!=(const wxAcceleratorTable& accel) const
         { return !(*this == accel); }
 
@@ -47,7 +50,7 @@ public:
     void SetHACCEL(WXHACCEL hAccel);
     WXHACCEL GetHACCEL() const;
 
-    // translate the accelerator, return TRUE if done
+    // translate the accelerator, return true if done
     bool Translate(wxWindow *window, WXMSG *msg) const;
 
 private:

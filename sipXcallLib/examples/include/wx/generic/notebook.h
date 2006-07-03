@@ -3,7 +3,7 @@
 // Purpose:     wxNotebook class (a.k.a. property sheet, tabbed dialog)
 // Author:      Julian Smart
 // Modified by:
-// RCS-ID:      $Id: notebook.h,v 1.7 2002/08/31 11:29:12 GD Exp $
+// RCS-ID:      $Id: notebook.h,v 1.20 2005/08/28 08:00:20 MBN Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -11,17 +11,15 @@
 #ifndef _WX_NOTEBOOK_H_
 #define _WX_NOTEBOOK_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "notebook.h"
 #endif
 
 // ----------------------------------------------------------------------------
 // headers
 // ----------------------------------------------------------------------------
-#include "wx/dynarray.h"
 #include "wx/event.h"
 #include "wx/control.h"
-#include "wx/generic/tabg.h"
 
 // ----------------------------------------------------------------------------
 // types
@@ -30,38 +28,13 @@
 // fwd declarations
 class WXDLLEXPORT wxImageList;
 class WXDLLEXPORT wxWindow;
-
-// Already defined in wx/notebook.h
-#if 0
-// array of notebook pages
-typedef wxWindow wxNotebookPage;  // so far, any window can be a page
-WX_DEFINE_ARRAY(wxNotebookPage *, wxArrayPages);
-#endif
+class WXDLLEXPORT wxTabView;
 
 // ----------------------------------------------------------------------------
 // wxNotebook
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxNotebook;
-
-// This reuses wxTabView to draw the tabs.
-class WXDLLEXPORT wxNotebookTabView: public wxTabView
-{
-DECLARE_DYNAMIC_CLASS(wxNotebookTabView)
-public:
-  wxNotebookTabView(wxNotebook* notebook, long style = wxTAB_STYLE_DRAW_BOX | wxTAB_STYLE_COLOUR_INTERIOR);
-  ~wxNotebookTabView(void);
-
-  // Called when a tab is activated
-  virtual void OnTabActivate(int activateId, int deactivateId);
-  // Allows vetoing
-  virtual bool OnTabPreActivate(int activateId, int deactivateId);
-
-protected:
-   wxNotebook*      m_notebook;
-};
-
-class wxNotebook : public wxNotebookBase
+class WXDLLIMPEXP_CORE wxNotebook : public wxNotebookBase
 {
 public:
   // ctors
@@ -74,14 +47,14 @@ public:
              const wxPoint& pos = wxDefaultPosition,
              const wxSize& size = wxDefaultSize,
              long style = 0,
-             const wxString& name = "notebook");
+             const wxString& name = wxNotebookNameStr);
     // Create() function
   bool Create(wxWindow *parent,
               wxWindowID id,
               const wxPoint& pos = wxDefaultPosition,
               const wxSize& size = wxDefaultSize,
               long style = 0,
-              const wxString& name = "notebook");
+              const wxString& name = wxNotebookNameStr);
     // dtor
   ~wxNotebook();
 
@@ -93,23 +66,23 @@ public:
     // set the currently selected page, return the index of the previously
     // selected one (or -1 on error)
     // NB: this function will _not_ generate wxEVT_NOTEBOOK_PAGE_xxx events
-  int SetSelection(int nPage);
+  int SetSelection(size_t nPage);
     // cycle thru the tabs
-  //  void AdvanceSelection(bool bForward = TRUE);
+  //  void AdvanceSelection(bool bForward = true);
     // get the currently selected page
   int GetSelection() const { return m_nSelection; }
 
     // set/get the title of a page
-  bool SetPageText(int nPage, const wxString& strText);
-  wxString GetPageText(int nPage) const;
+  bool SetPageText(size_t nPage, const wxString& strText);
+  wxString GetPageText(size_t nPage) const;
 
   // get the number of rows for a control with wxNB_MULTILINE style (not all
   // versions support it - they will always return 1 then)
   virtual int GetRowCount() const ;
 
     // sets/returns item's image index in the current image list
-  int  GetPageImage(int nPage) const;
-  bool SetPageImage(int nPage, int nImage);
+  int  GetPageImage(size_t nPage) const;
+  bool SetPageImage(size_t nPage, int nImage);
 
   // control the appearance of the notebook pages
     // set the size (the same for all pages)
@@ -123,24 +96,26 @@ public:
   // operations
   // ----------
     // remove one page from the notebook, and delete the page.
-  bool DeletePage(int nPage);
+  bool DeletePage(size_t nPage);
   bool DeletePage(wxNotebookPage* page);
     // remove one page from the notebook, without deleting the page.
-  bool RemovePage(int nPage);
+  bool RemovePage(size_t nPage);
   bool RemovePage(wxNotebookPage* page);
+  virtual wxWindow* DoRemovePage(size_t nPage);
+
     // remove all pages
   bool DeleteAllPages();
     // the same as AddPage(), but adds it at the specified position
-  bool InsertPage(int nPage,
+  bool InsertPage(size_t nPage,
                   wxNotebookPage *pPage,
                   const wxString& strText,
-                  bool bSelect = FALSE,
+                  bool bSelect = false,
                   int imageId = -1);
 
   // callbacks
   // ---------
   void OnSize(wxSizeEvent& event);
-  void OnIdle(wxIdleEvent& event);
+  void OnInternalIdle();
   void OnSelChange(wxNotebookEvent& event);
   void OnSetFocus(wxFocusEvent& event);
   void OnNavigationKey(wxNavigationKeyEvent& event);
@@ -148,8 +123,10 @@ public:
   // base class virtuals
   // -------------------
   virtual void Command(wxCommandEvent& event);
-  virtual void SetConstraintSizes(bool recurse = TRUE);
+  virtual void SetConstraintSizes(bool recurse = true);
   virtual bool DoPhase(int nPhase);
+
+  virtual wxSize CalcSizeFromPage(const wxSize& sizePage) const;
 
   // Implementation
 
@@ -164,7 +141,7 @@ public:
 
   // Implementation: calculate the layout of the view rect
   // and resize the children if required
-  bool RefreshLayout(bool force = TRUE);
+  bool RefreshLayout(bool force = true);
 
 protected:
   // common part of all ctors
@@ -173,11 +150,6 @@ protected:
   // helper functions
   void ChangePage(int nOldSel, int nSel); // change pages
 
-#if 0
-  wxImageList  *m_pImageList; // we can have an associated image list
-  wxArrayPages  m_aPages;     // array of pages
-#endif
-  
   int m_nSelection;           // the current selection (-1 if none)
 
   wxTabView*   m_tabView;

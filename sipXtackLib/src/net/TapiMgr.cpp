@@ -70,10 +70,32 @@ void TapiMgr::fireCallEvent(const void*          pSrc,
 				            SIPX_CALLSTATE_CAUSE cause,
                             void*                pEventData)
 {
+    static SIPX_CALLSTATE_EVENT lastEvent = CALLSTATE_UNKNOWN;
+    static SIPX_CALLSTATE_CAUSE lastCause = CALLSTATE_CAUSE_UNKNOWN;
+    static char szLastCallId[256] = { 0 };
+    static char szLastRemoteAddress[256]  = { 0 };
+    static SipSession* pLastSession = NULL;
+    
     if (sipxCallEventCallbackPtr)
     {
-        (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress,
-                                    event, cause, pEventData);
+        if (lastEvent == event &&
+            lastCause == cause &&
+            strcmp(szLastRemoteAddress, szRemoteAddress) == 0 &&
+            strcmp(szLastCallId, szCallId) == 0 ) 
+        {
+            // don't fire
+        }
+        else
+        {
+            (*sipxCallEventCallbackPtr)(pSrc, szCallId, pSession, szRemoteAddress,
+                                        event, cause, pEventData);
+            lastEvent = event;
+            lastCause = cause;
+            strncpy(szLastCallId, szCallId, sizeof(szLastCallId));
+            strncpy(szLastRemoteAddress, szCallId, sizeof(szLastRemoteAddress));
+            pLastSession = pSession;
+        }
+                                    
     }
     return;
 }

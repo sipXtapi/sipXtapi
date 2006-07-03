@@ -6,16 +6,16 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     22.01.00
-// RCS-ID:      $Id: memconf.h,v 1.1 2000/01/22 23:15:51 VZ Exp $
+// RCS-ID:      $Id: memconf.h,v 1.5 2004/05/23 20:50:23 JS Exp $
 // Copyright:   (c) 2000 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
  * NB: I don't see how this class may possibly be useful to the application
  *     program (as the settings are lost on program termination), but it is
- *     handy to have it inside wxWindows. So for now let's say that this class
- *     is private and should only be used by wxWindows itself - this might
+ *     handy to have it inside wxWidgets. So for now let's say that this class
+ *     is private and should only be used by wxWidgets itself - this might
  *     change in the future.
  */
 
@@ -47,6 +47,8 @@ public:
                                     0)              // don't use any files
     {
     }
+
+    DECLARE_NO_COPY_CLASS(wxMemoryConfig)
 };
 
 #endif // wxUSE_CONFIG

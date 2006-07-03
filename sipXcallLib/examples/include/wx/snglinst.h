@@ -5,7 +5,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     08.06.01
-// RCS-ID:      $Id: snglinst.h,v 1.4 2002/08/31 11:29:11 GD Exp $
+// RCS-ID:      $Id: snglinst.h,v 1.11 2004/09/22 14:38:29 ABX Exp $
 // Copyright:   (c) 2001 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 #ifndef _WX_SNGLINST_H_
 #define _WX_SNGLINST_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "snglinst.h"
 #endif
 
@@ -23,7 +23,7 @@
 // wxSingleInstanceChecker
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxSingleInstanceChecker
+class WXDLLIMPEXP_BASE wxSingleInstanceChecker
 {
 public:
     // default ctor, use Create() after it
@@ -44,7 +44,7 @@ public:
     // path is optional and is ignored under Win32 and used as the directory to
     // create the lock file in under Unix (default is wxGetHomeDir())
     //
-    // returns FALSE if initialization failed, it doesn't mean that another
+    // returns false if initialization failed, it doesn't mean that another
     // instance is running - use IsAnotherRunning() to check it
     bool Create(const wxString& name, const wxString& path = wxEmptyString);
 
@@ -59,7 +59,9 @@ private:
     void Init() { m_impl = NULL; }
 
     // the implementation details (platform specific)
-    class WXDLLEXPORT wxSingleInstanceCheckerImpl *m_impl;
+    class WXDLLIMPEXP_BASE wxSingleInstanceCheckerImpl *m_impl;
+
+    DECLARE_NO_COPY_CLASS(wxSingleInstanceChecker)
 };
 
 #endif // wxUSE_SNGLINST_CHECKER

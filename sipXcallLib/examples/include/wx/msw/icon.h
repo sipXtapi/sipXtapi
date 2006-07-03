@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: icon.h,v 1.8 2000/02/02 00:52:05 VZ Exp $
+// RCS-ID:      $Id: icon.h,v 1.18 2004/09/16 22:36:12 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_ICON_H_
 #define _WX_ICON_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "icon.h"
 #endif
 
@@ -20,23 +20,7 @@
 // headers
 // ----------------------------------------------------------------------------
 
-// compatible (even if incorrect) behaviour by default: derive wxIcon from
-// wxBitmap
-#ifndef wxICON_IS_BITMAP
-    #define wxICON_IS_BITMAP 1
-#endif
-
-#if wxICON_IS_BITMAP
-    #include "wx/bitmap.h"
-
-    #define wxIconRefDataBase   wxBitmapRefData
-    #define wxIconBase          wxBitmap
-#else
-    #include "wx/msw/gdiimage.h"
-
-    #define wxIconRefDataBase   wxGDIImageRefData
-    #define wxIconBase          wxGDIImage
-#endif
+#include "wx/msw/gdiimage.h"
 
 // ---------------------------------------------------------------------------
 // icon data
@@ -44,7 +28,7 @@
 
 // notice that although wxIconRefData inherits from wxBitmapRefData, it is not
 // a valid wxBitmapRefData
-class WXDLLEXPORT wxIconRefData : public wxIconRefDataBase
+class WXDLLEXPORT wxIconRefData : public wxGDIImageRefData
 {
 public:
     wxIconRefData() { }
@@ -57,7 +41,7 @@ public:
 // Icon
 // ---------------------------------------------------------------------------
 
-class WXDLLEXPORT wxIcon : public wxIconBase
+class WXDLLEXPORT wxIcon : public wxGDIImage
 {
 public:
     // ctors
@@ -65,17 +49,22 @@ public:
     wxIcon() { }
 
         // copy
-    wxIcon(const wxIcon& icon) { Ref(icon); }
+    wxIcon(const wxIcon& icon) : wxGDIImage(icon) { Ref(icon); }
 
         // from raw data
     wxIcon(const char bits[], int width, int height);
+
         // from XPM data
     wxIcon(const char **data) { CreateIconFromXpm(data); }
+
     wxIcon(char **data) { CreateIconFromXpm((const char **)data); }
+
         // from resource/file
     wxIcon(const wxString& name,
            long type = wxBITMAP_TYPE_ICO_RESOURCE,
            int desiredWidth = -1, int desiredHeight = -1);
+
+    wxIcon(const wxIconLocation& loc);
 
     virtual ~wxIcon();
 
@@ -106,6 +95,8 @@ protected:
     {
         return new wxIconRefData;
     }
+
+    virtual wxObjectRefData *CloneRefData(const wxObjectRefData *data) const;
 
     // create from XPM data
     void CreateIconFromXpm(const char **data);

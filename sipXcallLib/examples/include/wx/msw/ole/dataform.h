@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     19.10.99 (extracted from msw/ole/dataobj.h)
-// RCS-ID:      $Id: dataform.h,v 1.3 2001/05/02 19:48:08 KLB Exp $
+// RCS-ID:      $Id: dataform.h,v 1.7 2004/08/16 12:45:40 ABX Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -57,8 +57,8 @@ public:
     wxString GetId() const;
     void SetId(const wxChar *format);
 
-    // returns TRUE if the format is one of those defined in wxDataFormatId
-    bool IsStandard() const { return m_format > 0 && m_format < wxDF_MAX; }
+    // returns true if the format is one of those defined in wxDataFormatId
+    bool IsStandard() const { return m_format > 0 && m_format < wxDF_PRIVATE; }
 
 private:
     NativeFormat m_format;

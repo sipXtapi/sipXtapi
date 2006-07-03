@@ -53,11 +53,14 @@ SipXHandleMap* gpConfHandleMap = new SipXHandleMap() ;  /**< Global Map of conf 
 SipXHandleMap* gpInfoHandleMap = new SipXHandleMap() ;  /**< Global Map of info handles */
 SipXHandleMap* gpPubHandleMap = new SipXHandleMap() ;  /**< Global Map of Published (subscription server) event data handles */
 SipXHandleMap* gpSubHandleMap = new SipXHandleMap() ;  /**< Global Map of Subscribed (client) event data handles */
+SipXHandleMap* gpTransportHandleMap = new SipXHandleMap(4) ;  /**< Global Map of External Transport object handles */
 
 
 UtlDList*  gpSessionList  = new UtlDList() ;    /**< List of sipX sessions (to be replaced 
                                                 by handle map in the future */
 OsMutex*	gpSessionLock = new OsMutex(OsMutex::Q_FIFO);
+OsMutex*	gpCallAccessLock = new OsMutex(OsMutex::Q_FIFO);
+
 static int      gSessions = 0;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -217,64 +220,74 @@ void sipxSubscribeDestroyAll(const SIPX_INST hInst)
 
 SIPX_CALL sipxCallLookupHandle(const UtlString& callID, const void* pSrc)
 {
-    UtlHashMapIterator iter(*gpCallHandleMap);
-
-    UtlInt* pIndex = NULL;
-    UtlVoidPtr* pObj = NULL;
     SIPX_CALL hCall = 0 ;
-
-    while ((pIndex = dynamic_cast<UtlInt*>(iter())))       
+    gpCallHandleMap->lock() ;
+    // control iterator scope
     {
-        pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
-        SIPX_CALL_DATA* pData = NULL ;
-        if (pObj)
-        {
-            pData = (SIPX_CALL_DATA*) pObj->getValue() ;
-        }
+        UtlHashMapIterator iter(*gpCallHandleMap);
 
-        if (pData && 
-            (pData->callId->compareTo(callID) == 0 ||
-            (pData->sessionCallId && (pData->sessionCallId->compareTo(callID) == 0))) && 
-            (pData->pInst->pCallManager == pSrc ||
-            pData->pInst->pSipUserAgent == pSrc) )
+        UtlInt* pIndex = NULL;
+        UtlVoidPtr* pObj = NULL;
+
+        while ((pIndex = dynamic_cast<UtlInt*>(iter())))       
         {
-            hCall = pIndex->getValue() ;
-            break ;
+            pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
+            SIPX_CALL_DATA* pData = NULL ;
+            if (pObj)
+            {
+                pData = (SIPX_CALL_DATA*) pObj->getValue() ;
+            }
+
+            if (pData && 
+                (pData->callId->compareTo(callID) == 0 ||
+                (pData->sessionCallId && (pData->sessionCallId->compareTo(callID) == 0))) && 
+                (pData->pInst->pCallManager == pSrc ||
+                pData->pInst->pSipUserAgent == pSrc) )
+            {
+                hCall = pIndex->getValue() ;
+                break ;
+            }
         }
-    }
+    }        
+    gpCallHandleMap->unlock() ;
 
     return hCall;
 }
 
 
-void sipxCallObjectFree(const SIPX_CALL hCall)
+void sipxCallObjectFree(const SIPX_CALL hCall, const OsStackTraceLogger& oneBackInStack)
 {
-    gpCallHandleMap->lock() ;
-
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE) ;
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallObjectFree", oneBackInStack);
+    gpCallAccessLock->acquire();
+    
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, logItem) ;
 
     if (pData)
     {
         const void* pRC = gpCallHandleMap->removeHandle(hCall); 
+        sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;
         if (pRC)
         {
-            destroyCallData(pData) ;   
-        }
-        else
-        {
-            sipxCallReleaseLock(pData, SIPX_LOCK_WRITE) ;
+//            destroyCallData(pData) ;   
+            // To prevent any Pure Virtual Function call error
+            // we now do garbage collection of this object after 100 msecs
+            OsMsgQ*  pMsgQ = pData->pInst->pMessageObserver->getMessageQueue();
+            OsTimer* timer = new OsTimer(pMsgQ, (int)pData);
+
+            OsTime timerTime(100);
+            timer->oneshotAfter(timerTime);  
         }
     }
-    gpCallHandleMap->unlock();
+    gpCallAccessLock->release();
 }
 
 
-SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type)
+SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack)
 {
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallLookup", oneBackInStack);
     SIPX_CALL_DATA* pRC ;    
 
-    gpCallHandleMap->lock() ;
-
+    gpCallAccessLock->acquire();
     pRC = (SIPX_CALL_DATA*) gpCallHandleMap->findHandle(hCall) ;
     if (validCallData(pRC))
     {
@@ -282,11 +295,15 @@ SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type)
         {
         case SIPX_LOCK_READ:
             // TODO: What happens if this fails?
-            pRC->pMutex->acquireRead() ;            
+            pRC->pMutex->acquireRead() ;   
+            // the handle could have already been removed before we aquired the lock
+            pRC = (SIPX_CALL_DATA*) gpCallHandleMap->findHandle(hCall);
             break ;
         case SIPX_LOCK_WRITE:
             // TODO: What happens if this fails?
             pRC->pMutex->acquireWrite() ;
+            // the handle could have already been removed before we aquired the lock
+            pRC = (SIPX_CALL_DATA*) gpCallHandleMap->findHandle(hCall);
             break ;
         default:
             break ;
@@ -296,9 +313,7 @@ SIPX_CALL_DATA* sipxCallLookup(const SIPX_CALL hCall, SIPX_LOCK_TYPE type)
     {
         pRC = NULL ;
     }
-
-    gpCallHandleMap->unlock() ;
-
+    gpCallAccessLock->release();
     return pRC ;
 }
 
@@ -315,8 +330,9 @@ UtlBoolean validCallData(SIPX_CALL_DATA* pData)
 }
 
 
-void sipxCallReleaseLock(SIPX_CALL_DATA* pData, SIPX_LOCK_TYPE type) 
+void sipxCallReleaseLock(SIPX_CALL_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack)
 {
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallReleaseLock", oneBackInStack);
     if ((type != SIPX_LOCK_NONE) && validCallData(pData))
     {
         switch (type)
@@ -340,10 +356,13 @@ UtlBoolean sipxCallGetCommonData(SIPX_CALL hCall,
                                  UtlString* pStrCallId,
                                  UtlString* pStrRemoteAddress,
                                  UtlString* pLineId,
-                                 UtlString* pGhostCallId) 
+                                 UtlString* pGhostCallId, 
+                                 UtlString* pContactAddress) 
 {
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetCommonData");
+    
     UtlBoolean bSuccess = FALSE ;
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, logItem);
     if (pData)
     {
         if (pInst)
@@ -388,9 +407,16 @@ UtlBoolean sipxCallGetCommonData(SIPX_CALL hCall,
             }
         }
 
+        if (pContactAddress)
+        {
+            if (pData->contactAddress)
+            {
+				*pContactAddress = *pData->contactAddress;
+			}
+        }
         bSuccess = TRUE ;
 
-        sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+        sipxCallReleaseLock(pData, SIPX_LOCK_READ, logItem) ;
     }
 
     return bSuccess ;
@@ -400,12 +426,13 @@ UtlBoolean sipxCallGetCommonData(SIPX_CALL hCall,
 SIPX_CONF sipxCallGetConf(SIPX_CALL hCall) 
 {
     SIPX_CONF hConf = 0 ;
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetConf");
 
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, logItem);
     if (pData)
     {
         hConf = pData->hConf ;
-        sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+        sipxCallReleaseLock(pData, SIPX_LOCK_READ, logItem) ;
     }
 
     return hConf ;
@@ -418,8 +445,9 @@ UtlBoolean sipxCallGetMediaState(SIPX_CALL         hCall,
                                  SIPX_MEDIA_EVENT& lastRemoteMediaVideoEvent)
 {
     UtlBoolean bSuccess = false ;
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetMediaState");
 
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, logItem);
     if (pData)
     {
         lastLocalMediaAudioEvent = pData->lastLocalMediaAudioEvent ;
@@ -429,7 +457,7 @@ UtlBoolean sipxCallGetMediaState(SIPX_CALL         hCall,
 
         bSuccess = true ;
 
-        sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;        
+        sipxCallReleaseLock(pData, SIPX_LOCK_READ, logItem) ;        
     }
 
     return bSuccess ;
@@ -441,7 +469,8 @@ UtlBoolean sipxCallSetMediaState(SIPX_CALL hCall,
 {
  UtlBoolean bSuccess = false ;
 
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallSetMediaState");
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, logItem);
     if (pData)
     {
         switch (event)
@@ -483,7 +512,7 @@ UtlBoolean sipxCallSetMediaState(SIPX_CALL hCall,
                 break ;
         }
 
-        sipxCallReleaseLock(pData, SIPX_LOCK_WRITE) ;        
+        sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;        
     }
 
     return bSuccess ;
@@ -496,15 +525,16 @@ UtlBoolean sipxCallGetState(SIPX_CALL hCall,
                             SIPX_INTERNAL_CALLSTATE& state) 
 {
     UtlBoolean bSuccess = false ;
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetState");
 
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, logItem);
     if (pData)
     {
         lastEvent = pData->lastCallstateEvent ;
         lastCause = pData->lastCallstateCause ;
         state = pData->state ;
         bSuccess = true ;
-        sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;        
+        sipxCallReleaseLock(pData, SIPX_LOCK_READ, logItem) ;        
     }
 
     return bSuccess ;
@@ -516,8 +546,9 @@ UtlBoolean sipxCallSetState(SIPX_CALL hCall,
                             SIPX_CALLSTATE_CAUSE cause) 
 {
     UtlBoolean bSuccess = false ;
-
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallSetState");
+    
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, logItem);
     if (pData)
     {
         // Store state
@@ -577,7 +608,7 @@ UtlBoolean sipxCallSetState(SIPX_CALL hCall,
             break ;
         }
 
-        sipxCallReleaseLock(pData, SIPX_LOCK_WRITE) ;
+        sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;
     }
     return bSuccess ;
 }
@@ -587,17 +618,18 @@ UtlBoolean sipxCallSetState(SIPX_CALL hCall,
 SIPX_CONTACT_TYPE sipxCallGetLineContactType(SIPX_CALL hCall) 
 {
     SIPX_CONTACT_TYPE contactType = CONTACT_AUTO ;
-
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetLineContactType");
+    
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, logItem);
     if (pData)
     {
-        SIPX_LINE_DATA* pLineData = sipxLineLookup(pData->hLine, SIPX_LOCK_READ) ;
+        SIPX_LINE_DATA* pLineData = sipxLineLookup(pData->hLine, SIPX_LOCK_READ, logItem) ;
         if (pLineData)
         {
             contactType = pLineData->contactType ;
-            sipxLineReleaseLock(pLineData, SIPX_LOCK_READ) ;
+            sipxLineReleaseLock(pLineData, SIPX_LOCK_READ, logItem) ;
         }
-        sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+        sipxCallReleaseLock(pData, SIPX_LOCK_READ, logItem) ;
     }
 
     return contactType ;
@@ -605,10 +637,9 @@ SIPX_CONTACT_TYPE sipxCallGetLineContactType(SIPX_CALL hCall)
 
 
 
-SIPX_LINE_DATA* sipxLineLookup(const SIPX_LINE hLine, SIPX_LOCK_TYPE type)
+SIPX_LINE_DATA* sipxLineLookup(const SIPX_LINE hLine, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack)
 {
-    gpLineHandleMap->lock() ;
-
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxLineLookup", oneBackInStack);
     SIPX_LINE_DATA* pRC ;
 
     pRC = (SIPX_LINE_DATA*) gpLineHandleMap->findHandle(hLine) ;
@@ -633,14 +664,12 @@ SIPX_LINE_DATA* sipxLineLookup(const SIPX_LINE hLine, SIPX_LOCK_TYPE type)
         pRC = NULL ;
     }
 
-    gpLineHandleMap->unlock() ;
-
     return pRC ;
 }
 
-SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type)
+SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack)
 {
-    gpInfoHandleMap->lock() ;
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxInfoLookup", oneBackInStack);
 
     SIPX_INFO_DATA* pRC ;
 
@@ -659,7 +688,28 @@ SIPX_INFO_DATA* sipxInfoLookup(const SIPX_INFO hInfo, SIPX_LOCK_TYPE type)
         break ;
     }
 
-    gpInfoHandleMap->unlock() ;
+    return pRC ;
+}
+
+SIPX_TRANSPORT_DATA* sipxTransportLookup(const SIPX_TRANSPORT hTransport, SIPX_LOCK_TYPE type)
+{
+    SIPX_TRANSPORT_DATA* pRC ;
+
+    pRC = (SIPX_TRANSPORT_DATA*) gpTransportHandleMap->findHandle(hTransport) ;
+    switch (type)
+    {
+    case SIPX_LOCK_READ:
+        // TODO: What happens if this fails?
+        pRC->pMutex->acquireRead() ;
+        break ;
+    case SIPX_LOCK_WRITE:
+        // TODO: What happens if this fails?
+        pRC->pMutex->acquireWrite() ;
+        break ;
+    default:
+        break ;
+    }
+
 
     return pRC ;
 }
@@ -827,8 +877,10 @@ void sipxSubscribeClientNotifyCallback(const char* earlyDialogHandle,
     }
 }
 
-void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type) 
+void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack) 
 {
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxLineReleaseLock", oneBackInStack);
+
     if ((type != SIPX_LOCK_NONE) && validLineData(pData))
     {
         switch (type)
@@ -848,8 +900,10 @@ void sipxLineReleaseLock(SIPX_LINE_DATA* pData, SIPX_LOCK_TYPE type)
 }
 
 
-void sipxInfoReleaseLock(SIPX_INFO_DATA* pData, SIPX_LOCK_TYPE type) 
+void sipxInfoReleaseLock(SIPX_INFO_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack) 
 {
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxInfoReleaseLock", oneBackInStack);
+
     if (type != SIPX_LOCK_NONE)
     {
         switch (type)
@@ -884,9 +938,8 @@ UtlBoolean validLineData(const SIPX_LINE_DATA* pData)
 
 void sipxLineObjectFree(const SIPX_LINE hLine)
 {
-    gpLineHandleMap->lock() ;
-
-    SIPX_LINE_DATA* pData = sipxLineLookup(hLine, SIPX_LOCK_WRITE) ;
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxLineObjectFree");
+    SIPX_LINE_DATA* pData = sipxLineLookup(hLine, SIPX_LOCK_WRITE, logItem) ;
 
     if (pData)
     {
@@ -903,11 +956,6 @@ void sipxLineObjectFree(const SIPX_LINE hLine)
                 delete pData->lineURI ;
             }
 
-            if (pData->pMutex)
-            {
-                delete pData->pMutex ;
-            }
-
             if (pData->pLineAliases)
             {
                 UtlVoidPtr* pValue ;
@@ -921,26 +969,28 @@ void sipxLineObjectFree(const SIPX_LINE hLine)
                     delete pValue ;
                 }
             }
-
+            OsRWMutex* pMutex = pData->pMutex;
+            pData->pMutex = NULL;
             delete pData ;
+            if (pMutex)
+            {
+                pMutex->releaseWrite();
+            }            
+            delete pMutex;
         }
         else
         {
-            sipxLineReleaseLock(pData, SIPX_LOCK_WRITE) ;
+            sipxLineReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;
         }
     }
-
-    gpLineHandleMap->unlock() ;
 }
 
 
 
 void sipxInfoObjectFree(SIPX_INFO hInfo)
 {
-    gpInfoHandleMap->lock() ;
-
-    SIPX_INFO_DATA* pData = sipxInfoLookup(hInfo, SIPX_LOCK_WRITE) ;
-
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxInfoObjectFree");
+    SIPX_INFO_DATA* pData = sipxInfoLookup(hInfo, SIPX_LOCK_WRITE, logItem) ;
     if (pData)
     {
         const void* pRC = gpInfoHandleMap->removeHandle(hInfo); 
@@ -950,29 +1000,83 @@ void sipxInfoObjectFree(SIPX_INFO hInfo)
         }
         else
         {
-            sipxInfoReleaseLock(pData, SIPX_LOCK_WRITE) ;
+            sipxInfoReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;
         }
     }
-
-    gpInfoHandleMap->unlock() ;
 }
 
 void sipxInfoFree(SIPX_INFO_DATA* pData)
 {
     if (pData)
     {
-        if (pData->pMutex)
-        {
-            delete pData->pMutex ;
-        }
         free((void*)pData->infoData.pContent);
         free((void*)pData->infoData.szContentType);
         free((void*)pData->infoData.szFromURL);
         free((void*)pData->infoData.szUserAgent);
+        
+        OsRWMutex* pMutex = pData->pMutex;
+        pData->pMutex = NULL;
+        delete pData;
+        if (pMutex)
+        {
+            pMutex->releaseWrite();
+        }        
+        delete pMutex;
+    }
+}
+
+void sipxTransportReleaseLock(SIPX_TRANSPORT_DATA* pData, SIPX_LOCK_TYPE type) 
+{
+    if (type != SIPX_LOCK_NONE)
+    {
+        switch (type)
+        {
+        case SIPX_LOCK_READ:
+            // TODO: What happens if this fails?
+            pData->pMutex->releaseRead() ;
+            break ;
+        case SIPX_LOCK_WRITE:
+            // TODO: What happens if this fails?
+            pData->pMutex->releaseWrite() ;
+            break ;
+        default:
+            break ;
+        }
+    }
+}
+
+void sipxTransportObjectFree(SIPX_TRANSPORT hTransport)
+{
+
+    SIPX_TRANSPORT_DATA* pData = sipxTransportLookup(hTransport, SIPX_LOCK_WRITE) ;
+
+    if (pData)
+    {
+        const void* pRC = gpTransportHandleMap->removeHandle(hTransport); 
+        if (pRC)
+        {
+            sipxTransportFree(pData) ;   
+        }
+        else
+        {
+            sipxTransportReleaseLock(pData, SIPX_LOCK_WRITE) ;
+        }
+    }
+}
+
+void sipxTransportFree(SIPX_TRANSPORT_DATA* pData)
+{
+    if (pData)
+    {
+        if (pData->pMutex)
+        {
+            delete pData->pMutex ;
+        }        
 
         delete pData;
     }
 }
+
 
 SIPX_LINE sipxLineLookupHandle(const char* szLineURI, 
                                const char* szRequestUri) 
@@ -1046,20 +1150,21 @@ UtlBoolean sipxAddCallHandleToConf(const SIPX_CALL hCall,
                                    const SIPX_CONF hConf)
 {
     UtlBoolean bRC = false ;    
-
-    SIPX_CONF_DATA* pConfData = sipxConfLookup(hConf, SIPX_LOCK_WRITE) ;
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxAddCallHandleToConf");
+    
+    SIPX_CONF_DATA* pConfData = sipxConfLookup(hConf, SIPX_LOCK_WRITE, logItem) ;
     if (pConfData)
     {
-        SIPX_CALL_DATA * pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE) ;
+        SIPX_CALL_DATA * pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, logItem) ;
         if (pCallData)
         {
             pConfData->hCalls[pConfData->nCalls++] = hCall ;
             pCallData->hConf = hConf ; 
             bRC = true ;
 
-            sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE) ;
+            sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE, logItem) ;
         }
-        sipxConfReleaseLock(pConfData, SIPX_LOCK_WRITE) ;
+        sipxConfReleaseLock(pConfData, SIPX_LOCK_WRITE, logItem) ;
     }
     
     return bRC ;
@@ -1118,9 +1223,9 @@ UtlBoolean validConfData(const SIPX_CONF_DATA* pData)
 }
 
 
-SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type) 
+SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack) 
 {
-    gpConfHandleMap->lock() ;
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfLookup", oneBackInStack);
 
     SIPX_CONF_DATA* pRC = (SIPX_CONF_DATA*) gpConfHandleMap->findHandle(hConf) ;
 
@@ -1144,15 +1249,14 @@ SIPX_CONF_DATA* sipxConfLookup(const SIPX_CONF hConf, SIPX_LOCK_TYPE type)
     {
         pRC = NULL ;
     }
-
-    gpConfHandleMap->unlock() ;
-
     return pRC ;
 }
 
 
-void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type) 
+void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack) 
 {
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfReleaseLock", oneBackInStack);
+    
     if ((type != SIPX_LOCK_NONE) && validConfData(pData))
     {
         switch (type)
@@ -1173,9 +1277,8 @@ void sipxConfReleaseLock(SIPX_CONF_DATA* pData, SIPX_LOCK_TYPE type)
 
 void sipxConfFree(const SIPX_CONF hConf) 
 {
-    gpConfHandleMap->lock() ;
-
-    SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_WRITE) ;
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxConfFree");
+    SIPX_CONF_DATA* pData = sipxConfLookup(hConf, SIPX_LOCK_WRITE, logItem) ;
 
     if (pData)
     {
@@ -1192,13 +1295,19 @@ void sipxConfFree(const SIPX_CONF hConf)
             callId = *pData->strCallId ;
             pInst = pData->pInst ;
 
-            delete pData->pMutex ;
+            OsRWMutex* pMutex = pData->pMutex;
+            pData->pMutex = NULL;
             delete pData->strCallId;
             delete pData ;
+            if (pMutex)
+            {
+                pMutex->releaseWrite();
+            }
+            delete pMutex;
         }
         else
         {
-            sipxConfReleaseLock(pData, SIPX_LOCK_WRITE) ;
+            sipxConfReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;
         }
 
         if (pInst && !callId.isNull())
@@ -1206,14 +1315,13 @@ void sipxConfFree(const SIPX_CONF hConf)
             pInst->pCallManager->drop(callId) ;
         }
     }
-
-    gpConfHandleMap->unlock() ;
 }
 
 SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager)
 {
+static 
     SIPX_INSTANCE_DATA *pInst = NULL ;
-
+    gpSessionLock->acquire();
     UtlDListIterator iter(*gpSessionList);
 
     UtlVoidPtr* pObj = NULL;
@@ -1227,7 +1335,7 @@ SIPX_INSTANCE_DATA* findSessionByCallManager(const void* pCallManager)
             break ;
         }
     }
-
+    gpSessionLock->release();
     return pInst ;
 }
 
@@ -1272,6 +1380,7 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
     // Lastly, use local
     if (!bSet)
     {
+        /*
         OsSocket::SocketProtocolTypes protocol = OsSocket::UDP;
         switch (sipx_protocol)
         {
@@ -1285,7 +1394,8 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
                 protocol = OsSocket::SSL_SOCKET;
                 break;
         }
-        if (pData->pSipUserAgent->getLocalAddress(&useIp, &usePort, protocol))
+        */
+        if (pData->pSipUserAgent->getLocalAddress(&useIp, &usePort, sipx_protocol))
         {
             uri.setHostAddress(useIp) ;
             uri.setHostPort(usePort) ;
@@ -1344,26 +1454,28 @@ UtlBoolean sipxIsCallInFocus()
     UtlBoolean inFocus = false ;
     gpCallHandleMap->lock() ;
 
-    UtlHashMapIterator iter(*gpCallHandleMap);
-
-    UtlInt* pIndex = NULL;
-    UtlVoidPtr* pObj = NULL;
-
-    while ((pIndex = dynamic_cast<UtlInt*>(iter())))
+    // control iterator scope
     {
-        pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
-        SIPX_CALL_DATA* pData = NULL ;
-        if (pObj)
+        UtlHashMapIterator iter(*gpCallHandleMap);
+
+        UtlInt* pIndex = NULL;
+        UtlVoidPtr* pObj = NULL;
+
+        while ((pIndex = dynamic_cast<UtlInt*>(iter())))
         {
-            pData = (SIPX_CALL_DATA*) pObj->getValue() ;
-            if (pData->bInFocus)
+            pObj = dynamic_cast<UtlVoidPtr*>(gpCallHandleMap->findValue(pIndex));
+            SIPX_CALL_DATA* pData = NULL ;
+            if (pObj)
             {
-                inFocus = true ;
-                break ;
+                pData = (SIPX_CALL_DATA*) pObj->getValue() ;
+                if (pData->bInFocus)
+                {
+                    inFocus = true ;
+                    break ;
+                }
             }
         }
     }
-
     gpCallHandleMap->unlock() ;
 
     return inFocus ;
@@ -1397,7 +1509,9 @@ SIPX_RESULT sipxFlushHandles()
     gpLineHandleMap->removeAll() ;
     gpConfHandleMap->removeAll() ;
     gpInfoHandleMap->removeAll() ;
+    gpSessionLock->acquire();
     gpSessionList->removeAll() ;
+    gpSessionLock->release();
 
     return SIPX_RESULT_SUCCESS ;
 }
@@ -1439,12 +1553,14 @@ SIPX_RESULT sipxCheckForHandleLeaks()
         rc = SIPX_RESULT_FAILURE ;
     }
 
+    gpSessionLock->acquire();
     if (gpSessionList->entries() != 0)
     {
         printf("\ngSessionList leaks (%d)\n",
                 (int) gpSessionList->entries()) ;
         rc = SIPX_RESULT_FAILURE ;
     }
+    gpSessionLock->release();
 
     return rc ;
 }
@@ -1453,12 +1569,14 @@ SIPX_RESULT sipxCheckForHandleLeaks()
 SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCall,
                                                              void** ppInstData)
 {
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallGetConnectionMediaInterface");
     SIPX_RESULT sr = SIPX_RESULT_FAILURE;
     int connectionId = -1;
     UtlString callId ;
     UtlString remoteAddress ;
+    
 
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, logItem);
 
     assert(pData != 0);
     assert(pData->pInst != 0);
@@ -1471,7 +1589,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetConnectionMediaInterface(const SIPX_CALL hCa
 
     if (pData)
     {
-        sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+        sipxCallReleaseLock(pData, SIPX_LOCK_READ, logItem) ;
     }    
 
     if (!callId.isNull() && !remoteAddress.isNull())
@@ -1724,6 +1842,8 @@ const char* sipxTransportTypeToString(SIPX_TRANSPORT_TYPE type)
         case TRANSPORT_TLS:
             szResult = "TLS" ;
             break ;
+		default:
+			szResult = "CUSTOM";
     }
 
     return szResult ;
@@ -1772,15 +1892,16 @@ SIPXTAPI_API SIPX_RESULT sipxTranslateToneId(const TONE_ID toneId,
 
 UtlBoolean sipxCallSetRemoveInsteadofDrop(SIPX_CALL hCall) 
 {
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallSetRemoveInsteadOfDrop");
     UtlBoolean bSuccess = FALSE ;
 
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE);
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, logItem);
     if (pData)
     {
         pData->bRemoveInsteadOfDrop = TRUE ;        
         bSuccess = TRUE ;
 
-        sipxCallReleaseLock(pData, SIPX_LOCK_WRITE) ;
+        sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, logItem) ;
     }
 
     return bSuccess ;
@@ -1789,14 +1910,16 @@ UtlBoolean sipxCallSetRemoveInsteadofDrop(SIPX_CALL hCall)
 
 UtlBoolean sipxCallIsRemoveInsteadOfDropSet(SIPX_CALL hCall)
 {
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxCallIsREmoveInsteadOfDropSet");
     UtlBoolean bShouldRemove = FALSE ;
+    
 
-    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ);
+    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_READ, logItem);
     if (pData)
     {
         bShouldRemove = pData->bRemoveInsteadOfDrop ;                
 
-        sipxCallReleaseLock(pData, SIPX_LOCK_READ) ;
+        sipxCallReleaseLock(pData, SIPX_LOCK_READ, logItem) ;
     }
 
     return bShouldRemove ;
@@ -1868,4 +1991,102 @@ SIPXTAPI_API SIPX_RESULT sipxConfigLoadSecurityRuntime()
     }
 #endif
     return rc;
+}
+
+SIPX_PUBLISH_DATA* sipxPublishLookup(const SIPX_PUB hPub, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack)
+{
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxPublishLookup", oneBackInStack);
+
+    SIPX_PUBLISH_DATA* pRC ;    
+
+    pRC = (SIPX_PUBLISH_DATA*) gpPubHandleMap->findHandle(hPub) ;
+    if(pRC)
+    {
+        switch (type)
+        {
+        case SIPX_LOCK_READ:
+            // TODO: What happens if this fails?
+            pRC->pMutex->acquireRead() ;            
+            break ;
+        case SIPX_LOCK_WRITE:
+            // TODO: What happens if this fails?
+            pRC->pMutex->acquireWrite() ;
+            break ;
+        default:
+            break ;
+        }
+    }
+
+    return pRC ;
+}
+
+void sipxPublishReleaseLock(SIPX_PUBLISH_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack) 
+{
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxPublishReleaseLock", oneBackInStack);
+
+    if (pData && type != SIPX_LOCK_NONE)
+    {
+        switch (type)
+        {
+        case SIPX_LOCK_READ:
+            // TODO: What happens if this fails?
+            pData->pMutex->releaseRead() ;
+            break ;
+        case SIPX_LOCK_WRITE:
+            // TODO: What happens if this fails?
+            pData->pMutex->releaseWrite() ;
+            break ;
+        default:
+            break ;
+        }
+    }
+}
+
+SIPX_SUBSCRIPTION_DATA* sipxSubscribeLookup(const SIPX_SUB hSub, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack)
+{
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxSubscribeLookup", oneBackInStack);
+
+    SIPX_SUBSCRIPTION_DATA* pRC ;    
+
+    pRC = (SIPX_SUBSCRIPTION_DATA*) gpSubHandleMap->findHandle(hSub) ;
+    if(pRC)
+    {
+        switch (type)
+        {
+        case SIPX_LOCK_READ:
+            // TODO: What happens if this fails?
+            pRC->pMutex->acquireRead() ;            
+            break ;
+        case SIPX_LOCK_WRITE:
+            // TODO: What happens if this fails?
+            pRC->pMutex->acquireWrite() ;
+            break ;
+        default:
+            break ;
+        }
+    }
+
+    return pRC ;
+}
+
+void sipxSubscribeReleaseLock(SIPX_SUBSCRIPTION_DATA* pData, SIPX_LOCK_TYPE type, const OsStackTraceLogger& oneBackInStack) 
+{
+    OsStackTraceLogger logItem(FAC_SIPXTAPI, PRI_DEBUG, "sipxSubscribeReleaseLock", oneBackInStack);
+
+    if (pData && type != SIPX_LOCK_NONE)
+    {
+        switch (type)
+        {
+        case SIPX_LOCK_READ:
+            // TODO: What happens if this fails?
+            pData->pMutex->releaseRead() ;
+            break ;
+        case SIPX_LOCK_WRITE:
+            // TODO: What happens if this fails?
+            pData->pMutex->releaseWrite() ;
+            break ;
+        default:
+            break ;
+        }
+    }
 }

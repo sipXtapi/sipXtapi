@@ -3,7 +3,7 @@
 // Purpose:     wxStaticLine class interface
 // Author:      Vadim Zeitlin
 // Created:     28.06.99
-// Version:     $Id: statline.h,v 1.5 2001/06/26 20:59:07 VZ Exp $
+// Version:     $Id: statline.h,v 1.14 2005/04/10 15:22:53 VZ Exp $
 // Copyright:   (c) 1999 Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -28,7 +28,7 @@
 // ----------------------------------------------------------------------------
 
 // the default name for objects of class wxStaticLine
-WXDLLEXPORT_DATA(extern const wxChar*) wxStaticTextNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxStaticTextNameStr;
 
 // ----------------------------------------------------------------------------
 // wxStaticLine - a line in a dialog
@@ -47,7 +47,7 @@ public:
     static int GetDefaultSize() { return 2; }
 
     // overriden base class virtuals
-    virtual bool AcceptsFocus() const { return FALSE; }
+    virtual bool AcceptsFocus() const { return false; }
 
 protected:
     // set the right size for the right dimension
@@ -56,12 +56,12 @@ protected:
         wxSize sizeReal(size);
         if ( IsVertical() )
         {
-            if ( size.x == -1 )
+            if ( size.x == wxDefaultCoord )
                 sizeReal.x = GetDefaultSize();
         }
         else
         {
-            if ( size.y == -1 )
+            if ( size.y == wxDefaultCoord )
                 sizeReal.y = GetDefaultSize();
         }
 
@@ -72,6 +72,8 @@ protected:
     {
         return AdjustSize(wxDefaultSize);
     }
+
+    DECLARE_NO_COPY_CLASS(wxStaticLineBase)
 };
 
 // ----------------------------------------------------------------------------
@@ -88,6 +90,8 @@ protected:
     #include "wx/os2/statline.h"
 #elif defined(__WXMAC__)
     #include "wx/mac/statline.h"
+#elif defined(__WXCOCOA__)
+    #include "wx/cocoa/statline.h"
 #else // use generic implementation for all other platforms
     #include "wx/generic/statline.h"
 #endif

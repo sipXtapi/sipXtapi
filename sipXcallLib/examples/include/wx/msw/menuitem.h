@@ -4,15 +4,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     11.11.97
-// RCS-ID:      $Id: menuitem.h,v 1.15 2002/03/24 01:24:16 VZ Exp $
+// RCS-ID:      $Id: menuitem.h,v 1.21 2004/08/30 10:18:43 ABX Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef   _MENUITEM_H
 #define   _MENUITEM_H
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "menuitem.h"
 #endif
 
@@ -47,8 +47,8 @@ public:
     virtual void SetText(const wxString& strName);
     virtual void SetCheckable(bool checkable);
 
-    virtual void Enable(bool bDoEnable = TRUE);
-    virtual void Check(bool bDoCheck = TRUE);
+    virtual void Enable(bool bDoEnable = true);
+    virtual void Check(bool bDoCheck = true);
     virtual bool IsChecked() const;
 
     // unfortunately needed to resolve ambiguity between
@@ -79,7 +79,7 @@ private:
 
     // the positions of the first and last items of the radio group this item
     // belongs to or -1: start is the radio group start and is valid for all
-    // but first radio group items (m_isRadioGroupStart == FALSE), end is valid
+    // but first radio group items (m_isRadioGroupStart == false), end is valid
     // only for the first one
     union
     {
@@ -90,7 +90,7 @@ private:
     // does this item start a radio group?
     bool m_isRadioGroupStart;
 
-    DECLARE_DYNAMIC_CLASS(wxMenuItem)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxMenuItem)
 };
 
 #endif  //_MENUITEM_H

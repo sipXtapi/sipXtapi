@@ -697,7 +697,8 @@ public:
                 int port,
                 const char* protocol,
                 const char* branchId = NULL,
-                const bool bIncludeRport = false) ;
+                const bool bIncludeRport = false,
+                const char* customRouteId = NULL) ;
 
     void addViaField(const char* viaField, UtlBoolean afterOtherVias = TRUE);
 
@@ -843,6 +844,8 @@ public:
     
     void setLocalIp(const UtlString& localIp);
 
+    void setTransportInfo(const SipMessage* pMsg) ;
+
     //@}
 
     //! @name SIP Routing header field accessors and manipulators
@@ -924,12 +927,12 @@ public:
     // This method is needed to cover the symetrical situation which is
     // specific to SIP authorization (i.e. authentication and authorize
     // fields may be in either requests or responses
-    UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
-                                                 const char* password,
-                                                 const char* nonce,
-                                                 const char* realm,
-                                                 const char* uri = NULL,
-                                                 enum HttpEndpointEnum authEntity = SERVER) const;
+    UtlBoolean verifyMd5Authorization(const char* userId,
+                                      const char* password,
+                                      const char* nonce,
+                                      const char* realm,
+                                      const char* uri = NULL,
+                                      enum HttpEndpointEnum authEntity = SERVER) const;
 
     //! @name DNS SRV state accessors
     /*! \note this will be deprecated
@@ -956,6 +959,11 @@ public:
     /*! \note the transaction may be NULL
      */
     SipTransaction* getSipTransaction() const;
+
+    //! Accessor to retrieve any transport string from
+    /*! \the to-field.  Also determines if it is a custom transport.
+     */
+    const UtlString getTransportName(bool& bCustom) const;       
 
 /* ============================ INQUIRY =================================== */
 
@@ -1015,6 +1023,7 @@ private:
     SipTransaction* mpSipTransaction;
     mutable SIPXTACK_SECURITY_ATTRIBUTES* mpSecurity;
     mutable void* mpEventData;
+    UtlString mCustomRouteId;
 
     UtlString mLocalIp;
     bool mbFromThisSide;

@@ -16,6 +16,7 @@
 #include <net/SipUserAgent.h>
 #include <net/Url.h>
 #include <os/OsDateTime.h>
+#include <os/OsLock.h>
 #include <os/OsNatDatagramSocket.h>
 #include <os/HostAdapterAddress.h>
 #include <utl/UtlHashMapIterator.h>
@@ -52,7 +53,8 @@ SipUdpServer::SipUdpServer(int port,
                            const char* szBoundIp) :
    SipProtocolServerBase(userAgent, "UDP", "SipUdpServer-%d"),
    mStunRefreshSecs(28), 
-   mStunPort(PORT_NONE)  
+   mStunPort(PORT_NONE),
+   mMapLock(OsMutex::Q_FIFO)   
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipUdpServer::_ port = %d, bUseNextAvailablePort = %d, szBoundIp = '%s'",
@@ -104,7 +106,8 @@ SipUdpServer::SipUdpServer(int port,
 
 // Copy constructor
 SipUdpServer::SipUdpServer(const SipUdpServer& rSipUdpServer) :
-        SipProtocolServerBase(NULL, "UDP", "SipUdpServer-%d")
+        SipProtocolServerBase(NULL, "UDP", "SipUdpServer-%d"),
+        mMapLock(OsMutex::Q_FIFO)   
 {
 }
 
@@ -168,17 +171,17 @@ OsStatus SipUdpServer::createServerSocket(const char* szBoundIp,
     if (pSocket)
     {     
         port = pSocket->getLocalHostPort();
-        CONTACT_ADDRESS contact;
+        SIPX_CONTACT_ADDRESS contact;
         strcpy(contact.cIpAddress, szBoundIp);
         contact.iPort = port;
-        contact.eContactType = LOCAL;
+        contact.eContactType = CONTACT_LOCAL;
         char szAdapterName[16];
         memset((void*)szAdapterName, 0, sizeof(szAdapterName)); // null out the string
         
         getContactAdapterName(szAdapterName, contact.cIpAddress, false);
 
         strcpy(contact.cInterface, szAdapterName);
-        contact.transportType = OsSocket::UDP;
+        contact.eTransportType = TRANSPORT_UDP;
         mSipUserAgent->addContactAddress(contact);
    
         // add address and port to the maps
@@ -378,6 +381,7 @@ void SipUdpServer::enableStun(const char* szStunServer,
                               int refreshPeriodInSecs, 
                               OsNotification* pNotification) 
 {
+    OsLock lock(mMapLock);
     // Store settings
     mStunPort = iStunPort ;
     mStunRefreshSecs = refreshPeriodInSecs ;   
@@ -453,10 +457,12 @@ void SipUdpServer::enableStun(const char* szStunServer,
             break;
         }
     } // end while  
+    
 }
 
 void SipUdpServer::shutdownListener()
 {
+    OsLock lock(mMapLock);
     SipClient* pServer = NULL;
     UtlHashMapIterator iterator(mServers);
     UtlVoidPtr* pServerContainer = NULL;
@@ -564,6 +570,7 @@ UtlBoolean SipUdpServer::addCrLfKeepAlive(const char* szLocalIp,
                                           const int   remotePort,
                                           const int   keepAliveSecs) 
 {
+    OsLock lock(mMapLock);
     UtlHashMapIterator iterator(mServerSocketMap);
     UtlString* pKey = NULL;
     OsNatDatagramSocket* pSocket = NULL;
@@ -599,6 +606,7 @@ UtlBoolean SipUdpServer::removeCrLfKeepAlive(const char* szLocalIp,
                                              const char* szRemoteIp,
                                              const int   remotePort) 
 {
+    OsLock lock(mMapLock);
     UtlHashMapIterator iterator(mServerSocketMap);
     UtlString* pKey = NULL;
     OsNatDatagramSocket* pSocket = NULL;
@@ -633,6 +641,7 @@ UtlBoolean SipUdpServer::addStunKeepAlive(const char* szLocalIp,
                                           const int   remotePort,
                                           const int   keepAliveSecs) 
 {
+    OsLock lock(mMapLock);
     UtlHashMapIterator iterator(mServerSocketMap);
     UtlString* pKey = NULL;
     OsNatDatagramSocket* pSocket = NULL;
@@ -667,7 +676,8 @@ UtlBoolean SipUdpServer::removeStunKeepAlive(const char* szLocalIp,
                                              const char* szRemoteIp,
                                              const int   remotePort)
 {
-   UtlHashMapIterator iterator(mServerSocketMap);
+    OsLock lock(mMapLock);
+    UtlHashMapIterator iterator(mServerSocketMap);
     UtlString* pKey = NULL;
     OsNatDatagramSocket* pSocket = NULL;
     UtlBoolean bSuccess = false ;
@@ -701,6 +711,7 @@ UtlBoolean SipUdpServer::removeStunKeepAlive(const char* szLocalIp,
 
 void SipUdpServer::printStatus()
 {
+    OsLock lock(mMapLock);
     SipClient* pServer = NULL;
     UtlHashMapIterator iterator(mServers);
     UtlVoidPtr* pServerContainer = NULL;

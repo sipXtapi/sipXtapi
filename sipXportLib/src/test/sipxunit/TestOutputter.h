@@ -30,9 +30,9 @@ class TestOutputter : public CppUnit::TextOutputter
 
  protected:
 
-    void TestOutputter::printFailures();
+    void printFailures();
 
-    void TestOutputter::printFailureWarning();
+    void printFailureWarning();
 
  private:
     

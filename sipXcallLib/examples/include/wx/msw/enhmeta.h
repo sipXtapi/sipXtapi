@@ -4,15 +4,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     13.01.00
-// RCS-ID:      $Id: enhmeta.h,v 1.3 2001/04/09 01:22:45 VZ Exp $
+// RCS-ID:      $Id: enhmeta.h,v 1.11 2005/01/18 20:23:48 ABX Exp $
 // Copyright:   (c) 2000 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_MSW_ENHMETA_H_
 #define _WX_MSW_ENHMETA_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "enhmeta.h"
 #endif
 
@@ -31,7 +31,7 @@ class WXDLLEXPORT wxEnhMetaFile : public wxObject
 public:
     wxEnhMetaFile(const wxString& file = wxEmptyString) : m_filename(file)
         { Init(); }
-    wxEnhMetaFile(const wxEnhMetaFile& metafile)
+    wxEnhMetaFile(const wxEnhMetaFile& metafile) : wxObject()
         { Init(); Assign(metafile); }
     wxEnhMetaFile& operator=(const wxEnhMetaFile& metafile)
         { Free(); Assign(metafile); return *this; }
@@ -61,7 +61,7 @@ public:
     void SetHENHMETAFILE(WXHANDLE hMF) { Free(); m_hMF = hMF; }
 
 protected:
-    void Init() { m_hMF = 0; }
+    void Init();
     void Free();
     void Assign(const wxEnhMetaFile& mf);
 
@@ -91,7 +91,7 @@ public:
     wxEnhMetaFile *Close();
 
 private:
-    DECLARE_DYNAMIC_CLASS(wxEnhMetaFileDC)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxEnhMetaFileDC)
 };
 
 #if wxUSE_DRAG_AND_DROP
@@ -128,6 +128,8 @@ public:
 
 protected:
     wxEnhMetaFile m_metafile;
+
+    DECLARE_NO_COPY_CLASS(wxEnhMetaFileDataObject)
 };
 
 
@@ -158,8 +160,19 @@ public:
     virtual bool GetDataHere(void *buf) const;
     virtual bool SetData(size_t len, const void *buf);
 
+    virtual size_t GetDataSize(const wxDataFormat& WXUNUSED(format)) const
+        { return GetDataSize(); }
+    virtual bool GetDataHere(const wxDataFormat& WXUNUSED(format),
+                             void *buf) const
+        { return GetDataHere(buf); }
+    virtual bool SetData(const wxDataFormat& WXUNUSED(format),
+                         size_t len, const void *buf)
+        { return SetData(len, buf); }
+
 protected:
     wxEnhMetaFile m_metafile;
+
+    DECLARE_NO_COPY_CLASS(wxEnhMetaFileSimpleDataObject)
 };
 
 #endif // wxUSE_DRAG_AND_DROP

@@ -4,13 +4,15 @@
 // Author:      Vadim Zeitiln
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: colordlg.h,v 1.12.2.1 2002/10/29 00:02:07 VZ Exp $
-// Copyright:   (c) wxWindows team
+// RCS-ID:      $Id: colordlg.h,v 1.18 2005/01/18 10:31:20 ABX Exp $
+// Copyright:   (c) wxWidgets team
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_COLORDLG_H_BASE_
 #define _WX_COLORDLG_H_BASE_
+
+#include "wx/defs.h"
 
 #if wxUSE_COLOURDLG
 
@@ -18,11 +20,14 @@
     #include "wx/msw/colordlg.h"
 #elif defined(__WXMAC__) && !defined(__WXUNIVERSAL__)
     #include "wx/mac/colordlg.h"
+#elif defined(__WXGTK20__) && !defined(__WXUNIVERSAL__)
+    #include "wx/gtk/colordlg.h"
+#elif defined(__WXPALMOS__)
+    #include "wx/palmos/colordlg.h"
 #else
     #include "wx/generic/colrdlgg.h"
 
     #define wxColourDialog wxGenericColourDialog
-    #define sm_classwxColourDialog sm_classwxGenericColourDialog
 #endif
 
 // get the colour from user and return it

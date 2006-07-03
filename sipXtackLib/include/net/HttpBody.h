@@ -73,10 +73,10 @@ public:
    static HttpBody* copyBody(const HttpBody& sourceBody);
 
    //! Pseudo body factory
-   static HttpBody* HttpBody::createBody(const char* bodyBytes,
-                                           int bodyBytesLength,
-                                           const char* contentType,
-                                           const char* contentEncoding);
+   static HttpBody* createBody(const char* bodyBytes,
+                               int bodyBytesLength,
+                               const char* contentType,
+                               const char* contentEncoding);
 
 /* ============================ ACCESSORS ================================= */
 

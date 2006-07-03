@@ -114,7 +114,7 @@ class UtlHashMapIterator : public UtlIterator
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
-   void UtlHashMapIterator::init();
+   void init();
 
    size_t   mPosition;      ///< current bucket number [0..numberOfBuckets-1]
    UtlPair* mpCurrentPair;  ///< current UtlPair within the bucket, or BEFORE_FIRST

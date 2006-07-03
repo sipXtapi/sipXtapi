@@ -4,17 +4,19 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     22.10.99
-// RCS-ID:      $Id: ctrlsub.h,v 1.9 2002/08/31 11:29:09 GD Exp $
-// Copyright:   (c) wxWindows team
-// Licence:     wxWindows license
+// RCS-ID:      $Id: ctrlsub.h,v 1.29 2005/03/16 16:18:18 ABX Exp $
+// Copyright:   (c) wxWidgets team
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_CTRLSUB_H_BASE_
 #define _WX_CTRLSUB_H_BASE_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "controlwithitems.h"
 #endif
+
+#include "wx/defs.h"
 
 #if wxUSE_CONTROLS
 
@@ -24,11 +26,55 @@
 // wxItemContainer defines an interface which is implemented by all controls
 // which have string subitems each of which may be selected.
 //
+// It is decomposed in wxItemContainerImmutable which omits all methods
+// adding/removing items and is used by wxRadioBox and wxItemContainer itself.
+//
 // Examples: wxListBox, wxCheckListBox, wxChoice and wxComboBox (which
 // implements an extended interface deriving from this one)
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxItemContainer
+class WXDLLEXPORT wxItemContainerImmutable
+{
+public:
+    wxItemContainerImmutable() { }
+    virtual ~wxItemContainerImmutable();
+
+    // accessing strings
+    // -----------------
+
+    virtual int GetCount() const = 0;
+    bool IsEmpty() const { return GetCount() == 0; }
+
+    virtual wxString GetString(int n) const = 0;
+    wxArrayString GetStrings() const;
+    virtual void SetString(int n, const wxString& s) = 0;
+    virtual int FindString(const wxString& s) const = 0;
+
+
+    // selection
+    // ---------
+
+    virtual void SetSelection(int n) = 0;
+    virtual int GetSelection() const = 0;
+
+    // set selection to the specified string, return false if not found
+    bool SetStringSelection(const wxString& s);
+
+    // return the selected string or empty string if none
+    wxString GetStringSelection() const;
+
+    // this is the same as SetSelection( for single-selection controls but
+    // reads better for multi-selection ones
+    void Select(int n) { SetSelection(n); }
+
+
+protected:
+
+    // check that the index is valid
+    inline bool IsValid(int n) const { return n >= 0 && n < GetCount(); }
+};
+
+class WXDLLEXPORT wxItemContainer : public wxItemContainerImmutable
 {
 public:
     wxItemContainer() { m_clientDataItemsType = wxClientData_None; }
@@ -44,30 +90,23 @@ public:
     int Append(const wxString& item, wxClientData *clientData)
         { int n = DoAppend(item); SetClientObject(n, clientData); return n; }
 
+    // only for rtti needs (separate name)
+    void AppendString( const wxString& item)
+        { Append( item ); }
+
     // append several items at once to the control
     void Append(const wxArrayString& strings);
+
+    int Insert(const wxString& item, int pos)
+        { return DoInsert(item, pos); }
+    int Insert(const wxString& item, int pos, void *clientData);
+    int Insert(const wxString& item, int pos, wxClientData *clientData);
 
     // deleting items
     // --------------
 
     virtual void Clear() = 0;
     virtual void Delete(int n) = 0;
-
-    // accessing strings
-    // -----------------
-
-    virtual int GetCount() const = 0;
-    virtual wxString GetString(int n) const = 0;
-    virtual void SetString(int n, const wxString& s) = 0;
-    virtual int FindString(const wxString& s) const = 0;
-
-    // selection
-    // ---------
-
-    virtual void Select(int n) = 0;
-    virtual int GetSelection() const = 0;
-
-    wxString GetStringSelection() const;
 
     // misc
     // ----
@@ -87,11 +126,12 @@ public:
 #if WXWIN_COMPATIBILITY_2_2
     // compatibility - these functions are deprecated, use the new ones
     // instead
-    int Number() const { return GetCount(); }
+    wxDEPRECATED( int Number() const );
 #endif // WXWIN_COMPATIBILITY_2_2
 
 protected:
     virtual int DoAppend(const wxString& item) = 0;
+    virtual int DoInsert(const wxString& item, int pos) = 0;
 
     virtual void DoSetItemClientData(int n, void* clientData) = 0;
     virtual void* DoGetItemClientData(int n) const = 0;
@@ -102,58 +142,72 @@ protected:
     wxClientDataType m_clientDataItemsType;
 };
 
+// this macro must (unfortunately) be used in any class deriving from both
+// wxItemContainer and wxControl because otherwise there is ambiguity when
+// calling GetClientXXX() functions -- the compiler can't choose between the
+// two versions
+#define wxCONTROL_ITEMCONTAINER_CLIENTDATAOBJECT_RECAST                    \
+    void SetClientData(void *data)                                         \
+        { wxControl::SetClientData(data); }                                \
+    void *GetClientData() const                                            \
+        { return wxControl::GetClientData(); }                             \
+    void SetClientObject(wxClientData *data)                               \
+        { wxControl::SetClientObject(data); }                              \
+    wxClientData *GetClientObject() const                                  \
+        { return wxControl::GetClientObject(); }                           \
+    void SetClientData(int n, void* clientData)                            \
+        { wxItemContainer::SetClientData(n, clientData); }                 \
+    void* GetClientData(int n) const                                       \
+        { return wxItemContainer::GetClientData(n); }                      \
+    void SetClientObject(int n, wxClientData* clientData)                  \
+        { wxItemContainer::SetClientObject(n, clientData); }               \
+    wxClientData* GetClientObject(int n) const                             \
+        { return wxItemContainer::GetClientObject(n); }
+
 class WXDLLEXPORT wxControlWithItems : public wxControl, public wxItemContainer
 {
 public:
     wxControlWithItems() { }
     virtual ~wxControlWithItems();
-    
+
     // we have to redefine these functions here to avoid ambiguities in classes
     // deriving from us which would arise otherwise because both base classses
     // have the methods with the same names - hopefully, a smart compiler can
     // optimize away these simple inline wrappers so we don't suffer much from
     // this
+    wxCONTROL_ITEMCONTAINER_CLIENTDATAOBJECT_RECAST
 
-    void SetClientData(void *data)
-    {
-        wxControl::SetClientData(data);
-    }
+    // usually the controls like list/combo boxes have their own background
+    // colour
+    virtual bool ShouldInheritColours() const { return false; }
 
-    void *GetClientData() const
-    {
-        return wxControl::GetClientData();
-    }
+protected:
+    // we can't compute our best size before the items are added to the control
+    // which is done after calling SetInitialBestSize() (it is called from the
+    // base class ctor and the items are added in the derived class ctor), so
+    // don't do anything at all here as our size will be changed later anyhow
+    //
+    // of course, all derived classes *must* call SetBestSize() from their
+    // ctors for this to work!
+    virtual void SetInitialBestSize(const wxSize& WXUNUSED(size)) { }
 
-    void SetClientObject(wxClientData *data)
-    {
-        wxControl::SetClientObject(data);
-    }
-
-    wxClientData *GetClientObject() const
-    {
-        return wxControl::GetClientObject();
-    }
-
-    void SetClientData(int n, void* clientData)
-    {
-        wxItemContainer::SetClientData(n, clientData);
-    }
-
-    void* GetClientData(int n) const
-    {
-        return wxItemContainer::GetClientData(n);
-    }
-
-    void SetClientObject(int n, wxClientData* clientData)
-    {
-        wxItemContainer::SetClientObject(n, clientData);
-    }
-
-    wxClientData* GetClientObject(int n) const
-    {
-        return wxItemContainer::GetClientObject(n);
-    }
+private:
+    DECLARE_NO_COPY_CLASS(wxControlWithItems)
 };
+
+
+// ----------------------------------------------------------------------------
+// inline functions
+// ----------------------------------------------------------------------------
+
+#if WXWIN_COMPATIBILITY_2_2
+
+inline int wxItemContainer::Number() const
+{
+    return GetCount();
+}
+
+#endif // WXWIN_COMPATIBILITY_2_2
 
 #endif // wxUSE_CONTROLS
 

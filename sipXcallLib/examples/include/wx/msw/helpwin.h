@@ -4,15 +4,15 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     04/01/98
-// RCS-ID:      $Id: helpwin.h,v 1.6 2000/09/12 14:53:38 JS Exp $
+// RCS-ID:      $Id: helpwin.h,v 1.13 2004/10/13 14:04:19 ABX Exp $
 // Copyright:   (c) Julian Smart
-// Licence:   	wxWindows licence
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_HELPWIN_H_
 #define _WX_HELPWIN_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "helpwin.h"
 #endif
 
@@ -25,21 +25,24 @@
 class WXDLLEXPORT wxWinHelpController: public wxHelpControllerBase
 {
     DECLARE_CLASS(wxWinHelpController)
-        
+
 public:
-    wxWinHelpController() {};
-    ~wxWinHelpController() {};
+    wxWinHelpController() {}
+    ~wxWinHelpController() {}
 
     // Must call this to set the filename
     virtual bool Initialize(const wxString& file);
+    virtual bool Initialize(const wxString& file, int WXUNUSED(server) ) { return Initialize( file ); }
 
     // If file is "", reloads file given in Initialize
     virtual bool LoadFile(const wxString& file = wxEmptyString);
     virtual bool DisplayContents();
     virtual bool DisplaySection(int sectionNo);
+    virtual bool DisplaySection(const wxString& section) { return KeywordSearch(section); }
     virtual bool DisplayBlock(long blockNo);
     virtual bool DisplayContextPopup(int contextId);
-    virtual bool KeywordSearch(const wxString& k);
+    virtual bool KeywordSearch(const wxString& k,
+                               wxHelpSearchMode mode = wxHELP_SEARCH_ALL);
     virtual bool Quit();
 
     inline wxString GetHelpFile() const { return m_helpFile; }
@@ -47,7 +50,7 @@ public:
 protected:
     // Append extension if necessary.
     wxString GetValidFilename(const wxString& file) const;
-    
+
 private:
     wxString m_helpFile;
 };

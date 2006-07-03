@@ -85,12 +85,12 @@ class UtlHistogram
     * Record a value.
     * Returns the number of counts in the histogram.
     */
-   unsigned int UtlHistogram::tally(int);
+   unsigned int tally(int);
 
    /**
     * Clear the histogram.
     */
-   void UtlHistogram::clear();
+   void clear();
 
 /* ============================ ACCESSORS ================================= */
 
@@ -98,28 +98,28 @@ class UtlHistogram
     * Get the specified number of bins (which is 2 less than the total number
     * of bins).
     */
-   unsigned int UtlHistogram::getNoOfBins();
+   unsigned int getNoOfBins();
 
    /**
     * Get the lowest value for bin 0.
     */
-   unsigned int UtlHistogram::getBase();
+   unsigned int getBase();
 
    /**
     * Get the size of each bin.
     */
-   unsigned int UtlHistogram::getBinSize();
+   unsigned int getBinSize();
 
    /**
     * Get the total count.
     */
-   unsigned int UtlHistogram::getCount();
+   unsigned int getCount();
 
    /**
     * Get the count in bin i.
     * i ranges from -1 to NoOfBins+1.
     */
-   unsigned int UtlHistogram::operator[](unsigned int i);
+   unsigned int operator[](unsigned int i);
 
 /* ============================ INQUIRY =================================== */
 
@@ -127,7 +127,7 @@ class UtlHistogram
     * Get a string containing the formatted values from the bins.
     * The caller must free the returned UtlString.
     */
-   UtlString* UtlHistogram::show();
+   UtlString* show();
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:

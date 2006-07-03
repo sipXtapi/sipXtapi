@@ -4,21 +4,21 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: joystick.h,v 1.3 2002/08/20 17:16:04 JS Exp $
+// RCS-ID:      $Id: joystick.h,v 1.8 2004/08/30 10:18:43 ABX Exp $
 // Copyright:   (c) Julian Smart
-// Licence:   	wxWindows licence
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_JOYSTICK_H_
 #define _WX_JOYSTICK_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "joystick.h"
 #endif
 
 #include "wx/event.h"
 
-class WXDLLEXPORT wxJoystick: public wxObject
+class WXDLLIMPEXP_ADV wxJoystick: public wxObject
 {
   DECLARE_DYNAMIC_CLASS(wxJoystick)
  public:

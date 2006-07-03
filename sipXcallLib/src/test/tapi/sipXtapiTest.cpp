@@ -38,6 +38,8 @@ SIPX_INST g_hInst5 = NULL ;
 
 SIPX_CALL ghCallHangup = 0;
 
+SIPX_TRANSPORT ghTransport = 0;
+
 TestStunServerTask* g_pPrimaryStunServer ;
 TestStunServerTask* g_pPrimaryStunServer2 ;
 TestStunServerTask* g_pSecondaryStunServer ;

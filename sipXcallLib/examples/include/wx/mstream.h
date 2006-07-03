@@ -4,7 +4,7 @@
 // Author:      Guilhem Lavaux
 // Modified by:
 // Created:     11/07/98
-// RCS-ID:      $Id: mstream.h,v 1.22 2000/11/23 16:26:11 vadz Exp $
+// RCS-ID:      $Id: mstream.h,v 1.32 2005/04/02 22:36:52 VZ Exp $
 // Copyright:   (c) Guilhem Lavaux
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,17 +12,23 @@
 #ifndef _WX_WXMMSTREAM_H__
 #define _WX_WXMMSTREAM_H__
 
-#include "wx/stream.h"
+#include "wx/defs.h"
 
 #if wxUSE_STREAMS
 
-class WXDLLEXPORT wxMemoryInputStream : public wxInputStream
+#include "wx/stream.h"
+
+class WXDLLIMPEXP_BASE wxMemoryOutputStream;
+
+class WXDLLIMPEXP_BASE wxMemoryInputStream : public wxInputStream
 {
 public:
     wxMemoryInputStream(const void *data, size_t length);
+    wxMemoryInputStream(const wxMemoryOutputStream& stream);
     virtual ~wxMemoryInputStream();
-    virtual size_t GetSize() const { return m_length; }
+    virtual wxFileOffset GetLength() const { return m_length; }
     virtual bool Eof() const;
+    virtual bool IsSeekable() const { return true; }
 
     char Peek();
 
@@ -35,20 +41,23 @@ protected:
     wxStreamBuffer *m_i_streambuf;
 
     size_t OnSysRead(void *buffer, size_t nbytes);
-    off_t OnSysSeek(off_t pos, wxSeekMode mode);
-    off_t OnSysTell() const;
+    wxFileOffset OnSysSeek(wxFileOffset pos, wxSeekMode mode);
+    wxFileOffset OnSysTell() const;
 
 private:
     size_t m_length;
+
+    DECLARE_NO_COPY_CLASS(wxMemoryInputStream)
 };
 
-class WXDLLEXPORT wxMemoryOutputStream : public wxOutputStream
+class WXDLLIMPEXP_BASE wxMemoryOutputStream : public wxOutputStream
 {
 public:
     // if data is !NULL it must be allocated with malloc()
     wxMemoryOutputStream(void *data = NULL, size_t length = 0);
     virtual ~wxMemoryOutputStream();
-    virtual size_t GetSize() const { return m_o_streambuf->GetLastAccess(); }
+    virtual wxFileOffset GetLength() const { return m_o_streambuf->GetLastAccess(); }
+    virtual bool IsSeekable() const { return true; }
 
     size_t CopyTo(void *buffer, size_t len) const;
 
@@ -62,8 +71,10 @@ protected:
 
 protected:
     size_t OnSysWrite(const void *buffer, size_t nbytes);
-    off_t OnSysSeek(off_t pos, wxSeekMode mode);
-    off_t OnSysTell() const;
+    wxFileOffset OnSysSeek(wxFileOffset pos, wxSeekMode mode);
+    wxFileOffset OnSysTell() const;
+
+    DECLARE_NO_COPY_CLASS(wxMemoryOutputStream)
 };
 
 #endif

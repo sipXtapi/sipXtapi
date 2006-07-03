@@ -4,15 +4,13 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     29.03.00
-// RCS-ID:      $Id: fontenc.h,v 1.10.2.3 2003/04/06 16:53:16 JS Exp $
+// RCS-ID:      $Id: fontenc.h,v 1.25 2004/09/14 12:08:18 ABX Exp $
 // Copyright:   (c) Vadim Zeitlin
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_FONTENC_H_
 #define _WX_FONTENC_H_
-
-#include "wx/string.h"
 
 // font encodings
 enum wxFontEncoding
@@ -41,7 +39,8 @@ enum wxFontEncoding
     wxFONTENCODING_ISO8859_MAX,
 
     // Cyrillic charset soup (see http://czyborra.com/charsets/cyrillic.html)
-    wxFONTENCODING_KOI8,            // we don't support any of KOI8 variants
+    wxFONTENCODING_KOI8,            // KOI8 Russian
+    wxFONTENCODING_KOI8_U,          // KOI8 Ukrainian
     wxFONTENCODING_ALTERNATIVE,     // same as MS-DOS CP866
     wxFONTENCODING_BULGARIAN,       // used under Linux in Bulgaria
 
@@ -70,73 +69,83 @@ enum wxFontEncoding
 
     wxFONTENCODING_UTF7,            // UTF-7 Unicode encoding
     wxFONTENCODING_UTF8,            // UTF-8 Unicode encoding
+    wxFONTENCODING_EUC_JP,          // Extended Unix Codepage for Japanese
+    wxFONTENCODING_UTF16BE,         // UTF-16 Big Endian Unicode encoding
+    wxFONTENCODING_UTF16LE,         // UTF-16 Little Endian Unicode encoding
+    wxFONTENCODING_UTF32BE,         // UTF-32 Big Endian Unicode encoding
+    wxFONTENCODING_UTF32LE,         // UTF-32 Little Endian Unicode encoding
 
-    // Far Eastern encodings
+    wxFONTENCODING_MACROMAN,        // the standard mac encodings
+    wxFONTENCODING_MACJAPANESE,
+    wxFONTENCODING_MACCHINESETRAD,
+    wxFONTENCODING_MACKOREAN,
+    wxFONTENCODING_MACARABIC,
+    wxFONTENCODING_MACHEBREW,
+    wxFONTENCODING_MACGREEK,
+    wxFONTENCODING_MACCYRILLIC,
+    wxFONTENCODING_MACDEVANAGARI,
+    wxFONTENCODING_MACGURMUKHI,
+    wxFONTENCODING_MACGUJARATI,
+    wxFONTENCODING_MACORIYA,
+    wxFONTENCODING_MACBENGALI,
+    wxFONTENCODING_MACTAMIL,
+    wxFONTENCODING_MACTELUGU,
+    wxFONTENCODING_MACKANNADA,
+    wxFONTENCODING_MACMALAJALAM,
+    wxFONTENCODING_MACSINHALESE,
+    wxFONTENCODING_MACBURMESE,
+    wxFONTENCODING_MACKHMER,
+    wxFONTENCODING_MACTHAI,
+    wxFONTENCODING_MACLAOTIAN,
+    wxFONTENCODING_MACGEORGIAN,
+    wxFONTENCODING_MACARMENIAN,
+    wxFONTENCODING_MACCHINESESIMP,
+    wxFONTENCODING_MACTIBETAN,
+    wxFONTENCODING_MACMONGOLIAN,
+    wxFONTENCODING_MACETHIOPIC,
+    wxFONTENCODING_MACCENTRALEUR,
+    wxFONTENCODING_MACVIATNAMESE,
+    wxFONTENCODING_MACARABICEXT,
+    wxFONTENCODING_MACSYMBOL,
+    wxFONTENCODING_MACDINGBATS,
+    wxFONTENCODING_MACTURKISH,
+    wxFONTENCODING_MACCROATIAN,
+    wxFONTENCODING_MACICELANDIC,
+    wxFONTENCODING_MACROMANIAN,
+    wxFONTENCODING_MACCELTIC,
+    wxFONTENCODING_MACGAELIC,
+    wxFONTENCODING_MACKEYBOARD,
+
+    wxFONTENCODING_MAX,             // highest enumerated encoding value
+
+    wxFONTENCODING_MACMIN = wxFONTENCODING_MACROMAN ,
+    wxFONTENCODING_MACMAX = wxFONTENCODING_MACKEYBOARD ,
+
+    // aliases for endian-dependent UTF encodings
+#ifdef WORDS_BIGENDIAN
+    wxFONTENCODING_UTF16 = wxFONTENCODING_UTF16BE,  // native UTF-16
+    wxFONTENCODING_UTF32 = wxFONTENCODING_UTF32BE,  // native UTF-32
+#else // WORDS_BIGENDIAN
+    wxFONTENCODING_UTF16 = wxFONTENCODING_UTF16LE,  // native UTF-16
+    wxFONTENCODING_UTF32 = wxFONTENCODING_UTF32LE,  // native UTF-32
+#endif // WORDS_BIGENDIAN
+
+    // alias for the native Unicode encoding on this platform
+    // (this is used by wxEncodingConverter and wxUTFFile only for now)
+#if SIZEOF_WCHAR_T == 2
+    wxFONTENCODING_UNICODE = wxFONTENCODING_UTF16,
+#else // SIZEOF_WCHAR_T == 4
+    wxFONTENCODING_UNICODE = wxFONTENCODING_UTF32,
+#endif
+
+    // alternative names for Far Eastern encodings
         // Chinese
     wxFONTENCODING_GB2312 = wxFONTENCODING_CP936, // Simplified Chinese
     wxFONTENCODING_BIG5 = wxFONTENCODING_CP950,   // Traditional Chinese
 
         // Japanese (see http://zsigri.tripod.com/fontboard/cjk/jis.html)
-    wxFONTENCODING_SHIFT_JIS = wxFONTENCODING_CP932,  // Shift JIS
-    wxFONTENCODING_EUC_JP = wxFONTENCODING_UTF8 + 1,  // Extended Unix Codepage for Japanese
-
-    wxFONTENCODING_UNICODE,         // Unicode - currently used only by
-                                    // wxEncodingConverter class
-
-    wxFONTENCODING_MAX
+    wxFONTENCODING_SHIFT_JIS = wxFONTENCODING_CP932 // Shift JIS
 };
-
-// ----------------------------------------------------------------------------
-// types
-// ----------------------------------------------------------------------------
-
-#if wxUSE_GUI
-
-// This private structure specifies all the parameters needed to create a font
-// with the given encoding on this platform.
-//
-// Under X, it contains the last 2 elements of the font specifications
-// (registry and encoding).
-//
-// Under Windows, it contains a number which is one of predefined CHARSET_XXX
-// values.
-//
-// Under all platforms it also contains a facename string which should be
-// used, if not empty, to create fonts in this encoding (this is the only way
-// to create a font of non-standard encoding (like KOI8) under Windows - the
-// facename specifies the encoding then)
-
-struct WXDLLEXPORT wxNativeEncodingInfo
-{
-    wxString facename;          // may be empty meaning "any"
-    wxFontEncoding encoding;    // so that we know what this struct represents
-
-#if defined(__WXMSW__) || defined(__WXPM__) || defined(__WXMAC__)
-    wxNativeEncodingInfo()
-        : facename()
-        , encoding(wxFONTENCODING_SYSTEM)
-        , charset(0) /* ANSI_CHARSET */
-    { }
-
-    int      charset;
-#elif defined(_WX_X_FONTLIKE)
-    wxString xregistry,
-             xencoding;
-#elif defined(__WXGTK20__)
-    // No way to specify this in Pango as this
-    // seems to be handled internally.
-#elif defined(__WXMGL__)
-    int      mglEncoding;
-#else
-    #error "Unsupported toolkit"
-#endif
-
-    // this struct is saved in config by wxFontMapper, so it should know to
-    // serialise itself (implemented in platform-specific code)
-    bool FromString(const wxString& s);
-    wxString ToString() const;
-};
-
-#endif // wxUSE_GUI
 
 #endif // _WX_FONTENC_H_
+

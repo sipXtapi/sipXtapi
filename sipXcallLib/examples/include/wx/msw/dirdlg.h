@@ -4,15 +4,15 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: dirdlg.h,v 1.8 2002/05/04 12:38:51 VZ Exp $
+// RCS-ID:      $Id: dirdlg.h,v 1.15 2004/08/24 10:31:34 ABX Exp $
 // Copyright:   (c) Julian Smart
-// Licence:   	wxWindows licence
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_DIRDLG_H_
 #define _WX_DIRDLG_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "dirdlg.h"
 #endif
 
@@ -22,28 +22,27 @@ public:
     wxDirDialog(wxWindow *parent,
                 const wxString& message = wxDirSelectorPromptStr,
                 const wxString& defaultPath = wxEmptyString,
-                long style = 0,
+                long style = wxDD_DEFAULT_STYLE,
                 const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize,
                 const wxString& name = wxDirDialogNameStr);
 
     void SetMessage(const wxString& message) { m_message = message; }
     void SetPath(const wxString& path);
-    void SetStyle(long style) { m_dialogStyle = style; }
+    void SetStyle(long style) { SetWindowStyle(style); }
 
     wxString GetMessage() const { return m_message; }
     wxString GetPath() const { return m_path; }
-    long GetStyle() const { return m_dialogStyle; }
+    long GetStyle() const { return GetWindowStyle(); }
 
     virtual int ShowModal();
 
 protected:
     wxString    m_message;
-    long        m_dialogStyle;
     wxString    m_path;
 
 private:
-    DECLARE_DYNAMIC_CLASS(wxDirDialog)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxDirDialog)
 };
 
 #endif

@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     06.03.98
-// RCS-ID:      $Id: droptgt.h,v 1.9 1999/10/23 23:40:48 VZ Exp $
+// RCS-ID:      $Id: droptgt.h,v 1.14 2004/08/16 12:45:40 ABX Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,13 +12,11 @@
 #ifndef   _WX_OLEDROPTGT_H
 #define   _WX_OLEDROPTGT_H
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "droptgt.h"
 #endif
 
-#if !wxUSE_DRAG_AND_DROP
-    #error  "You should #define wxUSE_DRAG_AND_DROP to 1 to compile this file!"
-#endif  //WX_DRAG_DROP
+#if wxUSE_DRAG_AND_DROP
 
 // ----------------------------------------------------------------------------
 // forward declarations
@@ -69,6 +67,10 @@ private:
 
     wxIDropTarget *m_pIDropTarget; // the pointer to our COM interface
     IDataObject   *m_pIDataSource; // the pointer to the source data object
+
+    DECLARE_NO_COPY_CLASS(wxDropTarget)
 };
+
+#endif  //wxUSE_DRAG_AND_DROP
 
 #endif  //_WX_OLEDROPTGT_H

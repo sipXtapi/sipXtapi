@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: fontdlg.h,v 1.5 2002/05/12 22:26:01 VZ Exp $
+// RCS-ID:      $Id: fontdlg.h,v 1.9 2004/05/23 20:51:28 JS Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_MSW_FONTDLG_H_
 #define _WX_MSW_FONTDLG_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "fontdlg.h"
 #endif
 
@@ -36,7 +36,7 @@ public:
         : wxFontDialogBase(parent, data) { Create(parent, data); }
 
 protected:
-    DECLARE_DYNAMIC_CLASS(wxFontDialog)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxFontDialog)
 };
 
 #endif

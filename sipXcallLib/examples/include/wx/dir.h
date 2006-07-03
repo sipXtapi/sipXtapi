@@ -4,21 +4,21 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     08.12.99
-// RCS-ID:      $Id: dir.h,v 1.6 2002/08/31 11:29:10 GD Exp $
+// RCS-ID:      $Id: dir.h,v 1.18.2.1 2005/09/25 20:46:17 MW Exp $
 // Copyright:   (c) 1999 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_DIR_H_
 #define _WX_DIR_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "dir.h"
 #endif
 
-#ifndef WX_PRECOMP
-    #include  "wx/string.h"
-#endif
+#include "wx/string.h"
+
+class WXDLLIMPEXP_BASE wxArrayString;
 
 // ----------------------------------------------------------------------------
 // constants
@@ -49,27 +49,41 @@ enum wxDirTraverseResult
 // wxDirTraverser: helper class for wxDir::Traverse()
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxDirTraverser
+class WXDLLIMPEXP_BASE wxDirTraverser
 {
 public:
+    /// a virtual dtor has been provided since this class has virtual members
+    virtual ~wxDirTraverser() { }
     // called for each file found by wxDir::Traverse()
     //
-    // return wxDIR_STOP or wxDIR_CONTINUE from here
+    // return wxDIR_STOP or wxDIR_CONTINUE from here (wxDIR_IGNORE doesn't
+    // make sense)
     virtual wxDirTraverseResult OnFile(const wxString& filename) = 0;
 
     // called for each directory found by wxDir::Traverse()
     //
     // return one of the enum elements defined above
     virtual wxDirTraverseResult OnDir(const wxString& dirname) = 0;
+
+    // called for each directory which we couldn't open during our traversal
+    // of the directory tyree
+    //
+    // this method can also return either wxDIR_STOP, wxDIR_IGNORE or
+    // wxDIR_CONTINUE but the latter is treated specially: it means to retry
+    // opening the directory and so may lead to infinite loop if it is
+    // returned unconditionally, be careful with this!
+    //
+    // the base class version always returns wxDIR_IGNORE
+    virtual wxDirTraverseResult OnOpenError(const wxString& dirname);
 };
 
 // ----------------------------------------------------------------------------
 // wxDir: portable equivalent of {open/read/close}dir functions
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxDirData;
+class WXDLLIMPEXP_BASE wxDirData;
 
-class WXDLLEXPORT wxDir
+class WXDLLIMPEXP_BASE wxDir
 {
 public:
     // test for existence of a directory with the given name
@@ -90,7 +104,7 @@ public:
     // open the directory for enumerating
     bool Open(const wxString& dir);
 
-    // returns TRUE if the directory was successfully opened
+    // returns true if the directory was successfully opened
     bool IsOpened() const;
 
     // get the full name of the directory (without '/' at the end)
@@ -100,7 +114,7 @@ public:
     // -------------------------
 
     // start enumerating all files matching filespec (or all files if it is
-    // empty) and flags, return TRUE on success
+    // empty) and flags, return true on success
     bool GetFirst(wxString *filename,
                   const wxString& filespec = wxEmptyString,
                   int flags = wxDIR_DEFAULT) const;
@@ -129,9 +143,12 @@ public:
                               int flags = wxDIR_DEFAULT);
 
 private:
-    friend class WXDLLEXPORT wxDirData;
+    friend class wxDirData;
 
     wxDirData *m_data;
+
+    DECLARE_NO_COPY_CLASS(wxDir)
 };
 
 #endif // _WX_DIR_H_
+

@@ -22,8 +22,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include,..\sipXmediaLib\include;..\gips;../gips/sipXmediaVoiceEngine/include/;../sipXmediaAdapterLib/interface"
-				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface"
+				PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_USRDLL;SIPXTAPI_EXPORTS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="TRUE"
@@ -34,31 +34,17 @@
 				ProgramDataBaseFileName=".\sipXtapi\Debug/"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 				CompileAs="0"/>
 			<Tool
-				Name="VCCustomBuildTool"
-				CommandLine="copy bin\sipXtapid.dll examples\bin\sipXtapid.dll
-copy lib\sipXtapid.lib examples\lib\sipXtapid.lib
-copy ..\sipXportLib\Debug\sipXportLib.lib examples\lib\sipXportLibD.lib
-copy ..\sipXtackLib\Debug\sipXtackLib.lib examples\lib\sipXtackLibD.lib
-mkdir examples\include\os
-copy ..\sipXportLib\include\os examples\include\os
-copy ..\sipXportLib\include\os\shared examples\include\os\shared
-copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
-copy ..\sipXportLib\include\utl examples\include\utl
-copy ..\sipXtackLib\include\net examples\include\net
-copy include\tapi\sipXtapi.h examples\include\tapi
-copy include\tapi\sipXtapiEvents.h examples\include\tapi
-"
-				Outputs="examples\bin\sipXtapid.dll;examples\lib\sipXtapid.lib"/>
+				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="msvcrtd.lib msvcprtd.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib winmm.lib sipXmediaMediaProcessing.lib"
 				OutputFile="bin\sipXtapid.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="lib;..\sipXportLib\debug;..\sipXtackLib\Debug;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\debug;..\sipXmediaLib\debug;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9_dbg\lib&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1_dbg\lib&quot;"
+				AdditionalLibraryDirectories="lib;..\sipXportLib\Debug;..\sipXtackLib\Debug;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Debug;..\sipXmediaLib\Debug;..\sipXcallLib\Debug"
 				IgnoreAllDefaultLibraries="FALSE"
 				IgnoreDefaultLibraryNames="libc,libc.lib,libcmt.lib,msvcrt.lib,libcmtd.lib"
 				ModuleDefinitionFile=""
@@ -77,7 +63,21 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 				TypeLibraryName=".\sipXtapi\Debug/sipXtapi.tlb"
 				HeaderFileName=""/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCPostBuildEventTool"
+				Description="Populating examples"
+				CommandLine="copy bin\sipXtapid.dll examples\bin\sipXtapid.dll
+copy lib\sipXtapid.lib examples\lib\sipXtapid.lib
+copy ..\sipXportLib\Debug\sipXportLib.lib examples\lib\sipXportLibD.lib
+copy ..\sipXtackLib\Debug\sipXtackLib.lib examples\lib\sipXtackLibD.lib
+mkdir examples\include\os
+copy ..\sipXportLib\include\os examples\include\os
+copy ..\sipXportLib\include\os\shared examples\include\os\shared
+copy ..\sipXportLib\include\os\wnt examples\include\os\wnt
+copy ..\sipXportLib\include\utl examples\include\utl
+copy ..\sipXtackLib\include\net examples\include\net
+copy include\tapi\sipXtapi.h examples\include\tapi
+copy include\tapi\sipXtapiEvents.h examples\include\tapi
+"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -109,8 +109,8 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="include,..\sipXportLib\include,..\sipXtackLib\include,..\sipXmediaLib\include;..\gips;../gips/sipXmediaVoiceEngine/include/;../sipXmediaAdapterLib/interface"
-				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS"
+				AdditionalIncludeDirectories="include;..\sipXportLib\include;..\sipXtackLib\include;..\sipXmediaLib\include;..\sipXmediaAdapterLib\interface"
+				PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_USRDLL;SIPXTAPI_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="TRUE"
@@ -123,10 +123,37 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 				BrowseInformation="1"
 				WarningLevel="3"
 				SuppressStartupBanner="TRUE"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 				CompileAs="0"/>
 			<Tool
-				Name="VCCustomBuildTool"
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="msvcrt.lib msvcprt.lib winmm.lib Ws2_32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib pcre.lib sipXmediaLib.lib sipXmediaMediaProcessing.lib"
+				OutputFile="bin\sipXtapi.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="lib;..\sipXportLib\Release;..\sipXtackLib\Release;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\Release;..\sipXmediaLib\Release;..\sipXcallLib\Release"
+				IgnoreDefaultLibraryNames="libcpmt.lib,libcpmtd.lib,libc,libcd,libc.lib,libcd.lib,libcmt.lib,msvcrtd.lib,msvcprtd.lib,libcmtd.lib"
+				ModuleDefinitionFile=""
+				GenerateDebugInformation="FALSE"
+				ProgramDatabaseFile=".\sipXtapi\Release/sipXtapi.pdb"
+				GenerateMapFile="TRUE"
+				OptimizeReferences="2"
+				EnableCOMDATFolding="2"
+				ImportLibrary="lib\sipXtapi.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\sipXtapi\Release/sipXtapi.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"
+				Description="Populating examples"
 				CommandLine="copy bin\sipXtapi.dll examples\bin\sipXtapi.dll
 copy lib\sipXtapi.lib examples\lib\sipXtapi.lib
 copy ..\sipXportLib\Release\sipXportLib.lib examples\lib\sipXportLib.lib
@@ -139,31 +166,7 @@ copy ..\sipXportLib\include\utl examples\include\utl
 copy ..\sipXtackLib\include\net examples\include\net
 copy include\tapi\sipXtapi.h examples\include\tapi
 copy include\tapi\sipXtapiEvents.h examples\include\tapi
-"
-				Outputs="examples\bin\sipXtapi.dll;examples\lib\sipXtapi.lib"/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="msvcrt.lib MSVCPRT.lib winmm.lib wsock32.lib sipXportLib.lib sipXtackLib.lib sipXcallLib.lib libpcre.dll.a sipXmediaMediaProcessing.lib"
-				OutputFile="bin\sipXtapi.dll"
-				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
-				AdditionalLibraryDirectories="lib;..\sipXtackLib\Release;..\sipXportLib\Release;..\sipXmediaAdapterLib\sipXmediaMediaProcessing\release;&quot;..\sipXbuild\vendors\Mozilla\wnt\nss-3.9\lib&quot;;&quot;..\sipXbuild\vendors\Mozilla\wnt\nspr-4.4.1\lib&quot;"
-				IgnoreDefaultLibraryNames="libcpmt.lib,libcpmtd.lib,libc,libcd,libc.lib,libcd.lib,libcmt.lib,msvcrtd.lib,msvcprtd.lib,libcmtd.lib"
-				ModuleDefinitionFile=""
-				ProgramDatabaseFile=".\sipXtapi\Release/sipXtapi.pdb"
-				GenerateMapFile="TRUE"
-				ImportLibrary="lib\sipXtapi.lib"
-				TargetMachine="1"/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="TRUE"
-				SuppressStartupBanner="TRUE"
-				TargetEnvironment="1"
-				TypeLibraryName=".\sipXtapi\Release/sipXtapi.tlb"
-				HeaderFileName=""/>
-			<Tool
-				Name="VCPostBuildEventTool"/>
+"/>
 			<Tool
 				Name="VCPreBuildEventTool"/>
 			<Tool
@@ -198,7 +201,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit)"
+						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;$(NoInherit)"
 						BasicRuntimeChecks="3"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -207,7 +210,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit)"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -219,7 +222,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit)"
+						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;$(NoInherit)"
 						BasicRuntimeChecks="3"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -228,7 +231,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit)"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;$(NoInherit)"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -240,7 +243,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;"
+						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS"
 						BasicRuntimeChecks="3"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -249,7 +252,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -264,7 +267,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;$(NoInherit)"
+						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;$(NoInherit)"
 						BasicRuntimeChecks="3"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -273,7 +276,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS;"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>
@@ -285,7 +288,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS"
+						PreprocessorDefinitions="_DEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS"
 						BasicRuntimeChecks="3"/>
 				</FileConfiguration>
 				<FileConfiguration
@@ -294,7 +297,7 @@ copy include\tapi\sipXtapiEvents.h examples\include\tapi
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS;DISABLE_MEM_POOLS"
+						PreprocessorDefinitions="NDEBUG;WIN32;_WINDOWS;_MBCS;_USRDLL;SIPXTAPI_EXPORTS"
 						BrowseInformation="1"/>
 				</FileConfiguration>
 			</File>

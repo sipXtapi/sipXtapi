@@ -137,16 +137,16 @@ private:
      //:Service all timer requests and return a boolean indicating whether
      //: the task should continue running.
 
-   static struct TIMER_NODE * OsSysSoftTimer::peekQ(void);
+   static struct TIMER_NODE * peekQ(void);
      //:Peek at the first element of the timer queue
 
-   static struct TIMER_NODE * OsSysSoftTimer::advanceQ(void);
+   static struct TIMER_NODE * advanceQ(void);
      //:Advance the timer queue, returning the first element
 
-   static int OsSysSoftTimer::insertQ(struct TIMER_NODE * node);
+   static int insertQ(struct TIMER_NODE * node);
      //:Insert an element into the queue, returning 1 if it was at the head
 
-   static void OsSysSoftTimer::flushQ(void);
+   static void flushQ(void);
      //:Flush the queue, removing and freeing all timers
 
 };

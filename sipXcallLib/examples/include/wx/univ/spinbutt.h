@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     21.01.01
-// RCS-ID:      $Id: spinbutt.h,v 1.6 2001/09/22 11:56:04 VS Exp $
+// RCS-ID:      $Id: spinbutt.h,v 1.10 2004/08/10 13:08:34 ABX Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_UNIV_SPINBUTT_H_
 #define _WX_UNIV_SPINBUTT_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univspinbutt.h"
 #endif
 
@@ -32,14 +32,14 @@ class WXDLLEXPORT wxSpinButton : public wxSpinButtonBase,
 public:
     wxSpinButton();
     wxSpinButton(wxWindow *parent,
-                 wxWindowID id = -1,
+                 wxWindowID id = wxID_ANY,
                  const wxPoint& pos = wxDefaultPosition,
                  const wxSize& size = wxDefaultSize,
                  long style = wxSP_VERTICAL | wxSP_ARROW_KEYS,
                  const wxString& name = wxSPIN_BUTTON_NAME);
 
     bool Create(wxWindow *parent,
-                wxWindowID id = -1,
+                wxWindowID id = wxID_ANY,
                 const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize,
                 long style = wxSP_VERTICAL | wxSP_ARROW_KEYS,
@@ -77,7 +77,7 @@ protected:
     // normalize the value to fit into min..max range
     int NormalizeValue(int value) const;
 
-    // change the value by +1/-1 and send the event, return TRUE if value was
+    // change the value by +1/-1 and send the event, return true if value was
     // changed
     bool ChangeValue(int inc);
 

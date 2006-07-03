@@ -14,6 +14,7 @@
 #include <os/OsMsg.h>
 #include <os/OsEventMsg.h>
 #include <utl/UtlHashMapIterator.h>
+#include <net/SipTransaction.h>
 #include <net/SipPublishServer.h>
 #include <net/SipUserAgent.h>
 #include <net/SipPublishServerEventStateMgr.h>

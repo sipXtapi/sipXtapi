@@ -12,32 +12,20 @@
 #ifndef _WX_GEOMETRY_H_
 #define _WX_GEOMETRY_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
-    #pragma interface "geometry.cpp"
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+    #pragma interface "geometry.h"
 #endif
 
 #include "wx/defs.h"
-
-#ifndef wxUSE_GEOMETRY
-    #define wxUSE_GEOMETRY 0
-#endif
 
 #if wxUSE_GEOMETRY
 
 #include "wx/utils.h"
 #include "wx/gdicmn.h"
-#include <math.h>
+#include "wx/math.h"
 
-#ifdef __WXMSW__
-    #define wxMulDivInt32( a , b , c ) ::MulDiv( a , b , c )
-#elif defined( __WXMAC__ )
-    #define wxMulDivInt32( a , b , c ) ( (wxInt32) ( ( (wxInt64)(a) * (wxInt64)(b) ) / (wxInt64)(c) ) )
-#else
-    #define wxMulDivInt32( a , b , c ) ((wxInt32)((a)*(((wxDouble)b)/((wxDouble)c))))
-#endif
-
-class wxDataInputStream;
-class wxDataOutputStream;
+class WXDLLIMPEXP_BASE wxDataInputStream;
+class WXDLLIMPEXP_BASE wxDataOutputStream;
 
 // clipping from Cohen-Sutherland
 
@@ -91,8 +79,10 @@ public :
     inline bool operator==(const wxPoint2DInt& pt) const;
     inline bool operator!=(const wxPoint2DInt& pt) const;
 
+#if wxUSE_STREAMS
     void WriteTo( wxDataOutputStream &stream ) const;
     void ReadFrom( wxDataInputStream &stream );
+#endif // wxUSE_STREAMS
 
     wxInt32 m_x;
     wxInt32 m_y;
@@ -299,9 +289,9 @@ public :
     inline wxPoint2DDouble( wxDouble x , wxDouble y );
     inline wxPoint2DDouble( const wxPoint2DDouble &pt );
     wxPoint2DDouble( const wxPoint2DInt &pt )
-		{ 	m_x = (wxDouble) pt.m_x ; m_y = (wxDouble) pt.m_y ; }
-	wxPoint2DDouble( const wxPoint &pt )
-		{ 	m_x = (wxDouble) pt.x ; m_y = (wxDouble) pt.y ; }
+        { m_x = (wxDouble) pt.m_x ; m_y = (wxDouble) pt.m_y ; }
+    wxPoint2DDouble( const wxPoint &pt )
+        { m_x = (wxDouble) pt.x ; m_y = (wxDouble) pt.y ; }
 
     // two different conversions to integers, floor and rounding
     inline void GetFloor( wxInt32 *x , wxInt32 *y ) const;
@@ -588,8 +578,8 @@ public:
                      ( ( pt.m_x > m_x + m_width ) ? wxOutRight : 0 ) +
                      ( ( pt.m_y < m_y ) ? wxOutTop : 0 )  +
                      ( ( pt.m_y > m_y + m_height ) ? wxOutBottom : 0 )); }
-	inline wxOutCode GetOutcode(const wxPoint2DDouble &pt) const
-		{ return GetOutCode(pt) ; }
+    inline wxOutCode GetOutcode(const wxPoint2DDouble &pt) const
+        { return GetOutCode(pt) ; }
     inline bool Contains( const wxPoint2DDouble &pt ) const
         { return  GetOutCode( pt ) == wxInside; }
     inline bool Contains( const wxRect2DDouble &rect ) const
@@ -632,11 +622,11 @@ public:
         { m_x *= ((wxDouble)num)/((wxDouble)denum); m_y *= ((wxDouble)num)/((wxDouble)denum);
                 m_width *= ((wxDouble)num)/((wxDouble)denum); m_height *= ((wxDouble)num)/((wxDouble)denum);}
 
-/*
     wxRect2DDouble& operator = (const wxRect2DDouble& rect);
-    bool operator == (const wxRect2DDouble& rect);
-    bool operator != (const wxRect2DDouble& rect);
-*/
+    inline bool operator == (const wxRect2DDouble& rect)
+        { return (m_x==rect.m_x && m_y==rect.m_y && m_width==rect.m_width && m_height==rect.m_height); }
+    inline bool operator != (const wxRect2DDouble& rect)
+        { return !(*this == rect); }
 
     wxDouble  m_x;
     wxDouble  m_y;
@@ -700,8 +690,8 @@ public:
                      ( ( pt.m_x >= m_x + m_width ) ? wxOutRight : 0 ) +
                      ( ( pt.m_y < m_y ) ? wxOutTop : 0 )  +
                      ( ( pt.m_y >= m_y + m_height ) ? wxOutBottom : 0 )); }
-		inline wxOutCode GetOutcode( const wxPoint2DInt &pt ) const
-			{ return GetOutCode( pt ) ; }
+        inline wxOutCode GetOutcode( const wxPoint2DInt &pt ) const
+            { return GetOutCode( pt ) ; }
         inline bool Contains( const wxPoint2DInt &pt ) const
             { return  GetOutCode( pt ) == wxInside; }
         inline bool Contains( const wxRect2DInt &rect ) const
@@ -738,8 +728,10 @@ public:
        bool operator == (const wxRect2DInt& rect) const;
        bool operator != (const wxRect2DInt& rect) const;
 
+#if wxUSE_STREAMS
        void WriteTo( wxDataOutputStream &stream ) const;
        void ReadFrom( wxDataInputStream &stream );
+#endif // wxUSE_STREAMS
 
        wxInt32 m_x;
        wxInt32 m_y;
@@ -785,6 +777,7 @@ inline bool wxRect2DInt::operator != (const wxRect2DInt& rect) const
 class wxTransform2D
 {
 public :
+    virtual ~wxTransform2D() { }
     virtual void                    Transform( wxPoint2DInt* pt )const  = 0;
     virtual void                    Transform( wxRect2DInt* r ) const;
     virtual wxPoint2DInt    Transform( const wxPoint2DInt &pt ) const;

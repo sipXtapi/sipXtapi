@@ -4,7 +4,7 @@
 // Author:      Mattia Barbon
 // Modified by:
 // Created:     02/04/2001
-// RCS-ID:      $Id: helpbest.h,v 1.2 2002/03/09 21:55:39 VZ Exp $
+// RCS-ID:      $Id: helpbest.h,v 1.12 2004/08/27 18:59:33 ABX Exp $
 // Copyright:   (c) Mattia Barbon
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,15 +12,16 @@
 #ifndef _WX_HELPBEST_H_
 #define _WX_HELPBEST_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "helpbest.h"
 #endif
 
-#if wxUSE_HELP && wxUSE_MS_HTML_HELP && defined(__WIN95__) && wxUSE_WXHTML_HELP
+#if wxUSE_HELP && wxUSE_MS_HTML_HELP && defined(__WIN95__) \
+    && wxUSE_WXHTML_HELP && !defined(__WXUNIVERSAL__)
 
 #include "wx/helpbase.h"
 
-class WXDLLEXPORT wxBestHelpController: public wxHelpControllerBase
+class WXDLLIMPEXP_HTML wxBestHelpController: public wxHelpControllerBase
 {
 public:
     wxBestHelpController()
@@ -33,6 +34,7 @@ public:
 
     // Must call this to set the filename
     virtual bool Initialize(const wxString& file);
+    virtual bool Initialize(const wxString& file, int WXUNUSED(server) ) { return Initialize( file ); }
 
     // If file is "", reloads file given in Initialize
     virtual bool LoadFile(const wxString& file = wxEmptyString)
@@ -70,9 +72,10 @@ public:
         return m_helpController->DisplayTextPopup( text, pos );
     }
 
-    virtual bool KeywordSearch(const wxString& k)
+    virtual bool KeywordSearch(const wxString& k,
+                               wxHelpSearchMode mode = wxHELP_SEARCH_ALL)
     {
-        return m_helpController->KeywordSearch( k );
+        return m_helpController->KeywordSearch( k, mode );
     }
 
     virtual bool Quit()
@@ -84,7 +87,7 @@ public:
     virtual void SetFrameParameters(const wxString& title,
                                     const wxSize& size,
                                     const wxPoint& pos = wxDefaultPosition,
-                                    bool newFrameEachTime = FALSE)
+                                    bool newFrameEachTime = false)
     {
         m_helpController->SetFrameParameters( title, size, pos,
                                               newFrameEachTime );
@@ -110,6 +113,7 @@ protected:
     wxHelpControllerBase* m_helpController;
 
     DECLARE_DYNAMIC_CLASS(wxBestHelpController)
+    DECLARE_NO_COPY_CLASS(wxBestHelpController)
 };
 
 #endif // wxUSE_HELP && wxUSE_MS_HTML_HELP && defined(__WIN95__) && wxUSE_WXHTML_HELP

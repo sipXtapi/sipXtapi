@@ -4,7 +4,7 @@
 // Author:      Mattia barbon
 // Modified by:
 // Created:     23.03.02
-// RCS-ID:      $Id: iconbndl.h,v 1.4 2002/08/31 11:29:10 GD Exp $
+// RCS-ID:      $Id: iconbndl.h,v 1.9 2004/09/16 18:13:25 ABX Exp $
 // Copyright:   (c) Mattia Barbon
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_ICONBNDL_H_
 #define _WX_ICONBNDL_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "iconbndl.h"
 #endif
 
@@ -20,8 +20,8 @@
 // for wxSize
 #include "wx/gdicmn.h"
 
-class WXDLLEXPORT wxIcon;
-class WXDLLEXPORT wxString;
+class WXDLLIMPEXP_CORE wxIcon;
+class WXDLLIMPEXP_BASE wxString;
 
 WX_DECLARE_EXPORTED_OBJARRAY( wxIcon, wxIconArray );
 
@@ -60,7 +60,7 @@ public:
     // returns the first icon in the bundle
     const wxIcon& GetIcon( const wxSize& size ) const;
     // equivalent to GetIcon( wxSize( size, size ) )
-    const wxIcon& GetIcon( wxCoord size = -1 ) const
+    const wxIcon& GetIcon( wxCoord size = wxDefaultCoord ) const
         { return GetIcon( wxSize( size, size ) ); }
 private:
     // delete all icons

@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     12.02.01
-// RCS-ID:      $Id: scrthumb.h,v 1.5 2001/07/04 18:07:14 VZ Exp $
+// RCS-ID:      $Id: scrthumb.h,v 1.9 2004/08/10 13:08:34 ABX Exp $
 // Copyright:   (c) 2001 SciTech Software, Inc. (www.scitechsoft.com)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_UNIV_SCRTHUMB_H_
 #define _WX_UNIV_SCRTHUMB_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univscrthumb.h"
 #endif
 
@@ -118,7 +118,7 @@ public:
     // responsible for refreshing the control
     virtual void SetShaftPartState(wxScrollThumb::Shaft shaftPart,
                                    int flag,
-                                   bool set = TRUE) = 0;
+                                   bool set = true) = 0;
 
     // called when the user starts dragging the thumb
     virtual void OnThumbDragStart(int pos) = 0;
@@ -134,7 +134,7 @@ public:
     virtual void OnPageScrollStart() = 0;
 
     // called while the user keeps the mouse pressed above/below the thumb,
-    // return TRUE to continue scrollign and FALSE to stop it (e.g. because the
+    // return true to continue scrollign and false to stop it (e.g. because the
     // scrollbar has reached the top/bottom)
     virtual bool OnPageScroll(int pageInc) = 0;
 };

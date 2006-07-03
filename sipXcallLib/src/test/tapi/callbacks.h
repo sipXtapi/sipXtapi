@@ -30,6 +30,15 @@ extern SIPX_CALL g_hNewCallDetectorSourceCall2 ;
 
 void resetAutoAnswerCallback() ;
 
+bool SIPX_CALLING_CONVENTION FlibbleTransportCallback(SIPX_TRANSPORT hTransport,
+                                      const char* szDestinationIp,
+                                      const int   iDestPort,
+                                      const char* szLocalIp,
+                                      const int   iLocalPort,
+                                      const void* pData,
+                                      const size_t nData,
+                                      const void* pUserData);
+
 bool SIPX_CALLING_CONVENTION AutoAnswerCallback(SIPX_EVENT_CATEGORY category, 
                         void* pInfo, 
                         void* pUserData) ;

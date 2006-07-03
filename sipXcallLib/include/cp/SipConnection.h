@@ -85,7 +85,8 @@ public:
         const void* pSecurity = NULL,
         const char* locationHeader = NULL,
         const int bandWidth = AUDIO_MICODEC_BW_DEFAULT,
-        UtlBoolean bOnHold = FALSE);
+        UtlBoolean bOnHold = FALSE,
+		const char* originalCallId = NULL);
     //! param: requestQueuedCall - indicates that the caller wishes to have the callee queue the call if busy
 
     virtual UtlBoolean originalCallTransfer(UtlString& transferTargetAddress,
@@ -147,9 +148,10 @@ public:
     static UtlBoolean processNewFinalMessage(SipUserAgent* sipUa,
         OsMsg* eventMessage);
 
-    void setContactType(CONTACT_TYPE eType) ;
-    void setContactId(CONTACT_ID contactId) { mContactId = contactId; }
+    void setContactType(SIPX_CONTACT_TYPE eType, Url* pToUrl = NULL) ;
+    void setContactId(SIPX_CONTACT_ID contactId) { mContactId = contactId; }
 
+	void setExternalTransport(SIPX_TRANSPORT_DATA* pTransport) { if (pTransport) { mTransport = *pTransport; }}
 
     // ISocketIdle::onIdleNotify method
     void onIdleNotify(OsDatagramSocket* const pSocket,
@@ -162,6 +164,7 @@ public:
     virtual void onBufferStart(IMediaEvent_DeviceTypes type);
     virtual void onBufferStop(IMediaEvent_DeviceTypes type);
     virtual void onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_DeviceErrors errCode);
+    virtual void onListenerAddedToEmitter(IMediaEventEmitter* pEmitter);
 
     /* ============================ ACCESSORS ================================= */
 
@@ -208,10 +211,10 @@ protected:
                              int            videoRtcpPort, 
                              const SdpBody* pRemoteBody) ;
 
-    CONTACT_TYPE selectCompatibleContactType(const SipMessage& request) ;
+    SIPX_CONTACT_TYPE selectCompatibleContactType(const SipMessage& request) ;
     //: Select a compatible contact given the URI
 
-    void updateContact(Url* pContactUrl, CONTACT_TYPE eType) ;
+    void updateContact(Url* pContactUrl, SIPX_CONTACT_TYPE eType, Url *pToUrl = NULL) ;
 
     static UtlBoolean requestShouldCreateConnection(const SipMessage* sipMsg,
         SipUserAgent& sipUa,
@@ -222,14 +225,15 @@ protected:
     UtlBoolean doHangUp(const char* dialString = NULL,
         const char* callerId = NULL);
 
-    void SipConnection::buildFromToAddresses(const char* dialString,
+    void buildFromToAddresses(const char* dialString,
         const char* callerId,
         const char* callerDisplayName,
         UtlString& fromAddress,
-        UtlString& goodToAddress) const;
+        UtlString& goodToAddress);
 
     void buildLocalContact(Url fromAddress,
-        UtlString& localContact) ;//for outbound call
+        UtlString& localContact,
+        Url* pToUrl = NULL) ;//for outbound call
 
     UtlBoolean extendSessionReinvite();
 
@@ -305,6 +309,7 @@ private:
     Url mToUrl;  //  SIP address for the remote side
     UtlString mRemoteUriStr;  //  SIP uri string for the remote side
     UtlString mLocalUriStr;  //  SIP uri string for the local side
+    UtlString mContactUriStr; //  SIP uri string for the contact
 
     int lastLocalSequenceNumber;
     int lastRemoteSequenceNumber;
@@ -320,10 +325,12 @@ private:
     UtlBoolean mIsEarlyMediaFor180;
     UtlString mLineId; //line identifier for incoming calls.
     UtlString mLocalContact;    ///< The local Contact: field value - a URI in name-addr format.
-    CONTACT_TYPE mContactType ;
-    CONTACT_ID mContactId;
+    SIPX_CONTACT_TYPE mContactType ;
+    SIPX_CONTACT_ID mContactId;
     UtlBoolean mDropping ;
     UtlString mRemoteUserAgent;
+    SIPX_TRANSPORT_DATA mTransport;
+    UtlSList mMediaEventEmitters;
 
     UtlBoolean getInitialSdpCodecs(const SipMessage* sdpMessage,
         SdpCodecFactory& supportedCodecsArray,

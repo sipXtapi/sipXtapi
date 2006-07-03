@@ -4,9 +4,9 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     29.12.99
-// RCS-ID:      $Id: calctrl.h,v 1.12 2001/11/02 15:40:06 VZ Exp $
+// RCS-ID:      $Id: calctrl.h,v 1.26 2005/09/17 20:56:29 VZ Exp $
 // Copyright:   (c) 1999 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 /*
@@ -23,7 +23,9 @@
 
 #if wxUSE_CALENDARCTRL
 
-#include "wx/datetime.h"
+#include "wx/dateevt.h"
+#include "wx/colour.h"
+#include "wx/font.h"
 
 // ----------------------------------------------------------------------------
 // wxCalendarCtrl flags
@@ -81,7 +83,7 @@ enum wxCalendarDateBorder
 // wxCalendarDateAttr: custom attributes for a calendar date
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxCalendarDateAttr
+class WXDLLIMPEXP_ADV wxCalendarDateAttr
 {
 #if !defined(__VISAGECPP__)
 protected:
@@ -90,7 +92,7 @@ protected:
     void Init(wxCalendarDateBorder border = wxCAL_BORDER_NONE)
     {
         m_border = border;
-        m_holiday = FALSE;
+        m_holiday = false;
     }
 #endif
 public:
@@ -141,7 +143,7 @@ protected:
     void Init(wxCalendarDateBorder border = wxCAL_BORDER_NONE)
     {
         m_border = border;
-        m_holiday = FALSE;
+        m_holiday = false;
     }
 #endif
 private:
@@ -157,26 +159,28 @@ private:
 // wxCalendarCtrl events
 // ----------------------------------------------------------------------------
 
-class WXDLLEXPORT wxCalendarCtrl;
+class WXDLLIMPEXP_ADV wxCalendarCtrl;
 
-class WXDLLEXPORT wxCalendarEvent : public wxCommandEvent
+class WXDLLIMPEXP_ADV wxCalendarEvent : public wxDateEvent
 {
 friend class wxCalendarCtrl;
 public:
     wxCalendarEvent() { Init(); }
-    wxCalendarEvent(wxCalendarCtrl *cal, wxEventType type);
+    inline wxCalendarEvent(wxCalendarCtrl *cal, wxEventType type);
 
-    const wxDateTime& GetDate() const { return m_date; }
+    void SetWeekDay(const wxDateTime::WeekDay wd) { m_wday = wd; }
     wxDateTime::WeekDay GetWeekDay() const { return m_wday; }
 
 protected:
-    void Init();
+    void Init()
+    {
+        m_wday = wxDateTime::Inv_WeekDay;
+    }
 
 private:
-    wxDateTime m_date;
     wxDateTime::WeekDay m_wday;
 
-    DECLARE_DYNAMIC_CLASS(wxCalendarEvent)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxCalendarEvent)
 };
 
 // ----------------------------------------------------------------------------
@@ -186,27 +190,41 @@ private:
 // so far we only have a generic version, so keep it simple
 #include "wx/generic/calctrl.h"
 
+
+// now we can define the inline ctor using wxCalendarCtrl
+inline
+wxCalendarEvent::wxCalendarEvent(wxCalendarCtrl *cal, wxEventType type)
+               : wxDateEvent(cal, cal->GetDate(), type)
+{
+}
+
 // ----------------------------------------------------------------------------
 // calendar event types and macros for handling them
 // ----------------------------------------------------------------------------
 
 BEGIN_DECLARE_EVENT_TYPES()
-    DECLARE_EVENT_TYPE(wxEVT_CALENDAR_SEL_CHANGED, 950)
-    DECLARE_EVENT_TYPE(wxEVT_CALENDAR_DAY_CHANGED, 951)
-    DECLARE_EVENT_TYPE(wxEVT_CALENDAR_MONTH_CHANGED, 952)
-    DECLARE_EVENT_TYPE(wxEVT_CALENDAR_YEAR_CHANGED, 953)
-    DECLARE_EVENT_TYPE(wxEVT_CALENDAR_DOUBLECLICKED, 954)
-    DECLARE_EVENT_TYPE(wxEVT_CALENDAR_WEEKDAY_CLICKED, 955)
+    DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_ADV, wxEVT_CALENDAR_SEL_CHANGED, 950)
+    DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_ADV, wxEVT_CALENDAR_DAY_CHANGED, 951)
+    DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_ADV, wxEVT_CALENDAR_MONTH_CHANGED, 952)
+    DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_ADV, wxEVT_CALENDAR_YEAR_CHANGED, 953)
+    DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_ADV, wxEVT_CALENDAR_DOUBLECLICKED, 954)
+    DECLARE_EXPORTED_EVENT_TYPE(WXDLLIMPEXP_ADV, wxEVT_CALENDAR_WEEKDAY_CLICKED, 955)
 END_DECLARE_EVENT_TYPES()
 
 typedef void (wxEvtHandler::*wxCalendarEventFunction)(wxCalendarEvent&);
 
-#define EVT_CALENDAR(id, fn) DECLARE_EVENT_TABLE_ENTRY(wxEVT_CALENDAR_DOUBLECLICKED, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxCalendarEventFunction) & fn, (wxObject *) NULL),
-#define EVT_CALENDAR_SEL_CHANGED(id, fn) DECLARE_EVENT_TABLE_ENTRY(wxEVT_CALENDAR_SEL_CHANGED, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxCalendarEventFunction) & fn, (wxObject *) NULL),
-#define EVT_CALENDAR_DAY(id, fn) DECLARE_EVENT_TABLE_ENTRY(wxEVT_CALENDAR_DAY_CHANGED, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxCalendarEventFunction) & fn, (wxObject *) NULL),
-#define EVT_CALENDAR_MONTH(id, fn) DECLARE_EVENT_TABLE_ENTRY(wxEVT_CALENDAR_MONTH_CHANGED, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxCalendarEventFunction) & fn, (wxObject *) NULL),
-#define EVT_CALENDAR_YEAR(id, fn) DECLARE_EVENT_TABLE_ENTRY(wxEVT_CALENDAR_YEAR_CHANGED, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxCalendarEventFunction) & fn, (wxObject *) NULL),
-#define EVT_CALENDAR_WEEKDAY_CLICKED(id, fn) DECLARE_EVENT_TABLE_ENTRY(wxEVT_CALENDAR_WEEKDAY_CLICKED, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxCalendarEventFunction) & fn, (wxObject *) NULL),
+#define wxCalendarEventHandler(func) \
+    (wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(wxCalendarEventFunction, &func)
+
+#define wx__DECLARE_CALEVT(evt, id, fn) \
+    wx__DECLARE_EVT1(wxEVT_CALENDAR_ ## evt, id, wxCalendarEventHandler(fn))
+
+#define EVT_CALENDAR(id, fn) wx__DECLARE_CALEVT(DOUBLECLICKED, id, fn)
+#define EVT_CALENDAR_SEL_CHANGED(id, fn) wx__DECLARE_CALEVT(SEL_CHANGED, id, fn)
+#define EVT_CALENDAR_DAY(id, fn) wx__DECLARE_CALEVT(DAY_CHANGED, id, fn)
+#define EVT_CALENDAR_MONTH(id, fn) wx__DECLARE_CALEVT(MONTH_CHANGED, id, fn)
+#define EVT_CALENDAR_YEAR(id, fn) wx__DECLARE_CALEVT(YEAR_CHANGED, id, fn)
+#define EVT_CALENDAR_WEEKDAY_CLICKED(id, fn) wx__DECLARE_CALEVT(WEEKDAY_CLICKED, id, fn)
 
 #endif // wxUSE_CALENDARCTRL
 

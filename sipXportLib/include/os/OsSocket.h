@@ -53,29 +53,6 @@ extern "C" unsigned long osSocketGetDefaultBindAddress();
 // EXTERNAL VARIABLES
 // CONSTANTS
 // STRUCTS
-/**
- * CONTACT_TYPE is an enumeration of possible address type for use with
- * SIP contacts and SDP connection information.
- */
-typedef enum
-{
-    LOCAL,      /**< Local address for a particular interface */
-    NAT_MAPPED, /**< NAT mapped address (e.g. STUN)           */
-    RELAY,      /**< Relay address (e.g. TURN)                */
-    CONFIG,     /**< Manually configured address              */
-
-    AUTO = -1,  /**< Automatic contact selection; used for API 
-                     parameters */
-    ALL  = -2,  /**< Filter value for the SipContactDb, for looking
-                     up records of all types. */
-                     
-} CONTACT_TYPE ;
-
-
-/** Type for storing Contact Record identifiers */
-typedef int CONTACT_ID; 
-
-
 
 // TYPEDEFS
 
@@ -101,7 +78,8 @@ public:
       TCP = 0,
       UDP = 1,
       MULTICAST = 2,
-      SSL_SOCKET = 3
+      SSL_SOCKET = 3,
+	  CUSTOM = 4
    };
    //: Protocol Types
    
@@ -201,7 +179,7 @@ public:
    // code.
 
 
-   static void OsSocket::getDomainName(UtlString &domain_name);
+   static void getDomainName(UtlString &domain_name);
         //gets static member m_DomainName
 
    static unsigned long getDefaultBindAddress();
@@ -333,54 +311,4 @@ private:
 /* ============================ INLINE METHODS ============================ */
 
 
-/**
- * The CONTACT_ADDRESS struct includes contact information (ip and port),
- * address source type, and interface.
- */
-struct CONTACT_ADDRESS
-{
-    CONTACT_ADDRESS()
-    {
-        memset((void*)cInterface, 0, sizeof(cInterface));
-        memset((void*)cIpAddress, 0, sizeof(cIpAddress));
-        eContactType = AUTO;
-        id = 0;
-        iPort = -1;
-        transportType = OsSocket::UNKNOWN;
-    }
-    
-    // copy contstructor
-    CONTACT_ADDRESS(const CONTACT_ADDRESS& ref)
-    {
-        strcpy(this->cInterface, ref.cInterface);
-        strcpy(this->cIpAddress, ref.cIpAddress);
-        this->eContactType = ref.eContactType;
-        this->id = ref.id;
-        this->iPort = ref.iPort;
-        this->transportType = ref.transportType;
-    }
-    
-    // assignment operator
-    CONTACT_ADDRESS& operator=(const CONTACT_ADDRESS& ref)
-    {
-        // check for assignment to self
-        if (this == &ref) return *this;
-
-        strcpy(this->cInterface, ref.cInterface);
-        strcpy(this->cIpAddress, ref.cIpAddress);
-        this->eContactType = ref.eContactType;
-        this->id = ref.id;
-        this->iPort = ref.iPort;
-        this->transportType = ref.transportType;
-        
-        return *this;
-    }
-        
-    CONTACT_ID   id;              /**< Contact record Id */
-    CONTACT_TYPE eContactType ;   /**< Address type/source */
-    char              cInterface[MAX_ADAPTER_NAME_LENGTH + 4] ; /**< Source interface    */
-    char              cIpAddress[MAX_IP_ADDRESSES] ; /**< IP Address          */
-    int               iPort ;                         /**< Port                */
-    OsSocket::SocketProtocolTypes   transportType;    /**< UDP, TCP, or TLS */
-};
 #endif  // _OsSocket_h_

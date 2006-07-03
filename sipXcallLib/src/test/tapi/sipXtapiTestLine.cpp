@@ -253,12 +253,13 @@ bool SIPX_CALLING_CONVENTION linetest_verify_lineurl(SIPX_EVENT_CATEGORY event,
  *
  * This test verifies that the line handles return with the sipX events are sane
  */
-#define URL_GEORGE_AT_JUNGLE        "sip:george@thejungle.com"
-#define URL_JANE_AT_JUNGLE          "sip:jane@thejungle.com"
-#define URL_BOB_AT_LOCALHOST        "sip:bob@127.0.0.1:9100"
-#define URL_JILL_AT_LOCALHOST       "sip:jill@127.0.0.1:9100"
-#define URL_BOGUS_AT_LOCALHOST      "sip:bogus@127.0.0.1:900"
-#define URL_EMPTY_STRING            ""
+const char* const URL_GEORGE_AT_JUNGLE   = "sip:george@thejungle.com";
+const char* const URL_JANE_AT_JUNGLE     = "sip:jane@thejungle.com";
+const char* const URL_BOB_AT_LOCALHOST   = "sip:bob@127.0.0.1:9100";
+const char* const URL_JILL_AT_LOCALHOST  = "sip:jill@127.0.0.1:9100";
+const char* const URL_BOGUS_AT_LOCALHOST = "sip:bogus@127.0.0.1:900";
+const char* const URL_EMPTY_STRING       = "";
+
 void sipXtapiTestSuite::testLines() 
 {
     for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
@@ -291,12 +292,13 @@ void sipXtapiTestSuite::testLines()
 
         // Remove George's line
         g_lineRecorder2.clear() ;
-
-        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst2, basicCall_CallBack_Receive, (void*)URL_JILL_AT_LOCALHOST), SIPX_RESULT_SUCCESS) ;
+        
+        SIPX_RESULT rc = sipxEventListenerRemove(g_hInst2, basicCall_CallBack_Receive, (void*)URL_JILL_AT_LOCALHOST);
+        CPPUNIT_ASSERT_EQUAL(rc, SIPX_RESULT_SUCCESS) ;
 
         CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLineGeorge), SIPX_RESULT_SUCCESS) ;
         OsTask::delay(CALL_DELAY*2);
-
+        
         /**
          * Make call as Jane to Bob
          */ 
@@ -722,3 +724,69 @@ void sipXtapiTestSuite::testReRegistration()
     OsTask::delay(TEST_DELAY) ;    
     checkForLeaks() ;
 }
+
+void sipXtapiTestSuite::testReRegistrationFailure()
+{
+    for (int iStressFactor = 0; iStressFactor<STRESS_FACTOR; iStressFactor++)
+    {
+    
+        printf("\ntestReRegistrationFailure (%2d of %2d)", iStressFactor+1, STRESS_FACTOR);
+        g_lineRecorder.clear() ;
+
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerAdd(g_hInst4, lineCallback, NULL), SIPX_RESULT_SUCCESS);
+
+        CPPUNIT_ASSERT_EQUAL(sipxConfigSetOutboundProxy(g_hInst4, "127.0.0.1:5070"), SIPX_RESULT_SUCCESS);     
+
+
+        SIPX_LINE hLine;
+        CPPUNIT_ASSERT_EQUAL(sipxLineAdd(g_hInst4, "sip:mike@127.0.0.1:12070", &hLine), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxConfigSetRegisterExpiration(g_hInst4, 10), SIPX_RESULT_SUCCESS);
+        CPPUNIT_ASSERT_EQUAL(sipxLineAddCredential(hLine, "mike", "1234", "TestRegistrar"), SIPX_RESULT_SUCCESS) ;
+        CPPUNIT_ASSERT_EQUAL(sipxLineRegister(hLine, true), SIPX_RESULT_SUCCESS) ;
+
+        OsTask::delay(13000);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_PROVISIONED, LINESTATE_PROVISIONED_NORMAL);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_TIMEOUT);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_TIMEOUT);
+        CPPUNIT_ASSERT(g_lineRecorder.compare()) ;
+        
+        TestRegistrar* pTestRegistrar = new TestRegistrar();
+    
+        pTestRegistrar->init();
+        
+
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERED, LINESTATE_REGISTERED_NORMAL);
+        OsTask::delay(8000);
+        CPPUNIT_ASSERT(g_lineRecorder.compare()) ;
+        
+
+        pTestRegistrar->pause(true);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_TIMEOUT);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTERING, LINESTATE_REGISTERING_NORMAL);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_REGISTER_FAILED, LINESTATE_REGISTER_FAILED_TIMEOUT);
+
+        OsTask::delay(20000);
+        CPPUNIT_ASSERT(g_lineRecorder.compare()) ;
+        pTestRegistrar->pause(false);
+        
+        sipxLineRegister(hLine, false);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_UNREGISTERING, LINESTATE_UNREGISTERING_NORMAL);
+        g_lineRecorder.addCompareEvent(hLine, LINESTATE_UNREGISTERED, LINESTATE_UNREGISTERED_NORMAL);
+
+        CPPUNIT_ASSERT_EQUAL(sipxLineRemove(hLine), SIPX_RESULT_SUCCESS) ;
+        OsTask::delay(3000);
+        CPPUNIT_ASSERT_EQUAL(sipxEventListenerRemove(g_hInst4, lineCallback, NULL), SIPX_RESULT_SUCCESS);
+        delete pTestRegistrar;
+        
+    }
+
+    OsTask::delay(TEST_DELAY) ;    
+    checkForLeaks() ;
+}
+

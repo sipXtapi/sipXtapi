@@ -66,6 +66,12 @@ public:
     virtual ~ISocketIdle() { } ;
 };
 
+class IMediaEventEmitter
+{
+public:
+    virtual void onListenerRemoved() = 0;
+};
+
 typedef enum IMediaEvent_DeviceErrors
 {
     IError_DeviceUnplugged
@@ -88,6 +94,7 @@ public:
     virtual void onBufferStart(IMediaEvent_DeviceTypes type) = 0 ;
     virtual void onBufferStop(IMediaEvent_DeviceTypes type) = 0 ;
     virtual void onDeviceError(IMediaEvent_DeviceTypes type, IMediaEvent_DeviceErrors errCode) = 0;
+    virtual void onListenerAddedToEmitter(IMediaEventEmitter* pEmitter) = 0;
 
     virtual ~IMediaEventListener() { } ;
 };
@@ -444,7 +451,7 @@ public:
    virtual OsStatus stopRecording() = 0;
 
    //! Set the preferred contact type for this media connection
-   virtual void setContactType(int connectionId, CONTACT_TYPE eType, CONTACT_ID contactId) = 0 ;
+   virtual void setContactType(int connectionId, SIPX_CONTACT_TYPE eType, SIPX_CONTACT_ID contactId) = 0 ;
 
    //! Rebuild the codec factory on the fly
    virtual OsStatus setAudioCodecBandwidth(int connectionId, int bandWidth) = 0;
@@ -556,6 +563,15 @@ public:
                                          unsigned int& uiReceivingSSRC) 
         { return OS_NOT_SUPPORTED ;} ;
 
+   virtual OsStatus enableAudioTransport(int connectionId, bool bEnable)
+   {
+       return OS_NOT_SUPPORTED; 
+   };
+
+   virtual OsStatus enableVideoTransport(int connectionId, bool bEnable)
+   {
+       return OS_NOT_SUPPORTED; 
+   };
 
 /* ============================ INQUIRY =================================== */
 

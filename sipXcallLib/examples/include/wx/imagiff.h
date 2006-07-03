@@ -2,7 +2,7 @@
 // Name:        imagiff.h
 // Purpose:     wxImage handler for Amiga IFF images
 // Author:      Steffen Gutmann
-// RCS-ID:      $Id: imagiff.h,v 1.3.2.1 2002/10/23 17:32:02 RR Exp $
+// RCS-ID:      $Id: imagiff.h,v 1.8 2004/09/16 18:13:25 ABX Exp $
 // Copyright:   (c) Steffen Gutmann, 2002
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@
 #ifndef _WX_IMAGE_IFF_H_
 #define _WX_IMAGE_IFF_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "imagiff.h"
 #endif
 
@@ -34,8 +34,8 @@ public:
     }
 
 #if wxUSE_STREAMS
-    virtual bool LoadFile(wxImage *image, wxInputStream& stream, bool verbose=TRUE, int index=-1);
-    virtual bool SaveFile(wxImage *image, wxOutputStream& stream, bool verbose=TRUE);
+    virtual bool LoadFile(wxImage *image, wxInputStream& stream, bool verbose=true, int index=-1);
+    virtual bool SaveFile(wxImage *image, wxOutputStream& stream, bool verbose=true);
     virtual bool DoCanRead(wxInputStream& stream);
 #endif
 

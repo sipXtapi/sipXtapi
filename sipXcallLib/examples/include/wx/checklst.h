@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     12.09.00
-// RCS-ID:      $Id: checklst.h,v 1.4 2001/08/25 14:52:25 VZ Exp $
+// RCS-ID:      $Id: checklst.h,v 1.12.4.1 2006/02/24 16:05:34 JS Exp $
 // Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -23,13 +23,19 @@
 class WXDLLEXPORT wxCheckListBoxBase : public wxListBox
 {
 public:
+    wxCheckListBoxBase() { }
+
     // check list box specific methods
     virtual bool IsChecked(size_t item) const = 0;
-    virtual void Check(size_t item, bool check = TRUE) = 0;
+    virtual void Check(size_t item, bool check = true) = 0;
+
+    DECLARE_NO_COPY_CLASS(wxCheckListBoxBase)
 };
 
 #if defined(__WXUNIVERSAL__)
     #include "wx/univ/checklst.h"
+#elif defined(__WXWINCE__)
+    #include "wx/msw/wince/checklst.h"
 #elif defined(__WXMSW__)
     #include "wx/msw/checklst.h"
 #elif defined(__WXMOTIF__)
@@ -38,10 +44,10 @@ public:
     #include "wx/gtk/checklst.h"
 #elif defined(__WXMAC__)
     #include "wx/mac/checklst.h"
+#elif defined(__WXCOCOA__)
+    #include "wx/cocoa/checklst.h"
 #elif defined(__WXPM__)
     #include "wx/os2/checklst.h"
-#elif defined(__WXSTUBS__)
-    #include "wx/stubs/checklst.h"
 #endif
 
 #endif // wxUSE_CHECKLISTBOX

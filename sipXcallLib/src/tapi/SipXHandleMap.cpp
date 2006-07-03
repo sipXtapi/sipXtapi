@@ -30,9 +30,9 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-SipXHandleMap::SipXHandleMap()
+SipXHandleMap::SipXHandleMap(int startingHandle)
     : mLock(OsMutex::Q_FIFO)
-    , mNextHandle(1)
+    , mNextHandle(startingHandle)
 {
 }
 

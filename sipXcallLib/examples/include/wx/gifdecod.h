@@ -3,7 +3,7 @@
 // Purpose:     wxGIFDecoder, GIF reader for wxImage and wxAnimation
 // Author:      Guillermo Rodriguez Garcia <guille@iies.es>
 // Version:     3.02
-// CVS-ID:      $Id: gifdecod.h,v 1.10 2002/08/31 11:29:10 GD Exp $
+// CVS-ID:      $Id: gifdecod.h,v 1.16 2005/03/16 16:18:19 ABX Exp $
 // Copyright:   (c) 1999 Guillermo Rodriguez Garcia
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -11,11 +11,11 @@
 #ifndef _WX_GIFDECOD_H
 #define _WX_GIFDECOD_H
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "gifdecod.h"
 #endif
 
-#include "wx/setup.h"
+#include "wx/defs.h"
 
 #if wxUSE_STREAMS && wxUSE_GIF
 
@@ -78,6 +78,8 @@ public:
     unsigned char *pal;             /* palette */
     GIFImage *next;                 /* next image */
     GIFImage *prev;                 /* prev image */
+
+    DECLARE_NO_COPY_CLASS(GIFImage)
 };
 
 
@@ -134,13 +136,13 @@ public:
     // move through the animation
     bool GoFirstFrame();
     bool GoLastFrame();
-    bool GoNextFrame(bool cyclic = FALSE);
-    bool GoPrevFrame(bool cyclic = FALSE);
+    bool GoNextFrame(bool cyclic = false);
+    bool GoPrevFrame(bool cyclic = false);
     bool GoFrame(int which);
 
 public:
     // constructor, destructor, etc.
-    wxGIFDecoder(wxInputStream *s, bool anim = FALSE);
+    wxGIFDecoder(wxInputStream *s, bool anim = false);
     ~wxGIFDecoder();
     bool CanRead();
     int ReadGIF();
@@ -148,6 +150,8 @@ public:
 
     // convert current frame to wxImage
     bool ConvertToImage(wxImage *image) const;
+
+    DECLARE_NO_COPY_CLASS(wxGIFDecoder)
 };
 
 

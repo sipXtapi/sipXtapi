@@ -16,6 +16,7 @@
 #include "../DialerThread.h"
 #include "../sipXezPhoneApp.h"
 #include "PhoneStateDialing.h"
+#include "PhoneStateRemoteAlerting.h"
 #include "PhoneStateConnected.h"
 #include "PhoneStateIdle.h"
 
@@ -36,6 +37,7 @@ PhoneStateDialing::PhoneStateDialing(const wxString phoneNumber) :
 
 PhoneStateDialing::~PhoneStateDialing(void)
 {
+
 }
 
 PhoneState* PhoneStateDialing::OnConnected()
@@ -56,6 +58,11 @@ PhoneState* PhoneStateDialing::OnFlashButton()
 {
    sipXmgr::getInstance().disconnect(0, true);
    return (new PhoneStateIdle());
+}
+
+PhoneState* PhoneStateDialing::OnRemoteAlerting()
+{
+    return (new PhoneStateRemoteAlerting());
 }
 
 PhoneState* PhoneStateDialing::Execute()

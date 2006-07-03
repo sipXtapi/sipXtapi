@@ -972,188 +972,215 @@ void sipxFireCallEvent(const void* pSrc,
                        SIPX_CALLSTATE_CAUSE cause,
                        void* pEventData)
 {
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxFireCallEvent");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxFireCallEvent Src=%p CallId=%s RemoteAddress=%s Event=%s:%s",
             pSrc, szCallId, szRemoteAddress, convertCallstateEventToString(event), convertCallstateCauseToString(cause)) ;
      
     SIPX_CALL hCall = SIPX_CALL_NULL;
 
-    {   // Scope for listener/event locks
-	    OsLock eventLock(*g_pEventListenerLock) ;
+    SIPX_CALL_DATA* pCallData = NULL;
+    SIPX_LINE hLine = SIPX_LINE_NULL ;
+    UtlVoidPtr* ptr = NULL;
 
-        SIPX_CALL_DATA* pCallData = NULL;
-        SIPX_LINE hLine = SIPX_LINE_NULL ;
-        UtlVoidPtr* ptr = NULL;
+    SIPX_INSTANCE_DATA* pInst ;
+    UtlString callId ;
+    UtlString remoteAddress ;
+    UtlString lineId ;
+    UtlString contactAddress ;
+    SIPX_CALL hAssociatedCall = SIPX_CALL_NULL ;
 
-        SIPX_INSTANCE_DATA* pInst ;
-        UtlString callId ;
-        UtlString remoteAddress ;
-        UtlString lineId ;
-        SIPX_CALL hAssociatedCall = SIPX_CALL_NULL ;
+    // If this is an NEW inbound call (first we are hearing of it), then create
+    // a call handle/data structure for it.
+    if (event == CALLSTATE_NEWCALL)
+    {
+        pCallData = new SIPX_CALL_DATA;
+        memset((void*) pCallData, 0, sizeof(SIPX_CALL_DATA));
+        pCallData->state = SIPX_INTERNAL_CALLSTATE_UNKNOWN;
 
-        // If this is an NEW inbound call (first we are hearing of it), then create
-        // a call handle/data structure for it.
-        if (event == CALLSTATE_NEWCALL)
+        pCallData->callId = new UtlString(szCallId) ;
+        pCallData->remoteAddress = new UtlString(szRemoteAddress) ;
+        pCallData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
+
+        Url urlFrom;
+        pSession->getFromUrl(urlFrom) ;
+
+        pCallData->lineURI = new UtlString(urlFrom.toString()) ;
+        pCallData->pInst = findSessionByCallManager(pSrc) ;                    
+
+        hCall = gpCallHandleMap->allocHandle(pCallData) ;
+        pInst = pCallData->pInst ;
+
+        if (pEventData)
         {
-            pCallData = new SIPX_CALL_DATA;
-            memset((void*) pCallData, 0, sizeof(SIPX_CALL_DATA));
-            pCallData->state = SIPX_INTERNAL_CALLSTATE_UNKNOWN;
+            char* szOriginalCallId = (char*) pEventData ;                
+            hAssociatedCall = sipxCallLookupHandle(UtlString(szOriginalCallId), pSrc) ;
 
-            pCallData->callId = new UtlString(szCallId) ;
-            pCallData->remoteAddress = new UtlString(szRemoteAddress) ;
-            pCallData->pMutex = new OsRWMutex(OsRWMutex::Q_FIFO) ;
-
-            Url urlFrom;
-            pSession->getFromUrl(urlFrom) ;
-
-            pCallData->lineURI = new UtlString(urlFrom.toString()) ;
-            pCallData->pInst = findSessionByCallManager(pSrc) ;                    
-
-            hCall = gpCallHandleMap->allocHandle(pCallData) ;
-            pInst = pCallData->pInst ;
-
-            if (pEventData)
+            // Make sure we remove the call instead of allowing a drop.  When acting
+            // as a transfer target, we are performing surgery on a CpPeerCall.  We
+            // want to remove the call leg -- not drop the entire call.
+            if ((hAssociatedCall) && (cause == CALLSTATE_CAUSE_TRANSFERRED))
             {
-                char* szOriginalCallId = (char*) pEventData ;                
-                hAssociatedCall = sipxCallLookupHandle(UtlString(szOriginalCallId), pSrc) ;
-
-                // Make sure we remove the call instead of allowing a drop.  When acting
-                // as a transfer target, we are performing surgery on a CpPeerCall.  We
-                // want to remove the call leg -- not drop the entire call.
-                if ((hAssociatedCall) && (cause == CALLSTATE_CAUSE_TRANSFERRED))
+                // get the callstate of the replaced leg
+                SIPX_CALL_DATA* pOldCallData = sipxCallLookup(hAssociatedCall, SIPX_LOCK_READ, stackLogger);
+                bool bCallHoldInvoked = false;
+                if (pOldCallData)
                 {
-                    sipxCallSetRemoveInsteadofDrop(hAssociatedCall) ;
-
-                    SIPX_CONF hConf = sipxCallGetConf(hAssociatedCall) ;
-                    if (hConf)
-                    {
-                        sipxAddCallHandleToConf(hCall, hConf) ;
-                    }
+                    bCallHoldInvoked = pOldCallData->bCallHoldInvoked;
+                    sipxCallReleaseLock(pOldCallData, SIPX_LOCK_READ, stackLogger);
                 }
-            }
-
-            // Increment call count
-            pInst->pLock->acquire() ;
-            pInst->nCalls++ ;
-            pInst->pLock->release() ;
-
-            callId = szCallId ;
-            remoteAddress = szRemoteAddress ;
-            lineId = urlFrom.toString() ;
-        }
-        else
-        {
-            hCall = sipxCallLookupHandle(szCallId, pSrc);
-            if (!sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
-            {
-                // osPrintf("event sipXtapiEvents: Unable to find call data for handle: %d\n", hCall) ;
-                // osPrintf("event callid=%s address=%s", szCallId, szRemoteAddress) ;
-                // osPrintf("event M=%s m=%s\n", convertCallstateEventToString(major), convertCallstateCauseToString(minor)) ;
-            }
-        }
-
-        // Filter duplicate events
-        UtlBoolean bDuplicateEvent = FALSE ;
-        SIPX_CALLSTATE_EVENT lastEvent ;
-        SIPX_CALLSTATE_CAUSE lastCause ;
-        SIPX_INTERNAL_CALLSTATE state = SIPX_INTERNAL_CALLSTATE_UNKNOWN ;
-        if (sipxCallGetState(hCall, lastEvent, lastCause, state))
-        {           
-            // Filter our duplicate events
-            if ((lastEvent == event) && (lastCause == cause))
-            {
-                bDuplicateEvent = TRUE ;
-            }          
-        }
-
-        // Only proceed if this isn't a duplicate event and we have a valid 
-        // call handle.
-        if (!bDuplicateEvent && hCall != 0)
-        {
-            // Find Line
-            UtlString requestUri; 
-            pSession->getRemoteRequestUri(requestUri); 
-            hLine = sipxLineLookupHandle(lineId.data(), requestUri.data()) ; 
-            if (0 == hLine) 
-            {
-                // no line exists for the lineId
-                // log it
-                OsSysLog::add(FAC_SIPXTAPI, PRI_NOTICE, "unknown line id = %s\n", lineId.data());
-            }
-
-            // Fill in remote address
-            if (szRemoteAddress)
-            {
-                pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE) ;
-                if (pCallData)
-                {
-                    if (pCallData->remoteAddress)
-                    {
-                        delete pCallData->remoteAddress;
-                    }
-                    pCallData->remoteAddress = new UtlString(szRemoteAddress) ;
-                    sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE) ;
-                }
-            }
-
-    
-            if (g_bListenersEnabled)
-            {
-                UtlSListIterator eventListenerItor(*g_pEventListeners);
-                while ((ptr = (UtlVoidPtr*) eventListenerItor()) != NULL)
-                {
-                    EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue();
-                    if (pData->pInst->pCallManager == pSrc)
-                    {
-                        SIPX_CALLSTATE_INFO callInfo;
                 
-                        memset((void*) &callInfo, 0, sizeof(SIPX_CALLSTATE_INFO));
-                        callInfo.event = event;
-                        callInfo.cause = cause;
-                        callInfo.hCall = hCall;
-                        callInfo.hLine = hLine;
-                        callInfo.hAssociatedCall = hAssociatedCall ;
-                        callInfo.nSize = sizeof(SIPX_CALLSTATE_INFO);
-                        
-                        pData->pCallbackProc(EVENT_CATEGORY_CALLSTATE, &callInfo, pData->pUserData);
+                if (bCallHoldInvoked)
+                {
+                    SIPX_CALL_DATA* pData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger);
+                    if (pData)
+                    {
+                        pData->bHoldAfterConnect = true;
+                        sipxCallReleaseLock(pData, SIPX_LOCK_WRITE, stackLogger);
                     }
                 }
-            }
-            sipxCallSetState(hCall, event, cause) ;
-#ifdef DEBUG_SIPXTAPI_EVENTS
-            ReportCallback(hCall, hLine, event, cause, NULL) ;
-#endif
-        }
+                sipxCallSetRemoveInsteadofDrop(hAssociatedCall) ;
 
-        // If this is a DESTROY message, free up resources after all listeners
-        // have been notified.
-        if ((hCall != 0) && (CALLSTATE_DESTROYED == event) && 
-                (cause != CALLSTATE_CAUSE_SHUTDOWN))
-        {
-            SIPX_CONF hConf = sipxCallGetConf(hCall) ;
-            if (hConf != 0)
-            {
-                SIPX_CONF_DATA* pConfData = sipxConfLookup(hConf, SIPX_LOCK_WRITE) ;
-                if (pConfData)
-                {                        
-                    sipxRemoveCallHandleFromConf(hConf, hCall) ;
-                    sipxConfReleaseLock(pConfData, SIPX_LOCK_WRITE) ;
+                SIPX_CONF hConf = sipxCallGetConf(hAssociatedCall) ;
+                if (hConf)
+                {
+                    sipxAddCallHandleToConf(hCall, hConf) ;
                 }
             }
-            sipxCallObjectFree(hCall);
+        }
+
+        // Increment call count
+        pInst->pLock->acquire() ;
+        pInst->nCalls++ ;
+        pInst->pLock->release() ;
+
+        callId = szCallId ;
+        remoteAddress = szRemoteAddress ;
+        lineId = urlFrom.toString() ;
+    }
+    else
+    {
+        hCall = sipxCallLookupHandle(szCallId, pSrc);
+        if (!sipxCallGetCommonData(hCall, &pInst, &callId, &remoteAddress, &lineId))
+        {
+            // osPrintf("event sipXtapiEvents: Unable to find call data for handle: %d\n", hCall) ;
+            // osPrintf("event callid=%s address=%s", szCallId, szRemoteAddress) ;
+            // osPrintf("event M=%s m=%s\n", convertCallstateEventToString(major), convertCallstateCauseToString(minor)) ;
+        }
+        pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger) ;
+        if (pCallData && pSession)
+        {
+            pSession->getContactRequestUri(contactAddress);
+            pCallData->contactAddress = new UtlString(contactAddress);
+        }
+        if (pCallData)
+        {
+            sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE, stackLogger) ;
         }
     }
 
+    // Filter duplicate events
+    UtlBoolean bDuplicateEvent = FALSE ;
+    SIPX_CALLSTATE_EVENT lastEvent ;
+    SIPX_CALLSTATE_CAUSE lastCause ;
+    SIPX_INTERNAL_CALLSTATE state = SIPX_INTERNAL_CALLSTATE_UNKNOWN ;
+    if (sipxCallGetState(hCall, lastEvent, lastCause, state))
+    {           
+        // Filter our duplicate events
+        if ((lastEvent == event) && (lastCause == cause))
+        {
+            bDuplicateEvent = TRUE ;
+        }          
+    }
+
+    // Only proceed if this isn't a duplicate event and we have a valid 
+    // call handle.
+    if (!bDuplicateEvent && hCall != 0)
+    {
+        // Find Line
+        UtlString requestUri; 
+        pSession->getRemoteRequestUri(requestUri); 
+        hLine = sipxLineLookupHandle(lineId.data(), requestUri.data()) ; 
+        if (0 == hLine) 
+        {
+            // no line exists for the lineId
+            // log it
+            OsSysLog::add(FAC_SIPXTAPI, PRI_NOTICE, "unknown line id = %s\n", lineId.data());
+        }
+
+        // Fill in remote address
+        if (szRemoteAddress)
+        {
+            pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger) ;
+            if (pCallData)
+            {
+                if (pCallData->remoteAddress)
+                {
+                    delete pCallData->remoteAddress;
+                }
+                pCallData->remoteAddress = new UtlString(szRemoteAddress) ;
+                sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE, stackLogger) ;
+            }
+        }
+
+
+        if (g_bListenersEnabled)
+        {
+            OsLock eventLock(*g_pEventListenerLock) ;
+            UtlSListIterator eventListenerItor(*g_pEventListeners);
+            while ((ptr = (UtlVoidPtr*) eventListenerItor()) != NULL)
+            {
+                EVENT_LISTENER_DATA *pData = (EVENT_LISTENER_DATA*) ptr->getValue();
+                if (pData->pInst->pCallManager == pSrc)
+                {
+                    SIPX_CALLSTATE_INFO callInfo;
+            
+                    memset((void*) &callInfo, 0, sizeof(SIPX_CALLSTATE_INFO));
+                    callInfo.event = event;
+                    callInfo.cause = cause;
+                    callInfo.hCall = hCall;
+                    callInfo.hLine = hLine;
+                    callInfo.hAssociatedCall = hAssociatedCall ;
+                    callInfo.nSize = sizeof(SIPX_CALLSTATE_INFO);
+                    
+                    pData->pCallbackProc(EVENT_CATEGORY_CALLSTATE, &callInfo, pData->pUserData);
+                }
+            }
+        }
+        sipxCallSetState(hCall, event, cause) ;
+#ifdef DEBUG_SIPXTAPI_EVENTS
+        ReportCallback(hCall, hLine, event, cause, NULL) ;
+#endif
+    }
+
+    // If this is a DESTROY message, free up resources after all listeners
+    // have been notified.
+    if ((hCall != 0) && (CALLSTATE_DESTROYED == event) && 
+            (cause != CALLSTATE_CAUSE_SHUTDOWN))
+    {
+        SIPX_CONF hConf = sipxCallGetConf(hCall) ;
+        if (hConf != 0)
+        {
+            SIPX_CONF_DATA* pConfData = sipxConfLookup(hConf, SIPX_LOCK_WRITE, stackLogger) ;
+            if (pConfData)
+            {                        
+                sipxRemoveCallHandleFromConf(hConf, hCall) ;
+                sipxConfReleaseLock(pConfData, SIPX_LOCK_WRITE, stackLogger) ;
+            }
+        }
+        sipxCallObjectFree(hCall, stackLogger);
+    }
+    
     if ((CALLSTATE_DISCONNECTED == event) && ((sipxCallGetConf(hCall) != 0) || sipxCallIsRemoveInsteadOfDropSet(hCall)))
     {
         // If a leg of a conference is destroyed, simulate the audio stop and 
         // call destroyed events.
 
-        SIPX_CALL_DATA* pCallData = sipxCallLookup(hCall, SIPX_LOCK_READ) ;
+        SIPX_CALL_DATA* pCallData = sipxCallLookup(hCall, SIPX_LOCK_READ, stackLogger) ;
         if (pCallData)
         {
             pCallData->pInst->pCallManager->dropConnection(szCallId, szRemoteAddress) ;
-            sipxCallReleaseLock(pCallData, SIPX_LOCK_READ) ;
+            sipxCallReleaseLock(pCallData, SIPX_LOCK_READ, stackLogger) ;
         }
 
         if (pCallData->lastLocalMediaAudioEvent == MEDIA_LOCAL_START)
@@ -1191,6 +1218,27 @@ void sipxFireCallEvent(const void* pSrc,
                        CALLSTATE_CAUSE_NORMAL,
                        pEventData) ;
     }  
+    // check for the bHoldAfterConnect flag.  If it is true, start a hold
+    if (CALLSTATE_CONNECTED == event || CALLSTATE_HELD == event)
+    {
+        SIPX_CALL_DATA* pCallData = sipxCallLookup(hCall, SIPX_LOCK_READ, stackLogger);
+        if (pCallData)
+        {
+            bool bHoldAfterConnect = pCallData->bHoldAfterConnect;
+            sipxCallReleaseLock(pCallData, SIPX_LOCK_READ, stackLogger);
+            
+            if (bHoldAfterConnect)
+            {
+                sipxCallHold(hCall);        
+                pCallData = sipxCallLookup(hCall, SIPX_LOCK_WRITE, stackLogger);
+                if (pCallData)
+                {
+                    pCallData->bHoldAfterConnect = false;
+                    sipxCallReleaseLock(pCallData, SIPX_LOCK_WRITE, stackLogger);
+                }
+            }
+        }
+    }
 }
 
 
@@ -1205,8 +1253,6 @@ void sipxFireMediaEvent(const void* pSrc,
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
             "sipxFireMediaEvent Src=%p CallId=%s RemoteAddress=%s Event=%s:%s type=%d",
             pSrc, szCallId, szRemoteAddress, convertMediaEventToString(event), convertMediaCauseToString(cause), type) ;
-
-	OsLock eventLock(*g_pEventListenerLock) ;
 
     SIPX_CALL hCall = sipxCallLookupHandle(szCallId, pSrc) ;
     bool bIgnored = false;
@@ -1287,6 +1333,7 @@ void sipxFireMediaEvent(const void* pSrc,
         {    
             if (g_bListenersEnabled)
             {
+            	OsLock eventLock(*g_pEventListenerLock) ;
                 UtlSListIterator eventListenerItor(*g_pEventListeners) ;
                 UtlVoidPtr* ptr = NULL;
                 while ((ptr = (UtlVoidPtr*) eventListenerItor()) != NULL)
@@ -1769,6 +1816,7 @@ void sipxFireLineEvent(const void* pSrc,
                        SIPX_LINESTATE_EVENT event,
                        SIPX_LINESTATE_CAUSE cause)
 {
+    OsStackTraceLogger stackLogger(FAC_SIPXTAPI, PRI_DEBUG, "sipxFireLineEvent");
     OsSysLog::add(FAC_SIPXTAPI, PRI_INFO,
         "sipxFireLineEvent pSrc=%p szLineIdentifier=%s event=%d cause=%d",
         pSrc, szLineIdentifier, event, cause);
@@ -1778,7 +1826,7 @@ void sipxFireLineEvent(const void* pSrc,
     SIPX_LINE hLine = SIPX_LINE_NULL ;
 
     hLine = sipxLineLookupHandleByURI(szLineIdentifier);
-    pLineData = sipxLineLookup(hLine, SIPX_LOCK_READ) ;
+    pLineData = sipxLineLookup(hLine, SIPX_LOCK_READ, stackLogger) ;
     if (pLineData)
     {
         if (g_bListenersEnabled)
@@ -1802,7 +1850,7 @@ void sipxFireLineEvent(const void* pSrc,
                 }
             }      
         }
-        sipxLineReleaseLock(pLineData, SIPX_LOCK_READ) ;  
+        sipxLineReleaseLock(pLineData, SIPX_LOCK_READ, stackLogger) ;  
     }
 }
 

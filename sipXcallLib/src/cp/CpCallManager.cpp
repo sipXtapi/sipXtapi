@@ -37,7 +37,7 @@ const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 6000;
 const int    CpCallManager::CALLMANAGER_MAX_REQUEST_MSGS = 1000;
 #endif  
 
-unsigned long CpCallManager::mCallNum = 0;
+intll CpCallManager::mCallNum = 0;
 OsMutex CpCallManager::mCallNumMutex(OsMutex::Q_FIFO);
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -494,8 +494,8 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       // Get the start time.
       OsTime current_time;
       OsDateTime::getCurTime(current_time);
-      unsigned long start_time =
-         ((unsigned long) current_time.seconds()) * 1000000 + current_time.usecs();
+      intll start_time =
+         ((intll) current_time.seconds()) * 1000000 + current_time.usecs();
 
       // Get the process ID.
       int process_id;
@@ -508,7 +508,8 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
       thisHost.replace('@','*');
 
       // Compose the static fields.
-      sprintf(buffer, "%d/%ld/%s", process_id, start_time, thisHost.data());
+      sprintf(buffer, "%d_%" FORMAT_INTLL "d_%s",
+              process_id, start_time, thisHost.data());
       // Hash them.
       NetMd5Codec encoder;
       encoder.encode(buffer, suffix);
@@ -520,7 +521,8 @@ void CpCallManager::getNewCallId(const char* callIdPrefix, UtlString* callId)
    }
 
    // Compose the new Call-Id.
-   sprintf(buffer, "%s_%ld_%s", callIdPrefix, mCallNum, suffix.data());
+   sprintf(buffer, "%s_%" FORMAT_INTLL "d_%s",
+           callIdPrefix, mCallNum, suffix.data());
 
    // Copy it to the destination.
    *callId = buffer;

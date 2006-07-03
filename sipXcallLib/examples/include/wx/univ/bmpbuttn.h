@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     25.08.00
-// RCS-ID:      $Id: bmpbuttn.h,v 1.4 2001/07/04 18:07:14 VZ Exp $
+// RCS-ID:      $Id: bmpbuttn.h,v 1.10 2004/08/10 13:08:33 ABX Exp $
 // Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_UNIV_BMPBUTTN_H_
 #define _WX_UNIV_BMPBUTTN_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "univbmpbuttn.h"
 #endif
 
@@ -49,9 +49,9 @@ public:
         wxBitmapButtonBase::SetMargins(x, y);
     }
 
-    virtual bool Enable(bool enable = TRUE);
+    virtual bool Enable(bool enable = true);
 
-    virtual bool SetCurrent(bool doit = TRUE);
+    virtual bool SetCurrent(bool doit = true);
 
     virtual void Press();
     virtual void Release();
@@ -64,7 +64,7 @@ protected:
     virtual void OnSetBitmap();
 
     // set bitmap to the given one if it's ok or to m_bmpNormal and return
-    // TRUE if the bitmap really changed
+    // true if the bitmap really changed
     bool ChangeBitmap(const wxBitmap& bmp);
 
 private:

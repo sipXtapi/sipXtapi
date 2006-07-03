@@ -4,15 +4,15 @@
 // Author:      Guilhem Lavaux
 // Modified by:
 // Created:     28/06/1998
-// RCS-ID:      $Id: txtstrm.h,v 1.11.2.1 2002/09/30 20:48:44 RR Exp $
+// RCS-ID:      $Id: txtstrm.h,v 1.27 2004/11/21 18:26:36 RN Exp $
 // Copyright:   (c) Guilhem Lavaux
-// Licence:   	wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_TXTSTREAM_H_
 #define _WX_TXTSTREAM_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "txtstrm.h"
 #endif
 
@@ -20,16 +20,23 @@
 
 #if wxUSE_STREAMS
 
-class WXDLLEXPORT wxTextInputStream;
-class WXDLLEXPORT wxTextOutputStream;
+class WXDLLIMPEXP_BASE wxTextInputStream;
+class WXDLLIMPEXP_BASE wxTextOutputStream;
 
 typedef wxTextInputStream& (*__wxTextInputManip)(wxTextInputStream&);
 typedef wxTextOutputStream& (*__wxTextOutputManip)(wxTextOutputStream&);
 
-WXDLLEXPORT wxTextOutputStream &endl( wxTextOutputStream &stream );
+WXDLLIMPEXP_BASE wxTextOutputStream &endl( wxTextOutputStream &stream );
 
 
-class WXDLLEXPORT wxTextInputStream
+#define wxEOT wxT('\4') // the End-Of-Text control code (used only inside wxTextInputStream)
+
+// If you're scanning through a file using wxTextInputStream, you should check for EOF _before_
+// reading the next item (word / number), because otherwise the last item may get lost.
+// You should however be prepared to receive an empty item (empty string / zero number) at the
+// end of file, especially on Windows systems. This is unavoidable because most (but not all) files end
+// with whitespace (i.e. usually a newline).
+class WXDLLIMPEXP_BASE wxTextInputStream
 {
 public:
 #if wxUSE_UNICODE
@@ -39,13 +46,17 @@ public:
 #endif
     ~wxTextInputStream();
 
-    wxUint32 Read32();
-    wxUint16 Read16();
-    wxUint8  Read8();
+    wxUint32 Read32(int base = 10); // base may be between 2 and 36, inclusive, or the special 0 (= C format)
+    wxUint16 Read16(int base = 10);
+    wxUint8  Read8(int base = 10);
+    wxInt32  Read32S(int base = 10);
+    wxInt16  Read16S(int base = 10);
+    wxInt8   Read8S(int base = 10);
     double   ReadDouble();
-    wxString ReadString();  // deprecated use ReadLine or ReadWord instead
+    wxString ReadString();  // deprecated: use ReadLine or ReadWord instead
     wxString ReadLine();
     wxString ReadWord();
+    wxChar   GetChar() { wxChar c = NextChar(); return (wxChar)(c != wxEOT ? c : 0); }
 
     wxString GetStringSeparators() const { return m_separators; }
     void SetStringSeparators(const wxString &c) { m_separators = c; }
@@ -53,6 +64,9 @@ public:
     // Operators
     wxTextInputStream& operator>>(wxString& word);
     wxTextInputStream& operator>>(char& c);
+#if wxUSE_UNICODE && wxWCHAR_T_IS_REAL_TYPE
+    wxTextInputStream& operator>>(wchar_t& wc);
+#endif // wxUSE_UNICODE
     wxTextInputStream& operator>>(wxInt16& i);
     wxTextInputStream& operator>>(wxInt32& i);
     wxTextInputStream& operator>>(wxUint16& i);
@@ -65,14 +79,19 @@ public:
 protected:
     wxInputStream &m_input;
     wxString m_separators;
-    
+    char m_lastBytes[10]; // stores the bytes that were read for the last character
+
 #if wxUSE_UNICODE
     wxMBConv &m_conv;
 #endif
 
     bool   EatEOL(const wxChar &c);
+    void   UngetLast(); // should be used instead of wxInputStream::Ungetch() because of Unicode issues
+    // returns EOT (\4) if there is a stream error, or end of file
+    wxChar NextChar();   // this should be used instead of GetC() because of Unicode issues
     wxChar NextNonSeparators();
-    void   SkipIfEndOfLine( wxChar c );
+
+    DECLARE_NO_COPY_CLASS(wxTextInputStream)
 };
 
 typedef enum
@@ -83,7 +102,7 @@ typedef enum
   wxEOL_DOS
 } wxEOL;
 
-class WXDLLEXPORT wxTextOutputStream
+class WXDLLIMPEXP_BASE wxTextOutputStream
 {
 public:
 #if wxUSE_UNICODE
@@ -102,9 +121,14 @@ public:
     virtual void WriteDouble(double d);
     virtual void WriteString(const wxString& string);
 
+    wxTextOutputStream& PutChar(wxChar c);
+
     wxTextOutputStream& operator<<(const wxChar *string);
     wxTextOutputStream& operator<<(const wxString& string);
     wxTextOutputStream& operator<<(char c);
+#if wxUSE_UNICODE && wxWCHAR_T_IS_REAL_TYPE
+    wxTextOutputStream& operator<<(wchar_t wc);
+#endif // wxUSE_UNICODE
     wxTextOutputStream& operator<<(wxInt16 c);
     wxTextOutputStream& operator<<(wxInt32 c);
     wxTextOutputStream& operator<<(wxUint16 c);
@@ -117,11 +141,12 @@ public:
 protected:
     wxOutputStream &m_output;
     wxEOL           m_mode;
-    
+
 #if wxUSE_UNICODE
     wxMBConv &m_conv;
 #endif
 
+    DECLARE_NO_COPY_CLASS(wxTextOutputStream)
 };
 
 #endif

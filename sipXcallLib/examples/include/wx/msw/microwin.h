@@ -4,7 +4,7 @@
 // Purpose:     Extra implementation for MicroWindows
 // Author:      Julian Smart
 // Created:     2001-05-31
-// RCS-ID:      $Id: microwin.h,v 1.3 2001/12/22 19:43:43 JS Exp $
+// RCS-ID:      $Id: microwin.h,v 1.7 2004/08/30 10:18:43 ABX Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 #ifndef _WX_MICROWIN_H_
 #define _WX_MICROWIN_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "microwin.h"
 #endif
 
@@ -33,7 +33,7 @@ HCURSOR SetCursor(HCURSOR hCursor);
 int GetScrollPosWX (HWND hWnd, int iSBar);
 
 BOOL ScrollWindow(HWND, int xAmount, int yAmount,
-			     CONST RECT* lpRect, CONST RECT* lpClipRect);
+                 CONST RECT* lpRect, CONST RECT* lpClipRect);
 
 HWND WindowFromPoint(POINT pt);
 SHORT GetKeyState(int nVirtKey);
@@ -51,7 +51,7 @@ COLORREF GetTextColor(HDC hdc);
 COLORREF GetBkColor(HDC hdc);
 HPALETTE SelectPalette(HDC hdc, HPALETTE hPalette, BOOL b);
 BOOL IntersectClipRect(HDC hdc, int x, int y,
-		       int w, int h);
+               int w, int h);
 BOOL GetClipBox(HDC hdc, RECT* rect);
 BOOL DrawIconEx(HDC hdc, int x, int y, HICON hIcon, int w, int h, UINT istepIfAniCur, HBRUSH hbrFlickerFreeDraw, UINT diFlags);
 BOOL SetViewportExtEx(HDC hdc, int x, int y, LPSIZE lpSize);
@@ -73,8 +73,8 @@ BOOL  GetScrollPos (HWND hWnd, int iSBar, int* pPos);
 BOOL  GetScrollRange (HWND hWnd, int iSBar, int* pMinPos, int* pMaxPos);
 BOOL  SetScrollPos (HWND hWnd, int iSBar, int iNewPos);
 BOOL  SetScrollRange (HWND hWnd, int iSBar, int iMinPos, int iMaxPos);
-BOOL  SetScrollInfo (HWND hWnd, int iSBar, 
-		     LPCSCROLLINFO lpsi, BOOL fRedraw);
+BOOL  SetScrollInfo (HWND hWnd, int iSBar,
+             LPCSCROLLINFO lpsi, BOOL fRedraw);
 BOOL  GetScrollInfo(HWND hWnd, int iSBar, LPSCROLLINFO lpsi);
 BOOL  ShowScrollBar (HWND hWnd, int iSBar, BOOL bShow);
 HBITMAP WINAPI

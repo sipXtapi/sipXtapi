@@ -4,21 +4,21 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     29/01/98
-// RCS-ID:      $Id: valtext.h,v 1.11 2002/08/31 11:29:11 GD Exp $
+// RCS-ID:      $Id: valtext.h,v 1.21.2.2 2006/02/06 04:24:40 KH Exp $
 // Copyright:   (c) 1998 Julian Smart
-// Licence:   	wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_VALTEXTH__
 #define _WX_VALTEXTH__
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "valtext.h"
 #endif
 
 #include "wx/defs.h"
 
-#if wxUSE_VALIDATORS
+#if wxUSE_VALIDATORS && wxUSE_TEXTCTRL
 
 #include "wx/textctrl.h"
 #include "wx/validate.h"
@@ -41,7 +41,7 @@ public:
     wxTextValidator(long style = wxFILTER_NONE, wxString *val = 0);
     wxTextValidator(const wxTextValidator& val);
 
-    ~wxTextValidator();
+    ~wxTextValidator(){}
 
     // Make a clone of this validator (or return NULL) - currently necessary
     // if you're passing a reference to a validator.
@@ -57,48 +57,70 @@ public:
     // Called to transfer data to the window
     virtual bool TransferToWindow();
 
-    // Called to transfer data to the window
+    // Called to transfer data from the window
     virtual bool TransferFromWindow();
 
     // ACCESSORS
     inline long GetStyle() const { return m_validatorStyle; }
     inline void SetStyle(long style) { m_validatorStyle = style; }
 
-    void SetIncludeList(const wxStringList& list);
-    inline wxStringList& GetIncludeList() { return m_includeList; }
+#if WXWIN_COMPATIBILITY_2_4
+    wxDEPRECATED( void SetIncludeList(const wxStringList& list) );
+    wxDEPRECATED( wxStringList& GetIncludeList() );
 
-    void SetExcludeList(const wxStringList& list);
-    inline wxStringList& GetExcludeList() { return m_excludeList; }
+    wxDEPRECATED( void SetExcludeList(const wxStringList& list) );
+    wxDEPRECATED( wxStringList& GetExcludeList() );
+
+    wxDEPRECATED( bool IsInCharIncludeList(const wxString& val) );
+    wxDEPRECATED( bool IsNotInCharExcludeList(const wxString& val) );
+#endif
+
+    void SetIncludes(const wxArrayString& includes) { m_includes = includes; }
+    inline wxArrayString& GetIncludes() { return m_includes; }
+
+    void SetExcludes(const wxArrayString& excludes) { m_excludes = excludes; }
+    inline wxArrayString& GetExcludes() { return m_excludes; }
+
+    bool IsInCharIncludes(const wxString& val);
+    bool IsNotInCharExcludes(const wxString& val);
 
     // Filter keystrokes
     void OnChar(wxKeyEvent& event);
 
-    bool IsInCharIncludeList(const wxString& val);
-    bool IsNotInCharExcludeList(const wxString& val);
 
 DECLARE_EVENT_TABLE()
 
 protected:
     long            m_validatorStyle;
     wxString *      m_stringValue;
+#if WXWIN_COMPATIBILITY_2_4
     wxStringList    m_includeList;
     wxStringList    m_excludeList;
+#endif
+    wxArrayString   m_includes;
+    wxArrayString   m_excludes;
 
     bool CheckValidator() const
     {
-        wxCHECK_MSG( m_validatorWindow, FALSE,
+        wxCHECK_MSG( m_validatorWindow, false,
                      _T("No window associated with validator") );
-        wxCHECK_MSG( m_validatorWindow->IsKindOf(CLASSINFO(wxTextCtrl)), FALSE,
+        wxCHECK_MSG( m_validatorWindow->IsKindOf(CLASSINFO(wxTextCtrl)), false,
                      _T("wxTextValidator is only for wxTextCtrl's") );
-        wxCHECK_MSG( m_stringValue, FALSE,
-                     _T("No variable storage for validator") );
 
-        return TRUE;
+        return true;
     }
+
+private:
+// Cannot use
+//  DECLARE_NO_COPY_CLASS(wxTextValidator)
+// because copy constructor is explicitly declared above;
+// but no copy assignment operator is defined, so declare
+// it private to prevent the compiler from defining it:
+    wxTextValidator& operator=(const wxTextValidator&);
 };
 
 #endif
-  // wxUSE_VALIDATORS
+  // wxUSE_VALIDATORS && wxUSE_TEXTCTRL
 
 #endif
   // _WX_VALTEXTH__

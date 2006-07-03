@@ -1,13 +1,22 @@
+/////////////////////////////////////////////////////////////////////////////
+// Name:        wx/icon.h
+// Purpose:     wxIcon base header
+// Author:      Julian Smart
+// Modified by:
+// Created:
+// Copyright:   (c) Julian Smart
+// RCS-ID:      $Id: icon.h,v 1.16 2005/05/04 18:51:59 JS Exp $
+// Licence:     wxWindows licence
+/////////////////////////////////////////////////////////////////////////////
+
 #ifndef _WX_ICON_H_BASE_
 #define _WX_ICON_H_BASE_
 
-/* Commenting out since duplicated in gdicmn.h
-// this is for Unix (i.e. now for anything other than MSW)
-#undef  wxICON
-#define wxICON(icon_name)   wxIcon(icon_name##_xpm)
-*/
+#include "wx/iconloc.h"
 
-#if defined(__WXMSW__)
+#if defined(__WXPALMOS__)
+  #include "wx/palmos/icon.h"
+#elif defined(__WXMSW__)
   #include "wx/msw/icon.h"
 #elif defined(__WXMOTIF__)
   #include "wx/motif/icon.h"
@@ -19,10 +28,10 @@
   #include "wx/mgl/icon.h"
 #elif defined(__WXMAC__)
   #include "wx/mac/icon.h"
+#elif defined(__WXCOCOA__)
+  #include "wx/cocoa/icon.h"
 #elif defined(__WXPM__)
   #include "wx/os2/icon.h"
-#elif defined(__WXSTUBS__)
-  #include "wx/stubs/icon.h"
 #endif
 
 #endif

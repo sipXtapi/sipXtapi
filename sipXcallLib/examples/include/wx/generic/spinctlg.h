@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     28.10.99
-// RCS-ID:      $Id: spinctlg.h,v 1.14 2002/08/31 22:52:24 VZ Exp $
+// RCS-ID:      $Id: spinctlg.h,v 1.18 2004/06/17 16:22:27 ABX Exp $
 // Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@
 
 #if wxUSE_SPINBTN
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "spinctlg.h"
 #endif
 
@@ -39,7 +39,7 @@ public:
     wxSpinCtrl() { Init(); }
 
     wxSpinCtrl(wxWindow *parent,
-               wxWindowID id = -1,
+               wxWindowID id = wxID_ANY,
                const wxString& value = wxEmptyString,
                const wxPoint& pos = wxDefaultPosition,
                const wxSize& size = wxDefaultSize,
@@ -52,7 +52,7 @@ public:
     }
 
     bool Create(wxWindow *parent,
-                wxWindowID id = -1,
+                wxWindowID id = wxID_ANY,
                 const wxString& value = wxEmptyString,
                 const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize,
@@ -76,8 +76,8 @@ public:
     // implementation from now on
 
     // forward these functions to all subcontrols
-    virtual bool Enable(bool enable = TRUE);
-    virtual bool Show(bool show = TRUE);
+    virtual bool Enable(bool enable = true);
+    virtual bool Show(bool show = true);
 
     // get the subcontrols
     wxTextCtrl *GetText() const { return m_text; }
@@ -87,7 +87,7 @@ public:
     void SetTextValue(int val);
 
     // put the numeric value of the string in the text ctrl into val and return
-    // TRUE or return FALSE if the text ctrl doesn't contain a number or if the
+    // true or return false if the text ctrl doesn't contain a number or if the
     // number is out of range
     bool GetTextValue(int *val) const;
 
@@ -122,7 +122,7 @@ public:
     wxSpinCtrl() { Init(); }
 
     wxSpinCtrl(wxWindow *parent,
-               wxWindowID id = -1,
+               wxWindowID id = wxID_ANY,
                const wxString& value = wxEmptyString,
                const wxPoint& pos = wxDefaultPosition,
                const wxSize& size = wxDefaultSize,
@@ -134,7 +134,7 @@ public:
     }
 
     bool Create(wxWindow *parent,
-                wxWindowID id = -1,
+                wxWindowID id = wxID_ANY,
                 const wxString& value = wxEmptyString,
                 const wxPoint& pos = wxDefaultPosition,
                 const wxSize& size = wxDefaultSize,

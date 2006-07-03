@@ -4,7 +4,7 @@
 // Author:      Roger Gammans, Paul Gammans
 // Modified by:
 // Created:
-// RCS-ID:      $Id: dbgrid.h,v 1.7 2002/08/31 11:29:09 GD Exp $
+// RCS-ID:      $Id: dbgrid.h,v 1.18 2004/09/10 12:55:47 ABX Exp $
 // Copyright:   (c) 1999 The Computer Surgery (roger@computer-surgery.co.uk)
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -14,12 +14,12 @@
 #ifndef _WX_GENERIC_DBGRID_H_
 #define _WX_GENERIC_DBGRID_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "dbgrid.h"
 #endif
 
 #if wxUSE_ODBC
-#if wxUSE_NEW_GRID
+#if wxUSE_GRID
 
 #include "wx/log.h"
 #include "wx/dbtable.h"
@@ -29,11 +29,11 @@
 
 #define wxGRID_VALUE_DBAUTO     _T("dbauto")
 
-WX_DECLARE_EXPORTED_OBJARRAY(GenericKey,keyarray);
+WX_DECLARE_USER_EXPORTED_OBJARRAY(GenericKey,keyarray,WXDLLIMPEXP_DBGRID);
 
 static const int wxUSE_QUERY = -1;
 
-class WXDLLEXPORT wxDbGridColInfoBase
+class WXDLLIMPEXP_DBGRID wxDbGridColInfoBase
 {
 public:
     //Default ctor
@@ -60,7 +60,7 @@ public:
 };
 
 
-class WXDLLEXPORT wxDbGridColInfo
+class WXDLLIMPEXP_DBGRID wxDbGridColInfo
 {
 public:
     wxDbGridColInfo(int colNo,
@@ -78,6 +78,18 @@ public:
     //Recurse to find length.
     int Length() { return (m_next ? m_next->Length() +1 :  1); }
 
+    // Adds a new column info (2 step creation)
+    void AddColInfo (int colNo,
+                    wxString type,
+                    wxString title)
+    {
+        GetLast()->m_next = new wxDbGridColInfo (colNo, type, title, NULL);
+    }
+
+    // Searches last
+    wxDbGridColInfo *GetLast() { return (m_next ? m_next->GetLast() : this); }
+
+
     protected:
     wxDbGridColInfoBase  m_data;
     wxDbGridColInfo     *m_next;
@@ -86,7 +98,7 @@ public:
 };
 
 
-class WXDLLEXPORT wxDbGridCellAttrProvider : public wxGridCellAttrProvider
+class WXDLLIMPEXP_DBGRID wxDbGridCellAttrProvider : public wxGridCellAttrProvider
 {
 public:
     wxDbGridCellAttrProvider();
@@ -102,21 +114,21 @@ private:
 };
 
 
-class WXDLLEXPORT wxDbGridTableBase : public wxGridTableBase
+class WXDLLIMPEXP_DBGRID wxDbGridTableBase : public wxGridTableBase
 {
 public:
     wxDbGridTableBase(wxDbTable *tab, wxDbGridColInfo *ColInfo,
-              int count = wxUSE_QUERY, bool takeOwnership = TRUE);
+              int count = wxUSE_QUERY, bool takeOwnership = true);
     ~wxDbGridTableBase();
 
     virtual int GetNumberRows()
     {
-        wxLogDebug(" GetNumberRows() = %i",m_rowtotal);
+        wxLogDebug(_T(" GetNumberRows() = %i"),m_rowtotal);
         return m_rowtotal;
     }
     virtual int GetNumberCols()
     {
-        wxLogDebug(" GetNumberCols() = %i",m_nocols);
+        wxLogDebug(_T(" GetNumberCols() = %i"),m_nocols);
         return m_nocols;
     }
     virtual bool     IsEmptyCell(int row, int col) ;
@@ -138,12 +150,12 @@ public:
 
     virtual wxString GetColLabelValue(int col);
 
-    virtual bool     AssignDbTable(wxDbTable *tab, int count = wxUSE_QUERY, bool takeOwnership=TRUE);
+    virtual bool     AssignDbTable(wxDbTable *tab, int count = wxUSE_QUERY, bool takeOwnership=true);
     virtual void     ValidateRow(int row);
     virtual bool     UpdateRow(int row) const
     {
         if (m_row != row)
-            return TRUE;
+            return true;
         else
             return Writeback();
     }
@@ -163,7 +175,7 @@ private:
     bool         m_rowmodified;
 };
 
-#endif  // #if wxUSE_NEW_GRID
+#endif  // #if wxUSE_GRID
 #endif  // #if wxUSE_ODBC
 
 #endif  // _WX_GENERIC_DBGRID_H_

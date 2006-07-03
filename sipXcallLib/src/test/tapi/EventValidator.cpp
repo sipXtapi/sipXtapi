@@ -141,6 +141,38 @@ bool EventValidator::waitForCallEvent(SIPX_LINE hLine,
     return bFound ;
 }
 
+bool EventValidator::waitUntilCallEvent(SIPX_LINE hLine,
+                        SIPX_CALL hCall,
+                        SIPX_CALLSTATE_EVENT event,
+                        SIPX_CALLSTATE_CAUSE cause,
+                        int iTimeoutInSecs)
+{
+    bool bFound = false;
+
+    if (!isIgnoredCateogry(EVENT_CATEGORY_CALLSTATE))
+    {
+
+        UtlString* pString = allocCallStateEntry(hCall, 
+                hLine, 
+                event, 
+                cause) ;
+
+        bFound = waitUntilEvent(pString->data(), iTimeoutInSecs) ;
+        delete pString ;
+    }
+
+    if (!bFound)
+    {
+        
+        // Wait a second for any additional events to pour in -- useful for 
+        // debugging.
+        OsTask::delay(1000) ;
+        report() ;
+    }
+    
+    return bFound;
+}                        
+
 
 bool EventValidator::waitForMessage(SIPX_LINE hLine, 
                                     const char* szMsg,
@@ -896,3 +928,50 @@ bool EventValidator::waitForEvent(const char* szEvent, bool bStrictOrderMatch, i
                 
     return bFound ;
 }
+
+bool EventValidator::waitUntilEvent(const char* szEvent, int iTimeoutInSecs)
+{
+    bool bFound = false ;
+    OsTime waitTime(iTimeoutInSecs == DEFAULT_TIMEOUT ? m_iDefaultTimeoutInSecs : iTimeoutInSecs, 0) ;
+    OsTime now;
+    OsTime start;
+    OsDateTime::getCurTime(start);
+    
+    // Try to find message
+    int i = 0;
+    while (true)
+    {
+        m_mutLists.acquire() ;
+
+        UtlString* pString = (UtlString*) m_unprocessedEvents.at(i) ;
+        if (pString && pString->compareTo(szEvent) == 0)
+        {
+            m_processedEvents.append(pString) ;
+            for (int j = 0; j < i+1; j++)
+            {
+                m_unprocessedEvents.removeAt(0);
+            }
+            bFound = true ;
+            m_mutLists.release() ;
+            break ;
+        }
+        if (pString)
+        {
+            i++;
+        }
+        m_mutLists.release() ;
+        
+        OsTask::delay(100);
+        OsDateTime::getCurTime(now);
+        OsTime diff = now - start;
+        if (diff > waitTime)
+        {
+            break;
+        }
+    }
+
+    m_mutLists.release() ;
+
+    return bFound ;
+}
+

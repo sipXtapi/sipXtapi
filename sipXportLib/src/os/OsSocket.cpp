@@ -688,6 +688,7 @@ const char* socketType_TCP = "TCP";
 const char* socketType_UDP = "UDP";
 const char* socketType_MULTICAST = "MULTICAST";
 const char* socketType_SSL = "TLS";
+const char* socketType_custom = "CUSTOM";
 const char* socketType_invalid = "INVALID";
 
 const char* OsSocket::ipProtocolString() const
@@ -709,7 +710,13 @@ const char* OsSocket::ipProtocolString() const
    case OsSocket::SSL_SOCKET:
       return socketType_SSL;
       break;
+   case OsSocket::CUSTOM:
+	   return socketType_custom;
    default:
+      if (getIpProtocol() > OsSocket::CUSTOM)
+      {
+        return socketType_custom;
+      }
       return socketType_invalid;
    }
 }
@@ -941,11 +948,15 @@ void OsSocket::getHostIp(UtlString* hostAddress)
         memset(addresses, 0, sizeof(addresses));
         getAllLocalHostIps(addresses, numAddresses);
         assert(numAddresses > 0);
-        // Bind to the first address in the list.
-        *hostAddress = (char*)addresses[0]->mAddress.data();
+        
+        if (numAddresses && hostAddress && addresses[0])
+        {
+            // Bind to the first address in the list.
+            *hostAddress = (char*)addresses[0]->mAddress.data();
+        }
         // Now free up the list.
         for (int i = 0; i < numAddresses; i++)
-           delete addresses[i];       
+        delete addresses[i];       
       }
       else
       {

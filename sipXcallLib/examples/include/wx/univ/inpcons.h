@@ -4,15 +4,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     14.08.00
-// RCS-ID:      $Id: inpcons.h,v 1.3 2001/09/29 22:15:17 VS Exp $
+// RCS-ID:      $Id: inpcons.h,v 1.9 2004/05/23 20:51:45 JS Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_UNIV_INPCONS_H_
 #define _WX_UNIV_INPCONS_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "inpcons.h"
 #endif
 

@@ -4,8 +4,8 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     13.07.99
-// RCS-ID:      $Id: textctrl.h,v 1.36 2002/09/05 16:15:30 JS Exp $
-// Copyright:   (c) wxWindows team
+// RCS-ID:      $Id: textctrl.h,v 1.74 2005/06/13 12:19:15 ABX Exp $
+// Copyright:   (c) Vadim Zeitlin
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -16,7 +16,7 @@
 // headers
 // ----------------------------------------------------------------------------
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "textctrlbase.h"
 #endif
 
@@ -25,42 +25,61 @@
 #if wxUSE_TEXTCTRL
 
 #include "wx/control.h"         // the base class
+#include "wx/dynarray.h"        // wxArrayInt
+#include "wx/gdicmn.h"          // wxPoint
 
-// 16-bit Borland 4.0 doesn't seem to allow multiple inheritance with wxWindow
-// and streambuf: it complains about deriving a huge class from the huge class
-// streambuf. !! Also, can't use streambuf if making or using a DLL :-(
+// Open Watcom 1.3 does allow only ios::rdbuf() while
+// we want something with streambuf parameter
+// Also, can't use streambuf if making or using a DLL :-(
 
-#if (defined(__BORLANDC__)) || defined(__MWERKS__) || \
-    defined(WXUSINGDLL) || defined(WXMAKINGDLL)
-    #define NO_TEXT_WINDOW_STREAM
+#if defined(__WATCOMC__) || \
+    defined(__MWERKS__) || \
+    (defined(__WINDOWS__) && (defined(WXUSINGDLL) || defined(WXMAKINGDLL)))
+    #define wxHAS_TEXT_WINDOW_STREAM 0
+#elif wxUSE_STD_IOSTREAM
+    #include "wx/ioswrap.h"
+    #define wxHAS_TEXT_WINDOW_STREAM 1
+#else
+    #define wxHAS_TEXT_WINDOW_STREAM 0
 #endif
 
-#ifndef NO_TEXT_WINDOW_STREAM
-    #if wxUSE_STD_IOSTREAM
-        #include "wx/ioswrap.h"    // for iostream classes if we need them
-    #else // !wxUSE_STD_IOSTREAM
-        // can't compile this feature in if we don't use streams at all
-        #define NO_TEXT_WINDOW_STREAM
-    #endif // wxUSE_STD_IOSTREAM/!wxUSE_STD_IOSTREAM
+#if WXWIN_COMPATIBILITY_2_4 && !wxHAS_TEXT_WINDOW_STREAM
+    // define old flag if one could use it somewhere
+    #define NO_TEXT_WINDOW_STREAM
 #endif
 
 class WXDLLEXPORT wxTextCtrl;
 class WXDLLEXPORT wxTextCtrlBase;
 
 // ----------------------------------------------------------------------------
+// wxTextCtrl types
+// ----------------------------------------------------------------------------
+
+// wxTextPos is the position in the text
+typedef long wxTextPos;
+
+// wxTextCoord is the line or row number (which should have been unsigned but
+// is long for backwards compatibility)
+typedef long wxTextCoord;
+
+// ----------------------------------------------------------------------------
 // constants
 // ----------------------------------------------------------------------------
 
-WXDLLEXPORT_DATA(extern const wxChar*) wxTextCtrlNameStr;
-WXDLLEXPORT_DATA(extern const wxChar*) wxEmptyString;
+extern WXDLLEXPORT_DATA(const wxChar*) wxTextCtrlNameStr;
+
+// this is intentionally not enum to avoid warning fixes with
+// typecasting from enum type to wxTextCoord
+const wxTextCoord wxOutOfRangeTextCoord = -1;
+const wxTextCoord wxInvalidTextCoord    = -2;
 
 // ----------------------------------------------------------------------------
 // wxTextCtrl style flags
 // ----------------------------------------------------------------------------
 
-// the flag bits 0x0001, and 0x0004 are free but should be used only for the
-// things which don't make sense for a text control used by wxTextEntryDialog
-// because they would otherwise conflict with wxOK, wxCANCEL, wxCENTRE
+// the flag bit 0x0001 s free but should be used only for the things which
+// don't make sense for a text control used by wxTextEntryDialog because they
+// would otherwise conflict with wxOK, wxCANCEL, wxCENTRE
 
 #define wxTE_NO_VSCROLL     0x0002
 #define wxTE_AUTO_SCROLL    0x0008
@@ -85,22 +104,83 @@ WXDLLEXPORT_DATA(extern const wxChar*) wxEmptyString;
 // automatically detect the URLs and generate the events when mouse is
 // moved/clicked over an URL
 //
-// this is for Win32 richedit controls only so far
+// this is for Win32 richedit and wxGTK2 multiline controls only so far
 #define wxTE_AUTO_URL       0x1000
 
 // by default, the Windows text control doesn't show the selection when it
 // doesn't have focus - use this style to force it to always show it
 #define wxTE_NOHIDESEL      0x2000
 
-// use wxHSCROLL to not wrap text at all, wxTE_LINEWRAP to wrap it at any
+// use wxHSCROLL to not wrap text at all, wxTE_CHARWRAP to wrap it at any
 // position and wxTE_WORDWRAP to wrap at words boundary
+//
+// if no wrapping style is given at all, the control wraps at word boundary
 #define wxTE_DONTWRAP       wxHSCROLL
-#define wxTE_LINEWRAP       0x4000
-#define wxTE_WORDWRAP       0x0000  // it's just == !wxHSCROLL
+#define wxTE_CHARWRAP       0x4000  // wrap at any position
+#define wxTE_WORDWRAP       0x0001  // wrap only at words boundaries
+#define wxTE_BESTWRAP       0x0000  // this is the default
+
+// obsolete synonym
+#define wxTE_LINEWRAP       wxTE_CHARWRAP
 
 // force using RichEdit version 2.0 or 3.0 instead of 1.0 (default) for
 // wxTE_RICH controls - can be used together with or instead of wxTE_RICH
 #define wxTE_RICH2          0x8000
+
+// reuse wxTE_RICH2's value for CAPEDIT control on Windows CE
+#if defined(__SMARTPHONE__) || defined(__POCKETPC__)
+#define wxTE_CAPITALIZE     wxTE_RICH2
+#else
+#define wxTE_CAPITALIZE     0
+#endif
+
+// ----------------------------------------------------------------------------
+// wxTextCtrl::HitTest return values
+// ----------------------------------------------------------------------------
+
+// the point asked is ...
+enum wxTextCtrlHitTestResult
+{
+    wxTE_HT_UNKNOWN = -2,   // this means HitTest() is simply not implemented
+    wxTE_HT_BEFORE,         // either to the left or upper
+    wxTE_HT_ON_TEXT,        // directly on
+    wxTE_HT_BELOW,          // below [the last line]
+    wxTE_HT_BEYOND          // after [the end of line]
+};
+// ... the character returned
+
+// ----------------------------------------------------------------------------
+// Types for wxTextAttr
+// ----------------------------------------------------------------------------
+
+// Alignment
+
+enum wxTextAttrAlignment
+{
+    wxTEXT_ALIGNMENT_DEFAULT,
+    wxTEXT_ALIGNMENT_LEFT,
+    wxTEXT_ALIGNMENT_CENTRE,
+    wxTEXT_ALIGNMENT_CENTER = wxTEXT_ALIGNMENT_CENTRE,
+    wxTEXT_ALIGNMENT_RIGHT,
+    wxTEXT_ALIGNMENT_JUSTIFIED
+};
+
+// Flags to indicate which attributes are being applied
+
+#define wxTEXT_ATTR_TEXT_COLOUR             0x0001
+#define wxTEXT_ATTR_BACKGROUND_COLOUR       0x0002
+#define wxTEXT_ATTR_FONT_FACE               0x0004
+#define wxTEXT_ATTR_FONT_SIZE               0x0008
+#define wxTEXT_ATTR_FONT_WEIGHT             0x0010
+#define wxTEXT_ATTR_FONT_ITALIC             0x0020
+#define wxTEXT_ATTR_FONT_UNDERLINE          0x0040
+#define wxTEXT_ATTR_FONT \
+  ( wxTEXT_ATTR_FONT_FACE | wxTEXT_ATTR_FONT_SIZE | wxTEXT_ATTR_FONT_WEIGHT | \
+    wxTEXT_ATTR_FONT_ITALIC | wxTEXT_ATTR_FONT_UNDERLINE )
+#define wxTEXT_ATTR_ALIGNMENT               0x0080
+#define wxTEXT_ATTR_LEFT_INDENT             0x0100
+#define wxTEXT_ATTR_RIGHT_INDENT            0x0200
+#define wxTEXT_ATTR_TABS                    0x0400
 
 // ----------------------------------------------------------------------------
 // wxTextAttr: a structure containing the visual attributes of a text
@@ -110,31 +190,53 @@ class WXDLLEXPORT wxTextAttr
 {
 public:
     // ctors
-    wxTextAttr() { }
+    wxTextAttr() { Init(); }
     wxTextAttr(const wxColour& colText,
                const wxColour& colBack = wxNullColour,
-               const wxFont& font = wxNullFont)
-        : m_colText(colText), m_colBack(colBack), m_font(font) { }
+               const wxFont& font = wxNullFont,
+               wxTextAttrAlignment alignment = wxTEXT_ALIGNMENT_DEFAULT);
+
+    // operations
+    void Init();
+
+    // operators
+    void operator= (const wxTextAttr& attr);
 
     // setters
-    void SetTextColour(const wxColour& colText) { m_colText = colText; }
-    void SetBackgroundColour(const wxColour& colBack) { m_colBack = colBack; }
-    void SetFont(const wxFont& font) { m_font = font; }
+    void SetTextColour(const wxColour& colText) { m_colText = colText; m_flags |= wxTEXT_ATTR_TEXT_COLOUR; }
+    void SetBackgroundColour(const wxColour& colBack) { m_colBack = colBack; m_flags |= wxTEXT_ATTR_BACKGROUND_COLOUR; }
+    void SetFont(const wxFont& font, long flags = wxTEXT_ATTR_FONT) { m_font = font; m_flags |= flags; }
+    void SetAlignment(wxTextAttrAlignment alignment) { m_textAlignment = alignment; m_flags |= wxTEXT_ATTR_ALIGNMENT; }
+    void SetTabs(const wxArrayInt& tabs) { m_tabs = tabs; m_flags |= wxTEXT_ATTR_TABS; }
+    void SetLeftIndent(int indent, int subIndent = 0) { m_leftIndent = indent; m_leftSubIndent = subIndent; m_flags |= wxTEXT_ATTR_LEFT_INDENT; }
+    void SetRightIndent(int indent) { m_rightIndent = indent; m_flags |= wxTEXT_ATTR_RIGHT_INDENT; }
+    void SetFlags(long flags) { m_flags = flags; }
 
     // accessors
-    bool HasTextColour() const { return m_colText.Ok(); }
-    bool HasBackgroundColour() const { return m_colBack.Ok(); }
-    bool HasFont() const { return m_font.Ok(); }
+    bool HasTextColour() const { return m_colText.Ok() && HasFlag(wxTEXT_ATTR_TEXT_COLOUR) ; }
+    bool HasBackgroundColour() const { return m_colBack.Ok() && HasFlag(wxTEXT_ATTR_BACKGROUND_COLOUR) ; }
+    bool HasFont() const { return m_font.Ok() && HasFlag(wxTEXT_ATTR_FONT) ; }
+    bool HasAlignment() const { return (m_textAlignment != wxTEXT_ALIGNMENT_DEFAULT) || ((m_flags & wxTEXT_ATTR_ALIGNMENT) != 0) ; }
+    bool HasTabs() const { return (m_flags & wxTEXT_ATTR_TABS) != 0 ; }
+    bool HasLeftIndent() const { return (m_flags & wxTEXT_ATTR_LEFT_INDENT) != 0 ; }
+    bool HasRightIndent() const { return (m_flags & wxTEXT_ATTR_RIGHT_INDENT) != 0 ; }
+    bool HasFlag(long flag) const { return (m_flags & flag) != 0; }
 
-    // setters
     const wxColour& GetTextColour() const { return m_colText; }
     const wxColour& GetBackgroundColour() const { return m_colBack; }
     const wxFont& GetFont() const { return m_font; }
+    wxTextAttrAlignment GetAlignment() const { return m_textAlignment; }
+    const wxArrayInt& GetTabs() const { return m_tabs; }
+    long GetLeftIndent() const { return m_leftIndent; }
+    long GetLeftSubIndent() const { return m_leftSubIndent; }
+    long GetRightIndent() const { return m_rightIndent; }
+    long GetFlags() const { return m_flags; }
 
     // returns false if we have any attributes set, true otherwise
     bool IsDefault() const
     {
-        return !HasTextColour() && !HasBackgroundColour() && !HasFont();
+        return !HasTextColour() && !HasBackgroundColour() && !HasFont() && !HasAlignment() &&
+               !HasTabs() && !HasLeftIndent() && !HasRightIndent() ;
     }
 
     // return the attribute having the valid font and colours: it uses the
@@ -145,9 +247,17 @@ public:
                               const wxTextCtrlBase *text);
 
 private:
-    wxColour m_colText,
-             m_colBack;
-    wxFont   m_font;
+    long                m_flags;
+    wxColour            m_colText,
+                        m_colBack;
+    wxFont              m_font;
+    wxTextAttrAlignment m_textAlignment;
+    wxArrayInt          m_tabs; // array of int: tab stops in 1/10 mm
+    int                 m_leftIndent; // left indent in 1/10 mm
+    int                 m_leftSubIndent; // left indent for all but the first
+                                         // line in a paragraph relative to the
+                                         // first line, in 1/10 mm
+    int                 m_rightIndent; // right indent in 1/10 mm
 };
 
 // ----------------------------------------------------------------------------
@@ -156,7 +266,7 @@ private:
 // ----------------------------------------------------------------------------
 
 class WXDLLEXPORT wxTextCtrlBase : public wxControl
-#ifndef NO_TEXT_WINDOW_STREAM
+#if wxHAS_TEXT_WINDOW_STREAM
                                  , public wxSTD streambuf
 #endif
 
@@ -165,8 +275,8 @@ public:
     // creation
     // --------
 
-    wxTextCtrlBase();
-    ~wxTextCtrlBase();
+    wxTextCtrlBase(){}
+    ~wxTextCtrlBase(){}
 
     // accessors
     // ---------
@@ -184,7 +294,7 @@ public:
     virtual bool IsEditable() const = 0;
 
     // more readable flag testing methods
-    bool IsSingleLine() const { return !(GetWindowStyle() & wxTE_MULTILINE); }
+    bool IsSingleLine() const { return !HasFlag(wxTE_MULTILINE); }
     bool IsMultiLine() const { return !IsSingleLine(); }
 
     // If the return values from and to are the same, there is no selection.
@@ -204,7 +314,8 @@ public:
     virtual bool LoadFile(const wxString& file);
     virtual bool SaveFile(const wxString& file = wxEmptyString);
 
-    // clears the dirty flag
+    // sets/clears the dirty flag
+    virtual void MarkDirty() = 0;
     virtual void DiscardEdits() = 0;
 
     // set the max number of characters which may be entered in a single line
@@ -217,13 +328,14 @@ public:
     virtual void AppendText(const wxString& text) = 0;
 
     // insert the character which would have resulted from this key event,
-    // return TRUE if anything has been inserted
+    // return true if anything has been inserted
     virtual bool EmulateKeyPress(const wxKeyEvent& event);
 
     // text control under some platforms supports the text styles: these
     // methods allow to apply the given text style to the given selection or to
     // set/get the style which will be used for all appended text
     virtual bool SetStyle(long start, long end, const wxTextAttr& style);
+    virtual bool GetStyle(long position, wxTextAttr& style);
     virtual bool SetDefaultStyle(const wxTextAttr& style);
     virtual const wxTextAttr& GetDefaultStyle() const;
 
@@ -234,6 +346,15 @@ public:
     virtual bool PositionToXY(long pos, long *x, long *y) const = 0;
 
     virtual void ShowPosition(long pos) = 0;
+
+    // find the character at position given in pixels
+    //
+    // NB: pt is in device coords (not adjusted for the client area origin nor
+    //     scrolling)
+    virtual wxTextCtrlHitTestResult HitTest(const wxPoint& pt, long *pos) const;
+    virtual wxTextCtrlHitTestResult HitTest(const wxPoint& pt,
+                                            wxTextCoord *col,
+                                            wxTextCoord *row) const;
 
     // Clipboard operations
     virtual void Copy() = 0;
@@ -255,16 +376,16 @@ public:
     virtual void SetInsertionPoint(long pos) = 0;
     virtual void SetInsertionPointEnd() = 0;
     virtual long GetInsertionPoint() const = 0;
-    virtual long GetLastPosition() const = 0;
+    virtual wxTextPos GetLastPosition() const = 0;
 
     virtual void SetSelection(long from, long to) = 0;
     virtual void SelectAll();
     virtual void SetEditable(bool editable) = 0;
 
     // override streambuf method
-#ifndef NO_TEXT_WINDOW_STREAM
+#if wxHAS_TEXT_WINDOW_STREAM
     int overflow(int i);
-#endif // NO_TEXT_WINDOW_STREAM
+#endif // wxHAS_TEXT_WINDOW_STREAM
 
     // stream-like insertion operators: these are always available, whether we
     // were, or not, compiled with streambuf support
@@ -275,10 +396,10 @@ public:
     wxTextCtrl& operator<<(double d);
     wxTextCtrl& operator<<(const wxChar c);
 
-    // obsolete functions
-#if WXWIN_COMPATIBILITY
-    bool Modified() const { return IsModified(); }
-#endif
+    // do the window-specific processing after processing the update event
+    virtual void DoUpdateWindowUI(wxUpdateUIEvent& event);
+
+    virtual bool ShouldInheritColours() const { return false; }
 
 protected:
     // the name of the last file loaded with LoadFile() which will be used by
@@ -287,6 +408,8 @@ protected:
 
     // the text style which will be used for any new text added to the control
     wxTextAttr m_defaultStyle;
+
+    DECLARE_NO_COPY_CLASS(wxTextCtrlBase)
 };
 
 // ----------------------------------------------------------------------------
@@ -297,6 +420,8 @@ protected:
     #include "wx/x11/textctrl.h"
 #elif defined(__WXUNIVERSAL__)
     #include "wx/univ/textctrl.h"
+#elif defined(__SMARTPHONE__) && defined(__WXWINCE__)
+    #include "wx/msw/wince/textctrlce.h"
 #elif defined(__WXMSW__)
     #include "wx/msw/textctrl.h"
 #elif defined(__WXMOTIF__)
@@ -305,10 +430,10 @@ protected:
     #include "wx/gtk/textctrl.h"
 #elif defined(__WXMAC__)
     #include "wx/mac/textctrl.h"
+#elif defined(__WXCOCOA__)
+    #include "wx/cocoa/textctrl.h"
 #elif defined(__WXPM__)
     #include "wx/os2/textctrl.h"
-#elif defined(__WXSTUBS__)
-    #include "wx/stubs/textctrl.h"
 #endif
 
 // ----------------------------------------------------------------------------
@@ -329,9 +454,9 @@ END_DECLARE_EVENT_TYPES()
 class WXDLLEXPORT wxTextUrlEvent : public wxCommandEvent
 {
 public:
-    wxTextUrlEvent(int id, const wxMouseEvent& evtMouse,
+    wxTextUrlEvent(int winid, const wxMouseEvent& evtMouse,
                    long start, long end)
-        : wxCommandEvent(wxEVT_COMMAND_TEXT_URL, id)
+        : wxCommandEvent(wxEVT_COMMAND_TEXT_URL, winid)
         , m_evtMouse(evtMouse), m_start(start), m_end(end)
         { }
 
@@ -353,7 +478,7 @@ protected:
          m_end;
 
 private:
-    DECLARE_DYNAMIC_CLASS(wxTextUrlEvent)
+    DECLARE_DYNAMIC_CLASS_NO_COPY(wxTextUrlEvent)
 
 public:
     // for wxWin RTTI only, don't use
@@ -362,12 +487,22 @@ public:
 
 typedef void (wxEvtHandler::*wxTextUrlEventFunction)(wxTextUrlEvent&);
 
-#define EVT_TEXT(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_TEXT_UPDATED, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) & fn, (wxObject *) NULL ),
-#define EVT_TEXT_ENTER(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_TEXT_ENTER, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) & fn, (wxObject *) NULL ),
-#define EVT_TEXT_URL(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_TEXT_URL, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) (wxTextUrlEventFunction) & fn, (wxObject *) NULL ),
-#define EVT_TEXT_MAXLEN(id, fn) DECLARE_EVENT_TABLE_ENTRY( wxEVT_COMMAND_TEXT_MAXLEN, id, -1, (wxObjectEventFunction) (wxEventFunction) (wxCommandEventFunction) & fn, (wxObject *) NULL ),
+#define wxTextEventHandler(func) wxCommandEventHandler(func)
+#define wxTextUrlEventHandler(func) \
+    (wxObjectEventFunction)(wxEventFunction)wxStaticCastEvent(wxTextUrlEventFunction, &func)
 
-#ifndef NO_TEXT_WINDOW_STREAM
+#define wx__DECLARE_TEXTEVT(evt, id, fn) \
+    wx__DECLARE_EVT1(wxEVT_COMMAND_TEXT_ ## evt, id, wxTextEventHandler(fn))
+
+#define wx__DECLARE_TEXTURLEVT(evt, id, fn) \
+    wx__DECLARE_EVT1(wxEVT_COMMAND_TEXT_ ## evt, id, wxTextUrlEventHandler(fn))
+
+#define EVT_TEXT(id, fn) wx__DECLARE_TEXTEVT(UPDATED, id, fn)
+#define EVT_TEXT_ENTER(id, fn) wx__DECLARE_TEXTEVT(ENTER, id, fn)
+#define EVT_TEXT_URL(id, fn) wx__DECLARE_TEXTURLEVT(URL, id, fn)
+#define EVT_TEXT_MAXLEN(id, fn) wx__DECLARE_TEXTEVT(MAXLEN, id, fn)
+
+#if wxHAS_TEXT_WINDOW_STREAM
 
 // ----------------------------------------------------------------------------
 // wxStreamToTextRedirector: this class redirects all data sent to the given
@@ -376,12 +511,24 @@ typedef void (wxEvtHandler::*wxTextUrlEventFunction)(wxTextUrlEvent&);
 
 class WXDLLEXPORT wxStreamToTextRedirector
 {
-public:
-    wxStreamToTextRedirector(wxTextCtrl *text, wxSTD ostream *ostr = NULL)
-        : m_ostr(ostr ? *ostr : wxSTD cout)
+private:
+    void Init(wxTextCtrl *text)
     {
         m_sbufOld = m_ostr.rdbuf();
         m_ostr.rdbuf(text);
+    }
+
+public:
+    wxStreamToTextRedirector(wxTextCtrl *text)
+        : m_ostr(wxSTD cout)
+    {
+        Init(text);
+    }
+
+    wxStreamToTextRedirector(wxTextCtrl *text, wxSTD ostream *ostr)
+        : m_ostr(*ostr)
+    {
+        Init(text);
     }
 
     ~wxStreamToTextRedirector()
@@ -397,7 +544,7 @@ private:
     wxSTD streambuf *m_sbufOld;
 };
 
-#endif // !NO_TEXT_WINDOW_STREAM
+#endif // wxHAS_TEXT_WINDOW_STREAM
 
 #endif // wxUSE_TEXTCTRL
 

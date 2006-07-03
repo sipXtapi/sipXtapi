@@ -2,17 +2,17 @@
 // Name:        datstrm.h
 // Purpose:     Data stream classes
 // Author:      Guilhem Lavaux
-// Modified by:
+// Modified by: Mickael Gilabert
 // Created:     28/06/1998
-// RCS-ID:      $Id: datstrm.h,v 1.24 2002/08/31 11:29:09 GD Exp $
+// RCS-ID:      $Id: datstrm.h,v 1.35 2004/10/12 20:48:21 ABX Exp $
 // Copyright:   (c) Guilhem Lavaux
-// Licence:   	wxWindows license
+// Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_DATSTREAM_H_
 #define _WX_DATSTREAM_H_
 
-#if defined(__GNUG__) && !defined(__APPLE__)
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "datstrm.h"
 #endif
 
@@ -22,7 +22,7 @@
 
 #if wxUSE_STREAMS
 
-class WXDLLEXPORT wxDataInputStream
+class WXDLLIMPEXP_BASE wxDataInputStream
 {
 public:
 #if wxUSE_UNICODE
@@ -30,8 +30,8 @@ public:
 #else
     wxDataInputStream(wxInputStream& s);
 #endif
-    ~wxDataInputStream();
-    
+    ~wxDataInputStream(){}
+
     bool IsOk() { return m_input->IsOk(); }
 
     wxUint64 Read64();
@@ -40,6 +40,12 @@ public:
     wxUint8 Read8();
     double ReadDouble();
     wxString ReadString();
+
+    void Read64(wxUint64 *buffer, size_t size);
+    void Read32(wxUint32 *buffer, size_t size);
+    void Read16(wxUint16 *buffer, size_t size);
+    void Read8(wxUint8 *buffer, size_t size);
+    void ReadDouble(double *buffer, size_t size);
 
     wxDataInputStream& operator>>(wxString& s);
     wxDataInputStream& operator>>(wxInt8& c);
@@ -60,9 +66,11 @@ protected:
 #if wxUSE_UNICODE
     wxMBConv& m_conv;
 #endif
+
+    DECLARE_NO_COPY_CLASS(wxDataInputStream)
 };
 
-class WXDLLEXPORT wxDataOutputStream
+class WXDLLIMPEXP_BASE wxDataOutputStream
 {
 public:
 #if wxUSE_UNICODE
@@ -70,7 +78,7 @@ public:
 #else
     wxDataOutputStream(wxOutputStream& s);
 #endif
-    ~wxDataOutputStream();
+    ~wxDataOutputStream(){}
 
     bool IsOk() { return m_output->IsOk(); }
 
@@ -80,6 +88,12 @@ public:
     void Write8(wxUint8 i);
     void WriteDouble(double d);
     void WriteString(const wxString& string);
+
+    void Write64(const wxUint64 *buffer, size_t size);
+    void Write32(const wxUint32 *buffer, size_t size);
+    void Write16(const wxUint16 *buffer, size_t size);
+    void Write8(const wxUint8 *buffer, size_t size);
+    void WriteDouble(const double *buffer, size_t size);
 
     wxDataOutputStream& operator<<(const wxChar *string);
     wxDataOutputStream& operator<<(const wxString& string);
@@ -101,6 +115,8 @@ protected:
 #if wxUSE_UNICODE
     wxMBConv& m_conv;
 #endif
+
+    DECLARE_NO_COPY_CLASS(wxDataOutputStream)
 };
 
 #endif

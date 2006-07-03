@@ -76,7 +76,8 @@ UtlBoolean CpGhostConnection::dial(const char* dialString,
                                    const void* pSecurity,
                                    const char* locationHeader,
                                    const int bandWidth,
-                                   UtlBoolean bOnHold)
+                                   UtlBoolean bOnHold,
+                                   const char* originalCallId)
 {
     unimplemented("CpGhostConnection::dial");
     return(FALSE);
@@ -218,7 +219,7 @@ UtlBoolean CpGhostConnection::getSession(SipSession& session)
 
 
 // Enumerate possible contact addresses
-void CpGhostConnection::getLocalContactAddresses( CONTACT_ADDRESS contacts[],
+void CpGhostConnection::getLocalContactAddresses( SIPX_CONTACT_ADDRESS contacts[],
                                                   size_t nMaxContacts,
                                                   size_t& nActualContacts)
 {

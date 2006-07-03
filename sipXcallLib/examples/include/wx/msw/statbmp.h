@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: statbmp.h,v 1.19 2001/11/06 21:16:02 MBN Exp $
+// RCS-ID:      $Id: statbmp.h,v 1.34 2005/08/30 13:54:24 VZ Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_STATBMP_H_
 #define _WX_STATBMP_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "statbmp.h"
 #endif
 
@@ -20,7 +20,7 @@
 #include "wx/icon.h"
 #include "wx/bitmap.h"
 
-WXDLLEXPORT_DATA(extern const wxChar*) wxStaticBitmapNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxStaticBitmapNameStr;
 
 // a control showing an icon or a bitmap
 class WXDLLEXPORT wxStaticBitmap : public wxStaticBitmapBase
@@ -36,6 +36,8 @@ public:
                    long style = 0,
                    const wxString& name = wxStaticBitmapNameStr)
     {
+        Init();
+
         Create(parent, id, label, pos, size, style, name);
     }
 
@@ -55,23 +57,32 @@ public:
     // assert failure is provoked by an attempt to get an icon from bitmap or
     // vice versa
     wxIcon GetIcon() const
-        { wxASSERT( m_isIcon ); return *(wxIcon *)m_image; }
-    wxBitmap GetBitmap() const
-        { wxASSERT( !m_isIcon ); return *(wxBitmap *)m_image; }
+    {
+        wxASSERT_MSG( m_isIcon, _T("no icon in this wxStaticBitmap") );
 
-    // IMPLEMENTATION
-#ifdef __WIN16__
-    virtual bool MSWOnDraw(WXDRAWITEMSTRUCT *item);
-#endif // __WIN16__
-    virtual long MSWWindowProc(WXUINT nMsg, WXWPARAM wParam, WXLPARAM lParam);
+        return *(wxIcon *)m_image;
+    }
+
+    wxBitmap GetBitmap() const
+    {
+        wxASSERT_MSG( !m_isIcon, _T("no bitmap in this wxStaticBitmap") );
+
+        return *(wxBitmap *)m_image;
+    }
+
+    // implementation only from now on
+    // -------------------------------
 
 protected:
+    virtual wxBorder GetDefaultBorder() const;
     virtual wxSize DoGetBestSize() const;
+    virtual WXDWORD MSWGetStyle(long style, WXDWORD *exstyle) const;
 
-    void Init() { m_isIcon = TRUE; m_image = NULL; }
+    // ctor/dtor helpers
+    void Init() { m_isIcon = true; m_image = NULL; }
     void Free();
 
-    // TRUE if icon/bitmap is valid
+    // true if icon/bitmap is valid
     bool ImageIsOk() const;
 
     void SetImage(const wxGDIImage* image);
@@ -83,6 +94,7 @@ protected:
 
 private:
     DECLARE_DYNAMIC_CLASS(wxStaticBitmap)
+    DECLARE_NO_COPY_CLASS(wxStaticBitmap)
 };
 
 #endif

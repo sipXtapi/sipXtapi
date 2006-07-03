@@ -4,7 +4,7 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     10.05.98
-// RCS-ID:      $Id: dataobj.h,v 1.27 2001/09/21 00:58:32 MBN Exp $
+// RCS-ID:      $Id: dataobj.h,v 1.31 2004/08/16 12:45:40 ABX Exp $
 // Copyright:   (c) 1998 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
 // Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ public:
     // it is deleted, it should delete us as well
     void SetAutoDelete();
 
-    // return TRUE if we support this format in "Get" direction
+    // return true if we support this format in "Get" direction
     bool IsSupportedFormat(const wxDataFormat& format) const
         { return wxDataObjectBase::IsSupported(format, Get); }
 
@@ -58,6 +58,8 @@ public:
     virtual size_t GetBufferOffset( const wxDataFormat& format );
 private:
     IDataObject *m_pIDataObject; // pointer to the COM interface
+
+    DECLARE_NO_COPY_CLASS(wxDataObject)
 };
 
 #endif  //_WX_MSW_OLE_DATAOBJ_H

@@ -531,6 +531,10 @@ void Connection::fireSipXMediaEvent(SIPX_MEDIA_EVENT event,
 
     getCallId(&callId) ;
     getRemoteAddress(&remoteAddress);
+    if (remoteAddress == "" || remoteAddress == "sip:")
+    {
+        remoteAddress = mLastToAddress;
+    }
 
     TapiMgr::getInstance().fireMediaEvent(mpCallManager, callId.data(), remoteAddress.data(), event, cause, type, pEventData) ;
 }

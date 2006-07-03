@@ -35,7 +35,26 @@
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS
+
 typedef int UtlBoolean ;
+
+typedef long long int intll;
+
+/** FORMAT_INTLL is a string containing the format length specifier
+ *  for printing an intll with the 'd', 'x', etc. format specifiers.  E.g.:
+ *      intll xyz;
+ *      printf("The value is %" FORMAT_INTLL "d", xyz);
+ *  Note that the '%' before and the format specifier after must be provided.
+ *  This must be a #define, since this specifier isn't standardized.
+ */
+#if defined(_WIN32)
+#  define   FORMAT_INTLL   "I64"
+#elif defined(__pingtel_on_posix__)
+#  define   FORMAT_INTLL   "ll"
+#else
+#  error Unsupported target platform.
+#endif
+
 typedef const char* const UtlContainableType ;
 
 // FORWARD DECLARATIONS

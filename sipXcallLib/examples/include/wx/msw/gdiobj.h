@@ -4,7 +4,7 @@
 // Author:      Julian Smart
 // Modified by:
 // Created:     01/02/97
-// RCS-ID:      $Id: gdiobj.h,v 1.4.6.1 2002/09/21 23:01:24 VZ Exp $
+// RCS-ID:      $Id: gdiobj.h,v 1.11 2004/08/26 08:46:15 ABX Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_GDIOBJ_H_
 #define _WX_GDIOBJ_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "gdiobj.h"
 #endif
 
@@ -36,15 +36,15 @@ class WXDLLEXPORT wxGDIRefData : public wxObjectRefData
 class WXDLLEXPORT wxGDIObject : public wxObject
 {
 public:
-    wxGDIObject() { m_visible = FALSE; };
+    wxGDIObject() { m_visible = false; };
 
     // Creates the resource
-    virtual bool RealizeResource() { return FALSE; };
+    virtual bool RealizeResource() { return false; };
 
     // Frees the resource
-    virtual bool FreeResource(bool WXUNUSED(force) = FALSE) { return FALSE; }
+    virtual bool FreeResource(bool WXUNUSED(force) = false) { return false; }
 
-    virtual bool IsFree() const { return FALSE; }
+    virtual bool IsFree() const { return false; }
 
     bool IsNull() const { return (m_refData == 0); }
 
@@ -55,7 +55,7 @@ public:
     virtual void SetVisible(bool v) { m_visible = v; }
 
 protected:
-    bool m_visible; // TRUE only if we should delete this object ourselves
+    bool m_visible; // true only if we should delete this object ourselves
 
 private:
     DECLARE_DYNAMIC_CLASS(wxGDIObject)

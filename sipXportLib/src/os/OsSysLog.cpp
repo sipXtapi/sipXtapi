@@ -96,6 +96,10 @@ OsStatus OsSysLog::initialize(const int   maxInMemoryLogEntries,
    return rc ;   
 }
      
+OsTimer* OsSysLog::getTimer()
+{
+    return spOsSysLogTask->getTimer();
+}
 
 // Set the output file target
 OsStatus OsSysLog::setOutputFile(const int minFlushPeriod,
@@ -901,3 +905,34 @@ void myvsprintf(UtlString& results, const char* format, OS_VA_ARG_CONST va_list 
     }
 }
 
+OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
+                    const OsSysLogPriority priority,
+                    const char* methodName) : 
+    mMethodName(methodName),
+    mFacility(facility),
+    mPriority(priority)
+{
+    OsTask::getCurrentTaskId(mTid);
+    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%d) %s\n",
+        mTid, methodName);
+}
+
+OsStackTraceLogger::~OsStackTraceLogger()
+{
+    OsSysLog::add(mFacility, mPriority, "EXIT  FUNC (tid=%d) %s\n",
+        mTid, mMethodName.data());
+}
+
+OsStackTraceLogger::OsStackTraceLogger(const OsSysLogFacility facility,
+                    const OsSysLogPriority priority,
+                    const char* methodName,
+                    const OsStackTraceLogger& oneBackInStack) : 
+    mMethodName(methodName),
+    mFacility(facility),
+    mPriority(priority)
+{
+    mMethodName = UtlString(oneBackInStack.mMethodName) + UtlString("->") + mMethodName;
+    OsTask::getCurrentTaskId(mTid);
+    OsSysLog::add(mFacility, mPriority, "ENTER FUNC (tid=%d) %s\n",
+        mTid, mMethodName.data());
+}

@@ -1,10 +1,10 @@
 /////////////////////////////////////////////////////////////////////////////
 // Name:        wx/msw/tbarmsw.h
-// Purpose:     wxToolBar for Win16
+// Purpose:     wxToolBar for older Windowses
 // Author:      Julian Smart
 // Modified by: 13.12.99 by VZ during toolbar classes reorganization
 // Created:     01/02/97
-// RCS-ID:      $Id: tbarmsw.h,v 1.15 2002/03/31 14:07:17 RR Exp $
+// RCS-ID:      $Id: tbarmsw.h,v 1.21 2005/01/21 18:11:13 ABX Exp $
 // Copyright:   (c) Julian Smart
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #ifndef _WX_TBARMSW_H_
 #define _WX_TBARMSW_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
 #pragma interface "tbarmsw.h"
 #endif
 
@@ -20,12 +20,12 @@
 
 #include "wx/tbarbase.h"
 
-WXDLLEXPORT_DATA(extern const wxChar*) wxButtonBarNameStr;
+extern WXDLLEXPORT_DATA(const wxChar*) wxButtonBarNameStr;
 
 class WXDLLEXPORT wxMemoryDC;
 
 // ----------------------------------------------------------------------------
-// wxToolBar for Win16
+// wxToolBar for older Windowses
 // ----------------------------------------------------------------------------
 
 class WXDLLEXPORT wxToolBar : public wxToolBarBase
@@ -61,7 +61,7 @@ public:
                                        const wxBitmap& pushedBitmap,
                                        bool toggle,
                                        wxCoord xPos,
-                                       wxCoord yPos = -1,
+                                       wxCoord yPos = wxDefaultCoord,
                                        wxObject *clientData = NULL,
                                        const wxString& helpString1 = wxEmptyString,
                                        const wxString& helpString2 = wxEmptyString);
@@ -76,7 +76,7 @@ public:
     // implementation only from now on
     // -------------------------------
 
-    // Handle wxWindows events
+    // Handle wxWidgets events
     void OnPaint(wxPaintEvent& event);
     void OnMouseEvent(wxMouseEvent& event);
 

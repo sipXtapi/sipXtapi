@@ -112,6 +112,8 @@ protected:
                                 const char* hostAddress,
                                 const char* localIp);
 
+    OsMutex mMapLock;
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
     UtlString mNatPingUrl;
@@ -130,6 +132,7 @@ private:
 
     SipUdpServer& operator=(const SipUdpServer& rhs);
      //:disable Assignment operator
+     
 
 };
 

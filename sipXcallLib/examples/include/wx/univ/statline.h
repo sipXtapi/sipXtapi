@@ -3,17 +3,17 @@
 // Purpose:     wxStaticLine class for wxUniversal
 // Author:      Vadim Zeitlin
 // Created:     28.06.99
-// Version:     $Id: statline.h,v 1.4 2001/07/04 18:07:14 VZ Exp $
+// Version:     $Id: statline.h,v 1.9.2.1 2005/09/25 20:46:45 MW Exp $
 // Copyright:   (c) 1999 Vadim Zeitlin
 // Licence:     wxWindows licence
 /////////////////////////////////////////////////////////////////////////////
 
-#ifdef __GNUG__
-    #pragma interface "univstatline.h"
-#endif
-
 #ifndef _WX_UNIV_STATLINE_H_
 #define _WX_UNIV_STATLINE_H_
+
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
+    #pragma interface "univstatline.h"
+#endif
 
 class WXDLLEXPORT wxStaticLine : public wxStaticLineBase
 {
@@ -26,14 +26,14 @@ public:
                  wxCoord length,
                  long style = wxLI_HORIZONTAL)
     {
-        Create(parent, -1, pos,
-               style & wxLI_VERTICAL ? wxSize(-1, length)
-                                     : wxSize(length, -1),
+        Create(parent, wxID_ANY, pos,
+               style & wxLI_VERTICAL ? wxSize(wxDefaultCoord, length)
+                                     : wxSize(length, wxDefaultCoord),
                style);
     }
 
     wxStaticLine(wxWindow *parent,
-                 wxWindowID id,
+                 wxWindowID id = wxID_ANY,
                  const wxPoint &pos = wxDefaultPosition,
                  const wxSize &size = wxDefaultSize,
                  long style = wxLI_HORIZONTAL,
@@ -43,7 +43,7 @@ public:
     }
 
     bool Create(wxWindow *parent,
-                wxWindowID id,
+                wxWindowID id = wxID_ANY,
                 const wxPoint &pos = wxDefaultPosition,
                 const wxSize &size = wxDefaultSize,
                 long style = wxLI_HORIZONTAL,

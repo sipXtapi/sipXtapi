@@ -99,6 +99,8 @@ public:
    void setLocalRequestUri(UtlString& requestUri);
    void getRemoteRequestUri(UtlString& requestUri);
    void setRemoteRequestUri(UtlString& requestUri);
+   void getContactRequestUri(UtlString& requestContactUri);
+   void setContactRequestUri(UtlString& requestContactUri);
 
    int getSessionState() { return mSessionState;};
 
@@ -120,6 +122,7 @@ protected:
     UtlString mInitialMethod;
     UtlString msLocalRequestUri;
     UtlString msRemoteRequestUri;
+	UtlString msContactUriStr;
     int mInitialLocalCseq;
     int mInitialRemoteCseq;
     int mLastFromCseq;

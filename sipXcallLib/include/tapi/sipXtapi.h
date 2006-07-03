@@ -40,6 +40,12 @@
 // APPLICATION INCLUDES
 
 // DEFINES
+#ifdef SIPX_USE_STDCALL
+#define SIPX_CALLING_CONVENTION __stdcall
+#else
+#define SIPX_CALLING_CONVENTION
+#endif 
+
 #define DEFAULT_UDP_PORT        5060    /**< Default UDP port */
 #define DEFAULT_TCP_PORT        5060    /**< Default TCP port */
 #define DEFAULT_TLS_PORT        5061    /**< Default TLS port */
@@ -88,13 +94,13 @@
 #define SIPXTAPI_VERSION_STRING "SIPxua SDK %s.%s %s (built %s)" /**< Version string format string */
 #define SIPXTAPI_VERSION        "2.9.0"      /**< sipXtapi API version -- automatically filled in 
                                                   during release process */   
-#define SIPXTAPI_BUILDNUMBER    "0"          /**< Default build number -- automatically filled in 
+#define SIPXTAPI_BUILDNUMBER "5554"                     /**< Default build number -- automatically filled in 
                                                   during release process*/
-#define SIPXTAPI_BUILD_WORD     2,9,0,0      /**< Default build word -- automatically filled in 
+#define SIPXTAPI_BUILD_WORD 2,9,0,5554 /**< Default build word -- automatically filled in 
                                                   during release process */
-#define SIPXTAPI_FULL_VERSION   "2.9.0.X"    /**< Default full version number -- automatically filled in 
+#define SIPXTAPI_FULL_VERSION "2.9.0.5554"               /**< Default full version number -- automatically filled in 
                                                   during release process*/
-#define SIPXTAPI_BUILDDATE      "2005-03-23" /**< Default build date -- automatically filled in 
+#define SIPXTAPI_BUILDDATE "2006-03-09"            /**< Default build date -- automatically filled in 
                                                   during release process*/
 #define SIPX_MAX_ADAPTER_NAME_LENGTH 256	 /**< Max length of an adapter name */
 
@@ -114,17 +120,9 @@
 // CONSTANTS
 
 // FORWARD DECLARATIONS
-class UtlString ;
-class Url ;
 class securityHelper;
 
 // STRUCTS
-class SipUserAgent ;
-class SdpCodecFactory ;
-class CallManager ;
-class SipLineMgr ;
-class SipRefreshMgr ;
-
 
 // TYPEDEFS
 /**
@@ -268,6 +266,7 @@ typedef enum SIPX_RESULT
     SIPX_RESULT_TLS_BAD_PASSWORD,     /**< The operation failed because the certificate database did not accept the password.*/
     SIPX_RESULT_TLS_TCP_IMPORT_FAILURE, /**< The operation failed because a TCP socket could not be imported by the SSL/TLS module. */
     SIPX_RESULT_NSS_FAILURE,          /**< The operation failed due to an NSS failure. */
+    SIPX_RESULT_NOT_SUPPORTED         /**< The operation is not supported in this build/configuration */
     
 } SIPX_RESULT ;
 
@@ -478,6 +477,7 @@ typedef enum
 
     CONTACT_AUTO = -1,  /**< Automatic contact selection; used for API 
                              parameters */
+    CONTACT_ALL = -2,
 } SIPX_CONTACT_TYPE ;
 
 typedef enum
@@ -485,6 +485,7 @@ typedef enum
     TRANSPORT_UDP = 1,  /**< Indicator for a UDP socket type. */
     TRANSPORT_TCP = 0,  /**< Indicator for a TCP socket type. */ 
     TRANSPORT_TLS = 3,  /**< Indicator for a TLS socket type. */
+    TRANSPORT_CUSTOM = 4,
 } SIPX_TRANSPORT_TYPE;
 
 /**
@@ -587,6 +588,8 @@ struct SIPX_CONTACT_ADDRESS
     {
         memset((void*)cInterface, 0, sizeof(cInterface));
         memset((void*)cIpAddress, 0, sizeof(cIpAddress));
+        memset((void*)cCustomTransportName, 0, sizeof(cCustomTransportName));
+        memset((void*)cCustomRouteID, 0, sizeof(cCustomRouteID));
         eContactType = CONTACT_AUTO;
         eTransportType = TRANSPORT_UDP ;
         id = 0;
@@ -601,6 +604,8 @@ struct SIPX_CONTACT_ADDRESS
         eTransportType = ref.eTransportType;
         id = ref.id;
         iPort = ref.iPort;
+        strncpy(cCustomTransportName, ref.cCustomTransportName, 32);
+        strncpy(cCustomRouteID, ref.cCustomRouteID, sizeof(cCustomRouteID));
     }
     /** Assignment operator. */
     SIPX_CONTACT_ADDRESS& operator=(const SIPX_CONTACT_ADDRESS& ref)
@@ -613,14 +618,19 @@ struct SIPX_CONTACT_ADDRESS
         eTransportType = ref.eTransportType;
         id = ref.id;
         iPort = ref.iPort;
+        strncpy(cCustomTransportName, ref.cCustomTransportName, sizeof(cCustomTransportName));
+        strncpy(cCustomRouteID, ref.cCustomRouteID, sizeof(cCustomRouteID));
         return *this;
     }    
+    
     SIPX_CONTACT_ID     id;              /**< Contact record Id      */
     SIPX_CONTACT_TYPE   eContactType ;   /**< Address type/source    */
     SIPX_TRANSPORT_TYPE eTransportType ; /**< Contact transport type */
     char                cInterface[32] ; /**< Source interface       */
     char                cIpAddress[32] ; /**< IP Address             */
     int                 iPort ;          /**< Port                   */
+	char                cCustomTransportName[32]; /**< Custom transport name */
+    char                cCustomRouteID[64] ;
 };
 
 
@@ -683,10 +693,12 @@ typedef struct
  * This structure gets passed into sipxCallConnect, sipxCallAccept, and
  * sipxConferenceAdd calls and sets options on a per call basis.
  */
-typedef struct {
+typedef struct 
+{
     int cbSize;                          /**< Size of structure          */
     SIPX_AUDIO_BANDWIDTH_ID bandwidthId; /**< Bandwidth range            */
     bool sendLocation;                   /**< True sends location header */
+    SIPX_CONTACT_ID contactId;           /**< desired contactId (only used for sipxCallAccept at this moment) */
 } SIPX_CALL_OPTIONS;
 
 
@@ -762,6 +774,38 @@ typedef unsigned int SIPX_SUB ;
 
 
 /** 
+ * The SIPX_TRANSPORT handle represents a user-implementation of 
+ * a network transport mechanism to be used for SIP signalling.
+ */
+typedef unsigned int SIPX_TRANSPORT ;
+const SIPX_TRANSPORT SIPX_TRANSPORT_NULL = 0; /**< Represents a null transport handle */
+
+/** 
+ * External Transport callback definition.  SIPxua will invoke this callback
+ * when there is data to write to the external transport layer.  A function
+ * pointer with this signature is passed into the 
+ * sipxConfigExternalTransportAdd function.
+ *
+ * @param hTransport Handle to the external transport object.  Will match a transport handle
+ *        obtained via a call to sipxConfigExternalTransportAdd 
+ * @param szDestinationIp IP address which is the destination for the write.
+ * @param iDestPort Port value to which the data will be sent.
+ * @param szLocalIp IP address which is the source address for the write.
+ * @param iLocalPort Port value from which the data will be sent.
+ * @param pData Pointer to the data to be sent.
+ * @param nData Size of the data to be sent.
+ */
+typedef bool (SIPX_CALLING_CONVENTION *SIPX_TRANSPORT_WRITE_PROC)(
+        SIPX_TRANSPORT hTransport,
+        const char*    szDestinationIp,
+        const int      iDestPort,
+        const char*    szLocalIp,
+        const int      iLocalPort,
+        const void*    pData,
+        const size_t   nData,
+        const void*    pUserData) ;
+
+/** 
  * Typedef for audio source (microphone) hook procedure.  This typedef 
  * coupled with the sipxConfigSetMicAudioHook API allows developers to 
  * view, modify or substitute microphone data.
@@ -798,8 +842,6 @@ typedef enum
     SIPX_KEEPALIVE_SIP_PING     /**<Send a SIP PING method request to the other side 
                                     (not implemented) */
 } SIPX_KEEPALIVE_TYPE ;
-
-
 
 /** 
  * SIPX_AEC_MODE defines different AEC modes.  Options included DISABLED,
@@ -1014,8 +1056,8 @@ SIPXTAPI_API SIPX_RESULT sipxUnInitialize(SIPX_INST hInst, bool bForceShutdown =
  *        a listener interface.
  * @param pDisplay Pointer to an object describing the display object for 
  *        rendering remote video.
- * @param pSecurity Pointer to an object describing the security attributes for 
- *        the call.
+ * @param pSecurity Pointer to an object describing the security attributes 
+ *        for the call.
  * @param options Pointer to a SIPX_CALL_OPTIONS structure. 
  *
  * @see sipxConfigSetLocationHeader
@@ -1106,6 +1148,13 @@ SIPXTAPI_API SIPX_RESULT sipxCallCreate(const SIPX_INST hInst,
  *         (e.g. LOCAL contact of 10.1.1.x or 
  *        192.168.x.x), the NAT-derived address to the target party,
  *        or, local contact addresses of other types.
+ *        The Contact Record's eTransportType field indicates the 
+ *        type of network transport to be used for call signalling.
+ *        this can be UPD, TCP, or TLS.  If the eTransportType field value
+ *        is greater than 3, this indicates that a custom EXTERNAL TRANSPORT
+ *        mechanism is to be used, and the value of the eTransportType field
+ *        indicates the SIPX_TRANSPORT handle associated with the EXTERNAL
+ *        TRANSPORT.
  * @param pDisplay Pointer to an object describing the display object for 
  *        rendering remote video.
  * @param pSecurity Pointer to an object describing the security attributes for 
@@ -1255,6 +1304,20 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteID(const SIPX_CALL hCall,
                                              char* szId, 
                                              const size_t iMaxLength) ;
 
+/**
+ * Get the SIP identity of the contact connection.  The identity represents
+ * the originator of the message.
+ *
+ * @param hCall Handle to a call.  Call handles are obtained either by 
+ *        invoking sipxCallCreate or passed to your application through
+ *        a listener interface.
+ * @param szId Buffer to store the ID.  A zero-terminated string will be 
+ *        copied into this buffer on success.
+ * @param iMaxLength Max length of the ID buffer.
+ */
+SIPXTAPI_API SIPX_RESULT sipxCallGetContactID(const SIPX_CALL hCall, 
+                                              char* szId, 
+                                              const size_t iMaxLength) ;
 
 /**
  * Gets the media interface connectionid.
@@ -1317,7 +1380,11 @@ SIPXTAPI_API SIPX_RESULT sipxCallGetRemoteUserAgent(const SIPX_CALL hCall,
 /**
  * Play a tone (DTMF, dialtone, ring back, etc) to the local and/or
  * remote party.  See the DTMF_ constants for built-in tones.
- *
+ * If a sipxCallDestroy is attempted while a tone is playing,
+ * sipxCallDestroy will fail with a SIPX_RESULT_BUSY return code.
+ * Call sipxCallStopTone before making the call to
+ * sipxConferenceDestroy.
+
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
  *        a listener interface.
@@ -1335,6 +1402,10 @@ SIPXTAPI_API SIPX_RESULT sipxCallStartTone(const SIPX_CALL hCall,
  * and remote parties.  Under a GIPS VoiceEngine build, this method 
  * is a NOP -- VoiceEngine only plays tones for a specific time 
  * interval.
+ * If a sipxCallDestroy is attempted while a tone is playing,
+ * sipxCallDestroy will fail with a SIPX_RESULT_BUSY return code.
+ * Call sipxCallStopTone before making the call to
+ * sipxConferenceDestroy.
  *
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
@@ -1346,6 +1417,10 @@ SIPXTAPI_API SIPX_RESULT sipxCallStopTone(const SIPX_CALL hCall) ;
 /**
  * Play the designated file.  The file may be a raw 16 bit signed PCM at
  * 8000 samples/sec, mono, little endian or a .WAV file.
+ * If a sipxCallDestroy is attempted while an audio file is playing,
+ * sipxCallDestroy will fail with a SIPX_RESULT_BUSY return code.
+ * Call sipxCallAudioPlayFileStop before making the call to
+ * sipxCallDestroy.
  * 
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
@@ -1374,6 +1449,10 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioPlayFileStart(const SIPX_CALL hCall,
 
 /**
  * Stop playing a file started with sipxCallPlayFileStart
+ * If a sipxCallDestroy is attempted while an audio file is playing,
+ * sipxCallDestroy will fail with a SIPX_RESULT_BUSY return code.
+ * Call sipxCallAudioPlayFileStop before making the call to
+ * sipxCallDestroy.
  * 
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
@@ -1415,6 +1494,10 @@ SIPXTAPI_API SIPX_RESULT sipxCallAudioRecordFileStop(const SIPX_CALL hCall) ;
  * Play the specified audio data.  Currently the only data format that
  * is supported is raw 16 bit signed PCM at 8000 samples/sec, mono,
  * little endian.
+ * If a sipxCallDestroy is attempted while an audio buffer is playing,
+ * sipxCallDestroy will fail with a SIPX_RESULT_BUSY return code.
+ * Call sipxCallPlayBufferStop before making the call to
+ * sipxCallDestroy.
  *
  * @param hCall Handle to a call.  Call handles are obtained either by
  *        invoking sipxCallCreate or passed to your application through
@@ -1440,6 +1523,10 @@ SIPXTAPI_API SIPX_RESULT sipxCallPlayBufferStart(const SIPX_CALL hCall,
 
 /**
  * Stop playing the audio started with sipxCallPlayBufferStart
+ * If a sipxCallDestroy is attempted while an audio buffer is playing,
+ * sipxCallDestroy will fail with a SIPX_RESULT_BUSY return code.
+ * Call sipxCallPlayBufferStop before making the call to
+ * sipxCallDestroy.
  * 
  * @param hCall Handle to a call.  Call handles are obtained either by 
  *        invoking sipxCallCreate or passed to your application through
@@ -1708,7 +1795,7 @@ SIPXTAPI_API SIPX_RESULT sipxCallBlindTransfer(const SIPX_CALL hCall,
 SIPXTAPI_API SIPX_RESULT sipxCallTransfer(const SIPX_CALL hSourceCall,
                                           const SIPX_CALL hTargetCall) ;
 
-#ifdef VIDEO
+
 
 /**
  * Updates the Video window with a new frame buffer.  Should be called
@@ -1729,8 +1816,6 @@ SIPXTAPI_API SIPX_RESULT sipxCallUpdateVideoWindow(const SIPX_CALL hCall, const 
  * @param hWnd Window handle of the video window.
  */
 SIPXTAPI_API SIPX_RESULT sipxCallResizeWindow(const SIPX_CALL hCall, const SIPX_WINDOW_HANDLE hWnd);
-
-#endif
 
 
 /**
@@ -2070,6 +2155,11 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceUnhold(const SIPX_CONF hConf);
  * Play the designated audio file to all conference partipants and/or the 
  * local speaker.  The file may be a raw 16 bit signed PCM at 8000 
  * samples/sec, mono, little endian or a .WAV file.
+ * If a sipxConferenceDestroy is attempted while an audio file is playing,
+ * sipxConferenceDestroy will fail with a SIPX_RESULT_BUSY return code.
+ * Call sipxConferencePlayAudioFileStop before making the call to
+ * sipxConferenceDestroy.
+ *
  * 
  * @param hConf Conference handle obtained by calling sipxConferenceCreate.
  * @param szFile Filename for the audio file to be played.
@@ -2077,17 +2167,29 @@ SIPXTAPI_API SIPX_RESULT sipxConferenceUnhold(const SIPX_CONF hConf);
  * @param bLocal True if the audio file is to be rendered locally.
  * @param bRemote True if the audio file is to be rendered by the remote
  *                endpoint.
+ * @param bMixWithMicrophone True to mix the audio with the microphone
+ *        data or false to replace it.  This option is only supported 
+ *        when sipXtapi is bundled with GIPS VoiceEngine.
+ * @param fVolumeScaling Volume down scaling for the audio file.  Valid 
+ *        values are between 0 and 1.0, where 1.0 is the no down-scaling.
+ *        This option is only supported when sipXtapi is bundled with GIPS
+ *        VoiceEngine.
  */
 
 SIPXTAPI_API SIPX_RESULT sipxConferencePlayAudioFileStart(const SIPX_CONF hConf, 
                                                           const char* szFile,
                                                           const bool bRepeat,
                                                           const bool bLocal,
-                                                          const bool bRemote) ;
-
+                                                          const bool bRemote,
+                                                          const bool bMixWithMicrophone = false,
+                                                          const float fVolumeScaling = 1.0) ;
 
 /*
  * Stop playing a file started with sipxConferencePlayAudioFileStart
+ * If a sipxConferenceDestroy is attempted while an audio file is playing,
+ * sipxConferenceDestroy will fail with a SIPX_RESULT_BUSY return code.
+ * Call sipxConferencePlayAudioFileStop before making the call to
+ * sipxConferenceDestroy.
  * 
  * @param hConf Conference handle obtained by calling sipxConferenceCreate.
  */
@@ -2417,7 +2519,7 @@ SIPXTAPI_API SIPX_RESULT sipxAudioSetCallOutputDevice(const SIPX_INST hInst,
  * @param hInst Instance pointer obtained by sipxInitialize.
  * @param szLineURL The address of record for the line identity.  Can be 
  *        prepended with a Display Name.
- *        e.g. -    "Zaphod Beeblebrox" <sip:zaphb@fourty-two.net>
+ *        e.g. -    "Zaphod Beeblebrox" <sip:zaphb\@fourty-two.net>
  * @param phLine Pointer to a line handle.  Upon success, a handle to the 
  *        newly added line is returned.
  * @param contactId Id of the desired contact record to use for this line.
@@ -2442,8 +2544,8 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
  * inbound call request to an existing line definition.  You should only 
  * need to an a aliase if your network infrastructure directs calls to this
  * user agent using multiple identities.  For example, if user agent 
- * registers as "sip:bandreasen@example.com"; however, calls can also be
- * directed to you via an exention (e.g. sip:122@example.com).
+ * registers as "sip:bandreasen\@example.com"; however, calls can also be
+ * directed to you via an exention (e.g. sip:122\@example.com).
  *
  * If sipXtapi receives a call with an unknown line, you can still answer
  * and interact wtih the call; however, the line handle will be SIPX_LINE_NULL
@@ -3051,7 +3153,6 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetAudioCodec(const SIPX_INST hInst,
                                                  const int index, 
                                                  SIPX_AUDIO_CODEC* pCodec) ;
 
-#ifdef VIDEO
 /**
  * Set the bandwidth parameters for video codecs.Depending on the bandwidth
  * parameter that is passed in the settings will be set to:
@@ -3188,8 +3289,6 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetVideoCodec(const SIPX_INST hInst,
                                                  const int index, 
                                                  SIPX_VIDEO_CODEC* pCodec) ;
 
-#endif // VIDEO
-
 /**
  * Get the local contact address available for outbound/inbound signaling and
  * audio.  The local contact addresses will always include the local IP 
@@ -3220,7 +3319,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigGetLocalContacts(const SIPX_INST hInst,
 
 
 /**
- * Populates an array of IP Addresses in UtlString* form.  The array must be preallocated to 
+ * Populates an array of IP Addresses in char* form.  The array must be preallocated to 
  * contain MAX_IP_ADDRESSES elements.
  *
  * @param arrAddresses Pre-allocated array to be popluated with ip addresses.
@@ -3313,7 +3412,32 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetLocationHeader(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetConnectionIdleTimeout(const SIPX_INST hInst, 
                                                             const int idleTimeout);
 
-#ifdef VIDEO
+/**
+ * Call this function to prepare a sipXtapi instance for a 
+ * system hibernation.  This function is not thread-safe.
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigPrepareToHibernate(const SIPX_INST hInst);
+
+
+/**
+ * Call this function upon returning from a system hibernation.
+ * This function is not thread-safe.
+ * @param hInst Instance pointer obtained by sipxInitialize
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigUnHibernate(const SIPX_INST hInst);
+
+
+/**
+ * Enables RTP streaming over TCP.  Enabling this feature
+ * allows the application to use RTP streaming over TCP or UDP.
+ *
+ * @param hInst Instance pointer obtained by sipxInitialize
+ * @param bEnable True allows RTP-over-TCP, false disallows it.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigEnableRtpOverTcp(const SIPX_INST hInst,
+                                                    bool bEnable);
 
 /**
  * Sets the display object for the "video preview".
@@ -3380,8 +3504,6 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoFramerate(const SIPX_INST hInst,
 SIPXTAPI_API SIPX_RESULT sipxConfigSetVideoCpuUsage(const SIPX_INST hInst, 
                                                     const int cpuUsage);
 
-#endif
-
 
 /** 
  * Subscribe for NOTIFY events which may be published by another end-point or
@@ -3424,7 +3546,7 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSubscribe(const SIPX_INST hInst,
                                              const char* szAcceptType, 
                                              const SIPX_CONTACT_ID contactId, 
                                              SIPX_SUB* phSub); 
-/*
+/**
  * Unsubscribe from previously subscribed NOTIFY events.  This method will
  * send another subscription request with an expires time of 0 (zero) to end
  * your subscription.
@@ -3434,6 +3556,74 @@ SIPXTAPI_API SIPX_RESULT sipxConfigSubscribe(const SIPX_INST hInst,
  */
 SIPXTAPI_API SIPX_RESULT sipxConfigUnsubscribe(const SIPX_SUB hSub); 
 
+
+/**
+ * Associates an external transport mechanism for SIP signalling with 
+ * the given instance.  
+ *
+ * @param hInst 
+ * @param hTransport Reference to a SIPX_TRANSPORT handle.  This function will
+ *        assign a value to the referenced handle.
+ * @param bIsReliable If false, indicates that SIPxua should retry external transport
+ *        writes in case of response timeouts.  If true, SIPxua will not attempt retries
+ *        in case of a response timeouts.  For connection oriented transport (like TCP),
+ *        bIsReliable should be true, for packet oriented transport (like UDP),
+ *        bIsReliable should be false.
+ * @param szTransport Transport type string to be used in SIP URIs.
+ *        For example, passing in a szTransport of "flibble" will cause the 
+ *        transport tag to be added to the URI like so:  
+ *        "sip:mickey\@example.com;transport=flibble"
+ * @param szLocalIp IP address which is the source address for the write.
+ * @param iLocalPort Port value from which the data will be sent.
+ * @param writeProc Function pointer to the callback for writing data
+ *        using the transport mechanism.
+ * @param szLocalRoutingId
+ * @param pUserData 
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportAdd(SIPX_INST const           hInst,
+                                                        SIPX_TRANSPORT&           hTransport,
+                                                        const bool                bIsReliable,
+                                                        const char*               szTransport,
+                                                        const char*               szLocalIP,
+                                                        const int                 iLocalPort,
+                                                        SIPX_TRANSPORT_WRITE_PROC writeProc,
+                                                        const char*               szLocalRoutingId,
+                                                        const void*               pUserData = NULL) ;
+
+/**
+ * Removes an external transport mechanism from the given instance.
+ * Will fail if transport in use.
+ *
+ * @param hTransport Handle to the external transport object.  Obtained via a call
+ *        to sipxConfigExternalTransportAdd 
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportRemove(const SIPX_TRANSPORT hTransport);
+
+
+/**
+ * Called by the application when it receives a complete SIP message via
+ * it's external transport mechanism and want to pass it along to sipXtapi.
+ * The application is responsible for 
+ * preparing the Data so that it is composed of a single and complete
+ * SIP message.
+ *
+ * @param hTransport Handle to the external transport object.  Obtained via a call
+ *        to sipxConfigExternalTransportAdd 
+ * @param szSourceIp IP address which was the source of the data which was read.
+ * @param iSourcePort Port value from which the data was sent.
+ * @param szLocalIp Local IP address on which the data was received.
+ * @param iLocalPort Local port value on which the data was received.
+ * @param pData Pointer to the data which was received, which should point to a single
+ *        and complete SIP message.
+ * @param nData Size of the data which was received.
+ */
+SIPXTAPI_API SIPX_RESULT sipxConfigExternalTransportHandleMessage(const SIPX_TRANSPORT hTransport,
+                                                                  const char*  szSourceIP,
+                                                                  const int    iSourcePort,
+                                                                  const char*  szLocalIP,
+                                                                  const int    iLocalPort,
+                                                                  const void*  pData,
+                                                                  const size_t nData);
 
 //@}
 

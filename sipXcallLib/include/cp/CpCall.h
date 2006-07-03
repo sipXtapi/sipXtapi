@@ -259,7 +259,7 @@ protected:
 
     CpCallManager* mpManager;
     UtlString mCallId;
-    UtlBoolean mCallInFocus;
+    volatile UtlBoolean mCallInFocus;
     UtlBoolean mRemoteDtmf;
     UtlBoolean mDtmfEnabled;
     OsRWMutex mCallIdMutex;

@@ -4,13 +4,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     25.10.99
-// RCS-ID:      $Id: menuitem.h,v 1.22.2.1 2003/06/10 23:48:45 RD Exp $
+// RCS-ID:      $Id: menuitem.h,v 1.35 2005/05/31 09:18:16 JS Exp $
 // Copyright:   (c) 1999 Vadim Zeitlin <zeitlin@dptmaths.ens-cachan.fr>
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_MENUITEM_H_BASE_
 #define _WX_MENUITEM_H_BASE_
+
+#include "wx/defs.h"
 
 #if wxUSE_MENUS
 
@@ -38,7 +40,7 @@ class WXDLLEXPORT wxMenuItemBase : public wxObject
 public:
     // creation
     static wxMenuItem *New(wxMenu *parentMenu = (wxMenu *)NULL,
-                           int id = wxID_SEPARATOR,
+                           int itemid = wxID_SEPARATOR,
                            const wxString& text = wxEmptyString,
                            const wxString& help = wxEmptyString,
                            wxItemKind kind = wxITEM_NORMAL,
@@ -52,7 +54,7 @@ public:
     void SetMenu(wxMenu* menu) { m_parentMenu = menu; }
 
     // get/set id
-    void SetId(int id) { m_id = id; }
+    void SetId(int itemid) { m_id = itemid; }
     int  GetId() const { return m_id; }
     bool IsSeparator() const { return m_id == wxID_SEPARATOR; }
 
@@ -71,6 +73,7 @@ public:
 
     // what kind of menu item we are
     wxItemKind GetKind() const { return m_kind; }
+    void SetKind(wxItemKind kind) { m_kind = kind; }
 
     virtual void SetCheckable(bool checkable) { m_kind = checkable ? wxITEM_CHECK : wxITEM_NORMAL; }
     bool IsCheckable() const
@@ -81,10 +84,10 @@ public:
     wxMenu *GetSubMenu() const { return m_subMenu; }
 
     // state
-    virtual void Enable(bool enable = TRUE) { m_isEnabled = enable; }
+    virtual void Enable(bool enable = true) { m_isEnabled = enable; }
     virtual bool IsEnabled() const { return m_isEnabled; }
 
-    virtual void Check(bool check = TRUE) { m_isChecked = check; }
+    virtual void Check(bool check = true) { m_isChecked = check; }
     virtual bool IsChecked() const { return m_isChecked; }
     void Toggle() { Check(!m_isChecked); }
 
@@ -110,29 +113,29 @@ public:
     const wxString& GetName() const { return GetText(); }
 
     static wxMenuItem *New(wxMenu *parentMenu,
-                           int id,
+                           int itemid,
                            const wxString& text,
                            const wxString& help,
                            bool isCheckable,
                            wxMenu *subMenu = (wxMenu *)NULL)
     {
-        return New(parentMenu, id, text, help,
+        return New(parentMenu, itemid, text, help,
                    isCheckable ? wxITEM_CHECK : wxITEM_NORMAL, subMenu);
     }
 
 protected:
-    int           m_id;             // numeric id of the item >= 0 or -1
+    int           m_id;             // numeric id of the item >= 0 or wxID_ANY or wxID_SEPARATOR
     wxMenu       *m_parentMenu,     // the menu we belong to
                  *m_subMenu;        // our sub menu or NULL
     wxString      m_text,           // label of the item
                   m_help;           // the help string for the item
-    wxItemKind    m_kind;           // seperator/normal/check/radio item?
+    wxItemKind    m_kind;           // separator/normal/check/radio item?
     bool          m_isChecked;      // is checked?
     bool          m_isEnabled;      // is enabled?
 
     // this ctor is for the derived classes only, we're never created directly
     wxMenuItemBase(wxMenu *parentMenu = (wxMenu *)NULL,
-                   int id = wxID_SEPARATOR,
+                   int itemid = wxID_SEPARATOR,
                    const wxString& text = wxEmptyString,
                    const wxString& help = wxEmptyString,
                    wxItemKind kind = wxITEM_NORMAL,
@@ -154,6 +157,8 @@ private:
 #else // !wxUSE_BASE_CLASSES_ONLY
 #if defined(__WXUNIVERSAL__)
     #include "wx/univ/menuitem.h"
+#elif defined(__WXPALMOS__)
+    #include "wx/palmos/menuitem.h"
 #elif defined(__WXMSW__)
     #include "wx/msw/menuitem.h"
 #elif defined(__WXMOTIF__)
@@ -162,10 +167,10 @@ private:
     #include "wx/gtk/menuitem.h"
 #elif defined(__WXMAC__)
     #include "wx/mac/menuitem.h"
+#elif defined(__WXCOCOA__)
+    #include "wx/cocoa/menuitem.h"
 #elif defined(__WXPM__)
     #include "wx/os2/menuitem.h"
-#elif defined(__WXSTUBS__)
-    #include "wx/stubs/menuitem.h"
 #endif
 #endif // wxUSE_BASE_CLASSES_ONLY/!wxUSE_BASE_CLASSES_ONLY
 

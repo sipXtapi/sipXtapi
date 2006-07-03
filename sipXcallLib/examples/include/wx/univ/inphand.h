@@ -5,15 +5,15 @@
 // Author:      Vadim Zeitlin
 // Modified by:
 // Created:     18.08.00
-// RCS-ID:      $Id: inphand.h,v 1.7 2002/02/27 21:42:47 VZ Exp $
+// RCS-ID:      $Id: inphand.h,v 1.12 2004/08/10 13:08:33 ABX Exp $
 // Copyright:   (c) 2000 SciTech Software, Inc. (www.scitechsoft.com)
-// Licence:     wxWindows license
+// Licence:     wxWindows licence
 ///////////////////////////////////////////////////////////////////////////////
 
 #ifndef _WX_UNIV_INPHAND_H_
 #define _WX_UNIV_INPHAND_H_
 
-#ifdef __GNUG__
+#if defined(__GNUG__) && !defined(NO_GCC_PRAGMA)
     #pragma interface "inphand.h"
 #endif
 
@@ -47,8 +47,8 @@
 class WXDLLEXPORT wxInputHandler : public wxObject
 {
 public:
-    // map a keyboard event to one or more actions (pressed == TRUE if the key
-    // was pressed, FALSE if released), returns TRUE if something was done
+    // map a keyboard event to one or more actions (pressed == true if the key
+    // was pressed, false if released), returns true if something was done
     virtual bool HandleKey(wxInputConsumer *consumer,
                            const wxKeyEvent& event,
                            bool pressed) = 0;
@@ -67,12 +67,12 @@ public:
     // HandleMouseMove() as the mouse maybe over the control without it having
     // focus
     //
-    // return TRUE to refresh the control, FALSE otherwise
+    // return true to refresh the control, false otherwise
     virtual bool HandleFocus(wxInputConsumer *consumer, const wxFocusEvent& event);
 
     // react to the app getting/losing activation
     //
-    // return TRUE to refresh the control, FALSE otherwise
+    // return true to refresh the control, false otherwise
     virtual bool HandleActivation(wxInputConsumer *consumer, bool activated);
 
     // virtual dtor for any base class
@@ -94,23 +94,23 @@ public:
                            bool pressed)
     {
         return m_handler ? m_handler->HandleKey(consumer, event, pressed)
-                         : FALSE;
+                         : false;
     }
 
     virtual bool HandleMouse(wxInputConsumer *consumer,
                              const wxMouseEvent& event)
     {
-        return m_handler ? m_handler->HandleMouse(consumer, event) : FALSE;
+        return m_handler ? m_handler->HandleMouse(consumer, event) : false;
     }
 
     virtual bool HandleMouseMove(wxInputConsumer *consumer, const wxMouseEvent& event)
     {
-        return m_handler ? m_handler->HandleMouseMove(consumer, event) : FALSE;
+        return m_handler ? m_handler->HandleMouseMove(consumer, event) : false;
     }
 
     virtual bool HandleFocus(wxInputConsumer *consumer, const wxFocusEvent& event)
     {
-        return m_handler ? m_handler->HandleFocus(consumer, event) : FALSE;
+        return m_handler ? m_handler->HandleFocus(consumer, event) : false;
     }
 
 private:
