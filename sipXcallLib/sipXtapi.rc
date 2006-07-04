@@ -5,7 +5,6 @@
 //
 // Generated from the TEXTINCLUDE 2 resource.
 //
-#include "afxres.h"
 #include "include\tapi\sipXtapi.h"
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -32,7 +31,6 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
-    "#include ""afxres.h""\r\n"
     "#include ""include\\tapi\\sipXtapi.h""\0"
 END
 
@@ -72,9 +70,9 @@ BEGIN
             VALUE "FileDescription", "SIP User-Agent API"
             VALUE "FileVersion", SIPXTAPI_FULL_VERSION
             VALUE "InternalName", "sipXtapi"
-            VALUE "LegalCopyright", "Copyright (C) 2005 Pingtel Corp."
+            VALUE "LegalCopyright", "Copyright (C) 2005-2006 SIPFoundry Inc."
             VALUE "OriginalFilename", "sipXtapi.dll"
-            VALUE "ProductName", "SIPxua SDK"
+            VALUE "ProductName", "sipXtapi SDK"
             VALUE "ProductVersion", SIPXTAPI_FULL_VERSION
         END
     END
