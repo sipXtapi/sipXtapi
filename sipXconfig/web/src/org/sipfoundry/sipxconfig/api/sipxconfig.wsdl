@@ -9,7 +9,7 @@
   xmlns:tns="urn:ConfigService" 
   xmlns:xsd="http://www.w3.org/2001/XMLSchema"
   xmlns="http://schemas.xmlsoap.org/wsdl/" 
-  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:soapbind="http://schemas.xmlsoap.org/wsdl/soap/"
   xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/">
   
   <types>
@@ -344,24 +344,24 @@
   </portType>
 
   <binding name="CallGroupServiceSoapBinding" type="tns:CallGroupService">
-    <soap:binding style="document"/>
+    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <operation name="addCallGroup">
+      <soapbind:operation/>
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>      
     </operation>    
     <operation name="getCallGroups">      
+      <soapbind:operation/>
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>      
     </operation>
   </binding>
 
@@ -389,24 +389,24 @@
   </portType>
 
   <binding name="ConferenceBridgeServiceSoapBinding" type="tns:ConferenceBridgeService">
-    <soap:binding style="document"/>
+    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <operation name="addConferenceBridge">
+      <soapbind:operation/>      
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>      
     </operation>    
     <operation name="getConferenceBridges">      
+      <soapbind:operation/>      
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>      
     </operation>
   </binding>
 
@@ -434,24 +434,24 @@
   </portType>
 
   <binding name="ParkOrbitServiceSoapBinding" type="tns:ParkOrbitService">
-    <soap:binding style="document"/>
+    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <operation name="addParkOrbit">
+      <soapbind:operation/>      
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>      
     </operation>    
     <operation name="getParkOrbits">      
+      <soapbind:operation/>      
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>      
     </operation>
   </binding>
   
@@ -493,33 +493,33 @@
   </portType>  
 
   <binding name="PhoneServiceSoapBinding" type="tns:PhoneService">
-    <soap:binding style="document"/>
+    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <operation name="addPhone">
+      <soapbind:operation/>      
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>      
     </operation>    
     <operation name="findPhone">
+      <soapbind:operation/>            
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>            
     </operation>
     <operation name="managePhone">
+      <soapbind:operation/>            
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>            
     </operation>
   </binding>
 
@@ -537,15 +537,15 @@
   </portType>
   
   <binding name="TestServiceSoapBinding" type="tns:TestService">
-    <soap:binding style="document"/>
+    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <operation name="resetServices">      
+       <soapbind:operation/>      
        <input name="resetServicesRequest">
-        <soap:body use="literal" namespace="urn:TestService"/>
+        <soapbind:body use="literal"/>
       </input>      
       <output name="resetServicesResponse">
-        <soap:body use="literal" namespace="urn:TestService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>      
     </operation>
   </binding>
   
@@ -587,60 +587,60 @@
   </portType>
 
   <binding name="UserServiceSoapBinding" type="tns:UserService">
-    <soap:binding style="document"/>
+    <soapbind:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
     <operation name="addUser">      
+      <soapbind:operation/>      
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>      
     </operation>
     <operation name="findUser">
+      <soapbind:operation/>            
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>            
     </operation>
     <operation name="manageUser">
+      <soapbind:operation/>            
        <input>
-        <soap:body use="literal" namespace="urn:ConfigService" />
+        <soapbind:body use="literal"/>
       </input>      
       <output>
-        <soap:body use="literal" namespace="urn:ConfigService"/>
+        <soapbind:body use="literal"/>
       </output>      
-      <soap:operation soapAction=""/>            
     </operation>
   </binding>
     
     <!-- S E R V I C E S -->  
   <service name="ConfigImplService">
     <port name="CallGroupService" binding="tns:CallGroupServiceSoapBinding">
-      <soap:address 
+      <soapbind:address 
         location="http://localhost:9999/sipxconfig/services/CallGroupService"/>
     </port>
     <port name="ConferenceBridgeService" binding="tns:ConferenceBridgeServiceSoapBinding">
-      <soap:address 
+      <soapbind:address 
         location="http://localhost:9999/sipxconfig/services/ConferenceBridgeService"/>
     </port>
     <port name="ParkOrbitService" binding="tns:ParkOrbitServiceSoapBinding">
-      <soap:address 
+      <soapbind:address 
         location="http://localhost:9999/sipxconfig/services/ParkOrbitService"/>
     </port>
     <port name="PhoneService" binding="tns:PhoneServiceSoapBinding">
-      <soap:address 
+      <soapbind:address 
         location="http://localhost:9999/sipxconfig/services/PhoneService"/>
     </port>
     <port name="TestService" binding="tns:TestServiceSoapBinding">
-      <soap:address 
+      <soapbind:address 
         location="http://localhost:9999/sipxconfig/services/TestService"/>
     </port>
     <port name="UserService" binding="tns:UserServiceSoapBinding">
-      <soap:address 
+      <soapbind:address 
         location="http://localhost:9999/sipxconfig/services/UserService"/>
     </port>
   </service>
