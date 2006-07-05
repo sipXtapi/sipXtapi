@@ -46,7 +46,7 @@
 // STATIC VARIABLE INITIALIZATIONS
 StatusServer* StatusServer::spInstance = NULL;
 OsBSem StatusServer::sLock( OsBSem::Q_PRIORITY, OsBSem::FULL );
-OsConfigDb& StatusServer::sConfigDb(*(new OsConfigDb()));
+OsConfigDb& StatusServer::sConfigDb = *(new OsConfigDb());
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
