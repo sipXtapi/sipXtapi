@@ -28,6 +28,7 @@ nobase_include_HEADERS =  \
     mp/MpAudioFileDecompress.h \
     mp/MpAudioFileOpen.h \
     mp/MpAudioFileUtils.h \
+    mp/MpAudioResource.h \
     mp/MpAudioUtils.h \
     mp/MpAudioWaveFileRead.h \
     mp/MpBuf.h \
@@ -38,7 +39,6 @@ nobase_include_HEADERS =  \
     mp/MpCodecInfo.h \
     mp/MpConnection.h \
     mp/MpDecoderBase.h \
-    mp/MpDefs.h \
     mp/MpdGIPSG729ab.h \
     mp/MpdGIPSiLBC.h \
     mp/MpdGIPSiPCMA.h \

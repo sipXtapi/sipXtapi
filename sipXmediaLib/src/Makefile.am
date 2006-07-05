@@ -44,6 +44,7 @@ libsipXmedia_la_SOURCES =  \
     mp/MpAudioFileDecompress.cpp \
     mp/MpAudioFileOpen.cpp \
     mp/MpAudioFileUtils.cpp \
+    mp/MpAudioResource.cpp \
     mp/MpAudioUtils.cpp \
     mp/MpAudioWaveFileRead.cpp \
     mp/MpBuf.cpp \
