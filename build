@@ -788,20 +788,11 @@ then
     then
       cp sipXbuild/build/rpms/cgicc/cgicc-3*.rpm $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/build/rpms/cgicc/cgicc-devel-3*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/rpms/pcre/pcre-4*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/rpms/pcre/pcre-devel-4*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/rpms/w3c-libwww/sipx-w3c-libwww-5*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/rpms/w3c-libwww/sipx-w3c-libwww-devel-5*.i386.rpm $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/build/rpms/mod_cplusplus/mod*.rpm $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/build/rpms/xerces-c/xerces-c-2*.rpm $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/build/rpms/xerces-c/xerces-c-devel-2*.rpm $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/build/rpms/java-1.5.0-sun/java-1.5.0-sun-1.5.0.??-1jpp.*.rpm $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/build/rpms/java-1.5.0-sun/java-1.5.0-sun-jdbc-1.5.0.??-1jpp.*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/rpms/ruby-1.8.4/ruby-libs*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/rpms/ruby-1.8.4/ruby-1.8.4*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/rpms/ruby-1.8.4/ruby-devel*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/rpms/ruby-1.8.4/irb*.rpm $Disttree/RPM/$Distro/$Distrover
-      cp sipXbuild/build/rpms/ruby-1.8.4/rdoc*.rpm $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/rpms/rubygems/rails/activesupport* $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/rpms/rubygems/rails/activerecord* $Disttree/RPM/$Distro/$Distrover
       cp sipXbuild/rpms/rubygems/rails/actionpack* $Disttree/RPM/$Distro/$Distrover
