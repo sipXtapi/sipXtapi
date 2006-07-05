@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 Robert J. Andreasen, Jr.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -62,8 +65,6 @@ void TurnMessage::reset()
     mbLifetimeValid = false ;
     mBandwidth = 0 ;
     mbBandwidthValid = false ;
-    memset(&mAltServer, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
-    mbAltServerValid = false ;
     memset(&mDestinationAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
     mbDestinationAddressValid = false ;
     memset(&mTurnSourceAddress, 0, sizeof(STUN_ATTRIBUTE_ADDRESS)) ;
@@ -96,12 +97,6 @@ bool TurnMessage::encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed)
         bError = !encodeAttributeLong(ATTR_TURN_LIFETIME, mLifetime, pTraverse, nBytesLeft) ;
     }
    
-    if ((!bError) && mbAltServerValid)
-    {
-        bError = !encodeAttributeAddress(ATTR_TURN_ALTERNATE_SERVER, 
-                    &mAltServer, pTraverse, nBytesLeft) ;
-    }
-
     if ((!bError) && mbBandwidthValid)
     {
         bError = !encodeAttributeLong(ATTR_TURN_BANDWIDTH, mbBandwidthValid, pTraverse, nBytesLeft) ;
@@ -144,13 +139,6 @@ void TurnMessage::setLifetime(unsigned long secs)
     mbLifetimeValid = true ;
 }
 
-void TurnMessage::setAltServer(const char* szIp, unsigned short port) 
-{
-    mAltServer.family = ATTR_ADDRESS_FAMILY_IPV4 ;
-    mAltServer.address = ntohl(inet_addr(szIp)) ;
-    mAltServer.port = port ;
-    mbAltServerValid = true ;
-}
 
 void TurnMessage::setBandwidth(unsigned long rKBPS) 
 {
@@ -199,18 +187,6 @@ bool TurnMessage::getLifetime(unsigned long& rSecs)
     } 
 
     return mbLifetimeValid ;    
-}
-
-bool TurnMessage::getAltServer(char* szIp, unsigned short& rPort) 
-{
-    if (mbAltServerValid)
-    {
-        unsigned long address = htonl(mAltServer.address) ;
-        strcpy(szIp, inet_ntoa(*((in_addr*) &address))) ;        
-        rPort = mAltServer.port ;          
-    } 
-
-    return mbAltServerValid ;        
 }
 
 bool TurnMessage::getBandwidth(unsigned long& rKBPS) 
@@ -384,10 +360,6 @@ bool TurnMessage::parseAttribute(STUN_ATTRIBUTE_HEADER* pHeader, char* pBuf)
         case ATTR_TURN_LIFETIME:
             bValid = parseLongAttribute(pBuf, pHeader->length, &mLifetime) ;
             mbLifetimeValid = bValid ;
-            break ;
-        case ATTR_TURN_ALTERNATE_SERVER:
-            bValid = parseAddressAttribute(pBuf, pHeader->length, &mAltServer) ;
-            mbAltServerValid = bValid ;
             break ;
         case ATTR_TURN_MAGIC_COOKIE:
             bValid = parseLongAttribute(pBuf, pHeader->length, &magicCookie) ;

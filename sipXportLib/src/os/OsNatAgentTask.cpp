@@ -190,10 +190,14 @@ UtlBoolean OsNatAgentTask::handleStunMessage(NatMsg& rMsg)
                 {
                     StunMessage         respMsg ;
                     STUN_TRANSACTION_ID transactionId ;
+                    STUN_MAGIC_ID       magicId ;
 
-                    // Copy over ID
+                    // Copy over IDs
                     msg.getTransactionId(&transactionId) ;
                     respMsg.setTransactionId(transactionId) ;
+                    msg.getMagicId(&magicId) ;
+                    respMsg.setMagicId(magicId) ;
+
 
                     // Check for unknown attributes
                     if (msg.getUnknownParsedAttributes(unknownAttributes, 
@@ -306,6 +310,7 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
     char* pBuffer = rMsg.getBuffer() ;
     OsNatDatagramSocket* pSocket = rMsg.getSocket() ;
     STUN_TRANSACTION_ID transactionId ;
+    STUN_MAGIC_ID       magicId ;
 
     if (OsSysLog::willLog(FAC_NET, PRI_DEBUG))
     {
@@ -323,9 +328,11 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
         switch (msg.getType())
         {
             case MSG_TURN_ALLOCATE_REQUEST:
-                // Not supported on client                                
+                // Not supported on client
                 msg.getTransactionId(&transactionId) ;
                 respMsg.setTransactionId(transactionId) ;
+                msg.getMagicId(&magicId) ;
+                respMsg.setMagicId(magicId) ;
                 respMsg.setError(STUN_ERROR_GLOBAL_CODE, STUN_ERROR_GLOBAL_TEXT) ;
                 sendMessage(&respMsg, pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
                 break ;
@@ -367,6 +374,8 @@ UtlBoolean OsNatAgentTask::handleTurnMessage(NatMsg& rMsg)
                 // Not supported on client                                
                 msg.getTransactionId(&transactionId) ;
                 respMsg.setTransactionId(transactionId) ;
+                msg.getMagicId(&magicId) ;
+                respMsg.setMagicId(magicId) ;
                 respMsg.setError(STUN_ERROR_GLOBAL_CODE, STUN_ERROR_GLOBAL_TEXT) ;
                 sendMessage(&respMsg, pSocket, rMsg.getReceivedIp(), rMsg.getReceivedPort()) ;
                 break ;
@@ -1412,7 +1421,6 @@ UtlBoolean OsNatAgentTask::sendMessage(StunMessage* pMsg,
     char cEncoded[10240] ;
     size_t length ;
 
-    pMsg->setServer("sipXtapi (www.sipfoundry.org)") ;
     if (pMsg->encode(cEncoded, sizeof(cEncoded), length))
     {
 

@@ -1,4 +1,7 @@
 //
+// Copyright (C) 2006 Robert J. Andreasen, Jr.
+// Licensed to SIPfoundry under a Contributor Agreement.
+//
 // Copyright (C) 2004-2006 SIPfoundry Inc.
 // Licensed by SIPfoundry under the LGPL license.
 //
@@ -24,7 +27,7 @@
 #define STUN_MAX_UNKNOWN_ATTRIBUTES         16
 #define STUN_MAX_MESSAGE_INTEGRITY_LENGTH   20
 #define STUN_MIN_CHAR_PAD                   4
-
+#define STUN_MAGIC_COOKIE                   0x2112A442
 
 /**
  * STUN Message IDs
@@ -42,7 +45,7 @@
  */
 #define ATTR_STUN_MAPPED_ADDRESS                0x0001
 #define ATTR_STUN_RESPONSE_ADDRESS              0x0002
-#define ATTR_STUN_CHANGE_REQUEST                0x0003
+#define ATTR_STUN_CHANGE_REQUEST                0x0003  // deprecated
 #define ATTR_STUN_SOURCE_ADDRESS                0x0004
 #define ATTR_STUN_CHANGED_ADDRESS               0x0005
 #define ATTR_STUN_USERNAME                      0x0006
@@ -51,12 +54,19 @@
 #define ATTR_STUN_ERROR_CODE                    0x0009
 #define ATTR_STUN_UNKNOWN_ATTRIBUTE             0x000A
 #define ATTR_STUN_REFLECTED_FROM                0x000B
+#define ATTR_STUN_ALTERNATE_SERVER2             0x000E
+#define ATTR_STUN_REALM                         0x0014
+#define ATTR_STUN_NONCE                         0x0015
 #define ATTR_STUN_XOR_MAPPED_ADDRESS            0x0020
-#define ATTR_STUN_XOR_ONLY                      0x0021
-#define ATTR_STUN_SERVER                        0x0022
+#define ATTR_STUN_XOR_ONLY                      0x0021  // deprecated
+#define ATTR_STUN_XOR_MAPPED_ADDRESS2           0x8020
+#define ATTR_STUN_SERVER                        0x8022
+#define ATTR_STUN_SERVER2                       0x0022
+#define ATTR_STUN_ALTERNATE_SERVER              0x8023
+#define ATTR_STUN_BINDING_LIFETIME              0x8024
 
-#define ATTR_CHANGE_FLAG_PORT                   0x0002
-#define ATTR_CHANGE_FLAG_IP                     0x0004
+#define ATTR_CHANGE_FLAG_PORT                   0x0002  // deprecated
+#define ATTR_CHANGE_FLAG_IP                     0x0004  // deprecated
 
 #define ATTR_ADDRESS_FAMILY_IPV4                0x01
 #define ATTR_ADDRESS_FAMILY_IPV6                0x02
@@ -96,14 +106,20 @@
 // STRUCTS
 // TYPEDEFS
 
+typedef struct
+{
+    unsigned int id ;
+} STUN_MAGIC_ID ;
+
 typedef struct {
-    unsigned char id[16];
+    unsigned char id[12];
 } STUN_TRANSACTION_ID;
 
 typedef struct
 {
-    unsigned short type ;
-    unsigned short length ;
+    unsigned short      type ;
+    unsigned short      length ;
+    STUN_MAGIC_ID       magicId ;
     STUN_TRANSACTION_ID transactionId ;
 } STUN_MESSAGE_HEADER ;
 
@@ -141,34 +157,41 @@ typedef struct
 
 /**
  * A StunMessage includes all of the parse and encoding for a STUN message
- * as defined by draft-ietf-behave-rfc3489bis-02.txt:
- *
- * 
- * http://www.jdrosen.net/papers/draft-ietf-behave-rfc3489bis-02.txt
+ * as defined by draft-ietf-behave-rfc3489bis-03.txt:
  *
  * All data is stored internally in host byte order
  *
-                                        Binding  Shared  Shared  Shared
-                      Binding  Binding  Error    Secret  Secret  Secret
-   Att.                Req.     Resp.    Resp.    Req.    Resp.   Error
-                                                                  Resp.
-   _____________________________________________________________________
-   MAPPED-ADDRESS      N/A      M        N/A      N/A     N/A     N/A
-   RESPONSE-ADDRESS    O        N/A      N/A      N/A     N/A     N/A
-   CHANGE-REQUEST      O        N/A      N/A      N/A     N/A     N/A
-   SOURCE-ADDRESS      N/A      M        N/A      N/A     N/A     N/A
-   CHANGED-ADDRESS     N/A      M        N/A      N/A     N/A     N/A
-   USERNAME            O        N/A      N/A      N/A     M       N/A
-   PASSWORD            N/A      N/A      N/A      N/A     M       N/A
-   MESSAGE-INTEGRITY   O        O        N/A      N/A     N/A     N/A
-   ERROR-CODE          N/A      N/A      M        N/A     N/A     M
-   UNKNOWN-ATTRIBUTES  N/A      N/A      C        N/A     N/A     C
-   REFLECTED-FROM      N/A      C        N/A      N/A     N/A     N/A
-   XOR-MAPPED-ADDRESS  N/A      M        N/A      N/A     N/A     N/A
-   XOR-ONLY            O        N/A      N/A      N/A     N/A     N/A
-   SERVER              N/A      O        O        N/A     O       O
+                                        Error
+    Attribute         Request  Response Response
+    ______________________________________________
+    MAPPED-ADDRESS       -        C         -
+    USERNAME             O        -         -
+    PASSWORD             -        -         -
+    MESSAGE-INTEGRITY    O        O         O
+    ERROR-CODE           -        -         M
+    ALTERNATE-SERVER     -        -         C
+    REALM                C        C         C
+    NONCE                C        -         C
+    UNKNOWN-ATTRIBUTES   -        -         C
+    XOR-MAPPED-ADDRESS   -        M         -
+    XOR-ONLY             O        -         -
+    SERVER               -        O         O
+    BINDING-LIFETIME     -        O         -
 
+
+                       Shared   Shared    Shared
+                       Secret   Secret    Secret
+    Attribute          Request  Response  Error
+                                          Response
+    ____________________________________________________________________
+    USERNAME             -         M         -
+    PASSWORD             -         M         -
+    ERROR-CODE           -         -         M
+    UNKNOWN-ATTRIBUTES   -         -         C
+    SERVER               -         O         O
+    REALM                C         -         C
  */
+
 class StunMessage
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -197,6 +220,8 @@ class StunMessage
 
     virtual bool encodeBody(char* pBuf, size_t nBufLength, size_t& nBytesUsed) ;
 
+    void setMagicId(STUN_MAGIC_ID& rMagicId) ;
+
     void setTransactionId(STUN_TRANSACTION_ID& rTransactionId) ;
 
     void allocTransactionId() ;
@@ -219,6 +244,10 @@ class StunMessage
 
     void setPassword(const char* szPassword) ;
 
+    void setRealm(const char* szRealm) ;
+
+    void setNonce(const char* szNonce) ;
+
     void setError(const unsigned short code, const char* szReason) ;
 
     void addUnknownAttribute(unsigned short attributeId) ;
@@ -233,7 +262,11 @@ class StunMessage
 
     void setIncludeMessageIntegrity(bool bInclude) ;
 
+    void setAltServer(const char* szIp, unsigned short port) ;
+
 /* ============================ ACCESSORS ================================= */
+
+    void getMagicId(STUN_MAGIC_ID* pMagicId) ;
 
     void getTransactionId(STUN_TRANSACTION_ID* pTransactionId) ;
 
@@ -255,6 +288,10 @@ class StunMessage
 
     bool getPassword(char* szPassword) ;
 
+    bool getRealm(char *szRealm) ;
+    
+    bool getNonce(char* szNonce) ;
+
     bool getMessageIntegrity(char* cMessageIntegrity) ;
 
     bool getError(unsigned short& rCode, char* szReason) ;
@@ -268,6 +305,8 @@ class StunMessage
     bool getUnknownParsedAttributes(unsigned short* pList, size_t nMaxItems, size_t& nActualItems) ;
 
     bool getRequestXorOnly() ;
+
+    bool getAltServer(char* szIp, unsigned short& rPort) ;
 
 /* ============================ INQUIRY =================================== */
 
@@ -343,6 +382,10 @@ class StunMessage
     bool                   mbUsernameValid ;
     char                   mPassword[STUN_MAX_STRING_LENGTH+1] ;
     bool                   mbPasswordValid ;
+    char                   mRealm[STUN_MAX_STRING_LENGTH+1] ;
+    bool                   mbRealmValid ;
+    char                   mNonce[STUN_MAX_STRING_LENGTH+1] ;
+    bool                   mbNonceValid ;
     char                   mMessageIntegrity[STUN_MAX_MESSAGE_INTEGRITY_LENGTH] ;
     bool                   mbMessageIntegrityValid ;
     STUN_ATTRIBUTE_ERROR   mError ;
@@ -357,6 +400,9 @@ class StunMessage
     bool                   mbRequestXorOnly ;
     UtlRandom              mbRandomGenerator ;
     bool                   mbIncludeMessageIntegrity ;
+    STUN_ATTRIBUTE_ADDRESS mAltServer ;
+    bool                   mbAltServerValid ;
+
 
     STUN_ATTRIBUTE_UNKNOWN mUnknownParsedAttributes ;
 

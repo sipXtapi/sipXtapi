@@ -404,20 +404,31 @@ static const char* convertAttributeToString(unsigned short attribute)
         case ATTR_STUN_REFLECTED_FROM:
             szAttribute = "ATTR_STUN_REFLECTED_FROM" ;
             break ;
+        case ATTR_STUN_ALTERNATE_SERVER:
+            szAttribute = "ATTR_STUN_ALTERNATE_SERVER" ;
+            break ;
+        case ATTR_STUN_REALM:
+            szAttribute = "ATTR_STUN_REALM" ;
+            break ;
+        case ATTR_STUN_NONCE:
+            szAttribute = "ATTR_STUN_NONCE" ;
+            break ;        
         case ATTR_STUN_XOR_MAPPED_ADDRESS:
+        case ATTR_STUN_XOR_MAPPED_ADDRESS2:
             szAttribute = "ATTR_STUN_XOR_MAPPED_ADDRESS" ;
             break ;
         case ATTR_STUN_XOR_ONLY:
             szAttribute = "ATTR_STUN_XOR_ONLY" ;
             break ;
         case ATTR_STUN_SERVER:
+        case ATTR_STUN_SERVER2:
             szAttribute = "ATTR_STUN_SERVER" ;
+            break ;
+        case ATTR_STUN_BINDING_LIFETIME:
+            szAttribute = "ATTR_STUN_BINDING_LIFETIME" ;
             break ;
         case ATTR_TURN_LIFETIME:
             szAttribute = "ATTR_TURN_LIFETIME" ;
-            break ;
-        case ATTR_TURN_ALTERNATE_SERVER:
-            szAttribute = "ATTR_TURN_ALTERNATE_SERVER" ;
             break ;
         case ATTR_TURN_MAGIC_COOKIE:
             szAttribute = "ATTR_TURN_MAGIC_COOKIE" ;
@@ -433,12 +444,6 @@ static const char* convertAttributeToString(unsigned short attribute)
             break ;
         case ATTR_TURN_DATA:
             szAttribute = "ATTR_TURN_DATA" ;
-            break ;
-        case ATTR_TURN_NONCE:
-            szAttribute = "ATTR_TURN_NONCE" ;
-            break ;
-        case ATTR_TURN_REALM:
-            szAttribute = "ATTR_TURN_REALM" ;
             break ;
     }
 
