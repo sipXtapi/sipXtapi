@@ -3,11 +3,70 @@ SIPfoundry Issue Tracker at:
 
         http://track.sipfoundry.org/browse?XCF
 
-Version 3.4 (not complete)
+Version 3.5.2
 
 ** Bug
+    * [XCF-1059] - Sipxconfig no longer reboots Polycoms.
+    * [XCF-1061] - The binary configuration-file generated for Grandstreams seems to have some kind of corruption
+    * [XCF-1079] - Generation of binary config for Cisco ATA-18x fails due to errors in generated text config-file.
+    * [XCF-1082] - Line-settings from phone-groups are no longer inherited by the phones in those groups.
+    * [XCF-1088] - CSV phone Import fails when there are extra spaces in the Manufacturer or Model names
+    * [XCF-1089] - CSV import is adding a user with the blank user id to the config server.
+    * [XCF-1096] - sipxconfig-agent startup error on gentoo
+
+** New Feature
+    * [XCF-1076] - Supervisor role - Allow a user to view statistics about specific users
+    * [XCF-1077] - LDAP: persist configuration in sipXconfig database
+
+
+** Improvement
+    * [XCF-1065] - HA load balance metrics cosmetic improvments
+    * [XCF-1073] - add filtering for LDAP imports
+    * [XCF-1074] - extended preview for LDAP import
+
+Version 3.5.1
+
+** Bug
+    * [XCF-972] - orbits.xml not being replicated when a system is upgraded
+    * [XCF-1044] - Navigating to phones or dial plans fails with an internal error.
+    * [XCF-1047] - NullPointerException when saving forms with empty fields in System->General screens
+
+** New Feature
+    * [XCF-829] - LDAP support
+    * [XCF-1021] - use registrations screen to check how well the HA registrar synchronization is working
+
+
+** Improvement
+    * [XCF-990] - Addition of total counts to the registrations-page.
+    * [XCF-1016] - Provide a more flexible and maintainable API to replace Phone.setDefaults and Line.setDefault implementations
+    * [XCF-1017] - Refactor API for SettingBeanAdapter to implement PhoneSetting and LineSettings
+
+
+Version 3.4
+	
+** Bug
+    * [XCF-915] - upgrade patch error when upgrading sipxconfig from 3.0.1 to 3.1.3
+    * [XCF-997] - Existing auto attendants do not inherit attendant defaults
     * [XCF-1008] - Upgrade from 3.1 to 3.3 - configserver shows error for most operations
     * [XCF-1019] - Double quoted strings in config.defs cause failures in sipxconfig-agent startup
+    * [XCF-1023] - chatty gem installs in rpms
+    * [XCF-1026] - hunt group with parallel fork at the end in some cases gets into voice-mail prematurely
+    * [XCF-1027] - Deleting an user assigned to the polycom phone which has an external line gives an exception.
+    * [XCF-1036] - Orphaned file name in the sipxregistry-current.tgz 
+    * [XCF-1080] - Configuration parameters are not updated in Config UI of Grandstream Budge tone phone after the Upgrade
+    * [XCF-1081] - Page title for System -> General menu is inconsistent
+    * [XCF-1088] - CSV phone Import fails when there are extra spaces in the Manufacturer or Model names
+    * [XCF-1089] - CSV import is adding a user with the blank user id to the config server.
+    * [XCF-1107] - hide Audiocodes support in 3.4
+
+** New Feature
+    * [XCF-823] - support for injecting dial rules from external file
+    * [XCF-1094] - Make help link skinn-able
+
+
+** Improvement
+    * [XCF-1055] - Good if the user is informed that the change of PIN is successful
+    * [XCF-1057] - "Add User" should be a button next to the Delete button
 
 Version 3.3.3
 
@@ -471,7 +530,7 @@ Version 2.6.2
     * [XCF-54] - Separate voicemail ui from end user phone config ui
 
 
-Release Notes - sipXconfig - Version 2.6.1
+Version 2.6.1
 
 ** Bug
     * [XCF-7] - Web page error "null" pushing user profiles
