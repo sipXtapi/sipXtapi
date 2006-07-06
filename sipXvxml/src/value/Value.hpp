@@ -99,6 +99,10 @@ class VXIPtr : public VXIValue {
   VXIptr        value;
 };
 
+extern "C" {  
+  typedef void (DestroyFunc)(unsigned char **, void *);
+}
+
 // Helper class for VXIContent, non-public
 class VXIContentData {
  public:
@@ -106,7 +110,7 @@ class VXIContentData {
   VXIContentData (const VXIchar  *ct,
 		  VXIbyte        *c,
 		  VXIulong        csb,
-		  void          (*Destroy)(VXIbyte **content, void *userData),
+                  DestroyFunc	*Destroy,
 		  void           *ud);
   virtual ~VXIContentData( );
 
@@ -135,21 +139,24 @@ class VXIContentData {
   VXIchar     *contentType;
   VXIbyte     *content;
   VXIulong     contentSizeBytes;
-  void       (*Destroy)(VXIbyte **content, void *userData);
+  DestroyFunc	*Destroy;
   void        *userData;
 };
 
+
 class VXIContent : public VXIValue {
  public:
+
   // Constructors and destructor
   VXIContent (const VXIchar  *contentType,
 	      VXIbyte        *content,
 	      VXIulong        contentSizeBytes,
-	      void          (*Destroy)(VXIbyte **content, void *userData),
+              DestroyFunc	*Destroy,
 	      void           *userData) : 
     VXIValue(VALUE_CONTENT), details(NULL) {
     details = new VXIContentData (contentType, content, contentSizeBytes,
 				  Destroy, userData); }
+
   VXIContent (const VXIContent &c) : 
     VXIValue(VALUE_CONTENT), details(c.details) { 
     VXIContentData::AddRef (details); }

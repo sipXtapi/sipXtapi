@@ -1825,4 +1825,5 @@ void* autoThrottleFunction(void* arg)
 
       OsTask::delay(autothrottle_tick);
    }
+return 0;
 }

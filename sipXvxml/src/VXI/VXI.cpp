@@ -226,7 +226,7 @@ static void ProcessNameList(const vxistring & namelist, STRINGDEQUE & names)
 
   std::basic_stringstream<VXIchar> namestream(namelist);
 
-#if defined(__GNUC__) && ((__GNUC__ == 2 && __GNUC_MINOR__ <= 95) || __GNUC__ >= 3)
+#if (defined(__GNUC__) && ((__GNUC__ == 2 && __GNUC_MINOR__ <= 95) || __GNUC__ >= 3)) || defined(__SUNPRO_CC)
   // G++ 2.95 does not support istream_iterator.
   while (namestream.good()) {
     vxistring temp;

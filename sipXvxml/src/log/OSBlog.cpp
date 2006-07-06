@@ -34,6 +34,10 @@ static const char *rcsid = 0 ? (char *) &rcsid :
 #include <ctime>                    // For time_t
 #include <ctype.h>                  // For isspace()
 #include <wctype.h>                 // For iswalpha()
+#ifdef __SUNPRO_CC
+#include <strings.h>
+#include <stdio.h>
+#endif
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN

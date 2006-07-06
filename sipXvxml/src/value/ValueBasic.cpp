@@ -261,7 +261,7 @@ VXIVALUE_API VXIContent *
 VXIContentCreate(const VXIchar  *contentType,
 		 VXIbyte        *content,
 		 VXIulong        contentSizeBytes,
-		 void          (*Destroy)(VXIbyte **content, void *userData),
+                 DestroyFunc   *Destroy,
 		 void           *userData)
 {
   if (( ! contentType ) || ( ! contentType[0] ) || ( ! content ) || 
@@ -328,7 +328,7 @@ VXIContentValue(const VXIContent  *c,
 VXIContentData::VXIContentData (const VXIchar *ct,
 				VXIbyte       *c,
 				VXIulong       csb,
-				void         (*D)(VXIbyte **content, void *ud),
+                                DestroyFunc   *D,
 				void          *ud) :
 #ifndef WIN32
   mutex(NULL),

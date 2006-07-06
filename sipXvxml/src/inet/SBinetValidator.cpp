@@ -306,6 +306,16 @@ VXIlogResult SBinetValidator::Log(VXIunsigned tagID, const VXIchar *func) const
 
     expiresStr = expiresBuf;
     lastModStr = lastModBuf;
+#elif defined __SUNPRO_CC
+    if (m_expiresTime == (time_t) -1)
+      expiresStr = ::strcpy(expiresBuf, "-1");
+    else
+      expiresStr = ctime_r(&m_expiresTime, expiresBuf, sizeof(expiresBuf -1));
+
+    if (m_lastModifiedTime == (time_t) -1)
+      lastModStr = ::strcpy(lastModBuf, "-1");
+    else
+      lastModStr = ctime_r(&m_lastModifiedTime, lastModBuf, sizeof(expiresBuf -1));
 #else
     if (m_expiresTime == (time_t) -1)
       expiresStr = ::strcpy(expiresBuf, "-1");

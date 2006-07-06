@@ -52,7 +52,7 @@ VXIplatformResult ParseConfigLine(char* buffer, VXIMap *configArgs)
     if(strchr(CONFIG_FILE_SEPARATORS, configKey[0]) != NULL) {
        return VXIplatform_RESULT_FAILURE;
     }
-    end = strpbrk(configKey, CONFIG_FILE_SEPARATORS);
+    end = (char*)strpbrk(configKey, CONFIG_FILE_SEPARATORS);
     if(end == NULL) {
         return VXIplatform_RESULT_FAILURE;
     }
@@ -64,7 +64,7 @@ VXIplatformResult ParseConfigLine(char* buffer, VXIMap *configArgs)
     if(configType[0] == '\0') {
         return VXIplatform_RESULT_FAILURE;
     }
-    end = strpbrk(configType, CONFIG_FILE_SEPARATORS);
+    end = (char *)strpbrk(configType, CONFIG_FILE_SEPARATORS);
     if(end == NULL) {
         return VXIplatform_RESULT_FAILURE;
     }
@@ -76,7 +76,7 @@ VXIplatformResult ParseConfigLine(char* buffer, VXIMap *configArgs)
     if(configValue[0] == '\0') {
         return VXIplatform_RESULT_FAILURE;
     }
-    end = strchr(configValue, '\0');
+    end = (char *)strchr(configValue, '\0');
     while((end > configValue) &&
 	  (strchr(CONFIG_FILE_SEPARATORS, *(end - 1)) != NULL))
       end--;

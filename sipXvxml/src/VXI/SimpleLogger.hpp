@@ -31,13 +31,13 @@ public:
     ENCODING,
     EXCEPTION,
     MESSAGE,
-    URI,
+    URI
   };
 
   enum EventTag {
     LABEL,
     EXPR,
-    CONTENT,
+    CONTENT
   };
 
   static void SetMessageBase(unsigned int base);
