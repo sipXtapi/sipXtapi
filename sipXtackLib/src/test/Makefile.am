@@ -18,7 +18,7 @@ testsuite_CXXFLAGS = \
 
 testsuite_LDADD = \
     @SIPXUNIT_LIBS@ \
-    ../libsipXtack.la
+    ../libsipXtack.la 
 
 testsuite_SOURCES = \
     net/HttpMessageTest.cpp \
