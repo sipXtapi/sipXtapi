@@ -1439,7 +1439,7 @@
         <type>
           <integer min="1" max="65535"/>
         </type>
-        <value/>
+        <value>5060</value>
         <description></description>
       </setting>
       <setting name="transport">
@@ -1464,7 +1464,7 @@
         <type>
           <integer min="0" max="65535"/>
         </type>
-        <value>5060</value>
+        <value/>
         <description>Local port for sending and receiving SIP signaling packets. If set to 0 or 
           Null, 5060 is used for the local port but it is not advertised in the SIP signaling. 
           If set to some other value, that value is used for the local port and it is 
@@ -1529,15 +1529,6 @@
         <description>If checked, A transfer can be completed during the proceeding
           state of a consultation call.</description>
       </setting>
-      <setting name="dialog.useSDP" advanced="yes">
-        <type>
-          <boolean/>
-        </type>
-        <value>0</value>   
-        <description>Enable backward compatibility to send SDP in dialog
-          body. Otherwise, when unchecked, dialog event package 
-          IETF draft is used.</description>
-      </setting>      
     </group>
     <group name="alertInfo">
       <label>Alert Information</label>
@@ -1680,7 +1671,7 @@
       <type><integer min="128" max="255"/></type>
       <value/>
       <description>If Enabled, the Option to request from the DHCP server if
-        Allowable range is 128 – 255. There is no
+        Allowable range is 128 to 255. There is no
         default value for this parameter, it must be
         filled in with a valid value.</description>
     </setting>
@@ -1702,6 +1693,11 @@
       <description>If Enabled, type to request from the DHCP server.
         There is no default value for this parameter,
         it must be filled in with a valid value.</description>
+    </setting>
+    <setting name="maxIpAddress">
+      <type/>
+      <value/>
+      <description>Unknown</description>
     </setting>
   </group>
   <!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line -->

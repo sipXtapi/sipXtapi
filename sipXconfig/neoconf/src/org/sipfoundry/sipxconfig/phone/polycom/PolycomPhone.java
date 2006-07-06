@@ -14,8 +14,17 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import org.apache.commons.io.IOUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.io.OutputFormat;
+import org.dom4j.io.SAXReader;
+import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
@@ -138,8 +147,10 @@ public class PolycomPhone extends Phone {
         try {
             File f = new File(getTftpRoot(), outputFile);
             VelocityProfileGenerator.makeParentDirectory(f);
-            out = new FileWriter(f);
-            generateProfile(cfg, template, out);
+            Writer unformatted = new StringWriter();
+            generateProfile(cfg, template, unformatted);
+            out = new FileWriter(f);            
+            format(new StringReader(unformatted.toString()), out);
         } catch (IOException ioe) {
             throw new RuntimeException("Could not generate profile " + outputFile
                     + " from template " + template, ioe);
@@ -147,6 +158,26 @@ public class PolycomPhone extends Phone {
             if (out != null) {
                 IOUtils.closeQuietly(out);
             }
+        }
+    }
+    
+    /**
+     * Polycom 430 1.6.5 would not read files w/being formatted first.  Unclear why.
+     */
+    static void format(Reader in, Writer wtr) {
+        SAXReader xmlReader = new SAXReader();
+        Document doc;
+        try {
+            doc = xmlReader.read(in);
+        } catch (DocumentException e1) {
+            throw new RuntimeException(e1);
+        }
+        OutputFormat pretty = OutputFormat.createPrettyPrint();
+        XMLWriter xml = new XMLWriter(wtr, pretty);
+        try {
+            xml.write(doc);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

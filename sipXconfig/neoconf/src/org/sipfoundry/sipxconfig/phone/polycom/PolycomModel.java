@@ -22,6 +22,10 @@ public final class PolycomModel extends PhoneModel {
     public static final PolycomModel MODEL_300 = new PolycomModel("300",
             "Polycom SoundPoint IP 300/301", 2);
 
+    /** basic and deluxe phone */
+    public static final PolycomModel MODEL_430 = new PolycomModel("430",
+            "Polycom SoundPoint IP 430", 2);
+
     /** standard phone */
     public static final PolycomModel MODEL_500 = new PolycomModel("500",
             "Polycom SoundPoint IP 500/501", 3);

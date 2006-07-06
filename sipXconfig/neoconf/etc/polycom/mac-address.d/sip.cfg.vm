@@ -1,6 +1,6 @@
 <?xml version="1.0" standalone="yes"?>
 <!-- SIP Application Configuration File -->
-<!-- Revision: 1.57.2.1 Date: 2004/07/27 00:23:34 -->
+<!-- $Revision: 1.100.4.10.2.16 $  $Date: 2006/02/27 21:37:23 $ -->
 <sip>	
 	<voIpProt>
 		<local 
@@ -12,20 +12,13 @@
 		<server 
     voIpProt.server.1.address=""
     voIpProt.server.1.port="5060"
-    voIpProt.server.1.transport=""
+    voIpProt.server.1.transport="DNSnaptr"
     voIpProt.server.1.expires=""
     voIpProt.server.1.register="1"
     voIpProt.server.1.retryTimeOut="0"
     voIpProt.server.1.retryMaxCount="0"
     voIpProt.server.1.expires.lineSeize="30"
-    voIpProt.server.2.address=""
-    voIpProt.server.2.port="5060"
-    voIpProt.server.2.transport=""
-    voIpProt.server.2.expires=""
-    voIpProt.server.2.register="1"
-    voIpProt.server.2.retryTimeOut="0"
-    voIpProt.server.2.retryMaxCount="0"
-    voIpProt.server.2.expires.lineSeize="30"
+    voIpProt.server.2.transport="DNSnaptr"
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.server.dhcp'))
 #foreach ($setting in $cfg.getSettings($group))
         voIpProt.server.dhcp.${setting.ProfileName}="$!{setting.Value}"
@@ -79,6 +72,7 @@
     voIpProt.SIP.conference.${setting.ProfileName}="$!{setting.Value}"
 #end						
 			/>
+                       <dialog voIpProt.SIP.dialog.useSDP=""/>
 		</SIP>
 	</voIpProt>
 
@@ -1672,18 +1666,22 @@
       voice.gain.rx.analog.chassis="0" 
       voice.gain.rx.analog.chassis.IP_300="-6" 
       voice.gain.rx.analog.chassis.IP_4000="3" 
+      voice.gain.rx.analog.chassis.IP_430="0"
       voice.gain.rx.analog.chassis.IP_601="6" 
       voice.gain.rx.analog.ringer="0" 
       voice.gain.rx.analog.ringer.IP_300="-6" 
       voice.gain.rx.analog.ringer.IP_4000="3" 
+      voice.gain.rx.analog.ringer.IP_430="0"
       voice.gain.rx.analog.ringer.IP_601="6" 
       voice.gain.rx.digital.handset="-15" 
       voice.gain.rx.digital.headset="-21" 
       voice.gain.rx.digital.chassis="0" 
       voice.gain.rx.digital.chassis.IP_4000="0" 
+      voice.gain.rx.digital.chassis.IP_430="0"
       voice.gain.rx.digital.chassis.IP_601="0" 
       voice.gain.rx.digital.ringer="-21" 
       voice.gain.rx.digital.ringer.IP_4000="-21" 
+      voice.gain.rx.digital.ringer.IP_430="-21"
       voice.gain.rx.digital.ringer.IP_601="-21" 
       voice.gain.rx.analog.handset.sidetone="-14" 
       voice.gain.rx.analog.headset.sidetone="-24" 
@@ -1692,15 +1690,18 @@
       voice.gain.tx.analog.chassis="3" 
       voice.gain.tx.analog.chassis.IP_300="0" 
       voice.gain.tx.analog.chassis.IP_4000="3" 
+      voice.gain.tx.analog.chassis.IP_430="42"
       voice.gain.tx.analog.chassis.IP_601="0" 
       voice.gain.tx.digital.handset="0" 
       voice.gain.tx.digital.headset="0" 
       voice.gain.tx.digital.chassis="3" 
       voice.gain.tx.digital.chassis.IP_4000="0" 
+      voice.gain.tx.digital.chassis.IP_430="-3"
       voice.gain.tx.digital.chassis.IP_601="6" 
       voice.gain.tx.analog.preamp.handset="14" 
       voice.gain.tx.analog.preamp.headset="23" 
       voice.gain.tx.analog.preamp.chassis="32" 
+      voice.gain.tx.analog.preamp.chassis.IP_430="32"
       voice.gain.tx.analog.preamp.chassis.IP_601="32"
       />
     <AEC 
@@ -1770,22 +1771,28 @@
       voice.agc.hd.enable="0" 
       voice.agc.hf.enable="0"/>
     <RXEQ 
+      voice.rxEq.hs.IP_430.preFilter.enable="1" 
       voice.rxEq.hs.IP_500.preFilter.enable="1" 
       voice.rxEq.hs.IP_600.preFilter.enable="1" 
       voice.rxEq.hs.IP_601.preFilter.enable="1" 
+      voice.rxEq.hs.IP_430.postFilter.enable="0" 
       voice.rxEq.hs.IP_500.postFilter.enable="0" 
       voice.rxEq.hs.IP_600.postFilter.enable="0" 
       voice.rxEq.hs.IP_601.postFilter.enable="0" 
+      voice.rxEq.hd.IP_430.preFilter.enable="0" 
       voice.rxEq.hd.IP_500.preFilter.enable="0" 
       voice.rxEq.hd.IP_600.preFilter.enable="0" 
       voice.rxEq.hd.IP_601.preFilter.enable="0" 
+      voice.rxEq.hd.IP_430.postFilter.enable="0" 
       voice.rxEq.hd.IP_500.postFilter.enable="0" 
       voice.rxEq.hd.IP_600.postFilter.enable="0" 
       voice.rxEq.hd.IP_601.postFilter.enable="0" 
+      voice.rxEq.hf.IP_430.preFilter.enable="1" 
       voice.rxEq.hf.IP_500.preFilter.enable="1" 
       voice.rxEq.hf.IP_600.preFilter.enable="1" 
       voice.rxEq.hf.IP_601.preFilter.enable="1" 
       voice.rxEq.hf.IP_4000.preFilter.enable="0" 
+      voice.rxEq.hf.IP_430.postFilter.enable="0" 
       voice.rxEq.hf.IP_500.postFilter.enable="1" 
       voice.rxEq.hf.IP_600.postFilter.enable="1" 
       voice.rxEq.hf.IP_601.postFilter.enable="1" 
@@ -1800,22 +1807,28 @@
         voice.rxEq.hf.IP_500.preFilter.0.coef.3="0"/>
     </RXEQ>
     <TXEQ 
+      voice.txEq.hs.IP_430.preFilter.enable="0" 
       voice.txEq.hs.IP_500.preFilter.enable="0" 
       voice.txEq.hs.IP_600.preFilter.enable="0" 
       voice.txEq.hs.IP_601.preFilter.enable="0" 
+      voice.txEq.hs.IP_430.postFilter.enable="1" 
       voice.txEq.hs.IP_500.postFilter.enable="1" 
       voice.txEq.hs.IP_600.postFilter.enable="1" 
       voice.txEq.hs.IP_601.postFilter.enable="1" 
+      voice.txEq.hd.IP_430.preFilter.enable="0" 
       voice.txEq.hd.IP_500.preFilter.enable="0" 
       voice.txEq.hd.IP_600.preFilter.enable="0" 
       voice.txEq.hd.IP_601.preFilter.enable="0" 
+      voice.txEq.hd.IP_430.postFilter.enable="0" 
       voice.txEq.hd.IP_500.postFilter.enable="0" 
       voice.txEq.hd.IP_600.postFilter.enable="0" 
       voice.txEq.hd.IP_601.postFilter.enable="0" 
+      voice.txEq.hf.IP_430.preFilter.enable="0" 
       voice.txEq.hf.IP_500.preFilter.enable="0" 
       voice.txEq.hf.IP_600.preFilter.enable="0" 
       voice.txEq.hf.IP_601.preFilter.enable="0" 
       voice.txEq.hf.IP_4000.preFilter.enable="0" 
+      voice.txEq.hf.IP_430.postFilter.enable="1" 
       voice.txEq.hf.IP_500.postFilter.enable="1" 
       voice.txEq.hf.IP_600.postFilter.enable="1" 
       voice.txEq.hf.IP_601.postFilter.enable="1" 
@@ -1835,6 +1848,14 @@
         voice.${setting.ProfileName}="$!{setting.Value}"
 #end
 		  />
+          <handset 
+            voice.handset.rxag.adjust.IP_430="1" 
+            voice.handset.txag.adjust.IP_430="21" 
+            voice.handset.sidetone.adjust.IP_430="-12"/>
+         <headset 
+            voice.headset.rxag.adjust.IP_430="1" 
+            voice.headset.txag.adjust.IP_430="39"
+            voice.headset.sidetone.adjust.IP_430="-3"/>
 	</voice>
 	<QOS>
 		<Ethernet>
@@ -1922,6 +1943,7 @@
     />		
 		
 	<font font.delimiter="">
+                <IP_400 font.IP_400.1.name=""/>
 		<IP_500 font.IP_500.1.name=""/>
 		<IP_600 font.IP_600.1.name=""/>
 	</font>
@@ -1963,6 +1985,9 @@
 			bitmap.IP_300.35.name="CtxACDUnavailableStep1" 
 			bitmap.IP_300.36.name="CtxACDUnavailableStep2" 
 			bitmap.IP_300.37.name="CtxACDLogout"/>
+
+                <IP_400 bitmap.IP_400.61.name="IdleDefault"/>
+
 		<IP_500 bitmap.IP_500.1.name="PlcmTrademarkVert" 
 			bitmap.IP_500.2.name="BlankSmall" bitmap.IP_500.3.name="BlankBig" 
 			bitmap.IP_500.4.name="CtxPhone" bitmap.IP_500.5.name="DndStep1" 
@@ -2302,11 +2327,19 @@
 					ind.anim.IP_300.43.frame.1.duration="1000" 
 					ind.anim.IP_300.43.frame.2.bitmap="CtxACDUnavailableStep2" 
 					ind.anim.IP_300.43.frame.2.duration="1000"/>
-				<HEADSET_MEM ind.anim.IP_300.44.frame.1.bitmap="Headset" 
-					ind.anim.IP_300.44.frame.1.duration="1000" 
-					ind.anim.IP_300.44.frame.2.bitmap="Blank" 
-					ind.anim.IP_300.44.frame.2.duration="1000"/>
+            <CTX_BUDDY_ONLINE ind.anim.IP_300.44.frame.1.bitmap="CtxIconBuddyOnline" ind.anim.IP_300.44.frame.1.duration="0"/>
+            <CTX_BUDDY_BUSY ind.anim.IP_300.45.frame.1.bitmap="CtxIconBuddyBusy" ind.anim.IP_300.45.frame.1.duration="0"/>
+            <CTX_BUDDY_AWAY ind.anim.IP_300.46.frame.1.bitmap="CtxIconBuddyAway" ind.anim.IP_300.46.frame.1.duration="0"/>
+            <CTX_BUDDY_OFFLINE ind.anim.IP_300.47.frame.1.bitmap="CtxIconBuddyOffline" ind.anim.IP_300.47.frame.1.duration="0"/>
+				<HEADSET_MEM ind.anim.IP_300.48.frame.1.bitmap="Headset" 
+					ind.anim.IP_300.48.frame.1.duration="1000" 
+					ind.anim.IP_300.48.frame.2.bitmap="Blank" 
+					ind.anim.IP_300.48.frame.2.duration="1000"/>
 			</IP_300>
+                        <IP_400>
+                                <IDLE_DISPLAY ind.anim.IP_400.38.frame.1.bitmap="IdleDefault" 
+                                        ind.anim.IP_400.38.frame.1.duration="0"/>
+                        </IP_400>
 			<IP_500>
 				<BLANK_BIG ind.anim.IP_500.1.frame.1.bitmap="BlankBig" 
 					ind.anim.IP_500.1.frame.1.duration="0"/>
@@ -2472,10 +2505,14 @@
 					ind.anim.IP_500.43.frame.1.duration="1000" 
 					ind.anim.IP_500.43.frame.2.bitmap="CtxACDUnavailableStep2" 
 					ind.anim.IP_500.43.frame.2.duration="1000"/>
-				<HEADSET_MEM ind.anim.IP_500.44.frame.1.bitmap="Headset" 
-					ind.anim.IP_500.44.frame.1.duration="1000" 
-					ind.anim.IP_500.44.frame.2.bitmap="BlankBig" 
-					ind.anim.IP_500.44.frame.2.duration="1000"/>
+            <CTX_BUDDY_ONLINE ind.anim.IP_500.44.frame.1.bitmap="CtxIconBuddyOnline" ind.anim.IP_500.44.frame.1.duration="0"/>
+            <CTX_BUDDY_BUSY ind.anim.IP_500.45.frame.1.bitmap="CtxIconBuddyBusy" ind.anim.IP_500.45.frame.1.duration="0"/>
+            <CTX_BUDDY_AWAY ind.anim.IP_500.46.frame.1.bitmap="CtxIconBuddyAway" ind.anim.IP_500.46.frame.1.duration="0"/>
+            <CTX_BUDDY_OFFLINE ind.anim.IP_500.47.frame.1.bitmap="CtxIconBuddyOffline" ind.anim.IP_500.47.frame.1.duration="0"/>
+				<HEADSET_MEM ind.anim.IP_500.48.frame.1.bitmap="Headset" 
+					ind.anim.IP_500.48.frame.1.duration="1000" 
+					ind.anim.IP_500.48.frame.2.bitmap="BlankBig" 
+					ind.anim.IP_500.48.frame.2.duration="1000"/>
 			</IP_500>
 			<IP_600>
 				<BLANK_BIG ind.anim.IP_600.1.frame.1.bitmap="BlankBig" 
@@ -2650,6 +2687,10 @@
 					ind.anim.IP_600.43.frame.1.duration="1000" 
 					ind.anim.IP_600.43.frame.2.bitmap="CtxACDUnavailableStep2" 
 					ind.anim.IP_600.43.frame.2.duration="1000"/>
+            <CTX_BUDDY_ONLINE ind.anim.IP_600.44.frame.1.bitmap="CtxIconBuddyOnline" ind.anim.IP_600.44.frame.1.duration="0"/>
+            <CTX_BUDDY_BUSY ind.anim.IP_600.45.frame.1.bitmap="CtxIconBuddyBusy" ind.anim.IP_600.45.frame.1.duration="0"/>
+            <CTX_BUDDY_AWAY ind.anim.IP_600.46.frame.1.bitmap="CtxIconBuddyAway" ind.anim.IP_600.46.frame.1.duration="0"/>
+            <CTX_BUDDY_OFFLINE ind.anim.IP_600.47.frame.1.bitmap="CtxIconBuddyOffline" ind.anim.IP_600.47.frame.1.duration="0"/>
 			</IP_600>
           <IP_4000>
         
@@ -2939,16 +2980,7 @@
 				ind.pattern.8.step.1.colour="Green" 
 				ind.pattern.8.step.2.state="Off" 
 				ind.pattern.8.step.2.duration="250" 
-				ind.pattern.8.step.3.state="On" 
-				ind.pattern.8.step.3.duration="250" 
-				ind.pattern.8.step.3.colour="Green" 
-				ind.pattern.8.step.4.state="Off" 
-				ind.pattern.8.step.4.duration="250" 
-				ind.pattern.8.step.5.state="On" 
-				ind.pattern.8.step.5.duration="250" 
-				ind.pattern.8.step.5.colour="Green" 
-				ind.pattern.8.step.6.state="Off" 
-				ind.pattern.8.step.6.duration="1250"/>
+				/>
 			<FLASH_SLOW ind.pattern.9.step.1.state="On" 
 				ind.pattern.9.step.1.duration="1000" 
 				ind.pattern.9.step.2.state="Off" 
@@ -3011,12 +3043,17 @@
 				ind.class.2.state.28.index="36" ind.class.2.state.29.index="37" 
 				ind.class.2.state.30.index="40" ind.class.2.state.31.index="41" 
 				ind.class.2.state.32.index="42" 
-				ind.class.2.state.33.index="43"/>
+				ind.class.2.state.33.index="43"
+				ind.class.2.state.34.index="44"
+				ind.class.2.state.35.index="45"
+				ind.class.2.state.36.index="46"
+				ind.class.2.state.37.index="47"
+                                />
 			<DND ind.class.3.state.1.index="1" ind.class.3.state.2.index="7"/>
 			<TRANSDUCER ind.class.4.state.1.index="1" 
 				ind.class.4.state.2.index="3" ind.class.4.state.3.index="4" 
 				ind.class.4.state.4.index="5" ind.class.4.state.5.index="16" 
-				ind.class.4.state.6.index="44"/>
+				ind.class.4.state.6.index="48"/>
 			<MIC_MUTE ind.class.5.state.1.index="1" 
 				ind.class.5.state.2.index="6"/>
 			<SLEEP ind.class.6.state.1.index="0"/>
@@ -3062,6 +3099,36 @@
 					ind.gi.IP_300.8.index="9" ind.gi.IP_300.8.class="2" 
 					ind.gi.IP_300.8.physX="19" ind.gi.IP_300.8.physY="2" 
 					ind.gi.IP_300.8.physW="1" ind.gi.IP_300.8.physH="1"/>
+				<IP_400 ind.gi.IP_400.1.index="2" ind.gi.IP_400.1.class="6"
+				    ind.gi.IP_400.1.physX="0" ind.gi.IP_400.1.physY="0"
+				    ind.gi.IP_400.1.physW="0" ind.gi.IP_400.1.physH="0"
+				    ind.gi.IP_400.2.index="3" ind.gi.IP_400.2.class="6"
+				    ind.gi.IP_400.2.physX="0" ind.gi.IP_400.2.physY="0"
+				    ind.gi.IP_400.2.physW="0" ind.gi.IP_400.2.physH="0"
+				    ind.gi.IP_400.3.index="4" ind.gi.IP_400.3.class="6"
+				    ind.gi.IP_400.3.physX="0" ind.gi.IP_400.3.physY="0"
+				    ind.gi.IP_400.3.physW="0" ind.gi.IP_400.3.physH="0"
+				    ind.gi.IP_400.4.index="5" ind.gi.IP_400.4.class="4"
+				    ind.gi.IP_400.4.physX="122" ind.gi.IP_400.4.physY="0"
+				    ind.gi.IP_400.4.physW="10" ind.gi.IP_400.4.physH="10"
+				    ind.gi.IP_400.5.index="6" ind.gi.IP_400.5.class="5"
+				    ind.gi.IP_400.5.physX="112" ind.gi.IP_400.5.physY="0"
+				    ind.gi.IP_400.5.physW="10" ind.gi.IP_400.5.physH="10"
+				    ind.gi.IP_400.6.index="7" ind.gi.IP_400.6.class="3"
+				    ind.gi.IP_400.6.physX="102" ind.gi.IP_400.6.physY="0"
+				    ind.gi.IP_400.6.physW="10" ind.gi.IP_400.6.physH="10"
+				    ind.gi.IP_400.7.index="8" ind.gi.IP_400.7.class="2"
+				    ind.gi.IP_400.7.physX="122" ind.gi.IP_400.7.physY="13"
+				    ind.gi.IP_400.7.physW="10" ind.gi.IP_400.7.physH="10"
+				    ind.gi.IP_400.8.index="9" ind.gi.IP_400.8.class="2"
+				    ind.gi.IP_400.8.physX="122" ind.gi.IP_400.8.physY="24"
+				    ind.gi.IP_400.8.physW="10" ind.gi.IP_400.8.physH="10"
+				    ind.gi.IP_400.9.index="10" ind.gi.IP_400.9.class="2"
+				    ind.gi.IP_400.9.physX="0" ind.gi.IP_400.9.physY="45"
+				    ind.gi.IP_400.9.physW="10" ind.gi.IP_400.9.physH="10"
+				    ind.gi.IP_400.10.index="23" ind.gi.IP_400.10.class="8"
+				    ind.gi.IP_400.10.physX="0" ind.gi.IP_400.10.physY="12"
+				    ind.gi.IP_400.10.physW="94" ind.gi.IP_400.10.physH="23"/>
 				<IP_500 ind.gi.IP_500.1.index="2" ind.gi.IP_500.1.class="6" 
 					ind.gi.IP_500.1.physX="0" ind.gi.IP_500.1.physY="0" 
 					ind.gi.IP_500.1.physW="0" ind.gi.IP_500.1.physH="0" 
@@ -3114,19 +3181,19 @@
 					ind.gi.IP_600.7.physX="0" ind.gi.IP_600.7.physY="6" 
 					ind.gi.IP_600.7.physW="20" ind.gi.IP_600.7.physH="20" 
 					ind.gi.IP_600.8.index="9" ind.gi.IP_600.8.class="2" 
-					ind.gi.IP_600.8.physX="0" ind.gi.IP_600.8.physY="28" 
+					ind.gi.IP_600.8.physX="0" ind.gi.IP_600.8.physY="27" 
 					ind.gi.IP_600.8.physW="20" ind.gi.IP_600.8.physH="20" 
 					ind.gi.IP_600.9.index="10" ind.gi.IP_600.9.class="2" 
-					ind.gi.IP_600.9.physX="0" ind.gi.IP_600.9.physY="50" 
+					ind.gi.IP_600.9.physX="0" ind.gi.IP_600.9.physY="48" 
 					ind.gi.IP_600.9.physW="20" ind.gi.IP_600.9.physH="20" 
 					ind.gi.IP_600.10.index="11" ind.gi.IP_600.10.class="2" 
-					ind.gi.IP_600.10.physX="0" ind.gi.IP_600.10.physY="72" 
+					ind.gi.IP_600.10.physX="0" ind.gi.IP_600.10.physY="69" 
 					ind.gi.IP_600.10.physW="20" ind.gi.IP_600.10.physH="20" 
 					ind.gi.IP_600.11.index="12" ind.gi.IP_600.11.class="2" 
-					ind.gi.IP_600.11.physX="0" ind.gi.IP_600.11.physY="94" 
+					ind.gi.IP_600.11.physX="0" ind.gi.IP_600.11.physY="90" 
 					ind.gi.IP_600.11.physW="20" ind.gi.IP_600.11.physH="20" 
 					ind.gi.IP_600.12.index="13" ind.gi.IP_600.12.class="2" 
-					ind.gi.IP_600.12.physX="0" ind.gi.IP_600.12.physY="116" 
+					ind.gi.IP_600.12.physX="0" ind.gi.IP_600.12.physY="111" 
 					ind.gi.IP_600.12.physW="20" ind.gi.IP_600.12.physH="20" 
 					ind.gi.IP_600.13.index="23" ind.gi.IP_600.13.class="8" 
 					ind.gi.IP_600.13.physX="110" ind.gi.IP_600.13.physY="0" 
@@ -3200,10 +3267,10 @@
 	<logging>
 		<level>
 			<change 
-#set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('sip'))  			
-			log.level.change.sip="$!{group.getSetting('level.change.sip').Value}" 
 			    log.level.change.so="4" 
 				log.level.change.app1="4" 
+#set ($group = $cfg.EndpointSettings.getSetting('log').getSetting('sip'))  			
+         			log.level.change.sip="$!{group.getSetting('level.change.sip').Value}" 
 				log.level.change.sspsc="4" 
 				log.level.change.ssps="4" 
 				log.level.change.pps="4" 				
@@ -3213,6 +3280,7 @@
 				log.level.change.pmt="4"
 				log.level.change.ftp="4"
 				log.level.change.ares="4"
+				log.level.change.dns="4"
 				log.level.change.cxss="4"
 				log.level.change.httpd="4"
 				log.level.change.rdisk="4"
@@ -3303,12 +3371,6 @@
         mb.${setting.ProfileName}="$!{setting.Value}"
 #end        	    
 	    >
-		<idleDisplay  
-#set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('idleDisplay'))
-#foreach ($setting in $cfg.getSettings($group))
-        mb.idleDisplay.${setting.ProfileName}="$!{setting.Value}"
-#end        	    
-		   />
 		<main 
 #set ($group = $cfg.EndpointSettings.getSetting('mb').getSetting('main'))
 #foreach ($setting in $cfg.getSettings($group))

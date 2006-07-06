@@ -20,6 +20,8 @@
         
         <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_300"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
+        <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_430"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
         <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_500"
           class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean"/>
         <bean id="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel.MODEL_600"

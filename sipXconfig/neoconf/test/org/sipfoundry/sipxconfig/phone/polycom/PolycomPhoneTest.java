@@ -12,9 +12,16 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
@@ -76,5 +83,15 @@ public class PolycomPhoneTest extends TestCase {
         Setting settings = secondLine.getSettings();
         Setting userId = settings.getSetting("reg/auth.userId");
         assertEquals(null, userId.getValue());
+    }
+    
+    public void testFormat() throws Exception {
+        InputStream in = getClass().getResourceAsStream("unformatted.xml");
+        Reader rdr = new InputStreamReader(in);
+        Writer wtr = new StringWriter();
+        PolycomPhone.format(rdr, wtr);
+        Reader expected = new InputStreamReader(getClass().getResourceAsStream("formatted.xml"));
+        Reader actual = new StringReader(wtr.toString());
+        IOUtils.contentEquals(expected, actual);
     }
 }
