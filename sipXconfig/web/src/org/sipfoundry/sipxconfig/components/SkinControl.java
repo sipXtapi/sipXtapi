@@ -22,11 +22,8 @@ import org.apache.tapestry.asset.AssetFactory;
  */
 public class SkinControl {
     public static final String CONTEXT_BEAN_NAME = "skin";
-    private static final String RESOURCE_PATH = SkinControl.class.getPackage().getName().replace(
-            '.', '/');
-    private String m_layout = RESOURCE_PATH + "/layout.css";
-    private String m_colors = RESOURCE_PATH + "/colors.css";
-    private String m_logo = RESOURCE_PATH + "/sipxconfig-logo.png";
+    private static final String ASSET_COLORS = "colors.css";
+    private static final String ASSET_LAYOUT = "layout.css";
     private TapestryContext m_tapestryContext;
     private String m_helpLink;
     private Map<String, String> m_assets = new HashMap();
@@ -34,6 +31,8 @@ public class SkinControl {
     public SkinControl() {
         // default skin resources
         m_assets.put("logo.png", "org/sipfoundry/sipxconfig/components/sipxconfig-logo.png");
+        m_assets.put(ASSET_LAYOUT, "org/sipfoundry/sipxconfig/components/layout.css");
+        m_assets.put(ASSET_COLORS, "org/sipfoundry/sipxconfig/components/colors.css");
     }
 
     /**
@@ -56,8 +55,8 @@ public class SkinControl {
 
     public IAsset[] getStylesheetAssets() {
         IAsset[] assets = new IAsset[2];
-        assets[0] = getAssetFactory().createAbsoluteAsset(m_layout, null, null);
-        assets[1] = getAssetFactory().createAbsoluteAsset(m_colors, null, null);
+        assets[0] = getAsset(ASSET_COLORS);
+        assets[1] = getAsset(ASSET_LAYOUT);
         return assets;
     }
 
@@ -70,7 +69,7 @@ public class SkinControl {
     }
     
     public void setAssets(Map<String, String> assets) {
-        m_assets = assets;
+        m_assets.putAll(assets);
     }
     
     public IAsset getAsset(String path) {
@@ -82,23 +81,7 @@ public class SkinControl {
         return getAssetFactory().createAbsoluteAsset(resourcePath, null, null);
     }
 
-    public IAsset getLogoAsset() {
-        return getAssetFactory().createAbsoluteAsset(m_logo, null, null);
-    }
-
     public void setTapestryContext(TapestryContext tapestryContext) {
         m_tapestryContext = tapestryContext;
-    }
-
-    public void setColors(String colors) {
-        m_colors = colors;
-    }
-
-    public void setLayout(String layout) {
-        m_layout = layout;
-    }
-
-    public void setLogo(String logo) {
-        m_logo = logo;
     }
 }
