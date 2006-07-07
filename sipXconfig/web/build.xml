@@ -258,6 +258,11 @@
     <copy todir="${test.systemRoot}/etc">
       <fileset dir="${top.dir}/neoconf/etc"/>
     </copy>
+    <copy todir="${test.war}/WEB-INF/classes">
+    	  <fileset dir="${test.src.dir}">
+    	  	<include name="**/*.png"/>
+    	  </fileset>
+    </copy>
   </target>
 
   <!-- 

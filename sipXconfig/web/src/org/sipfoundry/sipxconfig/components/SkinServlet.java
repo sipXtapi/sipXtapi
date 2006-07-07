@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.tapestry.IAsset;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -28,7 +29,7 @@ import org.springframework.web.context.support.WebApplicationContextUtils;
  * Redirect fixed URL to configurable and complex logo url E.g. /images/logo.png to asset for logo
  * passed in SkinControl.getLogoClasspath()
  */
-public class LogoAssetServlet extends HttpServlet {
+public class SkinServlet extends HttpServlet {
     private SkinControl m_skin;
 
     public void init(ServletConfig config) throws ServletException {
@@ -39,9 +40,13 @@ public class LogoAssetServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
         throws javax.servlet.ServletException, java.io.IOException {
-        InputStream in = m_skin.getLogoAsset().getResourceAsStream();
-        OutputStream out = response.getOutputStream();
-        IOUtils.copy(in, out);
+        String path = request.getPathInfo().substring(1); // strip '/'
+        IAsset asset = m_skin.getAsset(path);
+        if (asset != null) {
+            InputStream in = asset.getResourceAsStream();
+            OutputStream out = response.getOutputStream();
+            IOUtils.copy(in, out);
+        }
     }
 
     public void destroy() {

@@ -92,10 +92,14 @@
     <listener-class>
       org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
   </listener>
+  <!-- END AXIS -->
+
   <servlet>
-    <servlet-name>logo</servlet-name>
-    <servlet-class>org.sipfoundry.sipxconfig.components.LogoAssetServlet</servlet-class>
+    <servlet-name>skin</servlet-name>
+    <servlet-class>org.sipfoundry.sipxconfig.components.SkinServlet</servlet-class>
   </servlet>	
+
+  <!-- START AXIS -->
   <servlet>
     <servlet-name>services</servlet-name>
     <servlet-class>
@@ -130,8 +134,8 @@
   </servlet-mapping>
   
   <servlet-mapping>
-    <servlet-name>logo</servlet-name>
-	<url-pattern>/images/logo.png</url-pattern>
+    <servlet-name>skin</servlet-name>
+	<url-pattern>/skin/*</url-pattern>
   </servlet-mapping>
 	
   <!-- START AXIS -->

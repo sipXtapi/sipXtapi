@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.components;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.asset.AssetFactory;
 
@@ -26,6 +29,12 @@ public class SkinControl {
     private String m_logo = RESOURCE_PATH + "/sipxconfig-logo.png";
     private TapestryContext m_tapestryContext;
     private String m_helpLink;
+    private Map<String, String> m_assets = new HashMap();
+    
+    public SkinControl() {
+        // default skin resources
+        m_assets.put("logo.png", "org/sipfoundry/sipxconfig/components/sipxconfig-logo.png");
+    }
 
     /**
      * Link to online help.  Can include 2 placeholders for app major and minor version numbers
@@ -54,6 +63,23 @@ public class SkinControl {
 
     private AssetFactory getAssetFactory() {
         return m_tapestryContext.getHivemindContext().getClasspathAssetFactory();
+    }
+    
+    public Map<String, String> getAssets() {
+        return m_assets;
+    }
+    
+    public void setAssets(Map<String, String> assets) {
+        m_assets = assets;
+    }
+    
+    public IAsset getAsset(String path) {
+        String resourcePath = m_assets.get(path);
+        if (resourcePath == null) {
+            return null;
+        }
+        
+        return getAssetFactory().createAbsoluteAsset(resourcePath, null, null);
     }
 
     public IAsset getLogoAsset() {
