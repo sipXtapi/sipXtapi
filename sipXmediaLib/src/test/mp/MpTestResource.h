@@ -15,7 +15,7 @@
 
 // APPLICATION INCLUDES
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
+#include "mp/MpAudioResource.h"
 
 // DEFINES
 // MACROS
@@ -29,7 +29,7 @@
 class mpFlowGraphMsg;
 
 //:Descendant of the MpResource class used for testing.
-class MpTestResource : public MpResource
+class MpTestResource : public MpAudioResource
 {
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:

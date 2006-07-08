@@ -25,7 +25,7 @@ class MpResourceTest : public CppUnit::TestCase
     CPPUNIT_TEST(testCreators);
     CPPUNIT_TEST(testEnableAndDisable);
     CPPUNIT_TEST(testDoProcessFrame);
-    CPPUNIT_TEST(testSamplesPerFrameAndSec);
+//    CPPUNIT_TEST(testSamplesPerFrameAndSec);
     CPPUNIT_TEST(testSetVisitState);
     CPPUNIT_TEST(testMessageHandling);
     CPPUNIT_TEST(testGetFlowGraph);
