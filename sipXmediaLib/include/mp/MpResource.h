@@ -250,15 +250,6 @@ protected:
    int          mNumActualOutputs; ///< actual number of connected outputs
    int          mVisitState;       ///< (used by flow graph topological sort alg.)
 
-     /// @brief Returns a pointer to the incoming buffer.
-     /**<
-     *  @returns a pointer to the incoming buffer for the <i>inPortIdx</i> 
-     *  input port if a buffer is available.  Returns NULL if either no 
-     *  buffer is available or there is no resource connected to the 
-     *  specified port or the <i>inPortIdx</i> is out of range.
-     */
-   MpBufPtr getInputBuffer(int inPortIdx) const;
-
      /// @brief Handles an incoming message for this media processing object.
    virtual UtlBoolean handleMessage(MpFlowGraphMsg& rMsg);
      /**< @returns TRUE if the message was handled, otherwise FALSE. */

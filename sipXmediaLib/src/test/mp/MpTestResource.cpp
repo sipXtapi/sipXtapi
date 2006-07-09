@@ -32,17 +32,8 @@ static const int RESOURCE_MSG_TYPE = MpFlowGraphMsg::RESOURCE_SPECIFIC_START;
 
 /* ============================ ACCESSORS ================================= */
 
-   int numFramesProcessed(void);
-     //:Returns the count of the number of frames processed by this resource.
-
-   int numMsgsProcessed(void);
-     //:Returns the count of the number of messages successfully processed by 
-     //:this resource.
-
 /* ============================ INQUIRY =================================== */
 
-   MpBufPtr getInputBuffer(int inPortIdx);
-     //:Returns the input buffer for "inPortIdx" (or NULL if none available).
 
 // Constructor
 MpTestResource::MpTestResource(const UtlString& rName, int minInputs,
