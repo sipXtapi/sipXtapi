@@ -72,6 +72,8 @@ public:
    };
 
 /* ============================ CREATORS ================================== */
+///@name Creators
+//@{
 
      /// Constructor
    MpFlowGraphMsg(int msg, MpResource* pMsgDest=NULL,
@@ -88,18 +90,22 @@ public:
    virtual
    ~MpFlowGraphMsg();
 
+//@}
+
 /* ============================ MANIPULATORS ============================== */
+///@name Manipulators
+//@{
 
      /// Assignment operator
    MpFlowGraphMsg& operator=(const MpFlowGraphMsg& rhs);
 
      /// Set destination object of the message.
-     /**
+   void setMsgDest(MpResource* pMsgDest);
+     /**<
       * Sets the intended recipient for this message.  Setting the message 
       * destination to NULL indicates that the message is intended for the 
       * flow graph itself.
       */
-   void setMsgDest(MpResource* pMsgDest);
 
      /// Sets pointer 1 (void*) of the media flow graph message
    void setPtr1(void* p);
@@ -113,18 +119,22 @@ public:
      /// Sets integer 2 of the media flow graph message
    void setInt2(int i);
 
+//@}
+
 /* ============================ ACCESSORS ================================= */
+///@name Accessors
+//@{
 
      /// Returns the type of the media flow graph message
    int getMsg(void) const;
 
      /// Get destination object of the message.
-     /**
+   MpResource* getMsgDest(void) const;
+     /**<
       * Returns the MpResource object that is the intended recipient for this 
       * message.  A NULL return indicates that the message is intended for 
       * the flow graph itself.
       */
-   MpResource* getMsgDest(void) const;
 
      /// Return pointer 1 (void*) of the media flow graph message
    void* getPtr1(void) const;
@@ -138,7 +148,13 @@ public:
      /// Return integer 2 of the media flow graph message
    int getInt2(void) const;
 
+//@}
+
 /* ============================ INQUIRY =================================== */
+///@name Inquiry
+//@{
+
+//@}
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -146,10 +162,10 @@ protected:
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
    MpResource* mpMsgDest; ///< Intended recipient for this message
-   void*       mpPtr1;    ///< Message pointer 1
-   void*       mpPtr2;    ///< Message pointer 2
-   int         mInt1;     ///< Message integer 1
-   int         mInt2;     ///< Message integer 2
+   void*       mpPtr1;    ///< Pointer to data 1
+   void*       mpPtr2;    ///< Pointer to data 2
+   int         mInt1;     ///< Integer data 1
+   int         mInt2;     ///< Integer data 2
 
 };
 
