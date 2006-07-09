@@ -25,7 +25,7 @@ class MpFlowGraphTest : public CppUnit::TestCase
     CPPUNIT_TEST(testLinkAndResource);
     CPPUNIT_TEST(testDestroyResources);
     CPPUNIT_TEST(testEnableDisable);
-//    CPPUNIT_TEST(testSamplesPerFrameAndSec);
+    CPPUNIT_TEST(testSamplesPerFrameAndSec);
     CPPUNIT_TEST(testStartAndStop);
     CPPUNIT_TEST(testAccessors);
     CPPUNIT_TEST(testProcessNextFrame);

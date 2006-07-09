@@ -202,7 +202,7 @@ UtlBoolean MpTestResource::handleMessage(MpFlowGraphMsg& rMsg)
    if (rMsg.getMsg() == RESOURCE_MSG_TYPE)
       return TRUE;
    else
-      return MpResource::handleMessage(rMsg);
+      return MpAudioResource::handleMessage(rMsg);
 }
 
 /* ============================ FUNCTIONS ================================= */
