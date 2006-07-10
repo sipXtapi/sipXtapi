@@ -35,6 +35,8 @@ distribution.
 #include <sstream>
 #endif
 
+#include <os/OsFS.h>
+
 
 bool TiXmlBase::condenseWhiteSpace = true;
 
@@ -1014,7 +1016,8 @@ bool TiXmlDocument::SaveFile( const char * filename ) const
          fclose( fp );
          // file is safe on disk - rename atomically changes it to filename,
          // ensuring that at all times there is a well-formed file on disk.xo
-         rename( newfilename, filename );
+         OsFile tempFile(newfilename);
+         tempFile.rename(filename);
          result = true;
       }
       delete [] newfilename;

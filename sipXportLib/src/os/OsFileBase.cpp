@@ -144,7 +144,7 @@ long OsFileBase::openAndRead(const char* filename, UtlString& fileContentsRead)
     return(totalBytesRead);
 }
 
-long OsFileBase::openAndWrite(const char* filename, UtlString& fileContentsToWrite)
+long OsFileBase::openAndWrite(const char* filename, const UtlString& fileContentsToWrite)
 {
     OsFile fileToWrite(filename);
 
@@ -521,8 +521,26 @@ OsStatus OsFileBase::rename(const OsPathBase& rNewFilename)
 
     int err = ::rename(mFilename.data(),rNewFilename.data());
     if (err != -1)
+    {
         ret = OS_SUCCESS;
+    }
+    else
+    {
+        // Rename failed, if there is a file that already exists having
+        // the new name, try removing it first
+        OsFile fileInPlace(rNewFilename);
+        if(fileInPlace.exists())
+        {
+            fileInPlace.remove(TRUE);
 
+            // Try the move again
+            int err2 = ::rename(mFilename.data(),rNewFilename.data());
+            if (err != -1)
+            {
+                ret = OS_SUCCESS;
+            }
+        }
+    }
 #ifdef DEBUG_FS
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsFileBase::rename EXIT threadid=%d\n", nTaskId);
 #endif
