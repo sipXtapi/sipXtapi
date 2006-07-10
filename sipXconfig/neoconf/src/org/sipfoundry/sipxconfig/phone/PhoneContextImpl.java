@@ -18,10 +18,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Predicate;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
@@ -30,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -53,8 +51,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private SettingDao m_settingDao;
 
-    private Collection m_availableModels;
-
     private BeanFactory m_beanFactory;
 
     private String m_systemDirectory;
@@ -62,37 +58,15 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     private Map m_modelCache = new HashMap();
 
     private DeviceDefaults m_deviceDefaults;
-    
-    private Pattern m_certifiedPhoneRegex;
+
+    private ModelSource m_modelSource;
 
     public Collection getAvailablePhoneModels() {
-        Collection models = m_availableModels;
-        if (m_certifiedPhoneRegex != null) {
-            models = CollectionUtils.select(m_availableModels, 
-                    new CertifiedPhones(m_certifiedPhoneRegex));
-        }
-        return models;
+        return m_modelSource.getModels();
     }
 
-    public void setAvailablePhoneModels(Collection models) {
-        m_availableModels = models;
-    }
-    
-    public void setCertifiedPhones(String certifiedRegex) {
-        m_certifiedPhoneRegex = Pattern.compile(certifiedRegex);
-    }
-    
-    static class CertifiedPhones implements Predicate {
-        private Pattern m_pattern;
-        public CertifiedPhones(Pattern pattern) {
-            m_pattern = pattern;
-        }
-
-        public boolean evaluate(Object object) {
-            PhoneModel model = (PhoneModel) object;
-            boolean certified = m_pattern.matcher(model.getName()).matches();
-            return certified;
-        }
+    public void setPhoneModelSource(ModelSource modelSource) {
+        m_modelSource = modelSource;
     }
 
     public void setSettingDao(SettingDao settingDao) {
@@ -165,11 +139,10 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public Collection loadPhones() {
         return getHibernateTemplate().loadAll(Phone.class);
     }
-    
+
     public Collection getAllPhoneIds() {
         return getHibernateTemplate().findByNamedQuery("phoneIds");
     }
-
 
     public Phone loadPhone(Integer id) {
         Phone phone = (Phone) getHibernateTemplate().load(Phone.class, id);

@@ -5,4 +5,6 @@
   <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.device.DeviceDefaults">
     <property name="dialPlanContext" ref="dialPlanContext"/>
   </bean>
+  
+  
 </beans>

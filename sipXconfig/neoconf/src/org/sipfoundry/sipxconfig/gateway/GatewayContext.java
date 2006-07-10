@@ -45,5 +45,5 @@ public interface GatewayContext {
 
     Gateway newGateway(PhoneModel model);
 
-    List getAvailableGatewayModels();
+    Collection getAvailableGatewayModels();
 }

@@ -157,25 +157,6 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         assertEquals(models.size(), actual.getRowCount());
     }
 
-    /**
-     * Make sure all gateway beans are registered with the factory. In future maybe we could build
-     * factory from the beans
-     */
-    public void testGetFactoryIds() {
-        // TODO: introduce gateway model - otherwise we will have problems if phone models are
-        // defined in bean files
-        String[] gatewayModelBeansArray = m_appContext.getBeanNamesForType(PhoneModel.class);
-        List gatewayModelBeans = Arrays.asList(gatewayModelBeansArray);
-
-        Collection models = m_context.getAvailableGatewayModels();
-        assertEquals(gatewayModelBeans.size(), models.size());
-        for (Iterator i = models.iterator(); i.hasNext();) {
-            PhoneModel model = (PhoneModel) i.next();
-            String beanId = model.getBeanId();
-            gatewayModelBeans.contains(beanId);
-        }
-    }
-
     public void testGetGatewaySettings() throws Exception {
         TestHelper.cleanInsertFlat("gateway/SeedGateway.xml");
         Gateway gateway = m_context.getGateway(new Integer(1001));

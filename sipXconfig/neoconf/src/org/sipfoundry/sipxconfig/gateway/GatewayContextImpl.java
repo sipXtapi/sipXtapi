@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -50,7 +51,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     private BeanFactory m_beanFactory;
 
-    private List m_availableGatewayModels;
+    private ModelSource m_modelSource;
 
     public GatewayContextImpl() {
         super();
@@ -60,7 +61,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         List gateways = getHibernateTemplate().loadAll(Gateway.class);
         return gateways;
     }
-    
+
     public Collection getAllGatewayIds() {
         return getHibernateTemplate().findByNamedQuery("gatewayIds");
     }
@@ -129,10 +130,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         getHibernateTemplate().deleteAll(gateways);
     }
 
-    public void setDialPlanContext(DialPlanContext dialPlanContext) {
-        m_dialPlanContext = dialPlanContext;
-    }
-
     public Gateway newGateway(PhoneModel model) {
         Gateway gateway = (Gateway) m_beanFactory.getBean(model.getBeanId(), Gateway.class);
         gateway.setBeanId(model.getBeanId());
@@ -140,15 +137,19 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return gateway;
     }
 
+    public Collection getAvailableGatewayModels() {
+        return m_modelSource.getModels();
+    }
+
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
 
-    public void setAvailableGatewayModels(List availableGatewayModels) {
-        m_availableGatewayModels = availableGatewayModels;
+    public void setDialPlanContext(DialPlanContext dialPlanContext) {
+        m_dialPlanContext = dialPlanContext;
     }
 
-    public List getAvailableGatewayModels() {
-        return m_availableGatewayModels;
+    public void setModelSource(ModelSource modelSource) {
+        m_modelSource = modelSource;
     }
 }
