@@ -222,12 +222,12 @@
     divert.6.autoOnSpecificCaller="1" 
     divert.6.sharedDisabled="1">
     <fwd 
-      divert.fwd.1.enabled="1" 
-      divert.fwd.2.enabled="1" 
-      divert.fwd.3.enabled="1" 
-      divert.fwd.4.enabled="1" 
-      divert.fwd.5.enabled="1" 
-      divert.fwd.6.enabled="1"/>
+      divert.fwd.1.enabled="0" 
+      divert.fwd.2.enabled="0" 
+      divert.fwd.3.enabled="0" 
+      divert.fwd.4.enabled="0" 
+      divert.fwd.5.enabled="0" 
+      divert.fwd.6.enabled="0"/>
     <busy 
       divert.busy.1.enabled="1" 
       divert.busy.1.contact="" 
