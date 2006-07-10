@@ -241,27 +241,29 @@ bool inPostUnprep(int n, int discard, DWORD bufLen, bool bFree)
             pMsg->setLen(MpBuf_getNumSamples(ob));
          }
 
-         if (MpMisc.pMicQ && MpMisc.pMicQ->numMsgs() >= MpMisc.pMicQ->maxMsgs())
-         {
-            // if its full, flush one and send
-            OsStatus  res;
-            flushes++;
-            res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
-            if (OS_SUCCESS == res) {
-               MpBuf_delRef(pFlush->getTag());
-               pFlush->releaseMsg();
-            } else {
-               osPrintf("DmaTask: queue was full, now empty (3)!"
-                  " (res=%d)\n", res);
-            }
-            if (MpMisc.pMicQ && OS_SUCCESS != MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT))
+         if (MpMisc.pMicQ) {
+            if (MpMisc.pMicQ->numMsgs() >= MpMisc.pMicQ->maxMsgs())
             {
-               MpBuf_delRef(ob);
+               // if its full, flush one and send
+               OsStatus  res;
+               flushes++;
+               res = MpMisc.pMicQ->receive((OsMsg*&) pFlush, OsTime::NO_WAIT);
+               if (OS_SUCCESS == res) {
+                  MpBuf_delRef(pFlush->getTag());
+                  pFlush->releaseMsg();
+               } else {
+                  osPrintf("DmaTask: queue was full, now empty (3)!"
+                           " (res=%d)\n", res);
+               }
+               if (OS_SUCCESS != MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT))
+               {
+                  MpBuf_delRef(ob);
+               }
             }
-         }
-         else
-         {
-             MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT);
+            else
+            {
+               MpMisc.pMicQ->send(*pMsg, OsTime::NO_WAIT);
+            }
          }
          if (!pMsg->isMsgReusable()) delete pMsg;
       }
@@ -377,6 +379,8 @@ void closeMicDevice()
     int        i ;
 
     // Cleanup
+    if (!audioInH)
+        return;
     ret = waveInReset(audioInH);
     if (ret != MMSYSERR_NOERROR)
     {
@@ -479,9 +483,6 @@ unsigned int __stdcall MicThread(LPVOID Unused)
     // Start up Speaker thread
     ResumeThread(hSpkrThread);
 
-#ifdef DEBUG_WINDOZE
-    frameCount = 0;
-#endif
     recorded = 0;
     bDone = false ;
     while (!bDone) 
@@ -492,6 +493,18 @@ unsigned int __stdcall MicThread(LPVOID Unused)
             switch (tMsg.message) 
             {
             case WIM_DATA:
+                // Check if we got data - if not - then this signals a device change
+                if (!tMsg.wParam) {
+                    if (DmaTask::isInputDeviceChanged())
+                    {
+                        DmaTask::clearInputDeviceChanged() ;
+
+                        closeMicDevice() ;
+                        openMicDevice(bRunning, pWH) ;
+
+                    }
+                    break;
+                }
                 pWH = (WAVEHDR *) tMsg.wParam;
                 n = (pWH->dwUser) & USER_BUFFER_MASK;
 

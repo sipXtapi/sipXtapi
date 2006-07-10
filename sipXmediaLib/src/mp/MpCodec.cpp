@@ -135,8 +135,10 @@ OsStatus MpCodec_setVolume(int level)
    
    if (hOut != NULL)
    {
-      waveOutSetVolume(hOut, bothVolume) ;
-      ret = OS_SUCCESS;
+      if (waveOutSetVolume(hOut, bothVolume) == MMSYSERR_NOERROR )
+        ret = OS_SUCCESS;
+      else
+        ret = OS_FAILED;
    }
 
    return ret;
@@ -145,7 +147,7 @@ OsStatus MpCodec_setVolume(int level)
 int MpCodec_getVolume() 
 {
    DWORD bothVolume;
-   int volume;
+   int volume=0;
    unsigned short volSeg = 0xFFFF/100;
 
    HWAVEOUT hOut = NULL ;
@@ -161,11 +163,15 @@ int MpCodec_getVolume()
    
    if (hOut != NULL)
    {
-      waveOutGetVolume(audioOutH, &bothVolume) ;
-
-      //mask out one
-      unsigned short rightChannel = ((unsigned short) bothVolume & 0xFFFF) ;
-      volume = rightChannel /volSeg;         
+      MMRESULT mmret;
+      mmret = waveOutGetVolume(hOut, &bothVolume);
+      if (mmret == MMSYSERR_NOERROR )
+      {
+          //mask out one
+          unsigned short rightChannel = ((unsigned short) bothVolume & 0xFFFF) ;
+          volume = rightChannel /volSeg;         
+      } else
+          volume = -1;
    }
 
    return volume;

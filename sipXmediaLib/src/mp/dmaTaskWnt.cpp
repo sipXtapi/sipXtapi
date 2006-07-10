@@ -263,3 +263,9 @@ void dmaShutdown()
     PostThreadMessage(dwSpkrThreadID, WOM_CLOSE, 0, 0L);
     WaitForSingleObject(hSpkrThread, INFINITE);
 }
+
+void dmaSignalMicDeviceChange()
+{
+    // We do simple signal WIM_DATA without data
+    PostThreadMessage(dwMicThreadID, WIM_DATA, 0, 0L);
+}
