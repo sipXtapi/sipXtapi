@@ -114,13 +114,12 @@ public class CiscoAtaPhone extends CiscoPhone {
         line.setSettingValue(DISPLAY_NAME_PATH, lineInfo.getDisplayName());
         line.setSettingValue(USER_ID_PATH, lineInfo.getUserId());
         if (getModel() == CiscoModel.MODEL_ATA18X) {
+            line.setSettingValue(REGISTRATION_ATA_PATH, lineInfo.getRegistrationServer());
+            line.setSettingValue(REGISTRATION_PORT_ATA_PATH, lineInfo
+                            .getRegistrationServerPort());
+        } else {            
             line.setSettingValue(REGISTRATION_PATH, lineInfo.getRegistrationServer());
             line.setSettingValue(REGISTRATION_PORT_PATH, lineInfo.getRegistrationServerPort());
-        } else {
-            line.setSettingValue(REGISTRATION_ATA_PATH, lineInfo.getRegistrationServer());
-            line
-                    .setSettingValue(REGISTRATION_PORT_ATA_PATH, lineInfo
-                            .getRegistrationServerPort());
         }
     }
 
