@@ -1,0 +1,47 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../css/sipxconfig.css"/>
+</head>
+<body>
+<span jwcid="$content$">    
+    <span jwcid="errors"/>
+    <table>
+		<tr>
+			<td>
+                <label for="phone:serialNumber">
+                    <span jwcid="serialNumberLabel">Serial number</span>:
+                </label>
+            </td>
+			<td>
+				<input jwcid="serialNumber" id="phone:serialNumber"/>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<label for="phone:description">
+					<span jwcid="phoneDescriptionLabel">Description</span>:
+				</label>
+			</td>
+			<td>
+				<textarea jwcid="phoneDescription" id="phone:description" cols="45" rows="5"></textarea>
+			</td>
+		</tr>
+		<tr>
+			<td>
+                <label for="phone:phoneModel">
+                    <span jwcid="phoneModelLabel">Phone model</span>:
+                </label>
+            </td>
+			<td>
+				<select jwcid="phoneModel" id="phone:phoneModel" size="1">
+                    <option>--- select one ---</option>
+                </select>
+			</td>
+		</tr>
+    <tr jwcid="groupsPanel" for="phone:groups">
+      <span class="auto_complete" jwcid="groups"/>
+    </tr>
+	</table>
+</span>
+</body>
+</html>

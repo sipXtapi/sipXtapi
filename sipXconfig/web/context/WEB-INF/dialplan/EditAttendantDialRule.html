@@ -1,0 +1,71 @@
+<html title="Edit Internal Dialing Rule">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@Border">
+		<h2><span key="title">Auto Attendant Dialing</span></h2>            
+		<span jwcid="@ErrorMsg"/>
+        <form jwcid="form" id="attendant:rule:edit">
+        <fieldset jwcid="common"/>
+
+		<!-- rule type dependent start -->
+        <fieldset>
+            <legend><span key="label.details">Details</span></legend>
+            <table>
+                <tbody>
+                    <tr for="rule:extension" jwcid="extensionPanel">
+                    	<input jwcid="extension" id="rule:extension" type="text" />
+                    </tr>
+                    <tr for="rule:autoAttendantAliases" jwcid="autoAttendantAliasesPanel">
+                    	<input jwcid="autoAttendantAliases" id="rule:autoAttendantAliases" type="text" />                        
+                    </tr>
+			        <!-- after hours attendant -->
+                    <tr for="rule:afterHoursAttendant" jwcid="afterHoursAttendantPanel">
+                    	<input jwcid="afterHoursAttendant" id="rule:afterHoursAttendant" type="text"/>
+                    </tr>
+                </tbody>
+            </table>
+        </fieldset>
+        <!-- working hours attendant-->
+        <fieldset>
+            <table>
+                <tbody>
+                    <tr for="rule:workingTimeAttendant" jwcid="workingTimeAttendantPanel">
+                    	<input jwcid="workingTimeAttendant" id="rule:workingTimeAttendant" type="text"/>
+                    </tr>
+                    <span jwcid="renderWorkingHoursConfig" element="tr">
+                        <td colspan="3">
+                            <table>
+								<tr jwcid="workingHours">
+			                        <span jwcid="workingDay"/>
+								</tr>
+                            </table>
+                        </td>
+                    </span>          
+				</tbody>                    
+			</table>                
+		</fieldset>            
+        <!-- holiday attendant -->
+        <fieldset>
+            <table>
+                <tbody>
+                    <tr for="rule:holidayAttendant" jwcid="holidayAttendantPanel">
+                    	<input jwcid="holidayAttendant" id="rule:holidayAttendant" type="text"/> 
+                    </tr>
+                    <span jwcid="renderHolidayConfig" element="tr">
+                        <td colspan="3">
+                            <table>                        
+			                    <tr jwcid="holidayDates"/>
+							</table>                                
+						</td>                                
+                    </span>
+                </tbody>
+            </table>
+        </fieldset>
+		<!-- rule type dependent end -->                
+    	<ul jwcid="formActions"/>
+    </form>
+    </div>
+</body>
+</html>

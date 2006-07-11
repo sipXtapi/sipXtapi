@@ -1,0 +1,43 @@
+# used in system.beans.xml to set system properies
+sip.proxyHost=${PROXY_SERVER_ADDR}
+sip.proxyPort=${PROXY_SERVER_SIP_PORT}
+# BEGIN: do not use
+phoneDefaults.proxyServerAddr=${PROXY_SERVER_ADDR}
+phoneDefaults.proxyServerSipPort=${PROXY_SERVER_SIP_PORT}
+# END: do not use
+phoneDefaults.tftpServer=${CONFIG_SERVER_ADDR}
+phoneDefaults.authorizationRealm=${SIPXCHANGE_REALM}
+phoneDefaults.domainName=${SIPXCHANGE_DOMAIN_NAME}
+phoneDefaults.fullyQualifiedDomainName=${MY_FULL_HOSTNAME}
+# imdb/sipdb location for https access
+registrationContext.server=${MY_FULL_HOSTNAME}
+registrationContext.port=${CONFIG_SERVER_HTTPS_PORT}
+coreContextImpl.authorizationRealm=${SIPXCHANGE_REALM}
+coreContextImpl.domainName=${SIPXCHANGE_DOMAIN_NAME}
+adminContextImpl.backupDirectory=@sipxpbx.backup.dir@
+vxml.promptsDirectory=@sipxvxml.data.dir@/prompts
+vxml.scriptsDirectory=@www.dir@/doc/aa_vxml
+dialPlanContextImpl.scriptsDirectory=@www.dir@/doc/aa_vxml
+orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
+conferenceBridge.host=${MY_FULL_HOSTNAME}
+conferenceBridge.admissionServer=${MEDIA_SERVER_SIP_SRV_OR_HOSTPORT}
+conferenceConference.admissionScriptServer=${MEDIA_SERVER_ADDR}:${MEDIA_SERVER_HTTPS_PORT}
+upload.uploadRootDirectory=@sipxconfig.upload.dir@
+upload.destinationDirectory=@sipxconfig.phone.dir@/profile/tftproot
+
+# external aliases
+externalAliases.addinsDirectory=@sipxpbx.data.dir@
+externalAliases.aliasAddins=
+
+# name changes to anything starting w/sysdir need to be reflected in
+# VersionInfo class as well
+sysdir.bin=@sipxpbx.bin.dir@
+sysdir.etc=@sipxpbx.conf.dir@
+sysdir.log=@sipxpbx.log.dir@
+sysdir.share=@sipxpbx.data.dir@
+sysdir.phone=@sipxconfig.phone.dir@
+sysdir.tmp=@sipxpbx.tmp.dir@
+sysdir.version=@version@
+sysdir.build_number=0000
+sysdir.comment=opendev
+sysdir.user=@sipxpbx.user@

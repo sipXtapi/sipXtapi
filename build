@@ -1,0 +1,1024 @@
+#!/bin/bash
+
+## Build each project.  No specific knowledge about
+## any project should be listed here. This does a full build
+## of all projects, but more importantly this enforces each
+## project adheres to the standard set forth
+
+Staging=""
+Clean=""
+BuildReturn=0
+FailFast=NO
+Sudo=""
+Check=CHECK
+Deps=DEPS
+MakeOptions=-s
+Verbose=NO
+Distro=""
+Distrover=""
+
+# Warning! It's solely user's responsibility to use correct path
+# without trailing slash.
+Disttree=""
+
+# Configuration switches for the ../configure commmand line 
+# May be added to by the meta/${BuildLabel}.configure-switches file
+# Also added to by the --configure option, which should be used sparingly.
+SpecialConfigureSwitches=""
+
+# Export is nec. to allow projects to use variable in their
+# ConfigureSwitchFile
+export Destination=""
+
+echo "" > build.err
+
+## Correct build order
+ProjectsInOrder() {
+    if [ "$Deps" != "NODEPS" ]
+    then
+        make -f dependencies $* | grep -v "make:"
+    else
+        echo $*
+    fi
+}
+
+## All known projects
+CommunityProjects="\
+   sipXportLib \
+   sipXtackLib \
+   sipXmediaLib \
+   sipXmediaAdapterLib \
+   sipXcallLib \
+   sipXcommserverLib \
+   sipXpublisher \
+   sipXregistry \
+   sipXproxy \
+   sipXconfig \
+   sipXvxml \
+   sipXpbx
+"
+
+## RPMs to be built at this time.
+RpmProjects="\
+   sipXportLib \
+   sipXtackLib \
+   sipXmediaLib \
+   sipXmediaAdapterLib \
+   sipXcallLib \
+   sipXcommserverLib \
+   sipXpublisher \
+   sipXregistry \
+   sipXproxy \
+   sipXconfig \
+   sipXvxml \
+   sipXpbx \
+"
+
+## In order to build other RPMs, these
+## RPMs need to be installed, along with
+## their *-devel RPMs.
+RpmLibraryProjects="\
+    sipXportLib \
+    sipXtackLib \
+    sipXmediaLib \
+    sipXmediaAdapterLib \
+    sipXcallLib \
+    sipXcommserverLib \
+"
+
+## Auxilliary RPMs to be removed
+AuxRpms="\
+    cgicc \
+    cgicc-devel \
+    mod_cplusplus \
+    xerces-c \
+    xerces-c-devel \
+"
+
+## Allow projects to specify custom configure switches.  This is
+## not to be abused, projects should not require complex configure switches
+## for standard operation for optimal usablity.
+setConfigureSwitches()
+{
+    ConfigureSwitches="$SpecialConfigureSwitches"
+    UsedLabels=""
+    for bl in `echo ${BuildLabel} | sed 's/,/ /g'`
+    do
+        ConfigureSwitchFile="meta/${bl}.configure-switches"
+        if [ -f ${ConfigureSwitchFile} ]
+        then
+            UsedLabels="${UsedLabels} ${bl}"
+            # Any lines that start with "NAME=" are considered to be
+            # variable assignments.
+            Variables="`sed -e $'/^[ \t]*[A-Za-z][A-Za-z0-9_]*=/!d' \
+                            -e 's/^/export /' \
+                            ${ConfigureSwitchFile}`"
+            eval "$Variables"
+            # Copy the variables for display.
+            UsedVariables="${UsedVariables} ` sed -e $'/^[ \t]*[A-Za-z][A-Za-z0-9_]*=/!d' \
+                                ${ConfigureSwitchFile} | tr '\n' ' ' `"
+            # Any lines in the file that start with '#' are interpreted as
+            # comments.  Other lines are interpreted as switches.
+            # Turn each line of switches into an assignment that adds
+            # them to ConfigureSwitches.
+            SwitchLines="`sed -e '/^#/d' \
+                              -e $'/^[ \t]*[A-Za-z][A-Za-z0-9_]*=/d' \
+                              -e 's/^/ConfigureSwitches="${ConfigureSwitches} /' \
+                              -e 's/$/"/' \
+                              ${ConfigureSwitchFile}`"
+             eval "$SwitchLines"
+        else
+            echo "Build label '$bl' not defined - no file '${ConfigureSwitchFile}' found." 1>&2
+        fi
+    done
+    echo "      Using labels:             ${UsedLabels:-(none)}"
+    echo "      Using variables:          ${UsedVariables:-(none)}"
+    echo "      Using configure switches: ${ConfigureSwitches:-(none)}"
+}
+
+## I N C R E M E N T A L
+incrementalBuild()
+{
+    Project=$1
+    AllowRetry=$2
+    ## echo to stderr to help decipher warnings and errors between projects
+    echo "===================== Starting incremental build of $Project" >&2
+
+    Success=false
+    echo "Building $Project"
+    pushd $Project > /dev/null || return 1
+
+    setConfigureSwitches 
+
+    [[ $Verbose = YES ]] &&
+        echo autoreconf --install --force
+    if autoreconf --install --force
+    then
+        mkbuilddir build
+        cd build > /dev/null
+        [[ $Verbose = YES ]] &&
+            echo ../configure $ConfigureSwitches --prefix $Destination
+        if ../configure $ConfigureSwitches --prefix $Destination
+        then
+            if make $MakeOptions
+            then
+                if test $Check != CHECK || make check
+                then
+                    if $Sudo make $MakeOptions install
+                    then
+                        Success=true
+                    fi
+                fi
+            fi
+        fi
+    fi
+    popd > /dev/null
+
+    if test "$Success" = "true"
+    then
+        echo "SUCCESS : $Project built successfully $UNITCHECK"
+        echo ""
+        return 0
+    else
+        builderr "ERROR : $Project failed to build!!!"
+
+        ## Test if we're doing an incremental build and we're in the first try. Don't
+        ## set error condition on first try, only after retry.
+        if [ "$AllowRetry" = "allow-retry" ]; then
+            echo "Not setting error condition on first try" 1>&2
+        else
+            BuildReturn=-1
+        fi
+
+        echo ""
+        return 1
+    fi
+}
+
+## T A R B A L L S
+tarBuild()
+{
+    Project=$1
+    ## echo to stderr to help decipher warnings and errors between projects
+    echo "Starting tarball build of $Project" >&2
+
+    Success=false
+    echo "Building $Project tarball"
+    pushd $Project > /dev/null || return 1
+
+    setConfigureSwitches 
+
+    [[ $Verbose = YES ]] &&
+        echo autoreconf --install --force
+    if autoreconf --force --install
+    then
+        mkbuilddir build
+        cd build > /dev/null
+        [[ $Verbose = YES ]] &&
+            echo ../configure $ConfigureSwitches --prefix $Destination
+        if ../configure $ConfigureSwitches --prefix $Destination
+        then
+            if make $MakeOptions dist
+            then
+                Success=true
+            fi
+        fi
+    fi
+
+    popd > /dev/null
+
+    if test "$Success" = "true"
+    then
+        echo "SUCCESS : $Project tarball built successfully $UNITCHECK"
+        echo ""
+        return 0
+    else
+        builderr "ERROR : $Project tarball failed to build!!!"
+        BuildReturn=-1
+        echo ""
+        return 1
+    fi
+}
+
+## D I S T R I B U T I O N
+distributionBuild()
+{
+    Project=$1
+    ## echo to stderr to help decipher warnings and errors between projects
+    echo "Starting distribution build of $Project" >&2
+
+    Success=false
+    echo "Building $Project distribution"
+    pushd $Project > /dev/null || return 1
+
+    setConfigureSwitches 
+
+    [[ $Verbose = YES ]] &&
+        echo autoreconf --install --force
+    if autoreconf --force --install
+    then
+        mkbuilddir build
+        cd build > /dev/null
+        [[ $Verbose = YES ]] &&
+            echo ../configure $ConfigureSwitches --prefix $Destination
+        if ../configure $ConfigureSwitches --prefix $Destination
+        then
+            if make $MakeOptions dist
+            then
+
+                # extract tarball into staging dir
+                TarBall=`find -maxdepth 1 -name "*.tar.gz" -printf "%f\n"`
+                TarDir=`echo $TarBall | sed -e 's/.tar.gz//g'`
+                tar -xvzf $TarBall --directory=$Staging
+    
+                # standard make/install
+                pushd $Staging/$TarDir > /dev/null
+                # override install dir for apache modules to avoid need for sudo
+                [[ $Verbose = YES ]] &&
+                    echo ../configure $ConfigureSwitches --prefix $Destination
+                if ./configure $ConfigureSwitches --prefix $Destination
+                then
+                    if make $MakeOptions
+                    then
+                        if test $Check != CHECK || make check
+                        then
+                            if $Sudo make $MakeOptions install
+                            then
+                                Success=true
+                            fi
+                        fi
+                    fi
+                fi
+                popd > /dev/null
+            fi
+        fi
+    fi
+    if [ "$Success" = "true" ]; then
+       cp *.tar.* $Disttree/SRC
+    fi
+
+    popd > /dev/null
+
+    if test "$Success" = "true"
+    then
+        echo "SUCCESS : $Project built successfully $UNITCHECK"
+        echo ""
+        return 0
+    else
+        builderr "ERROR : $Project failed to build!!!"
+        BuildReturn=-1
+        echo ""
+        return 1
+    fi
+}
+
+# Remove RPM
+rpmClean()
+{
+    Project=$1
+
+    Success=true
+
+    # This is a general rule that should be true. If not may need to maintain
+    # legend from project name to rpm package name
+    RpmPackage=`echo $Project | tr A-Z a-z`
+
+    for pkg in $RpmPackage{-debug,-debuginfo,-devel,}
+    do
+       if rpm -q $pkg > /dev/null
+       then
+           echo "Removing $pkg"
+           $Sudo rpm -e --nodeps $pkg
+       fi 
+    done
+}
+
+##  Make and install RPM
+rpmBuild()
+{
+    Project=$1
+    ## echo to stderr to help decipher warnings and errors between projects
+    echo "Starting RPM build of $Project" >&2
+
+    # This is a general rule that should be true. If not may need to maintain
+    # legend from project name to rpm package name
+    RpmPackage=`echo $Project | tr A-Z a-z`
+
+    Success=false
+    echo "Building $Project RPM"
+    pushd $Project > /dev/null || return 1
+
+    setConfigureSwitches
+
+    if [ ! -f SVN-VERSION ]; then
+        if [ -d .svn ]; then
+            svnversion . \
+            | perl -p \
+                -e 'm /(\d+)/ && do { $padded=sprintf( "%06d", $1 ); s/\d+/$padded/; };' \
+                -e 's/:/./; s/M/.M/;' \
+            > SVN-VERSION
+        else 
+            echo '0.unknown' > SVN-VERSION
+        fi
+    fi
+
+    [[ $Verbose = YES ]] &&
+        echo autoreconf --install --force
+    if autoreconf --force --install
+    then
+        mkbuilddir build
+        cd build > /dev/null
+        [[ $Verbose = YES ]] &&
+            echo ../configure $ConfigureSwitches --prefix $Destination
+        if ../configure $ConfigureSwitches
+        then
+            if make $MakeOptions rpm
+            then
+                ## Upgrade will install if RPM was not previsously installed
+                if [ `echo $RpmLibraryProjects | grep -c $Project` -ne 0 ]
+                then 
+                    RpmFiles=`ls $RpmPackage*.rpm | grep -v "\.src"`
+                    
+                    ## Upgrade will install if RPM was not previsously installed
+                    echo "Package to be installed: $RpmFiles "
+                    if $Sudo rpm -i $RpmFiles
+                    then
+                        Success=true
+                    else
+                        echo "Package $RpmFiles failed to install "
+                    fi
+                else
+                    Success=true
+                fi
+                if [ "$Success" = "true" ]; then
+                    if [ "$Check" = "CHECK" ]; then
+                        Success=false
+                        if make $MakeOptions
+                        then
+                            if make check
+                            then
+                                Success=true
+                            fi
+                        fi
+                    fi
+                fi
+            fi
+        fi
+        if [ "$Success" = "true" ]; then
+            cp -v *.rpm $Disttree/RPM/$Distro/$Distrover
+            cp -v *.tar.* $Disttree/SRC
+        fi
+    fi
+    popd > /dev/null
+
+    if test "$Success" = "true"
+    then
+        echo "SUCCESS : $Project built successfully $UNITCHECK"
+        echo ""
+        return 0
+    else
+        builderr "ERROR : $Project failed to build!!!"
+        BuildReturn=-1
+        echo ""
+        return 1
+    fi
+}
+
+
+## C L E A N
+cleanBuild()
+{
+    echo "Cleaning $Project"
+    pushd $1 > /dev/null || return 1
+    test -f build/Makefile && ( make -C build clean 2> /dev/null || : )
+    rm -rf autom4te.cache config.h.in configure aclocal.m4 build
+    find -name Makefile.in -exec rm '{}' \;
+    popd > /dev/null
+}
+
+
+## Send message to stderr, and log it for reporting at end and
+## mark a flag that overall build failed
+builderr()
+{
+    echo "$1" >&2
+    echo "$1" >> build.err
+    if test x"$FailFast" = xYES
+    then
+      exit -1
+    fi
+}
+
+## Makes a directory and optionally clean it
+##
+mkbuilddir()
+{
+    if ! test -d $1
+    then
+        mkdir -p $1
+    fi
+}
+
+## Makes a distribution tree and optionally cleans it
+## The dist tree model set it to sipX/<branch>
+mkdisttree()
+{
+
+    if [ "$Disttree"x != ""x ]
+    then
+      if [ -d $Disttree ]
+      then
+        rm -rf $Disttree
+      fi
+      mkdir -p $Disttree/RPM/$Distro/$Distrover
+      mkdir -p $Disttree/SRC
+    fi
+}
+
+## Optionally load env. specific to building
+## Use BUILD_HOME_DIR because sudo's "~/" is not right
+RCFILE=${BUILD_HOME_DIR:=~}/.sipxbuildrc
+if [ -f $RCFILE ]
+then
+    source $RCFILE
+fi
+
+## Main program loop
+Action=INCREMENTAL
+
+while [ "$#" -ne 0 ]
+do
+    case ${1} in
+        -d|--distribution)
+        Action=DISTRIBUTION
+        ;;
+
+        -t|--tarball)
+        Action=TARBALL
+        ;;
+
+        -r|--rpm)
+        Action=RPM
+        ;;
+
+        -c|--clean)
+        Action=CLEAN
+        ;;
+
+        -ac|--auxclean)
+        Action=AUXCLEAN
+        ;;
+
+        -ai|--auxinstall)
+        Action=AUXINSTALL
+        ;;
+
+        -rc|--rpmclean)
+        Action=RPMCLEAN
+        ;;
+
+        -f|--failfast)
+        FailFast=YES
+        ;;
+
+        -p|--projects)
+        shift
+        # Normalize the separators to spaces.
+        newProjects=`echo ${1} | sed -e 's|,| |g' -e 's|/| |g'`
+        Projects="$Projects $newProjects"
+        ;;
+
+        --disttree)
+        shift
+        Disttree=$1
+        ;;
+
+        --distro)
+        shift
+        Distro=$1
+        ;;
+
+        --distrover)
+        shift
+        Distrover=$1
+        ;;
+
+        -nc|--no-check)
+        Check=NOCHECK
+        ;;
+
+        -nd|--no-deps)
+        Deps=NODEPS
+        ;;
+
+        -x|--exec)
+        Action=EXEC
+        shift
+        break
+        ;;
+
+        -s|--sudo)
+        Sudo="sudo"
+        ;;
+
+        -l|--label)
+        shift
+        BuildLabel="${BuildLabel},${1}"
+        ;;
+
+        -v|--verbose)
+        MakeOptions=
+        Verbose=YES
+        ;;
+
+        --configure)
+        shift
+        SpecialConfigureSwitches="$SpecialConfigureSwitches ${1}"
+        ;;
+
+        -*)
+        Action=HELP
+        ;;
+
+        *)
+        if [ "$Destination"x = ""x ]
+        then
+            Destination=${1}
+        else
+            echo "Too many arguments: ${1}"
+            Action=HELP
+        fi
+        ;;
+    esac
+
+    shift #always consume 1
+done
+
+if [ -z "$Destination" -a -n "$SIPX_INSTALLDIR" ]
+then
+    Destination=$SIPX_INSTALLDIR
+fi
+# Make $Destination absolute if it is relative.
+if [[ -n "$Destination" ]] && [[ "$Destination" != /* ]]
+then
+    Destination="$(pwd)/$Destination"
+fi
+if [ -z "$Disttree" -a -n "$SIPX_DISTTREE" ]
+then
+    Disttree=$SIPX_DISTTREE
+fi
+# Make $Disttree absolute if it is relative.
+if [[ -n "$Disttree" ]] && [[ "$Disttree" != /* ]]
+then
+    Disttree="$(pwd)/$Disttree"
+fi
+
+if [ -z "$Distro" ]
+then
+    Distro=`uname`
+fi
+if [ -z "$Distrover" ]
+then
+    Distrover=0
+fi
+
+MakeOptions="$MakeOptions DISTRO=$Distro DISTROVER=$Distrover"
+
+echo Makeoptions are: $MakeOptions
+
+# Normalize the project list.
+if [ -z "$Projects" ]
+then
+    # If the list is empty, use the full list for that build mode.
+    case $ACTION in
+        RPM*)
+            Projects=$RpmProjects
+            ;;
+        *)
+            Projects=$CommunityProjects
+            ;;
+    esac
+elif [[ "$Projects" == *+ ]]
+then
+    # If the list is one project followed by +, use that project and
+    # all the following ones from the full list.
+    case $ACTION in
+        RPM*)
+            P=$RpmProjects
+            ;;
+        *)
+            P=$CommunityProjects
+            ;;
+    esac
+    # In the following operations we make sure that the projects
+    # listed in $P are preceded and followed by spaces.  Given how it
+    # is composed above, we don't actually need to pad here, but
+    # padding ensures that this code is resistant to changes in
+    # setting the $xxxProjects variables.
+    # These operations do depend on the fact that $Projects starts
+    # with a space, because starting the pattern with two spaces will
+    # prevent it from matching when it should.
+    if ! echo '' $P '' | grep "${Projects%%+} " >/dev/null
+    then
+        echo 2>&1 "Unknown project '$Projects'"
+        exit 1
+    fi
+    Projects=$( echo '' $P '' | sed -e "s/^.*${Projects%%+} /${Projects%%+} /" )
+fi
+
+if test "$Action" = "CLEAN"
+then
+    Deps=NODEPS
+fi
+
+if test $Check = NOCHECK
+then
+    cat <<EOF
+********************************************************************
+**** UNIT TESTS ARE DISABLED
+**** The results of this build should not be considered suitable for 
+****     any production purpose.  
+**** Unit tests should always be run before checking in any change!
+********************************************************************
+EOF
+    UNITCHECK="[with unit tests disabled]"
+else
+    UNITCHECK=""
+fi
+
+if test "$Action" = "INCREMENTAL" 
+then
+    if test -z "$Destination"
+    then
+        echo "Must specify <destination>" 1>&2
+        exit 1
+    fi
+    mkbuilddir 
+
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
+      if [ -d $Project ]
+      then
+        if ! incrementalBuild $Project allow-retry
+        then
+            echo "Clean and retry build of $Project" 1>&2
+            echo "Clean and retry build of $Project" >> build.err
+            cleanBuild $Project
+            incrementalBuild $Project
+        fi
+      else
+        builderr "$Project missing (skipped)"
+      fi
+    done
+
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "TARBALL" 
+then
+    if test -z "$Destination"
+    then
+        echo "Must specify <destination>" 1>&2
+        exit 1
+    fi
+
+    mkbuilddir $Destination
+
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
+      if [ -d $Project ]
+      then
+        tarBuild $Project
+      else
+        builderr "$Project missing (skipped)"
+      fi
+    done
+
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "DISTRIBUTION" 
+then
+    if test -z "$Destination"
+    then
+        echo "Must specify <destination>" 1>&2
+        exit 1
+    fi
+
+    mkdisttree
+    mkbuilddir $Destination
+    Staging="$Destination/var/tmp"
+    mkbuilddir $Staging
+
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
+      if [ -d $Project ]
+      then
+        distributionBuild $Project
+      else
+        builderr "$Project missing (skipped)"
+      fi
+    done
+
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "RPM"
+then
+    mkdisttree
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
+      if [ -d $Project ]
+      then
+        rpmBuild $Project
+      else
+        builderr "$Project missing (skipped)"
+      fi
+    done
+    if [ -d sipXbuild ]
+    then
+      cp sipXbuild/build/rpms/cgicc/cgicc-3*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/cgicc/cgicc-devel-3*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/mod_cplusplus/mod*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/xerces-c/xerces-c-2*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/xerces-c/xerces-c-devel-2*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/java-1.5.0-sun/java-1.5.0-sun-1.5.0.??-1jpp.*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/java-1.5.0-sun/java-1.5.0-sun-jdbc-1.5.0.??-1jpp.*.rpm $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/rpms/rubygems/rails/activesupport* $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/rpms/rubygems/rails/activerecord* $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/rpms/rubygems/rails/actionpack* $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/rpms/rubygems/rails/actionmailer* $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/rpms/rubygems/rails/actionwebservice* $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/rpms/rubygems/rails/rake* $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/rpms/rubygems/rails/rails* $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/rpms/rubygems/postgres/postgres-pr*.gem $Disttree/RPM/$Distro/$Distrover
+      cp sipXbuild/build/rpms/rubygems/ruby-gems-0*.rpm $Disttree/RPM/$Distro/$Distrover
+    else
+      builderr "$Project missing (skipped)"
+    fi
+    echo "Creating $Distrover repodata" >&2
+    createrepo $Disttree/RPM/$Distro/$Distrover
+
+    cat <<EOF > $Disttree/sipx.repo
+## The GPG public key for sipX is at:
+##    https://www.sipfoundry.org/pub/key/RPM-GPG-KEY-sipX
+[sipX]
+name=SIPfoundry sipX pbx
+baseurl=http://www.sipfoundry.org/temp/sipX/$(basename $Disttree)/RPM/$Distro/\$releasever
+gpgcheck=0
+EOF
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "AUXCLEAN"
+then
+    for pkg in $AuxRpms
+    do
+       if rpm -q $pkg > /dev/null
+       then
+           echo "Removing $pkg"
+           $Sudo rpm -e --nodeps $pkg
+       else
+           builderr "$pkg missing (skipped)"
+       fi
+    done
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "AUXINSTALL"
+then
+    echo "Installing $pkg"
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/cgicc/cgicc*.rpm
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/cgicc/cgicc-devel*.rpm
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/mod_cplusplus/mod*.rpm
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/xerces-c/xerces-c-2*.rpm
+    $Sudo rpm --upgrade --force --nodeps sipXbuild/build/rpms/xerces-c/xerces-c-devel*.rpm
+
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "RPMCLEAN"
+then
+    # need to reverse because of interproject 
+    # dependencies
+    Reverse=""
+    for Project in `ProjectsInOrder $Projects`; do
+        Reverse="$Project $Reverse"
+    done
+
+    echo Build order is: $Reverse
+    echo
+    for Project in $Reverse; do
+      if [ -d $Project ]
+      then
+        rpmClean $Project
+      else
+        builderr "$Project missing (skipped)"
+      fi
+    done
+    cat build.err
+    exit $BuildReturn
+elif test "$Action" = "CLEAN"
+then
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
+      if [ -d $Project ]
+      then
+        cleanBuild $Project
+      else
+        builderr "$Project missing (skipped)"
+      fi
+    done
+    exit 0
+elif test "$Action" = "EXEC"
+then
+    Projects=`ProjectsInOrder $Projects`
+    echo Build order is: $Projects
+    echo
+    for Project in $Projects; 
+    do
+      if [ -d $Project ]
+      then
+        pushd $Project > /dev/null
+        "$@"
+        popd > /dev/null
+      else
+        builderr "$Project missing (skipped)"
+      fi
+    done
+    exit 0
+fi
+
+cat <<USAGE
+
+Usage:
+
+        ./build [-d|--distribution] 
+                [-c|--clean] 
+                [-s|--sudo]
+                [-f|--failfast] 
+                [-p|--projects {projects}]
+                [-nd|--no-deps]
+                [-nc|--no-check]
+                [-ac|--auxclean]
+                [-ai|--auxinstall]
+                [-rc|--rpmclean]
+                [-x|--exec]
+                [-r|--rpm]
+                [-l|--label <label> ]
+                [-v|--verbose] 
+                [--distro]
+                [--distrover]
+                [--disttree path]
+                [--configure xxx] ...
+                [{destination directory}]
+
+Options are:
+     none              Incrementally build every project. Must have rw access 
+                       to destination directory. destination is required.
+                       In an incremental build, if a project build fails, the
+                       default action is to clean it and retry the build; it
+                       is only considered a failure if this second attempt
+                       fails (see --failfast).
+
+     --distribution|-d Calls 'make dist' to builds tarballs and then builds 
+                       from those tarballs. 
+                       Destination directory is required for configuration 
+                       purposes, but no files are installed or modified in that
+                       directory.
+
+     --tarball|-t      Calls 'make dist' to build tarballs, but does not build 
+                       from them (useful to check whether or not packaging 
+                       works but much quicker than --distribution).. 
+                       Destination directory is required for configuration 
+                       purposes, but no files are installed or modified in that
+                       directory.
+
+     --clean|-c        Deletes all output and generated files including
+                       files generated by autoconf and automake.  
+                       If the --projects option is used to explictly specify
+                       a list of projects, then this implies --no-deps.
+                       This does *not* delete any installed files.
+
+     --sudo|-s         Sudo when installing packages
+
+     --failfast|-f     Stop after first build error, leaving any remaining projects
+                       unbuilt.  In an incremental build, this also disables the
+                       automatic clean and retry.
+
+     --projects|-p     Space or comman delimited list of projects to operate on;
+                       this option may be specified multiple times.
+                       Example: --projects "sipXpbx sipXphone".
+                            or  --projects sipXpbx,sipXphone
+                            or  -p sipXpbx -p sipXphone
+                       If this is not specified, then all available projects
+                       are built (the absence of a project causes a warning 
+                       on standard error, but is not considered an error).  
+                       When building, any dependencies are also built, so 
+                       specifying 'sipXtackLib' would automatically
+                       also build 'sipXportLib' (to disable, use --no-deps).
+
+                       If the argument is a project name followed by '+', it will
+                       be expanded into the list of the projects in the standard
+                       order starting at the specified project.  This is useful
+                       for resuming a build that has been interrupted by an error.
+                       (You will probably need -nd as well to get the effect
+                       you want.)
+
+     --no-deps|-nd     Build exactly the specified targets; do not build the 
+                       projects they depend on.
+
+     --no-check|-nc    Does not run unit tests. 
+                       WARNING: If Douglas finds out you didn't run unit tests 
+                       before you checked your code in, he's going to put tacks 
+                       on your chair.
+
+     --exec|-x         Execute remaining portion of commandline after changing the
+                       current directory into the project's root directory. 
+                       Examples:
+                           build -x pwd | xargs grep -rl SomeString
+                           build -x svn status
+
+     --rpm|-r          Build and install RPMs.
+
+     --auxclean|-ac    Remove auxilliary RPMs
+
+     --auxinstall|-ai  Install auxilliary RPMs
+
+     --rpmclean|-rc    Remove RPMs
+
+     --label|-l        Set one or more build labels. The build looks for a 
+                       meta/{label}.configure-switches file in each project
+                       and uses these switches if the file is found.
+                       Multiple labels may be specified by multiple uses of this
+                       option (-l foo -l bar) or by using comma (but not space)
+                       separated values ( --label foo,bar ).
+                       The labels default to the environment variable \$BuildLabel 
+                       if it is defined.
+
+     --verbose|-v      Do not add "-s" option to "make".
+
+     --distro          The OS distribution RPMs are built for. The names are reserved for
+                       FC, RHE, etc.
+
+     --distrover       The OS distribution version.
+
+     --disttree path   Indicates if distribution tree to be created. If presented, to conform
+                       with the distribution tree model, the lowermost directory of the "path"
+                       represents the branch, both the distro and the distrover (see above)
+                       required for rpm build.
+
+     --configure xxx   Add "xxx" to the list of options to be passed to
+                       ./configure, as if it appeared in a --label file.
+USAGE
+
+exit

@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- 
+    - G A T E W A Y  C O N T E X T
+  -->
+
+  <!-- gateway models -->
+  <bean id="gmGeneric" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <constructor-arg>
+      <value>gwGeneric</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>Unmanaged gateway</value>
+    </constructor-arg>
+  </bean>
+
+  <!-- Audiocodes -->
+  <bean id="gmAutiocodesMP" abstract="true"
+    class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+    <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="proxyNameSetting" value="SIP_Params/PROXYNAME" />
+    <property name="proxyIpSetting" value="SIP_Params/PROXYIP" />
+  </bean>
+
+  <bean id="gmAutiocodesTP" abstract="true"
+    class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel">
+    <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="proxyNameSetting" value="SIP_Params/PROXYNAME" />
+    <property name="proxyIpSetting" value="SIP_Params/PROXYIP" />
+  </bean>
+
+  <bean id="gmAudiocodesMP1X4_4_FXO" parent="gmAutiocodesMP">
+    <constructor-arg>
+      <value>gwAudiocodesMediant</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>1X4_4_FXO</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes MP1X4 4 Port FXO</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>MP108FXOProxy.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesMP1X8_8_FXO" parent="gmAutiocodesMP">
+    <constructor-arg>
+      <value>gwAudiocodesMediant</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>1X8_8_FXO</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes MP1X8 8 Port FXO</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>MP108FXOProxy.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesTP260_1_Span" parent="gmAutiocodesTP">
+    <constructor-arg>
+      <value>gwAudiocodesTp260</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>1_Span</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes TP260 1 Span T1/E1</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>TP260.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesTP260_2_Span" parent="gmAutiocodesTP">
+    <constructor-arg>
+      <value>gwAudiocodesTp260</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>2_Span</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes TP260 2 Span T1/E1</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>TP260.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesTP260_4_Span" parent="gmAutiocodesTP">
+    <constructor-arg>
+      <value>gwAudiocodesTp260</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>4_Span</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes TP260 4 Span T1/E1</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>TP260.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gmAudiocodesTP260_8_Span" parent="gmAutiocodesTP">
+    <constructor-arg>
+      <value>gwAudiocodesTp260</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>8_Span</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>AudioCodes TP260 8 Span T1/E1</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>TP260.ini</value>
+    </constructor-arg>
+  </bean>
+
+  <!-- gateway beans -->
+  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false"
+    parent="beanWithSettings">
+    <property name="tftpRoot">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+  </bean>
+
+  <bean id="gwAudiocodesMediant"
+    class="org.sipfoundry.sipxconfig.gateway.audiocodes.MediantGateway" singleton="false"
+    parent="gwGeneric">
+    <property name="defaults" ref="phoneDefaults" />
+  </bean>
+
+  <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.Tp260Gateway"
+    singleton="false" parent="gwGeneric">
+    <property name="defaults" ref="phoneDefaults" />
+  </bean>
+
+  <!-- ACME begin -->
+  <!-- This is just an example of how to register new gateway -->
+  <bean id="gmAcme" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <constructor-arg>
+      <value>gwAcme</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>1000</value>
+    </constructor-arg>
+    <constructor-arg>
+      <value>Acme 1000</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gwAcme" class="org.sipfoundry.sipxconfig.gateway.acme.AcmeGateway" singleton="false"
+    parent="gwGeneric">
+    <property name="defaults" ref="phoneDefaults" />
+    <property name="velocityEngine" ref="velocityEngine" />
+  </bean>
+  <!-- ACME end -->
+
+  <bean id="nakedGatewayModelSource"
+    class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+    <property name="prefix" value="gm" />
+  </bean>
+
+  <bean id="gatewayModelSource" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
+    <property name="modelSource" ref="nakedGatewayModelSource" />
+  </bean>
+
+  <!-- gateway context -->
+  <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="modelSource">
+      <ref local="gatewayModelSource" />
+    </property>
+  </bean>
+
+  <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>
+    </property>
+    <property name="target">
+      <ref local="gatewayContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="eagerGatewayProfileManager"
+    class="org.sipfoundry.sipxconfig.gateway.GatewayProfileManagerImpl">
+    <property name="gatewayContext">
+      <ref local="gatewayContext" />
+    </property>
+    <property name="jobContext" ref="jobContext" />
+  </bean>
+
+  <bean id="gatewayProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl"
+    init-method="init">
+    <property name="target">
+      <ref local="eagerGatewayProfileManager" />
+    </property>
+    <property name="sleepInterval" value="5000" />
+  </bean>
+</beans>

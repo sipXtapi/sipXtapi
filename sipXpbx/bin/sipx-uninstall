@@ -1,0 +1,247 @@
+#!/bin/bash
+
+RemoveAuxils="no"
+RemoveDevels="no"
+RemoveDebugs="no"
+RemoveDB="yes"
+RemoveCfg="yes"
+RemoveGems="no"
+Interactive="yes"
+ForceUninstall="no"
+User=`whoami`
+PgUser="postgres"
+
+SipxProjects="\
+  sipXpbx \
+  sipXvxml \
+  sipXconfig \
+  sipXproxy \
+  sipXpublisher \
+  sipXregistry \
+  "
+
+SipxLibs="\
+  sipXcommserverLib \
+  sipXcallLib \
+  sipXmediaAdapterLib \
+  sipXmediaLib \
+  sipXtackLib \
+  sipXportLib \
+  "
+
+SipxAuxils="\
+  cgicc \
+  mod_cplusplus \
+  pcre \
+  sipx-w3c-libwww \
+  xerces-c \
+  ruby-gems \
+  irb \
+  ruby-devel \
+  ruby \
+  ruby-libs
+  "
+RubyGems="\
+  postgres-pr \
+  rails \
+  rake \
+  actionwebservice \
+  actionmailer \
+  actionpack \
+  activerecord \
+  activesupport \
+  "
+Databases="\
+  SIPXCONFIG
+  SIPXCDR
+  "
+
+while [ "$#" -ne 0 ]
+do
+  case ${1} in
+    --auxils)
+      RemoveAuxils="yes"
+      ;;
+
+    --devels)
+      RemoveDevels="yes"
+      ;;
+
+    --debugs)
+      RemoveDebugs="yes"
+      ;;
+
+    --nodb)
+      RemoveDB="no"
+      ;;
+
+    --non-interactive)
+      Interactive="no"
+      ;;
+
+    --gems)
+      RemoveGems="yes"
+      ;;
+
+    --force)
+      ForceUninstall="yes"
+      ;;
+
+    --help | -h)
+      echo "Usage: sipx-uninstall [--auxils] [--devels] [--debugs] [--gems] [--nodb]"
+      echo
+      echo "       --auxils  Attempts to additionally uninstall auxiliary RPMs"
+      echo "       --devels  Attempts to additionally uninstall sipX*-devel RPMs"
+      echo "       --debugs  Attempts to additionally uninstall sipX*-debug RPMs"
+      echo "       --gems    Attempts to additionally uninstall ruby gems"
+      echo "       --nodb    Leaves database intact"
+      echo
+      exit 0
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      exit 3
+      ;;
+
+    esac
+    shift #always consume 1
+done
+
+if [ "$User" != "root" ]; then
+  echo "You must be root to uninstall RPMs."
+  echo
+  exit 1
+fi
+
+if [ "$Interactive" = "yes" ]; then
+  echo -n "Looking for installed sipX RPMs... "
+  PortLib=`rpm -qa | grep sipxportlib`
+  if [ -z "$PortLib" ]; then
+    echo "none found."
+  else
+    echo "found."
+  fi
+else
+  PortLib=`rpm -qa | grep sipxportlib`
+fi
+
+if [ -z "$PortLib" ]; then
+  if [ "$ForceUninstall" = "no" ]; then
+    if [ "$Interactive" = "yes" ]; then
+      echo "Cannot find installed sipX RPMs - uninstall aborted"
+    fi
+    exit 2
+  else
+    echo
+    echo "sipx RPMs not found - continuing anyway"
+  fi
+fi
+
+if [ "$Interactive" = "yes" ]; then
+  echo
+  echo -n "You are about to uninstall all sipX RPMs"
+  if [ "$RemoveDB" = "yes" ]; then
+    echo " and clear the database."
+    echo
+    echo -n "Do you want to clear the database [y/N]? "
+    read ANSWER
+    case $ANSWER in
+      y | Y)
+      echo "  Database will be cleared as part of uninstall"
+      ;;
+
+      *)
+      RemoveDB="no"
+      echo "  Database will not be cleared as part of uninstall"
+      ;;
+    esac
+  else
+    echo
+  fi
+
+  echo -n "Do you want to remove configuration files [y/N]? "
+  read ANSWER
+
+  case $ANSWER in
+    y | Y)
+      echo "  Configuration files will be removed"
+      ;;
+
+    *)
+      echo "  Configuration files will not be removed"
+      RemoveCfg="no"
+      ;;
+  esac
+
+  echo -n "Do you want to proceed with uninstalling [y/N]? "
+  read ANSWER
+
+  case $ANSWER in
+    y | Y)
+      ;;
+
+    *)
+      exit 1
+      ;;
+  esac
+fi
+
+if [ "$RemoveDB" = "yes" ]; then
+  echo -n "Clearing database... "
+  for db in $Databases; do
+    echo -n "$db "
+    dropdb -U $PgUser $db &>/dev/null
+  done
+  echo "done"
+fi
+
+echo "Removing sipx RPMs..."
+for Project in $SipxProjects; do
+  Lower=`echo $Project | tr 'A-Z' 'a-z'`
+  echo -n "  Removing $Project... "
+  if [ "$RemoveDebugs" = "yes" ]; then
+    rpm -e ${Lower}-debug
+  fi
+  rpm -e $Lower &>/dev/null
+  echo " done"
+done
+
+for Project in $SipxLibs; do
+  Lower=`echo $Project | tr 'A-Z' 'a-z'`
+  echo -n "  Removing $Project... "
+  if [ "$RemoveDevels" = "yes" ]; then
+    rpm -e ${Lower}-devel
+  fi
+  if [ "$RemoveDebugs" = "yes" ]; then
+    rpm -e ${Lower}-debug
+  fi
+  rpm -e $Lower
+  echo " done"
+done
+
+# Remove gems before ruby-gems rpms
+
+if [ "$RemoveGems" = "yes" ]; then
+  echo -n "Removing ruby gems..."
+  for gem in $RubyGems; do
+    gem uninstall $gem -i -x
+  done
+  echo " done"
+fi
+
+if [ "$RemoveAuxils" = "yes" ]; then
+  echo -n "Removing auxiliary RPMs..."
+  for Auxil in $SipxAuxils; do
+    rpm -e $Auxil
+  done
+  echo " done"
+fi
+
+if [ "$RemoveCfg" = "yes" ]; then
+  echo "Removing configuration files"
+  rm -rf /etc/sipxpbx/*
+  rm -f /var/sipxdata/sipdb/*.xml
+  rm -rf /var/sipxdata/mediaserver/data/*
+fi
+

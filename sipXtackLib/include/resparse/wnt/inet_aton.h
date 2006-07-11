@@ -1,0 +1,9 @@
+//
+// Copyright (C) 2004, 2005 Pingtel Corp.
+// 
+//
+// $$
+////////////////////////////////////////////////////////////////////////
+//////
+
+int inet_aton(register const char *cp, struct in_addr *addr);

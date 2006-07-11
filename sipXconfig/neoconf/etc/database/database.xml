@@ -1,0 +1,324 @@
+<!--
+  - Manages database creation, dropping and upgrading.  The file is processed
+  - by ANT and thus the format complies with ANT project files.
+  -
+  - How to add a database patch:
+  -   1. add sql commands to a file called X in this directory, where X is any
+  -      value you choose
+  -   2. define a target X by copying a patch in the section for the database version
+  -      defined at the top of schema.sql
+  -   3. Add a sql file reference to build.xml (this may go away)
+  -
+  - How to initialize tables beyond simple SQL.
+  -   1. Add this to your SQL patch file
+  -
+  -       insert into initialization_task (name) values ('Z');
+  - 
+  -   2. Follow instructions in InitializationTask.java
+  -->
+<project name="database" basedir=".">
+  <property name="sipxconfig.db.name" value="SIPXCONFIG"/>
+  <property name="sipxconfig.db.user" value="postgres"/>
+  <property name="sipxconfig.db.password" value=""/>
+  <property name="sql.dir" location="${basedir}"/>
+  <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}"/>
+  <property name="dblink.sql" location="/usr/share/pgsql/contrib/dblink.sql"/>
+  <property name="log.dir" value="${basedir}"/>
+  <property name="migration.log" value="${log.dir}/sipxconfig-2.8-db-migration.log"/>
+  <property name="tmp.dir" value="${basedir}"/>
+  
+  <target name="patches">
+      <!-- ANT BUG: sql task has issues when output=absolute file path -->
+      <sipx-sql print="yes" output="${tmp.dir}/patches.properties" showheaders="no">
+        select name || '=true' from patch;
+        select 'version' || version || '=true' from version_history;
+      </sipx-sql>    
+      <loadproperties srcfile="${tmp.dir}/patches.properties"/>
+      <delete file="${tmp.dir}/patches.properties"/>  	  
+  </target>
+	
+  <!-- sets flag if any initialization needs to be done -->
+  <target name="tasks">
+    <sipx-sql print="yes" output="${tmp.dir}/tasks.properties" showheaders="no">      
+      select 'initialize=true' from initialization_task having count(*) > 0;
+    </sipx-sql>    
+    <loadproperties srcfile="${tmp.dir}/tasks.properties"/>
+    <delete file="${tmp.dir}/tasks.properties"/>
+  </target>
+	
+  <target name="drop" depends="drop-index" description="drops database!">
+    <exec executable="dropdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}"/>
+    </exec>    
+  </target>
+
+  <!-- creates database void of schema -->
+  <target name="createdb">
+    <sleep seconds="3"/><!-- sporadic template1 in use, allow dropdb to disconnect... -->
+    <exec executable="createdb" failonerror="true">
+      <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}"/>
+    </exec>
+  </target>
+  
+  <!-- Resets database for unit testing -->
+  <target name="unittest-reset" depends="drop,create,upgrade-no-init"/>
+  
+  <!-- 
+    - NOTE: Creating a database and apply schema. Does not run any patches or initialize task.
+    -->
+  <target name="create" depends="createdb,schema"
+    description="create database with schema"/>
+
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3"/>
+	
+  <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks"
+    depends="upgrade-no-init,initialize"/>
+    	
+  <target name="initialize" depends="tasks" if="initialize">
+    <java classname="org.sipfoundry.sipxconfig.admin.DataInitializer" output="/dev/null">
+        <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index"/>
+      <arg value="noexit"/>
+    </java>
+  </target>
+  
+  <!--
+    - Drop lucene index. It'll get recreated when we restart the application
+    --> 
+  <target name="drop-index">
+      <delete dir="${tmp.dir}/index" failonerror="false"/>
+	</target>    
+  
+  <!-- List each dependency on a separate line below to make source control merging easier -->
+  <target name="version1" description="upgrade from version 1" unless="version2">
+    <antcall target="conference_name_uniqueness"/>
+    <antcall target="upload"/>
+    <antcall target="grandstreamV2"/>
+    <antcall target="upload_deployed"/>
+    <antcall target="attendant_schedule"/>
+    <sipx-version version="2"/>
+  </target>
+
+  <target name="version3" description="upgrade from version 2" unless="version4">
+    <antcall target="settings-refactoring"/>
+    <antcall target="ldap"/>
+    <antcall target="supervisor"/>
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="4" -->
+  </target>
+
+  <target name="version2" description="upgrade from version 1" unless="version3">
+    <antcall target="attendant_settings"/>
+    <antcall target="group-names-no-spaces"/>
+    <antcall target="attendant_defaults"/>
+    <sipx-version version="3"/>
+  </target>
+  
+  <target name="supervisor" unless="supervisor">
+    <db-patch patch="supervisor"/>
+  </target>  
+
+  <target name="settings-refactoring" unless="settings-refactoring">
+    <db-patch patch="settings-refactoring"/>
+  </target>  
+
+  <target name="ldap" unless="ldap">
+    <db-patch patch="ldap"/>
+  </target>  	
+
+  <target name="attendant_defaults" unless="attendant_defaults">
+    <!-- remove spaces to enable things like auto-completion -->
+    <sipx-sql>
+      insert into initialization_task (name) values ('attendant_defaults');
+    </sipx-sql>
+    	<mark-patch-applied patch="attendant_defaults"/>    
+  </target>
+
+  <target name="group-names-no-spaces" unless="group-names-no-spaces">
+    <!-- remove spaces to enable things like auto-completion -->
+    <sipx-sql>
+     	update group_storage set name = replace(name, ' ', '-');
+    </sipx-sql>
+    	<mark-patch-applied patch="group-names-no-spaces"/>    
+  </target>
+
+  <target name="attendant_settings" unless="attendant_settings">
+    <db-patch patch="attendant_settings"/>
+  </target>    
+  
+  <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
+    <sipx-sql>
+    	alter table meetme_conference add constraint conference_name_key unique(name);
+    </sipx-sql>
+  	<mark-patch-applied patch="conference_name_uniqueness"/>
+  </target>  
+  
+  <target name="upload" unless="upload">
+    <db-patch patch="upload"/>
+  </target>  
+
+  <target name="grandstreamV2" unless="grandstreamV2">
+    <db-patch patch="grandstreamV2"/>
+  </target>  
+
+  <target name="upload_deployed" unless="upload_deployed">
+    <db-patch patch="upload_deployed"/>
+  </target>  
+
+  <target name="attendant_schedule" unless="attendant_schedule">
+    <db-patch patch="attendant_schedule"/>
+  </target>  
+
+  <target name="schema" unless="schema">
+    <sipx-sql>
+      <transaction src="${sql.dir}/schema.sql"/>
+    </sipx-sql>
+  </target>  
+
+  <target name="migrate-2.8" depends="migrate-2.8-run,initialize" 
+        description="migrate existing 2.8 PDS database, note clears all existing 3.0 data"/>
+  
+  <target name="import-2.8" depends="import-2.8-run,migrate-2.8" 
+        description="import 2.8 PDS database from backup file, note clears all existing 3.0 data"/>
+
+  <target name="reset-superadmin-initialization-task">
+    <sipx-sql>
+      delete from initialization_task where name = 'admin-group-and-user';
+      insert into initialization_task (name) values ('admin-group-and-user');
+      update users set pintoken = '' where user_name = 'superadmin';
+    </sipx-sql>
+  </target>
+  <target name="reset-superadmin" depends="reset-superadmin-initialization-task,upgrade"
+      description="initialize superadmin user, administation group and resets password to blank"/>
+
+  <!-- 
+     Migration Targets Legend
+
+     migrate-2.8          - PDS to SIPXCONFIG, 2.8 release to 3.0 release
+    -->	
+
+  <!-- 
+     2.8 Migration
+     Because 2.8 database schema was entirely different than 3.0 schema, we have one giant migration script
+     written in PL/pgSQL db language and uses the 'dblink' module, a postgres contrib package to 
+     translate data.
+    -->
+  <target name="migrate-2.8-setup">
+    <exec executable="createlang" failonerror="true">
+      <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}"/>
+    </exec>
+    <condition property="dblink-present">
+      <available file="${dblink.sql}"/>
+    </condition>
+    <fail unless="dblink-present">
+      Failed to find dblink SQL ${dblink.sql}.  You either need to install dblink which is part 
+      of the postgres contrib (rh: yum install postgresql-contrib) or specify your dblink file
+      by passing to this script the following parameter:
+
+        -Ddblink.sql=path to dblink.sql file
+
+    </fail>
+    <sipx-sql>
+      <transaction src="${dblink.sql}"/>
+    </sipx-sql>
+  </target>
+  <target name="migrate-2.8-run" depends="drop,create-3.0,upgrade-no-init,migrate-2.8-setup">
+    <echo>see migration log file for errors or warnings about potential data loss:</echo>
+    <echo>  ${migration.log}</echo>
+    <exec executable="psql" output="${migration.log}" failonerror="true">
+      <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql"/>
+    </exec>
+  </target>
+
+  <target name="create-3.0" depends="createdb">
+    <sipx-sql>
+      <transaction src="${sql.dir}/schema-3.0.sql"/>
+    </sipx-sql>
+  </target>  
+
+  <target name="import-2.8-run">
+    <fail unless="pds.tar.gz">Missing parameter
+
+  You must specify complete path to pds.tar.gz file.  Is one of the output 
+  files from running backup-configs.sh on a 2.8 system.
+
+ Example:
+ sipxconfig.sh -d -Dpds.tar.gz=/var/backup-configs/pds.tar.gz import-2.8
+
+    </fail>
+    <exec executable="createuser" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} --createdb --no-adduser sipxchange"/>
+    </exec>    
+    <exec executable="dropdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} PDS"/>
+    </exec>    
+    <sleep seconds="3"/><!-- sporadic template1 in use, allow dropdb to disconnect... -->
+    <exec executable="createdb" failonerror="true">
+      <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE PDS"/>
+    </exec>
+    <!-- ignore error in this task, importing database can fail if going from Postgres 7 to 8 -->
+    <exec executable="/bin/sh" failonerror="false" outputproperty="eatme">
+      <arg value="-c"/>
+      <arg value="zcat ${pds.tar.gz} | pg_restore -U ${sipxconfig.db.user} -d PDS"/>
+    </exec>    
+  </target>
+	
+  <!--
+    - version1 patches
+    -->
+  <!-- 
+    - The phone uniqueness constraint was a mistake, get rid of it, 
+    - NOTE: Do not copy/paste this task to to create a new patch
+    - THIS is not a patch, rather a left-over task incase a customer has this
+    - issue.  Original schema was fixed.
+    -->
+  <target name="repair_phone_description_uniqueness">
+    <sipx-sql>
+      alter table phone drop constraint phone_description_key;
+    </sipx-sql>
+  </target>
+
+  <!--
+    - SUPPORT UTILITIES
+    -->
+  <!-- Run SQL on SIPXCONFIG database and update patch list if successful -->  
+  <macrodef name="db-patch">
+    <attribute name="patch"/>
+    <sequential>
+      <sipx-sql>
+        <transaction src="${sql.dir}/@{patch}.sql"/>
+      </sipx-sql>
+      <mark-patch-applied patch="@{patch}"/>    
+    </sequential>
+  </macrodef>
+      
+  <!-- patch list as successful -->  
+  <macrodef name="mark-patch-applied">
+    <attribute name="patch"/>
+    <sequential>
+    <sipx-sql>
+      insert into patch (name) values ('@{patch}');
+    </sipx-sql>  
+    <property name="@{patch}" value="true"/>
+    </sequential>
+  </macrodef>
+
+  <!-- Run SQL on SIPXCONFIG database -->  
+  <presetdef name="sipx-sql">
+    <sql driver="org.postgresql.Driver" 
+        url="${sipxconfig.db.url}" 
+        userid="${sipxconfig.db.user}" 
+        password="${sipxconfig.db.password}"
+        classpath="${jdbc-driver.jar}"/>
+  </presetdef>
+
+  <!-- declare schema version -->
+  <macrodef name="sipx-version">
+    <attribute name="version"/>
+    <sequential>
+      <sipx-sql>
+        insert into version_history (version, applied) values (@{version}, now());
+      </sipx-sql>
+    </sequential>
+  </macrodef>
+  
+</project>

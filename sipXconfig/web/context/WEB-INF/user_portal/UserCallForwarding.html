@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>sipXconfig</title>
+    <link rel="stylesheet" type="text/css" href="../sipxconfig.css"/>
+  </head>
+  <body jwcid="$content$">
+    <div jwcid="@Border" restricted="false">
+      <span jwcid="@QuickHelp" value="message:quick.help"/>
+      <span jwcid="@If" condition="ognl:userSession.admin">
+        <span jwcid="userNavigation"/>
+      </span>
+      <span jwcid="@If" condition="ognl:! userSession.admin">
+        <h2>
+          <span key="title">Call Forwarding</span></h2>
+      </span>
+      <span jwcid="errors"></span>
+      <div id="settings-content">
+        <form jwcid="form">
+          <ul class="component-links">
+            <li><a jwcid="addRingLink" href="#">
+              <span key="add">Add Number</span></a>
+            </li>
+          </ul>
+          <fieldset>
+            <table>
+              <tbody>
+                <tr>
+                  <td colspan="4">
+                    <span jwcid="firstCall">Your extension will ring first.</span>
+                  </td>
+                </tr>
+                <!-- iterate here -->
+                <tr jwcid="rings">
+                  <span jwcid="ringEditor"></span>
+                </tr>
+                <tr jwcid="renderVoicemail" element="tr">
+                  <td colspan="4">
+                    <span key="msg.voicemail">If no-one answers your call will be forwarded to Voicemail.</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </fieldset>
+          <ul jwcid="formActions"/>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
